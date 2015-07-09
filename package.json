@@ -1,0 +1,27 @@
+{
+  "name": "shiqingqi.com",
+  "version": "0.0.1",
+  "description": "Qingqi Shi's personal website.",
+  "main": "index.php",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QingqiShi/shiqingqi.com.git"
+  },
+  "author": "Qingqi Shi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/QingqiShi/shiqingqi.com/issues"
+  },
+  "homepage": "http://shiqingqi.com",
+  "devDependencies": {
+    "bower": "^1.4.1",
+    "gulp": "^3.9.0",
+    "gulp-imagemin": "^2.3.0",
+    "gulp-minify-css": "^1.2.0",
+    "gulp-uglify": "^1.2.0",
+    "gulp-usemin": "^0.3.11"
+  }
+}
