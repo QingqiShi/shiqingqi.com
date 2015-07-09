@@ -3,6 +3,8 @@ var usemin = require('gulp-usemin');
 var uglify = require('gulp-uglify');
 var minifyCss = require('gulp-minify-css');
 var imagemin = require('gulp-imagemin');
+var sass = require('gulp-sass');
+var browserSync = require('browser-sync').create();
 
 gulp.task('libraries', function() {
 	return gulp.src('bower_components/*/dist/**/*')
@@ -15,10 +17,12 @@ gulp.task('uglify_js', function() {
 	.pipe(gulp.dest('resources/js/'));
 });
 
-gulp.task('minify_css', function() {
-	return gulp.src('resources_src/css/*.css')
-	.pipe(minifyCss())
-	.pipe(gulp.dest('resources/css/'));
+gulp.task('sass', function () {
+  return gulp.src('resources_src/css/*.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(minifyCss())
+    .pipe(gulp.dest('resources/css.'))
+	.pipe(browserSync.stream());
 });
 
 gulp.task('minify_images', function() {
@@ -28,13 +32,25 @@ gulp.task('minify_images', function() {
 })
 
 gulp.task('watch', function() {
-	return gulp.watch(['resourcecs_src/css/*', 'resources_src/js/*', 'resources_src/image/*'], ['default']);
+	browserSync.init({
+        server: {
+            baseDir: "./"
+        }
+    });
+
+	gulp.watch('resources_src/css/**/*.scss', ['sass']);
+	gulp.watch('resources_src/js/**/*.js', ['uglify_js'])
+	.on('change', browserSync.reload);
+	gulp.watch('resources_src/image/**/*', ['minify_images'])
+	.on('change', browserSync.reload);
+	gulp.watch('**/*.html')
+	.on('change', browserSync.reload);
 });
 
 gulp.task('default', 
 	['libraries', 
 	'uglify_js', 
-	'minify_css', 
+	'sass', 
 	'minify_images'], 
 	function() {
 		// place code for your default task here
