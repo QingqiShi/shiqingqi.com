@@ -33,9 +33,7 @@ gulp.task('minify_images', function() {
 
 gulp.task('watch', function() {
 	browserSync.init({
-        server: {
-            baseDir: "./"
-        }
+        proxy: "shiqingqi.com"
     });
 
 	gulp.watch('resources_src/css/**/*.scss', ['sass']);
