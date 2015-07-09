@@ -1,0 +1,191 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"minif",
+				"minifyCss"
+			],
+			[
+				"mini",
+				"minify_images"
+			],
+			[
+				"ugli",
+				"uglify_js"
+			],
+			[
+				"minify",
+				"minify_css"
+			],
+			[
+				"resources",
+				"resources_src"
+			],
+			[
+				"res",
+				"resourcecs_src"
+			],
+			[
+				"min",
+				"minify_images"
+			],
+			[
+				"Test",
+				"TestIfSubB1"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"col",
+				"Color Picker"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/qingqishi/Library/Application Support/Sublime Text 2/Packages/Color Highlighter/ColorHighlighter.sublime-settings",
+		"/Users/qingqishi/Library/Application Support/Sublime Text 2/Packages/ColorPicker/ColorPicker.sublime-settings",
+		"/Users/qingqishi/Documents/Nottingham/G52CPP/testFiles/test5-dynamic_cast.cpp",
+		"/Users/qingqishi/Documents/Nottingham/G52CPP/testFiles/test-inheritance.cpp",
+		"/Users/qingqishi/Documents/Nottingham/G52CPP/testFiles/test3-templates.cpp",
+		"/Users/qingqishi/Dropbox/Private/Uni/G52OSC/Lab1/Lab1/Lab1Win32Empty/Main.c"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			"/Users/qingqishi/Dropbox/Private/Uni/G52OSC"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"createprocess",
+			"create",
+			"displayableobjects",
+			"get"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 141.0,
+	"status_bar_visible": true
+}
