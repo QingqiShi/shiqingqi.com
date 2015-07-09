@@ -5,9 +5,7 @@ var minifyCss = require('gulp-minify-css');
 var imagemin = require('gulp-imagemin');
 
 gulp.task('libraries', function() {
-	return gulp.src('bower_components/*/dist/*')
-	.pipe(gulp.dest('resources/'));
-	gulp.src('bower_components/*/dist/*/*')
+	return gulp.src('bower_components/*/dist/**/*')
 	.pipe(gulp.dest('resources/'));
 });
 
