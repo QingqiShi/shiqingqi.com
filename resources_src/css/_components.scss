@@ -30,6 +30,16 @@
 .contentJumboDark {
 	background-color: $dark;
 	color: white;
+
+	h3 {
+		small {
+			color: $veryLight;
+		}
+	}
+
+	p {
+		margin-bottom: 50px;
+	}
 }
 
 .contentJumboLight {
