@@ -5,8 +5,11 @@ var minifyCss = require('gulp-minify-css');
 var imagemin = require('gulp-imagemin');
 var sass = require('gulp-sass');
 var browserSync = require('browser-sync').create();
+var autoprefixer = require('gulp-autoprefixer');
 
 gulp.task('libraries', function() {
+	gulp.src('bower_components/holderjs/holder.min.js')
+	.pipe(gulp.dest('resources/holderjs/'));
 	return gulp.src('bower_components/*/dist/**/*')
 	.pipe(gulp.dest('resources/'));
 });
@@ -20,15 +23,16 @@ gulp.task('uglify_js', function() {
 gulp.task('sass', function () {
   return gulp.src('resources_src/css/*.scss')
     .pipe(sass().on('error', sass.logError))
+    .pipe(autoprefixer())
     .pipe(minifyCss())
-    .pipe(gulp.dest('resources/css.'))
+    .pipe(gulp.dest('resources/css/'))
 	.pipe(browserSync.stream());
 });
 
 gulp.task('minify_images', function() {
-	return gulp.src('resourcecs_src/image/*')
+	return gulp.src('resources_src/image/**/*')
 	.pipe(imagemin())
-	.pipe(gulp.dest('resourcces/image/'));
+	.pipe(gulp.dest('resources/image/'));
 })
 
 gulp.task('watch', function() {
@@ -36,8 +40,8 @@ gulp.task('watch', function() {
         proxy: "shiqingqi.com"
     });
 
-	gulp.watch('resources_src/css/**/*.scss', ['sass']);
-	gulp.watch('resources_src/js/**/*.js', ['uglify_js'])
+	gulp.watch('resources_src/css/*.scss', ['sass']);
+	gulp.watch('resources_src/js/*.js', ['uglify_js'])
 	.on('change', browserSync.reload);
 	gulp.watch('resources_src/image/**/*', ['minify_images'])
 	.on('change', browserSync.reload);
