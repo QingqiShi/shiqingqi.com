@@ -30,9 +30,9 @@ gulp.task('sass', function () {
 });
 
 gulp.task('minify_images', function() {
-	return gulp.src('resourcecs_src/image/**/*')
+	return gulp.src('resources_src/image/**/*')
 	.pipe(imagemin())
-	.pipe(gulp.dest('resourcces/image/'));
+	.pipe(gulp.dest('resources/image/'));
 })
 
 gulp.task('watch', function() {
