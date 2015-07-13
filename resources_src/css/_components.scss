@@ -2,8 +2,11 @@
 	margin-bottom: 0;
 }
 
-.jumbotron {
+.masterHead, .contentJumboDark, .contentJumboLight {
 	padding: 80px 0;
+}
+
+.masterHead {
 	background-color: $primary;
 	color: white;
 
@@ -22,4 +25,14 @@
 			color: $veryLight;
 		}
 	}
+}
+
+.contentJumboDark {
+	background-color: $dark;
+	color: white;
+}
+
+.contentJumboLight {
+	background-color: white;
+	color: $veryDark;
 }
