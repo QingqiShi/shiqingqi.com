@@ -8,6 +8,8 @@ var browserSync = require('browser-sync').create();
 var autoprefixer = require('gulp-autoprefixer');
 
 gulp.task('libraries', function() {
+	gulp.src('bower_components/holderjs/holder.min.js')
+	.pipe(gulp.dest('resources/holderjs/'));
 	return gulp.src('bower_components/*/dist/**/*')
 	.pipe(gulp.dest('resources/'));
 });
