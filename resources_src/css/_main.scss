@@ -16,13 +16,62 @@
 	    overflow: hidden;
 	    height: 200px;
 
+	    opacity: 1;
+		transition: opacity 0.5s ease;
+
 		img.websiteThumb {
 			width: auto;
 		}
 
 		&:hover {
-			box-shadow: 0 0 5px $veryLight;
+			opacity: .7;
+			transition: opacity 0.3s ease;
 		}
 	}
+}
+
+.masterHead, .contentJumboDark, .contentJumboLight {
+	padding: 30px 0 50px 0;
+}
+
+.masterHead {
+	background-color: $primary;
+	color: white;
+
+	.masterIcon {
+		width: 144px;
+		height: 144px;
+		font-size: 100px;
+		line-height: 140px;
+		font-weight: 500;
+		border-radius: 15%;
+		border: 1px solid $veryLight;
+	}
+
+	h1 {
+		small {
+			color: $veryLight;
+		}
+	}
+}
+
+.contentJumboDark {
+	background-color: $dark;
+	color: white;
+
+	h3 {
+		small {
+			color: $veryLight;
+		}
+	}
+
+	p {
+		margin-bottom: 50px;
+	}
+}
+
+.contentJumboLight {
+	background-color: white;
+	color: $veryDark;
 }
 
