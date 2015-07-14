@@ -10,3 +10,19 @@
 		}
 	}
 }
+
+#works {
+	.thumbnail {
+	    overflow: hidden;
+	    height: 200px;
+
+		img.websiteThumb {
+			width: auto;
+		}
+
+		&:hover {
+			box-shadow: 0 0 5px $veryLight;
+		}
+	}
+}
+
