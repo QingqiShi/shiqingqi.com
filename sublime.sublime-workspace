@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"tran",
+				"transition"
+			],
+			[
+				"bs",
+				"bxsh	box-shadow"
+			],
+			[
+				"contentJu",
+				"contentJumboDark"
+			],
+			[
+				"pr",
+				"pos:r	position:relative"
+			],
+			[
 				"minif",
 				"minifyCss"
 			],
@@ -40,18 +56,50 @@
 	"buffers":
 	[
 		{
-			"file": "index.html",
+			"file": "gulpfile.js",
 			"settings":
 			{
-				"buffer_size": 1163,
+				"buffer_size": 1606,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "gulpfile.js",
+			"file": "index.html",
 			"settings":
 			{
-				"buffer_size": 1441,
+				"buffer_size": 9236,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources_src/css/qingqiStyle.scss",
+			"settings":
+			{
+				"buffer_size": 55,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources_src/css/_main.scss",
+			"settings":
+			{
+				"buffer_size": 905,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources_src/css/_components.scss",
+			"settings":
+			{
+				"buffer_size": 30,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources_src/css/_colors.scss",
+			"settings":
+			{
+				"buffer_size": 92,
 				"line_ending": "Unix"
 			}
 		}
@@ -59,31 +107,31 @@
 	"build_system": "",
 	"command_palette":
 	{
-		"height": 67.0,
+		"height": 400.0,
 		"selected_items":
 		[
 			[
-				"install",
-				"Package Control: Install Package"
+				"col",
+				"Color Picker"
 			],
 			[
 				"inst",
 				"Package Control: Install Package"
 			],
 			[
-				"col",
-				"Color Picker"
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
 			],
 			[
 				"instal",
 				"Package Control: Install Package"
-			],
-			[
-				"insta",
-				"Package Control: Install Package"
 			]
 		],
-		"width": 391.0
+		"width": 450.0
 	},
 	"console":
 	{
@@ -100,8 +148,12 @@
 	},
 	"file_history":
 	[
-		"/Users/qingqishi/Documents/Web/shiqingqi.com/.htaccess",
+		"/Users/qingqishi/Documents/Web/shiqingqi.com/bower.json",
+		"/Users/qingqishi/Documents/Web/shiqingqi.com/resources/css/qingqiStyle.css",
+		"/Users/qingqishi/Documents/Web/shiqingqi.com/resources_src/css/qingqiStyle.scss",
 		"/Users/qingqishi/Documents/Web/shiqingqi.com/index.html",
+		"/Users/qingqishi/Documents/Web/shiqingqi.com/gulpfile.js",
+		"/Users/qingqishi/Documents/Web/shiqingqi.com/.htaccess",
 		"/Users/qingqishi/Library/Application Support/Sublime Text 2/Packages/Color Highlighter/ColorHighlighter.sublime-settings",
 		"/Users/qingqishi/Library/Application Support/Sublime Text 2/Packages/ColorPicker/ColorPicker.sublime-settings",
 		"/Users/qingqishi/Documents/Nottingham/G52CPP/testFiles/test5-dynamic_cast.cpp",
@@ -126,6 +178,16 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"box-shadow",
+			"cssanott",
+			"768",
+			"100px100",
+			"class=\"logo\"",
+			" style=\"height: 100px\"",
+			"<img src=\"holder.js",
+			"100x100",
+			"ms",
+			"Experience",
 			"createprocess",
 			"create",
 			"displayableobjects",
@@ -147,58 +209,168 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 3,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "index.html",
+					"file": "gulpfile.js",
 					"settings":
 					{
-						"buffer_size": 1163,
+						"buffer_size": 1606,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								896,
-								896
+								809,
+								821
 							]
 						],
 						"settings":
 						{
-							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai.tmTheme",
-							"syntax": "Packages/HTML/HTML.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
+							"color_scheme": "Packages/User/Color Highlighter/themes/brogrammer.tmTheme",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 87.0,
+						"translation.y": 203.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "gulpfile.js",
+					"file": "index.html",
 					"settings":
 					{
-						"buffer_size": 1441,
+						"buffer_size": 9236,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1051,
-								1051
+								3026,
+								3026
 							]
 						],
 						"settings":
 						{
-							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai.tmTheme",
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+							"color_scheme": "Packages/User/Color Highlighter/themes/brogrammer.tmTheme",
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1378.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "resources_src/css/qingqiStyle.scss",
+					"settings":
+					{
+						"buffer_size": 55,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								33,
+								33
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/brogrammer.tmTheme",
+							"syntax": "Packages/Sass/Syntaxes/Sass.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "resources_src/css/_main.scss",
+					"settings":
+					{
+						"buffer_size": 905,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								327,
+								293
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/brogrammer.tmTheme",
+							"syntax": "Packages/Sass/Syntaxes/Sass.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 69.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "resources_src/css/_components.scss",
+					"settings":
+					{
+						"buffer_size": 30,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								30,
+								30
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/brogrammer.tmTheme",
+							"syntax": "Packages/Sass/Syntaxes/Sass.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "resources_src/css/_colors.scss",
+					"settings":
+					{
+						"buffer_size": 92,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								37,
+								37
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/brogrammer.tmTheme",
+							"syntax": "Packages/Sass/Syntaxes/Sass.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -265,6 +437,6 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 141.0,
+	"side_bar_width": 209.0,
 	"status_bar_visible": true
 }

@@ -41,11 +41,16 @@
 	.masterIcon {
 		width: 144px;
 		height: 144px;
+
+		line-height: 135px;
+
 		font-size: 100px;
-		line-height: 140px;
 		font-weight: 500;
+		color: $primary;
+		font-family: Serif;
+		
 		border-radius: 15%;
-		border: 1px solid $veryLight;
+		background: white;
 	}
 
 	h1 {
