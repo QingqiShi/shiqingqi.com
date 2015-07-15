@@ -45,15 +45,15 @@ gulp.task('watch', function() {
 	.on('change', browserSync.reload);
 	gulp.watch('resources_src/image/**/*', ['minify_images'])
 	.on('change', browserSync.reload);
-	gulp.watch('**/*.html')
+	gulp.watch(['**/*.html', '**/*.php'])
 	.on('change', browserSync.reload);
 });
 
-gulp.task('default', 
-	['libraries', 
-	'uglify_js', 
-	'sass', 
-	'minify_images'], 
+gulp.task('default',
+	['libraries',
+	'uglify_js',
+	'sass',
+	'minify_images'],
 	function() {
 		// place code for your default task here
 	}
