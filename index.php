@@ -1,44 +1,33 @@
+<?php
+define('__ROOT__', dirname(__FILE__));
+
+require(__ROOT__.'/common/model/index_model.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>Qingqi Shi - Personal Website</title>
-
-    <!-- Bootstrap -->
-    <link href="http://shiqingqi.com/resources/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link href="http://shiqingqi.com/resources/css/qingqiStyle.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
+  <?php
+    require(__ROOT__.'/common/view/header.php');
+  ?>
   <body data-spy="scroll">
     <nav class="navbar navbar-default navbar-static-top">
       <div class="container">
         <div class="container-fluid">
           <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-6" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="//shiqingqi.com">ShiQingqi.com</a>
-        </div>
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="//shiqingqi.com">ShiQingqi.com</a>
+          </div>
 
-        <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-6">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div>
+          <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-6">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="#">Home</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </nav>
 
@@ -198,12 +187,8 @@
       </div>
     </footer>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="//shiqingqi.com/resources/jquery/dist/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="//shiqingqi.com/resources/bootstrap/dist/js/bootstrap.min.js"></script>
-
-    <script src="//shiqingqi.com/resources/holderjs/holder.min.js"></script>
-    <script src="//shiqingqi.com/resources/picturefill/dist/picturefill.min.js"></script>
+    <?php
+      require(__ROOT__.'/common/view/js_libraries.php');
+    ?>
   </body>
 </html>
