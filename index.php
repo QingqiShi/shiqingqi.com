@@ -9,27 +9,9 @@ require(__ROOT__.'/common/model/index_model.php');
     require(__ROOT__.'/common/view/header.php');
   ?>
   <body data-spy="scroll">
-    <nav class="navbar navbar-default navbar-static-top">
-      <div class="container">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-6" aria-expanded="false">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="//shiqingqi.com">ShiQingqi.com</a>
-          </div>
-
-          <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-6">
-            <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Home</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <?php
+      require(__ROOT__.'/common/view/master_nav_bar.php');
+    ?>
 
     <div class="jumbotron masterHead">
       <div class="container">
@@ -60,7 +42,7 @@ require(__ROOT__.'/common/model/index_model.php');
         <div class="row">
           <div class="col-sm-4">
             <div class="thumbnail">
-              <a href="http://www.cssanott.co.uk" target="_blank"><img
+              <a href="//shiqingqi.com/works/cssa_nott_description.php"><img
               srcset="//shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
               //shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
               //shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
