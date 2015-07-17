@@ -3,7 +3,6 @@
 }
 
 .masterHead {
-	background-color: $primary;
 	color: white;
 	margin-bottom: 0;
 
@@ -32,12 +31,14 @@
 	}
 }
 
-.jumboPrime {
+.jumboPrime, .masterHead {
+	background-image: linear-gradient($dark, $primary);
 	background-color: $primary;
 	color: white;
 }
 
 .contentJumboDark {
+	background-image: linear-gradient($veryDark, $dark);
 	background-color: $dark;
 	color: white;
 
