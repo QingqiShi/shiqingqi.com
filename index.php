@@ -163,11 +163,9 @@ require(__ROOT__.'/common/model/index_model.php');
       </div>
     </div>
 
-    <footer>
-      <div class="container text-center">
-        <small>This website is designed and owned by Qingqi Shi.</small>
-      </div>
-    </footer>
+    <?php
+      require(__ROOT__.'/common/view/footer.php');
+    ?>
 
     <?php
       require(__ROOT__.'/common/view/js_libraries.php');

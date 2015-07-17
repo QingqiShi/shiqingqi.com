@@ -1,0 +1,45 @@
+#educations {
+	.row {
+		margin-bottom: 30px;
+	}
+
+	.logoContainer {
+
+		.logo {
+			height: 157px;
+		}
+	}
+}
+
+#works {
+	.thumbnail {
+    overflow: hidden;
+    height: 200px;
+
+    opacity: 1;
+		transition: opacity 0.5s ease;
+
+		img.websiteThumb {
+			width: auto;
+		}
+
+		&:hover {
+			opacity: .7;
+			transition: opacity 0.3s ease;
+		}
+	}
+}
+
+#sectionIndicator {
+	transition: all 1s ease;
+	height: 50px;
+
+	.active {
+		transition: all 1s ease;
+	}
+
+	.affix {
+		top: 0;
+		width: 100%;
+	}
+}

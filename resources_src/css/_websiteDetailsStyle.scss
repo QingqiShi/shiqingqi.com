@@ -1,0 +1,88 @@
+body {
+  overflow-x: hidden;
+}
+
+.websiteDetailsJumbo {
+  @extend .contentJumboDark;
+
+  vertical-align: center;
+  padding-bottom: 30px;
+
+  .titleContainer {
+    text-align: center;
+
+    @media (min-width: $screen-sm-min) {
+      text-align: left;
+    }
+
+    h1 {
+      padding-bottom: 50px;
+
+      @media (min-width: $screen-sm-min) {
+        line-height: 75px;
+        padding-bottom: 0;
+      }
+      @media (min-width: $screen-md-min) {
+        line-height: 75px;
+      }
+      @media (min-width: $screen-lg-min) {
+        line-height: 120px;
+      }
+    }
+  }
+
+  .imgContainer {
+    height: 300px;
+    max-width: 360px;
+    overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;;
+
+    .monitor {
+      height: 300px;
+      position: absolute;
+      top: 0;
+      z-index: 2;
+
+      @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
+        left: 100px;
+      }
+    }
+
+    .websiteContainer {
+      height: 215px;
+      max-width: 360px;
+      overflow: hidden;
+      padding: 15px;
+
+      @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
+        position: absolute;
+        width: 360px;
+        left: 100px;
+      }
+
+      .website {
+        width: 100%;
+
+      }
+    }
+  }
+}
+
+#websiteDescription {
+  .description {
+    margin: 20px auto 50px auto;
+
+    @media (min-width: $screen-md-min) {
+      margin-left: 100px;
+    }
+    @media (min-width: $screen-lg-min) {
+      margin-left: 200px;
+
+      p {
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+    }
+  }
+}

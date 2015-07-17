@@ -1,0 +1,53 @@
+.masterHead, .contentJumboDark, .contentJumboLight {
+	padding: 30px 0 50px 0;
+}
+
+.masterHead {
+	background-color: $primary;
+	color: white;
+	margin-bottom: 0;
+
+	.masterIcon {
+		width: 144px;
+		height: 144px;
+
+		line-height: 140px;
+
+		padding-left: 10px;
+		padding-top: 5px;
+
+		font-size: 100px;
+		font-weight: 500;
+		color: $primary;
+		font-family: 'JetLinkMediumOldStamp', Serif;
+
+		border-radius: 15%;
+		background: white;
+	}
+
+	h1 {
+		small {
+			color: $veryLight;
+		}
+	}
+}
+
+.contentJumboDark {
+	background-color: $dark;
+	color: white;
+
+	h3 {
+		small {
+			color: $veryLight;
+		}
+	}
+
+	p {
+		margin-bottom: 50px;
+	}
+}
+
+.contentJumboLight {
+	background-color: white;
+	color: $veryDark;
+}
