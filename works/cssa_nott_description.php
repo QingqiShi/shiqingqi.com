@@ -17,7 +17,7 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
       <div class="container">
         <div class="row">
           <div class="col-sm-6 titleContainer">
-            <h1>Website for <br> CSSA Nottingham</h1>
+            <h1>Website for CSSA Nottingham</h1>
           </div>
           <div class="col-sm-6">
             <div class="imgContainer">

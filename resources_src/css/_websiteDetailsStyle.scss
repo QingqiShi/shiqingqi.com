@@ -1,12 +1,11 @@
-body {
-  overflow-x: hidden;
-}
+
 
 .websiteDetailsJumbo {
   @extend .contentJumboDark;
 
   vertical-align: center;
   padding-bottom: 30px;
+  overflow: hidden;
 
   .titleContainer {
     text-align: center;
