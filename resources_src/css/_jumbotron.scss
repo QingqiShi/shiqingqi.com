@@ -24,17 +24,19 @@
 		background: white;
 	}
 
-	h1 {
-		small {
-			color: $veryLight;
-		}
-	}
+
 }
 
 .jumboPrime, .masterHead {
 	background-image: linear-gradient($dark, $primary);
 	background-color: $primary;
 	color: white;
+
+	h1 {
+		small {
+			color: $veryLight;
+		}
+	}
 }
 
 .contentJumboDark {
