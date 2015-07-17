@@ -1,4 +1,4 @@
-.masterHead, .contentJumboDark, .contentJumboLight {
+.masterHead, .jumboPrime, .contentJumboDark, .contentJumboLight {
 	padding: 30px 0 50px 0;
 }
 
@@ -30,6 +30,11 @@
 			color: $veryLight;
 		}
 	}
+}
+
+.jumboPrime {
+	background-color: $primary;
+	color: white;
 }
 
 .contentJumboDark {
