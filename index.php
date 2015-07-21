@@ -145,7 +145,7 @@ require(__ROOT__.'/common/model/index_model.php');
             <div class="col-sm-9">
               <h3>The University of Nottingham - Computer Science <br>
                 <small>2013 - present</small></h3>
-              <p>Just finished the second year of my Batchelor degree of Computer Science, achieving first class results with an average mark of 84.</p>
+              <p>Just finished the second year of my bachelor degree of Computer Science, achieving first class results with an average mark of 84.</p>
             </div>
           </div>
           <div class="row">
