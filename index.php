@@ -42,20 +42,30 @@ require(__ROOT__.'/common/model/index_model.php');
         <div class="row">
           <div class="col-sm-4">
             <div class="thumbnail">
-              <a href="//shiqingqi.com/works/cssa_nott_description.php"><img
-              srcset="//shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
-              //shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
-              //shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
-              sizes="100%"></a>
+              <a href="//shiqingqi.com/works/cssa_nott_description.php" class="aTag">
+                <img
+                srcset="//shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
+                //shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
+                //shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
+                sizes="100%">
+              </a>
+              <a href="//shiqingqi.com/works/cssa_nott_description.php" class="btn btn-default detailsBtn">
+                <i>Details...</i>
+              </a>
             </div>
           </div>
           <div class="col-sm-4">
             <div class="thumbnail">
-              <a href="https://reddishcoop.wordpress.com/" target="_blank"><img
-              srcset="//shiqingqi.com/resources/image/Works/reddishcoop_full_length_768.jpg 768w,
-              //shiqingqi.com/resources/image/Works/reddishcoop_full_length_992.jpg 992w,
-              //shiqingqi.com/resources/image/Works/reddishcoop_full_length_1200.jpg 1200w"
-              sizes="100%"></a>
+              <a href="//reddishcoop.wordpress.com" target="_blank" class="aTag">
+                <img
+                srcset="//shiqingqi.com/resources/image/Works/reddishcoop_full_length_768.jpg 768w,
+                //shiqingqi.com/resources/image/Works/reddishcoop_full_length_992.jpg 992w,
+                //shiqingqi.com/resources/image/Works/reddishcoop_full_length_1200.jpg 1200w"
+                sizes="100%">
+              </a>
+              <a href="//reddishcoop.wordpress.com" class="btn btn-default detailsBtn">
+                <i>Details...</i>
+              </a>
             </div>
           </div>
           <!-- <div class="col-sm-4">
@@ -111,7 +121,7 @@ require(__ROOT__.'/common/model/index_model.php');
         <div class="container-fluid text-left">
           <h3>Lead Developer <br>
             <small>2014 - Group Project, Nottingham</small></h3>
-          <p>I was the lead developer of a group of 7 people. We produced a cross platform game as a team with the aim to aid children in learning mathematics. I gained valuable teamwork experience and improved my self learning abilities.</p>
+          <p>I was the leading developer of a group of 7 people. We produced a cross platform game as a team with the aim to aid children in learning mathematics. I gained valuable teamwork experience and improved my self learning abilities.</p>
 
           <h3>CSSA IT Officer <br>
             <small>2013 - CSSA Nott, Nottingham</small></h3>

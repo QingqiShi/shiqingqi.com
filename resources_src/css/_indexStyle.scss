@@ -13,19 +13,48 @@
 
 #works {
 	.thumbnail {
-    overflow: hidden;
-    height: 200px;
-
     opacity: 1;
-		transition: opacity 0.5s ease;
-
-		img.websiteThumb {
-			width: auto;
-		}
+    height: 200px;
+    overflow: hidden;
+		transition: all 0.3s ease;
 
 		&:hover {
-			opacity: .7;
-			transition: opacity 0.3s ease;
+			border: 5px solid $light;
+			padding: 0;
+			transition: all 0.3s ease;
+
+			.detailsBtn {
+				position: absolute;
+				right: 20px;
+				bottom: 5px;
+				border-bottom-right-radius: 0px;
+				transition: all 0.3s ease;
+			}
+		}
+
+		.aTag {
+			display: block;
+
+			img.websiteThumb {
+				width: auto;
+
+			}
+		}
+
+		.detailsBtn {
+			position: absolute;
+			right: 15px;
+			bottom: 0px;
+			margin-bottom: 0px;
+			background-color: rgba(255, 255, 255, .9);
+			border-bottom-left-radius: 0px;
+			border-top-right-radius: 0px;
+			transition: all 0.3s ease;
+
+
+			@media (min-width: $screen-sm-min) {
+        margin-bottom: 20px;
+      }
 		}
 	}
 }
