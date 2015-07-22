@@ -25,7 +25,7 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
               CSSA Nottingham
             </h1>
           </div>
-          <div class="col-sm-6">
+          <div class="col-sm-6 noPaddingAtExSm">
             <div class="imgContainer">
               <img class="monitor" src="//shiqingqi.com/resources/image/SVG/Monitor.svg" alt="" />
               <div class="websiteContainer">
@@ -64,7 +64,7 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
           </p>
         </div>
 
-        <h2>Before This Project</h2>
+        <h2 class="text-left">Before This Project</h2>
         <p>
           To be honest, my knowledge in web development was quite basic back then. I knew HTML and CSS quite well, although that basically means I know how to Google any information I need. I had very limited experience with Javascript and PHP, and I relied on my basic programming knowledge to help me learn these quickly.
         </p>

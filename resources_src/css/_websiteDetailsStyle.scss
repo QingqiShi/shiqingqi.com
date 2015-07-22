@@ -28,18 +28,33 @@
     }
   }
 
+  .noPaddingAtExSm {
+    @media (max-width: $screen-xs-min) {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
   .imgContainer {
-    height: 300px;
     max-width: 360px;
-    overflow: hidden;
     margin-left: auto;
-    margin-right: auto;;
+    margin-right: auto;
+
+    @media (min-width: $screen-xs-min) {
+        height: 300px;
+        overflow: hidden;
+    }
 
     .monitor {
       height: 300px;
-      position: absolute;
-      top: 0;
-      z-index: 2;
+      display: none;
+
+      @media (min-width: $screen-xs-min) {
+        display: block;
+        position: absolute;
+        top: 0;
+        z-index: 2;
+      }
 
       @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
         left: 100px;
@@ -47,10 +62,21 @@
     }
 
     .websiteContainer {
-      height: 215px;
-      max-width: 360px;
+      height: 150px;
+      width: 100%;
       overflow: hidden;
-      padding: 14px 15px;
+      padding: 0;
+
+      @media (max-width: $screen-xs-min) {
+        box-shadow: 0px 3px 20px rgba(0, 0, 0, .7);
+      }
+
+      @media (min-width: $screen-xs-min) {
+        height: 215px;
+        max-width: 360px;
+        overflow: hidden;
+        padding: 14px 15px;
+      }
 
       @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
         position: absolute;
