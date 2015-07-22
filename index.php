@@ -118,24 +118,29 @@ require(__ROOT__.'/common/model/index_model.php');
           <h1>My Experiences</h1>
         </div>
 
-        <div class="container-fluid text-left">
-          <h3>Lead Developer <br>
-            <small>2014 - Group Project, Nottingham</small></h3>
-          <p>I was the leading developer of a group of 7 people. We produced a cross platform game as a team with the aim to aid children in learning mathematics. The tools we used was Unity and C#, both of these were new to me. I gained valuable teamwork experience and improved my self learning abilities.</p>
-
-          <h3>CSSA IT Officer <br>
-            <small>2013 - CSSA Nott, Nottingham</small></h3>
-          <p>I was elected to be the IT Officer of the Chinese Students and Scholars Association (CSSA). My main job was to maintain its online forum as well as developing a new homepage for it. I also participated in the planning and management of events such as the local Chinese New Year Gala.</p>
-
-          <h3>Video Commentator <br>
-            <small>2013 - Youku and Youtube, Nottingham</small></h3>
-          <p>I used my spare time to create video game commentary screencasts. By posting them on the internet, I gained more than 40,000 subscribers and I was able to earn a part of my living fees from advertising revenue.</p>
-
-
-          <h3>Waiter <br>
-            <small>2011 - Jinwan Restaurant, Manchester</small></h3>
-          <p>This is my first part time job. I gained valuable experience on how to work with other people, and had the chance to speak with all kinds of customers, which greatly increased my social skills.</p>
-
+        <div class="container-fluid text-left experiencesRowContainer">
+          <div class="experiencesRow clearfix">
+            <div class="experiencesCol">
+              <h3>Lead Developer <br>
+                <small>2014 - Group Project, Nottingham</small></h3>
+              <p>I was the leading developer of a group of 7 people. We produced a cross platform game as a team with the aim to aid children in learning mathematics. The tools we used was Unity and C#, both of these were new to me. I gained valuable teamwork experience and improved my self learning abilities.</p>
+            </div>
+            <div class="experiencesCol">
+              <h3>CSSA IT Officer <br>
+                <small>2013 - CSSA Nott, Nottingham</small></h3>
+              <p>I was elected to be the IT Officer of the Chinese Students and Scholars Association (CSSA). My main job was to maintain its online forum as well as developing a new homepage for it. I also participated in the planning and management of events such as the local Chinese New Year Gala.</p>
+            </div>
+            <div class="experiencesCol">
+              <h3>Video Commentator <br>
+                <small>2013 - Youku and Youtube, Nottingham</small></h3>
+                <p>I used my spare time to create video game commentary screencasts. By posting them on the internet, I gained more than 40,000 subscribers and I was able to earn a part of my living fees from advertising revenue.</p>
+            </div>
+            <div class="experiencesCol">
+              <h3>Waiter <br>
+                <small>2011 - Jinwan Restaurant, Manchester</small></h3>
+                <p>This is my first part time job. I gained valuable experience on how to work with other people, and had the chance to speak with all kinds of customers, which greatly increased my social skills.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

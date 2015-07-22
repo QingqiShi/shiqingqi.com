@@ -1,3 +1,30 @@
+#experiences {
+
+	.experiencesRowContainer {
+		-webkit-overflow-scrolling: touch;
+		overflow-x: scroll;
+
+		.experiencesRow {
+			width: 1140px;
+
+			@media (min-width: $screen-lg-min) {
+					width: 100%;
+			}
+
+			.experiencesCol {
+				width: 25%;
+				float: left;
+				padding-left: 1%;
+				padding-right: 1%;
+
+				p {
+					margin-bottom: 0;
+				}
+			}
+		}
+	}
+}
+
 #educations {
 	.row {
 		margin-bottom: 30px;
