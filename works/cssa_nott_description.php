@@ -75,7 +75,7 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
           Regardless of my lack of professional knowledge, I started my work on this project.
         </p>
 
-        <h2>Details</h2>
+        <h2 class="text-left">Details</h2>
         <p>
           This is the first time I had a chance to play with CSS pre-processors. I learnt the basics of SASS and used it to improve my workflow in creating CSS.
         </p>
@@ -107,7 +107,7 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
           <img src="//shiqingqi.com/resources/image/Works/cssanott/cssanott_githubrepo.jpg" class="shadowImage" />
         </div>
 
-        <h2>Conclusion</h2>
+        <h2 class="text-left">Conclusion</h2>
         <p>
           This project is by no means a professional piece work, but I have definally improved my limited skills. These skills couldn't be leant in schools, and therefore are very valuable to me.
         </p>
