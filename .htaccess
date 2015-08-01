@@ -4,7 +4,7 @@ RewriteCond %{HTTP_HOST} ^www\.stoneisme\.com$
 RewriteRule ^/?$ "http\:\/\/shiqingqi\.com" [R=301,L]
 
 <IfModule mod_headers.c>
-  <FilesMatch "\.(ttf|ttc|otf|eot|woff|font.css|css)$">
+  <FilesMatch "\.(svg|ttf|ttc|otf|eot|woff|font.css|css)$">
     Header set Access-Control-Allow-Origin "*"
   </FilesMatch>
 </IfModule>
