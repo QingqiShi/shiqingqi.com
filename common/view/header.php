@@ -9,9 +9,9 @@
     <title><?php echo $title; ?></title>
 
     <!-- Bootstrap -->
-    <link href="http://shiqingqi.com/resources/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://cdn.shiqingqi.com/resources/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <link href="http://shiqingqi.com/resources/css/qingqiStyle.css" rel="stylesheet">
+    <link href="http://cdn.shiqingqi.com/resources/css/qingqiStyle.css" rel="stylesheet">
 
     <!--[if lt IE 9]>
       <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>

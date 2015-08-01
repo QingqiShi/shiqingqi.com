@@ -27,12 +27,12 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
           </div>
           <div class="col-sm-6">
             <div class="imgContainer">
-              <img class="monitor" src="//shiqingqi.com/resources/image/SVG/Monitor.svg" alt="" />
+              <img class="monitor" src="//cdn.shiqingqi.com/resources/image/SVG/Monitor.svg" alt="" />
               <div class="websiteContainer">
                 <img class="website"
-                srcset="//shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
-                //shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
-                //shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
+                srcset="//cdn.shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
+                //cdn.shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
+                //cdn.shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
                 sizes="0%">
               </div>
             </div>
@@ -83,13 +83,13 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
           I focused on responsive design and made the website respond to different screen widths. I wasn't very experienced with responsive designs and had to do a lot of research to get everything correct - responsive images, grid system, media queries and more.
         </p>
         <div class="text-center">
-          <img src="//shiqingqi.com/resources/image/Works/cssanott/cssanott_responsivedesign.jpg" />
+          <img src="//cdn.shiqingqi.com/resources/image/Works/cssanott/cssanott_responsivedesign.jpg" />
         </div>
         <p>
           JQuery was rather easy to learn as it is very declaritive - the work flow is basically select, function, result. I used JQuery to create a simple slide show on the new homepage to loop through four images.
         </p>
         <div class="text-center">
-          <img src="//shiqingqi.com/resources/image/Works/cssanott/cssanott_imageslider.jpg" class="shadowImage" />
+          <img src="//cdn.shiqingqi.com/resources/image/Works/cssanott/cssanott_imageslider.jpg" class="shadowImage" />
         </div>
         <p>
           CSSA Nottingham is an organisation based in UK Nottingham for Chinese students. Therefore its website are viewed by Chinese speakers as well as English speakers. Thats why I wanted to create the website in both Chinese and English.
@@ -98,13 +98,13 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
           I created a system using PHP to load either the English or Chinese version of any text on the page based on the URL. If the URL doesn't specify a language, the website would look at the user's browser language preferences and choose the most suitable language to display. Users are also presented with a button on the top right of the page to toggle between the two languages.
         </p>
         <div class="text-center">
-          <img src="//shiqingqi.com/resources/image/Works/cssanott/cssanott_multilanguage.jpg" />
+          <img src="//cdn.shiqingqi.com/resources/image/Works/cssanott/cssanott_multilanguage.jpg" />
         </div>
         <p>
           Finally, the entire project is version controlled on a private Github repository. I wouldn't say I've mastered version control though, there are much more to version control than just 'taking a snap shot so I can revert if I mess up'.
         </p>
         <div class="text-center">
-          <img src="//shiqingqi.com/resources/image/Works/cssanott/cssanott_githubrepo.jpg" class="shadowImage" />
+          <img src="//cdn.shiqingqi.com/resources/image/Works/cssanott/cssanott_githubrepo.jpg" class="shadowImage" />
         </div>
 
         <h2 class="text-left">Conclusion</h2>

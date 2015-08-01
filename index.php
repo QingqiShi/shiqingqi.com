@@ -44,9 +44,9 @@ require(__ROOT__.'/common/model/index_model.php');
             <div class="thumbnail">
               <a href="//shiqingqi.com/works/cssa_nott_description.php" class="aTag">
                 <img
-                srcset="//shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
-                //shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
-                //shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
+                srcset="//cdn.shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
+                //cdn.shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
+                //cdn.shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
                 sizes="100%">
               </a>
               <a href="//shiqingqi.com/works/cssa_nott_description.php" class="btn btn-default detailsBtn">
@@ -58,9 +58,9 @@ require(__ROOT__.'/common/model/index_model.php');
             <div class="thumbnail">
               <a href="//reddishcoop.wordpress.com" target="_blank" class="aTag">
                 <img
-                srcset="//shiqingqi.com/resources/image/Works/reddishcoop_full_length_768.jpg 768w,
-                //shiqingqi.com/resources/image/Works/reddishcoop_full_length_992.jpg 992w,
-                //shiqingqi.com/resources/image/Works/reddishcoop_full_length_1200.jpg 1200w"
+                srcset="//cdn.shiqingqi.com/resources/image/Works/reddishcoop_full_length_768.jpg 768w,
+                //cdn.shiqingqi.com/resources/image/Works/reddishcoop_full_length_992.jpg 992w,
+                //cdn.shiqingqi.com/resources/image/Works/reddishcoop_full_length_1200.jpg 1200w"
                 sizes="100%">
               </a>
               <a href="//reddishcoop.wordpress.com" class="btn btn-default detailsBtn">
@@ -154,7 +154,7 @@ require(__ROOT__.'/common/model/index_model.php');
         <div class="container-fluid text-left">
           <div class="row">
             <div class="col-sm-3 text-center logoContainer">
-              <img data-src="holder.js/100px157" src="//shiqingqi.com/resources/image/Educations/University_of_Nottingham.svg" class="img-responsive thumbnail center-block logo">
+              <img data-src="holder.js/100px157" src="//cdn.shiqingqi.com/resources/image/Educations/University_of_Nottingham.svg" class="img-responsive thumbnail center-block logo">
 
             </div>
             <div class="col-sm-9">
@@ -165,7 +165,7 @@ require(__ROOT__.'/common/model/index_model.php');
           </div>
           <div class="row">
             <div class="col-sm-3 text-center logoContainer">
-              <img data-src="holder.js/100px157" src="//shiqingqi.com/resources/image/Educations/AGSB.png" class="img-responsive thumbnail center-block logo">
+              <img data-src="holder.js/100px157" src="//cdn.shiqingqi.com/resources/image/Educations/AGSB.png" class="img-responsive thumbnail center-block logo">
             </div>
             <div class="col-sm-9">
               <h3>Altrincham Grammar School for Boys Sixth Form <br>
