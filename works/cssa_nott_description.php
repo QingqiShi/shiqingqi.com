@@ -27,17 +27,13 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
           </div>
           <div class="col-sm-6 noPaddingAtExSm">
             <div class="imgContainer">
-              <div class="inner">
-                <div class="centered">
-                  <img class="monitor" src="//shiqingqi.com/resources/image/SVG/Monitor.svg" alt="" />
-                  <div class="websiteContainer">
-                    <img class="website"
-                    srcset="//shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
-                    //shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
-                    //shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
-                    sizes="0%">
-                  </div>
-                </div>
+              <img class="monitor" src="//shiqingqi.com/resources/image/SVG/Monitor.svg" alt="" />
+              <div class="websiteContainer">
+                <img class="website"
+                srcset="//shiqingqi.com/resources/image/Works/cssanott_full_length_768.jpg 768w,
+                //shiqingqi.com/resources/image/Works/cssanott_full_length_992.jpg 992w,
+                //shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
+                sizes="0%">
               </div>
             </div>
           </div>
