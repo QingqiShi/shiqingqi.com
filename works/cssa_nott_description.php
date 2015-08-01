@@ -25,7 +25,7 @@ require(__ROOT__.'/works/model/cssa_nott_description_model.php');
               CSSA Nottingham
             </h1>
           </div>
-          <div class="col-sm-6 noPaddingAtExSm">
+          <div class="col-sm-6">
             <div class="imgContainer">
               <img class="monitor" src="//shiqingqi.com/resources/image/SVG/Monitor.svg" alt="" />
               <div class="websiteContainer">
