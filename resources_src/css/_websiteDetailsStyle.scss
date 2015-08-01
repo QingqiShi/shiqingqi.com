@@ -40,54 +40,58 @@
     margin-left: auto;
     margin-right: auto;
     width: 360px;
+    height: 300px;
+    overflow: hidden;
+    text-align: center;
 
-    @media (min-width: $screen-xs-min) {
-        height: 300px;
-        overflow: hidden;
-        text-align: center;
+    @media (max-width: $screen-xs-min) {
+      display: table;
     }
 
-    .monitor {
-      height: 300px;
-      display: none;
-
-      @media (min-width: $screen-xs-min) {
-        display: block;
-        position: absolute;
-        top: 0;
-        z-index: 2;
-      }
-
-      @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
-        left: 100px;
-      }
-    }
-
-    .websiteContainer {
-      height: 150px;
-      overflow: hidden;
-      padding: 0;
-      margin: 0;
-
+    .inner {
       @media (max-width: $screen-xs-min) {
-        width: 100%;
-        box-shadow: 0px 3px 20px rgba(0, 0, 0, .7);
+        display: block;
+        text-align: center;
+        position: relative;
+        right: 50%;
       }
 
-      @media (min-width: $screen-xs-min) {
-        height: 215px;
-        width: 360px;
-        overflow: hidden;
-        padding: 14px 15px;
-      }
 
-      @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
-        position: absolute;
-        left: 100px;
-      }
+      .centered {
+        @media (max-width: $screen-xs-min) {
+          position: relative;
+          display: inline-block;
+          width: 360px;
+          margin-right: -100%;
+        }
 
-      .website {
-        width: 100%;
+        .monitor {
+          height: 300px;
+          display: block;
+          position: absolute;
+          top: 0;
+          z-index: 2;
+
+          @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
+            left: 100px;
+          }
+        }
+
+        .websiteContainer {
+          height: 215px;
+          width: 360px;
+          overflow: hidden;
+          padding: 14px 15px;
+
+          @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
+            position: absolute;
+            left: 100px;
+          }
+
+          .website {
+            width: 100%;
+          }
+        }
       }
     }
   }
