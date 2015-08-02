@@ -33,7 +33,7 @@
   }
 
   .noPaddingAtExSm {
-    @media (max-width: $screen-xs-min) {
+    @media (max-width: $screen-zs-max) {
       padding-left: 0;
       padding-right: 0;
     }
@@ -50,7 +50,7 @@
         text-align: center;
     }
 
-    @media (min-width: $screen-xs-min) and (max-width: $screen-sm-min) {
+    @media (min-width: $screen-xs-min) and (max-width: $screen-xs-max) {
       margin-bottom: -40px;
     }
 
@@ -65,7 +65,7 @@
         z-index: 2;
       }
 
-      @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
+      @media (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
         left: 100px;
       }
     }
@@ -76,7 +76,7 @@
       padding: 0;
       margin: 0;
 
-      @media (max-width: $screen-xs-min) {
+      @media (max-width: $screen-zs-max) {
         width: 100%;
         box-shadow: 0px 3px 20px rgba(0, 0, 0, .7);
       }
@@ -88,7 +88,7 @@
         padding: 14px 15px;
       }
 
-      @media (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
+      @media (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
         position: absolute;
         left: 100px;
       }
