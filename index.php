@@ -49,8 +49,8 @@ require(__ROOT__.'/common/model/index_model.php');
                 //cdn.shiqingqi.com/resources/image/Works/cssanott_full_length_1200.jpg 1200w"
                 sizes="100%">
               </a>
-              <a href="//shiqingqi.com/works/cssa_nott_description.php" class="btn btn-default detailsBtn">
-                <i>Details...</i>
+              <a href="//shiqingqi.com/works/cssa_nott_description.php" class="btn btn-primary detailsBtn">
+                READ ABOUT IT <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
               </a>
             </div>
           </div>
@@ -63,8 +63,8 @@ require(__ROOT__.'/common/model/index_model.php');
                 //cdn.shiqingqi.com/resources/image/Works/reddishcoop_full_length_1200.jpg 1200w"
                 sizes="100%">
               </a>
-              <a href="//reddishcoop.wordpress.com" class="btn btn-default detailsBtn">
-                <i>Details...</i>
+              <a href="//reddishcoop.wordpress.com" class="btn btn-primary detailsBtn">
+                  READ ABOUT IT <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
               </a>
             </div>
           </div>
