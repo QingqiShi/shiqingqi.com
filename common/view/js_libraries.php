@@ -1,4 +1,14 @@
 <?php
+
+// Require following boolean values:
+//    $jquery
+//    $bootstrap
+//    $holder
+//    $picturefill
+
+ ?>
+
+<?php
 if ($jquery) { ?>
 
     <script src="//cdn.shiqingqi.com/resources/jquery/dist/jquery.min.js"></script>
