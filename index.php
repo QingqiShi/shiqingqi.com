@@ -56,14 +56,14 @@ require(__ROOT__.'/common/model/index_model.php');
           </div>
           <div class="col-sm-4">
             <div class="thumbnail">
-              <a href="//reddishcoop.wordpress.com" target="_blank" class="aTag">
+              <a href="//shiqingqi.com/works/reddish_coop_description.php" target="_blank" class="aTag">
                 <img
                 srcset="//cdn.shiqingqi.com/resources/image/Works/reddishcoop_full_length_768.jpg 768w,
                 //cdn.shiqingqi.com/resources/image/Works/reddishcoop_full_length_992.jpg 992w,
                 //cdn.shiqingqi.com/resources/image/Works/reddishcoop_full_length_1200.jpg 1200w"
                 sizes="100%">
               </a>
-              <a href="//reddishcoop.wordpress.com" class="btn btn-primary detailsBtn">
+              <a href="//shiqingqi.com/works/reddish_coop_description.php" class="btn btn-primary detailsBtn">
                   READ ABOUT IT <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
               </a>
             </div>
