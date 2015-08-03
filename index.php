@@ -23,7 +23,7 @@ require(__ROOT__.'/common/model/index_model.php');
           <div class="col-sm-8">
             <div class="masterText">
               <h1 class="text-center">Qingqi Shi</h1>
-              <h2 class="text-uppercasen text-center">Computer Science Student</h2>
+              <h2 class="text-uppercase text-center">Computer Science Student</h2>
             </div>
           </div>
         </div>
