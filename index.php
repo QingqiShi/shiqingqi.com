@@ -138,7 +138,7 @@ require(__ROOT__.'/common/model/index_model.php');
           <div class="col-sm-6">
             <h3>CSSA IT Officer <br>
               <small>2013 - CSSA Nott, Nottingham</small></h3>
-            <p>I was elected to be the IT Officer of the Chinese Students and Scholars Association (CSSA). My main job was to maintain its online forum as well as developing a new homepage for it. I also participated in the planning and management of events such as the local Chinese New Year Gala.</p>
+            <p>I was elected to be the IT Officer of the Chinese Students and Scholars Association (CSSA). My main job was to maintain its online forum as well as to develop a new homepage (you can read about it <a href="//shiqingqi.com/works/cssa_nott_description.php">here</a>). I also participated in the planning and management of events such as the local Chinese New Year Gala.</p>
           </div>
           <div class="clearfix visible-sm-block visible-md-block"></div>
           <div class="col-sm-6">
@@ -150,6 +150,16 @@ require(__ROOT__.'/common/model/index_model.php');
             <h3>Waiter <br>
               <small>2011 - Jinwan Restaurant, Manchester</small></h3>
               <p>This is my first part time job. I gained valuable experience on how to work with other people, and had the chance to speak with all kinds of customers, which greatly increased my social skills.</p>
+          </div>
+          <div class="col-sm-6">
+            <h3>Bag Packing for Charity <br>
+              <small>2011 - Altrincham Tesco, Manchester</small></h3>
+              <p>I participated in a school organised charity event. We helped people pack their shopping items to raise money for a breast cancer charity. We raised over £1000 for charity.</p>
+          </div>
+          <div class="col-sm-6">
+            <h3>Create Website for School <br>
+              <small>2009 - Reddish Vale Technology College, Manchester</small></h3>
+              <p>As a four people team we created a website for my secondary school. You can read more about it <a href="//shiqingqi.com/works/reddish_coop_description.php">here</a>.</p>
           </div>
         </div>
       </div>
