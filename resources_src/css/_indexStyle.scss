@@ -1,3 +1,89 @@
+.masterHead {
+	color: white;
+	margin-bottom: 0;
+
+	.masterIcon {
+		width: 144px;
+		height: 144px;
+		line-height: 144px;
+		padding-left: 10px;
+		font-size: 100px;
+		font-weight: 500;
+		color: $primary;
+		font-family: 'JetLinkMediumOldStamp', Serif;
+
+		border-radius: 15%;
+		background: white;
+		position: relative;
+
+		@media (min-width: $screen-sm-min) {
+			margin-top: 0.5em;
+			margin-bottom: 0.5em;
+		}
+		@media (min-width: $screen-md-min) {
+			width: 200px;
+			height: 200px;
+			line-height: 200px;
+			padding-left: 10px;
+			font-size: 130px;
+			margin-top: 0.2em;
+			margin-bottom: 0.2em;
+		}
+		@media (min-width: $screen-lg-min) {
+			left: 70px;
+		}
+
+		.small {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			font-size: 8px;
+			line-height: 8px;
+			width: 100%;
+			margin-bottom: 10px;
+			font-family: cursive;
+
+			@media (min-width: $screen-md-min) {
+				font-size: 14px;
+				line-height: 14px;
+			}
+		}
+	}
+
+	.masterText {
+		font-size: 5em;
+		line-height: 1em;
+
+		h1 {
+			font-size: 0.7em;
+			line-height: 0.7em;
+
+			@media (min-width: $screen-xs-min) {
+				font-size: 1em;
+				line-height: 1em;
+			}
+			@media (min-width: $screen-sm-min) {
+				font-size: 1.4em;
+				line-height: 1.4em;
+			}
+		}
+
+		h2 {
+			font-size: 0.1em;
+			line-height: 0.1em;
+
+			@media (min-width: $screen-xs-min) {
+				font-size: 0.3em;
+				line-height: 0.3em;
+			}
+			@media (min-width: $screen-sm-min) {
+				font-size: 0.4em;
+				line-height: 0.4em;
+			}
+		}
+	}
+}
+
 #experiences {
 }
 
@@ -13,6 +99,7 @@
 		}
 	}
 }
+
 
 #works {
 	.thumbnail {

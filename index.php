@@ -5,6 +5,7 @@ require(__ROOT__.'/common/model/index_model.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
+  <div id="top"></div>
   <?php
     require(__ROOT__.'/common/view/header.php');
   ?>
@@ -15,8 +16,17 @@ require(__ROOT__.'/common/model/index_model.php');
 
     <div class="jumbotron masterHead">
       <div class="container">
-        <span class="masterIcon center-block text-center">石</span>
-        <h1 class="text-center masterText">Qingqi Shi<br> <small class="text-uppercase">Computer Science Student</small></h1>
+        <div class="row">
+          <div class="col-sm-4">
+            <span class="masterIcon center-block text-center">石 <br><span class="small">Call me Qi [chee]</span></span>
+          </div>
+          <div class="col-sm-8">
+            <div class="masterText">
+              <h1 class="text-center">Qingqi Shi</h1>
+              <h2 class="text-uppercasen text-center">Computer Science Student</h2>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -24,6 +34,7 @@ require(__ROOT__.'/common/model/index_model.php');
       <nav class="navbar navbar-default navbar-static-top" data-spy="affix" data-offset-top="443">
         <div class="container">
           <ul class="nav navbar-nav">
+            <li><a href="#top"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span></a></li>
             <li><a href="#works">Works</a></li>
             <li><a href="#experiences">Experiences</a></li>
             <li><a href="#educations">Educations</a></li>

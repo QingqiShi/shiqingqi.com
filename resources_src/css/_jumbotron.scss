@@ -2,37 +2,13 @@
 	padding: 30px 0 50px 0;
 }
 
-.masterHead {
-	color: white;
-	margin-bottom: 0;
-
-	.masterIcon {
-		width: 144px;
-		height: 144px;
-
-		line-height: 144px;
-
-		padding-left: 10px;
-
-		font-size: 100px;
-		font-weight: 500;
-		color: $primary;
-		font-family: 'JetLinkMediumOldStamp', Serif;
-
-		border-radius: 15%;
-		background: white;
-	}
-}
-
 .jumboPrime, .masterHead {
 	background-image: linear-gradient($dark, $primary);
 	background-color: $primary;
 	color: white;
 
-	h1 {
-		small {
-			color: $veryLight;
-		}
+	h2 {
+		color: $veryLight;
 	}
 }
 
