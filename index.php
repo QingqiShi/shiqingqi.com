@@ -150,6 +150,7 @@ require(__ROOT__.'/common/model/index_model.php');
               <small>2011 - Jinwan Restaurant, Manchester</small></h3>
               <p>This is my first part time job. I gained valuable experience on how to work with other people, and had the chance to speak with all kinds of customers, which greatly increased my social skills.</p>
           </div>
+          <div class="clearfix visible-sm-block visible-md-block"></div>
           <div class="col-sm-6">
             <h3>Bag Packing for Charity <br>
               <small>2011 - Altrincham Tesco, Manchester</small></h3>
