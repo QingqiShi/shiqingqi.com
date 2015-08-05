@@ -140,6 +140,7 @@ require(__ROOT__.'/common/model/index_model.php');
               <small>2013 - CSSA Nott, Nottingham</small></h3>
             <p>I was elected to be the IT Officer of the Chinese Students and Scholars Association (CSSA). My main job was to maintain its online forum as well as to develop a new homepage (you can read about it <a href="//shiqingqi.com/works/cssa_nott_description.php">here</a>). I also participated in the planning and management of events such as the local Chinese New Year Gala.</p>
           </div>
+          <div class="clearfix visible-sm-block visible-md-block"></div>
           <div class="col-sm-6">
             <h3>Video Commentator <br>
               <small>2013 - Youku and Youtube, Nottingham</small></h3>
