@@ -3,6 +3,7 @@ $title = 'Website for Reddish Vale Technology College - Work Description - Qingq
 
 $jquery = true;
 $bootstrap = true;
+$picturefill = true;
 
 $websiteTitle = 'Reddish Vale';
 $websiteSmImageUrl = '//cdn.shiqingqi.com/resources/image/Works/reddishcoop_full_length_768.jpg';
