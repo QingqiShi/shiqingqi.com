@@ -10,7 +10,7 @@
 		font-size: 100px;
 		font-weight: 500;
 		color: $primary;
-		font-family: 'JetLinkMediumOldStamp', Serif;
+		font-family: 'JetLinkMediumOldStamp', cursive;
 
 		border-radius: 15%;
 		background: white;
@@ -143,6 +143,10 @@
 			}
 		}
 	}
+}
+
+#social {
+	margin-bottom: 0;
 }
 
 #sectionIndicator {

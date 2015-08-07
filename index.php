@@ -18,7 +18,7 @@ require(__ROOT__.'/common/model/index_model.php');
       <div class="container">
         <div class="row">
           <div class="col-sm-4">
-            <span class="masterIcon center-block text-center">石 <br><span class="small">Call me Qi [chee]</span></span>
+            <span class="masterIcon center-block text-center">石 <br></span>
           </div>
           <div class="col-sm-8">
             <div class="masterText">
@@ -175,7 +175,9 @@ require(__ROOT__.'/common/model/index_model.php');
         <div class="container-fluid text-left">
           <div class="row">
             <div class="col-sm-3 text-center logoContainer">
-              <img data-src="holder.js/100px157" src="//cdn.shiqingqi.com/resources/image/Educations/University_of_Nottingham.svg" class="img-responsive thumbnail center-block logo">
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" zoomAndPan="magnify" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" class="img-responsive thumbnail center-block logo">
+                <image width="100%" height="100%" xlink:href="//cdn.shiqingqi.com/resources/image/Educations/University_of_Nottingham.svg" preserveAspectRatio="xMidYMid meet">
+              </svg>
 
             </div>
             <div class="col-sm-9">
