@@ -1,7 +1,7 @@
 var gulp = require('gulp');
 var usemin = require('gulp-usemin');
 var uglify = require('gulp-uglify');
-var minifyCss = require('gulp-minify-css');
+var minifyCss = require('gulp-clean-css');
 var imagemin = require('gulp-imagemin');
 var sass = require('gulp-sass');
 var browserSync = require('browser-sync').create();
@@ -24,7 +24,7 @@ gulp.task('sass', function () {
   return gulp.src('resources_src/css/*.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer())
-    .pipe(minifyCss())
+    .pipe(cleanCSS())
     .pipe(gulp.dest('resources/css/'))
 	.pipe(browserSync.stream());
 });
