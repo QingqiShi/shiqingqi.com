@@ -1,30 +1,18 @@
 {
   "name": "shiqingqi.com",
-  "version": "0.0.1",
-  "description": "Qingqi Shi's personal website.",
-  "main": "index.php",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./bin/www"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/QingqiShi/shiqingqi.com.git"
-  },
-  "author": "Qingqi Shi",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/QingqiShi/shiqingqi.com/issues"
-  },
-  "homepage": "http://shiqingqi.com",
-  "devDependencies": {
-    "bower": "^1.4.1",
-    "browser-sync": "^2.7.13",
-    "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^2.3.1",
-    "gulp-clean-css": "^2.0.12",
-    "gulp-imagemin": "^2.3.0",
-    "gulp-sass": "^2.0.3",
-    "gulp-uglify": "^1.2.0",
-    "gulp-usemin": "^0.3.11"
+  "dependencies": {
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "morgan": "~1.8.1",
+    "node-sass-middleware": "0.9.8",
+    "pug": "~2.0.0-beta11",
+    "serve-favicon": "~2.4.2"
   }
 }
