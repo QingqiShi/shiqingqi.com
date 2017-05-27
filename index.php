@@ -22,6 +22,7 @@
                 font-weight: 100;
                 font-size: 2rem;
             }
+            
         </style>
     </head>
     <body>
