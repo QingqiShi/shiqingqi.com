@@ -1,11 +1,13 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
-<link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../app-layout/app-layout.html">
-<link rel="import" href="../iron-media-query/iron-media-query.html">
-<link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+<link rel="import" href="../app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../app-layout/app-layout.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
 
 <dom-module id="main-app">
     <template>
@@ -22,13 +24,20 @@
             }
 
             app-drawer {
-                --app-drawer-width: 20rem;
+                --app-drawer-width: 15rem;
             }
 
             app-drawer h1 {
                 font-size: 1.5rem;
                 line-height: 3rem;
                 margin: 0.25rem 0 0.25rem 1rem;
+            }
+
+            app-drawer paper-item {
+                --paper-item-focused: {
+                    background: var(--accent-color);
+                    font-weight: bold;
+                };
             }
 
             app-header {
@@ -67,29 +76,39 @@
                 margin: 0.25rem 0 0.25rem 1rem;
             }
 
+            @media (max-width: 410px) {
+                paper-tabs {
+                    display: none;
+                }
+            }
+            @media (min-width: 410px) {
+                app-toolbar paper-icon-button {
+                    display: none;
+                }
+
+                #drawer {
+                    display: none;
+                }
+            }
+
 
         </style>
 
-        <iron-media-query query="(max-width: 410px)" query-matches="{{show-menu-button}}"></iron-media-query>
 
         <app-header-layout>
             <app-header slot="header" fixed effects="waterfall">
                 <app-toolbar>
-                    <template is="dom-if" if="{{show-menu-button}}">
-                        <paper-icon-button icon="menu" on-click="handleMenuClick"></paper-icon-button>
-                    </template>
+                    <paper-icon-button icon="menu" on-click="handleMenuClick"></paper-icon-button>
                     <h1 main-title>Qingqi Shi</h1>
-                    <template is="dom-if" if="{{!show-menu-button}}">
-                        <paper-tabs selected="{{page}}">
-                            <paper-tab>About Me</paper-tab>
-                            <paper-tab>Projects</paper-tab>
-                            <paper-tab>Skills</paper-tab>
-                        </paper-tabs>
-                    </template>
+                    <paper-tabs selected="{{selected_page}}">
+                        <paper-tab>About Me</paper-tab>
+                        <paper-tab>Projects</paper-tab>
+                        <paper-tab>Skills</paper-tab>
+                    </paper-tabs>
                 </app-toolbar>
             </app-header>
 
-            <iron-pages selected="{{page}}">
+            <iron-pages selected="{{selected_page}}">
                 <div id="about">
                     <p>1Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
                 </div>
@@ -102,13 +121,18 @@
             </iron-pages>
         </app-header-layout>
 
-        <template is="dom-if" if="{{show-menu-button}}">
-            <app-drawer id="drawer" swipe-open>
+        <app-drawer id="drawer" swipe-open>
+            <app-header fixed>
                 <app-toolbar>
                     <paper-icon-button icon="menu" on-click="handleMenuClick"></paper-icon-button>
                 </app-toolbar>
-            </app-drawer>
-        </template>
+            </app-header>
+            <paper-listbox selected="{{selected_page}}">
+                <paper-item on-click="handleMenuClick">About Me</paper-item>
+                <paper-item on-click="handleMenuClick">Projects</paper-item>
+                <paper-item on-click="handleMenuClick">Skills</paper-item>
+            </paper-listbox>
+        </app-drawer>
     </template>
     <script>
         class MainApp extends Polymer.Element {
@@ -119,8 +143,7 @@
 
             ready() {
                 super.ready();
-                this.page = 0;
-                console.log(this);
+                this.selected_page = 0;
             }
 
             handleMenuClick() {
