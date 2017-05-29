@@ -1,0 +1,15 @@
+html {
+    --app-drawer-width: 20rem;
+}
+
+app-drawer-layout:not([narrow]) [drawer-toggle] {
+    display: none;
+}
+
+app-drawer {
+    h1 {
+        font-size: 1.5rem;
+        line-height: 3rem;
+        margin: 0.25rem 0 0.25rem 1rem;
+    }
+}
