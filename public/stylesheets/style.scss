@@ -4,7 +4,7 @@ html {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', sans-serif;
-    color: $dark-color;
+    color: $text-primary-color;
 }
 
 body {
@@ -17,5 +17,8 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Roboto', sans-serif;
 }
 
-@import 'header';
-@import 'drawer';
+main-app {
+    --main-app-primary-color: $primary-color;
+    --main-app-secondary-color: $secondary-color;
+    --main-app-text-primary-color: $text-primary-color;
+}

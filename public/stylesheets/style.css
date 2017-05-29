@@ -12,32 +12,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 400;
   font-family: 'Roboto', sans-serif; }
 
-app-header {
-  height: 3rem;
-  background-color: #fff; }
-
-app-toolbar {
-  height: 3rem;
-  background-color: #fff;
-  color: #212121;
-  border-bottom: 0.1rem solid #f5f5f5; }
-  app-toolbar button {
-    width: 2rem;
-    height: 2rem;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem; }
-  app-toolbar h1.title {
-    font-size: 1.5rem;
-    line-height: 3rem;
-    margin: 0.25rem 0 0.25rem 1rem; }
-
-html {
-  --app-drawer-width: 20rem; }
-
-app-drawer-layout:not([narrow]) [drawer-toggle] {
-  display: none; }
-
-app-drawer h1 {
-  font-size: 1.5rem;
-  line-height: 3rem;
-  margin: 0.25rem 0 0.25rem 1rem; }
+main-app {
+  --main-app-primary-color: #fff;
+  --main-app-secondary-color: #f5f5f5;
+  --main-app-text-primary-color: #212121; }

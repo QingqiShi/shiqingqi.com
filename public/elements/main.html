@@ -1,0 +1,100 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../app-layout/app-layout.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+
+<dom-module id="main-app">
+    <template>
+        <style>
+            :host {
+                width: 100%;
+                height: 100%;
+            }
+
+            app-drawer {
+                --app-drawer-width: 20rem;
+            }
+
+            app-drawer h1 {
+                font-size: 1.5rem;
+                line-height: 3rem;
+                margin: 0.25rem 0 0.25rem 1rem;
+            }
+
+            app-header {
+                /*height: 3rem;*/
+                background-color: var(--main-app-primary-color, var(--paper-blue-500));
+            }
+
+            app-header app-toolbar {
+                /*height: 3rem;*/
+                background-color: inherit;
+                color: var(--main-app-text-primary-color, var(--paper-blue-50));
+                border-bottom: 0.1rem solid var(--main-app-secondary-color, var(--paper-blue-700));
+            }
+
+            app-header paper-icon-button {
+                width: 2.5rem;
+                height: 2.5rem;
+                margin-top: 0.25rem;
+                margin-bottom: 0.25rem;
+            }
+
+            app-header h1.title {
+                font-weight: 300;
+                font-size: 1.5rem;
+                line-height: 3rem;
+                margin: 0.25rem 0 0.25rem 1rem;
+            }
+
+
+        </style>
+
+        <iron-media-query query="(max-width: 400px)" query-matches="{{show-menu-button}}"></iron-media-query>
+
+        <app-header-layout>
+            <app-header slot="header" reveals effects="waterfall">
+                <app-toolbar>
+                    <template is="dom-if" if="{{show-menu-button}}">
+                        <paper-icon-button icon="menu" on-click="handleMenuClick"></paper-icon-button>
+                    </template>
+                    <h1 class="title">Qingqi Shi</h1>
+                </app-toolbar>
+            </app-header>
+            <div class="content">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+        </app-header-layout>
+
+        <template is="dom-if" if="{{show-menu-button}}">
+            <app-drawer id="drawer" swipe-open>
+                <app-toolbar>
+                    <paper-icon-button icon="menu" on-click="handleMenuClick"></paper-icon-button>
+                </app-toolbar>
+            </app-drawer>
+        </template>
+    </template>
+    <script>
+        class MainApp extends Polymer.Element {
+            static get is() {
+                return 'main-app';
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            handleMenuClick() {
+                this.shadowRoot.querySelector('#drawer').toggle();
+            }
+        };
+
+        customElements.define('main-app', MainApp);
+    </script>
+</dom-module>
