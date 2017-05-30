@@ -119,15 +119,16 @@
             </app-header>
 
             <iron-pages selected="{{selected_page}}">
-                <div id="about">
+                <section id="about">
                     <about-page></about-page>
-                </div>
-                <div id="projects">
+                    <!-- <slot></slot> -->
+                </section>
+                <section id="projects">
                     <p>Projects page</p>
-                </div>
-                <div id="skills">
+                </section>
+                <section id="skills">
                     <p>Skills page</p>
-                </div>
+                </section>
             </iron-pages>
         </app-header-layout>
 

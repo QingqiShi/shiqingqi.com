@@ -7,13 +7,16 @@
         :host {
             width: 100%;
             height: 100%;
-            align-items: center;
-            justify-content: center;
+        }
+
+        #personal-data {
+            width: 40rem;
+            margin: 0 auto 0 auto;
         }
 
         paper-card {
-            margin: 1rem;
-            width: 40rem;
+            margin: 1rem 0 0 0;
+            width: 100%;
         }
 
         paper-card .card-image {
@@ -28,7 +31,7 @@
         }
 
         paper-card .card-content {
-            padding: 1rem;
+            padding: 2rem;
         }
 
         .card-content .heading {
@@ -36,7 +39,6 @@
         }
 
         .card-content .item {
-            /*white-space: nowrap;*/
             width: 60%;
         }
 
@@ -57,24 +59,71 @@
             height: 100%;
             float: right;
         }
+
+        @media (max-width: 644px) {
+            #personal-data {
+                width: 30rem;
+            }
+
+            .card-content .item {
+                width: 70%;
+            }
+
+            paper-card .card-image {
+                width: 30%;
+            }
+        }
+
+        @media (max-width: 488px) {
+            #personal-data {
+                width: 95%;
+            }
+
+            paper-card .card-content {
+                margin-top: 11rem;
+                padding: 1rem;
+            }
+
+            .card-content .heading {
+                color: #fff;
+                font-size: 3rem;
+                text-shadow: 0.1rem 0.1rem 0.2rem #000;
+            }
+
+            .card-content .item {
+                width: 100%;
+            }
+
+            paper-card .card-image {
+                top: 0;
+                bottom: auto;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 18rem;
+                background: url('/images/Selfie.png');
+                background-size: cover;
+                background-position: center;
+            }
+        }
         </style>
 
-        <paper-card>
-            <div class="card-image"></div>
-            <div class="card-content">
-                <h2 class="heading">Qingqi Shi</h2>
-                <div class="item"><span class="legend">Gender</span><span class="value">Male</span></div>
-                <div class="item"><span class="legend">Age</span><span class="value">22</span></div>
-                <div class="item"><span class="legend">Nationality</span><span class="value">British</span></div>
-                <div class="item"><span class="legend">Languages</span><span class="value">Fluent English and Mandarin</span></div>
-                <div class="item"><span class="legend">Phone</span><span class="value">+44 7462111514</span></div>
-                <div class="item"><span class="legend">E-mail</span><span class="value">qingqishi@live.com</span></div>
-                <div class="item"><span class="legend">Github</span><span class="value">github.com/QingqiShi</span></div>
-                <div class="item"><span class="legend">Website</span><span class="value">shiqingqi.com</span></div>
-            </div>
-        </paper-card>
-
-        <p>test</p>
+        <div id="personal-data">
+            <paper-card>
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="heading">Qingqi Shi</h2>
+                    <div class="item"><span class="legend">Gender</span><span class="value">Male</span></div>
+                    <div class="item"><span class="legend">Age</span><span class="value">22</span></div>
+                    <div class="item"><span class="legend">Nationality</span><span class="value">British</span></div>
+                    <div class="item"><span class="legend">Languages</span><span class="value">English and Mandarin</span></div>
+                    <div class="item"><span class="legend">Phone</span><span class="value">+44 7462111514</span></div>
+                    <div class="item"><span class="legend">E-mail</span><span class="value">qingqishi@live.com</span></div>
+                    <div class="item"><span class="legend">Github</span><span class="value">github.com/QingqiShi</span></div>
+                    <div class="item"><span class="legend">Website</span><span class="value">shiqingqi.com</span></div>
+                </div>
+            </paper-card>
+        </div>
     </template>
 
     <script>
