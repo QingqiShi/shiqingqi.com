@@ -1,5 +1,7 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="about-page">
     <template>
@@ -106,6 +108,45 @@
                 background-position: center;
             }
         }
+
+        #educations h2, #experiences h2 {
+            text-align: center;
+            font-weight: 300;
+            border-top: 1px solid var(--secondary-color);
+            padding-top: 2rem;
+            margin-top: 2rem;
+        }
+
+        .school-info {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        .school-info .words {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .school-info iron-image {
+            width: 70%;
+            height: 10rem;
+            margin: 0 15%;
+        }
+
+        @media (min-width: 818px) {
+            .school-info {
+                @apply --layout-horizontal;
+            }
+
+            .school-info .words {
+                @apply --layout-flex;
+            }
+
+            .school-info iron-image {
+                width: 20%;
+                margin: 0 2rem;
+            }
+        }
         </style>
 
         <div id="personal-data">
@@ -123,6 +164,42 @@
                     <div class="item"><span class="legend">Website</span><span class="value">shiqingqi.com</span></div>
                 </div>
             </paper-card>
+        </div>
+
+        <div id="educations">
+            <h2>Educations</h2>
+            <article class="school-info">
+                <iron-image preload fade sizing="contain" src="/images/University_of_Bristol.svg"></iron-image>
+                <div class="words">
+                    <h3>Msc Advanced Computing - Creative Technology <span class="school">University of Bristol</span></h3>
+                    <p>Thesis: "Accurate Feet Tracking of Pedestrians using remote CCTV camera"</p>
+                    <p>Supervised by: Prof. Dima Damen</p>
+                    <p>Expected Classification: Distinction</p>
+                </div>
+            </article>
+
+            <article class="school-info">
+                <iron-image preload fade sizing="contain" src="/images/University_of_Nottingham.svg"></iron-image>
+                <div class="words">
+                    <h3>BSc Hons Computer Science <span class="school">University of Nottingham</span></h3>
+                    <p>Dissertation: "'C-Code Explainer' - Programming Tool for Non-English Speakers"</p>
+                    <p>Supervised by: Prof. Jason Atkin</p>
+                    <p>Classification: First-class Honours</p>
+                </div>
+            </article>
+
+            <article class="school-info">
+                <iron-image preload fade sizing="contain" src="/images/AGSB.png"></iron-image>
+                <div class="words">
+                    <h3>A-Levels <span class="school">Altrincham Grammar School for Boys, Manchester</span></h3>
+                    <p>Completed computing, mathematics, Chinese and physics with A*AAB</p>
+                    <p>Completed AS-Level further mathematics and chemistry</p>
+                </div>
+            </article>
+        </div>
+
+        <div id="experiences">
+            <h2>Experiences</h2>
         </div>
     </template>
 
