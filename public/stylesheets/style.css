@@ -2,11 +2,13 @@ html {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  color: #212121; }
+  color: #212121;
+  height: 100%; }
 
 body {
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  height: 100%; }
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 400;

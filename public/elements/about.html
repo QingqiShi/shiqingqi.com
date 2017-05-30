@@ -1,0 +1,93 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../paper-card/paper-card.html">
+
+<dom-module id="about-page">
+    <template>
+        <style>
+        :host {
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        paper-card {
+            margin: 1rem;
+            width: 40rem;
+        }
+
+        paper-card .card-image {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 40%;
+            background: url('/images/Selfie.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        paper-card .card-content {
+            padding: 1rem;
+        }
+
+        .card-content .heading {
+            @apply --paper-font-headline;
+        }
+
+        .card-content .item {
+            /*white-space: nowrap;*/
+            width: 60%;
+        }
+
+        .card-content .legend {
+            /*display: none;*/
+            display: inline-block;
+            width: 5rem;
+            font-weight: 100;
+            text-align: right;
+        }
+
+        .card-content .value {
+            margin-left: 2rem;
+        }
+
+        .spacer {
+            width: 40%;
+            height: 100%;
+            float: right;
+        }
+        </style>
+
+        <paper-card>
+            <div class="card-image"></div>
+            <div class="card-content">
+                <h2 class="heading">Qingqi Shi</h2>
+                <div class="item"><span class="legend">Gender</span><span class="value">Male</span></div>
+                <div class="item"><span class="legend">Age</span><span class="value">22</span></div>
+                <div class="item"><span class="legend">Nationality</span><span class="value">British</span></div>
+                <div class="item"><span class="legend">Languages</span><span class="value">Fluent English and Mandarin</span></div>
+                <div class="item"><span class="legend">Phone</span><span class="value">+44 7462111514</span></div>
+                <div class="item"><span class="legend">E-mail</span><span class="value">qingqishi@live.com</span></div>
+                <div class="item"><span class="legend">Github</span><span class="value">github.com/QingqiShi</span></div>
+                <div class="item"><span class="legend">Website</span><span class="value">shiqingqi.com</span></div>
+            </div>
+        </paper-card>
+
+        <p>test</p>
+    </template>
+
+    <script>
+    class AboutPage extends Polymer.Element {
+        static get is() {
+            return 'about-page';
+        }
+
+        ready() {
+            super.ready();
+        }
+    };
+
+    customElements.define('about-page', AboutPage);
+    </script>
+</dom-module>

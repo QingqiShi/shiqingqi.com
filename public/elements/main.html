@@ -8,6 +8,7 @@
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="about.html">
 
 <dom-module id="main-app">
     <template>
@@ -21,6 +22,17 @@
                 --text-primary-color: var(--main-app-text-primary-color, #fff);
                 --text-secondary-color: var(--main-app-text-secondary-color, #fff);
                 --accent-color: var(--main-app-accent-color, , var(--paper-yellow-a100));
+
+            }
+
+            app-header-layout {
+                height: 100%;
+            }
+
+            #about, #projects, #skills {
+                height: 100%;
+                max-width: 1024px;
+                margin: 0 auto 0 auto;
             }
 
             app-drawer {
@@ -41,15 +53,13 @@
             }
 
             app-header {
-                /*height: 3rem;*/
                 background-color: var(--primary-color);
             }
 
             app-header app-toolbar {
-                /*height: 3rem;*/
                 background-color: inherit;
                 color: var(--text-primary-color);
-                /*border-bottom: 0.1rem solid var(--secondary-color);*/
+                border-bottom: 1px solid var(--secondary-color);
             }
 
             app-header paper-icon-button {
@@ -110,13 +120,13 @@
 
             <iron-pages selected="{{selected_page}}">
                 <div id="about">
-                    <p>1Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <about-page></about-page>
                 </div>
                 <div id="projects">
-                    <p>2Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p>Projects page</p>
                 </div>
                 <div id="skills">
-                    <p>3Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p>Skills page</p>
                 </div>
             </iron-pages>
         </app-header-layout>
@@ -147,7 +157,7 @@
             }
 
             handleMenuClick() {
-                this.shadowRoot.querySelector('#drawer').toggle();
+                this.$.drawer.toggle();
             }
         };
 
