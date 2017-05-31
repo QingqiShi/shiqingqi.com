@@ -1,7 +1,6 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../paper-card/paper-card.html">
-<link rel="import" href="../iron-image/iron-image.html">
-<link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="education-info.html">
 
 <dom-module id="about-page">
     <template>
@@ -42,6 +41,7 @@
 
         .card-content .item {
             width: 60%;
+            margin-bottom: 0.5rem;
         }
 
         .card-content .legend {
@@ -118,56 +118,19 @@
         }
 
         .school-info {
-            position: relative;
-            margin-bottom: 3rem;
+            margin-bottom: 5rem;
         }
 
-        .school-info .words {
-            text-align: center;
-            width: 80%;
-            margin: 0 auto;
-        }
-
-        .school-info h3 .school {
+        .school-info p {
+            margin: 0 0 0.2rem 0;
             font-weight: 300;
-            display: block;
+            font-size: 0.9rem;
         }
 
-        .school-info iron-image {
-            width: 70%;
-            height: 6rem;
-            margin: 0 15%;
-            border: 1px solid var(--secondary-color);
-            border-radius: 0.4rem;
-        }
-
-        @media (min-width: 550px) {
-            .school-info iron-image {
-                width: 50%;
-                height: 8rem;
-                margin: 0 25%;
-            }
-        }
 
         @media (min-width: 960px) {
             .school-info {
-                width: 100%;
-                @apply --layout-horizontal;
-            }
-
-            .school-info .words {
-                text-align: left;
-                @apply --layout-flex;
-            }
-
-            .school-info h3 .school {
-                display: inline;
-            }
-
-            .school-info iron-image {
-                width: 30%;
-                height: 10rem;
-                margin: 0 2rem;
+                margin-bottom: 3rem;
             }
         }
         </style>
@@ -192,32 +155,26 @@
         <div id="educations">
             <h2>Educations</h2>
             <article class="school-info">
-                <iron-image preload fade sizing="contain" src="/images/University_of_Bristol.svg"></iron-image>
-                <div class="words">
-                    <h3>Msc Advanced Computing - Creative Technology <span class="school">University of Bristol</span></h3>
+                <education-info image="/images/University_of_Bristol.svg" date="SEP 2016 - PRESENT" course="Msc Advanced Computing - Creative Technology" school="University of Bristol">
                     <p>Thesis: "Accurate Feet Tracking of Pedestrians using remote CCTV camera"</p>
                     <p>Supervised by: Prof. Dima Damen</p>
                     <p>Expected Classification: Distinction</p>
-                </div>
+                </education-info>
             </article>
 
             <article class="school-info">
-                <iron-image preload fade sizing="contain" src="/images/University_of_Nottingham.svg"></iron-image>
-                <div class="words">
-                    <h3>BSc Hons Computer Science <span class="school">University of Nottingham</span></h3>
+                <education-info image="/images/University_of_Nottingham.svg" date="SEP 2013 - JUL 2016" course="BSc Hons Computer Science" school="University of Nottingham">
                     <p>Dissertation: "'C-Code Explainer' - Programming Tool for Non-English Speakers"</p>
                     <p>Supervised by: Prof. Jason Atkin</p>
                     <p>Classification: First-class Honours</p>
-                </div>
+                </education-info>
             </article>
 
             <article class="school-info">
-                <iron-image preload fade sizing="contain" src="/images/AGSB.png"></iron-image>
-                <div class="words">
-                    <h3>A-Levels <span class="school">Altrincham Grammar School for Boys, Manchester</span></h3>
+                <education-info image="/images/AGSB.png" date="SEP 2011 - JUL 2013" course="A-Levels" school="Altrincham Grammar School for Boys, Manchester">
                     <p>Completed computing, mathematics, Chinese and physics with A*AAB</p>
                     <p>Completed AS-Level further mathematics and chemistry</p>
-                </div>
+                </education-info>
             </article>
         </div>
 
