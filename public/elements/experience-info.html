@@ -21,7 +21,7 @@
 
         .right {
             @apply --layout-flex;
-            padding: 1rem 0 1rem 1rem;
+            padding: 1rem 2rem 1rem 1rem;
             position: relative;
         }
 
@@ -36,7 +36,7 @@
         .repo {
             position: absolute;
             top: 0;
-            right: 0;
+            right: 2rem;
             color: var(--accent-color);
             text-decoration: none;
             --paper-icon-button-ink-color: var(--accent-color);
@@ -55,9 +55,21 @@
             .left {
                 width: 4rem;
             }
+
+            .right {
+                padding-right: 1rem;
+            }
+
+            .repo {
+                right: 1rem;
+            }
         }
 
         @media (max-width: 570px) {
+            .right {
+                padding-right: 0.5rem;
+            }
+
             .repo {
                 position: relative;
             }
