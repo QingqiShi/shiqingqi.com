@@ -25,6 +25,8 @@
     "paper-tabs": "^2.0.0",
     "paper-item": "^2.0.0",
     "paper-listbox": "^2.0.0",
-    "paper-card": "PolymerElements/paper-card#2.0.0"
+    "paper-card": "PolymerElements/paper-card#2.0.0",
+    "font-awesome": "^4.7.0",
+    "paper-button": "PolymerElements/paper-button#^2.0.0"
   }
 }

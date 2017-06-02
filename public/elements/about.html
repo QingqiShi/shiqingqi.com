@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="education-info.html">
+<link rel="import" href="experience-info.html">
 
 <dom-module id="about-page">
     <template>
@@ -127,11 +128,14 @@
             font-size: 0.9rem;
         }
 
-
         @media (min-width: 960px) {
             .school-info {
                 margin-bottom: 3rem;
             }
+        }
+
+        .experience-info {
+            padding: 1rem;
         }
         </style>
 
@@ -154,32 +158,59 @@
 
         <div id="educations">
             <h2>Educations</h2>
-            <article class="school-info">
+            <div class="school-info">
                 <education-info image="/images/University_of_Bristol.svg" date="SEP 2016 - PRESENT" course="Msc Advanced Computing - Creative Technology" school="University of Bristol">
                     <p>Thesis: "Accurate Feet Tracking of Pedestrians using remote CCTV camera"</p>
                     <p>Supervised by: Prof. Dima Damen</p>
                     <p>Expected Classification: Distinction</p>
                 </education-info>
-            </article>
+            </div>
 
-            <article class="school-info">
+            <div class="school-info">
                 <education-info image="/images/University_of_Nottingham.svg" date="SEP 2013 - JUL 2016" course="BSc Hons Computer Science" school="University of Nottingham">
                     <p>Dissertation: "'C-Code Explainer' - Programming Tool for Non-English Speakers"</p>
                     <p>Supervised by: Prof. Jason Atkin</p>
                     <p>Classification: First-class Honours</p>
                 </education-info>
-            </article>
+            </div>
 
-            <article class="school-info">
+            <div class="school-info">
                 <education-info image="/images/AGSB.png" date="SEP 2011 - JUL 2013" course="A-Levels" school="Altrincham Grammar School for Boys, Manchester">
                     <p>Completed computing, mathematics, Chinese and physics with A*AAB</p>
                     <p>Completed AS-Level further mathematics and chemistry</p>
                 </education-info>
-            </article>
+            </div>
         </div>
 
         <div id="experiences">
             <h2>Experiences</h2>
+            <div class="experience-info">
+                <experience-info date="CURRENT" experience="Master's research project" location="Bristol" description="The aim of this research project is to use computer vision techniques to accurately track the pedestrian feet using CCTV camera footage. This project will involve theoretical research, and programming using C++ with OpenCV."></experience-info>
+
+                <experience-info date="" experience="Updated personal website" location="Nottingham" description="My personal website was significantly updated since a lot of new things have happened since the Master's study began. I took this chance to experiment with Polymer web components, and HTTP2." repo="https://github.com/QingqiShi/shiqingqi.com"></experience-info>
+
+                <experience-info date="2017" experience="Game of Life website" location="Bristol" description="A website about John Conway's Game of Life for the Web Technologies module. It involved applying standard HTML, CSS, Javascript and graphical design skills for the front-end, and NodeJS Express server and SQLite databse for the back-end. This work was done in a pair programming manner." repo="https://github.com/QingqiShi/Game-of-Life-Website"></experience-info>
+
+                <experience-info date="" experience="Ray Tracer" location="Bristol" description="A ray tracer was created for the Computer Graphics module using C++ and SDL. It was commented as &quot;one of the best I've ever seen&quot; by the lecturer. It involved understanding and implementing graphics techniques such as global illumination, anti-aliasing, reflection, refraction and optimisation." repo="https://github.com/QingqiShi/Ray-Tracer"></experience-info>
+
+                <experience-info date="" experience="Kidnapped robot" location="Bristol" description="This work was for the Robotics module and it involved solving the kidnapped robot problem - a robot had to be programmed to automatically localise its position and navigate to a target. Our four people group built the robot using the Lego Mindstorm kit, and programmed it using Matlab. I received one of the highest marks of 98/100 for achieving top speed and accuracy, as well as contributing the most to the project."></experience-info>
+
+                <experience-info date="2016" experience="Animation production" location="Bristol" description="This was another university project which created 3D animations for assembling a robot and making it dance. It involved 3D modelling, animating using Disney animation principles, rigging and skinning characters using Autodesk Maya. The animation received high marks and was selected for the lecturer's showcase video collection (look for Baymax in lecturer's showcase video)." video="https://youtu.be/--0zwWfkACc"></experience-info>
+
+                <experience-info date="" experience="Personal website" location="Nottingham" description="This is an ongoing personal project to create a website for myself. Many new web technologies was experimented, such as the CSS pre-procecssor Sass, the front-end framework Bootstrap, the task manager Grunt, and other tedious prep-work for setting up domain names and servers." repo="https://github.com/QingqiShi/shiqingqi.com"></experience-info>
+
+                <experience-info date="2015" experience="Undergraduate individual project" location="Nottingham" description="This project created a software to convert code written in C into natural sentences of multiple languages. The project involved digging into the C compiler Clang, and incorporating the core algorithm with GUI elements created using JavaFX."></experience-info>
+
+                <experience-info date="2014" experience="Group project" location="Nottingham" description="This second year undergraduate project was the first serious group project that I was involved with. The project aimed to create a cross-platform game called &quot;Battle Maths&quot; to aid children to learn key-stage maths. The project was created using Unity and scripted in C#."></experience-info>
+
+                <experience-info date="2013" experience="CSSA Society" location="Nottingham" description="I was engaged with the Chinese Students and Scholars Association (CSSA) of Nottingham, my job title was IT Officer. My responsibilities included maintaining and updating the CSSA website, monitoring the forum, and partly directing cultural events such as the Chinese New Year Gala."></experience-info>
+
+                <experience-info date="" experience="Video content creation" location="Nottingham" description="I created video contents and posted them on YouTube and YouKu (a Chinese video website). My videos gained 40,000+ subscribers and I was fortunate to earn from advert revenue and fan-based products. The project involved Adobe Premiere Pro, Photoshop, Audition as well as knowledge of video formats and audio capture techniques, all of which was self-taught. I eventually stopped this project to focus on university."></experience-info>
+
+                <experience-info date="2011" experience="Waiter" location="Manchester" description="I occupied a part-time job at the Rice Bow restaurant as a waiter. This experience improved my inter-personal skills."></experience-info>
+
+                <experience-info date="2009" experience="School website" location="Manchester" description="This was a secondary school project that was assigned to a group of talented students to create a website for the school. This project laid a solid foundation for my ongoing passion towards computer technologies and my team-working skills."></experience-info>
+            </div>
         </div>
     </template>
 
