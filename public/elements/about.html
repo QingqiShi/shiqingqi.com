@@ -24,7 +24,7 @@
         paper-card .card-image {
             position: absolute;
             top: 0;
-            right: 0;
+            left: 0;
             bottom: 0;
             width: 40%;
             background: url('/images/Selfie.png');
@@ -33,6 +33,7 @@
         }
 
         paper-card .card-content {
+            margin-left: 16rem;
             padding: 2rem;
         }
 
@@ -41,12 +42,11 @@
         }
 
         .card-content .item {
-            width: 60%;
+            width: 100%;
             margin-bottom: 0.5rem;
         }
 
         .card-content .legend {
-            /*display: none;*/
             display: inline-block;
             width: 5rem;
             font-weight: 100;
@@ -68,12 +68,12 @@
                 width: 30rem;
             }
 
-            .card-content .item {
-                width: 70%;
-            }
-
             paper-card .card-image {
                 width: 30%;
+            }
+
+            paper-card .card-content {
+                margin-left: 9rem;
             }
         }
 
@@ -84,6 +84,7 @@
 
             paper-card .card-content {
                 margin-top: 11rem;
+                margin-left: 0;
                 padding: 1rem;
             }
 
@@ -95,6 +96,10 @@
 
             .card-content .item {
                 width: 100%;
+            }
+
+            .card-content .legend {
+                width: 30%;
             }
 
             paper-card .card-image {
