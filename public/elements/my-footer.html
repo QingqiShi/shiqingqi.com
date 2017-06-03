@@ -1,0 +1,59 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-button/paper-button.html">
+
+<dom-module id="my-footer">
+    <template>
+        <style>
+        footer {
+            @apply --layout-horizontal;
+            color: var(--text-secondary-color);
+            background-color: var(--text-primary-color);
+            padding: 3rem 10% 3rem 10%;
+        }
+
+        .site-name {
+            @apply --layout-flex;
+            text-align: left;
+        }
+
+        .site-name a {
+            text-decoration: none;
+            font-size: 2rem;
+        }
+
+        .site-name paper-button {
+            background-color: var(--accent-color);
+            color: var(--text-secondary-color);
+            text-c
+        }
+
+        .copyright-info {
+            @apply --layout-flex;
+            @apply --layout-self-center;
+            text-align: right;
+        }
+        </style>
+        <footer>
+            <div class="site-name">
+                <a href="/"><paper-button raised>ShiQingqi.com</paper-button></a>
+            </div>
+            <div class="copyright-info">Copyright © 2017 By Qingqi Shi.</div>
+        </footer>
+    </template>
+    <script>
+        class MyFooter extends Polymer.Element {
+
+            static get is() {
+                return 'my-footer';
+            }
+
+            ready() {
+                super.ready();
+                this.selected_page = 0;
+            }
+        };
+
+        customElements.define('my-footer', MyFooter);
+    </script>
+</dom-module>
