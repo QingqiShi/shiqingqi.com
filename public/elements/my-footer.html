@@ -6,15 +6,13 @@
     <template>
         <style>
         footer {
-            @apply --layout-horizontal;
             color: var(--text-secondary-color);
             background-color: var(--text-primary-color);
             padding: 3rem 10% 3rem 10%;
         }
 
         .site-name {
-            @apply --layout-flex;
-            text-align: left;
+            text-align: center;
         }
 
         .site-name a {
@@ -25,13 +23,29 @@
         .site-name paper-button {
             background-color: var(--accent-color);
             color: var(--text-secondary-color);
-            text-c
         }
 
         .copyright-info {
-            @apply --layout-flex;
-            @apply --layout-self-center;
-            text-align: right;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        @media (min-width: 720px) {
+            footer {
+                @apply --layout-horizontal;
+            }
+
+            .site-name {
+                @apply --layout-flex;
+                text-align: left;
+            }
+
+            .copyright-info {
+                margin-top: 0;
+                @apply --layout-flex;
+                @apply --layout-self-center;
+                text-align: right;
+            }
         }
         </style>
         <footer>
