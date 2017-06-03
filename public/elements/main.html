@@ -54,12 +54,20 @@
 
             app-header {
                 background-color: var(--primary-color);
+                height: 8rem;
+                border-bottom: 1px solid var(--secondary-color);
             }
 
             app-header app-toolbar {
                 background-color: inherit;
                 color: var(--text-primary-color);
-                border-bottom: 1px solid var(--secondary-color);
+                max-width: 1024px;
+                margin: 0 auto;
+                --app-toolbar-font-size: 0.8rem;
+            }
+
+            app-header .main-toolbar {
+                --app-toolbar-font-size: 1.3rem;
             }
 
             app-header paper-icon-button {
@@ -80,18 +88,16 @@
             }
 
             app-header h1 {
-                font-weight: 300;
-                font-size: 1.5rem;
-                line-height: 3rem;
+                font-weight: 400;
                 margin: 0.25rem 0 0.25rem 1rem;
             }
 
-            @media (max-width: 410px) {
+            @media (max-width: 510px) {
                 paper-tabs {
                     display: none;
                 }
             }
-            @media (min-width: 410px) {
+            @media (min-width: 510px) {
                 app-toolbar paper-icon-button {
                     display: none;
                 }
@@ -106,14 +112,17 @@
 
 
         <app-header-layout>
-            <app-header slot="header" fixed effects="waterfall">
+            <app-header slot="header" reveals condenses effects="waterfall resize-title">
                 <app-toolbar>
                     <paper-icon-button icon="menu" on-click="handleMenuClick"></paper-icon-button>
-                    <h1 main-title>Qingqi Shi</h1>
+                    <h1 condensed-title class="condensed">Qingqi Shi</h1>
+                </app-toolbar>
+                <app-toolbar class="main-toolbar">
+                    <h1 main-title class="main">Qingqi Shi</h1>
                     <paper-tabs selected="{{selected_page}}">
                         <paper-tab>About Me</paper-tab>
                         <paper-tab>Projects</paper-tab>
-                        <paper-tab>Skills</paper-tab>
+                        <paper-tab>Skill Set</paper-tab>
                     </paper-tabs>
                 </app-toolbar>
             </app-header>
