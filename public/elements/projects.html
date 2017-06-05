@@ -25,6 +25,12 @@
         .expand-item {
             @apply --app-grid-expandible-item;
         }
+
+        @media (max-width: 830px) {
+            :host {
+                --app-grid-columns: 2;
+            }
+        }
         </style>
 
         <div class="app-grid">
