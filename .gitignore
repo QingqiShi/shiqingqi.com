@@ -31,3 +31,4 @@ bower_components
 npm-debug.log
 
 Backup/*
+public/stylesheets/style.css
