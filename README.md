@@ -11,11 +11,11 @@ This website uses an Express server, and experiments with Polymer web components
 Requires NodeJS, NPM and Bower.
 
 ## Installation
-If haven't already, install bower as global:
+If you haven't already, install bower as global:
 
         > npm install -g bower
 
-Navigate to the base folder of the repository in the terminal, and use the following command to install Node modules:
+Install Node modules:
 
         > npm install
 
@@ -24,6 +24,6 @@ Install bower components:
         > bower install
 
 ## Usage
-Navigate back to the base folder of the repository, then use the following to start a local server on http://localhost:3000 (or use environment variables to specify the port for Express):
+Use the following to start a local server on http://localhost:3000 (or use environment variables to specify the port for Express):
 
         > npm start
