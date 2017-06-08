@@ -4,8 +4,7 @@ This is the repository for my personal website.
 This website uses an Express server, and experiments with Polymer web components.
 
 ## To-do List
-- Use HTTPS for encryption
-- Use HTTP 2 for server push
+- Server push
 
 ## Environment
 Requires NodeJS, NPM and Bower.

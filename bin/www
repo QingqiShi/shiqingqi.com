@@ -6,7 +6,8 @@
 
 var app = require('../app');
 var debug = require('debug')('shiqingqi.com:server');
-var http = require('http');
+var spdy = require('spdy');
+var fs = require('fs');
 
 /**
  * Get port from environment and store in Express.
@@ -17,10 +18,29 @@ app.set('port', port);
 console.log('Using port: ' + port);
 
 /**
- * Create HTTP server.
+ * Set certificate file.
  */
 
-var server = http.createServer(app);
+var keyFile = '';
+var certFile = '';
+if (process.env.PORT) {
+    keyFile = '/etc/letsencrypt/live/shiqingqi.com/privkey.pem';
+    certFile = '/etc/letsencrypt/live/shiqingqi.com/fullchain.pem';
+} else {
+    keyFile = __dirname + '/../../privkey.pem';
+    certFile = __dirname + '/../../fullchain.pem';
+}
+
+/**
+ * Create HTTPS server.
+ */
+
+var options = {
+    key: fs.readFileSync(keyFile),
+    cert: fs.readFileSync(certFile),
+};
+// var server = http.createServer(app);
+var server = spdy.createServer(options, app);
 
 /**
  * Listen on provided port, on all network interfaces.
