@@ -2,6 +2,8 @@
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-media-query/iron-media-query.html">
+<link rel="import" href="../iron-location/iron-location.html">
+<link rel="import" href="../iron-location/iron-query-params.html">
 <link rel="import" href="../app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../app-layout/app-layout.html">
@@ -115,6 +117,8 @@
 
         </style>
 
+        <iron-location query="{{query}}" dwell-time="2000"></iron-location>
+        <iron-query-params id="queryParams" params-string="{{paramStr}}" params-object="{{params}}"></iron-query-params>
 
         <app-header-layout>
             <app-header slot="header" reveals condenses effects="waterfall resize-title">
@@ -132,7 +136,7 @@
                 </app-toolbar>
             </app-header>
 
-            <iron-pages selected="{{selected_page}}">
+            <iron-pages id="pages" selected="{{selected_page}}">
                 <section id="about">
                     <about-page></about-page>
                 </section>
@@ -170,11 +174,22 @@
 
             ready() {
                 super.ready();
-                this.selected_page = 0;
+                this.$.pages.addEventListener('selected-item-changed', this.handlePageChange.bind(this));
+
+                if (this.query) {
+                    this.paramStr = this.query;
+                    this.selected_page = this.params.page;
+                } else {
+                    this.selected_page = 0;
+                }
             }
 
             handleMenuClick() {
                 this.$.drawer.toggle();
+            }
+
+            handlePageChange() {
+                this.query = 'page=' + this.selected_page;
             }
         };
 
