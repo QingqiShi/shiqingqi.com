@@ -55,7 +55,7 @@ var pushList = [
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    pusher(res, pushList);
+    // pusher(res, pushList);
 
     res.render('index', { title: 'Qingqi Shi' });
 

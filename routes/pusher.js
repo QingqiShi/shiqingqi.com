@@ -30,10 +30,11 @@ var pusher = function(res, options) {
 
         // Content
         if (typeof obj.notBower != 'undefined' && obj.notBower) {
-            var content = fs.readFileSync(__dirname + '/../public/' + obj.path);
+            var content = fs.readFileSync(__dirname + '/../public' + obj.path, {encoding: 'utf8'});
         } else {
-            var content = fs.readFileSync(__dirname + '/../bower_components/' + obj.path);
+            var content = fs.readFileSync(__dirname + '/../bower_components' + obj.path, {encoding: 'utf8'});
         }
+        console.log(content);
 
         // Options
         if (typeof obj.type == 'undefined' || obj.type == 'html') {
