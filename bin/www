@@ -14,8 +14,9 @@ var fs = require('fs');
  */
 
 var port = normalizePort(process.env.PORT || '3000');
+var wport = normalizePort(process.env.WPORT || '8080');
 app.set('port', port);
-console.log('Using port: ' + port);
+console.log('Using port: ' + port + ' and ' + wport);
 
 /**
  * Set certificate file.
@@ -109,3 +110,12 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+var express = require('express');
+var http = express();
+
+http.get('*', function(req, res){
+  res.redirect('https://' + req.headers['host'] + req.url)
+});
+
+http.listen(wport);
