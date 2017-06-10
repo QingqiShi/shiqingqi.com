@@ -28,3 +28,76 @@ main-app {
     --main-app-text-secondary-color: $text-secondary-color;
     --main-app-accent-color: $accent-color;
 }
+
+#first-paint {
+    header {
+        border-bottom: 1px solid $secondary-color;
+    }
+
+    .toolbar {
+        margin-top: 64px;
+        padding: 0 16px;
+        height: 64px;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        font-size: 1.3rem;
+
+        h1 {
+            font-weight: 400;
+            margin: 0.25rem 0 0.25rem 1rem;
+            -webkit-flex: 1;
+            -ms-flex: 1 1 0.000000001px;
+            flex: 1;
+            -webkit-flex-basis: 0.000000001px;
+            flex-basis: 0.000000001px;
+        }
+
+        nav {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            height: 100%;
+            font-size: 14px;
+            font-weight: 500;
+            overflow: hidden;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            // -webkit-flex: 1;
+            // -ms-flex: 1 1 0.000000001px;
+            // flex: 1;
+            // -webkit-flex-basis: 0.000000001px;
+            // flex-basis: 0.000000001px;
+
+            .item {
+                cursor: pointer;
+                -webkit-flex: auto;
+                -ms-flex: auto;
+                flex: auto;
+                padding: 0 12px;
+                vertical-align: middle;
+                height: 100;
+                line-height: 64px;
+                font-weight: 500;
+            }
+
+            @media (max-width: 510px) {
+                & {
+                    display: none;
+                }
+            }
+        }
+    }
+}

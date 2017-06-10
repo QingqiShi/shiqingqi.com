@@ -9,9 +9,6 @@
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
-<link rel="import" href="about.html">
-<link rel="import" href="projects.html">
-<link rel="import" href="skills.html">
 <link rel="import" href="my-footer.html">
 <link rel="import" href="my-icons.html">
 
@@ -138,13 +135,13 @@
 
             <iron-pages id="pages" selected="{{selected_page}}">
                 <section id="about">
-                    <about-page></about-page>
+                    <about-page id="about-ele"></about-page>
                 </section>
                 <section id="projects">
-                    <projects-page></projects-page>
+                    <projects-page id="about-ele"></projects-page>
                 </section>
                 <section id="skills">
-                    <skills-page></skills-page>
+                    <skills-page id="skills-ele"></skills-page>
                 </section>
             </iron-pages>
 
@@ -175,13 +172,18 @@
             ready() {
                 super.ready();
 
+                var firstPaint = document.getElementById('first-paint');
+                firstPaint.parentNode.removeChild(firstPaint);
+
                 this.$.pages.addEventListener('selected-item-changed', this.handlePageChange.bind(this));
 
                 if (this.query) {
                     this.paramStr = this.query;
                     this.selected_page = this.params.page;
+                    this.loadPage(this.selected_page);
                 } else {
                     this.selected_page = 0;
+                    this.loadPage(this.selected_page);
                 }
             }
 
@@ -191,6 +193,24 @@
 
             handlePageChange() {
                 this.query = 'page=' + this.selected_page;
+                this.loadPage(this.selected_page);
+            }
+
+            loadPage(page_num) {
+                if (page_num == 0) {
+                    var href = '/elements/about.html';
+                    var ele = 'about-page';
+                } else if (page_num == 1) {
+                    var href = '/elements/projects.html';
+                    var ele = 'projects-page';
+                } else {
+                    var href = '/elements/skills.html';
+                    var ele = 'skills-page';
+                }
+
+                if (!customElements.get(ele)) {
+                    Polymer.importHref(href, function() {}, function() {}, false);
+                }
             }
         };
 
