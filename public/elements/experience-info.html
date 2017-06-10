@@ -1,9 +1,8 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../iron-icons/av-icons.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
-<link rel="import" href="font-awesome.html">
+<link rel="import" href="my-icons.html">
 
 <dom-module id="experience-info">
     <template>
@@ -93,7 +92,7 @@
                     <a class="repo" href="{{repo}}" target="_blank"><paper-button raised><iron-icon icon="font-awesome:github"></iron-icon> Repo</paper-button></a>
                 </template>
                 <template is="dom-if" if="{{video}}">
-                    <a class="repo" href="{{video}}" target="_blank"><paper-button raised><iron-icon icon="av:play-arrow"></iron-icon> Video</paper-button></a>
+                    <a class="repo" href="{{video}}" target="_blank"><paper-button raised><iron-icon icon="my-icons:play-arrow"></iron-icon> Video</paper-button></a>
                 </template>
 
                 <p>{{description}}</p>
