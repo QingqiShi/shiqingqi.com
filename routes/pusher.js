@@ -1,5 +1,6 @@
 var express = require('express');
 var fs = require('fs');
+var sass = require('node-sass');
 
 // Obj = [{path, type}]
 
@@ -30,18 +31,23 @@ var pusher = function(res, options) {
 
         // Content
         if (typeof obj.notBower != 'undefined' && obj.notBower) {
-            var content = fs.readFileSync(__dirname + '/../public' + obj.path, {encoding: 'utf8'});
+            var path = __dirname + '/../public' + obj.path;
         } else {
-            var content = fs.readFileSync(__dirname + '/../bower_components' + obj.path, {encoding: 'utf8'});
+            var path = __dirname + '/../bower_components' + obj.path;
         }
 
         // Options
         if (typeof obj.type == 'undefined' || obj.type == 'html') {
             var opt = htmlOptions;
+            var content = fs.readFileSync(path, {encoding: 'utf8'});
         } else if (obj.type == 'javascript') {
             var opt = javascriptOptions;
+            var content = fs.readFileSync(path, {encoding: 'utf8'});
         } else {
             var opt = cssOptions;
+            var content = sass.renderSync({
+                file: path
+            }).css;
         }
 
         // Push
