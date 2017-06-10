@@ -35,19 +35,15 @@ var pusher = function(res, options) {
         } else {
             var path = __dirname + '/../bower_components' + obj.path;
         }
+        var content = fs.readFileSync(path, {encoding: 'utf8'});
 
         // Options
         if (typeof obj.type == 'undefined' || obj.type == 'html') {
             var opt = htmlOptions;
-            var content = fs.readFileSync(path, {encoding: 'utf8'});
         } else if (obj.type == 'javascript') {
             var opt = javascriptOptions;
-            var content = fs.readFileSync(path, {encoding: 'utf8'});
         } else {
             var opt = cssOptions;
-            var content = sass.renderSync({
-                file: path
-            }).css;
         }
 
         // Push
