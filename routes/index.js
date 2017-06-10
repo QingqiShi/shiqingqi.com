@@ -15,9 +15,6 @@ var pushList = [
         path: '/polymer/polymer-element.html',
     },
     {
-        path: '/iron-icons/iron-icons.html',
-    },
-    {
         path: '/iron-pages/iron-pages.html',
     },
     {
@@ -55,7 +52,7 @@ var pushList = [
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    // pusher(res, pushList);
+    pusher(res, pushList);
 
     res.render('index', { title: 'Qingqi Shi' });
 

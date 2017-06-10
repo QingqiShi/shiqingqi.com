@@ -34,7 +34,6 @@ var pusher = function(res, options) {
         } else {
             var content = fs.readFileSync(__dirname + '/../bower_components' + obj.path, {encoding: 'utf8'});
         }
-        console.log(content);
 
         // Options
         if (typeof obj.type == 'undefined' || obj.type == 'html') {
