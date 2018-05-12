@@ -14,7 +14,7 @@ export default {
         statementWhy: 'I believe in {{}}.',
         craftsmanSpirit: "craftsman's spirit",
 
-        statementHow: 'Craftsmen make things with {{}}, {{}}, {{}}.',
+        statementHow: 'Craftsmen make things with {{}}, {{}} and {{}}.',
         craftsmanProp1: 'perfection',
         craftsmanProp2: 'precision',
         craftsmanProp3: 'patience',
