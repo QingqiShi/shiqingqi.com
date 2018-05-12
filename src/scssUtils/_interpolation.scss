@@ -1,0 +1,22 @@
+@function variable-value($startValue, $endValue, $variable) {
+  @return calc(
+    #{$startValue} + #{$endValue - $startValue} * #{var($variable)}
+  );
+}
+
+@function variable-color($startColor, $endColor, $variable) {
+  @if length($startColor) == 3 {
+    @return RGB(
+      variable-value(nth($startColor, 1), nth($endColor, 1), $variable),
+      variable-value(nth($startColor, 2), nth($endColor, 2), $variable),
+      variable-value(nth($startColor, 3), nth($endColor, 3), $variable)
+    );
+  } @else {
+    @return RGBA(
+      variable-value(nth($startColor, 1), nth($endColor, 1), $variable),
+      variable-value(nth($startColor, 2), nth($endColor, 2), $variable),
+      variable-value(nth($startColor, 3), nth($endColor, 3), $variable),
+      variable-value(nth($startColor, 4), nth($endColor, 4), $variable)
+    );
+  }
+}
