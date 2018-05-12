@@ -38,6 +38,7 @@ export default {
 @import '../scssUtils/colors';
 
 section {
+    background-color: $white;
     padding: 3rem;
     @include breakpoint($tablet) {
         padding: 4rem;
@@ -68,26 +69,18 @@ section {
 .large-font {
     font-size: 1.3rem;
     @include breakpoint($tablet) {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
     @include breakpoint($laptop) {
-        font-size: 1.9rem;
+        font-size: 1.7rem;
     }
     @include breakpoint($desktop) {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 }
 
 .dark {
     color: $white;
     background-color: $grey;
-}
-
-.flex {
-    @include breakpoint($laptop) {
-        display: flex;
-        justify-content: center;
-        align-items: stretch;
-    }
 }
 </style>

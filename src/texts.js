@@ -22,6 +22,8 @@ export default {
         statementWhat: `I apply craftsman's spirit to every detail in life, and as part of that life I also make products with {{}}.`,
         javascript: 'JavaScript',
 
+        educations: 'Educations',
+
         eduBristolTime: 'Sep 2016 - Jan 2018',
         eduBristolType: "Master's Degree",
         eduBristolSchool: 'University of Bristol',
@@ -65,21 +67,23 @@ export default {
         frontEndDev: '前端开发',
         creator: '创造者',
 
-        statementWhy: '我信奉{{}}',
+        statementWhy: '我信奉{{}}。',
         craftsmanSpirit: '工匠精神',
 
-        statementHow: '工匠用他们的{{}}、{{}}以及{{}}的精神雕琢产品',
+        statementHow: '工匠用他们{{}}、{{}}{{}}的精神雕琢产品。',
         craftsmanProp1: '敬业',
         craftsmanProp2: '专注',
         craftsmanProp3: '精益求精',
 
-        statementWhat: `我将工匠精神付诸生活点滴，包括编写{{}}产品`,
+        statementWhat: `我将工匠精神付诸生活点滴，包括编写{{}}产品。`,
         javascript: 'JavaScript',
+
+        educations: '教育背景',
 
         eduBristolTime: '2016年9月 - 2018年1月',
         eduBristolType: '研究生',
         eduBristolSchool: '布里斯托大学',
-        eduBristolCourse: '高级计算 - 创新技术 理学硕士',
+        eduBristolCourse: '高级计算机创新技术理学硕士',
         eduBristolDetailName1: '论文',
         eduBristolDetailValue1:
             'Accurate Feet Tracking of Pedestrians using Remote CCTV Camera',
@@ -91,11 +95,11 @@ export default {
         eduNottinghamTime: '2013年9月 - 2016年7月',
         eduNottinghamType: '本科',
         eduNottinghamSchool: '诺丁汉大学',
-        eduNottinghamCourse: '计算机科学荣誉理学士',
+        eduNottinghamCourse: '计算机科学荣誉理学学士',
         eduNottinghamDetailName1: '论文',
         eduNottinghamDetailValue1:
             "'C-Code Explainer' - Programming Tool for Non-English Speakers",
-        eduNottinghamDetailName2: 'Supervised by',
+        eduNottinghamDetailName2: '导师',
         eduNottinghamDetailValue2: 'Jason Atkin 教授',
         eduNottinghamDetailName3: '学位等级',
         eduNottinghamDetailValue3: '一级荣誉学位',

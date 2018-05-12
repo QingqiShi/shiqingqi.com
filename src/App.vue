@@ -25,12 +25,14 @@ export default {
 
 
 <style lang="scss">
+@import './scssUtils/colors';
+
 #app {
     font-family: 'Roboto', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
-    color: #2c3e50;
+    color: $grey;
 }
 
 h1,
@@ -46,5 +48,9 @@ h6 {
 .heading-font {
     font-family: 'Ubuntu', sans-serif;
     font-weight: 700;
+}
+
+button {
+    color: $grey;
 }
 </style>

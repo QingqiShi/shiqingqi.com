@@ -1,23 +1,29 @@
 <template>
-    <card class="education">
-        <button>
-            <div class="logo">
-                <img :src="options.logo" alt="">
-            </div>
-            <div class="info">
-                <t :t="options.time" class="time" tag="div"/>
-                <t :t="options.type" class="type" tag="div"/>
-                <t :t="options.school" class="school" tag="strong"/>
-            </div>
-            <div class="expand">
-                <t :t="options.course" class="course" tag="div"/>
-                <div v-for="detail in options.details" :key="detail.name" class="details">
-                    <t :t="options.name" class="name" tag="div"/>
-                    <t :t="options.value" class="value" tag="div"/>
+    <div class="container">
+        <card :class="{'flip': flipped}" class="education vertical">
+            <button class="front" @click="flip">
+                <div class="logo">
+                    <img :src="options.logo" alt="">
                 </div>
+                <div class="info">
+                    <t :t="options.time" class="time" tag="div" />
+                    <t :t="options.type" class="type heading-font" tag="div" />
+                    <t :t="options.school" class="school heading-font" tag="strong" />
+                </div>
+            </button>
+            <div slot="backSide" class="back-side">
+                <button @click="flip">
+                    <t :t="options.course" class="course heading-font" tag="div" />
+                    <div class="details">
+                        <div v-for="detail in options.details" :key="detail.name" class="detail">
+                            <t :t="detail.name" class="name heading-font" tag="div" />
+                            <t :t="detail.value" class="value" tag="div" />
+                        </div>
+                    </div>
+                </button>
             </div>
-        </button>
-    </card>
+        </card>
+    </div>
 </template>
 
 <script>
@@ -33,6 +39,14 @@ export default {
             type: Object,
             required: true
         }
+    },
+    data: () => ({
+        flipped: false
+    }),
+    methods: {
+        flip() {
+            this.flipped = !this.flipped;
+        }
     }
 };
 </script>
@@ -41,9 +55,19 @@ export default {
 @import '../scssUtils/colors';
 @import '../scssUtils/breakpoint';
 
-.education {
+.container {
+    perspective: 2000;
     flex-basis: 0;
     flex-grow: 1;
+}
+
+.back-side {
+    height: 100%;
+    width: 100%;
+}
+
+.education {
+    height: 100%;
 
     margin: 1rem 0;
     @include breakpoint($tablet) {
@@ -67,11 +91,6 @@ export default {
     padding: 2rem;
     transition: background-color 0.2s linear;
 
-    &:hover,
-    &:focus {
-        background-color: $blue;
-    }
-
     @include breakpoint($tablet) {
         display: flex;
         align-items: center;
@@ -84,6 +103,9 @@ export default {
     @include breakpoint($desktop) {
         display: flex;
     }
+}
+.back-side button {
+    padding: 1rem;
 }
 
 img {
@@ -110,17 +132,39 @@ img {
 }
 
 .type {
-    font-family: 'Ubuntu', sans-serif;
     font-size: 0.8rem;
     text-transform: uppercase;
 }
 
 .school {
-    font-family: 'Ubuntu', sans-serif;
     font-size: 1.5rem;
 }
 
-.expand {
-    display: none;
+.course {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    flex-basis: 50%;
+    min-width: 50%;
+}
+
+.details {
+    flex-grow: 1;
+
+    @include breakpoint($tablet) {
+        padding: 1rem;
+    }
+
+    @include breakpoint($laptop) {
+        padding: 0;
+    }
+
+    @include breakpoint($desktop) {
+        padding: 1rem;
+    }
+}
+
+.detail {
+    margin-bottom: 0.8rem;
+    font-size: 0.8rem;
 }
 </style>
