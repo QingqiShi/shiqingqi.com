@@ -82,7 +82,7 @@ export default {
         craftsmanProp2: '专注',
         craftsmanProp3: '精益求精',
 
-        statementWhat: `我将工匠精神付诸生活点滴，包括编写{{}}产品。`,
+        statementWhat: `我将工匠精神付诸生活点滴，包括用{{}}编写应用。`,
         javascript: 'JavaScript',
 
         educations: '教育背景',

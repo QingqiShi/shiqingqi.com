@@ -55,10 +55,10 @@ section {
         font-size: 1.1rem;
     }
     @include breakpoint($laptop) {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
     }
     @include breakpoint($desktop) {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
     }
 }
 
