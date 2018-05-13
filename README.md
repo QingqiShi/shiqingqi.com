@@ -2,7 +2,22 @@
 
 This is the repository for my personal website.
 
-## To-do List
-- Home page
-- Journey page
-- Skills
+## Install
+```
+> npm i
+```
+
+## Develop
+```
+> npm run serve
+```
+
+## Production build
+```
+> npm run build
+```
+
+## Lint and auto-fix
+```
+> npm run lint
+```

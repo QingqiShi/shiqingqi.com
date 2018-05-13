@@ -2,6 +2,7 @@
     <div class="resume">
         <banner/>
         <statement-section/>
+        <works-section/>
         <educations-section/>
     </div>
 </template>
@@ -12,6 +13,7 @@ import Banner from '@/components/Banner.vue';
 import FlatSection from '@/components/FlatSection.vue';
 import Education from '@/components/Education.vue';
 import StatementSection from '@/components/StatementSection.vue';
+import WorksSection from '@/components/WorksSection.vue';
 import EducationsSection from '@/components/EducationsSection.vue';
 
 export default {
@@ -21,6 +23,7 @@ export default {
         FlatSection,
         Education,
         StatementSection,
+        WorksSection,
         EducationsSection
     }
 };
@@ -30,7 +33,7 @@ export default {
 @import '../scssUtils/colors';
 
 em {
-    color: $green;
+    color: $blue;
     font-style: normal;
 }
 </style>

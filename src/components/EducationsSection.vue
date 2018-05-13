@@ -2,7 +2,6 @@
     <flat-section :dark="true" :flex="true">
         <t t="educations" tag="h1" />
         <div class="educations">
-
             <education :options="{
                 logo: require('@/assets/University_of_Bristol.svg'),
                 time: 'eduBristolTime',

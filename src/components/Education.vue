@@ -56,7 +56,7 @@ export default {
 @import '../scssUtils/breakpoint';
 
 .container {
-    perspective: 2000;
+    perspective: 2000px;
     flex-basis: 0;
     flex-grow: 1;
 }
@@ -118,11 +118,15 @@ img {
 }
 
 .info {
-    margin-top: 1rem;
+    margin: 1rem 0;
     flex-grow: 1;
 
-    @include breakpoint($tablet) {
-        margin: 0 0 1rem;
+    @include breakpoint-minmax($tablet, $laptop) {
+        margin: 0 0 0 1rem;
+    }
+
+    @include breakpoint($desktop) {
+        margin: 0 0 0 1rem;
     }
 }
 

@@ -1,7 +1,7 @@
 import T from './T.vue';
 
 function getText(text, lang, key) {
-    return text[lang][key] || text['en'][key];
+    return text[lang][key] || text['en'][key] || `$$${key}$$`;
 }
 
 const Texts = (texts, initLang) => ({

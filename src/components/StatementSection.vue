@@ -1,5 +1,5 @@
 <template functional>
-    <flat-section :large-font="true">
+    <flat-section :dark="true" :large-font="true">
         <t t="statementWhy" tag="p">
             <em class="heading-font">
                 <span>"</span>
