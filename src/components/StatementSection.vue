@@ -2,9 +2,7 @@
     <flat-section :dark="true" :large-font="true">
         <t t="statementWhy" tag="p">
             <em class="heading-font">
-                <span>"</span>
-                <t t="craftsmanSpirit" />
-                <span>"</span>
+                <span>"</span><t t="craftsmanSpirit" /><span>"</span>
             </em>
         </t>
         <t t="statementHow" tag="p">

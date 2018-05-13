@@ -77,7 +77,7 @@ export default {
         statementWhy: '我信奉{{}}。',
         craftsmanSpirit: '工匠精神',
 
-        statementHow: '工匠用他们{{}}、{{}}{{}}的精神雕琢产品。',
+        statementHow: '工匠用他们{{}}、{{}}和{{}}的精神雕琢产品。',
         craftsmanProp1: '敬业',
         craftsmanProp2: '专注',
         craftsmanProp3: '精益求精',
