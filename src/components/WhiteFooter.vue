@@ -18,7 +18,7 @@
                     <instagram-svg/>
                 </icon-button>
                 <icon-button :svg="true" 
-                             link="www.linkedin.com/in/qingqi-shi" 
+                             link="https://www.linkedin.com/in/qingqi-shi" 
                              target="blank" 
                              no-bg 
                              invert>
