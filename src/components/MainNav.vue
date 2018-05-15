@@ -63,6 +63,7 @@ export default {
         openMenu: function() {
             const overlay = this.$refs['menu-overlay'];
             const card = this.$refs['menu-card'].$el;
+            const btn = this.$refs['menu-btn'].$el;
 
             // Show overlay
             overlay.style.display = 'block';
@@ -76,16 +77,22 @@ export default {
             card.style.width = '';
             card.style.height = '';
             card.classList.add('main-nav-card-animation');
+            btn.classList.add('main-nav-card-animation');
             card.getBoundingClientRect();
+            btn.getBoundingClientRect();
             card.style.width = cardRect.width + 'px';
             card.style.height = cardRect.height + 'px';
             card.style.opacity = 1;
             card.style['border-radius'] = '0.2rem';
             card.style['padding'] = '1rem 0';
+            btn.style.width = cardRect.width + 'px';
+            btn.style.height = `calc(${cardRect.height}px + 1rem)`;
+            btn.style['border-radius'] = '0.2rem';
         },
         closeMenu: function() {
             const overlay = this.$refs['menu-overlay'];
             const card = this.$refs['menu-card'].$el;
+            const btn = this.$refs['menu-btn'].$el;
 
             // Morph menu
             card.style.width = '';
@@ -93,6 +100,10 @@ export default {
             card.style.opacity = '';
             card.style['border-radius'] = '';
             card.style['padding'] = '';
+            btn.style.width = '';
+            btn.style.height = '';
+            btn.style['border-radius'] = '';
+            btn.style['padding'] = '';
 
             // Hide overlay
             overlay.classList.remove('open');
@@ -104,6 +115,7 @@ export default {
                     // console.log(e);
                     card.classList.remove('main-nav-card-animation');
                     overlay.style.display = 'none';
+                    btn.classList.remove('main-nav-card-animation');
                 },
                 {
                     once: true
@@ -123,8 +135,6 @@ export default {
     position: fixed;
     right: 2rem;
     bottom: 2rem;
-    width: 4rem;
-    height: 4rem;
     z-index: 100;
     font-family: 'Ubuntu', sans-serif;
 
@@ -139,7 +149,7 @@ export default {
     display: none;
 
     position: fixed;
-    z-index: 150;
+    z-index: 500;
     top: 0;
     bottom: 0;
     left: 0;
@@ -181,6 +191,7 @@ export default {
     border-radius: 50%;
     overflow: hidden;
     opacity: 0;
+    z-index: 500;
 
     @include breakpoint($laptop) {
         bottom: initial;
