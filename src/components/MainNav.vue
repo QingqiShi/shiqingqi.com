@@ -88,6 +88,7 @@ export default {
             btn.style.width = cardRect.width + 'px';
             btn.style.height = `calc(${cardRect.height}px + 1rem)`;
             btn.style['border-radius'] = '0.2rem';
+            btn.style.opacity = 0;
         },
         closeMenu: function() {
             const overlay = this.$refs['menu-overlay'];
@@ -104,6 +105,7 @@ export default {
             btn.style.height = '';
             btn.style['border-radius'] = '';
             btn.style['padding'] = '';
+            btn.style.opacity = '';
 
             // Hide overlay
             overlay.classList.remove('open');
