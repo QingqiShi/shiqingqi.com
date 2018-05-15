@@ -4,6 +4,7 @@
         <statement-section/>
         <works-section/>
         <educations-section/>
+        <white-footer/>
     </div>
 </template>
 
@@ -15,6 +16,7 @@ import Education from '@/components/Education.vue';
 import StatementSection from '@/components/StatementSection.vue';
 import WorksSection from '@/components/WorksSection.vue';
 import EducationsSection from '@/components/EducationsSection.vue';
+import WhiteFooter from '@/components/WhiteFooter.vue';
 
 export default {
     name: 'Home',
@@ -24,7 +26,8 @@ export default {
         Education,
         StatementSection,
         WorksSection,
-        EducationsSection
+        EducationsSection,
+        WhiteFooter
     }
 };
 </script>

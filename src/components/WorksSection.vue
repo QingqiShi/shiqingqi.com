@@ -183,8 +183,15 @@ export default {
     .business-card {
         @include vertical-business-card();
 
+        @include breakpoint-minmax(0, $tablet) {
+            max-width: 28rem;
+            margin: 0 auto;
+        }
+
         @include breakpoint-minmax($tablet, $laptop) {
             @include horizontal-business-card();
+            max-width: 45rem;
+            margin: 0 auto;
         }
 
         @include breakpoint($laptop) {

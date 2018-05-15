@@ -1,17 +1,30 @@
-<template>
-    <button class="icon-button">
-        <i class="material-icons">{{ icon }}</i>
-    </button>
-</template>
-
 <script>
 export default {
     name: 'IconButton',
     props: {
         icon: {
             type: String,
-            default: 'star'
+            default: ''
+        },
+        link: {
+            type: String,
+            default: ''
         }
+    },
+    render() {
+        const inner = this.icon ? (
+            <i class="material-icons">{this.icon}</i>
+        ) : (
+            this.$slots.default
+        );
+
+        return this.link ? (
+            <a class="icon-button" href={this.link}>
+                {inner}
+            </a>
+        ) : (
+            <button class="icon-button">{inner}</button>
+        );
     }
 };
 </script>
@@ -50,11 +63,17 @@ i {
     z-index: 110;
 }
 
-button {
+svg {
+    z-index: 110;
+}
+
+button,
+a {
     // Center align menu icon
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 
     // Circle
     width: 4rem;
@@ -64,11 +83,13 @@ button {
 
     // Colors
     color: $white;
+    fill: $white;
     background: transparent;
 
     // Pointer style and transitions
     cursor: pointer;
-    transition: color 0.2s linear;
+    transition: color 0.2s linear, fill 0.2s linear;
+    border-radius: 50%;
 
     &:before,
     &:after {
@@ -77,7 +98,7 @@ button {
         width: 100%;
         height: 100%;
         position: absolute;
-        border-radius: 50%;
+        border-radius: inherit;
     }
 
     // Drop shadow
@@ -105,8 +126,6 @@ button {
     &:after {
         z-index: 95;
         background-color: $blue;
-        // transform: scale(0);
-        // opacity: 0;
 
         animation-name: shrink;
         animation-duration: 0.2s;
@@ -125,6 +144,33 @@ button {
         &:after {
             animation-name: expand;
         }
+    }
+}
+
+[no-bg] {
+    &:before {
+        background: transparent;
+        box-shadow: none;
+    }
+
+    &:hover,
+    &:focus {
+        background: transparent;
+    }
+}
+
+[invert] {
+    color: $grey;
+    fill: $grey;
+
+    &:hover,
+    &:focus {
+        color: $white;
+        fill: $white;
+    }
+
+    &:after {
+        background-color: $green;
     }
 }
 </style>

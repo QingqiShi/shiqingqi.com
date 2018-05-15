@@ -9,7 +9,7 @@ $desktop: 1920px;
 }
 
 @mixin breakpoint-minmax($min, $max) {
-    @media screen and (min-width: $min) and (max-width: $max - 1) {
+    @media screen and (min-width: $min) and (max-width: $max) {
         @content;
     }
 }
