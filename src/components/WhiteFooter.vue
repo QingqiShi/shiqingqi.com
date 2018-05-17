@@ -4,21 +4,24 @@
             <!-- <t t="name" tag="h3"/> -->
             <div class="socials">
                 <icon-button :svg="true" 
+                             aria-label="Github" 
                              link="https://github.com/QingqiShi"
-                             target="blank"
+                             target="blank" 
                              no-bg 
                              invert>
                     <github-svg/>
                 </icon-button>
                 <icon-button :svg="true" 
-                             link="https://www.instagram.com/qingqishi/" 
+                             aria-label="Instagram" 
+                             link="https://www.instagram.com/qingqishi/"
                              target="blank" 
                              no-bg 
                              invert>
                     <instagram-svg/>
                 </icon-button>
                 <icon-button :svg="true" 
-                             link="https://www.linkedin.com/in/qingqi-shi" 
+                             aria-label="LinkedIn" 
+                             link="https://www.linkedin.com/in/qingqi-shi"
                              target="blank" 
                              no-bg 
                              invert>
@@ -26,7 +29,8 @@
                 </icon-button>
             </div>
             <div class="copyright heading-font">
-                &copy; {{ (new Date()).getFullYear() }} <t t="name"/>
+                &copy; {{ (new Date()).getFullYear() }}
+                <t t="name" />
             </div>
         </flat-section>
     </footer>
