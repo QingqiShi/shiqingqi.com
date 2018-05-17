@@ -59,14 +59,6 @@ export default {
     }
 }
 
-i {
-    z-index: 110;
-}
-
-svg {
-    z-index: 110;
-}
-
 button,
 a {
     // Center align menu icon
@@ -105,7 +97,7 @@ a {
     &:before {
         @include small-shadow;
         background-color: $green;
-        z-index: 90;
+        z-index: -20;
 
         // Change background color with scroll for laptop and above
         @include breakpoint($laptop) {
@@ -124,7 +116,7 @@ a {
     }
 
     &:after {
-        z-index: 95;
+        z-index: -10;
         background-color: $blue;
 
         animation-name: shrink;
