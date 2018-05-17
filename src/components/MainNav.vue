@@ -178,8 +178,14 @@ export default {
         transition: background-color 0.2s linear, color 0.2s linear;
 
         &:hover {
+            color: $grey;
             background-color: $blue;
         }
+    }
+
+    .router-link-exact-active {
+        background-color: $green;
+        color: $white;
     }
 }
 
@@ -205,10 +211,5 @@ export default {
 .main-nav-card-animation {
     transition: height 0.3s ease, width 0.3s ease, opacity 0.3s ease,
         border-radius 0.3s ease, padding 0.3s ease;
-}
-
-.router-link-exact-active {
-    background-color: $green;
-    color: $white;
 }
 </style>
