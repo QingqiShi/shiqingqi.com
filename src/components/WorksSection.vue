@@ -40,7 +40,7 @@
             </card>
         </div>
 
-        <t t="noExperienceExcuse" tag="p" class="excuse heading-font" />
+        <!-- <t t="noExperienceExcuse" tag="p" class="excuse heading-font" /> -->
     </flat-section>
 </template>
 

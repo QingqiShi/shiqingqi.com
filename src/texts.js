@@ -60,7 +60,9 @@ export default {
         salmonDescription: `Salmon is a global digital commerce consultancy that defines and delivers market-changing ecommerce solutions and customer journeys for the world’s leading brands.`,
         salmonWork: `I joined Salmon around September 2017. Currently, my client is a world leading fashion company who owns a couple of the world's most well-known brands. I work on the checkout sections of their e-commerce websites, as well as an 'omni-channel project' to improve the customer's in-store experience.`,
         salmonJobTitle: 'Graduate Front-End Developer',
-        noExperienceExcuse: `Please also checkout other non-comercial projects that I've done both during University and in my spare time on the timeline page.`
+        noExperienceExcuse: `Please also checkout other non-comercial projects that I've done both during University and in my spare time on the timeline page.`,
+
+        timeline: 'Timeline'
     },
     zh: {
         name: '石清琪',
@@ -123,6 +125,8 @@ export default {
         salmonDescription: `赛欧曼（Salmon Limited）是一家据有国际影响力的顾问公司。它为许多国际领先的品牌提供改变世界的电子商务解决方案。`,
         salmonWork: `我于2017年9月入职赛欧曼。目前我的客户是一家拥有两个国际知名品牌的时尚公司。我的工作范畴包括为客户开发电子商务网站的结账页面，以及“全平台项目”以通过科技改善消费者在实体店内的购物体验。`,
         salmonJobTitle: '初级前端开发员',
-        noExperienceExcuse: `请前往时间线查看我在大学时期的其他非商业及个人项目。`
+        noExperienceExcuse: `请前往时间线查看我在大学时期的其他非商业及个人项目。`,
+
+        timeline: '时间线'
     }
 };

@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <main-nav :routes="[
+        <!-- <main-nav :routes="[
             {
                 name: 'Resume',
                 path: '/'
@@ -8,7 +8,7 @@
                 name: 'Timeline',
                 path: '/timeline'
             }
-        ]" />
+        ]" /> -->
         <router-view/>
     </div>
 </template>
