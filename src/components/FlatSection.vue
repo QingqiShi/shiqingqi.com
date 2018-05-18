@@ -40,24 +40,18 @@ export default {
 section {
     background-color: $white;
     padding: 3rem;
+    font-size: 1rem;
+
     @include breakpoint($tablet) {
         padding: 4rem;
-    }
-    @include breakpoint($laptop) {
-        padding: 5rem 10rem;
-    }
-    @include breakpoint($desktop) {
-        padding: 6rem 15rem;
-    }
-
-    font-size: 1rem;
-    @include breakpoint($tablet) {
         font-size: 1.1rem;
     }
     @include breakpoint($laptop) {
+        padding: 5rem 10rem;
         font-size: 1.2rem;
     }
     @include breakpoint($desktop) {
+        padding: 6rem 15rem;
         font-size: 1.4rem;
     }
 }
