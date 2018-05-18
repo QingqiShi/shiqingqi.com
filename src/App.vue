@@ -2,11 +2,11 @@
     <div id="app">
         <main-nav :routes="[
             {
-                name: 'Home',
+                name: 'Resume',
                 path: '/'
             }, {
-                name: 'About',
-                path: '/about'
+                name: 'Timeline',
+                path: '/timeline'
             }
         ]" />
         <router-view/>

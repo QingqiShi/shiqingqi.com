@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import About from './views/About.vue';
+import Timeline from './views/Timeline.vue';
 import Resume from './views/Resume.vue';
 
 Vue.use(Router);
@@ -14,9 +14,9 @@ export default new Router({
             component: Resume
         },
         {
-            path: '/about',
-            name: 'about',
-            component: About
+            path: '/timeline',
+            name: 'timeline',
+            component: Timeline
         }
     ]
 });
