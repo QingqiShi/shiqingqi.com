@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+- node
+script: npm run build
+language: node_js
+node_js:
+  - "node"
+script: npm run build
+deploy:
+  provider: firebase
+  token:
+    secure: "aO690sJaRCXJOJPa3CE4W87gUDlhwgkEPk3zUvksUY/1jVwfsi+1cUj5H7dV6uqGg9WbmI+pHXrbNHOC5nrTXcwe5KV+KHvqa2snMx//S8IOECcf5GW7P4hgAQKgQ+ANydDraSTvGGMofG42OA6rvp5Dkg4+iGTidyPl/sedGnYOfmHWqeif8nCgIGWL2WXTHUMt8c4WveD9/ISNn9JRHBwUSdDxJ91jCTFt6NxtzdcJGDNGorW/hY2WOuUbxnxzGYtnkP342lAlwDRvCKv8gal84SYoC3rHmc6WNndsY9v5pJShGEi8osjSpDhO1sG4eWFZm7+vN73arnVUVUZln8zVNGiAmtuACwTXbYqFou42w6HZHbj/RviNNBxZp5LiSlVleI18XQyDsGOu5Z0U6Wrv2/46d0l8kvTWxFV1HN0bDU4Q7Buq8pqFYOAZu2d8PrfAH0VdMG+ZsfvsWJZ5nj2TEm6BwvUSI90POMBC4UGTIKuvEn2DUnNQOhClQMMM3ApxEdayMFmV2JWc0wmEStI5iM1JBp4yTcz9IO9fvt2x9rjvuYlOscGpXe59vT6hKbDnMScuPOvP1R3eX0u0wNIEY5WFNgBzkKl0aydN/k3t7MlDmPJ7AP/7RqA6TNHFrFxlmwKIVXggHqTR4u7/yHamRR2m/gT3WR8wGoE4RYA="
+  on:
+    branch: master
