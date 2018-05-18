@@ -5,24 +5,28 @@
             <card ref="menu-card" class="main-nav-card">
                 <ul>
                     <li v-for="route in routes" :key="route.name">
-                        <router-link :to="route.path">{{ route.name }}</router-link>
+                        <router-link :to="$store.state.lang != 'en' ? `/${$store.state.lang}${route.path}` : route.path">
+                            <t :t="route.name" />
+                        </router-link>
                     </li>
                 </ul>
+                <language-switcher @after-switch="closeMenu" />
             </card>
         </div>
     </nav>
 </template>
 
 <script>
-// import { routes } from '@/router';
 import IconButton from '@/components/IconButton';
 import Card from '@/components/Card';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default {
     name: 'MainNav',
     components: {
         Card,
-        IconButton
+        IconButton,
+        LanguageSwitcher
     },
     props: {
         routes: {
@@ -176,6 +180,7 @@ export default {
         font-size: 1.3rem;
         text-transform: uppercase;
         transition: background-color 0.2s linear, color 0.2s linear;
+        white-space: nowrap;
 
         &:hover {
             color: $grey;

@@ -2,6 +2,8 @@ export default {
     en: {
         name: 'Qingqi Shi',
 
+        resume: 'Resume',
+
         coder: 'Coder',
         husband: 'Husband',
         gamer: 'Gamer',
@@ -66,6 +68,8 @@ export default {
     },
     zh: {
         name: '石清琪',
+
+        resume: '履历',
 
         coder: '程序员',
         husband: '丈夫',

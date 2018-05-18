@@ -9,6 +9,14 @@ Vue.config.productionTip = false;
 
 Vue.use(T(texts, store.state.lang));
 
+router.afterEach(to => {
+    if (to.params.lang === 'zh') {
+        store.commit('setLang', to.params.lang);
+    } else {
+        store.commit('setLang', 'en');
+    }
+});
+
 new Vue({
     router,
     store,
