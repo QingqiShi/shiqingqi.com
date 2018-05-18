@@ -83,6 +83,11 @@ a {
     transition: color 0.2s linear, fill 0.2s linear;
     border-radius: 50%;
 
+    i,
+    svg {
+        z-index: 2;
+    }
+
     &:before,
     &:after {
         // Same shape and position as parent
@@ -97,7 +102,7 @@ a {
     &:before {
         @include small-shadow;
         background-color: $green;
-        z-index: -20;
+        z-index: 0;
 
         // Change background color with scroll for laptop and above
         @include breakpoint($laptop) {
@@ -116,7 +121,7 @@ a {
     }
 
     &:after {
-        z-index: -10;
+        z-index: 1;
         background-color: $blue;
 
         animation-name: shrink;
