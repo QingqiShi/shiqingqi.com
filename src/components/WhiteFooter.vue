@@ -29,7 +29,7 @@
                 </icon-button>
             </div>
             <div class="copyright heading-font">
-                &copy; {{ (new Date()).getFullYear() }}
+                &copy; {{ new Date().getFullYear() }}
                 <t t="name" />
             </div>
         </flat-section>
