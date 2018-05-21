@@ -106,7 +106,7 @@ a {
 
         // Change background color with scroll for laptop and above
         @include breakpoint($laptop) {
-            background-color: RGBA($green-rgb, var(--main-nav-scroll));
+            background-color: RGBA($green-rgb, var(--main-nav-scroll, 1));
         }
 
         // Medium shadow for tablet
@@ -136,7 +136,7 @@ a {
     &:hover,
     &:focus {
         color: $grey;
-        // background-color: $blue;
+        fill: $grey;
 
         &:after {
             animation-name: expand;
