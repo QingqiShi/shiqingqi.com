@@ -116,7 +116,7 @@ export default {
         timeline2013Title_Uni: 'Going to Uni',
         timeline2013Description_Uni: `Big step in life I guess. Leaving home and starting the university life.`,
         timeline2013Title_Youtube: 'YouTube (and YouKu)',
-        timeline2013Description_Youtube: `I created video contents and posted them on YouTube and YouKu (a Chinese video website). My videos gained 40,000+ subscribers from the two platforms combined and I was fortunate to earn from advert revenue and fan-based products. The project involved the use of a number of creative softwares such as Adobe Premiere Pro, Photoshop, Audition as well as knowledge of video formats and audio capture techniques, all of which was self-taught. I eventually stopped my YouTuber career to focus on university.`,
+        timeline2013Description_Youtube: `I created video contents and posted them on YouTube and YouKu (a Chinese video website). My videos gained 40,000+ subscribers and 11+ million views from the two platforms combined and I was fortunate to earn from advert revenue and fan-based products. {{br}}The project involved the use of a number of creative softwares such as Adobe Premiere Pro, Photoshop, Audition as well as knowledge of video formats and audio capture techniques, all of which was self-taught. I eventually stopped my YouTuber career to focus on university.`,
 
         timeline2011Title_Waiter: 'Waiter',
         timeline2011Description_Waiter: `I occupied a part-time job at the Rice Bow restaurant in Manchester as a waiter. This was a first taste of working in the "real world".`,
@@ -202,14 +202,14 @@ export default {
             "这是我对个人网站的第二次大改版。为了对得起1.0的版本号，这一次使用了前端领域最好的技术例如 Webpack、npm 和 VueJS。{{br}}另外，个人网站现在托管在 Firebase 上，并使用持续部署技术与 GitHub 进行深度集成（这意味着 v2.0 和 v3.0 很可能已经上线了）。",
         timeline2018Title_Visa: '申请签证',
         timeline2018Description_Visa:
-            "这段时间我与我的妻子忙碌于申请她的配偶签证，这一点都不容易。因为官网上自相矛盾以及根本就错误的信息，准备文件的过程一团糟。再加上三个月（三个月啊我的天！）等待申请审理的过程，让今年上半年气压低迷。",
+            "这段时间我与我的妻子忙碌于申请她的配偶签证，这一点都不容易。因为官网上自相矛盾以及根本就错误的信息，准备文件的过程一团糟。再加上三个月（三个月啊我的天！）等待审理申请的过程，让今年上半年气压低迷。",
 
         timeline2017Title_Job: '入职',
         timeline2017Description_Job:
             '毕业后的第一份正式工作，在赛欧曼当一名前端开发。',
         timeline2017Title_MasterProject: "研究生项目",
         timeline2017Description_MasterProject:
-            `硕士科研项目的研究方向是计算机视觉。首先是大量的理论研究，接着使用 C++、 OpenCV 已经学到的计算机视觉算法实现精确追踪闭路电视中行人的脚。最后，当然是将这一切写成论文。这一科研项目最后获得“优秀”成绩。`,
+            `硕士科研项目的研究方向是计算机视觉。首先是大量的理论研究，接着使用 C++、 OpenCV 以及学到的计算机视觉算法实现精确追踪闭路电视中行人的脚。最后，当然是将这一切写成论文。这一科研项目最后获得“优秀”成绩。`,
         timeline2017Title_Married: '结婚了',
         timeline2017Description_Married:
             '正式给自己标上“丈夫”的标签。将与这个世界上最美的女人共度余生。',
@@ -218,7 +218,7 @@ export default {
             '这个机器学课程的项目是为了解决“被绑架的机器人”问题——我们需要为机器人编程，让它能通过简单的超声波测距仪自动准确的定位自己并导航至目标位置。{{br}}我们的四人小组用 Lego Mindstorm Kit 拼出机器人，并使用 MatLab 注入算法。由于我们实现了最高的速度和准度（之一），以及我对项目的主要贡献，最终我得到了98分的好成绩。',
         timeline2017Title_PersonalWebsite: 'ShiQingqi.com v0.2',
         timeline2017Description_PersonalWebsite:
-            "研究生期间我参与了许多有趣的项目，所以我决定更新个人网站，并顺便做改版。用这个机会，我尝试使用了 Web 组建（Web Components）、Polymer 以及 HTTP2。",
+            "研究生期间我参与了许多有趣的项目，所以我决定更新个人网站，并顺便做改版。用这个机会，我尝试使用了 Web 组件（Web Components）、Polymer 以及 HTTP2。",
         timeline2017Title_Animation: '动画制作',
         timeline2017Description_Animation:
             "这是一个研究生课程的项目，任务是制作 3D 动画来拼装一个机器人并让它跳舞。{{br}}我使用 Audodesk Maya 完成了对机器人大白的建模、装备、蒙皮，并且运用了迪士尼动画原则使它动起来。我的动画取得了高分，并被该课讲师放入了展示视频集合（YouTube）。可惜的是在网上只有跳舞的部分，没有更高分的拼装的部分。",
@@ -236,12 +236,12 @@ export default {
         timeline2015Description_GroupProject: `这是大二的一个小组项目，也是我参与过的第一个正经的小组项目。我们制作了一个叫做“Battle Maths”的跨平台手游，目的是通过游戏辅导孩子们在英国初中阶段的数学。项目使用了 Unity 并通过 C# 编程。`,
 
         timeline2014Title_CSSA: '中国学联',
-        timeline2014Description_CSSA: `我在大一大二期间参与了诺丁汉中国学生学者联谊会（中国学联），职务是IT部部长。我的责任包括维护更新学联官网及论坛，并且部分参与大型文化活动春节联欢晚会的导播工作。`,
+        timeline2014Description_CSSA: `我在大一大二期间参与了诺丁汉中国学生学者联谊会（中国学联），职务是IT部部长。我的职责包括维护更新学联官网及论坛，并且部分参与大型文化活动春节联欢晚会的导播工作。`,
 
         timeline2013Title_Uni: '上大学',
-        timeline2013Description_Uni: `这应该是人生的一大步吧。步入大学生活，试着自我独立。`,
+        timeline2013Description_Uni: `这应该是人生的一大步吧。步入了大学生活，试着自我独立。`,
         timeline2013Title_Youtube: '优酷（和YouTube）',
-        timeline2013Description_Youtube: `我曾制作视频内容并发布在优酷以及 YouTube 上。我制作的视频获得了超过四万粉丝（订阅者），我很幸运能通过广告分成以及粉丝产品赚取零花钱。我自学了许多软件来制作视频，例如 Adobe Premiere Pro, Photoshop 和 Audition。我还学习了许多关于视频格式以及音频捕获相关的知识。最终我为了能更好的专注于学习而终止了“主播”生涯。`,
+        timeline2013Description_Youtube: `我曾制作视频内容并发布在优酷以及 YouTube 上。我制作的视频获得了超过四万粉丝（订阅者）以及超过1110万次播放，我很幸运能通过广告分成以及粉丝产品赚取零花钱。{{br}}我自学了许多软件来制作视频，例如 Adobe Premiere Pro, Photoshop 和 Audition。我还学习了许多关于视频格式以及音频捕获相关的知识。最终我为了能更好的专注于学习而终止了“主播”生涯。`,
 
         timeline2011Title_Waiter: '服务生',
         timeline2011Description_Waiter: `我曾在曼彻斯特金碗饭店兼职服务生。这是我第一次体验“真实社会”中的工作。`,

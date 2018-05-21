@@ -140,7 +140,7 @@
                         <t t="timeline2013Description_Youtube" tag="p" />
                     </timeline-item>
                     <timeline-item dark icon="bookmark">
-                        <t t="watford" tag="div" class="loc heading-font" />
+                        <t t="nottingham" tag="div" class="loc heading-font" />
                         <t t="timeline2013Title_Uni" tag="h2" />
                         <t t="timeline2013Description_Uni" tag="p" />
                     </timeline-item>
