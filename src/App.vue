@@ -28,7 +28,7 @@ export default {
 @import './scssUtils/colors';
 
 #app {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', 'Microsoft YaHei', 微软雅黑, 'Hiragino Sans GB', 冬青黑体, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
@@ -41,12 +41,12 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Ubuntu', 'Microsoft YaHei', 微软雅黑, 'Hiragino Sans GB', 冬青黑体, sans-serif;
     font-weight: 700;
 }
 
 .heading-font {
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Ubuntu', 'Microsoft YaHei', 微软雅黑, 'Hiragino Sans GB', 冬青黑体, sans-serif;
     font-weight: 700;
 }
 

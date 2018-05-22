@@ -1,5 +1,5 @@
 <template>
-    <nav :style="{ '--main-nav-scroll': scroll }" class="main-nav">
+    <nav :style="{ '--main-nav-scroll': scroll }" class="main-nav heading-font">
         <icon-button ref="menu-btn" icon="menu" />
         <div ref="menu-overlay" class="main-nav-overlay">
             <card ref="menu-card" class="main-nav-card">
@@ -142,7 +142,6 @@ export default {
     right: 2rem;
     bottom: 2rem;
     z-index: 100;
-    font-family: 'Ubuntu', sans-serif;
 
     @include breakpoint($laptop) {
         bottom: initial;
