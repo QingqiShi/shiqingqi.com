@@ -83,8 +83,7 @@ export default {
         timeline2017Description_Job:
             'Got my first proper job after graduation as a Graduate Front-end Developer at Salmon Ltd.',
         timeline2017Title_MasterProject: "Master's Project",
-        timeline2017Description_MasterProject:
-            `The Master's research project involved theoretical research on multiple computer vision techniques. Then implementing these techniques using C++ and OpenCV to accurately track pedestrian feet from CCTV camera footage. Finally, also, to write up everything in a thesis. I achieved Merit for this piece of work.`,
+        timeline2017Description_MasterProject: `The Master's research project involved theoretical research on multiple computer vision techniques. Then implementing these techniques using C++ and OpenCV to accurately track pedestrian feet from CCTV camera footage. Finally, also, to write up everything in a thesis. I achieved Merit for this piece of work.`,
         timeline2017Title_Married: 'Got Married',
         timeline2017Description_Married:
             'Officially became husband of the most beautiful woman.',
@@ -199,17 +198,16 @@ export default {
 
         timeline2018Title_PersonalWebsite: 'ShiQingqi.com v1.0',
         timeline2018Description_PersonalWebsite:
-            "这是我对个人网站的第二次大改版。为了对得起1.0的版本号，这一次使用了前端领域最好的技术例如 Webpack、npm 和 VueJS。{{br}}另外，个人网站现在托管在 Firebase 上，并使用持续部署技术与 GitHub 进行深度集成（这意味着 v2.0 和 v3.0 很可能已经上线了）。",
+            '这是我对个人网站的第二次大改版。为了对得起1.0的版本号，这一次使用了前端领域最好的技术例如 Webpack、npm 和 VueJS。{{br}}另外，个人网站现在托管在 Firebase 上，并使用持续部署技术与 GitHub 进行深度集成（这意味着 v2.0 和 v3.0 很可能已经上线了）。',
         timeline2018Title_Visa: '申请签证',
         timeline2018Description_Visa:
-            "这段时间我与我的妻子忙碌于申请她的配偶签证，这一点都不容易。因为官网上自相矛盾以及根本就错误的信息，准备文件的过程一团糟。再加上三个月（三个月啊我的天！）等待审理申请的过程，让今年上半年气压低迷。",
+            '这段时间我与我的妻子忙碌于申请她的配偶签证，这一点都不容易。因为官网上自相矛盾以及根本就错误的信息，准备文件的过程一团糟。再加上三个月（三个月啊我的天！）等待审理申请的过程，让今年上半年气压低迷。',
 
         timeline2017Title_Job: '入职',
         timeline2017Description_Job:
             '毕业后的第一份正式工作，在赛欧曼当一名前端开发。',
-        timeline2017Title_MasterProject: "研究生项目",
-        timeline2017Description_MasterProject:
-            `硕士科研项目的研究方向是计算机视觉。首先是大量的理论研究，接着使用 C++、 OpenCV 以及学到的计算机视觉算法实现精确追踪闭路电视中行人的脚。最后，当然是将这一切写成论文。这一科研项目最后获得“优秀”成绩。`,
+        timeline2017Title_MasterProject: '研究生项目',
+        timeline2017Description_MasterProject: `硕士科研项目的研究方向是计算机视觉。首先是大量的理论研究，接着使用 C++、 OpenCV 以及学到的计算机视觉算法实现精确追踪闭路电视中行人的脚。最后，当然是将这一切写成论文。这一科研项目最后获得“优秀”成绩。`,
         timeline2017Title_Married: '结婚了',
         timeline2017Description_Married:
             '正式给自己标上“丈夫”的标签。将与这个世界上最美的女人共度余生。',
@@ -218,10 +216,10 @@ export default {
             '这个机器学课程的项目是为了解决“被绑架的机器人”问题——我们需要为机器人编程，让它能通过简单的超声波测距仪自动准确的定位自己并导航至目标位置。{{br}}我们的四人小组用 Lego Mindstorm Kit 拼出机器人，并使用 MatLab 注入算法。由于我们实现了最高的速度和准度（之一），以及我对项目的主要贡献，最终我得到了98分的好成绩。',
         timeline2017Title_PersonalWebsite: 'ShiQingqi.com v0.2',
         timeline2017Description_PersonalWebsite:
-            "研究生期间我参与了许多有趣的项目，所以我决定更新个人网站，并顺便做改版。用这个机会，我尝试使用了 Web 组件（Web Components）、Polymer 以及 HTTP2。",
+            '研究生期间我参与了许多有趣的项目，所以我决定更新个人网站，并顺便做改版。用这个机会，我尝试使用了 Web 组件（Web Components）、Polymer 以及 HTTP2。',
         timeline2017Title_Animation: '动画制作',
         timeline2017Description_Animation:
-            "这是一个研究生课程的项目，任务是制作 3D 动画来拼装一个机器人并让它跳舞。{{br}}我使用 Audodesk Maya 完成了对机器人大白的建模、装备、蒙皮，并且运用了迪士尼动画原则使它动起来。我的动画取得了高分，并被该课讲师放入了展示视频集合（YouTube）。可惜的是在网上只有跳舞的部分，没有更高分的拼装的部分。",
+            '这是一个研究生课程的项目，任务是制作 3D 动画来拼装一个机器人并让它跳舞。{{br}}我使用 Audodesk Maya 完成了对机器人大白的建模、装备、蒙皮，并且运用了迪士尼动画原则使它动起来。我的动画取得了高分，并被该课讲师放入了展示视频集合（YouTube）。可惜的是在网上只有跳舞的部分，没有更高分的拼装的部分。',
         timeline2017Title_Graphics: '图像渲染',
         timeline2017Description_Graphics: `这个计算机图形课的项目使用 C++ 和 SDL 实现了“射线追踪”渲染方法来生成 3D 图像。我的程序被讲师评为“我见过的最好的之一”，并且在课程的这一部分获得了90分以上的成绩。{{br}}为了实现这个项目，我学会了许多图像渲染的理论，例如全局光照、抗锯齿、光线反射、光线折射和程序优化——还有大量的矩阵计算。`,
         timeline2017Title_Web: '康威生命游戏',

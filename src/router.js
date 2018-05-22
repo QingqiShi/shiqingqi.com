@@ -7,14 +7,18 @@ Vue.use(Router);
 
 export default new Router({
     mode: 'history',
-    scrollBehavior (to, from, savedPosition) {
-        return savedPosition || {x: 0, y: 0};
+    scrollBehavior(to, from, savedPosition) {
+        if (to.params.lang != from.params.lang) {
+            return {};
+        } else {
+            return savedPosition || { x: 0, y: 0 };
+        }
     },
     routes: [
         {
             path: '/timeline/',
             component: Timeline,
-            meta: { normalized: '/timeline/' }
+            meta: { title: 'timeline', normalized: '/timeline/' }
         },
         {
             path: '/en/timeline/',
@@ -23,12 +27,12 @@ export default new Router({
         {
             path: '/:lang/timeline',
             component: Timeline,
-            meta: { normalized: '/timeline/' }
+            meta: { title: 'timeline', normalized: '/timeline/' }
         },
         {
             path: '/',
             component: Resume,
-            meta: { normalized: '/' }
+            meta: { title: 'resume', normalized: '/' }
         },
         {
             path: '/en/',
@@ -37,7 +41,7 @@ export default new Router({
         {
             path: '/:lang/',
             component: Resume,
-            meta: { normalized: '/' }
+            meta: { title: 'resume', normalized: '/' }
         }
     ]
 });
