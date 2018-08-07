@@ -15,10 +15,28 @@
 
 <script>
 import MainNav from '@/components/MainNav.vue';
+import texts from '@/texts';
 
 export default {
     components: {
         MainNav
+    },
+    metaInfo() {
+        const lang = this.$store.state.lang;
+        const title = this.$route.meta.title;
+        return {
+            title: `${texts[lang].name} - ${texts[lang][title]}`,
+            link: [
+                {
+                    rel: 'alternate',
+                    hreflang: this.$store.state.hreflang
+                },
+                {
+                    rel: 'canonical',
+                    href: `https://shiqingqi.com${this.$route.meta.normalized}`
+                }
+            ]
+        };
     }
 };
 </script>
