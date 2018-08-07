@@ -5,11 +5,20 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        lang: 'en'
+        lang: 'en',
+        hreflang: 'en-GB'
     },
     mutations: {
         setLang(state, newLang) {
             state.lang = newLang;
+
+            switch (newLang) {
+                case 'zh':
+                    state.hreflang = 'zh-Hans';
+                    break;
+                default:
+                    state.hreflang = 'en';
+            }
         }
     },
     actions: {}

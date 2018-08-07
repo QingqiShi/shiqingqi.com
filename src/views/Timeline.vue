@@ -148,7 +148,7 @@
 
                 <timeline-section :year="2011">
                     <timeline-item>
-                        <t t="nottingham" tag="div" class="loc heading-font" />
+                        <t t="manchester" tag="div" class="loc heading-font" />
                         <t t="timeline2011Title_Waiter" tag="h2" />
                         <t t="timeline2011Description_Waiter" tag="p" />
                     </timeline-item>
@@ -156,7 +156,7 @@
 
                 <timeline-section :year="2009">
                     <timeline-item>
-                        <t t="nottingham" tag="div" class="loc heading-font" />
+                        <t t="manchester" tag="div" class="loc heading-font" />
                         <t t="timeline2009Title_SchoolWebsite" tag="h2" />
                         <t t="timeline2009Description_SchoolWebsite" tag="p" />
                     </timeline-item>
