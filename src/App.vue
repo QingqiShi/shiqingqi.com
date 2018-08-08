@@ -25,7 +25,7 @@ export default {
         const lang = this.$store.state.lang;
         const title = this.$route.meta.title;
         return {
-            title: `${texts[lang].name} - ${texts[lang][title]}`,
+            title: `${texts[lang][title]} | ${texts[lang].name}`,
             link: [
                 {
                     rel: 'alternate',
