@@ -35,6 +35,12 @@ export default {
                     rel: 'canonical',
                     href: `https://shiqingqi.com${this.$route.meta.normalized}`
                 }
+            ],
+            meta: [
+                {
+                    name: 'Description',
+                    content: texts[lang][title + 'Description']
+                }
             ]
         };
     }

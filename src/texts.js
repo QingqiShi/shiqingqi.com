@@ -3,6 +3,7 @@ export default {
         name: 'Qingqi Shi',
 
         resume: 'Resume',
+        resumeDescription: 'Qingqi is a Computer Science Master Degree Graduate, working as a front-end developer.',
 
         coder: 'Coder',
         husband: 'Husband',
@@ -65,6 +66,7 @@ export default {
         noExperienceExcuse: `Please also checkout other non-comercial projects that I've done both during University and in my spare time on the timeline page.`,
 
         timeline: 'Timeline',
+        timelineDescription: 'Qingqi\'s life accomplishments in a nutshell.',
 
         china: 'China',
         watford: 'Watford',
@@ -127,6 +129,7 @@ export default {
         name: '石清琪',
 
         resume: '履历',
+        resumeDescription: '石清琪是一个计算机系硕士毕业的前端开发。',
 
         coder: '程序员',
         husband: '丈夫',
@@ -189,6 +192,7 @@ export default {
         noExperienceExcuse: `请前往时间线查看我在大学时期的其他非商业及个人项目。`,
 
         timeline: '时间线',
+        timelineDescription: '石清琪的生平简史。',
 
         china: '中国',
         watford: '沃特福德 英国',
