@@ -9,6 +9,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "firebase": "^5.3.1",
     "vue": "^2.5.17",
     "vue-meta": "^1.5.2",
     "vue-router": "^3.0.1",

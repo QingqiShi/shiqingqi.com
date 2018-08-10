@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Meta from 'vue-meta';
 import Resume from './views/Resume.vue';
 import Timeline from './views/Timeline.vue';
+import AdminPortal from './views/AdminPortal.vue';
 
 Vue.use(Router);
 Vue.use(Meta);
@@ -30,6 +31,20 @@ export default new Router({
             path: '/:lang/timeline',
             component: Timeline,
             meta: { title: 'timeline', normalized: '/timeline/' }
+        },
+        {
+            path: '/admin/',
+            component: AdminPortal,
+            meta: { title: 'adminPortal', normalized: '/admin/' }
+        },
+        {
+            path: '/en/admin/',
+            redirect: '/admin/'
+        },
+        {
+            path: '/:lang/admin',
+            component: AdminPortal,
+            meta: { title: 'adminPortal', normalized: '/admin/' }
         },
         {
             path: '/',
