@@ -6,9 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         lang: 'en',
-        hreflang: 'en-GB',
-        loggedIn: false,
-        currentUser: {}
+        hreflang: 'en-GB'
     },
     mutations: {
         setLang(state, newLang) {
@@ -21,10 +19,6 @@ export default new Vuex.Store({
                 default:
                     state.hreflang = 'en';
             }
-        },
-        setLogin(state, user) {
-            state.loggedIn = !!user;
-            state.currentUser = user;
         }
     },
     actions: {}

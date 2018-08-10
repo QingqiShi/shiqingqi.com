@@ -1,6 +1,7 @@
 <template>
     <footer>
         <flat-section class="footer-section">
+            <!-- <t t="name" tag="h3"/> -->
             <div class="socials">
                 <icon-button :svg="true" 
                              aria-label="Github" 
@@ -31,11 +32,6 @@
                 &copy; {{ new Date().getFullYear() }}
                 <t t="name" />
             </div>
-            <div v-if="$route.meta.normalized != '/admin/'" class="admin-portal">
-                <router-link :to="$store.state.lang != 'en' ? `/${$store.state.lang}/admin/` : `/admin/`">
-                    <t t="adminPortal" />
-                </router-link>
-            </div>
         </flat-section>
     </footer>
 </template>
@@ -61,7 +57,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/colors';
 @import '../scssUtils/breakpoint';
 
 .footer-section {
@@ -81,25 +76,6 @@ export default {
     @include breakpoint($laptop) {
         flex-grow: 1;
         text-align: right;
-    }
-}
-
-.admin-portal {
-    font-size: 0.5rem;
-    position: relative;
-    top: 3rem;
-
-    a {
-        display: inline-block;
-        text-decoration: none;
-        color: $green;
-        padding: 0.2rem;
-        border-radius: 0.2rem;
-
-        &:hover {
-            color: $white;
-            background-color: $green;
-        }
     }
 }
 </style>

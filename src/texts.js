@@ -123,9 +123,7 @@ export default {
         timeline2011Description_Waiter: `I occupied a part-time job at the Rice Bow restaurant in Manchester as a waiter. This was a first taste of working in the "real world".`,
 
         timeline2009Title_SchoolWebsite: 'School website',
-        timeline2009Description_SchoolWebsite: `This was a secondary school project that was assigned to a few talented students to create a website for the school. I took part in this project which laid a solid foundation for my ongoing passion towards computer technologies and my team-working skills.`,
-
-        adminPortal: 'Admin Portal'
+        timeline2009Description_SchoolWebsite: `This was a secondary school project that was assigned to a few talented students to create a website for the school. I took part in this project which laid a solid foundation for my ongoing passion towards computer technologies and my team-working skills.`
     },
     zh: {
         name: '石清琪',
@@ -251,8 +249,6 @@ export default {
         timeline2011Description_Waiter: `我曾在曼彻斯特金碗饭店兼职服务生。这是我第一次体验“真实社会”中的工作。`,
 
         timeline2009Title_SchoolWebsite: '学校网站',
-        timeline2009Description_SchoolWebsite: `初中时期，我和其他几个颇有天赋的学生一起为自己的学校设计制作了一个网站。除了增强团队合作精神外，在这个年纪参与这个项目为我往后对计算机技术的热爱奠定了坚实的基础。`,
-
-        adminPortal: '管理员入口'
+        timeline2009Description_SchoolWebsite: `初中时期，我和其他几个颇有天赋的学生一起为自己的学校设计制作了一个网站。除了增强团队合作精神外，在这个年纪参与这个项目为我往后对计算机技术的热爱奠定了坚实的基础。`
     }
 };
