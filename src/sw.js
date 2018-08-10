@@ -1,17 +1,27 @@
 const CACHE_NAME = 'shiqingqi-cache-v1';
-const { assets } = serviceWorkerOption;
 
-assets.push('/');
-assets.push('/timeline');
-assets.push('/timeline/');
-assets.push('/zh');
-assets.push('/zh/');
-assets.push('/zh/timeline');
-assets.push('/zh/timeline/');
+const assetsList = [
+    '/',
+    '/timeline',
+    '/timeline/',
+    '/zh',
+    '/zh/',
+    '/zh/timeline',
+    '/zh/timeline/'
+].concat(serviceWorkerOption.assets);
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => cache.addAll(assets))
+        caches.open(CACHE_NAME).then(cache => cache.addAll(assetsList))
+    );
+});
+
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches
+            .delete(CACHE_NAME)
+            .then(() => caches.open(CACHE_NAME))
+            .then(cache => cache.addAll(assetsList))
     );
 });
 
@@ -24,11 +34,7 @@ self.addEventListener('fetch', event => {
 
             const fetchRequest = event.request.clone();
             return fetch(fetchRequest).then(response => {
-                if (
-                    !response ||
-                    response.status !== 200 ||
-                    response.type !== 'basic'
-                ) {
+                if (!response || response.status !== 200) {
                     return response;
                 }
 
