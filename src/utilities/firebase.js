@@ -13,6 +13,7 @@ function init() {
     };
 
     firebase.initializeApp(config);
+    firebase.firestore().settings({ timestampsInSnapshots: true });
 
     return firebase.firestore();
 }
