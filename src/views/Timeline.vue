@@ -196,8 +196,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../scssUtils/colors';
-@import '../scssUtils/breakpoint';
+@import '../scssUtils/utils';
 
 h1 {
     text-transform: uppercase;

@@ -48,9 +48,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/breakpoint';
-@import '../scssUtils/colors';
-@import '../scssUtils/shadow';
+@import '../scssUtils/utils';
 @import '../scssUtils/transitions';
 
 @keyframes gradient {

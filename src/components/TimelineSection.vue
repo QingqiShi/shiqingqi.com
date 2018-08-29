@@ -23,8 +23,7 @@ export default {
 
 
 <style lang="scss" scoped>
-@import '../scssUtils/colors';
-@import '../scssUtils/breakpoint';
+@import '../scssUtils/utils';
 
 .top,
 .bot {

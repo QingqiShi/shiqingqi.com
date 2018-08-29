@@ -17,9 +17,7 @@ export default {
 
 
 <style lang="scss" scoped>
-@import '../scssUtils/colors';
-@import '../scssUtils/shadow';
-@import '../scssUtils/breakpoint';
+@import '../scssUtils/utils';
 
 .can-flip {
     position: relative;

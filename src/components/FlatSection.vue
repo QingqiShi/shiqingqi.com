@@ -34,8 +34,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/breakpoint';
-@import '../scssUtils/colors';
+@import '../scssUtils/utils';
 
 section {
     background-color: $white;

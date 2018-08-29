@@ -52,8 +52,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/colors';
-@import '../scssUtils/breakpoint';
+@import '../scssUtils/utils';
 
 .container {
     perspective: 2000px;

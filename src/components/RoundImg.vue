@@ -15,8 +15,7 @@ export default {
 
 
 <style lang="scss" scoped>
-@import '../scssUtils/shadow';
-@import '../scssUtils/breakpoint';
+@import '../scssUtils/utils';
 
 .round-img {
     min-width: 10px;

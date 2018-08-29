@@ -47,8 +47,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../scssUtils/colors';
-@import '../scssUtils/breakpoint';
+@import '../scssUtils/utils';
 
 @mixin span($prefix, $size) {
     @for $i from 1 through 4 {
