@@ -27,7 +27,7 @@ export default {
 
 .card {
     background-color: $white;
-    border-radius: 0.2rem;
+    border-radius: $border-radius-small;
 
     @include small-shadow;
     @include breakpoint($laptop) {
