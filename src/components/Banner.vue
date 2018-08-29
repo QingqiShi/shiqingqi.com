@@ -58,7 +58,7 @@ export default {
         background-position: 0% 0%;
     }
     50% {
-        background-position: 100% 100%;
+        background-position: 67% 0%;
     }
     100% {
         background-position: 0% 0%;
@@ -69,8 +69,8 @@ export default {
     position: relative;
     display: grid;
     grid-template-columns: 20% 80%;
-    background: linear-gradient(135deg, $red, $purple, $blue);
-    background-size: 300% 300%;
+    background: linear-gradient(to bottom right, $blue, $purple, $orange);
+    background-size: 300% 100%;
     overflow: hidden;
     animation: gradient 25s ease infinite;
 
