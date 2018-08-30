@@ -1,7 +1,7 @@
 <template>
-    <div class="container">
-        <card :class="{'flip': flipped}" class="education vertical">
-            <button class="front" @click="flip">
+    <div class="education">
+        <div class="container" :class="{ showDetail: showDetail }" :style="{ '--expand-height': expandHeight + 'px' }" @click="toggleDetail">
+            <card class="top">
                 <div class="logo">
                     <img :src="options.logo" alt="">
                 </div>
@@ -10,19 +10,18 @@
                     <t :t="options.type" class="type heading-font" tag="div" />
                     <t :t="options.school" class="school heading-font" tag="strong" />
                 </div>
-            </button>
-            <div slot="backSide" class="back-side">
-                <button @click="flip">
-                    <t :t="options.course" class="course heading-font" tag="div" />
-                    <div class="details">
-                        <div v-for="detail in options.details" :key="detail.name" class="detail">
-                            <t :t="detail.name" class="name heading-font" tag="div" />
-                            <t :t="detail.value" class="value" tag="div" />
-                        </div>
+            </card>
+
+            <card class="expand" ref="expandCard">
+                <t :t="options.course" class="course heading-font" tag="div" />
+                <div class="details">
+                    <div v-for="detail in options.details" :key="detail.name" class="detail">
+                        <t :t="detail.name" class="name heading-font" tag="div" />
+                        <t :t="detail.value" class="value" tag="div" />
                     </div>
-                </button>
-            </div>
-        </card>
+                </div>
+            </card>
+        </div>
     </div>
 </template>
 
@@ -41,11 +40,15 @@ export default {
         }
     },
     data: () => ({
-        flipped: false
+        showDetail: false,
+        expandHeight: 0
     }),
     methods: {
-        flip() {
-            this.flipped = !this.flipped;
+        toggleDetail() {
+            this.showDetail = !this.showDetail;
+
+            const rect = this.$refs.expandCard.$el.getBoundingClientRect();
+            this.expandHeight = rect.height;
         }
     }
 };
@@ -54,78 +57,112 @@ export default {
 <style lang="scss" scoped>
 @import '../scssUtils/utils';
 
-.container {
-    perspective: 2000px;
+.education {
     flex-basis: 0;
     flex-grow: 1;
+    color: $grey;
 }
 
-.back-side {
-    height: 100%;
-    width: 100%;
-}
-
-.education {
-    height: 100%;
-
-    margin: 1rem 0;
-    @include breakpoint($tablet) {
-        margin: 2rem 0;
-    }
-    @include breakpoint($laptop) {
-        margin: 0 0.5rem;
-    }
-    @include breakpoint($desktop) {
-        margin: 0 1rem;
-    }
-}
-
-.education button {
-    -webkit-appearance: none;
-    background: none;
-    border: none;
+.container {
+    perspective: 10rem;
+    margin: 4rem 0;
+    position: relative;
     cursor: pointer;
-    width: 100%;
-    height: 100%;
+
+    @include breakpoint($laptop) {
+        margin: 1rem;
+    }
+
+    @include breakpoint($desktop) {
+        margin: 2rem;
+    }
+}
+
+.top {
+    position: relative;
+    z-index: 10;
+    transition: transform 0.2s, margin 0.2s;
     padding: 2rem;
-    transition: background-color 0.2s linear;
 
     @include breakpoint($tablet) {
         display: flex;
-        align-items: center;
+        justify-content: space-between;
+        padding: 2rem 4rem;
     }
 
     @include breakpoint($laptop) {
         display: block;
+        padding: 2rem;
     }
 
-    @include breakpoint($desktop) {
-        display: flex;
+    .container:hover & {
+        transform: translate3d(0, 0, 0.1rem);
+    }
+
+    .showDetail & {
+        margin-bottom: calc(var(--expand-height) + 2rem);
+        transform: translate3d(0, 0, 0.5rem);
+    }
+
+    .showDetail:hover & {
+        transform: none;
+        transform: translate3d(0, 0, 0.5rem);
     }
 }
-.back-side button {
-    padding: 1rem;
+
+.expand {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 4rem 2rem 2rem;
+    color: $white;
+    transition: transform 0.2s, background-color 0.2s;
+    transform: translate3d(0, 2rem, -1rem) rotateX(0);
+    z-index: 5;
+
+    @include breakpoint($tablet) {
+        display: flex;
+        align-items: center;
+        padding: 2rem 1rem 1rem;
+    }
+
+    @include breakpoint($laptop) {
+        display: block;
+        padding: 4rem 2rem 2rem;
+    }
+
+    .container:hover & {
+        transform: translate3d(0, 2rem, -0.7rem) rotateX(0);
+    }
+
+    .showDetail & {
+        transform: translate3d(0, var(--expand-height), -0.2rem) rotateX(0);
+        background-color: $green;
+    }
+
+    .showDetail:hover & {
+        transform: translate3d(0, var(--expand-height), -0.3rem) rotateX(0);
+    }
 }
 
 img {
     max-width: 100%;
-    max-height: 10rem;
-}
-
-.logo {
-    flex-basis: 30%;
+    max-height: 8rem;
 }
 
 .info {
     margin: 1rem 0;
-    flex-grow: 1;
 
-    @include breakpoint-minmax($tablet, $laptop) {
-        margin: 0 0 0 1rem;
+    @include breakpoint($tablet) {
+        flex-grow: 1;
+        margin: 1rem;
+        max-width: 60%;
     }
 
-    @include breakpoint($desktop) {
-        margin: 0 0 0 1rem;
+    @include breakpoint($laptop) {
+        margin: 1rem 0;
+        max-width: 100%;
     }
 }
 
@@ -151,14 +188,15 @@ img {
 }
 
 .details {
-    flex-grow: 1;
-
     @include breakpoint($tablet) {
+        flex-grow: 1;
         padding: 1rem;
+        max-width: 60%;
     }
 
     @include breakpoint($laptop) {
         padding: 0;
+        max-width: 100%;
     }
 
     @include breakpoint($desktop) {
