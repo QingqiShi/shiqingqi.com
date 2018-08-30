@@ -16,10 +16,10 @@
         
         <transition name="slide-right" appear>
             <div class="tags">
-                <t t="coder" class="tag" />
                 <t t="husband" class="tag" />
+                <t t="coder" class="tag" />
                 <t t="gamer" class="tag" />
-                <t t="frontEndDev" class="tag" />
+                <t t="frontEnd" class="tag" />
                 <t t="designer" class="tag" />
                 <t t="chinese" class="tag" />
                 <t t="photographer" class="tag" />
