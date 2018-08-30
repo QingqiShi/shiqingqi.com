@@ -76,7 +76,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/breakpoint';
+@import '../scssUtils/utils';
 
 .educations {
     @include breakpoint($laptop) {

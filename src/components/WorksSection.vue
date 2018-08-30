@@ -59,8 +59,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/colors';
-@import '../scssUtils/breakpoint';
+@import '../scssUtils/utils';
 
 @mixin vertical-business-card {
     overflow: hidden;

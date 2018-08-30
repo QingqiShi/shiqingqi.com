@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/colors';
+@import '../scssUtils/utils';
 
 em {
     color: $blue;

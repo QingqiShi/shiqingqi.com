@@ -133,9 +133,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '../scssUtils/breakpoint';
-@import '../scssUtils/colors';
-@import '../scssUtils/shadow';
+@import '../scssUtils/utils';
 
 .main-nav {
     position: fixed;

@@ -48,9 +48,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/breakpoint';
-@import '../scssUtils/colors';
-@import '../scssUtils/shadow';
+@import '../scssUtils/utils';
 @import '../scssUtils/transitions';
 
 @keyframes gradient {
@@ -58,7 +56,7 @@ export default {
         background-position: 0% 0%;
     }
     50% {
-        background-position: 100% 100%;
+        background-position: 67% 0%;
     }
     100% {
         background-position: 0% 0%;
@@ -69,8 +67,8 @@ export default {
     position: relative;
     display: grid;
     grid-template-columns: 20% 80%;
-    background: linear-gradient(135deg, $red, $purple, $blue);
-    background-size: 300% 300%;
+    background: linear-gradient(to bottom right, $blue, $purple, $orange);
+    background-size: 300% 100%;
     overflow: hidden;
     animation: gradient 25s ease infinite;
 
@@ -130,8 +128,8 @@ export default {
         position: relative;
         width: 100%;
         overflow: hidden;
-        border-top-left-radius: 0.5rem;
-        border-bottom-left-radius: 0.5rem;
+        border-top-left-radius: $border-radius-medium;
+        border-bottom-left-radius: $border-radius-medium;
         user-select: none;
         z-index: 10;
 
@@ -152,8 +150,8 @@ export default {
     grid-column: 1 / 3;
     color: $grey;
     background-color: $white;
-    border-top-right-radius: 0.5rem;
-    border-bottom-right-radius: 0.5rem;
+    border-top-right-radius: $border-radius-small;
+    border-bottom-right-radius: $border-radius-small;
     text-align: left;
     z-index: 20;
 
@@ -168,7 +166,7 @@ export default {
         grid-row: 2 / 3;
         grid-column: 1 / 2;
         align-self: center;
-        padding: 5rem;
+        padding: 5rem 5rem 8rem;
         margin: 0;
         color: $white;
         background-color: transparent;

@@ -31,9 +31,7 @@ export default {
 
 
 <style lang="scss" scoped>
-@import '../scssUtils/breakpoint';
-@import '../scssUtils/colors';
-@import '../scssUtils/shadow';
+@import '../scssUtils/utils';
 
 @keyframes expand {
     from {
