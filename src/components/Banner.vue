@@ -1,5 +1,5 @@
 <template>
-    <div class="banner">
+    <div class="banner" ref="banner" :style="{ transform: `translate3d(0, ${parallaxOffset * 0.5}px, 0)` }">
         <div class="title">
             <transition name="text-reveal" appear>
                 <t t="name" tag="h1" />
@@ -43,7 +43,28 @@
 
 <script>
 export default {
-    name: 'Banner'
+    name: 'Banner',
+    data() {
+        return {
+            placeholderHeight: 0,
+            parallaxOffset: 0
+        };
+    },
+    methods: {
+        setPlaceholderHeight() {
+            const rect = this.$refs.parallax.getBoundingClientRect();
+            this.placeholderHeight = rect.height;
+        },
+        setParallaxOffset() {
+            this.parallaxOffset = window.pageYOffset;
+        }
+    },
+    mounted() {
+        let run = true;
+        window.addEventListener('scroll', () => {
+            this.setParallaxOffset();
+        });
+    }
 };
 </script>
 
@@ -64,13 +85,15 @@ export default {
 }
 
 .banner {
-    position: relative;
     display: grid;
     grid-template-columns: 20% 80%;
     background: linear-gradient(to bottom right, $blue, $purple, $orange);
     background-size: 300% 100%;
     overflow: hidden;
     animation: gradient 25s ease infinite;
+    position: relative;
+    z-index: -1;
+    will-change: transform;
 
     @include breakpoint($laptop) {
         grid-template-columns: 50% 50%;
@@ -131,6 +154,8 @@ export default {
         border-top-left-radius: $border-radius-medium;
         border-bottom-left-radius: $border-radius-medium;
         user-select: none;
+        transform: translateZ(0);
+        will-change: transform;
         z-index: 10;
 
         @include medium-shadow;
