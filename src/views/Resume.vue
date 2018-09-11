@@ -33,10 +33,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../scssUtils/utils';
-
-em {
-    color: $blue;
-    font-style: normal;
-}
 </style>
