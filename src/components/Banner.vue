@@ -1,49 +1,78 @@
 <template>
-    <div class="banner">
+    <div class="banner" ref="banner" :style="{ transform: `translate3d(0, ${parallaxOffset * 0.5}px, 0)` }">
         <div class="title">
-            <transition name="text-reveal" appear>
+            <intersect-transition name="text-reveal" delay="500">
                 <t t="name" tag="h1" />
-            </transition>
-            <transition name="slide-down" appear>
+            </intersect-transition>
+            <intersect-transition name="slide-down">
                 <div class="background"><t t="name" tag="h1" /></div>
-            </transition>
+            </intersect-transition>
         </div>
         <div class="selfie-container">
-            <transition name="slide-left" appear>
+            <intersect-transition name="slide-left">
                 <img :src="require('../assets/selfie.jpg')" alt="selfie" class="selfie">
-            </transition>
+            </intersect-transition>
         </div>
         
-        <transition name="slide-right" appear>
+        <intersect-transition name="slide-right">
             <div class="tags">
-                <t t="coder" class="tag" />
                 <t t="husband" class="tag" />
+                <t t="coder" class="tag" />
                 <t t="gamer" class="tag" />
-                <t t="frontEndDev" class="tag" />
+                <t t="frontEnd" class="tag" />
                 <t t="designer" class="tag" />
                 <t t="chinese" class="tag" />
                 <t t="photographer" class="tag" />
                 <t t="creator" class="tag" />
             </div>
-        </transition>
+        </intersect-transition>
 
-        <transition name="fade-in" appear>
+        <intersect-transition name="fade-in">
             <div class="shape shape1"></div>
-        </transition>
+        </intersect-transition>
         
-        <transition name="fade-in" appear>
+        <intersect-transition name="fade-in">
             <div class="shape shape2"></div>
-        </transition>
+        </intersect-transition>
             
-        <transition name="fade-in" appear>
+        <intersect-transition name="fade-in">
             <div class="shape shape3"></div>
-        </transition>
+        </intersect-transition>
     </div>
 </template>
 
 <script>
+import IntersectTransition from '@/components/IntersectTransition.vue';
+
 export default {
-    name: 'Banner'
+    name: 'Banner',
+    components: {
+        IntersectTransition
+    },
+    data() {
+        return {
+            placeholderHeight: 0,
+            parallaxOffset: 0
+        };
+    },
+    methods: {
+        setParallaxOffset() {
+            this.parallaxOffset = window.pageYOffset;
+        }
+    },
+    mounted() {
+        let run = true;
+        window.addEventListener('scroll', () => {
+            const rect = this.$refs.banner.getBoundingClientRect();
+
+            if (rect.height <= window.innerHeight) {
+                this.setParallaxOffset();
+            } else {
+                this.parallaxOffset = 0;
+            }
+            
+        });
+    }
 };
 </script>
 
@@ -64,13 +93,15 @@ export default {
 }
 
 .banner {
-    position: relative;
     display: grid;
     grid-template-columns: 20% 80%;
     background: linear-gradient(to bottom right, $blue, $purple, $orange);
     background-size: 300% 100%;
     overflow: hidden;
     animation: gradient 25s ease infinite;
+    position: relative;
+    z-index: -1;
+    will-change: transform;
 
     @include breakpoint($laptop) {
         grid-template-columns: 50% 50%;
@@ -80,12 +111,14 @@ export default {
 .title {
     color: $white;
     grid-column: 1 / 3;
+    text-align: left;
 
     h1 {
+        display: inline-block;
         position: relative;
         top: 0.8rem;
         margin: 0;
-        padding-left: 2rem;
+        margin-left: 2rem;
         text-align: left;
         font-size: 2rem;
         z-index: 10;
@@ -123,21 +156,22 @@ export default {
     @include breakpoint($laptop) {
         padding-bottom: 6rem;
     }
+}
 
-    .selfie {
-        position: relative;
-        width: 100%;
-        overflow: hidden;
-        border-top-left-radius: $border-radius-medium;
-        border-bottom-left-radius: $border-radius-medium;
-        user-select: none;
-        z-index: 10;
+.selfie {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-top-left-radius: $border-radius-medium;
+    border-bottom-left-radius: $border-radius-medium;
+    user-select: none;
+    will-change: transform;
+    z-index: 10;
 
-        @include medium-shadow;
+    @include medium-shadow;
 
-        @include breakpoint($tablet) {
-            @include large-shadow;
-        }
+    @include breakpoint($tablet) {
+        @include large-shadow;
     }
 }
 

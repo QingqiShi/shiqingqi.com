@@ -1,4 +1,4 @@
-<template functional>
+<template>
     <flat-section :dark="true" :large-font="true">
         <t t="statementWhy" tag="p">
             <em class="heading-font">
@@ -15,3 +15,25 @@
         </t>
     </flat-section>
 </template>
+
+<script>
+import FlatSection from '@/components/FlatSection.vue';
+import IntersectTransition from '@/components/IntersectTransition.vue';
+
+export default {
+    name: 'StatementSection',
+    components: {
+        FlatSection,
+        IntersectTransition
+    }
+};
+</script>
+
+<style lang="scss" scoped>
+@import '../scssUtils/utils';
+
+.heading-font {
+    color: $blue;
+    font-style: normal;
+}
+</style>
