@@ -1,20 +1,20 @@
 <template>
     <div class="banner" ref="banner" :style="{ transform: `translate3d(0, ${parallaxOffset * 0.5}px, 0)` }">
         <div class="title">
-            <transition name="text-reveal" appear>
+            <intersect-transition name="text-reveal" delay="500">
                 <t t="name" tag="h1" />
-            </transition>
-            <transition name="slide-down" appear>
+            </intersect-transition>
+            <intersect-transition name="slide-down">
                 <div class="background"><t t="name" tag="h1" /></div>
-            </transition>
+            </intersect-transition>
         </div>
         <div class="selfie-container">
-            <transition name="slide-left" appear>
+            <intersect-transition name="slide-left">
                 <img :src="require('../assets/selfie.jpg')" alt="selfie" class="selfie">
-            </transition>
+            </intersect-transition>
         </div>
         
-        <transition name="slide-right" appear>
+        <intersect-transition name="slide-right">
             <div class="tags">
                 <t t="husband" class="tag" />
                 <t t="coder" class="tag" />
@@ -25,25 +25,30 @@
                 <t t="photographer" class="tag" />
                 <t t="creator" class="tag" />
             </div>
-        </transition>
+        </intersect-transition>
 
-        <transition name="fade-in" appear>
+        <intersect-transition name="fade-in">
             <div class="shape shape1"></div>
-        </transition>
+        </intersect-transition>
         
-        <transition name="fade-in" appear>
+        <intersect-transition name="fade-in">
             <div class="shape shape2"></div>
-        </transition>
+        </intersect-transition>
             
-        <transition name="fade-in" appear>
+        <intersect-transition name="fade-in">
             <div class="shape shape3"></div>
-        </transition>
+        </intersect-transition>
     </div>
 </template>
 
 <script>
+import IntersectTransition from '@/components/IntersectTransition.vue';
+
 export default {
     name: 'Banner',
+    components: {
+        IntersectTransition
+    },
     data() {
         return {
             placeholderHeight: 0,
@@ -51,10 +56,6 @@ export default {
         };
     },
     methods: {
-        setPlaceholderHeight() {
-            const rect = this.$refs.parallax.getBoundingClientRect();
-            this.placeholderHeight = rect.height;
-        },
         setParallaxOffset() {
             this.parallaxOffset = window.pageYOffset;
         }
@@ -62,7 +63,14 @@ export default {
     mounted() {
         let run = true;
         window.addEventListener('scroll', () => {
-            this.setParallaxOffset();
+            const rect = this.$refs.banner.getBoundingClientRect();
+
+            if (rect.height <= window.innerHeight) {
+                this.setParallaxOffset();
+            } else {
+                this.parallaxOffset = 0;
+            }
+            
         });
     }
 };
@@ -103,12 +111,14 @@ export default {
 .title {
     color: $white;
     grid-column: 1 / 3;
+    text-align: left;
 
     h1 {
+        display: inline-block;
         position: relative;
         top: 0.8rem;
         margin: 0;
-        padding-left: 2rem;
+        margin-left: 2rem;
         text-align: left;
         font-size: 2rem;
         z-index: 10;
@@ -146,23 +156,22 @@ export default {
     @include breakpoint($laptop) {
         padding-bottom: 6rem;
     }
+}
 
-    .selfie {
-        position: relative;
-        width: 100%;
-        overflow: hidden;
-        border-top-left-radius: $border-radius-medium;
-        border-bottom-left-radius: $border-radius-medium;
-        user-select: none;
-        transform: translateZ(0);
-        will-change: transform;
-        z-index: 10;
+.selfie {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-top-left-radius: $border-radius-medium;
+    border-bottom-left-radius: $border-radius-medium;
+    user-select: none;
+    will-change: transform;
+    z-index: 10;
 
-        @include medium-shadow;
+    @include medium-shadow;
 
-        @include breakpoint($tablet) {
-            @include large-shadow;
-        }
+    @include breakpoint($tablet) {
+        @include large-shadow;
     }
 }
 

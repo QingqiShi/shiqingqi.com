@@ -8,36 +8,38 @@
                 <t t="salmonDescription" tag="p" />
                 <t t="salmonWork" tag="p" />
             </div>
-            <card class="business-card">
-                <div class="logo">
-                    <img src="@/assets/Salmon_Logo_Grey.svg" alt="Salmon Ltd">
-                    <svg class="diagonalBottom" 
-                         viewBox="0 0 1280 100" 
-                         preserveAspectRatio="none" 
-                         role="presentation"
-                         aria-hidden="true">
-                        <polygon points="0 0 1280 100 0 100" fill="#07393C" />
-                    </svg>
-                    <svg class="diagonalLeft" 
-                         viewBox="0 0 200 1280" 
-                         preserveAspectRatio="none" 
-                         role="presentation"
-                         aria-hidden="true">
-                        <polygon points="0 0 200 0 0 1280" fill="#07393C" />
-                    </svg>
-                </div>
-                <div class="info">
-                    <t t="salmonJobTitle" tag="em" class="heading-font" />
-                    <t t="name" tag="div" />
-                    <div>qshi@salmon.com</div>
-                    <div>
-                        <span>Salmon Ltd</span>
-                        <span>64 Clarendon Road</span>
-                        <span>Watford</span>
-                        <span>Hertfordshire, WD17 1DA</span>
+            <intersect-transition name="slide-right">
+                <card class="business-card">
+                    <div class="logo">
+                        <img src="@/assets/Salmon_Logo_Grey.svg" alt="Salmon Ltd">
+                        <svg class="diagonalBottom" 
+                            viewBox="0 0 1280 100" 
+                            preserveAspectRatio="none" 
+                            role="presentation"
+                            aria-hidden="true">
+                            <polygon points="0 0 1280 100 0 100" fill="#07393C" />
+                        </svg>
+                        <svg class="diagonalLeft" 
+                            viewBox="0 0 200 1280" 
+                            preserveAspectRatio="none" 
+                            role="presentation"
+                            aria-hidden="true">
+                            <polygon points="0 0 200 0 0 1280" fill="#07393C" />
+                        </svg>
                     </div>
-                </div>
-            </card>
+                    <div class="info">
+                        <t t="salmonJobTitle" tag="em" class="heading-font" />
+                        <t t="name" tag="div" />
+                        <div>qshi@salmon.com</div>
+                        <div>
+                            <span>Salmon Ltd</span>
+                            <span>64 Clarendon Road</span>
+                            <span>Watford</span>
+                            <span>Hertfordshire, WD17 1DA</span>
+                        </div>
+                    </div>
+                </card>
+            </intersect-transition>
         </div>
 
         <!-- <t t="noExperienceExcuse" tag="p" class="excuse heading-font" /> -->
@@ -48,12 +50,14 @@
 // @ is an alias to /src
 import FlatSection from '@/components/FlatSection.vue';
 import Card from '@/components/Card.vue';
+import IntersectTransition from '@/components/IntersectTransition.vue';
 
 export default {
-    name: 'EducationsSection',
+    name: 'WorksSection',
     components: {
         Card,
-        FlatSection
+        FlatSection,
+        IntersectTransition
     }
 };
 </script>
