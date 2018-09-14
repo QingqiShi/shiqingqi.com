@@ -2,6 +2,7 @@
 export default {
     name: 'IntersectTransition',
     render() {
+        // Only render first child slot
         return this.$slots.default[0];
     },
     props: ['name', 'duration', 'delay'],
@@ -10,51 +11,52 @@ export default {
             intersecting: true,
             showing: false,
             animating: false,
-            animationQueue: []
+            currentAnimation: {
+                delayTimeoutId: undefined,
+                transitionListener: null,
+                animationListener: null
+            }
         };
     },
     mounted() {
         if ('IntersectionObserver' in window) {
             // Use IntersectionObserver if available
-            new IntersectionObserver(
-                entries => {
-                    this.intersectCallback();
-                },
-                {
-                    threshold: [0, 0.2, 0.4, 0.6, 0.8, 1]
-                }
-            ).observe(this.$el);
+            new IntersectionObserver(this.intersectCallback, {
+                threshold: [0, 0.5, 1]
+            }).observe(this.$el);
         } else {
             // Use scroll event as fallback
-            window.addEventListener('scroll', () => {
-                this.intersectCallback();
-            });
+            window.addEventListener('scroll', this.intersectCallback);
             this.intersectCallback();
         }
     },
     methods: {
         intersectCallback() {
             const rect = this.$el.getBoundingClientRect();
-            const top = rect.top;
-            const height = rect.height;
             const windowHeight = window.innerHeight;
 
-            // Entire element below screen
-            if (top > windowHeight && this.intersecting) {
+            // Three different senarios:
+            // 1. Entire element below screen
+            // 2. The bottom screen edge is intersecting top half of the element
+            // 3. The bottom screen edge is below top half of the element
+
+            // 1. Entire element below screen
+            if (rect.top > windowHeight && this.intersecting) {
                 this.intersecting = false;
                 if (this.showing) {
                     this.leave();
+                    this.showing = false;
                 }
-                this.showing = false;
             }
 
-            // Element intersecting with bottom screen edge
+            // 2. The bottom screen edge is intersecting top half of the element
             if (
-                top < windowHeight &&
-                top + height > windowHeight &&
+                rect.top < windowHeight &&
+                rect.top + rect.height / 2 > windowHeight &&
                 !this.intersecting
             ) {
                 this.intersecting = true;
+                this.above = true;
 
                 if (!this.showing) {
                     this.enter();
@@ -65,43 +67,60 @@ export default {
                 }
             }
 
-            // Entire element above bottom screen edge
-            if (top + height < windowHeight && this.intersecting) {
+            // 3. The bottom screen edge is below top half of the element
+            if (
+                rect.top + rect.height / 2 < windowHeight &&
+                this.intersecting
+            ) {
                 this.intersecting = false;
                 if (!this.showing) {
                     this.enter();
+                    this.showing = true;
                 }
-                this.showing = true;
             }
         },
         enter() {
-            this.animationQueue.push(() => {
-                this.reset('leave');
-                this.flip('enter');
-            });
-
-            if (!this.animating) {
-                this.playAnimation();
+            if (this.animating) {
+                this.cancelAnimation();
             }
+
+            this.reset('leave');
+            this.flip('enter');
         },
         leave() {
-            this.animationQueue.push(() => {
-                this.reset('enter');
-                this.flip('leave');
-            });
-
-            if (!this.animating) {
-                this.playAnimation();
+            if (this.animating) {
+                this.cancelAnimation();
             }
+
+            this.reset('enter');
+            this.flip('leave');
         },
-        playAnimation() {
-            this.animationQueue.shift()();
+        cancelAnimation() {
+            if (this.currentAnimation.delayTimeoutId !== undefined) {
+                clearTimeout(this.currentAnimation.delayTimeoutId);
+
+                // Test for this.animating again in case final callback is called first
+            } else if (this.animating) {
+                this.$el.removeEventListener(
+                    'animationend',
+                    this.currentAnimation.animationListener
+                );
+                this.$el.removeEventListener(
+                    'transitionend',
+                    this.currentAnimation.transitionListener
+                );
+            }
+
+            this.reset('enter');
+            this.reset('leave');
         },
         flip(action) {
             this.animating = true;
             this.$el.classList.add(`${this.$props.name}-${action}`);
 
             const start = () => {
+                this.currentAnimation.delayTimeoutId = undefined;
+
                 this.$el.classList.add(`${this.$props.name}-${action}-active`);
 
                 requestAnimationFrame(() => {
@@ -114,18 +133,17 @@ export default {
                         `${this.$props.name}-${action}-active`
                     );
 
-                    if (this.animationQueue.length == 0) {
-                        this.animating = false;
-                    } else {
-                        this.playAnimation();
-                    }
+                    this.animating = false;
                 });
             };
 
             if (this.$props.delay) {
-                setTimeout(start, this.$props.delay);
+                this.currentAnimation.delayTimeoutId = setTimeout(
+                    start,
+                    this.$props.delay
+                );
             } else {
-                setTimeout(start, 10);
+                this.currentAnimation.delayTimeoutId = setTimeout(start, 0);
             }
         },
         reset(action) {
@@ -138,23 +156,23 @@ export default {
                 setTimeout(callback, this.$props.duration);
             } else {
                 // Listen for either transitionend or animationend and remove the other
-                const transitionListener = this.$el.addEventListener(
+                this.currentAnimation.transitionListener = this.$el.addEventListener(
                     'transitionend',
                     () => {
                         this.$el.removeEventListener(
                             'animationend',
-                            animationListener
+                            this.currentAnimation.animationListener
                         );
                         callback();
                     },
                     { once: true }
                 );
-                const animationListener = this.$el.addEventListener(
+                this.currentAnimation.animationListener = this.$el.addEventListener(
                     'animationend',
                     () => {
                         this.$el.removeEventListener(
                             'transitionend',
-                            transitionListener
+                            this.currentAnimation.transitionListener
                         );
                         callback();
                     },
