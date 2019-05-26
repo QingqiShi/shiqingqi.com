@@ -75,7 +75,7 @@ export default {
         nottingham: 'Nottingham',
         manchester: 'Manchester',
 
-        timeline2018Title_PersonalWebsite: 'ShiQingqi.com v1.0',
+        timeline2018Title_PersonalWebsite: 'Qingqi.dev v1.0',
         timeline2018Description_PersonalWebsite:
             "This is the second overhaul of my personal website. Comming out of beta, it's taking advantage of the best tech from the Front-End field such as Webpack, npm and VueJS. {{br}}Also, the website is now hosted on Firebase as a static site and is updated and built with an automated continuous deployment system that is integrated with GitHub (meaning v2.0 and v3.0 probably already arrived).",
         timeline2018Title_Visa: 'Visa Application',
@@ -93,7 +93,7 @@ export default {
         timeline2017Title_Robotics: 'Kidnapped Robot',
         timeline2017Description_Robotics:
             'This work was for the Robotics module and it involved solving the Kidnapped Robot problem - a robot had to be programmed to automatically localise its position and navigate to a target. {{br}} Our four people group built the robot using the Lego Mindstorm kit, and programmed it using Matlab. I received one of the highest marks of 98/100 for achieving top speed and accuracy, as well as contributing the most to the project.',
-        timeline2017Title_PersonalWebsite: 'ShiQingqi.com v0.2',
+        timeline2017Title_PersonalWebsite: 'Qingqi.dev v0.2',
         timeline2017Description_PersonalWebsite:
             "My personal website was updated since a lot of new things have happened - with new projects that I have enjoyed doing during Master's study. I took this chance to experiment with Web Components, Polymer and HTTP2.",
         timeline2017Title_Animation: 'Animation Production',
@@ -107,7 +107,7 @@ export default {
         timeline2016Title_IndividualProject: 'Undergraduate Individual Project',
         timeline2016Description_IndividualProject: `For this final year undergraduate project I created a software to convert code written in C into natural sentences of multiple languages. The project involved a lot of digging into the C compiler Clang, and incorporating the core logic with a GUI layer written with JavaFX.`,
 
-        timeline2015Title_PersonalWebsite: 'ShiQingqi.com v0.1',
+        timeline2015Title_PersonalWebsite: 'Qingqi.dev v0.1',
         timeline2015Description_PersonalWebsite: `I finally drafted my very own personal website. Many new web technologies were experimented, such as the CSS pre-procecssor Sass, the front-end framework Bootstrap, the task runner Grunt, and also experienced other tedious prep-work for setting up domain names and servers.`,
         timeline2015Title_GroupProject: 'Group Project',
         timeline2015Description_GroupProject: `This second year undergraduate project was the first serious group project that I was involved with. The project aimed to aid children to learn key-stage maths and for that we created a cross-platform game called "Battle Maths". The project was created using Unity and scripted in C#.`,
@@ -201,7 +201,7 @@ export default {
         nottingham: '诺丁汉 英国',
         manchester: '曼彻斯特 英国',
 
-        timeline2018Title_PersonalWebsite: 'ShiQingqi.com v1.0',
+        timeline2018Title_PersonalWebsite: 'Qingqi.dev v1.0',
         timeline2018Description_PersonalWebsite:
             '这是我对个人网站的第二次大改版。为了对得起1.0的版本号，这一次使用了前端领域最好的技术例如 Webpack、npm 和 VueJS。{{br}}另外，个人网站现在托管在 Firebase 上，并使用持续部署技术与 GitHub 进行深度集成（这意味着 v2.0 和 v3.0 很可能已经上线了）。',
         timeline2018Title_Visa: '申请签证',
@@ -219,7 +219,7 @@ export default {
         timeline2017Title_Robotics: '绑架机器人',
         timeline2017Description_Robotics:
             '这个机器学课程的项目是为了解决“被绑架的机器人”问题——我们需要为机器人编程，让它能通过简单的超声波测距仪自动准确的定位自己并导航至目标位置。{{br}}我们的四人小组用 Lego Mindstorm Kit 拼出机器人，并使用 MatLab 注入算法。由于我们实现了最高的速度和准度（之一），以及我对项目的主要贡献，最终我得到了98分的好成绩。',
-        timeline2017Title_PersonalWebsite: 'ShiQingqi.com v0.2',
+        timeline2017Title_PersonalWebsite: 'Qingqi.dev v0.2',
         timeline2017Description_PersonalWebsite:
             '研究生期间我参与了许多有趣的项目，所以我决定更新个人网站，并顺便做改版。用这个机会，我尝试使用了 Web 组件（Web Components）、Polymer 以及 HTTP2。',
         timeline2017Title_Animation: '动画制作',
@@ -233,7 +233,7 @@ export default {
         timeline2016Title_IndividualProject: '本科个人项目',
         timeline2016Description_IndividualProject: `在这个本科最后一年的个人项目中，我编写了一个能将 C 语言转译成多国自然语言的程序。为了完成这个项目，我钻研了许久 C 语言的编译器 Clang，并且将程序的核心算法集成到了用 JavaFX 实现的图形界面。`,
 
-        timeline2015Title_PersonalWebsite: 'ShiQingqi.com v0.1',
+        timeline2015Title_PersonalWebsite: 'Qingqi.dev v0.1',
         timeline2015Description_PersonalWebsite: `我终于决定制作一个个人网站。我在这个项目过程中学到了许多前沿的网络技术，例如样式预编译器 Sass、前段框架 Bootstrap、构建工具 Grunt。我还体验了注册域名以及搭建服务器这一类的繁杂的事务。`,
         timeline2015Title_GroupProject: '小组项目',
         timeline2015Description_GroupProject: `这是大二的一个小组项目，也是我参与过的第一个正经的小组项目。我们制作了一个叫做“Battle Maths”的跨平台手游，目的是通过游戏辅导孩子们在英国初中阶段的数学。项目使用了 Unity 并通过 C# 编程。`,

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://www.shiqingqi.com</loc>
+    <loc>http://qingqi.dev</loc>
   </url>
   <url>
-    <loc>http://www.shiqingqi.com/timeline</loc>
+    <loc>http://qingqi.dev/timeline</loc>
   </url>
   <url>
-    <loc>http://www.shiqingqi.com/zh</loc>
+    <loc>http://qingqi.dev/zh</loc>
   </url>
   <url>
-    <loc>http://www.shiqingqi.com/zh/timeline</loc>
+    <loc>http://qingqi.dev/zh/timeline</loc>
   </url>
 </urlset>
