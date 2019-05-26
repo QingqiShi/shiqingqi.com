@@ -33,7 +33,7 @@ export default {
                 },
                 {
                     rel: 'canonical',
-                    href: `https://shiqingqi.com${this.$route.meta.normalized}`
+                    href: `https://qingqi.dev${this.$route.meta.normalized}`
                 }
             ],
             meta: [

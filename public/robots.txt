@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: https://shiqingqi.com/sitemap.xml
+Sitemap: https://qingqi.dev/sitemap.xml
