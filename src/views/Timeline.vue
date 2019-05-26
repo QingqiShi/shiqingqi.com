@@ -8,10 +8,10 @@
                         <t t="watford" tag="div" class="loc heading-font" />
                         <t t="timeline2018Title_PersonalWebsite" tag="h2" />
                         <t t="timeline2018Description_PersonalWebsite" tag="p" />
-                        <img slot="media" :src="require('@/assets/shiqingqiNewVersion.jpg')" alt="Thumbnail of the new ShiQingqi.com">
-                        <icon-button slot="action" 
-                                     :svg="true" 
-                                     aria-label="Github link for ShiQingqi.com v1.0"
+                        <img slot="media" :src="require('@/assets/shiqingqiNewVersion.jpg')" alt="Thumbnail of the new Qingqi.dev">
+                        <icon-button slot="action"
+                                     :svg="true"
+                                     aria-label="Github link for Qingqi.dev v1.0"
                                      link="https://github.com/QingqiShi/shiqingqi.com/tree/v1.0.0"
                                      target="blank">
                             <github-svg/>
@@ -44,9 +44,9 @@
                         <t t="bristol" tag="div" class="loc heading-font" />
                         <t t="timeline2017Title_PersonalWebsite" tag="h2" />
                         <t t="timeline2017Description_PersonalWebsite" tag="p" />
-                        <icon-button slot="action" 
-                                     :svg="true" 
-                                     aria-label="Github link for ShiQingqi.com v0.2"
+                        <icon-button slot="action"
+                                     :svg="true"
+                                     aria-label="Github link for Qingqi.dev v0.2"
                                      link="https://github.com/QingqiShi/shiqingqi.com/tree/81f233744b8e6dabff1b124645c49b6d927d536e"
                                      target="blank">
                             <github-svg/>
@@ -61,13 +61,13 @@
                         <t t="bristol" tag="div" class="loc heading-font" />
                         <t t="timeline2017Title_Animation" tag="h2" />
                         <t t="timeline2017Description_Animation" tag="p" />
-                        <iframe slot="media" 
-                                class="media" 
-                                width="560" 
-                                height="315" 
+                        <iframe slot="media"
+                                class="media"
+                                width="560"
+                                height="315"
                                 src="https://www.youtube.com/embed/--0zwWfkACc?rel=0&amp;showinfo=0&amp;start=70"
-                                frameborder="0" 
-                                allow="autoplay; encrypted-media" 
+                                frameborder="0"
+                                allow="autoplay; encrypted-media"
                                 allowfullscreen/>
                     </timeline-item>
                     <timeline-item media s-col-2>
@@ -75,9 +75,9 @@
                         <t t="timeline2017Title_Graphics" tag="h2" />
                         <t t="timeline2017Description_Graphics" tag="p" />
                         <img slot="media" :src="require('@/assets/ray_tracer_render.png')" alt="Ray Tracer Demo">
-                        <icon-button slot="action" 
-                                     :svg="true" 
-                                     aria-label="Github link for Ray Tracer" 
+                        <icon-button slot="action"
+                                     :svg="true"
+                                     aria-label="Github link for Ray Tracer"
                                      link="https://github.com/QingqiShi/Ray-Tracer"
                                      target="blank">
                             <github-svg/>
@@ -87,8 +87,8 @@
                         <t t="bristol" tag="div" class="loc heading-font" />
                         <t t="timeline2017Title_Web" tag="h2" />
                         <t t="timeline2017Description_Web" tag="p" />
-                        <icon-button slot="action" 
-                                     :svg="true" 
+                        <icon-button slot="action"
+                                     :svg="true"
                                      aria-label="Github link for Game of Life website"
                                      link="https://github.com/QingqiShi/Game-of-Life-Website"
                                      target="blank">
@@ -110,10 +110,11 @@
                         <t t="nottingham" tag="div" class="loc heading-font" />
                         <t t="timeline2015Title_PersonalWebsite" tag="h2" />
                         <t t="timeline2015Description_PersonalWebsite" tag="p" />
-                        <icon-button slot="action" 
-                                     :svg="true" 
-                                     aria-label="Github link for shiqingqi.com"
-                                     link="https://github.com/QingqiShi/shiqingqi.com/tree/d46136f5b1adaffdcf22e93c90a387a66ca0b7c5" 
+                        <icon-button slot="action"
+                                     :svg="true"
+                                     aria-label="Github link for Qingqi.dev"
+                          link="https://github.com/QingqiShi/shiqingqi.com/tree/d46136f5b1adaffdcf22e93c90a387a66ca0b7c5"
+
                                      target="blank">
                             <github-svg/>
                         </icon-button>
@@ -132,7 +133,7 @@
                         <t t="timeline2014Description_CSSA" tag="p" />
                     </timeline-item>
                 </timeline-section>
-                
+
                 <timeline-section :year="2013">
                     <timeline-item s-row-2 l-row-1 l-col-2>
                         <t t="nottingham" tag="div" class="loc heading-font" />
