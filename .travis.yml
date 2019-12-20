@@ -1,11 +1,11 @@
 language: node_js
 node_js:
-  - node
+    - node
 script: npm run build
 deploy:
-  provider: firebase
-  skip_cleanup: true
-  token:
-    secure: lAi8B8ongJjLfM9CttO8Ek6ATgs1m1T5iaPUUYmAkkj2OD2UqsTQOVPZ6dOEbhH3xlh7wKEGM6q3PGJkSX9/UemVibnHVJ29IwrNpuJXuwWWkucFnMWN2R1uy+Agw4lAzbR27qNTo5KGTf1Ux8vmmXHemP5cP9r5rwCHQ/ybMVRfQdm3NeYBVoXT3Mpnf4lbw5O0heIC/1ev60K0600fz//5qF5L6KVVn8IJkH7hvV/+K3vXOoyWEkaCAEeOblAe74aiSZX32POtYrpxJKucoNYJiuyLeCxmpG0kOrRvqPcORAlC7JuPaCTTnnHdMUbjs9scUY2yzCdJuILexdAsOH4uoW11OXtQt/bgLhH6z5fC+c89HNTNCNI15AmCOWjKe94sGgUjd6e6vd1LGRuka+RidCgcJ6uiaP4B5wDES00hRSCSKsijuCMCrjWE/Rbt29DIkF4yIxbeCHFp5fKDd9KI4HvwWAF1qAAvmy7rathbimlIC3KJB/PPyTQRXw1T6ur1xXQkdZdNzkzmzXqw1uEUcxD/os+ecqz5MpEyawrXmCoAuG//NGaMZ8W3P8e9IRH69ADl3DXvSxSk6edgO5DiVHdXSOj/m1VO+kNAmVUE2/lcC4TxGVxKfzdfRxRIxo6nidQSeFm/9iP0+XwWcs7uL1mS52Zf0pkWxK/fFXU=
-  on:
-    branch: master
+    provider: firebase
+    skip_cleanup: true
+    token:
+        secure: NEoOhi2CjrQv93/OEgDnweGptW8K2kAg4EKGb1NevAGt4CO7p7jhv7/AuJNPiEUZsfmEKBSdPebEeKpFSMAXNJ5OV0AP+JhUAc9AMwKWx8M078AgNtxJZHVoVdruW/07ExTzpxPxIBHOCybPDt1BO4TBU79tQzwTuRShZhSsevoaxa+BJXCH61SxEbOpKYM742lr25ulmu9kopVZuI6Ud3RWubHGmDuJu5lPz5aldMIKs3muWGDTQwEgjF+3b5ZYkXopsuM0OiDZtdaVzWEVfl+nuzXyJJEoEmV/1vk6InqhPIg5zAjJPSrwl45QJ1/h5v7Htq6e+1bKGffjKwEwUjzaPgzLz3BIzWpamzMtSjJegCLXiKR3NbeR580G8prAWuGMrth0qmgqyhpycXjwFH3JqP40kM3sLkEw9yGwS6zcNDegV0sjkqIZNjDEUu05ZG1gkKVh1NZeA0Q7HTCGjoCFEwqkCn1ZXuCobDvfpcypsRA1ZuWNnc8ZtAzX9CCh5VOD2+J+DbdAUnBTBl09e1sbBREOd6+dvWFQlL0bQSXmYWw03LV+dYuuAq8waRfzUtkeEehNIt0ZYKxjmnABMTm29Ylm+/oJ2rftPhzlQMGzWZpYhBQnHkwQPWsW+LEGCK7Im1je0DbCEV5zKuU9U7peKXwAyduycaDUw7HjFcM=
+    on:
+        branch: master
