@@ -60,11 +60,18 @@ export default {
         eduAGSBDetailValue1: 'A*AAB',
 
         works: 'Work Experience',
-        myCurrentJob: 'My Current Job',
+
+        spotifyName: 'Spotify',
+        spotifyDates: 'Jul 2019 - Now',
+        spotifyDescription: `Spotify is currently the world's largest audio streaming service. Till October 2019, Spotify has over 248 million monthly active users.`,
+        spotifyWork: `The squad the I work in is responsible for creating a web based platform of tools to empower other squads to rapidly deliver ad campaigns, and also help the end users to better understand Spotify's premium value propersitions.`,
+        spotifyJobTitle: 'Software Engineer',
+
+        salmonName: 'Wunderman Thumpson Commerce',
+        salmonDates: 'Sep 2017 - Jul 2019 (1 yr 11 mos)',
         salmonDescription: `Wunderman Thompson Commerce is a global digital commerce consultancy that defines and delivers market-changing ecommerce solutions and customer journeys for the world’s leading brands.`,
         salmonWork: `I joined Wunderman Thompson Commerce around September 2017. Currently, my client is a world leading fashion company who owns a couple of the world's most well-known brands. I work on the checkout sections of their e-commerce websites, as well as an 'omni-channel project' to improve the customer's in-store experience.`,
         salmonJobTitle: 'Front-End Developer',
-        noExperienceExcuse: `Please also checkout other non-comercial projects that I've done both during University and in my spare time on the timeline page.`,
 
         timeline: 'Timeline',
         timelineDescription: "Qingqi's life accomplishments in a nutshell.",
@@ -186,11 +193,18 @@ export default {
         eduAGSBDetailValue1: 'A*AAB',
 
         works: '工作经验',
-        myCurrentJob: '目前就职',
+
+        spotifyName: 'Spotify',
+        spotifyDates: '2019年7月 至今',
+        spotifyDescription: `Spotify 是当前全球最大的流音频服务商，2019年10月，Spotify有超过2亿4千万的月活用户。`,
+        spotifyWork: `我与我所在的团队负责开发基于Web的工具平台，我们的平台能保障快速的广告交付并且让用户更好的理解Spotify提供的付费服务。`,
+        spotifyJobTitle: '软件工程师',
+
+        salmonName: 'Wunderman Thumpson Commerce',
+        salmonDates: '2017年9月 - 2019年7月 （1年11个月）',
         salmonDescription: `Wunderman Thompson Commerce 是一家WPP旗下据有国际影响力的顾问公司。它为许多国际领先的品牌提供改变世界的电子商务解决方案。`,
         salmonWork: `我于2017年9月入职 Wunderman Thompson Commerce。目前我的客户是一家拥有两个国际知名品牌的时尚公司。我的工作范畴包括为客户开发电子商务网站的结账页面，以及“全平台项目”以通过科技改善消费者在实体店内的购物体验。`,
         salmonJobTitle: '前端开发员',
-        noExperienceExcuse: `请前往时间线查看我在大学时期的其他非商业及个人项目。`,
 
         timeline: '时间线',
         timelineDescription: '石清琪的生平简史。',
