@@ -1,5 +1,5 @@
 <template>
-    <div class="banner" ref="banner" :style="{ transform: `translate3d(0, ${parallaxOffset * 0.5}px, 0)` }">
+    <div ref="banner" :style="{ transform: `translate3d(0, ${parallaxOffset * 0.5}px, 0)` }" class="banner">
         <div class="title">
             <intersect-transition name="text-reveal" delay="500">
                 <t t="name" tag="h1" />
@@ -13,7 +13,7 @@
                 <img :src="require('../assets/selfie.jpg')" alt="selfie" class="selfie">
             </intersect-transition>
         </div>
-        
+
         <intersect-transition name="slide-right">
             <div class="tags">
                 <t t="husband" class="tag" />
@@ -28,15 +28,15 @@
         </intersect-transition>
 
         <intersect-transition name="fade-in">
-            <div class="shape shape1"></div>
+            <div class="shape shape1"/>
         </intersect-transition>
-        
+
         <intersect-transition name="fade-in">
-            <div class="shape shape2"></div>
+            <div class="shape shape2"/>
         </intersect-transition>
-            
+
         <intersect-transition name="fade-in">
-            <div class="shape shape3"></div>
+            <div class="shape shape3"/>
         </intersect-transition>
     </div>
 </template>
@@ -55,13 +55,7 @@ export default {
             parallaxOffset: 0
         };
     },
-    methods: {
-        setParallaxOffset() {
-            this.parallaxOffset = window.pageYOffset;
-        }
-    },
     mounted() {
-        let run = true;
         window.addEventListener('scroll', () => {
             const rect = this.$refs.banner.getBoundingClientRect();
 
@@ -70,8 +64,12 @@ export default {
             } else {
                 this.parallaxOffset = 0;
             }
-            
         });
+    },
+    methods: {
+        setParallaxOffset() {
+            this.parallaxOffset = window.pageYOffset;
+        }
     }
 };
 </script>
