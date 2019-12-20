@@ -64,7 +64,7 @@ export default {
         spotifyName: 'Spotify',
         spotifyDates: 'Jul 2019 - Now',
         spotifyDescription: `Spotify is currently the world's largest audio streaming service. Till October 2019, Spotify has over 248 million monthly active users.`,
-        spotifyWork: `The squad the I work in is responsible for creating a web based platform of tools to empower other squads to rapidly deliver ad campaigns, and also help the end users to better understand Spotify's premium value propersitions.`,
+        spotifyWork: `The squad that I work in is responsible for creating a web based platform of tools to empower other squads to rapidly deliver ad campaigns, and also help the end users to better understand Spotify's premium value propersitions.`,
         spotifyJobTitle: 'Software Engineer',
 
         salmonName: 'Wunderman Thumpson Commerce',
