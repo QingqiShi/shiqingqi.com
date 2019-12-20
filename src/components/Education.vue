@@ -1,6 +1,9 @@
 <template>
     <div class="education">
-        <div class="container" :class="{ showDetail: showDetail }" :style="{ '--expand-height': expandHeight + 'px' }" @click="toggleDetail">
+        <div :class="{ showDetail: showDetail }" 
+             :style="{ '--expand-height': expandHeight + 'px' }" 
+             class="container" 
+             @click="toggleDetail">
             <card class="top">
                 <div class="logo">
                     <img :src="options.logo" alt="">
@@ -12,7 +15,7 @@
                 </div>
             </card>
 
-            <card class="expand" ref="expandCard">
+            <card ref="expandCard" class="expand">
                 <t :t="options.course" class="course heading-font" tag="div" />
                 <div class="details">
                     <div v-for="detail in options.details" :key="detail.name" class="detail">

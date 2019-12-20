@@ -8,6 +8,7 @@ const assetsList = [
     '/zh/',
     '/zh/timeline',
     '/zh/timeline/'
+    // eslint-disable-next-line no-undef
 ].concat(serviceWorkerOption.assets);
 
 self.addEventListener('install', event => {

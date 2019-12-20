@@ -38,7 +38,10 @@ export default {
         const children = lines.map(line => {
             // Splitter placeholder
             const pieces = line.split('{{}}');
-            return pieces.map(piece => [piece, slots && slots[usedSlots++]]).filter(item => item != undefined).reduce((acc, val) => acc.concat(val));
+            return pieces
+                .map(piece => [piece, slots && slots[usedSlots++]])
+                .filter(item => item != undefined)
+                .reduce((acc, val) => acc.concat(val));
         });
 
         // Restore lang
@@ -56,7 +59,9 @@ export default {
             if (children.length == 1) {
                 return <span>{children[0]}</span>;
             } else {
-                return <span>{children.map(child => <span>{child}</span>)}</span>;
+                return (
+                    <span>{children.map(child => <span>{child}</span>)}</span>
+                );
             }
         }
     }

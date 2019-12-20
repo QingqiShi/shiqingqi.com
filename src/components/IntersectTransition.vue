@@ -1,11 +1,20 @@
 <script>
 export default {
     name: 'IntersectTransition',
-    render() {
-        // Only render first child slot
-        return this.$slots.default[0];
+    props: {
+        name: {
+            type: String,
+            default: 'slide-down'
+        },
+        duration: {
+            type: Number,
+            default: 30
+        },
+        delay: {
+            type: Number,
+            default: 30
+        }
     },
-    props: ['name', 'duration', 'delay'],
     data() {
         return {
             intersecting: true,
@@ -180,6 +189,10 @@ export default {
                 );
             }
         }
+    },
+    render() {
+        // Only render first child slot
+        return this.$slots.default[0];
     }
 };
 </script>

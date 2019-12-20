@@ -1,56 +1,56 @@
 <template>
-      <flat-section>
-            <t t="works" tag="h1" />
+    <flat-section>
+        <t t="works" tag="h1" />
         <div class="current">
-                  <!-- <img class="logo" src="@/assets/Salmon_Logo.svg" alt="Salmon Ltd"> -->
+            <!-- <img class="logo" src="@/assets/Salmon_Logo.svg" alt="Salmon Ltd"> -->
             <div class="description">
-                        <t t="myCurrentJob" tag="span" class="tag heading-font" />
+                <t t="myCurrentJob" tag="span" class="tag heading-font" />
                 <t t="salmonDescription" tag="p" />
                 <t t="salmonWork" tag="p" />
             </div>
-                  <intersect-transition name="slide-right">
-                        <card class="business-card">
+            <intersect-transition name="slide-right">
+                <card class="business-card">
                     <div class="logo">
                         <img
                             src="@/assets/wunderman_thompson_commerce_logo.svg"
-                                          alt="Salmon Ltd"
+                            alt="Salmon Ltd"
                         >
                         <svg
                             class="diagonalBottom"
                             viewBox="0 0 1280 100"
-                                          preserveAspectRatio="none"
+                            preserveAspectRatio="none"
                             role="presentation"
                             aria-hidden="true"
                         >
                             <polygon points="0 0 1280 100 0 100" fill="#07393C" />
                         </svg>
                         <svg
-                                          class="diagonalLeft"
-                                          viewBox="0 0 200 1280"
+                            class="diagonalLeft"
+                            viewBox="0 0 200 1280"
                             preserveAspectRatio="none"
                             role="presentation"
                             aria-hidden="true"
                         >
-                                          <polygon points="0 0 200 0 0 1280" fill="#07393C" />
-                                    </svg>
+                            <polygon points="0 0 200 0 0 1280" fill="#07393C" />
+                        </svg>
                     </div>
-                              <div class="info">
+                    <div class="info">
                         <t t="salmonJobTitle" tag="em" class="heading-font" />
                         <t t="name" tag="div" />
-                                    <div>qshi@salmon.com</div>
-                                    <div>
+                        <div>qshi@salmon.com</div>
+                        <div>
                             <span>Salmon Ltd</span>
                             <span>64 Clarendon Road</span>
                             <span>Watford</span>
-                                          <span>Hertfordshire, WD17 1DA</span>
-                                    </div>
+                            <span>Hertfordshire, WD17 1DA</span>
+                        </div>
                     </div>
                 </card>
             </intersect-transition>
-            </div>
+        </div>
 
         <!-- <t t="noExperienceExcuse" tag="p" class="excuse heading-font" /> -->
-      </flat-section>
+    </flat-section>
 </template>
 
 <script>

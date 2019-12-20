@@ -95,7 +95,7 @@
     50% {
         clip-path: inset(0 0 0 0);
     }
-    
+
     100% {
         clip-path: inset(0 0 0 0);
     }
@@ -106,7 +106,7 @@
         clip-path: inset(0 100% 0 0);
     }
 
-	50% {
+    50% {
         clip-path: inset(0 0 0 0);
     }
 
@@ -114,7 +114,6 @@
         clip-path: inset(0 0 0 100%);
     }
 }
-
 
 /** fade-in **/
 .fade-in-enter-active,

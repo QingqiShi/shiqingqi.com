@@ -4,7 +4,10 @@
             <t t="timeline" tag="h1" />
             <timeline-container>
                 <timeline-section :year="2018">
-                    <timeline-item s-row-2 l-row-1 l-col-2 media>
+                    <timeline-item s-row-2 
+                                   l-row-1 
+                                   l-col-2 
+                                   media>
                         <t t="watford" tag="div" class="loc heading-font" />
                         <t t="timeline2018Title_PersonalWebsite" tag="h2" />
                         <t t="timeline2018Description_PersonalWebsite" tag="p" />
@@ -113,7 +116,7 @@
                         <icon-button slot="action"
                                      :svg="true"
                                      aria-label="Github link for Qingqi.dev"
-                          link="https://github.com/QingqiShi/shiqingqi.com/tree/d46136f5b1adaffdcf22e93c90a387a66ca0b7c5"
+                                     link="https://github.com/QingqiShi/shiqingqi.com/tree/d46136f5b1adaffdcf22e93c90a387a66ca0b7c5"
 
                                      target="blank">
                             <github-svg/>

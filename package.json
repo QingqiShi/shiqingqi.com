@@ -1,36 +1,37 @@
 {
-  "name": "qingqi.dev",
-  "version": "3.4.4",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "test": "vue-cli-service test",
-    "lint": "vue-cli-service lint"
-  },
-  "dependencies": {
-    "vue": "^2.6.11",
-    "vue-meta": "^1.6.0",
-    "vue-router": "^3.1.3",
-    "vuex": "^3.1.2"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.12.1",
-    "@vue/cli-plugin-eslint": "^3.12.1",
-    "@vue/cli-plugin-unit-jest": "^3.12.1",
-    "@vue/cli-service": "^3.12.1",
-    "@vue/eslint-config-prettier": "^3.0.5",
-    "@vue/test-utils": "^1.0.0-beta.30",
-    "babel-core": "^7.0.0-0",
-    "babel-jest": "^22.4.4",
-    "node-sass": "^4.13.0",
-    "sass-loader": "^7.3.1",
-    "serviceworker-webpack-plugin": "^1.0.1",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
-  ]
+    "name": "qingqi.dev",
+    "version": "3.4.4",
+    "private": true,
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "test": "vue-cli-service test",
+        "lint": "vue-cli-service lint",
+        "format": "prettier src/**/*.{vue,js,scss} --write"
+    },
+    "dependencies": {
+        "vue": "^2.6.11",
+        "vue-meta": "^1.6.0",
+        "vue-router": "^3.1.3",
+        "vuex": "^3.1.2"
+    },
+    "devDependencies": {
+        "@vue/cli-plugin-babel": "^3.12.1",
+        "@vue/cli-plugin-eslint": "^3.12.1",
+        "@vue/cli-plugin-unit-jest": "^3.12.1",
+        "@vue/cli-service": "^3.12.1",
+        "@vue/eslint-config-prettier": "^3.0.5",
+        "@vue/test-utils": "^1.0.0-beta.30",
+        "babel-core": "^7.0.0-0",
+        "babel-jest": "^22.4.4",
+        "node-sass": "^4.13.0",
+        "sass-loader": "^7.3.1",
+        "serviceworker-webpack-plugin": "^1.0.1",
+        "vue-template-compiler": "^2.6.11"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not ie <= 8"
+    ]
 }
