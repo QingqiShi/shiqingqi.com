@@ -1,0 +1,81 @@
+.hero-container {
+  padding: 7rem 0 3rem;
+}
+
+.hero-container h1 {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.hero-container p {
+  margin: 0;
+}
+
+@media (min-width: 320px) {
+  .hero-container {
+    padding: 10rem 0 5rem;
+  }
+
+  .hero-container h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-container {
+    padding: 12rem 0 7rem;
+  }
+
+  .hero-container h1 {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 1080px) {
+  .hero-container h1 {
+    font-size: 3.5rem;
+  }
+}
+
+.section-container {
+  padding: 0 0 3rem;
+}
+
+.section-container h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+@media (min-width: 320px) {
+  .section-container {
+    padding: 0 0 5rem;
+  }
+}
+
+.flow-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10rem;
+}
+
+@media (min-width: 320px) {
+  .flow-gradient {
+    height: 14rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .flow-gradient {
+    height: 17rem;
+  }
+}
+
+@media (min-width: 1080px) {
+  .flow-gradient {
+    height: 19rem;
+  }
+}

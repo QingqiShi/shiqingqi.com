@@ -1,0 +1,35 @@
+.card {
+  display: block;
+  width: 100%;
+  border: none;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  text-align: left;
+  padding: 1rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-none);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  background-color: transparent;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-raised);
+  background-color: var(--background-main);
+  transform: scale(1.05) translate3d(0, -0.2rem, 0);
+}
+
+.card:not(:hover) svg * {
+  fill: var(--text-subdued) !important;
+}
+
+.card:not(:hover) img {
+  filter: grayscale(100%);
+}
+
+.card svg * {
+  transition: fill 0.1s;
+}
