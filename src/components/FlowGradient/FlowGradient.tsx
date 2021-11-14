@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import vs from './shaders/vs';
-import fs from './shaders/fs';
+import vs from './shaders/vs.glsl';
+import fs from './shaders/fs.glsl';
 import { init, start } from './loop';
 import classes from './FlowGradient.module.css';
 
@@ -10,13 +10,13 @@ function FlowGradient(_props: FlowGradientProps) {
   const [ref, setRef] = useState<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    if (ref && vs && fs) {
+    if (ref) {
       const context = init(ref, vs, fs);
       if (context) {
         return start(context, {});
       }
     }
-  }, [ref, vs, fs]);
+  }, [ref]);
 
   return <canvas className={classes.canvas} ref={setRef} />;
 }

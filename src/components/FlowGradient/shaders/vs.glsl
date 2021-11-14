@@ -1,8 +1,4 @@
-import { snoise } from './libs';
-
-export default `#version 300 es
-
-${snoise}
+#version 300 es
 
 in vec2 a_position;
 
@@ -17,9 +13,8 @@ uniform vec3 u_colorBackground;
 
 out vec4 v_color;
 
-float clip(float x) {
-  return clamp(x, 0.0, 1.0);
-}
+#include utils/snoise;
+#include utils/clip;
 
 void main() {
   vec2 clipSpace = a_position / u_resolution * 2.0 - 1.0;
@@ -29,29 +24,17 @@ void main() {
 
   // Noises
   float noiseSize = (1.0 - amplitudeClipSpace) * 0.007;
-  float noiseMain = snoise(
-    vec3(
-      a_position.x / u_dpi * noiseSize - u_time * 0.00005,
-      a_position.y / u_dpi * noiseSize + u_time * 0.00007,
-      u_time * 0.00007
-    )
-  );
-  float noiseAlt = pow(snoise(
-    vec3(
-      a_position.x / u_dpi * noiseSize - u_time * 0.00005,
-      a_position.y / u_dpi * noiseSize + u_time * 0.00005,
-      u_time * 0.0001
-    )
-  ) * 0.5 + 0.5, 2.0);
+  float noiseMain = snoise(vec3(a_position.x / u_dpi * noiseSize - u_time * 0.00005, a_position.y / u_dpi * noiseSize + u_time * 0.00007, u_time * 0.00007));
+  float noiseAlt = pow(snoise(vec3(a_position.x / u_dpi * noiseSize - u_time * 0.00005, a_position.y / u_dpi * noiseSize + u_time * 0.00005, u_time * 0.0001)) * 0.5 + 0.5, 2.0);
 
   // Calculate wave offset
   vec2 offset = vec2(0.0, amplitudeClipSpace * noiseMain);
-  if (clipSpace.y > 1.0 - amplitudeClipSpace) {
+  if(clipSpace.y > 1.0 - amplitudeClipSpace) {
     float distToEdge = 1.0 - clipSpace.y;
     float factor = distToEdge / amplitudeClipSpace;
     offset.y = offset.y * factor;
   }
-  if (clipSpace.y < -0.9) {
+  if(clipSpace.y < -0.9) {
     float distToEdge = clipSpace.y + 1.0;
     float factor = distToEdge / 0.1;
     offset.y = offset.y * factor;
@@ -69,4 +52,3 @@ void main() {
 
   gl_Position = vec4(afterFx * vec2(1.0, -1.0), 0, 1);
 }
-`;
