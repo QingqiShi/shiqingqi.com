@@ -1,0 +1,26 @@
+.container {
+  position: relative;
+  --control-active: #333;
+}
+
+.sun,
+.moon {
+  position: absolute;
+  z-index: 100;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem;
+  pointer-events: none;
+}
+
+.moon {
+  left: 0;
+  color: #f3eded;
+}
+
+.sun {
+  right: 0;
+  color: #292929;
+}

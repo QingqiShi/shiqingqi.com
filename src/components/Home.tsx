@@ -8,11 +8,11 @@ import EducationCard from './EducationCard';
 import AgsbPng from '../../assets/AGSB.png';
 import AgsbWebp from '../../assets/AGSB.webp';
 
-const Citadel = lazy(() => import('../icons/Citadel'));
-const Spotify = lazy(() => import('../icons/Spotify'));
-const Wtc = lazy(() => import('../icons/Wtc'));
-const Bristol = lazy(() => import('../icons/Bristol'));
-const Nottingham = lazy(() => import('../icons/Nottingham'));
+const Citadel = lazy(() => import('../logos/Citadel'));
+const Spotify = lazy(() => import('../logos/Spotify'));
+const Wtc = lazy(() => import('../logos/Wtc'));
+const Bristol = lazy(() => import('../logos/Bristol'));
+const Nottingham = lazy(() => import('../logos/Nottingham'));
 const FlowGradient = lazy(() => import('./FlowGradient'));
 
 interface HomeProps {}
@@ -28,12 +28,12 @@ function Home(_props: HomeProps) {
       <Layout>
         <div className={classes.heroContainer}>
           <h1>
-            Hi, I'm Qingqi.
-            <br /> I'm a software engineer.
+            Hi, I&apos;m Qingqi.
+            <br /> I&apos;m a software engineer.
           </h1>
 
           <p>
-            I value <strong>craftsman's spirit</strong>. Craftsmen make things
+            I value <strong>craftsman&apos;s spirit</strong>. Craftsmen make things
             with <strong>perfection</strong>, <strong>precision</strong> and{' '}
             <strong>patience</strong>. I apply these principles to software
             engineering and life in general.

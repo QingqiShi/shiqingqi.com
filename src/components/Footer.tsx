@@ -7,10 +7,10 @@ function Footer(_props: FooterProps) {
     <footer className={classes.container}>
       <div>
         <div>
-          <a href="#" target="_blank" className={classes.socialLink}>
+          <a href="#top" target="_blank" className={classes.socialLink}>
             Github
           </a>
-          <a href="#" target="_blank" className={classes.socialLink}>
+          <a href="#top" target="_blank" className={classes.socialLink}>
             LinkedIn
           </a>
         </div>

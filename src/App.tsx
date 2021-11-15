@@ -1,11 +1,14 @@
+import { HelmetProvider } from 'react-helmet-async';
 import Home from './components/Home';
-import './App.css';
+import { ThemeProvider } from './contexts/theme';
 
 function App() {
   return (
-    <div className="App">
-      <Home />
-    </div>
+    <HelmetProvider>
+      <ThemeProvider>
+        <Home />
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 

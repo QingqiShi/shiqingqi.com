@@ -7,7 +7,7 @@
   text-align: left;
   padding: 1rem;
   overflow: hidden;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: box-shadow 0.2s, transform 0.2s, background-color 0.2s;
   cursor: pointer;
   margin-bottom: 1rem;
   box-shadow: var(--shadow-none);
@@ -18,7 +18,7 @@
 
 .card:hover {
   box-shadow: var(--shadow-raised);
-  background-color: var(--background-main);
+  background-color: var(--background-raised);
   transform: scale(1.05) translate3d(0, -0.2rem, 0);
 }
 
