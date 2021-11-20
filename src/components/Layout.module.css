@@ -60,6 +60,10 @@
   align-items: center;
 }
 
+.header > *:not(:last-child) {
+  margin-right: 1rem;
+}
+
 @media (min-width: 320px) {
   .wrapper {
     padding: 0 calc(1.2rem + env(safe-area-inset-left)) 0
@@ -111,5 +115,31 @@
   .line:nth-child(5) {
     display: block;
     left: 100%;
+  }
+}
+
+.flow-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10rem;
+}
+
+@media (min-width: 320px) {
+  .flow-gradient {
+    height: 14rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .flow-gradient {
+    height: 17rem;
+  }
+}
+
+@media (min-width: 1080px) {
+  .flow-gradient {
+    height: 19rem;
   }
 }

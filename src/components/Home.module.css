@@ -53,29 +53,3 @@
     padding: 0 0 5rem;
   }
 }
-
-.flow-gradient {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 10rem;
-}
-
-@media (min-width: 320px) {
-  .flow-gradient {
-    height: 14rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .flow-gradient {
-    height: 17rem;
-  }
-}
-
-@media (min-width: 1080px) {
-  .flow-gradient {
-    height: 19rem;
-  }
-}

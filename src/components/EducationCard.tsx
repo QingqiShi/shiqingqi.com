@@ -18,7 +18,7 @@ function EducationCard({
   return (
     <Card>
       <div className={classes.topRow}>
-        <div className={classes.logo}>
+        <div className={classes.logo} aria-hidden>
           {logo && <Suspense fallback="loading...">{logo}</Suspense>}
           {logoSrc && <img src={logoSrc} alt={university} />}
         </div>

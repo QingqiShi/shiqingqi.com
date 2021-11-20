@@ -7,12 +7,12 @@ export enum SwitchState {
   INDETERMINATE,
 }
 
-interface SwitchProps {
+interface SwitchProps extends Omit<React.ComponentProps<'input'>, 'onChange'> {
   value?: SwitchState;
   onChange?: (state: SwitchState) => void;
 }
 
-function Switch({ value, onChange }: SwitchProps) {
+function Switch({ value, onChange, ...rest }: SwitchProps) {
   const [el, setEl] = useState<HTMLInputElement | null>(null);
 
   // Set input state to match value prop
@@ -115,7 +115,9 @@ function Switch({ value, onChange }: SwitchProps) {
     };
   }, [el]);
 
-  return <input ref={setEl} type="checkbox" className={classes.switch} />;
+  return (
+    <input ref={setEl} className={classes.switch} type="checkbox" {...rest} />
+  );
 }
 
 export default Switch;

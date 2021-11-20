@@ -28,6 +28,9 @@
   --text-subdued: #bbbbbb;
   --background-main: #292929;
   --background-raised: #414141;
+  --background-hover: #535353;
+  --control-thumb: #bbbbbb;
+  --control-track: #ccc5c5;
   color-scheme: dark;
 }
 

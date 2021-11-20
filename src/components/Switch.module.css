@@ -9,6 +9,7 @@
   --track-size: calc(var(--thumb-size) * 2);
   --thumb-position: 0;
   --thumb-transition-duration: 0.2s;
+
   inline-size: var(--track-size);
   block-size: var(--thumb-size);
   border-radius: var(--thumb-size);
