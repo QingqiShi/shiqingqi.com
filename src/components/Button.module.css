@@ -19,6 +19,5 @@
 }
 
 .button:hover {
-  background-color: var(--control-active);
-  color: var(--control-thumb);
+  background-color: var(--background-hover);
 }

@@ -11,7 +11,7 @@
   padding: 0.2rem;
   transform: scale(0, 0);
   transform-origin: top right;
-  transition: transform 0.2s linear, opacity 0.2s linear;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
   overflow: hidden;
   pointer-events: none;
 

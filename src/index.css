@@ -5,10 +5,12 @@
   --text-main: #292929;
   --text-subdued: #505050;
   --background-main: #f3eded;
-  --background-raised: #f3eded;
+  --background-raised: #f7f1f1;
+  --background-hover: #e6dddd;
   --control-track: #ccc5c5;
   --control-thumb: #ffffff;
-  --control-active: #003faf;
+  --control-active: #7e10c2;
+  --text-on-active: #ffffff;
   --shadow-none: 0 0 0 rgba(0, 0, 0, 0), 0 0 0 rgba(0, 0, 0, 0);
   --shadow-raised: 1.5px 1.9px 3.5px rgba(0, 0, 0, 0.02),
     3.6px 4.5px 8.4px rgba(0, 0, 0, 0.028),
@@ -31,6 +33,8 @@
   --background-hover: #535353;
   --control-thumb: #bbbbbb;
   --control-track: #ccc5c5;
+  --control-active: #933bc9;
+  --text-on-active: #ffffff;
   color-scheme: dark;
 }
 
