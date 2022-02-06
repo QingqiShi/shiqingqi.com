@@ -1,21 +1,21 @@
-import { Suspense } from 'react';
+import { ComponentProps, Suspense } from 'react';
 import Card from './Card';
 import classes from './ExperienceCard.module.css';
 
-interface ExperienceCardProps {
+interface ExperienceCardProps extends ComponentProps<typeof Card> {
   dates: string;
   logo?: React.ReactNode;
 }
 
-function ExperienceCard({ dates, logo }: ExperienceCardProps) {
+function ExperienceCard({ dates, logo, ...rest }: ExperienceCardProps) {
   return (
-    <Card>
+    <Card {...rest}>
       {logo && (
         <Suspense fallback="loading...">
           <div className={classes.logo}>{logo}</div>
         </Suspense>
       )}
-      <div className={classes.dates}>{dates}</div>
+      <time className={classes.dates}>{dates}</time>
     </Card>
   );
 }

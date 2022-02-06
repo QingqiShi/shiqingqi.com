@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
-import { NavLink, useMatch } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useOutsideClick } from 'rooks';
 import { Translate } from 'phosphor-react';
 import { useTranslation } from '../contexts/translation';
+import { getLocalePath } from '../utils/pathname';
 import Button from './Button';
 import classes from './LocaleSelector.module.css';
 import LanguageSelectorItem from './LocaleSelectorItem';
@@ -19,6 +20,8 @@ function LanguageSelector(_props: LanguageSelectorProps) {
     en: async () => (await import('./LocaleSelector-en')).default,
     zh: async () => (await import('./LocaleSelector-zh')).default,
   });
+
+  const { pathname } = useLocation();
 
   return (
     <div className={classes.container}>
@@ -48,13 +51,13 @@ function LanguageSelector(_props: LanguageSelectorProps) {
           label="English"
           flag="🇬🇧"
           ariaLabel={t('EN_LABEL')}
-          to="../"
+          to={getLocalePath(pathname, 'en')}
         />
         <LanguageSelectorItem
           label="中文"
           flag="🇬🇧"
           ariaLabel={t('ZH_LABEL')}
-          to="zh"
+          to={getLocalePath(pathname, 'zh')}
         />
       </div>
     </div>

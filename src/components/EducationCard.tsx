@@ -1,8 +1,8 @@
-import { Suspense } from 'react';
+import { ComponentProps, Suspense } from 'react';
 import Card from './Card';
 import classes from './EducationCard.module.css';
 
-interface EducationCardProps {
+interface EducationCardProps extends ComponentProps<typeof Card> {
   university: string;
   dates: string;
   logo?: React.ReactNode;
@@ -14,9 +14,10 @@ function EducationCard({
   dates,
   logo,
   logoSrc,
+  ...rest
 }: EducationCardProps) {
   return (
-    <Card>
+    <Card {...rest}>
       <div className={classes.topRow}>
         <div className={classes.logo} aria-hidden>
           {logo && <Suspense fallback="loading...">{logo}</Suspense>}
@@ -24,7 +25,7 @@ function EducationCard({
         </div>
         <span className={classes.university}>{university}</span>
       </div>
-      <div className={classes.dates}>{dates}</div>
+      <time className={classes.dates}>{dates}</time>
     </Card>
   );
 }

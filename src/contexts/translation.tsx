@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 const TranslationContext = createContext<
   | { locale: string; setLocale: React.Dispatch<React.SetStateAction<string>> }

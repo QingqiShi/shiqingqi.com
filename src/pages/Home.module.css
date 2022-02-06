@@ -1,5 +1,5 @@
 .hero-container {
-  padding: 7rem 0 3rem;
+  padding: 0 0 3rem;
 }
 
 .hero-container h1 {
@@ -14,7 +14,7 @@
 
 @media (min-width: 320px) {
   .hero-container {
-    padding: 10rem 0 5rem;
+    padding: 0 0 5rem;
   }
 
   .hero-container h1 {
@@ -24,7 +24,7 @@
 
 @media (min-width: 768px) {
   .hero-container {
-    padding: 12rem 0 7rem;
+    padding: 0 0 7rem;
   }
 
   .hero-container h1 {
@@ -38,18 +38,8 @@
   }
 }
 
-.section-container {
-  padding: 0 0 3rem;
-}
-
 .section-container h2 {
   margin: 0 0 1rem 0;
   font-size: 1.2rem;
   font-weight: 800;
-}
-
-@media (min-width: 320px) {
-  .section-container {
-    padding: 0 0 5rem;
-  }
 }

@@ -1,13 +1,11 @@
-import { lazy, Suspense } from 'react';
-import classes from './Home.module.css';
-import Layout from './Layout';
-import Grid from './Grid';
-import Footer from './Footer';
-import ExperienceCard from './ExperienceCard';
-import EducationCard from './EducationCard';
+import { lazy } from 'react';
+import Grid from '../components/Grid';
+import ExperienceCard from '../components/ExperienceCard';
+import EducationCard from '../components/EducationCard';
 import AgsbPng from '../../assets/AGSB.png';
 import AgsbWebp from '../../assets/AGSB.webp';
 import { useTranslation } from '../contexts/translation';
+import classes from './Home.module.css';
 
 const Citadel = lazy(() => import('../logos/Citadel'));
 const Spotify = lazy(() => import('../logos/Spotify'));
@@ -38,13 +36,25 @@ function Home(_props: HomeProps) {
 
         <Grid>
           <div>
-            <ExperienceCard logo={<Citadel />} dates={t('CITADEL_DATE')} />
+            <ExperienceCard
+              logo={<Citadel />}
+              dates={t('CITADEL_DATE')}
+              to="experiences/citadel"
+            />
           </div>
           <div>
-            <ExperienceCard logo={<Spotify />} dates={t('SPOTIFY_DATE')} />
+            <ExperienceCard
+              logo={<Spotify />}
+              dates={t('SPOTIFY_DATE')}
+              to="experiences/spotify"
+            />
           </div>
           <div>
-            <ExperienceCard logo={<Wtc />} dates={t('WTC_DATE')} />
+            <ExperienceCard
+              logo={<Wtc />}
+              dates={t('WTC_DATE')}
+              to="experiences/wunderman-thompson-commerce"
+            />
           </div>
         </Grid>
       </div>
@@ -58,6 +68,7 @@ function Home(_props: HomeProps) {
               logo={<Bristol />}
               university={t('UOB')}
               dates={t('UOB_DATE')}
+              to="education/university-of-bristol"
             />
           </div>
 
@@ -66,6 +77,7 @@ function Home(_props: HomeProps) {
               logo={<Nottingham />}
               university={t('UON')}
               dates={t('UON_DATE')}
+              to="education/university-of-nottingham"
             />
           </div>
 
@@ -80,12 +92,11 @@ function Home(_props: HomeProps) {
               }
               university={t('AGSB')}
               dates={t('AGSB_DATE')}
+              to="education/altrincham-grammar-school-for-boys"
             />
           </div>
         </Grid>
       </div>
-
-      <Footer />
     </>
   );
 }

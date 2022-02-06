@@ -51,6 +51,7 @@
   right: 0;
   height: 5rem;
   z-index: 100;
+  pointer-events: none;
 }
 
 .header {
@@ -58,6 +59,44 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  pointer-events: none;
+}
+
+.header > * {
+  pointer-events: all;
+}
+
+.main {
+  padding-top: 7rem;
+}
+
+@media (min-width: 320px) {
+  .main {
+    padding-top: 10rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding-top: 12rem;
+  }
+}
+
+.section-container h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.back {
+  display: inline-block;
+  text-decoration: none;
+  font-weight: normal;
+  margin-bottom: 2rem;
+}
+
+.back svg {
+  filter: drop-shadow(0 0 10px var(--background-main));
 }
 
 .header > *:not(:last-child) {

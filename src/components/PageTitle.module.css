@@ -1,0 +1,23 @@
+.title-container {
+  padding: 0 0 3rem;
+}
+
+.title-container h1 {
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-subdued);
+  margin: 0 0 0.5rem;
+}
+
+.dates {
+  font-size: 0.9rem;
+  color: var(--text-subdued);
+}
+
+time {
+  display: block;
+}
