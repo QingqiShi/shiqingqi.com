@@ -1,13 +1,14 @@
 import { lazy } from 'react';
+import { Helmet } from 'react-helmet-async';
 import Grid from '../components/Grid';
 import ExperienceCard from '../components/ExperienceCard';
 import EducationCard from '../components/EducationCard';
+import { useTranslation } from '../contexts/translation';
+import { routes } from '../utils/routes';
 import AgsbPng from '../../assets/AGSB.png';
 import AgsbWebp from '../../assets/AGSB.webp';
-import { useTranslation } from '../contexts/translation';
 import classes from './Home.module.css';
-import { Helmet } from 'react-helmet-async';
-import { routes } from '../utils/routes';
+import { getLocalePath } from '../utils/pathname';
 
 const Citadel = lazy(() => import('../logos/Citadel'));
 const Spotify = lazy(() => import('../logos/Spotify'));
@@ -18,7 +19,7 @@ const Nottingham = lazy(() => import('../logos/Nottingham'));
 interface HomeProps {}
 
 function Home(_props: HomeProps) {
-  const { t, isLoading } = useTranslation({
+  const { t, locale, isLoading } = useTranslation({
     en: async () => (await import('./Home-en')).default,
     zh: async () => (await import('./Home-zh')).default,
   });
@@ -49,21 +50,21 @@ function Home(_props: HomeProps) {
             <ExperienceCard
               logo={<Citadel />}
               dates={t('CITADEL_DATE')}
-              to={routes.experienceCitadel}
+              to={getLocalePath(routes.experienceCitadel, locale)}
             />
           </div>
           <div>
             <ExperienceCard
               logo={<Spotify />}
               dates={t('SPOTIFY_DATE')}
-              to={routes.experienceSpotify}
+              to={getLocalePath(routes.experienceSpotify, locale)}
             />
           </div>
           <div>
             <ExperienceCard
               logo={<Wtc />}
               dates={t('WTC_DATE')}
-              to={routes.experienceWtc}
+              to={getLocalePath(routes.experienceWtc, locale)}
             />
           </div>
         </Grid>
@@ -77,7 +78,7 @@ function Home(_props: HomeProps) {
               logo={<Bristol />}
               university={t('UOB')}
               dates={t('UOB_DATE')}
-              to={routes.educationUOB}
+              to={getLocalePath(routes.educationUOB, locale)}
             />
           </div>
 
@@ -86,7 +87,7 @@ function Home(_props: HomeProps) {
               logo={<Nottingham />}
               university={t('UON')}
               dates={t('UON_DATE')}
-              to={routes.educationUON}
+              to={getLocalePath(routes.educationUON, locale)}
             />
           </div>
 
@@ -106,7 +107,7 @@ function Home(_props: HomeProps) {
               }
               university={t('AGSB')}
               dates={t('AGSB_DATE')}
-              to={routes.educationAGSB}
+              to={getLocalePath(routes.educationAGSB, locale)}
             />
           </div>
         </Grid>
