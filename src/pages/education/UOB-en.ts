@@ -1,4 +1,8 @@
 export default {
+  TITLE: 'Education at University of Bristol | Qingqi Shi',
+  DESCRIPTION:
+    'Qingqi graduated from the University of Bristol with a Merit in MSc Advanced Computing - Creative Technology.',
+
   UOB: 'University of Bristol',
   DATE: 'Sep 2016 - Jan 2018',
   COURSE: 'MSc Advanced Computing - Creative Technology',

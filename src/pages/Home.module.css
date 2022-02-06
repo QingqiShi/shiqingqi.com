@@ -43,3 +43,8 @@
   font-size: 1.2rem;
   font-weight: 800;
 }
+
+.hero-skeleton {
+  height: 325px;
+  padding: 0 0 3rem;
+}

@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import PageTitle from '../../components/PageTitle';
 import { useTranslation } from '../../contexts/translation';
 
@@ -9,33 +10,39 @@ function UniversityOfBristol(_props: UniversityOfBristolProps) {
     zh: async () => (await import('./UOB-zh')).default,
   });
   return (
-    <article>
-      <PageTitle
-        type="EDUCATION"
-        title={t('UOB')}
-        role={t('COURSE')}
-        date={t('DATE')}
-      />
-      <p>{t('GRADE')}</p>
-      <p>{t('MODULES')}</p>
-      <ul>
-        <li>{t('WEB_DEVELOPMENT')}</li>
-        <li>{t('GRAPHICS')}</li>
-        <li>{t('ANIMATION')}</li>
-        <li>{t('ROBOTICS')}</li>
-      </ul>
-      <p>{t('EXAMPLE_PROJECTS')}</p>
-      <ul>
-        <li>
-          <a href="https://github.com/QingqiShi/Game-of-Life-Website">
-            Game of Life website
-          </a>
-        </li>
-        <li>
-          <a href="https://github.com/QingqiShi/Ray-Tracer">Ray Tracer</a>
-        </li>
-      </ul>
-    </article>
+    <>
+      <Helmet>
+        <title>{t('TITLE')}</title>
+        <meta name="description" content={t('DESCRIPTION')} />
+      </Helmet>
+      <article>
+        <PageTitle
+          type="EDUCATION"
+          title={t('UOB')}
+          role={t('COURSE')}
+          date={t('DATE')}
+        />
+        <p>{t('GRADE')}</p>
+        <p>{t('MODULES')}</p>
+        <ul>
+          <li>{t('WEB_DEVELOPMENT')}</li>
+          <li>{t('GRAPHICS')}</li>
+          <li>{t('ANIMATION')}</li>
+          <li>{t('ROBOTICS')}</li>
+        </ul>
+        <p>{t('EXAMPLE_PROJECTS')}</p>
+        <ul>
+          <li>
+            <a href="https://github.com/QingqiShi/Game-of-Life-Website">
+              Game of Life website
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/QingqiShi/Ray-Tracer">Ray Tracer</a>
+          </li>
+        </ul>
+      </article>
+    </>
   );
 }
 

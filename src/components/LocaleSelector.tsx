@@ -5,8 +5,8 @@ import { Translate } from 'phosphor-react';
 import { useTranslation } from '../contexts/translation';
 import { getLocalePath } from '../utils/pathname';
 import Button from './Button';
+import LocaleSelectorItem from './LocaleSelectorItem';
 import classes from './LocaleSelector.module.css';
-import LanguageSelectorItem from './LocaleSelectorItem';
 
 interface LanguageSelectorProps {}
 
@@ -47,17 +47,19 @@ function LanguageSelector(_props: LanguageSelectorProps) {
           }
         }}
       >
-        <LanguageSelectorItem
+        <LocaleSelectorItem
           label="English"
           flag="🇬🇧"
           ariaLabel={t('EN_LABEL')}
           to={getLocalePath(pathname, 'en')}
+          tabIndex={!showMenu ? -1 : undefined}
         />
-        <LanguageSelectorItem
+        <LocaleSelectorItem
           label="中文"
           flag="🇬🇧"
           ariaLabel={t('ZH_LABEL')}
           to={getLocalePath(pathname, 'zh')}
+          tabIndex={!showMenu ? -1 : undefined}
         />
       </div>
     </div>

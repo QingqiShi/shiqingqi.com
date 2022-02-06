@@ -20,7 +20,11 @@ function EducationCard({
     <Card {...rest}>
       <div className={classes.topRow}>
         <div className={classes.logo} aria-hidden>
-          {logo && <Suspense fallback="loading...">{logo}</Suspense>}
+          {logo && (
+            <Suspense fallback={<div className={classes.skeleton} />}>
+              {logo}
+            </Suspense>
+          )}
           {logoSrc && <img src={logoSrc} alt={university} />}
         </div>
         <span className={classes.university}>{university}</span>

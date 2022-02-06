@@ -15,7 +15,7 @@
   box-shadow: var(--shadow-controls);
   display: inline-flex;
   align-items: center;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .button:hover {

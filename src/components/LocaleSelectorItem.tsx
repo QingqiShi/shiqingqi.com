@@ -1,19 +1,21 @@
 import { NavLink } from 'react-router-dom';
-import classes from './LanguageSelectorItem.module.css';
+import classes from './LocaleSelectorItem.module.css';
 
-interface LanguageSelectorItemProps {
+interface LocaleSelectorItemProps {
   label: string;
   ariaLabel: string;
   flag: string;
   to: string;
 }
 
-function LanguageSelectorItem({
+function LocaleSelectorItem({
   label,
   ariaLabel,
   flag,
   to,
-}: LanguageSelectorItemProps) {
+  ...props
+}: LocaleSelectorItemProps &
+  Omit<React.ComponentProps<typeof NavLink>, 'to' | 'children'>) {
   return (
     <NavLink
       to={to}
@@ -24,6 +26,7 @@ function LanguageSelectorItem({
           .filter(Boolean)
           .join(' ')
       }
+      {...props}
     >
       <span>{label}</span>
       <span>{flag}</span>
@@ -31,4 +34,4 @@ function LanguageSelectorItem({
   );
 }
 
-export default LanguageSelectorItem;
+export default LocaleSelectorItem;

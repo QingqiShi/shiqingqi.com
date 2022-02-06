@@ -1,4 +1,8 @@
 export default {
+  TITLE: 'Experience at Spotify | Qingqi Shi',
+  DESCRIPTION:
+    "From scratch, Qingqi implemented the frontend of Spotify's campaign management platform, using technologies such as React, TypeScript and GraphQL. The platform is used by operators and developers to deliver ad campaigns on multiple surfaces (such as web landing pages, mobile product pages, premium pages etc). Hundreds of configurations were created and delivered through our platform to empower premium growth across the globe.",
+
   ROLE: 'Software Engineer II',
   DATE: 'Jul 2019 - Aug 2021',
   MAIN_JOB:

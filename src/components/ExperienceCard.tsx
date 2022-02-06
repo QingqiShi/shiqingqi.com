@@ -11,7 +11,7 @@ function ExperienceCard({ dates, logo, ...rest }: ExperienceCardProps) {
   return (
     <Card {...rest}>
       {logo && (
-        <Suspense fallback="loading...">
+        <Suspense fallback={<div className={classes.skeleton} />}>
           <div className={classes.logo}>{logo}</div>
         </Suspense>
       )}

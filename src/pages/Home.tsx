@@ -6,6 +6,7 @@ import AgsbPng from '../../assets/AGSB.png';
 import AgsbWebp from '../../assets/AGSB.webp';
 import { useTranslation } from '../contexts/translation';
 import classes from './Home.module.css';
+import { Helmet } from 'react-helmet-async';
 
 const Citadel = lazy(() => import('../logos/Citadel'));
 const Spotify = lazy(() => import('../logos/Spotify'));
@@ -16,20 +17,28 @@ const Nottingham = lazy(() => import('../logos/Nottingham'));
 interface HomeProps {}
 
 function Home(_props: HomeProps) {
-  const { t } = useTranslation({
+  const { t, isLoading } = useTranslation({
     en: async () => (await import('./Home-en')).default,
     zh: async () => (await import('./Home-zh')).default,
   });
   return (
     <>
-      <div className={classes.heroContainer}>
-        <h1>
-          {t('TITLE_1')}
-          <br />
-          {t('TITLE_2')}
-        </h1>
-        <p>{t('BRIEF', { interpolate: true })}</p>
-      </div>
+      <Helmet>
+        <title>{t('TITLE')}</title>
+        <meta name="description" content={t('DESCRIPTION')} />
+      </Helmet>
+      {isLoading ? (
+        <div className={classes.heroSkeleton} />
+      ) : (
+        <div className={classes.heroContainer}>
+          <h1>
+            {t('TITLE_1')}
+            <br />
+            {t('TITLE_2')}
+          </h1>
+          <p>{t('BRIEF', { interpolate: true })}</p>
+        </div>
+      )}
 
       <div className={classes.sectionContainer}>
         <h2>{t('EXPERIENCES_TITLE')}</h2>
@@ -58,7 +67,6 @@ function Home(_props: HomeProps) {
           </div>
         </Grid>
       </div>
-
       <div className={classes.sectionContainer}>
         <h2>{t('EDUCATION_TITLE')}</h2>
 
@@ -87,7 +95,7 @@ function Home(_props: HomeProps) {
                 <picture>
                   <source srcSet={AgsbWebp} type="image/webp" />
                   <source srcSet={AgsbPng} type="image/png" />
-                  <img src={AgsbPng} alt={t('AGSB')} title={t('AGSB')} />
+                  <img src={AgsbPng} alt={t('AGSB')} title={t('AGSB')} height="100%" />
                 </picture>
               }
               university={t('AGSB')}

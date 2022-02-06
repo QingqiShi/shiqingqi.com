@@ -1,4 +1,8 @@
 export default {
+  TITLE: 'Experience at Citadel | Qingqi Shi',
+  DESCRIPTION:
+    "At Citadel, Qingqi is responsible for creating dashboard web apps to present interactive data which are used to assist traders and management to perform their daily jobs.",
+
   ROLE: 'Software Engineer',
   DATE: 'Aug 2021 - Now',
   MY_RESPONSIBILITIES:
