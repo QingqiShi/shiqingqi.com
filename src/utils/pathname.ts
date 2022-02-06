@@ -1,6 +1,6 @@
 import { routes } from './routes';
 
-const cononicalHost = 'https://qingqi.dev';
+export const cononicalOrigin = 'https://qingqi.dev';
 const localePrefixes = /^\/zh/;
 
 export const normalizePath = (pathname: string): string =>
@@ -17,7 +17,7 @@ export const getLocalePath = (
 };
 
 export const getFullPath = (pathname: string, locale: string) =>
-  `${cononicalHost}${getLocalePath(pathname, locale)}`;
+  `${cononicalOrigin}${getLocalePath(pathname, locale)}`;
 
 export const isKnownPath = (pathname: string) => {
   const normalizedPathname = normalizePath(pathname);
