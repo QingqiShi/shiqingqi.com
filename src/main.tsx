@@ -5,7 +5,7 @@ import App from './App';
 import { cononicalOrigin } from './utils/pathname';
 
 (async () => {
-  if (window.location.hostname === cononicalOrigin) {
+  if (window.location.origin === cononicalOrigin) {
     const { initializeApp } = await import('firebase/app');
     const { getPerformance } = await import('firebase/performance');
     const { getAnalytics, isSupported, setAnalyticsCollectionEnabled } =
