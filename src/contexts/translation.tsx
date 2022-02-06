@@ -29,14 +29,18 @@ export const useTranslation = <T extends { [key: string]: string }>(
     throw new Error('useTranslation must be used within a TranslationProvider');
   }
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const localeMapRef = useRef(localeMap);
   const { locale, setLocale } = context;
   const [translations, setTranslations] = useState<T | undefined>(undefined);
   useEffect(() => {
     let isMounted = true;
     (async () => {
+      setIsLoading(true);
       const translation = await localeMapRef.current?.[locale]();
       if (isMounted && translation) {
+        setIsLoading(false);
         setTranslations(translation);
       }
     })();
@@ -64,7 +68,7 @@ export const useTranslation = <T extends { [key: string]: string }>(
     return translation;
   }
 
-  return { t, locale, setLocale };
+  return { t, locale, setLocale, isLoading };
 };
 
 const tokenize = (str: string, tagNames: string[]) =>

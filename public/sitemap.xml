@@ -6,4 +6,42 @@
   <url>
     <loc>http://qingqi.dev/zh</loc>
   </url>
+
+  <url>
+    <loc>http://qingqi.dev/experiences/citadel</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/zh/experiences/citadel</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/experiences/spotify</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/zh/experiences/spotify</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/experiences/wunderman-thompson-commerce</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/zh/experiences/wunderman-thompson-commerce</loc>
+  </url>
+
+  <url>
+    <loc>http://qingqi.dev/education/university-of-bristol</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/zh/education/university-of-bristol</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/education/university-of-nottingham</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/zh/education/university-of-nottingham</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/education/altrincham-grammar-school-for-boys</loc>
+  </url>
+  <url>
+    <loc>http://qingqi.dev/zh/education/altrincham-grammar-school-for-boys</loc>
+  </url>
 </urlset>

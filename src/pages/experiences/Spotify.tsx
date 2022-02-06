@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import PageTitle from '../../components/PageTitle';
 import { useTranslation } from '../../contexts/translation';
 
@@ -9,18 +10,24 @@ function ExperienceSpotify(_props: ExperienceSpotifyProps) {
     zh: async () => (await import('./Spotify-zh')).default,
   });
   return (
-    <article>
-      <PageTitle
-        type="EXPERIENCE"
-        title="Spotify"
-        role={t('ROLE')}
-        date={t('DATE')}
-      />
-      <p>{t('MAIN_JOB')}</p>
-      <p>{t('DEPENDABOT')}</p>
-      <p>{t('COMPANY_WIDE')}</p>
-      <p>{t('TECHNOLOGY_ADOPTION')}</p>
-    </article>
+    <>
+      <Helmet>
+        <title>{t('TITLE')}</title>
+        <meta name="description" content={t('DESCRIPTION')} />
+      </Helmet>
+      <article>
+        <PageTitle
+          type="EXPERIENCE"
+          title="Spotify"
+          role={t('ROLE')}
+          date={t('DATE')}
+        />
+        <p>{t('MAIN_JOB')}</p>
+        <p>{t('DEPENDABOT')}</p>
+        <p>{t('COMPANY_WIDE')}</p>
+        <p>{t('TECHNOLOGY_ADOPTION')}</p>
+      </article>
+    </>
   );
 }
 

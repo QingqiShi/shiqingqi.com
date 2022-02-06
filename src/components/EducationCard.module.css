@@ -22,10 +22,15 @@
   max-width: 100%;
 }
 
-.logo img, .logo picture {
+.logo img,
+.logo picture {
   height: 100%;
   max-width: 100%;
   object-fit: contain;
+}
+
+.skeleton {
+  height: 195px;
 }
 
 @media (min-width: 320px) {

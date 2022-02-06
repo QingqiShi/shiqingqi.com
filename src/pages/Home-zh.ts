@@ -1,4 +1,8 @@
 export default {
+  TITLE: '石清琪',
+  DESCRIPTION:
+    '石清琪是一名软件工程师，坐标英国伦敦，目前在 Citadel 负责前端开发。石清琪信奉工匠精神，并像工匠一样敬业、专注且精益求精。',
+
   TITLE_1: '嗨，我叫石清琪。',
   TITLE_2: '我是个软件工程师。',
   BRIEF: `我信奉<strong>工匠精神</strong>。工匠用它们<strong>敬业</strong>、<strong>专注</strong>和<strong>精益求精</strong>的精神雕琢产品。无论是工作还是生活，我都这样要求自己。`,

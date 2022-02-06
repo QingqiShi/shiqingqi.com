@@ -1,4 +1,8 @@
 export default {
+  TITLE: 'Citadel 工作 | 石清琪',
+  DESCRIPTION:
+    '石清琪在 Citadel 负责为交易员与管理层开发线上报表，以可视化与可交互的形式展示头寸风险与损益情况。',
+
   ROLE: '软件工程师',
   DATE: '2021年8月 至今',
   MY_RESPONSIBILITIES:

@@ -1,4 +1,8 @@
 export default {
+  TITLE: 'Wunderman Thompson Commerce 工作 | Qingqi Shi',
+  DESCRIPTION:
+    '石清琪开发维护了三个知名电商网站，满足不同客户的需求。',
+
   ROLE: '前端开发员',
   DATE: '2017年7月 - 2019年7月',
   MAIN_JOB: '开发维护三个知名电商网站，满足不同客户的需求。',

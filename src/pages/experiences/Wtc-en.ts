@@ -1,4 +1,8 @@
 export default {
+  TITLE: 'Experience at Wunderman Thompson Commerce | Qingqi Shi',
+  DESCRIPTION:
+    'Qignqi developed features for three high traffic e-commerce websites from different clients.',
+
   ROLE: 'Front End Developer',
   DATE: 'Sep 2017 - Jul 2019',
   MAIN_JOB:
