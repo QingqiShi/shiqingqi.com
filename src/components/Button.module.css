@@ -4,7 +4,7 @@
   border: none;
   appearance: none;
   box-sizing: content-box;
-  font-size: 1rem;
+  font-size: 0.8rem;
   cursor: pointer;
 
   block-size: 1.5rem;
@@ -20,4 +20,9 @@
 
 .button:hover {
   background-color: var(--background-hover);
+}
+
+.button > svg {
+  width: 1rem;
+  height: 1rem;
 }

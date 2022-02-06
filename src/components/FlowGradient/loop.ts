@@ -108,11 +108,14 @@ export function start(
     drawBufferInfo(gl, bufferInfo);
   };
 
+  const fps = 30;
   const loop: FrameRequestCallback = (time) => {
     render(context, time);
-    if (playingRef.current) {
-      animationRef.current = requestAnimationFrame(loop);
-    }
+    setTimeout(() => {
+      if (playingRef.current) {
+        animationRef.current = requestAnimationFrame(loop);
+      }
+    }, 1000 / fps);
   };
   loop(performance.now());
 
