@@ -1,0 +1,27 @@
+.container {
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  border-radius: 0.5rem;
+  opacity: 0;
+  padding: 0.2rem;
+  transform: scale(0, 0);
+  transform-origin: top right;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  overflow: hidden;
+  pointer-events: none;
+
+  background: var(--background-raised);
+  box-shadow: var(--shadow-raised);
+}
+
+.menu-shown {
+  display: block;
+  transform: scale(1, 1);
+  opacity: 1;
+  pointer-events: all;
+}

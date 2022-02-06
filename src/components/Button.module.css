@@ -1,0 +1,23 @@
+.button {
+  /* Reset */
+  background: none;
+  border: none;
+  appearance: none;
+  box-sizing: content-box;
+  font-size: 1rem;
+  cursor: pointer;
+
+  block-size: 1.5rem;
+  border-radius: 1.5rem;
+  padding: 0.1rem 0.7rem;
+  color: var(--text-main);
+  background-color: var(--background-raised);
+  box-shadow: var(--shadow-controls);
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.button:hover {
+  background-color: var(--background-hover);
+}

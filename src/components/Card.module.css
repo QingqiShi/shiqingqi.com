@@ -1,0 +1,61 @@
+.card {
+  display: block;
+  width: 100%;
+  border: none;
+  text-decoration: none;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  text-align: left;
+  padding: 1rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s, background-color 0.2s;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-none);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  background-color: transparent;
+  position: relative;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-raised);
+  background-color: var(--background-raised);
+  transform: scale(1.05) translate3d(0, -0.2rem, 0);
+}
+
+.card:not(:hover) *:not(.details-indicator) svg * {
+  fill: var(--text-subdued) !important;
+}
+
+.card:not(:hover) img {
+  filter: grayscale(100%);
+}
+
+.card *:not(.details-indicator) svg * {
+  transition: fill 0.1s;
+}
+
+.details-indicator {
+  pointer-events: none;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translate3d(0, 0.5rem, 0);
+  transition: opacity 0.2s, transform 0.2s;
+  color: var(--text-main);
+}
+
+.details-indicator > :first-child {
+  margin-right: 0.2rem;
+  font-weight: 600;
+}
+
+.card:hover .details-indicator {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}

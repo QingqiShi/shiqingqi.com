@@ -1,0 +1,26 @@
+.dates {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-subdued);
+}
+
+.logo {
+  margin-bottom: 0.5rem;
+}
+
+.logo svg {
+  height: 90px;
+  max-width: 100%;
+}
+
+@media (min-width: 320px) {
+  .logo svg {
+    height: 80px;
+  }
+}
+
+@media (min-width: 768px) {
+  .logo svg {
+    height: 60px;
+  }
+}

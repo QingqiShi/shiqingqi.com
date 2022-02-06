@@ -1,0 +1,26 @@
+.grid-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.grid-container > * {
+  width: 100%;
+}
+
+@media (min-width: 320px) {
+  .grid-container > * {
+    width: 50%;
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-container > * {
+    width: 33.3%;
+  }
+}
+
+@media (min-width: 1080px) {
+  .grid-container > * {
+    width: 25%;
+  }
+}

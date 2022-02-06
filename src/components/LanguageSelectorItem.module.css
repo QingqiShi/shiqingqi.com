@@ -1,0 +1,24 @@
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  border-radius: 0.3rem;
+  color: var(--text-subdued);
+  transition: background-color 0.2s;
+}
+
+.menu-item > span:first-of-type {
+  margin-right: 0.5rem;
+}
+
+.menu-item:hover {
+  background-color: var(--background-hover);
+}
+
+.menu-item.menu-item-active {
+  pointer-events: none;
+  color: var(--text-on-active);
+  background-color: var(--control-active);
+}

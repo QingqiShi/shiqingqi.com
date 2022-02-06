@@ -1,0 +1,52 @@
+.switch {
+  /* Reset */
+  background: none;
+  border: none;
+  appearance: none;
+  box-sizing: content-box;
+
+  --thumb-size: 1.5rem;
+  --track-size: calc(var(--thumb-size) * 2);
+  --thumb-position: 0;
+  --thumb-transition-duration: 0.2s;
+
+  inline-size: var(--track-size);
+  block-size: var(--thumb-size);
+  border-radius: var(--thumb-size);
+  background-color: var(--control-track);
+  box-shadow: var(--shadow-controls);
+  position: relative;
+  padding: 0.1rem;
+  display: flex;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.switch:checked {
+  --thumb-position: calc(var(--track-size) - var(--thumb-size));
+  background-color: var(--control-active);
+}
+
+.switch:indeterminate {
+  --thumb-position: calc(
+    calc(calc(var(--track-size) / 2) - calc(var(--thumb-size) / 2))
+  );
+}
+
+.switch::before {
+  content: "";
+  display: block;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: var(--thumb-size);
+  background-color: var(--control-thumb);
+  z-index: 150;
+  transform: translateX(0);
+  transition: transform var(--thumb-transition-duration) ease,
+    box-shadow 0.4s ease;
+  transform: translateX(var(--thumb-position));
+}
+
+.switch:hover::before {
+  box-shadow: var(--shadow-highlight);
+}

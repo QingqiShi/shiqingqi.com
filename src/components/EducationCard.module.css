@@ -1,0 +1,47 @@
+.top-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.university {
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-left: 0.5rem;
+  color: var(--text-subdued);
+  width: 60%;
+}
+
+.logo {
+  height: 150px;
+  width: 40%;
+}
+
+.logo svg {
+  height: 100%;
+  max-width: 100%;
+}
+
+.logo img, .logo picture {
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+@media (min-width: 320px) {
+  .logo {
+    height: 130px;
+  }
+}
+
+@media (min-width: 768px) {
+  .logo {
+    height: 100px;
+  }
+}
+
+.dates {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-subdued);
+}
