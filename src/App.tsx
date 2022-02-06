@@ -1,13 +1,13 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import Layout from './components/Layout';
 import { ThemeProvider } from './contexts/theme';
 import { TranslationProvider, useTranslation } from './contexts/translation';
-import Layout from './components/Layout';
-import { getFullPath, getLocalePath, isKnownPath } from './utils/pathname';
-import classes from './App.module.css';
+import { cononicalOrigin, getFullPath, isKnownPath } from './utils/pathname';
 import { routes } from './utils/routes';
+import classes from './App.module.css';
 
 const Home = lazy(() => import('./pages/Home'));
 const ExperienceCitadel = lazy(() => import('./pages/experiences/Citadel'));
@@ -58,6 +58,26 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
   }, [locale, setLocale]);
 
   const location = useLocation();
+
+  // page_view events
+  const firstLoadRef = useRef(true);
+  useEffect(() => {
+    const logPageViewEvent = async () => {
+      const { getAnalytics, logEvent } = await import('firebase/analytics');
+      if (firstLoadRef.current) {
+        firstLoadRef.current = false;
+        return;
+      }
+
+      const analyticsInstance = getAnalytics();
+      logEvent(analyticsInstance, 'page_view');
+    };
+
+    if (window.location.origin === cononicalOrigin) {
+      logPageViewEvent();
+    }
+  }, [location.pathname]);
+
   return (
     <>
       <Helmet htmlAttributes={{ lang: locale }}>

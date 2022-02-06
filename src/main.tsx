@@ -8,8 +8,7 @@ import { cononicalOrigin } from './utils/pathname';
   if (window.location.origin === cononicalOrigin) {
     const { initializeApp } = await import('firebase/app');
     const { getPerformance } = await import('firebase/performance');
-    const { getAnalytics, isSupported, setAnalyticsCollectionEnabled } =
-      await import('firebase/analytics');
+    const { getAnalytics } = await import('firebase/analytics');
 
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -20,6 +19,7 @@ import { cononicalOrigin } from './utils/pathname';
       storageBucket: 'shiqingqi-27cab.appspot.com',
       messagingSenderId: '207610618557',
       appId: '1:207610618557:web:b3609648132bb22543cdd4',
+      measurementId: 'G-SY8R0S3PVT',
     };
 
     // Initialize Firebase
