@@ -7,6 +7,7 @@ import AgsbWebp from '../../assets/AGSB.webp';
 import { useTranslation } from '../contexts/translation';
 import classes from './Home.module.css';
 import { Helmet } from 'react-helmet-async';
+import { routes } from '../utils/routes';
 
 const Citadel = lazy(() => import('../logos/Citadel'));
 const Spotify = lazy(() => import('../logos/Spotify'));
@@ -48,21 +49,21 @@ function Home(_props: HomeProps) {
             <ExperienceCard
               logo={<Citadel />}
               dates={t('CITADEL_DATE')}
-              to="experiences/citadel"
+              to={routes.experienceCitadel}
             />
           </div>
           <div>
             <ExperienceCard
               logo={<Spotify />}
               dates={t('SPOTIFY_DATE')}
-              to="experiences/spotify"
+              to={routes.experienceSpotify}
             />
           </div>
           <div>
             <ExperienceCard
               logo={<Wtc />}
               dates={t('WTC_DATE')}
-              to="experiences/wunderman-thompson-commerce"
+              to={routes.experienceWtc}
             />
           </div>
         </Grid>
@@ -76,7 +77,7 @@ function Home(_props: HomeProps) {
               logo={<Bristol />}
               university={t('UOB')}
               dates={t('UOB_DATE')}
-              to="education/university-of-bristol"
+              to={routes.educationUOB}
             />
           </div>
 
@@ -85,7 +86,7 @@ function Home(_props: HomeProps) {
               logo={<Nottingham />}
               university={t('UON')}
               dates={t('UON_DATE')}
-              to="education/university-of-nottingham"
+              to={routes.educationUON}
             />
           </div>
 
@@ -95,12 +96,17 @@ function Home(_props: HomeProps) {
                 <picture>
                   <source srcSet={AgsbWebp} type="image/webp" />
                   <source srcSet={AgsbPng} type="image/png" />
-                  <img src={AgsbPng} alt={t('AGSB')} title={t('AGSB')} height="100%" />
+                  <img
+                    src={AgsbPng}
+                    alt={t('AGSB')}
+                    title={t('AGSB')}
+                    height="100%"
+                  />
                 </picture>
               }
               university={t('AGSB')}
               dates={t('AGSB_DATE')}
-              to="education/altrincham-grammar-school-for-boys"
+              to={routes.educationAGSB}
             />
           </div>
         </Grid>

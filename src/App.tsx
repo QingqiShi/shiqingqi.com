@@ -1,11 +1,13 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import { ThemeProvider } from './contexts/theme';
 import { TranslationProvider, useTranslation } from './contexts/translation';
 import Layout from './components/Layout';
-import { getLocalePath } from './utils/pathname';
+import { getFullPath, getLocalePath, isKnownPath } from './utils/pathname';
 import classes from './App.module.css';
+import { routes } from './utils/routes';
 
 const Home = lazy(() => import('./pages/Home'));
 const ExperienceCitadel = lazy(() => import('./pages/experiences/Citadel'));
@@ -14,15 +16,26 @@ const ExperienceWtc = lazy(() => import('./pages/experiences/Wtc'));
 const EducationUOB = lazy(() => import('./pages/education/UOB'));
 const EducationUON = lazy(() => import('./pages/education/UON'));
 const EducationAGSB = lazy(() => import('./pages/education/AGSB'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
+  const {
+    offlineReady: [offlineReady, setOfflineReady],
+  } = useRegisterSW({});
   return (
     <BrowserRouter>
       <HelmetProvider>
         <TranslationProvider>
           <ThemeProvider>
             <Routes>
-              <Route element={<Layout />}>
+              <Route
+                element={
+                  <Layout
+                    offlineReady={offlineReady}
+                    onOfflineReadyClicked={() => setOfflineReady(false)}
+                  />
+                }
+              >
                 <Route path="/*" element={<LocalisedRoutes locale="en" />} />
                 <Route path="/zh/*" element={<LocalisedRoutes locale="zh" />} />
               </Route>
@@ -47,34 +60,40 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
   const location = useLocation();
   return (
     <>
-      <Helmet>
-        <link
-          rel="alternate"
-          hrefLang="en"
-          href={`${window.location.origin}${getLocalePath(
-            location.pathname,
-            'en'
-          )}`}
-        />
-        <link
-          rel="alternate"
-          hrefLang="zh"
-          href={`${window.location.origin}${getLocalePath(
-            location.pathname,
-            'zh'
-          )}`}
-        />
-        <link
-          rel="canonical"
-          href={`${window.location.origin}${getLocalePath(
-            location.pathname,
-            'en'
-          )}`}
-        />
+      <Helmet htmlAttributes={{ lang: locale }}>
+        {isKnownPath(location.pathname) ? (
+          <>
+            <link
+              rel="alternate"
+              hrefLang="en"
+              href={getFullPath(location.pathname, 'en')}
+            />
+            <link
+              rel="alternate"
+              hrefLang="zh"
+              href={getFullPath(location.pathname, 'zh')}
+            />
+            <link rel="canonical" href={getFullPath(location.pathname, 'en')} />
+          </>
+        ) : (
+          <>
+            <link
+              rel="alternate"
+              hrefLang="en"
+              href={getFullPath(location.pathname, 'en')}
+            />
+            <link
+              rel="alternate"
+              hrefLang="zh"
+              href={getFullPath(location.pathname, 'zh')}
+            />
+            <link rel="canonical" href={getFullPath('/404', 'en')} />
+          </>
+        )}
       </Helmet>
       <Routes>
         <Route
-          path="/"
+          path={routes.home}
           element={
             <Suspense fallback={<div className={classes.skeleton} />}>
               <Home />
@@ -83,7 +102,7 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
         />
 
         <Route
-          path="/experiences/citadel"
+          path={routes.experienceCitadel}
           element={
             <Suspense fallback={<div className={classes.skeleton} />}>
               <ExperienceCitadel />
@@ -91,7 +110,7 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
           }
         />
         <Route
-          path="/experiences/spotify"
+          path={routes.experienceSpotify}
           element={
             <Suspense fallback={<div className={classes.skeleton} />}>
               <ExperienceSpotify />
@@ -99,7 +118,7 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
           }
         />
         <Route
-          path="/experiences/wunderman-thompson-commerce"
+          path={routes.experienceWtc}
           element={
             <Suspense fallback={<div className={classes.skeleton} />}>
               <ExperienceWtc />
@@ -108,7 +127,7 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
         />
 
         <Route
-          path="/education/university-of-bristol"
+          path={routes.educationUOB}
           element={
             <Suspense fallback={<div className={classes.skeleton} />}>
               <EducationUOB />
@@ -116,7 +135,7 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
           }
         />
         <Route
-          path="/education/university-of-nottingham"
+          path={routes.educationUON}
           element={
             <Suspense fallback={<div className={classes.skeleton} />}>
               <EducationUON />
@@ -124,10 +143,18 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
           }
         />
         <Route
-          path="/education/altrincham-grammar-school-for-boys"
+          path={routes.educationAGSB}
           element={
             <Suspense fallback={<div className={classes.skeleton} />}>
               <EducationAGSB />
+            </Suspense>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <Suspense fallback={<div className={classes.skeleton} />}>
+              <NotFound />
             </Suspense>
           }
         />

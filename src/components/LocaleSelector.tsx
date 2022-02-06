@@ -56,7 +56,7 @@ function LanguageSelector(_props: LanguageSelectorProps) {
         />
         <LocaleSelectorItem
           label="中文"
-          flag="🇬🇧"
+          flag="🇨🇳"
           ariaLabel={t('ZH_LABEL')}
           to={getLocalePath(pathname, 'zh')}
           tabIndex={!showMenu ? -1 : undefined}

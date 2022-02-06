@@ -66,6 +66,10 @@
   pointer-events: all;
 }
 
+.offline-text {
+  margin-left: 0.5rem;
+}
+
 .main {
   padding-top: 7rem;
 }

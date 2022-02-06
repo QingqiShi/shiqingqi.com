@@ -1,18 +1,22 @@
 import { lazy, Suspense } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { CaretLeft, House } from 'phosphor-react';
+import { CaretLeft, House, Airplane } from 'phosphor-react';
 import { useTranslation } from '../contexts/translation';
 import { getLocalePath, normalizePath } from '../utils/pathname';
 import ThemeSwitch from './ThemeSwitch';
 import LocaleSelector from './LocaleSelector';
 import classes from './Layout.module.css';
 import Footer from './Footer';
+import Button from './Button';
 
 const FlowGradient = lazy(() => import('./FlowGradient'));
 
-interface LayoutProps {}
+interface LayoutProps {
+  offlineReady?: boolean;
+  onOfflineReadyClicked?: () => void;
+}
 
-function Layout(_props: LayoutProps) {
+function Layout({ offlineReady, onOfflineReadyClicked }: LayoutProps) {
   const { t, locale } = useTranslation({
     en: async () => (await import('./Layout-en')).default,
     zh: async () => (await import('./Layout-zh')).default,
@@ -29,6 +33,14 @@ function Layout(_props: LayoutProps) {
         <div className={classes.wrapperInner}>
           <div className={classes.headerContainer}>
             <nav className={`${classes.wrapper} ${classes.header}`}>
+              {offlineReady && (
+                <Button onClick={onOfflineReadyClicked} type="button">
+                  <Airplane />
+                  <span className={classes.offlineText}>
+                    {t('OFFLINE_READY')}
+                  </span>
+                </Button>
+              )}
               <LocaleSelector />
               <ThemeSwitch />
             </nav>

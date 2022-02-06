@@ -10,17 +10,19 @@ export default defineConfig({
     glsl(),
     VitePWA({
       includeAssets: [
-        'favicon-32x32.png',
-        'favicon-16x16.png',
-        'favicon.ico',
-        'robots.tsx',
         'apple-touch-icon.png',
+        'favicon-16x16.png',
+        'favicon-32x32.png',
+        'favicon.ico',
+        'robots.txt',
+        'safari-pinned-tab.svg',
+        'sitemap.xml',
       ],
       manifest: {
         name: 'Qingqi Shi',
         short_name: 'Qingqi',
         description:
-          "I'm a software engineer, currently at Citadel. I value craftsman's spirit. Craftsmen make things with perfection, precision and patience. I apply these principles to software engineering and life in general.",
+          "Qingqi is a software engineer based in London, UK. He is currently working at Citadel and specializes in front-end technologies. Qingqi value craftsman's spirit. Like craftsmen, he tries to live his life with perfection, precision and patience.",
         theme_color: '#f3eded',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
