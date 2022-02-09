@@ -1,10 +1,14 @@
 import { routes } from './routes';
 
 export const cononicalOrigin = 'https://qingqi.dev';
-const localePrefixes = /^\/zh/;
+const localePrefixes = /^\/zh($|\/)/;
 
-export const normalizePath = (pathname: string): string =>
-  pathname.replace(localePrefixes, '');
+export const normalizePath = (pathname: string): string => {
+  const localeRemoved = pathname.replace(localePrefixes, '/');
+  const trailingSlashRemoved =
+    localeRemoved.length > 1 ? localeRemoved.replace(/\/$/, '') : localeRemoved;
+  return trailingSlashRemoved;
+};
 
 export const getLocalePath = (
   pathname: string,
@@ -13,7 +17,7 @@ export const getLocalePath = (
 ): string => {
   const normalizedPathname = normalizePath(pathname);
   if (locale === defaultLocale) return normalizedPathname;
-  return `/${locale}${normalizedPathname}`;
+  return `/${locale}${normalizedPathname === '/' ? '' : normalizedPathname}`;
 };
 
 export const getFullPath = (pathname: string, locale: string) =>

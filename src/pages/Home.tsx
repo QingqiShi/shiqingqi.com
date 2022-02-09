@@ -50,21 +50,21 @@ function Home(_props: HomeProps) {
             <ExperienceCard
               logo={<Citadel />}
               dates={t('CITADEL_DATE')}
-              to={getLocalePath(routes.experienceCitadel, locale)}
+              to={getLocalePath(routes.citadel, locale)}
             />
           </div>
           <div>
             <ExperienceCard
               logo={<Spotify />}
               dates={t('SPOTIFY_DATE')}
-              to={getLocalePath(routes.experienceSpotify, locale)}
+              to={getLocalePath(routes.spotify, locale)}
             />
           </div>
           <div>
             <ExperienceCard
               logo={<Wtc />}
               dates={t('WTC_DATE')}
-              to={getLocalePath(routes.experienceWtc, locale)}
+              to={getLocalePath(routes.wtc, locale)}
             />
           </div>
         </Grid>
@@ -78,7 +78,7 @@ function Home(_props: HomeProps) {
               logo={<Bristol />}
               university={t('UOB')}
               dates={t('UOB_DATE')}
-              to={getLocalePath(routes.educationUOB, locale)}
+              to={getLocalePath(routes.uob, locale)}
             />
           </div>
 
@@ -87,7 +87,7 @@ function Home(_props: HomeProps) {
               logo={<Nottingham />}
               university={t('UON')}
               dates={t('UON_DATE')}
-              to={getLocalePath(routes.educationUON, locale)}
+              to={getLocalePath(routes.uon, locale)}
             />
           </div>
 
@@ -107,7 +107,7 @@ function Home(_props: HomeProps) {
               }
               university={t('AGSB')}
               dates={t('AGSB_DATE')}
-              to={getLocalePath(routes.educationAGSB, locale)}
+              to={getLocalePath(routes.agsb, locale)}
             />
           </div>
         </Grid>

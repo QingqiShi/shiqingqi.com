@@ -6,7 +6,16 @@ import Layout from './components/Layout';
 import { ThemeProvider } from './contexts/theme';
 import { TranslationProvider, useTranslation } from './contexts/translation';
 import { cononicalOrigin, getFullPath, isKnownPath } from './utils/pathname';
-import { routes } from './utils/routes';
+import {
+  AGSB,
+  CITADEL,
+  EDUCATION,
+  EXPERIENCES,
+  SPOTIFY,
+  UOB,
+  UON,
+  WTC,
+} from './utils/routes';
 import classes from './App.module.css';
 
 const Home = lazy(() => import('./pages/Home'));
@@ -29,6 +38,7 @@ function App() {
           <ThemeProvider>
             <Routes>
               <Route
+                path="/"
                 element={
                   <Layout
                     offlineReady={offlineReady}
@@ -36,8 +46,9 @@ function App() {
                   />
                 }
               >
-                <Route path="/*" element={<LocalisedRoutes locale="en" />} />
-                <Route path="/zh/*" element={<LocalisedRoutes locale="zh" />} />
+                <Route index element={<LocalisedRoutes locale="en" />} />
+                <Route path="*" element={<LocalisedRoutes locale="en" />} />
+                <Route path="zh/*" element={<LocalisedRoutes locale="zh" />} />
               </Route>
             </Routes>
           </ThemeProvider>
@@ -81,104 +92,42 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
   return (
     <>
       <Helmet htmlAttributes={{ lang: locale }}>
+        <link
+          rel="alternate"
+          hrefLang="en"
+          href={getFullPath(location.pathname, 'en')}
+        />
+        <link
+          rel="alternate"
+          hrefLang="zh"
+          href={getFullPath(location.pathname, 'zh')}
+        />
         {isKnownPath(location.pathname) ? (
-          <>
-            <link
-              rel="alternate"
-              hrefLang="en"
-              href={getFullPath(location.pathname, 'en')}
-            />
-            <link
-              rel="alternate"
-              hrefLang="zh"
-              href={getFullPath(location.pathname, 'zh')}
-            />
-            <link rel="canonical" href={getFullPath(location.pathname, 'en')} />
-          </>
+          <link rel="canonical" href={getFullPath(location.pathname, 'en')} />
         ) : (
-          <>
-            <link
-              rel="alternate"
-              hrefLang="en"
-              href={getFullPath(location.pathname, 'en')}
-            />
-            <link
-              rel="alternate"
-              hrefLang="zh"
-              href={getFullPath(location.pathname, 'zh')}
-            />
-            <link rel="canonical" href={getFullPath('/404', 'en')} />
-          </>
+          <link rel="canonical" href={getFullPath('/404', 'en')} />
         )}
       </Helmet>
-      <Routes>
-        <Route
-          path={routes.home}
-          element={
-            <Suspense fallback={<div className={classes.skeleton} />}>
-              <Home />
-            </Suspense>
-          }
-        />
 
-        <Route
-          path={routes.experienceCitadel}
-          element={
-            <Suspense fallback={<div className={classes.skeleton} />}>
-              <ExperienceCitadel />
-            </Suspense>
-          }
-        />
-        <Route
-          path={routes.experienceSpotify}
-          element={
-            <Suspense fallback={<div className={classes.skeleton} />}>
-              <ExperienceSpotify />
-            </Suspense>
-          }
-        />
-        <Route
-          path={routes.experienceWtc}
-          element={
-            <Suspense fallback={<div className={classes.skeleton} />}>
-              <ExperienceWtc />
-            </Suspense>
-          }
-        />
+      <Suspense fallback={<div className={classes.skeleton} />}>
+        <Routes>
+          <Route index element={<Home />} />
 
-        <Route
-          path={routes.educationUOB}
-          element={
-            <Suspense fallback={<div className={classes.skeleton} />}>
-              <EducationUOB />
-            </Suspense>
-          }
-        />
-        <Route
-          path={routes.educationUON}
-          element={
-            <Suspense fallback={<div className={classes.skeleton} />}>
-              <EducationUON />
-            </Suspense>
-          }
-        />
-        <Route
-          path={routes.educationAGSB}
-          element={
-            <Suspense fallback={<div className={classes.skeleton} />}>
-              <EducationAGSB />
-            </Suspense>
-          }
-        />
-        <Route
-          path="*"
-          element={
-            <Suspense fallback={<div className={classes.skeleton} />}>
-              <NotFound />
-            </Suspense>
-          }
-        />
-      </Routes>
+          <Route path={EXPERIENCES}>
+            <Route path={CITADEL} element={<ExperienceCitadel />} />
+            <Route path={SPOTIFY} element={<ExperienceSpotify />} />
+            <Route path={WTC} element={<ExperienceWtc />} />
+          </Route>
+
+          <Route path={EDUCATION}>
+            <Route path={UOB} element={<EducationUOB />} />
+            <Route path={UON} element={<EducationUON />} />
+            <Route path={AGSB} element={<EducationAGSB />} />
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }
