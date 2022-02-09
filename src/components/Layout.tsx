@@ -22,6 +22,7 @@ function Layout({ offlineReady, onOfflineReadyClicked }: LayoutProps) {
     zh: async () => (await import('./Layout-zh')).default,
   });
   const { pathname } = useLocation();
+  const normalizedPathname = normalizePath(pathname);
   return (
     <>
       <div className={classes.flowGradient}>
@@ -53,7 +54,7 @@ function Layout({ offlineReady, onOfflineReadyClicked }: LayoutProps) {
             <div className={classes.line} />
           </div>
           <main className={classes.main}>
-            {normalizePath(pathname) !== '/' && (
+            {normalizedPathname !== '/' && normalizedPathname !== '' && (
               <Link
                 to={getLocalePath('/', locale)}
                 className={classes.back}
