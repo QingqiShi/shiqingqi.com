@@ -95,7 +95,10 @@ export function start(
 
     const uniforms = {
       u_resolution: [gl.canvas.width, gl.canvas.height],
-      u_dpi: window.devicePixelRatio,
+      u_dpi:
+        gl.canvas.width < 1800
+          ? window.devicePixelRatio
+          : gl.canvas.width / 1800,
       u_time: t,
       u_colorTop: colorTop,
       u_colorBottom: colorBottom,

@@ -12,16 +12,18 @@
   --control-active: #7e10c2;
   --text-on-active: #ffffff;
   --shadow-none: 0 0 0 rgba(0, 0, 0, 0), 0 0 0 rgba(0, 0, 0, 0);
-  --shadow-raised: 1.5px 1.9px 3.5px rgba(0, 0, 0, 0.02),
-    3.6px 4.5px 8.4px rgba(0, 0, 0, 0.028),
-    6.8px 8.5px 15.9px rgba(0, 0, 0, 0.035),
-    12.1px 15.2px 28.4px rgba(0, 0, 0, 0.042),
-    22.6px 28.4px 53.1px rgba(0, 0, 0, 0.05),
-    54px 68px 127px rgba(0, 0, 0, 0.07);
-  --shadow-controls: 0px 0.1px 0.3px rgba(0, 0, 0, 0.02),
-    0px 0.2px 0.7px rgba(0, 0, 0, 0.028), 0px 0.4px 1.4px rgba(0, 0, 0, 0.035),
-    0px 0.7px 2.5px rgba(0, 0, 0, 0.042), 0px 1.3px 4.6px rgba(0, 0, 0, 0.05),
-    0px 3px 11px rgba(0, 0, 0, 0.07);
+  --shadow-raised: 0.09375rem 0.11875rem 0.21875rem rgba(0, 0, 0, 0.02),
+    0.225rem 0.28125rem 0.525rem rgba(0, 0, 0, 0.028),
+    0.425rem 0.53125rem 0.99375rem rgba(0, 0, 0, 0.035),
+    0.75625rem 0.95rem 1.775rem rgba(0, 0, 0, 0.042),
+    1.4125rem 1.775rem 3.31875rem rgba(0, 0, 0, 0.05),
+    3.375rem 4.25rem 7.9375rem rgba(0, 0, 0, 0.07);
+  --shadow-controls: 0 0.00625rem 0.01875rem rgba(0, 0, 0, 0.02),
+    0 0.0125rem 0.04375rem rgba(0, 0, 0, 0.028),
+    0 0.025rem 0.0875rem rgba(0, 0, 0, 0.035),
+    0 0.04375rem 0.15625rem rgba(0, 0, 0, 0.042),
+    0 0.08125rem 0.2875rem rgba(0, 0, 0, 0.05),
+    0 0.1875rem 0.6875rem rgba(0, 0, 0, 0.07);
   --shadow-highlight: 0 0 0 0.3rem rgba(0, 0, 0, 0.07);
 }
 
@@ -74,6 +76,13 @@ body {
   html,
   body {
     font-size: 24px;
+  }
+}
+
+@media (min-width: 2000px) {
+  html,
+  body {
+    font-size: calc(24 / 2000 * 100vw);
   }
 }
 

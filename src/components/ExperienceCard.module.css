@@ -9,22 +9,24 @@
 }
 
 .logo svg {
-  height: 90px;
+  height: 5.5rem;
   max-width: 100%;
 }
 
 .skeleton {
-  height: 150px;
+  height: 5.5rem;
 }
 
 @media (min-width: 320px) {
-  .logo svg {
-    height: 80px;
+  .logo svg,
+  .skeleton {
+    height: 4.4rem;
   }
 }
 
 @media (min-width: 768px) {
-  .logo svg {
-    height: 60px;
+  .logo svg,
+  .skeleton {
+    height: 3rem;
   }
 }
