@@ -63,7 +63,7 @@ interface LocalisedRoutesProps {
 }
 
 function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
-  const { setLocale } = useTranslation();
+  const { setLocale, isLoading } = useTranslation();
   useEffect(() => {
     setLocale(locale);
   }, [locale, setLocale]);
@@ -84,10 +84,10 @@ function LocalisedRoutes({ locale }: LocalisedRoutesProps) {
       logEvent(analyticsInstance, 'page_view');
     };
 
-    if (window.location.origin === cononicalOrigin) {
+    if (window.location.origin === cononicalOrigin && !isLoading) {
       logPageViewEvent();
     }
-  }, [location.pathname]);
+  }, [isLoading, location.pathname]);
 
   return (
     <>

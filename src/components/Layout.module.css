@@ -5,6 +5,12 @@
     calc(1rem + env(safe-area-inset-right));
 }
 
+@media (min-width: 2000px) {
+  .wrapper {
+    max-width: calc((1080 / 24) * 1rem);
+  }
+}
+
 .wrapper-inner {
   position: relative;
 }
@@ -25,13 +31,13 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 1px;
+  width: 0.0625rem;
   background-image: linear-gradient(
     var(--text-subdued) 33%,
     rgba(255, 255, 255, 0) 0%
   );
   background-position: right;
-  background-size: 1px 5px;
+  background-size: 0.0625rem 0.3125rem;
   background-repeat: repeat-y;
 }
 
@@ -100,7 +106,7 @@
 }
 
 .back svg {
-  filter: drop-shadow(0 0 10px var(--background-main));
+  filter: drop-shadow(0 0 0.625rem var(--background-main));
 }
 
 .header > *:not(:last-child) {
