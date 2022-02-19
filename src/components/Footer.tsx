@@ -4,7 +4,7 @@ import classes from './Footer.module.css';
 interface FooterProps {}
 
 function Footer(_props: FooterProps) {
-  const { t } = useTranslation({
+  const { t, locale } = useTranslation({
     en: async () => (await import('./Footer-en')).default,
     zh: async () => (await import('./Footer-zh')).default,
   });
@@ -12,10 +12,24 @@ function Footer(_props: FooterProps) {
     <footer className={classes.container}>
       <div>
         <div>
-          <a href="#top" target="_blank" className={classes.socialLink}>
+          <a
+            className={classes.socialLink}
+            href="https://github.com/QingqiShi"
+            target="_blank"
+            rel="nofollow me noopener noreferrer"
+          >
             Github
           </a>
-          <a href="#top" target="_blank" className={classes.socialLink}>
+          <a
+            className={classes.socialLink}
+            href={
+              locale === 'zh'
+                ? 'https://www.linkedin.com/in/qingqi-shi/?locale=zh_CN'
+                : 'https://www.linkedin.com/in/qingqi-shi/'
+            }
+            target="_blank"
+            rel="nofollow me noopener noreferrer"
+          >
             LinkedIn
           </a>
         </div>
