@@ -8794,10 +8794,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vite-plugin-glsl@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/vite-plugin-glsl/-/vite-plugin-glsl-0.0.9.tgz#18aa1ae5056dc75cf578aafc1d4cbf30ce60fc6f"
-  integrity sha512-zgOxP0vv5DgOXx9Pv2Yg9PK9w87br+i9Iwhcp+dSxNVa6VgY2eeBCp4gIlSnLJXInTL9FQcju2kO3JN9nJFe8A==
+vite-plugin-glsl@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-glsl/-/vite-plugin-glsl-0.1.0.tgz#89f99c3e3d4be003024fb8e0366948ef82b58ee3"
+  integrity sha512-dPUiEy9J95XIsyTF6fzH/RjWDvYTvUdMUS9ql8rDWh7k9R0wBK8OynEqyyD+7GvEHW54rHD5ByHi8fmV95gktQ==
   dependencies:
     "@rollup/pluginutils" "^4.1.2"
     tslib "^2.3.1"
