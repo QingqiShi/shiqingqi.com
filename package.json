@@ -11,7 +11,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "firebase": "^9.6.7",
+    "firebase": "^9.8.1",
     "phosphor-react": "^1.4.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
