@@ -1,12 +1,22 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import {
+  ComponentProps,
+  ComponentType,
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 const TranslationContext = createContext<
-  | { locale: string; setLocale: React.Dispatch<React.SetStateAction<string>> }
-  | undefined
+  { locale: string; setLocale: Dispatch<SetStateAction<string>> } | undefined
 >(undefined);
 
 interface TranslationProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const TranslationProvider = ({ children }: TranslationProviderProps) => {
@@ -50,11 +60,11 @@ export const useTranslation = <T extends { [key: string]: string }>(
   }, [componentMap, locale]);
 
   function t(key: keyof T): string;
-  function t(key: keyof T, opts: { interpolate?: boolean }): React.ReactNode;
+  function t(key: keyof T, opts: { interpolate?: boolean }): ReactNode;
   function t(
     key: keyof T,
     { interpolate }: { interpolate?: boolean } = {}
-  ): React.ReactNode {
+  ): ReactNode {
     const translation = translations?.[key];
     if (translations !== undefined && translation === undefined) {
       throw new Error(`Translation for key "${key as string}" not found`);
@@ -76,12 +86,14 @@ const tokenize = (str: string, tagNames: string[]) =>
     .replace(new RegExp(`</?(${tagNames.join('|')})[^>]*>`, 'g'), '|$&|')
     .split('|');
 
-const defaultComponents: { [tagName: string]: React.ComponentType } = {
-  strong: (props: React.ComponentProps<'strong'>) => <strong {...props} />,
-  em: (props: React.ComponentProps<'em'>) => <em {...props} />,
-  b: (props: React.ComponentProps<'b'>) => <b {...props} />,
-  i: (props: React.ComponentProps<'i'>) => <i {...props} />,
-  p: (props: React.ComponentProps<'p'>) => <p {...props} />,
+const defaultComponents: {
+  [tagName: string]: ComponentType<{ children?: ReactNode }>;
+} = {
+  strong: (props: ComponentProps<'strong'>) => <strong {...props} />,
+  em: (props: ComponentProps<'em'>) => <em {...props} />,
+  b: (props: ComponentProps<'b'>) => <b {...props} />,
+  i: (props: ComponentProps<'i'>) => <i {...props} />,
+  p: (props: ComponentProps<'p'>) => <p {...props} />,
 };
 
 const isTagBegin = (token: string) =>
@@ -110,7 +122,7 @@ const parseTokens = (
   tokens: string[],
   componentMap: typeof defaultComponents
 ) => {
-  const parsed: React.ReactNode[] = [];
+  const parsed: ReactNode[] = [];
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];

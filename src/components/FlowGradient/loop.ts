@@ -126,7 +126,6 @@ export function start(
     if (animationRef.current !== null) {
       cancelAnimationFrame(animationRef.current);
       playingRef.current = false;
-      console.log('stopped');
     }
   };
 }
