@@ -57,7 +57,7 @@ export const useTranslation = <T extends { [key: string]: string }>(
   ): React.ReactNode {
     const translation = translations?.[key];
     if (translations !== undefined && translation === undefined) {
-      throw new Error(`Translation for key "${key}" not found`);
+      throw new Error(`Translation for key "${key as string}" not found`);
     }
     if (translation && interpolate) {
       return parseTranslation(translation, {
