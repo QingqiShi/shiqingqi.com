@@ -38,7 +38,6 @@ function App() {
           <ThemeProvider>
             <Routes>
               <Route
-                path="/"
                 element={
                   <Layout
                     offlineReady={offlineReady}
