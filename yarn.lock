@@ -8529,10 +8529,10 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
   integrity sha512-KXXFFdAbFXY4geFIwoyNK+f5Z1b7swfXABfL7HXCmoIWMKU3dmS26672A4EeQtDzLKy7SXmfBu51JolvEKwtGA==
 
-twgl.js@^4.23.1:
-  version "4.23.1"
-  resolved "https://registry.yarnpkg.com/twgl.js/-/twgl.js-4.23.1.tgz#90541963a97de1de5c94a6aca1e0577fd99bd1c3"
-  integrity sha512-j/rHvMUocTw7sDvQoxwpvi0EnU0Y8iuN7ouS5QuBgMiTLPZvMuViqKsU1+/yInZQkC3RLKdfRpuDtzy9vuBWjg==
+twgl.js@^4.23.2:
+  version "4.23.2"
+  resolved "https://registry.yarnpkg.com/twgl.js/-/twgl.js-4.23.2.tgz#2ce52242f1ad1a9ec4c8b87a72448623e45e7e9a"
+  integrity sha512-iv4wALgE5LS90g9+3lsrE7CwPf36Il/ssqWprEuG8ECnSSWsRWWl7Sxit/yqacR/5leES4h/oZAtkcC1g3pqfw==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"
