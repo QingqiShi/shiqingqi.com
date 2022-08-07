@@ -5,7 +5,7 @@ export default {
 
   TITLE_1: '嗨，我叫石清琪。',
   TITLE_2: '我是个软件工程师。',
-  BRIEF: `我信奉<strong>工匠精神</strong>。工匠用它们<strong>敬业</strong>、<strong>专注</strong>和<strong>精益求精</strong>的精神雕琢产品。无论是工作还是生活，我都这样要求自己。`,
+  BRIEF: `我信奉<strong>工匠精神</strong>。工匠用他们<strong>敬业</strong>、<strong>专注</strong>和<strong>精益求精</strong>的精神雕琢产品。无论是工作还是生活，我都这样要求自己。`,
 
   EXPERIENCES_TITLE: '经历',
   CITADEL_DATE: '2021年8月 至今',
