@@ -7486,10 +7486,10 @@ rollup@^2.43.1, rollup@^2.75.6, rollup@^2.75.7:
   optionalDependencies:
     fsevents "~2.3.2"
 
-rooks@^6.4.0:
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/rooks/-/rooks-6.4.0.tgz#75afb14c43bd0f8e5590599fc32ce742c3715821"
-  integrity sha512-lLh+QYOafrHDZVQbH1s8xy2bcODISmhSV6JLSDmEIQUqZUh7N+Z5xYRupew74iq4Eos4ZaDrEyW0FRo2cWLFLg==
+rooks@^6.4.3:
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/rooks/-/rooks-6.4.3.tgz#0a69b70da9b6c3033794d21dd55fddb178785c2b"
+  integrity sha512-nHrCdzlU8EAoDo1sNzLLzOSVgqK4ypbhOpLmbsEI7b4xDOagsiePueYwVJizGE4l5qhOYY5x+8YuSYZDp+OMjw==
   dependencies:
     lodash.debounce "^4.0.8"
     raf "^3.4.1"
