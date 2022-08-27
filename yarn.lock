@@ -2386,6 +2386,11 @@ astral-regex@^2.0.0:
   resolved "https://registry.yarnpkg.com/astral-regex/-/astral-regex-2.0.0.tgz#483143c567aeed4785759c0865786dc77d7d2e31"
   integrity sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==
 
+async-lock@1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/async-lock/-/async-lock-1.3.2.tgz#56668613f91c1c55432b4db73e65c9ced664e789"
+  integrity sha512-phnXdS3RP7PPcmP6NWWzWMU0sLTeyvtZCxBPpZdkYE3seGLKSQZs9FrmVO/qwypq98FUtWWUEYxziLkdGk5nnA==
+
 async@^2.6.2:
   version "2.6.4"
   resolved "https://registry.yarnpkg.com/async/-/async-2.6.4.tgz#706b7ff6084664cd7eae713f6f965433b5504221"
@@ -3261,7 +3266,7 @@ cross-spawn@^6.0.5:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
-cross-spawn@^7.0.1, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
+cross-spawn@^7.0.2, cross-spawn@^7.0.3:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.3.tgz#f73a85b9d5d41d045551c177e2882d4ac85728a6"
   integrity sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==
@@ -4298,15 +4303,16 @@ firebase-frameworks@^0.4.2:
     semver "^7.3.7"
     tslib "^2.3.1"
 
-firebase-tools@^11.5.0:
-  version "11.5.0"
-  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-11.5.0.tgz#be2125943e05ea0491554de63d03e66b25bd54e3"
-  integrity sha512-FShLtkyoo9oO6kq4v8hisdnYgDHhJzZIPM3ySd8Wj3r7ipRM1Q1NOzd4LXjELjQk48ISKqrkWD1jEd79mfgb7Q==
+firebase-tools@^11.8.0:
+  version "11.8.0"
+  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-11.8.0.tgz#e63c4e02d895d28821be8949c3bb7f914b858cf9"
+  integrity sha512-xUKG2WygVfZbM/cRCzvmzRf5m05h3UBprZl4lMMNhVSY5Dw4o77nPTJqDAsB9N6bMvphixSN8q4mu0NhtJGx/Q==
   dependencies:
     "@google-cloud/pubsub" "^3.0.1"
     abort-controller "^3.0.0"
     ajv "^6.12.6"
     archiver "^5.0.0"
+    async-lock "1.3.2"
     body-parser "^1.19.0"
     chokidar "^3.0.2"
     cjson "^0.3.1"
@@ -4316,7 +4322,7 @@ firebase-tools@^11.5.0:
     configstore "^5.0.1"
     cors "^2.8.5"
     cross-env "^5.1.3"
-    cross-spawn "^7.0.1"
+    cross-spawn "^7.0.3"
     csv-parse "^5.0.4"
     exegesis "^4.1.0"
     exegesis-express "^4.0.0"
@@ -4327,6 +4333,7 @@ firebase-tools@^11.5.0:
     fs-extra "^10.1.0"
     glob "^7.1.2"
     google-auth-library "^7.11.0"
+    googleapis "^105.0.0"
     inquirer "^8.2.0"
     js-yaml "^3.13.1"
     jsonwebtoken "^8.5.1"
@@ -4576,6 +4583,16 @@ gaxios@^5.0.0:
   integrity sha512-VD/yc5ln6XU8Ch1hyYY6kRMBE0Yc2np3fPyeJeYHhrPs1i8rgnsApPMWyrugkl7LLoSqpOJVBWlQIa87OAvt8Q==
   dependencies:
     abort-controller "^3.0.0"
+    extend "^3.0.2"
+    https-proxy-agent "^5.0.0"
+    is-stream "^2.0.0"
+    node-fetch "^2.6.7"
+
+gaxios@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/gaxios/-/gaxios-5.0.1.tgz#50fc76a2d04bc1700ed8c3ff1561e52255dfc6e0"
+  integrity sha512-keK47BGKHyyOVQxgcUaSaFvr3ehZYAlvhvpHXy0YB2itzZef+GqZR8TBsfVRWghdwlKrYsn+8L8i3eblF7Oviw==
+  dependencies:
     extend "^3.0.2"
     https-proxy-agent "^5.0.0"
     is-stream "^2.0.0"
@@ -4856,6 +4873,26 @@ google-p12-pem@^4.0.0:
   integrity sha512-lRTMn5ElBdDixv4a86bixejPSRk1boRtUowNepeKEVvYiFlkLuAJUVpEz6PfObDHYEKnZWq/9a2zC98xu62A9w==
   dependencies:
     node-forge "^1.3.1"
+
+googleapis-common@^6.0.0:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/googleapis-common/-/googleapis-common-6.0.1.tgz#99a9cd2a8a62b970f5c701496a227db33b9991f4"
+  integrity sha512-COe4g+58FoIkLUe4ljlCl6ytgSqPYIyCrT9kEp+VDL3Ca5NAOqExZ13whJUZklmSgxS3isEbTBt5c7SgD0kfMA==
+  dependencies:
+    extend "^3.0.2"
+    gaxios "^5.0.1"
+    google-auth-library "^8.0.2"
+    qs "^6.7.0"
+    url-template "^2.0.8"
+    uuid "^8.0.0"
+
+googleapis@^105.0.0:
+  version "105.0.0"
+  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-105.0.0.tgz#65ff8969cf837a08ee127ae56468ac3d96ddc9d5"
+  integrity sha512-wH/jU/6QpqwsjTKj4vfKZz97ne7xT7BBbKwzQEwnbsG8iH9Seyw19P+AuLJcxNNrmgblwLqfr3LORg4Okat1BQ==
+  dependencies:
+    google-auth-library "^8.0.2"
+    googleapis-common "^6.0.0"
 
 got@^9.6.0:
   version "9.6.0"
@@ -7072,6 +7109,13 @@ qs@^6.6.0:
   dependencies:
     side-channel "^1.0.4"
 
+qs@^6.7.0:
+  version "6.11.0"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.11.0.tgz#fd0d963446f7a65e1367e01abd85429453f0c37a"
+  integrity sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==
+  dependencies:
+    side-channel "^1.0.4"
+
 qs@~6.5.2:
   version "6.5.3"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.3.tgz#3aeeffc91967ef6e35c0e488ef46fb296ab76aad"
@@ -8555,6 +8599,11 @@ url-parse-lax@^3.0.0:
   integrity sha512-NjFKA0DidqPa5ciFcSrXnAltTtzz84ogy+NebPvfEgAck0+TNg4UJ4IN+fB7zRZfbgUf0syOo9MDxFkDSMuFaQ==
   dependencies:
     prepend-http "^2.0.0"
+
+url-template@^2.0.8:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/url-template/-/url-template-2.0.8.tgz#fc565a3cccbff7730c775f5641f9555791439f21"
+  integrity sha512-XdVKMF4SJ0nP/O7XIPB0JwAEuT9lDIYnNsK8yGVe43y0AWoKeJNdv3ZNWh7ksJ6KqQFjOO6ox/VEitLnaVNufw==
 
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"
