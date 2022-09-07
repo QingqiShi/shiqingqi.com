@@ -45,7 +45,7 @@
     "typescript": "^4.8.2",
     "vite": "^3.0.9",
     "vite-plugin-glsl": "^0.3.0",
-    "vite-plugin-pwa": "^0.12.3",
+    "vite-plugin-pwa": "^0.12.7",
     "workbox-window": "^6.5.4"
   },
   "config": {
