@@ -7,7 +7,7 @@ export default {
   DATE: 'Sep 2011 - Jul 2013',
   COURSE: 'A-Levels',
   GRADE: 'Results: A*AAB',
-  MODULES: 'Modules:',
+  MODULES: 'Subjects:',
   COMPUTING: 'Computing',
   MATHEMATICS: 'Mathematics',
   CHINESE: 'Chinese',

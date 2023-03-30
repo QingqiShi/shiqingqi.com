@@ -7,7 +7,7 @@ export default {
   DATE: '2016年9月 - 2018年1月',
   COURSE: '理学硕士 - 高级计算机 创新技术',
   GRADE: '学位等级：优等',
-  MODULES: '科目包括但不限于：',
+  MODULES: '核心科目：',
   WEB_DEVELOPMENT: '网络开发',
   GRAPHICS: '图形学',
   ANIMATION: '动画',

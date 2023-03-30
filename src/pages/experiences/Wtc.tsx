@@ -23,9 +23,11 @@ function ExperienceWtc(_props: ExperienceWtcProps) {
           date={t('DATE')}
         />
         <p>{t('MAIN_JOB')}</p>
-        <p>{t('REDESIGN_PROJECT')}</p>
-        <p>{t('DIFFERENT_TEAMS')}</p>
-        <p>{t('TECH_STACK')}</p>
+        <ul>
+          <li>React</li>
+          <li>Redux</li>
+          <li>Sass</li>
+        </ul>
       </article>
     </>
   );

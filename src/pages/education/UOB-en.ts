@@ -7,7 +7,7 @@ export default {
   DATE: 'Sep 2016 - Jan 2018',
   COURSE: 'MSc Advanced Computing - Creative Technology',
   GRADE: 'Grade: Merit',
-  MODULES: 'Modules include but not limited to:',
+  MODULES: 'Core Courses:',
   WEB_DEVELOPMENT: 'Web Development',
   GRAPHICS: 'Graphics',
   ANIMATION: 'Animation',

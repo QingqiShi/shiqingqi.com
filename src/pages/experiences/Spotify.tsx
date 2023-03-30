@@ -25,7 +25,6 @@ function ExperienceSpotify(_props: ExperienceSpotifyProps) {
         <p>{t('MAIN_JOB')}</p>
         <p>{t('DEPENDABOT')}</p>
         <p>{t('COMPANY_WIDE')}</p>
-        <p>{t('TECHNOLOGY_ADOPTION')}</p>
       </article>
     </>
   );

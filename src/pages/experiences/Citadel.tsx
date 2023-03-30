@@ -23,7 +23,6 @@ function ExperienceCitadel(_props: ExperienceCitadelProps) {
           date={t('DATE')}
         />
         <p>{t('MY_RESPONSIBILITIES')}</p>
-        <p>{t('LEARN_FINANCE')}</p>
         <p>{t('TECH_STACK_USED')}</p>
         <ul>
           <li>React</li>

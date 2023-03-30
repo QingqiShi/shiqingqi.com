@@ -1,14 +1,12 @@
 export default {
-  TITLE: 'Experience at Citadel | Qingqi Shi',
+  TITLE: 'Software Engineer at Citadel - Crafting Dashboard Web Apps for the Financial Sector | Qingqi Shi',
   DESCRIPTION:
-    "At Citadel, Qingqi is responsible for creating dashboard web apps to present interactive data which are used to assist traders and management to perform their daily jobs.",
+    "Discover how Qingqi Shi, a software engineer at Citadel, develops dashboard web applications for the financial sector using React, TypeScript, and AG Grid.",
 
   ROLE: 'Software Engineer',
   DATE: 'Aug 2021 - Now',
   MY_RESPONSIBILITIES:
-    "At Citadel, I'm responsible for creating dashboard web apps to present interactive data which are used to assist traders and management to perform their daily jobs.",
-  LEARN_FINANCE:
-    "This is my first experience working at a financial firm, I've taken this opportunity to learn more about finance.",
+    "At Citadel, I work as a software engineer, focusing on developing dashboard web applications that provide interactive data insights for traders and management. These applications enable better decision-making and help improve daily work processes in the financial sector. As my first experience in the finance industry, I've taken the opportunity to broaden my knowledge in this domain.",
   TECH_STACK_USED:
-    'I specialise in front-end technologies, the technology stack I use includes:',
+    'My expertise lies in front-end technologies, and I primarily work with the following tools:',
 };

@@ -23,7 +23,6 @@ function UniversityOfNottingham(_props: UniversityOfNottinghamProps) {
           date={t('DATE')}
         />
         <p>{t('GRADE')}</p>
-        <p>{t('SOCIETY')}</p>
         <p>{t('MODULES')}</p>
         <ul>
           <li>{t('DATA_STRUCTURES')}</li>
@@ -32,6 +31,7 @@ function UniversityOfNottingham(_props: UniversityOfNottinghamProps) {
           <li>{t('SECURITY')}</li>
           <li>{t('NETWORK')}</li>
         </ul>
+        <p>{t('SOCIETY')}</p>
       </article>
     </>
   );
