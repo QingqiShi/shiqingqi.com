@@ -1,7 +1,7 @@
 export default {
   TITLE: 'Qingqi Shi',
   DESCRIPTION:
-    "Qingqi is a software engineer based in London, UK. He is currently working at Citadel and specializes in front-end technologies. Qingqi value craftsman's spirit. Like craftsmen, he tries to live his life with perfection, precision and patience.",
+    "Explore the personal website of Qingqi Shi, a software engineer who values the craftsman's spirit and specializes in React, TypeScript, and web development. Discover his professional experiences, technical skills, and educational background.",
 
   TITLE_1: "Hi, I'm Qingqi.",
   TITLE_2: "I'm a software engineer.",
