@@ -5,10 +5,9 @@ export default {
 
   TITLE_1: "Hi, I'm Qingqi.",
   TITLE_2: "I'm a software engineer.",
-  BRIEF: `I value <strong>craftsman's spirit</strong>. Craftsmen make
-  things with <strong>perfection</strong>, <strong>precision</strong>
-  and <strong>patience</strong>. I apply these principles to software
-  engineering and life in general.`,
+  BRIEF: `Embracing the <strong>craftsman's spirit</strong>, I pursue <strong>perfection</strong>,
+  <strong>precision</strong> and <strong>patience</strong> in software engineering and all aspects
+  of life.`,
 
   EXPERIENCES_TITLE: 'Experiences',
   CITADEL_DATE: 'Aug 2021 - Now',
