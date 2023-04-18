@@ -7534,10 +7534,10 @@ rollup-plugin-terser@^7.0.0:
   optionalDependencies:
     fsevents "~2.3.2"
 
-rooks@^7.10.0:
-  version "7.10.0"
-  resolved "https://registry.yarnpkg.com/rooks/-/rooks-7.10.0.tgz#2f457d176391621e2f51d8248d899aca2a136382"
-  integrity sha512-aCeYfl7G86bKdBdOva/dzA9uWRYUgo5aOjGsCWBPjFp82SfdMUmQWUPWhCz3+BT/xuZJ5GqEsApMmoTPpupPLg==
+rooks@^7.11.2:
+  version "7.11.2"
+  resolved "https://registry.yarnpkg.com/rooks/-/rooks-7.11.2.tgz#ea3a4607625d8777506d0131af204ff672a5c417"
+  integrity sha512-DVKSHb/auEaR4ZHxBPGFlWdpl+LqfwpATwkOMpVIIwm46bePuMUuQDXYAbJWJ4MwB53WrHuyeqkeuNv6FOcX/g==
   dependencies:
     fast-deep-equal "^3.1.3"
     lodash.debounce "^4.0.8"
