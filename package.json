@@ -39,7 +39,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "firebase-tools": "^11.25.2",
     "husky": "^8.0.3",
-    "lint-staged": ">=13.2.0",
+    "lint-staged": ">=13.2.2",
     "postcss-normalize": "^10.0.1",
     "prettier": "^2.8.7",
     "typescript": "^5.0.2",
