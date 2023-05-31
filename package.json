@@ -46,7 +46,7 @@
     "vite": "^3.0.9",
     "vite-plugin-glsl": "^1.1.2",
     "vite-plugin-pwa": "^0.12.3",
-    "workbox-window": "^6.5.4"
+    "workbox-window": "^6.6.1"
   },
   "config": {
     "commitizen": {
