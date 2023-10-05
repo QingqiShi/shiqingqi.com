@@ -8,6 +8,7 @@ import LocaleSelector from './LocaleSelector';
 import classes from './Layout.module.css';
 import Footer from './Footer';
 import Button from './Button';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const FlowGradient = lazy(() => import('./FlowGradient'));
 
@@ -26,9 +27,11 @@ function Layout({ offlineReady, onOfflineReadyClicked }: LayoutProps) {
   return (
     <>
       <div className={classes.flowGradient}>
-        <Suspense fallback={<></>}>
-          <FlowGradient />
-        </Suspense>
+        <ErrorBoundary fallbackRender={() => null}>
+          <Suspense fallback={<></>}>
+            <FlowGradient />
+          </Suspense>
+        </ErrorBoundary>
       </div>
       <div className={classes.wrapper}>
         <div className={classes.wrapperInner}>

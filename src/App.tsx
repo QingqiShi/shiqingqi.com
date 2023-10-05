@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import Layout from './components/Layout';
 import { ThemeProvider } from './contexts/theme';
@@ -31,6 +32,7 @@ function App() {
   const {
     offlineReady: [offlineReady, setOfflineReady],
   } = useRegisterSW({});
+
   return (
     <BrowserRouter>
       <HelmetProvider>
