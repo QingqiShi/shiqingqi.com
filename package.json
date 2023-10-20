@@ -23,7 +23,7 @@
     "twgl.js": "^5.5.3"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.5.1",
+    "@commitlint/cli": "^18.0.0",
     "@commitlint/config-conventional": "^17.4.4",
     "@commitlint/cz-commitlint": "^17.5.0",
     "@types/react": "^18.2.7",
