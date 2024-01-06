@@ -18,7 +18,7 @@ function Footer(_props: FooterProps) {
             target="_blank"
             rel="nofollow me noopener noreferrer"
           >
-            Github
+            GitHub
           </a>
           <a
             className={classes.socialLink}
