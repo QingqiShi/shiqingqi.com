@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://qingqi.dev/sitemap.xml
