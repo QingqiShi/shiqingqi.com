@@ -1,0 +1,5 @@
+/* For now, one CSS file is required https://github.com/facebook/stylex/issues/109 */
+
+* {
+  box-sizing: inherit;
+}

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://qingqi.dev</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh" />
+  </url>
+
+  <url>
+    <loc>https://qingqi.dev/experiences/citadel</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/experiences/citadel" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/experiences/citadel" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/experiences/citadel</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/experiences/citadel" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/experiences/citadel" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/experiences/spotify</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/experiences/spotify" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/experiences/spotify" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/experiences/spotify</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/experiences/spotify" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/experiences/spotify" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/experiences/wunderman-thompson-commerce</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/experiences/wunderman-thompson-commerce" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/experiences/wunderman-thompson-commerce" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/experiences/wunderman-thompson-commerce</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/experiences/wunderman-thompson-commerce" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/experiences/wunderman-thompson-commerce" />
+  </url>
+
+  <url>
+    <loc>https://qingqi.dev/education/university-of-bristol</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/education/university-of-bristol" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/education/university-of-bristol" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/education/university-of-bristol</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/education/university-of-bristol" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/education/university-of-bristol" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/education/university-of-nottingham</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/education/university-of-nottingham" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/education/university-of-nottingham" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/education/university-of-nottingham</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/education/university-of-nottingham" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/education/university-of-nottingham" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/education/altrincham-grammar-school-for-boys</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/education/altrincham-grammar-school-for-boys" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/education/altrincham-grammar-school-for-boys" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/education/altrincham-grammar-school-for-boys</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/education/altrincham-grammar-school-for-boys" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/education/altrincham-grammar-school-for-boys" />
+  </url>
+</urlset>
