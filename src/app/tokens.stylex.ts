@@ -1,4 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
+import * as x from "@stylexjs/stylex";
 
 const DARK = "@media (prefers-color-scheme: dark)";
 
@@ -12,9 +12,10 @@ const lightThemeTokens = {
   controlThumb: "#ffffff",
   controlActive: "#7e10c2",
   textOnActive: "#ffffff",
+  colorScheme: "light",
 };
 
-export const tokens = stylex.defineVars({
+export const tokens = x.defineVars({
   fontFamily: "Inter, sans-serif",
   shadowNone: "0 0 0 rgba(0, 0, 0, 0), 0 0 0 rgba(0, 0, 0, 0)",
   shadowRaised: `0.09375rem 0.11875rem 0.21875rem rgba(0, 0, 0, 0.02),
@@ -39,14 +40,16 @@ const darkThemeTokens = {
   backgroundMain: "#292929",
   backgroundRaised: "#414141",
   backgroundHover: "#535353",
+  controlTrack: "#414141",
   controlThumb: "#bbbbbb",
   controlActive: "#933bc9",
   textOnActive: "#ffffff",
+  colorScheme: "dark",
 };
 
-export const darkTheme = stylex.createTheme(tokens, darkThemeTokens);
+export const darkTheme = x.createTheme(tokens, darkThemeTokens);
 
-export const systemTheme = stylex.createTheme(tokens, {
+export const systemTheme = x.createTheme(tokens, {
   textMain: {
     default: lightThemeTokens.textMain,
     [DARK]: darkThemeTokens.textMain,
@@ -67,6 +70,10 @@ export const systemTheme = stylex.createTheme(tokens, {
     default: lightThemeTokens.backgroundHover,
     [DARK]: darkThemeTokens.backgroundHover,
   },
+  controlTrack: {
+    default: lightThemeTokens.controlTrack,
+    [DARK]: darkThemeTokens.controlTrack,
+  },
   controlThumb: {
     default: lightThemeTokens.controlThumb,
     [DARK]: darkThemeTokens.controlThumb,
@@ -78,5 +85,9 @@ export const systemTheme = stylex.createTheme(tokens, {
   textOnActive: {
     default: lightThemeTokens.textOnActive,
     [DARK]: darkThemeTokens.textOnActive,
+  },
+  colorScheme: {
+    default: lightThemeTokens.colorScheme,
+    [DARK]: darkThemeTokens.colorScheme,
   },
 });

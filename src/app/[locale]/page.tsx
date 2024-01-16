@@ -4,7 +4,6 @@ import translations from "./translations.json";
 
 export default function Home({ params }: PageProps) {
   const { t } = getTranslations(translations, params.locale);
-  console.log("home!!!");
   return (
     <div>
       <h1>
