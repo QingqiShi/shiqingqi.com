@@ -1,8 +1,15 @@
+import {
+  CompiledStyles,
+  InlineStyles,
+  StyleXArray,
+} from "@stylexjs/stylex/lib/StyleXTypes";
+
 export type SupportedLocale = "en" | "zh";
+export type SupportedTheme = "light" | "dark" | "system";
 
 export interface PageProps {
   params: { locale: SupportedLocale };
-  searchParams: { theme: "light" | "dark" | "system" };
+  searchParams: { theme: SupportedTheme };
 }
 
 export interface LayoutProps extends Pick<PageProps, "params"> {
@@ -15,3 +22,9 @@ export interface Breakpoints {
   lg: "@media (min-width: 1080px)";
   xl: "@media (min-width: 2000px)";
 }
+
+export type StyleProp = StyleXArray<
+  | (null | undefined | CompiledStyles)
+  | boolean
+  | Readonly<[CompiledStyles, InlineStyles]>
+>;

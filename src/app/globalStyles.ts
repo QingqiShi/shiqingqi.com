@@ -18,6 +18,7 @@ export const globalStyles = stylex.create({
       [xl]: "calc(24 / 2000 * 100vw)",
     },
     backgroundColor: tokens.backgroundMain,
+    colorScheme: tokens.colorScheme,
   },
   body: {
     boxSizing: "border-box",
@@ -25,9 +26,6 @@ export const globalStyles = stylex.create({
     fontFamily: tokens.fontFamily,
     WebkitFontSmoothing: "antialiased",
     MozOsxFontSmoothing: "grayscale",
-  },
-  dark: {
-    colorScheme: "dark",
   },
 });
 

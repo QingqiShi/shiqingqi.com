@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import * as stylex from "@stylexjs/stylex";
+import * as x from "@stylexjs/stylex";
 import { getTranslations } from "../translations/getTranslations";
 import translations from "./translations.json";
-import { LayoutProps, PageProps } from "../../types";
-import { Header } from "../../components/header";
+import { Breakpoints, LayoutProps, PageProps } from "../../types";
+import { Header } from "../../server-components/header";
 import { systemTheme } from "../tokens.stylex";
 import { getDocumentClassName, globalStyles } from "../globalStyles";
 import "./global.css";
@@ -37,10 +37,30 @@ export default function RootLayout({ children, params }: LayoutProps) {
           rel="stylesheet"
         />
       </head>
-      <body {...stylex.props(globalStyles.global, globalStyles.body)}>
-        <Header params={params} />
-        {children}
+      <body {...x.props(globalStyles.global, globalStyles.body)}>
+        <div {...x.props(styles.container)}>
+          <div {...x.props(styles.wrapperInner)}>
+            <Header params={params} />
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );
 }
+
+const xl: Breakpoints["xl"] = "@media (min-width: 2000px)";
+
+const styles = x.create({
+  container: {
+    maxWidth: { default: "1080px", [xl]: "calc((1080 / 24) * 1rem)" },
+    marginVertical: 0,
+    marginHorizontal: "auto",
+    paddingVertical: 0,
+    paddingLeft: "calc(1rem + env(safe-area-inset-left))",
+    paddingRight: "calc(1rem + env(safe-area-inset-right))",
+  },
+  wrapperInner: {
+    position: "relative",
+  },
+});
