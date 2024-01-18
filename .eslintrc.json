@@ -1,7 +1,21 @@
 {
-  "extends": "next/core-web-vitals",
-  "plugins": ["@stylexjs"],
+  "extends": [
+    "eslint:recommended",
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/strict",
+    "plugin:import/recommended",
+    "plugin:import/typescript"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
+  "plugins": ["@typescript-eslint", "@stylexjs"],
   "rules": {
-    "@stylexjs/valid-styles": "error"
+    "@stylexjs/valid-styles": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/consistent-type-exports": "error",
+    "import/order": "error",
+    "one-var": ["error", "never"]
   }
 }

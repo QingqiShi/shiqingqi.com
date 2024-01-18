@@ -6,8 +6,8 @@ import useEventCallback from "@mui/utils/useEventCallback";
 import useControlled from "@mui/utils/useControlled";
 import { tokens } from "../app/tokens.stylex";
 import { useDebouncedFunction } from "../hooks/useDebouncedFunction";
+import type { StyleProp } from "../types";
 import { switchTokens } from "./switch.stylex";
-import { StyleProp } from "../types";
 
 export type SwitchState = "off" | "on" | "indeterminate";
 
@@ -28,14 +28,12 @@ export function Switch({
   ...rest
 }: SwitchProps) {
   const elRef = useRef<HTMLInputElement>(null);
-
   // Optionally controlled state
   const [value, setValue] = useControlled({
     controlled: valueProp,
     default: "off",
     name: "Switch",
   });
-
   // Debounce is required because both onChange and onPointerUp can fire when dragging
   const setControlledValue = useDebouncedFunction(
     (newValue: SwitchState) => {
@@ -49,7 +47,9 @@ export function Switch({
 
   // Sync value with input due to check box having two different value states (specifically `indeterminate`)
   useEffect(() => {
-    if (!elRef.current) return;
+    if (!elRef.current) {
+      return;
+    }
     elRef.current.indeterminate = value === "indeterminate";
   }, [value]);
 
@@ -62,7 +62,9 @@ export function Switch({
   const [position, setPosition] = useState<number | null>(null);
 
   const handleDragStart = normalizeTouchPointerEvent((e) => {
-    if (rest.disabled || !elRef.current) return;
+    if (rest.disabled || !elRef.current) {
+      return;
+    }
     initialRectRef.current = elRef.current.getBoundingClientRect();
     initialClientXRef.current = e.clientX;
     setIsPointerDown(true);
@@ -72,7 +74,9 @@ export function Switch({
     normalizeTouchPointerEvent((e) => {
       const rect = initialRectRef.current;
       const clientX = initialClientXRef.current;
-      if (!rect) return;
+      if (!rect) {
+        return;
+      }
       // Has to move at least 2px to be considered dragging
       if (!isDragging && Math.abs(e.clientX - clientX) < 2) {
         return;
@@ -87,7 +91,9 @@ export function Switch({
 
   // Pointermove handler is registered on the body to support draging out of the switch boundary
   useEffect(() => {
-    if (!isPointerDown) return;
+    if (!isPointerDown) {
+      return;
+    }
 
     document.body.addEventListener("pointermove", handleDragMove);
     document.body.addEventListener("touchmove", handleDragMove);
@@ -104,9 +110,13 @@ export function Switch({
     initialRectRef.current = null;
 
     if (isDragging) {
-      if (!rect) return;
+      if (!rect) {
+        return;
+      }
       if (elRef.current) {
-        if (elRef.current.indeterminate) elRef.current.indeterminate = false;
+        if (elRef.current.indeterminate) {
+          elRef.current.indeterminate = false;
+        }
 
         const midPoint = rect.left + rect.width / 2;
         const newState = lastClientXRef.current > midPoint ? "on" : "off";
@@ -148,7 +158,7 @@ const TRACK_SIZE = `calc(${THUMB_SIZE} * 2)`;
 
 const styles = x.create({
   switch: {
-    // reset
+    // Reset
     background: "none",
     borderWidth: "0",
     borderStyle: "none",
@@ -156,7 +166,7 @@ const styles = x.create({
     boxSizing: "content-box",
     margin: 0,
 
-    // custom styles
+    // Custom styles
     inlineSize: TRACK_SIZE,
     blockSize: THUMB_SIZE,
     borderRadius: THUMB_SIZE,
@@ -184,7 +194,7 @@ const styles = x.create({
       ":hover": tokens.shadowHighlight,
     },
 
-    // pseudo elements
+    // Pseudo elements
     "::before": {
       content: "",
       display: "block",

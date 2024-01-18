@@ -13,12 +13,10 @@ export function useMediaQuery(query: string, defaultValue?: boolean) {
     [query]
   );
 
-  const getSnapshot = () => {
-    return window.matchMedia(query).matches;
-  };
+   const getSnapshot = () => window.matchMedia(query).matches;
 
-  const getServerSnapshot = () => {
-    if (typeof defaultValue !== undefined) {
+   const getServerSnapshot = () => {
+    if (typeof defaultValue !== "undefined") {
       return defaultValue;
     }
 

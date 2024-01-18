@@ -1,9 +1,10 @@
-import debounce, { DebounceSettings } from "lodash-es/debounce";
+import type { DebounceSettings } from "lodash-es/debounce";
+import debounce from "lodash-es/debounce";
 import useEventCallback from "@mui/utils/useEventCallback";
 import { useEffect, useMemo } from "react";
 
-export function useDebouncedFunction<T extends (...args: any) => any>(
-  callback: T,
+export function useDebouncedFunction<Args extends unknown[], Return>(
+  callback: (...args: Args) => Return,
   delay: number,
   options: DebounceSettings
 ) {
@@ -14,11 +15,13 @@ export function useDebouncedFunction<T extends (...args: any) => any>(
     () => debounce(stableCallback, delay, getOptions()),
     [stableCallback, delay, getOptions]
   );
-  useEffect(() => {
-    return () => {
+
+  useEffect(
+    () => () => {
       debouncedFunction.cancel();
-    };
-  }, [debouncedFunction]);
+    },
+    [debouncedFunction]
+  );
 
   return debouncedFunction;
 }

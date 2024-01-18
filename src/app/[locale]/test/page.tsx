@@ -1,6 +1,4 @@
-import { PageProps } from "../../../types";
-
-export default function RootPage({ params }: PageProps) {
+export default function RootPage() {
   return (
     <div>
       <h1>Test</h1>

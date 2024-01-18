@@ -16,7 +16,7 @@ const lightThemeTokens = {
 };
 
 export const tokens = x.defineVars({
-  fontFamily: "Inter, sans-serif",
+  fontFamily: "Inter, Inter-fallback, sans-serif",
   shadowNone: "0 0 0 rgba(0, 0, 0, 0), 0 0 0 rgba(0, 0, 0, 0)",
   shadowRaised: `0.09375rem 0.11875rem 0.21875rem rgba(0, 0, 0, 0.02),
     0.225rem 0.28125rem 0.525rem rgba(0, 0, 0, 0.028),

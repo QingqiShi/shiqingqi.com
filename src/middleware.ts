@@ -1,5 +1,5 @@
 import { i18nRouter } from "next-i18n-router";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { i18nConfig } from "./i18nConfig";
 
 export function middleware(request: NextRequest) {
@@ -15,6 +15,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // only applies this middleware to files in the app directory
+  // Only applies this middleware to files in the app directory
   matcher: "/((?!api|static|.*\\..*|_next).*)",
 };
