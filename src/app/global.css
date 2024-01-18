@@ -1,0 +1,24 @@
+/* For now, one CSS file is required https://github.com/facebook/stylex/issues/109 */
+
+@font-face {
+  font-family: "Inter";
+  src: url("/InterVariable.woff2");
+  font-style: oblique 0deg 10deg;
+  font-weight: 100 900;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: "Inter-fallback";
+  size-adjust: 107%;
+  ascent-override: 90%;
+  src: local("Arial");
+}
+
+@layer global;
+
+@layer global {
+  body * {
+    box-sizing: inherit;
+  }
+}

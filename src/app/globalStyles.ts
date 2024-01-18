@@ -1,13 +1,13 @@
-import * as stylex from "@stylexjs/stylex";
-import { Breakpoints } from "../types";
+import * as x from "@stylexjs/stylex";
+import type { Breakpoints } from "../types";
 import { darkTheme, systemTheme, tokens } from "./tokens.stylex";
 
-const sm: Breakpoints["sm"] = "@media (min-width: 320px)";
-const md: Breakpoints["md"] = "@media (min-width: 768px)";
 const lg: Breakpoints["lg"] = "@media (min-width: 1080px)";
+const md: Breakpoints["md"] = "@media (min-width: 768px)";
+const sm: Breakpoints["sm"] = "@media (min-width: 320px)";
 const xl: Breakpoints["xl"] = "@media (min-width: 2000px)";
 
-export const globalStyles = stylex.create({
+export const globalStyles = x.create({
   global: {
     margin: 0,
     fontSize: {
@@ -32,15 +32,15 @@ export const globalStyles = stylex.create({
 export function getDocumentClassName(theme?: string | null) {
   switch (theme) {
     case "dark": {
-      const rootProps = stylex.props(darkTheme, globalStyles.global);
+      const rootProps = x.props(darkTheme, globalStyles.global);
       return rootProps.className ?? "";
     }
     case "light": {
-      const rootProps = stylex.props(globalStyles.global);
+      const rootProps = x.props(globalStyles.global);
       return rootProps.className ?? "";
     }
     default: {
-      const rootProps = stylex.props(systemTheme, globalStyles.global);
+      const rootProps = x.props(systemTheme, globalStyles.global);
       return rootProps.className ?? "";
     }
   }

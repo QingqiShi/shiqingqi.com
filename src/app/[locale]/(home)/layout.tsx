@@ -1,6 +1,6 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { BASE_URL } from "../../constants";
-import { LayoutProps } from "../../../types";
+import type { LayoutProps } from "../../../types";
 
 export const metadata: Metadata = {
   alternates: {

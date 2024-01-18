@@ -10,5 +10,9 @@
   "switchToSystem": {
     "en": "Switch to system theme",
     "zh": "切换至系统颜色模式"
+  },
+  "localeSelectorLabel": {
+    "en": "Select a language",
+    "zh": "选择语言"
   }
 }

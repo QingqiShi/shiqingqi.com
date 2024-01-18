@@ -1,20 +1,20 @@
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import * as x from "@stylexjs/stylex";
 import { tokens } from "../app/tokens.stylex";
-import { StyleProp } from "../types";
+import type { StyleProp } from "../types";
 
-interface ButtonStyles
+interface ButtonProps
   extends Omit<ComponentProps<"button">, "className" | "style"> {
   style?: StyleProp;
 }
 
-export function Button({ style, ...props }: ButtonStyles) {
+export function Button({ style, ...props }: ButtonProps) {
   return <button {...props} {...x.props(styles.button, style)} />;
 }
 
 const styles = x.create({
   button: {
-    // reset
+    // Reset
     borderWidth: "0",
     borderStyle: "none",
     appearance: "none",
@@ -22,7 +22,7 @@ const styles = x.create({
     fontSize: "0.8rem",
     cursor: { default: "pointer", ":disabled": "not-allowed" },
 
-    // custom styles
+    // Custom styles
     blockSize: "1.5rem",
     borderRadius: "1.5rem",
     paddingVertical: "0.1rem",

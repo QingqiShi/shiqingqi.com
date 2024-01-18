@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import * as x from "@stylexjs/stylex";
 import { getTranslations } from "../translations/getTranslations";
-import translations from "./translations.json";
-import { Breakpoints, LayoutProps, PageProps } from "../../types";
+import type { Breakpoints, LayoutProps, PageProps } from "../../types";
 import { Header } from "../../server-components/header";
-import { systemTheme } from "../tokens.stylex";
 import { getDocumentClassName, globalStyles } from "../globalStyles";
-import "./global.css";
+import translations from "./translations.json";
 
 export async function generateMetadata({ params }: PageProps) {
   const { t } = getTranslations(translations, params.locale);
@@ -25,16 +23,12 @@ export default function RootLayout({ children, params }: LayoutProps) {
   return (
     <html lang={params.locale} className={getDocumentClassName(initialTheme)}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter&display=swap"
-          rel="stylesheet"
+          rel="preload"
+          href="./InterVariable.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
         />
       </head>
       <body {...x.props(globalStyles.global, globalStyles.body)}>
@@ -49,6 +43,9 @@ export default function RootLayout({ children, params }: LayoutProps) {
   );
 }
 
+const sm: Breakpoints["sm"] = "@media (min-width: 320px)";
+const md: Breakpoints["md"] = "@media (min-width: 768px)";
+const lg: Breakpoints["lg"] = "@media (min-width: 1080px)";
 const xl: Breakpoints["xl"] = "@media (min-width: 2000px)";
 
 const styles = x.create({
@@ -57,8 +54,18 @@ const styles = x.create({
     marginVertical: 0,
     marginHorizontal: "auto",
     paddingVertical: 0,
-    paddingLeft: "calc(1rem + env(safe-area-inset-left))",
-    paddingRight: "calc(1rem + env(safe-area-inset-right))",
+    paddingRight: {
+      default: "calc(1rem + env(safe-area-inset-right))",
+      [sm]: "calc(1.2rem + env(safe-area-inset-right))",
+      [md]: "calc(1.4rem + env(safe-area-inset-right))",
+      [lg]: "calc(1.7rem + env(safe-area-inset-right))",
+    },
+    paddingLeft: {
+      default: "calc(1rem + env(safe-area-inset-left))",
+      [sm]: "calc(1.2rem + env(safe-area-inset-left))",
+      [md]: "calc(1.4rem + env(safe-area-inset-left))",
+      [lg]: "calc(1.7rem + env(safe-area-inset-left))",
+    },
   },
   wrapperInner: {
     position: "relative",

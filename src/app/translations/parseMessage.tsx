@@ -1,4 +1,4 @@
-import { ComponentProps, ComponentType, ReactNode } from "react";
+import type { ComponentProps, ComponentType, ReactNode } from "react";
 
 const defaultComponents: {
   [tagName: string]: ComponentType<{ children?: ReactNode }>;
@@ -44,7 +44,9 @@ function parseTokens(tokens: string[], componentMap: typeof defaultComponents) {
     if (isTagBegin(token)) {
       const tagName = getTagBeginName(token);
       const Component = tagName ? componentMap[tagName] : undefined;
-      if (!Component) continue;
+      if (!Component) {
+        continue;
+      }
 
       let endIndex = i + 1;
       while (

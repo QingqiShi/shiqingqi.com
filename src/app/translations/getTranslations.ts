@@ -1,7 +1,7 @@
 import "server-only";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
+import type { SupportedLocale } from "../../types";
 import { parseMessage } from "./parseMessage";
-import { SupportedLocale } from "../../types";
 
 interface TranslationConfig {
   [key: string]: {

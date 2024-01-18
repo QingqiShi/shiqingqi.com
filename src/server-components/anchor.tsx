@@ -1,11 +1,18 @@
-import * as stylex from "@stylexjs/stylex";
+import Link from "next/link";
+import * as x from "@stylexjs/stylex";
 import { tokens } from "../app/tokens.stylex";
+import type { StyleProp } from "../types";
 
-export function Anchor(props: React.ComponentProps<"a">) {
-  return <a {...props} />;
+interface AnchorProps
+  extends Omit<React.ComponentProps<typeof Link>, "className" | "style"> {
+  style?: StyleProp;
 }
 
-const styles = stylex.create({
+export function Anchor({ style, ...props }: AnchorProps) {
+  return <Link {...props} {...x.props(styles.a, style)} />;
+}
+
+const styles = x.create({
   a: {
     color: { default: tokens.textMain, ":hover": tokens.textMuted },
     fontWeight: 600,

@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Sun, Moon, ArrowClockwise } from "@phosphor-icons/react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ArrowClockwise, Moon, Sun } from "@phosphor-icons/react";
 import * as x from "@stylexjs/stylex";
 import { getDocumentClassName } from "../app/globalStyles";
-import { Switch, SwitchState } from "./switch";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { Button } from "../server-components/button";
-import { tokens } from "../app/tokens.stylex";
+import { Switch } from "./switch";
+import type { SwitchState } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";
 
 const themeMap: { [theme in "light" | "dark"]: SwitchState } = {
@@ -25,10 +25,12 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const theme = searchParams.get("theme");
   const isSystem = theme !== "dark" && theme !== "light";
 
   const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
+
   const [hasFocus, setHasFocus] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -123,7 +125,7 @@ const styles = x.create({
     },
   },
   switch: {
-    [tokens.controlActive]: { default: "#333" },
+    // [tokens.controlActive]: { default: "#333" },
   },
   icon: {
     position: "absolute",
