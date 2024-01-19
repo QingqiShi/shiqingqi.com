@@ -7,6 +7,7 @@ import * as x from "@stylexjs/stylex";
 import { getDocumentClassName } from "../app/globalStyles";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { Button } from "../server-components/button";
+import { tokens } from "../app/tokens.stylex";
 import { Switch } from "./switch";
 import type { SwitchState } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";
@@ -125,7 +126,7 @@ const styles = x.create({
     },
   },
   switch: {
-    // [tokens.controlActive]: { default: "#333" },
+    [tokens.controlActive]: { default: "#333" },
   },
   icon: {
     position: "absolute",

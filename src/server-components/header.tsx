@@ -21,10 +21,12 @@ export function Header({ params }: Omit<LayoutProps, "children">) {
   );
 }
 
-const sm: Breakpoints["sm"] = "@media (min-width: 320px)";
-const md: Breakpoints["md"] = "@media (min-width: 768px)";
-const lg: Breakpoints["lg"] = "@media (min-width: 1080px)";
-const xl: Breakpoints["xl"] = "@media (min-width: 2000px)";
+const sm: Breakpoints["sm"] =
+  "@media (min-width: 320px) and (max-width: 767px)";
+const md: Breakpoints["md"] =
+  "@media (min-width: 768px) and (max-width: 1079px)";
+const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
+const minXl: Breakpoints["minXl"] = "@media (min-width: 2000px)";
 
 const styles = x.create({
   container: {
@@ -37,7 +39,7 @@ const styles = x.create({
     pointerEvents: "none",
   },
   nav: {
-    maxWidth: { default: "1080px", [xl]: "calc((1080 / 24) * 1rem)" },
+    maxWidth: { default: "1080px", [minXl]: "calc((1080 / 24) * 1rem)" },
     marginVertical: 0,
     marginHorizontal: "auto",
     paddingVertical: 0,
@@ -50,13 +52,13 @@ const styles = x.create({
       default: "calc(1rem + env(safe-area-inset-right))",
       [sm]: "calc(1.2rem + env(safe-area-inset-right))",
       [md]: "calc(1.4rem + env(safe-area-inset-right))",
-      [lg]: "calc(1.7rem + env(safe-area-inset-right))",
+      [minLg]: "calc(1.7rem + env(safe-area-inset-right))",
     },
     paddingLeft: {
       default: "calc(1rem + env(safe-area-inset-left))",
       [sm]: "calc(1.2rem + env(safe-area-inset-left))",
       [md]: "calc(1.4rem + env(safe-area-inset-left))",
-      [lg]: "calc(1.7rem + env(safe-area-inset-left))",
+      [minLg]: "calc(1.7rem + env(safe-area-inset-left))",
     },
   },
   navContent: {
