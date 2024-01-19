@@ -12,11 +12,15 @@
     "zh": "%s | 石清琪"
   },
   "headline_1": {
-    "en": "Hi, I'm Qingqi Shi.",
+    "en": "Hi, I'm Qingqi.",
     "zh": "嗨，我叫石清琪。"
   },
   "headline_2": {
     "en": "I'm a software engineer.",
-    "zh": "我是个软件工程师。"
+    "zh": "我是一名软件工程师。"
+  },
+  "brief": {
+    "en": "Embracing the <strong>craftsman's spirit</strong>, I pursue <strong>perfection</strong>, <strong>precision</strong> and <strong>patience</strong> in software engineering and all aspects of life.",
+    "zh": "我信奉<strong>工匠精神</strong>。工匠用他们<strong>敬业</strong>、<strong>专注</strong>和<strong>精益求精</strong>的精神雕琢产品。无论是工作还是生活，我都这样要求自己。"
   }
 }
