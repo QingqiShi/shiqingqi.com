@@ -1,15 +1,15 @@
-import * as x from "@stylexjs/stylex";
-import { lazy } from "react";
+import * as stylex from "@stylexjs/stylex";
 import type { Breakpoints, PageProps } from "../../types";
 import { getTranslations } from "../translations/getTranslations";
 import { ExperienceCard } from "../../server-components/experience-card";
+import { EducationCard } from "../../server-components/education-card";
+import CitadelLogo from "../../logos/citadel-logo";
+import SpotifyLogo from "../../logos/spotify-logo";
+import WtcLogo from "../../logos/wtc-logo";
+import BristolLogo from "../../logos/bristol-logo";
+import AGSB from "../../logos/AGSB.webp";
+import NottinghamLogo from "../../logos/nottingham-logo";
 import translations from "./translations.json";
-
-const CitadelLogo = lazy(() => import("../../logos/citadel-logo"));
-const SpotifyLogo = lazy(() => import("../../logos/spotify-logo"));
-const WtcLogo = lazy(() => import("../../logos/wtc-logo"));
-const BristolLogo = lazy(() => import("../../logos/bristol-logo"));
-const NottinghamLogo = lazy(() => import("../../logos/nottingham-logo"));
 
 export async function generateStaticParams() {
   return [{ locale: "en" }, { locale: "zh" }];
@@ -19,44 +19,74 @@ export default function Home({ params }: PageProps) {
   const { t } = getTranslations(translations, params.locale);
   return (
     <>
-      <section {...x.props(styles.headlineContainer)}>
-        <h1 {...x.props(styles.headline)}>
+      <section {...stylex.props(styles.headlineContainer)}>
+        <h1 {...stylex.props(styles.headline)}>
           {t("headline_1")}
           <br />
           {t("headline_2")}
         </h1>
-        <p {...x.props(styles.brief)}>{t("brief", { parse: true })}</p>
+        <p {...stylex.props(styles.brief)}>{t("brief", { parse: true })}</p>
       </section>
       <section>
-        <h2 {...x.props(styles.sectionTitle)}>{t("experiencesSection")}</h2>
-        <div {...x.props(styles.cardList)}>
+        <h2 {...stylex.props(styles.sectionTitle)}>
+          {t("experiencesSection")}
+        </h2>
+        <div {...stylex.props(styles.cardList)}>
           <ExperienceCard
-            logo={<CitadelLogo style={styles.svg} />}
-            dates="blah"
+            logo={<CitadelLogo style={styles.experienceSvg} />}
+            dates={t("citadelDate")}
             href="/"
             locale={params.locale}
             style={styles.card}
+            aria-label={t("citadelLabel")}
           />
           <ExperienceCard
-            logo={<SpotifyLogo style={styles.svg} />}
-            dates="blah"
+            logo={<SpotifyLogo style={styles.experienceSvg} />}
+            dates={t("spotifyDate")}
             href="/"
             locale={params.locale}
             style={styles.card}
+            aria-label={t("spotifyLabel")}
           />
           <ExperienceCard
-            logo={<WtcLogo style={styles.svg} />}
-            dates="blah"
+            logo={<WtcLogo />}
+            dates={t("wtcDate")}
             href="/"
             locale={params.locale}
             style={styles.card}
+            aria-label={t("wtcLabel")}
           />
         </div>
       </section>
       <section>
-        <h2 {...x.props(styles.sectionTitle)}>{t("educationSection")}</h2>
-        <div {...x.props(styles.cardList)}>
-          <div>test</div>
+        <h2 {...stylex.props(styles.sectionTitle)}>{t("educationSection")}</h2>
+        <div {...stylex.props(styles.cardList)}>
+          <EducationCard
+            logo={<BristolLogo title={t("uob")} style={styles.educationSvg} />}
+            name={t("uob")}
+            dates={t("uobDate")}
+            href="/"
+            locale={params.locale}
+            style={styles.card}
+          />
+          <EducationCard
+            logo={
+              <NottinghamLogo title={t("uon")} style={styles.educationSvg} />
+            }
+            name={t("uon")}
+            dates={t("uonDate")}
+            href="/"
+            locale={params.locale}
+            style={styles.card}
+          />
+          <EducationCard
+            logo={{ src: AGSB, alt: t("agsb") }}
+            name={t("agsb")}
+            dates={t("agsbDate")}
+            href="/"
+            locale={params.locale}
+            style={styles.card}
+          />
         </div>
       </section>
     </>
@@ -70,7 +100,7 @@ const md: Breakpoints["md"] =
 const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
 const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
 
-const styles = x.create({
+const styles = stylex.create({
   headlineContainer: {
     padding: { default: "0 0 3rem", [sm]: "0 0 5rem", [minMd]: "0 0 7rem" },
   },
@@ -99,8 +129,12 @@ const styles = x.create({
   card: {
     width: { default: "100%", [sm]: "50%", [md]: "33.3%", [minLg]: "25%" },
   },
-  svg: {
+  experienceSvg: {
     height: { default: "5.5rem", [sm]: "4.4rem", [minMd]: "3rem" },
     maxWidth: "100%",
+    transition: "fill .2s",
+  },
+  educationSvg: {
+    transition: "fill .2s",
   },
 });

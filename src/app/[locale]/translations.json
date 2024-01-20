@@ -30,5 +30,53 @@
   "educationSection": {
     "en": "Education",
     "zh": "教育"
+  },
+  "citadelDate": {
+    "en": "Aug 2021 - Now",
+    "zh": "2021年8月 至今"
+  },
+  "citadelLabel": {
+    "en": "Citadel August 2021 to now, click to view details",
+    "zh": "Citadel (城堡投资) 2021年8月至今，点击查看详情"
+  },
+  "spotifyDate": {
+    "en": "Jul 2019 - Aug 2021",
+    "zh": "2019年7月 - 2021年8月"
+  },
+  "spotifyLabel": {
+    "en": "Spotify July 2019 to August 2021, click to view details",
+    "zh": "Spotify 2019年7月至2021年8月，点击查看详情"
+  },
+  "wtcDate": {
+    "en": "Sep 2017 - Jul 2019",
+    "zh": "2017年9月 - 2019年7月"
+  },
+  "wtcLabel": {
+    "en": "Wunderman Thompson Commerce July 2019 to August 2021, click to view details",
+    "zh": "Spotify 2019年7月至2021年8月，点击查看详情"
+  },
+  "uob": {
+    "en": "University of Bristol",
+    "zh": "布里斯托大学"
+  },
+  "uobDate": {
+    "en": "Sep 2016 - Jan 2018",
+    "zh": "2016年9月 - 2018年1月"
+  },
+  "uon": {
+    "en": "University of Nottingham",
+    "zh": "诺丁汉大学"
+  },
+  "uonDate": {
+    "en": "Sep 2013 - Jul 2016",
+    "zh": "2013年9月 - 2016年7月"
+  },
+  "agsb": {
+    "en": "Altrincham Grammar School for Boys",
+    "zh": "奥尔特灵厄姆文法男校"
+  },
+  "agsbDate": {
+    "en": "Sep 2011 - Jul 2013",
+    "zh": "2011年9月 - 2013年7月"
   }
 }

@@ -1,4 +1,4 @@
-import * as x from "@stylexjs/stylex";
+import * as stylex from "@stylexjs/stylex";
 import type { Breakpoints, LayoutProps } from "../types";
 import { LocaleSelector } from "../client-components/locale-selector";
 import { ThemeSwitch } from "../client-components/theme-switch";
@@ -8,9 +8,9 @@ import translations from "./translations.json";
 export function Header({ params }: Omit<LayoutProps, "children">) {
   const { t } = getTranslations(translations, params.locale);
   return (
-    <header {...x.props(styles.container)}>
-      <nav {...x.props(styles.nav)}>
-        <div {...x.props(styles.navContent)}>
+    <header {...stylex.props(styles.container)}>
+      <nav {...stylex.props(styles.nav)}>
+        <div {...stylex.props(styles.navContent)}>
           <LocaleSelector label={t("localeSelectorLabel")} />
           <ThemeSwitch
             labels={[t("swithToLight"), t("switchToDark"), t("switchToSystem")]}
@@ -28,7 +28,7 @@ const md: Breakpoints["md"] =
 const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
 const minXl: Breakpoints["minXl"] = "@media (min-width: 2000px)";
 
-const styles = x.create({
+const styles = stylex.create({
   container: {
     position: "fixed",
     top: 0,

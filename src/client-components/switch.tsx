@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import * as x from "@stylexjs/stylex";
+import * as stylex from "@stylexjs/stylex";
 import useEventCallback from "@mui/utils/useEventCallback";
 import useControlled from "@mui/utils/useControlled";
-import { tokens } from "../app/tokens.stylex";
+import { tokens } from "../tokens.stylex";
 import { useDebouncedFunction } from "../hooks/useDebouncedFunction";
 import type { StyleProp } from "../types";
 import { switchTokens } from "./switch.stylex";
@@ -139,7 +139,7 @@ export function Switch({
     <input
       ref={elRef}
       {...rest}
-      {...x.props(
+      {...stylex.props(
         styles.switch,
         isDragging && styles.dragging(position),
         style
@@ -156,7 +156,7 @@ export function Switch({
 const THUMB_SIZE = "1.5rem";
 const TRACK_SIZE = `calc(${THUMB_SIZE} * 2)`;
 
-const styles = x.create({
+const styles = stylex.create({
   switch: {
     // Reset
     background: "none",

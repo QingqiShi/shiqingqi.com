@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useSyncExternalStore } from "react";
-import { usePathname } from "next/navigation";
-import * as x from "@stylexjs/stylex";
+import { usePathname, useSearchParams } from "next/navigation";
+import * as stylex from "@stylexjs/stylex";
 import { Translate } from "@phosphor-icons/react";
 import { useClickAway } from "../hooks/useClickAway";
 import { Button } from "../server-components/button";
-import { tokens } from "../app/tokens.stylex";
+import { tokens } from "../tokens.stylex";
 import { Anchor } from "../server-components/anchor";
 
 /*
@@ -41,10 +41,12 @@ export function LocaleSelector({ label }: LocaleSelectorProps) {
   );
 
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const searchString = searchParams.toString();
   const isZhActive = pathname.startsWith("/zh");
 
   return (
-    <div {...x.props(styles.container)}>
+    <div {...stylex.props(styles.container)}>
       <Button
         type="button"
         aria-haspopup="menu"
@@ -64,13 +66,13 @@ export function LocaleSelector({ label }: LocaleSelectorProps) {
             setIsMenuShown(false);
           }
         }}
-        {...x.props(styles.menu, isMenuShown && styles.menuShown)}
+        {...stylex.props(styles.menu, isMenuShown && styles.menuShown)}
       >
         <Item
           label="English"
           flag="🇬🇧"
           ariaLabel="Switch to English"
-          href="/"
+          href={`/${searchString ? `?${searchString}` : ""}`}
           tabIndex={!isMenuShown ? -1 : undefined}
           isActive={!isZhActive}
         />
@@ -78,7 +80,7 @@ export function LocaleSelector({ label }: LocaleSelectorProps) {
           label="中文"
           flag="🇨🇳"
           ariaLabel="切换至中文"
-          href="/zh"
+          href={`/zh${searchString ? `?${searchString}` : ""}`}
           tabIndex={!isMenuShown ? -1 : undefined}
           isActive={isZhActive}
         />
@@ -112,7 +114,7 @@ function Item({ label, ariaLabel, flag, href, tabIndex, isActive }: ItemProps) {
   );
 }
 
-const styles = x.create({
+const styles = stylex.create({
   container: {
     position: "relative",
   },

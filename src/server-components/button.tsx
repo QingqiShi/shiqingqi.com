@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
-import * as x from "@stylexjs/stylex";
-import { tokens } from "../app/tokens.stylex";
+import * as stylex from "@stylexjs/stylex";
+import { tokens } from "../tokens.stylex";
 import type { StyleProp } from "../types";
 
 interface ButtonProps
@@ -9,10 +9,10 @@ interface ButtonProps
 }
 
 export function Button({ style, ...props }: ButtonProps) {
-  return <button {...props} {...x.props(styles.button, style)} />;
+  return <button {...props} {...stylex.props(styles.button, style)} />;
 }
 
-const styles = x.create({
+const styles = stylex.create({
   button: {
     // Reset
     borderWidth: "0",

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import * as x from "@stylexjs/stylex";
+import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "../translations/getTranslations";
 import type { Breakpoints, LayoutProps, PageProps } from "../../types";
 import { Header } from "../../server-components/header";
 import { getDocumentClassName, globalStyles } from "../globalStyles";
-import { tokens } from "../tokens.stylex";
+import { tokens } from "../../tokens.stylex";
 import { Footer } from "../../server-components/footer";
 import translations from "./translations.json";
 
@@ -33,33 +33,33 @@ export default function RootLayout({ children, params }: LayoutProps) {
           crossOrigin="anonymous"
         />
       </head>
-      <body {...x.props(globalStyles.global, globalStyles.body)}>
-        <div {...x.props(styles.container)}>
-          <div {...x.props(styles.wrapperInner)}>
+      <body {...stylex.props(globalStyles.global, globalStyles.body)}>
+        <div {...stylex.props(styles.container)}>
+          <div {...stylex.props(styles.wrapperInner)}>
             <Header params={params} />
-            <div {...x.props(styles.linesContainer)} role="presentation">
+            <div {...stylex.props(styles.linesContainer)} role="presentation">
               <div
-                {...x.props(styles.line, styles.line1)}
+                {...stylex.props(styles.line, styles.line1)}
                 role="presentation"
               />
               <div
-                {...x.props(styles.line, styles.line2)}
+                {...stylex.props(styles.line, styles.line2)}
                 role="presentation"
               />
               <div
-                {...x.props(styles.line, styles.line3)}
+                {...stylex.props(styles.line, styles.line3)}
                 role="presentation"
               />
               <div
-                {...x.props(styles.line, styles.line4)}
+                {...stylex.props(styles.line, styles.line4)}
                 role="presentation"
               />
               <div
-                {...x.props(styles.line, styles.line5)}
+                {...stylex.props(styles.line, styles.line5)}
                 role="presentation"
               />
             </div>
-            <main {...x.props(styles.main)}>{children}</main>
+            <main {...stylex.props(styles.main)}>{children}</main>
             <Footer locale={params.locale} />
           </div>
         </div>
@@ -77,7 +77,7 @@ const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
 const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
 const minXl: Breakpoints["minXl"] = "@media (min-width: 2000px)";
 
-const styles = x.create({
+const styles = stylex.create({
   container: {
     maxWidth: { default: "1080px", [minXl]: "calc((1080 / 24) * 1rem)" },
     marginVertical: 0,

@@ -1,15 +1,19 @@
-import * as x from "@stylexjs/stylex";
-import { tokens } from "../app/tokens.stylex";
+import * as stylex from "@stylexjs/stylex";
+import { tokens } from "../tokens.stylex";
 import type { StyleProp } from "../types";
 
 interface NottinghamLogoProps {
+  title: string;
   style?: StyleProp;
 }
 
-export default function NottinghamLogo({ style }: NottinghamLogoProps) {
+export default async function NottinghamLogo({
+  title,
+  style,
+}: NottinghamLogoProps) {
   return (
-    <svg viewBox="0 0 115.79 170" {...x.props(styles.svg, style)}>
-      <title>University of Nottingham</title>
+    <svg viewBox="0 0 115.79 170" {...stylex.props(styles.svg, style)}>
+      <title>{title}</title>
       <g>
         <path
           d="M90.113,27.729V12.489c7.457,1.824,12.927,4.307,18.723,7.459v14.243
@@ -37,7 +41,7 @@ export default function NottinghamLogo({ style }: NottinghamLogoProps) {
   );
 }
 
-const styles = x.create({
+const styles = stylex.create({
   svg: {
     fill: tokens.nottinghamLogoFill,
   },

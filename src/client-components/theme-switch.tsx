@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowClockwise, Moon, Sun } from "@phosphor-icons/react";
-import * as x from "@stylexjs/stylex";
+import * as stylex from "@stylexjs/stylex";
 import { getDocumentClassName } from "../app/globalStyles";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { Button } from "../server-components/button";
-import { tokens } from "../app/tokens.stylex";
+import { tokens } from "../tokens.stylex";
 import { Switch } from "./switch";
 import type { SwitchState } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";
@@ -42,7 +42,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
   return (
     <div
       ref={containerRef}
-      {...x.props(
+      {...stylex.props(
         styles.container,
         isSystem && styles.hideSystemButton,
         !isSystem && hasFocus && styles.showSystemButton
@@ -59,13 +59,14 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         setHasFocus(false);
       }}
     >
-      <span {...x.props(styles.icon, styles.moon)} aria-hidden>
+      <span {...stylex.props(styles.icon, styles.moon)} aria-hidden>
         <Moon weight="fill" />
       </span>
-      <span {...x.props(styles.icon, styles.sun)} aria-hidden>
+      <span {...stylex.props(styles.icon, styles.sun)} aria-hidden>
         <Sun weight="fill" />
       </span>
       <Switch
+        id="theme-switch"
         value={
           isSystem ? themeMap[preferDark ? "dark" : "light"] : themeMap[theme]
         }
@@ -89,7 +90,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         }
         style={styles.switch}
       />
-      <div {...x.props(styles.systemButton)}>
+      <div {...stylex.props(styles.systemButton)}>
         <Button
           role="radio"
           aria-label={labels[2]}
@@ -110,7 +111,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
   );
 }
 
-const styles = x.create({
+const styles = stylex.create({
   container: {
     display: "inline-block",
     position: "relative",

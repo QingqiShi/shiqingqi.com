@@ -1,4 +1,4 @@
-import * as x from "@stylexjs/stylex";
+import * as stylex from "@stylexjs/stylex";
 import type { Breakpoints, SupportedLocale } from "../types";
 import { getTranslations } from "../app/translations/getTranslations";
 import translations from "./translations.json";
@@ -11,8 +11,8 @@ interface FooterProps {
 export function Footer({ locale }: FooterProps) {
   const { t } = getTranslations(translations, locale);
   return (
-    <footer {...x.props(styles.footer)}>
-      <div {...x.props(styles.section, styles.linksSection)}>
+    <footer {...stylex.props(styles.footer)}>
+      <div {...stylex.props(styles.section, styles.linksSection)}>
         <Anchor
           href="https://github.com/QingqiShi"
           target="_blank"
@@ -34,10 +34,10 @@ export function Footer({ locale }: FooterProps) {
           LinkedIn
         </Anchor>
       </div>
-      <div {...x.props(styles.section, styles.copyrightSection)}>
+      <div {...stylex.props(styles.section, styles.copyrightSection)}>
         <small>
-          <span {...x.props(styles.name)}>{t("name")}</span>
-          <span {...x.props(styles.copyright)}>© 2024</span>
+          <span {...stylex.props(styles.name)}>{t("name")}</span>
+          <span {...stylex.props(styles.copyright)}>© 2024</span>
         </small>
       </div>
     </footer>
@@ -47,7 +47,7 @@ export function Footer({ locale }: FooterProps) {
 const minSm: Breakpoints["minSm"] = "@media (min-width: 320px)";
 const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
 
-const styles = x.create({
+const styles = stylex.create({
   footer: {
     display: "flex",
     flexWrap: "wrap",
@@ -60,6 +60,9 @@ const styles = x.create({
     alignItems: { default: null, [minMd]: "center" },
   },
   linksSection: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
     marginBottom: { default: "2rem", [minMd]: "0" },
     width: { default: "100%", [minMd]: "50%" },
     textAlign: { default: "center", [minMd]: "left" },
