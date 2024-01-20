@@ -1,4 +1,4 @@
-import * as x from "@stylexjs/stylex";
+import * as stylex from "@stylexjs/stylex";
 
 const DARK = "@media (prefers-color-scheme: dark)";
 
@@ -20,7 +20,7 @@ const lightThemeTokens = {
   nottinghamLogoFill: "#005480",
 };
 
-export const tokens = x.defineVars({
+export const tokens = stylex.defineVars({
   fontFamily: "Inter,Inter-fallback,sans-serif",
   shadowNone: "0 0 0 rgba(0,0,0,0),0 0 0 rgba(0,0,0,0)",
   shadowRaised: `0.09375rem 0.11875rem 0.21875rem rgba(0,0,0,0.02),
@@ -61,9 +61,9 @@ const darkThemeTokens = {
   nottinghamLogoFill: "#0098e7",
 };
 
-export const darkTheme = x.createTheme(tokens, darkThemeTokens);
+export const darkTheme = stylex.createTheme(tokens, darkThemeTokens);
 
-export const systemTheme = x.createTheme(tokens, {
+export const systemTheme = stylex.createTheme(tokens, {
   textMain: {
     default: lightThemeTokens.textMain,
     [DARK]: darkThemeTokens.textMain,

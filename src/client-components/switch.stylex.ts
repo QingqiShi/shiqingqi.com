@@ -1,6 +1,6 @@
-import * as x from "@stylexjs/stylex";
+import * as stylex from "@stylexjs/stylex";
 
-export const switchTokens = x.defineVars({
+export const switchTokens = stylex.defineVars({
   thumbPosition: "0",
   thumbShadow: "",
   thumbTransitionDuration: "0.2s",

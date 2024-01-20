@@ -17,5 +17,6 @@
     "@typescript-eslint/consistent-type-exports": "error",
     "import/order": "error",
     "one-var": ["error", "never"]
-  }
+  },
+  "ignorePatterns": ["next.config.js"]
 }

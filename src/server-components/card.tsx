@@ -1,8 +1,8 @@
-import * as x from "@stylexjs/stylex";
+import * as stylex from "@stylexjs/stylex";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { getTranslations } from "../app/translations/getTranslations";
 import type { StyleProp, SupportedLocale } from "../types";
-import { tokens } from "../app/tokens.stylex";
+import { tokens } from "../tokens.stylex";
 import { Anchor } from "./anchor";
 import translations from "./translations.json";
 import { cardTokens } from "./card.stylex";
@@ -17,15 +17,15 @@ export function Card({ children, locale, style, ...rest }: CardProps) {
   return (
     <Anchor {...rest} style={[styles.card, style]}>
       {children}
-      <div {...x.props(styles.detailsIndicator)}>
-        <span {...x.props(styles.detailsText)}>{t("details")}</span>
+      <div {...stylex.props(styles.detailsIndicator)}>
+        <span {...stylex.props(styles.detailsText)}>{t("details")}</span>
         <ArrowRight />
       </div>
     </Anchor>
   );
 }
 
-const styles = x.create({
+const styles = stylex.create({
   card: {
     display: "block",
     width: "100%",
@@ -37,7 +37,7 @@ const styles = x.create({
     padding: "1rem",
     overflow: "hidden",
     transition:
-      "box-shadow 0.2s, transform 0.2s, background-color 0.2s, filter 0.2s, fill 0.2s",
+      "box-shadow 0.2s, transform 0.2s, background-color 0.2s, fill 0.2s",
     cursor: "pointer",
     marginBottom: "1rem",
     position: "relative",

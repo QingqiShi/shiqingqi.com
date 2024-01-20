@@ -1,14 +1,14 @@
-import * as x from "@stylexjs/stylex";
-import { tokens } from "../app/tokens.stylex";
+import * as stylex from "@stylexjs/stylex";
 import type { StyleProp } from "../types";
+import { tokens } from "../tokens.stylex";
 
 interface CitadelLogoProps {
   style?: StyleProp;
 }
 
-export default function CitadelLogo({ style }: CitadelLogoProps) {
+export default async function CitadelLogo({ style }: CitadelLogoProps) {
   return (
-    <svg viewBox="0 0 842 100" {...x.props(styles.svg, style)}>
+    <svg viewBox="0 0 842 100" {...stylex.props(styles.svg, style)}>
       <title>Citadel</title>
       <g transform="matrix(4.16667,0,0,4.16667,0,0)">
         <rect x="0" y="16.807" width="45.979" height="6.619" />
@@ -29,7 +29,7 @@ export default function CitadelLogo({ style }: CitadelLogoProps) {
   );
 }
 
-const styles = x.create({
+const styles = stylex.create({
   svg: {
     clipRule: "evenodd",
     strokeLinejoin: "round",

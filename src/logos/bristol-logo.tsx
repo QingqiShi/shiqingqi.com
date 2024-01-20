@@ -1,15 +1,16 @@
-import * as x from "@stylexjs/stylex";
-import { tokens } from "../app/tokens.stylex";
+import * as stylex from "@stylexjs/stylex";
+import { tokens } from "../tokens.stylex";
 import type { StyleProp } from "../types";
 
 interface BristolLogoProps {
   style?: StyleProp;
+  title: string;
 }
 
-export default function BristolLogo({ style }: BristolLogoProps) {
+export default async function BristolLogo({ style, title }: BristolLogoProps) {
   return (
-    <svg viewBox="0 0 156 164" {...x.props(styles.svg, style)}>
-      <title>University of Bristol</title>
+    <svg viewBox="0 0 156 164" {...stylex.props(styles.svg, style)}>
+      <title>{title}</title>
       <g transform="translate(-16.9375,-333.76838)">
         <clipPath id="clippath1">
           <path
@@ -41,7 +42,7 @@ export default function BristolLogo({ style }: BristolLogoProps) {
   );
 }
 
-const styles = x.create({
+const styles = stylex.create({
   svg: {
     fill: tokens.bristolLogoFill,
   },
