@@ -13,24 +13,33 @@ const lightThemeTokens = {
   controlActive: "#7e10c2",
   textOnActive: "#ffffff",
   colorScheme: "light",
+  citadelLogoFill: "rgb(26,54,104)",
+  wtcLogoPlusFill: "#e661b2",
+  wtcLogoLetterFill: "#0a47ed",
+  bristolLogoFill: "#bf2f38",
+  nottinghamLogoFill: "#005480",
 };
 
 export const tokens = x.defineVars({
-  fontFamily: "Inter, Inter-fallback, sans-serif",
-  shadowNone: "0 0 0 rgba(0, 0, 0, 0), 0 0 0 rgba(0, 0, 0, 0)",
-  shadowRaised: `0.09375rem 0.11875rem 0.21875rem rgba(0, 0, 0, 0.02),
-    0.225rem 0.28125rem 0.525rem rgba(0, 0, 0, 0.028),
-    0.425rem 0.53125rem 0.99375rem rgba(0, 0, 0, 0.035),
-    0.75625rem 0.95rem 1.775rem rgba(0, 0, 0, 0.042),
-    1.4125rem 1.775rem 3.31875rem rgba(0, 0, 0, 0.05),
-    3.375rem 4.25rem 7.9375rem rgba(0, 0, 0, 0.07)`,
-  shadowControls: `0 0.00625rem 0.01875rem rgba(0, 0, 0, 0.02),
-    0 0.0125rem 0.04375rem rgba(0, 0, 0, 0.028),
-    0 0.025rem 0.0875rem rgba(0, 0, 0, 0.035),
-    0 0.04375rem 0.15625rem rgba(0, 0, 0, 0.042),
-    0 0.08125rem 0.2875rem rgba(0, 0, 0, 0.05),
-    0 0.1875rem 0.6875rem rgba(0, 0, 0, 0.07)`,
-  shadowHighlight: "0 0 0 0.3rem rgba(0, 0, 0, 0.07)",
+  fontFamily: "Inter,Inter-fallback,sans-serif",
+  shadowNone: "0 0 0 rgba(0,0,0,0),0 0 0 rgba(0,0,0,0)",
+  shadowRaised: `0.09375rem 0.11875rem 0.21875rem rgba(0,0,0,0.02),
+    0.225rem 0.28125rem 0.525rem rgba(0,0,0,0.028),
+    0.425rem 0.53125rem 0.99375rem rgba(0,0,0,0.035),
+    0.75625rem 0.95rem 1.775rem rgba(0,0,0,0.042),
+    1.4125rem 1.775rem 3.31875rem rgba(0,0,0,0.05),
+    3.375rem 4.25rem 7.9375rem rgba(0,0,0,0.07)`,
+  shadowControls: `0 0.00625rem 0.01875rem rgba(0,0,0,0.02),
+    0 0.0125rem 0.04375rem rgba(0,0,0,0.028),
+    0 0.025rem 0.0875rem rgba(0,0,0,0.035),
+    0 0.04375rem 0.15625rem rgba(0,0,0,0.042),
+    0 0.08125rem 0.2875rem rgba(0,0,0,0.05),
+    0 0.1875rem 0.6875rem rgba(0,0,0,0.07)`,
+  shadowHighlight: "0 0 0 0.3rem rgba(0,0,0,0.07)",
+  svgSwitch: "",
+  svgDefault: "",
+  svgHover: "",
+  spotifyLogoFill: "#1ecc5a",
   ...lightThemeTokens,
 });
 
@@ -45,6 +54,11 @@ const darkThemeTokens = {
   controlActive: "#933bc9",
   textOnActive: "#ffffff",
   colorScheme: "dark",
+  citadelLogoFill: "rgb(129,174,255)",
+  wtcLogoPlusFill: "#ff84cf",
+  wtcLogoLetterFill: "#8dacff",
+  bristolLogoFill: "#ff535d",
+  nottinghamLogoFill: "#0098e7",
 };
 
 export const darkTheme = x.createTheme(tokens, darkThemeTokens);
@@ -89,5 +103,25 @@ export const systemTheme = x.createTheme(tokens, {
   colorScheme: {
     default: lightThemeTokens.colorScheme,
     [DARK]: darkThemeTokens.colorScheme,
+  },
+  citadelLogoFill: {
+    default: lightThemeTokens.citadelLogoFill,
+    [DARK]: darkThemeTokens.citadelLogoFill,
+  },
+  wtcLogoPlusFill: {
+    default: lightThemeTokens.wtcLogoPlusFill,
+    [DARK]: darkThemeTokens.wtcLogoPlusFill,
+  },
+  wtcLogoLetterFill: {
+    default: lightThemeTokens.wtcLogoLetterFill,
+    [DARK]: darkThemeTokens.wtcLogoLetterFill,
+  },
+  bristolLogoFill: {
+    default: lightThemeTokens.bristolLogoFill,
+    [DARK]: darkThemeTokens.bristolLogoFill,
+  },
+  nottinghamLogoFill: {
+    default: lightThemeTokens.nottinghamLogoFill,
+    [DARK]: darkThemeTokens.nottinghamLogoFill,
   },
 });

@@ -104,6 +104,7 @@ function Item({ label, ariaLabel, flag, href, tabIndex, isActive }: ItemProps) {
       tabIndex={tabIndex}
       role="menuItem"
       style={[styles.item, isActive && styles.itemActive]}
+      scroll={false}
     >
       <span>{label}</span>
       <span>{flag}</span>

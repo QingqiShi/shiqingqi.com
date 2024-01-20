@@ -8,7 +8,7 @@ import translations from "./translations.json";
 export function Header({ params }: Omit<LayoutProps, "children">) {
   const { t } = getTranslations(translations, params.locale);
   return (
-    <div {...x.props(styles.container)}>
+    <header {...x.props(styles.container)}>
       <nav {...x.props(styles.nav)}>
         <div {...x.props(styles.navContent)}>
           <LocaleSelector label={t("localeSelectorLabel")} />
@@ -17,7 +17,7 @@ export function Header({ params }: Omit<LayoutProps, "children">) {
           />
         </div>
       </nav>
-    </div>
+    </header>
   );
 }
 
