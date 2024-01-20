@@ -73,11 +73,15 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           if (state === "on") {
             const params = new URLSearchParams(searchParams);
             params.set("theme", "dark");
-            router.replace(`${pathname}?${params.toString()}`);
+            router.replace(`${pathname}?${params.toString()}`, {
+              scroll: false,
+            });
           } else {
             const params = new URLSearchParams(searchParams);
             params.set("theme", "light");
-            router.replace(`${pathname}?${params.toString()}`);
+            router.replace(`${pathname}?${params.toString()}`, {
+              scroll: false,
+            });
           }
         }}
         aria-label={
@@ -93,7 +97,9 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           onClick={() => {
             const params = new URLSearchParams(searchParams);
             params.delete("theme");
-            router.replace(`${pathname}?${params.toString()}`);
+            router.replace(`${pathname}?${params.toString()}`, {
+              scroll: false,
+            });
           }}
           disabled={isSystem}
         >

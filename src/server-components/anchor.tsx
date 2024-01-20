@@ -16,6 +16,6 @@ const styles = x.create({
   a: {
     color: { default: tokens.textMain, ":hover": tokens.textMuted },
     fontWeight: 600,
-    textDecorationThickness: "0.15rem",
+    textDecorationThickness: { default: null, ":hover": "0.15rem" },
   },
 });

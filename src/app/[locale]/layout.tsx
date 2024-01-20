@@ -6,6 +6,7 @@ import type { Breakpoints, LayoutProps, PageProps } from "../../types";
 import { Header } from "../../server-components/header";
 import { getDocumentClassName, globalStyles } from "../globalStyles";
 import { tokens } from "../tokens.stylex";
+import { Footer } from "../../server-components/footer";
 import translations from "./translations.json";
 
 export async function generateMetadata({ params }: PageProps) {
@@ -59,6 +60,7 @@ export default function RootLayout({ children, params }: LayoutProps) {
               />
             </div>
             <main {...x.props(styles.main)}>{children}</main>
+            <Footer locale={params.locale} />
           </div>
         </div>
       </body>
