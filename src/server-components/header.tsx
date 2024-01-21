@@ -11,7 +11,10 @@ export function Header({ params }: Omit<LayoutProps, "children">) {
     <header {...stylex.props(styles.container)}>
       <nav {...stylex.props(styles.nav)}>
         <div {...stylex.props(styles.navContent)}>
-          <LocaleSelector label={t("localeSelectorLabel")} />
+          <LocaleSelector
+            label={t("localeSelectorLabel")}
+            locale={params.locale}
+          />
           <ThemeSwitch
             labels={[t("swithToLight"), t("switchToDark"), t("switchToSystem")]}
           />

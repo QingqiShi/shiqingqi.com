@@ -1,0 +1,46 @@
+{
+  "title": {
+    "en": "Education at Altrincham Grammar School for Boys",
+    "zh": "奥尔特灵厄姆男子文法学校 教育"
+  },
+  "description": {
+    "en": "Qingqi graduated from Altrincham Grammar School for Boys, achieving A*AAB for his A-Levels.",
+    "zh": "石清琪在奥尔特灵厄姆男子文法学校研读 A-Levels，取得了 A*AAB 的成绩。"
+  },
+  "schoolName": {
+    "en": "Altrincham Grammar School for Boys",
+    "zh": "奥尔特灵厄姆男子文法学校"
+  },
+  "date": {
+    "en": "Sep 2011 - Jul 2013",
+    "zh": "2011年9月 - 2013年7月"
+  },
+  "course": {
+    "en": "A-Levels",
+    "zh": "A-Levels（普通教育高级程度证书）"
+  },
+  "grade": {
+    "en": "Results: A*AAB",
+    "zh": "成绩: A*AAB"
+  },
+  "modules": {
+    "en": "Subjects:",
+    "zh": "科目："
+  },
+  "computing": {
+    "en": "Computing",
+    "zh": "计算机"
+  },
+  "mathematics": {
+    "en": "Mathematics",
+    "zh": "数学"
+  },
+  "chinese": {
+    "en": "Chinese",
+    "zh": "中文"
+  },
+  "physics": {
+    "en": "Physics",
+    "zh": "物理"
+  }
+}

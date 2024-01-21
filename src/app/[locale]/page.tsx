@@ -9,6 +9,7 @@ import WtcLogo from "../../logos/wtc-logo";
 import BristolLogo from "../../logos/bristol-logo";
 import AGSB from "../../logos/AGSB.webp";
 import NottinghamLogo from "../../logos/nottingham-logo";
+import { getLocalePath } from "../../utils/pathname";
 import translations from "./translations.json";
 
 export async function generateStaticParams() {
@@ -35,15 +36,16 @@ export default function Home({ params }: PageProps) {
           <ExperienceCard
             logo={<CitadelLogo style={styles.experienceSvg} />}
             dates={t("citadelDate")}
-            href="/"
+            href={getLocalePath("/experiences/citadel", params.locale)}
             locale={params.locale}
             style={styles.card}
             aria-label={t("citadelLabel")}
+            scroll
           />
           <ExperienceCard
             logo={<SpotifyLogo style={styles.experienceSvg} />}
             dates={t("spotifyDate")}
-            href="/"
+            href={getLocalePath("/experiences/spotify", params.locale)}
             locale={params.locale}
             style={styles.card}
             aria-label={t("spotifyLabel")}
@@ -51,7 +53,10 @@ export default function Home({ params }: PageProps) {
           <ExperienceCard
             logo={<WtcLogo />}
             dates={t("wtcDate")}
-            href="/"
+            href={getLocalePath(
+              "/experiences/wunderman-thompson-commerce",
+              params.locale
+            )}
             locale={params.locale}
             style={styles.card}
             aria-label={t("wtcLabel")}
@@ -65,7 +70,11 @@ export default function Home({ params }: PageProps) {
             logo={<BristolLogo title={t("uob")} style={styles.educationSvg} />}
             name={t("uob")}
             dates={t("uobDate")}
-            href="/"
+            href={
+              params.locale === "en"
+                ? "/education/university-of-bristol"
+                : `/${params.locale}/education/university-of-bristol`
+            }
             locale={params.locale}
             style={styles.card}
           />
@@ -75,7 +84,11 @@ export default function Home({ params }: PageProps) {
             }
             name={t("uon")}
             dates={t("uonDate")}
-            href="/"
+            href={
+              params.locale === "en"
+                ? "/education/university-of-nottingham"
+                : `/${params.locale}/education/university-of-nottingham`
+            }
             locale={params.locale}
             style={styles.card}
           />
@@ -83,7 +96,11 @@ export default function Home({ params }: PageProps) {
             logo={{ src: AGSB, alt: t("agsb") }}
             name={t("agsb")}
             dates={t("agsbDate")}
-            href="/"
+            href={
+              params.locale === "en"
+                ? "/education/altrincham-grammar-school-for-boys"
+                : `/${params.locale}/education/altrincham-grammar-school-for-boys`
+            }
             locale={params.locale}
             style={styles.card}
           />
@@ -95,6 +112,7 @@ export default function Home({ params }: PageProps) {
 
 const sm: Breakpoints["sm"] =
   "@media (min-width: 320px) and (max-width: 767px)";
+const minSm: Breakpoints["minSm"] = "@media (min-width: 320px)";
 const md: Breakpoints["md"] =
   "@media (min-width: 768px) and (max-width: 1079px)";
 const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
@@ -102,7 +120,7 @@ const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
 
 const styles = stylex.create({
   headlineContainer: {
-    padding: { default: "0 0 3rem", [sm]: "0 0 5rem", [minMd]: "0 0 7rem" },
+    padding: { default: "0 0 3rem", [minSm]: "0 0 5rem" },
   },
   headline: {
     margin: "0 0 1rem 0",

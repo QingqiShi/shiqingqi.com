@@ -1,0 +1,54 @@
+{
+  "title": {
+    "en": "Education at University of Nottingham",
+    "zh": "诺丁汉大学 教育"
+  },
+  "description": {
+    "en": "Qingqi graduated from the University of Nottingham with a First-class Honours degree in BSc Computer Science.",
+    "zh": "石清琪毕业于诺丁哈大学，取得了《计算机科学》荣誉理学学士。"
+  },
+  "schoolName": {
+    "en": "University of Nottingham",
+    "zh": "诺丁汉大学"
+  },
+  "date": {
+    "en": "Sep 2013 - Jul 2016",
+    "zh": "2013年9月 - 2016年7月"
+  },
+  "course": {
+    "en": "BSc Hons Computer Science",
+    "zh": "荣誉理学学士 - 计算机科学"
+  },
+  "grade": {
+    "en": "Grade: First-class Honours",
+    "zh": "学位等级：一等荣誉学位"
+  },
+  "modules": {
+    "en": "Core Courses:",
+    "zh": "核心科目："
+  },
+  "dataStructures": {
+    "en": "Data Structures",
+    "zh": "数据结构"
+  },
+  "algorithms": {
+    "en": "Algorithms",
+    "zh": "算法"
+  },
+  "database": {
+    "en": "Database",
+    "zh": "数据库"
+  },
+  "security": {
+    "en": "Security",
+    "zh": "信息安全"
+  },
+  "network": {
+    "en": "Network",
+    "zh": "网络"
+  },
+  "society": {
+    "en": "Extra: Chinese Students and Scholars Association, IT Officer",
+    "zh": "社团：中国学生学者联谊会 IT 部长"
+  }
+}

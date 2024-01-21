@@ -18,6 +18,10 @@
 @layer global;
 
 @layer global {
+  html {
+    height: 100%;
+  }
+
   body * {
     box-sizing: inherit;
   }

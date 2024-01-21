@@ -1,0 +1,26 @@
+{
+  "title": {
+    "en": "Software Engineer at Citadel - Crafting Dashboard Web Apps for the Financial Sector",
+    "zh": "Citadel 的软件工程师 - 为金融行业打造仪表盘Web应用"
+  },
+  "description": {
+    "en": "Discover how Qingqi Shi, a software engineer at Citadel, develops dashboard web applications for the financial sector using React, TypeScript, and AG Grid.",
+    "zh": "了解石清琪在 Citadel 担任软件工程师的经历，他使用 React、TypeScript 和 AG Grid 为金融行业开发仪表盘 Web 应用。"
+  },
+  "role": {
+    "en": "Software Engineer",
+    "zh": "软件工程师"
+  },
+  "date": {
+    "en": "Aug 2021 - Now",
+    "zh": "2021年8月 至今"
+  },
+  "responsibilities": {
+    "en": "At Citadel, I work as a software engineer, focusing on developing dashboard web applications that provide interactive data insights for traders and management. These applications enable better decision-making and help improve daily work processes in the financial sector. As my first experience in the finance industry, I've taken the opportunity to broaden my knowledge in this domain.",
+    "zh": "在 Citadel，我担任软件工程师，专注于开发仪表盘 Web 应用，为交易员和管理层提供交互式数据洞察。这些应用有助于更好的决策，并帮助金融行业改进日常工作流程。作为我在金融行业的第一次经历，我借此机会扩展了我在这个领域的知识。"
+  },
+  "techStack": {
+    "en": "My expertise lies in front-end technologies, and I primarily work with the following tools",
+    "zh": "我专攻前端技术，并主要使用以下工具："
+  }
+}
