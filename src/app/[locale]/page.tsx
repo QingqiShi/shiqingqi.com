@@ -153,6 +153,8 @@ const styles = stylex.create({
     transition: "fill .2s",
   },
   educationSvg: {
+    height: "100%",
+    maxWidth: "100%",
     transition: "fill .2s",
   },
 });
