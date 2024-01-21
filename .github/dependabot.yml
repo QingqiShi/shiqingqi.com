@@ -17,7 +17,17 @@ updates:
     groups:
       stylex:
         patterns:
-        - "^@stylex*"
+        - "@stylex*"
+      typescript-eslint:
+        patterns:
+        - "@typescript-eslint/eslint-plugin
+        - "@typescript-eslint/parser
+      react:
+        patterns:
+        - react
+        - react-dom
+        - "@types/react"
+        - "@types/react-dom"
 
   - package-ecosystem: 'github-actions'
     directory: '/'
