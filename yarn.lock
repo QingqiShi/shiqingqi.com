@@ -691,10 +691,20 @@
   dependencies:
     postcss-value-parser "^4.1.0"
 
-"@stylexjs/stylex@0.5.0-alpha.3", "@stylexjs/stylex@^0.5.0-alpha.3":
+"@stylexjs/stylex@0.5.0-alpha.3":
   version "0.5.0-alpha.3"
   resolved "https://registry.yarnpkg.com/@stylexjs/stylex/-/stylex-0.5.0-alpha.3.tgz#0144f3eeb01733de7845d491ba0f2a3ed3a4358f"
   integrity sha512-OYHdIFjXvHYsPfmCRgLfwVnOxC7XhUga3Z3EWChkexfZIZIRx2WgLXhQeDndAizzp5hd2DsyLjX/zneJG1xsMQ==
+  dependencies:
+    css-mediaquery "^0.1.2"
+    invariant "^2.2.4"
+    styleq "0.1.3"
+    utility-types "^3.10.0"
+
+"@stylexjs/stylex@^0.5.0-alpha.4":
+  version "0.5.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/@stylexjs/stylex/-/stylex-0.5.0-alpha.4.tgz#cdc27e11410ff2f719c809ed973f83c7efdf5da4"
+  integrity sha512-yDyAo0PJi/jJ9rcKJsW5lhsn1CaU6M6jnAcKg8/kLv+fP/tr6azTu9cLIW8w40MvZ4Y+2kCLrar3KSYEzeuF6w==
   dependencies:
     css-mediaquery "^0.1.2"
     invariant "^2.2.4"
