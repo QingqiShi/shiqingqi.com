@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { getTranslations } from "../translations/getTranslations";
 import type { Breakpoints, LayoutProps, PageProps } from "../../types";
 import { Header } from "../../server-components/header";
@@ -24,6 +25,10 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default function RootLayout({ children, params }: LayoutProps) {
+  if (params.locale !== "en" && params.locale !== "zh") {
+    redirect("/");
+  }
+
   return (
     <html lang={params.locale} suppressHydrationWarning>
       <head>
