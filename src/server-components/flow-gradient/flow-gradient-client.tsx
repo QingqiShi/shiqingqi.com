@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import * as stylex from "@stylexjs/stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { tokens } from "../../tokens.stylex";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useMediaQuery } from "../../hooks/use-media-query";
+import { useTheme } from "../../hooks/use-theme";
 import { init, start } from "./loop";
 
 interface FlowGradientClientProps {
@@ -24,11 +24,9 @@ export function FlowGradientClient({ vs, fs }: FlowGradientClientProps) {
 function Internal({ vs, fs }: FlowGradientClientProps) {
   const [ref, setRef] = useState<HTMLCanvasElement | null>(null);
 
-  const searchParams = useSearchParams();
-  const theme = searchParams.get("theme");
-  const isSystem = theme !== "dark" && theme !== "light";
+  const [theme] = useTheme();
   const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
-  const isDark = isSystem ? preferDark : theme === "dark";
+  const isDark = theme === "system" ? preferDark : theme === "dark";
 
   useEffect(() => {
     if (ref) {

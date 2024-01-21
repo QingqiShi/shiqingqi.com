@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowClockwise, Moon, Sun } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { getDocumentClassName } from "../app/globalStyles";
-import { useMediaQuery } from "../hooks/useMediaQuery";
+import { useMediaQuery } from "../hooks/use-media-query";
 import { Button } from "../server-components/button";
 import { tokens } from "../tokens.stylex";
+import { useTheme } from "../hooks/use-theme";
+import { getDocumentClassName } from "../app/globalStyles";
 import { Switch } from "./switch";
 import type { SwitchState } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";
@@ -23,29 +23,23 @@ interface ThemeSwitchProps {
 }
 
 export function ThemeSwitch({ labels }: ThemeSwitchProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const theme = searchParams.get("theme");
-  const isSystem = theme !== "dark" && theme !== "light";
+  const [theme, setTheme] = useTheme();
+  useEffect(() => {
+    document.documentElement.className = getDocumentClassName(theme);
+  }, [theme]);
 
   const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
 
   const [hasFocus, setHasFocus] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    document.documentElement.className = getDocumentClassName(theme);
-  }, [theme]);
-
   return (
     <div
       ref={containerRef}
       {...stylex.props(
         styles.container,
-        isSystem && styles.hideSystemButton,
-        !isSystem && hasFocus && styles.showSystemButton
+        theme === "system" && styles.hideSystemButton,
+        theme !== "system" && hasFocus && styles.showSystemButton
       )}
       onFocus={() => {
         setHasFocus(true);
@@ -68,25 +62,21 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
       <Switch
         id="theme-switch"
         value={
-          isSystem ? themeMap[preferDark ? "dark" : "light"] : themeMap[theme]
+          theme === "system"
+            ? themeMap[preferDark ? "dark" : "light"]
+            : themeMap[theme]
         }
         onChange={(state) => {
           if (state === "on") {
-            const params = new URLSearchParams(searchParams);
-            params.set("theme", "dark");
-            router.replace(`${pathname}?${params.toString()}`, {
-              scroll: false,
-            });
+            setTheme("dark");
           } else {
-            const params = new URLSearchParams(searchParams);
-            params.set("theme", "light");
-            router.replace(`${pathname}?${params.toString()}`, {
-              scroll: false,
-            });
+            setTheme("light");
           }
         }}
         aria-label={
-          labels[isSystem ? (preferDark ? 0 : 1) : theme === "dark" ? 0 : 1]
+          labels[
+            theme === "system" ? (preferDark ? 0 : 1) : theme === "dark" ? 0 : 1
+          ]
         }
         style={styles.switch}
       />
@@ -94,15 +84,12 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         <Button
           role="radio"
           aria-label={labels[2]}
-          aria-checked={isSystem}
+          aria-checked={theme === "system"}
           onClick={() => {
-            const params = new URLSearchParams(searchParams);
-            params.delete("theme");
-            router.replace(`${pathname}?${params.toString()}`, {
-              scroll: false,
-            });
+            setTheme("system");
           }}
-          disabled={isSystem}
+          disabled={theme === "system"}
+          title={labels[2]}
         >
           <ArrowClockwise weight="fill" />
         </Button>

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { getTranslations } from "../translations/getTranslations";
 import type { Breakpoints, LayoutProps, PageProps } from "../../types";
 import { Header } from "../../server-components/header";
-import { getDocumentClassName, globalStyles } from "../globalStyles";
+import { globalStyles } from "../globalStyles";
 import { tokens } from "../../tokens.stylex";
 import { Footer } from "../../server-components/footer";
 import { FlowGradient } from "../../server-components/flow-gradient";
+import { themeHack } from "../../utils/theme-hack";
 import translations from "./translations.json";
 
 export async function generateMetadata({ params }: PageProps) {
@@ -23,9 +23,8 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default function RootLayout({ children, params }: LayoutProps) {
-  const initialTheme = cookies().get("theme")?.value;
   return (
-    <html lang={params.locale} className={getDocumentClassName(initialTheme)}>
+    <html lang={params.locale} suppressHydrationWarning>
       <head>
         <link
           rel="preload"
@@ -36,6 +35,7 @@ export default function RootLayout({ children, params }: LayoutProps) {
         />
       </head>
       <body {...stylex.props(globalStyles.global, globalStyles.body)}>
+        <script dangerouslySetInnerHTML={{ __html: themeHack }} />
         <div {...stylex.props(styles.flowGradient)}>
           <Suspense fallback={<></>}>
             <FlowGradient />
