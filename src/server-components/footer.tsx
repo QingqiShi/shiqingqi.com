@@ -54,7 +54,7 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingBottom: "3rem",
-    marginTop: { default: "3rem", [minSm]: "5rem" },
+    marginTop: { default: "4rem", [minSm]: "7rem" },
   },
   section: {
     alignItems: { default: null, [minMd]: "center" },

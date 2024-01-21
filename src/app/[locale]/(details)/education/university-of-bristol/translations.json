@@ -1,0 +1,50 @@
+{
+  "title": {
+    "en": "Education at University of Bristol",
+    "zh": "布里斯托大学 教育"
+  },
+  "description": {
+    "en": "Qingqi graduated from the University of Bristol with a Merit in MSc Advanced Computing - Creative Technology.",
+    "zh": "石清琪毕业于布里斯托大学，取得了《高级计算机 创新技术》理学硕士。"
+  },
+  "schoolName": {
+    "en": "University of Bristol",
+    "zh": "布里斯托大学"
+  },
+  "date": {
+    "en": "Sep 2016 - Jan 2018",
+    "zh": "2016年9月 - 2018年1月"
+  },
+  "course": {
+    "en": "MSc Advanced Computing - Creative Technology",
+    "zh": "理学硕士 - 高级计算机 创新技术"
+  },
+  "grade": {
+    "en": "Grade: Merit",
+    "zh": "学位等级：优等"
+  },
+  "modules": {
+    "en": "Core Courses:",
+    "zh": "核心科目："
+  },
+  "webDevelopment": {
+    "en": "Web Development",
+    "zh": "网络开发"
+  },
+  "graphics": {
+    "en": "Graphics",
+    "zh": "图形学"
+  },
+  "animation": {
+    "en": "Animation",
+    "zh": "动画"
+  },
+  "robotics": {
+    "en": "Robotics",
+    "zh": "机械"
+  },
+  "exampleProjects": {
+    "en": "Example Projects:",
+    "zh": "项目:"
+  }
+}

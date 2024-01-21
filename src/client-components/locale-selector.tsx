@@ -8,6 +8,8 @@ import { useClickAway } from "../hooks/useClickAway";
 import { Button } from "../server-components/button";
 import { tokens } from "../tokens.stylex";
 import { Anchor } from "../server-components/anchor";
+import type { SupportedLocale } from "../types";
+import { getLocalePath, getPathWithSearch } from "../utils/pathname";
 
 /*
  * When route changes (on selecting a different locale) the entire page will unmount, as a result states will
@@ -27,9 +29,10 @@ function setIsMenuShown(newState: boolean) {
 
 interface LocaleSelectorProps {
   label: string;
+  locale: SupportedLocale;
 }
 
-export function LocaleSelector({ label }: LocaleSelectorProps) {
+export function LocaleSelector({ label, locale }: LocaleSelectorProps) {
   const isMenuShown = useSyncExternalStore(
     subscribe,
     () => isMenuShownSingleton,
@@ -42,8 +45,6 @@ export function LocaleSelector({ label }: LocaleSelectorProps) {
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const searchString = searchParams.toString();
-  const isZhActive = pathname.startsWith("/zh");
 
   return (
     <div {...stylex.props(styles.container)}>
@@ -72,17 +73,23 @@ export function LocaleSelector({ label }: LocaleSelectorProps) {
           label="English"
           flag="🇬🇧"
           ariaLabel="Switch to English"
-          href={`/${searchString ? `?${searchString}` : ""}`}
+          href={getPathWithSearch(
+            getLocalePath(pathname, "en"),
+            searchParams.toString()
+          )}
           tabIndex={!isMenuShown ? -1 : undefined}
-          isActive={!isZhActive}
+          isActive={locale === "en"}
         />
         <Item
           label="中文"
           flag="🇨🇳"
           ariaLabel="切换至中文"
-          href={`/zh${searchString ? `?${searchString}` : ""}`}
+          href={getPathWithSearch(
+            getLocalePath(pathname, "zh"),
+            searchParams.toString()
+          )}
           tabIndex={!isMenuShown ? -1 : undefined}
-          isActive={isZhActive}
+          isActive={locale === "zh"}
         />
       </div>
     </div>
