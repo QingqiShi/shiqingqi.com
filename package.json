@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "clean": "rimraf .next",
-    "predev": "npm run clean",
-    "prebuild": "npm run clean",
+    "predev": "yarn clean",
+    "prebuild": "yarn clean",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -15,6 +15,7 @@
     "@mui/utils": "^5.15.4",
     "@phosphor-icons/react": "^2.0.15",
     "@stylexjs/stylex": "^0.5.0-alpha.3",
+    "@vercel/analytics": "^1.1.2",
     "lodash-es": "^4.17.21",
     "next": "14.0.4",
     "react": "^18",

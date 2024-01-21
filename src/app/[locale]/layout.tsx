@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { getTranslations } from "../translations/getTranslations";
@@ -70,6 +71,7 @@ export default function RootLayout({ children, params }: LayoutProps) {
             <Footer locale={params.locale} />
           </div>
         </div>
+        <Analytics />
       </body>
     </html>
   );
