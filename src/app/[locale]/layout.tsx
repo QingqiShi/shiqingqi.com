@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
@@ -77,6 +78,7 @@ export default function RootLayout({ children, params }: LayoutProps) {
           </div>
         </div>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
