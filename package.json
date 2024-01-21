@@ -14,7 +14,7 @@
   "dependencies": {
     "@mui/utils": "^5.15.5",
     "@phosphor-icons/react": "^2.0.15",
-    "@stylexjs/stylex": "^0.5.0-alpha.3",
+    "@stylexjs/stylex": "^0.5.0-alpha.4",
     "@vercel/analytics": "^1.1.2",
     "@vercel/speed-insights": "1.0.4",
     "i": "^0.3.7",
@@ -28,9 +28,9 @@
     "twgl.js": "^5.5.3"
   },
   "devDependencies": {
-    "@stylexjs/babel-plugin": "^0.5.0-alpha.3",
-    "@stylexjs/eslint-plugin": "^0.5.0-alpha.3",
-    "@stylexjs/nextjs-plugin": "^0.5.0-alpha.3",
+    "@stylexjs/babel-plugin": "^0.5.0-alpha.4",
+    "@stylexjs/eslint-plugin": "^0.5.0-alpha.4",
+    "@stylexjs/nextjs-plugin": "^0.5.0-alpha.4",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20",
     "@types/react": "^18",
