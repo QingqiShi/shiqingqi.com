@@ -10,7 +10,7 @@ export default function Page({ params }: PageProps) {
     <>
       <PageTitle
         locale={params.locale}
-        type="experience"
+        type="education"
         title={t("schoolName")}
         role={t("course")}
         date={t("date")}
