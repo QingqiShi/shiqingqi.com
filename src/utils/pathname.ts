@@ -18,7 +18,3 @@ export function getLocalePath(
   if (locale === defaultLocale) return normalizedPathname;
   return `/${locale}${normalizedPathname === "/" ? "" : normalizedPathname}`;
 }
-
-export function getPathWithSearch(pathname: string, searchString: string) {
-  return [pathname, searchString || undefined].filter(Boolean).join("?");
-}

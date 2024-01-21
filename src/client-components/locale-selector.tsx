@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useSyncExternalStore } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import * as stylex from "@stylexjs/stylex";
 import { Translate } from "@phosphor-icons/react";
-import { useClickAway } from "../hooks/useClickAway";
+import { useClickAway } from "../hooks/use-click-away";
 import { Button } from "../server-components/button";
 import { tokens } from "../tokens.stylex";
 import { Anchor } from "../server-components/anchor";
 import type { SupportedLocale } from "../types";
-import { getLocalePath, getPathWithSearch } from "../utils/pathname";
+import { getLocalePath } from "../utils/pathname";
 
 /*
  * When route changes (on selecting a different locale) the entire page will unmount, as a result states will
@@ -44,7 +44,6 @@ export function LocaleSelector({ label, locale }: LocaleSelectorProps) {
   );
 
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   return (
     <div {...stylex.props(styles.container)}>
@@ -73,10 +72,7 @@ export function LocaleSelector({ label, locale }: LocaleSelectorProps) {
           label="English"
           flag="🇬🇧"
           ariaLabel="Switch to English"
-          href={getPathWithSearch(
-            getLocalePath(pathname, "en"),
-            searchParams.toString()
-          )}
+          href={getLocalePath(pathname, "en")}
           tabIndex={!isMenuShown ? -1 : undefined}
           isActive={locale === "en"}
         />
@@ -84,10 +80,7 @@ export function LocaleSelector({ label, locale }: LocaleSelectorProps) {
           label="中文"
           flag="🇨🇳"
           ariaLabel="切换至中文"
-          href={getPathWithSearch(
-            getLocalePath(pathname, "zh"),
-            searchParams.toString()
-          )}
+          href={getLocalePath(pathname, "zh")}
           tabIndex={!isMenuShown ? -1 : undefined}
           isActive={locale === "zh"}
         />

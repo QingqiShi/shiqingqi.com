@@ -9,7 +9,6 @@ export type SupportedTheme = "light" | "dark" | "system";
 
 export interface PageProps {
   params: { locale: SupportedLocale };
-  searchParams: { theme: SupportedTheme };
 }
 
 export interface LayoutProps extends Pick<PageProps, "params"> {

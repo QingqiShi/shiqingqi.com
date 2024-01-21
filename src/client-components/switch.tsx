@@ -5,7 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import useEventCallback from "@mui/utils/useEventCallback";
 import useControlled from "@mui/utils/useControlled";
 import { tokens } from "../tokens.stylex";
-import { useDebouncedFunction } from "../hooks/useDebouncedFunction";
+import { useDebouncedFunction } from "../hooks/use-debounced-function";
 import type { StyleProp } from "../types";
 import { switchTokens } from "./switch.stylex";
 
