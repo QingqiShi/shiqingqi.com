@@ -12,7 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@mui/utils": "^5.15.4",
+    "@mui/utils": "^5.15.5",
     "@phosphor-icons/react": "^2.0.15",
     "@stylexjs/stylex": "^0.5.0-alpha.3",
     "@vercel/analytics": "^1.1.2",
