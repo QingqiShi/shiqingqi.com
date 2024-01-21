@@ -666,10 +666,10 @@
     "@stylexjs/shared" "0.5.0-alpha.3"
     "@stylexjs/stylex" "0.5.0-alpha.3"
 
-"@stylexjs/eslint-plugin@^0.5.0-alpha.3":
-  version "0.5.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@stylexjs/eslint-plugin/-/eslint-plugin-0.5.0-alpha.3.tgz#09f93b55dbc34f30738ceb30289f21eeb680ba86"
-  integrity sha512-/zo4LYqTV+5a+YyL4Mi2LRbtphzpS8GqNdFVV3XIuQPBVdVuv0/UgoQut2jKi5HoYel1qtBYV8jMK37rbaKOhw==
+"@stylexjs/eslint-plugin@^0.5.0-alpha.4":
+  version "0.5.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/@stylexjs/eslint-plugin/-/eslint-plugin-0.5.0-alpha.4.tgz#ce971882670b10a1651202a0e7c5b5bf50656794"
+  integrity sha512-2ldxr5zIy1JOFMz62vdKNkrv7i6dP3KkegVLeOCvedJ/abd+ynaath3Q94cGJMyTKEWwht2lWrSvtFr3iHRHOQ==
   dependencies:
     micromatch "^4.0.5"
 
