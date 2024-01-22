@@ -23,12 +23,24 @@ interface ThemeSwitchProps {
 }
 
 export function ThemeSwitch({ labels }: ThemeSwitchProps) {
+  const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
+
   const [theme, setTheme] = useTheme();
   useEffect(() => {
     document.documentElement.className = getDocumentClassName(theme);
-  }, [theme]);
-
-  const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
+    document
+      .querySelector("meta[name=theme-color]")
+      ?.setAttribute(
+        "content",
+        !theme || theme === "system"
+          ? preferDark
+            ? "#292929"
+            : "#f3eded"
+          : theme === "dark"
+          ? "#292929"
+          : "#f3eded"
+      );
+  }, [preferDark, theme]);
 
   const [hasFocus, setHasFocus] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -62,7 +74,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
       <Switch
         id="theme-switch"
         value={
-          theme === "system"
+          !theme || theme === "system"
             ? themeMap[preferDark ? "dark" : "light"]
             : themeMap[theme]
         }
@@ -75,7 +87,13 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         }}
         aria-label={
           labels[
-            theme === "system" ? (preferDark ? 0 : 1) : theme === "dark" ? 0 : 1
+            !theme || theme === "system"
+              ? preferDark
+                ? 0
+                : 1
+              : theme === "dark"
+              ? 0
+              : 1
           ]
         }
         style={styles.switch}
@@ -84,11 +102,11 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         <Button
           role="radio"
           aria-label={labels[2]}
-          aria-checked={theme === "system"}
+          aria-checked={!theme || theme === "system"}
           onClick={() => {
             setTheme("system");
           }}
-          disabled={theme === "system"}
+          disabled={!theme || theme === "system"}
           title={labels[2]}
         >
           <ArrowClockwise weight="fill" />
