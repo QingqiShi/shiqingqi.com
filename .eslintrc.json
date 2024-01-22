@@ -18,5 +18,5 @@
     "import/order": "error",
     "one-var": ["error", "never"]
   },
-  "ignorePatterns": ["next.config.js"]
+  "ignorePatterns": ["next.config.js", "public/sw.js"]
 }

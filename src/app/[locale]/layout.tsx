@@ -22,6 +22,8 @@ export async function generateMetadata({ params }: PageProps) {
       template: t("titleTemplate"),
     },
     description: t("description"),
+    applicationName: t("title"),
+    manifest: "/manifest.json",
   } satisfies Metadata;
 }
 
