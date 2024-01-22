@@ -28,6 +28,9 @@ updates:
         - react-dom
         - "@types/react"
         - "@types/react-dom"
+      serwist:
+        patterns:
+        - "@serwist*"
 
   - package-ecosystem: 'github-actions'
     directory: '/'
