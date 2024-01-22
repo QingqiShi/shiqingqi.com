@@ -1,0 +1,21 @@
+{
+  "name": "Qingqi Shi",
+  "short_name": "Qingqi",
+  "description": "Qingqi is a software engineer based in London, UK. He is currently working at Citadel and specializes in front-end technologies. Qingqi value craftsman's spirit. Like craftsmen, he tries to live his life with perfection, precision and patience.",
+  "icons": [
+    { "src": "pwa-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "pwa-512x512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#f3eded",
+  "background_color": "#FFFFFF",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "en"
+}
