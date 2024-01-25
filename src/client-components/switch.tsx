@@ -153,7 +153,7 @@ export function Switch({
   );
 }
 
-const THUMB_SIZE = "1.5rem";
+const THUMB_SIZE = "36px";
 const TRACK_SIZE = `calc(${THUMB_SIZE} * 2)`;
 
 const styles = stylex.create({
@@ -179,7 +179,7 @@ const styles = stylex.create({
       ":hover": { "::before": tokens.shadowHighlight },
     },
     position: "relative",
-    padding: "0.1rem",
+    padding: "2.4px",
     display: "flex",
     transition: `background-color 0.2s ease`,
     cursor: "pointer",

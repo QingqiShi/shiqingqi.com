@@ -19,14 +19,14 @@ const styles = stylex.create({
     borderStyle: "none",
     appearance: "none",
     boxSizing: "content-box",
-    fontSize: "0.8rem",
+    fontSize: "19px",
     cursor: { default: "pointer", ":disabled": "not-allowed" },
 
     // Custom styles
-    blockSize: "1.5rem",
-    borderRadius: "1.5rem",
-    paddingVertical: "0.1rem",
-    paddingHorizontal: "0.7rem",
+    blockSize: "36px",
+    borderRadius: "36px",
+    paddingVertical: "2.4px",
+    paddingHorizontal: "16.8px",
     color: tokens.textMain,
     backgroundColor: {
       default: tokens.backgroundRaised,
