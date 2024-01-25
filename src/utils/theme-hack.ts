@@ -11,14 +11,14 @@ export const themeHack = `(function(){
         meta.setAttribute("name", "theme-color");
         if (theme === "dark") {
             document.documentElement.className = "${darkClassName}";
-            meta.setAttribute("content", "#292929");
+            meta.setAttribute("content", "#000000");
         } else if (theme === "light") {
             document.documentElement.className = "${lightClassName}";
-            meta.setAttribute("content", "#f3eded");
+            meta.setAttribute("content", "#ffffff");
         } else {
             document.documentElement.className = "${systemClassName}";
             const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            meta.setAttribute("content", isDark ? "#292929" : "#f3eded");
+            meta.setAttribute("content", isDark ? "#000000" : "#ffffff");
         }
         document.head.appendChild(meta);
     }catch(t){}
