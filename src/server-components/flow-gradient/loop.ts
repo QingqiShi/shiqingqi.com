@@ -91,12 +91,32 @@ export function start(
       bufferInfo = getBufferInfo(context, gl.canvas.width, gl.canvas.height);
     }
 
+    const smDpi = window.devicePixelRatio;
+    const mdBreakpoint = 768 * window.devicePixelRatio;
+    const mdDpi =
+      window.devicePixelRatio + (gl.canvas.width / mdBreakpoint - 1);
+    const lgBreakpoint = 1080 * window.devicePixelRatio;
+    const lgDpi =
+      window.devicePixelRatio +
+      (lgBreakpoint / mdBreakpoint - 1) +
+      (gl.canvas.width / lgBreakpoint - 1);
+    const xlBreakpoint = 2000 * window.devicePixelRatio;
+    const xlDpi =
+      window.devicePixelRatio +
+      (lgBreakpoint / mdBreakpoint - 1) +
+      (xlBreakpoint / lgBreakpoint - 1) +
+      (gl.canvas.width / xlBreakpoint - 1);
+
     const uniforms = {
       u_resolution: [gl.canvas.width, gl.canvas.height],
       u_dpi:
-        gl.canvas.width < 1800
-          ? window.devicePixelRatio
-          : gl.canvas.width / 1800,
+        gl.canvas.width < mdBreakpoint
+          ? smDpi
+          : gl.canvas.width < lgBreakpoint
+          ? mdDpi
+          : gl.canvas.width < xlBreakpoint
+          ? lgDpi
+          : xlDpi,
       u_time: t,
       u_colorTop: colorTop,
       u_colorBottom: colorBottom,

@@ -9,6 +9,7 @@ const withStylex = stylexPlugin({
 const withSerwist = serwistPlugin({
   swSrc: "src/sw.ts",
   swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
 });
 
 /** @type {import('next').NextConfig} */

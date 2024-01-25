@@ -22,6 +22,7 @@ export const globalStyles = stylex.create({
     },
     backgroundColor: tokens.backgroundMain,
     colorScheme: tokens.colorScheme,
+    minHeight: "100dvh",
   },
   body: {
     boxSizing: "border-box",
@@ -29,6 +30,7 @@ export const globalStyles = stylex.create({
     fontFamily: tokens.fontFamily,
     WebkitFontSmoothing: "antialiased",
     MozOsxFontSmoothing: "grayscale",
+    position: "relative",
   },
 });
 

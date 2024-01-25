@@ -34,11 +34,11 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         "content",
         !theme || theme === "system"
           ? preferDark
-            ? "#292929"
-            : "#f3eded"
+            ? "#000000"
+            : "#ffffff"
           : theme === "dark"
-          ? "#292929"
-          : "#f3eded"
+          ? "#000000"
+          : "#ffffff"
       );
   }, [preferDark, theme]);
 

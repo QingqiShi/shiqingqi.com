@@ -45,12 +45,15 @@ const styles = stylex.create({
     boxShadow: { default: tokens.shadowNone, ":hover": tokens.shadowRaised },
     backgroundColor: {
       default: "transparent",
-      ":hover": tokens.backgroundRaised,
+      ":hover": tokens.backgroundTranslucent,
     },
     transform: {
       default: null,
       ":hover": "scale(1.05) translate3d(0, -0.2rem, 0)",
     },
+    // eslint-disable-next-line @stylexjs/valid-styles
+    "--webkit-backdrop-filter": { default: null, ":hover": "blur(2rem)" },
+    backdropFilter: { default: null, ":hover": "blur(2rem)" },
 
     [cardTokens.imageFilter]: {
       default: "grayscale(100%)",
