@@ -45,15 +45,15 @@ export default function RootLayout({ children, params }: LayoutProps) {
       </head>
       <body {...stylex.props(globalStyles.global, globalStyles.body)}>
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-        <div {...stylex.props(styles.flowGradient)}>
+        <div {...stylex.props(styles.flowGradient)} role="presentation">
           <Suspense fallback={<></>}>
             <FlowGradient />
           </Suspense>
         </div>
-        <div {...stylex.props(styles.maskContainer)}>
+        <div {...stylex.props(styles.maskContainer)} role="presentation">
           <div {...stylex.props(styles.mask)} />
         </div>
-        <div {...stylex.props(styles.glowContainer)}>
+        <div {...stylex.props(styles.glowContainer)} role="presentation">
           <div {...stylex.props(styles.glow)} />
         </div>
         <div {...stylex.props(styles.container)}>

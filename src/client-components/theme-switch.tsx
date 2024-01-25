@@ -120,7 +120,7 @@ const styles = stylex.create({
   container: {
     display: "inline-block",
     position: "relative",
-    [themeSwitchTokens.systemLeft]: { default: null, ":hover": "-2.5rem" },
+    [themeSwitchTokens.systemLeft]: { default: null, ":hover": "-60px" },
     [themeSwitchTokens.systemOpacity]: { default: null, ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": "all" },
   },
@@ -130,7 +130,7 @@ const styles = stylex.create({
     [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": null },
   },
   showSystemButton: {
-    [themeSwitchTokens.systemLeft]: { default: "-2.5rem", ":hover": "-2.5rem" },
+    [themeSwitchTokens.systemLeft]: { default: "-60px", ":hover": "-60px" },
     [themeSwitchTokens.systemOpacity]: { default: "1", ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: {
       default: "all",
@@ -147,7 +147,7 @@ const styles = stylex.create({
     bottom: 0,
     display: "flex",
     alignItems: "center",
-    padding: "0.4rem",
+    padding: "9.6px",
     pointerEvents: "none",
   },
   moon: {
@@ -159,7 +159,7 @@ const styles = stylex.create({
   systemButton: {
     position: "absolute",
     top: 0,
-    paddingRight: "0.5rem",
+    paddingRight: "12px",
     left: 0,
     transition: "transform 0.2s ease, opacity 0.2s ease",
     transform: `translateX(${themeSwitchTokens.systemLeft})`,
