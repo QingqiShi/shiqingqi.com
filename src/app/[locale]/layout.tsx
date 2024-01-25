@@ -35,13 +35,15 @@ export default function RootLayout({ children, params }: LayoutProps) {
   return (
     <html lang={params.locale} suppressHydrationWarning>
       <head>
-        <link
-          rel="preload"
-          href="./InterVariable.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        {params.locale === "en" && (
+          <link
+            rel="preload"
+            href="./InterVariableOptimized.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body {...stylex.props(globalStyles.global, globalStyles.body)}>
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
