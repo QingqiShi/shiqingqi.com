@@ -5,9 +5,10 @@ const DARK = "@media (prefers-color-scheme: dark)";
 const lightThemeTokens = {
   textMain: "#292929",
   textMuted: "#505050",
-  backgroundMain: "#f3eded",
+  backgroundMain: "#ffffff",
   backgroundRaised: "#f7f1f1",
   backgroundHover: "#e6dddd",
+  backgroundTranslucent: "rgba(0, 0, 0, 0.01)",
   controlTrack: "#ccc5c5",
   controlThumb: "#ffffff",
   controlActive: "#7e10c2",
@@ -18,6 +19,9 @@ const lightThemeTokens = {
   wtcLogoLetterFill: "#0a47ed",
   bristolLogoFill: "#bf2f38",
   nottinghamLogoFill: "#005480",
+  maskBlendMode: "screen",
+  maskOpacity: "0.8",
+  glowOpacity: "0.1",
 };
 
 export const tokens = stylex.defineVars({
@@ -46,9 +50,10 @@ export const tokens = stylex.defineVars({
 const darkThemeTokens = {
   textMain: "#f3eded",
   textMuted: "#bbbbbb",
-  backgroundMain: "#292929",
-  backgroundRaised: "#414141",
+  backgroundMain: "#000000",
+  backgroundRaised: "#292929",
   backgroundHover: "#535353",
+  backgroundTranslucent: "rgba(255, 255, 255, 0.1)",
   controlTrack: "#414141",
   controlThumb: "#bbbbbb",
   controlActive: "#933bc9",
@@ -59,6 +64,9 @@ const darkThemeTokens = {
   wtcLogoLetterFill: "#8dacff",
   bristolLogoFill: "#ff535d",
   nottinghamLogoFill: "#0098e7",
+  maskBlendMode: "multiply",
+  maskOpacity: "0.7",
+  glowOpacity: "0.2",
 };
 
 export const darkTheme = stylex.createTheme(tokens, darkThemeTokens);
@@ -83,6 +91,10 @@ export const systemTheme = stylex.createTheme(tokens, {
   backgroundHover: {
     default: lightThemeTokens.backgroundHover,
     [DARK]: darkThemeTokens.backgroundHover,
+  },
+  backgroundTranslucent: {
+    default: lightThemeTokens.backgroundTranslucent,
+    [DARK]: darkThemeTokens.backgroundTranslucent,
   },
   controlTrack: {
     default: lightThemeTokens.controlTrack,
@@ -123,5 +135,17 @@ export const systemTheme = stylex.createTheme(tokens, {
   nottinghamLogoFill: {
     default: lightThemeTokens.nottinghamLogoFill,
     [DARK]: darkThemeTokens.nottinghamLogoFill,
+  },
+  maskBlendMode: {
+    default: lightThemeTokens.maskBlendMode,
+    [DARK]: darkThemeTokens.maskBlendMode,
+  },
+  maskOpacity: {
+    default: lightThemeTokens.maskOpacity,
+    [DARK]: darkThemeTokens.maskOpacity,
+  },
+  glowOpacity: {
+    default: lightThemeTokens.glowOpacity,
+    [DARK]: darkThemeTokens.glowOpacity,
   },
 });

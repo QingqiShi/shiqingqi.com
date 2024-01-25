@@ -35,8 +35,8 @@ function Internal({ vs, fs }: FlowGradientClientProps) {
         return start(
           context,
           isDark
-            ? { colorBackground: [0.161, 0.161, 0.161] }
-            : { colorBackground: [0.953, 0.929, 0.929] }
+            ? { colorBackground: [0, 0, 0] }
+            : { colorBackground: [1, 1, 1] }
         );
       }
     }
