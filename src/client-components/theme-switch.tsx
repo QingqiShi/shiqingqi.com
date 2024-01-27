@@ -28,18 +28,26 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
   const [theme, setTheme] = useTheme();
   useEffect(() => {
     document.documentElement.className = getDocumentClassName(theme);
-    document
-      .querySelector("meta[name=theme-color]")
-      ?.setAttribute(
-        "content",
-        !theme || theme === "system"
-          ? preferDark
-            ? "#000000"
-            : "#ffffff"
-          : theme === "dark"
+    const existingMetaTag = document.querySelector("meta[name=theme-color]");
+    const metaTag = existingMetaTag ?? document.createElement("meta");
+
+    // When the route changes, Next will replace the head content, resulting
+    // in the meta tag being removed, when this happens we must add it again.
+    if (!existingMetaTag) {
+      metaTag.setAttribute("name", "theme-color");
+      document.head.appendChild(metaTag);
+    }
+
+    metaTag.setAttribute(
+      "content",
+      !theme || theme === "system"
+        ? preferDark
           ? "#000000"
           : "#ffffff"
-      );
+        : theme === "dark"
+        ? "#000000"
+        : "#ffffff"
+    );
   }, [preferDark, theme]);
 
   const [hasFocus, setHasFocus] = useState(false);
