@@ -4,6 +4,10 @@ const darkClassName = getDocumentClassName("dark");
 const lightClassName = getDocumentClassName("light");
 const systemClassName = getDocumentClassName(null);
 
+/**
+ * This is a inline script hack we use to set the initial theme of the page to avoid flash of incorrect
+ * theme.
+ */
 export const themeHack = `(function(){
     try{
         const theme = localStorage.getItem("theme");
