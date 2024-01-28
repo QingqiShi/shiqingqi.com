@@ -8,7 +8,7 @@ import { useClickAway } from "../hooks/use-click-away";
 import { Button } from "../server-components/button";
 import { tokens } from "../tokens.stylex";
 import { Anchor } from "../server-components/anchor";
-import type { SupportedLocale } from "../types";
+import type { Breakpoints, SupportedLocale } from "../types";
 import { getLocalePath } from "../utils/pathname";
 
 /*
@@ -29,10 +29,15 @@ function setIsMenuShown(newState: boolean) {
 
 interface LocaleSelectorProps {
   label: string;
+  ariaLabel: string;
   locale: SupportedLocale;
 }
 
-export function LocaleSelector({ label, locale }: LocaleSelectorProps) {
+export function LocaleSelector({
+  label,
+  ariaLabel,
+  locale,
+}: LocaleSelectorProps) {
   const isMenuShown = useSyncExternalStore(
     subscribe,
     () => isMenuShownSingleton,
@@ -51,10 +56,22 @@ export function LocaleSelector({ label, locale }: LocaleSelectorProps) {
         type="button"
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
-        aria-label={label}
+        aria-label={ariaLabel}
         onClick={() => setIsMenuShown(true)}
+        icon={<Translate weight="bold" role="presentation" />}
+        style={styles.desktopVisible}
       >
-        <Translate />
+        {label}
+      </Button>
+      <Button
+        type="button"
+        aria-haspopup="menu"
+        aria-controls="language-selector-menu"
+        aria-label={ariaLabel}
+        onClick={() => setIsMenuShown(true)}
+        style={styles.mobileVisible}
+      >
+        <Translate weight="bold" role="presentation" />
       </Button>
       <div
         id="language-selector-menu"
@@ -114,9 +131,18 @@ function Item({ label, ariaLabel, flag, href, tabIndex, isActive }: ItemProps) {
   );
 }
 
+const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
+
 const styles = stylex.create({
   container: {
     position: "relative",
+    display: "flex",
+  },
+  desktopVisible: {
+    display: { default: "none", [minMd]: "inline-flex" },
+  },
+  mobileVisible: {
+    display: { default: "inline-flex", [minMd]: "none" },
   },
   menu: {
     display: "flex",

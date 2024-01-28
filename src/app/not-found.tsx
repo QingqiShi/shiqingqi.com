@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Anchor } from "../server-components/anchor";
 import Layout from "./[locale]/layout";
 
 export const metadata: Metadata = {
@@ -10,8 +9,8 @@ export const metadata: Metadata = {
 export default async function NotFound() {
   return (
     <Layout params={{ locale: "en" }}>
-      <h1>404 Page not found 😢</h1>
-      <Anchor href="/">Navigate to home page</Anchor>
+      <h1>404</h1>
+      <p>Page not found 😢</p>
     </Layout>
   );
 }

@@ -38,7 +38,7 @@ export default function RootLayout({ children, params }: LayoutProps) {
         {params.locale === "en" && (
           <link
             rel="preload"
-            href="./InterVariableOptimized.woff2"
+            href="/InterVariableOptimized.woff2"
             as="font"
             type="font/woff2"
             crossOrigin="anonymous"

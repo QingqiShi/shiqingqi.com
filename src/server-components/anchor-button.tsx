@@ -1,33 +1,33 @@
-import type { ComponentProps } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { tokens } from "../tokens.stylex";
-import type { StyleProp } from "../types";
+import { Anchor } from "./anchor";
 
-interface ButtonProps
-  extends Omit<ComponentProps<"button">, "className" | "style"> {
+interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
   icon?: React.ReactNode;
-  style?: StyleProp;
 }
 
-export function Button({ icon, style, children, ...props }: ButtonProps) {
+export function AnchorButton({
+  icon,
+  children,
+  style,
+  ...props
+}: AnchorButtonProps) {
   return (
-    <button {...props} {...stylex.props(styles.button, style)}>
+    <Anchor {...props} style={[styles.button, !!icon && styles.hasIcon, style]}>
       {icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
       {children}
-    </button>
+    </Anchor>
   );
 }
 
 const styles = stylex.create({
   button: {
     // Reset
-    borderWidth: "0",
-    borderStyle: "none",
-    appearance: "none",
     boxSizing: "content-box",
     fontSize: "16px",
     fontWeight: 400,
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
+    textDecoration: "none",
+    cursor: "pointer",
 
     // Custom styles
     display: "inline-flex",
