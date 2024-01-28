@@ -3,6 +3,7 @@ import type { Breakpoints, LayoutProps } from "../types";
 import { LocaleSelector } from "../client-components/locale-selector";
 import { ThemeSwitch } from "../client-components/theme-switch";
 import { getTranslations } from "../app/translations/getTranslations";
+import { BackButton } from "../client-components/back-button";
 import translations from "./translations.json";
 
 export function Header({ params }: Omit<LayoutProps, "children">) {
@@ -11,11 +12,19 @@ export function Header({ params }: Omit<LayoutProps, "children">) {
     <header {...stylex.props(styles.container)}>
       <nav {...stylex.props(styles.nav)}>
         <div {...stylex.props(styles.navContent)}>
+          <BackButton locale={params.locale} label={t("backLabel")} />
+        </div>
+        <div {...stylex.props(styles.navContent)}>
           <ThemeSwitch
-            labels={[t("swithToLight"), t("switchToDark"), t("switchToSystem")]}
+            labels={[
+              t("switchToLight"),
+              t("switchToDark"),
+              t("switchToSystem"),
+            ]}
           />
           <LocaleSelector
             label={t("localeSelectorLabel")}
+            ariaLabel={t("localeSelectorAriaLabel")}
             locale={params.locale}
           />
         </div>
@@ -48,7 +57,7 @@ const styles = stylex.create({
     paddingVertical: 0,
     height: "100%",
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     alignItems: "center",
     pointerEvents: "none",
     paddingRight: {
@@ -67,6 +76,7 @@ const styles = stylex.create({
   navContent: {
     pointerEvents: "all",
     display: "flex",
+    alignItems: "center",
     gap: "0.5rem",
   },
 });

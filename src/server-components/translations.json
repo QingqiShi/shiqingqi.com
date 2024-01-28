@@ -1,5 +1,9 @@
 {
-  "swithToLight": {
+  "backLabel": {
+    "en": "Back to home",
+    "zh": "返回主页"
+  },
+  "switchToLight": {
     "en": "Switch to light theme",
     "zh": "切换至浅色模式"
   },
@@ -12,6 +16,10 @@
     "zh": "切换至系统颜色模式"
   },
   "localeSelectorLabel": {
+    "en": "Language",
+    "zh": "语言"
+  },
+  "localeSelectorAriaLabel": {
     "en": "Select a language",
     "zh": "选择语言"
   },

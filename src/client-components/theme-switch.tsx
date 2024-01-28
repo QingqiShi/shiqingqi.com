@@ -126,8 +126,9 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
 
 const styles = stylex.create({
   container: {
-    display: "inline-block",
+    display: "block",
     position: "relative",
+    fontSize: "16px",
     [themeSwitchTokens.systemLeft]: { default: null, ":hover": "-60px" },
     [themeSwitchTokens.systemOpacity]: { default: null, ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": "all" },
@@ -146,7 +147,7 @@ const styles = stylex.create({
     },
   },
   switch: {
-    [tokens.controlActive]: { default: "#333" },
+    [tokens.controlActive]: { default: tokens.backgroundRaised },
   },
   icon: {
     position: "absolute",
@@ -157,6 +158,7 @@ const styles = stylex.create({
     alignItems: "center",
     padding: "9.6px",
     pointerEvents: "none",
+    fontSize: "1.3em",
   },
   moon: {
     left: 0,

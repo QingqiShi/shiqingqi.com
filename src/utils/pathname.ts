@@ -1,6 +1,6 @@
 import type { SupportedLocale } from "../types";
 
-const localePrefixes = /^\/zh($|\/)/;
+const localePrefixes = /^\/(en|zh)($|\/)/;
 
 export function normalizePath(pathname: string): string {
   const localeRemoved = pathname.replace(localePrefixes, "/");

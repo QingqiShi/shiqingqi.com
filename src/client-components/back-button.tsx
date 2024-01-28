@@ -1,9 +1,11 @@
 "use client";
 
 import { CaretLeft, House } from "@phosphor-icons/react/dist/ssr";
-import type { SupportedLocale } from "../types";
-import { Anchor } from "../server-components/anchor";
-import { getLocalePath } from "../utils/pathname";
+import { usePathname } from "next/navigation";
+import * as stylex from "@stylexjs/stylex";
+import type { Breakpoints, SupportedLocale } from "../types";
+import { getLocalePath, normalizePath } from "../utils/pathname";
+import { AnchorButton } from "../server-components/anchor-button";
 
 interface BackButtonProps {
   locale: SupportedLocale;
@@ -11,10 +13,42 @@ interface BackButtonProps {
 }
 
 export function BackButton({ locale, label }: BackButtonProps) {
+  const pathname = usePathname();
+
+  if (normalizePath(pathname) === "/") {
+    return null;
+  }
+
+  const targetPath = getLocalePath("/", locale);
   return (
-    <Anchor href={getLocalePath("/", locale)} aria-label={label}>
-      <CaretLeft weight="bold" />
-      <House weight="bold" />
-    </Anchor>
+    <>
+      <AnchorButton
+        icon={<CaretLeft weight="bold" role="presentation" />}
+        href={targetPath}
+        aria-label={label}
+        style={styles.desktopVisible}
+      >
+        {label}
+      </AnchorButton>
+      <AnchorButton
+        href={targetPath}
+        aria-label={label}
+        style={styles.mobileVisible}
+      >
+        <CaretLeft weight="bold" role="presentation" />
+        <House weight="bold" role="presentation" />
+      </AnchorButton>
+    </>
   );
 }
+
+const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
+
+const styles = stylex.create({
+  desktopVisible: {
+    display: { default: "none", [minMd]: "inline-flex" },
+  },
+  mobileVisible: {
+    display: { default: "inline-flex", [minMd]: "none" },
+  },
+});

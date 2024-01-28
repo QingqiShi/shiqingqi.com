@@ -89,7 +89,7 @@ export function Switch({
     })
   );
 
-  // Pointermove handler is registered on the body to support draging out of the switch boundary
+  // Pointermove handler is registered on the body to support dragging out of the switch boundary
   useEffect(() => {
     if (!isPointerDown) {
       return;
@@ -164,6 +164,7 @@ const styles = stylex.create({
     borderStyle: "none",
     appearance: "none",
     boxSizing: "content-box",
+    fontSize: "16px",
     margin: 0,
 
     // Custom styles
@@ -179,7 +180,7 @@ const styles = stylex.create({
       ":hover": { "::before": tokens.shadowHighlight },
     },
     position: "relative",
-    padding: "2.4px",
+    padding: "2px",
     display: "flex",
     transition: `background-color 0.2s ease`,
     cursor: "pointer",
