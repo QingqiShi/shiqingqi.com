@@ -14,8 +14,8 @@
   "dependencies": {
     "@mui/utils": "^5.15.6",
     "@phosphor-icons/react": "^2.0.15",
-    "@serwist/next": "^8.4.3",
-    "@serwist/sw": "^8.4.3",
+    "@serwist/next": "^8.4.4",
+    "@serwist/sw": "^8.4.4",
     "@serwist/precaching": "^8.4.3",
     "@stylexjs/stylex": "^0.5.1",
     "@vercel/analytics": "^1.1.2",
