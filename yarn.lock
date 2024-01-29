@@ -684,35 +684,35 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.6.1.tgz#9ab8f811930d7af3e3d549183a50884f9eb83f36"
   integrity sha512-UY+FGM/2jjMkzQLn8pxcHGMaVLh9aEitG3zY2CiY7XHdLiz3bZOwa6oDxNqEMv7zZkV+cj5DOdz0cQ1BP5Hjgw==
 
-"@serwist/background-sync@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/background-sync/-/background-sync-8.4.3.tgz#1a2859c038a128a258a818a738b78f302a69c21f"
-  integrity sha512-onnG+79iFZLizcxAsBAg5orDqq9aUhtBlUq2te2NlTw1A69XFRcpZJAx0fnfyGv6xQ8i2eSADKJOeGAsaOj6GA==
+"@serwist/background-sync@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/background-sync/-/background-sync-8.4.4.tgz#6ac684cca152a1d17251eb3084da5fc15a1b7af6"
+  integrity sha512-Rt1BwpUZb1G9lj4znrshC6di5hwB5xEmhilzFbHEbZuiFfeCNwn8tMc8JUMoGdj2Btx4/XlUDgvsFvqRi1BkTA==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
     idb "8.0.0"
 
-"@serwist/broadcast-update@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/broadcast-update/-/broadcast-update-8.4.3.tgz#489445bde13137c754954803b3f7ebf017df5ef8"
-  integrity sha512-wY2yGfhUuPySVxz4MP6triTzwOcm9BdozIjrBKeZsMbLVVUF4K8TK3HE7XEDO7F1KiAnLi9p5X+TpeFAxmufsA==
+"@serwist/broadcast-update@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/broadcast-update/-/broadcast-update-8.4.4.tgz#ea11d59e13c2b79cb0128d951a0927a233d980d3"
+  integrity sha512-hN/S9xbVpg17NLcHqa/vEIMmZrpH/MnFN33bT1Wsh11QAj/IY6aOu5nq/8vbppMPM9OlkKimYT6bJDNRSbsIDA==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
 
-"@serwist/build@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/build/-/build-8.4.3.tgz#3ec9fc7c9acf2578fc1a5bb47f587dfbcba095c3"
-  integrity sha512-TPUP64uAMHpsAFMKYw+6ugLR7LBJad01HxTcsz2r9ZVNRzdmlgf8fmKd5iLG2nXEk4scMsAf+JywHeH4f1N+hQ==
+"@serwist/build@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/build/-/build-8.4.4.tgz#1073a574ca1e637a2ef2dab3293e5a5759a57fa6"
+  integrity sha512-24BfRoVfbzlWAlra9m8fU6vutCZjcZ5QHaL2LEAexPBixsDGaTVjBrfbNipEbM7OejLPp99MqZaj3U3EgWU2ag==
   dependencies:
     "@apideck/better-ajv-errors" "0.3.6"
-    "@serwist/background-sync" "8.4.3"
-    "@serwist/broadcast-update" "8.4.3"
-    "@serwist/cacheable-response" "8.4.3"
-    "@serwist/core" "8.4.3"
-    "@serwist/expiration" "8.4.3"
-    "@serwist/google-analytics" "8.4.3"
-    "@serwist/precaching" "8.4.3"
-    "@serwist/routing" "8.4.3"
+    "@serwist/background-sync" "8.4.4"
+    "@serwist/broadcast-update" "8.4.4"
+    "@serwist/cacheable-response" "8.4.4"
+    "@serwist/core" "8.4.4"
+    "@serwist/expiration" "8.4.4"
+    "@serwist/google-analytics" "8.4.4"
+    "@serwist/precaching" "8.4.4"
+    "@serwist/routing" "8.4.4"
     ajv "8.12.0"
     common-tags "1.8.2"
     fast-json-stable-stringify "2.1.0"
@@ -722,116 +722,116 @@
     source-map "0.8.0-beta.0"
     upath "2.0.1"
 
-"@serwist/cacheable-response@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/cacheable-response/-/cacheable-response-8.4.3.tgz#1f39372c1bc685ad48b35054220ae7254cbdb067"
-  integrity sha512-C4LcQ9UVTdbr5qT5x6XEuI7O6HN52r3Nljq0OIc0ov/I4GNbvIstRS83nVMOmnNJM1lneP04urASABO7i1gt1g==
+"@serwist/cacheable-response@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/cacheable-response/-/cacheable-response-8.4.4.tgz#c862993a5225033321f986ef0e363008a4a606a0"
+  integrity sha512-oSPPaGDmfDhtAQfHC5LIIyYF2djCprYHdWntD8IQygnjEjbh2MP6xnD7zPD+Ztghlg9VX0aGRxEAFT8rDhW7tQ==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
 
-"@serwist/core@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/core/-/core-8.4.3.tgz#38e23bf688998636bead897855814e4638436c51"
-  integrity sha512-026aMPepXO/Xkz7Ecluw9Bazs2MM9rGgOHDtNON+J91dh6X7r/i4EKMXfWINidn5nE4nHBPGuJ3aI2cop4RL8g==
+"@serwist/core@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/core/-/core-8.4.4.tgz#a7259ce1e3ead1a4665ff6100eba85730e895e27"
+  integrity sha512-mB3XFoUFbfgxkqWUhn9khqZP9c+K3qsuY1WQazl7S00hd+JUH2We/FmNMoOpei5ydVK61rIX690ScfXO0FbjXw==
 
-"@serwist/expiration@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/expiration/-/expiration-8.4.3.tgz#0ae5a631bf7fde32ff0c9d29478ed41078a680bd"
-  integrity sha512-jFLlveRAZ8BfGRSb9MDy8OUzdH6KLIOkLUjDSQuf2j9EXYyxPBCYZ26uD722kgMhmC+uy8H6bAifeuXBEb35Jg==
+"@serwist/expiration@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/expiration/-/expiration-8.4.4.tgz#a7b16204548ee7b100056ad5a557e010d12708de"
+  integrity sha512-zn5Q3qkE2827RUDwta198QTeIWzQx+EtWikQog9LZZvXSDOuOogzYeyiuskrfvrGFLk11myOJLtpVbXpeNCHeA==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
     idb "8.0.0"
 
-"@serwist/google-analytics@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/google-analytics/-/google-analytics-8.4.3.tgz#d39ba36bbca32238110ecbbbab9e19a546046687"
-  integrity sha512-Z5s2QY0mcGGWZJ2usGEj3+OJEVv/88o4A8AAvGv0KECv+imJ/NtJTW+cOqkd6A8gWE+16Z5zMQdpn/MG4YyVRg==
+"@serwist/google-analytics@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/google-analytics/-/google-analytics-8.4.4.tgz#2af3fa62fa6cb561d1d36081cd12108a691e9d76"
+  integrity sha512-nkNLyLmSfiYeJGFtHDzRdLDcUabyTGvrjC2VAlduC97rLhfE1c1KUhWBwBO+ZR0TONsh9roJso2vooEZc2dWAQ==
   dependencies:
-    "@serwist/background-sync" "8.4.3"
-    "@serwist/core" "8.4.3"
-    "@serwist/routing" "8.4.3"
-    "@serwist/strategies" "8.4.3"
+    "@serwist/background-sync" "8.4.4"
+    "@serwist/core" "8.4.4"
+    "@serwist/routing" "8.4.4"
+    "@serwist/strategies" "8.4.4"
 
-"@serwist/navigation-preload@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/navigation-preload/-/navigation-preload-8.4.3.tgz#29ff1c74170f11996944e3b591fa0ce934c2bb96"
-  integrity sha512-4IYF7znn3QqeHMZ47vDGggJEg0MU3gDpyaHJ4HeR7xgNvDc9Vl85PJUfbH1eH9jtReRSnlSUs9rPSFdSzgoJsA==
+"@serwist/navigation-preload@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/navigation-preload/-/navigation-preload-8.4.4.tgz#edb197ea37a2ce9789b6f3a3e0466d8bbba4bc8b"
+  integrity sha512-cMna+4avA66mHuZeVBxRYViy7/O+fR+NLSLkSl5TRdx6jdDFBnsBVj6LOWcohuGmtJ/XUV0ycpxyGSUxJCjVag==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
 
-"@serwist/next@^8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/next/-/next-8.4.3.tgz#1844e75976f696c3b157c91ebd69f02111a5dfa6"
-  integrity sha512-u3ou22giG1g1mQkm4jIIuZghklTCZ7+O4jnLvqBe1Q1We18y39KK9qrJD8kgmmasqEEo9ooz3TyOkWh3eErrfQ==
+"@serwist/next@^8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/next/-/next-8.4.4.tgz#8caca3e010d6f0b96546505699d9f1c1133564ed"
+  integrity sha512-WUTMTqjGl4uEO61olHkbqTWCV8bsNSYpzHNmhWksg+RXJJKCENU3Io+UcJlPX+oBJVzlIHP0cHtPsQZx7I+2sw==
   dependencies:
-    "@serwist/build" "8.4.3"
-    "@serwist/webpack-plugin" "8.4.3"
-    "@serwist/window" "8.4.3"
+    "@serwist/build" "8.4.4"
+    "@serwist/webpack-plugin" "8.4.4"
+    "@serwist/window" "8.4.4"
     clean-webpack-plugin "4.0.0"
     fast-glob "3.3.2"
 
-"@serwist/precaching@8.4.3", "@serwist/precaching@^8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/precaching/-/precaching-8.4.3.tgz#26d8fac138bc26a48dab02c7c4b9459d37587b2a"
-  integrity sha512-+nT29DHKiBXWVHuBT6i/XmxCDIFeEjTelTKEH/1OAUzrs/KFAjF7AGufqZAUp1NAcisOPLAUN9otJ855t1KRVg==
+"@serwist/precaching@8.4.4", "@serwist/precaching@^8.4.3":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/precaching/-/precaching-8.4.4.tgz#056a7b753a14bcfd196def8fd67817134b929734"
+  integrity sha512-2HUiDKRpHxNirH37UnIuLx6Zc6HaIAgpTE2qWT6BfzqX1Fbmn2Zk67tvBTfCITWemCw1/dUH8VzI1k6vC3XmtA==
   dependencies:
-    "@serwist/core" "8.4.3"
-    "@serwist/routing" "8.4.3"
-    "@serwist/strategies" "8.4.3"
+    "@serwist/core" "8.4.4"
+    "@serwist/routing" "8.4.4"
+    "@serwist/strategies" "8.4.4"
 
-"@serwist/range-requests@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/range-requests/-/range-requests-8.4.3.tgz#489d0e28ad3200ddf7f09166c47f98845b3d31ad"
-  integrity sha512-o/LkLH+izhnY05q6t4idYoJhYpl6mj5Y4S3Sual7y6eByLjaYe7RoF7MBHGNsB3dKye//dIFFJnJcnHpOufiGQ==
+"@serwist/range-requests@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/range-requests/-/range-requests-8.4.4.tgz#b5fafd0374891735f10f69f7e604d4e1446a099f"
+  integrity sha512-1VVhL42XnjFJKszAhgwkCUjcK4j28eudWhfGaYey5NYBk0xNqXNGTOuPBjvr5mLMo/NkmapiwDI/htAqOuK7Wg==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
 
-"@serwist/routing@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/routing/-/routing-8.4.3.tgz#0320c5c59f6c64c57246aa8e926e027786e3876d"
-  integrity sha512-s40OXWh8Cn2mOrqua7eYnDh/KeY0B1zZDHTLDyR+rF8OqeAR7LOibbznQ7Mk333NC7hEcnqA7fifMpxtt7L0uQ==
+"@serwist/routing@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/routing/-/routing-8.4.4.tgz#7de3cca2d097c8d67aa8fb2358e46efe1476069a"
+  integrity sha512-TimZ54n5UpQoJMjGdLIXQ1VJlQ669yfJ8scdfZKwRjggILJ3f1rI13N8vicetwZMGqveTz2Q9sVYIXaeQuFmQg==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
 
-"@serwist/strategies@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/strategies/-/strategies-8.4.3.tgz#c2c6ad05b42ae07b1b06138274f13ca87c21edf4"
-  integrity sha512-6+Sstu0JBDCROicMSRR7kSj8N/fsy6IxPPIej7zhJtCUTx2NrVQag0g3oUUpI5RlMLFYcFI87ereQnqF9wIwfA==
+"@serwist/strategies@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/strategies/-/strategies-8.4.4.tgz#090304386dc921d3f984f6bb0fa11ae2b566e9d6"
+  integrity sha512-Yr/wKD16vXUqVbyfHhLM25qRWTtWgNJnY8Bot0yjCV/BvHM81cOIkG3sE76FIjcUntCvfemhaN9Zx53fbRzLPQ==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
 
-"@serwist/sw@^8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/sw/-/sw-8.4.3.tgz#5df554253387d78c5969187dd5dc773b127fc39f"
-  integrity sha512-fia+JK7J0ATxwwxtdxp3nNlfs0RN2PPCURD2c/IDutfHWMZHq25Pl/d9d7KwzewNCR+rVItJcdyKsByRhwkJOA==
+"@serwist/sw@^8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/sw/-/sw-8.4.4.tgz#020af607952f7f408d32a5b94b43b534b56a8977"
+  integrity sha512-TyFlhoJpo/S1hj7+j1iiELwoU4idKvqvITBYFzpYEUK3h/qXJ+eiNiGT1hl2R0znz8p35Hp3hxbyGYFt4BYpKw==
   dependencies:
-    "@serwist/background-sync" "8.4.3"
-    "@serwist/broadcast-update" "8.4.3"
-    "@serwist/cacheable-response" "8.4.3"
-    "@serwist/core" "8.4.3"
-    "@serwist/expiration" "8.4.3"
-    "@serwist/google-analytics" "8.4.3"
-    "@serwist/navigation-preload" "8.4.3"
-    "@serwist/precaching" "8.4.3"
-    "@serwist/range-requests" "8.4.3"
-    "@serwist/routing" "8.4.3"
-    "@serwist/strategies" "8.4.3"
+    "@serwist/background-sync" "8.4.4"
+    "@serwist/broadcast-update" "8.4.4"
+    "@serwist/cacheable-response" "8.4.4"
+    "@serwist/core" "8.4.4"
+    "@serwist/expiration" "8.4.4"
+    "@serwist/google-analytics" "8.4.4"
+    "@serwist/navigation-preload" "8.4.4"
+    "@serwist/precaching" "8.4.4"
+    "@serwist/range-requests" "8.4.4"
+    "@serwist/routing" "8.4.4"
+    "@serwist/strategies" "8.4.4"
 
-"@serwist/webpack-plugin@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/webpack-plugin/-/webpack-plugin-8.4.3.tgz#4bcdf56992fb192eed4cc7ba5b17239aba560018"
-  integrity sha512-retNGY/fAVNvYbUXkejZlst91REBrUGvmfx5fL7zB97El7SZZtBPWSxlcskQND6NjNllkAjIdp/dxCkrz2FsYg==
+"@serwist/webpack-plugin@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/webpack-plugin/-/webpack-plugin-8.4.4.tgz#a0f33e62a072a69a1dd2158a37c32d5fcb770ef1"
+  integrity sha512-A4ONzZzVJNgY3vddhrV7lwRuLYHQQw/SxW8iEZ62VQR3Xvx/sdrovKBJ+cXokt7kIcNgNRtPAxAeddptoirZDw==
   dependencies:
-    "@serwist/build" "8.4.3"
+    "@serwist/build" "8.4.4"
     fast-json-stable-stringify "2.1.0"
     upath "2.0.1"
 
-"@serwist/window@8.4.3":
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/@serwist/window/-/window-8.4.3.tgz#7e99c86104a0aa6fd6414dc4ecb9f69bdda21d7d"
-  integrity sha512-ZCDSyXpDZkO8dEvIs61M1H+y4QT6Xy9/uG6MAIuCDFeaezMxCiHcGwBbNAvv1Qq9oKhT7u6YJoYP9bvJWNhtLw==
+"@serwist/window@8.4.4":
+  version "8.4.4"
+  resolved "https://registry.yarnpkg.com/@serwist/window/-/window-8.4.4.tgz#26b446e7cc4c0f4fe94773e44a3d06f991db2281"
+  integrity sha512-UB/nHixanuf/7SBY4P0w2/H0NU1igM+gAg26bTFcHHkE3KsvwK7xWZMIAWeifzZK7w6xGJpK5INbjGuB9NySvg==
   dependencies:
-    "@serwist/core" "8.4.3"
+    "@serwist/core" "8.4.4"
     "@types/trusted-types" "2.0.7"
 
 "@sigstore/bundle@^2.1.1":
