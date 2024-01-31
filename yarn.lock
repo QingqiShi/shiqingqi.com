@@ -195,10 +195,10 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.22.5"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.23.2", "@babel/runtime@^7.23.8":
-  version "7.23.8"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.23.8.tgz#8ee6fe1ac47add7122902f257b8ddf55c898f650"
-  integrity sha512-Y7KbAP984rn1VGMbGqKmBLio9V7y5Je9GvU4rQPCPinCyNfUcToxIXl06d59URp/F3LwinvODxab5N/G6qggkw==
+"@babel/runtime@^7.12.5", "@babel/runtime@^7.23.2", "@babel/runtime@^7.23.9":
+  version "7.23.9"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.23.9.tgz#47791a15e4603bb5f905bc0753801cf21d6345f7"
+  integrity sha512-0CX6F+BI2s9dkUqr08KFrAIZgNFj75rdBU/DjCyYLIaV/quFjkk6T+EJ2LkZHyZTbEV4L5p97mNkUsHl2wLFAw==
   dependencies:
     regenerator-runtime "^0.14.0"
 
@@ -348,12 +348,12 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@mui/utils@^5.15.6":
-  version "5.15.6"
-  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-5.15.6.tgz#bbcc302b8e83e360a87230afe3ed8fc99e29fae9"
-  integrity sha512-qfEhf+zfU9aQdbzo1qrSWlbPQhH1nCgeYgwhOVnj9Bn39shJQitEnXpSQpSNag8+uty5Od6PxmlNKPTnPySRKA==
+"@mui/utils@^5.15.7":
+  version "5.15.7"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-5.15.7.tgz#a71e08c4a2f5ba9c8a07106083ebf1b4c864ebb1"
+  integrity sha512-8qhsxQRNV6aEOjjSk6YQIYJxkF5klhj8oG1FEEU4z6HV78TjNqRxMP08QGcdsibEbez+nihAaz6vu83b4XqbAg==
   dependencies:
-    "@babel/runtime" "^7.23.8"
+    "@babel/runtime" "^7.23.9"
     "@types/prop-types" "^15.7.11"
     prop-types "^15.8.1"
     react-is "^18.2.0"
