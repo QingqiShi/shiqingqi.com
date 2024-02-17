@@ -4,4 +4,5 @@ export const i18nConfig: Config = {
   locales: ["en", "zh"],
   defaultLocale: "en",
   localeDetector: false,
+  serverSetCookie: "never",
 };
