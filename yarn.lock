@@ -4385,10 +4385,10 @@ tuf-js@^2.2.0:
     debug "^4.3.4"
     make-fetch-happen "^13.0.0"
 
-twgl.js@^5.5.3:
-  version "5.5.3"
-  resolved "https://registry.yarnpkg.com/twgl.js/-/twgl.js-5.5.3.tgz#914a2e6b58ccec6e4f7fceb428f0b047ffbbfc27"
-  integrity sha512-lUrWxXmEURxQphwu4hMkudIThjhbrej3WUKH2qdTifixuO1FxQRLgxJVQ81rTDw9CBoxx4m4iIEOfgCf02Ip1Q==
+twgl.js@^5.5.4:
+  version "5.5.4"
+  resolved "https://registry.yarnpkg.com/twgl.js/-/twgl.js-5.5.4.tgz#ce79dd59ee5f4dffc9acdbb402431123ec84277a"
+  integrity sha512-6kFOmijOpmblTN9CCwOTCxK4lPg7rCyQjLuub6EMOlEp89Ex6yUcsMjsmH7andNPL2NE3XmHdqHeP5gVKKPhxw==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"
