@@ -28,7 +28,7 @@
     "react-dom": "^18",
     "react-error-boundary": "^4.0.12",
     "server-only": "^0.0.1",
-    "twgl.js": "^5.5.3"
+    "twgl.js": "^5.5.4"
   },
   "devDependencies": {
     "@stylexjs/babel-plugin": "^0.5.1",
