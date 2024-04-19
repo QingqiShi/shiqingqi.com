@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@mui/utils": "^5.15.14",
-    "@phosphor-icons/react": "^2.0.15",
+    "@phosphor-icons/react": "^2.1.5",
     "@serwist/next": "^8.4.4",
     "@serwist/sw": "^8.4.4",
     "@serwist/precaching": "^8.4.3",
