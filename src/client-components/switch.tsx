@@ -210,8 +210,6 @@ const styles = stylex.create({
     },
   },
   dragging: (position) => ({
-    // https://github.com/facebook/stylex/issues/337 Should be fixed in the next release.
-    // eslint-disable-next-line @stylexjs/valid-styles
     [switchTokens.thumbPosition]: `${position}px`,
     "::before": {
       transition: null,
