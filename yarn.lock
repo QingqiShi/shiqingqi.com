@@ -3334,10 +3334,10 @@ negotiator@^0.6.3:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.3.tgz#58e323a72fedc0d6f9cd4d31fe49f51479590ccd"
   integrity sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==
 
-next-i18n-router@^5.4.2:
-  version "5.4.2"
-  resolved "https://registry.yarnpkg.com/next-i18n-router/-/next-i18n-router-5.4.2.tgz#c3e21fd9cf9d940c858bd9a1d14ac99810c2eb26"
-  integrity sha512-ixLQaA4TlQ7e107vZa0pxC3mxVxQ6wDq79V6DFj8L1S/yk8+RSnHDXKeEVgsXjkruZ4nINIkV8kgabHNXRFpBQ==
+next-i18n-router@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/next-i18n-router/-/next-i18n-router-5.5.0.tgz#a10c4a368bfc624def716f573bfa6088b6639a75"
+  integrity sha512-Yn8gYRD+Rehag81fZnidtRgeswTu9YGlDVoa3F6q50P9rfwERXJIr1dX9W3KNO7Q+4fM57+XQtEm7cjvIM8TgQ==
   dependencies:
     "@formatjs/intl-localematcher" "^0.5.2"
     negotiator "^0.6.3"
