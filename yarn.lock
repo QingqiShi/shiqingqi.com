@@ -670,10 +670,10 @@
     proc-log "^4.0.0"
     which "^4.0.0"
 
-"@phosphor-icons/react@^2.1.5":
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/@phosphor-icons/react/-/react-2.1.5.tgz#762c368778a4040d52c5532b8af1692b66e16783"
-  integrity sha512-B7vRm/w+P/+eavWZP5CB5Ul0ffK4Y7fpd/auWKuGvm+8pVgAJzbOK8O0s+DqzR+TwWkh5pHtJTuoAtaSvgCPzg==
+"@phosphor-icons/react@^2.1.6":
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/@phosphor-icons/react/-/react-2.1.6.tgz#7009c632972ebc8fc76b42636baaec4144ae68c1"
+  integrity sha512-F963SJvCTk0Qm5SRTSHXP8bCIYgMAbSVZ73f5DoxjP2iG/yAzRdySzbs9kVPETYxvr0zwTY4DUTqUjB3vr8sVw==
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
