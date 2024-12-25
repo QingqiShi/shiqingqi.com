@@ -86,6 +86,6 @@ const styles = stylex.create({
     display: "block",
     fontSize: "0.8rem",
     marginBottom: { default: null, ":not(:last-of-type)": "0.2rem" },
-    paddingVertical: { default: "0.5rem", [minMd]: "0" },
+    paddingBlock: { default: "0.5rem", [minMd]: "0" },
   },
 });
