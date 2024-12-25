@@ -40,7 +40,7 @@
     "@stylexjs/eslint-plugin": "^0.9.3",
     "@stylexjs/nextjs-plugin": "^0.9.3",
     "@types/lodash-es": "^4.17.12",
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
