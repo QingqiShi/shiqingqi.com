@@ -52,9 +52,9 @@ const styles = stylex.create({
   },
   nav: {
     maxWidth: { default: "1080px", [minXl]: "calc((1080 / 24) * 1rem)" },
-    marginVertical: 0,
-    marginHorizontal: "auto",
-    paddingVertical: 0,
+    marginBlock: 0,
+    marginInline: "auto",
+    paddingBlock: 0,
     height: "100%",
     display: "flex",
     justifyContent: "space-between",

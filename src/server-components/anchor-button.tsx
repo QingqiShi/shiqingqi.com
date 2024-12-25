@@ -34,8 +34,8 @@ const styles = stylex.create({
     alignItems: "center",
     blockSize: "36px",
     borderRadius: "36px",
-    paddingVertical: "2px",
-    paddingHorizontal: "16px",
+    paddingBlock: "2px",
+    paddingInline: "16px",
     color: tokens.textMain,
     backgroundColor: {
       default: tokens.backgroundRaised,
