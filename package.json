@@ -16,7 +16,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@mui/utils": "^5.15.14",
+    "@mui/utils": "^6.3.0",
     "@phosphor-icons/react": "^2.1.7",
     "@serwist/next": "^8.4.4",
     "@serwist/precaching": "^8.4.3",
