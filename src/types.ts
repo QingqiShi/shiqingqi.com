@@ -8,7 +8,7 @@ export type SupportedLocale = "en" | "zh";
 export type SupportedTheme = "light" | "dark" | "system";
 
 export interface PageProps {
-  params: { locale: SupportedLocale };
+  params: Promise<{ locale: SupportedLocale }>;
 }
 
 export interface LayoutProps extends Pick<PageProps, "params"> {

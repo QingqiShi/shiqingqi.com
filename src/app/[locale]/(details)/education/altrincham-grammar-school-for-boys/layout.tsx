@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { BASE_URL } from "../../../../constants";
 import type { LayoutProps, PageProps } from "../../../../../types";
+import { BASE_URL } from "../../../../constants";
 import { getTranslations } from "../../../../translations/getTranslations";
 import translations from "./translations.json";
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata(props: PageProps) {
+  const params = await props.params;
   const { t } = getTranslations(translations, params.locale);
   return {
     title: t("title"),

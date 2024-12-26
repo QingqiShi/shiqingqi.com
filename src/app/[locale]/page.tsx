@@ -1,22 +1,23 @@
 import * as stylex from "@stylexjs/stylex";
-import type { Breakpoints, PageProps } from "../../types";
-import { getTranslations } from "../translations/getTranslations";
-import { ExperienceCard } from "../../server-components/experience-card";
-import { EducationCard } from "../../server-components/education-card";
+import AGSB from "../../logos/AGSB.webp";
+import BristolLogo from "../../logos/bristol-logo";
 import CitadelLogo from "../../logos/citadel-logo";
+import NottinghamLogo from "../../logos/nottingham-logo";
 import SpotifyLogo from "../../logos/spotify-logo";
 import WtcLogo from "../../logos/wtc-logo";
-import BristolLogo from "../../logos/bristol-logo";
-import AGSB from "../../logos/AGSB.webp";
-import NottinghamLogo from "../../logos/nottingham-logo";
+import { EducationCard } from "../../server-components/education-card";
+import { ExperienceCard } from "../../server-components/experience-card";
+import type { Breakpoints, PageProps } from "../../types";
 import { getLocalePath } from "../../utils/pathname";
+import { getTranslations } from "../translations/getTranslations";
 import translations from "./translations.json";
 
 export async function generateStaticParams() {
   return [{ locale: "en" }, { locale: "zh" }];
 }
 
-export default function Home({ params }: PageProps) {
+export default async function Home(props: PageProps) {
+  const params = await props.params;
   const { t } = getTranslations(translations, params.locale);
   return (
     <>

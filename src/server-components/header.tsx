@@ -1,18 +1,19 @@
 import * as stylex from "@stylexjs/stylex";
-import type { Breakpoints, LayoutProps } from "../types";
-import { LocaleSelector } from "../client-components/locale-selector";
-import { ThemeSwitch } from "../client-components/theme-switch";
 import { getTranslations } from "../app/translations/getTranslations";
 import { BackButton } from "../client-components/back-button";
+import { LocaleSelector } from "../client-components/locale-selector";
+import { ThemeSwitch } from "../client-components/theme-switch";
+import type { Breakpoints, LayoutProps } from "../types";
 import translations from "./translations.json";
 
-export function Header({ params }: Omit<LayoutProps, "children">) {
-  const { t } = getTranslations(translations, params.locale);
+export async function Header({ params }: Omit<LayoutProps, "children">) {
+  const { locale } = await params;
+  const { t } = getTranslations(translations, locale);
   return (
     <header {...stylex.props(styles.container)}>
       <nav {...stylex.props(styles.nav)}>
         <div {...stylex.props(styles.navContent)}>
-          <BackButton locale={params.locale} label={t("backLabel")} />
+          <BackButton locale={locale} label={t("backLabel")} />
         </div>
         <div {...stylex.props(styles.navContent)}>
           <ThemeSwitch
@@ -25,7 +26,7 @@ export function Header({ params }: Omit<LayoutProps, "children">) {
           <LocaleSelector
             label={t("localeSelectorLabel")}
             ariaLabel={t("localeSelectorAriaLabel")}
-            locale={params.locale}
+            locale={locale}
           />
         </div>
       </nav>
