@@ -3,7 +3,8 @@ import type { PageProps } from "../../../../../types";
 import { getTranslations } from "../../../../translations/getTranslations";
 import translations from "./translations.json";
 
-export default function Page({ params }: PageProps) {
+export default async function Page(props: PageProps) {
+  const params = await props.params;
   const { t } = getTranslations(translations, params.locale);
   return (
     <>

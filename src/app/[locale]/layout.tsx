@@ -1,20 +1,21 @@
-import type { Metadata } from "next";
+import * as stylex from "@stylexjs/stylex";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import * as stylex from "@stylexjs/stylex";
-import { Suspense } from "react";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getTranslations } from "../translations/getTranslations";
-import type { Breakpoints, LayoutProps, PageProps } from "../../types";
-import { Header } from "../../server-components/header";
-import { globalStyles } from "../globalStyles";
-import { tokens } from "../../tokens.stylex";
-import { Footer } from "../../server-components/footer";
+import { Suspense } from "react";
 import { FlowGradient } from "../../server-components/flow-gradient";
+import { Footer } from "../../server-components/footer";
+import { Header } from "../../server-components/header";
+import { tokens } from "../../tokens.stylex";
+import type { Breakpoints, LayoutProps, PageProps } from "../../types";
 import { themeHack } from "../../utils/theme-hack";
+import { globalStyles } from "../globalStyles";
+import { getTranslations } from "../translations/getTranslations";
 import translations from "./translations.json";
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata(props: PageProps) {
+  const params = await props.params;
   const { t } = getTranslations(translations, params.locale);
   return {
     title: {
@@ -27,15 +28,17 @@ export async function generateMetadata({ params }: PageProps) {
   } satisfies Metadata;
 }
 
-export default function RootLayout({ children, params }: LayoutProps) {
-  if (params.locale !== "en" && params.locale !== "zh") {
+export default async function RootLayout({ params, children }: LayoutProps) {
+  const { locale } = await params;
+
+  if (locale !== "en" && locale !== "zh") {
     redirect("/");
   }
 
   return (
-    <html lang={params.locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
-        {params.locale === "en" && (
+        {locale === "en" && (
           <link
             rel="preload"
             href="/InterVariableOptimized.woff2"
@@ -84,7 +87,7 @@ export default function RootLayout({ children, params }: LayoutProps) {
               />
             </div>
             <main {...stylex.props(styles.main)}>{children}</main>
-            <Footer locale={params.locale} />
+            <Footer locale={locale} />
           </div>
         </div>
         <Analytics />

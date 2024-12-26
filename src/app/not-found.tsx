@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default async function NotFound() {
   return (
-    <Layout params={{ locale: "en" }}>
+    <Layout params={Promise.resolve({ locale: "en" })}>
       <h1>404</h1>
       <p>Page not found 😢</p>
     </Layout>
