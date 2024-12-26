@@ -10,13 +10,14 @@
   "parserOptions": {
     "project": ["./tsconfig.json"]
   },
-  "plugins": ["@typescript-eslint", "@stylexjs"],
+  "plugins": ["@typescript-eslint", "@stylexjs", "react-compiler"],
   "rules": {
     "@stylexjs/valid-styles": "error",
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/consistent-type-exports": "error",
     "import/order": "error",
-    "one-var": ["error", "never"]
+    "one-var": ["error", "never"],
+    "react-compiler/react-compiler": "error"
   },
   "ignorePatterns": ["next.config.js", "public/sw.js"]
 }
