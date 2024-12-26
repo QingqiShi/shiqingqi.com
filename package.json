@@ -25,7 +25,6 @@
     "i": "^0.3.7",
     "lodash-es": "^4.17.21",
     "next": "15.1.2",
-    "npm": "^10.6.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-error-boundary": "^5.0.0",
