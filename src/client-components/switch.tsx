@@ -61,33 +61,33 @@ export function Switch({
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState<number | null>(null);
 
-  const handleDragStart = normalizeTouchPointerEvent((e) => {
-    if (rest.disabled || !elRef.current) {
+  const handleDragStart = useEventCallback((e: GenericTouchPointerEvent) => {
+    const normalizedEvent = normalizeTouchPointerEvent(e);
+    if (rest.disabled || !elRef.current || !normalizedEvent) {
       return;
     }
     initialRectRef.current = elRef.current.getBoundingClientRect();
-    initialClientXRef.current = e.clientX;
+    initialClientXRef.current = normalizedEvent.clientX;
     setIsPointerDown(true);
   });
 
-  const handleDragMove = useEventCallback(
-    normalizeTouchPointerEvent((e) => {
-      const rect = initialRectRef.current;
-      const clientX = initialClientXRef.current;
-      if (!rect) {
-        return;
-      }
-      // Has to move at least 2px to be considered dragging
-      if (!isDragging && Math.abs(e.clientX - clientX) < 2) {
-        return;
-      }
-      setIsDragging(true);
-      lastClientXRef.current = e.clientX;
-      const x = e.clientX - rect.left - rect.height / 2;
-      const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
-      setPosition(clampedX);
-    })
-  );
+  const handleDragMove = useEventCallback((e: GenericTouchPointerEvent) => {
+    const normalizedEvent = normalizeTouchPointerEvent(e);
+    const rect = initialRectRef.current;
+    const clientX = initialClientXRef.current;
+    if (!rect || !normalizedEvent) {
+      return;
+    }
+    // Has to move at least 2px to be considered dragging
+    if (!isDragging && Math.abs(normalizedEvent.clientX - clientX) < 2) {
+      return;
+    }
+    setIsDragging(true);
+    lastClientXRef.current = normalizedEvent.clientX;
+    const x = normalizedEvent.clientX - rect.left - rect.height / 2;
+    const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
+    setPosition(clampedX);
+  });
 
   // Pointermove handler is registered on the body to support dragging out of the switch boundary
   useEffect(() => {
@@ -217,20 +217,16 @@ const styles = stylex.create({
   }),
 });
 
-function normalizeTouchPointerEvent(
-  callback: (props: { clientX: number }) => void
-) {
-  return (
-    e:
-      | PointerEvent
-      | TouchEvent
-      | React.PointerEvent<HTMLInputElement>
-      | React.TouchEvent<HTMLInputElement>
-  ) => {
-    if ("touches" in e && e.touches.length !== 1) {
-      return;
-    }
-    const clientX = "clientX" in e ? e.clientX : e.touches[0].clientX;
-    callback({ clientX });
-  };
+type GenericTouchPointerEvent =
+  | PointerEvent
+  | TouchEvent
+  | React.PointerEvent<HTMLInputElement>
+  | React.TouchEvent<HTMLInputElement>;
+
+function normalizeTouchPointerEvent(e: GenericTouchPointerEvent) {
+  if ("touches" in e && e.touches.length !== 1) {
+    return;
+  }
+  const clientX = "clientX" in e ? e.clientX : e.touches[0].clientX;
+  return { clientX };
 }
