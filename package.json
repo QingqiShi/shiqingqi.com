@@ -35,7 +35,6 @@
     "twgl.js": "^5.5.4"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.26.0",
     "@stylexjs/babel-plugin": "^0.9.3",
     "@stylexjs/eslint-plugin": "^0.9.3",
     "@stylexjs/nextjs-plugin": "^0.9.3",
