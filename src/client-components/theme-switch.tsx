@@ -169,7 +169,7 @@ const styles = stylex.create({
   systemButton: {
     position: "absolute",
     top: 0,
-    paddingRight: "12px",
+    paddingRight: "2rem",
     left: 0,
     transition: "transform 0.2s ease, opacity 0.2s ease",
     transform: `translateX(${themeSwitchTokens.systemLeft})`,

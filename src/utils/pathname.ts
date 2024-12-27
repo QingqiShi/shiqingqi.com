@@ -2,15 +2,15 @@ import type { SupportedLocale } from "../types";
 
 const localePrefixes = /^\/(en|zh)($|\/)/;
 
-export function normalizePath(pathname: string): string {
-  const localeRemoved = pathname.replace(localePrefixes, "/");
+export function normalizePath(pathname: string | null): string {
+  const localeRemoved = pathname?.replace(localePrefixes, "/") ?? "";
   const trailingSlashRemoved =
     localeRemoved.length > 1 ? localeRemoved.replace(/\/$/, "") : localeRemoved;
   return trailingSlashRemoved;
 }
 
 export function getLocalePath(
-  pathname: string,
+  pathname: string | null,
   locale: SupportedLocale,
   defaultLocale = "en"
 ): string {
