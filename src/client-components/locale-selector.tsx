@@ -24,7 +24,7 @@ function subscribe(onStoreChange: () => void) {
 let isMenuShownSingleton = false;
 function setIsMenuShown(newState: boolean) {
   isMenuShownSingleton = newState;
-  listeners.forEach((listener) => listener());
+  listeners.forEach((listener) => { listener(); });
 }
 
 interface LocaleSelectorProps {
@@ -57,7 +57,7 @@ export function LocaleSelector({
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
         aria-label={ariaLabel}
-        onClick={() => setIsMenuShown(true)}
+        onClick={() => { setIsMenuShown(true); }}
         icon={<Translate weight="bold" role="presentation" />}
         style={styles.desktopVisible}
       >
@@ -68,7 +68,7 @@ export function LocaleSelector({
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
         aria-label={ariaLabel}
-        onClick={() => setIsMenuShown(true)}
+        onClick={() => { setIsMenuShown(true); }}
         style={styles.mobileVisible}
       >
         <Translate weight="bold" role="presentation" />

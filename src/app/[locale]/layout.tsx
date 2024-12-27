@@ -8,7 +8,12 @@ import { FlowGradient } from "../../server-components/flow-gradient";
 import { Footer } from "../../server-components/footer";
 import { Header } from "../../server-components/header";
 import { tokens } from "../../tokens.stylex";
-import type { Breakpoints, LayoutProps, PageProps } from "../../types";
+import type {
+  Breakpoints,
+  LayoutProps,
+  PageProps,
+  SupportedLocale,
+} from "../../types";
 import { themeHack } from "../../utils/theme-hack";
 import { globalStyles } from "../globalStyles";
 import { getTranslations } from "../translations/getTranslations";
@@ -28,10 +33,14 @@ export async function generateMetadata(props: PageProps) {
   } satisfies Metadata;
 }
 
+function validateLocale(locale: string): locale is SupportedLocale {
+  return locale === "en" || locale === "zh";
+}
+
 export default async function RootLayout({ params, children }: LayoutProps) {
   const { locale } = await params;
 
-  if (locale !== "en" && locale !== "zh") {
+  if (!validateLocale(locale)) {
     redirect("/");
   }
 

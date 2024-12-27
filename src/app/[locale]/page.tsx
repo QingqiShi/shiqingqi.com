@@ -12,7 +12,7 @@ import { getLocalePath } from "../../utils/pathname";
 import { getTranslations } from "../translations/getTranslations";
 import translations from "./translations.json";
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "zh" }];
 }
 

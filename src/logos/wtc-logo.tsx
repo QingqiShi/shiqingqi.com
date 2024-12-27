@@ -6,7 +6,7 @@ interface WtcLogoProps {
   style?: StyleProp;
 }
 
-export default async function WtcLogo({ style }: WtcLogoProps) {
+export default function WtcLogo({ style }: WtcLogoProps) {
   return (
     <svg viewBox="-51 -14.008 115 39.953" {...stylex.props(style)}>
       <title>Wunderman Thompson Commerce</title>

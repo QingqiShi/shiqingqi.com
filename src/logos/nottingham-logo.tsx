@@ -7,10 +7,7 @@ interface NottinghamLogoProps {
   style?: StyleProp;
 }
 
-export default async function NottinghamLogo({
-  title,
-  style,
-}: NottinghamLogoProps) {
+export default function NottinghamLogo({ title, style }: NottinghamLogoProps) {
   return (
     <svg viewBox="0 0 115.79 170" {...stylex.props(styles.svg, style)}>
       <title>{title}</title>

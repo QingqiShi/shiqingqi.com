@@ -1,54 +1,41 @@
-import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import stylexjs from "@stylexjs/eslint-plugin";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
+import tsEslint from "typescript-eslint";
 import reactCompiler from "eslint-plugin-react-compiler";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import next from "eslint-config-next";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
 });
 
-/** @type {import('eslint').Linter.Config[]} */
-export default [
+const eslintConfig = tsEslint.config([
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  js.configs.recommended,
+  tsEslint.configs.recommendedTypeChecked,
   {
-    ignores: ["next.config.js", "public/sw.js"],
-  },
-  ...fixupConfigRules(
-    compat.extends(
-      "eslint:recommended",
-      "next/core-web-vitals",
-      "plugin:@typescript-eslint/strict",
-      "plugin:import/recommended",
-      "plugin:import/typescript"
-    )
-  ),
-  {
+    name: "custom",
     plugins: {
-      next,
-      "@typescript-eslint": fixupPluginRules(typescriptEslint),
       "@stylexjs": stylexjs,
       "react-compiler": reactCompiler,
     },
-
+    // languageOptions: {
+    //   parserOptions: {
+    //     project: ["./tsconfig.json"],
+    //   },
+    // },
     languageOptions: {
-      parser: tsParser,
       ecmaVersion: "latest",
       sourceType: "script",
-
       parserOptions: {
-        project: ["./tsconfig.json"],
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
-
     rules: {
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
@@ -58,4 +45,6 @@ export default [
       "react-compiler/react-compiler": "error",
     },
   },
-];
+]);
+
+export default eslintConfig;
