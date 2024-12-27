@@ -1,10 +1,10 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import stylexjs from "@stylexjs/eslint-plugin";
-import tsEslint from "typescript-eslint";
 import reactCompiler from "eslint-plugin-react-compiler";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import tsEslint from "typescript-eslint";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,11 +23,7 @@ const eslintConfig = tsEslint.config([
       "@stylexjs": stylexjs,
       "react-compiler": reactCompiler,
     },
-    // languageOptions: {
-    //   parserOptions: {
-    //     project: ["./tsconfig.json"],
-    //   },
-    // },
+    ignores: ["eslint.config.mjs"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "script",
