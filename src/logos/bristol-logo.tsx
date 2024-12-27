@@ -7,7 +7,7 @@ interface BristolLogoProps {
   title: string;
 }
 
-export default async function BristolLogo({ style, title }: BristolLogoProps) {
+export default function BristolLogo({ style, title }: BristolLogoProps) {
   return (
     <svg viewBox="0 0 156 164" {...stylex.props(styles.svg, style)}>
       <title>{title}</title>

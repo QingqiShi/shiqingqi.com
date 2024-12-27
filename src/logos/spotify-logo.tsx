@@ -6,7 +6,7 @@ interface SpotifyLogoProps {
   style?: StyleProp;
 }
 
-export default async function SpotifyLogo({ style }: SpotifyLogoProps) {
+export default function SpotifyLogo({ style }: SpotifyLogoProps) {
   return (
     <svg viewBox="0 0 63 20" {...stylex.props(styles.svg, style)}>
       <title>Spotify</title>

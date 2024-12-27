@@ -1,6 +1,6 @@
 "use client";
 
-import React, { startTransition, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import useControlled from "@mui/utils/useControlled";
 import { tokens } from "../tokens.stylex";
@@ -34,10 +34,13 @@ export function Switch({
     name: "Switch",
   });
 
-  const setControlledValue = (newValue: SwitchState) => {
-    setValue(newValue);
-    onChange?.(newValue);
-  };
+  const setControlledValue = useCallback(
+    (newValue: SwitchState) => {
+      setValue(newValue);
+      onChange?.(newValue);
+    },
+    [onChange, setValue]
+  );
 
   // Sync value with input due to check box having two different value states (specifically `indeterminate`)
   useEffect(() => {
@@ -68,23 +71,26 @@ export function Switch({
     setIsPointerDown(true);
   };
 
-  const handleDragMove = (e: GenericTouchPointerEvent) => {
-    const normalizedEvent = normalizeTouchPointerEvent(e);
-    const rect = initialRectRef.current;
-    const clientX = initialClientXRef.current;
-    if (!rect || !normalizedEvent) {
-      return;
-    }
-    // Has to move at least 2px to be considered dragging
-    if (!isDragging && Math.abs(normalizedEvent.clientX - clientX) < 2) {
-      return;
-    }
-    setIsDragging(true);
-    lastClientXRef.current = normalizedEvent.clientX;
-    const x = normalizedEvent.clientX - rect.left - rect.height / 2;
-    const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
-    setPosition(clampedX);
-  };
+  const handleDragMove = useCallback(
+    (e: GenericTouchPointerEvent) => {
+      const normalizedEvent = normalizeTouchPointerEvent(e);
+      const rect = initialRectRef.current;
+      const clientX = initialClientXRef.current;
+      if (!rect || !normalizedEvent) {
+        return;
+      }
+      // Has to move at least 2px to be considered dragging
+      if (!isDragging && Math.abs(normalizedEvent.clientX - clientX) < 2) {
+        return;
+      }
+      setIsDragging(true);
+      lastClientXRef.current = normalizedEvent.clientX;
+      const x = normalizedEvent.clientX - rect.left - rect.height / 2;
+      const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
+      setPosition(clampedX);
+    },
+    [isDragging]
+  );
 
   // Pointermove handler is registered on the body to support dragging out of the switch boundary
   useEffect(() => {
@@ -100,7 +106,7 @@ export function Switch({
     };
   }, [handleDragMove, isPointerDown]);
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     const rect = initialRectRef.current;
     setIsDragging(false);
     setPosition(null);
@@ -121,7 +127,7 @@ export function Switch({
         ignoreOnChange.current = true;
       }
     }
-  };
+  }, [isDragging, setControlledValue]);
 
   // Pointerup handler is registered on the body to support ending drag outside of switch boundary
   useEffect(() => {

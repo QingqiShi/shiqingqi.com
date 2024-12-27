@@ -6,7 +6,7 @@ interface CitadelLogoProps {
   style?: StyleProp;
 }
 
-export default async function CitadelLogo({ style }: CitadelLogoProps) {
+export default function CitadelLogo({ style }: CitadelLogoProps) {
   return (
     <svg viewBox="0 0 842 100" {...stylex.props(styles.svg, style)}>
       <title>Citadel</title>

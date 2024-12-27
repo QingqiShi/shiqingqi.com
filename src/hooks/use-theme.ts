@@ -13,7 +13,7 @@ let themeSingleton: string | null = null;
 function setIsMenuShown(newTheme: SupportedTheme) {
   themeSingleton = newTheme;
   localStorage.setItem(STORAGE_KEY, newTheme);
-  listeners.forEach((listener) => listener());
+  listeners.forEach((listener) => { listener(); });
 }
 
 function getSupportedTheme(theme: string | null): SupportedTheme {

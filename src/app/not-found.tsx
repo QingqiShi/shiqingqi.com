@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "You're looking for a page about Qingqi Shi that doesn't exist.",
 };
 
-export default async function NotFound() {
+export default function NotFound() {
   return (
     <Layout params={Promise.resolve({ locale: "en" })}>
       <h1>404</h1>
