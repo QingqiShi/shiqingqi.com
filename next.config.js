@@ -3,7 +3,6 @@ const stylexPlugin = require("@stylexjs/nextjs-plugin");
 const withStylex = stylexPlugin({
   rootDir: __dirname,
   useCSSLayers: true,
-  useRemForFontSize: true,
 });
 
 module.exports = async () => {
