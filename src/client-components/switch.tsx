@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { startTransition, useEffect, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
-import useEventCallback from "@mui/utils/useEventCallback";
 import useControlled from "@mui/utils/useControlled";
 import { tokens } from "../tokens.stylex";
-import { useDebouncedFunction } from "../hooks/use-debounced-function";
 import type { StyleProp } from "../types";
 import { switchTokens } from "./switch.stylex";
 
@@ -28,22 +26,18 @@ export function Switch({
   ...rest
 }: SwitchProps) {
   const elRef = useRef<HTMLInputElement>(null);
+
   // Optionally controlled state
   const [value, setValue] = useControlled({
     controlled: valueProp,
     default: "off",
     name: "Switch",
   });
-  // Debounce is required because both onChange and onPointerUp can fire when dragging
-  const setControlledValue = useDebouncedFunction(
-    (newValue: SwitchState) => {
-      setValue(newValue);
-      onChange?.(newValue);
-    },
-    0,
-    // Setting to leading so onChange will be ignored if dragEnd is fired first
-    { leading: true, trailing: false }
-  );
+
+  const setControlledValue = (newValue: SwitchState) => {
+    setValue(newValue);
+    onChange?.(newValue);
+  };
 
   // Sync value with input due to check box having two different value states (specifically `indeterminate`)
   useEffect(() => {
@@ -61,17 +55,20 @@ export function Switch({
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState<number | null>(null);
 
-  const handleDragStart = useEventCallback((e: GenericTouchPointerEvent) => {
+  const ignoreOnChange = useRef(false);
+
+  const handleDragStart = (e: GenericTouchPointerEvent) => {
     const normalizedEvent = normalizeTouchPointerEvent(e);
     if (rest.disabled || !elRef.current || !normalizedEvent) {
       return;
     }
+    ignoreOnChange.current = false;
     initialRectRef.current = elRef.current.getBoundingClientRect();
     initialClientXRef.current = normalizedEvent.clientX;
     setIsPointerDown(true);
-  });
+  };
 
-  const handleDragMove = useEventCallback((e: GenericTouchPointerEvent) => {
+  const handleDragMove = (e: GenericTouchPointerEvent) => {
     const normalizedEvent = normalizeTouchPointerEvent(e);
     const rect = initialRectRef.current;
     const clientX = initialClientXRef.current;
@@ -87,7 +84,7 @@ export function Switch({
     const x = normalizedEvent.clientX - rect.left - rect.height / 2;
     const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
     setPosition(clampedX);
-  });
+  };
 
   // Pointermove handler is registered on the body to support dragging out of the switch boundary
   useEffect(() => {
@@ -103,7 +100,7 @@ export function Switch({
     };
   }, [handleDragMove, isPointerDown]);
 
-  const handleDragEnd = useEventCallback(() => {
+  const handleDragEnd = () => {
     const rect = initialRectRef.current;
     setIsDragging(false);
     setPosition(null);
@@ -121,9 +118,10 @@ export function Switch({
         const midPoint = rect.left + rect.width / 2;
         const newState = lastClientXRef.current > midPoint ? "on" : "off";
         setControlledValue(newState);
+        ignoreOnChange.current = true;
       }
     }
-  });
+  };
 
   // Pointerup handler is registered on the body to support ending drag outside of switch boundary
   useEffect(() => {
@@ -148,7 +146,15 @@ export function Switch({
       checked={value === "on" ? true : value === "off" ? false : undefined}
       onPointerDown={handleDragStart}
       onTouchStart={handleDragStart}
-      onChange={(e) => setControlledValue(e.target.checked ? "on" : "off")}
+      onChange={(e) => {
+        // onChange still fires after dragging, so we need to ignore this event
+        // if dragEnd event had occurred.
+        if (ignoreOnChange.current) {
+          ignoreOnChange.current = false;
+          return;
+        }
+        setControlledValue(e.target.checked ? "on" : "off");
+      }}
     />
   );
 }
