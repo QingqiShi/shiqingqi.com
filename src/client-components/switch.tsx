@@ -160,6 +160,7 @@ export function Switch({
 }
 
 const THUMB_SIZE = "36px";
+const TRACK_SIZE = `calc(${THUMB_SIZE} * 2)`;
 
 const styles = stylex.create({
   switch: {
