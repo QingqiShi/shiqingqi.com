@@ -64,12 +64,8 @@ export default async function RootLayout({ params, children }: LayoutProps) {
             <FlowGradient />
           </Suspense>
         </div>
-        <div {...stylex.props(styles.maskContainer)} role="presentation">
-          <div {...stylex.props(styles.mask)} />
-        </div>
-        <div {...stylex.props(styles.glowContainer)} role="presentation">
-          <div {...stylex.props(styles.glow)} />
-        </div>
+        <div {...stylex.props(styles.maskContainer)} role="presentation" />
+        <div {...stylex.props(styles.glow)} role="presentation" />
         <div {...stylex.props(styles.container)}>
           <div {...stylex.props(styles.wrapperInner)}>
             <Header params={params} />
@@ -123,18 +119,8 @@ const styles = stylex.create({
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,
-    paddingRight: {
-      default: "calc(1rem + env(safe-area-inset-right))",
-      [sm]: "calc(1.2rem + env(safe-area-inset-right))",
-      [md]: "calc(1.4rem + env(safe-area-inset-right))",
-      [minLg]: "calc(1.7rem + env(safe-area-inset-right))",
-    },
-    paddingLeft: {
-      default: "calc(1rem + env(safe-area-inset-left))",
-      [sm]: "calc(1.2rem + env(safe-area-inset-left))",
-      [md]: "calc(1.4rem + env(safe-area-inset-left))",
-      [minLg]: "calc(1.7rem + env(safe-area-inset-left))",
-    },
+    paddingLeft: `calc(${tokens.layoutPaddingBase} + env(safe-area-inset-left))`,
+    paddingRight: `calc(${tokens.layoutPaddingBase} + env(safe-area-inset-right))`,
   },
   wrapperInner: {
     position: "relative",
@@ -202,56 +188,28 @@ const styles = stylex.create({
     left: 0,
     right: 0,
     overflow: "hidden",
-    clipPath: "inset(0 0 calc((100%-10rem) / 2) 0)",
     pointerEvents: "none",
     height: {
       default: "calc(540px + 10rem)",
       [minXl]: "calc(1000px + 10rem)",
     },
-  },
-  mask: {
-    position: "absolute",
-    top: "10rem",
-    left: "50%",
-    transform: "translate3d(-50%,0,0)",
-    borderRadius: "50%",
-    background: tokens.backgroundMain,
-    opacity: tokens.maskOpacity,
     mixBlendMode: tokens.maskBlendMode,
-    filter: "blur(5rem)",
-    width: {
-      default: "1080px",
-      [minXl]: "2000px",
-    },
-    height: {
-      default: "1080px",
-      [minXl]: "2000px",
-    },
+    background: `radial-gradient(circle ${tokens.layoutMaskRadius} at center calc(${tokens.layoutMaskRadius}), ${tokens.backgroundMain} 50%, transparent)`,
   },
-  glowContainer: {
+  glow: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     overflow: "hidden",
     pointerEvents: "none",
+    background: `radial-gradient(circle 750px at center calc(750px + 5rem), ${tokens.controlActive} calc(100% - 15rem), ${tokens.backgroundMain})`,
+    opacity: tokens.glowOpacity,
     height: {
       default: "calc(50vw + 10rem)",
       [md]: "calc(30vw + 10rem)",
       [lg]: "calc(20vw + 10rem)",
       [minXl]: "calc(400px + 10rem)",
     },
-  },
-  glow: {
-    position: "absolute",
-    top: "10rem",
-    left: "50%",
-    transform: "translate3d(-50%,0,0)",
-    borderRadius: "50%",
-    background: tokens.controlActive,
-    opacity: tokens.glowOpacity,
-    filter: "blur(5rem)",
-    width: "1500px",
-    height: "1500px",
   },
 });

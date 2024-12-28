@@ -1,6 +1,16 @@
 import * as stylex from "@stylexjs/stylex";
+import type { Breakpoints } from "./types";
 
 const DARK = "@media (prefers-color-scheme: dark)";
+
+const sm: Breakpoints["sm"] =
+  "@media (min-width: 320px) and (max-width: 767px)";
+const md: Breakpoints["md"] =
+  "@media (min-width: 768px) and (max-width: 1079px)";
+const lg: Breakpoints["lg"] =
+  "@media (min-width: 1080px) and (max-width: 1999px)";
+const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
+const minXl: Breakpoints["minXl"] = "@media (min-width: 2000px)";
 
 const lightThemeTokens = {
   textMain: "#292929",
@@ -44,6 +54,19 @@ export const tokens = stylex.defineVars({
   svgDefault: "",
   svgHover: "",
   spotifyLogoFill: "#1ecc5a",
+  layoutPaddingBase: {
+    default: "1rem",
+    [sm]: "1.2rem",
+    [md]: "1.4rem",
+    [minLg]: "1.7rem",
+  },
+  layoutMaskRadius: {
+    default: "540px",
+    [sm]: "700px",
+    [md]: "850px",
+    [lg]: "1300px",
+    [minXl]: "2000px",
+  },
   ...lightThemeTokens,
 });
 
