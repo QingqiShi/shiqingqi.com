@@ -80,21 +80,17 @@ export function start(
 
   let bufferInfo: BufferInfo | undefined;
 
-  const resized = resizeCanvasToDisplaySize(
-    context.gl.canvas as HTMLCanvasElement,
-    window.devicePixelRatio
-  );
-  context.gl.viewport(0, 0, context.gl.canvas.width, context.gl.canvas.height);
-
-  if (resized || !bufferInfo) {
-    bufferInfo = getBufferInfo(
-      context,
-      context.gl.canvas.width,
-      context.gl.canvas.height
-    );
-  }
-
   const render = ({ gl, programInfo }: Context, t: number) => {
+    const resized = resizeCanvasToDisplaySize(
+      gl.canvas as HTMLCanvasElement,
+      window.devicePixelRatio
+    );
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    if (resized || !bufferInfo) {
+      bufferInfo = getBufferInfo(context, gl.canvas.width, gl.canvas.height);
+    }
+
     const smDpi = window.devicePixelRatio;
     const mdBreakpoint = 768 * window.devicePixelRatio;
     const mdDpi =
