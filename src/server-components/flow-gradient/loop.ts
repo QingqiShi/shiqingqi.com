@@ -12,6 +12,27 @@ import { createMesh } from "./primitives";
 interface Context {
   gl: WebGLRenderingContext;
   programInfo: ProgramInfo;
+  canvas: HTMLCanvasElement;
+}
+
+export function init(
+  canvas: HTMLCanvasElement,
+  vertexShaderSrc: string,
+  fragmentShaderSrc: string
+): Context | undefined {
+  const gl = canvas.getContext("webgl2", {
+    premultipliedAlpha: false,
+  });
+  if (!gl) return;
+
+  const programInfo = createProgramInfo(gl, [
+    vertexShaderSrc,
+    fragmentShaderSrc,
+  ]);
+
+  gl.useProgram(programInfo.program);
+
+  return { gl, programInfo, canvas };
 }
 
 function getBufferInfo(
@@ -31,26 +52,6 @@ function getBufferInfo(
   return bufferInfo;
 }
 
-export function init(
-  canvas: HTMLCanvasElement,
-  vertexShaderSrc: string,
-  fragmentShaderSrc: string
-) {
-  const gl = canvas.getContext("webgl2", {
-    premultipliedAlpha: false,
-  });
-  if (!gl) return;
-
-  const programInfo = createProgramInfo(gl, [
-    vertexShaderSrc,
-    fragmentShaderSrc,
-  ]);
-
-  gl.useProgram(programInfo.program);
-
-  return { gl, programInfo };
-}
-
 interface Options {
   colorTop?: [number, number, number];
   colorBottom?: [number, number, number];
@@ -66,7 +67,7 @@ interface Options {
 }
 
 export function start(
-  context: Context,
+  { gl, programInfo, canvas }: Context,
   {
     colorTop = [0, 0, 0.2],
     colorBottom = [0, 0, 0.8],
@@ -75,22 +76,30 @@ export function start(
     colorBackground = [0.953, 0.929, 0.929],
   }: Options
 ) {
-  const playingRef = { current: true };
-  const animationRef = { current: null as null | number };
+  let startTime = performance.now();
+
+  // Resize canvas
+  let resized = false;
+  const observer = new ResizeObserver(() => {
+    resized = resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    render(performance.now() - startTime);
+  });
+  observer.observe(canvas);
 
   let bufferInfo: BufferInfo | undefined;
-
-  const render = ({ gl, programInfo }: Context, t: number) => {
-    const resized = resizeCanvasToDisplaySize(
-      gl.canvas as HTMLCanvasElement,
-      window.devicePixelRatio
-    );
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
+  const render = (timestamp: number) => {
+    // Re-create buffer info when canvas resized to re-create mesh
     if (resized || !bufferInfo) {
-      bufferInfo = getBufferInfo(context, gl.canvas.width, gl.canvas.height);
+      bufferInfo = getBufferInfo(
+        { gl, programInfo, canvas },
+        gl.canvas.width,
+        gl.canvas.height
+      );
+      resized = false;
     }
 
+    const t = timestamp;
     const smDpi = window.devicePixelRatio;
     const mdBreakpoint = 768 * window.devicePixelRatio;
     const mdDpi =
@@ -130,20 +139,44 @@ export function start(
   };
 
   const fps = 30;
-  const loop: FrameRequestCallback = (time) => {
-    render(context, time);
-    setTimeout(() => {
-      if (playingRef.current) {
-        animationRef.current = requestAnimationFrame(loop);
+  const frameDuration = 1000 / fps;
+  const initialAnimationWindow = 2200;
+  let animationId = null as null | number;
+  let lastFrameTime = performance.now();
+  let frameCounter = 0;
+  let skipFpsCheck = false;
+
+  const handleFrame: FrameRequestCallback = (timestamp) => {
+    const elapsed = timestamp - lastFrameTime;
+
+    // Throttle updates to match desired fps
+    if (elapsed >= frameDuration) {
+      lastFrameTime = timestamp - (elapsed % frameDuration); // Align timing
+      render(timestamp - startTime);
+    }
+
+    // For the initial 3s, check the fps and decide if we need to stop animation
+    if (!skipFpsCheck) {
+      frameCounter++;
+      const fpsElapsed = timestamp - startTime;
+      if (fpsElapsed >= initialAnimationWindow) {
+        const actualFps = (frameCounter * 1000) / fpsElapsed;
+        skipFpsCheck = true;
+        if (actualFps < 29) {
+          return;
+        }
       }
-    }, 1000 / fps);
+    }
+
+    // Request the next frame
+    animationId = requestAnimationFrame(handleFrame);
   };
-  loop(performance.now());
+  animationId = requestAnimationFrame(handleFrame);
 
   return () => {
-    if (animationRef.current !== null) {
-      cancelAnimationFrame(animationRef.current);
-      playingRef.current = false;
+    if (animationId !== null) {
+      cancelAnimationFrame(animationId);
     }
+    observer.disconnect();
   };
 }
