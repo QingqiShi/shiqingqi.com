@@ -1,0 +1,62 @@
+# Patched to support the `stylex-breakpoints` babel plugin, which basically opts out of the computed
+# key check.
+
+diff --git a/lib/stylex-valid-styles.js b/lib/stylex-valid-styles.js
+index c4ef77e79a9d0ddf2991cd8c374d620e6ede381d..acaef93ed93d55779317dd403fcaf6c2f57aa704 100644
+--- a/lib/stylex-valid-styles.js
++++ b/lib/stylex-valid-styles.js
+@@ -1163,31 +1163,33 @@ const stylexValidStyles = {
+         if ((0, _isStylexDefineVarsToken.default)(styleKey, stylexDefineVarsTokenImports)) {
+           return undefined;
+         }
+-        if (style.computed && styleKey.type !== 'Literal') {
+-          const val = (0, _evaluate.default)(styleKey, variables);
+-          if (val == null) {
+-            return context.report({
+-              node: style.key,
+-              loc: style.key.loc,
+-              message: 'Computed key cannot be resolved.'
+-            });
+-          } else if (val === 'ARG') {
++        if (styleKey.type !== 'MemberExpression' && styleKey?.object?.name !== 'breakpoints') {
++          if (style.computed && styleKey.type !== 'Literal') {
++            const val = (0, _evaluate.default)(styleKey, variables);
++            if (val == null) {
++              return context.report({
++                node: style.key,
++                loc: style.key.loc,
++                message: 'Computed key cannot be resolved.'
++              });
++            } else if (val === 'ARG') {
++              return context.report({
++                node: style.key,
++                loc: style.key.loc,
++                message: 'Computed key cannot depend on function argument'
++              });
++            } else {
++              styleKey = val;
++            }
++          }
++          if (styleKey.type !== 'Literal' && styleKey.type !== 'Identifier') {
+             return context.report({
+-              node: style.key,
+-              loc: style.key.loc,
+-              message: 'Computed key cannot depend on function argument'
++              node: styleKey,
++              loc: styleKey.loc,
++              message: 'All keys in a stylex object must be static literal values.'
+             });
+-          } else {
+-            styleKey = val;
+           }
+         }
+-        if (styleKey.type !== 'Literal' && styleKey.type !== 'Identifier') {
+-          return context.report({
+-            node: styleKey,
+-            loc: styleKey.loc,
+-            message: 'All keys in a stylex object must be static literal values.'
+-          });
+-        }
+         const key = propName ?? (styleKey.type === 'Identifier' ? styleKey.name : styleKey.value);
+         if (typeof key !== 'string') {
+           return context.report({

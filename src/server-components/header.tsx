@@ -1,9 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
+import { breakpoints } from "@/breakpoints";
 import { BackButton } from "@/client-components/back-button";
 import { LocaleSelector } from "@/client-components/locale-selector";
 import { ThemeSwitch } from "@/client-components/theme-switch";
-import type { Breakpoints, LayoutProps } from "@/types";
+import type { LayoutProps } from "@/types";
 import translations from "./translations.json";
 
 export async function Header({ params }: Omit<LayoutProps, "children">) {
@@ -34,13 +35,6 @@ export async function Header({ params }: Omit<LayoutProps, "children">) {
   );
 }
 
-const sm: Breakpoints["sm"] =
-  "@media (min-width: 320px) and (max-width: 767px)";
-const md: Breakpoints["md"] =
-  "@media (min-width: 768px) and (max-width: 1079px)";
-const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
-const minXl: Breakpoints["minXl"] = "@media (min-width: 2000px)";
-
 const styles = stylex.create({
   container: {
     position: "fixed",
@@ -52,7 +46,10 @@ const styles = stylex.create({
     pointerEvents: "none",
   },
   nav: {
-    maxWidth: { default: "1080px", [minXl]: "calc((1080 / 24) * 1rem)" },
+    maxWidth: {
+      default: "1080px",
+      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
+    },
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,
@@ -63,15 +60,15 @@ const styles = stylex.create({
     pointerEvents: "none",
     paddingRight: {
       default: "calc(1rem + env(safe-area-inset-right))",
-      [sm]: "calc(1.2rem + env(safe-area-inset-right))",
-      [md]: "calc(1.4rem + env(safe-area-inset-right))",
-      [minLg]: "calc(1.7rem + env(safe-area-inset-right))",
+      [breakpoints.sm]: "calc(1.2rem + env(safe-area-inset-right))",
+      [breakpoints.md]: "calc(1.4rem + env(safe-area-inset-right))",
+      [breakpoints.lg]: "calc(1.7rem + env(safe-area-inset-right))",
     },
     paddingLeft: {
       default: "calc(1rem + env(safe-area-inset-left))",
-      [sm]: "calc(1.2rem + env(safe-area-inset-left))",
-      [md]: "calc(1.4rem + env(safe-area-inset-left))",
-      [minLg]: "calc(1.7rem + env(safe-area-inset-left))",
+      [breakpoints.sm]: "calc(1.2rem + env(safe-area-inset-left))",
+      [breakpoints.md]: "calc(1.4rem + env(safe-area-inset-left))",
+      [breakpoints.lg]: "calc(1.7rem + env(safe-area-inset-left))",
     },
   },
   navContent: {

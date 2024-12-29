@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
-import type { Breakpoints, SupportedLocale } from "@/types";
+import { breakpoints } from "@/breakpoints";
+import type { SupportedLocale } from "@/types";
 import { Anchor } from "./anchor";
 import translations from "./translations.json";
 
@@ -44,9 +45,6 @@ export function Footer({ locale }: FooterProps) {
   );
 }
 
-const minSm: Breakpoints["minSm"] = "@media (min-width: 320px)";
-const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
-
 const styles = stylex.create({
   footer: {
     display: "flex",
@@ -54,23 +52,23 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingBottom: "3rem",
-    marginTop: { default: "4rem", [minSm]: "7rem" },
+    marginTop: { default: "4rem", [breakpoints.sm]: "7rem" },
   },
   section: {
-    alignItems: { default: null, [minMd]: "center" },
+    alignItems: { default: null, [breakpoints.md]: "center" },
   },
   linksSection: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-    marginBottom: { default: "2rem", [minMd]: "0" },
-    width: { default: "100%", [minMd]: "50%" },
-    textAlign: { default: "center", [minMd]: "left" },
+    marginBottom: { default: "2rem", [breakpoints.md]: "0" },
+    width: { default: "100%", [breakpoints.md]: "50%" },
+    textAlign: { default: "center", [breakpoints.md]: "left" },
   },
   copyrightSection: {
-    width: { default: "100%", [minMd]: "50%" },
-    textAlign: { default: "center", [minMd]: "right" },
-    justifyContent: { default: null, [minMd]: "flex-end" },
+    width: { default: "100%", [breakpoints.md]: "50%" },
+    textAlign: { default: "center", [breakpoints.md]: "right" },
+    justifyContent: { default: null, [breakpoints.md]: "flex-end" },
   },
   name: {
     display: "block",
@@ -86,6 +84,6 @@ const styles = stylex.create({
     display: "block",
     fontSize: "0.8rem",
     marginBottom: { default: null, ":not(:last-of-type)": "0.2rem" },
-    paddingBlock: { default: "0.5rem", [minMd]: "0" },
+    paddingBlock: { default: "0.5rem", [breakpoints.md]: "0" },
   },
 });

@@ -4,11 +4,12 @@ import { Translate } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
 import React, { useSyncExternalStore } from "react";
+import { breakpoints } from "@/breakpoints";
 import { useClickAway } from "@/hooks/use-click-away";
 import { Anchor } from "@/server-components/anchor";
 import { Button } from "@/server-components/button";
 import { tokens } from "@/tokens.stylex";
-import type { Breakpoints, SupportedLocale } from "@/types";
+import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 
 /*
@@ -137,18 +138,16 @@ function Item({ label, ariaLabel, flag, href, tabIndex, isActive }: ItemProps) {
   );
 }
 
-const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
-
 const styles = stylex.create({
   container: {
     position: "relative",
     display: "flex",
   },
   desktopVisible: {
-    display: { default: "none", [minMd]: "inline-flex" },
+    display: { default: "none", [breakpoints.md]: "inline-flex" },
   },
   mobileVisible: {
-    display: { default: "inline-flex", [minMd]: "none" },
+    display: { default: "inline-flex", [breakpoints.md]: "none" },
   },
   menu: {
     display: "flex",

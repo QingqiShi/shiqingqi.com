@@ -23,7 +23,7 @@ const eslintConfig = tsEslint.config([
       "@stylexjs": stylexjs,
       "react-compiler": reactCompiler,
     },
-    ignores: ["eslint.config.mjs"],
+    ignores: ["eslint.config.mjs", "tooling/**/*"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "script",

@@ -6,16 +6,12 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { globalStyles } from "@/app/globalStyles";
 import { getTranslations } from "@/app/translations/getTranslations";
+import { breakpoints } from "@/breakpoints";
 import { FlowGradient } from "@/server-components/flow-gradient";
 import { Footer } from "@/server-components/footer";
 import { Header } from "@/server-components/header";
 import { tokens } from "@/tokens.stylex";
-import type {
-  Breakpoints,
-  LayoutProps,
-  PageProps,
-  SupportedLocale,
-} from "@/types";
+import type { LayoutProps, PageProps, SupportedLocale } from "@/types";
 import { themeHack } from "@/utils/theme-hack";
 import translations from "./translations.json";
 
@@ -101,20 +97,12 @@ export default async function RootLayout({ params, children }: LayoutProps) {
   );
 }
 
-const sm: Breakpoints["sm"] =
-  "@media (min-width: 320px) and (max-width: 767px)";
-const minSm: Breakpoints["minSm"] = "@media (min-width: 320px)";
-const md: Breakpoints["md"] =
-  "@media (min-width: 768px) and (max-width: 1079px)";
-const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
-const lg: Breakpoints["lg"] =
-  "@media (min-width: 1080px) and (max-width: 1999px)";
-const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
-const minXl: Breakpoints["minXl"] = "@media (min-width: 2000px)";
-
 const styles = stylex.create({
   container: {
-    maxWidth: { default: "1080px", [minXl]: "calc((1080 / 24) * 1rem)" },
+    maxWidth: {
+      default: "1080px",
+      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
+    },
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,
@@ -150,23 +138,32 @@ const styles = stylex.create({
     left: "0",
   },
   line2: {
-    display: { default: "none", [minSm]: "block" },
-    left: { default: null, [sm]: "50%", [md]: "33.3%", [minLg]: "25%" },
+    display: { default: "none", [breakpoints.sm]: "block" },
+    left: {
+      default: null,
+      [breakpoints.sm]: "50%",
+      [breakpoints.md]: "33.3%",
+      [breakpoints.lg]: "25%",
+    },
   },
   line3: {
-    display: { default: "none", [minMd]: "block" },
-    left: { default: null, [md]: "66.6%", [minLg]: "50%" },
+    display: { default: "none", [breakpoints.md]: "block" },
+    left: { default: null, [breakpoints.md]: "66.6%", [breakpoints.lg]: "50%" },
   },
   line4: {
-    display: { default: "none", [minLg]: "block" },
-    left: { default: null, [minLg]: "75%" },
+    display: { default: "none", [breakpoints.lg]: "block" },
+    left: { default: null, [breakpoints.lg]: "75%" },
   },
   line5: {
     display: "block",
     left: "100%",
   },
   main: {
-    paddingTop: { default: "6rem", [sm]: "9rem", [minMd]: "11rem" },
+    paddingTop: {
+      default: "6rem",
+      [breakpoints.sm]: "9rem",
+      [breakpoints.md]: "11rem",
+    },
   },
   flowGradient: {
     position: "absolute",
@@ -176,10 +173,10 @@ const styles = stylex.create({
     zIndex: 0,
     height: {
       default: "30rem",
-      [sm]: "30rem",
-      [md]: "35rem",
-      [lg]: "30rem",
-      [minXl]: "max(35rem, 80dvh)",
+      [breakpoints.sm]: "30rem",
+      [breakpoints.md]: "35rem",
+      [breakpoints.lg]: "30rem",
+      [breakpoints.xl]: "max(35rem, 80dvh)",
     },
   },
   glow: {
