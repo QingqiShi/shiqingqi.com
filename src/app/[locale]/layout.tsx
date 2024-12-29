@@ -64,7 +64,7 @@ export default async function RootLayout({ params, children }: LayoutProps) {
             <FlowGradient />
           </Suspense>
         </div>
-        <div {...stylex.props(styles.maskContainer)} role="presentation" />
+        <div {...stylex.props(styles.contentMask)} role="presentation" />
         <div {...stylex.props(styles.glow)} role="presentation" />
         <div {...stylex.props(styles.container)}>
           <div {...stylex.props(styles.wrapperInner)}>
@@ -174,6 +174,7 @@ const styles = stylex.create({
     top: 0,
     left: 0,
     right: 0,
+    zIndex: 0,
     height: {
       default: "30rem",
       [sm]: "30rem",
@@ -182,11 +183,12 @@ const styles = stylex.create({
       [minXl]: "max(35rem, 80dvh)",
     },
   },
-  maskContainer: {
+  contentMask: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
+    zIndex: 0,
     overflow: "hidden",
     pointerEvents: "none",
     height: {
@@ -201,15 +203,11 @@ const styles = stylex.create({
     bottom: 0,
     left: 0,
     right: 0,
+    zIndex: 0,
     overflow: "hidden",
     pointerEvents: "none",
-    background: `radial-gradient(circle 750px at center calc(750px + 5rem), ${tokens.controlActive} calc(100% - 15rem), ${tokens.backgroundMain})`,
+    background: `radial-gradient(circle calc(${tokens.layoutGlowHeight}*5) at center calc(${tokens.layoutGlowHeight}*5), ${tokens.controlActive} calc(${tokens.layoutGlowHeight}*4), transparent)`,
     opacity: tokens.glowOpacity,
-    height: {
-      default: "calc(50vw + 10rem)",
-      [md]: "calc(30vw + 10rem)",
-      [lg]: "calc(20vw + 10rem)",
-      [minXl]: "calc(400px + 10rem)",
-    },
+    height: tokens.layoutGlowHeight,
   },
 });

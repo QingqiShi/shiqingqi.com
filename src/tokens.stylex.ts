@@ -67,6 +67,13 @@ export const tokens = stylex.defineVars({
     [lg]: "1300px",
     [minXl]: "2000px",
   },
+  layoutGlowHeight: {
+    default: "10rem",
+    [sm]: "12rem",
+    [md]: "12rem",
+    [lg]: "13rem",
+    [minXl]: "13rem",
+  },
   ...lightThemeTokens,
 });
 
