@@ -76,7 +76,7 @@ export function start(
     colorBackground = [0.953, 0.929, 0.929],
   }: Options
 ) {
-  let startTime = performance.now();
+  const startTime = performance.now();
 
   // Resize canvas
   let resized = false;
