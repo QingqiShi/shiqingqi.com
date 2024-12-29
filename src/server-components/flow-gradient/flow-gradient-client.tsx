@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
+import { useCallback, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { tokens } from "../../tokens.stylex";
-import { useMediaQuery } from "../../hooks/use-media-query";
-import { useTheme } from "../../hooks/use-theme";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { useTheme } from "@/hooks/use-theme";
+import { tokens } from "@/tokens.stylex";
 import { init, start } from "./loop";
 
 interface FlowGradientClientProps {

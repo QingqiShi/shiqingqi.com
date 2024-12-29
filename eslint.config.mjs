@@ -36,7 +36,23 @@ const eslintConfig = tsEslint.config([
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
-      "import/order": "error",
+      "import/order": [
+        "error",
+        {
+          pathGroups: [
+            {
+              pattern: "@/**/*",
+              group: "parent",
+              position: "before",
+            },
+          ],
+          alphabetize: {
+            order: "asc",
+            orderImportKind: "asc",
+            caseInsensitive: true,
+          },
+        },
+      ],
       "one-var": ["error", "never"],
       "react-compiler/react-compiler": "error",
     },

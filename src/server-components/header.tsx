@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { getTranslations } from "../app/translations/getTranslations";
-import { BackButton } from "../client-components/back-button";
-import { LocaleSelector } from "../client-components/locale-selector";
-import { ThemeSwitch } from "../client-components/theme-switch";
-import type { Breakpoints, LayoutProps } from "../types";
+import { getTranslations } from "@/app/translations/getTranslations";
+import { BackButton } from "@/client-components/back-button";
+import { LocaleSelector } from "@/client-components/locale-selector";
+import { ThemeSwitch } from "@/client-components/theme-switch";
+import type { Breakpoints, LayoutProps } from "@/types";
 import translations from "./translations.json";
 
 export async function Header({ params }: Omit<LayoutProps, "children">) {

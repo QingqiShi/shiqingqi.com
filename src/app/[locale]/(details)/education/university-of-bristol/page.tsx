@@ -1,7 +1,7 @@
-import { Anchor } from "../../../../../server-components/anchor";
-import { PageTitle } from "../../../../../server-components/page-title";
-import type { PageProps } from "../../../../../types";
-import { getTranslations } from "../../../../translations/getTranslations";
+import { getTranslations } from "@/app/translations/getTranslations";
+import { Anchor } from "@/server-components/anchor";
+import { PageTitle } from "@/server-components/page-title";
+import type { PageProps } from "@/types";
 import translations from "./translations.json";
 
 export default async function Page(props: PageProps) {

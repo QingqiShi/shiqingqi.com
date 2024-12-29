@@ -1,7 +1,7 @@
-import Link from "next/link";
 import * as stylex from "@stylexjs/stylex";
-import { tokens } from "../tokens.stylex";
-import type { StyleProp } from "../types";
+import Link from "next/link";
+import { tokens } from "@/tokens.stylex";
+import type { StyleProp } from "@/types";
 
 interface AnchorProps
   extends Omit<React.ComponentProps<typeof Link>, "className" | "style"> {

@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { tokens } from "../tokens.stylex";
-import type { StyleProp } from "../types";
+import { tokens } from "@/tokens.stylex";
+import type { StyleProp } from "@/types";
 
 interface WtcLogoProps {
   style?: StyleProp;

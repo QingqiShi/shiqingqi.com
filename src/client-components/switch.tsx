@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import * as stylex from "@stylexjs/stylex";
 import useControlled from "@mui/utils/useControlled";
-import { tokens } from "../tokens.stylex";
-import type { StyleProp } from "../types";
+import * as stylex from "@stylexjs/stylex";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { tokens } from "@/tokens.stylex";
+import type { StyleProp } from "@/types";
 import { switchTokens } from "./switch.stylex";
 
 export type SwitchState = "off" | "on" | "indeterminate";

@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
-import type { Breakpoints, SupportedLocale } from "../types";
-import { getTranslations } from "../app/translations/getTranslations";
-import translations from "./translations.json";
+import { getTranslations } from "@/app/translations/getTranslations";
+import type { Breakpoints, SupportedLocale } from "@/types";
 import { Anchor } from "./anchor";
+import translations from "./translations.json";
 
 interface FooterProps {
   locale: SupportedLocale;

@@ -4,19 +4,19 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { FlowGradient } from "../../server-components/flow-gradient";
-import { Footer } from "../../server-components/footer";
-import { Header } from "../../server-components/header";
-import { tokens } from "../../tokens.stylex";
+import { globalStyles } from "@/app/globalStyles";
+import { getTranslations } from "@/app/translations/getTranslations";
+import { FlowGradient } from "@/server-components/flow-gradient";
+import { Footer } from "@/server-components/footer";
+import { Header } from "@/server-components/header";
+import { tokens } from "@/tokens.stylex";
 import type {
   Breakpoints,
   LayoutProps,
   PageProps,
   SupportedLocale,
-} from "../../types";
-import { themeHack } from "../../utils/theme-hack";
-import { globalStyles } from "../globalStyles";
-import { getTranslations } from "../translations/getTranslations";
+} from "@/types";
+import { themeHack } from "@/utils/theme-hack";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps) {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import type { LayoutProps, PageProps } from "../../../../../types";
-import { BASE_URL } from "../../../../constants";
-import { getTranslations } from "../../../../translations/getTranslations";
+import { BASE_URL } from "@/app/constants";
+import { getTranslations } from "@/app/translations/getTranslations";
+import type { LayoutProps, PageProps } from "@/types";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps) {

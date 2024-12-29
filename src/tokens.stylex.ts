@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { Breakpoints } from "./types";
+import type { Breakpoints } from "@/types";
 
 const DARK = "@media (prefers-color-scheme: dark)";
 

@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { ArrowClockwise, Moon, Sun } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { useMediaQuery } from "../hooks/use-media-query";
-import { Button } from "../server-components/button";
-import { tokens } from "../tokens.stylex";
-import { useTheme } from "../hooks/use-theme";
-import { getDocumentClassName } from "../app/globalStyles";
-import { Switch } from "./switch";
+import { useEffect, useRef, useState } from "react";
+import { getDocumentClassName } from "@/app/globalStyles";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { useTheme } from "@/hooks/use-theme";
+import { Button } from "@/server-components/button";
+import { tokens } from "@/tokens.stylex";
 import type { SwitchState } from "./switch";
+import { Switch } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";
 
 const themeMap: { [theme in "light" | "dark"]: SwitchState } = {

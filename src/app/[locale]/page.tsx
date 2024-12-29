@@ -1,15 +1,15 @@
 import * as stylex from "@stylexjs/stylex";
-import AGSB from "../../logos/AGSB.webp";
-import BristolLogo from "../../logos/bristol-logo";
-import CitadelLogo from "../../logos/citadel-logo";
-import NottinghamLogo from "../../logos/nottingham-logo";
-import SpotifyLogo from "../../logos/spotify-logo";
-import WtcLogo from "../../logos/wtc-logo";
-import { EducationCard } from "../../server-components/education-card";
-import { ExperienceCard } from "../../server-components/experience-card";
-import type { Breakpoints, PageProps } from "../../types";
-import { getLocalePath } from "../../utils/pathname";
-import { getTranslations } from "../translations/getTranslations";
+import { getTranslations } from "@/app/translations/getTranslations";
+import AGSB from "@/logos/AGSB.webp";
+import BristolLogo from "@/logos/bristol-logo";
+import CitadelLogo from "@/logos/citadel-logo";
+import NottinghamLogo from "@/logos/nottingham-logo";
+import SpotifyLogo from "@/logos/spotify-logo";
+import WtcLogo from "@/logos/wtc-logo";
+import { EducationCard } from "@/server-components/education-card";
+import { ExperienceCard } from "@/server-components/experience-card";
+import type { Breakpoints, PageProps } from "@/types";
+import { getLocalePath } from "@/utils/pathname";
 import translations from "./translations.json";
 
 export function generateStaticParams() {
