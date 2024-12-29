@@ -2,6 +2,14 @@ module.exports = {
   presets: ["next/babel"],
   plugins: [
     [
+      "module-resolver",
+      {
+        alias: {
+          "@": "./src",
+        },
+      },
+    ],
+    [
       "@stylexjs/babel-plugin",
       {
         dev: process.env.NODE_ENV === "development",
