@@ -74,12 +74,12 @@ module.exports = function ({ types: t }) {
   let breakpoints = null;
 
   return {
-    name: "replace-breakpoints",
+    name: "stylex-breakpoints",
     pre() {
       breakpoints = this.opts.breakpoints;
     },
     visitor: {
-      Program(path, state) {
+      Program(path) {
         if (!breakpoints || typeof breakpoints !== "object") {
           throw new Error(
             "Invalid or missing `breakpoints` option. Expected an object."
@@ -162,7 +162,12 @@ module.exports = function ({ types: t }) {
               t.isIdentifier(innerPath.node.callee.object, {
                 name: "stylex",
               }) &&
-              t.isIdentifier(innerPath.node.callee.property, { name: "create" })
+              (t.isIdentifier(innerPath.node.callee.property, {
+                name: "create",
+              }) ||
+                t.isIdentifier(innerPath.node.callee.property, {
+                  name: "defineVars",
+                }))
             ) {
               const arg = innerPath.node.arguments[0];
 
