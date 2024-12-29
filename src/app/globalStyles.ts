@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import type { Breakpoints } from "../types";
-import { darkTheme, systemTheme, tokens } from "../tokens.stylex";
+import { darkTheme, systemTheme, tokens } from "@/tokens.stylex";
+import type { Breakpoints } from "@/types";
 
 const sm: Breakpoints["sm"] =
   "@media (min-width: 320px) and (max-width: 767px)";

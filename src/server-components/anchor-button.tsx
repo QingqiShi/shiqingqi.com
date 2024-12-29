@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { tokens } from "../tokens.stylex";
+import { tokens } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {

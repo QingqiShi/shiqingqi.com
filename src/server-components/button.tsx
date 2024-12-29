@@ -1,7 +1,7 @@
-import type { ComponentProps } from "react";
 import * as stylex from "@stylexjs/stylex";
-import { tokens } from "../tokens.stylex";
-import type { StyleProp } from "../types";
+import type { ComponentProps } from "react";
+import { tokens } from "@/tokens.stylex";
+import type { StyleProp } from "@/types";
 
 interface ButtonProps
   extends Omit<ComponentProps<"button">, "className" | "style"> {

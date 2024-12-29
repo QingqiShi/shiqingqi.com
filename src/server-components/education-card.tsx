@@ -1,12 +1,12 @@
-import { Suspense } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
-import { tokens } from "../tokens.stylex";
-import type { Breakpoints } from "../types";
+import { Suspense } from "react";
+import { tokens } from "@/tokens.stylex";
+import type { Breakpoints } from "@/types";
 import { Card } from "./card";
-import { Skeleton } from "./skeleton";
 import { cardTokens } from "./card.stylex";
+import { Skeleton } from "./skeleton";
 
 interface EducationCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode | { src: StaticImageData; alt: string };

@@ -1,4 +1,4 @@
-import { getDocumentClassName } from "../app/globalStyles";
+import { getDocumentClassName } from "@/app/globalStyles";
 
 const darkClassName = getDocumentClassName("dark");
 const lightClassName = getDocumentClassName("light");

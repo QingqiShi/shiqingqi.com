@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useSyncExternalStore } from "react";
-import { usePathname } from "next/navigation";
-import * as stylex from "@stylexjs/stylex";
 import { Translate } from "@phosphor-icons/react";
-import { useClickAway } from "../hooks/use-click-away";
-import { Button } from "../server-components/button";
-import { tokens } from "../tokens.stylex";
-import { Anchor } from "../server-components/anchor";
-import type { Breakpoints, SupportedLocale } from "../types";
-import { getLocalePath } from "../utils/pathname";
+import * as stylex from "@stylexjs/stylex";
+import { usePathname } from "next/navigation";
+import React, { useSyncExternalStore } from "react";
+import { useClickAway } from "@/hooks/use-click-away";
+import { Anchor } from "@/server-components/anchor";
+import { Button } from "@/server-components/button";
+import { tokens } from "@/tokens.stylex";
+import type { Breakpoints, SupportedLocale } from "@/types";
+import { getLocalePath } from "@/utils/pathname";
 
 /*
  * When route changes (on selecting a different locale) the entire page will unmount, as a result states will
@@ -24,7 +24,9 @@ function subscribe(onStoreChange: () => void) {
 let isMenuShownSingleton = false;
 function setIsMenuShown(newState: boolean) {
   isMenuShownSingleton = newState;
-  listeners.forEach((listener) => { listener(); });
+  listeners.forEach((listener) => {
+    listener();
+  });
 }
 
 interface LocaleSelectorProps {
@@ -57,7 +59,9 @@ export function LocaleSelector({
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
         aria-label={ariaLabel}
-        onClick={() => { setIsMenuShown(true); }}
+        onClick={() => {
+          setIsMenuShown(true);
+        }}
         icon={<Translate weight="bold" role="presentation" />}
         style={styles.desktopVisible}
       >
@@ -68,7 +72,9 @@ export function LocaleSelector({
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
         aria-label={ariaLabel}
-        onClick={() => { setIsMenuShown(true); }}
+        onClick={() => {
+          setIsMenuShown(true);
+        }}
         style={styles.mobileVisible}
       >
         <Translate weight="bold" role="presentation" />

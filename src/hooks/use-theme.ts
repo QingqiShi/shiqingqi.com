@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { SupportedTheme } from "../types";
+import type { SupportedTheme } from "@/types";
 
 const STORAGE_KEY = "theme";
 
@@ -13,7 +13,9 @@ let themeSingleton: string | null = null;
 function setIsMenuShown(newTheme: SupportedTheme) {
   themeSingleton = newTheme;
   localStorage.setItem(STORAGE_KEY, newTheme);
-  listeners.forEach((listener) => { listener(); });
+  listeners.forEach((listener) => {
+    listener();
+  });
 }
 
 function getSupportedTheme(theme: string | null): SupportedTheme {

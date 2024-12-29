@@ -1,7 +1,7 @@
-import { Suspense } from "react";
 import * as stylex from "@stylexjs/stylex";
-import type { Breakpoints } from "../types";
-import { tokens } from "../tokens.stylex";
+import { Suspense } from "react";
+import { tokens } from "@/tokens.stylex";
+import type { Breakpoints } from "@/types";
 import { Card } from "./card";
 import { Skeleton } from "./skeleton";
 

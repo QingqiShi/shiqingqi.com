@@ -1,11 +1,11 @@
 "use client";
 
 import { CaretLeft, House } from "@phosphor-icons/react/dist/ssr";
-import { usePathname } from "next/navigation";
 import * as stylex from "@stylexjs/stylex";
-import type { Breakpoints, SupportedLocale } from "../types";
-import { getLocalePath, normalizePath } from "../utils/pathname";
-import { AnchorButton } from "../server-components/anchor-button";
+import { usePathname } from "next/navigation";
+import { AnchorButton } from "@/server-components/anchor-button";
+import type { Breakpoints, SupportedLocale } from "@/types";
+import { getLocalePath, normalizePath } from "@/utils/pathname";
 
 interface BackButtonProps {
   locale: SupportedLocale;

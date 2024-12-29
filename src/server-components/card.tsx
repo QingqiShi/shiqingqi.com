@@ -1,11 +1,11 @@
-import * as stylex from "@stylexjs/stylex";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
-import { getTranslations } from "../app/translations/getTranslations";
-import type { StyleProp, SupportedLocale } from "../types";
-import { tokens } from "../tokens.stylex";
+import * as stylex from "@stylexjs/stylex";
+import { getTranslations } from "@/app/translations/getTranslations";
+import { tokens } from "@/tokens.stylex";
+import type { StyleProp, SupportedLocale } from "@/types";
 import { Anchor } from "./anchor";
-import translations from "./translations.json";
 import { cardTokens } from "./card.stylex";
+import translations from "./translations.json";
 
 interface CardProps extends Omit<React.ComponentProps<typeof Anchor>, "style"> {
   locale: SupportedLocale;
