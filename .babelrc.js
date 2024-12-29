@@ -10,6 +10,17 @@ module.exports = {
       },
     ],
     [
+      "./tooling/stylex-breakpoints",
+      {
+        breakpoints: {
+          sm: 320,
+          md: 768,
+          lg: 1080,
+          xl: 2000,
+        },
+      },
+    ],
+    [
       "@stylexjs/babel-plugin",
       {
         dev: process.env.NODE_ENV === "development",

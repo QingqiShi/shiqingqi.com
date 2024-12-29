@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";
+import { breakpoints } from "@/breakpoints";
 import { tokens } from "@/tokens.stylex";
-import type { Breakpoints } from "@/types";
 import { Card } from "./card";
 import { cardTokens } from "./card.stylex";
 import { Skeleton } from "./skeleton";
@@ -43,10 +43,6 @@ export function EducationCard({
   );
 }
 
-const sm: Breakpoints["sm"] =
-  "@media (min-width: 320px) and (max-width: 767px)";
-const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
-
 const styles = stylex.create({
   card: {
     display: "flex",
@@ -68,7 +64,11 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     width: "40%",
-    height: { default: "9.375rem", [sm]: "7.2rem", [minMd]: "5rem" },
+    height: {
+      default: "9.375rem",
+      [breakpoints.sm]: "7.2rem",
+      [breakpoints.md]: "5rem",
+    },
   },
   img: {
     height: "100%",

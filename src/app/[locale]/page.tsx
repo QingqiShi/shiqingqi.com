@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
+import { breakpoints } from "@/breakpoints";
 import AGSB from "@/logos/AGSB.webp";
 import BristolLogo from "@/logos/bristol-logo";
 import CitadelLogo from "@/logos/citadel-logo";
@@ -8,7 +9,7 @@ import SpotifyLogo from "@/logos/spotify-logo";
 import WtcLogo from "@/logos/wtc-logo";
 import { EducationCard } from "@/server-components/education-card";
 import { ExperienceCard } from "@/server-components/experience-card";
-import type { Breakpoints, PageProps } from "@/types";
+import type { PageProps } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 import translations from "./translations.json";
 
@@ -111,25 +112,17 @@ export default async function Home(props: PageProps) {
   );
 }
 
-const sm: Breakpoints["sm"] =
-  "@media (min-width: 320px) and (max-width: 767px)";
-const minSm: Breakpoints["minSm"] = "@media (min-width: 320px)";
-const md: Breakpoints["md"] =
-  "@media (min-width: 768px) and (max-width: 1079px)";
-const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
-const minLg: Breakpoints["minLg"] = "@media (min-width: 1080px)";
-
 const styles = stylex.create({
   headlineContainer: {
-    padding: { default: "0 0 3rem", [minSm]: "0 0 5rem" },
+    padding: { default: "0 0 3rem", [breakpoints.sm]: "0 0 5rem" },
   },
   headline: {
     margin: "0 0 1rem 0",
     fontSize: {
       default: "2rem",
-      [sm]: "2.5rem",
-      [md]: "3rem",
-      [minLg]: "3.5rem",
+      [breakpoints.sm]: "2.5rem",
+      [breakpoints.md]: "3rem",
+      [breakpoints.lg]: "3.5rem",
     },
     fontWeight: 800,
   },
@@ -146,10 +139,19 @@ const styles = stylex.create({
     flexWrap: "wrap",
   },
   card: {
-    width: { default: "100%", [sm]: "50%", [md]: "33.3%", [minLg]: "25%" },
+    width: {
+      default: "100%",
+      [breakpoints.sm]: "50%",
+      [breakpoints.md]: "33.3%",
+      [breakpoints.lg]: "25%",
+    },
   },
   experienceSvg: {
-    height: { default: "5.5rem", [sm]: "4.4rem", [minMd]: "3rem" },
+    height: {
+      default: "5.5rem",
+      [breakpoints.sm]: "4.4rem",
+      [breakpoints.md]: "3rem",
+    },
     maxWidth: "100%",
     transition: "fill .2s",
   },

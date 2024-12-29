@@ -3,8 +3,9 @@
 import { CaretLeft, House } from "@phosphor-icons/react/dist/ssr";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
+import { breakpoints } from "@/breakpoints";
 import { AnchorButton } from "@/server-components/anchor-button";
-import type { Breakpoints, SupportedLocale } from "@/types";
+import type { SupportedLocale } from "@/types";
 import { getLocalePath, normalizePath } from "@/utils/pathname";
 
 interface BackButtonProps {
@@ -42,13 +43,14 @@ export function BackButton({ locale, label }: BackButtonProps) {
   );
 }
 
-const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
-
 const styles = stylex.create({
   desktopVisible: {
-    display: { default: "none", [minMd]: "inline-flex" },
+    display: {
+      default: "none",
+      [breakpoints.md]: "inline-flex",
+    },
   },
   mobileVisible: {
-    display: { default: "inline-flex", [minMd]: "none" },
+    display: { default: "inline-flex", [breakpoints.md]: "none" },
   },
 });

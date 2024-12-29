@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
+import { breakpoints } from "@/breakpoints";
 import { tokens } from "@/tokens.stylex";
-import type { Breakpoints } from "@/types";
 import { Card } from "./card";
 import { Skeleton } from "./skeleton";
 
@@ -26,10 +26,6 @@ export function ExperienceCard({
   );
 }
 
-const sm: Breakpoints["sm"] =
-  "@media (min-width: 320px) and (max-width: 767px)";
-const minMd: Breakpoints["minMd"] = "@media (min-width: 768px)";
-
 const styles = stylex.create({
   card: {
     display: "flex",
@@ -37,7 +33,11 @@ const styles = stylex.create({
     gap: "0.7rem",
   },
   placeholder: {
-    height: { default: "5.5rem", [sm]: "4.4rem", [minMd]: "3rem" },
+    height: {
+      default: "5.5rem",
+      [breakpoints.sm]: "4.4rem",
+      [breakpoints.md]: "3rem",
+    },
   },
   dates: {
     fontSize: "0.6rem",
