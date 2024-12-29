@@ -55,7 +55,7 @@ function Internal({ vs, fs }: FlowGradientClientProps) {
         },
         [fs, vs]
       )}
-      {...stylex.props(styles.canvas)}
+      css={styles.canvas}
     />
   );
 }

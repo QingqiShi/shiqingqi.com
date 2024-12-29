@@ -4,24 +4,19 @@ import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { tokens } from "@/tokens.stylex";
-import type { StyleProp } from "@/types";
 import { switchTokens } from "./switch.stylex";
 
 export type SwitchState = "off" | "on" | "indeterminate";
 
-interface SwitchProps
-  extends Omit<
-    React.ComponentProps<"input">,
-    "onChange" | "className" | "style"
-  > {
+interface SwitchProps extends Omit<React.ComponentProps<"input">, "onChange"> {
   value?: SwitchState;
   onChange?: (state: SwitchState) => void;
-  style?: StyleProp;
 }
 
 export function Switch({
   value: valueProp,
   onChange,
+  className,
   style,
   ...rest
 }: SwitchProps) {
@@ -143,11 +138,9 @@ export function Switch({
     <input
       ref={elRef}
       {...rest}
-      {...stylex.props(
-        styles.switch,
-        isDragging && styles.dragging(position),
-        style
-      )}
+      className={className}
+      style={style}
+      css={[styles.switch, isDragging && styles.dragging(position)]}
       type="checkbox"
       checked={value === "on" ? true : value === "off" ? false : undefined}
       onPointerDown={handleDragStart}

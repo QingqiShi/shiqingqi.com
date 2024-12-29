@@ -20,6 +20,7 @@ module.exports = {
         },
       },
     ],
+    "./tooling/stylex-css-prop",
     [
       "@stylexjs/babel-plugin",
       {

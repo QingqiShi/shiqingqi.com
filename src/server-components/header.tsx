@@ -11,12 +11,12 @@ export async function Header({ params }: Omit<LayoutProps, "children">) {
   const { locale } = await params;
   const { t } = getTranslations(translations, locale);
   return (
-    <header {...stylex.props(styles.container)}>
-      <nav {...stylex.props(styles.nav)}>
-        <div {...stylex.props(styles.navContent)}>
+    <header css={styles.container}>
+      <nav css={styles.nav}>
+        <div css={styles.navContent}>
           <BackButton locale={locale} label={t("backLabel")} />
         </div>
-        <div {...stylex.props(styles.navContent)}>
+        <div css={styles.navContent}>
           <ThemeSwitch
             labels={[
               t("switchToLight"),

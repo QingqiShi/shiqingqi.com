@@ -1,24 +1,33 @@
 import * as stylex from "@stylexjs/stylex";
+import type { CSSProperties } from "react";
 import { tokens } from "@/tokens.stylex";
-import type { StyleProp } from "@/types";
+import { skeletonTokens } from "./skeleton.stylex";
 
 interface SkeletonProps {
   fill?: boolean;
   width?: number;
   height?: number;
-  style?: StyleProp;
+  className?: string;
+  style?: CSSProperties;
 }
 
-export function Skeleton({ fill, width, height, style }: SkeletonProps) {
+export function Skeleton({
+  fill,
+  width,
+  height,
+  className,
+  style,
+}: SkeletonProps) {
   return (
     <div
-      {...stylex.props(
+      css={[
         styles.skeleton,
         fill && styles.fill,
         !!width && styles.width(width),
         !!height && styles.height(height),
-        style
-      )}
+      ]}
+      className={className}
+      style={style}
     />
   );
 }
@@ -38,15 +47,17 @@ const styles = stylex.create({
     borderRadius: "0.3rem",
     overflow: "hidden",
     opacity: 0.3,
+    width: skeletonTokens.width,
+    height: skeletonTokens.height,
   },
   fill: {
-    width: "100%",
-    height: "100%",
+    [skeletonTokens.width]: "100%",
+    [skeletonTokens.height]: "100%",
   },
   width: (width: number) => ({
-    width: `${width}px`,
+    [skeletonTokens.width]: `${width}px`,
   }),
   height: (height: number) => ({
-    height: `${height}px`,
+    [skeletonTokens.height]: `${height}px`,
   }),
 });

@@ -53,40 +53,25 @@ export default async function RootLayout({ params, children }: LayoutProps) {
           />
         )}
       </head>
-      <body {...stylex.props(globalStyles.global, globalStyles.body)}>
+      <body css={[globalStyles.global, globalStyles.body]}>
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-        <div {...stylex.props(styles.flowGradient)} role="presentation">
+        <div css={styles.flowGradient} role="presentation">
           <Suspense fallback={<></>}>
             <FlowGradient />
           </Suspense>
         </div>
-        <div {...stylex.props(styles.glow)} role="presentation" />
-        <div {...stylex.props(styles.container)}>
-          <div {...stylex.props(styles.wrapperInner)}>
+        <div css={styles.glow} role="presentation" />
+        <div css={styles.container}>
+          <div css={styles.wrapperInner}>
             <Header params={params} />
-            <div {...stylex.props(styles.linesContainer)} role="presentation">
-              <div
-                {...stylex.props(styles.line, styles.line1)}
-                role="presentation"
-              />
-              <div
-                {...stylex.props(styles.line, styles.line2)}
-                role="presentation"
-              />
-              <div
-                {...stylex.props(styles.line, styles.line3)}
-                role="presentation"
-              />
-              <div
-                {...stylex.props(styles.line, styles.line4)}
-                role="presentation"
-              />
-              <div
-                {...stylex.props(styles.line, styles.line5)}
-                role="presentation"
-              />
+            <div css={styles.linesContainer} role="presentation">
+              <div css={[styles.line, styles.line1]} role="presentation" />
+              <div css={[styles.line, styles.line2]} role="presentation" />
+              <div css={[styles.line, styles.line3]} role="presentation" />
+              <div css={[styles.line, styles.line4]} role="presentation" />
+              <div css={[styles.line, styles.line5]} role="presentation" />
             </div>
-            <main {...stylex.props(styles.main)}>{children}</main>
+            <main css={styles.main}>{children}</main>
             <Footer locale={locale} />
           </div>
         </div>

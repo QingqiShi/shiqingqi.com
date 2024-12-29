@@ -27,14 +27,14 @@ export function BackButton({ locale, label }: BackButtonProps) {
         icon={<CaretLeft weight="bold" role="presentation" />}
         href={targetPath}
         aria-label={label}
-        style={styles.desktopVisible}
+        css={styles.desktopVisible}
       >
         {label}
       </AnchorButton>
       <AnchorButton
         href={targetPath}
         aria-label={label}
-        style={styles.mobileVisible}
+        css={styles.mobileVisible}
       >
         <CaretLeft weight="bold" role="presentation" />
         <House weight="bold" role="presentation" />

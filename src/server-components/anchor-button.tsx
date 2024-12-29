@@ -10,11 +10,17 @@ export function AnchorButton({
   icon,
   children,
   style,
+  className,
   ...props
 }: AnchorButtonProps) {
   return (
-    <Anchor {...props} style={[styles.button, !!icon && styles.hasIcon, style]}>
-      {icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
+    <Anchor
+      {...props}
+      className={className}
+      style={style}
+      css={[styles.button, !!icon && styles.hasIcon]}
+    >
+      {icon && <span css={styles.icon}>{icon}</span>}
       {children}
     </Anchor>
   );

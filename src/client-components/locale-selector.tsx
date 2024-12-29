@@ -54,7 +54,7 @@ export function LocaleSelector({
   const pathname = usePathname();
 
   return (
-    <div {...stylex.props(styles.container)}>
+    <div css={styles.container}>
       <Button
         type="button"
         aria-haspopup="menu"
@@ -64,7 +64,7 @@ export function LocaleSelector({
           setIsMenuShown(true);
         }}
         icon={<Translate weight="bold" role="presentation" />}
-        style={styles.desktopVisible}
+        css={styles.desktopVisible}
       >
         {label}
       </Button>
@@ -76,7 +76,7 @@ export function LocaleSelector({
         onClick={() => {
           setIsMenuShown(true);
         }}
-        style={styles.mobileVisible}
+        css={styles.mobileVisible}
       >
         <Translate weight="bold" role="presentation" />
       </Button>
@@ -90,7 +90,7 @@ export function LocaleSelector({
             setIsMenuShown(false);
           }
         }}
-        {...stylex.props(styles.menu, isMenuShown && styles.menuShown)}
+        css={[styles.menu, isMenuShown && styles.menuShown]}
       >
         <Item
           label="English"
@@ -129,7 +129,7 @@ function Item({ label, ariaLabel, flag, href, tabIndex, isActive }: ItemProps) {
       aria-label={ariaLabel}
       tabIndex={tabIndex}
       role="menuItem"
-      style={[styles.item, isActive && styles.itemActive]}
+      css={[styles.item, isActive && styles.itemActive]}
       scroll={false}
     >
       <span>{label}</span>

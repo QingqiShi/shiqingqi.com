@@ -22,34 +22,32 @@ export default async function Home(props: PageProps) {
   const { t } = getTranslations(translations, params.locale);
   return (
     <>
-      <section {...stylex.props(styles.headlineContainer)}>
-        <h1 {...stylex.props(styles.headline)}>
+      <section css={styles.headlineContainer}>
+        <h1 css={styles.headline}>
           {t("headline_1")}
           <br />
           {t("headline_2")}
         </h1>
-        <p {...stylex.props(styles.brief)}>{t("brief", { parse: true })}</p>
+        <p css={styles.brief}>{t("brief", { parse: true })}</p>
       </section>
       <section>
-        <h2 {...stylex.props(styles.sectionTitle)}>
-          {t("experiencesSection")}
-        </h2>
-        <div {...stylex.props(styles.cardList)}>
+        <h2 css={styles.sectionTitle}>{t("experiencesSection")}</h2>
+        <div css={styles.cardList}>
           <ExperienceCard
-            logo={<CitadelLogo style={styles.experienceSvg} />}
+            logo={<CitadelLogo css={styles.experienceSvg} />}
             dates={t("citadelDate")}
             href={getLocalePath("/experiences/citadel", params.locale)}
             locale={params.locale}
-            style={styles.card}
+            css={styles.card}
             aria-label={t("citadelLabel")}
             scroll
           />
           <ExperienceCard
-            logo={<SpotifyLogo style={styles.experienceSvg} />}
+            logo={<SpotifyLogo css={styles.experienceSvg} />}
             dates={t("spotifyDate")}
             href={getLocalePath("/experiences/spotify", params.locale)}
             locale={params.locale}
-            style={styles.card}
+            css={styles.card}
             aria-label={t("spotifyLabel")}
           />
           <ExperienceCard
@@ -60,16 +58,16 @@ export default async function Home(props: PageProps) {
               params.locale
             )}
             locale={params.locale}
-            style={styles.card}
+            css={styles.card}
             aria-label={t("wtcLabel")}
           />
         </div>
       </section>
       <section>
-        <h2 {...stylex.props(styles.sectionTitle)}>{t("educationSection")}</h2>
-        <div {...stylex.props(styles.cardList)}>
+        <h2 css={styles.sectionTitle}>{t("educationSection")}</h2>
+        <div css={styles.cardList}>
           <EducationCard
-            logo={<BristolLogo title={t("uob")} style={styles.educationSvg} />}
+            logo={<BristolLogo title={t("uob")} css={styles.educationSvg} />}
             name={t("uob")}
             dates={t("uobDate")}
             href={
@@ -78,12 +76,10 @@ export default async function Home(props: PageProps) {
                 : `/${params.locale}/education/university-of-bristol`
             }
             locale={params.locale}
-            style={styles.card}
+            css={styles.card}
           />
           <EducationCard
-            logo={
-              <NottinghamLogo title={t("uon")} style={styles.educationSvg} />
-            }
+            logo={<NottinghamLogo title={t("uon")} css={styles.educationSvg} />}
             name={t("uon")}
             dates={t("uonDate")}
             href={
@@ -92,7 +88,7 @@ export default async function Home(props: PageProps) {
                 : `/${params.locale}/education/university-of-nottingham`
             }
             locale={params.locale}
-            style={styles.card}
+            css={styles.card}
           />
           <EducationCard
             logo={{ src: AGSB, alt: t("agsb") }}
@@ -104,7 +100,7 @@ export default async function Home(props: PageProps) {
                 : `/${params.locale}/education/altrincham-grammar-school-for-boys`
             }
             locale={params.locale}
-            style={styles.card}
+            css={styles.card}
           />
         </div>
       </section>

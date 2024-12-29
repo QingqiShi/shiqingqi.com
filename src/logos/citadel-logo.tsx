@@ -1,14 +1,20 @@
 import * as stylex from "@stylexjs/stylex";
+import type { CSSProperties } from "react";
 import { tokens } from "@/tokens.stylex";
-import type { StyleProp } from "@/types";
 
 interface CitadelLogoProps {
-  style?: StyleProp;
+  className?: string;
+  style?: CSSProperties;
 }
 
-export default function CitadelLogo({ style }: CitadelLogoProps) {
+export default function CitadelLogo({ className, style }: CitadelLogoProps) {
   return (
-    <svg viewBox="0 0 842 100" {...stylex.props(styles.svg, style)}>
+    <svg
+      viewBox="0 0 842 100"
+      className={className}
+      style={style}
+      css={styles.svg}
+    >
       <title>Citadel</title>
       <g transform="matrix(4.16667,0,0,4.16667,0,0)">
         <rect x="0" y="16.807" width="45.979" height="6.619" />

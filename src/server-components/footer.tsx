@@ -12,13 +12,13 @@ interface FooterProps {
 export function Footer({ locale }: FooterProps) {
   const { t } = getTranslations(translations, locale);
   return (
-    <footer {...stylex.props(styles.footer)}>
-      <div {...stylex.props(styles.section, styles.linksSection)}>
+    <footer css={styles.footer}>
+      <div css={[styles.section, styles.linksSection]}>
         <Anchor
           href="https://github.com/QingqiShi"
           target="_blank"
           rel="nofollow me noopener noreferrer"
-          style={styles.link}
+          css={styles.link}
         >
           GitHub
         </Anchor>
@@ -30,15 +30,15 @@ export function Footer({ locale }: FooterProps) {
           }
           target="_blank"
           rel="nofollow me noopener noreferrer"
-          style={styles.link}
+          css={styles.link}
         >
           LinkedIn
         </Anchor>
       </div>
-      <div {...stylex.props(styles.section, styles.copyrightSection)}>
+      <div css={[styles.section, styles.copyrightSection]}>
         <small>
-          <span {...stylex.props(styles.name)}>{t("name")}</span>
-          <span {...stylex.props(styles.copyright)}>© 2024</span>
+          <span css={styles.name}>{t("name")}</span>
+          <span css={styles.copyright}>© 2024</span>
         </small>
       </div>
     </footer>

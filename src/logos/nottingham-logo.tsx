@@ -1,15 +1,25 @@
 import * as stylex from "@stylexjs/stylex";
+import type { CSSProperties } from "react";
 import { tokens } from "@/tokens.stylex";
-import type { StyleProp } from "@/types";
 
 interface NottinghamLogoProps {
   title: string;
-  style?: StyleProp;
+  className?: string;
+  style?: CSSProperties;
 }
 
-export default function NottinghamLogo({ title, style }: NottinghamLogoProps) {
+export default function NottinghamLogo({
+  title,
+  className,
+  style,
+}: NottinghamLogoProps) {
   return (
-    <svg viewBox="0 0 115.79 170" {...stylex.props(styles.svg, style)}>
+    <svg
+      viewBox="0 0 115.79 170"
+      className={className}
+      style={style}
+      css={styles.svg}
+    >
       <title>{title}</title>
       <g>
         <path

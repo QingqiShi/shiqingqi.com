@@ -56,11 +56,12 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
   return (
     <div
       ref={containerRef}
-      {...stylex.props(
+      css={[
         styles.container,
         theme === "system" && styles.hideSystemButton,
-        theme !== "system" && hasFocus && styles.showSystemButton
-      )}
+        theme !== "system" && hasFocus && styles.showSystemButton,
+        styles.switch,
+      ]}
       onFocus={() => {
         setHasFocus(true);
       }}
@@ -73,10 +74,10 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         setHasFocus(false);
       }}
     >
-      <span {...stylex.props(styles.icon, styles.moon)} aria-hidden>
+      <span css={[styles.icon, styles.moon]} aria-hidden>
         <Moon weight="fill" />
       </span>
-      <span {...stylex.props(styles.icon, styles.sun)} aria-hidden>
+      <span css={[styles.icon, styles.sun]} aria-hidden>
         <Sun weight="fill" />
       </span>
       <Switch
@@ -104,9 +105,8 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
               : 1
           ]
         }
-        style={styles.switch}
       />
-      <div {...stylex.props(styles.systemButton)}>
+      <div css={styles.systemButton}>
         <Button
           role="radio"
           aria-label={labels[2]}
