@@ -64,7 +64,6 @@ export default async function RootLayout({ params, children }: LayoutProps) {
             <FlowGradient />
           </Suspense>
         </div>
-        <div {...stylex.props(styles.contentMask)} role="presentation" />
         <div {...stylex.props(styles.glow)} role="presentation" />
         <div {...stylex.props(styles.container)}>
           <div {...stylex.props(styles.wrapperInner)}>
@@ -182,21 +181,6 @@ const styles = stylex.create({
       [lg]: "30rem",
       [minXl]: "max(35rem, 80dvh)",
     },
-  },
-  contentMask: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 0,
-    overflow: "hidden",
-    pointerEvents: "none",
-    height: {
-      default: "calc(540px + 10rem)",
-      [minXl]: "calc(1000px + 10rem)",
-    },
-    mixBlendMode: tokens.maskBlendMode,
-    background: `radial-gradient(circle ${tokens.layoutMaskRadius} at center calc(${tokens.layoutMaskRadius}), ${tokens.backgroundMain} 50%, transparent)`,
   },
   glow: {
     position: "absolute",
