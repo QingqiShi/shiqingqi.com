@@ -9,34 +9,34 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-      time: '15:00'
+      time: "15:00"
     assignees:
-      - 'QingqiShi'
+      - "QingqiShi"
     open-pull-requests-limit: 10
     versioning-strategy: increase
     groups:
       stylex:
         patterns:
-        - "@stylex*"
-      typescript-eslint:
+          - "@stylex*"
+      react-compiler:
         patterns:
-        - "@typescript-eslint/eslint-plugin"
-        - "@typescript-eslint/parser"
+          - "eslint-plugin-react-compiler"
+          - "babel-plugin-react-compiler"
       react:
         patterns:
-        - react
-        - react-dom
-        - "@types/react"
-        - "@types/react-dom"
+          - react
+          - react-dom
+          - "@types/react"
+          - "@types/react-dom"
       serwist:
         patterns:
-        - "@serwist*"
+          - "@serwist*"
 
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'daily'
-      time: '15:00'
+      interval: "daily"
+      time: "15:00"
     assignees:
-      - 'QingqiShi'
+      - "QingqiShi"
     open-pull-requests-limit: 10
