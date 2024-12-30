@@ -99,8 +99,8 @@ importers:
         specifier: ^2.29.1
         version: 2.31.0(@typescript-eslint/parser@8.18.2(eslint@9.17.0)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0)(eslint@9.17.0)
       eslint-plugin-react-compiler:
-        specifier: 19.0.0-beta-b2e8e9c-20241220
-        version: 19.0.0-beta-b2e8e9c-20241220(eslint@9.17.0)
+        specifier: 19.0.0-beta-55955c9-20241229
+        version: 19.0.0-beta-55955c9-20241229(eslint@9.17.0)
       next-i18n-router:
         specifier: ^5.5.1
         version: 5.5.1
@@ -1189,8 +1189,8 @@ packages:
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9
 
-  eslint-plugin-react-compiler@19.0.0-beta-b2e8e9c-20241220:
-    resolution: {integrity: sha512-STVaOQyivSBv0un6/ujYOPntKcCaD0qXIG8siBEs9QcWmQ7q3J3ozuAE86SlSc7ElIZgPoL9HoSN3EONS47nqQ==}
+  eslint-plugin-react-compiler@19.0.0-beta-55955c9-20241229:
+    resolution: {integrity: sha512-KsE6bQrNvtPDbMb9EolZ2C+Z2/uv2Y5cAUgN+pzbriXjKlf1FkbgiyE153m2mIT6gEZq2OrtFvX7uJj5IrNQlg==}
     engines: {node: ^14.17.0 || ^16.0.0 || >= 18.0.0}
     peerDependencies:
       eslint: '>=7'
@@ -3587,7 +3587,7 @@ snapshots:
       safe-regex-test: 1.1.0
       string.prototype.includes: 2.0.1
 
-  eslint-plugin-react-compiler@19.0.0-beta-b2e8e9c-20241220(eslint@9.17.0):
+  eslint-plugin-react-compiler@19.0.0-beta-55955c9-20241229(eslint@9.17.0):
     dependencies:
       '@babel/core': 7.26.0
       '@babel/parser': 7.26.3
