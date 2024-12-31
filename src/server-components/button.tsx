@@ -1,18 +1,21 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import { tokens } from "@/tokens.stylex";
-import type { StyleProp } from "@/types";
 
-interface ButtonProps
-  extends Omit<ComponentProps<"button">, "className" | "style"> {
+interface ButtonProps extends ComponentProps<"button"> {
   icon?: React.ReactNode;
-  style?: StyleProp;
 }
 
-export function Button({ icon, style, children, ...props }: ButtonProps) {
+export function Button({
+  icon,
+  children,
+  className,
+  style,
+  ...props
+}: ButtonProps) {
   return (
-    <button {...props} {...stylex.props(styles.button, style)}>
-      {icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
+    <button {...props} className={className} style={style} css={styles.button}>
+      {icon && <span css={styles.icon}>{icon}</span>}
       {children}
     </button>
   );

@@ -2,23 +2,28 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
 import { tokens } from "@/tokens.stylex";
-import type { StyleProp, SupportedLocale } from "@/types";
+import type { SupportedLocale } from "@/types";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
 import translations from "./translations.json";
 
-interface CardProps extends Omit<React.ComponentProps<typeof Anchor>, "style"> {
+interface CardProps extends React.ComponentProps<typeof Anchor> {
   locale: SupportedLocale;
-  style?: StyleProp;
 }
 
-export function Card({ children, locale, style, ...rest }: CardProps) {
+export function Card({
+  children,
+  locale,
+  className,
+  style,
+  ...rest
+}: CardProps) {
   const { t } = getTranslations(translations, locale);
   return (
-    <Anchor {...rest} style={[styles.card, style]}>
+    <Anchor {...rest} className={className} style={style} css={styles.card}>
       {children}
-      <div {...stylex.props(styles.detailsIndicator)}>
-        <span {...stylex.props(styles.detailsText)}>{t("details")}</span>
+      <div css={styles.detailsIndicator}>
+        <span css={styles.detailsText}>{t("details")}</span>
         <ArrowRight />
       </div>
     </Anchor>

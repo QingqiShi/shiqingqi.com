@@ -1,15 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import Link from "next/link";
 import { tokens } from "@/tokens.stylex";
-import type { StyleProp } from "@/types";
 
-interface AnchorProps
-  extends Omit<React.ComponentProps<typeof Link>, "className" | "style"> {
-  style?: StyleProp;
-}
-
-export function Anchor({ style, ...props }: AnchorProps) {
-  return <Link {...props} {...stylex.props(styles.a, style)} />;
+export function Anchor({
+  className,
+  style,
+  ...props
+}: React.ComponentProps<typeof Link>) {
+  return <Link {...props} className={className} style={style} css={styles.a} />;
 }
 
 const styles = stylex.create({

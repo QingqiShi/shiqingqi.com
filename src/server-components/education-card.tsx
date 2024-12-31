@@ -18,27 +18,28 @@ export function EducationCard({
   logo,
   name,
   dates,
+  className,
   style,
   ...rest
 }: EducationCardProps) {
   return (
-    <Card {...rest} style={[styles.card, style]}>
-      <div {...stylex.props(styles.row)}>
-        <div {...stylex.props(styles.logo)}>
+    <Card {...rest} className={className} style={style} css={styles.card}>
+      <div css={styles.row}>
+        <div css={styles.logo}>
           {typeof logo === "object" && logo && "src" in logo ? (
             <Image
               src={logo.src}
               alt={logo.alt}
               title={logo.alt}
-              {...stylex.props(styles.img)}
+              css={styles.img}
             />
           ) : (
             <Suspense fallback={<Skeleton fill />}>{logo}</Suspense>
           )}
         </div>
-        <span {...stylex.props(styles.name)}>{name}</span>
+        <span css={styles.name}>{name}</span>
       </div>
-      <time {...stylex.props(styles.dates)}>{dates}</time>
+      <time css={styles.dates}>{dates}</time>
     </Card>
   );
 }

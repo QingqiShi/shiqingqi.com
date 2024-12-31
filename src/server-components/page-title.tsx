@@ -16,12 +16,12 @@ export function PageTitle({ locale, type, title, role, date }: PageTitleProps) {
   const { t } = getTranslations(translations, locale);
 
   return (
-    <header {...stylex.props(styles.container)}>
-      <h2 {...stylex.props(styles.subtitle)}>
+    <header css={styles.container}>
+      <h2 css={styles.subtitle}>
         {t(type)} - {title}
       </h2>
-      <h1 {...stylex.props(styles.title)}>{role}</h1>
-      <time {...stylex.props(styles.date)}>{date}</time>
+      <h1 css={styles.title}>{role}</h1>
+      <time css={styles.date}>{date}</time>
     </header>
   );
 }

@@ -1,0 +1,206 @@
+// @ts-check
+
+/**
+ * @typedef {import('@babel/core')} Babel
+ * @typedef {import('@babel/core').PluginPass} PluginPass
+ */
+
+/**
+ * @param {Babel} babel - The Babel object.
+ * @returns {import('@babel/core').PluginObj<PluginPass & { opts: { breakpoints: { [key: string]: number }} }>} The plugin object.
+ */
+module.exports = function stylexBabelPlugin({ types: t }) {
+  return {
+    name: "stylex-css-prop",
+    visitor: {
+      Program(path) {
+        path.traverse({
+          JSXAttribute(path, state) {
+            // Check if the attribute is `css`
+            if (path.node.name.name !== "css") return;
+
+            /** @type {babel.NodePath<babel.types.JSXOpeningElement> | null} Get the parent JSXOpeningElement */
+            // @ts-expect-error
+            const jsxElement = path.findParent((p) =>
+              t.isJSXOpeningElement(p.node)
+            );
+            if (!jsxElement) return;
+
+            // Extract the `className` and `style` attributes
+            const openingElement = jsxElement.node;
+            /** @type {babel.types.JSXAttribute | undefined} */
+            // @ts-expect-error
+            const classNameAttr = openingElement.attributes.find(
+              (attr) => t.isJSXAttribute(attr) && attr.name.name === "className"
+            );
+            /** @type {babel.types.JSXAttribute | undefined} */
+            // @ts-expect-error
+            const styleAttr = openingElement.attributes.find(
+              (attr) => t.isJSXAttribute(attr) && attr.name.name === "style"
+            );
+
+            // Get the value of the `css` prop
+            const cssValue = path.node.value;
+            const attributesToMerge = [];
+
+            if (t.isJSXExpressionContainer(cssValue)) {
+              const expression = cssValue.expression;
+
+              if (t.isArrayExpression(expression)) {
+                // Add array elements to merge
+                attributesToMerge.push(
+                  ...expression.elements.filter((x) => !!x)
+                );
+              } else if (t.isExpression(expression)) {
+                attributesToMerge.push(expression);
+              }
+            }
+
+            if (!classNameAttr && !styleAttr) {
+              // Simple transformation for `css` without merging
+              path.replaceWith(
+                t.jsxSpreadAttribute(
+                  t.callExpression(
+                    t.memberExpression(
+                      t.identifier("stylex"),
+                      t.identifier("props")
+                    ),
+                    attributesToMerge
+                  )
+                )
+              );
+              return;
+            }
+
+            const classNameAttrValue = t.isJSXExpressionContainer(
+              classNameAttr?.value
+            )
+              ? t.isJSXEmptyExpression(classNameAttr.value.expression)
+                ? (() => {
+                    throw path.buildCodeFrameError(
+                      "Empty expressions are not allowed."
+                    );
+                  })()
+                : classNameAttr.value.expression
+              : classNameAttr?.value;
+
+            const styleAttrValue = t.isJSXExpressionContainer(styleAttr?.value)
+              ? t.isJSXEmptyExpression(styleAttr.value.expression)
+                ? (() => {
+                    throw path.buildCodeFrameError(
+                      "Empty expressions are not allowed."
+                    );
+                  })()
+                : styleAttr.value.expression
+              : styleAttr?.value;
+
+            // Handle merging logic if className or style exists
+            const mergedPropsFunction = t.arrowFunctionExpression(
+              [],
+              t.blockStatement([
+                t.variableDeclaration("const", [
+                  t.variableDeclarator(
+                    t.identifier("$_props"),
+                    t.callExpression(
+                      t.memberExpression(
+                        t.identifier("stylex"),
+                        t.identifier("props")
+                      ),
+                      attributesToMerge
+                    )
+                  ),
+                ]),
+                t.returnStatement(
+                  t.objectExpression([
+                    // Always spread props
+                    t.spreadElement(t.identifier("$_props")),
+
+                    ...(classNameAttrValue
+                      ? [
+                          t.objectProperty(
+                            t.identifier("className"),
+                            t.templateLiteral(
+                              [
+                                t.templateElement({ raw: "", cooked: "" }),
+                                t.templateElement({ raw: "", cooked: "" }),
+                                t.templateElement({ raw: "", cooked: "" }),
+                              ],
+                              [
+                                t.logicalExpression(
+                                  "??",
+                                  t.memberExpression(
+                                    t.identifier("$_props"),
+                                    t.identifier("className")
+                                  ),
+                                  t.stringLiteral("")
+                                ),
+                                t.conditionalExpression(
+                                  classNameAttrValue,
+                                  t.templateLiteral(
+                                    [
+                                      t.templateElement({
+                                        raw: " ",
+                                        cooked: " ",
+                                      }),
+                                      t.templateElement({
+                                        raw: "",
+                                        cooked: "",
+                                      }),
+                                    ],
+                                    [classNameAttrValue]
+                                  ),
+                                  t.stringLiteral("")
+                                ),
+                              ]
+                            )
+                          ),
+                        ]
+                      : []),
+
+                    ...(styleAttrValue
+                      ? [
+                          t.objectProperty(
+                            t.identifier("style"),
+                            t.conditionalExpression(
+                              t.logicalExpression(
+                                "||",
+                                styleAttrValue,
+                                t.memberExpression(
+                                  t.identifier("$_props"),
+                                  t.identifier("style")
+                                )
+                              ),
+                              t.objectExpression([
+                                t.spreadElement(
+                                  t.memberExpression(
+                                    t.identifier("$_props"),
+                                    t.identifier("style")
+                                  )
+                                ),
+                                t.spreadElement(styleAttrValue),
+                              ]),
+                              t.identifier("undefined")
+                            )
+                          ),
+                        ]
+                      : []),
+                  ])
+                ),
+              ])
+            );
+
+            // Replace the JSX attributes with the merged props
+            path.replaceWith(
+              t.jsxSpreadAttribute(t.callExpression(mergedPropsFunction, []))
+            );
+
+            // Remove original `className` and `style` attributes
+            openingElement.attributes = openingElement.attributes.filter(
+              (attr) => attr !== classNameAttr && attr !== styleAttr
+            );
+          },
+        });
+      },
+    },
+  };
+};
