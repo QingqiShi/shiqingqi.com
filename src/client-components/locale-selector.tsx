@@ -1,6 +1,6 @@
 "use client";
 
-import { Translate } from "@phosphor-icons/react";
+import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
 import React, { useSyncExternalStore } from "react";
