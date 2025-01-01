@@ -229,7 +229,6 @@ module.exports = function stylexBabelPlugin({ types: t }) {
 
         // Inject `stylex` import if necessary after traversal
         if (cssPropUsed && !stylexImportExists) {
-          console.log("Adding");
           path.node.body.unshift(
             t.importDeclaration(
               [t.importNamespaceSpecifier(t.identifier("stylex"))],
