@@ -2,6 +2,7 @@ import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import stylexjs from "@stylexjs/eslint-plugin";
 import reactCompiler from "eslint-plugin-react-compiler";
+import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import tsEslint from "typescript-eslint";
@@ -14,7 +15,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = tsEslint.config([
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends("next/core-web-vitals"),
   js.configs.recommended,
   tsEslint.configs.recommendedTypeChecked,
   {
@@ -22,6 +23,7 @@ const eslintConfig = tsEslint.config([
     plugins: {
       "@stylexjs": stylexjs,
       "react-compiler": reactCompiler,
+      unicorn: eslintPluginUnicorn,
     },
     ignores: ["eslint.config.mjs", "tooling/**/*"],
     languageOptions: {
@@ -55,6 +57,7 @@ const eslintConfig = tsEslint.config([
       ],
       "one-var": ["error", "never"],
       "react-compiler/react-compiler": "error",
+      "unicorn/no-unused-properties": "error",
     },
   },
 ]);
