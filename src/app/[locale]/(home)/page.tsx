@@ -7,6 +7,7 @@ import CitadelLogo from "@/logos/citadel-logo";
 import NottinghamLogo from "@/logos/nottingham-logo";
 import SpotifyLogo from "@/logos/spotify-logo";
 import WtcLogo from "@/logos/wtc-logo";
+import { BackgroundLines } from "@/server-components/background-lines";
 import { EducationCard } from "@/server-components/education-card";
 import { ExperienceCard } from "@/server-components/experience-card";
 import type { PageProps } from "@/types";
@@ -22,6 +23,7 @@ export default async function Home(props: PageProps) {
   const { t } = getTranslations(translations, params.locale);
   return (
     <>
+      <BackgroundLines />
       <section css={styles.headlineContainer}>
         <h1 css={styles.headline}>
           {t("headline_1")}
