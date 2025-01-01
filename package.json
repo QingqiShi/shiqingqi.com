@@ -45,6 +45,7 @@
     "eslint-config-next": "15.1.3",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react-compiler": "19.0.0-beta-55955c9-20241229",
+    "eslint-plugin-unicorn": "^56.0.1",
     "next-i18n-router": "^5.5.1",
     "rimraf": "^6.0.1",
     "typescript": "^5",

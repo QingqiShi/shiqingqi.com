@@ -7,6 +7,7 @@ interface SkeletonProps {
   fill?: boolean;
   width?: number;
   height?: number;
+  delay?: number;
   className?: string;
   style?: CSSProperties;
 }
@@ -15,6 +16,7 @@ export function Skeleton({
   fill,
   width,
   height,
+  delay,
   className,
   style,
 }: SkeletonProps) {
@@ -25,6 +27,7 @@ export function Skeleton({
         fill && styles.fill,
         !!width && styles.width(width),
         !!height && styles.height(height),
+        !!delay && styles.delay(delay),
       ]}
       className={className}
       style={style}
@@ -43,6 +46,9 @@ const styles = stylex.create({
     animationName: pulse,
     animationDuration: "2s",
     animationTimingFunction: "cubic-bezier(.4,0,.6,1)",
+    animationFillMode: "both",
+    animationIterationCount: "infinite",
+    animationDelay: skeletonTokens.delay,
     background: tokens.textMuted,
     borderRadius: "0.3rem",
     overflow: "hidden",
@@ -59,5 +65,8 @@ const styles = stylex.create({
   }),
   height: (height: number) => ({
     [skeletonTokens.height]: `${height}px`,
+  }),
+  delay: (height: number) => ({
+    [skeletonTokens.delay]: `${height}ms`,
   }),
 });
