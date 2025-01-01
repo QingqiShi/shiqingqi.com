@@ -1,6 +1,7 @@
 "use client";
 
-import { CaretLeft, House } from "@phosphor-icons/react/dist/ssr";
+import { CaretLeft } from "@phosphor-icons/react/dist/ssr/CaretLeft";
+import { House } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
 import { breakpoints } from "@/breakpoints";

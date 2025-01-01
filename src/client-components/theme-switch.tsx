@@ -1,6 +1,8 @@
 "use client";
 
-import { ArrowClockwise, Moon, Sun } from "@phosphor-icons/react";
+import { ArrowClockwise } from "@phosphor-icons/react/ArrowClockwise";
+import { Moon } from "@phosphor-icons/react/Moon";
+import { Sun } from "@phosphor-icons/react/Sun";
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, useState } from "react";
 import { getDocumentClassName } from "@/app/globalStyles";
