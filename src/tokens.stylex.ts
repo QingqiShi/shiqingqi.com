@@ -65,6 +65,11 @@ export const tokens = stylex.defineVars({
     [breakpoints.lg]: "13rem",
     [breakpoints.xl]: "13rem",
   },
+  zIndexBase: 0,
+  zIndexContent: 100,
+  zIndexTooltip: 200,
+  zIndexOverlay: 300,
+  zIndexToaster: 300,
   ...lightThemeTokens,
 });
 
