@@ -7,11 +7,11 @@ import React, { useSyncExternalStore } from "react";
 import { breakpoints } from "@/breakpoints";
 import { useClickAway } from "@/hooks/use-click-away";
 import { Anchor } from "@/server-components/anchor";
+import { anchorTokens } from "@/server-components/anchor.stylex";
 import { Button } from "@/server-components/button";
 import { tokens } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
-import { anchorTokens } from "@/server-components/anchor.stylex";
 
 /*
  * When route changes (on selecting a different locale) the entire page will unmount, as a result states will
