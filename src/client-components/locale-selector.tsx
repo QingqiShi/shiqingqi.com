@@ -7,6 +7,7 @@ import React, { useSyncExternalStore } from "react";
 import { breakpoints } from "@/breakpoints";
 import { useClickAway } from "@/hooks/use-click-away";
 import { Anchor } from "@/server-components/anchor";
+import { anchorTokens } from "@/server-components/anchor.stylex";
 import { Button } from "@/server-components/button";
 import { tokens } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
@@ -187,7 +188,7 @@ const styles = stylex.create({
   },
   itemActive: {
     pointerEvents: "none",
-    color: tokens.textOnActive,
     backgroundColor: tokens.controlActive,
+    [anchorTokens.color]: tokens.textOnActive,
   },
 });

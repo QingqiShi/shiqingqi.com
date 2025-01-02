@@ -66,7 +66,7 @@ const styles = stylex.create({
   height: (height: number) => ({
     [skeletonTokens.height]: `${height}px`,
   }),
-  delay: (height: number) => ({
-    [skeletonTokens.delay]: `${height}ms`,
+  delay: (delay: number) => ({
+    [skeletonTokens.delay]: `${delay}ms`,
   }),
 });
