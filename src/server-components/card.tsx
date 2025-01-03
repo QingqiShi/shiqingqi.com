@@ -22,6 +22,7 @@ export function Card({
   return (
     <Anchor {...rest} className={className} style={style} css={styles.card}>
       {children}
+      <div css={styles.detailsBackdrop} />
       <div css={styles.detailsIndicator}>
         <span css={styles.detailsText}>{t("details")}</span>
         <ArrowRight />
@@ -44,7 +45,6 @@ const styles = stylex.create({
     transition:
       "box-shadow 0.2s, transform 0.2s, background-color 0.2s, fill 0.2s",
     cursor: "pointer",
-    marginBottom: "1rem",
     position: "relative",
     color: tokens.textMain,
     boxShadow: { default: tokens.shadowNone, ":hover": tokens.shadowRaised },
@@ -82,6 +82,18 @@ const styles = stylex.create({
     [tokens.bristolLogoFill]: { ":not(:hover)": tokens.textMuted },
     [tokens.nottinghamLogoFill]: { ":not(:hover)": tokens.textMuted },
   },
+  detailsBackdrop: {
+    content: "",
+    position: "absolute",
+    top: "-0.5rem",
+    right: "-0.5rem",
+    width: "10rem",
+    height: "5rem",
+    background: `linear-gradient(to top right, transparent 50%, ${tokens.backgroundMain} 110%)`,
+    transition: "opacity 0.2s",
+    opacity: cardTokens.detailsIndicatorOpacity,
+    zIndex: tokens.zIndexBase,
+  },
   detailsIndicator: {
     pointerEvents: "none",
     position: "absolute",
@@ -94,6 +106,7 @@ const styles = stylex.create({
     color: tokens.textMain,
     opacity: cardTokens.detailsIndicatorOpacity,
     transform: cardTokens.detailsIndicatorTransform,
+    zIndex: tokens.zIndexContent,
   },
   detailsText: {
     marginRight: "0.2rem",

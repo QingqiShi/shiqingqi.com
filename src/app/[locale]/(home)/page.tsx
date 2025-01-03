@@ -112,7 +112,7 @@ export default async function Home(props: PageProps) {
 
 const styles = stylex.create({
   headlineContainer: {
-    padding: { default: "0 0 3rem", [breakpoints.sm]: "0 0 5rem" },
+    padding: { default: "0 0 2rem", [breakpoints.sm]: "0 0 4rem" },
   },
   headline: {
     margin: "0 0 1rem 0",
@@ -128,6 +128,7 @@ const styles = stylex.create({
     margin: 0,
   },
   sectionTitle: {
+    marginTop: "2rem",
     marginBottom: "1rem",
     fontSize: "1.2rem",
     fontWeight: 800,
