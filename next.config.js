@@ -1,10 +1,3 @@
-const stylexPlugin = require("@stylexjs/nextjs-plugin");
-
-const withStylex = stylexPlugin({
-  rootDir: __dirname,
-  useCSSLayers: true,
-});
-
 module.exports = async () => {
   /** @type {import('next').NextConfig} */
   const nextConfig = {
@@ -20,5 +13,5 @@ module.exports = async () => {
     disable: process.env.NODE_ENV === "development",
   });
 
-  return withSerwist(withStylex(nextConfig));
+  return withSerwist(nextConfig);
 };
