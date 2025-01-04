@@ -181,7 +181,6 @@ const styles = stylex.create({
     paddingInline: "24px",
     fontSize: "19.2px",
     borderRadius: "7.2px",
-    color: tokens.textMuted,
     transition: "background-color 0.2s",
     gap: "12px",
     backgroundColor: { default: null, ":hover": tokens.backgroundHover },
