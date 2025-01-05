@@ -8,7 +8,7 @@ import NottinghamLogo from "@/logos/nottingham-logo";
 import SpotifyLogo from "@/logos/spotify-logo";
 import WtcLogo from "@/logos/wtc-logo";
 import { BackgroundLines } from "@/server-components/background-lines";
-import { font, size } from "@/tokens.stylex";
+import { font, space } from "@/tokens.stylex";
 import type { PageProps } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 import { EducationCard } from "./education-card";
@@ -113,10 +113,13 @@ export default async function Home(props: PageProps) {
 
 const styles = stylex.create({
   headlineContainer: {
-    padding: { default: `0 0 ${size._7}`, [breakpoints.sm]: `0 0 ${size._9}` },
+    padding: {
+      default: `0 0 ${space._7}`,
+      [breakpoints.sm]: `0 0 ${space._9}`,
+    },
   },
   headline: {
-    margin: `0 0 ${size._3} 0`,
+    margin: `0 0 ${space._3} 0`,
     fontSize: {
       default: font.size_5,
       [breakpoints.sm]: font.size_6,
@@ -129,8 +132,8 @@ const styles = stylex.create({
     margin: 0,
   },
   sectionTitle: {
-    marginTop: size._7,
-    marginBottom: size._3,
+    marginTop: space._7,
+    marginBottom: space._3,
     fontSize: font.size_3,
     fontWeight: font.weight_7,
   },

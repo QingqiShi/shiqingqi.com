@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { border, color, font, shadow, size } from "@/tokens.stylex";
+import { border, color, controlSize, font, shadow } from "@/tokens.stylex";
 
 interface ButtonProps extends ComponentProps<"button"> {
   icon?: React.ReactNode;
@@ -32,17 +32,17 @@ const styles = stylex.create({
     borderWidth: 0,
     borderStyle: "none",
     appearance: "none",
-    fontSize: font.size_0,
+    fontSize: controlSize._4,
     fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
 
     // Custom styles
     display: "inline-flex",
     alignItems: "center",
-    gap: size._1,
-    height: size._7,
-    paddingBlock: size._0,
-    paddingInline: size._3,
+    gap: controlSize._2,
+    height: controlSize._9,
+    paddingBlock: controlSize._1,
+    paddingInline: controlSize._3,
     borderRadius: border.radius_round,
     color: color.textMain,
     boxShadow: shadow._2,
@@ -58,7 +58,7 @@ const styles = stylex.create({
     },
   },
   hasIcon: {
-    paddingLeft: size._1,
+    paddingLeft: controlSize._2,
   },
   icon: {
     display: "inline-flex",

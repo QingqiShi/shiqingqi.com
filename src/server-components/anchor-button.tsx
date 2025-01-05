@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font, shadow, size } from "@/tokens.stylex";
+import { border, color, controlSize, font, shadow } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
@@ -29,7 +29,7 @@ export function AnchorButton({
 const styles = stylex.create({
   button: {
     // Reset
-    fontSize: font.size_0,
+    fontSize: controlSize._4,
     fontWeight: font.weight_5,
     textDecoration: "none",
     cursor: "pointer",
@@ -37,10 +37,10 @@ const styles = stylex.create({
     // Custom styles
     display: "inline-flex",
     alignItems: "center",
-    gap: size._1,
-    height: size._7,
-    paddingBlock: size._0,
-    paddingInline: size._3,
+    gap: controlSize._2,
+    height: controlSize._9,
+    paddingBlock: controlSize._1,
+    paddingInline: controlSize._3,
     borderRadius: border.radius_round,
     color: color.textMain,
     boxShadow: shadow._2,
@@ -56,7 +56,7 @@ const styles = stylex.create({
     },
   },
   hasIcon: {
-    paddingLeft: size._1,
+    paddingLeft: controlSize._2,
   },
   icon: {
     display: "inline-flex",

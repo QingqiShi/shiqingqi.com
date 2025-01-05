@@ -6,7 +6,7 @@ import { svgTokens } from "@/logos/svg.stylex";
 import { Card } from "@/server-components/card";
 import { cardTokens } from "@/server-components/card.stylex";
 import { Skeleton } from "@/server-components/skeleton";
-import { color, font, ratio, size } from "@/tokens.stylex";
+import { color, font, ratio, space } from "@/tokens.stylex";
 
 interface EducationCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode | { src: StaticImageData; alt: string };
@@ -49,7 +49,7 @@ const styles = stylex.create({
     aspectRatio: ratio.tv,
     alignItems: "center",
     display: "grid",
-    gap: size._1,
+    gap: space._1,
     gridTemplateRows: "1fr auto",
     justifyContent: "flex-start",
 
@@ -59,7 +59,7 @@ const styles = stylex.create({
   row: {
     display: "flex",
     alignItems: "center",
-    gap: size._1,
+    gap: space._1,
   },
   name: {
     fontSize: font.size_0,

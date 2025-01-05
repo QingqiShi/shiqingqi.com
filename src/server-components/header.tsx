@@ -4,7 +4,7 @@ import { breakpoints } from "@/breakpoints";
 import { BackButton } from "@/client-components/back-button";
 import { LocaleSelector } from "@/client-components/locale-selector";
 import { ThemeSwitch } from "@/client-components/theme-switch";
-import { size } from "@/tokens.stylex";
+import { space } from "@/tokens.stylex";
 import type { LayoutProps } from "@/types";
 import translations from "./translations.json";
 
@@ -59,13 +59,13 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "center",
     pointerEvents: "none",
-    paddingLeft: `calc(${size._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${size._3} + env(safe-area-inset-right))`,
+    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
   },
   navContent: {
     pointerEvents: "all",
     display: "flex",
     alignItems: "center",
-    gap: size._1,
+    gap: space._1,
   },
 });

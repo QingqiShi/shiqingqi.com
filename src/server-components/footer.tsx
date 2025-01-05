@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
 import { breakpoints } from "@/breakpoints";
-import { font, size } from "@/tokens.stylex";
+import { font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { Anchor } from "./anchor";
 import translations from "./translations.json";
@@ -52,8 +52,8 @@ const styles = stylex.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingBottom: size._8,
-    marginTop: { default: size._9, [breakpoints.sm]: size._11 },
+    paddingBottom: space._8,
+    marginTop: { default: space._9, [breakpoints.sm]: space._11 },
   },
   section: {
     alignItems: { default: null, [breakpoints.md]: "center" },
@@ -62,7 +62,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: { default: "center", [breakpoints.md]: "flex-start" },
-    marginBottom: { default: size._7, [breakpoints.md]: "0" },
+    marginBottom: { default: space._7, [breakpoints.md]: "0" },
     width: { default: "100%", [breakpoints.md]: "50%" },
   },
   copyrightSection: {
@@ -83,7 +83,7 @@ const styles = stylex.create({
   link: {
     display: "block",
     fontSize: font.size_0,
-    marginBottom: { default: null, ":not(:last-of-type)": size._0 },
-    paddingBlock: { default: size._1, [breakpoints.md]: "0" },
+    marginBottom: { default: null, ":not(:last-of-type)": space._0 },
+    paddingBlock: { default: space._1, [breakpoints.md]: "0" },
   },
 });

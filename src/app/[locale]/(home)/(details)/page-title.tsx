@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
-import { color, font, size } from "@/tokens.stylex";
+import { color, font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import translations from "../../../../server-components/translations.json";
 
@@ -30,8 +30,8 @@ const styles = stylex.create({
   container: {
     display: "flex",
     flexDirection: "column",
-    gap: size._1,
-    paddingBottom: size._8,
+    gap: space._1,
+    paddingBottom: space._8,
   },
   subtitle: {
     fontSize: font.size_0,

@@ -6,11 +6,10 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   border,
   color,
-  font,
+  controlSize,
   layer,
   ratio,
   shadow,
-  size,
 } from "@/tokens.stylex";
 import { switchTokens } from "./switch.stylex";
 
@@ -173,7 +172,7 @@ const styles = stylex.create({
     borderWidth: "0",
     borderStyle: "none",
     appearance: "none",
-    fontSize: font.size_1,
+    fontSize: controlSize._4,
     margin: 0,
 
     // Custom styles
@@ -181,7 +180,7 @@ const styles = stylex.create({
     borderRadius: border.radius_round,
     cursor: "pointer",
     display: "flex",
-    height: size._7,
+    height: controlSize._9,
     padding: border.size_2,
     position: "relative",
     transition: `background-color 0.2s ease`,
@@ -196,8 +195,8 @@ const styles = stylex.create({
 
     [switchTokens.thumbPosition]: {
       default: "0",
-      ":checked": size._7,
-      ":indeterminate": `calc(${size._7} / 2)`,
+      ":checked": controlSize._9,
+      ":indeterminate": `calc(${controlSize._9} / 2)`,
     },
     [switchTokens.thumbShadow]: {
       default: null,
@@ -211,10 +210,10 @@ const styles = stylex.create({
       boxShadow: switchTokens.thumbShadow,
       content: "",
       display: "block",
-      height: `calc(${size._7} - ${border.size_2} * 2)`,
+      width: `calc(${controlSize._9} - ${border.size_2} * 2)`,
+      aspectRatio: ratio.square,
       transform: `translateX(${switchTokens.thumbPosition})`,
       transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
-      width: `calc(${size._7} - ${border.size_2} * 2)`,
       zIndex: layer.content,
     },
   },

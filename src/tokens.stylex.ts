@@ -149,7 +149,7 @@ export const font = stylex.defineVars({
   lineHeight_5: stylex.types.number(2),
 });
 
-export const size = stylex.defineVars({
+export const space = stylex.defineVars({
   _00: stylex.types.length(".1rem"),
   _0: stylex.types.length(".25rem"),
   _1: stylex.types.length(".5rem"),
@@ -168,6 +168,19 @@ export const size = stylex.defineVars({
   _14: stylex.types.length("20rem"),
   _15: stylex.types.length("30rem"),
   _16: stylex.types.length("35rem"),
+});
+
+export const controlSize = stylex.defineVars({
+  _0: stylex.types.length("2px"),
+  _1: stylex.types.length("4px"),
+  _2: stylex.types.length("8px"),
+  _3: stylex.types.length("12px"),
+  _4: stylex.types.length("16px"),
+  _5: stylex.types.length("20px"),
+  _6: stylex.types.length("24px"),
+  _7: stylex.types.length("28px"),
+  _8: stylex.types.length("32px"),
+  _9: stylex.types.length("40px"),
 });
 
 export const border = stylex.defineVars({

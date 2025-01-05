@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { svgTokens } from "@/logos/svg.stylex";
 import { Card } from "@/server-components/card";
 import { Skeleton } from "@/server-components/skeleton";
-import { color, font, ratio, size } from "@/tokens.stylex";
+import { color, font, ratio, space } from "@/tokens.stylex";
 
 interface ExperienceCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode;
@@ -31,7 +31,7 @@ const styles = stylex.create({
   card: {
     alignItems: "center",
     display: "grid",
-    gap: size._1,
+    gap: space._1,
     gridTemplateRows: "1fr auto",
     justifyContent: "flex-start",
     // Override svg css variables to be muted when not hovering

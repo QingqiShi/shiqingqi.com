@@ -1,7 +1,7 @@
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
-import { border, color, font, layer, shadow, size } from "@/tokens.stylex";
+import { border, color, font, layer, shadow, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
@@ -40,7 +40,7 @@ const styles = stylex.create({
     fontSize: font.size_1,
     borderRadius: border.radius_2,
     textAlign: "left",
-    padding: size._3,
+    padding: space._3,
     overflow: "hidden",
     transition:
       "box-shadow 0.2s, transform 0.2s, background-color 0.2s, fill 0.2s",
@@ -92,12 +92,12 @@ const styles = stylex.create({
     color: color.textMain,
     display: "flex",
     fontSize: font.size_00,
-    gap: size._0,
+    gap: space._0,
     opacity: cardTokens.detailsIndicatorOpacity,
     pointerEvents: "none",
     position: "absolute",
-    right: size._1,
-    top: size._1,
+    right: space._1,
+    top: space._1,
     transform: cardTokens.detailsIndicatorTransform,
     transition: "opacity 0.2s, transform 0.2s",
     zIndex: layer.content,

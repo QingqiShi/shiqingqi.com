@@ -9,7 +9,7 @@ import { useClickAway } from "@/hooks/use-click-away";
 import { Anchor } from "@/server-components/anchor";
 import { anchorTokens } from "@/server-components/anchor.stylex";
 import { Button } from "@/server-components/button";
-import { border, color, font, shadow, size } from "@/tokens.stylex";
+import { border, color, font, shadow, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 
@@ -156,14 +156,14 @@ const styles = stylex.create({
     boxShadow: shadow._2,
     display: "flex",
     flexDirection: "column",
-    gap: size._0,
+    gap: space._0,
     opacity: 0,
     overflow: "hidden",
-    padding: size._0,
+    padding: space._0,
     pointerEvents: "none",
     position: "absolute",
     right: 0,
-    top: `calc(100% + ${size._1})`,
+    top: `calc(100% + ${space._1})`,
     transform: "scale(0, 0)",
     transformOrigin: "top right",
     transition: "transform 0.2s ease-out, opacity 0.2s ease-out",
@@ -178,10 +178,10 @@ const styles = stylex.create({
     borderRadius: border.radius_1,
     display: "flex",
     fontSize: font.size_1,
-    gap: size._1,
+    gap: space._1,
     justifyContent: "space-between",
-    paddingBlock: size._1,
-    paddingInline: size._3,
+    paddingBlock: space._1,
+    paddingInline: space._3,
     textDecoration: "none",
     transition: "background-color 0.2s",
   },
