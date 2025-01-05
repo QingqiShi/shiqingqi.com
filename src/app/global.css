@@ -23,14 +23,19 @@
     U+FEFF;
 }
 
-@layer global;
+@layer normalize;
 
-@layer global {
+@layer normalize {
   html {
     height: 100%;
   }
 
   body * {
     box-sizing: inherit;
+  }
+
+  input[type="checkbox"] {
+    width: 0;
+    height: 0;
   }
 }

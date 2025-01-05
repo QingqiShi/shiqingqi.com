@@ -9,7 +9,7 @@ import { getDocumentClassName } from "@/app/globalStyles";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
 import { Button } from "@/server-components/button";
-import { color, font, ratio, space } from "@/tokens.stylex";
+import { color, controlSize, font, ratio, space } from "@/tokens.stylex";
 import type { SwitchState } from "./switch";
 import { Switch } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";
@@ -161,7 +161,7 @@ const styles = stylex.create({
     pointerEvents: "none",
     position: "absolute",
     top: 0,
-    width: space._7,
+    width: controlSize._9,
   },
   moon: {
     left: 0,
