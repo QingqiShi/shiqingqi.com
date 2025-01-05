@@ -9,7 +9,7 @@ import { getDocumentClassName } from "@/app/globalStyles";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
 import { Button } from "@/server-components/button";
-import { tokens } from "@/tokens.stylex";
+import { color, font, ratio, size } from "@/tokens.stylex";
 import type { SwitchState } from "./switch";
 import { Switch } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";
@@ -47,8 +47,8 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           ? "#000000"
           : "#ffffff"
         : theme === "dark"
-        ? "#000000"
-        : "#ffffff"
+          ? "#000000"
+          : "#ffffff"
     );
   }, [preferDark, theme]);
 
@@ -62,7 +62,6 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         styles.container,
         theme === "system" && styles.hideSystemButton,
         theme !== "system" && hasFocus && styles.showSystemButton,
-        styles.switch,
       ]}
       onFocus={() => {
         setHasFocus(true);
@@ -76,14 +75,23 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         setHasFocus(false);
       }}
     >
-      <span css={[styles.icon, styles.moon]} aria-hidden>
-        <Moon weight="fill" />
-      </span>
-      <span css={[styles.icon, styles.sun]} aria-hidden>
-        <Sun weight="fill" />
-      </span>
+      <div css={styles.systemButton}>
+        <Button
+          role="radio"
+          aria-label={labels[2]}
+          aria-checked={!theme || theme === "system"}
+          onClick={() => {
+            setTheme("system");
+          }}
+          disabled={!theme || theme === "system"}
+          title={labels[2]}
+        >
+          <ArrowClockwise weight="fill" />
+        </Button>
+      </div>
       <Switch
         id="theme-switch"
+        css={styles.switch}
         value={
           !theme || theme === "system"
             ? themeMap[preferDark ? "dark" : "light"]
@@ -103,25 +111,17 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
                 ? 0
                 : 1
               : theme === "dark"
-              ? 0
-              : 1
+                ? 0
+                : 1
           ]
         }
       />
-      <div css={styles.systemButton}>
-        <Button
-          role="radio"
-          aria-label={labels[2]}
-          aria-checked={!theme || theme === "system"}
-          onClick={() => {
-            setTheme("system");
-          }}
-          disabled={!theme || theme === "system"}
-          title={labels[2]}
-        >
-          <ArrowClockwise weight="fill" />
-        </Button>
-      </div>
+      <span css={[styles.icon, styles.moon]} aria-hidden>
+        <Moon weight="fill" />
+      </span>
+      <span css={[styles.icon, styles.sun]} aria-hidden>
+        <Sun weight="fill" />
+      </span>
     </div>
   );
 }
@@ -130,8 +130,11 @@ const styles = stylex.create({
   container: {
     display: "block",
     position: "relative",
-    fontSize: "16px",
-    [themeSwitchTokens.systemLeft]: { default: null, ":hover": "-60px" },
+    fontSize: font.size_1,
+    [themeSwitchTokens.systemLeft]: {
+      default: null,
+      ":hover": `calc(${size._8} * -1)`,
+    },
     [themeSwitchTokens.systemOpacity]: { default: null, ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": "all" },
   },
@@ -141,7 +144,10 @@ const styles = stylex.create({
     [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": null },
   },
   showSystemButton: {
-    [themeSwitchTokens.systemLeft]: { default: "-60px", ":hover": "-60px" },
+    [themeSwitchTokens.systemLeft]: {
+      default: `calc(${size._8} * -1)`,
+      ":hover": `calc(${size._8} * -1)`,
+    },
     [themeSwitchTokens.systemOpacity]: { default: "1", ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: {
       default: "all",
@@ -149,18 +155,19 @@ const styles = stylex.create({
     },
   },
   switch: {
-    [tokens.controlActive]: { default: tokens.backgroundRaised },
+    [color.controlActive]: { default: color.backgroundRaised },
   },
   icon: {
-    position: "absolute",
-    zIndex: 100,
-    top: 0,
+    alignItems: "center",
+    aspectRatio: ratio.square,
     bottom: 0,
     display: "flex",
-    alignItems: "center",
-    padding: "9.6px",
+    fontSize: font.size_1,
+    justifyContent: "center",
     pointerEvents: "none",
-    fontSize: "1.3em",
+    position: "absolute",
+    top: 0,
+    width: size._7,
   },
   moon: {
     left: 0,
@@ -169,13 +176,13 @@ const styles = stylex.create({
     right: 0,
   },
   systemButton: {
+    left: 0,
+    opacity: themeSwitchTokens.systemOpacity,
+    paddingRight: "2rem",
+    pointerEvents: themeSwitchTokens.systemPointerEvents,
     position: "absolute",
     top: 0,
-    paddingRight: "2rem",
-    left: 0,
-    transition: "transform 0.2s ease, opacity 0.2s ease",
     transform: `translateX(${themeSwitchTokens.systemLeft})`,
-    opacity: themeSwitchTokens.systemOpacity,
-    pointerEvents: themeSwitchTokens.systemPointerEvents,
+    transition: "transform 0.2s ease, opacity 0.2s ease",
   },
 });

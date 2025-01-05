@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties } from "react";
-import { tokens } from "@/tokens.stylex";
+import { color } from "@/tokens.stylex";
+import { svgTokens } from "./svg.stylex";
 
 interface WtcLogoProps {
   className?: string;
@@ -9,7 +10,12 @@ interface WtcLogoProps {
 
 export default function WtcLogo({ className, style }: WtcLogoProps) {
   return (
-    <svg viewBox="-51 -14.008 115 39.953" className={className} style={style}>
+    <svg
+      viewBox="-51 -14.008 115 39.953"
+      className={className}
+      style={style}
+      css={styles.svg}
+    >
       <title>Wunderman Thompson Commerce</title>
       <path
         css={styles.plusPath}
@@ -24,10 +30,19 @@ export default function WtcLogo({ className, style }: WtcLogoProps) {
 }
 
 const styles = stylex.create({
+  svg: {
+    objectFit: "contain",
+    width: "100%",
+    height: "100%",
+  },
   plusPath: {
-    fill: tokens.wtcLogoPlusFill,
+    color: stylex.firstThatWorks(svgTokens.fill, color.brandWtcPlus),
+    fill: "currentColor",
+    transition: "fill .2s",
   },
   letterPath: {
-    fill: tokens.wtcLogoLetterFill,
+    color: stylex.firstThatWorks(svgTokens.fill, color.brandWtcLetter),
+    fill: "currentColor",
+    transition: "fill .2s",
   },
 });

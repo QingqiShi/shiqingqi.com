@@ -2,11 +2,11 @@ import * as stylex from "@stylexjs/stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";
-import { breakpoints } from "@/breakpoints";
-import { tokens } from "@/tokens.stylex";
-import { Card } from "./card";
-import { cardTokens } from "./card.stylex";
-import { Skeleton } from "./skeleton";
+import { svgTokens } from "@/logos/svg.stylex";
+import { Card } from "@/server-components/card";
+import { cardTokens } from "@/server-components/card.stylex";
+import { Skeleton } from "@/server-components/skeleton";
+import { color, font, ratio, size } from "@/tokens.stylex";
 
 interface EducationCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode | { src: StaticImageData; alt: string };
@@ -46,30 +46,34 @@ export function EducationCard({
 
 const styles = stylex.create({
   card: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.3rem",
+    aspectRatio: ratio.tv,
+    alignItems: "center",
+    display: "grid",
+    gap: size._1,
+    gridTemplateRows: "1fr auto",
+    justifyContent: "flex-start",
+
+    // Override svg css variables to be muted when not hovering
+    [svgTokens.fill]: { ":not(:hover)": color.textMuted },
   },
   row: {
     display: "flex",
     alignItems: "center",
-    gap: "0.5rem",
+    gap: size._1,
   },
   name: {
-    fontSize: "0.8rem",
-    fontWeight: 800,
+    fontSize: font.size_0,
+    fontWeight: font.weight_7,
     width: "60%",
-    color: tokens.textMuted,
+    color: color.textMuted,
   },
   logo: {
-    display: "flex",
     alignItems: "center",
+    aspectRatio: ratio.square,
+    display: "flex",
+    justifyContent: "flex-start",
+    minHeight: 0,
     width: "40%",
-    height: {
-      default: "9.375rem",
-      [breakpoints.sm]: "7.2rem",
-      [breakpoints.md]: "5rem",
-    },
   },
   img: {
     height: "100%",
@@ -79,8 +83,8 @@ const styles = stylex.create({
     transition: "filter .2s",
   },
   dates: {
-    fontSize: "0.6rem",
-    fontWeight: 600,
-    color: tokens.textMuted,
+    fontSize: font.size_00,
+    fontWeight: font.weight_6,
+    color: color.textMuted,
   },
 });

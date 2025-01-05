@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
 import { breakpoints } from "@/breakpoints";
+import { font, size } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { Anchor } from "./anchor";
 import translations from "./translations.json";
@@ -51,8 +52,8 @@ const styles = stylex.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingBottom: "3rem",
-    marginTop: { default: "4rem", [breakpoints.sm]: "7rem" },
+    paddingBottom: size._8,
+    marginTop: { default: size._9, [breakpoints.sm]: size._11 },
   },
   section: {
     alignItems: { default: null, [breakpoints.md]: "center" },
@@ -60,10 +61,9 @@ const styles = stylex.create({
   linksSection: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-start",
-    marginBottom: { default: "2rem", [breakpoints.md]: "0" },
+    alignItems: { default: "center", [breakpoints.md]: "flex-start" },
+    marginBottom: { default: size._7, [breakpoints.md]: "0" },
     width: { default: "100%", [breakpoints.md]: "50%" },
-    textAlign: { default: "center", [breakpoints.md]: "left" },
   },
   copyrightSection: {
     width: { default: "100%", [breakpoints.md]: "50%" },
@@ -72,18 +72,18 @@ const styles = stylex.create({
   },
   name: {
     display: "block",
-    fontWeight: 800,
-    fontSize: "1.5rem",
+    fontWeight: font.weight_8,
+    fontSize: font.size_4,
   },
   copyright: {
     display: "block",
-    fontWeight: 800,
-    fontSize: "1.2rem",
+    fontWeight: font.weight_8,
+    fontSize: font.size_3,
   },
   link: {
     display: "block",
-    fontSize: "0.8rem",
-    marginBottom: { default: null, ":not(:last-of-type)": "0.2rem" },
-    paddingBlock: { default: "0.5rem", [breakpoints.md]: "0" },
+    fontSize: font.size_0,
+    marginBottom: { default: null, ":not(:last-of-type)": size._0 },
+    paddingBlock: { default: size._1, [breakpoints.md]: "0" },
   },
 });

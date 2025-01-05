@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
-import { tokens } from "@/tokens.stylex";
+import { border, color } from "@/tokens.stylex";
 
 export function BackgroundLines() {
   return (
@@ -30,10 +30,10 @@ const styles = stylex.create({
     position: "absolute",
     top: 0,
     bottom: 0,
-    width: "0.0625rem",
-    backgroundImage: `linear-gradient(${tokens.textMuted} 33%, rgba(255, 255, 255, 0) 0%)`,
+    width: border.size_1,
+    backgroundImage: `linear-gradient(${color.textMuted} 33%, transparent 0%)`,
     backgroundPosition: "right",
-    backgroundSize: "0.0625rem 0.3125rem",
+    backgroundSize: `${border.size_1} ${border.size_3}`,
     backgroundRepeat: "repeat-y",
   },
   line1: {

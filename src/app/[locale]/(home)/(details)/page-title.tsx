@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
-import { tokens } from "@/tokens.stylex";
+import { color, font, size } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
-import translations from "./translations.json";
+import translations from "../../../../server-components/translations.json";
 
 interface PageTitleProps {
   locale: SupportedLocale;
@@ -28,24 +28,24 @@ export function PageTitle({ locale, type, title, role, date }: PageTitleProps) {
 
 const styles = stylex.create({
   container: {
-    paddingBottom: "3rem",
     display: "flex",
     flexDirection: "column",
-    gap: "0.5rem",
+    gap: size._1,
+    paddingBottom: size._8,
   },
   subtitle: {
-    fontSize: "0.9rem",
-    fontWeight: 600,
-    color: tokens.textMuted,
+    fontSize: font.size_0,
+    fontWeight: font.weight_7,
+    color: color.textMuted,
     margin: 0,
   },
   title: {
-    fontSize: "2rem",
+    fontSize: font.size_5,
     margin: 0,
   },
   date: {
     display: "block",
-    fontSize: "0.9rem",
-    color: tokens.textMuted,
+    fontSize: font.size_0,
+    color: color.textMuted,
   },
 });

@@ -9,7 +9,7 @@ import { useClickAway } from "@/hooks/use-click-away";
 import { Anchor } from "@/server-components/anchor";
 import { anchorTokens } from "@/server-components/anchor.stylex";
 import { Button } from "@/server-components/button";
-import { tokens } from "@/tokens.stylex";
+import { border, color, font, shadow, size } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 
@@ -151,43 +151,43 @@ const styles = stylex.create({
     display: { default: "inline-flex", [breakpoints.md]: "none" },
   },
   menu: {
+    backgroundColor: color.backgroundRaised,
+    borderRadius: border.radius_2,
+    boxShadow: shadow._2,
     display: "flex",
     flexDirection: "column",
-    gap: "2px",
+    gap: size._0,
+    opacity: 0,
+    overflow: "hidden",
+    padding: size._0,
+    pointerEvents: "none",
     position: "absolute",
     right: 0,
-    top: "calc(100% + 12px)",
-    borderRadius: "12px",
-    opacity: 0,
-    padding: "4.8px",
+    top: `calc(100% + ${size._1})`,
     transform: "scale(0, 0)",
     transformOrigin: "top right",
     transition: "transform 0.2s ease-out, opacity 0.2s ease-out",
-    overflow: "hidden",
-    pointerEvents: "none",
-    backgroundColor: tokens.backgroundRaised,
-    boxShadow: tokens.shadowRaised,
   },
   menuShown: {
-    transform: "scale(1, 1)",
     opacity: 1,
     pointerEvents: "all",
+    transform: "scale(1, 1)",
   },
   item: {
+    backgroundColor: { default: null, ":hover": color.backgroundHover },
+    borderRadius: border.radius_1,
     display: "flex",
+    fontSize: font.size_1,
+    gap: size._1,
     justifyContent: "space-between",
+    paddingBlock: size._1,
+    paddingInline: size._3,
     textDecoration: "none",
-    paddingBlock: "12px",
-    paddingInline: "24px",
-    fontSize: "19.2px",
-    borderRadius: "7.2px",
     transition: "background-color 0.2s",
-    gap: "12px",
-    backgroundColor: { default: null, ":hover": tokens.backgroundHover },
   },
   itemActive: {
+    [anchorTokens.color]: color.textOnActive,
+    backgroundColor: color.controlActive,
     pointerEvents: "none",
-    backgroundColor: tokens.controlActive,
-    [anchorTokens.color]: tokens.textOnActive,
   },
 });

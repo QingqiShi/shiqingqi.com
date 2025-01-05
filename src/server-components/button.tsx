@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { tokens } from "@/tokens.stylex";
+import { border, color, font, shadow, size } from "@/tokens.stylex";
 
 interface ButtonProps extends ComponentProps<"button"> {
   icon?: React.ReactNode;
@@ -14,7 +14,12 @@ export function Button({
   ...props
 }: ButtonProps) {
   return (
-    <button {...props} className={className} style={style} css={styles.button}>
+    <button
+      {...props}
+      className={className}
+      style={style}
+      css={[styles.button, !!icon && styles.hasIcon]}
+    >
       {icon && <span css={styles.icon}>{icon}</span>}
       {children}
     </button>
@@ -24,39 +29,38 @@ export function Button({
 const styles = stylex.create({
   button: {
     // Reset
-    borderWidth: "0",
+    borderWidth: 0,
     borderStyle: "none",
     appearance: "none",
-    boxSizing: "content-box",
-    fontSize: "16px",
-    fontWeight: 400,
+    fontSize: font.size_0,
+    fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
 
     // Custom styles
     display: "inline-flex",
     alignItems: "center",
-    blockSize: "36px",
-    borderRadius: "36px",
-    paddingBlock: "2px",
-    paddingInline: "16px",
-    color: tokens.textMain,
+    gap: size._1,
+    height: size._7,
+    paddingBlock: size._0,
+    paddingInline: size._3,
+    borderRadius: border.radius_round,
+    color: color.textMain,
+    boxShadow: shadow._2,
+    transition: "background 0.2s ease",
     backgroundColor: {
-      default: tokens.backgroundRaised,
-      ":hover": tokens.backgroundHover,
-      ":disabled:hover": tokens.backgroundRaised,
+      default: color.backgroundRaised,
+      ":hover": color.backgroundHover,
+      ":disabled:hover": color.backgroundRaised,
     },
     opacity: {
       default: null,
       ":disabled": 0.7,
     },
-    boxShadow: tokens.shadowControls,
-    transition: "background 0.2s ease",
   },
   hasIcon: {
-    paddingLeft: "8px",
+    paddingLeft: size._1,
   },
   icon: {
     display: "inline-flex",
-    marginRight: "8px",
   },
 });

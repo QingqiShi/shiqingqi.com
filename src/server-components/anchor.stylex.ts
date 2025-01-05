@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { tokens } from "@/tokens.stylex";
+import { color } from "@/tokens.stylex";
 
 export const anchorTokens = stylex.defineVars({
-  color: { default: tokens.textMain, ":hover": tokens.textMuted },
+  color: { default: color.textMain, ":hover": color.textMuted },
 });

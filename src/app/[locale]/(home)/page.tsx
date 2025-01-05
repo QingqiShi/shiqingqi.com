@@ -8,10 +8,11 @@ import NottinghamLogo from "@/logos/nottingham-logo";
 import SpotifyLogo from "@/logos/spotify-logo";
 import WtcLogo from "@/logos/wtc-logo";
 import { BackgroundLines } from "@/server-components/background-lines";
-import { EducationCard } from "@/server-components/education-card";
-import { ExperienceCard } from "@/server-components/experience-card";
+import { font, size } from "@/tokens.stylex";
 import type { PageProps } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
+import { EducationCard } from "./education-card";
+import { ExperienceCard } from "./experience-card";
 import translations from "./translations.json";
 
 export function generateStaticParams() {
@@ -36,7 +37,7 @@ export default async function Home(props: PageProps) {
         <h2 css={styles.sectionTitle}>{t("experiencesSection")}</h2>
         <div css={styles.cardList}>
           <ExperienceCard
-            logo={<CitadelLogo css={styles.experienceSvg} />}
+            logo={<CitadelLogo />}
             dates={t("citadelDate")}
             href={getLocalePath("/experiences/citadel", params.locale)}
             locale={params.locale}
@@ -45,7 +46,7 @@ export default async function Home(props: PageProps) {
             scroll
           />
           <ExperienceCard
-            logo={<SpotifyLogo css={styles.experienceSvg} />}
+            logo={<SpotifyLogo />}
             dates={t("spotifyDate")}
             href={getLocalePath("/experiences/spotify", params.locale)}
             locale={params.locale}
@@ -69,7 +70,7 @@ export default async function Home(props: PageProps) {
         <h2 css={styles.sectionTitle}>{t("educationSection")}</h2>
         <div css={styles.cardList}>
           <EducationCard
-            logo={<BristolLogo title={t("uob")} css={styles.educationSvg} />}
+            logo={<BristolLogo title={t("uob")} />}
             name={t("uob")}
             dates={t("uobDate")}
             href={
@@ -81,7 +82,7 @@ export default async function Home(props: PageProps) {
             css={styles.card}
           />
           <EducationCard
-            logo={<NottinghamLogo title={t("uon")} css={styles.educationSvg} />}
+            logo={<NottinghamLogo title={t("uon")} />}
             name={t("uon")}
             dates={t("uonDate")}
             href={
@@ -112,26 +113,26 @@ export default async function Home(props: PageProps) {
 
 const styles = stylex.create({
   headlineContainer: {
-    padding: { default: "0 0 2rem", [breakpoints.sm]: "0 0 4rem" },
+    padding: { default: `0 0 ${size._7}`, [breakpoints.sm]: `0 0 ${size._9}` },
   },
   headline: {
-    margin: "0 0 1rem 0",
+    margin: `0 0 ${size._3} 0`,
     fontSize: {
-      default: "2rem",
-      [breakpoints.sm]: "2.5rem",
-      [breakpoints.md]: "3rem",
-      [breakpoints.lg]: "3.5rem",
+      default: font.size_5,
+      [breakpoints.sm]: font.size_6,
+      [breakpoints.md]: font.size_7,
+      [breakpoints.lg]: font.size_8,
     },
-    fontWeight: 800,
+    fontWeight: font.weight_8,
   },
   brief: {
     margin: 0,
   },
   sectionTitle: {
-    marginTop: "2rem",
-    marginBottom: "1rem",
-    fontSize: "1.2rem",
-    fontWeight: 800,
+    marginTop: size._7,
+    marginBottom: size._3,
+    fontSize: font.size_3,
+    fontWeight: font.weight_7,
   },
   cardList: {
     display: "flex",
@@ -145,18 +146,18 @@ const styles = stylex.create({
       [breakpoints.lg]: "25%",
     },
   },
-  experienceSvg: {
-    height: {
-      default: "5.5rem",
-      [breakpoints.sm]: "4.4rem",
-      [breakpoints.md]: "3rem",
-    },
-    maxWidth: "100%",
-    transition: "fill .2s",
-  },
-  educationSvg: {
-    height: "100%",
-    maxWidth: "100%",
-    transition: "fill .2s",
-  },
+  // experienceSvg: {
+  //   height: {
+  //     default: "5.5rem",
+  //     [breakpoints.sm]: "4.4rem",
+  //     [breakpoints.md]: "3rem",
+  //   },
+  //   maxWidth: "100%",
+  //   transition: "fill .2s",
+  // },
+  // educationSvg: {
+  //   height: "100%",
+  //   maxWidth: "100%",
+  //   transition: "fill .2s",
+  // },
 });

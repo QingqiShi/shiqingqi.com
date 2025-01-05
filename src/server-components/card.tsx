@@ -1,7 +1,7 @@
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
-import { tokens } from "@/tokens.stylex";
+import { border, color, font, layer, shadow, size } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
@@ -37,20 +37,20 @@ const styles = stylex.create({
     width: "100%",
     borderStyle: "none",
     textDecoration: "none",
-    fontSize: "1rem",
-    borderRadius: "0.5rem",
+    fontSize: font.size_1,
+    borderRadius: border.radius_2,
     textAlign: "left",
-    padding: "1rem",
+    padding: size._3,
     overflow: "hidden",
     transition:
       "box-shadow 0.2s, transform 0.2s, background-color 0.2s, fill 0.2s",
     cursor: "pointer",
     position: "relative",
-    color: tokens.textMain,
-    boxShadow: { default: tokens.shadowNone, ":hover": tokens.shadowRaised },
+    color: color.textMain,
+    boxShadow: { default: "none", ":hover": shadow._5 },
     backgroundColor: {
       default: "transparent",
-      ":hover": tokens.backgroundTranslucent,
+      ":hover": color.backgroundTranslucent,
     },
     transform: {
       default: null,
@@ -61,10 +61,6 @@ const styles = stylex.create({
     WebkitBackdropFilter: { default: null, ":hover": "blur(2rem)" },
     backdropFilter: { default: null, ":hover": "blur(2rem)" },
 
-    [cardTokens.imageFilter]: {
-      default: "grayscale(100%)",
-      ":hover": "grayscale(0%)",
-    },
     [cardTokens.detailsIndicatorOpacity]: {
       default: 0,
       ":hover": 1,
@@ -73,43 +69,40 @@ const styles = stylex.create({
       default: "translate3d(0, 0.5rem, 0)",
       ":hover": "translate3d(0, 0, 0)",
     },
-
-    // Override svg css variables to be muted when not hovering
-    [tokens.citadelLogoFill]: { ":not(:hover)": tokens.textMuted },
-    [tokens.spotifyLogoFill]: { ":not(:hover)": tokens.textMuted },
-    [tokens.wtcLogoPlusFill]: { ":not(:hover)": tokens.textMuted },
-    [tokens.wtcLogoLetterFill]: { ":not(:hover)": tokens.textMuted },
-    [tokens.bristolLogoFill]: { ":not(:hover)": tokens.textMuted },
-    [tokens.nottinghamLogoFill]: { ":not(:hover)": tokens.textMuted },
+    [cardTokens.imageFilter]: {
+      default: "grayscale(100%)",
+      ":hover": "grayscale(0%)",
+    },
   },
   detailsBackdrop: {
+    background: `linear-gradient(to top right, transparent 50%, ${color.backgroundMain} 110%)`,
     content: "",
-    position: "absolute",
-    top: "-0.5rem",
-    right: "-0.5rem",
-    width: "10rem",
     height: "5rem",
-    background: `linear-gradient(to top right, transparent 50%, ${tokens.backgroundMain} 110%)`,
-    transition: "opacity 0.2s",
     opacity: cardTokens.detailsIndicatorOpacity,
-    zIndex: tokens.zIndexBase,
-  },
-  detailsIndicator: {
     pointerEvents: "none",
     position: "absolute",
-    top: "0.5rem",
-    right: "0.5rem",
-    fontSize: "0.6rem",
-    display: "flex",
+    right: "-0.5rem",
+    top: "-0.5rem",
+    transition: "opacity 0.2s",
+    width: "10rem",
+    zIndex: layer.base,
+  },
+  detailsIndicator: {
     alignItems: "center",
-    transition: "opacity 0.2s, transform 0.2s",
-    color: tokens.textMain,
+    color: color.textMain,
+    display: "flex",
+    fontSize: font.size_00,
+    gap: size._0,
     opacity: cardTokens.detailsIndicatorOpacity,
+    pointerEvents: "none",
+    position: "absolute",
+    right: size._1,
+    top: size._1,
     transform: cardTokens.detailsIndicatorTransform,
-    zIndex: tokens.zIndexContent,
+    transition: "opacity 0.2s, transform 0.2s",
+    zIndex: layer.content,
   },
   detailsText: {
-    marginRight: "0.2rem",
-    fontWeight: 600,
+    fontWeight: font.weight_6,
   },
 });
