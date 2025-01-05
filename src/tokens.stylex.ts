@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@/breakpoints";
 
 const light = {
   colorScheme: "light",
@@ -171,16 +172,16 @@ export const space = stylex.defineVars({
 });
 
 export const controlSize = stylex.defineVars({
-  _0: stylex.types.length("2px"),
-  _1: stylex.types.length("4px"),
-  _2: stylex.types.length("8px"),
-  _3: stylex.types.length("12px"),
-  _4: stylex.types.length("16px"),
-  _5: stylex.types.length("20px"),
-  _6: stylex.types.length("24px"),
-  _7: stylex.types.length("28px"),
-  _8: stylex.types.length("32px"),
-  _9: stylex.types.length("40px"),
+  _0: { default: "2.4px", [breakpoints.md]: "2px" },
+  _1: { default: "4.8px", [breakpoints.md]: "4px" },
+  _2: { default: "9.6px", [breakpoints.md]: "8px" },
+  _3: { default: "14.4px", [breakpoints.md]: "12px" },
+  _4: { default: "19.2px", [breakpoints.md]: "16px" },
+  _5: { default: "24px", [breakpoints.md]: "20px" },
+  _6: { default: "28.8px", [breakpoints.md]: "24px" },
+  _7: { default: "33.6px", [breakpoints.md]: "28px" },
+  _8: { default: "38.4px", [breakpoints.md]: "32px" },
+  _9: { default: "48px", [breakpoints.md]: "40px" },
 });
 
 export const border = stylex.defineVars({
