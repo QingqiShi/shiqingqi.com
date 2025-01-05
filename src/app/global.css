@@ -35,7 +35,7 @@
   }
 
   input[type="checkbox"] {
-    width: 0;
-    height: 0;
+    width: unset;
+    height: unset;
   }
 }
