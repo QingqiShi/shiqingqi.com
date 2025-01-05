@@ -3,13 +3,13 @@
 import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
-import React, { useSyncExternalStore } from "react";
+import React, { useRef, useSyncExternalStore } from "react";
 import { breakpoints } from "@/breakpoints";
 import { useClickAway } from "@/hooks/use-click-away";
 import { Anchor } from "@/server-components/anchor";
 import { anchorTokens } from "@/server-components/anchor.stylex";
 import { Button } from "@/server-components/button";
-import { border, color, font, shadow, space } from "@/tokens.stylex";
+import { border, color, controlSize, shadow, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 
@@ -48,21 +48,30 @@ export function LocaleSelector({
     () => isMenuShownSingleton
   );
 
-  const menuRef = useClickAway<HTMLDivElement>(
-    () => isMenuShown && setIsMenuShown(false)
-  );
+  const mobileButtonRef = useRef<HTMLButtonElement>(null);
+  const desktopButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useClickAway<HTMLDivElement>((e) => {
+    if (
+      isMenuShown &&
+      e.target !== mobileButtonRef.current &&
+      e.target !== desktopButtonRef.current
+    ) {
+      setIsMenuShown(false);
+    }
+  });
 
   const pathname = usePathname();
 
   return (
     <div css={styles.container}>
       <Button
+        ref={desktopButtonRef}
         type="button"
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
         aria-label={ariaLabel}
         onClick={() => {
-          setIsMenuShown(true);
+          setIsMenuShown(!isMenuShown);
         }}
         icon={<Translate weight="bold" role="presentation" />}
         css={styles.desktopVisible}
@@ -70,12 +79,13 @@ export function LocaleSelector({
         {label}
       </Button>
       <Button
+        ref={mobileButtonRef}
         type="button"
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
         aria-label={ariaLabel}
         onClick={() => {
-          setIsMenuShown(true);
+          setIsMenuShown(!isMenuShown);
         }}
         css={styles.mobileVisible}
       >
@@ -156,10 +166,10 @@ const styles = stylex.create({
     boxShadow: shadow._2,
     display: "flex",
     flexDirection: "column",
-    gap: space._0,
+    gap: controlSize._1,
     opacity: 0,
     overflow: "hidden",
-    padding: space._0,
+    padding: controlSize._1,
     pointerEvents: "none",
     position: "absolute",
     right: 0,
@@ -174,14 +184,15 @@ const styles = stylex.create({
     transform: "scale(1, 1)",
   },
   item: {
+    alignItems: "center",
     backgroundColor: { default: null, ":hover": color.backgroundHover },
     borderRadius: border.radius_1,
     display: "flex",
-    fontSize: font.size_1,
-    gap: space._1,
+    fontSize: controlSize._4,
+    gap: controlSize._5,
+    height: controlSize._9,
     justifyContent: "space-between",
-    paddingBlock: space._1,
-    paddingInline: space._3,
+    padding: controlSize._3,
     textDecoration: "none",
     transition: "background-color 0.2s",
   },
