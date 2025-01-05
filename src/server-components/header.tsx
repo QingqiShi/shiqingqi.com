@@ -4,6 +4,7 @@ import { breakpoints } from "@/breakpoints";
 import { BackButton } from "@/client-components/back-button";
 import { LocaleSelector } from "@/client-components/locale-selector";
 import { ThemeSwitch } from "@/client-components/theme-switch";
+import { space } from "@/tokens.stylex";
 import type { LayoutProps } from "@/types";
 import translations from "./translations.json";
 
@@ -58,23 +59,13 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "center",
     pointerEvents: "none",
-    paddingRight: {
-      default: "calc(1rem + env(safe-area-inset-right))",
-      [breakpoints.sm]: "calc(1.2rem + env(safe-area-inset-right))",
-      [breakpoints.md]: "calc(1.4rem + env(safe-area-inset-right))",
-      [breakpoints.lg]: "calc(1.7rem + env(safe-area-inset-right))",
-    },
-    paddingLeft: {
-      default: "calc(1rem + env(safe-area-inset-left))",
-      [breakpoints.sm]: "calc(1.2rem + env(safe-area-inset-left))",
-      [breakpoints.md]: "calc(1.4rem + env(safe-area-inset-left))",
-      [breakpoints.lg]: "calc(1.7rem + env(safe-area-inset-left))",
-    },
+    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
   },
   navContent: {
     pointerEvents: "all",
     display: "flex",
     alignItems: "center",
-    gap: "0.5rem",
+    gap: space._1,
   },
 });

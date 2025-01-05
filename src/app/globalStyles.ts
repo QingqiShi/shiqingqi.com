@@ -1,28 +1,29 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
-import { darkTheme, systemTheme, tokens } from "@/tokens.stylex";
+import { lightTheme, darkTheme, color, font } from "@/tokens.stylex";
 
 export const globalStyles = stylex.create({
   global: {
+    backgroundColor: color.backgroundMain,
+    colorScheme: color.colorScheme,
     margin: 0,
+    minHeight: "100dvh",
     fontSize: {
       default: "16px",
       [breakpoints.sm]: "18px",
       [breakpoints.md]: "20px",
       [breakpoints.lg]: "24px",
-      [breakpoints.xl]: "calc(24 / 2000 * 100vw)",
+      [breakpoints.xl]: "26px",
     },
-    backgroundColor: tokens.backgroundMain,
-    colorScheme: tokens.colorScheme,
-    minHeight: "100dvh",
   },
   body: {
     boxSizing: "border-box",
-    color: tokens.textMain,
-    fontFamily: tokens.fontFamily,
-    WebkitFontSmoothing: "antialiased",
+    color: color.textMain,
+    fontFamily: font.family,
+    margin: 0,
     MozOsxFontSmoothing: "grayscale",
     position: "relative",
+    WebkitFontSmoothing: "antialiased",
   },
 });
 
@@ -33,11 +34,11 @@ export function getDocumentClassName(theme?: string | null) {
       return rootProps.className ?? "";
     }
     case "light": {
-      const rootProps = stylex.props(globalStyles.global);
+      const rootProps = stylex.props(lightTheme, globalStyles.global);
       return rootProps.className ?? "";
     }
     default: {
-      const rootProps = stylex.props(systemTheme, globalStyles.global);
+      const rootProps = stylex.props(globalStyles.global);
       return rootProps.className ?? "";
     }
   }

@@ -3,13 +3,13 @@
 import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
-import React, { useSyncExternalStore } from "react";
+import React, { useRef, useSyncExternalStore } from "react";
 import { breakpoints } from "@/breakpoints";
 import { useClickAway } from "@/hooks/use-click-away";
 import { Anchor } from "@/server-components/anchor";
 import { anchorTokens } from "@/server-components/anchor.stylex";
 import { Button } from "@/server-components/button";
-import { tokens } from "@/tokens.stylex";
+import { border, color, controlSize, shadow, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 
@@ -48,21 +48,30 @@ export function LocaleSelector({
     () => isMenuShownSingleton
   );
 
-  const menuRef = useClickAway<HTMLDivElement>(
-    () => isMenuShown && setIsMenuShown(false)
-  );
+  const mobileButtonRef = useRef<HTMLButtonElement>(null);
+  const desktopButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useClickAway<HTMLDivElement>((e) => {
+    if (
+      isMenuShown &&
+      e.target !== mobileButtonRef.current &&
+      e.target !== desktopButtonRef.current
+    ) {
+      setIsMenuShown(false);
+    }
+  });
 
   const pathname = usePathname();
 
   return (
     <div css={styles.container}>
       <Button
+        ref={desktopButtonRef}
         type="button"
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
         aria-label={ariaLabel}
         onClick={() => {
-          setIsMenuShown(true);
+          setIsMenuShown(!isMenuShown);
         }}
         icon={<Translate weight="bold" role="presentation" />}
         css={styles.desktopVisible}
@@ -70,12 +79,13 @@ export function LocaleSelector({
         {label}
       </Button>
       <Button
+        ref={mobileButtonRef}
         type="button"
         aria-haspopup="menu"
         aria-controls="language-selector-menu"
         aria-label={ariaLabel}
         onClick={() => {
-          setIsMenuShown(true);
+          setIsMenuShown(!isMenuShown);
         }}
         css={styles.mobileVisible}
       >
@@ -151,43 +161,44 @@ const styles = stylex.create({
     display: { default: "inline-flex", [breakpoints.md]: "none" },
   },
   menu: {
+    backgroundColor: color.backgroundRaised,
+    borderRadius: border.radius_2,
+    boxShadow: shadow._2,
     display: "flex",
     flexDirection: "column",
-    gap: "2px",
+    gap: controlSize._1,
+    opacity: 0,
+    overflow: "hidden",
+    padding: controlSize._1,
+    pointerEvents: "none",
     position: "absolute",
     right: 0,
-    top: "calc(100% + 12px)",
-    borderRadius: "12px",
-    opacity: 0,
-    padding: "4.8px",
+    top: `calc(100% + ${space._1})`,
     transform: "scale(0, 0)",
     transformOrigin: "top right",
     transition: "transform 0.2s ease-out, opacity 0.2s ease-out",
-    overflow: "hidden",
-    pointerEvents: "none",
-    backgroundColor: tokens.backgroundRaised,
-    boxShadow: tokens.shadowRaised,
   },
   menuShown: {
-    transform: "scale(1, 1)",
     opacity: 1,
     pointerEvents: "all",
+    transform: "scale(1, 1)",
   },
   item: {
+    alignItems: "center",
+    backgroundColor: { default: null, ":hover": color.backgroundHover },
+    borderRadius: border.radius_1,
     display: "flex",
+    fontSize: controlSize._4,
+    gap: controlSize._5,
+    height: controlSize._9,
     justifyContent: "space-between",
+    padding: controlSize._3,
     textDecoration: "none",
-    paddingBlock: "12px",
-    paddingInline: "24px",
-    fontSize: "19.2px",
-    borderRadius: "7.2px",
     transition: "background-color 0.2s",
-    gap: "12px",
-    backgroundColor: { default: null, ":hover": tokens.backgroundHover },
   },
   itemActive: {
+    [anchorTokens.color]: color.textOnActive,
+    backgroundColor: color.controlActive,
     pointerEvents: "none",
-    backgroundColor: tokens.controlActive,
-    [anchorTokens.color]: tokens.textOnActive,
   },
 });

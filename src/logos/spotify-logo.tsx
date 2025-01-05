@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties } from "react";
-import { tokens } from "@/tokens.stylex";
+import { color } from "@/tokens.stylex";
+import { svgTokens } from "./svg.stylex";
 
 interface SpotifyLogoProps {
   className?: string;
@@ -25,6 +26,11 @@ export default function SpotifyLogo({ className, style }: SpotifyLogoProps) {
 
 const styles = stylex.create({
   svg: {
-    fill: tokens.spotifyLogoFill,
+    color: stylex.firstThatWorks(svgTokens.fill, color.brandSpotify),
+    fill: "currentColor",
+    objectFit: "contain",
+    width: "100%",
+    height: "100%",
+    transition: "fill .2s",
   },
 });

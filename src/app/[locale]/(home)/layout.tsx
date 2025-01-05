@@ -7,8 +7,9 @@ import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/server-components/background-lines";
 import { FlowGradient } from "@/server-components/flow-gradient";
 import { Footer } from "@/server-components/footer";
-import { tokens } from "@/tokens.stylex";
+import { color, space } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
+import { glowTokens } from "./layout.stylex";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps) {
@@ -62,17 +63,16 @@ const styles = stylex.create({
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,
-    paddingLeft: `calc(${tokens.layoutPaddingBase} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${tokens.layoutPaddingBase} + env(safe-area-inset-right))`,
+    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
   },
   wrapperInner: {
     position: "relative",
   },
   main: {
     paddingTop: {
-      default: "6rem",
-      [breakpoints.sm]: "9rem",
-      [breakpoints.md]: "11rem",
+      default: space._11,
+      [breakpoints.sm]: space._12,
     },
   },
   flowGradient: {
@@ -82,11 +82,10 @@ const styles = stylex.create({
     right: 0,
     zIndex: 0,
     height: {
-      default: "30rem",
-      [breakpoints.sm]: "30rem",
-      [breakpoints.md]: "35rem",
-      [breakpoints.lg]: "30rem",
-      [breakpoints.xl]: "max(35rem, 80dvh)",
+      default: space._15,
+      [breakpoints.md]: space._16,
+      [breakpoints.lg]: space._15,
+      [breakpoints.xl]: `max(${space._15}, 80dvh)`,
     },
   },
   glow: {
@@ -97,8 +96,8 @@ const styles = stylex.create({
     zIndex: 0,
     overflow: "hidden",
     pointerEvents: "none",
-    background: `radial-gradient(circle calc(${tokens.layoutGlowHeight}*5) at center calc(${tokens.layoutGlowHeight}*5), ${tokens.controlActive} calc(${tokens.layoutGlowHeight}*4), transparent)`,
-    opacity: tokens.glowOpacity,
-    height: tokens.layoutGlowHeight,
+    background: `radial-gradient(circle calc(${glowTokens.height}*5) at center calc(${glowTokens.height}*5), ${color.controlActive} calc(${glowTokens.height}*4), transparent)`,
+    opacity: color.opacityActive,
+    height: glowTokens.height,
   },
 });

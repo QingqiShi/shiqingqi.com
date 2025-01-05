@@ -30,7 +30,7 @@ export default async function RootLayout({ params, children }: LayoutProps) {
           />
         )}
       </head>
-      <body css={[globalStyles.global, globalStyles.body]}>
+      <body css={globalStyles.body}>
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
         <Header params={params} />
         {children}

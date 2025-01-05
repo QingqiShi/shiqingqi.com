@@ -1,6 +1,6 @@
 import { getTranslations } from "@/app/translations/getTranslations";
-import { PageTitle } from "@/server-components/page-title";
 import type { PageProps } from "@/types";
+import { PageTitle } from "../../page-title";
 import translations from "./translations.json";
 
 export default async function Page(props: PageProps) {

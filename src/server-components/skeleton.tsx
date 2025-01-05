@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties } from "react";
-import { tokens } from "@/tokens.stylex";
+import { border, color } from "@/tokens.stylex";
 import { skeletonTokens } from "./skeleton.stylex";
 
 interface SkeletonProps {
@@ -49,8 +49,8 @@ const styles = stylex.create({
     animationFillMode: "both",
     animationIterationCount: "infinite",
     animationDelay: skeletonTokens.delay,
-    background: tokens.textMuted,
-    borderRadius: "0.3rem",
+    background: color.textMuted,
+    borderRadius: border.radius_2,
     overflow: "hidden",
     opacity: 0.3,
     width: skeletonTokens.width,

@@ -3,7 +3,14 @@
 import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { tokens } from "@/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  layer,
+  ratio,
+  shadow,
+} from "@/tokens.stylex";
 import { switchTokens } from "./switch.stylex";
 
 export type SwitchState = "off" | "on" | "indeterminate";
@@ -158,9 +165,6 @@ export function Switch({
   );
 }
 
-const THUMB_SIZE = "36px";
-const TRACK_SIZE = `calc(${THUMB_SIZE} * 2)`;
-
 const styles = stylex.create({
   switch: {
     // Reset
@@ -168,50 +172,49 @@ const styles = stylex.create({
     borderWidth: "0",
     borderStyle: "none",
     appearance: "none",
-    boxSizing: "content-box",
-    fontSize: "16px",
+    fontSize: controlSize._4,
     margin: 0,
 
     // Custom styles
-    inlineSize: TRACK_SIZE,
-    blockSize: THUMB_SIZE,
-    borderRadius: THUMB_SIZE,
+    aspectRatio: ratio.double,
+    borderRadius: border.radius_round,
+    cursor: "pointer",
+    display: "flex",
+    height: controlSize._9,
+    padding: border.size_2,
+    position: "relative",
+    transition: `background-color 0.2s ease`,
     backgroundColor: {
-      default: tokens.controlTrack,
-      ":checked": tokens.controlActive,
+      default: color.controlTrack,
+      ":checked": color.controlActive,
     },
     boxShadow: {
-      default: tokens.shadowControls,
-      ":hover": { "::before": tokens.shadowHighlight },
+      default: shadow._2,
+      ":hover": { "::before": shadow._3 },
     },
-    position: "relative",
-    padding: "2px",
-    display: "flex",
-    transition: `background-color 0.2s ease`,
-    cursor: "pointer",
 
     [switchTokens.thumbPosition]: {
       default: "0",
-      ":checked": `calc(${TRACK_SIZE} - ${THUMB_SIZE})`,
-      ":indeterminate": `calc(${TRACK_SIZE} / 2 - ${THUMB_SIZE} / 2)`,
+      ":checked": controlSize._9,
+      ":indeterminate": `calc(${controlSize._9} / 2)`,
     },
     [switchTokens.thumbShadow]: {
       default: null,
-      ":hover": tokens.shadowHighlight,
+      ":hover": shadow._3,
     },
 
     // Pseudo elements
     "::before": {
+      backgroundColor: color.controlThumb,
+      borderRadius: border.radius_round,
+      boxShadow: switchTokens.thumbShadow,
       content: "",
       display: "block",
-      width: THUMB_SIZE,
-      height: THUMB_SIZE,
-      borderRadius: THUMB_SIZE,
-      backgroundColor: tokens.controlThumb,
-      zIndex: 150,
+      width: `calc(${controlSize._9} - ${border.size_2} * 2)`,
+      aspectRatio: ratio.square,
       transform: `translateX(${switchTokens.thumbPosition})`,
       transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
-      boxShadow: switchTokens.thumbShadow,
+      zIndex: layer.content,
     },
   },
   dragging: (position) => ({

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
-import { tokens } from "@/tokens.stylex";
+import { color } from "@/tokens.stylex";
 import { init, start } from "./loop";
 
 interface FlowGradientClientProps {
@@ -64,6 +64,6 @@ const styles = stylex.create({
   canvas: {
     width: "100%",
     height: "100%",
-    backgroundColor: tokens.backgroundMain,
+    backgroundColor: color.backgroundMain,
   },
 });
