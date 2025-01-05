@@ -131,10 +131,7 @@ const styles = stylex.create({
     display: "block",
     position: "relative",
     fontSize: font.size_1,
-    [themeSwitchTokens.systemLeft]: {
-      default: null,
-      ":hover": `calc(${size._8} * -1)`,
-    },
+    [themeSwitchTokens.systemLeft]: { default: null, ":hover": `-100%` },
     [themeSwitchTokens.systemOpacity]: { default: null, ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": "all" },
   },
@@ -144,10 +141,7 @@ const styles = stylex.create({
     [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": null },
   },
   showSystemButton: {
-    [themeSwitchTokens.systemLeft]: {
-      default: `calc(${size._8} * -1)`,
-      ":hover": `calc(${size._8} * -1)`,
-    },
+    [themeSwitchTokens.systemLeft]: { default: `-100%`, ":hover": `-100%` },
     [themeSwitchTokens.systemOpacity]: { default: "1", ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: {
       default: "all",
@@ -178,7 +172,7 @@ const styles = stylex.create({
   systemButton: {
     left: 0,
     opacity: themeSwitchTokens.systemOpacity,
-    paddingRight: "2rem",
+    paddingRight: size._1,
     pointerEvents: themeSwitchTokens.systemPointerEvents,
     position: "absolute",
     top: 0,
