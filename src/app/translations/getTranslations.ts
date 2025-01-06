@@ -23,7 +23,7 @@ export function getTranslations<T extends TranslationConfig>(
     key: keyof typeof translationConfig,
     { parse }: { parse?: boolean } = {}
   ): ReactNode | string {
-    const message = translationConfig[key][locale];
+    const message = translationConfig[key]?.[locale];
     if (!message) {
       throw new Error(
         `Translation for key "${key as string}" in locale "${locale}" not found`
