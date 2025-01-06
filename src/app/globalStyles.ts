@@ -6,8 +6,6 @@ export const globalStyles = stylex.create({
   global: {
     backgroundColor: color.backgroundMain,
     colorScheme: color.colorScheme,
-    margin: 0,
-    minHeight: "100dvh",
     fontSize: {
       default: "16px",
       [breakpoints.sm]: "18px",
@@ -17,13 +15,8 @@ export const globalStyles = stylex.create({
     },
   },
   body: {
-    boxSizing: "border-box",
     color: color.textMain,
     fontFamily: font.family,
-    margin: 0,
-    MozOsxFontSmoothing: "grayscale",
-    position: "relative",
-    WebkitFontSmoothing: "antialiased",
   },
 });
 

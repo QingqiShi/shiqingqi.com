@@ -25,7 +25,12 @@ const eslintConfig = tsEslint.config([
       "react-compiler": reactCompiler,
       unicorn: eslintPluginUnicorn,
     },
-    ignores: ["eslint.config.mjs", "tooling/**/*"],
+    ignores: [
+      "next.config.js",
+      "eslint.config.mjs",
+      "postcss.config.js",
+      "tooling/**/*",
+    ],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "script",
