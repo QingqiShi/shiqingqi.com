@@ -10,7 +10,6 @@
     "moduleResolution": "bundler",
     "noEmit": true,
     "noImplicitAny": true,
-    "noUncheckedIndexedAccess": true,
     "paths": {
       "@/*": ["./src/*"]
     },

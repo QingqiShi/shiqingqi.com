@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
+import { Skeleton } from "@/server-components/skeleton";
 import { color, font, layer } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { fetchConfiguration } from "@/utils/tmdbApi";
@@ -20,16 +21,13 @@ export async function PosterImage({ locale, posterPath, alt }: PosterImage) {
   const { t } = getTranslations(translations, locale);
 
   const config = await fetchConfiguration();
-
-  const fallback = (
-    <div css={[styles.poster, styles.errored]}>
-      <div>{alt}</div>
-      <div css={styles.errorText}>{t("failedToLoadImage")}</div>
-    </div>
-  );
-
   if (!config.images?.base_url || !config.images?.poster_sizes) {
-    return fallback;
+    return (
+      <div css={[styles.poster, styles.errored]}>
+        <div>{alt}</div>
+        <div css={styles.errorText}>{t("failedToLoadImage")}</div>
+      </div>
+    );
   }
 
   const sizes = config.images.poster_sizes
@@ -46,7 +44,7 @@ export async function PosterImage({ locale, posterPath, alt }: PosterImage) {
 
   return (
     <>
-      {fallback}
+      <Skeleton fill css={styles.errored} />
       {/* Disabling no-img-element rule as the images here are from a third party provider and is already 
       optimized */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
