@@ -48,6 +48,7 @@ const styles = stylex.create({
     position: "relative",
     color: color.textMain,
     boxShadow: { default: "none", ":hover": shadow._5 },
+    zIndex: { ":hover": layer.content },
     backgroundColor: {
       default: "transparent",
       ":hover": color.backgroundTranslucent,

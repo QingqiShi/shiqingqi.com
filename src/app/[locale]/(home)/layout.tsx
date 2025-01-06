@@ -7,7 +7,7 @@ import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/server-components/background-lines";
 import { FlowGradient } from "@/server-components/flow-gradient";
 import { Footer } from "@/server-components/footer";
-import { color, space } from "@/tokens.stylex";
+import { color, layer, space } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
 import { glowTokens } from "./layout.stylex";
 import translations from "./translations.json";
@@ -80,7 +80,7 @@ const styles = stylex.create({
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 0,
+    zIndex: layer.base,
     height: {
       default: space._15,
       [breakpoints.md]: space._16,
@@ -93,7 +93,7 @@ const styles = stylex.create({
     bottom: 0,
     left: 0,
     right: 0,
-    zIndex: 0,
+    zIndex: layer.base,
     overflow: "hidden",
     pointerEvents: "none",
     background: `radial-gradient(circle calc(${glowTokens.height}*5) at center calc(${glowTokens.height}*5), ${color.controlActive} calc(${glowTokens.height}*4), transparent)`,
