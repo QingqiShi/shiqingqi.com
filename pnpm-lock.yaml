@@ -9,7 +9,7 @@ patchedDependencies:
     hash: 47arv5o5mzgbz7xvmighvsblzu
     path: patches/@stylexjs__eslint-plugin.patch
   '@stylexjs/shared':
-    hash: pr4akwikyqc6jx2ckhlwybkxoy
+    hash: taovdfvhsxly4ylp3uieaentny
     path: patches/@stylexjs__shared.patch
 
 importers:
@@ -3247,7 +3247,7 @@ snapshots:
       '@babel/traverse': 7.26.4
       '@babel/types': 7.26.3
       '@dual-bundle/import-meta-resolve': 4.1.0
-      '@stylexjs/shared': 0.10.0(patch_hash=pr4akwikyqc6jx2ckhlwybkxoy)
+      '@stylexjs/shared': 0.10.0(patch_hash=taovdfvhsxly4ylp3uieaentny)
       '@stylexjs/stylex': 0.10.0
     transitivePeerDependencies:
       - supports-color
@@ -3268,7 +3268,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stylexjs/shared@0.10.0(patch_hash=pr4akwikyqc6jx2ckhlwybkxoy)':
+  '@stylexjs/shared@0.10.0(patch_hash=taovdfvhsxly4ylp3uieaentny)':
     dependencies:
       postcss-value-parser: 4.2.0
 
