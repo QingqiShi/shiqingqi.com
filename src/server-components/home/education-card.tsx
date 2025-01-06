@@ -3,9 +3,9 @@ import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";
 import { svgTokens } from "@/logos/svg.stylex";
-import { Card } from "@/server-components/card";
-import { cardTokens } from "@/server-components/card.stylex";
-import { Skeleton } from "@/server-components/skeleton";
+import { Card } from "@/server-components/shared/card";
+import { cardTokens } from "@/server-components/shared/card.stylex";
+import { Skeleton } from "@/server-components/shared/skeleton";
 import { color, font, ratio, space } from "@/tokens.stylex";
 
 interface EducationCardProps extends React.ComponentProps<typeof Card> {

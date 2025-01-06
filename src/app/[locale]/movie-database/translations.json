@@ -10,9 +10,5 @@
   "errorMessage": {
     "en": "Sorry, couldn't afford to buy all the movies.",
     "zh": "对不起，买不起所有的电影。"
-  },
-  "failedToLoadImage": {
-    "en": "No Poster",
-    "zh": "无海报"
   }
 }

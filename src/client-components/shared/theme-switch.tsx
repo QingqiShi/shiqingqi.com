@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { getDocumentClassName } from "@/app/globalStyles";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
-import { Button } from "@/server-components/button";
+import { Button } from "@/server-components/shared/button";
 import { color, controlSize, font, ratio, space } from "@/tokens.stylex";
 import type { SwitchState } from "./switch";
 import { Switch } from "./switch";

@@ -5,7 +5,7 @@ import { House } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
 import { breakpoints } from "@/breakpoints";
-import { AnchorButton } from "@/server-components/anchor-button";
+import { AnchorButton } from "@/server-components/shared/anchor-button";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath, normalizePath } from "@/utils/pathname";
 

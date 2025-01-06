@@ -3,8 +3,8 @@ import { getTranslations } from "@/app/translations/getTranslations";
 import { breakpoints } from "@/breakpoints";
 import { font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
-import { Anchor } from "./anchor";
-import translations from "./translations.json";
+import { Anchor } from "../shared/anchor";
+import translations from "../translations.json";
 
 interface FooterProps {
   locale: SupportedLocale;

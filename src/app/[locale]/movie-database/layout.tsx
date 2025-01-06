@@ -5,10 +5,10 @@ import { ErrorBoundary } from "react-error-boundary";
 import HomeLayout from "@/app/[locale]/(home)/layout";
 import { BASE_URL } from "@/app/constants";
 import { getTranslations } from "@/app/translations/getTranslations";
-import { Skeleton } from "@/server-components/skeleton";
+import { Grid } from "@/server-components/movie-database/grid";
+import { Skeleton } from "@/server-components/shared/skeleton";
 import { ratio } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
-import { Grid } from "./grid";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps) {

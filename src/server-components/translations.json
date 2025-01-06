@@ -38,5 +38,9 @@
   "education": {
     "en": "Education",
     "zh": "学习"
+  },
+  "failedToLoadImage": {
+    "en": "No Poster",
+    "zh": "无海报"
   }
 }
