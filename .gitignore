@@ -36,4 +36,5 @@ yarn-error.log*
 next-env.d.ts
 
 # Serwist (service worker)
-public/sw.js
+public/sw*
+public/swe-worker*
