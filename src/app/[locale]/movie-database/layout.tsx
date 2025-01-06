@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import HomeLayout from "@/app/[locale]/(home)/layout";
 import { BASE_URL } from "@/app/constants";
 import { getTranslations } from "@/app/translations/getTranslations";
 import { Skeleton } from "@/server-components/skeleton";
@@ -30,7 +31,9 @@ export default async function Layout({ children, params }: LayoutProps) {
   const { locale } = await params;
   const { t } = getTranslations(translations, locale);
   return (
-    <ErrorBoundary fallback={<div>😢 {t("errorMessage")}</div>}>
+    <ErrorBoundary
+      fallback={<HomeLayout params={params}>😢 {t("errorMessage")}</HomeLayout>}
+    >
       <Suspense
         fallback={
           <Grid>

@@ -8,7 +8,7 @@ export function Grid({ children }: PropsWithChildren) {
 
 const styles = stylex.create({
   skeletonGrid: {
-    marginTop: "4.5rem",
+    marginTop: "5rem",
     padding: "0.5rem",
     display: "grid",
     gap: "0.5rem",
