@@ -3,9 +3,9 @@ import * as stylex from "@stylexjs/stylex";
 import { getTranslations } from "@/app/translations/getTranslations";
 import { border, color, font, layer, shadow, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
+import translations from "../translations.json";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
-import translations from "./translations.json";
 
 interface CardProps extends React.ComponentProps<typeof Anchor> {
   locale: SupportedLocale;

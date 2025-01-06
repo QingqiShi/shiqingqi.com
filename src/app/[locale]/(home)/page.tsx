@@ -7,12 +7,12 @@ import CitadelLogo from "@/logos/citadel-logo";
 import NottinghamLogo from "@/logos/nottingham-logo";
 import SpotifyLogo from "@/logos/spotify-logo";
 import WtcLogo from "@/logos/wtc-logo";
-import { BackgroundLines } from "@/server-components/background-lines";
+import { BackgroundLines } from "@/server-components/home/background-lines";
+import { EducationCard } from "@/server-components/home/education-card";
+import { ExperienceCard } from "@/server-components/home/experience-card";
 import { font, space } from "@/tokens.stylex";
 import type { PageProps } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
-import { EducationCard } from "./education-card";
-import { ExperienceCard } from "./experience-card";
 import translations from "./translations.json";
 
 export function generateStaticParams() {
