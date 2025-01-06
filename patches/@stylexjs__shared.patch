@@ -1,0 +1,168 @@
+# Patched to fix camelCased variable names, can be removed after next @stylex/shared release
+
+diff --git a/lib/convert-to-className.js b/lib/convert-to-className.js
+index aed4913d068421b1b40d8b74c405ff8510380abe..2b3aed93c8204431da6cb06ad3c9cb546dd784c1 100644
+--- a/lib/convert-to-className.js
++++ b/lib/convert-to-className.js
+@@ -22,7 +22,7 @@ function convertStyleToClassName(objEntry, pseudos, atRules) {
+     debug = false
+   } = options;
+   const [key, rawValue] = objEntry;
+-  const dashedKey = (0, _dashify.default)(key);
++  const dashedKey = key.startsWith('--') ? key : (0, _dashify.default)(key);
+   let value = Array.isArray(rawValue) ? rawValue.map(eachValue => (0, _transformValue.default)(key, eachValue, options)) : (0, _transformValue.default)(key, rawValue, options);
+   if (Array.isArray(value) && value.find(val => val.startsWith('var(') && val.endsWith(')'))) {
+     value = variableFallbacks(value);
+diff --git a/lib/properties/CSS Animations.json b/lib/properties/CSS Animations.json
+deleted file mode 100644
+index 1df8e1dafc436b09e900404c35cbcc27219777f1..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Backgrounds and Borders.json b/lib/properties/CSS Backgrounds and Borders.json
+deleted file mode 100644
+index 1a9b932e667a927c9a3cf57b41dba40f6ae501b7..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Basic User Interface.json b/lib/properties/CSS Basic User Interface.json
+deleted file mode 100644
+index 939b53663928d504e1b1b10adc1076156f081735..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Box Alignment.json b/lib/properties/CSS Box Alignment.json
+deleted file mode 100644
+index 8e29100984dfe945674fab4a260374289b53404a..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Box Model.json b/lib/properties/CSS Box Model.json
+deleted file mode 100644
+index 70e0b1918cca442d9c1f2a7abb3b5dc79dc6a6cc..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Color.json b/lib/properties/CSS Color.json
+deleted file mode 100644
+index cd7ae1b009a4dad1c691abe0a1af07a8d2bc4911..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Columns.json b/lib/properties/CSS Columns.json
+deleted file mode 100644
+index 9c5c5630db790aeae22dc641cf40c89152038468..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Containment.json b/lib/properties/CSS Containment.json
+deleted file mode 100644
+index 4b68daea38d809fd49d283cf16a8beba34363a5e..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Counter Styles.json b/lib/properties/CSS Counter Styles.json
+deleted file mode 100644
+index 14480b33bd30e01c1a0ba6f55e94e2d54758271d..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Display.json b/lib/properties/CSS Display.json
+deleted file mode 100644
+index 06e7b1d420784a4b2e5118fa34950cef2d1192e8..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Flexible Box Layout.json b/lib/properties/CSS Flexible Box Layout.json
+deleted file mode 100644
+index e78449d1106f0abec9413a9a2672c3670bbf1a95..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Fonts.json b/lib/properties/CSS Fonts.json
+deleted file mode 100644
+index b9a3da21f89d1355841044440ae4d8912d2a837b..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Fragmentation.json b/lib/properties/CSS Fragmentation.json
+deleted file mode 100644
+index 17859b7405eff6f4c9ca3b6c95c5f333c172f3e8..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Generated Content.json b/lib/properties/CSS Generated Content.json
+deleted file mode 100644
+index 15bfaa02d96b5d5479300346420274ae859e0ef6..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Grid Layout.json b/lib/properties/CSS Grid Layout.json
+deleted file mode 100644
+index 3b98b23000a853456dc5f606bca2d7d79f6d06a1..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Images.json b/lib/properties/CSS Images.json
+deleted file mode 100644
+index 1ceafc8d6abe9e555ffd8f1cbc7d4c649abd61e4..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Inline.json b/lib/properties/CSS Inline.json
+deleted file mode 100644
+index d7e920f6f98413125240736552b724d6c6be4c25..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Lists and Counters.json b/lib/properties/CSS Lists and Counters.json
+deleted file mode 100644
+index 1543841a0e70b9060350cd675b3089c9169d155f..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Logical Properties.json b/lib/properties/CSS Logical Properties.json
+deleted file mode 100644
+index b89182b3d9786704fa75de29be38a6b7e082eaec..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Masking.json b/lib/properties/CSS Masking.json
+deleted file mode 100644
+index ad1a5aab6a8497c435154fc4ccc1f2bb726052ec..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Miscellaneous.json b/lib/properties/CSS Miscellaneous.json
+deleted file mode 100644
+index 9f79688a0b6ef93aef96acebea191ec62dd89acf..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Motion Path.json b/lib/properties/CSS Motion Path.json
+deleted file mode 100644
+index d7c517151d200e1cf832f9a1122a66dcf668141f..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Overflow.json b/lib/properties/CSS Overflow.json
+deleted file mode 100644
+index facfe519320efce6602d9f2b017605d6b9915696..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Pages.json b/lib/properties/CSS Pages.json
+deleted file mode 100644
+index d6e0792888e2855ee73c4b3ced799816e51ae230..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Positioning.json b/lib/properties/CSS Positioning.json
+deleted file mode 100644
+index bf7d73ac30b61ea42a122ab4bd8492fe95cc1e18..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Ruby.json b/lib/properties/CSS Ruby.json
+deleted file mode 100644
+index 0a63fdeffd221efa739b9afb93b00d2557436bfb..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Scroll Anchoring.json b/lib/properties/CSS Scroll Anchoring.json
+deleted file mode 100644
+index aebf5b5cbcf7138def257ee588318b3a0face641..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Scroll Snap.json b/lib/properties/CSS Scroll Snap.json
+deleted file mode 100644
+index 4b4f5986612b75dd93d8ce10228cb59216fe46c3..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Scrollbars.json b/lib/properties/CSS Scrollbars.json
+deleted file mode 100644
+index 29adbb12c2665a557cdd37992a046645d0c4c155..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Shapes.json b/lib/properties/CSS Shapes.json
+deleted file mode 100644
+index 558f876f0a240a2995b43f193aa177a54a113a12..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Speech.json b/lib/properties/CSS Speech.json
+deleted file mode 100644
+index 9b1d847f6139f202be6de465b97516f7dd04cb56..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Table.json b/lib/properties/CSS Table.json
+deleted file mode 100644
+index 6eafc924f209621fff7170fd1afebfe26def6d94..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Text Decoration.json b/lib/properties/CSS Text Decoration.json
+deleted file mode 100644
+index d53b385917195b5e9a9de2a692ac4ddc31efbf45..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Text.json b/lib/properties/CSS Text.json
+deleted file mode 100644
+index 7caf76ccdfd74d436385bddb66aeb500dd21ea5c..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Transforms.json b/lib/properties/CSS Transforms.json
+deleted file mode 100644
+index cff52f48bf623715e99f004bfee6800166040d3b..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Transitions.json b/lib/properties/CSS Transitions.json
+deleted file mode 100644
+index 1fe6778a4adfaeabdce6d6fd6e487e9088801b91..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Variables.json b/lib/properties/CSS Variables.json
+deleted file mode 100644
+index 2ff5fff0895482f4952a49853ae8cb8e0f3961d4..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS View Transitions.json b/lib/properties/CSS View Transitions.json
+deleted file mode 100644
+index 0a2ea68988cf6ecea74319b97809228fdf12a9b0..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Will Change.json b/lib/properties/CSS Will Change.json
+deleted file mode 100644
+index 511e1ba626cf75af43b3987aaa73192bcd2c7466..0000000000000000000000000000000000000000
+diff --git a/lib/properties/CSS Writing Modes.json b/lib/properties/CSS Writing Modes.json
+deleted file mode 100644
+index adca957683a219d219bd36d38086cf85410539a0..0000000000000000000000000000000000000000
+diff --git a/lib/properties/Compositing and Blending.json b/lib/properties/Compositing and Blending.json
+deleted file mode 100644
+index 0526ad5efd6af7a4fbd577de8573be985c004453..0000000000000000000000000000000000000000
+diff --git a/lib/properties/Filter Effects.json b/lib/properties/Filter Effects.json
+deleted file mode 100644
+index d679f96829763db8f82f1e43c28ab29775b323e7..0000000000000000000000000000000000000000
+diff --git a/lib/properties/MathML.json b/lib/properties/MathML.json
+deleted file mode 100644
+index 2cdb13a53b5c01a83ab66b10ad4b9faffe3c88e6..0000000000000000000000000000000000000000
+diff --git a/lib/properties/Microsoft Extensions.json b/lib/properties/Microsoft Extensions.json
+deleted file mode 100644
+index c3fcb9acaf8af8394ed663ee5789f6665ff27ca9..0000000000000000000000000000000000000000
+diff --git a/lib/properties/Mozilla Extensions.json b/lib/properties/Mozilla Extensions.json
+deleted file mode 100644
+index 3470267bbdf861a9edd7a4ee426953bbafd94f0f..0000000000000000000000000000000000000000
+diff --git a/lib/properties/Pointer Events.json b/lib/properties/Pointer Events.json
+deleted file mode 100644
+index 606bb5d164a1741e9bdf481ebfe8867e0eb9f893..0000000000000000000000000000000000000000
+diff --git a/lib/properties/WebKit Extensions.json b/lib/properties/WebKit Extensions.json
+deleted file mode 100644
+index ec7692e2332650b906a8767d26ee194a6446a4ce..0000000000000000000000000000000000000000
+diff --git a/lib/properties.json b/lib/properties.json
+deleted file mode 100644
+index 0b63bc2ef0f16f1282bea0a500a1c49db4c3edba..0000000000000000000000000000000000000000
+diff --git a/lib/utils/normalizers/convert-camel-case-transition-props.d.ts b/lib/utils/normalizers/convert-camel-case-transition-props.d.ts
+deleted file mode 100644
+index d474a7b6c99f946ae662a4b8093c438317e3e0e3..0000000000000000000000000000000000000000
+diff --git a/lib/utils/normalizers/convert-camel-case-transition-props.js b/lib/utils/normalizers/convert-camel-case-transition-props.js
+deleted file mode 100644
+index 7a96cc3b2b7f451fb52b330d0a5e03285ccb97be..0000000000000000000000000000000000000000
+diff --git a/lib/utils/normalizers/convert-camel-case-transition-props.js.flow b/lib/utils/normalizers/convert-camel-case-transition-props.js.flow
+deleted file mode 100644
+index 7bfbe177c5786b9cb4d39697ed89ce4790f5ad96..0000000000000000000000000000000000000000
