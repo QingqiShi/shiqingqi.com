@@ -1,8 +1,10 @@
 import type { paths } from "@/_generated/tmdbV3";
-import type { SupportedLocale } from "@/types";
 
 const BASE_URL = "https://api.themoviedb.org";
 const API = process.env.TMDB_API_TOKEN;
+
+export type Configuration =
+  paths["/3/configuration"]["get"]["responses"]["200"]["content"]["application/json"];
 
 /** Fetch TMDB configurations containing available image sizes */
 export async function fetchConfiguration() {
@@ -21,14 +23,24 @@ export async function fetchConfiguration() {
       `Failed to fetch TMDB configurations. (${response.status}:${response.statusText})`
     );
   }
-  return (await response.json()) as paths["/3/configuration"]["get"]["responses"]["200"]["content"]["application/json"];
+  return (await response.json()) as Configuration;
 }
 
+export type Movie = NonNullable<
+  paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"]["results"]
+>[number];
+
 /** Fetch list of movies */
-export async function fetchMovieList({ locale }: { locale: SupportedLocale }) {
+export async function fetchMovieList({
+  language,
+  page,
+}: NonNullable<paths["/3/discover/movie"]["get"]["parameters"]["query"]>) {
   const url = new URL(`${BASE_URL}/3/discover/movie`);
-  if (locale !== "en") {
-    url.searchParams.set("language", locale);
+  if (language && language !== "en") {
+    url.searchParams.set("language", language);
+  }
+  if (page) {
+    url.searchParams.set("page", page.toString());
   }
 
   const response = await fetch(url.toString(), {

@@ -43,6 +43,15 @@ const eslintConfig = tsEslint.config([
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          checksVoidReturn: {
+            arguments: false,
+            attributes: false,
+          },
+        },
+      ],
       "import/order": [
         "error",
         {

@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import { breakpoints } from "@/breakpoints";
+
 export function Grid({ children }: PropsWithChildren) {
   return <div css={styles.skeletonGrid}>{children}</div>;
 }
