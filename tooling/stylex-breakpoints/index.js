@@ -3,6 +3,7 @@
 /**
  * @typedef {import('@babel/core')} Babel
  * @typedef {import('@babel/core').PluginPass} PluginPass
+ * @typedef {import('@babel/core').types.ObjectExpression} ObjectExpression
  */
 
 /**
@@ -67,7 +68,7 @@
  * ```
  *
  * @param {Babel} babel - The Babel object.
- * @returns {import('@babel/core').PluginObj<PluginPass & { opts: { breakpoints: { [key: string]: number }} }>} The plugin object.
+ * @returns {import('@babel/core').PluginObject<PluginPass & { opts: { breakpoints: { [key: string]: number }} }>} The plugin object.
  */
 module.exports = function ({ types: t }) {
   /** @type {{ [key: string]: number } | null} */
@@ -79,7 +80,7 @@ module.exports = function ({ types: t }) {
       breakpoints = this.opts.breakpoints;
     },
     visitor: {
-      Program(path) {
+      CallExpression(innerPath) {
         if (!breakpoints || typeof breakpoints !== "object") {
           throw new Error(
             "Invalid or missing `breakpoints` option. Expected an object."
@@ -88,7 +89,7 @@ module.exports = function ({ types: t }) {
 
         const breakpointsConfig = breakpoints;
 
-        /** @param {babel.types.ObjectExpression} objExpr */
+        /** @param {ObjectExpression} objExpr */
         function processObjectExpression(objExpr) {
           // Find defined breakpoint keys
           /** @type {string[]} */
@@ -154,29 +155,24 @@ module.exports = function ({ types: t }) {
           });
         }
 
-        // Find stylex.create() calls
-        path.traverse({
-          CallExpression(innerPath) {
-            if (
-              t.isMemberExpression(innerPath.node.callee) &&
-              t.isIdentifier(innerPath.node.callee.object, {
-                name: "stylex",
-              }) &&
-              (t.isIdentifier(innerPath.node.callee.property, {
-                name: "create",
-              }) ||
-                t.isIdentifier(innerPath.node.callee.property, {
-                  name: "defineVars",
-                }))
-            ) {
-              const arg = innerPath.node.arguments[0];
+        if (
+          t.isMemberExpression(innerPath.node.callee) &&
+          t.isIdentifier(innerPath.node.callee.object, {
+            name: "stylex",
+          }) &&
+          (t.isIdentifier(innerPath.node.callee.property, {
+            name: "create",
+          }) ||
+            t.isIdentifier(innerPath.node.callee.property, {
+              name: "defineVars",
+            }))
+        ) {
+          const arg = innerPath.node.arguments[0];
 
-              if (t.isObjectExpression(arg)) {
-                processObjectExpression(arg);
-              }
-            }
-          },
-        });
+          if (t.isObjectExpression(arg)) {
+            processObjectExpression(arg);
+          }
+        }
       },
     },
   };
