@@ -1,4 +1,4 @@
-/* For now, one CSS file is required https://github.com/facebook/stylex/issues/109 */
+@import "modern-normalize/modern-normalize.css" layer(normalize);
 
 @font-face {
   font-family: "Inter";
@@ -16,22 +16,24 @@
   font-family: "Inter-fallback";
   size-adjust: 107%;
   ascent-override: 90%;
-  src: local("Arial");
+  src: local(
+    "system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'"
+  );
   unicode-range: U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131,
     U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027,
     U+202F-2055, U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
     U+FEFF;
 }
 
-@layer normalize;
-
 @layer normalize {
   html {
-    height: 100%;
+    min-height: 100dvh;
   }
 
-  body * {
-    box-sizing: inherit;
+  body {
+    min-height: 100dvh;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
   }
 
   input[type="checkbox"] {

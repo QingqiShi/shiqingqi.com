@@ -57,9 +57,6 @@ const styles = stylex.create({
       default: null,
       ":hover": "scale(1.05) translate3d(0, -0.2rem, 0)",
     },
-    // https://github.com/facebook/stylex/issues/390
-    // eslint-disable-next-line @stylexjs/valid-styles
-    WebkitBackdropFilter: { default: null, ":hover": "blur(2rem)" },
     backdropFilter: { default: null, ":hover": "blur(2rem)" },
 
     [cardTokens.detailsIndicatorOpacity]: {
