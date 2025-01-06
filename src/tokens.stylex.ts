@@ -204,9 +204,10 @@ export const layer = stylex.defineVars({
   background: stylex.types.integer(-100),
   base: stylex.types.integer(0),
   content: stylex.types.integer(100),
+  header: stylex.types.integer(200),
   overlay: stylex.types.integer(300),
-  tooltip: stylex.types.integer(200),
-  toaster: stylex.types.integer(300),
+  tooltip: stylex.types.integer(400),
+  toaster: stylex.types.integer(500),
 });
 
 export const ratio = stylex.defineVars({

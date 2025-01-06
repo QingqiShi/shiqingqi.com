@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
-import { border, color } from "@/tokens.stylex";
+import { border, color, layer } from "@/tokens.stylex";
 
 export function BackgroundLines() {
   return (
@@ -21,7 +21,7 @@ const styles = stylex.create({
     right: 0,
     bottom: 0,
     left: 0,
-    zIndex: 0,
+    zIndex: layer.base,
     pointerEvents: "none",
     opacity: 0.24,
   },

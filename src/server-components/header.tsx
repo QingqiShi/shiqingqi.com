@@ -4,7 +4,7 @@ import { breakpoints } from "@/breakpoints";
 import { BackButton } from "@/client-components/back-button";
 import { LocaleSelector } from "@/client-components/locale-selector";
 import { ThemeSwitch } from "@/client-components/theme-switch";
-import { space } from "@/tokens.stylex";
+import { layer, space } from "@/tokens.stylex";
 import type { LayoutProps } from "@/types";
 import translations from "./translations.json";
 
@@ -43,7 +43,7 @@ const styles = stylex.create({
     right: 0,
     left: 0,
     height: "5rem",
-    zIndex: 100,
+    zIndex: layer.header,
     pointerEvents: "none",
   },
   nav: {
