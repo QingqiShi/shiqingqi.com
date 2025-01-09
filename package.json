@@ -39,7 +39,7 @@
     "@stylexjs/eslint-plugin": "^0.10.0",
     "@stylexjs/postcss-plugin": "^0.10.0",
     "@types/node": "^22",
-    "@types/react": "19.0.3",
+    "@types/react": "19.0.4",
     "@types/react-dom": "19.0.2",
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-react-compiler": "19.0.0-beta-55955c9-20241229",
