@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
-import { getTranslations } from "@/app/translations/getTranslations";
-import { Skeleton } from "@/server-components/shared/skeleton";
+import { Skeleton } from "@/components/server/shared/skeleton";
 import { color, font, layer } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
+import { getTranslations } from "@/utils/get-translations";
 import { fetchConfiguration } from "@/utils/tmdbApi";
-import translations from "../translations.json";
+import translations from "./translations.json";
 
 interface PosterImage {
   locale: SupportedLocale;

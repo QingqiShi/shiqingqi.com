@@ -4,11 +4,11 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import HomeLayout from "@/app/[locale]/(home)/layout";
 import { BASE_URL } from "@/app/constants";
-import { getTranslations } from "@/app/translations/getTranslations";
-import { Grid } from "@/server-components/movie-database/grid";
-import { Skeleton } from "@/server-components/shared/skeleton";
+import { Grid } from "@/components/server/movie-database/grid";
+import { Skeleton } from "@/components/server/shared/skeleton";
 import { ratio } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
+import { getTranslations } from "@/utils/get-translations";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps) {

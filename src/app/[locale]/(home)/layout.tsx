@@ -2,13 +2,13 @@ import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BASE_URL } from "@/app/constants";
-import { getTranslations } from "@/app/translations/getTranslations";
 import { breakpoints } from "@/breakpoints";
-import { BackgroundLines } from "@/server-components/home/background-lines";
-import { Footer } from "@/server-components/home/footer";
-import { FlowGradient } from "@/server-components/shared/flow-gradient";
+import { BackgroundLines } from "@/components/server/home/background-lines";
+import { Footer } from "@/components/server/home/footer";
+import { FlowGradient } from "@/components/server/shared/flow-gradient";
 import { color, layer, space } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
+import { getTranslations } from "@/utils/get-translations";
 import { glowTokens } from "./layout.stylex";
 import translations from "./translations.json";
 

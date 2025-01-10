@@ -1,17 +1,17 @@
 import * as stylex from "@stylexjs/stylex";
-import { getTranslations } from "@/app/translations/getTranslations";
 import { breakpoints } from "@/breakpoints";
+import { BackgroundLines } from "@/components/server/home/background-lines";
+import { EducationCard } from "@/components/server/home/education-card";
+import { ExperienceCard } from "@/components/server/home/experience-card";
 import AGSB from "@/logos/AGSB.webp";
 import BristolLogo from "@/logos/bristol-logo";
 import CitadelLogo from "@/logos/citadel-logo";
 import NottinghamLogo from "@/logos/nottingham-logo";
 import SpotifyLogo from "@/logos/spotify-logo";
 import WtcLogo from "@/logos/wtc-logo";
-import { BackgroundLines } from "@/server-components/home/background-lines";
-import { EducationCard } from "@/server-components/home/education-card";
-import { ExperienceCard } from "@/server-components/home/experience-card";
 import { font, space } from "@/tokens.stylex";
 import type { PageProps } from "@/types";
+import { getTranslations } from "@/utils/get-translations";
 import { getLocalePath } from "@/utils/pathname";
 import translations from "./translations.json";
 
