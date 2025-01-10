@@ -1,4 +1,4 @@
-import type { paths } from "@/generated/tmdbV3";
+import type { paths } from "@/_generated/tmdbV3";
 import type { SupportedLocale } from "@/types";
 
 const BASE_URL = "https://api.themoviedb.org";
@@ -13,6 +13,7 @@ export async function fetchConfiguration() {
       Authorization: `Bearer ${API}`,
     },
     // 24 Hours
+    cache: "force-cache",
     next: { revalidate: 86400 },
   });
   if (!response.ok) {
@@ -36,6 +37,7 @@ export async function fetchMovieList({ locale }: { locale: SupportedLocale }) {
       accept: "application/json",
       Authorization: `Bearer ${API}`,
     },
+    cache: "no-store",
   });
 
   if (!response.ok) {
