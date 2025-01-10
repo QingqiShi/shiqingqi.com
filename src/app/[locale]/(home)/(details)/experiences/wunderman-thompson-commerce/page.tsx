@@ -1,5 +1,5 @@
-import { getTranslations } from "@/app/translations/getTranslations";
 import type { PageProps } from "@/types";
+import { getTranslations } from "@/utils/get-translations";
 import { PageTitle } from "../../page-title";
 import translations from "./translations.json";
 

@@ -1,5 +1,5 @@
-import { Grid } from "@/server-components/movie-database/grid";
-import { MovieCard } from "@/server-components/movie-database/movie-card";
+import { Grid } from "@/components/server/movie-database/grid";
+import { MovieCard } from "@/components/server/movie-database/movie-card";
 import type { PageProps } from "@/types";
 import { fetchMovieList } from "@/utils/tmdbApi";
 

@@ -1,12 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
-import { getTranslations } from "@/app/translations/getTranslations";
 import { breakpoints } from "@/breakpoints";
-import { BackButton } from "@/client-components/shared/back-button";
-import { LocaleSelector } from "@/client-components/shared/locale-selector";
-import { ThemeSwitch } from "@/client-components/shared/theme-switch";
+import { BackButton } from "@/components/client/shared/back-button";
+import { LocaleSelector } from "@/components/client/shared/locale-selector";
+import { ThemeSwitch } from "@/components/client/shared/theme-switch";
 import { layer, space } from "@/tokens.stylex";
 import type { LayoutProps } from "@/types";
-import translations from "../translations.json";
+import { getTranslations } from "@/utils/get-translations";
+import translations from "./translations.json";
 
 export async function Header({ params }: Omit<LayoutProps, "children">) {
   const { locale } = await params;

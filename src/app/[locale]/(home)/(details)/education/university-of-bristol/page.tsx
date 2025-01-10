@@ -1,6 +1,6 @@
-import { getTranslations } from "@/app/translations/getTranslations";
-import { Anchor } from "@/server-components/shared/anchor";
+import { Anchor } from "@/components/server/shared/anchor";
 import type { PageProps } from "@/types";
+import { getTranslations } from "@/utils/get-translations";
 import { PageTitle } from "../../page-title";
 import translations from "./translations.json";
 
