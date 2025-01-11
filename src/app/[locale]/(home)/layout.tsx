@@ -33,6 +33,10 @@ export async function generateMetadata(props: PageProps) {
   } satisfies Metadata;
 }
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "zh" }];
+}
+
 export default async function Layout({ children, params }: LayoutProps) {
   const { locale } = await params;
   return (
