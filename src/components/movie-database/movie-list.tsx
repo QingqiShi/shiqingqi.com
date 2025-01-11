@@ -1,56 +1,28 @@
 "use client";
 
-import useEventCallback from "@mui/utils/useEventCallback";
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Grid } from "@/components/movie-database/grid";
+import type { SupportedLocale } from "@/types";
+import * as tmdbQueries from "@/utils/tmdb-queries";
+import { MovieCard } from "./movie-card";
 
 interface MovieListProps {
-  initialList?: ReactNode[];
-  loadMoreAction: (page: number) => Promise<ReactNode[]>;
+  page: number;
+  locale: SupportedLocale;
 }
 
-export function MovieList({
-  initialList = [],
-  loadMoreAction,
-}: MovieListProps) {
-  const [movies, setMovies] = useState(initialList);
-  const [nextPage, setNextPage] = useState(2);
-
-  const [isPending, startTransition] = useTransition();
-  const loadMore = useEventCallback(() => {
-    if (isPending) return;
-
-    startTransition(async () => {
-      const newList = await loadMoreAction(nextPage);
-      setMovies([...movies, ...newList]);
-      setNextPage(nextPage + 1);
-    });
-  });
-
-  const loadMoreEl = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!loadMoreEl.current) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          console.log("intersect!");
-          loadMore();
-        }
-      },
-      { rootMargin: "0px 0px 500px 0px" }
-    );
-    observer.observe(loadMoreEl.current);
-    return () => {
-      observer.disconnect();
-    };
-  }, [loadMore]);
+export function MovieList({ page, locale }: MovieListProps) {
+  const { data } = useSuspenseInfiniteQuery(
+    tmdbQueries.movieList({ page, language: locale })
+  );
 
   return (
     <Grid>
-      {movies.map((movie) => movie)}
-      <div ref={loadMoreEl} />
+      {data.pages.map((page) =>
+        page.results?.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} locale={locale} />
+        ))
+      )}
     </Grid>
   );
 }
