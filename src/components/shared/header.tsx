@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
-import { BackButton } from "@/components/client/shared/back-button";
-import { LocaleSelector } from "@/components/client/shared/locale-selector";
-import { ThemeSwitch } from "@/components/client/shared/theme-switch";
+import { BackButton } from "@/components/shared/back-button";
+import { LocaleSelector } from "@/components/shared/locale-selector";
+import { ThemeSwitch } from "@/components/shared/theme-switch";
 import { layer, space } from "@/tokens.stylex";
 import type { LayoutProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";

@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { Skeleton } from "@/components/server/shared/skeleton";
+import { Skeleton } from "@/components/shared/skeleton";
 import { color, font, layer } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
