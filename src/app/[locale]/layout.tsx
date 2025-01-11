@@ -10,6 +10,10 @@ function validateLocale(locale: string): locale is SupportedLocale {
   return locale === "en" || locale === "zh";
 }
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "zh" }];
+}
+
 export default async function RootLayout({ params, children }: LayoutProps) {
   const { locale } = await params;
 
