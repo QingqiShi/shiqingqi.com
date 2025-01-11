@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BASE_URL } from "@/app/constants";
+import { BASE_URL } from "@/constants";
 import type { LayoutProps, PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import translations from "./translations.json";

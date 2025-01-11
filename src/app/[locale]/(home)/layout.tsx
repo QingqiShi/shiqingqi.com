@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { BASE_URL } from "@/app/constants";
 import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { Footer } from "@/components/home/footer";
 import { FlowGradient } from "@/components/shared/flow-gradient";
+import { BASE_URL } from "@/constants";
 import { color, layer, space } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";

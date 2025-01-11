@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
-import translations from "./translations.json";
+import translations from "../../app/[locale]/(home)/(details)/translations.json";
 
 interface PageTitleProps {
   locale: SupportedLocale;
@@ -12,7 +12,13 @@ interface PageTitleProps {
   date: string;
 }
 
-export function PageTitle({ locale, type, title, role, date }: PageTitleProps) {
+export function DetailPageTitle({
+  locale,
+  type,
+  title,
+  role,
+  date,
+}: PageTitleProps) {
   const { t } = getTranslations(translations, locale);
 
   return (

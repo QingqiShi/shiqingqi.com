@@ -1,6 +1,6 @@
 import type { PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
-import { PageTitle } from "../../page-title";
+import { DetailPageTitle } from "../../../../../../components/home/detail-page-title";
 import translations from "./translations.json";
 
 export default async function Page(props: PageProps) {
@@ -8,7 +8,7 @@ export default async function Page(props: PageProps) {
   const { t } = getTranslations(translations, params.locale);
   return (
     <>
-      <PageTitle
+      <DetailPageTitle
         locale={params.locale}
         type="experience"
         title="Citadel"

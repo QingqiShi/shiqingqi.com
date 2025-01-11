@@ -5,7 +5,7 @@ import { Moon } from "@phosphor-icons/react/Moon";
 import { Sun } from "@phosphor-icons/react/Sun";
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, useState } from "react";
-import { getDocumentClassName } from "@/app/globalStyles";
+import { getDocumentClassName } from "@/app/global-styles";
 import { Button } from "@/components/shared/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";

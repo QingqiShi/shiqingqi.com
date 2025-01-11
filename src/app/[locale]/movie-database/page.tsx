@@ -1,7 +1,7 @@
 import { Grid } from "@/components/movie-database/grid";
 import { MovieCard } from "@/components/movie-database/movie-card";
 import type { PageProps } from "@/types";
-import { fetchMovieList } from "@/utils/tmdbApi";
+import { fetchMovieList } from "@/utils/tmdb-api";
 
 export default async function Page(props: PageProps) {
   const params = await props.params;

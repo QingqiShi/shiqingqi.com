@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/shared/skeleton";
 import { color, font, layer } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchConfiguration } from "@/utils/tmdbApi";
+import { fetchConfiguration } from "@/utils/tmdb-api";
 import translations from "./translations.json";
 
 interface PosterImage {
