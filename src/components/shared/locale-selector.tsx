@@ -5,11 +5,17 @@ import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useRef, useSyncExternalStore } from "react";
 import { breakpoints } from "@/breakpoints";
-import { Anchor } from "@/components/shared/anchor";
-import { anchorTokens } from "@/components/shared/anchor.stylex";
+import type { Anchor } from "@/components/shared/anchor";
 import { Button } from "@/components/shared/button";
 import { useClickAway } from "@/hooks/use-click-away";
-import { border, color, controlSize, shadow, space } from "@/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  shadow,
+  space,
+} from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 
@@ -148,13 +154,12 @@ function Item({
   const router = useRouter();
 
   return (
-    <Anchor
+    <a
       href={href}
       aria-label={ariaLabel}
       tabIndex={tabIndex}
       role="menuItem"
       css={[styles.item, isActive && styles.itemActive]}
-      scroll={false}
       onClick={(e) => {
         e.preventDefault();
 
@@ -171,7 +176,7 @@ function Item({
     >
       <span>{label}</span>
       <span>{flag}</span>
-    </Anchor>
+    </a>
   );
 }
 
@@ -210,6 +215,8 @@ const styles = stylex.create({
     transform: "scale(1, 1)",
   },
   item: {
+    color: { default: color.textMain, ":hover": color.textMuted },
+    fontWeight: font.weight_6,
     alignItems: "center",
     backgroundColor: { default: null, ":hover": color.backgroundHover },
     borderRadius: border.radius_1,
@@ -223,7 +230,7 @@ const styles = stylex.create({
     transition: "background-color 0.2s",
   },
   itemActive: {
-    [anchorTokens.color]: color.textOnActive,
+    color: color.textOnActive,
     backgroundColor: color.controlActive,
     pointerEvents: "none",
   },
