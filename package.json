@@ -8,8 +8,8 @@
   },
   "packageManager": "pnpm@9.15.3+sha512.1f79bc245a66eb0b07c5d4d83131240774642caaa86ef7d0434ab47c0d16f66b04e21e0c086eb61e62c77efc4d7f7ec071afad3796af64892fae66509173893a",
   "scripts": {
-    "predev": "rimraf .next",
-    "prebuild": "rimraf .next",
+    "predev": "rimraf .next && rimraf public/sw.js",
+    "prebuild": "rimraf .next && rimraf public/sw.js",
     "codegen": "openapi-typescript https://developer.themoviedb.org/openapi/64542913e1f86100738e227f -o src/_generated/tmdbV3.d.ts && prettier src/_generated/tmdbV3.d.ts -w",
     "dev": "pnpm codegen && next dev",
     "build": "next build",

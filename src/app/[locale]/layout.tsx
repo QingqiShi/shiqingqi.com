@@ -1,20 +1,17 @@
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { globalStyles } from "@/app/global-styles";
 import { Header } from "@/components/shared/header";
-import type { LayoutProps, SupportedLocale } from "@/types";
+import { i18nConfig } from "@/i18n-config";
+import type { LayoutProps } from "@/types";
 import { themeHack } from "@/utils/theme-hack";
-
-function validateLocale(locale: string): locale is SupportedLocale {
-  return locale === "en" || locale === "zh";
-}
 
 export default async function RootLayout({ params, children }: LayoutProps) {
   const { locale } = await params;
 
-  if (!validateLocale(locale)) {
-    redirect("/");
+  if (!i18nConfig.locales.includes(locale)) {
+    notFound();
   }
 
   return (

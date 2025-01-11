@@ -2,14 +2,20 @@
 
 import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useRef, useSyncExternalStore } from "react";
 import { breakpoints } from "@/breakpoints";
-import { Anchor } from "@/components/shared/anchor";
-import { anchorTokens } from "@/components/shared/anchor.stylex";
+import type { Anchor } from "@/components/shared/anchor";
 import { Button } from "@/components/shared/button";
 import { useClickAway } from "@/hooks/use-click-away";
-import { border, color, controlSize, shadow, space } from "@/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  shadow,
+  space,
+} from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 
@@ -104,20 +110,22 @@ export function LocaleSelector({
         css={[styles.menu, isMenuShown && styles.menuShown]}
       >
         <Item
-          label="English"
-          flag="🇬🇧"
           ariaLabel="Switch to English"
+          flag="🇬🇧"
           href={getLocalePath(pathname, "en")}
-          tabIndex={!isMenuShown ? -1 : undefined}
           isActive={locale === "en"}
+          label="English"
+          locale="en"
+          tabIndex={!isMenuShown ? -1 : undefined}
         />
         <Item
-          label="中文"
-          flag="🇨🇳"
           ariaLabel="切换至中文"
+          flag="🇨🇳"
           href={getLocalePath(pathname, "zh")}
-          tabIndex={!isMenuShown ? -1 : undefined}
           isActive={locale === "zh"}
+          label="中文"
+          locale="zh"
+          tabIndex={!isMenuShown ? -1 : undefined}
         />
       </div>
     </div>
@@ -125,27 +133,50 @@ export function LocaleSelector({
 }
 
 interface ItemProps extends React.ComponentProps<typeof Anchor> {
-  label: string;
   ariaLabel: string;
   flag: string;
   href: string;
-  tabIndex?: number;
   isActive?: boolean;
+  label: string;
+  locale: SupportedLocale;
+  tabIndex?: number;
 }
 
-function Item({ label, ariaLabel, flag, href, tabIndex, isActive }: ItemProps) {
+function Item({
+  ariaLabel,
+  flag,
+  href,
+  isActive,
+  label,
+  locale,
+  tabIndex,
+}: ItemProps) {
+  const router = useRouter();
+
   return (
-    <Anchor
+    <a
       href={href}
       aria-label={ariaLabel}
       tabIndex={tabIndex}
       role="menuItem"
       css={[styles.item, isActive && styles.itemActive]}
-      scroll={false}
+      onClick={(e) => {
+        e.preventDefault();
+
+        // set cookie for next-i18n-router
+        const days = 30;
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `NEXT_LOCALE=${locale};expires=${date.toUTCString()};path=/`;
+
+        // redirect to the new locale path
+        router.push(href);
+        router.refresh();
+      }}
     >
       <span>{label}</span>
       <span>{flag}</span>
-    </Anchor>
+    </a>
   );
 }
 
@@ -184,6 +215,8 @@ const styles = stylex.create({
     transform: "scale(1, 1)",
   },
   item: {
+    color: { default: color.textMain, ":hover": color.textMuted },
+    fontWeight: font.weight_6,
     alignItems: "center",
     backgroundColor: { default: null, ":hover": color.backgroundHover },
     borderRadius: border.radius_1,
@@ -197,7 +230,7 @@ const styles = stylex.create({
     transition: "background-color 0.2s",
   },
   itemActive: {
-    [anchorTokens.color]: color.textOnActive,
+    color: color.textOnActive,
     backgroundColor: color.controlActive,
     pointerEvents: "none",
   },
