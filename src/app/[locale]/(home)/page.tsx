@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
-import { BackgroundLines } from "@/components/server/home/background-lines";
-import { EducationCard } from "@/components/server/home/education-card";
-import { ExperienceCard } from "@/components/server/home/experience-card";
+import { BackgroundLines } from "@/components/home/background-lines";
+import { EducationCard } from "@/components/home/education-card";
+import { ExperienceCard } from "@/components/home/experience-card";
 import AGSB from "@/logos/AGSB.webp";
 import BristolLogo from "@/logos/bristol-logo";
 import CitadelLogo from "@/logos/citadel-logo";

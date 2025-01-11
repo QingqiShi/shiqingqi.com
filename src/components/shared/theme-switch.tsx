@@ -6,7 +6,7 @@ import { Sun } from "@phosphor-icons/react/Sun";
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, useState } from "react";
 import { getDocumentClassName } from "@/app/globalStyles";
-import { Button } from "@/components/server/shared/button";
+import { Button } from "@/components/shared/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
 import { color, controlSize, font, ratio, space } from "@/tokens.stylex";

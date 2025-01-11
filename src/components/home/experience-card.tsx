@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
-import { Card } from "@/components/server/shared/card";
-import { Skeleton } from "@/components/server/shared/skeleton";
+import { Card } from "@/components/shared/card";
+import { Skeleton } from "@/components/shared/skeleton";
 import { svgTokens } from "@/logos/svg.stylex";
 import { color, font, ratio, space } from "@/tokens.stylex";
 

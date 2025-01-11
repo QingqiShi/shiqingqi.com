@@ -1,4 +1,4 @@
-import { Anchor } from "@/components/server/shared/anchor";
+import { Anchor } from "@/components/shared/anchor";
 import type { PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { PageTitle } from "../../page-title";

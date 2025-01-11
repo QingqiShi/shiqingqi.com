@@ -2,9 +2,9 @@ import * as stylex from "@stylexjs/stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";
-import { Card } from "@/components/server/shared/card";
-import { cardTokens } from "@/components/server/shared/card.stylex";
-import { Skeleton } from "@/components/server/shared/skeleton";
+import { Card } from "@/components/shared/card";
+import { cardTokens } from "@/components/shared/card.stylex";
+import { Skeleton } from "@/components/shared/skeleton";
 import { svgTokens } from "@/logos/svg.stylex";
 import { color, font, ratio, space } from "@/tokens.stylex";
 

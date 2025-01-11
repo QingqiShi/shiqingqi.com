@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { paths } from "@/_generated/tmdbV3";
-import { Card } from "@/components/server/shared/card";
+import { Card } from "@/components/shared/card";
 import { layer, ratio } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { PosterImage } from "./poster-image";
