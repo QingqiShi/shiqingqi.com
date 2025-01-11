@@ -2,7 +2,7 @@
 
 import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useRef, useSyncExternalStore } from "react";
 import { breakpoints } from "@/breakpoints";
 import { Anchor } from "@/components/shared/anchor";
@@ -145,6 +145,8 @@ function Item({
   locale,
   tabIndex,
 }: ItemProps) {
+  const router = useRouter();
+
   return (
     <Anchor
       href={href}
@@ -153,12 +155,18 @@ function Item({
       role="menuItem"
       css={[styles.item, isActive && styles.itemActive]}
       scroll={false}
-      onClick={() => {
+      onClick={(e) => {
+        e.preventDefault();
+
         // set cookie for next-i18n-router
         const days = 30;
         const date = new Date();
         date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
         document.cookie = `NEXT_LOCALE=${locale};expires=${date.toUTCString()};path=/`;
+
+        // redirect to the new locale path
+        router.push(href);
+        router.refresh();
       }}
     >
       <span>{label}</span>
