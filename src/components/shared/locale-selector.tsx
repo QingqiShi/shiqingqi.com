@@ -104,20 +104,22 @@ export function LocaleSelector({
         css={[styles.menu, isMenuShown && styles.menuShown]}
       >
         <Item
-          label="English"
-          flag="🇬🇧"
           ariaLabel="Switch to English"
+          flag="🇬🇧"
           href={getLocalePath(pathname, "en")}
-          tabIndex={!isMenuShown ? -1 : undefined}
           isActive={locale === "en"}
+          label="English"
+          locale="en"
+          tabIndex={!isMenuShown ? -1 : undefined}
         />
         <Item
-          label="中文"
-          flag="🇨🇳"
           ariaLabel="切换至中文"
+          flag="🇨🇳"
           href={getLocalePath(pathname, "zh")}
-          tabIndex={!isMenuShown ? -1 : undefined}
           isActive={locale === "zh"}
+          label="中文"
+          locale="zh"
+          tabIndex={!isMenuShown ? -1 : undefined}
         />
       </div>
     </div>
@@ -125,15 +127,24 @@ export function LocaleSelector({
 }
 
 interface ItemProps extends React.ComponentProps<typeof Anchor> {
-  label: string;
   ariaLabel: string;
   flag: string;
   href: string;
-  tabIndex?: number;
   isActive?: boolean;
+  label: string;
+  locale: SupportedLocale;
+  tabIndex?: number;
 }
 
-function Item({ label, ariaLabel, flag, href, tabIndex, isActive }: ItemProps) {
+function Item({
+  ariaLabel,
+  flag,
+  href,
+  isActive,
+  label,
+  locale,
+  tabIndex,
+}: ItemProps) {
   return (
     <Anchor
       href={href}
@@ -142,6 +153,13 @@ function Item({ label, ariaLabel, flag, href, tabIndex, isActive }: ItemProps) {
       role="menuItem"
       css={[styles.item, isActive && styles.itemActive]}
       scroll={false}
+      onClick={() => {
+        // set cookie for next-i18n-router
+        const days = 30;
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `NEXT_LOCALE=${locale};expires=${date.toUTCString()};path=/`;
+      }}
     >
       <span>{label}</span>
       <span>{flag}</span>
