@@ -3,6 +3,8 @@ import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { EducationCard } from "@/components/home/education-card";
 import { ExperienceCard } from "@/components/home/experience-card";
+import cardTranslations from "@/components/shared/card.translations.json";
+import { TranslationProvider } from "@/components/shared/translation-provider";
 import AGSB from "@/logos/AGSB.webp";
 import BristolLogo from "@/logos/bristol-logo";
 import CitadelLogo from "@/logos/citadel-logo";
@@ -23,7 +25,7 @@ export default async function Home(props: PageProps) {
   const { locale } = await props.params;
   const { t } = getTranslations(translations, locale);
   return (
-    <>
+    <TranslationProvider translations={{ card: cardTranslations }}>
       <BackgroundLines />
       <section css={styles.headlineContainer}>
         <h1 css={styles.headline}>
@@ -92,7 +94,7 @@ export default async function Home(props: PageProps) {
           />
         </div>
       </section>
-    </>
+    </TranslationProvider>
   );
 }
 

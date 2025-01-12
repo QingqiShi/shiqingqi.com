@@ -11,7 +11,7 @@ import type translations from "./card.translations.json";
 type CardProps = React.ComponentProps<typeof Anchor>;
 
 export function Card({ children, className, style, ...rest }: CardProps) {
-  const { t } = useTranslations<typeof translations>();
+  const { t } = useTranslations<typeof translations>("card");
   return (
     <Anchor {...rest} className={className} style={style} css={styles.card}>
       {children}

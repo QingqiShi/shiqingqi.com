@@ -3,5 +3,5 @@ import type { SupportedLocale } from "@/types";
 
 export const TranslationContext = createContext<{
   locale: SupportedLocale;
-  translations: { [key: string]: string };
+  translations: { [namespace: string]: { [key: string]: string } };
 } | null>(null);

@@ -1,25 +1,37 @@
-"use client";
-
 import type { PropsWithChildren } from "react";
-import type { SupportedLocale } from "@/types";
-import { TranslationContext } from "@/utils/translation-context";
+import type { TranslationConfig } from "@/types";
+import { getRequestLocale } from "@/utils/request-locale";
+import { TranslationContextProvider } from "./translation-context-provider";
 
 interface TranslationProviderProps {
-  locale: SupportedLocale;
-  translations: { [k: string]: string };
+  translations: { [namespace: string]: TranslationConfig };
 }
 
 /**
  * Provides translations to client components.
  */
-export function TranslationProvider({
+export async function TranslationProvider({
   children,
-  locale,
   translations,
 }: PropsWithChildren<TranslationProviderProps>) {
+  const locale = await getRequestLocale();
+  const localeTranslations = Object.fromEntries(
+    Object.entries(translations).map(([namespace, componentTranslations]) => [
+      namespace,
+      Object.fromEntries(
+        Object.entries(componentTranslations).map(([key, value]) => [
+          key,
+          value[locale],
+        ])
+      ),
+    ])
+  );
   return (
-    <TranslationContext value={{ locale, translations }}>
+    <TranslationContextProvider
+      locale={locale}
+      translations={localeTranslations}
+    >
       {children}
-    </TranslationContext>
+    </TranslationContextProvider>
   );
 }
