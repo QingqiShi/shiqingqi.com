@@ -4,12 +4,12 @@ import { BackButton } from "@/components/shared/back-button";
 import { LocaleSelector } from "@/components/shared/locale-selector";
 import { ThemeSwitch } from "@/components/shared/theme-switch";
 import { layer, space } from "@/tokens.stylex";
-import type { LayoutProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
+import { getRequestLocale } from "@/utils/request-locale";
 import translations from "./translations.json";
 
-export async function Header({ params }: Omit<LayoutProps, "children">) {
-  const { locale } = await params;
+export async function Header() {
+  const locale = await getRequestLocale();
   const { t } = getTranslations(translations, locale);
   return (
     <header css={styles.container}>

@@ -1,24 +1,23 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
+import { getRequestLocale } from "@/utils/request-locale";
 import translations from "../../app/[locale]/(home)/(details)/translations.json";
 
 interface PageTitleProps {
-  locale: SupportedLocale;
   type: "experience" | "education";
   title: string;
   role: string;
   date: string;
 }
 
-export function DetailPageTitle({
-  locale,
+export async function DetailPageTitle({
   type,
   title,
   role,
   date,
 }: PageTitleProps) {
+  const locale = await getRequestLocale();
   const { t } = getTranslations(translations, locale);
 
   return (

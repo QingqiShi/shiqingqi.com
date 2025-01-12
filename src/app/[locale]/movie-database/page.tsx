@@ -13,7 +13,7 @@ export default async function Page(props: PageProps) {
       {/* TODO: filters */}
       <Grid>
         {movies.results?.map((movie) => (
-          <MovieCard key={movie.id} locale={params.locale} movie={movie} />
+          <MovieCard key={movie.id} movie={movie} />
         ))}
       </Grid>
     </>
