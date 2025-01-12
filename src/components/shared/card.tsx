@@ -1,17 +1,17 @@
+"use client";
+
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
+import { useTranslations } from "@/hooks/use-translations";
 import { border, color, font, layer, shadow, space } from "@/tokens.stylex";
-import { getTranslations } from "@/utils/get-translations";
-import { getRequestLocale } from "@/utils/request-locale";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
-import translations from "./translations.json";
+import type translations from "./card.translations.json";
 
 type CardProps = React.ComponentProps<typeof Anchor>;
 
-export async function Card({ children, className, style, ...rest }: CardProps) {
-  const locale = await getRequestLocale();
-  const { t } = getTranslations(translations, locale);
+export function Card({ children, className, style, ...rest }: CardProps) {
+  const { t } = useTranslations<typeof translations>("card");
   return (
     <Anchor {...rest} className={className} style={style} css={styles.card}>
       {children}

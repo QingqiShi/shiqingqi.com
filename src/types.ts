@@ -8,3 +8,10 @@ export interface PageProps {
 export interface LayoutProps extends Pick<PageProps, "params"> {
   children: React.ReactNode;
 }
+
+export interface TranslationConfig {
+  [key: string]: {
+    zh: string;
+    en: string;
+  };
+}

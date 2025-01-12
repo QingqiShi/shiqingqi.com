@@ -1,14 +1,7 @@
 import "server-only";
 import type { ReactNode } from "react";
-import type { SupportedLocale } from "@/types";
+import type { SupportedLocale, TranslationConfig } from "@/types";
 import { parseMessage } from "./parse-message";
-
-interface TranslationConfig {
-  [key: string]: {
-    zh: string;
-    en: string;
-  };
-}
 
 export function getTranslations<T extends TranslationConfig>(
   translationConfig: T,
