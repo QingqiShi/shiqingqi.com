@@ -12,6 +12,9 @@ interface FooterProps {
 
 export function Footer({ locale }: FooterProps) {
   const { t } = getTranslations(translations, locale);
+
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer css={styles.footer}>
       <div css={[styles.section, styles.linksSection]}>
@@ -39,7 +42,7 @@ export function Footer({ locale }: FooterProps) {
       <div css={[styles.section, styles.copyrightSection]}>
         <small>
           <span css={styles.name}>{t("name")}</span>
-          <span css={styles.copyright}>© 2024</span>
+          <span css={styles.copyright}>© {currentYear}</span>
         </small>
       </div>
     </footer>
