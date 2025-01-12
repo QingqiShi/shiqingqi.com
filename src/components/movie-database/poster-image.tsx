@@ -1,13 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@/components/shared/skeleton";
 import { color, font, layer } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
+import { getRequestLocale } from "@/utils/request-locale";
 import { fetchConfiguration } from "@/utils/tmdb-api";
 import translations from "./translations.json";
 
 interface PosterImage {
-  locale: SupportedLocale;
   posterPath: string;
   alt: string;
 }
@@ -17,7 +16,8 @@ interface PosterImage {
  * If the required configuration is unavailable or the image fails to load, a fallback UI is displayed.
  * The component supports lazy loading and generates `srcSet` for responsive image handling.
  */
-export async function PosterImage({ locale, posterPath, alt }: PosterImage) {
+export async function PosterImage({ posterPath, alt }: PosterImage) {
+  const locale = await getRequestLocale();
   const { t } = getTranslations(translations, locale);
 
   const config = await fetchConfiguration();

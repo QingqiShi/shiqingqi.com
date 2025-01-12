@@ -1,7 +1,7 @@
+import { DetailPageTitle } from "@/components/home/detail-page-title";
 import { Anchor } from "@/components/shared/anchor";
 import type { PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
-import { DetailPageTitle } from "../../../../../../components/home/detail-page-title";
 import translations from "./translations.json";
 
 export default async function Page(props: PageProps) {
@@ -10,7 +10,6 @@ export default async function Page(props: PageProps) {
   return (
     <>
       <DetailPageTitle
-        locale={params.locale}
         type="education"
         title={t("schoolName")}
         role={t("course")}

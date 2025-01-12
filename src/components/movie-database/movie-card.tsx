@@ -2,26 +2,22 @@ import * as stylex from "@stylexjs/stylex";
 import type { paths } from "@/_generated/tmdbV3";
 import { Card } from "@/components/shared/card";
 import { layer, ratio } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
+import { getRequestLocale } from "@/utils/request-locale";
 import { PosterImage } from "./poster-image";
 
 interface MovieCardProps {
-  locale: SupportedLocale;
   movie: NonNullable<
     paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"]["results"]
   >[number];
 }
 
-export function MovieCard({ locale, movie }: MovieCardProps) {
+export async function MovieCard({ movie }: MovieCardProps) {
+  const locale = await getRequestLocale();
   return (
     <Card locale={locale} href="/" css={styles.card}>
       {movie.poster_path && movie.title && (
         <div css={styles.posterContainer}>
-          <PosterImage
-            posterPath={movie.poster_path}
-            alt={movie.title}
-            locale={locale}
-          />
+          <PosterImage posterPath={movie.poster_path} alt={movie.title} />
         </div>
       )}
       {/* TODO: Render ratings */}

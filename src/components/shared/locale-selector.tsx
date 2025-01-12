@@ -7,6 +7,7 @@ import React, { useRef, useSyncExternalStore } from "react";
 import { breakpoints } from "@/breakpoints";
 import type { Anchor } from "@/components/shared/anchor";
 import { Button } from "@/components/shared/button";
+import { LOCALE_COOKIE_NAME } from "@/constants";
 import { useClickAway } from "@/hooks/use-click-away";
 import {
   border,
@@ -167,7 +168,7 @@ function Item({
         const days = 30;
         const date = new Date();
         date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `NEXT_LOCALE=${locale};expires=${date.toUTCString()};path=/`;
+        document.cookie = `${LOCALE_COOKIE_NAME}=${locale};expires=${date.toUTCString()};path=/`;
 
         // redirect to the new locale path
         router.push(href);

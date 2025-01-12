@@ -37,8 +37,7 @@ export function generateStaticParams() {
   return [{ lang: "en" }, { lang: "zh" }];
 }
 
-export default async function Layout({ children, params }: LayoutProps) {
-  const { locale } = await params;
+export default function Layout({ children }: LayoutProps) {
   return (
     <>
       <div css={styles.flowGradient} role="presentation">
@@ -51,7 +50,7 @@ export default async function Layout({ children, params }: LayoutProps) {
         <div css={styles.wrapperInner}>
           <BackgroundLines />
           <main css={styles.main}>{children}</main>
-          <Footer locale={locale} />
+          <Footer />
         </div>
       </div>
     </>

@@ -5,6 +5,7 @@ import { globalStyles } from "@/app/global-styles";
 import { Header } from "@/components/shared/header";
 import { i18nConfig } from "@/i18n-config";
 import type { LayoutProps } from "@/types";
+import { setCachedRequestLocale } from "@/utils/request-locale";
 import { themeHack } from "@/utils/theme-hack";
 
 export default async function RootLayout({ params, children }: LayoutProps) {
@@ -13,6 +14,8 @@ export default async function RootLayout({ params, children }: LayoutProps) {
   if (!i18nConfig.locales.includes(locale)) {
     notFound();
   }
+
+  setCachedRequestLocale(locale);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -29,7 +32,7 @@ export default async function RootLayout({ params, children }: LayoutProps) {
       </head>
       <body css={globalStyles.body}>
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-        <Header params={params} />
+        <Header />
         {children}
         <Analytics />
         <SpeedInsights />
