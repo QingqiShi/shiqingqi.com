@@ -1,5 +1,5 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
-import { fetchMovieList } from "./tmdb-api";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { fetchConfiguration, fetchMovieList } from "./tmdb-api";
 
 const scope = [{ scope: "tmdb" }];
 
@@ -16,3 +16,10 @@ export const movieList = ({
     getPreviousPageParam: (firstPage) =>
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
   });
+
+export const configuration = queryOptions({
+  queryKey: [{ query: "configuration", ...scope }],
+  queryFn: () => fetchConfiguration(),
+  staleTime: 24 * 60 * 60 * 1000,
+  gcTime: 24 * 60 * 60 * 1000,
+});

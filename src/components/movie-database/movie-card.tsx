@@ -2,7 +2,6 @@ import * as stylex from "@stylexjs/stylex";
 import type { paths } from "@/_generated/tmdbV3";
 import { Card } from "@/components/shared/card";
 import { layer, ratio } from "@/tokens.stylex";
-import { getRequestLocale } from "@/utils/request-locale";
 import { PosterImage } from "./poster-image";
 
 interface MovieCardProps {
@@ -11,10 +10,9 @@ interface MovieCardProps {
   >[number];
 }
 
-export async function MovieCard({ movie }: MovieCardProps) {
-  const locale = await getRequestLocale();
+export function MovieCard({ movie }: MovieCardProps) {
   return (
-    <Card locale={locale} href="/" css={styles.card}>
+    <Card href="/" css={styles.card} aria-label={movie.title}>
       {movie.poster_path && movie.title && (
         <div css={styles.posterContainer}>
           <PosterImage posterPath={movie.poster_path} alt={movie.title} />

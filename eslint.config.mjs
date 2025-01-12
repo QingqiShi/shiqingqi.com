@@ -26,8 +26,9 @@ const eslintConfig = tsEslint.config([
       unicorn: eslintPluginUnicorn,
     },
     ignores: [
-      "next.config.js",
+      ".babelrc.js",
       "eslint.config.mjs",
+      "next.config.js",
       "postcss.config.js",
       "tooling/**/*",
     ],

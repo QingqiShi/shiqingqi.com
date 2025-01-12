@@ -1,3 +1,5 @@
+"use server";
+
 import "server-only";
 import type { paths } from "@/_generated/tmdbV3";
 
@@ -9,8 +11,6 @@ export type Configuration =
 
 /** Fetch TMDB configurations containing available image sizes */
 export async function fetchConfiguration() {
-  "use server";
-
   const response = await fetch(`${BASE_URL}/3/configuration`, {
     method: "GET",
     headers: {
@@ -38,15 +38,11 @@ export async function fetchMovieList({
   language,
   page,
 }: NonNullable<paths["/3/discover/movie"]["get"]["parameters"]["query"]>) {
-  "use server";
-
   const url = new URL(`${BASE_URL}/3/discover/movie`);
-  if (language && language !== "en") {
-    url.searchParams.set("language", language);
-  }
-  if (page) {
-    url.searchParams.set("page", page.toString());
-  }
+  if (language && language !== "en") url.searchParams.set("language", language);
+  if (page) url.searchParams.set("page", page.toString());
+
+  await new Promise((resolve) => setTimeout(resolve, 4000));
 
   const response = await fetch(url.toString(), {
     method: "GET",
