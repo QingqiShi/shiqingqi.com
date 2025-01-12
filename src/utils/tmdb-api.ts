@@ -42,8 +42,6 @@ export async function fetchMovieList({
   if (language && language !== "en") url.searchParams.set("language", language);
   if (page) url.searchParams.set("page", page.toString());
 
-  await new Promise((resolve) => setTimeout(resolve, 4000));
-
   const response = await fetch(url.toString(), {
     method: "GET",
     headers: {

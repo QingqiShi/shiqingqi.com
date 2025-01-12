@@ -14,7 +14,7 @@ export default async function Page(props: PageProps) {
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(tmdbQueries.configuration);
   void queryClient.prefetchInfiniteQuery(
-    tmdbQueries.movieList({ language: params.locale, page: 10 })
+    tmdbQueries.movieList({ language: params.locale, page: 1 })
   );
 
   return (
@@ -26,7 +26,7 @@ export default async function Page(props: PageProps) {
     >
       <HydrationBoundary state={dehydrate(queryClient)}>
         {/* TODO: filters */}
-        <MovieList initialPage={10} />
+        <MovieList initialPage={1} />
       </HydrationBoundary>
     </TranslationProvider>
   );

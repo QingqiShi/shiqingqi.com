@@ -29,11 +29,8 @@ export function MovieList({ initialPage }: MovieListProps) {
     onIntersect: () => void fetchNextPage(),
   });
 
-  const loadedPages = data.pageParams as number[];
-
   return (
     <>
-      {loadedPages[0]}
       <Grid>
         {isFetchingPreviousPage &&
           Array.from({ length: 20 }).map((_, i) => (
