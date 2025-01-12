@@ -26,7 +26,10 @@ export function MovieList({ initialPage }: MovieListProps) {
   const loadNextElement = useRef<HTMLDivElement>(null);
   useIntersection({
     getElement: () => loadNextElement.current,
-    onIntersect: () => void fetchNextPage(),
+    onIntersect: () => {
+      if (isFetchingNextPage) return;
+      void fetchNextPage();
+    },
   });
 
   return (
