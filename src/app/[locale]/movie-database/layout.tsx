@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import HomeLayout from "@/app/[locale]/(home)/layout";
 import { Grid } from "@/components/movie-database/grid";
+import { Providers } from "@/components/shared/providers";
 import { Skeleton } from "@/components/shared/skeleton";
 import { BASE_URL } from "@/constants";
 import { ratio } from "@/tokens.stylex";
@@ -31,21 +32,25 @@ export default async function Layout({ children, params }: LayoutProps) {
   const { locale } = await params;
   const { t } = getTranslations(translations, locale);
   return (
-    <ErrorBoundary
-      fallback={<HomeLayout params={params}>😢 {t("errorMessage")}</HomeLayout>}
-    >
-      <Suspense
+    <Providers>
+      <ErrorBoundary
         fallback={
-          <Grid>
-            {Array.from({ length: 20 }).map((_, i) => (
-              <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
-            ))}
-          </Grid>
+          <HomeLayout params={params}>😢 {t("errorMessage")}</HomeLayout>
         }
       >
-        {children}
-      </Suspense>
-    </ErrorBoundary>
+        <Suspense
+          fallback={
+            <Grid>
+              {Array.from({ length: 20 }).map((_, i) => (
+                <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
+              ))}
+            </Grid>
+          }
+        >
+          {children}
+        </Suspense>
+      </ErrorBoundary>
+    </Providers>
   );
 }
 

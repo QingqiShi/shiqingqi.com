@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
-import { use } from "react";
 import type { TranslationConfig } from "@/types";
 import { parseMessage } from "@/utils/parse-message";
-import { TranslationContext } from "@/utils/translation-context";
+import { useTranslationContext } from "@/utils/translation-context";
 
 /**
  * Same as `getTranslations`, but for client components.
@@ -11,13 +10,7 @@ import { TranslationContext } from "@/utils/translation-context";
 export function useTranslations<T extends TranslationConfig>(
   namespace: string
 ) {
-  const value = use(TranslationContext);
-  if (!value) {
-    throw new Error(
-      "`useTranslations` must be used within a `TranslationProvider`"
-    );
-  }
-  const { translations } = value;
+  const { translations } = useTranslationContext();
   if (!translations[namespace]) {
     throw new Error(`Translations for namespace "${namespace}" not found`);
   }

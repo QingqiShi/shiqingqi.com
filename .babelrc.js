@@ -1,5 +1,16 @@
 module.exports = {
-  presets: ["next/babel"],
+  presets: [
+    [
+      "next/babel",
+      {
+        "preset-env": {
+          // Required to make Server Actions work
+          // Without it server actions compile to non-async functions which breaks the build.
+          targets: { node: "current" },
+        },
+      },
+    ],
+  ],
   plugins: [
     [
       "module-resolver",

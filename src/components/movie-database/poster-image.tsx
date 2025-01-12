@@ -1,10 +1,12 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/shared/skeleton";
+import { useTranslations } from "@/hooks/use-translations";
 import { color, font, layer } from "@/tokens.stylex";
-import { getTranslations } from "@/utils/get-translations";
-import { getRequestLocale } from "@/utils/request-locale";
-import { fetchConfiguration } from "@/utils/tmdb-api";
-import translations from "./translations.json";
+import * as tmdbQueries from "@/utils/tmdb-queries";
+import type translations from "./poster-image.translations.json";
 
 interface PosterImage {
   posterPath: string;
@@ -16,11 +18,11 @@ interface PosterImage {
  * If the required configuration is unavailable or the image fails to load, a fallback UI is displayed.
  * The component supports lazy loading and generates `srcSet` for responsive image handling.
  */
-export async function PosterImage({ posterPath, alt }: PosterImage) {
-  const locale = await getRequestLocale();
-  const { t } = getTranslations(translations, locale);
+export function PosterImage({ posterPath, alt }: PosterImage) {
+  const { t } = useTranslations<typeof translations>("posterImage");
 
-  const config = await fetchConfiguration();
+  const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
+
   if (!config.images?.base_url || !config.images?.poster_sizes) {
     return (
       <div css={[styles.poster, styles.errored]}>
