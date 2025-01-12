@@ -12,7 +12,12 @@ interface MovieCardProps {
 
 export function MovieCard({ movie }: MovieCardProps) {
   return (
-    <Card href="/" css={styles.card} aria-label={movie.title}>
+    <Card
+      href="/"
+      css={styles.card}
+      aria-label={movie.title}
+      onClick={(e) => e.preventDefault()}
+    >
       {movie.poster_path && movie.title && (
         <div css={styles.posterContainer}>
           <PosterImage posterPath={movie.poster_path} alt={movie.title} />
