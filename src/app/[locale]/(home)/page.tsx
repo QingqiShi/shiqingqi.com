@@ -20,8 +20,8 @@ export function generateStaticParams() {
 }
 
 export default async function Home(props: PageProps) {
-  const params = await props.params;
-  const { t } = getTranslations(translations, params.locale);
+  const { locale } = await props.params;
+  const { t } = getTranslations(translations, locale);
   return (
     <>
       <BackgroundLines />
@@ -39,8 +39,7 @@ export default async function Home(props: PageProps) {
           <ExperienceCard
             logo={<CitadelLogo />}
             dates={t("citadelDate")}
-            href={getLocalePath("/experiences/citadel", params.locale)}
-            locale={params.locale}
+            href={getLocalePath("/experiences/citadel", locale)}
             css={styles.card}
             aria-label={t("citadelLabel")}
             scroll
@@ -48,8 +47,7 @@ export default async function Home(props: PageProps) {
           <ExperienceCard
             logo={<SpotifyLogo />}
             dates={t("spotifyDate")}
-            href={getLocalePath("/experiences/spotify", params.locale)}
-            locale={params.locale}
+            href={getLocalePath("/experiences/spotify", locale)}
             css={styles.card}
             aria-label={t("spotifyLabel")}
           />
@@ -58,9 +56,8 @@ export default async function Home(props: PageProps) {
             dates={t("wtcDate")}
             href={getLocalePath(
               "/experiences/wunderman-thompson-commerce",
-              params.locale
+              locale
             )}
-            locale={params.locale}
             css={styles.card}
             aria-label={t("wtcLabel")}
           />
@@ -73,36 +70,24 @@ export default async function Home(props: PageProps) {
             logo={<BristolLogo title={t("uob")} />}
             name={t("uob")}
             dates={t("uobDate")}
-            href={
-              params.locale === "en"
-                ? "/education/university-of-bristol"
-                : `/${params.locale}/education/university-of-bristol`
-            }
-            locale={params.locale}
+            href={getLocalePath("/education/university-of-bristol", locale)}
             css={styles.card}
           />
           <EducationCard
             logo={<NottinghamLogo title={t("uon")} />}
             name={t("uon")}
             dates={t("uonDate")}
-            href={
-              params.locale === "en"
-                ? "/education/university-of-nottingham"
-                : `/${params.locale}/education/university-of-nottingham`
-            }
-            locale={params.locale}
+            href={getLocalePath("/education/university-of-nottingham", locale)}
             css={styles.card}
           />
           <EducationCard
             logo={{ src: AGSB, alt: t("agsb") }}
             name={t("agsb")}
             dates={t("agsbDate")}
-            href={
-              params.locale === "en"
-                ? "/education/altrincham-grammar-school-for-boys"
-                : `/${params.locale}/education/altrincham-grammar-school-for-boys`
-            }
-            locale={params.locale}
+            href={getLocalePath(
+              "/education/altrincham-grammar-school-for-boys",
+              locale
+            )}
             css={styles.card}
           />
         </div>
