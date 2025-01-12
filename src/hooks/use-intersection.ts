@@ -16,7 +16,7 @@ export function useIntersection({ getElement, onIntersect }: Params) {
           onIntersect();
         }
       },
-      { rootMargin: "0px 0px 500px 0px" }
+      { rootMargin: "1000px 0px 1000px 0px" }
     );
     observer.observe(element);
     return () => {
