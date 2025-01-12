@@ -1,14 +1,17 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { Footer } from "@/components/home/footer";
 import { FlowGradient } from "@/components/shared/flow-gradient";
 import { BASE_URL } from "@/constants";
+import { i18nConfig } from "@/i18n-config";
 import { color, layer, space } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
+import { setCachedRequestLocale } from "@/utils/request-locale";
 import { glowTokens } from "./layout.stylex";
 import translations from "./translations.json";
 
@@ -37,7 +40,15 @@ export function generateStaticParams() {
   return [{ lang: "en" }, { lang: "zh" }];
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default async function Layout({ children, params }: LayoutProps) {
+  const { locale } = await params;
+
+  if (!i18nConfig.locales.includes(locale)) {
+    notFound();
+  }
+
+  setCachedRequestLocale(locale);
+
   return (
     <>
       <div css={styles.flowGradient} role="presentation">
