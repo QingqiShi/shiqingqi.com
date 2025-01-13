@@ -15,22 +15,26 @@ updates:
     open-pull-requests-limit: 10
     versioning-strategy: increase
     groups:
-      stylex:
+      eslint:
         patterns:
-          - "@stylex*"
-      react-compiler:
-        patterns:
-          - "eslint-plugin-react-compiler"
-          - "babel-plugin-react-compiler"
+          - eslint
+          - "@eslint*"
       react:
         patterns:
           - react
           - react-dom
           - "@types/react"
           - "@types/react-dom"
+      react-compiler:
+        patterns:
+          - "eslint-plugin-react-compiler"
+          - "babel-plugin-react-compiler"
       serwist:
         patterns:
           - "@serwist*"
+      stylex:
+        patterns:
+          - "@stylex*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
