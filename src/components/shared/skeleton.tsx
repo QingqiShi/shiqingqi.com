@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { CSSProperties } from "react";
+import type { CSSProperties, Ref } from "react";
 import { border, color } from "@/tokens.stylex";
 import { skeletonTokens } from "./skeleton.stylex";
 
@@ -10,6 +10,7 @@ interface SkeletonProps {
   delay?: number;
   className?: string;
   style?: CSSProperties;
+  ref?: Ref<HTMLDivElement>;
 }
 
 export function Skeleton({
@@ -19,9 +20,11 @@ export function Skeleton({
   delay,
   className,
   style,
+  ref,
 }: SkeletonProps) {
   return (
     <div
+      ref={ref}
       css={[
         styles.skeleton,
         fill && styles.fill,

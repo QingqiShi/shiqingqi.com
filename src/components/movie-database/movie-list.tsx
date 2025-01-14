@@ -2,9 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useRef } from "react";
 import { Grid } from "@/components/movie-database/grid";
-import { useIntersection } from "@/hooks/use-intersection";
+import { useIntersectionRefCallback } from "@/hooks/use-intersection-ref-callback";
 import { ratio } from "@/tokens.stylex";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
@@ -18,38 +17,74 @@ interface MovieListProps {
 export function MovieList({ initialPage }: MovieListProps) {
   const { locale } = useTranslationContext();
 
-  const { data, fetchNextPage, isFetchingNextPage, isFetchingPreviousPage } =
-    useSuspenseInfiniteQuery(
-      tmdbQueries.movieList({ page: initialPage, language: locale })
-    );
+  const {
+    data,
+    fetchNextPage,
+    fetchPreviousPage,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+  } = useSuspenseInfiniteQuery(
+    tmdbQueries.movieList({ page: initialPage, language: locale })
+  );
 
-  const loadNextElement = useRef<HTMLDivElement>(null);
-  useIntersection({
-    getElement: () => loadNextElement.current,
-    onIntersect: () => {
+  // Load next page
+  const loadNextCallbackRef = useIntersectionRefCallback<HTMLDivElement>({
+    onIntersect: (entries) => {
       if (isFetchingNextPage) return;
-      void fetchNextPage();
+      entries.some((entry) => {
+        if (entry.isIntersecting) {
+          void fetchNextPage();
+        }
+      });
     },
+    rootMargin: "0px 0px 1000px 0px",
   });
+
+  // Load previous page
+  const loadPrevCallbackRef = useIntersectionRefCallback<HTMLDivElement>({
+    onIntersect: (entries) => {
+      if (isFetchingPreviousPage) return;
+      entries.some((entry) => {
+        if (entry.isIntersecting) {
+          void fetchPreviousPage();
+        }
+      });
+    },
+    rootMargin: "1000px 0px 0px 0px",
+  });
+
+  const minPage = Math.min(...data.pages.map((page) => page.page));
+  const paddedItems = Math.max((minPage - 1) * 20, 0);
 
   return (
     <>
       <Grid>
-        {isFetchingPreviousPage &&
-          Array.from({ length: 20 }).map((_, i) => (
-            <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
+        {hasPreviousPage &&
+          Array.from({ length: paddedItems }, (_, i) => (
+            <Skeleton
+              key={`${i}-${isFetchingPreviousPage ? "fetching" : "padded"}`}
+              css={styles.skeleton}
+              delay={i * 100}
+              ref={loadPrevCallbackRef}
+            />
           ))}
         {data?.pages.map((page) =>
           page.results?.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))
         )}
-        {isFetchingNextPage &&
+        {hasNextPage &&
           Array.from({ length: 20 }).map((_, i) => (
-            <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
+            <Skeleton
+              key={i}
+              css={styles.skeleton}
+              delay={i * 100}
+              ref={loadNextCallbackRef}
+            />
           ))}
       </Grid>
-      <div ref={loadNextElement} />
     </>
   );
 }
