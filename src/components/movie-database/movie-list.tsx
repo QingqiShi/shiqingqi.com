@@ -40,7 +40,7 @@ export function MovieList({ initialPage }: MovieListProps) {
       }
       void fetchNextPage();
     },
-    rootMargin: "0px 0px 1000px 0px",
+    rootMargin: "0px 0px 200vh 0px",
   });
 
   // Load previous page
@@ -54,7 +54,7 @@ export function MovieList({ initialPage }: MovieListProps) {
       }
       void fetchPreviousPage();
     },
-    rootMargin: "1000px 0px 0px 0px",
+    rootMargin: "200vh 0px 0px 0px",
   });
 
   const minPage = Math.min(...data.pages.map((page) => page.page));
@@ -95,6 +95,7 @@ const styles = stylex.create({
   skeleton: {
     aspectRatio: ratio.poster,
     width: "100%",
+    overflow: "hidden",
   },
   marker: {
     display: "contents",
