@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef } from "react";
+import useEventCallback from "@mui/utils/useEventCallback";
+import { useRef } from "react";
 
 interface Params {
   onIntersect: (entries: IntersectionObserverEntry[]) => void;
@@ -9,20 +10,18 @@ export function useIntersectionRefCallback<Element extends HTMLElement>({
   onIntersect,
   rootMargin,
 }: Params) {
+  const handleIntersect = useEventCallback(onIntersect);
+
   const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
-  useLayoutEffect(() => {
-    if (!intersectionObserverRef.current) {
-      intersectionObserverRef.current = new IntersectionObserver(onIntersect, {
-        rootMargin,
-      });
-    }
-    return () => {
-      intersectionObserverRef.current?.disconnect();
-    };
-  }, [onIntersect, rootMargin]);
 
   return (element: Element) => {
-    intersectionObserverRef.current?.observe(element);
+    if (!intersectionObserverRef.current) {
+      intersectionObserverRef.current = new IntersectionObserver(
+        handleIntersect,
+        { rootMargin }
+      );
+    }
+    intersectionObserverRef.current.observe(element);
     return () => {
       intersectionObserverRef.current?.unobserve(element);
     };

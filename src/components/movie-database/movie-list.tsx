@@ -32,12 +32,13 @@ export function MovieList({ initialPage }: MovieListProps) {
   // Load next page
   const loadNextCallbackRef = useIntersectionRefCallback<HTMLDivElement>({
     onIntersect: (entries) => {
-      if (isFetchingNextPage) return;
-      entries.some((entry) => {
-        if (entry.isIntersecting) {
-          void fetchNextPage();
-        }
-      });
+      if (
+        isFetchingNextPage ||
+        entries.every((entry) => !entry.isIntersecting)
+      ) {
+        return;
+      }
+      void fetchNextPage();
     },
     rootMargin: "0px 0px 1000px 0px",
   });
@@ -45,12 +46,13 @@ export function MovieList({ initialPage }: MovieListProps) {
   // Load previous page
   const loadPrevCallbackRef = useIntersectionRefCallback<HTMLDivElement>({
     onIntersect: (entries) => {
-      if (isFetchingPreviousPage) return;
-      entries.some((entry) => {
-        if (entry.isIntersecting) {
-          void fetchPreviousPage();
-        }
-      });
+      if (
+        isFetchingPreviousPage ||
+        entries.every((entry) => !entry.isIntersecting)
+      ) {
+        return;
+      }
+      void fetchPreviousPage();
     },
     rootMargin: "1000px 0px 0px 0px",
   });
@@ -64,7 +66,7 @@ export function MovieList({ initialPage }: MovieListProps) {
         {hasPreviousPage &&
           Array.from({ length: paddedItems }, (_, i) => (
             <Skeleton
-              key={`${i}-${isFetchingPreviousPage ? "fetching" : "padded"}`}
+              key={`before-${i}-${isFetchingPreviousPage ? "fetching" : "padded"}`}
               css={styles.skeleton}
               delay={i * 100}
               ref={loadPrevCallbackRef}
@@ -78,7 +80,7 @@ export function MovieList({ initialPage }: MovieListProps) {
         {hasNextPage &&
           Array.from({ length: 20 }).map((_, i) => (
             <Skeleton
-              key={i}
+              key={`after-${i}-${isFetchingNextPage ? "fetching" : "padded"}`}
               css={styles.skeleton}
               delay={i * 100}
               ref={loadNextCallbackRef}
@@ -93,5 +95,8 @@ const styles = stylex.create({
   skeleton: {
     aspectRatio: ratio.poster,
     width: "100%",
+  },
+  marker: {
+    display: "contents",
   },
 });
