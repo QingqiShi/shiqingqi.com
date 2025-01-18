@@ -15,7 +15,18 @@ export const movieList = ({
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    maxPages: 5, // Maximally hold 100 items in the cache
+    select: (data) => {
+      const movies = data.pages
+        .flatMap((page) => page.results)
+        .filter((x) => !!x);
+      const uniqueMovies = Array.from(
+        new Map(movies.map((movie) => [movie.id, movie])).values()
+      );
+      return {
+        movies: uniqueMovies,
+        totalCount: data.pages[0].total_results,
+      };
+    },
   });
 
 export const configuration = queryOptions({

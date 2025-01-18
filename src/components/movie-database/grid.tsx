@@ -1,9 +1,19 @@
 import * as stylex from "@stylexjs/stylex";
-import type { PropsWithChildren } from "react";
+import type { HTMLAttributes, PropsWithChildren, Ref } from "react";
 import { breakpoints } from "@/breakpoints";
 
-export function Grid({ children }: PropsWithChildren) {
-  return <div css={styles.skeletonGrid}>{children}</div>;
+export function Grid({
+  children,
+  ref,
+  ...props
+}: PropsWithChildren<
+  HTMLAttributes<HTMLDivElement> & { ref?: Ref<HTMLDivElement> }
+>) {
+  return (
+    <div {...props} ref={ref} css={styles.skeletonGrid}>
+      {children}
+    </div>
+  );
 }
 
 const styles = stylex.create({
@@ -14,7 +24,8 @@ const styles = stylex.create({
     gap: "0.5rem",
     gridTemplateColumns: {
       default: "1fr",
-      [breakpoints.sm]: "repeat(auto-fill, minmax(250px, 1fr))",
+      [breakpoints.sm]: "repeat(auto-fill, minmax(150px, 1fr))",
+      [breakpoints.lg]: "repeat(auto-fill, minmax(300px, 1fr))",
     },
   },
 });
