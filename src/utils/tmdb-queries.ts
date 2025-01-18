@@ -15,7 +15,10 @@ export const movieList = ({
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    maxPages: 5, // Maximally hold 100 items in the cache
+    select: (data) => ({
+      movies: data.pages.flatMap((page) => page.results),
+      totalCount: data.pages[0].total_results,
+    }),
   });
 
 export const configuration = queryOptions({
