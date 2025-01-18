@@ -53,6 +53,7 @@ export function MovieList({ initialPage }: MovieListProps) {
             : undefined
         }
         increaseViewportBy={height}
+        initialItemCount={data.movies.length}
       />
     </>
   );

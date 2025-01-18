@@ -24,7 +24,8 @@ const styles = stylex.create({
     gap: "0.5rem",
     gridTemplateColumns: {
       default: "1fr",
-      [breakpoints.sm]: "repeat(auto-fill, minmax(250px, 1fr))",
+      [breakpoints.sm]: "repeat(auto-fill, minmax(150px, 1fr))",
+      [breakpoints.lg]: "repeat(auto-fill, minmax(300px, 1fr))",
     },
   },
 });

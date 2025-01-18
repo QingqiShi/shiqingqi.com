@@ -56,7 +56,7 @@ export function PosterImage({ posterPath, alt }: PosterImage) {
         src={src}
         srcSet={srcSet}
         // These breakpoints are taken from when the grid snaps from 1 column to 2 and then to 3
-        sizes={`auto, (max-width: 526px) 100vw, (max-width: 789px) 50vw, (max-width: 1049px) 33.3vw, 320px`}
+        sizes={`auto, (max-width: 326px) 100vw, (max-width: 485px) 50vw, (max-width: 644px) 33.3vw, (max-width: 644px) 200px, 350px`}
         loading="lazy"
       />
     </>
