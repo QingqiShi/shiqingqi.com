@@ -29,9 +29,11 @@ export async function fetchConfiguration() {
   return (await response.json()) as Configuration;
 }
 
-export type Movie = NonNullable<
-  paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"]["results"]
->[number];
+export type MovieListItem = {
+  id: number;
+  title?: string;
+  posterPath?: string;
+};
 
 /** Fetch list of movies */
 export async function fetchMovieList({
@@ -57,5 +59,17 @@ export async function fetchMovieList({
     );
   }
 
-  return (await response.json()) as paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"];
+  const result =
+    (await response.json()) as paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"];
+  return {
+    ...result,
+    results: result.results?.map(
+      (movie) =>
+        ({
+          id: movie.id,
+          title: movie.title,
+          posterPath: movie.poster_path,
+        }) satisfies MovieListItem
+    ),
+  };
 }

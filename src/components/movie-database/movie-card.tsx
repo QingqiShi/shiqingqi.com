@@ -1,13 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
-import type { paths } from "@/_generated/tmdbV3";
 import { Card } from "@/components/shared/card";
 import { layer, ratio } from "@/tokens.stylex";
+import type { MovieListItem } from "@/utils/tmdb-api";
 import { PosterImage } from "./poster-image";
 
 interface MovieCardProps {
-  movie: NonNullable<
-    paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"]["results"]
-  >[number];
+  movie: MovieListItem;
 }
 
 export function MovieCard({ movie }: MovieCardProps) {
@@ -18,9 +16,9 @@ export function MovieCard({ movie }: MovieCardProps) {
       aria-label={movie.title}
       onClick={(e) => e.preventDefault()}
     >
-      {movie.poster_path && movie.title && (
+      {movie.posterPath && movie.title && (
         <div css={styles.posterContainer}>
-          <PosterImage posterPath={movie.poster_path} alt={movie.title} />
+          <PosterImage posterPath={movie.posterPath} alt={movie.title} />
         </div>
       )}
       {/* TODO: Render ratings */}
