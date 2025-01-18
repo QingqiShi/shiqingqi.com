@@ -15,10 +15,18 @@ export const movieList = ({
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    select: (data) => ({
-      movies: data.pages.flatMap((page) => page.results),
-      totalCount: data.pages[0].total_results,
-    }),
+    select: (data) => {
+      const movies = data.pages
+        .flatMap((page) => page.results)
+        .filter((x) => !!x);
+      const uniqueMovies = Array.from(
+        new Map(movies.map((movie) => [movie.id, movie])).values()
+      );
+      return {
+        movies: uniqueMovies,
+        totalCount: data.pages[0].total_results,
+      };
+    },
   });
 
 export const configuration = queryOptions({

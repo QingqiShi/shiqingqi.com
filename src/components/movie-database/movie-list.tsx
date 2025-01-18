@@ -34,7 +34,6 @@ export function MovieList({ initialPage }: MovieListProps) {
   return (
     <>
       <VirtuosoGrid
-        style={{ height: "100dvh" }}
         data={data.movies}
         components={gridComponents}
         itemContent={(index) =>
@@ -54,6 +53,7 @@ export function MovieList({ initialPage }: MovieListProps) {
         }
         increaseViewportBy={height}
         initialItemCount={data.movies.length}
+        useWindowScroll
       />
     </>
   );
