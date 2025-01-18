@@ -25,6 +25,7 @@ const styles = stylex.create({
     gridTemplateColumns: {
       default: "1fr",
       [breakpoints.sm]: "repeat(auto-fill, minmax(150px, 1fr))",
+      [breakpoints.md]: "repeat(auto-fill, minmax(230px, 1fr))",
       [breakpoints.lg]: "repeat(auto-fill, minmax(300px, 1fr))",
     },
   },
