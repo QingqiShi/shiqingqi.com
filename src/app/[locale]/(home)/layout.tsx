@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { Footer } from "@/components/home/footer";
-import { FlowGradient } from "@/components/shared/flow-gradient";
+import { FlowGradient } from "@/components/shared/flow-gradient/flow-gradient";
 import { BASE_URL } from "@/constants";
 import { i18nConfig } from "@/i18n-config";
 import { color, layer, space } from "@/tokens.stylex";
