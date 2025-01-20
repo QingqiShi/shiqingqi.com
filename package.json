@@ -63,8 +63,7 @@
   },
   "pnpm": {
     "patchedDependencies": {
-      "@stylexjs/eslint-plugin": "patches/@stylexjs__eslint-plugin.patch",
-      "@stylexjs/shared": "patches/@stylexjs__shared.patch"
+      "@stylexjs/eslint-plugin": "patches/@stylexjs__eslint-plugin.patch"
     }
   }
 }
