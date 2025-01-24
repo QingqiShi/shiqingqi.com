@@ -11,10 +11,12 @@ function subscribe(onStoreChange: () => void) {
 
 let themeSingleton: string | null = null;
 function setIsMenuShown(newTheme: SupportedTheme) {
-  themeSingleton = newTheme;
-  localStorage.setItem(STORAGE_KEY, newTheme);
-  listeners.forEach((listener) => {
-    listener();
+  document.startViewTransition(() => {
+    themeSingleton = newTheme;
+    localStorage.setItem(STORAGE_KEY, newTheme);
+    listeners.forEach((listener) => {
+      listener();
+    });
   });
 }
 
