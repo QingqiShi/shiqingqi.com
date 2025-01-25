@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { SupportedTheme } from "@/types";
+import { startViewTransition } from "@/utils/start-view-transition";
 
 const STORAGE_KEY = "theme";
 
@@ -11,12 +12,10 @@ function subscribe(onStoreChange: () => void) {
 
 let themeSingleton: string | null = null;
 function setIsMenuShown(newTheme: SupportedTheme) {
-  document.startViewTransition(() => {
+  void startViewTransition(() => {
     themeSingleton = newTheme;
     localStorage.setItem(STORAGE_KEY, newTheme);
-    listeners.forEach((listener) => {
-      listener();
-    });
+    listeners.forEach((listener) => listener());
   });
 }
 
