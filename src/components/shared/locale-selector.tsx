@@ -18,7 +18,6 @@ import {
 } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
-import { startViewTransition } from "@/utils/start-view-transition";
 
 /*
  * When route changes (on selecting a different locale) the entire page will unmount, as a result states will
@@ -32,11 +31,9 @@ function subscribe(onStoreChange: () => void) {
 }
 let isMenuShownSingleton = false;
 function setIsMenuShown(newState: boolean) {
-  void startViewTransition(() => {
-    isMenuShownSingleton = newState;
-    listeners.forEach((listener) => {
-      listener();
-    });
+  isMenuShownSingleton = newState;
+  listeners.forEach((listener) => {
+    listener();
   });
 }
 
@@ -192,7 +189,7 @@ const styles = stylex.create({
     transform: "scale(0, 0)",
     transformOrigin: "top right",
     viewTransitionName: "local-selector-menu",
-    // transition: "transform 0.2s ease-out, opacity 0.2s ease-out",
+    transition: "transform 0.2s ease-out, opacity 0.2s ease-out",
   },
   menuShown: {
     opacity: 1,
