@@ -122,10 +122,10 @@ export function start(
         gl.canvas.width < mdBreakpoint
           ? smDpi
           : gl.canvas.width < lgBreakpoint
-          ? mdDpi
-          : gl.canvas.width < xlBreakpoint
-          ? lgDpi
-          : xlDpi,
+            ? mdDpi
+            : gl.canvas.width < xlBreakpoint
+              ? lgDpi
+              : xlDpi,
       u_time: t,
       u_colorTop: colorTop,
       u_colorBottom: colorBottom,
@@ -171,7 +171,7 @@ export function start(
     // Request the next frame
     animationId = requestAnimationFrame(handleFrame);
   };
-  animationId = requestAnimationFrame(handleFrame);
+  handleFrame(startTime);
 
   return () => {
     if (animationId !== null) {
