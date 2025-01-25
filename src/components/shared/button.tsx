@@ -1,13 +1,16 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
+import { breakpoints } from "@/breakpoints";
 import { border, color, controlSize, font, shadow } from "@/tokens.stylex";
 
 interface ButtonProps extends ComponentProps<"button"> {
   icon?: React.ReactNode;
+  hideLabelOnMobile?: boolean;
 }
 
 export function Button({
   icon,
+  hideLabelOnMobile,
   children,
   className,
   style,
@@ -18,10 +21,19 @@ export function Button({
       {...props}
       className={className}
       style={style}
-      css={[styles.button, !!icon && styles.hasIcon]}
+      css={[styles.button, !!icon && !hideLabelOnMobile && styles.hasIcon]}
     >
       {icon && <span css={styles.icon}>{icon}</span>}
-      {children}
+      {children && (
+        <span
+          css={[
+            styles.childrenContainer,
+            hideLabelOnMobile && styles.hideLabelOnMobile,
+          ]}
+        >
+          {children}
+        </span>
+      )}
     </button>
   );
 }
@@ -62,5 +74,13 @@ const styles = stylex.create({
   },
   icon: {
     display: "inline-flex",
+  },
+  childrenContainer: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: controlSize._2,
+  },
+  hideLabelOnMobile: {
+    display: { default: "none", [breakpoints.md]: "inline-flex" },
   },
 });

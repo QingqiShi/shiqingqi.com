@@ -4,7 +4,6 @@ import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useRef, useSyncExternalStore } from "react";
-import { breakpoints } from "@/breakpoints";
 import type { Anchor } from "@/components/shared/anchor";
 import { Button } from "@/components/shared/button";
 import { LOCALE_COOKIE_NAME } from "@/constants";
@@ -81,22 +80,9 @@ export function LocaleSelector({
           setIsMenuShown(!isMenuShown);
         }}
         icon={<Translate weight="bold" role="presentation" />}
-        css={styles.desktopVisible}
+        hideLabelOnMobile
       >
         {label}
-      </Button>
-      <Button
-        ref={mobileButtonRef}
-        type="button"
-        aria-haspopup="menu"
-        aria-controls="language-selector-menu"
-        aria-label={ariaLabel}
-        onClick={() => {
-          setIsMenuShown(!isMenuShown);
-        }}
-        css={styles.mobileVisible}
-      >
-        <Translate weight="bold" role="presentation" />
       </Button>
       <div
         id="language-selector-menu"
@@ -186,12 +172,6 @@ const styles = stylex.create({
     position: "relative",
     display: "flex",
   },
-  desktopVisible: {
-    display: { default: "none", [breakpoints.md]: "inline-flex" },
-  },
-  mobileVisible: {
-    display: { default: "inline-flex", [breakpoints.md]: "none" },
-  },
   menu: {
     backgroundColor: color.backgroundRaised,
     borderRadius: border.radius_2,
@@ -208,6 +188,7 @@ const styles = stylex.create({
     top: `calc(100% + ${space._1})`,
     transform: "scale(0, 0)",
     transformOrigin: "top right",
+    viewTransitionName: "local-selector-menu",
     transition: "transform 0.2s ease-out, opacity 0.2s ease-out",
   },
   menuShown: {
