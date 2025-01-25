@@ -15,7 +15,7 @@ importers:
     dependencies:
       '@mui/utils':
         specifier: ^6.4.1
-        version: 6.4.1(@types/react@19.0.7)(react@19.0.0)
+        version: 6.4.1(@types/react@19.0.8)(react@19.0.0)
       '@phosphor-icons/react':
         specifier: ^2.1.7
         version: 2.1.7(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -81,11 +81,11 @@ importers:
         specifier: ^22
         version: 22.10.10
       '@types/react':
-        specifier: 19.0.7
-        version: 19.0.7
+        specifier: 19.0.8
+        version: 19.0.8
       '@types/react-dom':
         specifier: 19.0.3
-        version: 19.0.3(@types/react@19.0.7)
+        version: 19.0.3(@types/react@19.0.8)
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
@@ -974,8 +974,8 @@ packages:
     peerDependencies:
       '@types/react': ^19.0.0
 
-  '@types/react@19.0.7':
-    resolution: {integrity: sha512-MoFsEJKkAtZCrC1r6CM8U22GzhG7u2Wir8ons/aCKH6MBdD1ibV24zOSSkdZVUKqN5i396zG5VKLYZ3yaUZdLA==}
+  '@types/react@19.0.8':
+    resolution: {integrity: sha512-9P/o1IGdfmQxrujGbIMDyYaaCykhLKc0NGCtYcECNUr9UAaDe4gwvV9bR6tvd5Br1SG0j+PBpbKr2UYY8CwqSw==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -3846,21 +3846,21 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@mui/types@7.2.21(@types/react@19.0.7)':
+  '@mui/types@7.2.21(@types/react@19.0.8)':
     optionalDependencies:
-      '@types/react': 19.0.7
+      '@types/react': 19.0.8
 
-  '@mui/utils@6.4.1(@types/react@19.0.7)(react@19.0.0)':
+  '@mui/utils@6.4.1(@types/react@19.0.8)(react@19.0.0)':
     dependencies:
       '@babel/runtime': 7.26.0
-      '@mui/types': 7.2.21(@types/react@19.0.7)
+      '@mui/types': 7.2.21(@types/react@19.0.8)
       '@types/prop-types': 15.7.14
       clsx: 2.1.1
       prop-types: 15.8.1
       react: 19.0.0
       react-is: 19.0.0
     optionalDependencies:
-      '@types/react': 19.0.7
+      '@types/react': 19.0.8
 
   '@next/env@15.1.5': {}
 
@@ -4061,11 +4061,11 @@ snapshots:
 
   '@types/prop-types@15.7.14': {}
 
-  '@types/react-dom@19.0.3(@types/react@19.0.7)':
+  '@types/react-dom@19.0.3(@types/react@19.0.8)':
     dependencies:
-      '@types/react': 19.0.7
+      '@types/react': 19.0.8
 
-  '@types/react@19.0.7':
+  '@types/react@19.0.8':
     dependencies:
       csstype: 3.1.3
 
