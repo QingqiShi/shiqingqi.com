@@ -23,24 +23,14 @@ export function BackButton({ locale, label }: BackButtonProps) {
 
   const targetPath = getLocalePath("/", locale);
   return (
-    <>
-      <AnchorButton
-        icon={<CaretLeft weight="bold" role="presentation" />}
-        href={targetPath}
-        aria-label={label}
-        css={styles.desktopVisible}
-      >
-        {label}
-      </AnchorButton>
-      <AnchorButton
-        href={targetPath}
-        aria-label={label}
-        css={styles.mobileVisible}
-      >
-        <CaretLeft weight="bold" role="presentation" />
-        <House weight="bold" role="presentation" />
-      </AnchorButton>
-    </>
+    <AnchorButton
+      icon={<CaretLeft weight="bold" role="presentation" />}
+      href={targetPath}
+      aria-label={label}
+    >
+      <span css={styles.desktopVisible}>{label}</span>
+      <House weight="bold" role="presentation" css={styles.mobileVisible} />
+    </AnchorButton>
   );
 }
 

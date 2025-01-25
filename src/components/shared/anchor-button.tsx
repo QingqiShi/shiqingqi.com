@@ -1,9 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@/breakpoints";
 import { border, color, controlSize, font, shadow } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
   icon?: React.ReactNode;
+  hideLabelOnMobile?: boolean;
 }
 
 export function AnchorButton({
@@ -11,6 +13,7 @@ export function AnchorButton({
   children,
   style,
   className,
+  hideLabelOnMobile,
   ...props
 }: AnchorButtonProps) {
   return (
@@ -18,10 +21,19 @@ export function AnchorButton({
       {...props}
       className={className}
       style={style}
-      css={[styles.button, !!icon && styles.hasIcon]}
+      css={[styles.button, !!icon && !hideLabelOnMobile && styles.hasIcon]}
     >
       {icon && <span css={styles.icon}>{icon}</span>}
-      {children}
+      {children && (
+        <span
+          css={[
+            styles.childrenContainer,
+            hideLabelOnMobile && styles.hideLabelOnMobile,
+          ]}
+        >
+          {children}
+        </span>
+      )}
     </Anchor>
   );
 }
@@ -60,5 +72,13 @@ const styles = stylex.create({
   },
   icon: {
     display: "inline-flex",
+  },
+  childrenContainer: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: controlSize._2,
+  },
+  hideLabelOnMobile: {
+    display: { default: "none", [breakpoints.md]: "inline-flex" },
   },
 });
