@@ -57,6 +57,6 @@ const styles = stylex.create({
     height: "100%",
     backgroundColor: color.backgroundMain,
     willChange: "transform",
-    zIndex: layer.background,
+    zIndex: layer.base,
   },
 });

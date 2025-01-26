@@ -45,13 +45,6 @@
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
 
-  canvas {
-    -webkit-backface-visibility: hidden;
-    -webkit-transform-style: preserve-3d;
-    -webkit-transform: translate3d(0, 0, 0);
-    -webkit-perspective: 1000;
-  }
-
   ::view-transition-group(*),
   ::view-transition-new(*),
   ::view-transition-old(*) {
@@ -80,6 +73,11 @@
       1
     );
     animation-duration: 300ms;
+  }
+
+  /* In Safari the root transition causes the canvas / page to flicker, this disables the default transition on the root. */
+  :root {
+    view-transition-name: none;
   }
 }
 
