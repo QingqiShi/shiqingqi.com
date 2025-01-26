@@ -1,5 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
-import { useState, type ComponentProps, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { useClickAway } from "@/hooks/use-click-away";
 import { useCssId } from "@/hooks/use-css-id";
 import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
@@ -25,17 +31,22 @@ export function MenuButton({
   position = "topRight",
 }: MenuButtonProps) {
   const [isMenuShown, _setIsMenuShown] = useState(false);
-  const setIsMenuShown = (...args: Parameters<typeof _setIsMenuShown>) => {
+  const setIsMenuShown = (newValue: boolean) => {
     void startViewTransition(() => {
-      _setIsMenuShown(...args);
+      _setIsMenuShown(newValue);
     });
   };
 
+  const outsideClicked = useRef(false);
   const containerRef = useClickAway<HTMLDivElement>(() => {
-    if (isMenuShown) {
-      setIsMenuShown(false);
-    }
+    setIsMenuShown(false);
+    outsideClicked.current = true;
   });
+  useEffect(() => {
+    if (isMenuShown) {
+      outsideClicked.current = false;
+    }
+  }, [isMenuShown]);
 
   const id = useCssId();
 
@@ -64,7 +75,18 @@ export function MenuButton({
           }
       `}
       </style>
-      <div css={styles.container} ref={containerRef}>
+      <div
+        css={styles.container}
+        ref={containerRef}
+        onBlur={(e) => {
+          if (
+            !containerRef.current?.contains(e.relatedTarget) &&
+            !outsideClicked.current
+          ) {
+            setIsMenuShown(false);
+          }
+        }}
+      >
         <Button
           {...buttonProps}
           onClick={() => setIsMenuShown(true)}

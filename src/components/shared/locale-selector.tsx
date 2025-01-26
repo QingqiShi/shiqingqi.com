@@ -41,6 +41,7 @@ export function LocaleSelector({
             isActive={locale === "en"}
             label="English"
             locale="en"
+            autoFocus={locale !== "en"}
           />
           <Item
             ariaLabel="切换至中文"
@@ -49,6 +50,7 @@ export function LocaleSelector({
             isActive={locale === "zh"}
             label="中文"
             locale="zh"
+            autoFocus={locale === "en"}
           />
         </div>
       }
@@ -65,7 +67,7 @@ interface ItemProps extends React.ComponentProps<typeof Anchor> {
   isActive?: boolean;
   label: string;
   locale: SupportedLocale;
-  tabIndex?: number;
+  autoFocus?: boolean;
 }
 
 function Item({
@@ -75,7 +77,7 @@ function Item({
   isActive,
   label,
   locale,
-  tabIndex,
+  autoFocus,
 }: ItemProps) {
   const router = useRouter();
 
@@ -83,9 +85,12 @@ function Item({
     <a
       href={href}
       aria-label={ariaLabel}
-      tabIndex={tabIndex}
       role="menuItem"
       css={[styles.item, isActive && styles.itemActive]}
+      ref={(el) => {
+        if (autoFocus) el?.focus();
+      }}
+      tabIndex={isActive ? -1 : 0}
       onClick={(e) => {
         e.preventDefault();
 
