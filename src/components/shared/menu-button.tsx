@@ -93,7 +93,7 @@ export function MenuButton({
           style={{
             viewTransitionName: !isMenuShown ? `${id}-background` : undefined,
           }}
-          css={isMenuShown && styles.disabled}
+          css={[styles.button, isMenuShown && styles.disabled]}
           hideIcon={isMenuShown}
         >
           {children && (
@@ -180,6 +180,9 @@ const styles = stylex.create({
     boxShadow: shadow._4,
     overflow: "hidden",
     width: "max-content",
+    willChange: "transform",
+  },
+  button: {
     willChange: "transform",
   },
   menuTitle: {
