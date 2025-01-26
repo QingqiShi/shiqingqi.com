@@ -171,7 +171,6 @@ const slideOut = stylex.keyframes({
 const styles = stylex.create({
   container: {
     position: "relative",
-    willChange: "transform",
   },
   menu: {
     position: "absolute",
@@ -181,6 +180,7 @@ const styles = stylex.create({
     boxShadow: shadow._4,
     overflow: "hidden",
     width: "max-content",
+    willChange: "transform",
   },
   menuTitle: {
     fontSize: controlSize._3,
