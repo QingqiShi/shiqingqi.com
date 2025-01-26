@@ -171,6 +171,7 @@ const slideOut = stylex.keyframes({
 const styles = stylex.create({
   container: {
     position: "relative",
+    willChange: "transform",
   },
   menu: {
     position: "absolute",
