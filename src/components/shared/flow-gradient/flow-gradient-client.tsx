@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
-import { color } from "@/tokens.stylex";
+import { color, layer } from "@/tokens.stylex";
 import { init, start } from "./loop";
 
 interface FlowGradientClientProps {
@@ -56,5 +56,7 @@ const styles = stylex.create({
     width: "100%",
     height: "100%",
     backgroundColor: color.backgroundMain,
+    willChange: "transform",
+    zIndex: layer.background,
   },
 });
