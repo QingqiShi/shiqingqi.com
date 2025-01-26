@@ -11,12 +11,17 @@ function subscribe(onStoreChange: () => void) {
 }
 
 let themeSingleton: string | null = null;
-function setIsMenuShown(newTheme: SupportedTheme) {
-  void startViewTransition(() => {
+async function setIsMenuShown(newTheme: SupportedTheme) {
+  // The root transition was disabled by default in global.css to work around an Safari issue that causes a flicker
+  // For the theme switching specifically, we enable it for better result.
+  document.documentElement.style.viewTransitionName = "root";
+  const transition = await startViewTransition(() => {
     themeSingleton = newTheme;
     localStorage.setItem(STORAGE_KEY, newTheme);
     listeners.forEach((listener) => listener());
   });
+  await transition?.finished;
+  document.documentElement.style.viewTransitionName = "";
 }
 
 function getSupportedTheme(theme: string | null): SupportedTheme {

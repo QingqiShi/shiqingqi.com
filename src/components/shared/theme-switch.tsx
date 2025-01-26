@@ -81,7 +81,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           aria-label={labels[2]}
           aria-checked={!theme || theme === "system"}
           onClick={() => {
-            setTheme("system");
+            void setTheme("system");
           }}
           disabled={!theme || theme === "system"}
           title={labels[2]}
@@ -99,9 +99,9 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         }
         onChange={(state) => {
           if (state === "on") {
-            setTheme("dark");
+            void setTheme("dark");
           } else {
-            setTheme("light");
+            void setTheme("light");
           }
         }}
         aria-label={

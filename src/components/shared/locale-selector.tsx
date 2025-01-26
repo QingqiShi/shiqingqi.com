@@ -3,39 +3,13 @@
 import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useRef, useSyncExternalStore } from "react";
+import React from "react";
 import type { Anchor } from "@/components/shared/anchor";
-import { Button } from "@/components/shared/button";
 import { LOCALE_COOKIE_NAME } from "@/constants";
-import { useClickAway } from "@/hooks/use-click-away";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  shadow,
-  space,
-} from "@/tokens.stylex";
+import { border, color, controlSize, font } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
-
-/*
- * When route changes (on selecting a different locale) the entire page will unmount, as a result states will
- * reset and the locale menu will be closed, to work around this we need a global state and hydrate it back when
- * the component mounts again. Note this assumes there's only a single instance of the locale selector.
- */
-const listeners: Set<() => void> = new Set();
-function subscribe(onStoreChange: () => void) {
-  listeners.add(onStoreChange);
-  return () => listeners.delete(onStoreChange);
-}
-let isMenuShownSingleton = false;
-function setIsMenuShown(newState: boolean) {
-  isMenuShownSingleton = newState;
-  listeners.forEach((listener) => {
-    listener();
-  });
-}
+import { MenuButton } from "./menu-button";
 
 interface LocaleSelectorProps {
   label: string;
@@ -48,74 +22,41 @@ export function LocaleSelector({
   ariaLabel,
   locale,
 }: LocaleSelectorProps) {
-  const isMenuShown = useSyncExternalStore(
-    subscribe,
-    () => isMenuShownSingleton,
-    () => isMenuShownSingleton
-  );
-
-  const mobileButtonRef = useRef<HTMLButtonElement>(null);
-  const desktopButtonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useClickAway<HTMLDivElement>((e) => {
-    if (
-      isMenuShown &&
-      e.target !== mobileButtonRef.current &&
-      e.target !== desktopButtonRef.current
-    ) {
-      setIsMenuShown(false);
-    }
-  });
-
   const pathname = usePathname();
 
   return (
-    <div css={styles.container}>
-      <Button
-        ref={desktopButtonRef}
-        type="button"
-        aria-haspopup="menu"
-        aria-controls="language-selector-menu"
-        aria-label={ariaLabel}
-        onClick={() => {
-          setIsMenuShown(!isMenuShown);
-        }}
-        icon={<Translate weight="bold" role="presentation" />}
-        hideLabelOnMobile
-      >
-        {label}
-      </Button>
-      <div
-        id="language-selector-menu"
-        role="menu"
-        aria-hidden={!isMenuShown}
-        ref={menuRef}
-        onBlur={(e) => {
-          if (!menuRef.current?.contains(e.relatedTarget)) {
-            setIsMenuShown(false);
-          }
-        }}
-        css={[styles.menu, isMenuShown && styles.menuShown]}
-      >
-        <Item
-          ariaLabel="Switch to English"
-          flag="🇬🇧"
-          href={getLocalePath(pathname, "en")}
-          isActive={locale === "en"}
-          label="English"
-          locale="en"
-          tabIndex={!isMenuShown ? -1 : undefined}
-        />
-        <Item
-          ariaLabel="切换至中文"
-          flag="🇨🇳"
-          href={getLocalePath(pathname, "zh")}
-          isActive={locale === "zh"}
-          label="中文"
-          locale="zh"
-          tabIndex={!isMenuShown ? -1 : undefined}
-        />
-      </div>
-    </div>
+    <MenuButton
+      buttonProps={{
+        type: "button",
+        "aria-label": ariaLabel,
+        icon: <Translate weight="bold" role="presentation" />,
+        hideLabelOnMobile: true,
+      }}
+      menuContent={
+        <div css={styles.menu}>
+          <Item
+            ariaLabel="Switch to English"
+            flag="🇬🇧"
+            href={getLocalePath(pathname, "en")}
+            isActive={locale === "en"}
+            label="English"
+            locale="en"
+            autoFocus={locale !== "en"}
+          />
+          <Item
+            ariaLabel="切换至中文"
+            flag="🇨🇳"
+            href={getLocalePath(pathname, "zh")}
+            isActive={locale === "zh"}
+            label="中文"
+            locale="zh"
+            autoFocus={locale === "en"}
+          />
+        </div>
+      }
+    >
+      {label}
+    </MenuButton>
   );
 }
 
@@ -126,7 +67,7 @@ interface ItemProps extends React.ComponentProps<typeof Anchor> {
   isActive?: boolean;
   label: string;
   locale: SupportedLocale;
-  tabIndex?: number;
+  autoFocus?: boolean;
 }
 
 function Item({
@@ -136,7 +77,7 @@ function Item({
   isActive,
   label,
   locale,
-  tabIndex,
+  autoFocus,
 }: ItemProps) {
   const router = useRouter();
 
@@ -144,9 +85,12 @@ function Item({
     <a
       href={href}
       aria-label={ariaLabel}
-      tabIndex={tabIndex}
       role="menuItem"
       css={[styles.item, isActive && styles.itemActive]}
+      ref={(el) => {
+        if (autoFocus) el?.focus();
+      }}
+      tabIndex={isActive ? -1 : 0}
       onClick={(e) => {
         e.preventDefault();
 
@@ -168,28 +112,12 @@ function Item({
 }
 
 const styles = stylex.create({
-  container: {
-    position: "relative",
-    display: "flex",
-  },
   menu: {
-    backgroundColor: color.backgroundRaised,
-    borderRadius: border.radius_2,
-    boxShadow: shadow._2,
     display: "flex",
     flexDirection: "column",
     gap: controlSize._1,
-    opacity: 0,
     overflow: "hidden",
     padding: controlSize._1,
-    pointerEvents: "none",
-    position: "absolute",
-    right: 0,
-    top: `calc(100% + ${space._1})`,
-    transform: "scale(0, 0)",
-    transformOrigin: "top right",
-    viewTransitionName: "local-selector-menu",
-    transition: "transform 0.2s ease-out, opacity 0.2s ease-out",
   },
   menuShown: {
     opacity: 1,

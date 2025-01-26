@@ -1,21 +1,25 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import { breakpoints } from "@/breakpoints";
+import { useCssId } from "@/hooks/use-css-id";
 import { border, color, controlSize, font, shadow } from "@/tokens.stylex";
 
 interface ButtonProps extends ComponentProps<"button"> {
   icon?: React.ReactNode;
   hideLabelOnMobile?: boolean;
+  hideIcon?: boolean;
 }
 
 export function Button({
   icon,
   hideLabelOnMobile,
+  hideIcon,
   children,
   className,
   style,
   ...props
 }: ButtonProps) {
+  const id = useCssId();
   return (
     <button
       {...props}
@@ -23,7 +27,14 @@ export function Button({
       style={style}
       css={[styles.button, !!icon && !hideLabelOnMobile && styles.hasIcon]}
     >
-      {icon && <span css={styles.icon}>{icon}</span>}
+      {icon && (
+        <span
+          css={styles.icon}
+          style={{ viewTransitionName: !hideIcon ? `${id}-icon` : undefined }}
+        >
+          {icon}
+        </span>
+      )}
       {children && (
         <span
           css={[

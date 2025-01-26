@@ -40,6 +40,45 @@
     width: unset;
     height: unset;
   }
+
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-new(*),
+  ::view-transition-old(*) {
+    animation-timing-function: linear(
+      0,
+      0.002,
+      0.01 3.6%,
+      0.034,
+      0.074 9.1%,
+      0.128 11.4%,
+      0.194 13.4%,
+      0.271 15%,
+      0.544 18.3%,
+      0.66 20.6%,
+      0.717 22.4%,
+      0.765 24.6%,
+      0.808 27.3%,
+      0.845 30.4%,
+      0.883 35.1%,
+      0.916 40.6%,
+      0.942 47.2%,
+      0.963 55%,
+      0.979 64%,
+      0.991 74.4%,
+      0.998 86.4%,
+      1
+    );
+    animation-duration: 300ms;
+  }
+
+  /* In Safari the root transition causes the canvas / page to flicker, this disables the default transition on the root. */
+  :root {
+    view-transition-name: none;
+  }
 }
 
 /**
