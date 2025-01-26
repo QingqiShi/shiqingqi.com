@@ -39,8 +39,10 @@ export function MenuButton({
 
   const outsideClicked = useRef(false);
   const containerRef = useClickAway<HTMLDivElement>(() => {
-    setIsMenuShown(false);
-    outsideClicked.current = true;
+    if (isMenuShown) {
+      setIsMenuShown(false);
+      outsideClicked.current = true;
+    }
   });
   useEffect(() => {
     if (isMenuShown) {
@@ -80,6 +82,7 @@ export function MenuButton({
         ref={containerRef}
         onBlur={(e) => {
           if (
+            isMenuShown &&
             !containerRef.current?.contains(e.relatedTarget) &&
             !outsideClicked.current
           ) {
