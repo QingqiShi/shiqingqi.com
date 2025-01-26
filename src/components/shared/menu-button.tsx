@@ -1,34 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
-import {
-  useSyncExternalStore,
-  type ComponentProps,
-  type ReactNode,
-} from "react";
+import { useState, type ComponentProps, type ReactNode } from "react";
 import { useClickAway } from "@/hooks/use-click-away";
 import { useCssId } from "@/hooks/use-css-id";
 import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
 import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "./button";
-
-/*
- * When route changes (on selecting a different locale) the entire page will unmount, as a result states will
- * reset and the locale menu will be closed, to work around this we need a global state and hydrate it back when
- * the component mounts again. Note this assumes there's only a single instance of the locale selector.
- */
-const listeners: Set<() => void> = new Set();
-function subscribe(onStoreChange: () => void) {
-  listeners.add(onStoreChange);
-  return () => listeners.delete(onStoreChange);
-}
-let isMenuShownSingleton = false;
-function setIsMenuShown(newState: boolean) {
-  void startViewTransition(() => {
-    isMenuShownSingleton = newState;
-    listeners.forEach((listener) => {
-      listener();
-    });
-  });
-}
 
 interface MenuButtonProps {
   /** The button children */
@@ -48,11 +24,12 @@ export function MenuButton({
   menuContent,
   position = "topRight",
 }: MenuButtonProps) {
-  const isMenuShown = useSyncExternalStore(
-    subscribe,
-    () => isMenuShownSingleton,
-    () => isMenuShownSingleton
-  );
+  const [isMenuShown, _setIsMenuShown] = useState(false);
+  const setIsMenuShown = (...args: Parameters<typeof _setIsMenuShown>) => {
+    void startViewTransition(() => {
+      _setIsMenuShown(...args);
+    });
+  };
 
   const containerRef = useClickAway<HTMLDivElement>(() => {
     if (isMenuShown) {
@@ -64,6 +41,7 @@ export function MenuButton({
 
   return (
     <>
+      {/* Using inline style until the new viewTransitionClass API is ready https://github.com/facebook/stylex/issues/866 */}
       <style>
         {`
           ::view-transition-old(${id}-background),
