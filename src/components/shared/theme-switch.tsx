@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowClockwise } from "@phosphor-icons/react/ArrowClockwise";
 import { Moon } from "@phosphor-icons/react/Moon";
 import { Sun } from "@phosphor-icons/react/Sun";
 import * as stylex from "@stylexjs/stylex";
@@ -86,7 +85,10 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           disabled={!theme || theme === "system"}
           title={labels[2]}
         >
-          <ArrowClockwise weight="fill" />
+          <div css={styles.systemIcon}>
+            <Moon weight="fill" css={styles.systemMoon} />
+            <Sun weight="fill" css={styles.systemSun} />
+          </div>
         </Button>
       </div>
       <Switch
@@ -131,9 +133,12 @@ const styles = stylex.create({
     display: "block",
     position: "relative",
     fontSize: font.size_1,
-    [themeSwitchTokens.systemLeft]: { default: null, ":hover": `-100%` },
+    [themeSwitchTokens.systemLeft]: { default: null, ":hover": "-100%" },
     [themeSwitchTokens.systemOpacity]: { default: null, ":hover": "1" },
-    [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": "all" },
+    [themeSwitchTokens.systemPointerEvents]: {
+      default: "none",
+      ":hover": "all",
+    },
   },
   hideSystemButton: {
     [themeSwitchTokens.systemLeft]: { default: null, ":hover": null },
@@ -141,7 +146,7 @@ const styles = stylex.create({
     [themeSwitchTokens.systemPointerEvents]: { default: null, ":hover": null },
   },
   showSystemButton: {
-    [themeSwitchTokens.systemLeft]: { default: `-100%`, ":hover": `-100%` },
+    [themeSwitchTokens.systemLeft]: { default: "-100%", ":hover": "-100%" },
     [themeSwitchTokens.systemOpacity]: { default: "1", ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: {
       default: "all",
@@ -178,5 +183,21 @@ const styles = stylex.create({
     top: 0,
     transform: `translateX(${themeSwitchTokens.systemLeft})`,
     transition: "transform 0.2s ease, opacity 0.2s ease",
+  },
+  systemIcon: {
+    position: "relative",
+    width: `calc(${controlSize._9} - ${controlSize._4})`,
+    height: `calc(${controlSize._9} - ${controlSize._4})`,
+    fontSize: controlSize._4,
+  },
+  systemSun: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+  },
+  systemMoon: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
   },
 });
