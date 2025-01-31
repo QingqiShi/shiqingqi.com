@@ -10,7 +10,10 @@ export const movieList = ({
   infiniteQueryOptions({
     queryKey: [{ query: "discover/movie", ...tmdbScope, ...params }],
     initialPageParam: page,
-    queryFn: ({ pageParam }) => fetchMovieList({ ...params, page: pageParam }),
+    queryFn: async ({ pageParam }) => {
+      await Promise.resolve();
+      return fetchMovieList({ ...params, page: pageParam });
+    },
     getPreviousPageParam: (firstPage) =>
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>

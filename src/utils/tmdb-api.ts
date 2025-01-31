@@ -39,10 +39,12 @@ export type MovieListItem = {
 export async function fetchMovieList({
   language,
   page,
+  with_genres,
 }: NonNullable<paths["/3/discover/movie"]["get"]["parameters"]["query"]>) {
   const url = new URL(`${BASE_URL}/3/discover/movie`);
   if (language && language !== "en") url.searchParams.set("language", language);
   if (page) url.searchParams.set("page", page.toString());
+  if (with_genres) url.searchParams.set("with_genres", with_genres);
 
   const response = await fetch(url.toString(), {
     method: "GET",
@@ -72,4 +74,34 @@ export async function fetchMovieList({
         }) satisfies MovieListItem
     ),
   };
+}
+
+export type Genre = NonNullable<
+  paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"]["genres"]
+>[number];
+
+export async function fetchMovieGenres({
+  language,
+}: NonNullable<paths["/3/genre/movie/list"]["get"]["parameters"]["query"]>) {
+  const url = new URL(`${BASE_URL}/3/genre/movie/list`);
+  if (language && language !== "en") url.searchParams.set("language", language);
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${API}`,
+    },
+    // 24 Hours
+    cache: "force-cache",
+    next: { revalidate: 86400 },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
+    );
+  }
+
+  return (await response.json()) as paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"];
 }
