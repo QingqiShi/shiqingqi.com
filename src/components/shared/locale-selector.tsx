@@ -2,7 +2,7 @@
 
 import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { LOCALE_COOKIE_NAME } from "@/constants";
 import { controlSize } from "@/tokens.stylex";
@@ -24,6 +24,7 @@ export function LocaleSelector({
 }: LocaleSelectorProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const router = useRouter();
 
   const searchString = searchParams.size ? `?${searchParams.toString()}` : "";
 
@@ -43,6 +44,7 @@ export function LocaleSelector({
             isActive={locale === "en"}
             autoFocus={locale !== "en"}
             onBeforeNavigation={() => setLocaleCookie("en")}
+            onAfterNavigation={() => router.refresh()}
           >
             <span>English</span>
             <span>🇬🇧</span>
@@ -53,6 +55,7 @@ export function LocaleSelector({
             isActive={locale === "zh"}
             autoFocus={locale === "en"}
             onBeforeNavigation={() => setLocaleCookie("zh")}
+            onAfterNavigation={() => router.refresh()}
           >
             <span>中文</span>
             <span>🇨🇳</span>

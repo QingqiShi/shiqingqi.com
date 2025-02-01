@@ -9,6 +9,7 @@ interface ItemProps {
   href: string;
   isActive?: boolean;
   onBeforeNavigation?: () => void;
+  onAfterNavigation?: () => void;
 }
 
 export function MenuItem({
@@ -18,6 +19,7 @@ export function MenuItem({
   isActive,
   autoFocus,
   onBeforeNavigation,
+  onAfterNavigation,
 }: PropsWithChildren<ItemProps>) {
   const router = useRouter();
 
@@ -35,8 +37,8 @@ export function MenuItem({
         e.preventDefault();
 
         onBeforeNavigation?.();
-
         router.push(href);
+        onAfterNavigation?.();
       }}
     >
       {children}
