@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import HomeLayout from "@/app/[locale]/(home)/layout";
-import { Filters } from "@/components/movie-database/filters";
+import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
 import filtersTranslations from "@/components/movie-database/filters.translations.json";
 import { Grid } from "@/components/movie-database/grid";
 import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
@@ -53,7 +53,7 @@ export default async function Layout({ children, params }: LayoutProps) {
           <Suspense
             fallback={
               <>
-                <Filters />
+                <FiltersSkeleton />
                 <Grid>
                   {Array.from({ length: 20 }).map((_, i) => (
                     <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
