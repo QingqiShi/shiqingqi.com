@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useLayoutEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useDeferredValue, useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "@/components/movie-database/grid";
 import { ratio } from "@/tokens.stylex";
@@ -18,8 +19,18 @@ interface MovieListProps {
 export function MovieList({ initialPage }: MovieListProps) {
   const { locale } = useTranslationContext();
 
+  const searchParams = useSearchParams();
+
+  const deferredGenre = useDeferredValue(
+    searchParams.get("genre") ?? undefined
+  );
+
   const { data, fetchNextPage, hasNextPage } = useSuspenseInfiniteQuery(
-    tmdbQueries.movieList({ page: initialPage, language: locale })
+    tmdbQueries.movieList({
+      page: initialPage,
+      language: locale,
+      with_genres: deferredGenre,
+    })
   );
 
   const [height, setHeight] = useState(() =>
@@ -32,30 +43,21 @@ export function MovieList({ initialPage }: MovieListProps) {
   });
 
   return (
-    <>
-      <VirtuosoGrid
-        data={data.movies}
-        components={gridComponents}
-        itemContent={(index) =>
-          data.movies[index] ? (
-            <MovieCard movie={data.movies[index]} />
-          ) : (
-            <Skeleton css={styles.skeleton} delay={index * 100} />
-          )
-        }
-        endReached={
-          hasNextPage
-            ? () => {
-                console.log("endReached");
-                void fetchNextPage();
-              }
-            : undefined
-        }
-        increaseViewportBy={height}
-        initialItemCount={data.movies.length}
-        useWindowScroll
-      />
-    </>
+    <VirtuosoGrid
+      data={data.movies}
+      components={gridComponents}
+      itemContent={(index) =>
+        data.movies[index] ? (
+          <MovieCard movie={data.movies[index]} />
+        ) : (
+          <Skeleton css={styles.skeleton} delay={index * 100} />
+        )
+      }
+      endReached={hasNextPage ? () => void fetchNextPage() : undefined}
+      increaseViewportBy={height}
+      initialItemCount={data.movies.length}
+      useWindowScroll
+    />
   );
 }
 

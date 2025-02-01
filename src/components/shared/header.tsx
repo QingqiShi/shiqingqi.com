@@ -11,6 +11,7 @@ import translations from "./translations.json";
 export async function Header() {
   const locale = await getRequestLocale();
   const { t } = getTranslations(translations, locale);
+
   return (
     <header css={styles.container}>
       <nav css={styles.nav}>
