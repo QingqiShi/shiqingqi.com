@@ -1,8 +1,10 @@
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { globalStyles } from "@/app/global-styles";
 import { Header } from "@/components/shared/header";
+import { HeaderSkeleton } from "@/components/shared/header-skeleton";
 import { i18nConfig } from "@/i18n-config";
 import type { LayoutProps } from "@/types";
 import { setCachedRequestLocale } from "@/utils/request-locale";
@@ -32,7 +34,9 @@ export default async function RootLayout({ params, children }: LayoutProps) {
       </head>
       <body css={globalStyles.body}>
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-        <Header />
+        <Suspense fallback={<HeaderSkeleton />}>
+          <Header />
+        </Suspense>
         {children}
         <Analytics />
         <SpeedInsights />
