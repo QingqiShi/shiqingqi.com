@@ -23,6 +23,7 @@ export function Filters({ genres }: FiltersProps) {
   return (
     <div css={styles.container}>
       <MenuButton
+        disabled={!genres?.length}
         buttonProps={{
           type: "button",
           "aria-label": t("genre"),

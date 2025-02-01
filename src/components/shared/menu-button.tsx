@@ -21,6 +21,8 @@ interface MenuButtonProps {
   menuContent: ReactNode;
   /** Where to expand from. */
   position?: "topRight" | "topLeft" | "bottomLeft" | "bottomRight";
+  /** Disable the menu trigger. */
+  disabled?: boolean;
 }
 
 /** A button that expands into a menu. */
@@ -29,6 +31,7 @@ export function MenuButton({
   buttonProps,
   menuContent,
   position = "topRight",
+  disabled,
 }: MenuButtonProps) {
   const [isMenuShown, _setIsMenuShown] = useState(false);
   const setIsMenuShown = (newValue: boolean) => {
@@ -98,6 +101,7 @@ export function MenuButton({
           }}
           css={[styles.button, isMenuShown && styles.disabled]}
           hideIcon={isMenuShown}
+          disabled={disabled}
         >
           {children && (
             <span

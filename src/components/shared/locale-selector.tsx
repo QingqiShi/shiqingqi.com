@@ -2,7 +2,7 @@
 
 import { Translate } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import React from "react";
 import { LOCALE_COOKIE_NAME } from "@/constants";
 import { controlSize } from "@/tokens.stylex";
@@ -22,7 +22,10 @@ export function LocaleSelector({
   ariaLabel,
   locale,
 }: LocaleSelectorProps) {
+  const searchParams = useSearchParams();
   const pathname = usePathname();
+
+  const searchString = searchParams.size ? `?${searchParams.toString()}` : "";
 
   return (
     <MenuButton
@@ -36,7 +39,7 @@ export function LocaleSelector({
         <div css={styles.menu}>
           <MenuItem
             ariaLabel="Switch to English"
-            href={getLocalePath(pathname, "en")}
+            href={`${getLocalePath(pathname, "en")}${searchString}`}
             isActive={locale === "en"}
             autoFocus={locale !== "en"}
             onBeforeNavigation={() => setLocaleCookie("en")}
@@ -46,7 +49,7 @@ export function LocaleSelector({
           </MenuItem>
           <MenuItem
             ariaLabel="切换至中文"
-            href={getLocalePath(pathname, "zh")}
+            href={`${getLocalePath(pathname, "zh")}${searchString}`}
             isActive={locale === "zh"}
             autoFocus={locale === "en"}
             onBeforeNavigation={() => setLocaleCookie("zh")}

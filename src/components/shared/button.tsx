@@ -19,7 +19,6 @@ export function Button({
   style,
   ...props
 }: ButtonProps) {
-  console.log({ hideLabelOnMobile, children });
   const id = useCssId();
   return (
     <button
