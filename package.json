@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@babel/core": "8.0.0-alpha.15",
-    "@eslint/compat": "^1.2.5",
+    "@eslint/compat": "^1.2.6",
     "@eslint/eslintrc": "^3.2.0",
     "@stylexjs/babel-plugin": "^0.10.1",
     "@stylexjs/eslint-plugin": "^0.10.1",
