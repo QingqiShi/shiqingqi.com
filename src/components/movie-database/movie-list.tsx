@@ -3,11 +3,18 @@
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import { useDeferredValue, useLayoutEffect, useState } from "react";
+import {
+  useDeferredValue,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { breakpoints } from "@/breakpoints";
 import { Grid } from "@/components/movie-database/grid";
 import { color, ratio, space } from "@/tokens.stylex";
+import { startViewTransition } from "@/utils/start-view-transition";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
 import { Skeleton } from "../shared/skeleton";
@@ -23,6 +30,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
 
   const searchParams = useSearchParams();
 
+  // Use deferred value to prevent re-suspending when the genre changes
   const deferredGenre = useDeferredValue(
     searchParams.getAll("genre") ?? undefined
   );
@@ -31,10 +39,11 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
     tmdbQueries.movieList({
       page: initialPage,
       language: locale,
-      with_genres: deferredGenre.join(","),
+      with_genres: deferredGenre.join(",") || undefined,
     })
   );
 
+  // Get viewport height, used for infinite scroll padding
   const [height, setHeight] = useState(() =>
     typeof window !== "undefined" ? window.innerHeight : 0
   );
@@ -44,24 +53,46 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  if (!data.movies.length) {
+  // Allow reading genres without re-running useEffect
+  const genresRef = useRef(deferredGenre);
+  useEffect(() => {
+    genresRef.current = deferredGenre;
+  }, [deferredGenre]);
+
+  // Deferred state for animation!
+  const [movies, setState] = useState(data.movies);
+  const prevGenres = useRef(deferredGenre);
+  useEffect(() => {
+    if (prevGenres.current !== genresRef.current) {
+      // Start animation if genres changed
+      prevGenres.current = genresRef.current;
+      void startViewTransition(() => {
+        setState(data.movies);
+      });
+    } else {
+      // Otherwise, just update the state (e.g. from infinite scroll)
+      setState(data.movies);
+    }
+  }, [data.movies]);
+
+  if (!movies) {
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
   }
 
   return (
     <VirtuosoGrid
-      data={data.movies}
+      data={movies}
       components={gridComponents}
       itemContent={(index) =>
-        data.movies[index] ? (
-          <MovieCard movie={data.movies[index]} />
+        movies[index] ? (
+          <MovieCard movie={movies[index]} />
         ) : (
           <Skeleton css={styles.skeleton} delay={index * 100} />
         )
       }
       endReached={hasNextPage ? () => void fetchNextPage() : undefined}
       increaseViewportBy={height}
-      initialItemCount={data.movies.length}
+      initialItemCount={movies.length}
       useWindowScroll
     />
   );

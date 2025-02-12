@@ -60,9 +60,17 @@ export function MenuButton({
       {/* Using inline style until the new viewTransitionClass API is ready https://github.com/facebook/stylex/issues/866 */}
       <style>
         {`
+          ::view-transition-group(${id}-background),
+          ::view-transition-group(${id}-menu-content),
+          ::view-transition-group(${id}-label) {
+            z-index: 1;
+          }
+
           ::view-transition-old(${id}-background),
           ::view-transition-new(${id}-background) {
             height: 100%;
+            z-index: 500;
+            position: absolute;
           }
 
           ::view-transition-new(${id}-menu-content):only-child {
@@ -100,7 +108,6 @@ export function MenuButton({
             viewTransitionName: !isMenuShown ? `${id}-background` : undefined,
           }}
           css={[styles.button, isMenuShown && styles.disabled]}
-          hideIcon={isMenuShown}
           disabled={disabled}
         >
           {children && (

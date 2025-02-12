@@ -10,19 +10,32 @@ interface MovieCardProps {
 
 export function MovieCard({ movie }: MovieCardProps) {
   return (
-    <Card
-      href="/"
-      css={styles.card}
-      aria-label={movie.title}
-      onClick={(e) => e.preventDefault()}
-    >
-      {movie.posterPath && movie.title && (
-        <div css={styles.posterContainer}>
-          <PosterImage posterPath={movie.posterPath} alt={movie.title} />
-        </div>
-      )}
-      {/* TODO: Render ratings */}
-    </Card>
+    <>
+      <style>
+        {`
+          ::view-transition-new(movie-card-${movie.id}):only-child {
+            animation-name: ${animateIn};
+          }
+          ::view-transition-old(movie-card-${movie.id}):only-child {
+            animation-name: ${animateOut};
+          }
+      `}
+      </style>
+      <Card
+        href="/"
+        css={styles.card}
+        aria-label={movie.title}
+        onClick={(e) => e.preventDefault()}
+        style={{ viewTransitionName: `movie-card-${movie.id}` }}
+      >
+        {movie.posterPath && movie.title && (
+          <div css={styles.posterContainer}>
+            <PosterImage posterPath={movie.posterPath} alt={movie.title} />
+          </div>
+        )}
+        {/* TODO: Render ratings */}
+      </Card>
+    </>
   );
 }
 
@@ -43,5 +56,19 @@ const styles = stylex.create({
     width: "100%",
     height: "100%",
     objectFit: "cover",
+  },
+});
+
+const animateIn = stylex.keyframes({
+  from: {
+    opacity: 0,
+    scale: 0,
+  },
+});
+
+const animateOut = stylex.keyframes({
+  to: {
+    opacity: 0,
+    scale: 0,
   },
 });
