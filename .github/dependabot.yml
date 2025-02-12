@@ -15,6 +15,10 @@ updates:
     open-pull-requests-limit: 10
     versioning-strategy: increase
     groups:
+      next:
+        patterns:
+          - "next"
+          - "eslint-config-next"
       eslint:
         patterns:
           - eslint
