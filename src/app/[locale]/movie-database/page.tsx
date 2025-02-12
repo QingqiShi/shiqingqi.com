@@ -1,9 +1,10 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Suspense } from "react";
 import { Filters } from "@/components/movie-database/filters";
+import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
 import { MovieList } from "@/components/movie-database/movie-list";
 import type { PageProps } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
-import { fetchMovieGenres } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 
 export default async function Page(
@@ -26,11 +27,11 @@ export default async function Page(
     })
   );
 
-  const { genres } = await fetchMovieGenres({ language: params.locale });
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Filters genres={genres} />
+      <Suspense fallback={<FiltersSkeleton />}>
+        <Filters locale={params.locale} />
+      </Suspense>
       <MovieList initialPage={1} />
     </HydrationBoundary>
   );

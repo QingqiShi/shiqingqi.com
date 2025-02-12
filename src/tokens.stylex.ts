@@ -16,6 +16,7 @@ const light = {
   controlTrack: "#ccc5c5",
   controlThumb: "#ffffff",
   controlActive: "#7e10c2",
+  controlActiveHover: "#9e2de3",
 
   opacityActive: "0.1",
 
@@ -45,6 +46,7 @@ const dark: { [key in keyof typeof light]: string } = {
   controlTrack: "#414141",
   controlThumb: "#bbbbbb",
   controlActive: "#933bc9",
+  controlActiveHover: "#a751db",
 
   opacityActive: "0.2",
 
@@ -88,6 +90,10 @@ export const color = stylex.defineVars({
   controlTrack: { default: light.controlTrack, [DARK]: dark.controlTrack },
   controlThumb: { default: light.controlThumb, [DARK]: dark.controlThumb },
   controlActive: { default: light.controlActive, [DARK]: dark.controlActive },
+  controlActiveHover: {
+    default: light.controlActiveHover,
+    [DARK]: dark.controlActiveHover,
+  },
 
   opacityActive: { default: light.opacityActive, [DARK]: dark.opacityActive },
 

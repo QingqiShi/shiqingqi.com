@@ -1,50 +1,19 @@
-"use client";
-
 import * as stylex from "@stylexjs/stylex";
-import { useSearchParams } from "next/navigation";
 import { breakpoints } from "@/breakpoints";
-import { useTranslations } from "@/hooks/use-translations";
-import { controlSize, space } from "@/tokens.stylex";
-import type { Genre } from "@/utils/tmdb-api";
-import { MenuButton } from "../shared/menu-button";
-import { MenuItem } from "../shared/menu-item";
-import type translations from "./filters.translations.json";
+import { space } from "@/tokens.stylex";
+import type { SupportedLocale } from "@/types";
+import { fetchMovieGenres } from "@/utils/tmdb-api";
+import { GenreFilter } from "./genre-filter";
 
 interface FiltersProps {
-  genres?: Genre[];
+  locale: SupportedLocale;
 }
 
-export function Filters({ genres }: FiltersProps) {
-  const searchParams = useSearchParams();
-  const { t } = useTranslations<typeof translations>("filters");
-
-  const currentGenre = searchParams.get("genre") ?? undefined;
-
+export async function Filters({ locale }: FiltersProps) {
+  const { genres } = await fetchMovieGenres({ language: locale });
   return (
     <div css={styles.container}>
-      <MenuButton
-        disabled={!genres?.length}
-        buttonProps={{
-          type: "button",
-          "aria-label": t("genre"),
-        }}
-        menuContent={
-          <div css={styles.menu}>
-            {genres?.map((genre) => (
-              <MenuItem
-                key={genre.id}
-                href={`?genre=${genre.id}`}
-                isActive={currentGenre === genre.id.toString()}
-              >
-                {genre.name}
-              </MenuItem>
-            ))}
-          </div>
-        }
-        position="topLeft"
-      >
-        {t("genre")}
-      </MenuButton>
+      <GenreFilter genres={genres} />
     </div>
   );
 }
@@ -60,13 +29,5 @@ const styles = stylex.create({
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
     paddingBottom: space._2,
-  },
-  menu: {
-    display: "flex",
-    flexDirection: "column",
-    gap: controlSize._1,
-    overflow: "auto",
-    padding: controlSize._1,
-    maxHeight: space._14,
   },
 });
