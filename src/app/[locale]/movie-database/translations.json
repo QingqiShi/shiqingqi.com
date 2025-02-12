@@ -10,5 +10,9 @@
   "errorMessage": {
     "en": "Sorry, couldn't afford to buy all the movies.",
     "zh": "对不起，买不起所有的电影。"
+  },
+  "notFound": {
+    "en": "No movies found that match the criteria, please update the filters",
+    "zh": "没有找到符合条件的电影，请更新筛选条件"
   }
 }
