@@ -183,7 +183,7 @@ const styles = stylex.create({
   menu: {
     position: "absolute",
     zIndex: layer.overlay,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.controlTrack,
     borderRadius: border.radius_2,
     boxShadow: shadow._4,
     overflow: "hidden",

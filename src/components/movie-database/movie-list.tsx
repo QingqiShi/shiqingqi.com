@@ -5,8 +5,9 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useDeferredValue, useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
+import { breakpoints } from "@/breakpoints";
 import { Grid } from "@/components/movie-database/grid";
-import { ratio } from "@/tokens.stylex";
+import { color, ratio, space } from "@/tokens.stylex";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
 import { Skeleton } from "../shared/skeleton";
@@ -14,22 +15,23 @@ import { MovieCard } from "./movie-card";
 
 interface MovieListProps {
   initialPage: number;
+  notFoundLabel: string;
 }
 
-export function MovieList({ initialPage }: MovieListProps) {
+export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
   const { locale } = useTranslationContext();
 
   const searchParams = useSearchParams();
 
   const deferredGenre = useDeferredValue(
-    searchParams.get("genre") ?? undefined
+    searchParams.getAll("genre") ?? undefined
   );
 
   const { data, fetchNextPage, hasNextPage } = useSuspenseInfiniteQuery(
     tmdbQueries.movieList({
       page: initialPage,
       language: locale,
-      with_genres: deferredGenre,
+      with_genres: deferredGenre.join(","),
     })
   );
 
@@ -40,7 +42,11 @@ export function MovieList({ initialPage }: MovieListProps) {
     const onResize = () => setHeight(window.innerHeight);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  });
+  }, []);
+
+  if (!data.movies.length) {
+    return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
+  }
 
   return (
     <VirtuosoGrid
@@ -73,5 +79,17 @@ const styles = stylex.create({
   },
   marker: {
     display: "contents",
+  },
+  notFound: {
+    maxWidth: {
+      default: "1080px",
+      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
+    },
+    marginBlock: 0,
+    marginInline: "auto",
+    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
+    color: color.textMuted,
+    textAlign: "center",
   },
 });

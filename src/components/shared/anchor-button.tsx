@@ -6,6 +6,7 @@ import { Anchor } from "./anchor";
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
   icon?: React.ReactNode;
   hideLabelOnMobile?: boolean;
+  isActive?: boolean;
 }
 
 export function AnchorButton({
@@ -14,6 +15,7 @@ export function AnchorButton({
   style,
   className,
   hideLabelOnMobile,
+  isActive,
   ...props
 }: AnchorButtonProps) {
   return (
@@ -21,7 +23,11 @@ export function AnchorButton({
       {...props}
       className={className}
       style={style}
-      css={[styles.button, !!icon && !hideLabelOnMobile && styles.hasIcon]}
+      css={[
+        styles.button,
+        !!icon && !hideLabelOnMobile && styles.hasIcon,
+        isActive && styles.active,
+      ]}
     >
       {icon && <span css={styles.icon}>{icon}</span>}
       {children && (
@@ -80,5 +86,13 @@ const styles = stylex.create({
   },
   hideLabelOnMobile: {
     display: { default: "none", [breakpoints.md]: "inline-flex" },
+  },
+  active: {
+    color: { default: color.textOnActive, ":hover": color.textOnActive },
+    backgroundColor: {
+      default: color.controlActive,
+      ":hover": color.controlActiveHover,
+      ":disabled:hover": color.controlActive,
+    },
   },
 });
