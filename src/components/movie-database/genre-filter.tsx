@@ -63,7 +63,7 @@ const styles = stylex.create({
     gap: controlSize._2,
     overflow: "auto",
     padding: controlSize._3,
-    maxWidth: space._14,
+    maxWidth: `min(${space._15}, calc(100vw - ${space._3} - env(safe-area-inset-left) - ${space._3} - env(safe-area-inset-right)))`,
   },
   active: {},
 });
