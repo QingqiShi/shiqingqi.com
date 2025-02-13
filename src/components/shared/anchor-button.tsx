@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
-import { border, color, controlSize, font, shadow } from "@/tokens.stylex";
+import { border, color, controlSize, shadow } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
 import { anchorTokens } from "./anchor.stylex";
 import { buttonTokens } from "./button.stylex";
@@ -50,7 +50,6 @@ const styles = stylex.create({
   button: {
     // Reset
     fontSize: controlSize._4,
-    fontWeight: font.weight_5,
     textDecoration: "none",
     cursor: "pointer",
 
