@@ -6,10 +6,10 @@
   font-style: oblique 0deg 10deg;
   font-weight: 100 900;
   font-display: fallback;
-  unicode-range: U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131,
-    U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027,
-    U+202F-2055, U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+FEFF;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
 }
 
 @font-face {
@@ -19,10 +19,10 @@
   src: local(
     "system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'"
   );
-  unicode-range: U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131,
-    U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027,
-    U+202F-2055, U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+FEFF;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
 }
 
 @layer normalize {
@@ -73,6 +73,10 @@
       1
     );
     animation-duration: 300ms;
+  }
+
+  ::view-transition {
+    pointer-events: none;
   }
 
   /* In Safari the root transition causes the canvas / page to flicker, this disables the default transition on the root. */
