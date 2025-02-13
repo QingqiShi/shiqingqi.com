@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import Link from "next/link";
-import { border, color, font } from "@/tokens.stylex";
+import { border } from "@/tokens.stylex";
+import { anchorTokens } from "./anchor.stylex";
 
 export function Anchor({
   className,
@@ -12,8 +13,8 @@ export function Anchor({
 
 const styles = stylex.create({
   a: {
-    color: { default: color.textMain, ":hover": color.textMuted },
-    fontWeight: font.weight_6,
+    color: anchorTokens.color,
+    fontWeight: anchorTokens.fontWeight,
     textDecorationThickness: { default: null, ":hover": border.size_2 },
   },
 });

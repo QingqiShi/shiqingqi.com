@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import { breakpoints } from "@/breakpoints";
-import { border, color, controlSize, font, shadow } from "@/tokens.stylex";
+import { border, controlSize, font, shadow } from "@/tokens.stylex";
+import { buttonTokens } from "./button.stylex";
 
 interface ButtonProps extends ComponentProps<"button"> {
   icon?: React.ReactNode;
@@ -56,14 +57,10 @@ const styles = stylex.create({
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
     borderRadius: border.radius_round,
-    color: color.textMain,
+    color: buttonTokens.color,
     boxShadow: shadow._2,
     transition: "background 0.2s ease",
-    backgroundColor: {
-      default: color.backgroundRaised,
-      ":hover": color.backgroundHover,
-      ":disabled:hover": color.backgroundRaised,
-    },
+    backgroundColor: buttonTokens.backgroundColor,
     opacity: {
       default: null,
       ":disabled": 0.7,

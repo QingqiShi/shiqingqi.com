@@ -11,6 +11,7 @@ import { useCssId } from "@/hooks/use-css-id";
 import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
 import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "./button";
+import { buttonTokens } from "./button.stylex";
 
 interface MenuButtonProps {
   /** The button children */
@@ -42,7 +43,20 @@ export function MenuButton({
 
   const outsideClicked = useRef(false);
   const containerRef = useClickAway<HTMLDivElement>(() => {
-    if (isMenuShown) {
+    // Check if there are animations happening, if so prevent closing the menu
+    // https://www.bram.us/2025/01/01/view-transitions-snippets-getting-all-animations-linked-to-a-view-transition/
+    const vtAnimations = document.getAnimations().filter((animation) => {
+      const animationEffect = animation.effect as {
+        target: HTMLElement;
+        pseudoElement?: string;
+      } | null;
+      return (
+        animationEffect?.target === document.documentElement &&
+        animationEffect.pseudoElement?.startsWith("::view-transition")
+      );
+    });
+
+    if (isMenuShown && vtAnimations.length === 0) {
       setIsMenuShown(false);
       outsideClicked.current = true;
     }
@@ -94,7 +108,7 @@ export function MenuButton({
         onBlur={(e) => {
           if (
             isMenuShown &&
-            !containerRef.current?.contains(e.relatedTarget) &&
+            !containerRef.current?.contains(e.currentTarget) &&
             !outsideClicked.current
           ) {
             setIsMenuShown(false);
@@ -196,6 +210,10 @@ const styles = stylex.create({
     overflow: "hidden",
     width: "max-content",
     willChange: "transform",
+    [buttonTokens.backgroundColor]: {
+      default: color.controlThumb,
+    },
+    [buttonTokens.color]: color.textOnControlThumb,
   },
   button: {
     willChange: "transform",
