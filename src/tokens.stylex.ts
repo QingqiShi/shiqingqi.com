@@ -7,6 +7,7 @@ const light = {
   textMain: "#292929",
   textMuted: "#505050",
   textOnActive: "#ffffff",
+  textOnControlThumb: "#292929",
 
   backgroundMain: "#ffffff",
   backgroundRaised: "#ebe4e5",
@@ -37,6 +38,7 @@ const dark: { [key in keyof typeof light]: string } = {
   textMain: "#f3eded",
   textMuted: "#bbbbbb",
   textOnActive: "#ffffff",
+  textOnControlThumb: "#000000",
 
   backgroundMain: "#000000",
   backgroundRaised: "#414141",
@@ -69,6 +71,10 @@ export const color = stylex.defineVars({
   textMain: { default: light.textMain, [DARK]: dark.textMain },
   textMuted: { default: light.textMuted, [DARK]: dark.textMuted },
   textOnActive: { default: light.textOnActive, [DARK]: dark.textOnActive },
+  textOnControlThumb: {
+    default: light.textOnControlThumb,
+    [DARK]: dark.textOnControlThumb,
+  },
 
   backgroundMain: {
     default: light.backgroundMain,

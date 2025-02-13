@@ -2,6 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
 import { border, color, controlSize, font, shadow } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
+import { anchorTokens } from "./anchor.stylex";
+import { buttonTokens } from "./button.stylex";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
   icon?: React.ReactNode;
@@ -60,18 +62,17 @@ const styles = stylex.create({
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
     borderRadius: border.radius_round,
-    color: color.textMain,
     boxShadow: shadow._2,
     transition: "background 0.2s ease",
-    backgroundColor: {
-      default: color.backgroundRaised,
-      ":hover": color.backgroundHover,
-      ":disabled:hover": color.backgroundRaised,
-    },
+    backgroundColor: buttonTokens.backgroundColor,
     opacity: {
       default: null,
       ":disabled": 0.7,
     },
+    filter: {
+      ":hover": "brightness(1.1)",
+    },
+    [anchorTokens.color]: buttonTokens.color,
   },
   hasIcon: {
     paddingLeft: controlSize._2,
@@ -88,7 +89,10 @@ const styles = stylex.create({
     display: { default: "none", [breakpoints.md]: "inline-flex" },
   },
   active: {
-    color: { default: color.textOnActive, ":hover": color.textOnActive },
+    [anchorTokens.color]: {
+      default: color.textOnActive,
+      ":hover": color.textOnActive,
+    },
     backgroundColor: {
       default: color.controlActive,
       ":hover": color.controlActiveHover,

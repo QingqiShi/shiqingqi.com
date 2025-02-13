@@ -11,6 +11,7 @@ import { useCssId } from "@/hooks/use-css-id";
 import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
 import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "./button";
+import { buttonTokens } from "./button.stylex";
 
 interface MenuButtonProps {
   /** The button children */
@@ -209,6 +210,10 @@ const styles = stylex.create({
     overflow: "hidden",
     width: "max-content",
     willChange: "transform",
+    [buttonTokens.backgroundColor]: {
+      default: color.controlThumb,
+    },
+    [buttonTokens.color]: color.textOnControlThumb,
   },
   button: {
     willChange: "transform",
