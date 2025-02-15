@@ -137,6 +137,7 @@ export function Switch({
           setControlledValue(value === "on" ? "off" : "on");
         }
       }}
+      onChange={(e) => e.preventDefault()}
     />
   );
 }
