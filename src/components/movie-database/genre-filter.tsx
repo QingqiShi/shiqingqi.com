@@ -42,6 +42,7 @@ export function GenreFilter({ genres }: GenreFilterProps) {
                 key={genre.id}
                 href={`${pathname}${searchString ? `?${searchString}` : ""}`}
                 isActive={isActive}
+                replace
               >
                 {genre.name}
               </AnchorButton>
