@@ -79,9 +79,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           role="radio"
           aria-label={labels[2]}
           aria-checked={!theme || theme === "system"}
-          onClick={() => {
-            void setTheme("system");
-          }}
+          onClick={() => setTheme("system")}
           disabled={!theme || theme === "system"}
           title={labels[2]}
         >
@@ -99,13 +97,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
             ? themeMap[preferDark ? "dark" : "light"]
             : themeMap[theme]
         }
-        onChange={(state) => {
-          if (state === "on") {
-            void setTheme("dark");
-          } else {
-            void setTheme("light");
-          }
-        }}
+        onChange={(state) => setTheme(state === "on" ? "dark" : "light")}
         aria-label={
           labels[
             !theme || theme === "system"

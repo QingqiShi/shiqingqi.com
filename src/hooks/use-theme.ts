@@ -1,6 +1,5 @@
 import { useSyncExternalStore } from "react";
 import type { SupportedTheme } from "@/types";
-import { startViewTransition } from "@/utils/start-view-transition";
 
 const STORAGE_KEY = "theme";
 
@@ -11,17 +10,10 @@ function subscribe(onStoreChange: () => void) {
 }
 
 let themeSingleton: string | null = null;
-async function setIsMenuShown(newTheme: SupportedTheme) {
-  // The root transition was disabled by default in global.css to work around an Safari issue that causes a flicker
-  // For the theme switching specifically, we enable it for better result.
-  document.documentElement.style.viewTransitionName = "root";
-  const transition = await startViewTransition(() => {
-    themeSingleton = newTheme;
-    localStorage.setItem(STORAGE_KEY, newTheme);
-    listeners.forEach((listener) => listener());
-  });
-  await transition?.finished;
-  document.documentElement.style.viewTransitionName = "";
+function setIsMenuShown(newTheme: SupportedTheme) {
+  themeSingleton = newTheme;
+  localStorage.setItem(STORAGE_KEY, newTheme);
+  listeners.forEach((listener) => listener());
 }
 
 function getSupportedTheme(theme: string | null): SupportedTheme {
