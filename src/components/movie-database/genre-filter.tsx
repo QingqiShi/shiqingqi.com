@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useMovieFilters } from "@/hooks/use-movie-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { controlSize, space } from "@/tokens.stylex";
 import type { Genre } from "@/utils/tmdb-api";
@@ -10,26 +11,28 @@ import { MenuButton } from "../shared/menu-button";
 import type translations from "./filters.translations.json";
 
 interface GenreFilterProps {
-  genres?: Genre[];
+  allGenres?: Genre[];
 }
 
-export function GenreFilter({ genres }: GenreFilterProps) {
+export function GenreFilter({ allGenres }: GenreFilterProps) {
+  const { genres, toggleGenre } = useMovieFilters();
+
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { t } = useTranslations<typeof translations>("filters");
 
   return (
     <MenuButton
-      disabled={!genres?.length}
+      disabled={!allGenres?.length}
       buttonProps={{
         type: "button",
         "aria-label": t("genre"),
       }}
       menuContent={
         <div css={styles.menu}>
-          {genres?.map((genre) => {
+          {allGenres?.map((genre) => {
             const idString = genre.id.toString();
-            const isActive = searchParams.has("genre", idString);
+            const isActive = genres.has(idString);
             const newSearchParams = new URLSearchParams(searchParams);
             if (isActive) {
               newSearchParams.delete("genre", idString);
@@ -42,7 +45,12 @@ export function GenreFilter({ genres }: GenreFilterProps) {
                 key={genre.id}
                 href={`${pathname}${searchString ? `?${searchString}` : ""}`}
                 isActive={isActive}
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleGenre(idString);
+                }}
                 replace
+                shallow
               >
                 {genre.name}
               </AnchorButton>

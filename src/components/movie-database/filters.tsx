@@ -13,7 +13,7 @@ export async function Filters({ locale }: FiltersProps) {
   const { genres } = await fetchMovieGenres({ language: locale });
   return (
     <div css={styles.container}>
-      <GenreFilter genres={genres} />
+      <GenreFilter allGenres={genres} />
     </div>
   );
 }
