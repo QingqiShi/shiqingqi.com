@@ -2,7 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
 import {
   useDeferredValue,
   useEffect,
@@ -13,6 +12,7 @@ import {
 import { VirtuosoGrid } from "react-virtuoso";
 import { breakpoints } from "@/breakpoints";
 import { Grid } from "@/components/movie-database/grid";
+import { useMovieFilters } from "@/hooks/use-movie-filters";
 import { color, ratio, space } from "@/tokens.stylex";
 import { startViewTransition } from "@/utils/start-view-transition";
 import * as tmdbQueries from "@/utils/tmdb-queries";
@@ -28,18 +28,16 @@ interface MovieListProps {
 export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
   const { locale } = useTranslationContext();
 
-  const searchParams = useSearchParams();
+  const { genres } = useMovieFilters();
 
   // Use deferred value to prevent re-suspending when the genre changes
-  const deferredGenre = useDeferredValue(
-    searchParams.getAll("genre") ?? undefined
-  );
+  const deferredGenre = useDeferredValue(genres);
 
   const { data, fetchNextPage, hasNextPage } = useSuspenseInfiniteQuery(
     tmdbQueries.movieList({
       page: initialPage,
       language: locale,
-      with_genres: deferredGenre.join(",") || undefined,
+      with_genres: [...deferredGenre].join(",") || undefined,
     })
   );
 
