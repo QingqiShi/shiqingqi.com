@@ -91,6 +91,13 @@ export function Switch({
     const x = e.clientX - rect.left - rect.height / 2;
     const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
     setPosition(clampedX);
+
+    // Actually modify the value
+    const midPoint = rect.left + rect.width / 2;
+    const newState = lastClientXRef.current > midPoint ? "on" : "off";
+    if (newState !== value) {
+      setControlledValue(newState);
+    }
   }
 
   function handleDragEnd(e: React.PointerEvent<HTMLInputElement>) {
