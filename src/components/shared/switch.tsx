@@ -15,7 +15,8 @@ import { switchTokens } from "./switch.stylex";
 
 export type SwitchState = "off" | "on" | "indeterminate";
 
-interface SwitchProps extends Omit<React.ComponentProps<"input">, "onChange"> {
+interface SwitchProps
+  extends Omit<React.ComponentProps<"input">, "checked" | "onChange"> {
   value?: SwitchState;
   onChange?: (state: SwitchState) => void;
 }
@@ -50,6 +51,7 @@ export function Switch({
       return;
     }
     elRef.current.indeterminate = value === "indeterminate";
+    elRef.current.checked = value === "on";
   }, [value]);
 
   // States and refs for tracking dragging state
@@ -60,65 +62,45 @@ export function Switch({
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState<number | null>(null);
 
-  const ignoreOnChange = useRef(false);
-
-  const handleDragStart = (e: GenericTouchPointerEvent) => {
-    const normalizedEvent = normalizeTouchPointerEvent(e);
-    if (rest.disabled || !elRef.current || !normalizedEvent) {
+  function handleDragStart(e: React.PointerEvent<HTMLInputElement>) {
+    if (rest.disabled || !elRef.current) {
       return;
     }
-    ignoreOnChange.current = false;
     initialRectRef.current = elRef.current.getBoundingClientRect();
-    initialClientXRef.current = normalizedEvent.clientX;
+    initialClientXRef.current = e.clientX;
     setIsPointerDown(true);
-  };
 
-  const handleDragMove = useCallback(
-    (e: GenericTouchPointerEvent) => {
-      const normalizedEvent = normalizeTouchPointerEvent(e);
-      const rect = initialRectRef.current;
-      const clientX = initialClientXRef.current;
-      if (!rect || !normalizedEvent) {
-        return;
-      }
-      // Has to move at least 2px to be considered dragging
-      if (!isDragging && Math.abs(normalizedEvent.clientX - clientX) < 2) {
-        return;
-      }
-      setIsDragging(true);
-      lastClientXRef.current = normalizedEvent.clientX;
-      const x = normalizedEvent.clientX - rect.left - rect.height / 2;
-      const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
-      setPosition(clampedX);
-    },
-    [isDragging]
-  );
+    elRef.current.setPointerCapture(e.pointerId);
+  }
 
-  // Pointermove handler is registered on the body to support dragging out of the switch boundary
-  useEffect(() => {
+  function handleDragMove(e: React.PointerEvent<HTMLInputElement>) {
+    const rect = initialRectRef.current;
+    const clientX = initialClientXRef.current;
+    if (!isPointerDown || !rect) {
+      return;
+    }
+
+    // Has to move at least 2px to be considered dragging
+    if (!isDragging && Math.abs(e.clientX - clientX) < 2) {
+      return;
+    }
+    setIsDragging(true);
+
+    // Get thumb position
+    lastClientXRef.current = e.clientX;
+    const x = e.clientX - rect.left - rect.height / 2;
+    const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
+    setPosition(clampedX);
+  }
+
+  function handleDragEnd(e: React.PointerEvent<HTMLInputElement>) {
     if (!isPointerDown) {
       return;
     }
 
-    document.body.addEventListener("pointermove", handleDragMove);
-    document.body.addEventListener("touchmove", handleDragMove);
-    return () => {
-      document.body.removeEventListener("pointermove", handleDragMove);
-      document.body.removeEventListener("touchmove", handleDragMove);
-    };
-  }, [handleDragMove, isPointerDown]);
-
-  const handleDragEnd = useCallback(() => {
     const rect = initialRectRef.current;
-    setIsDragging(false);
-    setPosition(null);
-    initialRectRef.current = null;
-
     if (isDragging) {
-      if (!rect) {
-        return;
-      }
-      if (elRef.current) {
+      if (elRef.current && rect) {
         if (elRef.current.indeterminate) {
           elRef.current.indeterminate = false;
         }
@@ -126,20 +108,17 @@ export function Switch({
         const midPoint = rect.left + rect.width / 2;
         const newState = lastClientXRef.current > midPoint ? "on" : "off";
         setControlledValue(newState);
-        ignoreOnChange.current = true;
       }
+    } else {
+      setControlledValue(value === "on" ? "off" : "on");
     }
-  }, [isDragging, setControlledValue]);
 
-  // Pointerup handler is registered on the body to support ending drag outside of switch boundary
-  useEffect(() => {
-    document.body.addEventListener("pointerup", handleDragEnd);
-    document.body.addEventListener("touchend", handleDragEnd);
-    return () => {
-      document.body.removeEventListener("pointerup", handleDragEnd);
-      document.body.removeEventListener("touchend", handleDragEnd);
-    };
-  }, [handleDragEnd]);
+    elRef.current?.releasePointerCapture(e.pointerId);
+    setIsPointerDown(false);
+    setIsDragging(false);
+    setPosition(null);
+    initialRectRef.current = null;
+  }
 
   return (
     <input
@@ -149,17 +128,14 @@ export function Switch({
       style={style}
       css={[styles.switch, isDragging && styles.dragging(position)]}
       type="checkbox"
-      checked={value === "on" ? true : value === "off" ? false : undefined}
       onPointerDown={handleDragStart}
-      onTouchStart={handleDragStart}
-      onChange={(e) => {
-        // onChange still fires after dragging, so we need to ignore this event
-        // if dragEnd event had occurred.
-        if (ignoreOnChange.current) {
-          ignoreOnChange.current = false;
-          return;
+      onPointerUp={handleDragEnd}
+      onPointerMove={handleDragMove}
+      onKeyDown={(e) => {
+        if (e.code === "Space" || e.code === "Enter") {
+          e.preventDefault();
+          setControlledValue(value === "on" ? "off" : "on");
         }
-        setControlledValue(e.target.checked ? "on" : "off");
       }}
     />
   );
@@ -192,6 +168,7 @@ const styles = stylex.create({
       default: shadow._2,
       ":hover": { "::before": shadow._3 },
     },
+    touchAction: "none",
 
     [switchTokens.thumbPosition]: {
       default: "0",
@@ -224,17 +201,3 @@ const styles = stylex.create({
     },
   }),
 });
-
-type GenericTouchPointerEvent =
-  | PointerEvent
-  | TouchEvent
-  | React.PointerEvent<HTMLInputElement>
-  | React.TouchEvent<HTMLInputElement>;
-
-function normalizeTouchPointerEvent(e: GenericTouchPointerEvent) {
-  if ("touches" in e && e.touches.length !== 1) {
-    return;
-  }
-  const clientX = "clientX" in e ? e.clientX : e.touches[0].clientX;
-  return { clientX };
-}
