@@ -58,7 +58,6 @@ export function Switch({
   const initialRectRef = useRef<DOMRect | null>(null);
   const initialClientXRef = useRef(0);
   const lastClientXRef = useRef(0);
-  const [isPointerDown, setIsPointerDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState<number | null>(null);
 
@@ -68,7 +67,6 @@ export function Switch({
     }
     initialRectRef.current = elRef.current.getBoundingClientRect();
     initialClientXRef.current = e.clientX;
-    setIsPointerDown(true);
 
     elRef.current.setPointerCapture(e.pointerId);
   }
@@ -76,7 +74,7 @@ export function Switch({
   function handleDragMove(e: React.PointerEvent<HTMLInputElement>) {
     const rect = initialRectRef.current;
     const clientX = initialClientXRef.current;
-    if (!isPointerDown || !rect) {
+    if (!rect) {
       return;
     }
 
@@ -101,10 +99,6 @@ export function Switch({
   }
 
   function handleDragEnd(e: React.PointerEvent<HTMLInputElement>) {
-    if (!isPointerDown) {
-      return;
-    }
-
     const rect = initialRectRef.current;
     if (isDragging) {
       if (elRef.current && rect) {
@@ -121,7 +115,6 @@ export function Switch({
     }
 
     elRef.current?.releasePointerCapture(e.pointerId);
-    setIsPointerDown(false);
     setIsDragging(false);
     setPosition(null);
     initialRectRef.current = null;
@@ -145,6 +138,7 @@ export function Switch({
         }
       }}
       onChange={(e) => e.preventDefault()}
+      onClick={(e) => e.preventDefault()}
     />
   );
 }
