@@ -1,17 +1,17 @@
 import * as stylex from "@stylexjs/stylex";
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type ComponentProps,
   type ReactNode,
 } from "react";
 import { useClickAway } from "@/hooks/use-click-away";
-import { useCssId } from "@/hooks/use-css-id";
 import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
-import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "./button";
 import { buttonTokens } from "./button.stylex";
+import { FlipAnimation } from "./flip-animation";
 
 interface MenuButtonProps {
   /** The button children */
@@ -34,29 +34,11 @@ export function MenuButton({
   position = "topRight",
   disabled,
 }: MenuButtonProps) {
-  const [isMenuShown, _setIsMenuShown] = useState(false);
-  const setIsMenuShown = (newValue: boolean) => {
-    void startViewTransition(() => {
-      _setIsMenuShown(newValue);
-    });
-  };
+  const [isMenuShown, setIsMenuShown] = useState(false);
 
   const outsideClicked = useRef(false);
   const containerRef = useClickAway<HTMLDivElement>(() => {
-    // Check if there are animations happening, if so prevent closing the menu
-    // https://www.bram.us/2025/01/01/view-transitions-snippets-getting-all-animations-linked-to-a-view-transition/
-    const vtAnimations = document.getAnimations().filter((animation) => {
-      const animationEffect = animation.effect as {
-        target: HTMLElement;
-        pseudoElement?: string;
-      } | null;
-      return (
-        animationEffect?.target === document.documentElement &&
-        animationEffect.pseudoElement?.startsWith("::view-transition")
-      );
-    });
-
-    if (isMenuShown && vtAnimations.length === 0) {
+    if (isMenuShown) {
       setIsMenuShown(false);
       outsideClicked.current = true;
     }
@@ -67,134 +49,52 @@ export function MenuButton({
     }
   }, [isMenuShown]);
 
-  const id = useCssId();
+  const targetId = useId();
 
   return (
-    <>
-      {/* Using inline style until the new viewTransitionClass API is ready https://github.com/facebook/stylex/issues/866 */}
-      <style>
-        {`
-          ::view-transition-group(${id}-background),
-          ::view-transition-group(${id}-menu-content),
-          ::view-transition-group(${id}-label) {
-            z-index: 1;
-          }
-
-          ::view-transition-old(${id}-background),
-          ::view-transition-new(${id}-background) {
-            height: 100%;
-            z-index: 500;
-            position: absolute;
-          }
-
-          ::view-transition-new(${id}-menu-content):only-child {
-            animation-name: ${fadeIn}, ${expand};
-          }
-          ::view-transition-old(${id}-menu-content):only-child {
-            animation-name: ${fadeOut}, ${collapse};
-          }
-
-          ::view-transition-new(${id}-label):only-child {
-            animation-name: ${fadeIn}, ${slideIn};
-          }
-          ::view-transition-old(${id}-label):only-child {
-            animation-name: ${fadeOut}, ${slideOut};
-          }
-      `}
-      </style>
-      <div
-        css={styles.container}
-        ref={containerRef}
-        onBlur={(e) => {
-          if (
-            isMenuShown &&
-            !containerRef.current?.contains(e.currentTarget) &&
-            !outsideClicked.current
-          ) {
-            setIsMenuShown(false);
-          }
-        }}
+    <div
+      css={styles.container}
+      ref={containerRef}
+      onBlur={(e) => {
+        if (
+          isMenuShown &&
+          !containerRef.current?.contains(e.currentTarget) &&
+          !outsideClicked.current
+        ) {
+          setIsMenuShown(false);
+        }
+      }}
+    >
+      <Button
+        {...buttonProps}
+        onClick={() => setIsMenuShown(true)}
+        disabled={disabled}
+        id={targetId}
+        labelId={`${targetId}-label`}
       >
-        <Button
-          {...buttonProps}
-          onClick={() => setIsMenuShown(true)}
-          style={{
-            viewTransitionName: !isMenuShown ? `${id}-background` : undefined,
-          }}
-          css={[styles.button, isMenuShown && styles.disabled]}
-          disabled={disabled}
-        >
-          {children && (
-            <span
-              style={{
-                viewTransitionName: !isMenuShown ? `${id}-label` : undefined,
-              }}
+        {children && <span>{children}</span>}
+      </Button>
+      <FlipAnimation
+        css={[styles.menu, styles[position], !isMenuShown && styles.hidden]}
+        animateToTarget={!isMenuShown}
+        targetId={targetId}
+      >
+        <div>
+          <div css={styles.menuTitle}>
+            <FlipAnimation
+              inline
+              animateToTarget={!isMenuShown}
+              targetId={`${targetId}-label`}
             >
               {children}
-            </span>
-          )}
-        </Button>
-        {isMenuShown && (
-          <div
-            css={[styles.menu, styles[position]]}
-            style={{ viewTransitionName: `${id}-background` }}
-          >
-            <div style={{ viewTransitionName: `${id}-menu-content` }}>
-              <div css={styles.menuTitle}>
-                <span style={{ viewTransitionName: `${id}-label` }}>
-                  {children}
-                </span>
-              </div>
-              {menuContent}
-            </div>
+            </FlipAnimation>
           </div>
-        )}
-      </div>
-    </>
+          {menuContent}
+        </div>
+      </FlipAnimation>
+    </div>
   );
 }
-
-const fadeIn = stylex.keyframes({
-  from: {
-    opacity: 0,
-  },
-});
-
-const fadeOut = stylex.keyframes({
-  to: {
-    opacity: 0,
-  },
-});
-
-const expand = stylex.keyframes({
-  from: {
-    clipPath: "inset(0 0 100% 0)",
-  },
-  to: {
-    clipPath: "inset(0 0 0 0)",
-  },
-});
-
-const collapse = stylex.keyframes({
-  from: {
-    clipPath: "inset(0 0 0 0)",
-  },
-  to: {
-    clipPath: "inset(0 0 100% 0)",
-  },
-});
-
-const slideIn = stylex.keyframes({
-  from: {
-    transform: "translateX(30px)",
-  },
-});
-
-const slideOut = stylex.keyframes({
-  to: {
-    transform: "translateX(30px)",
-  },
-});
 
 const styles = stylex.create({
   container: {
@@ -208,15 +108,15 @@ const styles = stylex.create({
     borderRadius: border.radius_2,
     boxShadow: shadow._4,
     overflow: "hidden",
-    width: "max-content",
-    willChange: "transform",
+    transition: "opacity 0.3s",
     [buttonTokens.backgroundColor]: {
       default: color.controlThumb,
     },
     [buttonTokens.color]: color.textOnControlThumb,
   },
-  button: {
-    willChange: "transform",
+  hidden: {
+    pointerEvents: "none",
+    opacity: 0,
   },
   menuTitle: {
     fontSize: controlSize._3,
@@ -238,9 +138,5 @@ const styles = stylex.create({
   bottomRight: {
     bottom: 0,
     right: 0,
-  },
-  disabled: {
-    opacity: 0,
-    pointerEvents: "none",
   },
 });

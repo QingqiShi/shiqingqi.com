@@ -2,19 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import {
-  useDeferredValue,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useDeferredValue, useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { breakpoints } from "@/breakpoints";
 import { Grid } from "@/components/movie-database/grid";
 import { useMovieFilters } from "@/hooks/use-movie-filters";
 import { color, ratio, space } from "@/tokens.stylex";
-import { startViewTransition } from "@/utils/start-view-transition";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
 import { Skeleton } from "../shared/skeleton";
@@ -33,7 +26,11 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
   // Use deferred value to prevent re-suspending when the genre changes
   const deferredGenre = useDeferredValue(genres);
 
-  const { data, fetchNextPage, hasNextPage } = useSuspenseInfiniteQuery(
+  const {
+    data: { movies },
+    fetchNextPage,
+    hasNextPage,
+  } = useSuspenseInfiniteQuery(
     tmdbQueries.movieList({
       page: initialPage,
       language: locale,
@@ -51,29 +48,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Allow reading genres without re-running useEffect
-  const genresRef = useRef(deferredGenre);
-  useEffect(() => {
-    genresRef.current = deferredGenre;
-  }, [deferredGenre]);
-
-  // Deferred state for animation!
-  const [movies, setState] = useState(data.movies);
-  const prevGenres = useRef(deferredGenre);
-  useEffect(() => {
-    if (prevGenres.current !== genresRef.current) {
-      // Start animation if genres changed
-      prevGenres.current = genresRef.current;
-      void startViewTransition(() => {
-        setState(data.movies);
-      });
-    } else {
-      // Otherwise, just update the state (e.g. from infinite scroll)
-      setState(data.movies);
-    }
-  }, [data.movies]);
-
-  if (!movies) {
+  if (!movies.length) {
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
   }
 
@@ -105,9 +80,6 @@ const styles = stylex.create({
     aspectRatio: ratio.poster,
     width: "100%",
     overflow: "hidden",
-  },
-  marker: {
-    display: "contents",
   },
   notFound: {
     maxWidth: {
