@@ -7,11 +7,13 @@ import { buttonTokens } from "./button.stylex";
 interface ButtonProps extends ComponentProps<"button"> {
   icon?: React.ReactNode;
   hideLabelOnMobile?: boolean;
+  labelId?: string;
 }
 
 export function Button({
   icon,
   hideLabelOnMobile,
+  labelId,
   children,
   className,
   style,
@@ -31,6 +33,7 @@ export function Button({
             styles.childrenContainer,
             hideLabelOnMobile && styles.hideLabelOnMobile,
           ]}
+          id={labelId}
         >
           {children}
         </span>

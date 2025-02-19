@@ -1,5 +1,6 @@
 "use client";
 
+import { Funnel } from "@phosphor-icons/react/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMovieFilters } from "@/hooks/use-movie-filters";
@@ -25,6 +26,7 @@ export function GenreFilter({ allGenres }: GenreFilterProps) {
     <MenuButton
       disabled={!allGenres?.length}
       buttonProps={{
+        icon: <Funnel weight="bold" role="presentation" />,
         type: "button",
         "aria-label": t("genre"),
       }}
@@ -72,6 +74,7 @@ const styles = stylex.create({
     gap: controlSize._2,
     overflow: "auto",
     padding: controlSize._3,
+    width: "100vw",
     maxWidth: `min(${space._15}, calc(100vw - ${space._3} - env(safe-area-inset-left) - ${space._3} - env(safe-area-inset-right)))`,
   },
   active: {},
