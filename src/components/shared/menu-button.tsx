@@ -74,24 +74,18 @@ export function MenuButton({
       >
         {children && <span>{children}</span>}
       </Button>
-      <FlipAnimation
-        css={[styles.menu, styles[position], !isMenuShown && styles.hidden]}
-        animateToTarget={!isMenuShown}
-        targetId={targetId}
-      >
-        <div>
-          <div css={styles.menuTitle}>
-            <FlipAnimation
-              inline
-              animateToTarget={!isMenuShown}
-              targetId={`${targetId}-label`}
-            >
-              {children}
-            </FlipAnimation>
+      <div css={[styles.menuContainer, !isMenuShown && styles.hidden]}>
+        <FlipAnimation
+          css={[styles.menu, styles[position]]}
+          animateToTarget={!isMenuShown}
+          targetId={targetId}
+        >
+          <div>
+            <div css={styles.menuTitle}>{children}</div>
+            {menuContent}
           </div>
-          {menuContent}
-        </div>
-      </FlipAnimation>
+        </FlipAnimation>
+      </div>
     </div>
   );
 }
@@ -101,14 +95,21 @@ const styles = stylex.create({
     position: "relative",
     display: "inline-block",
   },
-  menu: {
+  menuContainer: {
     position: "absolute",
+    top: 0,
+    left: 0,
     zIndex: layer.overlay,
-    backgroundColor: color.controlTrack,
     borderRadius: border.radius_2,
-    boxShadow: shadow._4,
     overflow: "hidden",
-    transition: "opacity 0.3s",
+    transitionProperty: "opacity",
+    transitionDuration: "0.15s",
+  },
+  menu: {
+    backgroundColor: color.controlTrack,
+    boxShadow: shadow._4,
+    borderRadius: border.radius_2,
+    overflow: "hidden",
     [buttonTokens.backgroundColor]: {
       default: color.controlThumb,
     },
@@ -117,6 +118,7 @@ const styles = stylex.create({
   hidden: {
     pointerEvents: "none",
     opacity: 0,
+    transitionDelay: "0.15s",
   },
   menuTitle: {
     fontSize: controlSize._3,
