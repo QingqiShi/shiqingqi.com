@@ -3,7 +3,7 @@
 import { Moon } from "@phosphor-icons/react/Moon";
 import { Sun } from "@phosphor-icons/react/Sun";
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { getDocumentClassName } from "@/app/global-styles";
 import { Button } from "@/components/shared/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -27,7 +27,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
   const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
 
   const [theme, setTheme] = useTheme();
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.className = getDocumentClassName(theme);
     const existingMetaTag = document.querySelector("meta[name=theme-color]");
     const metaTag = existingMetaTag ?? document.createElement("meta");
