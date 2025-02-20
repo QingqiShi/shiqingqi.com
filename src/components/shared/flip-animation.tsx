@@ -100,9 +100,10 @@ export function FlipAnimation({
     const startScaleY = isCollapsed ? 1 : scaleY;
     const endScaleY = isCollapsed ? scaleY : 1;
 
+    const keyFramesCount = 30;
     const containerAnimation = containerEl.animate(
-      Array.from({ length: 36 }, (_, i) => {
-        const progress = i / (36 - 1);
+      Array.from({ length: keyFramesCount }, (_, i) => {
+        const progress = i / (keyFramesCount - 1);
         const currentTranslateX =
           startTranslateX + (endTranslateX - startTranslateX) * progress;
         const currentTranslateY =
@@ -113,13 +114,20 @@ export function FlipAnimation({
           startScaleY + (endScaleY - startScaleY) * progress;
         return {
           transform: `translate3d(${currentTranslateX}px, ${currentTranslateY}px, 0px) scale(${currentScaleX}, ${currentScaleY})`,
+          opacity: isCollapsed
+            ? progress > 0.7
+              ? 1 - (progress - 0.7) / 0.3
+              : 1
+            : progress >= 0.3
+              ? 1
+              : progress / 0.3,
         };
       }),
       animationOptions
     );
     const innerAnimation = innerEl.animate(
-      Array.from({ length: 36 }, (_, i) => {
-        const progress = i / (36 - 1);
+      Array.from({ length: keyFramesCount }, (_, i) => {
+        const progress = i / (keyFramesCount - 1);
         const currentScaleX =
           startScaleX + (endScaleX - startScaleX) * progress;
         const currentScaleY =
@@ -141,7 +149,11 @@ export function FlipAnimation({
       ref={containerRef}
       className={className}
       style={style}
-      css={[styles.container, inline && styles.inline]}
+      css={[
+        styles.container,
+        inline && styles.inline,
+        isCollapsed && styles.hidden,
+      ]}
     >
       <div ref={innerRef} css={[styles.inner, inline && styles.inline]}>
         {children}
@@ -161,5 +173,9 @@ const styles = stylex.create({
   },
   inline: {
     display: "inline-block",
+  },
+  hidden: {
+    pointerEvents: "none",
+    opacity: 0,
   },
 });
