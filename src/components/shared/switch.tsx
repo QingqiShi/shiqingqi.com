@@ -2,7 +2,13 @@
 
 import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   border,
   color,
@@ -46,7 +52,7 @@ export function Switch({
   );
 
   // Sync value with input due to check box having two different value states (specifically `indeterminate`)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!elRef.current) {
       return;
     }
