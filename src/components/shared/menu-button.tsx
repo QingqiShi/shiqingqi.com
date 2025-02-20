@@ -74,9 +74,15 @@ export function MenuButton({
       >
         {children && <span>{children}</span>}
       </Button>
-      <div css={[styles.menuContainer, !isMenuShown && styles.hidden]}>
+      <div
+        css={[
+          styles.menuContainer,
+          !isMenuShown && styles.hidden,
+          styles[position],
+        ]}
+      >
         <FlipAnimation
-          css={[styles.menu, styles[position]]}
+          css={[styles.menu]}
           animateToTarget={!isMenuShown}
           targetId={targetId}
         >
@@ -97,8 +103,6 @@ const styles = stylex.create({
   },
   menuContainer: {
     position: "absolute",
-    top: 0,
-    left: 0,
     zIndex: layer.overlay,
     borderRadius: border.radius_2,
     overflow: "hidden",
