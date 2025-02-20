@@ -120,6 +120,8 @@ export function Switch({
     initialRectRef.current = null;
   }
 
+  // Enable animation styles only after the component has fully mounted
+  // This prevents switches from animating when switching routes or changing locales
   const [initialRendered, setInitialRendered] = useState(false);
   useEffect(() => {
     setInitialRendered(true);
