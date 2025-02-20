@@ -2,7 +2,13 @@
 
 import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   border,
   color,
@@ -46,7 +52,7 @@ export function Switch({
   );
 
   // Sync value with input due to check box having two different value states (specifically `indeterminate`)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!elRef.current) {
       return;
     }
@@ -120,13 +126,24 @@ export function Switch({
     initialRectRef.current = null;
   }
 
+  // Enable animation styles only after the component has fully mounted
+  // This prevents switches from animating when switching routes or changing locales
+  const [initialRendered, setInitialRendered] = useState(false);
+  useEffect(() => {
+    setInitialRendered(true);
+  }, []);
+
   return (
     <input
       ref={elRef}
       {...rest}
       className={className}
       style={style}
-      css={[styles.switch, isDragging && styles.dragging(position)]}
+      css={[
+        styles.switch,
+        initialRendered && styles.animate,
+        isDragging && styles.dragging(position),
+      ]}
       type="checkbox"
       onPointerDown={handleDragStart}
       onPointerUp={handleDragEnd}
@@ -192,8 +209,13 @@ const styles = stylex.create({
       width: `calc(${controlSize._9} - ${border.size_2} * 2)`,
       aspectRatio: ratio.square,
       transform: `translateX(${switchTokens.thumbPosition})`,
-      transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
+      transition: null,
       zIndex: layer.content,
+    },
+  },
+  animate: {
+    "::before": {
+      transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
     },
   },
   dragging: (position) => ({
