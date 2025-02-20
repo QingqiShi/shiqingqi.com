@@ -58,6 +58,12 @@ export function FlipAnimation({
     const scaleYVar = flipAnimationTokens.scaleY
       .replace(/^var\(/, "")
       .replace(/\)$/, "");
+    const translateXVar = flipAnimationTokens.translateX
+      .replace(/^var\(/, "")
+      .replace(/\)$/, "");
+    const translateYVar = flipAnimationTokens.translateY
+      .replace(/^var\(/, "")
+      .replace(/\)$/, "");
 
     if (isCollapsed) {
       const animation = containerEl.animate(
@@ -65,12 +71,14 @@ export function FlipAnimation({
           {
             [scaleXVar]: 1,
             [scaleYVar]: 1,
-            transform: "scale(1, 1) translate(0px, 0px)",
+            [translateXVar]: "0px",
+            [translateYVar]: "0px",
           },
           {
             [scaleXVar]: scaleX,
             [scaleYVar]: scaleY,
-            transform: `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`,
+            [translateXVar]: `${translateX}px`,
+            [translateYVar]: `${translateY}px`,
           },
         ],
         animationOptions
@@ -85,12 +93,14 @@ export function FlipAnimation({
         {
           [scaleXVar]: scaleX,
           [scaleYVar]: scaleY,
-          transform: `scale(${scaleX}, ${scaleY}) translate(${translateX}px, ${translateY}px)`,
+          [translateXVar]: `${translateX}px`,
+          [translateYVar]: `${translateY}px`,
         },
         {
           [scaleXVar]: 1,
           [scaleYVar]: 1,
-          transform: "scale(1, 1) translate(0px, 0px)",
+          [translateXVar]: "0px",
+          [translateYVar]: "0px",
         },
       ],
       animationOptions
@@ -118,9 +128,10 @@ const styles = stylex.create({
   container: {
     transformOrigin: "top left",
     willChange: "transform",
+    transform: `scale(${flipAnimationTokens.scaleX}, ${flipAnimationTokens.scaleY}) translate3d(${flipAnimationTokens.translateX}, ${flipAnimationTokens.translateY}, 0px)`,
   },
   inner: {
-    transform: `scale(calc(1 / ${flipAnimationTokens.scaleX}), calc(1 / ${flipAnimationTokens.scaleY}))`,
+    transform: `scale(calc(1 / ${flipAnimationTokens.scaleX}), calc(1 / ${flipAnimationTokens.scaleY})) translate3d(0px, 0px, 0px)`,
     transformOrigin: "top left",
     willChange: "transform",
   },
