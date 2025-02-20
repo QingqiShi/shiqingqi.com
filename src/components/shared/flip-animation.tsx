@@ -2,7 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useLayoutEffect, useRef, type PropsWithChildren } from "react";
-import { flipAnimationTokens } from "./flip-animation.stylex";
 
 const animationOptions: KeyframeAnimationOptions = {
   duration: 300,
@@ -46,6 +45,22 @@ interface FlipAnimationProps {
   style?: React.CSSProperties;
 }
 
+/**
+ * Animates an element from its natural state to a target state using the FLIP (First, Last, Invert, Play) technique.
+ *
+ * The process works as follows:
+ * 1. Measure the bounding rectangles of the element in its natural state (First) and target state (Last).
+ * 2. Compute the inverse transform (Invert) needed to bridge the gap between these two states.
+ * 3. Play the animation by interpolating between the states.
+ *
+ * To create a clipping effect, the inner content is inversely scaled during the animation.
+ * However, simply animating the outer and inner containers separately doesn't maintain
+ * the inverse relationship throughout the transition.
+ *
+ * To address this, we use the Web Animation API to pre-compute a series of keyframes (roughly one per frame).
+ * For each keyframe, we calculate the inverse scaling for the child container, ensuring that both the outer
+ * and inner elements remain in sync throughout the animation.
+ */
 export function FlipAnimation({
   animateToTarget: isCollapsed,
   targetId: collapseTargetId,
@@ -75,51 +90,49 @@ export function FlipAnimation({
     const translateX = targetRect.x - containerRect.x;
     const translateY = targetRect.y - containerRect.y;
 
-    const scaleXVar = flipAnimationTokens.scaleX
-      .replace(/^var\(/, "")
-      .replace(/\)$/, "");
-    const scaleYVar = flipAnimationTokens.scaleY
-      .replace(/^var\(/, "")
-      .replace(/\)$/, "");
+    // Decide the direction of animation
+    const startTranslateX = isCollapsed ? 0 : translateX;
+    const endTranslateX = isCollapsed ? translateX : 0;
+    const startTranslateY = isCollapsed ? 0 : translateY;
+    const endTranslateY = isCollapsed ? translateY : 0;
+    const startScaleX = isCollapsed ? 1 : scaleX;
+    const endScaleX = isCollapsed ? scaleX : 1;
+    const startScaleY = isCollapsed ? 1 : scaleY;
+    const endScaleY = isCollapsed ? scaleY : 1;
 
-    if (isCollapsed) {
-      const animation = containerEl.animate(
-        [
-          {
-            [scaleXVar]: 1,
-            [scaleYVar]: 1,
-            transform: "scale(1, 1) translate(0px, 0px)",
-          },
-          {
-            [scaleXVar]: scaleX,
-            [scaleYVar]: scaleY,
-            transform: `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`,
-          },
-        ],
-        animationOptions
-      );
-      return () => {
-        animation.cancel();
-      };
-    }
-
-    const animation = containerEl.animate(
-      [
-        {
-          [scaleXVar]: scaleX,
-          [scaleYVar]: scaleY,
-          transform: `scale(${scaleX}, ${scaleY}) translate(${translateX}px, ${translateY}px)`,
-        },
-        {
-          [scaleXVar]: 1,
-          [scaleYVar]: 1,
-          transform: "scale(1, 1) translate(0px, 0px)",
-        },
-      ],
+    const containerAnimation = containerEl.animate(
+      Array.from({ length: 36 }, (_, i) => {
+        const progress = i / (36 - 1);
+        const currentTranslateX =
+          startTranslateX + (endTranslateX - startTranslateX) * progress;
+        const currentTranslateY =
+          startTranslateY + (endTranslateY - startTranslateY) * progress;
+        const currentScaleX =
+          startScaleX + (endScaleX - startScaleX) * progress;
+        const currentScaleY =
+          startScaleY + (endScaleY - startScaleY) * progress;
+        return {
+          transform: `translate3d(${currentTranslateX}px, ${currentTranslateY}px, 0px) scale(${currentScaleX}, ${currentScaleY})`,
+        };
+      }),
+      animationOptions
+    );
+    const innerAnimation = innerEl.animate(
+      Array.from({ length: 36 }, (_, i) => {
+        const progress = i / (36 - 1);
+        const currentScaleX =
+          startScaleX + (endScaleX - startScaleX) * progress;
+        const currentScaleY =
+          startScaleY + (endScaleY - startScaleY) * progress;
+        return {
+          transform: `scale(${1 / currentScaleX}, ${1 / currentScaleY})`,
+        };
+      }),
       animationOptions
     );
     return () => {
-      animation.cancel();
+      containerAnimation.cancel();
+      innerAnimation.cancel();
     };
   }, [collapseTargetId, isCollapsed]);
 
@@ -143,7 +156,6 @@ const styles = stylex.create({
     willChange: "transform",
   },
   inner: {
-    transform: `scale(calc(1 / ${flipAnimationTokens.scaleX}), calc(1 / ${flipAnimationTokens.scaleY}))`,
     transformOrigin: "top left",
     willChange: "transform",
   },
