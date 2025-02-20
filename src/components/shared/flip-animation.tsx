@@ -2,13 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useLayoutEffect, useRef, type PropsWithChildren } from "react";
-import { flipAnimationTokens } from "./flip-animation.stylex";
-
-const animationOptions: KeyframeAnimationOptions = {
-  duration: 300,
-  fill: "none",
-  easing: "ease-in-out",
-};
 
 interface FlipAnimationProps {
   /** If true, animate towards the target element. */
@@ -23,6 +16,16 @@ interface FlipAnimationProps {
   style?: React.CSSProperties;
 }
 
+/**
+ * Uses the FLIP technique to run animations from natural state to a target - which essentially measures the bounding rect
+ * of the natural state and the target state, then runs the animation between them.
+ * During the animation, the inner content is applied the inverse scaling to create a clipping effect, this adds additional
+ * complexity because you animating the outer and inner containers separately does not result in the inverse relationship
+ * throughout the duration of the animation. To do this, we could either
+ * - Use the Animation API to animate CSS variables - this works fine in Chrome but animating CSS variables has terrible
+ * performance in iOS Safari.
+ * - Animate every frame using `requestAnimationFrame` - this is the approach chosen.
+ */
 export function FlipAnimation({
   animateToTarget: isCollapsed,
   targetId: collapseTargetId,
@@ -52,61 +55,60 @@ export function FlipAnimation({
     const translateX = targetRect.x - containerRect.x;
     const translateY = targetRect.y - containerRect.y;
 
-    const scaleXVar = flipAnimationTokens.scaleX
-      .replace(/^var\(/, "")
-      .replace(/\)$/, "");
-    const scaleYVar = flipAnimationTokens.scaleY
-      .replace(/^var\(/, "")
-      .replace(/\)$/, "");
-    const translateXVar = flipAnimationTokens.translateX
-      .replace(/^var\(/, "")
-      .replace(/\)$/, "");
-    const translateYVar = flipAnimationTokens.translateY
-      .replace(/^var\(/, "")
-      .replace(/\)$/, "");
+    // For typescript
+    const containerElNotNull = containerEl;
+    const innerElNotNull = innerEl;
 
-    if (isCollapsed) {
-      const animation = containerEl.animate(
-        [
-          {
-            [scaleXVar]: 1,
-            [scaleYVar]: 1,
-            [translateXVar]: "0px",
-            [translateYVar]: "0px",
-          },
-          {
-            [scaleXVar]: scaleX,
-            [scaleYVar]: scaleY,
-            [translateXVar]: `${translateX}px`,
-            [translateYVar]: `${translateY}px`,
-          },
-        ],
-        animationOptions
-      );
-      return () => {
-        animation.cancel();
-      };
+    // Decide the direction of animation
+    const startTranslateX = isCollapsed ? 0 : translateX;
+    const endTranslateX = isCollapsed ? translateX : 0;
+    const startTranslateY = isCollapsed ? 0 : translateY;
+    const endTranslateY = isCollapsed ? translateY : 0;
+    const startScaleX = isCollapsed ? 1 : scaleX;
+    const endScaleX = isCollapsed ? scaleX : 1;
+    const startScaleY = isCollapsed ? 1 : scaleY;
+    const endScaleY = isCollapsed ? scaleY : 1;
+
+    // Runs on every animation frame
+    const duration = 300;
+    const startTime = performance.now();
+    let animationId: ReturnType<typeof requestAnimationFrame> | null = null;
+    function animate() {
+      const elapsed = performance.now() - startTime;
+      // Calculate linear progress between 0 and 1
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Apply easing to the progress value
+      const easedProgress = easeOutCubic(progress);
+
+      // Compute translation and scale values for the current animation frame
+      const currentTranslateX =
+        startTranslateX + (endTranslateX - startTranslateX) * easedProgress;
+      const currentTranslateY =
+        startTranslateY + (endTranslateY - startTranslateY) * easedProgress;
+      const currentScaleX =
+        startScaleX + (endScaleX - startScaleX) * easedProgress;
+      const currentScaleY =
+        startScaleY + (endScaleY - startScaleY) * easedProgress;
+
+      // Update the transforms
+      containerElNotNull.style.transform = `translate3d(${currentTranslateX}px, ${currentTranslateY}px, 0) scale(${currentScaleX}, ${currentScaleY})`;
+      innerElNotNull.style.transform = `scale(${1 / currentScaleX}, ${1 / currentScaleY})`;
+
+      // Animate next frame, or terminate and reset
+      if (progress < 1) {
+        animationId = requestAnimationFrame(animate);
+      } else {
+        containerElNotNull.style.transform = "";
+        innerElNotNull.style.transform = "";
+      }
     }
+    animationId = requestAnimationFrame(animate);
 
-    const animation = containerEl.animate(
-      [
-        {
-          [scaleXVar]: scaleX,
-          [scaleYVar]: scaleY,
-          [translateXVar]: `${translateX}px`,
-          [translateYVar]: `${translateY}px`,
-        },
-        {
-          [scaleXVar]: 1,
-          [scaleYVar]: 1,
-          [translateXVar]: "0px",
-          [translateYVar]: "0px",
-        },
-      ],
-      animationOptions
-    );
     return () => {
-      animation.cancel();
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
     };
   }, [collapseTargetId, isCollapsed]);
 
@@ -128,10 +130,8 @@ const styles = stylex.create({
   container: {
     transformOrigin: "top left",
     willChange: "transform",
-    transform: `scale(${flipAnimationTokens.scaleX}, ${flipAnimationTokens.scaleY}) translate3d(${flipAnimationTokens.translateX}, ${flipAnimationTokens.translateY}, 0px)`,
   },
   inner: {
-    transform: `scale(calc(1 / ${flipAnimationTokens.scaleX}), calc(1 / ${flipAnimationTokens.scaleY})) translate3d(0px, 0px, 0px)`,
     transformOrigin: "top left",
     willChange: "transform",
   },
@@ -139,3 +139,7 @@ const styles = stylex.create({
     display: "inline-block",
   },
 });
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
