@@ -120,13 +120,22 @@ export function Switch({
     initialRectRef.current = null;
   }
 
+  const [initialRendered, setInitialRendered] = useState(false);
+  useEffect(() => {
+    setInitialRendered(true);
+  }, []);
+
   return (
     <input
       ref={elRef}
       {...rest}
       className={className}
       style={style}
-      css={[styles.switch, isDragging && styles.dragging(position)]}
+      css={[
+        styles.switch,
+        initialRendered && styles.animate,
+        isDragging && styles.dragging(position),
+      ]}
       type="checkbox"
       onPointerDown={handleDragStart}
       onPointerUp={handleDragEnd}
@@ -192,8 +201,13 @@ const styles = stylex.create({
       width: `calc(${controlSize._9} - ${border.size_2} * 2)`,
       aspectRatio: ratio.square,
       transform: `translateX(${switchTokens.thumbPosition})`,
-      transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
+      transition: null,
       zIndex: layer.content,
+    },
+  },
+  animate: {
+    "::before": {
+      transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
     },
   },
   dragging: (position) => ({
