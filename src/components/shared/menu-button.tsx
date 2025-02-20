@@ -109,7 +109,6 @@ const styles = stylex.create({
   },
   hidden: {
     pointerEvents: "none",
-    // opacity: 0,
   },
   menu: {
     backgroundColor: color.controlTrack,
