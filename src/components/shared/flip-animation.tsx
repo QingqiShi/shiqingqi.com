@@ -83,7 +83,7 @@ export function FlipAnimation({
       .replace(/\)$/, "");
 
     if (isCollapsed) {
-      containerEl.animate(
+      const animation = containerEl.animate(
         [
           {
             [scaleXVar]: 1,
@@ -98,23 +98,29 @@ export function FlipAnimation({
         ],
         animationOptions
       );
-    } else {
-      containerEl.animate(
-        [
-          {
-            [scaleXVar]: scaleX,
-            [scaleYVar]: scaleY,
-            transform: `scale(${scaleX}, ${scaleY}) translate(${translateX}px, ${translateY}px)`,
-          },
-          {
-            [scaleXVar]: 1,
-            [scaleYVar]: 1,
-            transform: "scale(1, 1) translate(0px, 0px)",
-          },
-        ],
-        animationOptions
-      );
+      return () => {
+        animation.cancel();
+      };
     }
+
+    const animation = containerEl.animate(
+      [
+        {
+          [scaleXVar]: scaleX,
+          [scaleYVar]: scaleY,
+          transform: `scale(${scaleX}, ${scaleY}) translate(${translateX}px, ${translateY}px)`,
+        },
+        {
+          [scaleXVar]: 1,
+          [scaleYVar]: 1,
+          transform: "scale(1, 1) translate(0px, 0px)",
+        },
+      ],
+      animationOptions
+    );
+    return () => {
+      animation.cancel();
+    };
   }, [collapseTargetId, isCollapsed]);
 
   return (
