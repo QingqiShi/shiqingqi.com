@@ -1,7 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useLayoutEffect, useRef, type PropsWithChildren } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
 
 const animationOptions: KeyframeAnimationOptions = {
   duration: 300,
@@ -39,8 +44,8 @@ interface FlipAnimationProps {
  * and inner elements remain in sync throughout the animation.
  */
 export function FlipAnimation({
-  animateToTarget: isCollapsed,
-  targetId: collapseTargetId,
+  animateToTarget,
+  targetId,
   inline,
   className,
   style,
@@ -49,12 +54,15 @@ export function FlipAnimation({
   const containerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
 
+  const [prevState, setPrevState] = useState(animateToTarget);
+
   useLayoutEffect(() => {
     const containerEl = containerRef.current;
     const innerEl = innerRef.current;
-    if (!containerEl || !innerEl) return;
+    if (!containerEl || !innerEl || animateToTarget === prevState) return;
 
-    const target = document.getElementById(collapseTargetId);
+    setPrevState(animateToTarget);
+    const target = document.getElementById(targetId);
     if (!target) return;
 
     // Get the target and container rects.
@@ -68,14 +76,14 @@ export function FlipAnimation({
     const translateY = targetRect.y - containerRect.y;
 
     // Decide the direction of animation
-    const startTranslateX = isCollapsed ? 0 : translateX;
-    const endTranslateX = isCollapsed ? translateX : 0;
-    const startTranslateY = isCollapsed ? 0 : translateY;
-    const endTranslateY = isCollapsed ? translateY : 0;
-    const startScaleX = isCollapsed ? 1 : scaleX;
-    const endScaleX = isCollapsed ? scaleX : 1;
-    const startScaleY = isCollapsed ? 1 : scaleY;
-    const endScaleY = isCollapsed ? scaleY : 1;
+    const startTranslateX = animateToTarget ? 0 : translateX;
+    const endTranslateX = animateToTarget ? translateX : 0;
+    const startTranslateY = animateToTarget ? 0 : translateY;
+    const endTranslateY = animateToTarget ? translateY : 0;
+    const startScaleX = animateToTarget ? 1 : scaleX;
+    const endScaleX = animateToTarget ? scaleX : 1;
+    const startScaleY = animateToTarget ? 1 : scaleY;
+    const endScaleY = animateToTarget ? scaleY : 1;
 
     const keyFramesCount = 30;
     const containerAnimation = containerEl.animate(
@@ -91,7 +99,7 @@ export function FlipAnimation({
           startScaleY + (endScaleY - startScaleY) * progress;
         return {
           transform: `translate3d(${currentTranslateX}px, ${currentTranslateY}px, 0px) scale(${currentScaleX}, ${currentScaleY})`,
-          opacity: isCollapsed
+          opacity: animateToTarget
             ? progress > 0.7
               ? 1 - (progress - 0.7) / 0.3
               : 1
@@ -119,7 +127,7 @@ export function FlipAnimation({
       containerAnimation.cancel();
       innerAnimation.cancel();
     };
-  }, [collapseTargetId, isCollapsed]);
+  }, [targetId, animateToTarget]);
 
   return (
     <div
@@ -129,7 +137,7 @@ export function FlipAnimation({
       css={[
         styles.container,
         inline && styles.inline,
-        isCollapsed && styles.hidden,
+        animateToTarget && styles.hidden,
       ]}
     >
       <div ref={innerRef} css={[styles.inner, inline && styles.inline]}>
