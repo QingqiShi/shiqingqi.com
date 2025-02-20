@@ -106,8 +106,9 @@ const styles = stylex.create({
     zIndex: layer.overlay,
     borderRadius: border.radius_2,
     overflow: "hidden",
-    transitionProperty: "opacity",
-    transitionDuration: "0.15s",
+  },
+  hidden: {
+    pointerEvents: "none",
   },
   menu: {
     backgroundColor: color.controlTrack,
@@ -118,11 +119,6 @@ const styles = stylex.create({
       default: color.controlThumb,
     },
     [buttonTokens.color]: color.textOnControlThumb,
-  },
-  hidden: {
-    pointerEvents: "none",
-    opacity: 0,
-    transitionDelay: "0.15s",
   },
   menuTitle: {
     fontSize: controlSize._3,
