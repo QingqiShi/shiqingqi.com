@@ -57,7 +57,7 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: controlSize._2,
-    height: controlSize._9,
+    height: buttonTokens.height,
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
     borderRadius: buttonTokens.borderRadius,

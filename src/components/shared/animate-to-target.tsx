@@ -1,12 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import {
-  useLayoutEffect,
-  useRef,
-  useState,
-  type PropsWithChildren,
-} from "react";
+import { useLayoutEffect, useRef, type PropsWithChildren } from "react";
 
 const animationOptions: KeyframeAnimationOptions = {
   duration: 300,
@@ -54,14 +49,14 @@ export function AnimateToTarget({
   const containerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
 
-  const [prevState, setPrevState] = useState(animateToTarget);
-
+  const prevStateRef = useRef(animateToTarget);
   useLayoutEffect(() => {
     const containerEl = containerRef.current;
     const innerEl = innerRef.current;
-    if (!containerEl || !innerEl || animateToTarget === prevState) return;
+    if (!containerEl || !innerEl || animateToTarget === prevStateRef.current)
+      return;
 
-    setPrevState(animateToTarget);
+    prevStateRef.current = animateToTarget;
     const target = document.getElementById(targetId);
     if (!target) return;
 
@@ -127,7 +122,7 @@ export function AnimateToTarget({
       containerAnimation.cancel();
       innerAnimation.cancel();
     };
-  }, [targetId, animateToTarget, prevState]);
+  }, [targetId, animateToTarget]);
 
   return (
     <div

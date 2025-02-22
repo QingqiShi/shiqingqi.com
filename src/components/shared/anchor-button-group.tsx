@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { border, color, controlSize, shadow } from "@/tokens.stylex";
+import { border, controlSize, shadow } from "@/tokens.stylex";
 import { buttonTokens } from "./button.stylex";
 
 export function AnchorButtonGroup({ children }: PropsWithChildren) {
@@ -11,7 +11,7 @@ const styles = stylex.create({
   container: {
     display: "inline-flex",
     gap: controlSize._1,
-    backgroundColor: color.controlThumb,
+    backgroundColor: buttonTokens.backgroundColor,
     padding: controlSize._1,
     borderRadius: border.radius_2,
     boxShadow: shadow._2,
@@ -19,5 +19,6 @@ const styles = stylex.create({
     position: "relative",
     [buttonTokens.borderRadius]: border.radius_1,
     [buttonTokens.boxShadow]: "none",
+    [buttonTokens.height]: controlSize._8,
   },
 });
