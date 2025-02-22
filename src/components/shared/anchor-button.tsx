@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
-import { border, color, controlSize, shadow } from "@/tokens.stylex";
+import { color, controlSize } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
 import { anchorTokens } from "./anchor.stylex";
 import { buttonTokens } from "./button.stylex";
@@ -57,11 +57,11 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: controlSize._2,
-    height: controlSize._9,
+    height: buttonTokens.height,
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
-    borderRadius: border.radius_round,
-    boxShadow: shadow._2,
+    borderRadius: buttonTokens.borderRadius,
+    boxShadow: buttonTokens.boxShadow,
     transition: "background 0.2s ease",
     backgroundColor: buttonTokens.backgroundColor,
     opacity: {

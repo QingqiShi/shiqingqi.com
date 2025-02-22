@@ -2,5 +2,17 @@
   "genre": {
     "en": "Genre",
     "zh": "类型"
+  },
+  "filterType": {
+    "en": "Applies to",
+    "zh": "筛选"
+  },
+  "all": {
+    "en": "All selected",
+    "zh": "所有选中类型"
+  },
+  "any": {
+    "en": "Any selected",
+    "zh": "任意选中类型"
   }
 }

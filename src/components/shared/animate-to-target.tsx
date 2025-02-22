@@ -1,12 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import {
-  useLayoutEffect,
-  useRef,
-  useState,
-  type PropsWithChildren,
-} from "react";
+import { useLayoutEffect, useRef, type PropsWithChildren } from "react";
 
 const animationOptions: KeyframeAnimationOptions = {
   duration: 300,
@@ -14,7 +9,7 @@ const animationOptions: KeyframeAnimationOptions = {
   easing: "ease-in-out",
 };
 
-interface FlipAnimationProps {
+interface AnimateToTargetProps {
   /** If true, animate towards the target element. */
   animateToTarget: boolean;
   /** The id of the target element. */
@@ -43,25 +38,25 @@ interface FlipAnimationProps {
  * For each keyframe, we calculate the inverse scaling for the child container, ensuring that both the outer
  * and inner elements remain in sync throughout the animation.
  */
-export function FlipAnimation({
+export function AnimateToTarget({
   animateToTarget,
   targetId,
   inline,
   className,
   style,
   children,
-}: PropsWithChildren<FlipAnimationProps>) {
+}: PropsWithChildren<AnimateToTargetProps>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
 
-  const [prevState, setPrevState] = useState(animateToTarget);
-
+  const prevStateRef = useRef(animateToTarget);
   useLayoutEffect(() => {
     const containerEl = containerRef.current;
     const innerEl = innerRef.current;
-    if (!containerEl || !innerEl || animateToTarget === prevState) return;
+    if (!containerEl || !innerEl || animateToTarget === prevStateRef.current)
+      return;
 
-    setPrevState(animateToTarget);
+    prevStateRef.current = animateToTarget;
     const target = document.getElementById(targetId);
     if (!target) return;
 

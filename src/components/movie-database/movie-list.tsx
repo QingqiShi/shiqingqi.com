@@ -21,10 +21,11 @@ interface MovieListProps {
 export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
   const { locale } = useTranslationContext();
 
-  const { genres } = useMovieFilters();
+  const { genres, genreFilterType } = useMovieFilters();
 
   // Use deferred value to prevent re-suspending when the genre changes
   const deferredGenre = useDeferredValue(genres);
+  const deferredGenreFilterType = useDeferredValue(genreFilterType);
 
   const {
     data: { movies },
@@ -34,7 +35,10 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
     tmdbQueries.movieList({
       page: initialPage,
       language: locale,
-      with_genres: [...deferredGenre].join(",") || undefined,
+      with_genres:
+        [...deferredGenre].join(
+          deferredGenreFilterType === "any" ? "|" : ","
+        ) || undefined,
     })
   );
 
