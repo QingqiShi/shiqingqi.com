@@ -24,6 +24,9 @@ export default async function Page(
     typeof searchParams.genre === "string"
       ? [searchParams.genre]
       : searchParams.genre;
+  const genreFilterType = Array.isArray(searchParams.genreFilterType)
+    ? searchParams.genreFilterType[0]
+    : searchParams.genreFilterType;
 
   // Fetch config and initial page
   const queryClient = getQueryClient();
@@ -32,13 +35,13 @@ export default async function Page(
     tmdbQueries.movieList({
       language: params.locale,
       page: 1,
-      with_genres: genres?.join(","),
+      with_genres: genres?.join(genreFilterType === "any" ? "|" : ","),
     })
   );
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <MovieFiltersProvider defaultFilters={{ genres }}>
+      <MovieFiltersProvider defaultFilters={{ genres, genreFilterType: "all" }}>
         <Suspense fallback={<FiltersSkeleton />}>
           <Filters locale={params.locale} />
         </Suspense>

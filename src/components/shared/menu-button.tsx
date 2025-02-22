@@ -9,9 +9,9 @@ import {
 } from "react";
 import { useClickAway } from "@/hooks/use-click-away";
 import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
+import { AnimateToTarget } from "./animate-to-target";
 import { Button } from "./button";
 import { buttonTokens } from "./button.stylex";
-import { FlipAnimation } from "./flip-animation";
 
 interface MenuButtonProps {
   /** The button children */
@@ -81,7 +81,7 @@ export function MenuButton({
           styles[position],
         ]}
       >
-        <FlipAnimation
+        <AnimateToTarget
           css={[styles.menu]}
           animateToTarget={!isMenuShown}
           targetId={targetId}
@@ -90,7 +90,7 @@ export function MenuButton({
             <div css={styles.menuTitle}>{children}</div>
             {menuContent}
           </div>
-        </FlipAnimation>
+        </AnimateToTarget>
       </div>
     </div>
   );
@@ -105,14 +105,13 @@ const styles = stylex.create({
     position: "absolute",
     zIndex: layer.overlay,
     borderRadius: border.radius_2,
-    overflow: "hidden",
   },
   hidden: {
     pointerEvents: "none",
   },
   menu: {
     backgroundColor: color.controlTrack,
-    boxShadow: shadow._4,
+    boxShadow: shadow._5,
     borderRadius: border.radius_2,
     overflow: "hidden",
     [buttonTokens.backgroundColor]: {

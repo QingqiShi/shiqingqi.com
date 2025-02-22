@@ -14,7 +14,7 @@ const animationOptions: KeyframeAnimationOptions = {
   easing: "ease-in-out",
 };
 
-interface FlipAnimationProps {
+interface AnimateToTargetProps {
   /** If true, animate towards the target element. */
   animateToTarget: boolean;
   /** The id of the target element. */
@@ -43,14 +43,14 @@ interface FlipAnimationProps {
  * For each keyframe, we calculate the inverse scaling for the child container, ensuring that both the outer
  * and inner elements remain in sync throughout the animation.
  */
-export function FlipAnimation({
+export function AnimateToTarget({
   animateToTarget,
   targetId,
   inline,
   className,
   style,
   children,
-}: PropsWithChildren<FlipAnimationProps>) {
+}: PropsWithChildren<AnimateToTargetProps>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
 
@@ -127,7 +127,7 @@ export function FlipAnimation({
       containerAnimation.cancel();
       innerAnimation.cancel();
     };
-  }, [targetId, animateToTarget]);
+  }, [targetId, animateToTarget, prevState]);
 
   return (
     <div
