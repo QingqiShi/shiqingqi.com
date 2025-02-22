@@ -27,7 +27,9 @@ export function AnchorButton({
       style={style}
       css={[
         styles.button,
-        !!icon && !hideLabelOnMobile && styles.hasIcon,
+        !!icon &&
+          !!children &&
+          (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
         isActive && styles.active,
       ]}
     >
@@ -75,6 +77,9 @@ const styles = stylex.create({
   },
   hasIcon: {
     paddingLeft: controlSize._2,
+  },
+  hasIconHideLabel: {
+    paddingLeft: { default: controlSize._3, [breakpoints.md]: controlSize._2 },
   },
   icon: {
     display: "inline-flex",
