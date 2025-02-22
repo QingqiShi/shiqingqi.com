@@ -7,6 +7,7 @@ import { MovieList } from "@/components/movie-database/movie-list";
 import type { PageProps } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
+import type { GenreFilterType, Sort } from "@/utils/movie-filters-context";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import translations from "./translations.json";
 
@@ -24,9 +25,14 @@ export default async function Page(
     typeof searchParams.genre === "string"
       ? [searchParams.genre]
       : searchParams.genre;
-  const genreFilterType = Array.isArray(searchParams.genreFilterType)
-    ? searchParams.genreFilterType[0]
-    : searchParams.genreFilterType;
+  const genreFilterType = (
+    Array.isArray(searchParams.genreFilterType)
+      ? searchParams.genreFilterType[0]
+      : searchParams.genreFilterType
+  ) as GenreFilterType | undefined;
+  const sort = (
+    Array.isArray(searchParams.sort) ? searchParams.sort[0] : searchParams.sort
+  ) as Sort | undefined;
 
   // Fetch config and initial page
   const queryClient = getQueryClient();
@@ -36,12 +42,19 @@ export default async function Page(
       language: params.locale,
       page: 1,
       with_genres: genres?.join(genreFilterType === "any" ? "|" : ","),
+      sort_by: sort !== "popularity.desc" ? sort : undefined,
     })
   );
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <MovieFiltersProvider defaultFilters={{ genres, genreFilterType: "all" }}>
+      <MovieFiltersProvider
+        defaultFilters={{
+          genres,
+          genreFilterType,
+          sort,
+        }}
+      >
         <Suspense fallback={<FiltersSkeleton />}>
           <Filters locale={params.locale} />
         </Suspense>

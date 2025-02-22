@@ -21,11 +21,12 @@ interface MovieListProps {
 export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
   const { locale } = useTranslationContext();
 
-  const { genres, genreFilterType } = useMovieFilters();
+  const { genres, genreFilterType, sort } = useMovieFilters();
 
   // Use deferred value to prevent re-suspending when the genre changes
   const deferredGenre = useDeferredValue(genres);
   const deferredGenreFilterType = useDeferredValue(genreFilterType);
+  const deferredSort = useDeferredValue(sort);
 
   const {
     data: { movies },
@@ -39,6 +40,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
         [...deferredGenre].join(
           deferredGenreFilterType === "any" ? "|" : ","
         ) || undefined,
+      sort_by: deferredSort !== "popularity.desc" ? deferredSort : undefined,
     })
   );
 
@@ -67,7 +69,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
           <Skeleton css={styles.skeleton} delay={index * 100} />
         )
       }
-      endReached={hasNextPage ? () => void fetchNextPage() : undefined}
+      endReached={hasNextPage ? () => void fetchNextPage() : () => {}}
       increaseViewportBy={height}
       initialItemCount={movies.length}
       useWindowScroll
