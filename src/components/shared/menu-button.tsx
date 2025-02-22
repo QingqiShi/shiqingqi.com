@@ -1,4 +1,7 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
+import type { PropsWithChildren } from "react";
 import {
   useEffect,
   useId,
@@ -14,8 +17,6 @@ import { Button } from "./button";
 import { buttonTokens } from "./button.stylex";
 
 interface MenuButtonProps {
-  /** The button children */
-  children: ReactNode;
   /** Button prop overrides */
   buttonProps: Partial<ComponentProps<typeof Button>>;
   /** The node to render into the expanded menu. */
@@ -33,7 +34,7 @@ export function MenuButton({
   menuContent,
   position = "topRight",
   disabled,
-}: MenuButtonProps) {
+}: PropsWithChildren<MenuButtonProps>) {
   const [isMenuShown, setIsMenuShown] = useState(false);
 
   const outsideClicked = useRef(false);
@@ -87,7 +88,7 @@ export function MenuButton({
           targetId={targetId}
         >
           <div>
-            <div css={styles.menuTitle}>{children}</div>
+            {children && <div css={styles.menuTitle}>{children}</div>}
             {menuContent}
           </div>
         </AnimateToTarget>

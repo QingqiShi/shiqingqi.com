@@ -216,8 +216,8 @@ export const layer = stylex.defineVars({
   background: -100,
   base: 0,
   content: 100,
-  header: 200,
-  overlay: 300,
+  overlay: 200,
+  header: 300,
   tooltip: 400,
   toaster: 500,
 });

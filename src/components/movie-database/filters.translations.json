@@ -1,19 +1,23 @@
 {
+  "mainTitle": {
+    "en": "Refine",
+    "zh": "筛选"
+  },
   "genre": {
     "en": "Genre",
     "zh": "类型"
   },
   "filterType": {
-    "en": "Applies to",
-    "zh": "筛选"
+    "en": "Matching",
+    "zh": "选中类型"
   },
   "all": {
     "en": "All selected",
-    "zh": "所有选中类型"
+    "zh": "全部匹配"
   },
   "any": {
     "en": "Any selected",
-    "zh": "任意选中类型"
+    "zh": "匹配任一"
   },
   "popularity": {
     "en": "Popularity",
@@ -22,5 +26,9 @@
   "rating": {
     "en": "Rating",
     "zh": "评分"
+  },
+  "sort": {
+    "en": "Sort",
+    "zh": "排序"
   }
 }
