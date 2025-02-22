@@ -28,21 +28,19 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
   const deferredGenreFilterType = useDeferredValue(genreFilterType);
   const deferredSort = useDeferredValue(sort);
 
+  const tmdbQueryOptions = tmdbQueries.movieList({
+    page: initialPage,
+    language: locale,
+    with_genres:
+      [...deferredGenre].join(deferredGenreFilterType === "any" ? "|" : ",") ||
+      undefined,
+    sort_by: deferredSort !== "popularity.desc" ? deferredSort : undefined,
+  });
   const {
     data: { movies },
     fetchNextPage,
     hasNextPage,
-  } = useSuspenseInfiniteQuery(
-    tmdbQueries.movieList({
-      page: initialPage,
-      language: locale,
-      with_genres:
-        [...deferredGenre].join(
-          deferredGenreFilterType === "any" ? "|" : ","
-        ) || undefined,
-      sort_by: deferredSort !== "popularity.desc" ? deferredSort : undefined,
-    })
-  );
+  } = useSuspenseInfiniteQuery(tmdbQueryOptions);
 
   // Get viewport height, used for infinite scroll padding
   const [height, setHeight] = useState(() =>
@@ -60,6 +58,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
 
   return (
     <VirtuosoGrid
+      key={JSON.stringify(tmdbQueryOptions)}
       data={movies}
       components={gridComponents}
       itemContent={(index) =>
@@ -69,7 +68,11 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
           <Skeleton css={styles.skeleton} delay={index * 100} />
         )
       }
-      endReached={hasNextPage ? () => void fetchNextPage() : () => {}}
+      endReached={() => {
+        if (hasNextPage) {
+          void fetchNextPage();
+        }
+      }}
       increaseViewportBy={height}
       initialItemCount={movies.length}
       useWindowScroll
