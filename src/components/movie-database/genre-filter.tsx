@@ -37,7 +37,6 @@ export function GenreFilter({ allGenres }: GenreFilterProps) {
         icon: <Funnel weight="bold" role="presentation" />,
         type: "button",
         "aria-label": t("genre"),
-        hideLabelOnMobile: true,
       }}
       menuContent={
         <div css={styles.menu}>
