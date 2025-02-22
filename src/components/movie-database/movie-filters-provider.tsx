@@ -2,13 +2,14 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, type PropsWithChildren } from "react";
-import type { GenreFilterType } from "@/utils/movie-filters-context";
+import type { GenreFilterType, Sort } from "@/utils/movie-filters-context";
 import { MovieFiltersContext } from "@/utils/movie-filters-context";
 
 interface MovieFiltersProviderProps {
   defaultFilters?: {
     genres?: string[];
     genreFilterType?: GenreFilterType;
+    sort?: Sort;
   };
 }
 
@@ -22,6 +23,7 @@ export function MovieFiltersProvider({
   const [movieFilters, setMovieFilters] = useState(() => ({
     genres: new Set<string>(defaultFilters?.genres),
     genreFilterType: defaultFilters?.genreFilterType ?? "all",
+    sort: defaultFilters?.sort ?? "popularity.desc",
   }));
 
   const toggleGenre = (genreId: string) => {
@@ -64,6 +66,20 @@ export function MovieFiltersProvider({
     return `${pathname}${searchString ? `?${searchString}` : ""}`;
   };
 
+  const setSort = (sort: Sort) => {
+    setMovieFilters((prev) => ({ ...prev, sort }));
+  };
+
+  const setSortUrl = (sort: Sort) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete("sort");
+    if (sort !== "popularity.desc") {
+      newSearchParams.append("sort", sort);
+    }
+    const searchString = newSearchParams.toString();
+    return `${pathname}${searchString ? `?${searchString}` : ""}`;
+  };
+
   useEffect(() => {
     const url = new URL(window.location.href);
     // Clear any existing genres
@@ -76,12 +92,18 @@ export function MovieFiltersProvider({
 
     // Filter type
     url.searchParams.delete("genreFilterType");
-    if (movieFilters.genreFilterType === "any") {
+    if (movieFilters.genreFilterType !== "all") {
       url.searchParams.append("genreFilterType", movieFilters.genreFilterType);
     }
 
+    // Sort
+    url.searchParams.delete("sort");
+    if (movieFilters.sort !== "popularity.desc") {
+      url.searchParams.append("sort", movieFilters.sort);
+    }
+
     window.history.replaceState({}, "", url);
-  }, [movieFilters.genres, movieFilters.genreFilterType]);
+  }, [movieFilters.genres, movieFilters.genreFilterType, movieFilters.sort]);
 
   return (
     <MovieFiltersContext
@@ -91,6 +113,8 @@ export function MovieFiltersProvider({
         toggleGenreUrl,
         setGenreFilterType,
         setGenreFilterTypeUrl,
+        setSort,
+        setSortUrl,
       }}
     >
       {children}

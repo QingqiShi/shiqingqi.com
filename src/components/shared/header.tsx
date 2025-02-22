@@ -46,7 +46,6 @@ const styles = stylex.create({
     height: "5rem",
     zIndex: layer.header,
     pointerEvents: "none",
-    viewTransitionName: "header",
   },
   nav: {
     maxWidth: {
