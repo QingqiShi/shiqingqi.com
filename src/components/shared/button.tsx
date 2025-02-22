@@ -24,7 +24,12 @@ export function Button({
       {...props}
       className={className}
       style={style}
-      css={[styles.button, !!icon && !hideLabelOnMobile && styles.hasIcon]}
+      css={[
+        styles.button,
+        !!icon &&
+          !!children &&
+          (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
+      ]}
     >
       {icon && <span css={styles.icon}>{icon}</span>}
       {children && (
@@ -71,6 +76,9 @@ const styles = stylex.create({
   },
   hasIcon: {
     paddingLeft: controlSize._2,
+  },
+  hasIconHideLabel: {
+    paddingLeft: { default: controlSize._3, [breakpoints.md]: controlSize._2 },
   },
   icon: {
     display: "inline-flex",
