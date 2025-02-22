@@ -1,25 +1,24 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useMovieFilters } from "@/hooks/use-movie-filters";
 import { useTranslations } from "@/hooks/use-translations";
-import { color, controlSize } from "@/tokens.stylex";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
+import { MenuLabel } from "../shared/menu-label";
 import type translations from "./filters.translations.json";
 
-interface SortFilter {
+interface SortFilterProps {
   bright?: boolean;
   hideLabel?: boolean;
 }
 
-export function SortFilter({ bright, hideLabel }: SortFilter) {
+export function SortFilter({ bright, hideLabel }: SortFilterProps) {
   const { sort, setSort, setSortUrl } = useMovieFilters();
   const { t } = useTranslations<typeof translations>("filters");
 
   return (
     <div>
-      {!hideLabel && <div css={styles.label}>{t("sort")}</div>}
+      {!hideLabel && <MenuLabel>{t("sort")}</MenuLabel>}
       <AnchorButtonGroup bright={bright}>
         <AnchorButton
           href={
@@ -65,11 +64,3 @@ export function SortFilter({ bright, hideLabel }: SortFilter) {
     </div>
   );
 }
-
-const styles = stylex.create({
-  label: {
-    fontSize: controlSize._3,
-    padding: `0 0 ${controlSize._2}`,
-    color: color.textMuted,
-  },
-});

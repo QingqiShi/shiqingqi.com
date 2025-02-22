@@ -4,17 +4,19 @@ import * as stylex from "@stylexjs/stylex";
 import { useId } from "react";
 import { useMovieFilters } from "@/hooks/use-movie-filters";
 import { useTranslations } from "@/hooks/use-translations";
-import { color, controlSize, space } from "@/tokens.stylex";
+import { controlSize, space } from "@/tokens.stylex";
 import type { Genre } from "@/utils/tmdb-api";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
+import { MenuLabel } from "../shared/menu-label";
 import type translations from "./filters.translations.json";
 
 interface GenreFilterProps {
   allGenres?: Genre[];
+  hideTitle?: boolean;
 }
 
-export function GenreFilter({ allGenres }: GenreFilterProps) {
+export function GenreFilter({ allGenres, hideTitle }: GenreFilterProps) {
   const {
     genres,
     toggleGenre,
@@ -31,7 +33,7 @@ export function GenreFilter({ allGenres }: GenreFilterProps) {
   return (
     <div css={styles.container}>
       <div>
-        <div css={styles.label}>{t("genre")}</div>
+        {!hideTitle && <MenuLabel>{t("genre")}</MenuLabel>}
         <div css={styles.genreList}>
           {allGenres?.map((genre) => {
             const idString = genre.id.toString();
@@ -58,7 +60,7 @@ export function GenreFilter({ allGenres }: GenreFilterProps) {
 
       {genres.size > 1 && (
         <div>
-          <div css={styles.label}>{t("filterType")}</div>
+          <MenuLabel>{t("filterType")}</MenuLabel>
           <AnchorButtonGroup bright>
             <AnchorButton
               href={setGenreFilterTypeUrl("all")}
@@ -104,10 +106,5 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     gap: controlSize._2,
-  },
-  label: {
-    fontSize: controlSize._3,
-    padding: `0 0 ${controlSize._2}`,
-    color: color.textMuted,
   },
 });

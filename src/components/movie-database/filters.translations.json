@@ -30,5 +30,13 @@
   "sort": {
     "en": "Sort",
     "zh": "排序"
+  },
+  "reset": {
+    "en": "Reset",
+    "zh": "重置"
+  },
+  "resetDescription": {
+    "en": "Reset sorting and filters",
+    "zh": "重置筛选与排序"
   }
 }

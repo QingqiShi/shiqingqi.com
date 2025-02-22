@@ -27,7 +27,7 @@ export async function Filters({ locale }: FiltersProps) {
           <MenuButton
             menuContent={
               <div css={styles.desktopMenuContent}>
-                <GenreFilter allGenres={genres} />
+                <GenreFilter allGenres={genres} hideTitle />
               </div>
             }
             buttonProps={{
@@ -36,10 +36,10 @@ export async function Filters({ locale }: FiltersProps) {
             }}
             position="topLeft"
           >
-            {t("mainTitle")}
+            {t("genre")}
           </MenuButton>
           <SortFilter hideLabel />
-          <ResetFilter />
+          <ResetFilter hideLabel />
         </>
       }
       mobileChildren={
@@ -48,6 +48,7 @@ export async function Filters({ locale }: FiltersProps) {
             <div css={styles.mobileMenuContent}>
               <SortFilter bright />
               <GenreFilter allGenres={genres} />
+              <ResetFilter bright />
             </div>
           }
           buttonProps={{
@@ -74,7 +75,7 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     gap: space._4,
-    padding: space._2,
+    padding: controlSize._3,
     maxHeight: `calc(100dvh - 5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
     overflow: "auto",
   },

@@ -82,9 +82,9 @@ export function MovieFiltersProvider({
 
   const reset = () => {
     setMovieFilters({
-      genres: new Set<string>(defaultFilters?.genres),
-      genreFilterType: defaultFilters?.genreFilterType ?? "all",
-      sort: defaultFilters?.sort ?? "popularity.desc",
+      genres: new Set<string>(),
+      genreFilterType: "all",
+      sort: "popularity.desc",
     });
   };
 
