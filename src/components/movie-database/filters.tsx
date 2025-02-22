@@ -8,6 +8,7 @@ import { MenuButton } from "../shared/menu-button";
 import { FiltersContainer } from "./filters-container";
 import translations from "./filters.translations.json";
 import { GenreFilter } from "./genre-filter";
+import { ResetFilter } from "./reset-filter";
 import { SortFilter } from "./sort-filter";
 
 interface FiltersProps {
@@ -38,13 +39,14 @@ export async function Filters({ locale }: FiltersProps) {
             {t("mainTitle")}
           </MenuButton>
           <SortFilter hideLabel />
+          <ResetFilter />
         </>
       }
       mobileChildren={
         <MenuButton
           menuContent={
             <div css={styles.mobileMenuContent}>
-              <SortFilter />
+              <SortFilter bright />
               <GenreFilter allGenres={genres} />
             </div>
           }

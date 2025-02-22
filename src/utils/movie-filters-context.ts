@@ -19,4 +19,7 @@ export const MovieFiltersContext = createContext<{
   sort: Sort;
   setSort: (sort: Sort) => void;
   setSortUrl: (sort: Sort) => string;
+
+  reset: () => void;
+  resetUrl: () => string;
 } | null>(null);

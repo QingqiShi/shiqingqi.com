@@ -47,6 +47,7 @@ export function GenreFilter({ allGenres }: GenreFilterProps) {
                 }}
                 replace
                 shallow
+                bright
               >
                 {genre.name}
               </AnchorButton>
@@ -58,7 +59,7 @@ export function GenreFilter({ allGenres }: GenreFilterProps) {
       {genres.size > 1 && (
         <div>
           <div css={styles.label}>{t("filterType")}</div>
-          <AnchorButtonGroup>
+          <AnchorButtonGroup bright>
             <AnchorButton
               href={setGenreFilterTypeUrl("all")}
               onClick={(e) => {
@@ -67,6 +68,7 @@ export function GenreFilter({ allGenres }: GenreFilterProps) {
               }}
               id={`${id}-all`}
               isActive={genreFilterType === "all"}
+              bright
             >
               {t("all")}
             </AnchorButton>
@@ -78,6 +80,7 @@ export function GenreFilter({ allGenres }: GenreFilterProps) {
               }}
               id={`${id}-any`}
               isActive={genreFilterType === "any"}
+              bright
             >
               {t("any")}
             </AnchorButton>

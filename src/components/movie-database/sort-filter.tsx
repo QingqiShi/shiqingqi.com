@@ -9,17 +9,18 @@ import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import type translations from "./filters.translations.json";
 
 interface SortFilter {
+  bright?: boolean;
   hideLabel?: boolean;
 }
 
-export function SortFilter({ hideLabel }: SortFilter) {
+export function SortFilter({ bright, hideLabel }: SortFilter) {
   const { sort, setSort, setSortUrl } = useMovieFilters();
   const { t } = useTranslations<typeof translations>("filters");
 
   return (
     <div>
       {!hideLabel && <div css={styles.label}>{t("sort")}</div>}
-      <AnchorButtonGroup>
+      <AnchorButtonGroup bright={bright}>
         <AnchorButton
           href={
             sort === "popularity.desc"
@@ -33,6 +34,7 @@ export function SortFilter({ hideLabel }: SortFilter) {
               sort === "popularity.desc" ? "popularity.asc" : "popularity.desc"
             );
           }}
+          bright={bright}
         >
           {t("popularity")}
           {sort === "popularity.asc" && " ↑"}
@@ -53,6 +55,7 @@ export function SortFilter({ hideLabel }: SortFilter) {
                 : "vote_average.desc"
             );
           }}
+          bright={bright}
         >
           {t("rating")}
           {sort === "vote_average.asc" && " ↑"}

@@ -14,7 +14,6 @@ import { useClickAway } from "@/hooks/use-click-away";
 import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
 import { AnimateToTarget } from "./animate-to-target";
 import { Button } from "./button";
-import { buttonTokens } from "./button.stylex";
 
 interface MenuButtonProps {
   /** Button prop overrides */
@@ -115,10 +114,6 @@ const styles = stylex.create({
     boxShadow: shadow._5,
     borderRadius: border.radius_2,
     overflow: "hidden",
-    [buttonTokens.backgroundColor]: {
-      default: color.controlThumb,
-    },
-    [buttonTokens.color]: color.textOnControlThumb,
   },
   menuTitle: {
     fontSize: controlSize._3,

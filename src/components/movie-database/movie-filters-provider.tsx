@@ -80,6 +80,23 @@ export function MovieFiltersProvider({
     return `${pathname}${searchString ? `?${searchString}` : ""}`;
   };
 
+  const reset = () => {
+    setMovieFilters({
+      genres: new Set<string>(defaultFilters?.genres),
+      genreFilterType: defaultFilters?.genreFilterType ?? "all",
+      sort: defaultFilters?.sort ?? "popularity.desc",
+    });
+  };
+
+  const resetUrl = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete("genre");
+    newSearchParams.delete("genreFilterType");
+    newSearchParams.delete("sort");
+    const searchString = newSearchParams.toString();
+    return `${pathname}${searchString ? `?${searchString}` : ""}`;
+  };
+
   useEffect(() => {
     const url = new URL(window.location.href);
     // Clear any existing genres
@@ -103,6 +120,7 @@ export function MovieFiltersProvider({
     }
 
     window.history.replaceState({}, "", url);
+    window.scrollTo({ behavior: "smooth", top: 0 });
   }, [movieFilters.genres, movieFilters.genreFilterType, movieFilters.sort]);
 
   return (
@@ -115,6 +133,8 @@ export function MovieFiltersProvider({
         setGenreFilterTypeUrl,
         setSort,
         setSortUrl,
+        reset,
+        resetUrl,
       }}
     >
       {children}
