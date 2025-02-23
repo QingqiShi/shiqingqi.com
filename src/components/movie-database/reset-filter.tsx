@@ -13,9 +13,13 @@ interface ResetFilterProps {
 }
 
 export function ResetFilter({ bright, hideLabel }: ResetFilterProps) {
-  const { reset, resetUrl } = useMovieFilters();
+  const { canReset, reset, resetUrl } = useMovieFilters();
 
   const { t } = useTranslations<typeof translations>("filters");
+
+  if (!canReset) {
+    return null;
+  }
 
   return (
     <div>

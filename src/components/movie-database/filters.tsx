@@ -2,42 +2,27 @@ import { Funnel } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { controlSize, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
 import { fetchMovieGenres } from "@/utils/tmdb-api";
 import { MenuButton } from "../shared/menu-button";
 import { FiltersContainer } from "./filters-container";
-import translations from "./filters.translations.json";
 import { GenreFilter } from "./genre-filter";
+import { GenreFilterButton } from "./genre-filter-button";
 import { ResetFilter } from "./reset-filter";
 import { SortFilter } from "./sort-filter";
 
 interface FiltersProps {
   locale: SupportedLocale;
+  mobileButtonLabel: string;
 }
 
-export async function Filters({ locale }: FiltersProps) {
-  const { t } = getTranslations(translations, locale);
-
+export async function Filters({ locale, mobileButtonLabel }: FiltersProps) {
   const { genres } = await fetchMovieGenres({ language: locale });
 
   return (
     <FiltersContainer
       desktopChildren={
         <>
-          <MenuButton
-            menuContent={
-              <div css={styles.desktopMenuContent}>
-                <GenreFilter allGenres={genres} hideTitle />
-              </div>
-            }
-            buttonProps={{
-              icon: <Funnel weight="bold" role="presentation" />,
-              type: "button",
-            }}
-            position="topLeft"
-          >
-            {t("genre")}
-          </MenuButton>
+          <GenreFilterButton allGenres={genres} />
           <SortFilter hideLabel />
           <ResetFilter hideLabel />
         </>
@@ -62,7 +47,7 @@ export async function Filters({ locale }: FiltersProps) {
           }}
           position="topRight"
         >
-          {t("mainTitle")}
+          {mobileButtonLabel}
         </MenuButton>
       }
     />
