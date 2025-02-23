@@ -1,3 +1,4 @@
+// @inferEffectDependencies
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
@@ -47,7 +48,7 @@ export function MenuButton({
     if (isMenuShown) {
       outsideClicked.current = false;
     }
-  }, [isMenuShown]);
+  });
 
   const targetId = useId();
 

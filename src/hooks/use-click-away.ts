@@ -1,3 +1,4 @@
+// @inferEffectDependencies
 import { useEffect, useRef } from "react";
 
 export function useClickAway<T extends HTMLElement = HTMLElement>(
@@ -20,7 +21,7 @@ export function useClickAway<T extends HTMLElement = HTMLElement>(
       document.removeEventListener("mousedown", handler);
       document.removeEventListener("touchstart", handler);
     };
-  }, [callback]);
+  });
 
   return ref;
 }

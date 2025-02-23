@@ -1,3 +1,4 @@
+// @inferEffectDependencies
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
@@ -132,7 +133,7 @@ export function MovieFiltersProvider({
 
     window.history.replaceState({}, "", url);
     window.scrollTo({ behavior: "smooth", top: 0 });
-  }, [movieFilters.genres, movieFilters.genreFilterType, movieFilters.sort]);
+  });
 
   return (
     <MovieFiltersContext
