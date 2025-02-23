@@ -1,12 +1,11 @@
-import { Funnel } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { controlSize, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { fetchMovieGenres } from "@/utils/tmdb-api";
-import { MenuButton } from "../shared/menu-button";
 import { FiltersContainer } from "./filters-container";
 import { GenreFilter } from "./genre-filter";
 import { GenreFilterButton } from "./genre-filter-button";
+import { MobileFiltersButton } from "./mobile-filters-button";
 import { ResetFilter } from "./reset-filter";
 import { SortFilter } from "./sort-filter";
 
@@ -28,7 +27,7 @@ export async function Filters({ locale, mobileButtonLabel }: FiltersProps) {
         </>
       }
       mobileChildren={
-        <MenuButton
+        <MobileFiltersButton
           menuContent={
             <div css={styles.mobileMenuContent}>
               <SortFilter bright />
@@ -36,19 +35,9 @@ export async function Filters({ locale, mobileButtonLabel }: FiltersProps) {
               <ResetFilter bright />
             </div>
           }
-          buttonProps={{
-            icon: (
-              <span css={styles.mobileIcon}>
-                <Funnel weight="bold" role="presentation" />
-              </span>
-            ),
-            type: "button",
-            isActive: true,
-          }}
-          position="topRight"
         >
           {mobileButtonLabel}
-        </MenuButton>
+        </MobileFiltersButton>
       }
     />
   );
