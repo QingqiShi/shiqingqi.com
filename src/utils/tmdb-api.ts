@@ -33,6 +33,7 @@ export type MovieListItem = {
   id: number;
   title?: string;
   posterPath?: string;
+  rating?: number;
 };
 
 /** Fetch list of movies */
@@ -79,6 +80,7 @@ export async function fetchMovieList({
           id: movie.id,
           title: movie.title,
           posterPath: movie.poster_path,
+          rating: movie.vote_average,
         }) satisfies MovieListItem
     ),
   };
