@@ -6,18 +6,20 @@ import { anchorTokens } from "./anchor.stylex";
 import { buttonTokens } from "./button.stylex";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
-  icon?: React.ReactNode;
+  bright?: boolean;
   hideLabelOnMobile?: boolean;
+  icon?: React.ReactNode;
   isActive?: boolean;
 }
 
 export function AnchorButton({
-  icon,
+  bright,
   children,
-  style,
   className,
   hideLabelOnMobile,
+  icon,
   isActive,
+  style,
   ...props
 }: AnchorButtonProps) {
   return (
@@ -30,6 +32,7 @@ export function AnchorButton({
         !!icon &&
           !!children &&
           (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
+        bright && styles.bright,
         isActive && styles.active,
       ]}
     >
@@ -65,13 +68,14 @@ const styles = stylex.create({
     borderRadius: buttonTokens.borderRadius,
     boxShadow: buttonTokens.boxShadow,
     transition: "background 0.2s ease",
-    backgroundColor: buttonTokens.backgroundColor,
+    backgroundColor: {
+      default: color.backgroundRaised,
+      ":hover": color.backgroundHover,
+      ":disabled:hover": color.backgroundRaised,
+    },
     opacity: {
       default: null,
       ":disabled": 0.7,
-    },
-    filter: {
-      ":hover": "brightness(1.1)",
     },
     [anchorTokens.color]: buttonTokens.color,
   },
@@ -101,6 +105,13 @@ const styles = stylex.create({
       default: color.controlActive,
       ":hover": color.controlActiveHover,
       ":disabled:hover": color.controlActive,
+    },
+  },
+  bright: {
+    backgroundColor: color.controlThumb,
+    [buttonTokens.color]: color.textOnControlThumb,
+    filter: {
+      ":hover": "brightness(1.2)",
     },
   },
 });

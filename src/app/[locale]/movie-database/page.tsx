@@ -56,7 +56,10 @@ export default async function Page(
         }}
       >
         <Suspense fallback={<FiltersSkeleton />}>
-          <Filters locale={params.locale} />
+          <Filters
+            locale={params.locale}
+            mobileButtonLabel={t("filterMobileButtonLabel")}
+          />
         </Suspense>
         <MovieList initialPage={1} notFoundLabel={t("notFound")} />
       </MovieFiltersProvider>

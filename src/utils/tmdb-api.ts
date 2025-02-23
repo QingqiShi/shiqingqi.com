@@ -41,12 +41,18 @@ export async function fetchMovieList({
   page,
   with_genres,
   sort_by,
+  "vote_count.gte": voteCountGte = 300,
+  "vote_average.gte": voteAverageGte = 3,
 }: NonNullable<paths["/3/discover/movie"]["get"]["parameters"]["query"]>) {
   const url = new URL(`${BASE_URL}/3/discover/movie`);
   if (language && language !== "en") url.searchParams.set("language", language);
   if (page) url.searchParams.set("page", page.toString());
   if (with_genres) url.searchParams.set("with_genres", with_genres);
   if (sort_by) url.searchParams.set("sort_by", sort_by);
+  if (voteCountGte)
+    url.searchParams.set("vote_count.gte", voteCountGte.toString());
+  if (voteAverageGte)
+    url.searchParams.set("vote_average.gte", voteAverageGte.toString());
 
   const response = await fetch(url.toString(), {
     method: "GET",

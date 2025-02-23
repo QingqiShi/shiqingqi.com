@@ -40,7 +40,7 @@ export async function Header() {
 const styles = stylex.create({
   container: {
     position: "fixed",
-    top: 0,
+    top: "env(safe-area-inset-top)",
     right: 0,
     left: 0,
     height: "5rem",

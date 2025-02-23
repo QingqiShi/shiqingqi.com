@@ -12,7 +12,7 @@ import { Providers } from "@/components/shared/providers";
 import { Skeleton } from "@/components/shared/skeleton";
 import { TranslationProvider } from "@/components/shared/translation-provider";
 import { BASE_URL } from "@/constants";
-import { ratio } from "@/tokens.stylex";
+import { controlSize, ratio, space } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import translations from "./translations.json";
@@ -50,20 +50,22 @@ export default async function Layout({ children, params }: LayoutProps) {
             <HomeLayout params={params}>😢 {t("errorMessage")}</HomeLayout>
           }
         >
-          <Suspense
-            fallback={
-              <>
-                <FiltersSkeleton />
-                <Grid>
-                  {Array.from({ length: 20 }).map((_, i) => (
-                    <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
-                  ))}
-                </Grid>
-              </>
-            }
-          >
-            {children}
-          </Suspense>
+          <div css={styles.container}>
+            <Suspense
+              fallback={
+                <>
+                  <FiltersSkeleton />
+                  <Grid>
+                    {Array.from({ length: 20 }).map((_, i) => (
+                      <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
+                    ))}
+                  </Grid>
+                </>
+              }
+            >
+              {children}
+            </Suspense>
+          </div>
         </ErrorBoundary>
       </TranslationProvider>
     </Providers>
@@ -71,6 +73,11 @@ export default async function Layout({ children, params }: LayoutProps) {
 }
 
 const styles = stylex.create({
+  container: {
+    marginTop: {
+      default: `calc(5rem + env(safe-area-inset-top) + ${controlSize._9} + ${space._3})`,
+    },
+  },
   skeleton: {
     aspectRatio: ratio.poster,
     width: "100%",

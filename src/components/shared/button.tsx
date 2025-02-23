@@ -1,21 +1,25 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import { breakpoints } from "@/breakpoints";
-import { controlSize, font } from "@/tokens.stylex";
+import { color, controlSize, font } from "@/tokens.stylex";
 import { buttonTokens } from "./button.stylex";
 
 interface ButtonProps extends ComponentProps<"button"> {
-  icon?: React.ReactNode;
+  bright?: boolean;
   hideLabelOnMobile?: boolean;
+  icon?: React.ReactNode;
+  isActive?: boolean;
   labelId?: string;
 }
 
 export function Button({
-  icon,
-  hideLabelOnMobile,
-  labelId,
+  bright,
   children,
   className,
+  hideLabelOnMobile,
+  icon,
+  isActive,
+  labelId,
   style,
   ...props
 }: ButtonProps) {
@@ -29,6 +33,8 @@ export function Button({
         !!icon &&
           !!children &&
           (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
+        bright && styles.bright,
+        isActive && styles.active,
       ]}
     >
       {icon && <span css={styles.icon}>{icon}</span>}
@@ -61,14 +67,18 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: controlSize._2,
-    height: controlSize._9,
+    minHeight: controlSize._9,
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
     borderRadius: buttonTokens.borderRadius,
     color: buttonTokens.color,
     boxShadow: buttonTokens.boxShadow,
     transition: "background 0.2s ease",
-    backgroundColor: buttonTokens.backgroundColor,
+    backgroundColor: {
+      default: color.backgroundRaised,
+      ":hover": color.backgroundHover,
+      ":disabled:hover": color.backgroundRaised,
+    },
     opacity: {
       default: null,
       ":disabled": 0.7,
@@ -90,5 +100,23 @@ const styles = stylex.create({
   },
   hideLabelOnMobile: {
     display: { default: "none", [breakpoints.md]: "inline-flex" },
+  },
+  active: {
+    [buttonTokens.color]: {
+      default: color.textOnActive,
+      ":hover": color.textOnActive,
+    },
+    backgroundColor: {
+      default: color.controlActive,
+      ":hover": color.controlActiveHover,
+      ":disabled:hover": color.controlActive,
+    },
+  },
+  bright: {
+    backgroundColor: color.controlThumb,
+    [buttonTokens.color]: color.textOnControlThumb,
+    filter: {
+      ":hover": "brightness(1.1)",
+    },
   },
 });

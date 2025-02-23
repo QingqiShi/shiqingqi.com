@@ -14,5 +14,9 @@
   "notFound": {
     "en": "No movies found that match the criteria, please update the filters",
     "zh": "没有找到符合条件的电影，请更新筛选条件"
+  },
+  "filterMobileButtonLabel": {
+    "en": "Refine",
+    "zh": "筛选"
   }
 }
