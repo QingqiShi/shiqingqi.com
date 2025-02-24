@@ -50,8 +50,8 @@ importers:
         specifier: ^4.12.5
         version: 4.12.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       serwist:
-        specifier: ^9.0.11
-        version: 9.0.11(typescript@5.7.3)
+        specifier: ^9.0.12
+        version: 9.0.12(typescript@5.7.3)
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -1880,6 +1880,9 @@ packages:
   idb@8.0.0:
     resolution: {integrity: sha512-l//qvlAKGmQO31Qn7xdzagVPPaHTxXx199MhrAFuVBTPqydcPYBWjkrbv4Y0ktB+GmWOiwHl237UUOrLmQxLvw==}
 
+  idb@8.0.2:
+    resolution: {integrity: sha512-CX70rYhx7GDDQzwwQMDwF6kDRQi5vVs6khHUumDrMecBylKkwvZ8HWvKV08AGb7VbpoGCWUQ4aHzNDgoUiOIUg==}
+
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
@@ -2731,6 +2734,14 @@ packages:
 
   serwist@9.0.11:
     resolution: {integrity: sha512-oUuyOuIFZoj+ZYdwWnPYVsndOw5CoGsTy106mHJ2wxjnz01TrDhg2l26yrsoJek1qT/Doi0pzknYLLXTIFs5og==}
+    peerDependencies:
+      typescript: '>=5.0.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  serwist@9.0.12:
+    resolution: {integrity: sha512-u5UIJfG/RwkHtffLzlHAaBjXTHQFkKIGvdLQu/zpCWG3cN/AdMbvmtT7Kx2360wQqfE6infDORMdNTtNXpIpjQ==}
     peerDependencies:
       typescript: '>=5.0.0'
     peerDependenciesMeta:
@@ -5122,6 +5133,8 @@ snapshots:
 
   idb@8.0.0: {}
 
+  idb@8.0.2: {}
+
   ignore@5.3.2: {}
 
   import-fresh@3.3.1:
@@ -6027,6 +6040,12 @@ snapshots:
   serwist@9.0.11(typescript@5.7.3):
     dependencies:
       idb: 8.0.0
+    optionalDependencies:
+      typescript: 5.7.3
+
+  serwist@9.0.12(typescript@5.7.3):
+    dependencies:
+      idb: 8.0.2
     optionalDependencies:
       typescript: 5.7.3
 
