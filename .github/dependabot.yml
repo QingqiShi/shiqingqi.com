@@ -36,6 +36,7 @@ updates:
       serwist:
         patterns:
           - "@serwist*"
+          - "serwist"
       stylex:
         patterns:
           - "@stylex*"
