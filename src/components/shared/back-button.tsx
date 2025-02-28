@@ -9,6 +9,8 @@ import { AnchorButton } from "@/components/shared/anchor-button";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath, normalizePath } from "@/utils/pathname";
 
+const ignoredSegments = new Set(["experiences", "education"]);
+
 interface BackButtonProps {
   locale: SupportedLocale;
   label: string;
@@ -22,7 +24,9 @@ export function BackButton({ locale, label }: BackButtonProps) {
     return null;
   }
 
-  const urlParts = normalizedPath.split("/").filter(Boolean);
+  const urlParts = normalizedPath
+    .split("/")
+    .filter((segment) => segment && !ignoredSegments.has(segment));
   const targetPath = getLocalePath(
     urlParts.length === 1
       ? "/"
