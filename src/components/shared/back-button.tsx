@@ -16,12 +16,20 @@ interface BackButtonProps {
 
 export function BackButton({ locale, label }: BackButtonProps) {
   const pathname = usePathname();
+  const normalizedPath = normalizePath(pathname);
 
-  if (normalizePath(pathname) === "/") {
+  if (normalizedPath === "/") {
     return null;
   }
 
-  const targetPath = getLocalePath("/", locale);
+  const urlParts = normalizedPath.split("/").filter(Boolean);
+  const targetPath = getLocalePath(
+    urlParts.length === 1
+      ? "/"
+      : `/${urlParts.slice(0, urlParts.length - 1).join("/")}`,
+    locale
+  );
+
   return (
     <AnchorButton
       icon={<CaretLeft weight="bold" role="presentation" />}

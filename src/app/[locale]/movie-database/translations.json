@@ -7,6 +7,10 @@
     "en": "Qingqi's Movie Database (QMDB) is a tool to help you find ratings and reviews for the newest movie and TV shows.",
     "zh": "石清琪的影视数据库 (QMDB) 是一个帮助您查找最新电影和电视剧评分与影评的工具"
   },
+  "titleTemplate": {
+    "en": "%s | Movie Database | Qingqi Shi",
+    "zh": "%s | 影视数据库 | 石清琪"
+  },
   "errorMessage": {
     "en": "Sorry, couldn't afford to buy all the movies.",
     "zh": "对不起，买不起所有的电影。"

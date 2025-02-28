@@ -8,7 +8,7 @@ import { color, font, layer } from "@/tokens.stylex";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import type translations from "./poster-image.translations.json";
 
-interface PosterImage {
+interface PosterImageProps {
   posterPath: string;
   alt: string;
 }
@@ -18,7 +18,7 @@ interface PosterImage {
  * If the required configuration is unavailable or the image fails to load, a fallback UI is displayed.
  * The component supports lazy loading and generates `srcSet` for responsive image handling.
  */
-export function PosterImage({ posterPath, alt }: PosterImage) {
+export function PosterImage({ posterPath, alt }: PosterImageProps) {
   const { t } = useTranslations<typeof translations>("posterImage");
 
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);

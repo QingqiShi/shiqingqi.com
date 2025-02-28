@@ -21,7 +21,10 @@ export async function generateMetadata(props: PageProps) {
   const params = await props.params;
   const { t } = getTranslations(translations, params.locale);
   return {
-    title: t("title"),
+    title: {
+      default: t("title"),
+      template: t("titleTemplate"),
+    },
     description: t("description"),
     alternates: {
       canonical: new URL("/movie-database", BASE_URL).toString(),
@@ -74,7 +77,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 
 const styles = stylex.create({
   container: {
-    marginTop: {
+    paddingTop: {
       default: `calc(5rem + env(safe-area-inset-top) + ${controlSize._9} + ${space._3})`,
     },
   },
