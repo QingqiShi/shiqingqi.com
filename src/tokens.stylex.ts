@@ -13,6 +13,7 @@ const light = {
   backgroundRaised: "#ebe4e5",
   backgroundHover: "#e6dddd",
   backgroundTranslucent: "rgba(0, 0, 0, 0.01)",
+  backgroundMainChannels: "255,255,255",
 
   controlTrack: "#ccc5c5",
   controlThumb: "#ffffff",
@@ -44,6 +45,7 @@ const dark: { [key in keyof typeof light]: string } = {
   backgroundRaised: "#414141",
   backgroundHover: "#535353",
   backgroundTranslucent: "rgba(255, 255, 255, 0.1)",
+  backgroundMainChannels: "0,0,0",
 
   controlTrack: "#414141",
   controlThumb: "#bbbbbb",
@@ -91,6 +93,10 @@ export const color = stylex.defineVars({
   backgroundTranslucent: {
     default: light.backgroundTranslucent,
     [DARK]: dark.backgroundTranslucent,
+  },
+  backgroundMainChannels: {
+    default: light.backgroundMainChannels,
+    [DARK]: dark.backgroundMainChannels,
   },
 
   controlTrack: { default: light.controlTrack, [DARK]: dark.controlTrack },

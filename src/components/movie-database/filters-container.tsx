@@ -36,7 +36,7 @@ const styles = stylex.create({
 
   desktopContainer: {
     position: "fixed",
-    top: `calc(5rem + env(safe-area-inset-top))`,
+    top: `calc(${space._10} + env(safe-area-inset-top))`,
     right: 0,
     left: 0,
     zIndex: layer.overlay,
@@ -64,7 +64,7 @@ const styles = stylex.create({
   mobileContainer: {
     position: "fixed",
     right: space._3,
-    top: `calc(5rem + env(safe-area-inset-top))`,
+    top: `calc(${space._10} + env(safe-area-inset-top))`,
     zIndex: layer.overlay,
   },
 });

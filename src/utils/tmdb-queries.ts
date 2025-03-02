@@ -1,5 +1,9 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { fetchConfiguration, fetchMovieList } from "./tmdb-api";
+import {
+  fetchConfiguration,
+  fetchMovieDetails,
+  fetchMovieList,
+} from "./tmdb-api";
 
 export const tmdbScope = [{ scope: "tmdb" }];
 
@@ -38,3 +42,9 @@ export const configuration = queryOptions({
   staleTime: 24 * 60 * 60 * 1000,
   gcTime: 24 * 60 * 60 * 1000,
 });
+
+export const movieDetails = (...args: Parameters<typeof fetchMovieDetails>) =>
+  queryOptions({
+    queryKey: [{ query: "movie", movieId: args[0], ...args[1] }],
+    queryFn: () => fetchMovieDetails(...args),
+  });

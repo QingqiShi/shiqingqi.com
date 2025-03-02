@@ -11,7 +11,6 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import { useClickAway } from "@/hooks/use-click-away";
 import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
 import { AnimateToTarget } from "./animate-to-target";
 import { Button } from "./button";
@@ -36,14 +35,9 @@ export function MenuButton({
   disabled,
 }: PropsWithChildren<MenuButtonProps>) {
   const [isMenuShown, setIsMenuShown] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const outsideClicked = useRef(false);
-  const containerRef = useClickAway<HTMLDivElement>(() => {
-    if (isMenuShown) {
-      setIsMenuShown(false);
-      outsideClicked.current = true;
-    }
-  });
   useEffect(() => {
     if (isMenuShown) {
       outsideClicked.current = false;
@@ -53,47 +47,60 @@ export function MenuButton({
   const targetId = useId();
 
   return (
-    <div
-      css={styles.container}
-      ref={containerRef}
-      onBlur={(e) => {
-        if (
-          isMenuShown &&
-          !containerRef.current?.contains(e.currentTarget) &&
-          !outsideClicked.current
-        ) {
-          setIsMenuShown(false);
-        }
-      }}
-    >
-      <Button
-        {...buttonProps}
-        onClick={() => setIsMenuShown(true)}
-        disabled={disabled}
-        id={targetId}
-        labelId={`${targetId}-label`}
-      >
-        {children && <span>{children}</span>}
-      </Button>
+    <>
+      {isMenuShown && (
+        <div
+          css={styles.backdrop}
+          onClick={() => {
+            if (isMenuShown) {
+              setIsMenuShown(false);
+              outsideClicked.current = true;
+            }
+          }}
+        />
+      )}
       <div
-        css={[
-          styles.menuContainer,
-          !isMenuShown && styles.hidden,
-          styles[position],
-        ]}
+        css={styles.container}
+        ref={containerRef}
+        onBlur={(e) => {
+          if (
+            isMenuShown &&
+            !containerRef.current?.contains(e.currentTarget) &&
+            !outsideClicked.current
+          ) {
+            setIsMenuShown(false);
+          }
+        }}
       >
-        <AnimateToTarget
-          css={[styles.menu]}
-          animateToTarget={!isMenuShown}
-          targetId={targetId}
+        <Button
+          {...buttonProps}
+          onClick={() => setIsMenuShown(true)}
+          disabled={disabled}
+          id={targetId}
+          labelId={`${targetId}-label`}
         >
-          <div>
-            {children && <div css={styles.menuTitle}>{children}</div>}
-            {menuContent}
-          </div>
-        </AnimateToTarget>
+          {children && <span>{children}</span>}
+        </Button>
+        <div
+          css={[
+            styles.menuContainer,
+            !isMenuShown && styles.hidden,
+            styles[position],
+          ]}
+        >
+          <AnimateToTarget
+            css={[styles.menu]}
+            animateToTarget={!isMenuShown}
+            targetId={targetId}
+          >
+            <div>
+              {children && <div css={styles.menuTitle}>{children}</div>}
+              {menuContent}
+            </div>
+          </AnimateToTarget>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -136,5 +143,13 @@ const styles = stylex.create({
   bottomRight: {
     bottom: 0,
     right: 0,
+  },
+  backdrop: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: layer.overlay,
   },
 });

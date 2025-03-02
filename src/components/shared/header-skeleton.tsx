@@ -23,7 +23,7 @@ const styles = stylex.create({
     top: 0,
     right: 0,
     left: 0,
-    height: "5rem",
+    height: space._10,
     zIndex: layer.header,
     pointerEvents: "none",
   },

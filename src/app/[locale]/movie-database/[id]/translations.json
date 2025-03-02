@@ -1,0 +1,18 @@
+{
+  "titleFallback": {
+    "en": "Untitled",
+    "zh": "佚名"
+  },
+  "hours": {
+    "en": "h",
+    "zh": " 小时"
+  },
+  "minutes": {
+    "en": "m",
+    "zh": " 分钟"
+  },
+  "comma": {
+    "en": ", ",
+    "zh": "、"
+  }
+}

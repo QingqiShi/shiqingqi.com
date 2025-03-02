@@ -1,18 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
-import HomeLayout from "@/app/[locale]/(home)/layout";
-import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
-import filtersTranslations from "@/components/movie-database/filters.translations.json";
-import { Grid } from "@/components/movie-database/grid";
-import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
-import cardTranslations from "@/components/shared/card.translations.json";
 import { Providers } from "@/components/shared/providers";
-import { Skeleton } from "@/components/shared/skeleton";
-import { TranslationProvider } from "@/components/shared/translation-provider";
 import { BASE_URL } from "@/constants";
-import { controlSize, ratio, space } from "@/tokens.stylex";
+import { space } from "@/tokens.stylex";
 import type { LayoutProps, PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import translations from "./translations.json";
@@ -36,41 +26,10 @@ export async function generateMetadata(props: PageProps) {
   } satisfies Metadata;
 }
 
-export default async function Layout({ children, params }: LayoutProps) {
-  const { locale } = await params;
-  const { t } = getTranslations(translations, locale);
+export default function Layout({ children }: LayoutProps) {
   return (
     <Providers>
-      <TranslationProvider
-        translations={{
-          card: cardTranslations,
-          posterImage: posterImageTranslations,
-          filters: filtersTranslations,
-        }}
-      >
-        <ErrorBoundary
-          fallback={
-            <HomeLayout params={params}>😢 {t("errorMessage")}</HomeLayout>
-          }
-        >
-          <div css={styles.container}>
-            <Suspense
-              fallback={
-                <>
-                  <FiltersSkeleton />
-                  <Grid>
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
-                    ))}
-                  </Grid>
-                </>
-              }
-            >
-              {children}
-            </Suspense>
-          </div>
-        </ErrorBoundary>
-      </TranslationProvider>
+      <div css={styles.container}>{children}</div>
     </Providers>
   );
 }
@@ -78,11 +37,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 const styles = stylex.create({
   container: {
     paddingTop: {
-      default: `calc(5rem + env(safe-area-inset-top) + ${controlSize._9} + ${space._3})`,
+      default: `calc(${space._10} + env(safe-area-inset-top))`,
     },
-  },
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
   },
 });
