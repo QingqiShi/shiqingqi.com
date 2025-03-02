@@ -40,6 +40,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
     data: { movies },
     fetchNextPage,
     hasNextPage,
+    isFetching,
   } = useSuspenseInfiniteQuery(tmdbQueryOptions);
 
   // Get viewport height, used for infinite scroll padding
@@ -69,7 +70,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
         )
       }
       endReached={() => {
-        if (hasNextPage) {
+        if (hasNextPage && !isFetching) {
           void fetchNextPage();
         }
       }}

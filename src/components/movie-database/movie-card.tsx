@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Card } from "@/components/shared/card";
 import { useTranslations } from "@/hooks/use-translations";
 import { border, color, font, layer, ratio, space } from "@/tokens.stylex";
+import { getLocalePath } from "@/utils/pathname";
 import type { MovieListItem } from "@/utils/tmdb-api";
 import { useTranslationContext } from "@/utils/translation-context";
 import { PosterImage } from "./poster-image";
@@ -18,10 +19,9 @@ export function MovieCard({ movie }: MovieCardProps) {
 
   return (
     <Card
-      href="/"
+      href={getLocalePath(`/movie-database/${movie.id.toString()}`, locale)}
       css={styles.card}
       aria-label={movie.title}
-      onClick={(e) => e.preventDefault()}
     >
       <div css={styles.posterContainer}>
         {movie.posterPath && movie.title ? (

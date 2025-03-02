@@ -45,7 +45,7 @@ const styles = stylex.create({
     flexWrap: "wrap",
     gap: space._4,
     padding: controlSize._3,
-    maxHeight: `calc(100dvh - 5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
+    maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
     overflow: "auto",
   },
 });

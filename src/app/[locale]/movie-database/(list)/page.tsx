@@ -1,4 +1,5 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { Filters } from "@/components/movie-database/filters";
 import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
@@ -9,13 +10,14 @@ import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
 import type { GenreFilterType, Sort } from "@/utils/movie-filters-context";
 import * as tmdbQueries from "@/utils/tmdb-queries";
-import translations from "./translations.json";
+import translations from "../translations.json";
 
 export default async function Page(
   props: PageProps & {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
   }
 ) {
+  await connection();
   const params = await props.params;
   const searchParams = await props.searchParams;
 

@@ -1,6 +1,7 @@
 "use server";
 
 import "server-only";
+import { cache } from "react";
 import type { paths } from "@/_generated/tmdbV3";
 
 const BASE_URL = "https://api.themoviedb.org";
@@ -37,7 +38,7 @@ export type MovieListItem = {
 };
 
 /** Fetch list of movies */
-export async function fetchMovieList({
+export const fetchMovieList = cache(async function fetchMovieList({
   language,
   page,
   with_genres,
@@ -84,13 +85,13 @@ export async function fetchMovieList({
         }) satisfies MovieListItem
     ),
   };
-}
+});
 
 export type Genre = NonNullable<
   paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"]["genres"]
 >[number];
 
-export async function fetchMovieGenres({
+export const fetchMovieGenres = cache(async function fetchMovieGenres({
   language,
 }: NonNullable<paths["/3/genre/movie/list"]["get"]["parameters"]["query"]>) {
   const url = new URL(`${BASE_URL}/3/genre/movie/list`);
@@ -114,4 +115,34 @@ export async function fetchMovieGenres({
   }
 
   return (await response.json()) as paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"];
-}
+});
+
+export type MovieDetails = NonNullable<
+  paths["/3/movie/{movie_id}"]["get"]["responses"]["200"]["content"]["application/json"]
+>;
+
+export const fetchMovieDetails = cache(async function fetchMovieDetails(
+  movieId: string,
+  {
+    language,
+  }: NonNullable<paths["/3/movie/{movie_id}"]["get"]["parameters"]["query"]>
+) {
+  const url = new URL(`${BASE_URL}/3/movie/${movieId}`);
+  if (language && language !== "en") url.searchParams.set("language", language);
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${API}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
+    );
+  }
+
+  return (await response.json()) as paths["/3/movie/{movie_id}"]["get"]["responses"]["200"]["content"]["application/json"];
+});
