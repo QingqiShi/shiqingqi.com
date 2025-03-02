@@ -26,6 +26,7 @@ export async function getRequestLocale() {
   }
 
   const cookieStore = await cookies();
-  const locale = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
-  return locale as SupportedLocale;
+  const locale: SupportedLocale =
+    (cookieStore.get(LOCALE_COOKIE_NAME)?.value as SupportedLocale) ?? "en";
+  return locale;
 }
