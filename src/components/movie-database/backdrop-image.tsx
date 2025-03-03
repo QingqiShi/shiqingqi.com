@@ -61,6 +61,7 @@ const styles = stylex.create({
     left: 0,
     zIndex: layer.background,
     overflow: "hidden",
+    width: "100%",
   },
   mask1: {
     position: "absolute",
@@ -79,12 +80,12 @@ const styles = stylex.create({
     top: {
       default: space._12,
       [breakpoints.lg]: `calc(${space._8} + clamp(${space._12}, 30dvw, 30dvh))`,
-      [breakpoints.xl]: `min(${space._15}, 50dvh)`,
+      [breakpoints.xl]: `calc(${space._8} + min(${space._13}, 30dvh))`,
     },
     height: {
       default: 0,
       [breakpoints.lg]: `calc(100% - ${space._8} - clamp(${space._12}, 30dvw, 30dvh))`,
-      [breakpoints.xl]: `min(${space._15}, 50dvh)`,
+      [breakpoints.xl]: `calc(100% - ${space._8} - min(${space._13}, 20dvh))`,
     },
     // https://larsenwork.com/easing-gradients/
     background: `linear-gradient(
@@ -110,6 +111,10 @@ const styles = stylex.create({
   image: {
     width: "100dvw",
     minHeight: `calc(${space._14} + ${space._11})`,
+    maxHeight: {
+      default: null,
+      [breakpoints.xl]: `calc(50dvh + ${space._13})`,
+    },
     aspectRatio: ratio.wide,
     position: "relative",
     objectFit: "cover",
