@@ -61,7 +61,7 @@ export default async function Layout({ children, params }: LayoutProps) {
         <div css={styles.wrapperInner}>
           <BackgroundLines />
           <main css={styles.main}>{children}</main>
-          <Footer />
+          <Footer locale={locale} />
         </div>
       </div>
     </>

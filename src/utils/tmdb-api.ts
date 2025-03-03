@@ -136,6 +136,9 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
       accept: "application/json",
       Authorization: `Bearer ${API}`,
     },
+    // 24 Hours
+    cache: "force-cache",
+    next: { revalidate: 86400 },
   });
 
   if (!response.ok) {

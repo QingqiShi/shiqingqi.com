@@ -25,7 +25,10 @@ export default async function Home(props: PageProps) {
   const { locale } = await props.params;
   const { t } = getTranslations(translations, locale);
   return (
-    <TranslationProvider translations={{ card: cardTranslations }}>
+    <TranslationProvider
+      locale={locale}
+      translations={{ card: cardTranslations }}
+    >
       <BackgroundLines />
       <section css={styles.headlineContainer}>
         <h1 css={styles.headline}>

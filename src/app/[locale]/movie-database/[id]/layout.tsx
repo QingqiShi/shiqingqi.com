@@ -29,12 +29,13 @@ export async function generateMetadata({ params }: PageProps) {
   } satisfies Metadata;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default async function Layout({ children, params }: LayoutProps) {
+  const { locale } = await params;
   return (
     <div css={styles.container}>
       <main>{children}</main>
       <div css={styles.wrapperInner}>
-        <Footer />
+        <Footer locale={locale} />
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ export default async function Layout({ children, params }: LayoutProps) {
   const { t } = getTranslations(translations, locale);
   return (
     <TranslationProvider
+      locale={locale}
       translations={{
         card: cardTranslations,
         posterImage: posterImageTranslations,
