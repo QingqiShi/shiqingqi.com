@@ -13,6 +13,7 @@ export default async function Page(props: PageProps) {
         title="Citadel"
         role={t("role")}
         date={t("date")}
+        locale={params.locale}
       />
       <p>{t("responsibilities")}</p>
       <p>{t("techStack")}</p>

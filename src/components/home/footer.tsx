@@ -1,13 +1,16 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
 import { font, space } from "@/tokens.stylex";
+import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
-import { getRequestLocale } from "@/utils/request-locale";
 import { Anchor } from "../shared/anchor";
 import translations from "./translations.json";
 
-export async function Footer() {
-  const locale = await getRequestLocale();
+interface FooterProps {
+  locale: SupportedLocale;
+}
+
+export function Footer({ locale }: FooterProps) {
   const { t } = getTranslations(translations, locale);
 
   const currentYear = new Date().getFullYear();

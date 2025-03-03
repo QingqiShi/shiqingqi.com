@@ -22,6 +22,10 @@ export default async function RootLayout({ params, children }: LayoutProps) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        {process.env.NODE_ENV === "development" && (
+          // eslint-disable-next-line @next/next/no-sync-scripts
+          <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
+        )}
         {locale === "en" && (
           <link
             rel="preload"
@@ -35,7 +39,7 @@ export default async function RootLayout({ params, children }: LayoutProps) {
       <body css={globalStyles.body}>
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
         <Suspense fallback={<HeaderSkeleton />}>
-          <Header />
+          <Header locale={locale} />
         </Suspense>
         {children}
         <Analytics />

@@ -14,6 +14,7 @@ export default async function Page(props: PageProps) {
         title={t("schoolName")}
         role={t("course")}
         date={t("date")}
+        locale={params.locale}
       />
       <p>{t("grade")}</p>
       <p>{t("modules")}</p>
