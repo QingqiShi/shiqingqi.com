@@ -61,8 +61,8 @@ const styles = stylex.create({
   hero: {
     paddingTop: {
       default: space._12,
-      [breakpoints.md]: `clamp(${space._12}, 30dvw, 30dvh)`,
-      [breakpoints.xl]: `min(${space._15}, 50dvh)`,
+      [breakpoints.md]: `clamp(${space._10}, 20dvw, 30dvh)`,
+      [breakpoints.xl]: `min(${space._13}, 30dvh)`,
     },
     display: "flex",
     flexDirection: "column",
