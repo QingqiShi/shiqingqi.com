@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import { breakpoints } from "@/breakpoints";
 import { useCssId } from "@/hooks/use-css-id";
-import { border, color, layer, space } from "@/tokens.stylex";
+import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
 
 interface OverlayProps {
@@ -71,7 +71,7 @@ const styles = stylex.create({
     left: 0,
     width: "100dvw",
     height: "100dvh",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     zIndex: layer.tooltip,
   },
   closeButton: {
@@ -90,5 +90,6 @@ const styles = stylex.create({
     zIndex: layer.tooltip,
     borderRadius: border.radius_4,
     overflow: "hidden",
+    boxShadow: shadow._6,
   },
 });
