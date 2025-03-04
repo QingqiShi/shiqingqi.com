@@ -14,5 +14,9 @@
   "comma": {
     "en": ", ",
     "zh": "、"
+  },
+  "playTrailer": {
+    "en": "Play trailer",
+    "zh": "播放预告"
   }
 }

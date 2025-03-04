@@ -147,5 +147,34 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
     );
   }
 
-  return (await response.json()) as paths["/3/movie/{movie_id}"]["get"]["responses"]["200"]["content"]["application/json"];
+  return (await response.json()) as MovieDetails;
+});
+
+export type MovieVideos = NonNullable<
+  paths["/3/movie/{movie_id}/videos"]["get"]["responses"]["200"]["content"]["application/json"]
+>;
+
+export const fetchMovieVideos = cache(async function fetchMovieVideos(
+  movieId: string
+) {
+  const url = new URL(`${BASE_URL}/3/movie/${movieId}/videos`);
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${API}`,
+    },
+    // 24 Hours
+    cache: "force-cache",
+    next: { revalidate: 86400 },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
+    );
+  }
+
+  return (await response.json()) as MovieVideos;
 });
