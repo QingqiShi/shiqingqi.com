@@ -71,7 +71,7 @@ const styles = stylex.create({
     left: 0,
     width: "100dvw",
     height: "100dvh",
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
     zIndex: layer.tooltip,
   },
   closeButton: {
@@ -81,12 +81,12 @@ const styles = stylex.create({
   },
   content: {
     position: "fixed",
-    top: space._10,
+    top: space._8,
     left: 0,
     right: 0,
     height: "100dvh",
     backgroundColor: color.backgroundRaised,
-    paddingBottom: space._10,
+    paddingBottom: space._8,
     zIndex: layer.tooltip,
     borderRadius: border.radius_4,
     overflow: "hidden",
