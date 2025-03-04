@@ -2,9 +2,10 @@ import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { breakpoints } from "@/breakpoints";
 import { BackdropImage } from "@/components/movie-database/backdrop-image";
+import { TrailerButton } from "@/components/movie-database/trailer-button";
 import { border, color, font, space } from "@/tokens.stylex";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchMovieDetails } from "@/utils/tmdb-api";
+import { fetchMovieDetails, fetchMovieVideos } from "@/utils/tmdb-api";
 import translations from "./translations.json";
 import type { PageProps } from "./types";
 
@@ -12,11 +13,18 @@ export default async function Page({ params }: PageProps) {
   const { id, locale } = await params;
   const { t } = getTranslations(translations, locale);
 
-  const movie = await fetchMovieDetails(id, { language: locale });
+  const [movie, videos] = await Promise.all([
+    fetchMovieDetails(id, { language: locale }),
+    fetchMovieVideos(id),
+  ]);
   const hours = Math.floor(movie.runtime / 60);
   const minutes = movie.runtime % 60;
 
   const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+
+  const trailer = videos.results?.find(
+    (video) => video.type === "Trailer" && video.official
+  );
 
   return (
     <>
@@ -52,6 +60,14 @@ export default async function Page({ params }: PageProps) {
         {(movie.overview || movie.tagline) && (
           <p css={styles.description}>{movie.overview ?? movie.tagline}</p>
         )}
+
+        <div css={styles.horizontalContainer}>
+          {!!trailer?.key && (
+            <TrailerButton trailerId={trailer.key} locale={locale}>
+              {t("playTrailer")}
+            </TrailerButton>
+          )}
+        </div>
       </div>
     </>
   );
@@ -80,6 +96,12 @@ const styles = stylex.create({
   description: {
     fontSize: font.size_1,
     margin: 0,
+  },
+  horizontalContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: space._1,
+    paddingTop: space._5,
   },
   ratingContainer: {
     width: space._9,
