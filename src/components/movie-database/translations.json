@@ -1,0 +1,14 @@
+{
+  "playTrailer": {
+    "en": "Play trailer",
+    "zh": "播放预告"
+  },
+  "similar": {
+    "en": "Similar movies",
+    "zh": "类似电影"
+  },
+  "notFound": {
+    "en": "No similar movies found",
+    "zh": "没找到类似电影"
+  }
+}
