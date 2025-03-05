@@ -1,8 +1,8 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import {
   fetchConfiguration,
-  fetchMovieDetails,
   fetchMovieList,
+  fetchSimilarMovies,
 } from "./tmdb-api";
 
 export const tmdbScope = [{ scope: "tmdb" }];
@@ -43,8 +43,31 @@ export const configuration = queryOptions({
   gcTime: 24 * 60 * 60 * 1000,
 });
 
-export const movieDetails = (...args: Parameters<typeof fetchMovieDetails>) =>
-  queryOptions({
-    queryKey: [{ query: "movie", movieId: args[0], ...args[1] }],
-    queryFn: () => fetchMovieDetails(...args),
+export const similarMovies = (
+  movieId: string,
+  { page, ...params }: Parameters<typeof fetchSimilarMovies>[1]
+) =>
+  infiniteQueryOptions({
+    queryKey: [{ query: "movie/similar", ...tmdbScope, ...params }],
+    initialPageParam: page,
+    queryFn: async ({ pageParam }) => {
+      await Promise.resolve();
+      return fetchSimilarMovies(movieId, { ...params, page: pageParam });
+    },
+    getPreviousPageParam: (firstPage) =>
+      firstPage.page > 1 ? firstPage.page - 1 : undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
+    select: (data) => {
+      const movies = data.pages
+        .flatMap((page) => page.results)
+        .filter((x) => !!x);
+      const uniqueMovies = Array.from(
+        new Map(movies.map((movie) => [movie.id, movie])).values()
+      );
+      return {
+        movies: uniqueMovies,
+        totalCount: data.pages[0].total_results,
+      };
+    },
   });

@@ -4,7 +4,7 @@ import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { fetchMovieVideos } from "@/utils/tmdb-api";
 import { TrailerButton } from "./trailer-button";
-import translations from "./trailer.translations.json";
+import translations from "./translations.json";
 
 interface TrailerProps {
   movieId: string;

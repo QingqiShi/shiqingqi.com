@@ -178,3 +178,50 @@ export const fetchMovieVideos = cache(async function fetchMovieVideos(
 
   return (await response.json()) as MovieVideos;
 });
+
+export const fetchSimilarMovies = cache(async function fetchSimilarMovies(
+  movieId: string,
+  {
+    language,
+    page,
+  }: NonNullable<
+    paths["/3/movie/{movie_id}/similar"]["get"]["parameters"]["query"]
+  >
+) {
+  const url = new URL(`${BASE_URL}/3/movie/${movieId}/similar`);
+  if (language && language !== "en") url.searchParams.set("language", language);
+  if (page) url.searchParams.set("page", page.toString());
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${API}`,
+    },
+    // 1 Hours
+    cache: "force-cache",
+    next: { revalidate: 3600 },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
+    );
+  }
+
+  const result =
+    (await response.json()) as paths["/3/movie/{movie_id}/similar"]["get"]["responses"]["200"]["content"]["application/json"];
+  console.log(result);
+  return {
+    ...result,
+    results: result.results?.map(
+      (movie) =>
+        ({
+          id: movie.id,
+          title: movie.title,
+          posterPath: movie.poster_path,
+          rating: movie.vote_average,
+        }) satisfies MovieListItem
+    ),
+  };
+});

@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { breakpoints } from "@/breakpoints";
 import { BackdropImage } from "@/components/movie-database/backdrop-image";
+import { Similar } from "@/components/movie-database/similar";
 import { Trailer } from "@/components/movie-database/trailer";
 import { Skeleton } from "@/components/shared/skeleton";
 import { skeletonTokens } from "@/components/shared/skeleton.stylex";
@@ -25,55 +26,75 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <>
-      {movie.backdrop_path && (
-        <Suspense fallback={null}>
-          <BackdropImage
-            backdropPath={movie.backdrop_path}
-            alt={movie.title ?? movie.original_title ?? t("titleFallback")}
-            locale={locale}
-          />
-        </Suspense>
-      )}
-      <div css={styles.hero}>
-        <div css={styles.ratingContainer}>
-          <div css={styles.rating}>{formatter.format(movie.vote_average)}</div>
-          <div css={styles.count}>{movie.vote_count}</div>
-        </div>
-        <h1 css={styles.h1}>
-          {movie.title ?? movie.original_title ?? t("titleFallback")}
-        </h1>
-        <div css={styles.meta}>
-          {[
-            movie.release_date?.split("-")[0],
-            `${hours > 0 ? `${hours}${t("hours")} ` : ""}${minutes}${t("minutes")}`,
-            movie.genres
-              ?.map((genre) => genre.name)
-              .filter(Boolean)
-              .join(t("comma")),
-          ]
-            .filter(Boolean)
-            .join(" • ")}
-        </div>
-        {(movie.overview || movie.tagline) && (
-          <p css={styles.description}>{movie.overview ?? movie.tagline}</p>
+      <div css={styles.container}>
+        {movie.backdrop_path && (
+          <Suspense fallback={null}>
+            <BackdropImage
+              backdropPath={movie.backdrop_path}
+              alt={movie.title ?? movie.original_title ?? t("titleFallback")}
+              locale={locale}
+            />
+          </Suspense>
         )}
-        <Suspense
-          fallback={<Skeleton css={styles.trailerButtonSkeleton} width={120} />}
-        >
-          <Trailer movieId={id} locale={locale} />
-        </Suspense>
+        <div css={styles.hero}>
+          <div css={styles.ratingContainer}>
+            <div css={styles.rating}>
+              {formatter.format(movie.vote_average)}
+            </div>
+            <div css={styles.count}>{movie.vote_count}</div>
+          </div>
+          <h1 css={styles.h1}>
+            {movie.title ?? movie.original_title ?? t("titleFallback")}
+          </h1>
+          <div css={styles.meta}>
+            {[
+              movie.release_date?.split("-")[0],
+              `${hours > 0 ? `${hours}${t("hours")} ` : ""}${minutes}${t("minutes")}`,
+              movie.genres
+                ?.map((genre) => genre.name)
+                .filter(Boolean)
+                .join(t("comma")),
+            ]
+              .filter(Boolean)
+              .join(" • ")}
+          </div>
+          {(movie.overview || movie.tagline) && (
+            <p css={styles.description}>{movie.overview ?? movie.tagline}</p>
+          )}
+          <Suspense
+            fallback={
+              <Skeleton css={styles.trailerButtonSkeleton} width={120} />
+            }
+          >
+            <Trailer movieId={id} locale={locale} />
+          </Suspense>
+        </div>
       </div>
+      <Similar movieId={id} locale={locale} />
     </>
   );
 }
 
 const styles = stylex.create({
+  container: {
+    maxWidth: {
+      default: "1080px",
+      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
+    },
+    marginBlock: 0,
+    marginInline: "auto",
+    marginBottom: space._10,
+    paddingBlock: 0,
+    paddingLeft: `env(safe-area-inset-left)`,
+    paddingRight: `env(safe-area-inset-right)`,
+  },
   hero: {
     paddingTop: {
       default: space._12,
       [breakpoints.md]: `clamp(${space._10}, 20dvw, 30dvh)`,
       [breakpoints.xl]: `min(${space._13}, 30dvh)`,
     },
+    paddingInline: space._3,
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-end",
