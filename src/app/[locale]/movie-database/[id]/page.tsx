@@ -83,6 +83,7 @@ const styles = stylex.create({
     },
     marginBlock: 0,
     marginInline: "auto",
+    marginBottom: space._10,
     paddingBlock: 0,
     paddingLeft: `env(safe-area-inset-left)`,
     paddingRight: `env(safe-area-inset-right)`,
