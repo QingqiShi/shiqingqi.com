@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "erasableSyntaxOnly": true,
     "esModuleInterop": true,
     "incremental": true,
     "isolatedModules": true,
@@ -10,9 +11,7 @@
     "moduleResolution": "bundler",
     "noEmit": true,
     "noImplicitAny": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
+    "paths": { "@/*": ["./src/*"] },
     "plugins": [{ "name": "next" }],
     "resolveJsonModule": true,
     "skipLibCheck": true,
