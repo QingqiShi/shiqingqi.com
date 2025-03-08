@@ -8,7 +8,6 @@ import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
 import { fetchSimilarMovies } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
-import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
 import { SimilarMovieList } from "./similar-movie-list";
 import translations from "./translations.json";
@@ -38,9 +37,9 @@ export function Similar({ movieId, locale }: SimilarProps) {
       <Suspense
         fallback={
           <Grid>
-            {Array.from({ length: 20 }).map((_, i) => (
+            {/* {Array.from({ length: 20 }).map((_, i) => (
               <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
-            ))}
+            ))} */}
           </Grid>
         }
       >

@@ -22,10 +22,10 @@ export default async function RootLayout({ params, children }: LayoutProps) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        {process.env.NODE_ENV === "development" && (
+        {/* {process.env.NODE_ENV === "development" && (
           // eslint-disable-next-line @next/next/no-sync-scripts
           <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-        )}
+        )} */}
         {locale === "en" && (
           <link
             rel="preload"

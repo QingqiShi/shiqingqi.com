@@ -10,7 +10,6 @@ import { useMovieFilters } from "@/hooks/use-movie-filters";
 import { color, ratio, space } from "@/tokens.stylex";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
-import { Skeleton } from "../shared/skeleton";
 import { MovieCard } from "./movie-card";
 
 interface MovieListProps {
@@ -68,7 +67,8 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
         movies[index] ? (
           <MovieCard movie={movies[index]} />
         ) : (
-          <Skeleton css={styles.skeleton} delay={index * 100} />
+          <div />
+          // <Skeleton css={styles.skeleton} delay={index * 100} />
         )
       }
       endReached={() => {

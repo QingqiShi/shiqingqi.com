@@ -9,7 +9,6 @@ import { Grid } from "@/components/movie-database/grid";
 import { color, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import * as tmdbQueries from "@/utils/tmdb-queries";
-import { Skeleton } from "../shared/skeleton";
 import { MovieCard } from "./movie-card";
 
 interface SimilarMovieListProps {
@@ -60,7 +59,8 @@ export function SimilarMovieList({
         movies[index] ? (
           <MovieCard movie={movies[index]} />
         ) : (
-          <Skeleton css={styles.skeleton} delay={index * 100} />
+          <div />
+          // <Skeleton css={styles.skeleton} delay={index * 100} />
         )
       }
       endReached={() => {
