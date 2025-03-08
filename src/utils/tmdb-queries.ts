@@ -1,9 +1,7 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import {
-  fetchConfiguration,
-  fetchMovieList,
-  fetchSimilarMovies,
-} from "./tmdb-api";
+import { apiRequestWrapper } from "./api-request-wrapper";
+import type { fetchMovieList, fetchSimilarMovies } from "./tmdb-api";
+import { fetchConfiguration } from "./tmdb-api";
 
 export const tmdbScope = [{ scope: "tmdb" }];
 
@@ -14,10 +12,11 @@ export const movieList = ({
   infiniteQueryOptions({
     queryKey: [{ query: "discover/movie", ...tmdbScope, ...params }],
     initialPageParam: page,
-    queryFn: async ({ pageParam }) => {
-      await Promise.resolve();
-      return fetchMovieList({ ...params, page: pageParam });
-    },
+    queryFn: async ({ pageParam }) =>
+      apiRequestWrapper<typeof fetchMovieList>("/api/tmdb/movie-list", {
+        ...params,
+        page: pageParam,
+      }),
     getPreviousPageParam: (firstPage) =>
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
@@ -43,17 +42,18 @@ export const configuration = queryOptions({
   gcTime: 24 * 60 * 60 * 1000,
 });
 
-export const similarMovies = (
-  movieId: string,
-  { page, ...params }: Parameters<typeof fetchSimilarMovies>[1]
-) =>
+export const similarMovies = ({
+  page,
+  ...params
+}: Parameters<typeof fetchSimilarMovies>[0]) =>
   infiniteQueryOptions({
     queryKey: [{ query: "movie/similar", ...tmdbScope, ...params }],
     initialPageParam: page,
-    queryFn: async ({ pageParam }) => {
-      await Promise.resolve();
-      return fetchSimilarMovies(movieId, { ...params, page: pageParam });
-    },
+    queryFn: async ({ pageParam }) =>
+      apiRequestWrapper<typeof fetchSimilarMovies>("/api/tmdb/similar-movies", {
+        ...params,
+        page: pageParam,
+      }),
     getPreviousPageParam: (firstPage) =>
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
