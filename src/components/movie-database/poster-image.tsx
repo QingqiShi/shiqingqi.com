@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/shared/skeleton";
+// import { Skeleton } from "@/components/shared/skeleton";
 import { useTranslations } from "@/hooks/use-translations";
 import { color, font, layer } from "@/tokens.stylex";
 import * as tmdbQueries from "@/utils/tmdb-queries";
@@ -46,7 +46,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
 
   return (
     <>
-      <Skeleton fill css={styles.errored} />
+      {/* <Skeleton fill css={styles.errored} /> */}
       {/* Disabling no-img-element rule as the images here are from a third party provider and is already 
       optimized */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
