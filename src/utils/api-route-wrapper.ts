@@ -17,7 +17,13 @@ export function apiRouteWrapper(
 ) {
   return async function routeHandler(request: NextRequest) {
     const referer = request.headers.get("Referer") ?? "";
-    if (referer && !ALLOWED_REFERER.has(new URL(referer).origin)) {
+    const refererUrl = new URL(referer);
+    if (
+      referer &&
+      !ALLOWED_REFERER.some((allowedReferer) =>
+        refererUrl.origin.endsWith(allowedReferer)
+      )
+    ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
     const result = await serverFunction(
