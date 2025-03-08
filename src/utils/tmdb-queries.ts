@@ -1,7 +1,7 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiRequestWrapper } from "./api-request-wrapper";
 import type { fetchMovieList, fetchSimilarMovies } from "./tmdb-api";
-import { fetchConfiguration } from "./tmdb-api";
+import type { fetchConfiguration } from "./tmdb-api";
 
 export const tmdbScope = [{ scope: "tmdb" }];
 
@@ -37,7 +37,11 @@ export const movieList = ({
 
 export const configuration = queryOptions({
   queryKey: [{ query: "configuration", ...tmdbScope }],
-  queryFn: () => fetchConfiguration(),
+  queryFn: async () =>
+    apiRequestWrapper<typeof fetchConfiguration>(
+      "/api/tmdb/get-configuration",
+      undefined
+    ),
   staleTime: 24 * 60 * 60 * 1000,
   gcTime: 24 * 60 * 60 * 1000,
 });
