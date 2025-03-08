@@ -8,7 +8,11 @@ import { Skeleton } from "@/components/shared/skeleton";
 import { skeletonTokens } from "@/components/shared/skeleton.stylex";
 import { border, color, controlSize, font, space } from "@/tokens.stylex";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchMovieDetails } from "@/utils/tmdb-api";
+import {
+  fetchConfiguration,
+  fetchMovieDetails,
+  fetchMovieVideos,
+} from "@/utils/tmdb-api";
 import translations from "./translations.json";
 import type { PageProps } from "./types";
 
@@ -16,9 +20,14 @@ export default async function Page({ params }: PageProps) {
   const { id, locale } = await params;
   const { t } = getTranslations(translations, locale);
 
-  const [movie] = await Promise.all([
-    fetchMovieDetails(id, { language: locale }),
-  ]);
+  // Start the most important fetch before pre-fetch requests
+  const movieDetailsPromise = fetchMovieDetails(id, { language: locale });
+
+  // Pre-fetch
+  void fetchConfiguration();
+  void fetchMovieVideos(id);
+
+  const movie = await movieDetailsPromise;
   const hours = Math.floor(movie.runtime / 60);
   const minutes = movie.runtime % 60;
 

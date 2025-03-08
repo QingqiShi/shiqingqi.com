@@ -11,7 +11,7 @@ export type Configuration =
   paths["/3/configuration"]["get"]["responses"]["200"]["content"]["application/json"];
 
 /** Fetch TMDB configurations containing available image sizes */
-export async function fetchConfiguration() {
+export const fetchConfiguration = cache(async function fetchConfiguration() {
   const response = await fetch(`${BASE_URL}/3/configuration`, {
     method: "GET",
     headers: {
@@ -28,7 +28,7 @@ export async function fetchConfiguration() {
     );
   }
   return (await response.json()) as Configuration;
-}
+});
 
 export type MovieListItem = {
   id: number;
