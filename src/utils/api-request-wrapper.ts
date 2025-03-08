@@ -5,7 +5,7 @@ export async function apiRequestWrapper<
   // `any` type required here to handle required fields
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends (params: any) => Promise<unknown>,
->(apiRoute: `/api/${string}`, params: Parameters<T>[0]) {
+>(apiRoute: `/api/${string}`, params: Parameters<T>[0] = {}) {
   const url = new URL(`${window.location.origin}${apiRoute}`);
   for (const entry of Object.entries(params)) {
     if (entry[1]) {

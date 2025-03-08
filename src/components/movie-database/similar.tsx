@@ -6,7 +6,7 @@ import { ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchSimilarMovies } from "@/utils/tmdb-api";
+import { fetchConfiguration, fetchSimilarMovies } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
@@ -23,7 +23,10 @@ export function Similar({ movieId, locale }: SimilarProps) {
 
   // Fetch config and initial page
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(tmdbQueries.configuration);
+  void queryClient.prefetchQuery({
+    ...tmdbQueries.configuration,
+    queryFn: async () => fetchConfiguration(),
+  });
   const queryParams = { movieId, page: 1, language: locale };
   void queryClient.prefetchInfiniteQuery({
     ...tmdbQueries.similarMovies(queryParams),
