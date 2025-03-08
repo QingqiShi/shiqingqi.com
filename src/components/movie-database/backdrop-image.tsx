@@ -45,7 +45,6 @@ export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
         src={src}
         srcSet={srcSet}
         sizes="100vw"
-        loading="lazy"
       />
 
       <div role="presentation" css={styles.mask1} />

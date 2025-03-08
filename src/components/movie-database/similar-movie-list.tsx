@@ -25,9 +25,10 @@ export function SimilarMovieList({
   initialPage,
   notFoundLabel,
 }: SimilarMovieListProps) {
-  const tmdbQueryOptions = tmdbQueries.similarMovies(movieId, {
+  const tmdbQueryOptions = tmdbQueries.similarMovies({
     page: initialPage,
     language: locale,
+    movieId,
   });
   const {
     data: { movies },

@@ -53,6 +53,8 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  const [initialCount] = useState(movies.length);
+
   if (!movies.length) {
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
   }
@@ -75,7 +77,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
         }
       }}
       increaseViewportBy={height}
-      initialItemCount={movies.length}
+      initialItemCount={initialCount}
       useWindowScroll
     />
   );

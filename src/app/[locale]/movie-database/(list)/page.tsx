@@ -9,6 +9,7 @@ import type { PageProps } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
 import type { GenreFilterType, Sort } from "@/utils/movie-filters-context";
+import { fetchMovieList } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import translations from "../translations.json";
 
@@ -39,14 +40,18 @@ export default async function Page(
   // Fetch config and initial page
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(tmdbQueries.configuration);
-  void queryClient.prefetchInfiniteQuery(
-    tmdbQueries.movieList({
-      language: params.locale,
-      page: 1,
-      with_genres: genres?.join(genreFilterType === "any" ? "|" : ","),
-      sort_by: sort !== "popularity.desc" ? sort : undefined,
-    })
-  );
+  const queryParams = {
+    language: params.locale,
+    page: 1,
+    with_genres: genres?.join(genreFilterType === "any" ? "|" : ","),
+    sort_by: sort !== "popularity.desc" ? sort : undefined,
+  };
+  void queryClient.prefetchInfiniteQuery({
+    ...tmdbQueries.movieList(queryParams),
+    queryFn: async ({ pageParam }) => {
+      return fetchMovieList({ ...queryParams, page: pageParam });
+    },
+  });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

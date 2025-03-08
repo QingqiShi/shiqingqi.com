@@ -179,16 +179,14 @@ export const fetchMovieVideos = cache(async function fetchMovieVideos(
   return (await response.json()) as MovieVideos;
 });
 
-export const fetchSimilarMovies = cache(async function fetchSimilarMovies(
-  movieId: string,
-  {
-    language,
-    page,
-  }: NonNullable<
-    paths["/3/movie/{movie_id}/similar"]["get"]["parameters"]["query"]
-  >
-) {
-  const url = new URL(`${BASE_URL}/3/movie/${movieId}/similar`);
+export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
+  movieId,
+  page,
+  language,
+}: NonNullable<
+  paths["/3/movie/{movie_id}/recommendations"]["get"]["parameters"]["query"]
+> & { movieId: string }) {
+  const url = new URL(`${BASE_URL}/3/movie/${movieId}/recommendations`);
   if (language && language !== "en") url.searchParams.set("language", language);
   if (page) url.searchParams.set("page", page.toString());
 
@@ -211,7 +209,6 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies(
 
   const result =
     (await response.json()) as paths["/3/movie/{movie_id}/similar"]["get"]["responses"]["200"]["content"]["application/json"];
-  console.log(result);
   return {
     ...result,
     results: result.results?.map(

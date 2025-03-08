@@ -28,13 +28,11 @@ export default async function Page({ params }: PageProps) {
     <>
       <div css={styles.container}>
         {movie.backdrop_path && (
-          <Suspense fallback={null}>
-            <BackdropImage
-              backdropPath={movie.backdrop_path}
-              alt={movie.title ?? movie.original_title ?? t("titleFallback")}
-              locale={locale}
-            />
-          </Suspense>
+          <BackdropImage
+            backdropPath={movie.backdrop_path}
+            alt={movie.title ?? movie.original_title ?? t("titleFallback")}
+            locale={locale}
+          />
         )}
         <div css={styles.hero}>
           <div css={styles.ratingContainer}>
