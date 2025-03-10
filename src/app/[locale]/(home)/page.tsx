@@ -1,8 +1,10 @@
+import { FilmSlate } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { EducationCard } from "@/components/home/education-card";
 import { ExperienceCard } from "@/components/home/experience-card";
+import { ProjectCard } from "@/components/home/project-card";
 import cardTranslations from "@/components/shared/card.translations.json";
 import { TranslationProvider } from "@/components/shared/translation-provider";
 import AGSB from "@/logos/AGSB.webp";
@@ -10,8 +12,9 @@ import BristolLogo from "@/logos/bristol-logo";
 import CitadelLogo from "@/logos/citadel-logo";
 import NottinghamLogo from "@/logos/nottingham-logo";
 import SpotifyLogo from "@/logos/spotify-logo";
+import { svgTokens } from "@/logos/svg.stylex";
 import WtcLogo from "@/logos/wtc-logo";
-import { font, space } from "@/tokens.stylex";
+import { color, font, space } from "@/tokens.stylex";
 import type { PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { getLocalePath } from "@/utils/pathname";
@@ -38,6 +41,21 @@ export default async function Home(props: PageProps) {
         </h1>
         <p css={styles.brief}>{t("brief", { parse: true })}</p>
       </section>
+
+      <section>
+        <h2 css={styles.sectionTitle}>{t("projectSection")}</h2>
+        <div css={styles.cardList}>
+          <ProjectCard
+            icon={<FilmSlate size={64} weight="fill" />}
+            href={getLocalePath("/movie-database", locale)}
+            css={[styles.card, styles.movieDatabase]}
+            name={t("movieDatabase")}
+            description={t("movieDatabaseDescription")}
+            scroll
+          />
+        </div>
+      </section>
+
       <section>
         <h2 css={styles.sectionTitle}>{t("experiencesSection")}</h2>
         <div css={styles.cardList}>
@@ -139,18 +157,7 @@ const styles = stylex.create({
       [breakpoints.lg]: "25%",
     },
   },
-  // experienceSvg: {
-  //   height: {
-  //     default: "5.5rem",
-  //     [breakpoints.sm]: "4.4rem",
-  //     [breakpoints.md]: "3rem",
-  //   },
-  //   maxWidth: "100%",
-  //   transition: "fill .2s",
-  // },
-  // educationSvg: {
-  //   height: "100%",
-  //   maxWidth: "100%",
-  //   transition: "fill .2s",
-  // },
+  movieDatabase: {
+    [svgTokens.fill]: color.brandTmdb,
+  },
 });
