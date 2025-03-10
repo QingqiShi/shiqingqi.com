@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Skeleton } from "@/components/shared/skeleton";
 import { useTranslations } from "@/hooks/use-translations";
 import { color, font, layer } from "@/tokens.stylex";
@@ -20,8 +21,9 @@ interface PosterImageProps {
  */
 export function PosterImage({ posterPath, alt }: PosterImageProps) {
   const { t } = useTranslations<typeof translations>("posterImage");
-
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
+
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   if (!config.images?.base_url || !config.images?.poster_sizes) {
     return (
@@ -46,7 +48,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
 
   return (
     <>
-      <Skeleton fill css={styles.errored} />
+      {!imgLoaded && <Skeleton fill css={styles.errored} />}
       {/* Disabling no-img-element rule as the images here are from a third party provider and is already 
       optimized */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -57,6 +59,11 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
         srcSet={srcSet}
         sizes="auto,(max-width: 326px) 100vw,(max-width: 485px) 50vw,(max-width: 644px) 33.3vw,(max-width: 767px) 25vw,(max-width: 969px) 33.3vw,(max-width: 1079px) 25vw,(max-width: 1259px) 33.3vw,(max-width: 1571px) 25vw,362px"
         loading="lazy"
+        ref={(el) => {
+          if (el && el.complete) {
+            setImgLoaded(true);
+          }
+        }}
       />
     </>
   );
