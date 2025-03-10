@@ -8,6 +8,7 @@ import { GenreFilterButton } from "./genre-filter-button";
 import { MobileFiltersButton } from "./mobile-filters-button";
 import { ResetFilter } from "./reset-filter";
 import { SortFilter } from "./sort-filter";
+import { TmdbCredit } from "./tmdb-credit";
 
 interface FiltersProps {
   locale: SupportedLocale;
@@ -24,20 +25,24 @@ export async function Filters({ locale, mobileButtonLabel }: FiltersProps) {
           <GenreFilterButton allGenres={genres} />
           <SortFilter hideLabel />
           <ResetFilter hideLabel />
+          <TmdbCredit locale={locale} position="topLeft" />
         </>
       }
       mobileChildren={
-        <MobileFiltersButton
-          menuContent={
-            <div css={styles.mobileMenuContent}>
-              <SortFilter bright />
-              <GenreFilter allGenres={genres} />
-              <ResetFilter bright />
-            </div>
-          }
-        >
-          {mobileButtonLabel}
-        </MobileFiltersButton>
+        <>
+          <TmdbCredit locale={locale} position="viewportWidth" />
+          <MobileFiltersButton
+            menuContent={
+              <div css={styles.mobileMenuContent}>
+                <SortFilter bright />
+                <GenreFilter allGenres={genres} />
+                <ResetFilter bright />
+              </div>
+            }
+          >
+            {mobileButtonLabel}
+          </MobileFiltersButton>
+        </>
       }
     />
   );
