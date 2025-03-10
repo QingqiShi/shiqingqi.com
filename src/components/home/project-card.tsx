@@ -57,5 +57,6 @@ const styles = stylex.create({
   description: {
     fontSize: font.size_00,
     fontWeight: font.weight_4,
+    color: color.textMuted,
   },
 });
