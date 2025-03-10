@@ -23,6 +23,10 @@
     "en": "Embracing the <strong>craftsman's spirit</strong>, I pursue <strong>perfection</strong>, <strong>precision</strong> and <strong>patience</strong> in software engineering and all aspects of life.",
     "zh": "我信奉<strong>工匠精神</strong>。工匠用他们<strong>敬业</strong>、<strong>专注</strong>和<strong>精益求精</strong>的精神雕琢产品。无论是工作还是生活，我都这样要求自己。"
   },
+  "projectSection": {
+    "en": "Projects",
+    "zh": "项目"
+  },
   "experiencesSection": {
     "en": "Professional Experiences",
     "zh": "职业经历"
@@ -78,5 +82,13 @@
   "agsbDate": {
     "en": "Sep 2011 - Jul 2013",
     "zh": "2011年9月 - 2013年7月"
+  },
+  "movieDatabase": {
+    "en": "Movie Database",
+    "zh": "电影数据库"
+  },
+  "movieDatabaseDescription": {
+    "en": "Find your next blockbuster, one filter at a time.",
+    "zh": "你的下一个大片，只差一次筛选!"
   }
 }
