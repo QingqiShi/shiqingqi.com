@@ -11,7 +11,14 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import { border, color, controlSize, layer, shadow } from "@/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  layer,
+  shadow,
+  space,
+} from "@/tokens.stylex";
 import { AnimateToTarget } from "./animate-to-target";
 import { Button } from "./button";
 
@@ -21,7 +28,12 @@ interface MenuButtonProps {
   /** The node to render into the expanded menu. */
   menuContent: ReactNode;
   /** Where to expand from. */
-  position?: "topRight" | "topLeft" | "bottomLeft" | "bottomRight";
+  position?:
+    | "topRight"
+    | "topLeft"
+    | "bottomLeft"
+    | "bottomRight"
+    | "viewportWidth";
   /** Disable the menu trigger. */
   disabled?: boolean;
 }
@@ -143,6 +155,12 @@ const styles = stylex.create({
   bottomRight: {
     bottom: 0,
     right: 0,
+  },
+  viewportWidth: {
+    position: "fixed",
+    left: space._2,
+    right: space._2,
+    transform: `translate(0, calc(-1 * ${controlSize._9}))`,
   },
   backdrop: {
     position: "fixed",

@@ -66,5 +66,7 @@ const styles = stylex.create({
     right: space._3,
     top: `calc(${space._10} + env(safe-area-inset-top))`,
     zIndex: layer.overlay,
+    display: "flex",
+    gap: space._1,
   },
 });

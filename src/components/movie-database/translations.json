@@ -10,5 +10,13 @@
   "notFound": {
     "en": "No similar movies found",
     "zh": "没找到类似电影"
+  },
+  "tmdbLogo": {
+    "en": "TMDB Logo",
+    "zh": "TMDB Logo"
+  },
+  "tmdbCredits": {
+    "en": "This product uses the TMDB API but is not endorsed or certified by TMDB.",
+    "zh": "本产品使用了 TMDB 提供的 API，但并未获得 TMDB 的官方认可或认证。"
   }
 }
