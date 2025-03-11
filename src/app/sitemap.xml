@@ -72,4 +72,15 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/education/altrincham-grammar-school-for-boys" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/education/altrincham-grammar-school-for-boys" />
   </url>
+
+  <url>
+    <loc>https://qingqi.dev/movie-database</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/movie-database" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/movie-database" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/movie-database</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/movie-database" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/movie-database" />
+  </url>
 </urlset>
