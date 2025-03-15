@@ -69,7 +69,11 @@ export function Switch({
   const [position, setPosition] = useState<number | null>(null);
 
   function handleDragStart(e: React.PointerEvent<HTMLInputElement>) {
-    if (rest.disabled || !elRef.current) {
+    if (
+      rest.disabled ||
+      !elRef.current ||
+      (e.pointerType === "mouse" && e.button !== 0)
+    ) {
       return;
     }
     initialRectRef.current = elRef.current.getBoundingClientRect();
@@ -106,8 +110,12 @@ export function Switch({
   }
 
   function handleDragEnd(e: React.PointerEvent<HTMLInputElement>) {
-    const rect = initialRectRef.current;
+    if (e.pointerType === "mouse" && e.button !== 0) {
+      return;
+    }
+
     if (isDragging) {
+      const rect = initialRectRef.current;
       if (elRef.current && rect) {
         if (elRef.current.indeterminate) {
           elRef.current.indeterminate = false;
