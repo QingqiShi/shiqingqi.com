@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { Footer } from "@/components/home/footer";
@@ -52,8 +53,10 @@ export default async function Layout({ children, params }: LayoutProps) {
   return (
     <>
       <div css={styles.flowGradient} role="presentation">
-        <Suspense fallback={<></>}>
-          <FlowGradient />
+        <Suspense fallback={null}>
+          <ErrorBoundary fallback={null}>
+            <FlowGradient />
+          </ErrorBoundary>
         </Suspense>
       </div>
       <div css={styles.glow} role="presentation" />

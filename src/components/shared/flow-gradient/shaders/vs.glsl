@@ -10,6 +10,9 @@ uniform vec3 u_colorBottom;
 uniform vec3 u_colorAltTop;
 uniform vec3 u_colorAltBottom;
 uniform vec3 u_colorBackground;
+uniform vec2 u_mouse;
+uniform float u_rippleStrength;
+uniform float u_ripplePhase;
 
 out vec4 v_color;
 
@@ -99,16 +102,23 @@ void main() {
   float noiseMain = snoise(vec3(a_position.x / u_dpi * noiseSize - u_time * 0.00005f, a_position.y / u_dpi * noiseSize + u_time * 0.00007f, u_time * 0.00007f));
   float noiseAlt = pow(snoise(vec3(a_position.x / u_dpi * noiseSize - u_time * 0.00005f, a_position.y / u_dpi * noiseSize + u_time * 0.00005f, u_time * 0.0001f)) * 0.5f + 0.5f, 2.0f);
 
-  vec2 offset = vec2(0.0f, amplitudeClipSpace * noiseMain);
+  // Calculate mouse distance in pixel space and convert to clip space
+  float rippleRadius = 200.0f;
+  float mouseDistance = length(abs((a_position - u_mouse) / u_dpi));
+  float ripple = mouseDistance > rippleRadius ? 0.0f : (1.0f - mouseDistance / rippleRadius) * sin(mouseDistance / rippleRadius * 10.0f - u_ripplePhase) * u_rippleStrength * 0.1f;
+
+  vec2 offset = vec2(0.0f, amplitudeClipSpace * noiseMain + (u_mouse.x > 0.0f && u_mouse.y > 0.0f ? ripple : 0.0f));
+
+  // Edge checks to taper the noise offset near the screen's top and bottom edges
   if(clipSpace.y > 1.0f - amplitudeClipSpace) {
     float distToEdge = 1.0f - clipSpace.y;
     float factor = distToEdge / amplitudeClipSpace;
-    offset.y = offset.y * factor;
+    offset.y *= factor;
   }
   if(clipSpace.y < -0.9f) {
     float distToEdge = clipSpace.y + 1.0f;
     float factor = distToEdge / 0.1f;
-    offset.y = offset.y * factor;
+    offset.y *= factor;
   }
 
   vec2 afterFx = clipSpace - offset;
@@ -119,7 +129,7 @@ void main() {
   vec3 color = colorMain + (colorAlt * noiseAlt);
 
   float factor = posFactor * 1.1111f;
-  v_color = vec4(color * clip(1.0f - factor) + u_colorBackground * clip(factor), 1.0f);
+  v_color = vec4(color * clamp(1.0f - factor, 0.0f, 1.0f) + u_colorBackground * clamp(factor, 0.0f, 1.0f), 1.0f);
 
   gl_Position = vec4(afterFx * vec2(1.0f, -1.0f), 0, 1);
 }

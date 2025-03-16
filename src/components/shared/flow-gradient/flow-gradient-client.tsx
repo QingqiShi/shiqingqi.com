@@ -1,7 +1,6 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { ErrorBoundary } from "react-error-boundary";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
 import { color, layer } from "@/tokens.stylex";
@@ -13,14 +12,6 @@ interface FlowGradientClientProps {
 }
 
 export function FlowGradientClient({ vs, fs }: FlowGradientClientProps) {
-  return (
-    <ErrorBoundary fallbackRender={() => null}>
-      <Internal vs={vs} fs={fs} />
-    </ErrorBoundary>
-  );
-}
-
-function Internal({ vs, fs }: FlowGradientClientProps) {
   const [theme] = useTheme();
   const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
   const isDark = theme === "system" ? preferDark : theme === "dark";
