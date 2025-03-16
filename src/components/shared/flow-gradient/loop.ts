@@ -76,6 +76,8 @@ export function start(
     colorBackground = [0.953, 0.929, 0.929],
   }: Options
 ) {
+  const abortController = new AbortController();
+
   const startTime = performance.now();
 
   // Resize canvas
@@ -87,8 +89,57 @@ export function start(
   });
   observer.observe(canvas);
 
+  // Mouse position
+  let mousePosition = [0, 0];
+  document.addEventListener(
+    "pointermove",
+    (e) => {
+      if (e.pointerType === "touch") return;
+
+      mousePosition = [
+        e.clientX * window.devicePixelRatio,
+        e.clientY * window.devicePixelRatio,
+      ];
+      render(performance.now() - startTime);
+    },
+    { signal: abortController.signal }
+  );
+
+  // Mouse up and down to increase ripple effect strength
+  let rippleStrength = 1;
+  let rippleStrengthTarget = 1;
+  let ripplePhase = 0;
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      if (
+        e.pointerType === "touch" ||
+        (e.pointerType === "mouse" && e.button !== 0)
+      )
+        return;
+      rippleStrengthTarget = 1.5;
+    },
+    { signal: abortController.signal }
+  );
+  document.addEventListener(
+    "pointerup",
+    (e) => {
+      if (
+        e.pointerType === "touch" ||
+        (e.pointerType === "mouse" && e.button !== 0)
+      )
+        return;
+      rippleStrengthTarget = 1;
+    },
+    { signal: abortController.signal }
+  );
+
   let bufferInfo: BufferInfo | undefined;
+  let lastTimestamp = 0;
   const render = (timestamp: number) => {
+    const deltaTime = (timestamp - lastTimestamp) / 1000;
+    lastTimestamp = timestamp;
+
     // Re-create buffer info when canvas resized to re-create mesh
     if (resized || !bufferInfo) {
       bufferInfo = getBufferInfo(
@@ -116,6 +167,14 @@ export function start(
       (xlBreakpoint / lgBreakpoint - 1) +
       (gl.canvas.width / xlBreakpoint - 1);
 
+    const rippleSpeed = 5; // 1 / 0.2s = 5
+    rippleStrength +=
+      (rippleStrengthTarget - rippleStrength) * rippleSpeed * deltaTime;
+    rippleStrength = Math.floor(rippleStrength * 1000) / 1000;
+
+    ripplePhase += rippleSpeed * deltaTime * rippleStrength * 1.5;
+    ripplePhase = Math.floor(ripplePhase * 1000) / 1000;
+
     const uniforms = {
       u_resolution: [gl.canvas.width, gl.canvas.height],
       u_dpi:
@@ -132,6 +191,9 @@ export function start(
       u_colorAltTop: colorAltTop,
       u_colorAltBottom: colorAltBottom,
       u_colorBackground: colorBackground,
+      u_mouse: mousePosition,
+      u_rippleStrength: rippleStrength,
+      u_ripplePhase: ripplePhase,
     };
     setUniforms(programInfo, uniforms);
 
@@ -178,5 +240,6 @@ export function start(
       cancelAnimationFrame(animationId);
     }
     observer.disconnect();
+    abortController.abort();
   };
 }
