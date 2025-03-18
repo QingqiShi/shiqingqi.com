@@ -15,15 +15,24 @@ interface Context {
   canvas: HTMLCanvasElement;
 }
 
+function getWebGLContext(
+  canvas: HTMLCanvasElement
+): WebGLRenderingContext | undefined {
+  const context = canvas.getContext("webgl2", {
+    premultipliedAlpha: false,
+  });
+  return context ?? undefined;
+}
+
 export function init(
   canvas: HTMLCanvasElement,
   vertexShaderSrc: string,
   fragmentShaderSrc: string
 ): Context | undefined {
-  const gl = canvas.getContext("webgl2", {
-    premultipliedAlpha: false,
-  });
-  if (!gl) return;
+  const gl = getWebGLContext(canvas);
+  if (!gl) {
+    return;
+  }
 
   const programInfo = createProgramInfo(gl, [
     vertexShaderSrc,
@@ -50,6 +59,126 @@ function getBufferInfo(
   const bufferInfo = createBufferInfoFromArrays(gl, arrays);
   setBuffersAndAttributes(gl, programInfo, bufferInfo);
   return bufferInfo;
+}
+
+function computeDPI(width: number): number {
+  const dpr = window.devicePixelRatio;
+  const breakpoints = [768, 1080, 2000].map((bp) => bp * dpr);
+
+  // For each breakpoint we compute a different DPI factor to make the flowing
+  // gradient look good.
+  const offsets = [
+    // md offset
+    width / breakpoints[0] - 1,
+    // lg offset
+    breakpoints[1] / breakpoints[0] - 1 + (width / breakpoints[1] - 1),
+    // xl offset
+    breakpoints[1] / breakpoints[0] -
+      1 +
+      (breakpoints[2] / breakpoints[1] - 1) +
+      (width / breakpoints[2] - 1),
+  ];
+
+  // Return the correct computed DPI factor based on the width
+  if (width < breakpoints[0]) return dpr;
+  if (width < breakpoints[1]) return dpr + offsets[0];
+  if (width < breakpoints[2]) return dpr + offsets[1];
+  return dpr + offsets[2];
+}
+
+interface PointerState {
+  mousePosition: [number, number];
+  rippleStrength: number;
+  rippleStrengthTarget: number;
+  ripplePhase: number;
+}
+
+function setupPointerEvents(
+  canvas: HTMLCanvasElement,
+  signal: AbortSignal
+): PointerState {
+  const pointerState: PointerState = {
+    mousePosition: [0, 0],
+    rippleStrength: 1,
+    rippleStrengthTarget: 1,
+    ripplePhase: 0,
+  };
+
+  document.addEventListener(
+    "pointermove",
+    (e) => {
+      if (e.pointerType !== "mouse") return;
+      pointerState.mousePosition = [
+        e.clientX * window.devicePixelRatio,
+        e.clientY * window.devicePixelRatio +
+          document.documentElement.scrollTop * window.devicePixelRatio,
+      ];
+    },
+    { signal, passive: true }
+  );
+
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      if (
+        e.pointerType === "touch" ||
+        (e.pointerType === "mouse" && e.button !== 0)
+      ) {
+        return;
+      }
+      pointerState.rippleStrengthTarget = 1.5;
+    },
+    { signal }
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (e) => {
+      if (
+        e.pointerType === "touch" ||
+        (e.pointerType === "mouse" && e.button !== 0)
+      ) {
+        return;
+      }
+      pointerState.rippleStrengthTarget = 1;
+    },
+    { signal }
+  );
+
+  return pointerState;
+}
+
+function createAnimationLoop({
+  render,
+  fps = 30,
+  signal,
+}: {
+  render: (time: number) => void;
+  fps?: number;
+  signal?: AbortSignal;
+}) {
+  let animationId: number | null = null;
+  let lastFrameTime = performance.now();
+  const frameDuration = 1000 / fps;
+  const startTime = performance.now();
+
+  const handleFrame: FrameRequestCallback = (timestamp) => {
+    if (signal?.aborted) return;
+
+    const elapsed = timestamp - lastFrameTime;
+    if (elapsed >= frameDuration) {
+      lastFrameTime = timestamp - (elapsed % frameDuration);
+      render(timestamp - startTime);
+    }
+
+    animationId = requestAnimationFrame(handleFrame);
+  };
+
+  animationId = requestAnimationFrame(handleFrame);
+
+  return () => {
+    if (animationId !== null) cancelAnimationFrame(animationId);
+  };
 }
 
 interface Options {
@@ -89,50 +218,8 @@ export function start(
   });
   observer.observe(canvas);
 
-  // Mouse position
-  let mousePosition = [0, 0];
-  document.addEventListener(
-    "pointermove",
-    (e) => {
-      if (e.pointerType === "touch") return;
-
-      mousePosition = [
-        e.clientX * window.devicePixelRatio,
-        e.clientY * window.devicePixelRatio,
-      ];
-      render(performance.now() - startTime);
-    },
-    { signal: abortController.signal }
-  );
-
-  // Mouse up and down to increase ripple effect strength
-  let rippleStrength = 1;
-  let rippleStrengthTarget = 1;
-  let ripplePhase = 0;
-  document.addEventListener(
-    "pointerdown",
-    (e) => {
-      if (
-        e.pointerType === "touch" ||
-        (e.pointerType === "mouse" && e.button !== 0)
-      )
-        return;
-      rippleStrengthTarget = 1.5;
-    },
-    { signal: abortController.signal }
-  );
-  document.addEventListener(
-    "pointerup",
-    (e) => {
-      if (
-        e.pointerType === "touch" ||
-        (e.pointerType === "mouse" && e.button !== 0)
-      )
-        return;
-      rippleStrengthTarget = 1;
-    },
-    { signal: abortController.signal }
-  );
+  // Ripple effect mouse tracking
+  const pointerState = setupPointerEvents(canvas, abortController.signal);
 
   let bufferInfo: BufferInfo | undefined;
   let lastTimestamp = 0;
@@ -150,95 +237,45 @@ export function start(
       resized = false;
     }
 
-    const t = timestamp;
-    const smDpi = window.devicePixelRatio;
-    const mdBreakpoint = 768 * window.devicePixelRatio;
-    const mdDpi =
-      window.devicePixelRatio + (gl.canvas.width / mdBreakpoint - 1);
-    const lgBreakpoint = 1080 * window.devicePixelRatio;
-    const lgDpi =
-      window.devicePixelRatio +
-      (lgBreakpoint / mdBreakpoint - 1) +
-      (gl.canvas.width / lgBreakpoint - 1);
-    const xlBreakpoint = 2000 * window.devicePixelRatio;
-    const xlDpi =
-      window.devicePixelRatio +
-      (lgBreakpoint / mdBreakpoint - 1) +
-      (xlBreakpoint / lgBreakpoint - 1) +
-      (gl.canvas.width / xlBreakpoint - 1);
-
     const rippleSpeed = 5; // 1 / 0.2s = 5
-    rippleStrength +=
-      (rippleStrengthTarget - rippleStrength) * rippleSpeed * deltaTime;
-    rippleStrength = Math.floor(rippleStrength * 1000) / 1000;
+    pointerState.rippleStrength +=
+      (pointerState.rippleStrengthTarget - pointerState.rippleStrength) *
+      rippleSpeed *
+      deltaTime;
+    pointerState.rippleStrength =
+      Math.floor(pointerState.rippleStrength * 1000) / 1000;
 
-    ripplePhase += rippleSpeed * deltaTime * rippleStrength * 1.5;
-    ripplePhase = Math.floor(ripplePhase * 1000) / 1000;
+    pointerState.ripplePhase +=
+      rippleSpeed * deltaTime * pointerState.rippleStrength * 1.5;
+    pointerState.ripplePhase =
+      Math.floor(pointerState.ripplePhase * 1000) / 1000;
 
     const uniforms = {
       u_resolution: [gl.canvas.width, gl.canvas.height],
-      u_dpi:
-        gl.canvas.width < mdBreakpoint
-          ? smDpi
-          : gl.canvas.width < lgBreakpoint
-            ? mdDpi
-            : gl.canvas.width < xlBreakpoint
-              ? lgDpi
-              : xlDpi,
-      u_time: t,
+      u_dpi: computeDPI(gl.canvas.width),
+      u_time: timestamp,
       u_colorTop: colorTop,
       u_colorBottom: colorBottom,
       u_colorAltTop: colorAltTop,
       u_colorAltBottom: colorAltBottom,
       u_colorBackground: colorBackground,
-      u_mouse: mousePosition,
-      u_rippleStrength: rippleStrength,
-      u_ripplePhase: ripplePhase,
+      u_mouse: pointerState.mousePosition,
+      u_rippleStrength: pointerState.rippleStrength,
+      u_ripplePhase: pointerState.ripplePhase,
     };
     setUniforms(programInfo, uniforms);
 
     drawBufferInfo(gl, bufferInfo);
   };
 
-  const fps = 30;
-  const frameDuration = 1000 / fps;
-  const initialAnimationWindow = 2200;
-  let animationId = null as null | number;
-  let lastFrameTime = performance.now();
-  let frameCounter = 0;
-  let skipFpsCheck = false;
-
-  const handleFrame: FrameRequestCallback = (timestamp) => {
-    const elapsed = timestamp - lastFrameTime;
-
-    // Throttle updates to match desired fps
-    if (elapsed >= frameDuration) {
-      lastFrameTime = timestamp - (elapsed % frameDuration); // Align timing
-      render(timestamp - startTime);
-    }
-
-    // For the initial 3s, check the fps and decide if we need to stop animation
-    if (!skipFpsCheck) {
-      frameCounter++;
-      const fpsElapsed = timestamp - startTime;
-      if (fpsElapsed >= initialAnimationWindow) {
-        const actualFps = (frameCounter * 1000) / fpsElapsed;
-        skipFpsCheck = true;
-        if (actualFps < 29) {
-          return;
-        }
-      }
-    }
-
-    // Request the next frame
-    animationId = requestAnimationFrame(handleFrame);
-  };
-  handleFrame(startTime);
+  const cancelAnimation = createAnimationLoop({
+    render,
+    signal: abortController.signal,
+    fps: 60,
+  });
 
   return () => {
-    if (animationId !== null) {
-      cancelAnimationFrame(animationId);
-    }
+    cancelAnimation();
     observer.disconnect();
     abortController.abort();
   };
