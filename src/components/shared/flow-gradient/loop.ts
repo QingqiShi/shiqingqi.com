@@ -98,11 +98,12 @@ export function start(
 
       mousePosition = [
         e.clientX * window.devicePixelRatio,
-        e.clientY * window.devicePixelRatio,
+        e.clientY * window.devicePixelRatio +
+          document.documentElement.scrollTop * window.devicePixelRatio,
       ];
       render(performance.now() - startTime);
     },
-    { signal: abortController.signal }
+    { signal: abortController.signal, passive: true }
   );
 
   // Mouse up and down to increase ripple effect strength
