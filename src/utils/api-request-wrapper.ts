@@ -18,7 +18,11 @@ export async function apiRequestWrapper<
       }
     }
   }
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), {
+    // 24 Hours
+    cache: "force-cache",
+    next: { revalidate: 86400 },
+  });
   if (!response.ok) {
     throw new Error(`${response.statusText}: ${await response.json()}`);
   }
