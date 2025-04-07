@@ -62,7 +62,9 @@ export const fetchMovieList = cache(async function fetchMovieList({
       accept: "application/json",
       Authorization: `Bearer ${API}`,
     },
-    cache: "no-store",
+    // 24 Hours
+    cache: "force-cache",
+    next: { revalidate: 86400 },
   });
 
   if (!response.ok) {
@@ -196,9 +198,9 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
       accept: "application/json",
       Authorization: `Bearer ${API}`,
     },
-    // 1 Hours
+    // 24 Hours
     cache: "force-cache",
-    next: { revalidate: 3600 },
+    next: { revalidate: 86400 },
   });
 
   if (!response.ok) {

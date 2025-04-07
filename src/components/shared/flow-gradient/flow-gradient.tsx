@@ -7,10 +7,20 @@ export async function FlowGradient() {
     process.env.NODE_ENV === "production"
       ? [
           fetch(
-            "https://0tius9gdxi32io0t.public.blob.vercel-storage.com/shaders/fs.glsl"
+            "https://0tius9gdxi32io0t.public.blob.vercel-storage.com/shaders/fs.glsl",
+            {
+              // 24 Hours
+              cache: "force-cache",
+              next: { revalidate: 86400 },
+            }
           ).then((result) => result.text()),
           fetch(
-            "https://0tius9gdxi32io0t.public.blob.vercel-storage.com/shaders/vs.glsl"
+            "https://0tius9gdxi32io0t.public.blob.vercel-storage.com/shaders/vs.glsl",
+            {
+              // 24 Hours
+              cache: "force-cache",
+              next: { revalidate: 86400 },
+            }
           ).then((result) => result.text()),
         ]
       : [
