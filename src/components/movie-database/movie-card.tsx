@@ -10,9 +10,10 @@ import type translations from "./poster-image.translations.json";
 
 interface MovieCardProps {
   movie: MovieListItem;
+  allowFollow?: boolean;
 }
 
-export function MovieCard({ movie }: MovieCardProps) {
+export function MovieCard({ movie, allowFollow }: MovieCardProps) {
   const { t } = useTranslations<typeof translations>("posterImage");
   const { locale } = useTranslationContext();
   const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
@@ -22,6 +23,7 @@ export function MovieCard({ movie }: MovieCardProps) {
       href={getLocalePath(`/movie-database/${movie.id.toString()}`, locale)}
       css={styles.card}
       aria-label={movie.title}
+      rel={allowFollow ? undefined : "nofollow"}
     >
       <div css={styles.posterContainer}>
         {movie.posterPath && movie.title ? (

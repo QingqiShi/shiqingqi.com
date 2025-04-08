@@ -34,6 +34,7 @@ export function SortFilter({ bright, hideLabel }: SortFilterProps) {
             );
           }}
           bright={bright}
+          rel="nofollow"
         >
           {t("popularity")}
           {sort === "popularity.asc" && " ↑"}
@@ -55,6 +56,7 @@ export function SortFilter({ bright, hideLabel }: SortFilterProps) {
             );
           }}
           bright={bright}
+          rel="nofollow"
         >
           {t("rating")}
           {sort === "vote_average.asc" && " ↑"}

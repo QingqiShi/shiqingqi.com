@@ -47,6 +47,7 @@ export function GenreFilter({ allGenres, hideTitle }: GenreFilterProps) {
                   e.preventDefault();
                   toggleGenre(idString);
                 }}
+                rel="nofollow"
                 replace
                 shallow
                 bright
@@ -70,6 +71,7 @@ export function GenreFilter({ allGenres, hideTitle }: GenreFilterProps) {
               }}
               id={`${id}-all`}
               isActive={genreFilterType === "all"}
+              rel="nofollow"
               bright
             >
               {t("all")}
@@ -82,6 +84,7 @@ export function GenreFilter({ allGenres, hideTitle }: GenreFilterProps) {
               }}
               id={`${id}-any`}
               isActive={genreFilterType === "any"}
+              rel="nofollow"
               bright
             >
               {t("any")}

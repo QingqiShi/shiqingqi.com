@@ -66,7 +66,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
       components={gridComponents}
       itemContent={(index) =>
         movies[index] ? (
-          <MovieCard movie={movies[index]} />
+          <MovieCard movie={movies[index]} allowFollow={index < 20} />
         ) : (
           <Skeleton css={styles.skeleton} delay={index * 100} />
         )
