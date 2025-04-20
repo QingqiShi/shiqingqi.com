@@ -15,40 +15,40 @@ importers:
     dependencies:
       '@mui/utils':
         specifier: ^6.4.8
-        version: 6.4.8(@types/react@19.0.10)(react@19.0.0)
+        version: 6.4.8(@types/react@19.1.0)(react@19.1.0)
       '@phosphor-icons/react':
         specifier: ^2.1.7
-        version: 2.1.7(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 2.1.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@serwist/next':
         specifier: ^9.0.12
-        version: 9.0.12(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.2)(webpack@5.97.1)
+        version: 9.0.12(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(typescript@5.8.2)(webpack@5.97.1)
       '@stylexjs/stylex':
         specifier: ^0.11.1
         version: 0.11.1
       '@tanstack/react-query':
         specifier: 5.66.3
-        version: 5.66.3(react@19.0.0)
+        version: 5.66.3(react@19.1.0)
       '@vercel/analytics':
         specifier: ^1.5.0
-        version: 1.5.0(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+        version: 1.5.0(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       '@vercel/speed-insights':
         specifier: 1.2.0
-        version: 1.2.0(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+        version: 1.2.0(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       next:
         specifier: 15.2.4
-        version: 15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
-        specifier: 19.0.0
-        version: 19.0.0
+        specifier: 19.1.0
+        version: 19.1.0
       react-dom:
-        specifier: 19.0.0
-        version: 19.0.0(react@19.0.0)
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
       react-error-boundary:
         specifier: ^5.0.0
-        version: 5.0.0(react@19.0.0)
+        version: 5.0.0(react@19.1.0)
       react-virtuoso:
         specifier: ^4.12.5
-        version: 4.12.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 4.12.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       serwist:
         specifier: ^9.0.12
         version: 9.0.12(typescript@5.8.2)
@@ -84,11 +84,11 @@ importers:
         specifier: ^22.13.11
         version: 22.13.11
       '@types/react':
-        specifier: 19.0.10
-        version: 19.0.10
+        specifier: 19.1.0
+        version: 19.1.0
       '@types/react-dom':
-        specifier: 19.0.4
-        version: 19.0.4(@types/react@19.0.10)
+        specifier: 19.1.2
+        version: 19.1.2(@types/react@19.1.0)
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
@@ -1005,13 +1005,13 @@ packages:
   '@types/prop-types@15.7.14':
     resolution: {integrity: sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==}
 
-  '@types/react-dom@19.0.4':
-    resolution: {integrity: sha512-4fSQ8vWFkg+TGhePfUzVmat3eC14TXYSsiiDSLI0dVLsrm9gZFABjPy/Qu6TKgl1tq1Bu1yDsuQgY3A3DOjCcg==}
+  '@types/react-dom@19.1.2':
+    resolution: {integrity: sha512-XGJkWF41Qq305SKWEILa1O8vzhb3aOo3ogBlSmiqNko/WmRb6QIaweuZCXjKygVDXpzXb5wyxKTSOsmkuqj+Qw==}
     peerDependencies:
       '@types/react': ^19.0.0
 
-  '@types/react@19.0.10':
-    resolution: {integrity: sha512-JuRQ9KXLEjaUNjTWpzuR231Z2WpIwczOkBEIvbHNCzQefFIT0L8IqE6NV6ULLyC1SI/i234JnDoMkfg+RjQj2g==}
+  '@types/react@19.1.0':
+    resolution: {integrity: sha512-UaicktuQI+9UKyA4njtDOGBD/67t8YEBt2xdfqu8+gP9hqPUPsiXlNPcpS2gVdjmis5GKPG3fCxbQLVgxsQZ8w==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -2730,10 +2730,10 @@ packages:
   randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
 
-  react-dom@19.0.0:
-    resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
+  react-dom@19.1.0:
+    resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
-      react: ^19.0.0
+      react: ^19.1.0
 
   react-error-boundary@5.0.0:
     resolution: {integrity: sha512-tnjAxG+IkpLephNcePNA7v6F/QpWLH8He65+DmedchDwg162JZqx4NmbXj0mlAYVVEd81OW7aFhmbsScYfiAFQ==}
@@ -2752,8 +2752,8 @@ packages:
       react: '>=16 || >=17 || >= 18 || >= 19'
       react-dom: '>=16 || >=17 || >= 18 || >=19'
 
-  react@19.0.0:
-    resolution: {integrity: sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==}
+  react@19.1.0:
+    resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.0:
@@ -2849,8 +2849,8 @@ packages:
     resolution: {integrity: sha512-x/+Cz4YrimQxQccJf5mKEbIa1NzeCRNI5Ecl/ekmlYaampdNLPalVyIcCZNNH3MvmqBugV5TMYZXv0ljslUlaw==}
     engines: {node: '>= 0.4'}
 
-  scheduler@0.25.0:
-    resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
+  scheduler@0.26.0:
+    resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
 
   schema-utils@3.3.0:
     resolution: {integrity: sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==}
@@ -3952,21 +3952,21 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@mui/types@7.2.24(@types/react@19.0.10)':
+  '@mui/types@7.2.24(@types/react@19.1.0)':
     optionalDependencies:
-      '@types/react': 19.0.10
+      '@types/react': 19.1.0
 
-  '@mui/utils@6.4.8(@types/react@19.0.10)(react@19.0.0)':
+  '@mui/utils@6.4.8(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.26.10
-      '@mui/types': 7.2.24(@types/react@19.0.10)
+      '@mui/types': 7.2.24(@types/react@19.1.0)
       '@types/prop-types': 15.7.14
       clsx: 2.1.1
       prop-types: 15.8.1
-      react: 19.0.0
+      react: 19.1.0
       react-is: 19.0.0
     optionalDependencies:
-      '@types/react': 19.0.10
+      '@types/react': 19.1.0
 
   '@napi-rs/wasm-runtime@0.2.7':
     dependencies:
@@ -4019,10 +4019,10 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@phosphor-icons/react@2.1.7(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@phosphor-icons/react@2.1.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -4064,14 +4064,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.2
 
-  '@serwist/next@9.0.12(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.2)(webpack@5.97.1)':
+  '@serwist/next@9.0.12(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(typescript@5.8.2)(webpack@5.97.1)':
     dependencies:
       '@serwist/build': 9.0.12(typescript@5.8.2)
       '@serwist/webpack-plugin': 9.0.12(typescript@5.8.2)(webpack@5.97.1)
       '@serwist/window': 9.0.12(typescript@5.8.2)
       chalk: 5.4.1
       glob: 10.4.5
-      next: 15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next: 15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       serwist: 9.0.12(typescript@5.8.2)
       zod: 3.24.2
     optionalDependencies:
@@ -4141,10 +4141,10 @@ snapshots:
 
   '@tanstack/query-core@5.66.3': {}
 
-  '@tanstack/react-query@5.66.3(react@19.0.0)':
+  '@tanstack/react-query@5.66.3(react@19.1.0)':
     dependencies:
       '@tanstack/query-core': 5.66.3
-      react: 19.0.0
+      react: 19.1.0
 
   '@tybys/wasm-util@0.9.0':
     dependencies:
@@ -4182,11 +4182,11 @@ snapshots:
 
   '@types/prop-types@15.7.14': {}
 
-  '@types/react-dom@19.0.4(@types/react@19.0.10)':
+  '@types/react-dom@19.1.2(@types/react@19.1.0)':
     dependencies:
-      '@types/react': 19.0.10
+      '@types/react': 19.1.0
 
-  '@types/react@19.0.10':
+  '@types/react@19.1.0':
     dependencies:
       csstype: 3.1.3
 
@@ -4381,15 +4381,15 @@ snapshots:
   '@unrs/rspack-resolver-binding-win32-x64-msvc@1.2.2':
     optional: true
 
-  '@vercel/analytics@1.5.0(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)':
+  '@vercel/analytics@1.5.0(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
     optionalDependencies:
-      next: 15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react: 19.0.0
+      next: 15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
 
-  '@vercel/speed-insights@1.2.0(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)':
+  '@vercel/speed-insights@1.2.0(next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
     optionalDependencies:
-      next: 15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react: 19.0.0
+      next: 15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
@@ -5791,7 +5791,7 @@ snapshots:
       '@formatjs/intl-localematcher': 0.5.10
       negotiator: 0.6.4
 
-  next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  next@15.2.4(@babel/core@8.0.0-alpha.15)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@next/env': 15.2.4
       '@swc/counter': 0.1.3
@@ -5799,9 +5799,9 @@ snapshots:
       busboy: 1.6.0
       caniuse-lite: 1.0.30001707
       postcss: 8.4.31
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
-      styled-jsx: 5.1.6(@babel/core@8.0.0-alpha.15)(react@19.0.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      styled-jsx: 5.1.6(@babel/core@8.0.0-alpha.15)(react@19.1.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.2.4
       '@next/swc-darwin-x64': 15.2.4
@@ -6221,26 +6221,26 @@ snapshots:
       safe-buffer: 5.2.1
     optional: true
 
-  react-dom@19.0.0(react@19.0.0):
+  react-dom@19.1.0(react@19.1.0):
     dependencies:
-      react: 19.0.0
-      scheduler: 0.25.0
+      react: 19.1.0
+      scheduler: 0.26.0
 
-  react-error-boundary@5.0.0(react@19.0.0):
+  react-error-boundary@5.0.0(react@19.1.0):
     dependencies:
       '@babel/runtime': 7.26.9
-      react: 19.0.0
+      react: 19.1.0
 
   react-is@16.13.1: {}
 
   react-is@19.0.0: {}
 
-  react-virtuoso@4.12.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  react-virtuoso@4.12.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  react@19.0.0: {}
+  react@19.1.0: {}
 
   read-cache@1.0.0:
     dependencies:
@@ -6361,7 +6361,7 @@ snapshots:
       es-errors: 1.3.0
       is-regex: 1.2.1
 
-  scheduler@0.25.0: {}
+  scheduler@0.26.0: {}
 
   schema-utils@3.3.0:
     dependencies:
@@ -6592,10 +6592,10 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  styled-jsx@5.1.6(@babel/core@8.0.0-alpha.15)(react@19.0.0):
+  styled-jsx@5.1.6(@babel/core@8.0.0-alpha.15)(react@19.1.0):
     dependencies:
       client-only: 0.0.1
-      react: 19.0.0
+      react: 19.1.0
     optionalDependencies:
       '@babel/core': 8.0.0-alpha.15
 
