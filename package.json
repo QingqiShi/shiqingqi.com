@@ -28,7 +28,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-error-boundary": "^5.0.0",
-    "react-virtuoso": "^4.12.5",
+    "react-virtuoso": "^4.12.8",
     "serwist": "^9.0.12",
     "sharp": "^0.33.5",
     "twgl.js": "^5.5.4"
