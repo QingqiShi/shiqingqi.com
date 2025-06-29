@@ -14,6 +14,7 @@ const light = {
   backgroundHover: "#e6dddd",
   backgroundTranslucent: "rgba(0, 0, 0, 0.01)",
   backgroundMainChannels: "255,255,255",
+  backgroundGlass: "rgba(235, 228, 229, 0.7)",
 
   controlTrack: "#ccc5c5",
   controlThumb: "#ffffff",
@@ -24,6 +25,8 @@ const light = {
 
   shadowColor: "220 3% 15%",
   shadowStrength: "1%",
+  shadowGlass:
+    "0 -2px 5px 0 hsl(220 3% 15% / calc(1% + 2%)), 0 1px 1px -2px hsl(220 3% 15% / calc(1% + 3%)), 0 2px 2px -2px hsl(220 3% 15% / calc(1% + 3%)), 0 5px 5px -2px hsl(220 3% 15% / calc(1% + 4%)), 0 9px 9px -2px hsl(220 3% 15% / calc(1% + 5%)), 0 16px 16px -2px hsl(220 3% 15% / calc(1% + 6%))",
 
   brandTmdb: "#4a7957",
   brandCitadel: "rgb(26,54,104)",
@@ -47,6 +50,7 @@ const dark: { [key in keyof typeof light]: string } = {
   backgroundHover: "#535353",
   backgroundTranslucent: "rgba(255, 255, 255, 0.1)",
   backgroundMainChannels: "0,0,0",
+  backgroundGlass: "rgba(65, 65, 65, 0.6)",
 
   controlTrack: "#414141",
   controlThumb: "#bbbbbb",
@@ -57,6 +61,7 @@ const dark: { [key in keyof typeof light]: string } = {
 
   shadowColor: "220 40% 2%",
   shadowStrength: "25%",
+  shadowGlass: "none",
 
   brandTmdb: "#90cea1",
   brandCitadel: "rgb(129,174,255)",
@@ -108,6 +113,10 @@ export const color = stylex.defineVars({
     default: light.backgroundMainChannels,
     [constants.DARK]: dark.backgroundMainChannels,
   },
+  backgroundGlass: {
+    default: light.backgroundGlass,
+    [DARK]: dark.backgroundGlass,
+  },
 
   controlTrack: {
     default: light.controlTrack,
@@ -139,6 +148,7 @@ export const color = stylex.defineVars({
     default: light.shadowStrength,
     [constants.DARK]: dark.shadowStrength,
   },
+  shadowGlass: { default: light.shadowGlass, [DARK]: dark.shadowGlass },
 
   brandTmdb: { default: light.brandTmdb, [constants.DARK]: dark.brandTmdb },
   brandCitadel: {
@@ -281,3 +291,10 @@ export const shadow = stylex.defineVars({
   _5: `0 -1px 2px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 2px 1px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 5px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 10px 10px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 20px 20px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 40px 40px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 7%))`,
   _6: `0 -1px 2px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 3px 2px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 7px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 12px 10px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 22px 18px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 41px 33px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%)), 0 100px 80px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 7%))`,
 });
+
+export const backdropEffects = stylex.defineVars({
+  controls: "saturate(180%) blur(16px)",
+  border: "saturate(80%) brightness(1.2) blur(6px)",
+});
+
+// 3px 5px 13px 0px rgba(0, 0, 0, 0.2)

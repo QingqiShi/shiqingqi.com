@@ -11,13 +11,16 @@ import React, {
   useState,
 } from "react";
 import {
+  backdropEffects,
   border,
   color,
   controlSize,
+  font,
   layer,
   ratio,
   shadow,
 } from "@/tokens.stylex";
+import { GlassSurface } from "./glass-surface";
 import { switchTokens } from "./switch.stylex";
 
 export type SwitchState = "off" | "on" | "indeterminate";
@@ -26,6 +29,8 @@ interface SwitchProps
   extends Omit<React.ComponentProps<"input">, "checked" | "onChange"> {
   value?: SwitchState;
   onChange?: (state: SwitchState) => void;
+  offIcon?: React.ReactNode;
+  onIcon?: React.ReactNode;
 }
 
 export function Switch({
@@ -33,6 +38,8 @@ export function Switch({
   onChange,
   className,
   style,
+  offIcon,
+  onIcon,
   ...rest
 }: SwitchProps) {
   const elRef = useRef<HTMLInputElement>(null);
@@ -143,33 +150,69 @@ export function Switch({
   }, []);
 
   return (
-    <input
-      ref={elRef}
-      {...rest}
-      className={className}
-      style={style}
-      css={[
-        styles.switch,
-        initialRendered && styles.animate,
-        isDragging && styles.dragging(position),
-      ]}
-      type="checkbox"
-      onPointerDown={handleDragStart}
-      onPointerUp={handleDragEnd}
-      onPointerMove={handleDragMove}
-      onKeyDown={(e) => {
-        if (e.code === "Space" || e.code === "Enter") {
-          e.preventDefault();
-          setControlledValue(value === "on" ? "off" : "on");
-        }
-      }}
-      onChange={(e) => e.preventDefault()}
-      onClick={(e) => e.preventDefault()}
-    />
+    <GlassSurface>
+      <div
+        css={[
+          styles.container,
+          value === "on" && styles.checked,
+          value === "indeterminate" && styles.indeterminate,
+          isDragging && styles.dragging(position),
+        ]}
+      >
+        <input
+          ref={elRef}
+          {...rest}
+          className={className}
+          style={style}
+          css={styles.switch}
+          type="checkbox"
+          onPointerDown={handleDragStart}
+          onPointerUp={handleDragEnd}
+          onPointerMove={handleDragMove}
+          onKeyDown={(e) => {
+            if (e.code === "Space" || e.code === "Enter") {
+              e.preventDefault();
+              setControlledValue(value === "on" ? "off" : "on");
+            }
+          }}
+          onChange={(e) => e.preventDefault()}
+          onClick={(e) => e.preventDefault()}
+        />
+        <div
+          css={[styles.thumb, initialRendered && !isDragging && styles.animate]}
+        />
+        {offIcon && (
+          <span css={[styles.icon, styles.off]} aria-hidden>
+            {offIcon}
+          </span>
+        )}
+        {onIcon && (
+          <span css={[styles.icon, styles.on]} aria-hidden>
+            {onIcon}
+          </span>
+        )}
+      </div>
+    </GlassSurface>
   );
 }
 
 const styles = stylex.create({
+  container: {
+    display: "flex",
+    position: "relative",
+    zIndex: layer.base,
+    [switchTokens.thumbPosition]: "0",
+    [switchTokens.thumbShadow]: {
+      default: null,
+      ":hover": shadow._3,
+    },
+  },
+  checked: {
+    [switchTokens.thumbPosition]: controlSize._9,
+  },
+  indeterminate: {
+    [switchTokens.thumbPosition]: `calc(${controlSize._9} / 2)`,
+  },
   switch: {
     // Reset
     background: "none",
@@ -183,54 +226,55 @@ const styles = stylex.create({
     aspectRatio: ratio.double,
     borderRadius: border.radius_round,
     cursor: "pointer",
-    display: "flex",
+    display: "block",
     height: controlSize._9,
     padding: border.size_2,
     position: "relative",
     transition: `background-color 0.2s ease`,
     backgroundColor: {
-      default: color.controlTrack,
+      default: color.backgroundGlass,
       ":checked": color.controlActive,
     },
-    boxShadow: {
-      default: shadow._2,
-      ":hover": { "::before": shadow._3 },
-    },
     touchAction: "none",
-
-    [switchTokens.thumbPosition]: {
-      default: "0",
-      ":checked": controlSize._9,
-      ":indeterminate": `calc(${controlSize._9} / 2)`,
-    },
-    [switchTokens.thumbShadow]: {
-      default: null,
-      ":hover": shadow._3,
-    },
-
-    // Pseudo elements
-    "::before": {
-      backgroundColor: color.controlThumb,
-      borderRadius: border.radius_round,
-      boxShadow: switchTokens.thumbShadow,
-      content: "",
-      display: "block",
-      width: `calc(${controlSize._9} - ${border.size_2} * 2)`,
-      aspectRatio: ratio.square,
-      transform: `translateX(${switchTokens.thumbPosition})`,
-      transition: null,
-      zIndex: layer.content,
-    },
+    backdropFilter: backdropEffects.controls,
+  },
+  thumb: {
+    position: "absolute",
+    left: border.size_2,
+    top: border.size_2,
+    backgroundColor: color.controlThumb,
+    borderRadius: border.radius_round,
+    boxShadow: switchTokens.thumbShadow,
+    display: "block",
+    width: `calc(${controlSize._9} - ${border.size_2} * 2)`,
+    aspectRatio: ratio.square,
+    transform: `translateX(${switchTokens.thumbPosition})`,
+    transition: null,
+    zIndex: layer.content,
+    pointerEvents: "none",
   },
   animate: {
-    "::before": {
-      transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
-    },
+    transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
+  },
+  icon: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "none",
+    aspectRatio: ratio.square,
+    fontSize: font.size_1,
+    width: controlSize._9,
+  },
+  off: {
+    left: 0,
+  },
+  on: {
+    right: 0,
   },
   dragging: (position) => ({
     [switchTokens.thumbPosition]: `${position}px`,
-    "::before": {
-      transition: null,
-    },
   }),
 });

@@ -8,7 +8,7 @@ import { getDocumentClassName } from "@/app/global-styles";
 import { Button } from "@/components/shared/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
-import { color, controlSize, font, ratio, space } from "@/tokens.stylex";
+import { color, controlSize, font, space } from "@/tokens.stylex";
 import type { SwitchState } from "./switch";
 import { Switch } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";
@@ -109,13 +109,9 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
                 : 1
           ]
         }
+        offIcon={<Moon weight="fill" />}
+        onIcon={<Sun weight="fill" />}
       />
-      <span css={[styles.icon, styles.moon]} aria-hidden>
-        <Moon weight="fill" />
-      </span>
-      <span css={[styles.icon, styles.sun]} aria-hidden>
-        <Sun weight="fill" />
-      </span>
     </div>
   );
 }
@@ -146,25 +142,7 @@ const styles = stylex.create({
     },
   },
   switch: {
-    [color.controlActive]: { default: color.backgroundRaised },
-  },
-  icon: {
-    alignItems: "center",
-    aspectRatio: ratio.square,
-    bottom: 0,
-    display: "flex",
-    fontSize: font.size_1,
-    justifyContent: "center",
-    pointerEvents: "none",
-    position: "absolute",
-    top: 0,
-    width: controlSize._9,
-  },
-  moon: {
-    left: 0,
-  },
-  sun: {
-    right: 0,
+    [color.controlActive]: { default: color.backgroundGlass },
   },
   systemButton: {
     left: 0,
