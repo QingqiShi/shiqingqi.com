@@ -50,7 +50,7 @@
     "eslint-config-next": "15.2.4",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
-    "eslint-plugin-unicorn": "^57.0.0",
+    "eslint-plugin-unicorn": "^59.0.1",
     "modern-normalize": "^3.0.1",
     "next-i18n-router": "^5.5.1",
     "openapi-typescript": "^7.6.1",
