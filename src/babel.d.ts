@@ -15,9 +15,7 @@ declare global {
   } from "@stylexjs/stylex/lib/StyleXTypes";
 
   type StyleProp = StyleXArray<
-    | (null | undefined | CompiledStyles)
-    | boolean
-    | Readonly<[CompiledStyles, InlineStyles]>
+    null | undefined | boolean | Readonly<[CompiledStyles, InlineStyles]>
   >;
 
   // Extend React types for native elements
