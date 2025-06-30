@@ -67,71 +67,103 @@ const dark: { [key in keyof typeof light]: string } = {
   brandSpotify: "#1ecc5a",
 };
 
-const DARK = "@media (prefers-color-scheme: dark)";
+export const constants = stylex.defineConsts({
+  DARK: "@media (prefers-color-scheme: dark)",
+});
 
 export const color = stylex.defineVars({
-  colorScheme: { default: light.colorScheme, [DARK]: dark.colorScheme },
+  colorScheme: {
+    default: light.colorScheme,
+    [constants.DARK]: dark.colorScheme,
+  },
 
-  textMain: { default: light.textMain, [DARK]: dark.textMain },
-  textMuted: { default: light.textMuted, [DARK]: dark.textMuted },
-  textOnActive: { default: light.textOnActive, [DARK]: dark.textOnActive },
+  textMain: { default: light.textMain, [constants.DARK]: dark.textMain },
+  textMuted: { default: light.textMuted, [constants.DARK]: dark.textMuted },
+  textOnActive: {
+    default: light.textOnActive,
+    [constants.DARK]: dark.textOnActive,
+  },
   textOnControlThumb: {
     default: light.textOnControlThumb,
-    [DARK]: dark.textOnControlThumb,
+    [constants.DARK]: dark.textOnControlThumb,
   },
 
   backgroundMain: {
     default: light.backgroundMain,
-    [DARK]: dark.backgroundMain,
+    [constants.DARK]: dark.backgroundMain,
   },
   backgroundRaised: {
     default: light.backgroundRaised,
-    [DARK]: dark.backgroundRaised,
+    [constants.DARK]: dark.backgroundRaised,
   },
   backgroundHover: {
     default: light.backgroundHover,
-    [DARK]: dark.backgroundHover,
+    [constants.DARK]: dark.backgroundHover,
   },
   backgroundTranslucent: {
     default: light.backgroundTranslucent,
-    [DARK]: dark.backgroundTranslucent,
+    [constants.DARK]: dark.backgroundTranslucent,
   },
   backgroundMainChannels: {
     default: light.backgroundMainChannels,
-    [DARK]: dark.backgroundMainChannels,
+    [constants.DARK]: dark.backgroundMainChannels,
   },
 
-  controlTrack: { default: light.controlTrack, [DARK]: dark.controlTrack },
-  controlThumb: { default: light.controlThumb, [DARK]: dark.controlThumb },
-  controlActive: { default: light.controlActive, [DARK]: dark.controlActive },
+  controlTrack: {
+    default: light.controlTrack,
+    [constants.DARK]: dark.controlTrack,
+  },
+  controlThumb: {
+    default: light.controlThumb,
+    [constants.DARK]: dark.controlThumb,
+  },
+  controlActive: {
+    default: light.controlActive,
+    [constants.DARK]: dark.controlActive,
+  },
   controlActiveHover: {
     default: light.controlActiveHover,
-    [DARK]: dark.controlActiveHover,
+    [constants.DARK]: dark.controlActiveHover,
   },
 
-  opacityActive: { default: light.opacityActive, [DARK]: dark.opacityActive },
+  opacityActive: {
+    default: light.opacityActive,
+    [constants.DARK]: dark.opacityActive,
+  },
 
-  shadowColor: { default: light.shadowColor, [DARK]: dark.shadowColor },
+  shadowColor: {
+    default: light.shadowColor,
+    [constants.DARK]: dark.shadowColor,
+  },
   shadowStrength: {
     default: light.shadowStrength,
-    [DARK]: dark.shadowStrength,
+    [constants.DARK]: dark.shadowStrength,
   },
 
-  brandTmdb: { default: light.brandTmdb, [DARK]: dark.brandTmdb },
-  brandCitadel: { default: light.brandCitadel, [DARK]: dark.brandCitadel },
-  brandWtcPlus: { default: light.brandWtcPlus, [DARK]: dark.brandWtcPlus },
+  brandTmdb: { default: light.brandTmdb, [constants.DARK]: dark.brandTmdb },
+  brandCitadel: {
+    default: light.brandCitadel,
+    [constants.DARK]: dark.brandCitadel,
+  },
+  brandWtcPlus: {
+    default: light.brandWtcPlus,
+    [constants.DARK]: dark.brandWtcPlus,
+  },
   brandWtcLetter: {
     default: light.brandWtcLetter,
-    [DARK]: dark.brandWtcLetter,
+    [constants.DARK]: dark.brandWtcLetter,
   },
-  brandBristol: { default: light.brandBristol, [DARK]: dark.brandBristol },
+  brandBristol: {
+    default: light.brandBristol,
+    [constants.DARK]: dark.brandBristol,
+  },
   brandNottingham: {
     default: light.brandNottingham,
-    [DARK]: dark.brandNottingham,
+    [constants.DARK]: dark.brandNottingham,
   },
   brandSpotify: {
     default: light.brandSpotify,
-    [DARK]: dark.brandSpotify,
+    [constants.DARK]: dark.brandSpotify,
   },
 });
 
@@ -152,23 +184,23 @@ export const font = stylex.defineVars({
   size_7: "3rem",
   size_8: "3.5rem",
 
-  weight_1: 100,
-  weight_2: 200,
-  weight_3: 300,
-  weight_4: 400,
-  weight_5: 500,
-  weight_6: 600,
-  weight_7: 700,
-  weight_8: 800,
-  weight_9: 900,
+  weight_1: stylex.types.integer(100),
+  weight_2: stylex.types.integer(200),
+  weight_3: stylex.types.integer(300),
+  weight_4: stylex.types.integer(400),
+  weight_5: stylex.types.integer(500),
+  weight_6: stylex.types.integer(600),
+  weight_7: stylex.types.integer(700),
+  weight_8: stylex.types.integer(800),
+  weight_9: stylex.types.integer(900),
 
-  lineHeight_00: 0.95,
-  lineHeight_0: 1,
-  lineHeight_1: 1.1,
-  lineHeight_2: 1.2,
-  lineHeight_3: 1.3,
-  lineHeight_4: 1.5,
-  lineHeight_5: 2,
+  lineHeight_00: stylex.types.number(0.95),
+  lineHeight_0: stylex.types.number(1),
+  lineHeight_1: stylex.types.number(1.1),
+  lineHeight_2: stylex.types.number(1.2),
+  lineHeight_3: stylex.types.number(1.3),
+  lineHeight_4: stylex.types.number(1.5),
+  lineHeight_5: stylex.types.number(2),
 });
 
 export const space = stylex.defineVars({
@@ -222,13 +254,13 @@ export const border = stylex.defineVars({
 });
 
 export const layer = stylex.defineVars({
-  background: -100,
-  base: 0,
-  content: 100,
-  overlay: 200,
-  header: 300,
-  tooltip: 400,
-  toaster: 500,
+  background: stylex.types.integer(-100),
+  base: stylex.types.integer(0),
+  content: stylex.types.integer(100),
+  overlay: stylex.types.integer(200),
+  header: stylex.types.integer(300),
+  tooltip: stylex.types.integer(400),
+  toaster: stylex.types.integer(500),
 });
 
 export const ratio = stylex.defineVars({
