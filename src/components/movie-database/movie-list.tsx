@@ -2,12 +2,13 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useDeferredValue, useLayoutEffect, useState } from "react";
+import { memo, useDeferredValue, useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { breakpoints } from "@/breakpoints";
 import { Grid } from "@/components/movie-database/grid";
 import { useMovieFilters } from "@/hooks/use-movie-filters";
 import { color, ratio, space } from "@/tokens.stylex";
+import type { MovieListItem } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
 import { Skeleton } from "../shared/skeleton";
@@ -64,13 +65,7 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
       key={JSON.stringify(tmdbQueryOptions)}
       data={movies}
       components={gridComponents}
-      itemContent={(index) =>
-        movies[index] ? (
-          <MovieCard movie={movies[index]} allowFollow={index < 20} />
-        ) : (
-          <Skeleton css={styles.skeleton} delay={index * 100} />
-        )
-      }
+      itemContent={(index) => <ItemContent index={index} movies={movies} />}
       endReached={() => {
         if (hasNextPage && !isFetching) {
           void fetchNextPage();
@@ -82,6 +77,20 @@ export function MovieList({ initialPage, notFoundLabel }: MovieListProps) {
     />
   );
 }
+
+const ItemContent = memo(function ItemContent({
+  index,
+  movies,
+}: {
+  index: number;
+  movies: MovieListItem[];
+}) {
+  return movies[index] ? (
+    <MovieCard movie={movies[index]} allowFollow={index < 20} />
+  ) : (
+    <Skeleton css={styles.skeleton} delay={index * 100} />
+  );
+});
 
 const gridComponents = {
   List: Grid,
