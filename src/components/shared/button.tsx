@@ -7,16 +7,7 @@ import { color, controlSize, font } from "@/tokens.stylex";
 import { buttonTokens } from "./button.stylex";
 import { GlassSurface } from "./glass-surface";
 
-interface ButtonProps
-  extends Pick<
-    ComponentProps<"button">,
-    | "className"
-    | "style"
-    | "onClick"
-    | "onPointerDown"
-    | "onPointerUp"
-    | "children"
-  > {
+interface ButtonProps extends ComponentProps<"button"> {
   bright?: boolean;
   hideLabelOnMobile?: boolean;
   icon?: React.ReactNode;
