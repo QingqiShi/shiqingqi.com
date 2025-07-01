@@ -41,7 +41,7 @@
     "@stylexjs/babel-plugin": "^0.13.1",
     "@stylexjs/eslint-plugin": "^0.13.1",
     "@stylexjs/postcss-plugin": "^0.13.1",
-    "@types/node": "^22.13.11",
+    "@types/node": "^24.0.8",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "babel-plugin-module-resolver": "^5.0.2",
