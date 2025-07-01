@@ -11,7 +11,6 @@ import React, {
   useState,
 } from "react";
 import {
-  backdropEffects,
   border,
   color,
   controlSize,
@@ -150,48 +149,47 @@ export function Switch({
   }, []);
 
   return (
-    <GlassSurface>
+    <GlassSurface
+      interactive
+      css={[
+        styles.container,
+        value === "on" && styles.checked,
+        value === "indeterminate" && styles.indeterminate,
+        isDragging && styles.dragging(position),
+      ]}
+    >
+      <input
+        ref={elRef}
+        {...rest}
+        className={className}
+        style={style}
+        css={styles.switch}
+        type="checkbox"
+        onPointerDown={handleDragStart}
+        onPointerUp={handleDragEnd}
+        onPointerMove={handleDragMove}
+        onKeyDown={(e) => {
+          if (e.code === "Space" || e.code === "Enter") {
+            e.preventDefault();
+            setControlledValue(value === "on" ? "off" : "on");
+          }
+        }}
+        onChange={(e) => e.preventDefault()}
+        onClick={(e) => e.preventDefault()}
+      />
       <div
-        css={[
-          styles.container,
-          value === "on" && styles.checked,
-          value === "indeterminate" && styles.indeterminate,
-          isDragging && styles.dragging(position),
-        ]}
-      >
-        <input
-          ref={elRef}
-          {...rest}
-          className={className}
-          style={style}
-          css={styles.switch}
-          type="checkbox"
-          onPointerDown={handleDragStart}
-          onPointerUp={handleDragEnd}
-          onPointerMove={handleDragMove}
-          onKeyDown={(e) => {
-            if (e.code === "Space" || e.code === "Enter") {
-              e.preventDefault();
-              setControlledValue(value === "on" ? "off" : "on");
-            }
-          }}
-          onChange={(e) => e.preventDefault()}
-          onClick={(e) => e.preventDefault()}
-        />
-        <div
-          css={[styles.thumb, initialRendered && !isDragging && styles.animate]}
-        />
-        {offIcon && (
-          <span css={[styles.icon, styles.off]} aria-hidden>
-            {offIcon}
-          </span>
-        )}
-        {onIcon && (
-          <span css={[styles.icon, styles.on]} aria-hidden>
-            {onIcon}
-          </span>
-        )}
-      </div>
+        css={[styles.thumb, initialRendered && !isDragging && styles.animate]}
+      />
+      {offIcon && (
+        <span css={[styles.icon, styles.off]} aria-hidden>
+          {offIcon}
+        </span>
+      )}
+      {onIcon && (
+        <span css={[styles.icon, styles.on]} aria-hidden>
+          {onIcon}
+        </span>
+      )}
     </GlassSurface>
   );
 }
@@ -231,12 +229,12 @@ const styles = stylex.create({
     padding: border.size_2,
     position: "relative",
     transition: `background-color 0.2s ease`,
-    backgroundColor: {
-      default: color.backgroundGlass,
-      ":checked": color.controlActive,
-    },
+    // backgroundColor: {
+    //   default: color.backgroundGlass,
+    //   ":checked": color.controlActive,
+    // },
     touchAction: "none",
-    backdropFilter: backdropEffects.controls,
+    // backdropFilter: backdropEffects.controls,
   },
   thumb: {
     position: "absolute",

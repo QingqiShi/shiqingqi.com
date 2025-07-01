@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
 import { breakpoints } from "@/breakpoints";
-import { backdropEffects, color, controlSize } from "@/tokens.stylex";
+import { color, controlSize } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
 import { anchorTokens } from "./anchor.stylex";
 import { buttonTokens } from "./button.stylex";
@@ -86,8 +86,6 @@ const styles = stylex.create({
     paddingInline: controlSize._3,
     borderRadius: buttonTokens.borderRadius,
     transition: "background 0.2s ease",
-    backdropFilter: backdropEffects.controls,
-    backgroundColor: color.backgroundGlass,
     filter: {
       default: "brightness(1)",
       ":hover": "brightness(1.2)",

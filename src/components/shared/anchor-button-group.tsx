@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import { border, color, controlSize } from "@/tokens.stylex";
 import { buttonTokens } from "./button.stylex";
-import { glassSurfaceTokens } from "./glass-surface.stylex";
+import { GlassSurface } from "./glass-surface";
 
 interface AnchorButtonGroupProps {
   bright?: boolean;
@@ -13,7 +13,9 @@ export function AnchorButtonGroup({
   children,
 }: PropsWithChildren<AnchorButtonGroupProps>) {
   return (
-    <div css={[styles.container, bright && styles.bright]}>{children}</div>
+    <GlassSurface radius="1" css={[styles.container, bright && styles.bright]}>
+      <div css={styles.padding}>{children}</div>
+    </GlassSurface>
   );
 }
 
@@ -21,16 +23,15 @@ const styles = stylex.create({
   container: {
     display: "inline-flex",
     gap: controlSize._1,
-    padding: controlSize._1,
     borderRadius: border.radius_2,
     justifyContent: "center",
     position: "relative",
-    background: color.backgroundRaised,
-    [buttonTokens.borderRadius]: border.radius_1,
     [buttonTokens.height]: controlSize._8,
-    [glassSurfaceTokens.borderRadius]: border.radius_1,
   },
   bright: {
     backgroundColor: color.controlThumb,
+  },
+  padding: {
+    padding: controlSize._0,
   },
 });

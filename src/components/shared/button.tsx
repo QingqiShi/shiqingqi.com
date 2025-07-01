@@ -1,11 +1,22 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
 import { useState, type ComponentProps } from "react";
 import { breakpoints } from "@/breakpoints";
-import { backdropEffects, color, controlSize, font } from "@/tokens.stylex";
+import { color, controlSize, font } from "@/tokens.stylex";
 import { buttonTokens } from "./button.stylex";
 import { GlassSurface } from "./glass-surface";
 
-interface ButtonProps extends ComponentProps<"button"> {
+interface ButtonProps
+  extends Pick<
+    ComponentProps<"button">,
+    | "className"
+    | "style"
+    | "onClick"
+    | "onPointerDown"
+    | "onPointerUp"
+    | "children"
+  > {
   bright?: boolean;
   hideLabelOnMobile?: boolean;
   icon?: React.ReactNode;
@@ -27,32 +38,33 @@ export function Button({
   const [pressed, setPressed] = useState(false);
 
   return (
-    <GlassSurface inline pressed={pressed}>
-      <button
-        {...props}
-        className={className}
-        style={style}
+    <GlassSurface
+      {...props}
+      as="button"
+      inline
+      interactive
+      pressed={pressed}
+      disableBlur={isActive}
+      className={className}
+      style={style}
+      css={[styles.button, bright && styles.bright, isActive && styles.active]}
+      onPointerDown={(e) => {
+        if (e.button === 0) {
+          setPressed(true);
+          document.body.addEventListener("pointerup", () => setPressed(false), {
+            once: true,
+          });
+        }
+        props.onPointerDown?.(e);
+      }}
+    >
+      <div
         css={[
-          styles.button,
+          styles.content,
           !!icon &&
             !!children &&
             (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
-          bright && styles.bright,
-          isActive && styles.active,
         ]}
-        onPointerDown={(e) => {
-          if (e.button === 0) {
-            setPressed(true);
-            document.body.addEventListener(
-              "pointerup",
-              () => setPressed(false),
-              {
-                once: true,
-              }
-            );
-          }
-          props.onPointerDown?.(e);
-        }}
       >
         {icon && <span css={styles.icon}>{icon}</span>}
         {children && (
@@ -66,7 +78,7 @@ export function Button({
             {children}
           </span>
         )}
-      </button>
+      </div>
     </GlassSurface>
   );
 }
@@ -74,33 +86,33 @@ export function Button({
 const styles = stylex.create({
   button: {
     // Reset
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
     fontSize: controlSize._4,
     fontWeight: font.weight_5,
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
+    cursor: {
+      default: "pointer",
+      ":disabled": "not-allowed",
+    },
 
     // Custom styles
-    display: "inline-flex",
+    position: "relative",
+    color: buttonTokens.color,
+    opacity: {
+      default: null,
+      ":disabled": 0.7,
+    },
+  },
+  content: {
+    display: "flex",
     alignItems: "center",
     gap: controlSize._2,
     minHeight: controlSize._9,
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
-    color: buttonTokens.color,
-    borderRadius: buttonTokens.borderRadius,
-    transition: "background 0.2s ease, filter 0.2s ease",
-    backdropFilter: backdropEffects.controls,
-    backgroundColor: color.backgroundGlass,
+    transition: "filter 0.2s ease",
     filter: {
-      default: "brightness(1)",
+      // default: "brightness(1)",
       ":hover": "brightness(1.2)",
       ":disabled:hover": "brightness(1)",
-    },
-    opacity: {
-      default: null,
-      ":disabled": 0.7,
     },
   },
   hasIcon: {
@@ -125,7 +137,7 @@ const styles = stylex.create({
       default: color.textOnActive,
       ":hover": color.textOnActive,
     },
-    backgroundColor: {
+    background: {
       default: color.controlActive,
       ":hover": color.controlActiveHover,
       ":disabled:hover": color.controlActive,
