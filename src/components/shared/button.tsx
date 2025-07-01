@@ -1,8 +1,11 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
-import type { ComponentProps } from "react";
+import { useState, type ComponentProps } from "react";
 import { breakpoints } from "@/breakpoints";
 import { color, controlSize, font } from "@/tokens.stylex";
 import { buttonTokens } from "./button.stylex";
+import { GlassSurface } from "./glass-surface";
 
 interface ButtonProps extends ComponentProps<"button"> {
   bright?: boolean;
@@ -23,65 +26,84 @@ export function Button({
   style,
   ...props
 }: ButtonProps) {
+  const [pressed, setPressed] = useState(false);
+
   return (
-    <button
+    <GlassSurface
       {...props}
+      as="button"
+      inline
+      interactive
+      pressed={pressed}
+      disableBlur={isActive}
       className={className}
       style={style}
-      css={[
-        styles.button,
-        !!icon &&
-          !!children &&
-          (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
-        bright && styles.bright,
-        isActive && styles.active,
-      ]}
+      css={[styles.button, bright && styles.bright, isActive && styles.active]}
+      onPointerDown={(e) => {
+        if (e.button === 0) {
+          setPressed(true);
+          document.body.addEventListener("pointerup", () => setPressed(false), {
+            once: true,
+          });
+        }
+        props.onPointerDown?.(e);
+      }}
     >
-      {icon && <span css={styles.icon}>{icon}</span>}
-      {children && (
-        <span
-          css={[
-            styles.childrenContainer,
-            hideLabelOnMobile && styles.hideLabelOnMobile,
-          ]}
-          id={labelId}
-        >
-          {children}
-        </span>
-      )}
-    </button>
+      <div
+        css={[
+          styles.content,
+          !!icon &&
+            !!children &&
+            (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
+        ]}
+      >
+        {icon && <span css={styles.icon}>{icon}</span>}
+        {children && (
+          <span
+            css={[
+              styles.childrenContainer,
+              hideLabelOnMobile && styles.hideLabelOnMobile,
+            ]}
+            id={labelId}
+          >
+            {children}
+          </span>
+        )}
+      </div>
+    </GlassSurface>
   );
 }
 
 const styles = stylex.create({
   button: {
     // Reset
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
     fontSize: controlSize._4,
     fontWeight: font.weight_5,
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
+    cursor: {
+      default: "pointer",
+      ":disabled": "not-allowed",
+    },
 
     // Custom styles
-    display: "inline-flex",
+    position: "relative",
+    color: buttonTokens.color,
+    opacity: {
+      default: null,
+      ":disabled": 0.7,
+    },
+  },
+  content: {
+    display: "flex",
     alignItems: "center",
     gap: controlSize._2,
     minHeight: controlSize._9,
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
-    borderRadius: buttonTokens.borderRadius,
-    color: buttonTokens.color,
-    boxShadow: buttonTokens.boxShadow,
-    transition: "background 0.2s ease",
-    backgroundColor: {
-      default: color.backgroundRaised,
-      ":hover": color.backgroundHover,
-      ":disabled:hover": color.backgroundRaised,
-    },
-    opacity: {
-      default: null,
-      ":disabled": 0.7,
+    transition: "filter 0.2s ease",
+    filter: {
+      // default: "brightness(1)",
+      ":hover": "brightness(1.2)",
+      ":disabled:hover": "brightness(1)",
     },
   },
   hasIcon: {
@@ -106,7 +128,7 @@ const styles = stylex.create({
       default: color.textOnActive,
       ":hover": color.textOnActive,
     },
-    backgroundColor: {
+    background: {
       default: color.controlActive,
       ":hover": color.controlActiveHover,
       ":disabled:hover": color.controlActive,

@@ -5,7 +5,9 @@ import { BackgroundLines } from "@/components/home/background-lines";
 import { EducationCard } from "@/components/home/education-card";
 import { ExperienceCard } from "@/components/home/experience-card";
 import { ProjectCard } from "@/components/home/project-card";
+import { Button } from "@/components/shared/button";
 import cardTranslations from "@/components/shared/card.translations.json";
+import { GlassSurface } from "@/components/shared/glass-surface";
 import { TranslationProvider } from "@/components/shared/translation-provider";
 import AGSB from "@/logos/AGSB.webp";
 import BristolLogo from "@/logos/bristol-logo";
@@ -33,6 +35,7 @@ export default async function Home(props: PageProps) {
       translations={{ card: cardTranslations }}
     >
       <BackgroundLines />
+
       <section css={styles.headlineContainer}>
         <h1 css={styles.headline}>
           {t("headline_1")}
@@ -54,6 +57,16 @@ export default async function Home(props: PageProps) {
             scroll
           />
         </div>
+
+        <GlassSurface css={styles.testGlass} radius="3" as="button">
+          <div css={styles.test}>Hello</div>
+          <GlassSurface radius="round" style={{ width: "50%", left: "30%" }}>
+            <div>Hello</div>
+            <div>Hello2</div>
+          </GlassSurface>
+        </GlassSurface>
+
+        <Button isActive>Hello World</Button>
       </section>
 
       <section>
@@ -120,6 +133,20 @@ export default async function Home(props: PageProps) {
 }
 
 const styles = stylex.create({
+  testGlass: {
+    position: "fixed",
+    top: "200px",
+    left: "20%",
+    width: "200px",
+    height: "100px",
+    zIndex: 1000,
+  },
+  test: {
+    padding: "0 1rem",
+    fontSize: font.size_1,
+    overflow: "auto",
+    // height: "100%",
+  },
   headlineContainer: {
     padding: {
       default: `0 0 ${space._7}`,

@@ -48,6 +48,7 @@ const styles = stylex.create({
     height: "100%",
     backgroundColor: color.backgroundMain,
     willChange: "transform",
-    zIndex: layer.base,
+    zIndex: layer.background,
+    pointerEvents: "none",
   },
 });

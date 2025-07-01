@@ -94,7 +94,7 @@ const styles = stylex.create({
     top: 0,
     left: 0,
     right: 0,
-    zIndex: layer.base,
+    zIndex: layer.background,
     height: {
       default: space._15,
       [breakpoints.md]: space._16,
