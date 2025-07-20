@@ -31,7 +31,7 @@
     "react-virtuoso": "^4.13.0",
     "serwist": "^9.0.12",
     "sharp": "^0.33.5",
-    "twgl.js": "^5.5.4"
+    "twgl.js": "^7.0.0"
   },
   "devDependencies": {
     "@babel/core": "8.0.0-beta.0",
