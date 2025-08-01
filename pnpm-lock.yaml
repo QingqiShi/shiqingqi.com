@@ -23,8 +23,8 @@ importers:
         specifier: ^9.0.12
         version: 9.0.12(next@15.4.2(@babel/core@8.0.0-beta.0)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(typescript@5.8.3)(webpack@5.97.1)
       '@stylexjs/stylex':
-        specifier: ^0.13.1
-        version: 0.13.1
+        specifier: ^0.15.0
+        version: 0.15.0
       '@tanstack/react-query':
         specifier: 5.66.3
         version: 5.66.3(react@19.1.0)
@@ -75,8 +75,8 @@ importers:
         specifier: ^0.13.1
         version: 0.13.1
       '@stylexjs/eslint-plugin':
-        specifier: ^0.13.1
-        version: 0.13.1(patch_hash=70a33152825e98c62fd48f2be8d1fac7988f3cf58416e2e4cd04093b1ee0a007)
+        specifier: ^0.15.0
+        version: 0.15.0(patch_hash=70a33152825e98c62fd48f2be8d1fac7988f3cf58416e2e4cd04093b1ee0a007)
       '@stylexjs/postcss-plugin':
         specifier: ^0.13.1
         version: 0.13.1
@@ -1117,14 +1117,17 @@ packages:
   '@stylexjs/babel-plugin@0.13.1':
     resolution: {integrity: sha512-W3l025ebB88GP/XO2NCNjXFMQYkl7YqWk/z2UfvXRYY8LoQ7O7fhds+0iLJ8R+39CerpFU1CDHWIbPhAuLUKtA==}
 
-  '@stylexjs/eslint-plugin@0.13.1':
-    resolution: {integrity: sha512-GwBpWrEUgRqDFwWcewQM3r8JKlhP9vATMrgcQTVqMULkxUc/4yTfgeet7j0Meqg32HiBTDMhw8DsjGHq3Sb7Xw==}
+  '@stylexjs/eslint-plugin@0.15.0':
+    resolution: {integrity: sha512-RR1/rsDQbbJyoUVIfjlvDNOqSqk7ZmomF4yxec1tARf4OnS1RaRGKYDAlnG4DmA0t98d/lmozWzSurSUF7Ki1A==}
 
   '@stylexjs/postcss-plugin@0.13.1':
     resolution: {integrity: sha512-0Y9osp5rNlJHsU1yfKXllSfVZBy5cyLzP2yvPUjedaHoXn0FjOaS0R+EkzkQj8eDOEqlmnO1Zx3uNAR9afjqeA==}
 
   '@stylexjs/stylex@0.13.1':
     resolution: {integrity: sha512-s/aRE+pGaroMSttMDlrSMHf1lTF+uGe4ncWoRMlKZav6pg5g11sWuJojgA640aZy9jFgWvWSWbXzyUzeoDuMUQ==}
+
+  '@stylexjs/stylex@0.15.0':
+    resolution: {integrity: sha512-D56b61D7vIvNNoTUQKQJhE1I3kxbLWBAO4FTbAFFei2ZHqy3P+vy4m6hpssrw8iRt04I3aoHziZVMj5X/IjkCw==}
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
@@ -1161,8 +1164,8 @@ packages:
   '@types/node@22.13.11':
     resolution: {integrity: sha512-iEUCUJoU0i3VnrCmgoWCXttklWcvoCIx4jzcP22fioIVSdTmjgoEvmAO/QPw6TcS9k5FrNgn4w7q5lGOd1CT5g==}
 
-  '@types/node@22.16.5':
-    resolution: {integrity: sha512-bJFoMATwIGaxxx8VJPeM8TonI8t579oRvgAuT8zFugJsJZgzqv0Fu8Mhp68iecjzG7cnN3mO2dJQ5uUM2EFrgQ==}
+  '@types/node@22.17.0':
+    resolution: {integrity: sha512-bbAKTCqX5aNVryi7qXVMi+OkB3w/OyblodicMbvE38blyAz7GxXf6XYhklokijuPwwVg9sDLKRxt0ZHXQwZVfQ==}
 
   '@types/prop-types@15.7.14':
     resolution: {integrity: sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==}
@@ -3172,6 +3175,7 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
 
   stable-hash@0.0.5:
     resolution: {integrity: sha512-+L3ccpzibovGXFK+Ap/f8LOS0ahMrHTf3xu7mMLSpEGU0EO9ucaysSylKo9eRDFNhWve/y275iPmIZ4z39a9iA==}
@@ -4459,7 +4463,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stylexjs/eslint-plugin@0.13.1(patch_hash=70a33152825e98c62fd48f2be8d1fac7988f3cf58416e2e4cd04093b1ee0a007)':
+  '@stylexjs/eslint-plugin@0.15.0(patch_hash=70a33152825e98c62fd48f2be8d1fac7988f3cf58416e2e4cd04093b1ee0a007)':
     dependencies:
       css-shorthand-expand: 1.2.0
       micromatch: 4.0.8
@@ -4476,6 +4480,12 @@ snapshots:
       - supports-color
 
   '@stylexjs/stylex@0.13.1':
+    dependencies:
+      css-mediaquery: 0.1.2
+      invariant: 2.2.4
+      styleq: 0.2.1
+
+  '@stylexjs/stylex@0.15.0':
     dependencies:
       css-mediaquery: 0.1.2
       invariant: 2.2.4
@@ -4521,7 +4531,7 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@types/node@22.16.5':
+  '@types/node@22.17.0':
     dependencies:
       undici-types: 6.21.0
     optional: true
@@ -6043,7 +6053,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.16.5
+      '@types/node': 22.17.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
     optional: true
