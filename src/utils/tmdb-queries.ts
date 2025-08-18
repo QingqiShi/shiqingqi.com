@@ -10,7 +10,7 @@ export const movieList = ({
   ...params
 }: Parameters<typeof fetchMovieList>[0]) =>
   infiniteQueryOptions({
-    queryKey: [{ query: "discover/movie", ...tmdbScope, ...params }],
+    queryKey: [{ query: "discover/movie", ...tmdbScope[0], ...params }],
     initialPageParam: page,
     queryFn: async ({ pageParam }) =>
       apiRequestWrapper<typeof fetchMovieList>("/api/tmdb/movie-list", {
@@ -36,7 +36,7 @@ export const movieList = ({
   });
 
 export const configuration = queryOptions({
-  queryKey: [{ query: "configuration", ...tmdbScope }],
+  queryKey: [{ query: "configuration", ...tmdbScope[0] }],
   queryFn: async () =>
     apiRequestWrapper<typeof fetchConfiguration>(
       "/api/tmdb/get-configuration",
@@ -51,7 +51,7 @@ export const similarMovies = ({
   ...params
 }: Parameters<typeof fetchSimilarMovies>[0]) =>
   infiniteQueryOptions({
-    queryKey: [{ query: "movie/similar", ...tmdbScope, ...params }],
+    queryKey: [{ query: "movie/similar", ...tmdbScope[0], ...params }],
     initialPageParam: page,
     queryFn: async ({ pageParam }) =>
       apiRequestWrapper<typeof fetchSimilarMovies>("/api/tmdb/similar-movies", {
