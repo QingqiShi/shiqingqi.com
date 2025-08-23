@@ -4,12 +4,12 @@
     "zh": "播放预告"
   },
   "similar": {
-    "en": "Similar movies",
-    "zh": "类似电影"
+    "en": "Similar",
+    "zh": "类似"
   },
   "notFound": {
-    "en": "No similar movies found",
-    "zh": "没找到类似电影"
+    "en": "No similar content found",
+    "zh": "没找到类似内容"
   },
   "tmdbLogo": {
     "en": "TMDB Logo",

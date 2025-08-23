@@ -2,7 +2,7 @@
 
 import { Funnel } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
-import { useMovieFilters } from "@/hooks/use-movie-filters";
+import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { controlSize, space } from "@/tokens.stylex";
 import type { Genre } from "@/utils/tmdb-api";
@@ -15,7 +15,7 @@ interface GenreFilterButtonProps {
 }
 
 export function GenreFilterButton({ allGenres }: GenreFilterButtonProps) {
-  const { genres } = useMovieFilters();
+  const { genres } = useMediaFilters();
   const { t } = useTranslations<typeof translations>("filters");
 
   return (

@@ -1,0 +1,18 @@
+{
+  "movies": {
+    "en": "Movies",
+    "zh": "电影"
+  },
+  "tvShows": {
+    "en": "TV Shows",
+    "zh": "电视剧"
+  },
+  "moviesShort": {
+    "en": "Movies",
+    "zh": "电影"
+  },
+  "tvShowsShort": {
+    "en": "TV",
+    "zh": "电视"
+  }
+}

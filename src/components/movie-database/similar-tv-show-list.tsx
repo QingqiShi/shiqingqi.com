@@ -10,28 +10,28 @@ import { color, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { Skeleton } from "../shared/skeleton";
-import { MovieCard } from "./movie-card";
+import { TvShowCard } from "./tv-show-card";
 
-interface SimilarMovieListProps {
-  movieId: string;
+interface SimilarTvShowListProps {
+  tvShowId: string;
   locale: SupportedLocale;
   initialPage: number;
   notFoundLabel: string;
 }
 
-export function SimilarMovieList({
-  movieId,
+export function SimilarTvShowList({
+  tvShowId,
   locale,
   initialPage,
   notFoundLabel,
-}: SimilarMovieListProps) {
-  const tmdbQueryOptions = tmdbQueries.similarMovies({
+}: SimilarTvShowListProps) {
+  const tmdbQueryOptions = tmdbQueries.similarTvShows({
     page: initialPage,
     language: locale,
-    movieId,
+    seriesId: tvShowId,
   });
   const {
-    data: movies,
+    data: tvShows,
     fetchNextPage,
     hasNextPage,
     isFetching,
@@ -47,18 +47,18 @@ export function SimilarMovieList({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  if (!movies.length) {
+  if (!tvShows.length) {
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
   }
 
   return (
     <VirtuosoGrid
       key={JSON.stringify(tmdbQueryOptions)}
-      data={movies}
+      data={tvShows}
       components={gridComponents}
       itemContent={(index) =>
-        movies[index] ? (
-          <MovieCard movie={movies[index]} />
+        tvShows[index] ? (
+          <TvShowCard tvShow={tvShows[index]} />
         ) : (
           <Skeleton css={styles.skeleton} delay={index * 100} />
         )
@@ -69,7 +69,7 @@ export function SimilarMovieList({
         }
       }}
       increaseViewportBy={height}
-      initialItemCount={movies.length}
+      initialItemCount={tvShows.length}
       useWindowScroll
     />
   );

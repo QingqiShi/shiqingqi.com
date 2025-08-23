@@ -1,7 +1,7 @@
 "use client";
 
 import { FunnelX } from "@phosphor-icons/react/dist/ssr/FunnelX";
-import { useMovieFilters } from "@/hooks/use-movie-filters";
+import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { AnchorButton } from "../shared/anchor-button";
 import { MenuLabel } from "../shared/menu-label";
@@ -13,7 +13,7 @@ interface ResetFilterProps {
 }
 
 export function ResetFilter({ bright, hideLabel }: ResetFilterProps) {
-  const { canReset, reset, resetUrl } = useMovieFilters();
+  const { canReset, reset, resetUrl } = useMediaFilters();
 
   const { t } = useTranslations<typeof translations>("filters");
 
