@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useId } from "react";
-import { useMovieFilters } from "@/hooks/use-movie-filters";
+import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { controlSize, space } from "@/tokens.stylex";
 import type { Genre } from "@/utils/tmdb-api";
@@ -24,7 +24,7 @@ export function GenreFilter({ allGenres, hideTitle }: GenreFilterProps) {
     genreFilterType,
     setGenreFilterType,
     setGenreFilterTypeUrl,
-  } = useMovieFilters();
+  } = useMediaFilters();
 
   const { t } = useTranslations<typeof translations>("filters");
 

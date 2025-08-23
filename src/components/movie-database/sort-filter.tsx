@@ -1,6 +1,6 @@
 "use client";
 
-import { useMovieFilters } from "@/hooks/use-movie-filters";
+import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
@@ -13,7 +13,7 @@ interface SortFilterProps {
 }
 
 export function SortFilter({ bright, hideLabel }: SortFilterProps) {
-  const { sort, setSort, setSortUrl } = useMovieFilters();
+  const { sort, setSort, setSortUrl } = useMediaFilters();
   const { t } = useTranslations<typeof translations>("filters");
 
   return (

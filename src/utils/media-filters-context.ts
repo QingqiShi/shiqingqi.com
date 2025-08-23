@@ -7,7 +7,7 @@ export type Sort =
   | "vote_average.asc"
   | "vote_average.desc";
 
-export const MovieFiltersContext = createContext<{
+export const MediaFiltersContext = createContext<{
   genres: Set<string>;
   toggleGenre: (genreId: string) => void;
   toggleGenreUrl: (genreId: string) => string;

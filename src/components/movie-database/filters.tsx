@@ -1,10 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { controlSize, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
-import { fetchMovieGenres } from "@/utils/tmdb-api";
+import { fetchMovieGenres, fetchTvShowGenres } from "@/utils/tmdb-api";
 import { FiltersContainer } from "./filters-container";
 import { GenreFilter } from "./genre-filter";
 import { GenreFilterButton } from "./genre-filter-button";
+import { MediaTypeToggle } from "./media-type-toggle";
 import { MobileFiltersButton } from "./mobile-filters-button";
 import { ResetFilter } from "./reset-filter";
 import { SortFilter } from "./sort-filter";
@@ -13,38 +14,50 @@ import { TmdbCredit } from "./tmdb-credit";
 interface FiltersProps {
   locale: SupportedLocale;
   mobileButtonLabel: string;
+  mediaType?: "movie" | "tv";
 }
 
-export async function Filters({ locale, mobileButtonLabel }: FiltersProps) {
-  const { genres } = await fetchMovieGenres({ language: locale });
+export async function Filters({
+  locale,
+  mobileButtonLabel,
+  mediaType = "movie",
+}: FiltersProps) {
+  const { genres } =
+    mediaType === "tv"
+      ? await fetchTvShowGenres({ language: locale })
+      : await fetchMovieGenres({ language: locale });
 
   return (
-    <FiltersContainer
-      desktopChildren={
-        <>
-          <GenreFilterButton allGenres={genres} />
-          <SortFilter hideLabel />
-          <ResetFilter hideLabel />
-          <TmdbCredit locale={locale} position="topLeft" />
-        </>
-      }
-      mobileChildren={
-        <>
-          <TmdbCredit locale={locale} position="viewportWidth" />
-          <MobileFiltersButton
-            menuContent={
-              <div css={styles.mobileMenuContent}>
-                <SortFilter bright />
-                <GenreFilter allGenres={genres} />
-                <ResetFilter bright />
-              </div>
-            }
-          >
-            {mobileButtonLabel}
-          </MobileFiltersButton>
-        </>
-      }
-    />
+    <>
+      <FiltersContainer
+        desktopChildren={
+          <>
+            <MediaTypeToggle />
+            <GenreFilterButton allGenres={genres} />
+            <SortFilter hideLabel />
+            <ResetFilter hideLabel />
+            <TmdbCredit locale={locale} position="topLeft" />
+          </>
+        }
+        mobileChildren={
+          <>
+            <MediaTypeToggle mobile />
+            <TmdbCredit locale={locale} position="viewportWidth" />
+            <MobileFiltersButton
+              menuContent={
+                <div css={styles.mobileMenuContent}>
+                  <SortFilter bright />
+                  <GenreFilter allGenres={genres} />
+                  <ResetFilter bright />
+                </div>
+              }
+            >
+              {mobileButtonLabel}
+            </MobileFiltersButton>
+          </>
+        }
+      />
+    </>
   );
 }
 

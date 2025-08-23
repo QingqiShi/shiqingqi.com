@@ -1,0 +1,18 @@
+{
+  "titleFallback": {
+    "en": "Untitled",
+    "zh": "佚名"
+  },
+  "seasons": {
+    "en": " seasons",
+    "zh": " 季"
+  },
+  "episodes": {
+    "en": " episodes",
+    "zh": " 集"
+  },
+  "comma": {
+    "en": ", ",
+    "zh": "、"
+  }
+}

@@ -3,15 +3,15 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, type PropsWithChildren } from "react";
-import type { GenreFilterType, Sort } from "@/utils/movie-filters-context";
-import { MovieFiltersContext } from "@/utils/movie-filters-context";
+import type { GenreFilterType, Sort } from "@/utils/media-filters-context";
+import { MediaFiltersContext } from "@/utils/media-filters-context";
 
 const emptyFilters = {
   genreFilterType: "all" as GenreFilterType,
   sort: "popularity.desc" as Sort,
 };
 
-interface MovieFiltersProviderProps {
+interface MediaFiltersProviderProps {
   defaultFilters?: {
     genres?: string[];
     genreFilterType?: GenreFilterType;
@@ -19,14 +19,14 @@ interface MovieFiltersProviderProps {
   };
 }
 
-export function MovieFiltersProvider({
+export function MediaFiltersProvider({
   children,
   defaultFilters,
-}: PropsWithChildren<MovieFiltersProviderProps>) {
+}: PropsWithChildren<MediaFiltersProviderProps>) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [movieFilters, setMovieFilters] = useState(() => ({
+  const [mediaFilters, setMediaFilters] = useState(() => ({
     genres: new Set<string>(defaultFilters?.genres),
     genreFilterType:
       defaultFilters?.genreFilterType ?? emptyFilters.genreFilterType,
@@ -34,7 +34,7 @@ export function MovieFiltersProvider({
   }));
 
   const toggleGenre = (genreId: string) => {
-    setMovieFilters((prev) => {
+    setMediaFilters((prev) => {
       const newGenres = new Set(prev.genres);
       if (newGenres.has(genreId)) {
         newGenres.delete(genreId);
@@ -46,7 +46,7 @@ export function MovieFiltersProvider({
   };
 
   const toggleGenreUrl = (genreId: string) => {
-    const isActive = movieFilters.genres.has(genreId);
+    const isActive = mediaFilters.genres.has(genreId);
     const newSearchParams = new URLSearchParams(searchParams);
     if (isActive) {
       newSearchParams.delete("genre", genreId);
@@ -58,7 +58,7 @@ export function MovieFiltersProvider({
   };
 
   const setGenreFilterType = (type: GenreFilterType) => {
-    setMovieFilters((prev) => {
+    setMediaFilters((prev) => {
       return { ...prev, genreFilterType: type };
     });
   };
@@ -74,7 +74,7 @@ export function MovieFiltersProvider({
   };
 
   const setSort = (sort: Sort) => {
-    setMovieFilters((prev) => ({ ...prev, sort }));
+    setMediaFilters((prev) => ({ ...prev, sort }));
   };
 
   const setSortUrl = (sort: Sort) => {
@@ -88,12 +88,12 @@ export function MovieFiltersProvider({
   };
 
   const canReset =
-    movieFilters.genres.size > 0 ||
-    movieFilters.genreFilterType !== emptyFilters.genreFilterType ||
-    movieFilters.sort !== emptyFilters.sort;
+    mediaFilters.genres.size > 0 ||
+    mediaFilters.genreFilterType !== emptyFilters.genreFilterType ||
+    mediaFilters.sort !== emptyFilters.sort;
 
   const reset = () => {
-    setMovieFilters({
+    setMediaFilters({
       genres: new Set<string>(),
       genreFilterType: "all",
       sort: "popularity.desc",
@@ -115,20 +115,20 @@ export function MovieFiltersProvider({
     url.searchParams.delete("genre");
 
     // Assuming genres is an array of genre strings
-    movieFilters.genres.forEach((genre) => {
+    mediaFilters.genres.forEach((genre) => {
       url.searchParams.append("genre", genre);
     });
 
     // Filter type
     url.searchParams.delete("genreFilterType");
-    if (movieFilters.genreFilterType !== "all") {
-      url.searchParams.append("genreFilterType", movieFilters.genreFilterType);
+    if (mediaFilters.genreFilterType !== "all") {
+      url.searchParams.append("genreFilterType", mediaFilters.genreFilterType);
     }
 
     // Sort
     url.searchParams.delete("sort");
-    if (movieFilters.sort !== "popularity.desc") {
-      url.searchParams.append("sort", movieFilters.sort);
+    if (mediaFilters.sort !== "popularity.desc") {
+      url.searchParams.append("sort", mediaFilters.sort);
     }
 
     window.history.replaceState({}, "", url);
@@ -136,9 +136,9 @@ export function MovieFiltersProvider({
   });
 
   return (
-    <MovieFiltersContext
+    <MediaFiltersContext
       value={{
-        ...movieFilters,
+        ...mediaFilters,
         canReset,
         toggleGenre,
         toggleGenreUrl,
@@ -151,6 +151,6 @@ export function MovieFiltersProvider({
       }}
     >
       {children}
-    </MovieFiltersContext>
+    </MediaFiltersContext>
   );
 }

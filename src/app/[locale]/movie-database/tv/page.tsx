@@ -4,12 +4,12 @@ import { Suspense } from "react";
 import { Filters } from "@/components/movie-database/filters";
 import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
 import { MediaFiltersProvider } from "@/components/movie-database/media-filters-provider";
-import { MovieList } from "@/components/movie-database/movie-list";
+import { TvShowList } from "@/components/movie-database/tv-show-list";
 import type { PageProps } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
 import type { GenreFilterType, Sort } from "@/utils/media-filters-context";
-import { fetchConfiguration, fetchMovieList } from "@/utils/tmdb-api";
+import { fetchConfiguration, fetchTvShowList } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import translations from "../translations.json";
 
@@ -50,9 +50,9 @@ export default async function Page(
     sort_by: sort !== "popularity.desc" ? sort : undefined,
   };
   void queryClient.prefetchInfiniteQuery({
-    ...tmdbQueries.movieList(queryParams),
+    ...tmdbQueries.tvShowList(queryParams),
     queryFn: async ({ pageParam }) => {
-      return fetchMovieList({ ...queryParams, page: pageParam });
+      return fetchTvShowList({ ...queryParams, page: pageParam });
     },
   });
 
@@ -69,10 +69,10 @@ export default async function Page(
           <Filters
             locale={params.locale}
             mobileButtonLabel={t("filterMobileButtonLabel")}
-            mediaType="movie"
+            mediaType="tv"
           />
         </Suspense>
-        <MovieList initialPage={1} notFoundLabel={t("notFound")} />
+        <TvShowList initialPage={1} notFoundLabel={t("notFound")} />
       </MediaFiltersProvider>
     </HydrationBoundary>
   );
