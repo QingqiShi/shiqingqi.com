@@ -5,10 +5,9 @@ import { cache } from "react";
 import type { paths } from "@/_generated/tmdbV3";
 import type {
   Configuration,
-  MovieListItem,
+  MediaListItem,
   MovieDetails,
   MovieVideos,
-  TvShowListItem,
   TvShowDetails,
   TvShowVideos,
 } from "./types";
@@ -83,7 +82,7 @@ export const fetchMovieList = cache(async function fetchMovieList({
           title: movie.title,
           posterPath: movie.poster_path,
           rating: movie.vote_average,
-        }) satisfies MovieListItem,
+        }) satisfies MediaListItem,
     ),
   };
 });
@@ -207,7 +206,7 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
           title: movie.title,
           posterPath: movie.poster_path,
           rating: movie.vote_average,
-        }) satisfies MovieListItem,
+        }) satisfies MediaListItem,
     ),
   };
 });
@@ -259,7 +258,7 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
           title: tvShow.name,
           posterPath: tvShow.poster_path,
           rating: tvShow.vote_average,
-        }) satisfies TvShowListItem,
+        }) satisfies MediaListItem,
     ),
   };
 });
@@ -383,7 +382,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
           title: tvShow.name,
           posterPath: tvShow.poster_path,
           rating: tvShow.vote_average,
-        }) satisfies TvShowListItem,
+        }) satisfies MediaListItem,
     ),
   };
 });

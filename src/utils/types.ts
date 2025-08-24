@@ -10,8 +10,6 @@ export type MediaListItem = {
   rating?: number;
 };
 
-export type MovieListItem = MediaListItem;
-
 export type Genre = NonNullable<
   paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"]["genres"]
 >[number];
@@ -23,8 +21,6 @@ export type MovieDetails = NonNullable<
 export type MovieVideos = NonNullable<
   paths["/3/movie/{movie_id}/videos"]["get"]["responses"]["200"]["content"]["application/json"]
 >;
-
-export type TvShowListItem = MediaListItem;
 
 export type TvShowSort =
   | "first_air_date.asc"
