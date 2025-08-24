@@ -39,7 +39,7 @@ export function SimilarTvShowList({
 
   // Get viewport height, used for infinite scroll padding
   const [height, setHeight] = useState(() =>
-    typeof window !== "undefined" ? window.innerHeight : 0
+    typeof window !== "undefined" ? window.innerHeight : 0,
   );
   useLayoutEffect(() => {
     const onResize = () => setHeight(window.innerHeight);

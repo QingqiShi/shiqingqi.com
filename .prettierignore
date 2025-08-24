@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Generated files
+src/_generated/
+public/sw.js
+public/sw.js.map
+
+# Lock files
+pnpm-lock.yaml
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Cache directories
+.cache/
+.turbo/
+
+# Environment files
+.env*
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Zone identifier files
+*.Zone.Identifier

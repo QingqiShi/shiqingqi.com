@@ -12,7 +12,7 @@ export function normalizePath(pathname: string | null): string {
 export function getLocalePath(
   pathname: string | null,
   locale: SupportedLocale,
-  defaultLocale = "en"
+  defaultLocale = "en",
 ): string {
   const normalizedPathname = normalizePath(pathname);
   if (locale === defaultLocale) return normalizedPathname;

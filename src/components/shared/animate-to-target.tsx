@@ -103,7 +103,7 @@ export function AnimateToTarget({
               : progress / 0.3,
         };
       }),
-      animationOptions
+      animationOptions,
     );
     const innerAnimation = innerEl.animate(
       Array.from({ length: keyFramesCount }, (_, i) => {
@@ -116,7 +116,7 @@ export function AnimateToTarget({
           transform: `scale(${1 / currentScaleX}, ${1 / currentScaleY})`,
         };
       }),
-      animationOptions
+      animationOptions,
     );
     return () => {
       containerAnimation.cancel();

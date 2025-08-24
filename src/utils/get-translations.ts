@@ -5,21 +5,21 @@ import { parseMessage } from "./parse-message";
 
 export function getTranslations<T extends TranslationConfig>(
   translationConfig: T,
-  locale: SupportedLocale
+  locale: SupportedLocale,
 ) {
   function t(key: keyof typeof translationConfig): string;
   function t(
     key: keyof typeof translationConfig,
-    opts: { parse?: boolean }
+    opts: { parse?: boolean },
   ): ReactNode;
   function t(
     key: keyof typeof translationConfig,
-    { parse }: { parse?: boolean } = {}
+    { parse }: { parse?: boolean } = {},
   ): ReactNode | string {
     const message = translationConfig[key][locale];
     if (!message) {
       throw new Error(
-        `Translation for key "${key as string}" in locale "${locale}" not found`
+        `Translation for key "${key as string}" in locale "${locale}" not found`,
       );
     }
     if (parse) {

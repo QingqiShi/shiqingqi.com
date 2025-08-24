@@ -31,7 +31,7 @@ export const movieList = ({
         .flatMap((page) => page.results)
         .filter((x) => !!x);
       return Array.from(
-        new Map(movies.map((movie) => [movie.id, movie])).values()
+        new Map(movies.map((movie) => [movie.id, movie])).values(),
       );
     },
   });
@@ -41,7 +41,7 @@ export const configuration = queryOptions({
   queryFn: async () =>
     apiRequestWrapper<typeof fetchConfiguration>(
       "/api/tmdb/get-configuration",
-      undefined
+      undefined,
     ),
   staleTime: 24 * 60 * 60 * 1000,
   gcTime: 24 * 60 * 60 * 1000,
@@ -68,7 +68,7 @@ export const similarMovies = ({
         .flatMap((page) => page.results)
         .filter((x) => !!x);
       return Array.from(
-        new Map(movies.map((movie) => [movie.id, movie])).values()
+        new Map(movies.map((movie) => [movie.id, movie])).values(),
       );
     },
   });
@@ -94,7 +94,7 @@ export const tvShowList = ({
         .flatMap((page) => page.results)
         .filter((x) => !!x);
       return Array.from(
-        new Map(tvShows.map((tvShow) => [tvShow.id, tvShow])).values()
+        new Map(tvShows.map((tvShow) => [tvShow.id, tvShow])).values(),
       );
     },
   });
@@ -112,7 +112,7 @@ export const similarTvShows = ({
         {
           ...params,
           page: pageParam,
-        }
+        },
       ),
     getPreviousPageParam: (firstPage) =>
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
@@ -123,7 +123,7 @@ export const similarTvShows = ({
         .flatMap((page) => page.results)
         .filter((x) => !!x);
       return Array.from(
-        new Map(tvShows.map((tvShow) => [tvShow.id, tvShow])).values()
+        new Map(tvShows.map((tvShow) => [tvShow.id, tvShow])).values(),
       );
     },
   });

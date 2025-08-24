@@ -12,8 +12,8 @@ export function apiRouteWrapper(
   serverFunction: (
     // `any` type required here to handle required fields
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    params: any
-  ) => Promise<unknown>
+    params: any,
+  ) => Promise<unknown>,
 ) {
   return async function routeHandler(request: NextRequest) {
     const referer = request.headers.get("Referer") ?? "";
@@ -21,13 +21,13 @@ export function apiRouteWrapper(
     if (
       referer &&
       !ALLOWED_REFERER.some((allowedReferer) =>
-        refererUrl.origin.endsWith(allowedReferer)
+        refererUrl.origin.endsWith(allowedReferer),
       )
     ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
     const result = await serverFunction(
-      Object.fromEntries(request.nextUrl.searchParams.entries())
+      Object.fromEntries(request.nextUrl.searchParams.entries()),
     );
 
     return NextResponse.json(result);

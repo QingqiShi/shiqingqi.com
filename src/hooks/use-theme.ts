@@ -26,7 +26,7 @@ export function useTheme() {
   const theme = useSyncExternalStore(
     subscribe,
     () => themeSingleton ?? localStorage.getItem(STORAGE_KEY),
-    () => "system"
+    () => "system",
   );
   return [getSupportedTheme(theme), setIsMenuShown] as const;
 }

@@ -83,7 +83,7 @@ module.exports = function ({ types: t }) {
       CallExpression(innerPath) {
         if (!breakpoints || typeof breakpoints !== "object") {
           throw new Error(
-            "Invalid or missing `breakpoints` option. Expected an object."
+            "Invalid or missing `breakpoints` option. Expected an object.",
           );
         }
 
@@ -105,12 +105,12 @@ module.exports = function ({ types: t }) {
               const breakpointKey = prop.key.property.name;
               if (!(breakpointKey in breakpointsConfig)) {
                 throw new Error(
-                  `Specified breakpoint ${breakpointKey} doesn't have a matching config`
+                  `Specified breakpoint ${breakpointKey} doesn't have a matching config`,
                 );
               }
               if (typeof breakpointsConfig[breakpointKey] !== "number") {
                 throw new Error(
-                  `Breakpoint config for ${breakpointKey} is not a number`
+                  `Breakpoint config for ${breakpointKey} is not a number`,
                 );
               }
               definedBreakpointKeys.push(breakpointKey);
@@ -119,7 +119,7 @@ module.exports = function ({ types: t }) {
 
           // Sort the defined keys based on their breakpoint value
           definedBreakpointKeys.sort(
-            (a, b) => breakpointsConfig[a] - breakpointsConfig[b]
+            (a, b) => breakpointsConfig[a] - breakpointsConfig[b],
           );
 
           // Go through again to replace the media query

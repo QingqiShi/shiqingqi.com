@@ -16,7 +16,7 @@ import translations from "../translations.json";
 export default async function Page(
   props: PageProps & {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-  }
+  },
 ) {
   await connection();
   const params = await props.params;

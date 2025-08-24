@@ -47,7 +47,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           : "#ffffff"
         : theme === "dark"
           ? "#000000"
-          : "#ffffff"
+          : "#ffffff",
     );
   }, [preferDark, theme]);
 

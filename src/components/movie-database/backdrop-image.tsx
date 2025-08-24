@@ -30,7 +30,7 @@ export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
   const srcSet = sizes
     .map(
       (size) =>
-        `${config.images?.secure_base_url}w${size}${backdropPath} ${size}w`
+        `${config.images?.secure_base_url}w${size}${backdropPath} ${size}w`,
     )
     .join(", ");
 

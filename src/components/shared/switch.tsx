@@ -49,7 +49,7 @@ export function Switch({
       setValue(newValue);
       onChange?.(newValue);
     },
-    [onChange, setValue]
+    [onChange, setValue],
   );
 
   // Sync value with input due to check box having two different value states (specifically `indeterminate`)

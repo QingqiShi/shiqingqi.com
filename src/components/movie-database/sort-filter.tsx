@@ -30,7 +30,7 @@ export function SortFilter({ bright, hideLabel }: SortFilterProps) {
           onClick={(e) => {
             e.preventDefault();
             setSort(
-              sort === "popularity.desc" ? "popularity.asc" : "popularity.desc"
+              sort === "popularity.desc" ? "popularity.asc" : "popularity.desc",
             );
           }}
           bright={bright}
@@ -52,7 +52,7 @@ export function SortFilter({ bright, hideLabel }: SortFilterProps) {
             setSort(
               sort === "vote_average.desc"
                 ? "vote_average.asc"
-                : "vote_average.desc"
+                : "vote_average.desc",
             );
           }}
           bright={bright}

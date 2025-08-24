@@ -79,7 +79,7 @@ export default async function Home(props: PageProps) {
             dates={t("wtcDate")}
             href={getLocalePath(
               "/experiences/wunderman-thompson-commerce",
-              locale
+              locale,
             )}
             css={styles.card}
             aria-label={t("wtcLabel")}
@@ -109,7 +109,7 @@ export default async function Home(props: PageProps) {
             dates={t("agsbDate")}
             href={getLocalePath(
               "/education/altrincham-grammar-school-for-boys",
-              locale
+              locale,
             )}
             css={styles.card}
           />

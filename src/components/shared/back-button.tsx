@@ -31,7 +31,7 @@ export function BackButton({ locale, label }: BackButtonProps) {
     urlParts.length === 1
       ? "/"
       : `/${urlParts.slice(0, urlParts.length - 1).join("/")}`,
-    locale
+    locale,
   );
 
   return (

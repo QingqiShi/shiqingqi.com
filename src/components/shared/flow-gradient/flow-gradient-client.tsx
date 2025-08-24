@@ -32,7 +32,7 @@ export function FlowGradientClient({ vs, fs }: FlowGradientClientProps) {
                     colorBottom: [0.3, 0.3, 1],
                     colorAltTop: [1, 0.3, 0.3],
                     colorAltBottom: [1, 0.3, 0.3],
-                  }
+                  },
             );
           }
         }
