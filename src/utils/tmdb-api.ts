@@ -147,7 +147,7 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie genres. (${response.status}:${response.statusText})`,
+      `Failed to fetch movie details. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -176,7 +176,7 @@ export const fetchMovieVideos = cache(async function fetchMovieVideos(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie genres. (${response.status}:${response.statusText})`,
+      `Failed to fetch movie videos. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -207,7 +207,7 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie genres. (${response.status}:${response.statusText})`,
+      `Failed to fetch similar movies. (${response.status}:${response.statusText})`,
     );
   }
 
