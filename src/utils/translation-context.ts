@@ -10,7 +10,7 @@ export function useTranslationContext() {
   const value = use(TranslationContext);
   if (!value) {
     throw new Error(
-      "`useTranslationContext` must be used within a `TranslationProvider`"
+      "`useTranslationContext` must be used within a `TranslationProvider`",
     );
   }
   return value;

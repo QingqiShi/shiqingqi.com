@@ -13,13 +13,13 @@ export async function generateMetadata(props: PageProps) {
     alternates: {
       canonical: new URL(
         "/education/university-of-nottingham",
-        BASE_URL
+        BASE_URL,
       ).toString(),
       languages: {
         en: new URL("/education/university-of-nottingham", BASE_URL).toString(),
         zh: new URL(
           "/zh/education/university-of-nottingham",
-          BASE_URL
+          BASE_URL,
         ).toString(),
       },
     },

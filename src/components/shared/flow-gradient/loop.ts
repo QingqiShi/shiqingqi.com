@@ -16,7 +16,7 @@ interface Context {
 }
 
 function getWebGLContext(
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ): WebGLRenderingContext | undefined {
   const context = canvas.getContext("webgl2", {
     premultipliedAlpha: false,
@@ -27,7 +27,7 @@ function getWebGLContext(
 export function init(
   canvas: HTMLCanvasElement,
   vertexShaderSrc: string,
-  fragmentShaderSrc: string
+  fragmentShaderSrc: string,
 ): Context | undefined {
   const gl = getWebGLContext(canvas);
   if (!gl) {
@@ -47,7 +47,7 @@ export function init(
 function getBufferInfo(
   { gl, programInfo }: Context,
   width: number,
-  height: number
+  height: number,
 ) {
   const mesh = createMesh(width, height, 10);
   const arrays: Arrays = {
@@ -95,7 +95,7 @@ interface PointerState {
 
 function setupPointerEvents(
   canvas: HTMLCanvasElement,
-  signal: AbortSignal
+  signal: AbortSignal,
 ): PointerState {
   const pointerState: PointerState = {
     mousePosition: [0, 0],
@@ -114,7 +114,7 @@ function setupPointerEvents(
           document.documentElement.scrollTop * window.devicePixelRatio,
       ];
     },
-    { signal, passive: true }
+    { signal, passive: true },
   );
 
   document.addEventListener(
@@ -128,7 +128,7 @@ function setupPointerEvents(
       }
       pointerState.rippleStrengthTarget = 1.5;
     },
-    { signal }
+    { signal },
   );
 
   document.addEventListener(
@@ -142,7 +142,7 @@ function setupPointerEvents(
       }
       pointerState.rippleStrengthTarget = 1;
     },
-    { signal }
+    { signal },
   );
 
   return pointerState;
@@ -203,7 +203,7 @@ export function start(
     colorAltTop = [1, 0, 0],
     colorAltBottom = [1, 0, 0],
     colorBackground = [0.953, 0.929, 0.929],
-  }: Options
+  }: Options,
 ) {
   const abortController = new AbortController();
 
@@ -232,7 +232,7 @@ export function start(
       bufferInfo = getBufferInfo(
         { gl, programInfo, canvas },
         gl.canvas.width,
-        gl.canvas.height
+        gl.canvas.height,
       );
       resized = false;
     }

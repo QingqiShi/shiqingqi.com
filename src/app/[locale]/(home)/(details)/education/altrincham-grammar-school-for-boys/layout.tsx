@@ -13,16 +13,16 @@ export async function generateMetadata(props: PageProps) {
     alternates: {
       canonical: new URL(
         "/education/altrincham-grammar-school-for-boys",
-        BASE_URL
+        BASE_URL,
       ).toString(),
       languages: {
         en: new URL(
           "/education/altrincham-grammar-school-for-boys",
-          BASE_URL
+          BASE_URL,
         ).toString(),
         zh: new URL(
           "/zh/education/altrincham-grammar-school-for-boys",
-          BASE_URL
+          BASE_URL,
         ).toString(),
       },
     },

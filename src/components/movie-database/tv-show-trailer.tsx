@@ -17,7 +17,7 @@ export async function TvShowTrailer({ tvShowId, locale }: TvShowTrailerProps) {
   const { t } = getTranslations(translations, locale);
 
   const trailer = trailers.results?.find(
-    (video) => video.type === "Trailer" && video.official
+    (video) => video.type === "Trailer" && video.official,
   );
   if (!trailer || !trailer.key) return null;
 

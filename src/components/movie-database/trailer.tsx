@@ -17,7 +17,7 @@ export async function Trailer({ movieId, locale }: TrailerProps) {
   const { t } = getTranslations(translations, locale);
 
   const trailer = trailers.results?.find(
-    (video) => video.type === "Trailer" && video.official
+    (video) => video.type === "Trailer" && video.official,
   );
   if (!trailer || !trailer.key) return null;
 

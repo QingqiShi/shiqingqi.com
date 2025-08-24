@@ -13,16 +13,16 @@ export async function generateMetadata(props: PageProps) {
     alternates: {
       canonical: new URL(
         "/experiences/wunderman-thompson-commerce",
-        BASE_URL
+        BASE_URL,
       ).toString(),
       languages: {
         en: new URL(
           "/experiences/wunderman-thompson-commerce",
-          BASE_URL
+          BASE_URL,
         ).toString(),
         zh: new URL(
           "/zh/experiences/wunderman-thompson-commerce",
-          BASE_URL
+          BASE_URL,
         ).toString(),
       },
     },

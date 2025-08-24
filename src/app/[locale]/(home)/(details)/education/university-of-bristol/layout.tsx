@@ -13,7 +13,7 @@ export async function generateMetadata(props: PageProps) {
     alternates: {
       canonical: new URL(
         "/education/university-of-bristol",
-        BASE_URL
+        BASE_URL,
       ).toString(),
       languages: {
         en: new URL("/education/university-of-bristol", BASE_URL).toString(),

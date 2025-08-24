@@ -59,7 +59,7 @@ function parseTokens(tokens: string[], componentMap: typeof defaultComponents) {
 
       const children = tokens.slice(i + 1, endIndex);
       parsed.push(
-        <Component key={i}>{parseTokens(children, componentMap)}</Component>
+        <Component key={i}>{parseTokens(children, componentMap)}</Component>,
       );
 
       i += endIndex - i;

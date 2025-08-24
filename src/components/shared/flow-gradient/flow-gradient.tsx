@@ -12,7 +12,7 @@ export async function FlowGradient() {
               // 24 Hours
               cache: "force-cache",
               next: { revalidate: 86400 },
-            }
+            },
           ).then((result) => result.text()),
           fetch(
             "https://0tius9gdxi32io0t.public.blob.vercel-storage.com/shaders/vs.glsl",
@@ -20,25 +20,25 @@ export async function FlowGradient() {
               // 24 Hours
               cache: "force-cache",
               next: { revalidate: 86400 },
-            }
+            },
           ).then((result) => result.text()),
         ]
       : [
           fs.readFile(
             path.resolve(
               process.cwd(),
-              "./src/components/shared/flow-gradient/shaders/fs.glsl"
+              "./src/components/shared/flow-gradient/shaders/fs.glsl",
             ),
-            "utf-8"
+            "utf-8",
           ),
           fs.readFile(
             path.resolve(
               process.cwd(),
-              "./src/components/shared/flow-gradient/shaders/vs.glsl"
+              "./src/components/shared/flow-gradient/shaders/vs.glsl",
             ),
-            "utf-8"
+            "utf-8",
           ),
-        ]
+        ],
   );
   return <FlowGradientClient fs={fragShader} vs={vertShader} />;
 }

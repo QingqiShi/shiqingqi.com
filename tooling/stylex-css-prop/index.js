@@ -24,7 +24,7 @@ module.exports = function stylexBabelPlugin({ types: t }) {
           /** @type {import('@babel/core').NodePath<JSXOpeningElement> | null} Get the parent JSXOpeningElement */
           // @ts-expect-error
           const jsxElement = path.findParent((p) =>
-            t.isJSXOpeningElement(p.node)
+            t.isJSXOpeningElement(p.node),
           );
           if (!jsxElement) return;
 
@@ -33,12 +33,12 @@ module.exports = function stylexBabelPlugin({ types: t }) {
           /** @type {JSXAttribute | undefined} */
           // @ts-expect-error
           const classNameAttr = openingElement.attributes.find(
-            (attr) => t.isJSXAttribute(attr) && attr.name.name === "className"
+            (attr) => t.isJSXAttribute(attr) && attr.name.name === "className",
           );
           /** @type {JSXAttribute | undefined} */
           // @ts-expect-error
           const styleAttr = openingElement.attributes.find(
-            (attr) => t.isJSXAttribute(attr) && attr.name.name === "style"
+            (attr) => t.isJSXAttribute(attr) && attr.name.name === "style",
           );
 
           // Get the value of the `css` prop
@@ -63,22 +63,22 @@ module.exports = function stylexBabelPlugin({ types: t }) {
                 t.callExpression(
                   t.memberExpression(
                     t.identifier("stylex"),
-                    t.identifier("props")
+                    t.identifier("props"),
                   ),
-                  attributesToMerge
-                )
-              )
+                  attributesToMerge,
+                ),
+              ),
             );
             return;
           }
 
           const classNameAttrValue = t.isJSXExpressionContainer(
-            classNameAttr?.value
+            classNameAttr?.value,
           )
             ? t.isJSXEmptyExpression(classNameAttr.value.expression)
               ? (() => {
                   throw path.buildCodeFrameError(
-                    "Empty expressions are not allowed."
+                    "Empty expressions are not allowed.",
                   );
                 })()
               : classNameAttr.value.expression
@@ -88,7 +88,7 @@ module.exports = function stylexBabelPlugin({ types: t }) {
             ? t.isJSXEmptyExpression(styleAttr.value.expression)
               ? (() => {
                   throw path.buildCodeFrameError(
-                    "Empty expressions are not allowed."
+                    "Empty expressions are not allowed.",
                   );
                 })()
               : styleAttr.value.expression
@@ -104,10 +104,10 @@ module.exports = function stylexBabelPlugin({ types: t }) {
                   t.callExpression(
                     t.memberExpression(
                       t.identifier("stylex"),
-                      t.identifier("props")
+                      t.identifier("props"),
                     ),
-                    attributesToMerge
-                  )
+                    attributesToMerge,
+                  ),
                 ),
               ]),
               t.returnStatement(
@@ -130,9 +130,9 @@ module.exports = function stylexBabelPlugin({ types: t }) {
                                 "??",
                                 t.memberExpression(
                                   t.identifier("$_props"),
-                                  t.identifier("className")
+                                  t.identifier("className"),
                                 ),
-                                t.stringLiteral("")
+                                t.stringLiteral(""),
                               ),
                               t.conditionalExpression(
                                 classNameAttrValue,
@@ -147,12 +147,12 @@ module.exports = function stylexBabelPlugin({ types: t }) {
                                       cooked: "",
                                     }),
                                   ],
-                                  [classNameAttrValue]
+                                  [classNameAttrValue],
                                 ),
-                                t.stringLiteral("")
+                                t.stringLiteral(""),
                               ),
-                            ]
-                          )
+                            ],
+                          ),
                         ),
                       ]
                     : []),
@@ -167,36 +167,36 @@ module.exports = function stylexBabelPlugin({ types: t }) {
                               styleAttrValue,
                               t.memberExpression(
                                 t.identifier("$_props"),
-                                t.identifier("style")
-                              )
+                                t.identifier("style"),
+                              ),
                             ),
                             t.objectExpression([
                               t.spreadElement(
                                 t.memberExpression(
                                   t.identifier("$_props"),
-                                  t.identifier("style")
-                                )
+                                  t.identifier("style"),
+                                ),
                               ),
                               t.spreadElement(styleAttrValue),
                             ]),
-                            t.identifier("undefined")
-                          )
+                            t.identifier("undefined"),
+                          ),
                         ),
                       ]
                     : []),
-                ])
+                ]),
               ),
-            ])
+            ]),
           );
 
           // Replace the JSX attributes with the merged props
           path.replaceWith(
-            t.jsxSpreadAttribute(t.callExpression(mergedPropsFunction, []))
+            t.jsxSpreadAttribute(t.callExpression(mergedPropsFunction, [])),
           );
 
           // Remove original `className` and `style` attributes
           openingElement.attributes = openingElement.attributes.filter(
-            (attr) => attr !== classNameAttr && attr !== styleAttr
+            (attr) => attr !== classNameAttr && attr !== styleAttr,
           );
         }
       },
@@ -208,7 +208,7 @@ module.exports = function stylexBabelPlugin({ types: t }) {
           importPath.node.specifiers.some(
             (specifier) =>
               t.isImportNamespaceSpecifier(specifier) &&
-              specifier.local.name === "stylex"
+              specifier.local.name === "stylex",
           )
         ) {
           state.stylexImportExists = true;
@@ -221,8 +221,8 @@ module.exports = function stylexBabelPlugin({ types: t }) {
             path.node.body.unshift(
               t.importDeclaration(
                 [t.importNamespaceSpecifier(t.identifier("stylex"))],
-                t.stringLiteral("@stylexjs/stylex")
-              )
+                t.stringLiteral("@stylexjs/stylex"),
+              ),
             );
           }
         },

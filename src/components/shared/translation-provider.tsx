@@ -22,9 +22,9 @@ export function TranslationProvider({
         Object.entries(componentTranslations).map(([key, value]) => [
           key,
           value[locale],
-        ])
+        ]),
       ),
-    ])
+    ]),
   );
   return (
     <TranslationContextProvider

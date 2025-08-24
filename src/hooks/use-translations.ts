@@ -8,7 +8,7 @@ import { useTranslationContext } from "@/utils/translation-context";
  * Instead of passing translations to the hook directly, translations must be pass to the `TranslationProvider`.
  */
 export function useTranslations<T extends TranslationConfig>(
-  namespace: string
+  namespace: string,
 ) {
   const { translations } = useTranslationContext();
   if (!translations[namespace]) {
@@ -19,7 +19,7 @@ export function useTranslations<T extends TranslationConfig>(
   function t(key: keyof T, opts: { parse?: boolean }): ReactNode;
   function t(
     key: keyof T,
-    { parse }: { parse?: boolean } = {}
+    { parse }: { parse?: boolean } = {},
   ): ReactNode | string {
     const message =
       translations[namespace][key as keyof (typeof translations)[string]];

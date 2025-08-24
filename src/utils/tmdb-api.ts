@@ -24,7 +24,7 @@ export const fetchConfiguration = cache(async function fetchConfiguration() {
   });
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TMDB configurations. (${response.status}:${response.statusText})`
+      `Failed to fetch TMDB configurations. (${response.status}:${response.statusText})`,
     );
   }
   return (await response.json()) as Configuration;
@@ -69,7 +69,7 @@ export const fetchMovieList = cache(async function fetchMovieList({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movies. (${response.status}:${response.statusText})`
+      `Failed to fetch movies. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -84,7 +84,7 @@ export const fetchMovieList = cache(async function fetchMovieList({
           title: movie.title,
           posterPath: movie.poster_path,
           rating: movie.vote_average,
-        }) satisfies MovieListItem
+        }) satisfies MovieListItem,
     ),
   };
 });
@@ -112,7 +112,7 @@ export const fetchMovieGenres = cache(async function fetchMovieGenres({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -127,7 +127,7 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
   movieId: string,
   {
     language,
-  }: NonNullable<paths["/3/movie/{movie_id}"]["get"]["parameters"]["query"]>
+  }: NonNullable<paths["/3/movie/{movie_id}"]["get"]["parameters"]["query"]>,
 ) {
   const url = new URL(`${BASE_URL}/3/movie/${movieId}`);
   if (language && language !== "en") url.searchParams.set("language", language);
@@ -145,7 +145,7 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -157,7 +157,7 @@ export type MovieVideos = NonNullable<
 >;
 
 export const fetchMovieVideos = cache(async function fetchMovieVideos(
-  movieId: string
+  movieId: string,
 ) {
   const url = new URL(`${BASE_URL}/3/movie/${movieId}/videos`);
 
@@ -174,7 +174,7 @@ export const fetchMovieVideos = cache(async function fetchMovieVideos(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -205,7 +205,7 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -220,7 +220,7 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
           title: movie.title,
           posterPath: movie.poster_path,
           rating: movie.vote_average,
-        }) satisfies MovieListItem
+        }) satisfies MovieListItem,
     ),
   };
 });
@@ -279,7 +279,7 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TV shows. (${response.status}:${response.statusText})`
+      `Failed to fetch TV shows. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -294,7 +294,7 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
           name: tvShow.name,
           posterPath: tvShow.poster_path,
           rating: tvShow.vote_average,
-        }) satisfies TvShowListItem
+        }) satisfies TvShowListItem,
     ),
   };
 });
@@ -318,7 +318,7 @@ export const fetchTvShowGenres = cache(async function fetchTvShowGenres({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TV show genres. (${response.status}:${response.statusText})`
+      `Failed to fetch TV show genres. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -333,7 +333,7 @@ export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
   seriesId: string,
   {
     language,
-  }: NonNullable<paths["/3/tv/{series_id}"]["get"]["parameters"]["query"]>
+  }: NonNullable<paths["/3/tv/{series_id}"]["get"]["parameters"]["query"]>,
 ) {
   const url = new URL(`${BASE_URL}/3/tv/${seriesId}`);
   if (language && language !== "en") url.searchParams.set("language", language);
@@ -351,7 +351,7 @@ export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TV show details. (${response.status}:${response.statusText})`
+      `Failed to fetch TV show details. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -363,7 +363,7 @@ export type TvShowVideos = NonNullable<
 >;
 
 export const fetchTvShowVideos = cache(async function fetchTvShowVideos(
-  seriesId: string
+  seriesId: string,
 ) {
   const url = new URL(`${BASE_URL}/3/tv/${seriesId}/videos`);
 
@@ -380,7 +380,7 @@ export const fetchTvShowVideos = cache(async function fetchTvShowVideos(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TV show videos. (${response.status}:${response.statusText})`
+      `Failed to fetch TV show videos. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -411,7 +411,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch similar TV shows. (${response.status}:${response.statusText})`
+      `Failed to fetch similar TV shows. (${response.status}:${response.statusText})`,
     );
   }
 
@@ -426,7 +426,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
           name: tvShow.name,
           posterPath: tvShow.poster_path,
           rating: tvShow.vote_average,
-        }) satisfies TvShowListItem
+        }) satisfies TvShowListItem,
     ),
   };
 });

@@ -43,14 +43,14 @@ export function MediaList<T extends { id: number }>({
 
   const { data, fetchNextPage, hasNextPage, isFetching } =
     useSuspenseInfiniteQuery(
-      tmdbQueryOptions as Parameters<typeof useSuspenseInfiniteQuery>[0]
+      tmdbQueryOptions as Parameters<typeof useSuspenseInfiniteQuery>[0],
     );
 
   const items = data as T[];
 
   // Get viewport height, used for infinite scroll padding
   const [height, setHeight] = useState(() =>
-    typeof window !== "undefined" ? window.innerHeight : 0
+    typeof window !== "undefined" ? window.innerHeight : 0,
   );
   useLayoutEffect(() => {
     const onResize = () => setHeight(window.innerHeight);
@@ -76,7 +76,7 @@ export function MediaList<T extends { id: number }>({
           renderItem={
             renderItem as (
               item: unknown,
-              allowFollow: boolean
+              allowFollow: boolean,
             ) => React.ReactNode
           }
         />
