@@ -4,12 +4,16 @@ import { Suspense } from "react";
 import { Filters } from "@/components/movie-database/filters";
 import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
 import { MediaFiltersProvider } from "@/components/movie-database/media-filters-provider";
-import { MovieList } from "@/components/movie-database/movie-list";
+import { MediaList } from "@/components/movie-database/media-list";
 import type { PageProps } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
 import type { GenreFilterType, Sort } from "@/utils/media-filters-context";
-import { fetchConfiguration, fetchMovieList } from "@/utils/tmdb-api";
+import {
+  fetchConfiguration,
+  fetchMovieList,
+  fetchTvShowList,
+} from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import translations from "../translations.json";
 
@@ -23,6 +27,11 @@ export default async function Page(
   const searchParams = await props.searchParams;
 
   const { t } = getTranslations(translations, params.locale);
+
+  const type = (
+    Array.isArray(searchParams.type) ? searchParams.type[0] : searchParams.type
+  ) as "movie" | "tv" | undefined;
+  const mediaType = type === "tv" ? "tv" : "movie";
 
   const genres =
     typeof searchParams.genre === "string"
@@ -49,12 +58,22 @@ export default async function Page(
     with_genres: genres?.join(genreFilterType === "any" ? "|" : ","),
     sort_by: sort !== "popularity.desc" ? sort : undefined,
   };
-  void queryClient.prefetchInfiniteQuery({
-    ...tmdbQueries.movieList(queryParams),
-    queryFn: async ({ pageParam }) => {
-      return fetchMovieList({ ...queryParams, page: pageParam });
-    },
-  });
+
+  if (mediaType === "tv") {
+    void queryClient.prefetchInfiniteQuery({
+      ...tmdbQueries.mediaList({ type: "tv", ...queryParams }),
+      queryFn: async ({ pageParam }) => {
+        return fetchTvShowList({ ...queryParams, page: pageParam });
+      },
+    });
+  } else {
+    void queryClient.prefetchInfiniteQuery({
+      ...tmdbQueries.mediaList({ type: "movie", ...queryParams }),
+      queryFn: async ({ pageParam }) => {
+        return fetchMovieList({ ...queryParams, page: pageParam });
+      },
+    });
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -63,16 +82,17 @@ export default async function Page(
           genres,
           genreFilterType,
           sort,
+          mediaType,
         }}
       >
         <Suspense fallback={<FiltersSkeleton />}>
           <Filters
             locale={params.locale}
             mobileButtonLabel={t("filterMobileButtonLabel")}
-            mediaType="movie"
+            mediaType={mediaType}
           />
         </Suspense>
-        <MovieList initialPage={1} notFoundLabel={t("notFound")} />
+        <MediaList initialPage={1} notFoundLabel={t("notFound")} />
       </MediaFiltersProvider>
     </HydrationBoundary>
   );

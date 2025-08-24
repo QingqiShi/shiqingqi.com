@@ -1,12 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { breakpoints } from "@/breakpoints";
+import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { layer, space } from "@/tokens.stylex";
-import { getLocalePath } from "@/utils/pathname";
-import { useTranslationContext } from "@/utils/translation-context";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import type translations from "./media-type-toggle.translations.json";
@@ -17,23 +16,36 @@ interface MediaTypeToggleProps {
 
 export function MediaTypeToggle({ mobile }: MediaTypeToggleProps) {
   const { t } = useTranslations<typeof translations>("mediaTypeToggle");
-  const { locale } = useTranslationContext();
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { setMediaType, setMediaTypeUrl } = useMediaFilters();
 
-  const isMovies = !pathname.includes("/tv");
-  const isTv = pathname.includes("/tv");
+  const currentType = searchParams.get("type");
+  const isTv = currentType === "tv";
+  const isMovies = !isTv;
+
+  const handleMovieClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMediaType("movie");
+  };
+
+  const handleTvClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMediaType("tv");
+  };
 
   const content = (
     <AnchorButtonGroup>
       <AnchorButton
-        href={getLocalePath("/movie-database", locale)}
+        href={setMediaTypeUrl("movie")}
         isActive={isMovies}
+        onClick={handleMovieClick}
       >
         {mobile ? t("moviesShort") : t("movies")}
       </AnchorButton>
       <AnchorButton
-        href={getLocalePath("/movie-database/tv", locale)}
+        href={setMediaTypeUrl("tv")}
         isActive={isTv}
+        onClick={handleTvClick}
       >
         {mobile ? t("tvShowsShort") : t("tvShows")}
       </AnchorButton>

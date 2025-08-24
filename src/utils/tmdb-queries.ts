@@ -10,31 +10,85 @@ import type { fetchConfiguration } from "./tmdb-api";
 
 export const tmdbScope = [{ scope: "tmdb" }];
 
-export const movieList = ({
-  page,
-  ...params
-}: Parameters<typeof fetchMovieList>[0]) =>
-  infiniteQueryOptions({
-    queryKey: [{ query: "discover/movie", ...tmdbScope, ...params }],
-    initialPageParam: page,
-    queryFn: async ({ pageParam }) =>
-      apiRequestWrapper<typeof fetchMovieList>("/api/tmdb/movie-list", {
-        ...params,
-        page: pageParam,
-      }),
+type MovieListParams = Parameters<typeof fetchMovieList>[0] & { type: "movie" };
+type TvShowListParams = Parameters<typeof fetchTvShowList>[0] & { type: "tv" };
+
+export const mediaList = (params: MovieListParams | TvShowListParams) => {
+  return infiniteQueryOptions({
+    queryKey: [{ ...tmdbScope, ...params, query: "discover/tv" }],
+    initialPageParam: params.page,
+    queryFn: async ({ pageParam }) => {
+      if (params.type === "tv") {
+        const { page, type, ...queryParams } = params;
+        return apiRequestWrapper<typeof fetchTvShowList>(
+          "/api/tmdb/tv-show-list",
+          { ...queryParams, page: pageParam },
+        );
+      } else {
+        const { page, type, ...queryParams } = params;
+        return apiRequestWrapper<typeof fetchMovieList>(
+          "/api/tmdb/movie-list",
+          { ...queryParams, page: pageParam },
+        );
+      }
+    },
     getPreviousPageParam: (firstPage) =>
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
     select: (data) => {
-      const movies = data.pages
+      const mediaList = data.pages
         .flatMap((page) => page.results)
         .filter((x) => !!x);
+      // Removes duplicates
       return Array.from(
-        new Map(movies.map((movie) => [movie.id, movie])).values(),
+        new Map(mediaList.map((media) => [media.id, media])).values(),
       );
     },
   });
+};
+
+type SimilarMediaParams = {
+  type: "movie" | "tv";
+  id: string;
+  page: number;
+  language?: string;
+};
+
+export const similarMedia = (params: SimilarMediaParams) => {
+  return infiniteQueryOptions({
+    queryKey: [{ ...tmdbScope, ...params }],
+    initialPageParam: params.page,
+    queryFn: async ({ pageParam }) => {
+      if (params.type === "tv") {
+        const { page, type, id, ...queryParams } = params;
+        return apiRequestWrapper<typeof fetchSimilarTvShows>(
+          "/api/tmdb/similar-tv-shows",
+          { ...queryParams, seriesId: id, page: pageParam },
+        );
+      } else {
+        const { page, type, id, ...queryParams } = params;
+        return apiRequestWrapper<typeof fetchSimilarMovies>(
+          "/api/tmdb/similar-movies",
+          { ...queryParams, movieId: id, page: pageParam },
+        );
+      }
+    },
+    getPreviousPageParam: (firstPage) =>
+      firstPage.page > 1 ? firstPage.page - 1 : undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
+    select: (data) => {
+      const mediaList = data.pages
+        .flatMap((page) => page.results)
+        .filter((x) => !!x);
+      // Removes duplicates
+      return Array.from(
+        new Map(mediaList.map((media) => [media.id, media])).values(),
+      );
+    },
+  });
+};
 
 export const configuration = queryOptions({
   queryKey: [{ query: "configuration", ...tmdbScope }],
@@ -46,84 +100,3 @@ export const configuration = queryOptions({
   staleTime: 24 * 60 * 60 * 1000,
   gcTime: 24 * 60 * 60 * 1000,
 });
-
-export const similarMovies = ({
-  page,
-  ...params
-}: Parameters<typeof fetchSimilarMovies>[0]) =>
-  infiniteQueryOptions({
-    queryKey: [{ query: "movie/similar", ...tmdbScope, ...params }],
-    initialPageParam: page,
-    queryFn: async ({ pageParam }) =>
-      apiRequestWrapper<typeof fetchSimilarMovies>("/api/tmdb/similar-movies", {
-        ...params,
-        page: pageParam,
-      }),
-    getPreviousPageParam: (firstPage) =>
-      firstPage.page > 1 ? firstPage.page - 1 : undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    select: (data) => {
-      const movies = data.pages
-        .flatMap((page) => page.results)
-        .filter((x) => !!x);
-      return Array.from(
-        new Map(movies.map((movie) => [movie.id, movie])).values(),
-      );
-    },
-  });
-
-export const tvShowList = ({
-  page,
-  ...params
-}: Parameters<typeof fetchTvShowList>[0]) =>
-  infiniteQueryOptions({
-    queryKey: [{ query: "discover/tv", ...tmdbScope, ...params }],
-    initialPageParam: page,
-    queryFn: async ({ pageParam }) =>
-      apiRequestWrapper<typeof fetchTvShowList>("/api/tmdb/tv-show-list", {
-        ...params,
-        page: pageParam,
-      }),
-    getPreviousPageParam: (firstPage) =>
-      firstPage.page > 1 ? firstPage.page - 1 : undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    select: (data) => {
-      const tvShows = data.pages
-        .flatMap((page) => page.results)
-        .filter((x) => !!x);
-      return Array.from(
-        new Map(tvShows.map((tvShow) => [tvShow.id, tvShow])).values(),
-      );
-    },
-  });
-
-export const similarTvShows = ({
-  page,
-  ...params
-}: Parameters<typeof fetchSimilarTvShows>[0]) =>
-  infiniteQueryOptions({
-    queryKey: [{ query: "tv/similar", ...tmdbScope, ...params }],
-    initialPageParam: page,
-    queryFn: async ({ pageParam }) =>
-      apiRequestWrapper<typeof fetchSimilarTvShows>(
-        "/api/tmdb/similar-tv-shows",
-        {
-          ...params,
-          page: pageParam,
-        },
-      ),
-    getPreviousPageParam: (firstPage) =>
-      firstPage.page > 1 ? firstPage.page - 1 : undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    select: (data) => {
-      const tvShows = data.pages
-        .flatMap((page) => page.results)
-        .filter((x) => !!x);
-      return Array.from(
-        new Map(tvShows.map((tvShow) => [tvShow.id, tvShow])).values(),
-      );
-    },
-  });

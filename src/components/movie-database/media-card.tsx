@@ -3,39 +3,47 @@ import { Card } from "@/components/shared/card";
 import { useTranslations } from "@/hooks/use-translations";
 import { border, color, font, layer, ratio, space } from "@/tokens.stylex";
 import { getLocalePath } from "@/utils/pathname";
-import type { TvShowListItem } from "@/utils/tmdb-api";
+import type { MediaListItem } from "@/utils/tmdb-api";
 import { useTranslationContext } from "@/utils/translation-context";
 import { PosterImage } from "./poster-image";
 import type translations from "./poster-image.translations.json";
 
-interface TvShowCardProps {
-  tvShow: TvShowListItem;
+type MediaType = "movie" | "tv";
+
+interface MediaCardProps {
+  media: MediaListItem;
+  mediaType: MediaType;
   allowFollow?: boolean;
 }
 
-export function TvShowCard({ tvShow, allowFollow }: TvShowCardProps) {
+export function MediaCard({ media, mediaType, allowFollow }: MediaCardProps) {
   const { t } = useTranslations<typeof translations>("posterImage");
   const { locale } = useTranslationContext();
   const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
 
+  const href = getLocalePath(
+    `/movie-database/${mediaType}/${media.id.toString()}`,
+    locale,
+  );
+
   return (
     <Card
-      href={getLocalePath(`/movie-database/tv/${tvShow.id.toString()}`, locale)}
+      href={href}
       css={styles.card}
-      aria-label={tvShow.name}
+      aria-label={media.title}
       rel={allowFollow ? undefined : "nofollow"}
     >
       <div css={styles.posterContainer}>
-        {tvShow.posterPath && tvShow.name ? (
-          <PosterImage posterPath={tvShow.posterPath} alt={tvShow.name} />
+        {media.posterPath && media.title ? (
+          <PosterImage posterPath={media.posterPath} alt={media.title} />
         ) : (
           <div css={[styles.poster, styles.errored]}>
-            <div>{tvShow.name}</div>
+            <div>{media.title}</div>
             <div css={styles.errorText}>{t("failedToLoadImage")}</div>
           </div>
         )}
-        {tvShow.rating ? (
-          <div css={styles.rating}>{formatter.format(tvShow.rating)}</div>
+        {media.rating ? (
+          <div css={styles.rating}>{formatter.format(media.rating)}</div>
         ) : null}
       </div>
     </Card>

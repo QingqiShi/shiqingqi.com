@@ -8,31 +8,29 @@ import { breakpoints } from "@/breakpoints";
 import { Grid } from "@/components/movie-database/grid";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { color, ratio, space } from "@/tokens.stylex";
+import type { MediaListItem } from "@/utils/tmdb-api";
+import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
 import { Skeleton } from "../shared/skeleton";
+import { MediaCard } from "./media-card";
 
-interface MediaListProps<T> {
+interface MediaListProps {
   initialPage: number;
   notFoundLabel: string;
-  queryOptions: (params: Record<string, unknown>) => unknown;
-  renderItem: (item: T, allowFollow: boolean) => React.ReactNode;
 }
 
-export function MediaList<T extends { id: number }>({
-  initialPage,
-  notFoundLabel,
-  queryOptions,
-  renderItem,
-}: MediaListProps<T>) {
+export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
   const { locale } = useTranslationContext();
-  const { genres, genreFilterType, sort } = useMediaFilters();
+  const { genres, genreFilterType, sort, mediaType } = useMediaFilters();
 
   // Use deferred value to prevent re-suspending when the genre changes
   const deferredGenre = useDeferredValue(genres);
   const deferredGenreFilterType = useDeferredValue(genreFilterType);
   const deferredSort = useDeferredValue(sort);
+  const deferredMediaType = useDeferredValue(mediaType);
 
-  const tmdbQueryOptions = queryOptions({
+  const tmdbQueryOptions = tmdbQueries.mediaList({
+    type: deferredMediaType,
     page: initialPage,
     language: locale,
     with_genres:
@@ -41,12 +39,12 @@ export function MediaList<T extends { id: number }>({
     sort_by: deferredSort !== "popularity.desc" ? deferredSort : undefined,
   });
 
-  const { data, fetchNextPage, hasNextPage, isFetching } =
-    useSuspenseInfiniteQuery(
-      tmdbQueryOptions as Parameters<typeof useSuspenseInfiniteQuery>[0],
-    );
-
-  const items = data as T[];
+  const {
+    data: items,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+  } = useSuspenseInfiniteQuery(tmdbQueryOptions);
 
   // Get viewport height, used for infinite scroll padding
   const [height, setHeight] = useState(() =>
@@ -73,12 +71,7 @@ export function MediaList<T extends { id: number }>({
         <ItemContent
           index={index}
           items={items}
-          renderItem={
-            renderItem as (
-              item: unknown,
-              allowFollow: boolean,
-            ) => React.ReactNode
-          }
+          mediaType={deferredMediaType}
         />
       )}
       endReached={() => {
@@ -93,19 +86,29 @@ export function MediaList<T extends { id: number }>({
   );
 }
 
-const ItemContent = memo(function ItemContent<T>({
+const ItemContent = memo(function ItemContent({
   index,
   items,
-  renderItem,
+  mediaType,
 }: {
   index: number;
-  items: T[];
-  renderItem: (item: T, allowFollow: boolean) => React.ReactNode;
+  items: MediaListItem[];
+  mediaType: "movie" | "tv";
 }) {
-  return items[index] ? (
-    renderItem(items[index], index < 20)
-  ) : (
-    <Skeleton css={styles.skeleton} delay={index * 100} />
+  const item = items[index];
+
+  if (!item) {
+    return <Skeleton css={styles.skeleton} delay={index * 100} />;
+  }
+
+  const allowFollow = index < 20;
+
+  return (
+    <MediaCard
+      media={item}
+      mediaType={mediaType === "tv" ? "tv" : "movie"}
+      allowFollow={allowFollow}
+    />
   );
 });
 

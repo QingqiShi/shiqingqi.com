@@ -10,32 +10,36 @@ import { color, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { Skeleton } from "../shared/skeleton";
-import { MovieCard } from "./movie-card";
+import { MediaCard } from "./media-card";
 
-interface SimilarMovieListProps {
-  movieId: string;
+interface SimilarMediaListProps {
+  mediaId: string;
+  mediaType: "movie" | "tv";
   locale: SupportedLocale;
   initialPage: number;
   notFoundLabel: string;
 }
 
-export function SimilarMovieList({
-  movieId,
+export function SimilarMediaList({
+  mediaId,
+  mediaType,
   locale,
   initialPage,
   notFoundLabel,
-}: SimilarMovieListProps) {
-  const tmdbQueryOptions = tmdbQueries.similarMovies({
+}: SimilarMediaListProps) {
+  const queryOptions = tmdbQueries.similarMedia({
+    type: mediaType,
+    id: mediaId,
     page: initialPage,
     language: locale,
-    movieId,
   });
+
   const {
-    data: movies,
+    data: media,
     fetchNextPage,
     hasNextPage,
     isFetching,
-  } = useSuspenseInfiniteQuery(tmdbQueryOptions);
+  } = useSuspenseInfiniteQuery(queryOptions);
 
   // Get viewport height, used for infinite scroll padding
   const [height, setHeight] = useState(() =>
@@ -47,18 +51,18 @@ export function SimilarMovieList({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  if (!movies.length) {
+  if (!media.length) {
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
   }
 
   return (
     <VirtuosoGrid
-      key={JSON.stringify(tmdbQueryOptions)}
-      data={movies}
+      key={`${mediaType}-${mediaId}-${locale}`}
+      data={media}
       components={gridComponents}
       itemContent={(index) =>
-        movies[index] ? (
-          <MovieCard movie={movies[index]} />
+        media[index] ? (
+          <MediaCard media={media[index]} mediaType={mediaType} />
         ) : (
           <Skeleton css={styles.skeleton} delay={index * 100} />
         )
@@ -69,7 +73,7 @@ export function SimilarMovieList({
         }
       }}
       increaseViewportBy={height}
-      initialItemCount={movies.length}
+      initialItemCount={media.length}
       useWindowScroll
     />
   );

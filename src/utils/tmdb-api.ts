@@ -30,12 +30,14 @@ export const fetchConfiguration = cache(async function fetchConfiguration() {
   return (await response.json()) as Configuration;
 });
 
-export type MovieListItem = {
+export type MediaListItem = {
   id: number;
   title?: string;
   posterPath?: string;
   rating?: number;
 };
+
+export type MovieListItem = MediaListItem;
 
 /** Fetch list of movies */
 export const fetchMovieList = cache(async function fetchMovieList({
@@ -152,7 +154,7 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
   return (await response.json()) as MovieDetails;
 });
 
-export type MovieVideos = NonNullable<
+type MovieVideos = NonNullable<
   paths["/3/movie/{movie_id}/videos"]["get"]["responses"]["200"]["content"]["application/json"]
 >;
 
@@ -226,12 +228,7 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
 });
 
 // TV Show types and functions
-export type TvShowListItem = {
-  id: number;
-  name?: string;
-  posterPath?: string;
-  rating?: number;
-};
+export type TvShowListItem = MediaListItem;
 
 export type TvShowSort =
   | "first_air_date.asc"
@@ -291,7 +288,7 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
       (tvShow) =>
         ({
           id: tvShow.id,
-          name: tvShow.name,
+          title: tvShow.name,
           posterPath: tvShow.poster_path,
           rating: tvShow.vote_average,
         }) satisfies TvShowListItem,
@@ -423,7 +420,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
       (tvShow) =>
         ({
           id: tvShow.id,
-          name: tvShow.name,
+          title: tvShow.name,
           posterPath: tvShow.poster_path,
           rating: tvShow.vote_average,
         }) satisfies TvShowListItem,
