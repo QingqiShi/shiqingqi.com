@@ -8,9 +8,9 @@ import { breakpoints } from "@/breakpoints";
 import { Grid } from "@/components/movie-database/grid";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { color, ratio, space } from "@/tokens.stylex";
-import type { MediaListItem } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
+import type { MediaListItem } from "@/utils/types";
 import { Skeleton } from "../shared/skeleton";
 import { MediaCard } from "./media-card";
 
