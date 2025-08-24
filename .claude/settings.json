@@ -1,12 +1,12 @@
 {
   "hooks": {
-    "PostToolUse": [
+    "Stop": [
       {
-        "matcher": "Edit|MultiEdit|Write",
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm prettier:change && pnpm lint:changed"
+            "command": "pnpm lint:changed && pnpm prettier:changed"
           }
         ]
       }
