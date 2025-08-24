@@ -5,6 +5,8 @@ import type {
   fetchSimilarMovies,
   fetchTvShowList,
   fetchSimilarTvShows,
+  fetchMovieGenres,
+  fetchTvShowGenres,
 } from "./tmdb-api";
 import type { fetchConfiguration } from "./tmdb-api";
 
@@ -57,7 +59,7 @@ type SimilarMediaParams = {
 
 export const similarMedia = (params: SimilarMediaParams) => {
   return infiniteQueryOptions({
-    queryKey: [{ ...tmdbScope, ...params }],
+    queryKey: [{ query: `${params.type}/similar`, ...tmdbScope, ...params }],
     initialPageParam: params.page,
     queryFn: async ({ pageParam }) => {
       if (params.type === "tv") {
@@ -100,3 +102,27 @@ export const configuration = queryOptions({
   staleTime: 24 * 60 * 60 * 1000,
   gcTime: 24 * 60 * 60 * 1000,
 });
+
+export const movieGenres = (params: Parameters<typeof fetchMovieGenres>[0]) =>
+  queryOptions({
+    queryKey: [{ query: "movie/genres", ...tmdbScope, ...params }],
+    queryFn: async () =>
+      apiRequestWrapper<typeof fetchMovieGenres>(
+        "/api/tmdb/movie-genres",
+        params,
+      ),
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+  });
+
+export const tvGenres = (params: Parameters<typeof fetchTvShowGenres>[0]) =>
+  queryOptions({
+    queryKey: [{ query: "tv/genres", ...tmdbScope, ...params }],
+    queryFn: async () =>
+      apiRequestWrapper<typeof fetchTvShowGenres>(
+        "/api/tmdb/tv-genres",
+        params,
+      ),
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+  });

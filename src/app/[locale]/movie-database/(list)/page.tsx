@@ -89,7 +89,6 @@ export default async function Page(
           <Filters
             locale={params.locale}
             mobileButtonLabel={t("filterMobileButtonLabel")}
-            mediaType={mediaType}
           />
         </Suspense>
         <MediaList initialPage={1} notFoundLabel={t("notFound")} />
