@@ -26,21 +26,12 @@ export function SimilarMedia({
 }: SimilarMediaProps) {
   const { t } = getTranslations(translations, locale);
 
-  // Fetch config and initial page
+  // Only prefetch configuration server-side, not the similar media data
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery({
     ...tmdbQueries.configuration,
     queryFn: async () => fetchConfiguration(),
   });
-
-  const queryParams = {
-    type: mediaType,
-    id: mediaId,
-    page: 1,
-    language: locale,
-  };
-
-  void queryClient.prefetchInfiniteQuery(tmdbQueries.similarMedia(queryParams));
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
