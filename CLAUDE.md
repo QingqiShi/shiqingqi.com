@@ -1,127 +1,68 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Personal portfolio website built with Next.js 15, featuring a movie database powered by TMDB API.
 
-## Project Overview
+## Essential Commands
 
-Personal portfolio website (shiqingqi.com) built with Next.js 15, featuring a resume section and integrated movie database application powered by TMDB API.
-
-## Development Commands
-
-### Essential Commands
 ```bash
-# Development
-pnpm dev                 # Start dev server with auto code generation
-pnpm build              # Production build
-pnpm build:tsc          # TypeScript type checking only
-
-# Code Quality
-pnpm lint               # Run Next.js linting
-pnpm lint:changed       # Lint only changed files
-pnpm prettier           # Format entire codebase
-pnpm prettier:changed   # Format only changed files
-
-# API Types
-pnpm codegen            # Generate TypeScript types from TMDB OpenAPI spec
+pnpm dev                 # Start dev server
+pnpm build:tsc          # TypeScript type checking
+pnpm lint:changed       # Lint changed files
+pnpm prettier:changed   # Format changed files
+pnpm codegen            # Generate TMDB API types
 ```
 
-### Requirements
-- Node.js 22.x
-- PNPM >=9
-- Uses PNPM workspace (do not use npm or yarn)
+## Task Completion Requirements
 
-## Architecture
+**CRITICAL: Before considering ANY task complete, ALWAYS run:**
 
-### Core Technologies
-- **Next.js 15** with App Router and React 19
-- **StyleX** for CSS-in-JS with compile-time optimization
-- **TypeScript** with strict mode enabled
-- **React Compiler** experimental feature enabled
-- **TanStack Query** for data fetching
-- **Serwist** for PWA/service worker functionality
-
-### Project Structure
-```
-src/
-├── app/[locale]/           # Internationalized routes (en/zh)
-│   ├── (home)/            # Portfolio/resume sections
-│   ├── movie-database/    # Movie database application
-│   └── api/tmdb/          # TMDB API routes
-├── components/            # Domain-organized components
-├── hooks/                 # Custom React hooks
-├── utils/                 # Utilities and API wrappers
-├── _generated/            # Auto-generated TMDB types
-└── tokens.stylex.ts       # Design system tokens
+```bash
+pnpm prettier:changed
+pnpm lint:changed
+pnpm build:tsc
 ```
 
-### Key Patterns
+These checks are mandatory and must never be skipped.
 
-**Internationalization:**
-- Routes prefixed with `[locale]` parameter
-- Translation files colocated with components as `translations.json`
-- Use `getLocalePath()` for generating localized URLs
-- `useTranslations()` hook for component translations
+## Key Architecture Patterns
 
-**Styling with StyleX:**
-- Import from `@stylexjs/stylex`
-- Design tokens in `src/tokens.stylex.ts`
-- Theme variables use CSS custom properties
-- Responsive breakpoints via custom Babel plugin
+**Data Fetching:**
 
-**Data Fetching Architecture:**
-- **Server components:** Call `tmdb-api.ts` functions directly for optimal performance
+- **Server components:** Call `tmdb-api.ts` functions directly
 - **Client components:** Use TanStack Query → API routes → Server functions (never direct)
-- **API functions:** Wrapped in `src/utils/tmdb-api.ts` with React `cache()`
-- **Types:** Auto-generated in `src/_generated/tmdbV3.d.ts` from TMDB OpenAPI spec
 
 **⚠️ CRITICAL: Never Call Server Functions Directly from React Query**
 
-Server functions marked with `"use server"` cause Router setState errors when called during render. API routes are **required proxies**, not optional indirection.
+Server functions cause Router setState errors. API routes are required proxies:
 
 ```typescript
 // ✅ CORRECT: Client → API Route → Server Function
-queryFn: ({ pageParam }) => 
-  apiRequestWrapper("/api/tmdb/movie-list", { ...params, page: pageParam })
+queryFn: ({ pageParam }) =>
+  apiRequestWrapper("/api/tmdb/movie-list", { ...params, page: pageParam });
 
-// ❌ BREAKS: Client → Server Function (causes "Cannot update Router while rendering")
-queryFn: ({ pageParam }) => 
-  fetchMovieList({ ...params, page: pageParam })
+// ❌ BREAKS: Client → Server Function
+queryFn: ({ pageParam }) => fetchMovieList({ ...params, page: pageParam });
 ```
 
-**Component Organization:**
-```typescript
-// Server component pattern
-export default async function Page(props: PageProps) {
-  const params = await props.params;
-  const { locale } = params;
-  // Direct data fetching
-}
+**Internationalization:**
 
-// Client component with translations
-"use client";
-import { useTranslations } from "@/hooks/use-translations";
-export function Component() {
-  const { t } = useTranslations("namespace");
-  // Component logic
-}
-```
+- Routes use `[locale]` parameter (en/zh)
+- Use `getLocalePath()` for localized URLs
+- `useTranslations()` hook with colocated `translations.json` files
 
-### Environment Configuration
+**Styling:**
 
-The project requires TMDB API access. No environment variables are committed - the API routes handle authentication server-side.
+- StyleX CSS-in-JS with design tokens in `src/tokens.stylex.ts`
 
-### Performance Considerations
+## Testing & Verification
 
-- React Compiler enabled for automatic optimizations
-- Service worker disabled in development
-- Images optimized with Sharp
-- View transitions API integrated
-- List virtualization with React Virtuoso
+**Puppeteer Testing:**
 
-### Code Quality Rules
+- Only test with Puppeteer AFTER successfully implementing requested changes
+- **IMPORTANT: If you cannot achieve the requested implementation and end up reverting everything, there's no point in Puppeteer verification**
+- Puppeteer should verify the final working implementation, not failed attempts
 
-- ESLint with Next.js, TypeScript, StyleX, and React Compiler rules
-- Consistent type imports/exports enforced
-- No unused promises or floating promises
-- Import ordering enforced
-- Prettier formatting on all code files
+## Requirements
+
+- Node.js 22.x, PNPM >=9 (no npm/yarn)
+- After significant changes: test with Puppeteer navigation flows
