@@ -3,12 +3,17 @@
 import "server-only";
 import { cache } from "react";
 import type { paths } from "@/_generated/tmdbV3";
+import type {
+  Configuration,
+  MediaListItem,
+  MovieDetails,
+  MovieVideos,
+  TvShowDetails,
+  TvShowVideos,
+} from "./types";
 
 const BASE_URL = "https://api.themoviedb.org";
 const API = process.env.TMDB_API_TOKEN;
-
-export type Configuration =
-  paths["/3/configuration"]["get"]["responses"]["200"]["content"]["application/json"];
 
 /** Fetch TMDB configurations containing available image sizes */
 export const fetchConfiguration = cache(async function fetchConfiguration() {
@@ -29,15 +34,6 @@ export const fetchConfiguration = cache(async function fetchConfiguration() {
   }
   return (await response.json()) as Configuration;
 });
-
-export type MediaListItem = {
-  id: number;
-  title?: string;
-  posterPath?: string;
-  rating?: number;
-};
-
-export type MovieListItem = MediaListItem;
 
 /** Fetch list of movies */
 export const fetchMovieList = cache(async function fetchMovieList({
@@ -86,14 +82,10 @@ export const fetchMovieList = cache(async function fetchMovieList({
           title: movie.title,
           posterPath: movie.poster_path,
           rating: movie.vote_average,
-        }) satisfies MovieListItem,
+        }) satisfies MediaListItem,
     ),
   };
 });
-
-export type Genre = NonNullable<
-  paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"]["genres"]
->[number];
 
 export const fetchMovieGenres = cache(async function fetchMovieGenres({
   language,
@@ -120,10 +112,6 @@ export const fetchMovieGenres = cache(async function fetchMovieGenres({
 
   return (await response.json()) as paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"];
 });
-
-export type MovieDetails = NonNullable<
-  paths["/3/movie/{movie_id}"]["get"]["responses"]["200"]["content"]["application/json"]
->;
 
 export const fetchMovieDetails = cache(async function fetchMovieDetails(
   movieId: string,
@@ -153,10 +141,6 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
 
   return (await response.json()) as MovieDetails;
 });
-
-type MovieVideos = NonNullable<
-  paths["/3/movie/{movie_id}/videos"]["get"]["responses"]["200"]["content"]["application/json"]
->;
 
 export const fetchMovieVideos = cache(async function fetchMovieVideos(
   movieId: string,
@@ -222,27 +206,10 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
           title: movie.title,
           posterPath: movie.poster_path,
           rating: movie.vote_average,
-        }) satisfies MovieListItem,
+        }) satisfies MediaListItem,
     ),
   };
 });
-
-// TV Show types and functions
-export type TvShowListItem = MediaListItem;
-
-export type TvShowSort =
-  | "first_air_date.asc"
-  | "first_air_date.desc"
-  | "name.asc"
-  | "name.desc"
-  | "original_name.asc"
-  | "original_name.desc"
-  | "popularity.asc"
-  | "popularity.desc"
-  | "vote_average.asc"
-  | "vote_average.desc"
-  | "vote_count.asc"
-  | "vote_count.desc";
 
 /** Fetch list of TV shows */
 export const fetchTvShowList = cache(async function fetchTvShowList({
@@ -291,7 +258,7 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
           title: tvShow.name,
           posterPath: tvShow.poster_path,
           rating: tvShow.vote_average,
-        }) satisfies TvShowListItem,
+        }) satisfies MediaListItem,
     ),
   };
 });
@@ -322,10 +289,6 @@ export const fetchTvShowGenres = cache(async function fetchTvShowGenres({
   return (await response.json()) as paths["/3/genre/tv/list"]["get"]["responses"]["200"]["content"]["application/json"];
 });
 
-export type TvShowDetails = NonNullable<
-  paths["/3/tv/{series_id}"]["get"]["responses"]["200"]["content"]["application/json"]
->;
-
 export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
   seriesId: string,
   {
@@ -354,10 +317,6 @@ export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
 
   return (await response.json()) as TvShowDetails;
 });
-
-export type TvShowVideos = NonNullable<
-  paths["/3/tv/{series_id}/videos"]["get"]["responses"]["200"]["content"]["application/json"]
->;
 
 export const fetchTvShowVideos = cache(async function fetchTvShowVideos(
   seriesId: string,
@@ -423,7 +382,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
           title: tvShow.name,
           posterPath: tvShow.poster_path,
           rating: tvShow.vote_average,
-        }) satisfies TvShowListItem,
+        }) satisfies MediaListItem,
     ),
   };
 });

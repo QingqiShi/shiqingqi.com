@@ -3,8 +3,8 @@ import { Card } from "@/components/shared/card";
 import { useTranslations } from "@/hooks/use-translations";
 import { border, color, font, layer, ratio, space } from "@/tokens.stylex";
 import { getLocalePath } from "@/utils/pathname";
-import type { MediaListItem } from "@/utils/tmdb-api";
 import { useTranslationContext } from "@/utils/translation-context";
+import type { MediaListItem } from "@/utils/types";
 import { PosterImage } from "./poster-image";
 import type translations from "./poster-image.translations.json";
 
