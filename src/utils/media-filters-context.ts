@@ -6,6 +6,7 @@ export type Sort =
   | "popularity.desc"
   | "vote_average.asc"
   | "vote_average.desc";
+export type MediaType = "movie" | "tv";
 
 export const MediaFiltersContext = createContext<{
   genres: Set<string>;
@@ -19,6 +20,10 @@ export const MediaFiltersContext = createContext<{
   sort: Sort;
   setSort: (sort: Sort) => void;
   setSortUrl: (sort: Sort) => string;
+
+  mediaType: MediaType;
+  setMediaType: (type: MediaType) => void;
+  setMediaTypeUrl: (type: MediaType) => string;
 
   canReset: boolean;
   reset: () => void;

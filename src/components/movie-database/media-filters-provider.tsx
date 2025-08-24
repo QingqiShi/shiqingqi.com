@@ -3,12 +3,17 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, type PropsWithChildren } from "react";
-import type { GenreFilterType, Sort } from "@/utils/media-filters-context";
+import type {
+  GenreFilterType,
+  MediaType,
+  Sort,
+} from "@/utils/media-filters-context";
 import { MediaFiltersContext } from "@/utils/media-filters-context";
 
 const emptyFilters = {
   genreFilterType: "all" as GenreFilterType,
   sort: "popularity.desc" as Sort,
+  mediaType: "movie" as MediaType,
 };
 
 interface MediaFiltersProviderProps {
@@ -16,6 +21,7 @@ interface MediaFiltersProviderProps {
     genres?: string[];
     genreFilterType?: GenreFilterType;
     sort?: Sort;
+    mediaType?: MediaType;
   };
 }
 
@@ -26,11 +32,15 @@ export function MediaFiltersProvider({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const initialMediaType: MediaType =
+    defaultFilters?.mediaType ?? emptyFilters.mediaType;
+
   const [mediaFilters, setMediaFilters] = useState(() => ({
     genres: new Set<string>(defaultFilters?.genres),
     genreFilterType:
       defaultFilters?.genreFilterType ?? emptyFilters.genreFilterType,
     sort: defaultFilters?.sort ?? emptyFilters.sort,
+    mediaType: initialMediaType,
   }));
 
   const toggleGenre = (genreId: string) => {
@@ -92,12 +102,22 @@ export function MediaFiltersProvider({
     mediaFilters.genreFilterType !== emptyFilters.genreFilterType ||
     mediaFilters.sort !== emptyFilters.sort;
 
-  const reset = () => {
+  const setMediaType = (type: MediaType) => {
     setMediaFilters({
       genres: new Set<string>(),
       genreFilterType: "all",
       sort: "popularity.desc",
+      mediaType: type,
     });
+  };
+
+  const reset = () => {
+    setMediaFilters((prev) => ({
+      genres: new Set<string>(),
+      genreFilterType: "all",
+      sort: "popularity.desc",
+      mediaType: prev.mediaType,
+    }));
   };
 
   const resetUrl = () => {
@@ -109,24 +129,40 @@ export function MediaFiltersProvider({
     return `${pathname}${searchString ? `?${searchString}` : ""}`;
   };
 
+  const setMediaTypeUrl = (type: MediaType) => {
+    const newSearchParams = new URLSearchParams();
+    // Only add type param if it's TV (movie is default)
+    if (type === "tv") {
+      newSearchParams.append("type", "tv");
+    }
+    const searchString = newSearchParams.toString();
+    return `${pathname}${searchString ? `?${searchString}` : ""}`;
+  };
+
   useEffect(() => {
     const url = new URL(window.location.href);
-    // Clear any existing genres
+    // Clear any existing params
     url.searchParams.delete("genre");
+    url.searchParams.delete("genreFilterType");
+    url.searchParams.delete("sort");
+    url.searchParams.delete("type");
 
-    // Assuming genres is an array of genre strings
+    // Media type
+    if (mediaFilters.mediaType === "tv") {
+      url.searchParams.append("type", "tv");
+    }
+
+    // Genres
     mediaFilters.genres.forEach((genre) => {
       url.searchParams.append("genre", genre);
     });
 
     // Filter type
-    url.searchParams.delete("genreFilterType");
     if (mediaFilters.genreFilterType !== "all") {
       url.searchParams.append("genreFilterType", mediaFilters.genreFilterType);
     }
 
     // Sort
-    url.searchParams.delete("sort");
     if (mediaFilters.sort !== "popularity.desc") {
       url.searchParams.append("sort", mediaFilters.sort);
     }
@@ -146,6 +182,8 @@ export function MediaFiltersProvider({
         setGenreFilterTypeUrl,
         setSort,
         setSortUrl,
+        setMediaType,
+        setMediaTypeUrl,
         reset,
         resetUrl,
       }}

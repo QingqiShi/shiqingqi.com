@@ -1,22 +1,23 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useId } from "react";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { controlSize, space } from "@/tokens.stylex";
-import type { Genre } from "@/utils/tmdb-api";
+import * as tmdbQueries from "@/utils/tmdb-queries";
+import { useTranslationContext } from "@/utils/translation-context";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { MenuLabel } from "../shared/menu-label";
 import type translations from "./filters.translations.json";
 
 interface GenreFilterProps {
-  allGenres?: Genre[];
   hideTitle?: boolean;
 }
 
-export function GenreFilter({ allGenres, hideTitle }: GenreFilterProps) {
+export function GenreFilter({ hideTitle }: GenreFilterProps) {
   const {
     genres,
     toggleGenre,
@@ -24,9 +25,20 @@ export function GenreFilter({ allGenres, hideTitle }: GenreFilterProps) {
     genreFilterType,
     setGenreFilterType,
     setGenreFilterTypeUrl,
+    mediaType,
   } = useMediaFilters();
 
   const { t } = useTranslations<typeof translations>("filters");
+  const { locale } = useTranslationContext();
+
+  // Fetch genres based on current media type
+  const genreQuery =
+    mediaType === "tv"
+      ? tmdbQueries.tvGenres({ language: locale })
+      : tmdbQueries.movieGenres({ language: locale });
+
+  const { data: genreData } = useSuspenseQuery(genreQuery);
+  const allGenres = genreData.genres;
 
   const id = useId();
 

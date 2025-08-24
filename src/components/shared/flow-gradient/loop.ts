@@ -93,10 +93,7 @@ interface PointerState {
   ripplePhase: number;
 }
 
-function setupPointerEvents(
-  canvas: HTMLCanvasElement,
-  signal: AbortSignal,
-): PointerState {
+function setupPointerEvents(signal: AbortSignal): PointerState {
   const pointerState: PointerState = {
     mousePosition: [0, 0],
     rippleStrength: 1,
@@ -219,7 +216,7 @@ export function start(
   observer.observe(canvas);
 
   // Ripple effect mouse tracking
-  const pointerState = setupPointerEvents(canvas, abortController.signal);
+  const pointerState = setupPointerEvents(abortController.signal);
 
   let bufferInfo: BufferInfo | undefined;
   let lastTimestamp = 0;

@@ -1,7 +1,8 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
 import { controlSize, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
-import { fetchMovieGenres, fetchTvShowGenres } from "@/utils/tmdb-api";
 import { FiltersContainer } from "./filters-container";
 import { GenreFilter } from "./genre-filter";
 import { GenreFilterButton } from "./genre-filter-button";
@@ -14,26 +15,16 @@ import { TmdbCredit } from "./tmdb-credit";
 interface FiltersProps {
   locale: SupportedLocale;
   mobileButtonLabel: string;
-  mediaType?: "movie" | "tv";
 }
 
-export async function Filters({
-  locale,
-  mobileButtonLabel,
-  mediaType = "movie",
-}: FiltersProps) {
-  const { genres } =
-    mediaType === "tv"
-      ? await fetchTvShowGenres({ language: locale })
-      : await fetchMovieGenres({ language: locale });
-
+export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
   return (
     <>
       <FiltersContainer
         desktopChildren={
           <>
             <MediaTypeToggle />
-            <GenreFilterButton allGenres={genres} />
+            <GenreFilterButton />
             <SortFilter hideLabel />
             <ResetFilter hideLabel />
             <TmdbCredit locale={locale} position="topLeft" />
@@ -47,7 +38,7 @@ export async function Filters({
               menuContent={
                 <div css={styles.mobileMenuContent}>
                   <SortFilter bright />
-                  <GenreFilter allGenres={genres} />
+                  <GenreFilter />
                   <ResetFilter bright />
                 </div>
               }

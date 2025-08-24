@@ -1,12 +1,12 @@
 {
   "hooks": {
-    "Stop": [
+    "PostToolUse": [
       {
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm lint:changed && pnpm prettier:changed"
+            "command": "pnpm prettier:changed"
           }
         ]
       }

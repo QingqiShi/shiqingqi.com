@@ -15,7 +15,7 @@ import { getTranslations } from "@/utils/get-translations";
 import { glowTokens } from "./layout.stylex";
 import translations from "./translations.json";
 
-export async function generateMetadata(props: PageProps) {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   const { t } = getTranslations(translations, params.locale);
   return {

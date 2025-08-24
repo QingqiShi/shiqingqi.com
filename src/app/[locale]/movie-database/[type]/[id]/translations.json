@@ -11,6 +11,14 @@
     "en": "m",
     "zh": " 分钟"
   },
+  "seasons": {
+    "en": " seasons",
+    "zh": " 季"
+  },
+  "episodes": {
+    "en": " episodes",
+    "zh": " 集"
+  },
   "comma": {
     "en": ", ",
     "zh": "、"

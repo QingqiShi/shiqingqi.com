@@ -6,31 +6,31 @@ import { ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchConfiguration, fetchSimilarTvShows } from "@/utils/tmdb-api";
+import { fetchConfiguration } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
-import { SimilarTvShowList } from "./similar-tv-show-list";
+import { SimilarMediaList } from "./similar-media-list";
 import translations from "./translations.json";
 
-interface SimilarTvShowsProps {
-  tvShowId: string;
+interface SimilarMediaProps {
+  mediaId: string;
+  mediaType: "movie" | "tv";
   locale: SupportedLocale;
 }
 
-export function SimilarTvShows({ tvShowId, locale }: SimilarTvShowsProps) {
+export function SimilarMedia({
+  mediaId,
+  mediaType,
+  locale,
+}: SimilarMediaProps) {
   const { t } = getTranslations(translations, locale);
 
-  // Fetch config and initial page
+  // Only prefetch configuration server-side, not the similar media data
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery({
     ...tmdbQueries.configuration,
     queryFn: async () => fetchConfiguration(),
-  });
-  const queryParams = { seriesId: tvShowId, page: 1, language: locale };
-  void queryClient.prefetchInfiniteQuery({
-    ...tmdbQueries.similarTvShows(queryParams),
-    queryFn: async () => fetchSimilarTvShows(queryParams),
   });
 
   return (
@@ -47,8 +47,9 @@ export function SimilarTvShows({ tvShowId, locale }: SimilarTvShowsProps) {
           </Grid>
         }
       >
-        <SimilarTvShowList
-          tvShowId={tvShowId}
+        <SimilarMediaList
+          mediaId={mediaId}
+          mediaType={mediaType}
           locale={locale}
           initialPage={1}
           notFoundLabel={t("notFound")}

@@ -5,16 +5,11 @@ import * as stylex from "@stylexjs/stylex";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { controlSize, space } from "@/tokens.stylex";
-import type { Genre } from "@/utils/tmdb-api";
 import { MenuButton } from "../shared/menu-button";
 import type translations from "./filters.translations.json";
 import { GenreFilter } from "./genre-filter";
 
-interface GenreFilterButtonProps {
-  allGenres?: Genre[];
-}
-
-export function GenreFilterButton({ allGenres }: GenreFilterButtonProps) {
+export function GenreFilterButton() {
   const { genres } = useMediaFilters();
   const { t } = useTranslations<typeof translations>("filters");
 
@@ -22,7 +17,7 @@ export function GenreFilterButton({ allGenres }: GenreFilterButtonProps) {
     <MenuButton
       menuContent={
         <div css={styles.desktopMenuContent}>
-          <GenreFilter allGenres={allGenres} hideTitle />
+          <GenreFilter hideTitle />
         </div>
       }
       buttonProps={{

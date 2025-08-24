@@ -73,6 +73,18 @@ const eslintConfig = tsEslint.config([
       "one-var": ["error", "never"],
       "react-compiler/react-compiler": "error",
       "unicorn/no-unused-properties": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          args: "all",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
     },
   },
 ]);

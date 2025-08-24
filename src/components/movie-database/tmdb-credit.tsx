@@ -1,20 +1,22 @@
+"use client";
+
 import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
+import { useTranslations } from "@/hooks/use-translations";
 import { border, font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
 import { MenuButton } from "../shared/menu-button";
-import translations from "./translations.json";
+import type translations from "./translations.json";
 
 interface TmdbCreditProps {
   locale: SupportedLocale;
   position: ComponentProps<typeof MenuButton>["position"];
 }
 
-export function TmdbCredit({ locale, position }: TmdbCreditProps) {
-  const { t } = getTranslations(translations, locale);
+export function TmdbCredit({ position }: TmdbCreditProps) {
+  const { t } = useTranslations<typeof translations>("movieDatabase");
   return (
     <MenuButton
       position={position}

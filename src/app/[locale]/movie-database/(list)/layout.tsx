@@ -7,6 +7,7 @@ import filtersTranslations from "@/components/movie-database/filters.translation
 import { Grid } from "@/components/movie-database/grid";
 import mediaTypeToggleTranslations from "@/components/movie-database/media-type-toggle.translations.json";
 import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
+import movieDatabaseTranslations from "@/components/movie-database/translations.json";
 import cardTranslations from "@/components/shared/card.translations.json";
 import { Skeleton } from "@/components/shared/skeleton";
 import { TranslationProvider } from "@/components/shared/translation-provider";
@@ -26,6 +27,7 @@ export default async function Layout({ children, params }: LayoutProps) {
         posterImage: posterImageTranslations,
         filters: filtersTranslations,
         mediaTypeToggle: mediaTypeToggleTranslations,
+        movieDatabase: movieDatabaseTranslations,
       }}
     >
       <ErrorBoundary
