@@ -6,7 +6,13 @@ export async function apiRequestWrapper<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends (params: any) => Promise<unknown>,
 >(apiRoute: `/api/${string}`, params: Parameters<T>[0] = {}) {
-  const url = new URL(`${window.location.origin}${apiRoute}`);
+  const baseUrl =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000";
+  const url = new URL(`${baseUrl}${apiRoute}`);
   for (const entry of Object.entries(params)) {
     if (entry[1]) {
       if (Array.isArray(entry[1])) {
@@ -24,7 +30,14 @@ export async function apiRequestWrapper<
     next: { revalidate: 86400 },
   });
   if (!response.ok) {
-    throw new Error(`${response.statusText}: ${await response.json()}`);
+    let errorMessage = response.statusText;
+    try {
+      const errorData = await response.json();
+      errorMessage = `${response.statusText}: ${JSON.stringify(errorData)}`;
+    } catch {
+      // Response body is not valid JSON
+    }
+    throw new Error(errorMessage);
   }
   return response.json() as ReturnType<T>;
 }

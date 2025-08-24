@@ -59,7 +59,7 @@ type SimilarMediaParams = {
 
 export const similarMedia = (params: SimilarMediaParams) => {
   return infiniteQueryOptions({
-    queryKey: [{ query: `${params.type}/similar`, ...tmdbScope, ...params }],
+    queryKey: [{ ...tmdbScope, ...params }],
     initialPageParam: params.page,
     queryFn: async ({ pageParam }) => {
       if (params.type === "tv") {
