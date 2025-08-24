@@ -15,7 +15,7 @@ interface TmdbCreditProps {
   position: ComponentProps<typeof MenuButton>["position"];
 }
 
-export function TmdbCredit({ locale, position }: TmdbCreditProps) {
+export function TmdbCredit({ position }: TmdbCreditProps) {
   const { t } = useTranslations<typeof translations>("movieDatabase");
   return (
     <MenuButton

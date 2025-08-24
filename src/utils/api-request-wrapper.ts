@@ -32,7 +32,7 @@ export async function apiRequestWrapper<
   if (!response.ok) {
     let errorMessage = response.statusText;
     try {
-      const errorData = await response.json();
+      const errorData = (await response.json()) as Record<string, unknown>;
       errorMessage = `${response.statusText}: ${JSON.stringify(errorData)}`;
     } catch {
       // Response body is not valid JSON
