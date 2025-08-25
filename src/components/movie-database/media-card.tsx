@@ -75,7 +75,7 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    background: color.backgroundRaised,
+    backgroundColor: color.backgroundRaised,
     zIndex: layer.background,
   },
   errorText: {

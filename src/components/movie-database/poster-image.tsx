@@ -81,7 +81,7 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    background: color.backgroundRaised,
+    backgroundColor: color.backgroundRaised,
     zIndex: layer.background,
   },
   errorText: {

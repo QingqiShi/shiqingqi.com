@@ -38,7 +38,7 @@ const styles = stylex.create({
   },
   line1: {
     display: "block",
-    left: "0",
+    left: 0,
   },
   line2: {
     display: { default: "none", [breakpoints.sm]: "block" },

@@ -39,6 +39,8 @@ module.exports = {
         runtimeInjection: false,
         genConditionalClasses: true,
         treeshakeCompensation: true,
+        styleResolution: "property-specificity",
+        enableMediaQueryOrder: true,
         unstable_moduleResolution: {
           type: "commonJS",
           rootDir: __dirname,
