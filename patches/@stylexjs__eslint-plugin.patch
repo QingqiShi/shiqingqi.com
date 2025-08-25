@@ -1,11 +1,8 @@
-# Patched to support the `stylex-breakpoints` babel plugin, which basically opts out of the computed
-# key check.
-
 diff --git a/lib/stylex-valid-styles.js b/lib/stylex-valid-styles.js
-index a4250d24ee10c80cc81bd8b1c3658d0a5fbe640e..4b3fb7d44cd5a8e95a8ca90034f8867f6a329ddb 100644
+index 0145be6d2beeb5064294ecfc2902ed8239bf6e95..0497c582074e14b3f63082b0dcca6996420b2202 100644
 --- a/lib/stylex-valid-styles.js
 +++ b/lib/stylex-valid-styles.js
-@@ -1187,31 +1187,33 @@ const stylexValidStyles = {
+@@ -250,31 +250,36 @@ const stylexValidStyles = {
          if ((0, _isStylexDefineVarsToken.default)(styleKey, stylexDefineVarsTokenImports)) {
            return undefined;
          }
@@ -18,7 +15,10 @@ index a4250d24ee10c80cc81bd8b1c3658d0a5fbe640e..4b3fb7d44cd5a8e95a8ca90034f8867f
 -              message: 'Computed key cannot be resolved.'
 -            });
 -          } else if (val === 'ARG') {
-+        if (styleKey.type !== 'MemberExpression' && styleKey?.object?.name !== 'breakpoints') {
++        // Skip validation for breakpoints member expressions (e.g., breakpoints.sm)
++        if (styleKey.type === 'MemberExpression' && styleKey?.object?.name === 'breakpoints') {
++          // Allow breakpoints.* expressions to pass through
++        } else {
 +          if (style.computed && styleKey.type !== 'Literal') {
 +            const val = (0, _evaluate.default)(styleKey, variables);
 +            if (val == null) {

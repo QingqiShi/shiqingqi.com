@@ -52,7 +52,7 @@ const styles = stylex.create({
     animationFillMode: "both",
     animationIterationCount: "infinite",
     animationDelay: skeletonTokens.delay,
-    background: color.textMuted,
+    backgroundColor: color.textMuted,
     borderRadius: border.radius_2,
     overflow: "hidden",
     opacity: 0.3,

@@ -69,7 +69,7 @@ const styles = stylex.create({
     width: "100%",
     height: "100%",
     zIndex: layer.base,
-    background: `radial-gradient(farthest-side at 73% 21%, transparent, ${color.backgroundMain})`,
+    backgroundImage: `radial-gradient(farthest-side at 73% 21%, transparent, ${color.backgroundMain})`,
   },
   mask2: {
     position: "absolute",
@@ -87,7 +87,7 @@ const styles = stylex.create({
       [breakpoints.xl]: `calc(100% - ${space._8} - min(${space._13}, 20dvh))`,
     },
     // https://larsenwork.com/easing-gradients/
-    background: `linear-gradient(
+    backgroundImage: `linear-gradient(
       to bottom,
       rgba(${color.backgroundMainChannels}, 0) 0%,
       rgba(${color.backgroundMainChannels}, 0.013) 8.1%,

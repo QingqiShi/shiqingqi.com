@@ -65,7 +65,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: { default: "center", [breakpoints.md]: "flex-start" },
-    marginBottom: { default: space._7, [breakpoints.md]: "0" },
+    marginBottom: { default: space._7, [breakpoints.md]: 0 },
     width: { default: "100%", [breakpoints.md]: "50%" },
   },
   copyrightSection: {
@@ -87,6 +87,6 @@ const styles = stylex.create({
     display: "block",
     fontSize: font.size_0,
     marginBottom: { default: null, ":not(:last-of-type)": space._0 },
-    paddingBlock: { default: space._1, [breakpoints.md]: "0" },
+    paddingBlock: { default: space._1, [breakpoints.md]: 0 },
   },
 });

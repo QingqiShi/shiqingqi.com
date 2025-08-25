@@ -67,7 +67,7 @@ const styles = stylex.create({
   },
   detailsBackdrop: {
     // https://larsenwork.com/easing-gradients/
-    background: `linear-gradient(
+    backgroundImage: `linear-gradient(
         to bottom left,
         rgba(${color.backgroundMainChannels}, 0.7) 0%,
         rgba(${color.backgroundMainChannels}, 0.691) 4.05%,

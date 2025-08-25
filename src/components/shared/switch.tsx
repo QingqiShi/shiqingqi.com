@@ -172,8 +172,7 @@ export function Switch({
 const styles = stylex.create({
   switch: {
     // Reset
-    background: "none",
-    borderWidth: "0",
+    borderWidth: 0,
     borderStyle: "none",
     appearance: "none",
     fontSize: controlSize._4,
@@ -199,7 +198,7 @@ const styles = stylex.create({
     touchAction: "none",
 
     [switchTokens.thumbPosition]: {
-      default: "0",
+      default: 0,
       ":checked": controlSize._9,
       ":indeterminate": `calc(${controlSize._9} / 2)`,
     },
