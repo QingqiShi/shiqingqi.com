@@ -48,11 +48,6 @@ export const fetchMovieList = cache(async function fetchMovieList({
 }: NonNullable<paths["/3/discover/movie"]["get"]["parameters"]["query"]>) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/discover/movie`,
-    defaultParams: {
-      language: "en",
-      "vote_count.gte": 300,
-      "vote_average.gte": 3,
-    },
     params: {
       language,
       page,
@@ -101,7 +96,6 @@ export const fetchMovieGenres = cache(async function fetchMovieGenres({
 }: NonNullable<paths["/3/genre/movie/list"]["get"]["parameters"]["query"]>) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/genre/movie/list`,
-    defaultParams: { language: "en" },
     params: { language },
   });
 
@@ -133,7 +127,6 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
 ) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/movie/${movieId}`,
-    defaultParams: { language: "en" },
     params: { language },
   });
 
@@ -193,7 +186,6 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
 > & { movieId: string }) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/movie/${movieId}/recommendations`,
-    defaultParams: { language: "en" },
     params: { language, page },
   });
 
@@ -241,11 +233,6 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
 }: NonNullable<paths["/3/discover/tv"]["get"]["parameters"]["query"]>) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/discover/tv`,
-    defaultParams: {
-      language: "en",
-      "vote_count.gte": 300,
-      "vote_average.gte": 3,
-    },
     params: {
       language,
       page,
@@ -294,7 +281,6 @@ export const fetchTvShowGenres = cache(async function fetchTvShowGenres({
 }: NonNullable<paths["/3/genre/tv/list"]["get"]["parameters"]["query"]>) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/genre/tv/list`,
-    defaultParams: { language: "en" },
     params: { language },
   });
 
@@ -326,7 +312,6 @@ export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
 ) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/tv/${seriesId}`,
-    defaultParams: { language: "en" },
     params: { language },
   });
 
@@ -384,7 +369,6 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
 > & { seriesId: string }) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/tv/${seriesId}/recommendations`,
-    defaultParams: { language: "en" },
     params: { language, page },
   });
 
