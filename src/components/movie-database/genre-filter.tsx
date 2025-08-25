@@ -32,10 +32,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
   const { locale } = useTranslationContext();
 
   // Fetch genres based on current media type
-  const genreQuery =
-    mediaType === "tv"
-      ? tmdbQueries.tvGenres({ language: locale })
-      : tmdbQueries.movieGenres({ language: locale });
+  const genreQuery = tmdbQueries.genres({ type: mediaType, language: locale });
 
   const { data: genreData } = useSuspenseQuery(genreQuery);
   const allGenres = genreData.genres;

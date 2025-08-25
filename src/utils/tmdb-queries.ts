@@ -17,7 +17,7 @@ type TvShowListParams = Parameters<typeof fetchTvShowList>[0] & { type: "tv" };
 
 export const mediaList = (params: MovieListParams | TvShowListParams) => {
   return infiniteQueryOptions({
-    queryKey: [{ ...tmdbScope, ...params, query: "discover/tv" }],
+    queryKey: [{ query: "mediaList", ...tmdbScope, ...params }],
     initialPageParam: params.page,
     queryFn: async ({ pageParam }) => {
       if (params.type === "tv") {
@@ -59,7 +59,7 @@ type SimilarMediaParams = {
 
 export const similarMedia = (params: SimilarMediaParams) => {
   return infiniteQueryOptions({
-    queryKey: [{ ...tmdbScope, ...params }],
+    queryKey: [{ query: "similarMedia", ...tmdbScope, ...params }],
     initialPageParam: params.page,
     queryFn: async ({ pageParam }) => {
       if (params.type === "tv") {
@@ -103,26 +103,29 @@ export const configuration = queryOptions({
   gcTime: 24 * 60 * 60 * 1000,
 });
 
-export const movieGenres = (params: Parameters<typeof fetchMovieGenres>[0]) =>
-  queryOptions({
-    queryKey: [{ query: "movie/genres", ...tmdbScope, ...params }],
-    queryFn: async () =>
-      apiRequestWrapper<typeof fetchMovieGenres>(
-        "/api/tmdb/movie-genres",
-        params,
-      ),
-    staleTime: 24 * 60 * 60 * 1000,
-    gcTime: 24 * 60 * 60 * 1000,
-  });
+type GenresParams = {
+  type: "movie" | "tv";
+  language?: string;
+};
 
-export const tvGenres = (params: Parameters<typeof fetchTvShowGenres>[0]) =>
+export const genres = (params: GenresParams) =>
   queryOptions({
-    queryKey: [{ query: "tv/genres", ...tmdbScope, ...params }],
-    queryFn: async () =>
-      apiRequestWrapper<typeof fetchTvShowGenres>(
-        "/api/tmdb/tv-genres",
-        params,
-      ),
+    queryKey: [{ query: "genres", ...tmdbScope, ...params }],
+    queryFn: async () => {
+      if (params.type === "tv") {
+        const { type, ...queryParams } = params;
+        return apiRequestWrapper<typeof fetchTvShowGenres>(
+          "/api/tmdb/tv-genres",
+          queryParams,
+        );
+      } else {
+        const { type, ...queryParams } = params;
+        return apiRequestWrapper<typeof fetchMovieGenres>(
+          "/api/tmdb/movie-genres",
+          queryParams,
+        );
+      }
+    },
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
   });
