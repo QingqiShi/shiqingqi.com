@@ -18,7 +18,10 @@
     "lint": "next lint",
     "lint:changed": "git diff --name-only --diff-filter=d HEAD | grep -E '\\.(js|jsx|ts|tsx)$' | xargs -r next lint --fix --file",
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,md,mjs}' --ignore-path .gitignore",
-    "prettier:changed": "git diff --name-only --diff-filter=d HEAD | grep -E '\\.(js|jsx|ts|tsx|json|css|md)$' | xargs -r prettier --write"
+    "prettier:changed": "git diff --name-only --diff-filter=d HEAD | grep -E '\\.(js|jsx|ts|tsx|json|css|md)$' | xargs -r prettier --write",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@mui/utils": "^6.4.8",
@@ -45,9 +48,14 @@
     "@stylexjs/babel-plugin": "^0.13.1",
     "@stylexjs/eslint-plugin": "^0.13.1",
     "@stylexjs/postcss-plugin": "^0.13.1",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.13.11",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
+    "@vitejs/plugin-react": "^5.0.1",
+    "@vitest/ui": "^3.2.4",
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "eslint": "^9.30.0",
@@ -55,6 +63,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "eslint-plugin-unicorn": "^59.0.1",
+    "jsdom": "^26.1.0",
     "modern-normalize": "^3.0.1",
     "next-i18n-router": "^5.5.3",
     "openapi-typescript": "^7.6.1",
@@ -64,7 +73,8 @@
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.0"
+    "typescript-eslint": "^8.32.0",
+    "vitest": "^3.2.4"
   },
   "pnpm": {
     "patchedDependencies": {
