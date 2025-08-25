@@ -3,6 +3,7 @@
 import "server-only";
 import { cache } from "react";
 import type { paths } from "@/_generated/tmdbV3";
+import { buildTmdbUrl } from "./build-tmdb-url";
 import type {
   Configuration,
   MediaListItem,
@@ -17,7 +18,8 @@ const API = process.env.TMDB_API_TOKEN;
 
 /** Fetch TMDB configurations containing available image sizes */
 export const fetchConfiguration = cache(async function fetchConfiguration() {
-  const response = await fetch(`${BASE_URL}/3/configuration`, {
+  const url = buildTmdbUrl({ baseUrl: `${BASE_URL}/3/configuration` });
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -44,17 +46,23 @@ export const fetchMovieList = cache(async function fetchMovieList({
   "vote_count.gte": voteCountGte = 300,
   "vote_average.gte": voteAverageGte = 3,
 }: NonNullable<paths["/3/discover/movie"]["get"]["parameters"]["query"]>) {
-  const url = new URL(`${BASE_URL}/3/discover/movie`);
-  if (language && language !== "en") url.searchParams.set("language", language);
-  if (page) url.searchParams.set("page", page.toString());
-  if (with_genres) url.searchParams.set("with_genres", with_genres);
-  if (sort_by) url.searchParams.set("sort_by", sort_by);
-  if (voteCountGte)
-    url.searchParams.set("vote_count.gte", voteCountGte.toString());
-  if (voteAverageGte)
-    url.searchParams.set("vote_average.gte", voteAverageGte.toString());
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/discover/movie`,
+    defaultParams: {
+      "vote_count.gte": 300,
+      "vote_average.gte": 3,
+    },
+    params: {
+      language,
+      page,
+      with_genres,
+      sort_by,
+      "vote_count.gte": voteCountGte,
+      "vote_average.gte": voteAverageGte,
+    },
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -90,10 +98,12 @@ export const fetchMovieList = cache(async function fetchMovieList({
 export const fetchMovieGenres = cache(async function fetchMovieGenres({
   language,
 }: NonNullable<paths["/3/genre/movie/list"]["get"]["parameters"]["query"]>) {
-  const url = new URL(`${BASE_URL}/3/genre/movie/list`);
-  if (language && language !== "en") url.searchParams.set("language", language);
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/genre/movie/list`,
+    params: { language },
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -119,10 +129,12 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
     language,
   }: NonNullable<paths["/3/movie/{movie_id}"]["get"]["parameters"]["query"]>,
 ) {
-  const url = new URL(`${BASE_URL}/3/movie/${movieId}`);
-  if (language && language !== "en") url.searchParams.set("language", language);
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/movie/${movieId}`,
+    params: { language },
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -145,9 +157,11 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
 export const fetchMovieVideos = cache(async function fetchMovieVideos(
   movieId: string,
 ) {
-  const url = new URL(`${BASE_URL}/3/movie/${movieId}/videos`);
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/movie/${movieId}/videos`,
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -174,11 +188,12 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
 }: NonNullable<
   paths["/3/movie/{movie_id}/recommendations"]["get"]["parameters"]["query"]
 > & { movieId: string }) {
-  const url = new URL(`${BASE_URL}/3/movie/${movieId}/recommendations`);
-  if (language && language !== "en") url.searchParams.set("language", language);
-  if (page) url.searchParams.set("page", page.toString());
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/movie/${movieId}/recommendations`,
+    params: { language, page },
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -220,17 +235,23 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
   "vote_count.gte": voteCountGte = 300,
   "vote_average.gte": voteAverageGte = 3,
 }: NonNullable<paths["/3/discover/tv"]["get"]["parameters"]["query"]>) {
-  const url = new URL(`${BASE_URL}/3/discover/tv`);
-  if (language && language !== "en") url.searchParams.set("language", language);
-  if (page) url.searchParams.set("page", page.toString());
-  if (with_genres) url.searchParams.set("with_genres", with_genres);
-  if (sort_by) url.searchParams.set("sort_by", sort_by);
-  if (voteCountGte)
-    url.searchParams.set("vote_count.gte", voteCountGte.toString());
-  if (voteAverageGte)
-    url.searchParams.set("vote_average.gte", voteAverageGte.toString());
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/discover/tv`,
+    defaultParams: {
+      "vote_count.gte": 300,
+      "vote_average.gte": 3,
+    },
+    params: {
+      language,
+      page,
+      with_genres,
+      sort_by,
+      "vote_count.gte": voteCountGte,
+      "vote_average.gte": voteAverageGte,
+    },
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -266,10 +287,12 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
 export const fetchTvShowGenres = cache(async function fetchTvShowGenres({
   language,
 }: NonNullable<paths["/3/genre/tv/list"]["get"]["parameters"]["query"]>) {
-  const url = new URL(`${BASE_URL}/3/genre/tv/list`);
-  if (language && language !== "en") url.searchParams.set("language", language);
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/genre/tv/list`,
+    params: { language },
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -295,10 +318,12 @@ export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
     language,
   }: NonNullable<paths["/3/tv/{series_id}"]["get"]["parameters"]["query"]>,
 ) {
-  const url = new URL(`${BASE_URL}/3/tv/${seriesId}`);
-  if (language && language !== "en") url.searchParams.set("language", language);
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/tv/${seriesId}`,
+    params: { language },
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -321,9 +346,9 @@ export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
 export const fetchTvShowVideos = cache(async function fetchTvShowVideos(
   seriesId: string,
 ) {
-  const url = new URL(`${BASE_URL}/3/tv/${seriesId}/videos`);
+  const url = buildTmdbUrl({ baseUrl: `${BASE_URL}/3/tv/${seriesId}/videos` });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -350,11 +375,12 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
 }: NonNullable<
   paths["/3/tv/{series_id}/recommendations"]["get"]["parameters"]["query"]
 > & { seriesId: string }) {
-  const url = new URL(`${BASE_URL}/3/tv/${seriesId}/recommendations`);
-  if (language && language !== "en") url.searchParams.set("language", language);
-  if (page) url.searchParams.set("page", page.toString());
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/tv/${seriesId}/recommendations`,
+    params: { language, page },
+  });
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
