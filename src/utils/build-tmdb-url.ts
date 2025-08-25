@@ -6,20 +6,21 @@ interface BuildTmdbUrlOptions {
   params?: Record<string, SearchParamValue>;
 }
 
-export function buildTmdbUrl({ baseUrl, defaultParams = {}, params = {} }: BuildTmdbUrlOptions): string {
+export function buildTmdbUrl({
+  baseUrl,
+  defaultParams = {},
+  params = {},
+}: BuildTmdbUrlOptions): string {
   const url = new URL(baseUrl);
-  
-  const allParams = { ...defaultParams, ...params };
-  
-  Object.entries(allParams).forEach(([key, value]) => {
+
+  Object.entries(params).forEach(([key, value]) => {
     if (value != null && value !== undefined) {
-      if (key === "language" && value === "en") {
-        return;
+      // Only add param if it differs from the default value
+      if (defaultParams[key] === undefined || value !== defaultParams[key]) {
+        url.searchParams.set(key, value.toString());
       }
-      
-      url.searchParams.set(key, value.toString());
     }
   });
-  
+
   return url.toString();
 }
