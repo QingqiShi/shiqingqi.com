@@ -33,12 +33,14 @@ module.exports = function stylexBabelPlugin({ types: t }) {
           /** @type {JSXAttribute | undefined} */
           // @ts-expect-error
           const classNameAttr = openingElement.attributes.find(
-            /** @param {any} attr */ (attr) => t.isJSXAttribute(attr) && attr.name.name === "className",
+            /** @param {any} attr */ (attr) =>
+              t.isJSXAttribute(attr) && attr.name.name === "className",
           );
           /** @type {JSXAttribute | undefined} */
           // @ts-expect-error
           const styleAttr = openingElement.attributes.find(
-            /** @param {any} attr */ (attr) => t.isJSXAttribute(attr) && attr.name.name === "style",
+            /** @param {any} attr */ (attr) =>
+              t.isJSXAttribute(attr) && attr.name.name === "style",
           );
 
           // Get the value of the `css` prop
@@ -50,7 +52,9 @@ module.exports = function stylexBabelPlugin({ types: t }) {
 
             if (t.isArrayExpression(expression)) {
               // Add array elements to merge
-              attributesToMerge.push(...expression.elements.filter(/** @param {any} x */ (x) => !!x));
+              attributesToMerge.push(
+                ...expression.elements.filter(/** @param {any} x */ (x) => !!x),
+              );
             } else if (t.isExpression(expression)) {
               attributesToMerge.push(expression);
             }
@@ -196,13 +200,17 @@ module.exports = function stylexBabelPlugin({ types: t }) {
 
           // Remove original `className` and `style` attributes
           openingElement.attributes = openingElement.attributes.filter(
-            /** @param {any} attr */ (attr) => attr !== classNameAttr && attr !== styleAttr,
+            /** @param {any} attr */ (attr) =>
+              attr !== classNameAttr && attr !== styleAttr,
           );
         }
       },
 
       // Check for `stylex` import
-      ImportDeclaration(/** @type {any} */ importPath, /** @type {PluginPass} */ state) {
+      ImportDeclaration(
+        /** @type {any} */ importPath,
+        /** @type {PluginPass} */ state,
+      ) {
         if (
           importPath.node.source.value === "@stylexjs/stylex" &&
           importPath.node.specifiers.some(
