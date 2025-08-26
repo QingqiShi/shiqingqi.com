@@ -1,12 +1,22 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import babel from "vite-plugin-babel";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    babel({
+      babelConfig: {
+        configFile: true,
+      },
+      filter: /\.(tsx?|jsx?)$/,
+      enforce: "pre",
+    }),
+    react(),
+  ],
   test: {
     environment: "jsdom",
     globals: true,
@@ -28,10 +38,6 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@/test": path.resolve(__dirname, "./src/test"),
-      "@/breakpoints": path.resolve(
-        __dirname,
-        "./src/test/mocks/breakpoints.ts",
-      ),
     },
   },
 });

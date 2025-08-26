@@ -10,13 +10,13 @@
 
 /**
  * @param {Babel} babel - The Babel object.
- * @returns {import('@babel/core').PluginObject<PluginPass & { cssPropUsed?: boolean, stylexImportExists?: boolean }>} The plugin object.
+ * @returns {import('@babel/core').PluginObj<PluginPass & { cssPropUsed?: boolean, stylexImportExists?: boolean }>} The plugin object.
  */
 module.exports = function stylexBabelPlugin({ types: t }) {
   return {
     name: "stylex-css-prop",
     visitor: {
-      JSXAttribute(path, state) {
+      JSXAttribute(/** @type {any} */ path, /** @type {PluginPass} */ state) {
         // Check if the attribute is `css`
         if (path.node.name.name === "css") {
           state.cssPropUsed = true;
@@ -33,12 +33,12 @@ module.exports = function stylexBabelPlugin({ types: t }) {
           /** @type {JSXAttribute | undefined} */
           // @ts-expect-error
           const classNameAttr = openingElement.attributes.find(
-            (attr) => t.isJSXAttribute(attr) && attr.name.name === "className",
+            /** @param {any} attr */ (attr) => t.isJSXAttribute(attr) && attr.name.name === "className",
           );
           /** @type {JSXAttribute | undefined} */
           // @ts-expect-error
           const styleAttr = openingElement.attributes.find(
-            (attr) => t.isJSXAttribute(attr) && attr.name.name === "style",
+            /** @param {any} attr */ (attr) => t.isJSXAttribute(attr) && attr.name.name === "style",
           );
 
           // Get the value of the `css` prop
@@ -50,7 +50,7 @@ module.exports = function stylexBabelPlugin({ types: t }) {
 
             if (t.isArrayExpression(expression)) {
               // Add array elements to merge
-              attributesToMerge.push(...expression.elements.filter((x) => !!x));
+              attributesToMerge.push(...expression.elements.filter(/** @param {any} x */ (x) => !!x));
             } else if (t.isExpression(expression)) {
               attributesToMerge.push(expression);
             }
@@ -65,7 +65,7 @@ module.exports = function stylexBabelPlugin({ types: t }) {
                     t.identifier("stylex"),
                     t.identifier("props"),
                   ),
-                  attributesToMerge,
+                  /** @type {any[]} */ (attributesToMerge.filter(Boolean)),
                 ),
               ),
             );
@@ -106,7 +106,7 @@ module.exports = function stylexBabelPlugin({ types: t }) {
                       t.identifier("stylex"),
                       t.identifier("props"),
                     ),
-                    attributesToMerge,
+                    /** @type {any[]} */ (attributesToMerge.filter(Boolean)),
                   ),
                 ),
               ]),
@@ -196,17 +196,17 @@ module.exports = function stylexBabelPlugin({ types: t }) {
 
           // Remove original `className` and `style` attributes
           openingElement.attributes = openingElement.attributes.filter(
-            (attr) => attr !== classNameAttr && attr !== styleAttr,
+            /** @param {any} attr */ (attr) => attr !== classNameAttr && attr !== styleAttr,
           );
         }
       },
 
       // Check for `stylex` import
-      ImportDeclaration(importPath, state) {
+      ImportDeclaration(/** @type {any} */ importPath, /** @type {PluginPass} */ state) {
         if (
           importPath.node.source.value === "@stylexjs/stylex" &&
           importPath.node.specifiers.some(
-            (specifier) =>
+            /** @param {any} specifier */ (specifier) =>
               t.isImportNamespaceSpecifier(specifier) &&
               specifier.local.name === "stylex",
           )
@@ -215,7 +215,7 @@ module.exports = function stylexBabelPlugin({ types: t }) {
         }
       },
       Program: {
-        exit(path, state) {
+        exit(/** @type {any} */ path, /** @type {PluginPass} */ state) {
           // Inject `stylex` import if necessary after traversal
           if (state.cssPropUsed && !state.stylexImportExists) {
             path.node.body.unshift(
