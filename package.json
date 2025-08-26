@@ -68,7 +68,7 @@
     "jsdom": "^26.1.0",
     "modern-normalize": "^3.0.1",
     "next-i18n-router": "^5.5.3",
-    "openapi-typescript": "^7.6.1",
+    "openapi-typescript": "^7.9.1",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^16.1.1",
     "postcss-preset-env": "^10.2.4",
