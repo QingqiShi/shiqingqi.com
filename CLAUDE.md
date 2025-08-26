@@ -20,6 +20,7 @@ pnpm codegen            # Generate TMDB API types
 pnpm prettier:changed
 pnpm lint:changed
 pnpm build:tsc
+pnpm test
 ```
 
 These checks are mandatory and must never be skipped.
