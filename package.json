@@ -34,7 +34,7 @@
     "next": "15.4.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-error-boundary": "^5.0.0",
+    "react-error-boundary": "^6.0.0",
     "react-virtuoso": "^4.13.0",
     "serwist": "^9.1.0",
     "sharp": "^0.33.5",
