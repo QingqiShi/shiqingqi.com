@@ -2,8 +2,8 @@ import React, { use } from "react";
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@/test/utils";
 import type { TranslationConfig } from "@/types";
-import { TranslationProvider } from "./translation-provider";
 import { TranslationContext } from "@/utils/translation-context";
+import { TranslationProvider } from "./translation-provider";
 
 // Test component that uses the translation context
 function TestConsumer() {
