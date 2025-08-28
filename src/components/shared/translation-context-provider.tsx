@@ -10,7 +10,15 @@ interface TranslationContextProviderProps {
 }
 
 /**
- * Client component to use the context.
+ * Client component wrapper to provide translation context.
+ *
+ * This component is required because:
+ * - TranslationProvider is a server component that processes translation data
+ * - React Context (createContext) requires the "use client" directive
+ * - Next.js requires this separation between server logic and client context
+ *
+ * The server component handles translation transformation,
+ * while this client component handles the React Context provision.
  */
 export function TranslationContextProvider({
   children,
