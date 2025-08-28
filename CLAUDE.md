@@ -55,6 +55,18 @@ queryFn: ({ pageParam }) => fetchMovieList({ ...params, page: pageParam });
 
 - StyleX CSS-in-JS with design tokens in `src/tokens.stylex.ts`
 
+**React Context (React 19):**
+
+- Use shorthand syntax: `<Context value={...}>` instead of `<Context.Provider value={...}>`
+- Use `use()` hook instead of `useContext()` for consuming context
+
+**React Compiler:**
+
+- No need for `useMemo`, `useCallback`, or `memo()` - React Compiler handles optimization automatically
+- Use `@inferEffectDependencies` comment at top of client component files to enable automatic useEffect dependency inference
+- Can omit useEffect dependency arrays when using `@inferEffectDependencies` - React Compiler infers them
+- Avoid manual memoization patterns
+
 ## Testing & Verification
 
 **Puppeteer Testing:**

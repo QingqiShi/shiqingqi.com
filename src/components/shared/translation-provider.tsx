@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 import type { SupportedLocale, TranslationConfig } from "@/types";
-import { TranslationContextProvider } from "./translation-context-provider";
+import { TranslationContext } from "@/utils/translation-context";
 
 interface TranslationProviderProps {
   translations: { [namespace: string]: TranslationConfig };
@@ -27,11 +27,8 @@ export function TranslationProvider({
     ]),
   );
   return (
-    <TranslationContextProvider
-      locale={locale}
-      translations={localeTranslations}
-    >
+    <TranslationContext value={{ locale, translations: localeTranslations }}>
       {children}
-    </TranslationContextProvider>
+    </TranslationContext>
   );
 }
