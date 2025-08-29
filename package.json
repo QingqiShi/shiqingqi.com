@@ -27,7 +27,7 @@
   "dependencies": {
     "@mui/utils": "^6.4.8",
     "@phosphor-icons/react": "^2.1.7",
-    "@serwist/next": "^9.1.0",
+    "@serwist/next": "^9.1.1",
     "@stylexjs/stylex": "^0.15.3",
     "@tanstack/react-query": "5.66.3",
     "@vercel/analytics": "^1.5.0",
@@ -37,7 +37,7 @@
     "react-dom": "19.1.0",
     "react-error-boundary": "^5.0.0",
     "react-virtuoso": "^4.13.0",
-    "serwist": "^9.1.0",
+    "serwist": "^9.1.1",
     "sharp": "^0.33.5",
     "twgl.js": "^7.0.0"
   },
