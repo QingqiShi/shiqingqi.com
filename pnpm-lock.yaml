@@ -44,8 +44,8 @@ importers:
         specifier: 19.1.0
         version: 19.1.0(react@19.1.0)
       react-error-boundary:
-        specifier: ^5.0.0
-        version: 5.0.0(react@19.1.0)
+        specifier: ^6.0.0
+        version: 6.0.0(react@19.1.0)
       react-virtuoso:
         specifier: ^4.13.0
         version: 4.13.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -3525,8 +3525,8 @@ packages:
     peerDependencies:
       react: ^19.1.0
 
-  react-error-boundary@5.0.0:
-    resolution: {integrity: sha512-tnjAxG+IkpLephNcePNA7v6F/QpWLH8He65+DmedchDwg162JZqx4NmbXj0mlAYVVEd81OW7aFhmbsScYfiAFQ==}
+  react-error-boundary@6.0.0:
+    resolution: {integrity: sha512-gdlJjD7NWr0IfkPlaREN2d9uUZUlksrfOx7SX62VRerwXbMY6ftGCIZua1VG1aXFNOimhISsTq+Owp725b9SiA==}
     peerDependencies:
       react: '>=16.13.1'
 
@@ -3759,6 +3759,7 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
 
   stable-hash@0.0.5:
     resolution: {integrity: sha512-+L3ccpzibovGXFK+Ap/f8LOS0ahMrHTf3xu7mMLSpEGU0EO9ucaysSylKo9eRDFNhWve/y275iPmIZ4z39a9iA==}
@@ -7860,7 +7861,7 @@ snapshots:
       react: 19.1.0
       scheduler: 0.26.0
 
-  react-error-boundary@5.0.0(react@19.1.0):
+  react-error-boundary@6.0.0(react@19.1.0):
     dependencies:
       '@babel/runtime': 7.28.3
       react: 19.1.0
