@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        task: [test, prettier]
+        task: [test, format]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -25,5 +25,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
         if: matrix.task == 'test'
-      - run: pnpm prettier --check .
-        if: matrix.task == 'prettier'
+      - run: pnpm format:check
+        if: matrix.task == 'format'

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm prettier:changed"
+            "command": "pnpm format:changed"
           }
         ]
       }

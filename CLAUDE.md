@@ -8,7 +8,7 @@ Personal portfolio website built with Next.js 15, featuring a movie database pow
 pnpm dev                 # Start dev server
 pnpm build:tsc          # TypeScript type checking
 pnpm lint:changed       # Lint changed files
-pnpm prettier:changed   # Format changed files
+pnpm format:changed     # Format changed files
 pnpm codegen            # Generate TMDB API types
 ```
 
@@ -17,7 +17,7 @@ pnpm codegen            # Generate TMDB API types
 **CRITICAL: Before considering ANY task complete, ALWAYS run:**
 
 ```bash
-pnpm prettier:changed
+pnpm format:changed
 pnpm lint:changed
 pnpm build:tsc
 pnpm test
