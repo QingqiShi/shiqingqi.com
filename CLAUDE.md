@@ -1,29 +1,28 @@
-# CLAUDE.md
-
-Personal portfolio website built with Next.js 15, featuring a movie database powered by TMDB API.
-
 ## Essential Commands
 
 ```bash
-pnpm dev                 # Start dev server
+pnpm dev                # Start dev server
+pnpm build              # Full Next.js build (including type checking and linting)
 pnpm build:tsc          # TypeScript type checking
+pnpm lint               # Lint all files
 pnpm lint:changed       # Lint changed files
+pnpm format             # Format all files
 pnpm format:changed     # Format changed files
+pnpm test               # Run tests
 pnpm codegen            # Generate TMDB API types
 ```
 
 ## Task Completion Requirements
 
 **CRITICAL: Before considering ANY task complete, ALWAYS run:**
+These checks are mandatory and must never be skipped.
 
 ```bash
-pnpm format:changed
-pnpm lint:changed
-pnpm build:tsc
 pnpm test
+pnpm build:tsc
+pnpm lint:changed
+pnpm format:changed # if lint modified any files
 ```
-
-These checks are mandatory and must never be skipped.
 
 ## Key Architecture Patterns
 
@@ -67,15 +66,15 @@ queryFn: ({ pageParam }) => fetchMovieList({ ...params, page: pageParam });
 - Can omit useEffect dependency arrays when using `@inferEffectDependencies` - React Compiler infers them
 - Avoid manual memoization patterns
 
-## Testing & Verification
+## Testing Setup (Vitest)
 
-**Puppeteer Testing:**
+### Unique Configuration Aspects
 
-- Only test with Puppeteer AFTER successfully implementing requested changes
-- **IMPORTANT: If you cannot achieve the requested implementation and end up reverting everything, there's no point in Puppeteer verification**
-- Puppeteer should verify the final working implementation, not failed attempts
+- **Shared Babel Config**: Single `.babelrc.js` handles both Next.js and Vitest
+  - `modules: process.env.NODE_ENV === "test" ? false : "auto"` preserves ESM for Vitest
+  - StyleX transformations enabled in tests via `test: process.env.NODE_ENV === "test"`
+- **StyleX Support**: Full StyleX in tests through `vite-plugin-babel` with `enforce: "pre"`
+- **Test Structure**: Tests colocated with components (`*.test.{ts,tsx}`), custom utils in `src/test-utils.tsx`
+- **Path Aliases**: Consistent `@/` alias across TypeScript, Vitest, and Babel configs
 
-## Requirements
-
-- Node.js 22.x, PNPM >=9 (no npm/yarn)
-- After significant changes: test with Puppeteer navigation flows
+IMPORTANT: NEVER EVER COMPACT INFORMATION ABOVE THIS LINE.

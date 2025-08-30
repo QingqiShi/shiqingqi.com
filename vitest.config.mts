@@ -1,8 +1,8 @@
-import { defineConfig } from "vitest/config";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import babel from "vite-plugin-babel";
-import path from "path";
-import { fileURLToPath } from "url";
+import { defineConfig } from "vitest/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -15,12 +15,14 @@ export default defineConfig({
       filter: /\.(tsx?|jsx?)$/,
       enforce: "pre",
     }),
-    react(),
+    react({
+      jsxRuntime: "automatic",
+    }),
   ],
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./src/test/setup.ts"],
+    setupFiles: ["./src/test-setup.ts"],
     include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     coverage: {
       reporter: ["text", "json", "html"],

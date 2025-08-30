@@ -1,6 +1,6 @@
 import React, { use } from "react";
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@/test/utils";
+import { render, screen } from "@/test-utils";
 import type { TranslationConfig } from "@/types";
 import { TranslationContext } from "@/utils/translation-context";
 import { TranslationProvider } from "./translation-provider";

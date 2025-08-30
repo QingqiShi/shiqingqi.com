@@ -3,6 +3,9 @@ module.exports = {
     [
       "next/babel",
       {
+        "preset-react": {
+          runtime: "automatic",
+        },
         "preset-env": {
           // Required to make Server Actions work
           // Without it server actions compile to non-async functions which breaks the build.

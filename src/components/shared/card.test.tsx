@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@/test/utils";
+import { render, screen } from "@/test-utils";
 import { Card } from "./card";
 
 vi.mock("@/hooks/use-translations", () => ({
