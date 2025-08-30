@@ -1,7 +1,15 @@
-import type { paths } from "@/_generated/tmdbV3";
+import type { z } from "zod";
+import type {
+  discoverTvQueryParams,
+  configurationDetailsResponse,
+  genreMovieListResponse,
+  movieDetailsResponse,
+  movieVideosResponse,
+  tvSeriesDetailsResponse,
+  tvSeriesVideosResponse,
+} from "@/_generated/tmdb-zod-schemas";
 
-export type Configuration =
-  paths["/3/configuration"]["get"]["responses"]["200"]["content"]["application/json"];
+export type Configuration = z.infer<typeof configurationDetailsResponse>;
 
 export type MediaListItem = {
   id: number;
@@ -11,35 +19,16 @@ export type MediaListItem = {
 };
 
 export type Genre = NonNullable<
-  paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"]["genres"]
+  z.infer<typeof genreMovieListResponse>["genres"]
 >[number];
 
-export type MovieDetails = NonNullable<
-  paths["/3/movie/{movie_id}"]["get"]["responses"]["200"]["content"]["application/json"]
->;
+export type MovieDetails = z.infer<typeof movieDetailsResponse>;
 
-export type MovieVideos = NonNullable<
-  paths["/3/movie/{movie_id}/videos"]["get"]["responses"]["200"]["content"]["application/json"]
->;
+export type MovieVideos = z.infer<typeof movieVideosResponse>;
 
-export type TvShowSort =
-  | "first_air_date.asc"
-  | "first_air_date.desc"
-  | "name.asc"
-  | "name.desc"
-  | "original_name.asc"
-  | "original_name.desc"
-  | "popularity.asc"
-  | "popularity.desc"
-  | "vote_average.asc"
-  | "vote_average.desc"
-  | "vote_count.asc"
-  | "vote_count.desc";
+// Derive TvShowSort type from the generated Zod schema
+export type TvShowSort = z.infer<typeof discoverTvQueryParams>["sort_by"];
 
-export type TvShowDetails = NonNullable<
-  paths["/3/tv/{series_id}"]["get"]["responses"]["200"]["content"]["application/json"]
->;
+export type TvShowDetails = z.infer<typeof tvSeriesDetailsResponse>;
 
-export type TvShowVideos = NonNullable<
-  paths["/3/tv/{series_id}/videos"]["get"]["responses"]["200"]["content"]["application/json"]
->;
+export type TvShowVideos = z.infer<typeof tvSeriesVideosResponse>;

@@ -2,7 +2,25 @@
 
 import "server-only";
 import { cache } from "react";
-import type { paths } from "@/_generated/tmdbV3";
+import type { z } from "zod";
+import type {
+  genreMovieListQueryParams,
+  genreTvListQueryParams,
+  movieDetailsQueryParams,
+  movieRecommendationsQueryParams,
+  tvSeriesDetailsQueryParams,
+  tvSeriesRecommendationsQueryParams,
+  discoverMovieResponse,
+  discoverTvResponse,
+  genreMovieListResponse,
+  genreTvListResponse,
+  movieSimilarResponse,
+  tvSeriesSimilarResponse,
+} from "@/_generated/tmdb-zod-schemas";
+import {
+  discoverMovieQueryParams,
+  discoverTvQueryParams,
+} from "@/_generated/tmdb-zod-schemas";
 import { buildTmdbUrl } from "./build-tmdb-url";
 import type {
   Configuration,
@@ -38,14 +56,18 @@ export const fetchConfiguration = cache(async function fetchConfiguration() {
 });
 
 /** Fetch list of movies */
-export const fetchMovieList = cache(async function fetchMovieList({
-  language,
-  page,
-  with_genres,
-  sort_by,
-  "vote_count.gte": voteCountGte = 300,
-  "vote_average.gte": voteAverageGte = 3,
-}: NonNullable<paths["/3/discover/movie"]["get"]["parameters"]["query"]>) {
+export const fetchMovieList = cache(async function fetchMovieList(
+  params: Partial<z.infer<typeof discoverMovieQueryParams>>,
+) {
+  const validatedParams = discoverMovieQueryParams.parse(params);
+  const {
+    language,
+    page,
+    with_genres,
+    sort_by,
+    "vote_count.gte": voteCountGte,
+    "vote_average.gte": voteAverageGte,
+  } = validatedParams;
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/discover/movie`,
     params: {
@@ -75,25 +97,31 @@ export const fetchMovieList = cache(async function fetchMovieList({
     );
   }
 
-  const result =
-    (await response.json()) as paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"];
+  const result = (await response.json()) as z.infer<
+    typeof discoverMovieResponse
+  >;
   return {
     ...result,
-    results: result.results?.map(
-      (movie) =>
-        ({
-          id: movie.id,
-          title: movie.title,
-          posterPath: movie.poster_path,
-          rating: movie.vote_average,
-        }) satisfies MediaListItem,
-    ),
+    results: result.results
+      ?.filter(
+        (movie): movie is typeof movie & { id: number } =>
+          movie.id !== undefined,
+      )
+      ?.map(
+        (movie) =>
+          ({
+            id: movie.id,
+            title: movie.title,
+            posterPath: movie.poster_path,
+            rating: movie.vote_average,
+          }) satisfies MediaListItem,
+      ),
   };
 });
 
 export const fetchMovieGenres = cache(async function fetchMovieGenres({
   language,
-}: NonNullable<paths["/3/genre/movie/list"]["get"]["parameters"]["query"]>) {
+}: z.infer<typeof genreMovieListQueryParams>) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/genre/movie/list`,
     params: { language },
@@ -116,14 +144,12 @@ export const fetchMovieGenres = cache(async function fetchMovieGenres({
     );
   }
 
-  return (await response.json()) as paths["/3/genre/movie/list"]["get"]["responses"]["200"]["content"]["application/json"];
+  return (await response.json()) as z.infer<typeof genreMovieListResponse>;
 });
 
 export const fetchMovieDetails = cache(async function fetchMovieDetails(
   movieId: string,
-  {
-    language,
-  }: NonNullable<paths["/3/movie/{movie_id}"]["get"]["parameters"]["query"]>,
+  { language }: z.infer<typeof movieDetailsQueryParams>,
 ) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/movie/${movieId}`,
@@ -181,9 +207,7 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
   movieId,
   page,
   language,
-}: NonNullable<
-  paths["/3/movie/{movie_id}/recommendations"]["get"]["parameters"]["query"]
-> & { movieId: string }) {
+}: z.infer<typeof movieRecommendationsQueryParams> & { movieId: string }) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/movie/${movieId}/recommendations`,
     params: { language, page },
@@ -206,31 +230,41 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
     );
   }
 
-  const result =
-    (await response.json()) as paths["/3/movie/{movie_id}/similar"]["get"]["responses"]["200"]["content"]["application/json"];
+  const result = (await response.json()) as z.infer<
+    typeof movieSimilarResponse
+  >;
   return {
     ...result,
-    results: result.results?.map(
-      (movie) =>
-        ({
-          id: movie.id,
-          title: movie.title,
-          posterPath: movie.poster_path,
-          rating: movie.vote_average,
-        }) satisfies MediaListItem,
-    ),
+    results: result.results
+      ?.filter(
+        (movie): movie is typeof movie & { id: number } =>
+          movie.id !== undefined,
+      )
+      ?.map(
+        (movie) =>
+          ({
+            id: movie.id,
+            title: movie.title,
+            posterPath: movie.poster_path,
+            rating: movie.vote_average,
+          }) satisfies MediaListItem,
+      ),
   };
 });
 
 /** Fetch list of TV shows */
-export const fetchTvShowList = cache(async function fetchTvShowList({
-  language,
-  page,
-  with_genres,
-  sort_by,
-  "vote_count.gte": voteCountGte = 300,
-  "vote_average.gte": voteAverageGte = 3,
-}: NonNullable<paths["/3/discover/tv"]["get"]["parameters"]["query"]>) {
+export const fetchTvShowList = cache(async function fetchTvShowList(
+  params: Partial<z.infer<typeof discoverTvQueryParams>>,
+) {
+  const validatedParams = discoverTvQueryParams.parse(params);
+  const {
+    language,
+    page,
+    with_genres,
+    sort_by,
+    "vote_count.gte": voteCountGte,
+    "vote_average.gte": voteAverageGte,
+  } = validatedParams;
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/discover/tv`,
     params: {
@@ -260,25 +294,29 @@ export const fetchTvShowList = cache(async function fetchTvShowList({
     );
   }
 
-  const result =
-    (await response.json()) as paths["/3/discover/tv"]["get"]["responses"]["200"]["content"]["application/json"];
+  const result = (await response.json()) as z.infer<typeof discoverTvResponse>;
   return {
     ...result,
-    results: result.results?.map(
-      (tvShow) =>
-        ({
-          id: tvShow.id,
-          title: tvShow.name,
-          posterPath: tvShow.poster_path,
-          rating: tvShow.vote_average,
-        }) satisfies MediaListItem,
-    ),
+    results: result.results
+      ?.filter(
+        (tvShow): tvShow is typeof tvShow & { id: number } =>
+          tvShow.id !== undefined,
+      )
+      ?.map(
+        (tvShow) =>
+          ({
+            id: tvShow.id,
+            title: tvShow.name,
+            posterPath: tvShow.poster_path,
+            rating: tvShow.vote_average,
+          }) satisfies MediaListItem,
+      ),
   };
 });
 
 export const fetchTvShowGenres = cache(async function fetchTvShowGenres({
   language,
-}: NonNullable<paths["/3/genre/tv/list"]["get"]["parameters"]["query"]>) {
+}: z.infer<typeof genreTvListQueryParams>) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/genre/tv/list`,
     params: { language },
@@ -301,14 +339,12 @@ export const fetchTvShowGenres = cache(async function fetchTvShowGenres({
     );
   }
 
-  return (await response.json()) as paths["/3/genre/tv/list"]["get"]["responses"]["200"]["content"]["application/json"];
+  return (await response.json()) as z.infer<typeof genreTvListResponse>;
 });
 
 export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
   seriesId: string,
-  {
-    language,
-  }: NonNullable<paths["/3/tv/{series_id}"]["get"]["parameters"]["query"]>,
+  { language }: z.infer<typeof tvSeriesDetailsQueryParams>,
 ) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/tv/${seriesId}`,
@@ -364,9 +400,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
   seriesId,
   page,
   language,
-}: NonNullable<
-  paths["/3/tv/{series_id}/recommendations"]["get"]["parameters"]["query"]
-> & { seriesId: string }) {
+}: z.infer<typeof tvSeriesRecommendationsQueryParams> & { seriesId: string }) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/tv/${seriesId}/recommendations`,
     params: { language, page },
@@ -389,18 +423,24 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
     );
   }
 
-  const result =
-    (await response.json()) as paths["/3/tv/{series_id}/similar"]["get"]["responses"]["200"]["content"]["application/json"];
+  const result = (await response.json()) as z.infer<
+    typeof tvSeriesSimilarResponse
+  >;
   return {
     ...result,
-    results: result.results?.map(
-      (tvShow) =>
-        ({
-          id: tvShow.id,
-          title: tvShow.name,
-          posterPath: tvShow.poster_path,
-          rating: tvShow.vote_average,
-        }) satisfies MediaListItem,
-    ),
+    results: result.results
+      ?.filter(
+        (tvShow): tvShow is typeof tvShow & { id: number } =>
+          tvShow.id !== undefined,
+      )
+      ?.map(
+        (tvShow) =>
+          ({
+            id: tvShow.id,
+            title: tvShow.name,
+            posterPath: tvShow.poster_path,
+            rating: tvShow.vote_average,
+          }) satisfies MediaListItem,
+      ),
   };
 });

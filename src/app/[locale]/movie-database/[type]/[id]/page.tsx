@@ -42,8 +42,8 @@ export default async function Page({ params }: PageProps) {
     void fetchMovieVideos(id);
 
     const movie = await movieDetailsPromise;
-    const hours = Math.floor(movie.runtime / 60);
-    const minutes = movie.runtime % 60;
+    const hours = Math.floor((movie.runtime ?? 0) / 60);
+    const minutes = (movie.runtime ?? 0) % 60;
 
     return (
       <>
@@ -58,9 +58,9 @@ export default async function Page({ params }: PageProps) {
           <div css={styles.hero}>
             <div css={styles.ratingContainer}>
               <div css={styles.rating}>
-                {formatter.format(movie.vote_average)}
+                {formatter.format(movie.vote_average ?? 0)}
               </div>
-              <div css={styles.count}>{movie.vote_count}</div>
+              <div css={styles.count}>{movie.vote_count ?? 0}</div>
             </div>
             <h1 css={styles.h1}>
               {movie.title ?? movie.original_title ?? t("titleFallback")}
@@ -114,9 +114,9 @@ export default async function Page({ params }: PageProps) {
           <div css={styles.hero}>
             <div css={styles.ratingContainer}>
               <div css={styles.rating}>
-                {formatter.format(tvShow.vote_average)}
+                {formatter.format(tvShow.vote_average ?? 0)}
               </div>
-              <div css={styles.count}>{tvShow.vote_count}</div>
+              <div css={styles.count}>{tvShow.vote_count ?? 0}</div>
             </div>
             <h1 css={styles.h1}>
               {tvShow.name ?? tvShow.original_name ?? t("titleFallback")}
