@@ -77,4 +77,11 @@ queryFn: ({ pageParam }) => fetchMovieList({ ...params, page: pageParam });
 - **Test Structure**: Tests colocated with components (`*.test.{ts,tsx}`), custom utils in `src/test-utils.tsx`
 - **Path Aliases**: Consistent `@/` alias across TypeScript, Vitest, and Babel configs
 
+# IN PROGRESS
+
+We are currently implementing a project to integrate AI into the movie-database functionality.
+Product requirements exists in: PRD.md
+Useful guides about OpenAI API integration in: OPENAI.md
+Current development plan and progress in DEV_PLAN.md
+
 IMPORTANT: NEVER EVER COMPACT INFORMATION ABOVE THIS LINE.
