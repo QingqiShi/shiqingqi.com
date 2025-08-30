@@ -28,7 +28,6 @@ export default defineConfig({
       reporter: ["text", "json", "html"],
       exclude: [
         "node_modules/",
-        "src/test/",
         "*.config.{js,ts}",
         "**/*.d.ts",
         "**/*.types.ts",
@@ -39,7 +38,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@/test": path.resolve(__dirname, "./src/test"),
     },
   },
 });
