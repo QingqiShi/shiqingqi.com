@@ -1,20 +1,14 @@
-import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
+import importPlugin from "eslint-plugin-import";
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
 import stylexjs from "@stylexjs/eslint-plugin";
 import reactCompiler from "eslint-plugin-react-compiler";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import tsEslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = tsEslint.config([
+export default tsEslint.config([
   {
     ignores: [
       ".babelrc.js",
@@ -25,25 +19,29 @@ const eslintConfig = tsEslint.config([
       "src/_generated/**/*",
     ],
   },
-  ...compat.extends("next/core-web-vitals"),
   js.configs.recommended,
-  tsEslint.configs.recommendedTypeChecked,
+  ...tsEslint.configs.recommendedTypeChecked,
   {
-    name: "custom",
     plugins: {
+      "@next/next": nextPlugin,
+      import: importPlugin,
+      react: reactPlugin,
+      "react-hooks": reactHooksPlugin,
       "@stylexjs": stylexjs,
       "react-compiler": reactCompiler,
       unicorn: eslintPluginUnicorn,
     },
     languageOptions: {
       ecmaVersion: "latest",
-      sourceType: "script",
+      sourceType: "module",
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
@@ -91,5 +89,3 @@ const eslintConfig = tsEslint.config([
     },
   },
 ]);
-
-export default eslintConfig;
