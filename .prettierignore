@@ -8,7 +8,6 @@ build/
 dist/
 
 # Generated files
-src/_generated/
 public/sw.js
 public/sw.js.map
 
