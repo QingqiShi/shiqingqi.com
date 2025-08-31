@@ -15,6 +15,16 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = tsEslint.config([
+  {
+    ignores: [
+      ".babelrc.js",
+      "eslint.config.mjs",
+      "next.config.js",
+      "postcss.config.js",
+      "tooling/**/*",
+      "src/_generated/**/*",
+    ],
+  },
   ...compat.extends("next/core-web-vitals"),
   js.configs.recommended,
   tsEslint.configs.recommendedTypeChecked,
@@ -25,14 +35,6 @@ const eslintConfig = tsEslint.config([
       "react-compiler": reactCompiler,
       unicorn: eslintPluginUnicorn,
     },
-    ignores: [
-      ".babelrc.js",
-      "eslint.config.mjs",
-      "next.config.js",
-      "postcss.config.js",
-      "tooling/**/*",
-      "src/_generated/**/*",
-    ],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "script",
