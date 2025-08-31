@@ -36,9 +36,7 @@ export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
     with_genres:
       [...deferredGenre].join(deferredGenreFilterType === "any" ? "|" : ",") ||
       undefined,
-    ...(deferredSort && deferredSort !== "popularity.desc"
-      ? { sort_by: deferredSort }
-      : {}),
+    sort_by: deferredSort !== "popularity.desc" ? deferredSort : undefined,
   });
 
   const {
