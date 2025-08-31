@@ -31,6 +31,7 @@ const eslintConfig = tsEslint.config([
       "next.config.js",
       "postcss.config.js",
       "tooling/**/*",
+      "src/_generated/**/*",
     ],
     languageOptions: {
       ecmaVersion: "latest",
