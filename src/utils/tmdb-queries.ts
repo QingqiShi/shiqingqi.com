@@ -18,26 +18,36 @@ type TvShowListParams = Parameters<typeof fetchTvShowList>[0] & { type: "tv" };
 export const mediaList = (params: MovieListParams | TvShowListParams) => {
   return infiniteQueryOptions({
     queryKey: [{ query: "mediaList", ...tmdbScope, ...params }],
-    initialPageParam: params.page,
+    initialPageParam: params.page ?? 1,
     queryFn: async ({ pageParam }) => {
       if (params.type === "tv") {
         const { page, type, ...queryParams } = params;
         return apiRequestWrapper<typeof fetchTvShowList>(
           "/api/tmdb/tv-show-list",
-          { ...queryParams, page: pageParam },
+          {
+            ...queryParams,
+            page: pageParam,
+            language: queryParams.language ?? "en",
+          },
         );
       } else {
         const { page, type, ...queryParams } = params;
         return apiRequestWrapper<typeof fetchMovieList>(
           "/api/tmdb/movie-list",
-          { ...queryParams, page: pageParam },
+          {
+            ...queryParams,
+            page: pageParam,
+            language: queryParams.language ?? "en",
+          },
         );
       }
     },
     getPreviousPageParam: (firstPage) =>
-      firstPage.page > 1 ? firstPage.page - 1 : undefined,
+      (firstPage.page ?? 1) > 1 ? (firstPage.page ?? 1) - 1 : undefined,
     getNextPageParam: (lastPage) =>
-      lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
+      (lastPage.total_pages ?? 0) > (lastPage.page ?? 0)
+        ? (lastPage.page ?? 0) + 1
+        : undefined,
     select: (data) => {
       const mediaList = data.pages
         .flatMap((page) => page.results)
@@ -60,26 +70,38 @@ type SimilarMediaParams = {
 export const similarMedia = (params: SimilarMediaParams) => {
   return infiniteQueryOptions({
     queryKey: [{ query: "similarMedia", ...tmdbScope, ...params }],
-    initialPageParam: params.page,
+    initialPageParam: params.page ?? 1,
     queryFn: async ({ pageParam }) => {
       if (params.type === "tv") {
         const { page, type, id, ...queryParams } = params;
         return apiRequestWrapper<typeof fetchSimilarTvShows>(
           "/api/tmdb/similar-tv-shows",
-          { ...queryParams, seriesId: id, page: pageParam },
+          {
+            ...queryParams,
+            seriesId: id,
+            page: pageParam,
+            language: queryParams.language ?? "en",
+          },
         );
       } else {
         const { page, type, id, ...queryParams } = params;
         return apiRequestWrapper<typeof fetchSimilarMovies>(
           "/api/tmdb/similar-movies",
-          { ...queryParams, movieId: id, page: pageParam },
+          {
+            ...queryParams,
+            movieId: id,
+            page: pageParam,
+            language: queryParams.language ?? "en",
+          },
         );
       }
     },
     getPreviousPageParam: (firstPage) =>
-      firstPage.page > 1 ? firstPage.page - 1 : undefined,
+      (firstPage.page ?? 1) > 1 ? (firstPage.page ?? 1) - 1 : undefined,
     getNextPageParam: (lastPage) =>
-      lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
+      (lastPage.total_pages ?? 0) > (lastPage.page ?? 0)
+        ? (lastPage.page ?? 0) + 1
+        : undefined,
     select: (data) => {
       const mediaList = data.pages
         .flatMap((page) => page.results)
@@ -116,13 +138,13 @@ export const genres = (params: GenresParams) =>
         const { type, ...queryParams } = params;
         return apiRequestWrapper<typeof fetchTvShowGenres>(
           "/api/tmdb/tv-genres",
-          queryParams,
+          { ...queryParams, language: queryParams.language ?? "en" },
         );
       } else {
         const { type, ...queryParams } = params;
         return apiRequestWrapper<typeof fetchMovieGenres>(
           "/api/tmdb/movie-genres",
-          queryParams,
+          { ...queryParams, language: queryParams.language ?? "en" },
         );
       }
     },

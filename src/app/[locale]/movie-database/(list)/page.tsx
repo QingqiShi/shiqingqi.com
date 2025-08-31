@@ -56,21 +56,27 @@ export default async function Page(
     language: params.locale,
     page: 1,
     with_genres: genres?.join(genreFilterType === "any" ? "|" : ","),
-    sort_by: sort !== "popularity.desc" ? sort : undefined,
+    ...(sort && sort !== "popularity.desc" ? { sort_by: sort } : {}),
   };
 
   if (mediaType === "tv") {
     void queryClient.prefetchInfiniteQuery({
       ...tmdbQueries.mediaList({ type: "tv", ...queryParams }),
       queryFn: async ({ pageParam }) => {
-        return fetchTvShowList({ ...queryParams, page: pageParam });
+        return fetchTvShowList({
+          ...queryParams,
+          page: pageParam,
+        });
       },
     });
   } else {
     void queryClient.prefetchInfiniteQuery({
       ...tmdbQueries.mediaList({ type: "movie", ...queryParams }),
       queryFn: async ({ pageParam }) => {
-        return fetchMovieList({ ...queryParams, page: pageParam });
+        return fetchMovieList({
+          ...queryParams,
+          page: pageParam,
+        });
       },
     });
   }
