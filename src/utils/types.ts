@@ -1,15 +1,12 @@
 import type { z } from "zod";
 import type {
   discoverTvQueryParams,
-  configurationDetailsResponse,
   genreMovieListResponse,
   movieDetailsResponse,
   movieVideosResponse,
   tvSeriesDetailsResponse,
   tvSeriesVideosResponse,
 } from "@/_generated/tmdb-zod-schemas";
-
-export type Configuration = z.infer<typeof configurationDetailsResponse>;
 
 export type MediaListItem = {
   id: number;

@@ -16,6 +16,7 @@ import type {
   genreTvListResponse,
   movieSimilarResponse,
   tvSeriesSimilarResponse,
+  configurationDetailsResponse,
 } from "@/_generated/tmdb-zod-schemas";
 import {
   discoverMovieQueryParams,
@@ -23,7 +24,6 @@ import {
 } from "@/_generated/tmdb-zod-schemas";
 import { buildTmdbUrl } from "./build-tmdb-url";
 import type {
-  Configuration,
   MediaListItem,
   MovieDetails,
   MovieVideos,
@@ -49,15 +49,17 @@ export const fetchConfiguration = cache(async function fetchConfiguration() {
   });
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TMDB configurations. (${response.status}:${response.statusText})`,
+      `Failed to fetch TMDB configurations. (${response.status}:${response.statusText})`
     );
   }
-  return (await response.json()) as Configuration;
+  return (await response.json()) as z.infer<
+    typeof configurationDetailsResponse
+  >;
 });
 
 /** Fetch list of movies */
 export const fetchMovieList = cache(async function fetchMovieList(
-  params: Partial<z.infer<typeof discoverMovieQueryParams>>,
+  params: Partial<z.infer<typeof discoverMovieQueryParams>>
 ) {
   const validatedParams = discoverMovieQueryParams.parse(params);
   const {
@@ -93,7 +95,7 @@ export const fetchMovieList = cache(async function fetchMovieList(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movies. (${response.status}:${response.statusText})`,
+      `Failed to fetch movies. (${response.status}:${response.statusText})`
     );
   }
 
@@ -105,7 +107,7 @@ export const fetchMovieList = cache(async function fetchMovieList(
     results: result.results
       ?.filter(
         (movie): movie is typeof movie & { id: number } =>
-          movie.id !== undefined,
+          movie.id !== undefined
       )
       ?.map(
         (movie) =>
@@ -114,7 +116,7 @@ export const fetchMovieList = cache(async function fetchMovieList(
             title: movie.title,
             posterPath: movie.poster_path,
             rating: movie.vote_average,
-          }) satisfies MediaListItem,
+          }) satisfies MediaListItem
       ),
   };
 });
@@ -140,7 +142,7 @@ export const fetchMovieGenres = cache(async function fetchMovieGenres({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie genres. (${response.status}:${response.statusText})`,
+      `Failed to fetch movie genres. (${response.status}:${response.statusText})`
     );
   }
 
@@ -149,7 +151,7 @@ export const fetchMovieGenres = cache(async function fetchMovieGenres({
 
 export const fetchMovieDetails = cache(async function fetchMovieDetails(
   movieId: string,
-  { language }: z.infer<typeof movieDetailsQueryParams>,
+  { language }: z.infer<typeof movieDetailsQueryParams>
 ) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/movie/${movieId}`,
@@ -169,7 +171,7 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie details. (${response.status}:${response.statusText})`,
+      `Failed to fetch movie details. (${response.status}:${response.statusText})`
     );
   }
 
@@ -177,7 +179,7 @@ export const fetchMovieDetails = cache(async function fetchMovieDetails(
 });
 
 export const fetchMovieVideos = cache(async function fetchMovieVideos(
-  movieId: string,
+  movieId: string
 ) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/movie/${movieId}/videos`,
@@ -196,7 +198,7 @@ export const fetchMovieVideos = cache(async function fetchMovieVideos(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch movie videos. (${response.status}:${response.statusText})`,
+      `Failed to fetch movie videos. (${response.status}:${response.statusText})`
     );
   }
 
@@ -226,7 +228,7 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch similar movies. (${response.status}:${response.statusText})`,
+      `Failed to fetch similar movies. (${response.status}:${response.statusText})`
     );
   }
 
@@ -238,7 +240,7 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
     results: result.results
       ?.filter(
         (movie): movie is typeof movie & { id: number } =>
-          movie.id !== undefined,
+          movie.id !== undefined
       )
       ?.map(
         (movie) =>
@@ -247,14 +249,14 @@ export const fetchSimilarMovies = cache(async function fetchSimilarMovies({
             title: movie.title,
             posterPath: movie.poster_path,
             rating: movie.vote_average,
-          }) satisfies MediaListItem,
+          }) satisfies MediaListItem
       ),
   };
 });
 
 /** Fetch list of TV shows */
 export const fetchTvShowList = cache(async function fetchTvShowList(
-  params: Partial<z.infer<typeof discoverTvQueryParams>>,
+  params: Partial<z.infer<typeof discoverTvQueryParams>>
 ) {
   const validatedParams = discoverTvQueryParams.parse(params);
   const {
@@ -290,7 +292,7 @@ export const fetchTvShowList = cache(async function fetchTvShowList(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TV shows. (${response.status}:${response.statusText})`,
+      `Failed to fetch TV shows. (${response.status}:${response.statusText})`
     );
   }
 
@@ -300,7 +302,7 @@ export const fetchTvShowList = cache(async function fetchTvShowList(
     results: result.results
       ?.filter(
         (tvShow): tvShow is typeof tvShow & { id: number } =>
-          tvShow.id !== undefined,
+          tvShow.id !== undefined
       )
       ?.map(
         (tvShow) =>
@@ -309,7 +311,7 @@ export const fetchTvShowList = cache(async function fetchTvShowList(
             title: tvShow.name,
             posterPath: tvShow.poster_path,
             rating: tvShow.vote_average,
-          }) satisfies MediaListItem,
+          }) satisfies MediaListItem
       ),
   };
 });
@@ -335,7 +337,7 @@ export const fetchTvShowGenres = cache(async function fetchTvShowGenres({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TV show genres. (${response.status}:${response.statusText})`,
+      `Failed to fetch TV show genres. (${response.status}:${response.statusText})`
     );
   }
 
@@ -344,7 +346,7 @@ export const fetchTvShowGenres = cache(async function fetchTvShowGenres({
 
 export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
   seriesId: string,
-  { language }: z.infer<typeof tvSeriesDetailsQueryParams>,
+  { language }: z.infer<typeof tvSeriesDetailsQueryParams>
 ) {
   const url = buildTmdbUrl({
     baseUrl: `${BASE_URL}/3/tv/${seriesId}`,
@@ -364,7 +366,7 @@ export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TV show details. (${response.status}:${response.statusText})`,
+      `Failed to fetch TV show details. (${response.status}:${response.statusText})`
     );
   }
 
@@ -372,7 +374,7 @@ export const fetchTvShowDetails = cache(async function fetchTvShowDetails(
 });
 
 export const fetchTvShowVideos = cache(async function fetchTvShowVideos(
-  seriesId: string,
+  seriesId: string
 ) {
   const url = buildTmdbUrl({ baseUrl: `${BASE_URL}/3/tv/${seriesId}/videos` });
 
@@ -389,7 +391,7 @@ export const fetchTvShowVideos = cache(async function fetchTvShowVideos(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch TV show videos. (${response.status}:${response.statusText})`,
+      `Failed to fetch TV show videos. (${response.status}:${response.statusText})`
     );
   }
 
@@ -419,7 +421,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch similar TV shows. (${response.status}:${response.statusText})`,
+      `Failed to fetch similar TV shows. (${response.status}:${response.statusText})`
     );
   }
 
@@ -431,7 +433,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
     results: result.results
       ?.filter(
         (tvShow): tvShow is typeof tvShow & { id: number } =>
-          tvShow.id !== undefined,
+          tvShow.id !== undefined
       )
       ?.map(
         (tvShow) =>
@@ -440,7 +442,7 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
             title: tvShow.name,
             posterPath: tvShow.poster_path,
             rating: tvShow.vote_average,
-          }) satisfies MediaListItem,
+          }) satisfies MediaListItem
       ),
   };
 });
