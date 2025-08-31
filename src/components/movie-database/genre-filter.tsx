@@ -44,29 +44,27 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
       <div>
         {!hideTitle && <MenuLabel>{t("genre")}</MenuLabel>}
         <div css={styles.genreList}>
-          {allGenres
-            ?.filter((genre) => genre.id != null)
-            .map((genre) => {
-              const idString = genre.id!.toString();
-              const isActive = genres.has(idString);
-              return (
-                <AnchorButton
-                  key={genre.id}
-                  href={toggleGenreUrl(idString)}
-                  isActive={isActive}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleGenre(idString);
-                  }}
-                  rel="nofollow"
-                  replace
-                  shallow
-                  bright
-                >
-                  {genre.name}
-                </AnchorButton>
-              );
-            })}
+          {allGenres?.map((genre) => {
+            const idString = genre.id.toString();
+            const isActive = genres.has(idString);
+            return (
+              <AnchorButton
+                key={genre.id}
+                href={toggleGenreUrl(idString)}
+                isActive={isActive}
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleGenre(idString);
+                }}
+                rel="nofollow"
+                replace
+                shallow
+                bright
+              >
+                {genre.name}
+              </AnchorButton>
+            );
+          })}
         </div>
       </div>
 
