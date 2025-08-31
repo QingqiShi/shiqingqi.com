@@ -33,6 +33,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "1.2.0",
     "next": "15.4.2",
+    "openai": "^5.16.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-error-boundary": "^5.0.0",
