@@ -5,6 +5,7 @@ import type { ResponseInput } from "openai/resources/responses/responses.mjs";
 import "server-only";
 import { z } from "zod";
 import type { SupportedLocale } from "@/types";
+import { fetchMovieGenres, fetchTvShowGenres } from "@/utils/tmdb-api";
 import type { MediaListItem } from "@/utils/types";
 import { OPENAI_MODEL, openaiClient } from "./client";
 import { availableTools, executeToolCall } from "./tools";
@@ -27,7 +28,7 @@ interface AgentResponse {
   error?: string;
 }
 
-function getSystemInstructions(locale: SupportedLocale): string {
+async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
   const instructionsPath = join(
     process.cwd(),
     "src",
@@ -41,11 +42,45 @@ function getSystemInstructions(locale: SupportedLocale): string {
   const currentMonth = now.toLocaleString("en-US", { month: "long" });
   const currentDate = now.toISOString().split("T")[0];
 
+  // Fetch genre lists from TMDB
+  let movieGenres = "";
+  let tvGenres = "";
+
+  try {
+    const [movieGenreResponse, tvGenreResponse] = await Promise.all([
+      fetchMovieGenres({ language: locale }),
+      fetchTvShowGenres({ language: locale }),
+    ]);
+
+    // Format movie genres
+    if (movieGenreResponse.genres) {
+      movieGenres = movieGenreResponse.genres
+        .map((genre) => `${genre.name} (${genre.id})`)
+        .join(", ");
+    }
+
+    // Format TV genres
+    if (tvGenreResponse.genres) {
+      tvGenres = tvGenreResponse.genres
+        .map((genre) => `${genre.name} (${genre.id})`)
+        .join(", ");
+    }
+  } catch (error) {
+    console.error("Failed to fetch genres:", error);
+    // Fallback to hardcoded genres if API fails
+    movieGenres =
+      "Action (28), Adventure (12), Animation (16), Comedy (35), Crime (80), Documentary (99), Drama (18), Family (10751), Fantasy (14), History (36), Horror (27), Music (10402), Mystery (9648), Romance (10749), Science Fiction (878), TV Movie (10770), Thriller (53), War (10752), Western (37)";
+    tvGenres =
+      "Action & Adventure (10759), Animation (16), Comedy (35), Crime (80), Documentary (99), Drama (18), Family (10751), Kids (10762), Mystery (9648), News (10763), Reality (10764), Sci-Fi & Fantasy (10765), Soap (10766), Talk (10767), War & Politics (10768), Western (37)";
+  }
+
   return template
     .replace("{currentDate}", currentDate)
     .replace("{locale}", locale)
     .replace("{currentMonth}", currentMonth)
-    .replace("{currentYear}", currentYear.toString());
+    .replace("{currentYear}", currentYear.toString())
+    .replace("{movieGenres}", movieGenres)
+    .replace("{tvGenres}", tvGenres);
 }
 
 export async function agent(
@@ -53,7 +88,7 @@ export async function agent(
   locale: SupportedLocale = "en",
 ): Promise<AgentResponse> {
   try {
-    const instructions = getSystemInstructions(locale);
+    const instructions = await getSystemInstructions(locale);
     const initialMessages = [
       {
         role: "developer" as const,
