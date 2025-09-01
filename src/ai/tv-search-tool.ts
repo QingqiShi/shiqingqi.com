@@ -1,0 +1,46 @@
+import "server-only";
+import { zodResponsesFunction } from "openai/helpers/zod";
+import { operationsSchema } from "@/_generated/tmdb-zod";
+import type { paths } from "@/_generated/tmdbV3";
+import { searchTvShowsByTitle } from "@/utils/tmdb-api";
+
+// Extract Zod schema from generated schemas
+const tvSearchSchema =
+  operationsSchema.shape["search-tv"].shape.parameters.shape.query;
+
+// Type definition for tool parameters (using existing generated types)
+type TvSearchParams = NonNullable<
+  paths["/3/search/tv"]["get"]["parameters"]["query"]
+>;
+
+// OpenAI Function Tool Definition using zodResponsesFunction helper
+export const searchTvShowsByTitleTool = zodResponsesFunction({
+  name: "search_tv_shows_by_title",
+  description:
+    "Search for specific TV shows by their title, original title, or also known as names. Use this when users ask for a specific TV show name or want to find shows with particular titles.",
+  parameters: tvSearchSchema,
+});
+
+// Tool execution function - maps tool call to actual TMDB API function
+export async function executeTvSearchToolCall(toolCall: {
+  name: string;
+  arguments: string;
+  call_id: string;
+}): Promise<{ call_id: string; result: unknown }> {
+  if (toolCall.name !== "search_tv_shows_by_title") {
+    throw new Error(`Unknown tool: ${toolCall.name}`);
+  }
+
+  const args = JSON.parse(toolCall.arguments) as Record<string, unknown>;
+
+  // Parse and validate with Zod schema
+  const validatedParams = tvSearchSchema.parse(args);
+  const tvResults = await searchTvShowsByTitle(
+    validatedParams as TvSearchParams,
+  );
+
+  return {
+    call_id: toolCall.call_id,
+    result: tvResults,
+  };
+}

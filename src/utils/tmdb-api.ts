@@ -182,3 +182,31 @@ export const fetchSimilarTvShows = cache(async function fetchSimilarTvShows({
     paths["/3/tv/{series_id}/similar"]["get"]["responses"]["200"]["content"]["application/json"]
   >(url, "Failed to fetch similar TV shows.");
 });
+
+/** Search for movies by title */
+export const searchMoviesByTitle = cache(async function searchMoviesByTitle(
+  params: NonNullable<paths["/3/search/movie"]["get"]["parameters"]["query"]>,
+) {
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/search/movie`,
+    params,
+  });
+
+  return tmdbFetch<
+    paths["/3/search/movie"]["get"]["responses"]["200"]["content"]["application/json"]
+  >(url, "Failed to search movies.");
+});
+
+/** Search for TV shows by title */
+export const searchTvShowsByTitle = cache(async function searchTvShowsByTitle(
+  params: NonNullable<paths["/3/search/tv"]["get"]["parameters"]["query"]>,
+) {
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}/3/search/tv`,
+    params,
+  });
+
+  return tmdbFetch<
+    paths["/3/search/tv"]["get"]["responses"]["200"]["content"]["application/json"]
+  >(url, "Failed to search TV shows.");
+});
