@@ -30,7 +30,7 @@ export function MediaCard({ media, mediaType, allowFollow }: MediaCardProps) {
     <Card
       href={href}
       css={styles.card}
-      aria-label={media.title}
+      aria-label={media.title ?? undefined}
       rel={allowFollow ? undefined : "nofollow"}
     >
       <div css={styles.posterContainer}>

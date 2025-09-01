@@ -5,9 +5,9 @@ export type Configuration =
 
 export type MediaListItem = {
   id: number;
-  title?: string;
-  posterPath?: string;
-  rating?: number;
+  title?: string | null;
+  posterPath?: string | null;
+  rating?: number | null;
 };
 
 export type Genre = NonNullable<
