@@ -66,6 +66,13 @@ queryFn: ({ pageParam }) => fetchMovieList({ ...params, page: pageParam });
 - Can omit useEffect dependency arrays when using `@inferEffectDependencies` - React Compiler infers them
 - Avoid manual memoization patterns
 
+**TypeScript:**
+
+- **⚠️ CRITICAL: NEVER EVER use the `any` type unless for complex type utilities**
+- **⚠️ CRITICAL: We should almost never need type assertions (`as Type`)**
+- Always use proper TypeScript types, unions, generics, and proper type guards
+- Prefer strict typing and let TypeScript infer types naturally
+
 ## Testing Setup (Vitest)
 
 ### Unique Configuration Aspects
