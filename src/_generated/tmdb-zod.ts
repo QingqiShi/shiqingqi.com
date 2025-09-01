@@ -6,18 +6,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z.object({
         query: z.string(),
-        include_adult: z.boolean().optional(),
-        language: z.string().optional(),
-        primary_release_year: z.string().optional(),
-        page: z.number().optional(),
-        region: z.string().optional(),
-        year: z.string().optional(),
+        include_adult: z.boolean().nullable().optional(),
+        language: z.string().nullable().optional(),
+        primary_release_year: z.string().nullable().optional(),
+        page: z.number().nullable().optional(),
+        region: z.string().nullable().optional(),
+        year: z.string().nullable().optional(),
       }),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -29,21 +29,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -59,32 +60,36 @@ export const operationsSchema = z.object({
         .object({
           certification: z
             .string()
+            .nullable()
             .optional()
             .describe("use in conjunction with `region`"),
           "certification.gte": z
             .string()
+            .nullable()
             .optional()
             .describe("use in conjunction with `region`"),
           "certification.lte": z
             .string()
+            .nullable()
             .optional()
             .describe("use in conjunction with `region`"),
           certification_country: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "use in conjunction with the `certification`, `certification.gte` and `certification.lte` filters",
             ),
-          include_adult: z.boolean().optional(),
-          include_video: z.boolean().optional(),
-          language: z.string().optional(),
-          page: z.number().optional(),
-          primary_release_year: z.number().optional(),
-          "primary_release_date.gte": z.string().optional(),
-          "primary_release_date.lte": z.string().optional(),
-          region: z.string().optional(),
-          "release_date.gte": z.string().optional(),
-          "release_date.lte": z.string().optional(),
+          include_adult: z.boolean().nullable().optional(),
+          include_video: z.boolean().nullable().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          primary_release_year: z.number().nullable().optional(),
+          "primary_release_date.gte": z.string().nullable().optional(),
+          "primary_release_date.lte": z.string().nullable().optional(),
+          region: z.string().nullable().optional(),
+          "release_date.gte": z.string().nullable().optional(),
+          "release_date.lte": z.string().nullable().optional(),
           sort_by: z
             .union([
               z.literal("original_title.asc"),
@@ -102,75 +107,87 @@ export const operationsSchema = z.object({
               z.literal("vote_count.asc"),
               z.literal("vote_count.desc"),
             ])
+            .nullable()
             .optional(),
-          "vote_average.gte": z.number().optional(),
-          "vote_average.lte": z.number().optional(),
-          "vote_count.gte": z.number().optional(),
-          "vote_count.lte": z.number().optional(),
+          "vote_average.gte": z.number().nullable().optional(),
+          "vote_average.lte": z.number().nullable().optional(),
+          "vote_count.gte": z.number().nullable().optional(),
+          "vote_count.lte": z.number().nullable().optional(),
           watch_region: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "use in conjunction with `with_watch_monetization_types ` or `with_watch_providers `",
             ),
           with_cast: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
           with_companies: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
           with_crew: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
           with_genres: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
           with_keywords: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
-          with_origin_country: z.string().optional(),
-          with_original_language: z.string().optional(),
+          with_origin_country: z.string().nullable().optional(),
+          with_original_language: z.string().nullable().optional(),
           with_people: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
           with_release_type: z
             .number()
+            .nullable()
             .optional()
             .describe(
               "possible values are: [1, 2, 3, 4, 5, 6] can be a comma (`AND`) or pipe (`OR`) separated query, can be used in conjunction with `region`",
             ),
-          "with_runtime.gte": z.number().optional(),
-          "with_runtime.lte": z.number().optional(),
+          "with_runtime.gte": z.number().nullable().optional(),
+          "with_runtime.lte": z.number().nullable().optional(),
           with_watch_monetization_types: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "possible values are: [flatrate, free, ads, rent, buy] use in conjunction with `watch_region`, can be a comma (`AND`) or pipe (`OR`) separated query",
             ),
           with_watch_providers: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "use in conjunction with `watch_region`, can be a comma (`AND`) or pipe (`OR`) separated query",
             ),
-          without_companies: z.string().optional(),
-          without_genres: z.string().optional(),
-          without_keywords: z.string().optional(),
-          without_watch_providers: z.string().optional(),
-          year: z.number().optional(),
+          without_companies: z.string().nullable().optional(),
+          without_genres: z.string().nullable().optional(),
+          without_keywords: z.string().nullable().optional(),
+          without_watch_providers: z.string().nullable().optional(),
+          year: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -182,21 +199,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -212,20 +230,22 @@ export const operationsSchema = z.object({
         .object({
           append_to_response: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "comma separated list of endpoints within this namespace, 20 items max",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -233,58 +253,62 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               adult: z.boolean().default(true),
-              backdrop_path: z.string().optional(),
-              belongs_to_collection: z.unknown().optional(),
+              backdrop_path: z.string().nullable().optional(),
+              belongs_to_collection: z.unknown().nullable().optional(),
               budget: z.number().default(0),
               genres: z
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    name: z.string().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
-              homepage: z.string().optional(),
+              homepage: z.string().nullable().optional(),
               id: z.number().default(0),
-              imdb_id: z.string().optional(),
-              original_language: z.string().optional(),
-              original_title: z.string().optional(),
-              overview: z.string().optional(),
+              imdb_id: z.string().nullable().optional(),
+              original_language: z.string().nullable().optional(),
+              original_title: z.string().nullable().optional(),
+              overview: z.string().nullable().optional(),
               popularity: z.number().default(0),
-              poster_path: z.string().optional(),
+              poster_path: z.string().nullable().optional(),
               production_companies: z
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    logo_path: z.string().optional(),
-                    name: z.string().optional(),
-                    origin_country: z.string().optional(),
+                    logo_path: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               production_countries: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
-              release_date: z.string().optional(),
+              release_date: z.string().nullable().optional(),
               revenue: z.number().default(0),
               runtime: z.number().default(0),
               spoken_languages: z
                 .array(
                   z.object({
-                    english_name: z.string().optional(),
-                    iso_639_1: z.string().optional(),
-                    name: z.string().optional(),
+                    english_name: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
-              status: z.string().optional(),
-              tagline: z.string().optional(),
-              title: z.string().optional(),
+              status: z.string().nullable().optional(),
+              tagline: z.string().nullable().optional(),
+              title: z.string().nullable().optional(),
               video: z.boolean().default(true),
               vote_average: z.number().default(0),
               vote_count: z.number().default(0),
@@ -300,20 +324,22 @@ export const operationsSchema = z.object({
         .object({
           append_to_response: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "comma separated list of endpoints within this namespace, 20 items max",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -321,113 +347,121 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               adult: z.boolean().default(true),
-              backdrop_path: z.string().optional(),
+              backdrop_path: z.string().nullable().optional(),
               created_by: z
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    credit_id: z.string().optional(),
-                    name: z.string().optional(),
+                    credit_id: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     gender: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
-              episode_run_time: z.array(z.number()).optional(),
-              first_air_date: z.string().optional(),
+              episode_run_time: z.array(z.number()).nullable().optional(),
+              first_air_date: z.string().nullable().optional(),
               genres: z
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    name: z.string().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
-              homepage: z.string().optional(),
+              homepage: z.string().nullable().optional(),
               id: z.number().default(0),
               in_production: z.boolean().default(true),
-              languages: z.array(z.string()).optional(),
-              last_air_date: z.string().optional(),
+              languages: z.array(z.string()).nullable().optional(),
+              last_air_date: z.string().nullable().optional(),
               last_episode_to_air: z
                 .object({
                   id: z.number().default(0),
-                  name: z.string().optional(),
-                  overview: z.string().optional(),
+                  name: z.string().nullable().optional(),
+                  overview: z.string().nullable().optional(),
                   vote_average: z.number().default(0),
                   vote_count: z.number().default(0),
-                  air_date: z.string().optional(),
+                  air_date: z.string().nullable().optional(),
                   episode_number: z.number().default(0),
-                  production_code: z.string().optional(),
+                  production_code: z.string().nullable().optional(),
                   runtime: z.number().default(0),
                   season_number: z.number().default(0),
                   show_id: z.number().default(0),
-                  still_path: z.string().optional(),
+                  still_path: z.string().nullable().optional(),
                 })
+                .nullable()
                 .optional(),
-              name: z.string().optional(),
-              next_episode_to_air: z.unknown().optional(),
+              name: z.string().nullable().optional(),
+              next_episode_to_air: z.unknown().nullable().optional(),
               networks: z
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    logo_path: z.string().optional(),
-                    name: z.string().optional(),
-                    origin_country: z.string().optional(),
+                    logo_path: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               number_of_episodes: z.number().default(0),
               number_of_seasons: z.number().default(0),
-              origin_country: z.array(z.string()).optional(),
-              original_language: z.string().optional(),
-              original_name: z.string().optional(),
-              overview: z.string().optional(),
+              origin_country: z.array(z.string()).nullable().optional(),
+              original_language: z.string().nullable().optional(),
+              original_name: z.string().nullable().optional(),
+              overview: z.string().nullable().optional(),
               popularity: z.number().default(0),
-              poster_path: z.string().optional(),
+              poster_path: z.string().nullable().optional(),
               production_companies: z
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    logo_path: z.string().optional(),
-                    name: z.string().optional(),
-                    origin_country: z.string().optional(),
+                    logo_path: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               production_countries: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               seasons: z
                 .array(
                   z.object({
-                    air_date: z.string().optional(),
+                    air_date: z.string().nullable().optional(),
                     episode_count: z.number().default(0),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
                     season_number: z.number().default(0),
                     vote_average: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               spoken_languages: z
                 .array(
                   z.object({
-                    english_name: z.string().optional(),
-                    iso_639_1: z.string().optional(),
-                    name: z.string().optional(),
+                    english_name: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
-              status: z.string().optional(),
-              tagline: z.string().optional(),
-              type: z.string().optional(),
+              status: z.string().nullable().optional(),
+              tagline: z.string().nullable().optional(),
+              type: z.string().nullable().optional(),
               vote_average: z.number().default(0),
               vote_count: z.number().default(0),
             }),
@@ -442,25 +476,27 @@ export const operationsSchema = z.object({
         query: z.string(),
         first_air_date_year: z
           .number()
+          .nullable()
           .optional()
           .describe(
             "Search only the first air date. Valid values are: 1000..9999",
           ),
-        include_adult: z.boolean().optional(),
-        language: z.string().optional(),
-        page: z.number().optional(),
+        include_adult: z.boolean().nullable().optional(),
+        language: z.string().nullable().optional(),
+        page: z.number().nullable().optional(),
         year: z
           .number()
+          .nullable()
           .optional()
           .describe(
             "Search the first air date and all episode air dates. Valid values are: 1000..9999",
           ),
       }),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -472,21 +508,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    name: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -500,15 +537,15 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z.object({
         query: z.string(),
-        include_adult: z.boolean().optional(),
-        language: z.string().optional(),
-        page: z.number().optional(),
+        include_adult: z.boolean().nullable().optional(),
+        language: z.string().nullable().optional(),
+        page: z.number().nullable().optional(),
       }),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -520,22 +557,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
+                    backdrop_path: z.string().nullable().optional(),
                     id: z.number().default(0),
-                    title: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
-                    media_type: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    title: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     popularity: z.number().default(0),
-                    release_date: z.string().optional(),
+                    release_date: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -549,15 +587,15 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z.object({
         query: z.string(),
-        include_adult: z.boolean().optional(),
-        language: z.string().optional(),
-        page: z.number().optional(),
+        include_adult: z.boolean().nullable().optional(),
+        language: z.string().nullable().optional(),
+        page: z.number().nullable().optional(),
       }),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -571,34 +609,36 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                     known_for: z
                       .array(
                         z.object({
                           adult: z.boolean().default(true),
-                          backdrop_path: z.string().optional(),
+                          backdrop_path: z.string().nullable().optional(),
                           id: z.number().default(0),
-                          title: z.string().optional(),
-                          original_language: z.string().optional(),
-                          original_title: z.string().optional(),
-                          overview: z.string().optional(),
-                          poster_path: z.string().optional(),
-                          media_type: z.string().optional(),
-                          genre_ids: z.array(z.number()).optional(),
+                          title: z.string().nullable().optional(),
+                          original_language: z.string().nullable().optional(),
+                          original_title: z.string().nullable().optional(),
+                          overview: z.string().nullable().optional(),
+                          poster_path: z.string().nullable().optional(),
+                          media_type: z.string().nullable().optional(),
+                          genre_ids: z.array(z.number()).nullable().optional(),
                           popularity: z.number().default(0),
-                          release_date: z.string().optional(),
+                          release_date: z.string().nullable().optional(),
                           video: z.boolean().default(true),
                           vote_average: z.number().default(0),
                           vote_count: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -610,12 +650,12 @@ export const operationsSchema = z.object({
   }),
   "configuration-details": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -624,16 +664,17 @@ export const operationsSchema = z.object({
             "application/json": z.object({
               images: z
                 .object({
-                  base_url: z.string().optional(),
-                  secure_base_url: z.string().optional(),
-                  backdrop_sizes: z.array(z.string()).optional(),
-                  logo_sizes: z.array(z.string()).optional(),
-                  poster_sizes: z.array(z.string()).optional(),
-                  profile_sizes: z.array(z.string()).optional(),
-                  still_sizes: z.array(z.string()).optional(),
+                  base_url: z.string().nullable().optional(),
+                  secure_base_url: z.string().nullable().optional(),
+                  backdrop_sizes: z.array(z.string()).nullable().optional(),
+                  logo_sizes: z.array(z.string()).nullable().optional(),
+                  poster_sizes: z.array(z.string()).nullable().optional(),
+                  profile_sizes: z.array(z.string()).nullable().optional(),
+                  still_sizes: z.array(z.string()).nullable().optional(),
                 })
+                .nullable()
                 .optional(),
-              change_keys: z.array(z.string()).optional(),
+              change_keys: z.array(z.string()).nullable().optional(),
             }),
           }),
         })
@@ -646,85 +687,96 @@ export const operationsSchema = z.object({
         .object({
           append_to_response: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "comma separated list of endpoints within this namespace, 20 items max",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              _id: z.string().optional(),
-              air_date: z.string().optional(),
+              _id: z.string().nullable().optional(),
+              air_date: z.string().nullable().optional(),
               episodes: z
                 .array(
                   z.object({
-                    air_date: z.string().optional(),
+                    air_date: z.string().nullable().optional(),
                     episode_number: z.number().default(0),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    overview: z.string().optional(),
-                    production_code: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    production_code: z.string().nullable().optional(),
                     runtime: z.number().default(0),
                     season_number: z.number().default(0),
                     show_id: z.number().default(0),
-                    still_path: z.string().optional(),
+                    still_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     crew: z
                       .array(
                         z.object({
-                          department: z.string().optional(),
-                          job: z.string().optional(),
-                          credit_id: z.string().optional(),
+                          department: z.string().nullable().optional(),
+                          job: z.string().nullable().optional(),
+                          credit_id: z.string().nullable().optional(),
                           adult: z.boolean().default(true),
                           gender: z.number().default(0),
                           id: z.number().default(0),
-                          known_for_department: z.string().optional(),
-                          name: z.string().optional(),
-                          original_name: z.string().optional(),
+                          known_for_department: z
+                            .string()
+                            .nullable()
+                            .optional(),
+                          name: z.string().nullable().optional(),
+                          original_name: z.string().nullable().optional(),
                           popularity: z.number().default(0),
-                          profile_path: z.string().optional(),
+                          profile_path: z.string().nullable().optional(),
                         }),
                       )
+                      .nullable()
                       .optional(),
                     guest_stars: z
                       .array(
                         z.object({
-                          character: z.string().optional(),
-                          credit_id: z.string().optional(),
+                          character: z.string().nullable().optional(),
+                          credit_id: z.string().nullable().optional(),
                           order: z.number().default(0),
                           adult: z.boolean().default(true),
                           gender: z.number().default(0),
                           id: z.number().default(0),
-                          known_for_department: z.string().optional(),
-                          name: z.string().optional(),
-                          original_name: z.string().optional(),
+                          known_for_department: z
+                            .string()
+                            .nullable()
+                            .optional(),
+                          name: z.string().nullable().optional(),
+                          original_name: z.string().nullable().optional(),
                           popularity: z.number().default(0),
-                          profile_path: z.string().optional(),
+                          profile_path: z.string().nullable().optional(),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
-              name: z.string().optional(),
-              overview: z.string().optional(),
+              name: z.string().nullable().optional(),
+              overview: z.string().nullable().optional(),
               id: z.number().default(0),
-              poster_path: z.string().optional(),
+              poster_path: z.string().nullable().optional(),
               season_number: z.number().default(0),
               vote_average: z.number().default(0),
             }),
@@ -739,71 +791,75 @@ export const operationsSchema = z.object({
         .object({
           append_to_response: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "comma separated list of endpoints within this namespace, 20 items max",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
         episode_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              air_date: z.string().optional(),
+              air_date: z.string().nullable().optional(),
               crew: z
                 .array(
                   z.object({
-                    department: z.string().optional(),
-                    job: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    department: z.string().nullable().optional(),
+                    job: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               episode_number: z.number().default(0),
               guest_stars: z
                 .array(
                   z.object({
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     order: z.number().default(0),
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
-              name: z.string().optional(),
-              overview: z.string().optional(),
+              name: z.string().nullable().optional(),
+              overview: z.string().nullable().optional(),
               id: z.number().default(0),
-              production_code: z.string().optional(),
+              production_code: z.string().nullable().optional(),
               runtime: z.number().default(0),
               season_number: z.number().default(0),
-              still_path: z.string().optional(),
+              still_path: z.string().nullable().optional(),
               vote_average: z.number().default(0),
               vote_count: z.number().default(0),
             }),
@@ -816,16 +872,16 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          "air_date.gte": z.string().optional(),
-          "air_date.lte": z.string().optional(),
-          first_air_date_year: z.number().optional(),
-          "first_air_date.gte": z.string().optional(),
-          "first_air_date.lte": z.string().optional(),
-          include_adult: z.boolean().optional(),
-          include_null_first_air_dates: z.boolean().optional(),
-          language: z.string().optional(),
-          page: z.number().optional(),
-          screened_theatrically: z.boolean().optional(),
+          "air_date.gte": z.string().nullable().optional(),
+          "air_date.lte": z.string().nullable().optional(),
+          first_air_date_year: z.number().nullable().optional(),
+          "first_air_date.gte": z.string().nullable().optional(),
+          "first_air_date.lte": z.string().nullable().optional(),
+          include_adult: z.boolean().nullable().optional(),
+          include_null_first_air_dates: z.boolean().nullable().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          screened_theatrically: z.boolean().nullable().optional(),
           sort_by: z
             .union([
               z.literal("first_air_date.asc"),
@@ -841,70 +897,80 @@ export const operationsSchema = z.object({
               z.literal("vote_count.asc"),
               z.literal("vote_count.desc"),
             ])
+            .nullable()
             .optional(),
-          timezone: z.string().optional(),
-          "vote_average.gte": z.number().optional(),
-          "vote_average.lte": z.number().optional(),
-          "vote_count.gte": z.number().optional(),
-          "vote_count.lte": z.number().optional(),
+          timezone: z.string().nullable().optional(),
+          "vote_average.gte": z.number().nullable().optional(),
+          "vote_average.lte": z.number().nullable().optional(),
+          "vote_count.gte": z.number().nullable().optional(),
+          "vote_count.lte": z.number().nullable().optional(),
           watch_region: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "use in conjunction with `with_watch_monetization_types ` or `with_watch_providers `",
             ),
           with_companies: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
           with_genres: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
           with_keywords: z
             .string()
+            .nullable()
             .optional()
             .describe("can be a comma (`AND`) or pipe (`OR`) separated query"),
-          with_networks: z.number().optional(),
-          with_origin_country: z.string().optional(),
-          with_original_language: z.string().optional(),
-          "with_runtime.gte": z.number().optional(),
-          "with_runtime.lte": z.number().optional(),
+          with_networks: z.number().nullable().optional(),
+          with_origin_country: z.string().nullable().optional(),
+          with_original_language: z.string().nullable().optional(),
+          "with_runtime.gte": z.number().nullable().optional(),
+          "with_runtime.lte": z.number().nullable().optional(),
           with_status: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "possible values are: [0, 1, 2, 3, 4, 5], can be a comma (`AND`) or pipe (`OR`) separated query",
             ),
           with_watch_monetization_types: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "possible values are: [flatrate, free, ads, rent, buy] use in conjunction with `watch_region`, can be a comma (`AND`) or pipe (`OR`) separated query",
             ),
           with_watch_providers: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "use in conjunction with `watch_region`, can be a comma (`AND`) or pipe (`OR`) separated query",
             ),
-          without_companies: z.string().optional(),
-          without_genres: z.string().optional(),
-          without_keywords: z.string().optional(),
-          without_watch_providers: z.string().optional(),
+          without_companies: z.string().nullable().optional(),
+          without_genres: z.string().nullable().optional(),
+          without_keywords: z.string().nullable().optional(),
+          without_watch_providers: z.string().nullable().optional(),
           with_type: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "possible values are: [0, 1, 2, 3, 4, 5, 6], can be a comma (`AND`) or pipe (`OR`) separated query",
             ),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -915,21 +981,22 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    backdrop_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -945,20 +1012,22 @@ export const operationsSchema = z.object({
         .object({
           include_image_language: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "specify a comma separated list of ISO-639-1 values to query, for example: `en,null`",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -970,13 +1039,14 @@ export const operationsSchema = z.object({
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.unknown().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.unknown().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
               logos: z
@@ -984,26 +1054,28 @@ export const operationsSchema = z.object({
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               posters: z
                 .array(
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1017,20 +1089,22 @@ export const operationsSchema = z.object({
         .object({
           include_image_language: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "specify a comma separated list of ISO-639-1 values to query, for example: `en,null`",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1042,13 +1116,14 @@ export const operationsSchema = z.object({
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.unknown().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.unknown().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
               logos: z
@@ -1056,26 +1131,28 @@ export const operationsSchema = z.object({
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               posters: z
                 .array(
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1089,21 +1166,23 @@ export const operationsSchema = z.object({
         .object({
           include_image_language: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "specify a comma separated list of ISO-639-1 values to query, for example: `en,null`",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1116,13 +1195,14 @@ export const operationsSchema = z.object({
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1136,22 +1216,24 @@ export const operationsSchema = z.object({
         .object({
           include_image_language: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "specify a comma separated list of ISO-639-1 values to query, for example: `en,null`",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
         episode_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1164,13 +1246,14 @@ export const operationsSchema = z.object({
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.unknown().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.unknown().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1184,17 +1267,19 @@ export const operationsSchema = z.object({
         .object({
           language: z
             .string()
+            .nullable()
             .optional()
             .describe("`ISO-639-1`-`ISO-3166-1` code"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         time_window: z.union([z.literal("day"), z.literal("week")]),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1206,22 +1291,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
+                    backdrop_path: z.string().nullable().optional(),
                     id: z.number().default(0),
-                    title: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
-                    media_type: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    title: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     popularity: z.number().default(0),
-                    release_date: z.string().optional(),
+                    release_date: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -1237,17 +1323,19 @@ export const operationsSchema = z.object({
         .object({
           language: z
             .string()
+            .nullable()
             .optional()
             .describe("`ISO-639-1`-`ISO-3166-1` code"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         time_window: z.union([z.literal("day"), z.literal("week")]),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1259,22 +1347,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
+                    backdrop_path: z.string().nullable().optional(),
                     id: z.number().default(0),
-                    title: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
-                    media_type: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    title: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     popularity: z.number().default(0),
-                    release_date: z.string().optional(),
+                    release_date: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -1290,17 +1379,19 @@ export const operationsSchema = z.object({
         .object({
           language: z
             .string()
+            .nullable()
             .optional()
             .describe("`ISO-639-1`-`ISO-3166-1` code"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         time_window: z.union([z.literal("day"), z.literal("week")]),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1312,22 +1403,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
+                    backdrop_path: z.string().nullable().optional(),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
-                    media_type: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    name: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     popularity: z.number().default(0),
-                    first_air_date: z.string().optional(),
+                    first_air_date: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -1341,17 +1433,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          session_id: z.string().optional(),
-          guest_session_id: z.string().optional(),
+          session_id: z.string().nullable().optional(),
+          guest_session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1364,6 +1457,7 @@ export const operationsSchema = z.object({
                 .object({
                   value: z.number().default(0),
                 })
+                .nullable()
                 .optional(),
               watchlist: z.boolean().default(true),
             }),
@@ -1376,17 +1470,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          session_id: z.string().optional(),
-          guest_session_id: z.string().optional(),
+          session_id: z.string().nullable().optional(),
+          guest_session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1399,6 +1494,7 @@ export const operationsSchema = z.object({
                 .object({
                   value: z.number().default(0),
                 })
+                .nullable()
                 .optional(),
               watchlist: z.boolean().default(true),
             }),
@@ -1411,19 +1507,20 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          session_id: z.string().optional(),
-          guest_session_id: z.string().optional(),
+          session_id: z.string().nullable().optional(),
+          guest_session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
         episode_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1436,6 +1533,7 @@ export const operationsSchema = z.object({
                 .object({
                   value: z.number().default(0),
                 })
+                .nullable()
                 .optional(),
               watchlist: z.boolean().default(true),
             }),
@@ -1450,17 +1548,19 @@ export const operationsSchema = z.object({
         .object({
           language: z
             .string()
+            .nullable()
             .optional()
             .describe("`ISO-639-1`-`ISO-3166-1` code"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         time_window: z.union([z.literal("day"), z.literal("week")]),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1473,36 +1573,38 @@ export const operationsSchema = z.object({
                   z.object({
                     adult: z.boolean().default(true),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
-                    media_type: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
                     popularity: z.number().default(0),
                     gender: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    profile_path: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    profile_path: z.string().nullable().optional(),
                     known_for: z
                       .array(
                         z.object({
                           adult: z.boolean().default(true),
-                          backdrop_path: z.string().optional(),
+                          backdrop_path: z.string().nullable().optional(),
                           id: z.number().default(0),
-                          title: z.string().optional(),
-                          original_language: z.string().optional(),
-                          original_title: z.string().optional(),
-                          overview: z.string().optional(),
-                          poster_path: z.string().optional(),
-                          media_type: z.string().optional(),
-                          genre_ids: z.array(z.number()).optional(),
+                          title: z.string().nullable().optional(),
+                          original_language: z.string().nullable().optional(),
+                          original_title: z.string().nullable().optional(),
+                          overview: z.string().nullable().optional(),
+                          poster_path: z.string().nullable().optional(),
+                          media_type: z.string().nullable().optional(),
+                          genre_ids: z.array(z.number()).nullable().optional(),
                           popularity: z.number().default(0),
-                          release_date: z.string().optional(),
+                          release_date: z.string().nullable().optional(),
                           video: z.boolean().default(true),
                           vote_average: z.number().default(0),
                           vote_count: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -1518,17 +1620,19 @@ export const operationsSchema = z.object({
         .object({
           country: z
             .string()
+            .nullable()
             .optional()
             .describe("specify a ISO-3166-1 value to filter the results"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1539,11 +1643,12 @@ export const operationsSchema = z.object({
               titles: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    title: z.string().optional(),
-                    type: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
+                    type: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1555,18 +1660,19 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          end_date: z.string().optional(),
-          page: z.number().optional(),
-          start_date: z.string().optional(),
+          end_date: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          start_date: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1576,29 +1682,33 @@ export const operationsSchema = z.object({
               changes: z
                 .array(
                   z.object({
-                    key: z.string().optional(),
+                    key: z.string().nullable().optional(),
                     items: z
                       .array(
                         z.object({
-                          id: z.string().optional(),
-                          action: z.string().optional(),
-                          time: z.string().optional(),
-                          iso_639_1: z.string().optional(),
-                          iso_3166_1: z.string().optional(),
+                          id: z.string().nullable().optional(),
+                          action: z.string().nullable().optional(),
+                          time: z.string().nullable().optional(),
+                          iso_639_1: z.string().nullable().optional(),
+                          iso_3166_1: z.string().nullable().optional(),
                           value: z
                             .object({
                               poster: z
                                 .object({
-                                  file_path: z.string().optional(),
+                                  file_path: z.string().nullable().optional(),
                                 })
+                                .nullable()
                                 .optional(),
                             })
+                            .nullable()
                             .optional(),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1610,16 +1720,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1633,17 +1744,18 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                     cast_id: z.number().default(0),
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     order: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
@@ -1651,16 +1763,17 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
-                    credit_id: z.string().optional(),
-                    department: z.string().optional(),
-                    job: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
+                    department: z.string().nullable().optional(),
+                    job: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1670,14 +1783,14 @@ export const operationsSchema = z.object({
   }),
   "movie-external-ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1685,11 +1798,11 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               id: z.number().default(0),
-              imdb_id: z.string().optional(),
-              wikidata_id: z.unknown().optional(),
-              facebook_id: z.string().optional(),
-              instagram_id: z.unknown().optional(),
-              twitter_id: z.unknown().optional(),
+              imdb_id: z.string().nullable().optional(),
+              wikidata_id: z.unknown().nullable().optional(),
+              facebook_id: z.string().nullable().optional(),
+              instagram_id: z.unknown().nullable().optional(),
+              twitter_id: z.unknown().nullable().optional(),
             }),
           }),
         })
@@ -1698,14 +1811,14 @@ export const operationsSchema = z.object({
   }),
   "movie-keywords": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1717,9 +1830,10 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    name: z.string().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1731,17 +1845,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1753,16 +1868,17 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    description: z.string().optional(),
+                    description: z.string().nullable().optional(),
                     favorite_count: z.number().default(0),
                     id: z.number().default(0),
                     item_count: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    list_type: z.string().optional(),
-                    name: z.string().optional(),
-                    poster_path: z.unknown().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    list_type: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    poster_path: z.unknown().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -1776,17 +1892,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1800,14 +1917,14 @@ export const operationsSchema = z.object({
   }),
   "movie-release-dates": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1818,21 +1935,26 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
                     release_dates: z
                       .array(
                         z.object({
-                          certification: z.string().optional(),
-                          descriptors: z.array(z.unknown()).optional(),
-                          iso_639_1: z.string().optional(),
-                          note: z.string().optional(),
-                          release_date: z.string().optional(),
+                          certification: z.string().nullable().optional(),
+                          descriptors: z
+                            .array(z.unknown())
+                            .nullable()
+                            .optional(),
+                          iso_639_1: z.string().nullable().optional(),
+                          note: z.string().nullable().optional(),
+                          release_date: z.string().nullable().optional(),
                           type: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1844,17 +1966,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1866,22 +1989,24 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    author: z.string().optional(),
+                    author: z.string().nullable().optional(),
                     author_details: z
                       .object({
-                        name: z.string().optional(),
-                        username: z.string().optional(),
-                        avatar_path: z.string().optional(),
-                        rating: z.unknown().optional(),
+                        name: z.string().nullable().optional(),
+                        username: z.string().nullable().optional(),
+                        avatar_path: z.string().nullable().optional(),
+                        rating: z.unknown().nullable().optional(),
                       })
+                      .nullable()
                       .optional(),
-                    content: z.string().optional(),
-                    created_at: z.string().optional(),
-                    id: z.string().optional(),
-                    updated_at: z.string().optional(),
-                    url: z.string().optional(),
+                    content: z.string().nullable().optional(),
+                    created_at: z.string().nullable().optional(),
+                    id: z.string().nullable().optional(),
+                    updated_at: z.string().nullable().optional(),
+                    url: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -1895,17 +2020,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1917,21 +2043,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -1943,14 +2070,14 @@ export const operationsSchema = z.object({
   }),
   "movie-translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -1961,21 +2088,23 @@ export const operationsSchema = z.object({
               translations: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    iso_639_1: z.string().optional(),
-                    name: z.string().optional(),
-                    english_name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    english_name: z.string().nullable().optional(),
                     data: z
                       .object({
-                        homepage: z.string().optional(),
-                        overview: z.string().optional(),
+                        homepage: z.string().nullable().optional(),
+                        overview: z.string().nullable().optional(),
                         runtime: z.number().default(0),
-                        tagline: z.string().optional(),
-                        title: z.string().optional(),
+                        tagline: z.string().nullable().optional(),
+                        title: z.string().nullable().optional(),
                       })
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -1987,16 +2116,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -2007,18 +2137,19 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    iso_639_1: z.string().optional(),
-                    iso_3166_1: z.string().optional(),
-                    name: z.string().optional(),
-                    key: z.string().optional(),
-                    site: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    key: z.string().nullable().optional(),
+                    site: z.string().nullable().optional(),
                     size: z.number().default(0),
-                    type: z.string().optional(),
+                    type: z.string().nullable().optional(),
                     official: z.boolean().default(true),
-                    published_at: z.string().optional(),
-                    id: z.string().optional(),
+                    published_at: z.string().nullable().optional(),
+                    id: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -2028,14 +2159,14 @@ export const operationsSchema = z.object({
   }),
   "movie-watch-providers": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -2047,2460 +2178,2754 @@ export const operationsSchema = z.object({
                 .object({
                   AE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CV: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   EC: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   EE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   EG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ES: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       ads: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   FI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   FJ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   FR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GF: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HN: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       ads: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ID: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IN: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IQ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   JM: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   JO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   JP: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   KR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   KW: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LV: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MD: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MX: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   OM: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   QA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SM: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SV: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TW: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   UG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   US: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   UY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   VE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   YE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ZA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                 })
+                .nullable()
                 .optional(),
             }),
           }),
@@ -4512,9 +4937,10 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          guest_session_id: z.string().optional(),
-          session_id: z.string().optional(),
+          guest_session_id: z.string().nullable().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       header: z.object({
         "Content-Type": z.string(),
@@ -4522,7 +4948,7 @@ export const operationsSchema = z.object({
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -4532,6 +4958,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -4540,7 +4967,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -4551,21 +4978,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          guest_session_id: z.string().optional(),
-          session_id: z.string().optional(),
+          guest_session_id: z.string().nullable().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       header: z
         .object({
-          "Content-Type": z.string().optional(),
+          "Content-Type": z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       path: z.object({
         movie_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4573,7 +5002,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -4582,12 +5011,12 @@ export const operationsSchema = z.object({
   }),
   "authentication-create-guest-session": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4595,8 +5024,8 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               success: z.boolean().default(true),
-              guest_session_id: z.string().optional(),
-              expires_at: z.string().optional(),
+              guest_session_id: z.string().nullable().optional(),
+              expires_at: z.string().nullable().optional(),
             }),
           }),
         })
@@ -4605,12 +5034,12 @@ export const operationsSchema = z.object({
   }),
   "authentication-create-request-token": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4618,8 +5047,8 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               success: z.boolean().default(true),
-              expires_at: z.string().optional(),
-              request_token: z.string().optional(),
+              expires_at: z.string().nullable().optional(),
+              request_token: z.string().nullable().optional(),
             }),
           }),
         })
@@ -4628,10 +5057,10 @@ export const operationsSchema = z.object({
   }),
   "authentication-create-session": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -4641,6 +5070,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -4649,7 +5079,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               success: z.boolean().default(true),
-              session_id: z.string().optional(),
+              session_id: z.string().nullable().optional(),
             }),
           }),
         })
@@ -4658,10 +5088,10 @@ export const operationsSchema = z.object({
   }),
   "authentication-create-session-from-v4-token": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -4671,6 +5101,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -4679,7 +5110,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               success: z.boolean().default(true),
-              session_id: z.string().optional(),
+              session_id: z.string().nullable().optional(),
             }),
           }),
         })
@@ -4688,10 +5119,10 @@ export const operationsSchema = z.object({
   }),
   "authentication-delete-session": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -4701,6 +5132,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -4729,15 +5161,15 @@ export const operationsSchema = z.object({
           z.literal("wikidata_id"),
           z.literal("youtube_id"),
         ]),
-        language: z.string().optional(),
+        language: z.string().nullable().optional(),
       }),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         external_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4748,27 +5180,28 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
+                    backdrop_path: z.string().nullable().optional(),
                     id: z.number().default(0),
-                    title: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
-                    media_type: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    title: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     popularity: z.number().default(0),
-                    release_date: z.string().optional(),
+                    release_date: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
-              person_results: z.array(z.unknown()).optional(),
-              tv_results: z.array(z.unknown()).optional(),
-              tv_episode_results: z.array(z.unknown()).optional(),
-              tv_season_results: z.array(z.unknown()).optional(),
+              person_results: z.array(z.unknown()).nullable().optional(),
+              tv_results: z.array(z.unknown()).nullable().optional(),
+              tv_episode_results: z.array(z.unknown()).nullable().optional(),
+              tv_season_results: z.array(z.unknown()).nullable().optional(),
             }),
           }),
         })
@@ -4781,20 +5214,22 @@ export const operationsSchema = z.object({
         .object({
           append_to_response: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "comma separated list of endpoints within this namespace, 20 items max",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4802,19 +5237,19 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               adult: z.boolean().default(true),
-              also_known_as: z.array(z.string()).optional(),
-              biography: z.string().optional(),
-              birthday: z.string().optional(),
-              deathday: z.unknown().optional(),
+              also_known_as: z.array(z.string()).nullable().optional(),
+              biography: z.string().nullable().optional(),
+              birthday: z.string().nullable().optional(),
+              deathday: z.unknown().nullable().optional(),
               gender: z.number().default(0),
-              homepage: z.unknown().optional(),
+              homepage: z.unknown().nullable().optional(),
               id: z.number().default(0),
-              imdb_id: z.string().optional(),
-              known_for_department: z.string().optional(),
-              name: z.string().optional(),
-              place_of_birth: z.string().optional(),
+              imdb_id: z.string().nullable().optional(),
+              known_for_department: z.string().nullable().optional(),
+              name: z.string().nullable().optional(),
+              place_of_birth: z.string().nullable().optional(),
               popularity: z.number().default(0),
-              profile_path: z.string().optional(),
+              profile_path: z.string().nullable().optional(),
             }),
           }),
         })
@@ -4825,18 +5260,19 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          end_date: z.string().optional(),
-          page: z.number().optional(),
-          start_date: z.string().optional(),
+          end_date: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          start_date: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4846,21 +5282,23 @@ export const operationsSchema = z.object({
               changes: z
                 .array(
                   z.object({
-                    key: z.string().optional(),
+                    key: z.string().nullable().optional(),
                     items: z
                       .array(
                         z.object({
-                          id: z.string().optional(),
-                          action: z.string().optional(),
-                          time: z.string().optional(),
-                          iso_639_1: z.string().optional(),
-                          iso_3166_1: z.string().optional(),
-                          value: z.string().optional(),
+                          id: z.string().nullable().optional(),
+                          action: z.string().nullable().optional(),
+                          time: z.string().nullable().optional(),
+                          iso_639_1: z.string().nullable().optional(),
+                          iso_3166_1: z.string().nullable().optional(),
+                          value: z.string().nullable().optional(),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -4872,18 +5310,19 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          end_date: z.string().optional(),
-          page: z.number().optional(),
-          start_date: z.string().optional(),
+          end_date: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          start_date: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4893,40 +5332,46 @@ export const operationsSchema = z.object({
               changes: z
                 .array(
                   z.object({
-                    key: z.string().optional(),
+                    key: z.string().nullable().optional(),
                     items: z
                       .array(
                         z.object({
-                          id: z.string().optional(),
-                          action: z.string().optional(),
-                          time: z.string().optional(),
-                          iso_639_1: z.string().optional(),
-                          iso_3166_1: z.string().optional(),
+                          id: z.string().nullable().optional(),
+                          action: z.string().nullable().optional(),
+                          time: z.string().nullable().optional(),
+                          iso_639_1: z.string().nullable().optional(),
+                          iso_3166_1: z.string().nullable().optional(),
                           value: z
                             .object({
                               poster: z
                                 .object({
-                                  file_path: z.string().optional(),
-                                  iso_639_1: z.string().optional(),
+                                  file_path: z.string().nullable().optional(),
+                                  iso_639_1: z.string().nullable().optional(),
                                 })
+                                .nullable()
                                 .optional(),
                             })
+                            .nullable()
                             .optional(),
                           original_value: z
                             .object({
                               poster: z
                                 .object({
-                                  file_path: z.string().optional(),
-                                  iso_639_1: z.string().optional(),
+                                  file_path: z.string().nullable().optional(),
+                                  iso_639_1: z.string().nullable().optional(),
                                 })
+                                .nullable()
                                 .optional(),
                             })
+                            .nullable()
                             .optional(),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -4936,14 +5381,14 @@ export const operationsSchema = z.object({
   }),
   "person-images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4956,13 +5401,14 @@ export const operationsSchema = z.object({
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.unknown().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.unknown().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -4974,16 +5420,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -4994,47 +5441,49 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     order: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
-                    credit_id: z.string().optional(),
-                    department: z.string().optional(),
-                    job: z.string().optional(),
+                    credit_id: z.string().nullable().optional(),
+                    department: z.string().nullable().optional(),
+                    job: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -5047,16 +5496,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5067,48 +5517,50 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    name: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     episode_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    name: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
-                    credit_id: z.string().optional(),
-                    department: z.string().optional(),
+                    credit_id: z.string().nullable().optional(),
+                    department: z.string().nullable().optional(),
                     episode_count: z.number().default(0),
-                    job: z.string().optional(),
+                    job: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -5121,16 +5573,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5141,49 +5594,51 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     order: z.number().default(0),
-                    media_type: z.string().optional(),
+                    media_type: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
-                    credit_id: z.string().optional(),
-                    department: z.string().optional(),
-                    job: z.string().optional(),
-                    media_type: z.string().optional(),
+                    credit_id: z.string().nullable().optional(),
+                    department: z.string().nullable().optional(),
+                    job: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -5194,14 +5649,14 @@ export const operationsSchema = z.object({
   }),
   "person-external-ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5209,16 +5664,16 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               id: z.number().default(0),
-              freebase_mid: z.string().optional(),
-              freebase_id: z.string().optional(),
-              imdb_id: z.string().optional(),
+              freebase_mid: z.string().nullable().optional(),
+              freebase_id: z.string().nullable().optional(),
+              imdb_id: z.string().nullable().optional(),
               tvrage_id: z.number().default(0),
-              wikidata_id: z.string().optional(),
-              facebook_id: z.string().optional(),
-              instagram_id: z.string().optional(),
-              tiktok_id: z.string().optional(),
-              twitter_id: z.string().optional(),
-              youtube_id: z.unknown().optional(),
+              wikidata_id: z.string().nullable().optional(),
+              facebook_id: z.string().nullable().optional(),
+              instagram_id: z.string().nullable().optional(),
+              tiktok_id: z.string().nullable().optional(),
+              twitter_id: z.string().nullable().optional(),
+              youtube_id: z.unknown().nullable().optional(),
             }),
           }),
         })
@@ -5229,16 +5684,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          page: z.number().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5251,36 +5707,38 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     aspect_ratio: z.number().default(0),
-                    file_path: z.string().optional(),
+                    file_path: z.string().nullable().optional(),
                     height: z.number().default(0),
-                    id: z.string().optional(),
-                    iso_639_1: z.string().optional(),
+                    id: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
-                    image_type: z.string().optional(),
+                    image_type: z.string().nullable().optional(),
                     media: z
                       .object({
                         adult: z.boolean().default(true),
-                        backdrop_path: z.string().optional(),
+                        backdrop_path: z.string().nullable().optional(),
                         id: z.number().default(0),
-                        title: z.string().optional(),
-                        original_language: z.string().optional(),
-                        original_title: z.string().optional(),
-                        overview: z.string().optional(),
-                        poster_path: z.string().optional(),
-                        media_type: z.string().optional(),
-                        genre_ids: z.array(z.number()).optional(),
+                        title: z.string().nullable().optional(),
+                        original_language: z.string().nullable().optional(),
+                        original_title: z.string().nullable().optional(),
+                        overview: z.string().nullable().optional(),
+                        poster_path: z.string().nullable().optional(),
+                        media_type: z.string().nullable().optional(),
+                        genre_ids: z.array(z.number()).nullable().optional(),
                         popularity: z.number().default(0),
-                        release_date: z.string().optional(),
+                        release_date: z.string().nullable().optional(),
                         video: z.boolean().default(true),
                         vote_average: z.number().default(0),
                         vote_count: z.number().default(0),
                       })
+                      .nullable()
                       .optional(),
-                    media_type: z.string().optional(),
+                    media_type: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5292,14 +5750,14 @@ export const operationsSchema = z.object({
   }),
   translations: z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         person_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5310,18 +5768,20 @@ export const operationsSchema = z.object({
               translations: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    iso_639_1: z.string().optional(),
-                    name: z.string().optional(),
-                    english_name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    english_name: z.string().nullable().optional(),
                     data: z
                       .object({
-                        biography: z.string().optional(),
-                        name: z.string().optional(),
+                        biography: z.string().nullable().optional(),
+                        name: z.string().nullable().optional(),
                       })
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -5333,15 +5793,16 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5359,28 +5820,30 @@ export const operationsSchema = z.object({
                       .array(
                         z.object({
                           adult: z.boolean().default(true),
-                          backdrop_path: z.string().optional(),
-                          genre_ids: z.array(z.number()).optional(),
+                          backdrop_path: z.string().nullable().optional(),
+                          genre_ids: z.array(z.number()).nullable().optional(),
                           id: z.number().default(0),
-                          media_type: z.string().optional(),
-                          original_language: z.string().optional(),
-                          original_title: z.string().optional(),
-                          overview: z.string().optional(),
-                          poster_path: z.string().optional(),
-                          release_date: z.string().optional(),
-                          title: z.string().optional(),
+                          media_type: z.string().nullable().optional(),
+                          original_language: z.string().nullable().optional(),
+                          original_title: z.string().nullable().optional(),
+                          overview: z.string().nullable().optional(),
+                          poster_path: z.string().nullable().optional(),
+                          release_date: z.string().nullable().optional(),
+                          title: z.string().nullable().optional(),
                           video: z.boolean().default(true),
                           vote_average: z.number().default(0),
                           vote_count: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5394,16 +5857,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          region: z.string().optional().describe("ISO-3166-1 code"),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          region: z.string().nullable().optional().describe("ISO-3166-1 code"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5415,21 +5879,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5443,16 +5908,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          region: z.string().optional().describe("ISO-3166-1 code"),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          region: z.string().nullable().optional().describe("ISO-3166-1 code"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5464,21 +5930,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5492,16 +5959,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          region: z.string().optional().describe("ISO-3166-1 code"),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          region: z.string().nullable().optional().describe("ISO-3166-1 code"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5510,30 +5978,32 @@ export const operationsSchema = z.object({
             "application/json": z.object({
               dates: z
                 .object({
-                  maximum: z.string().optional(),
-                  minimum: z.string().optional(),
+                  maximum: z.string().nullable().optional(),
+                  minimum: z.string().nullable().optional(),
                 })
+                .nullable()
                 .optional(),
               page: z.number().default(0),
               results: z
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5547,16 +6017,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          region: z.string().optional().describe("ISO-3166-1 code"),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          region: z.string().nullable().optional().describe("ISO-3166-1 code"),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5565,30 +6036,32 @@ export const operationsSchema = z.object({
             "application/json": z.object({
               dates: z
                 .object({
-                  maximum: z.string().optional(),
-                  minimum: z.string().optional(),
+                  maximum: z.string().nullable().optional(),
+                  minimum: z.string().nullable().optional(),
                 })
+                .nullable()
                 .optional(),
               page: z.number().default(0),
               results: z
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5602,16 +6075,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          timezone: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          timezone: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5622,21 +6096,22 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    backdrop_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5650,16 +6125,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          timezone: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          timezone: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5670,21 +6146,22 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    backdrop_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5698,15 +6175,16 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5717,21 +6195,22 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    backdrop_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5745,15 +6224,16 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5764,21 +6244,22 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    backdrop_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -5790,12 +6271,12 @@ export const operationsSchema = z.object({
   }),
   "movie-latest-id": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5803,27 +6284,27 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               adult: z.boolean().default(true),
-              backdrop_path: z.unknown().optional(),
-              belongs_to_collection: z.unknown().optional(),
+              backdrop_path: z.unknown().nullable().optional(),
+              belongs_to_collection: z.unknown().nullable().optional(),
               budget: z.number().default(0),
-              genres: z.array(z.unknown()).optional(),
-              homepage: z.string().optional(),
+              genres: z.array(z.unknown()).nullable().optional(),
+              homepage: z.string().nullable().optional(),
               id: z.number().default(0),
-              imdb_id: z.unknown().optional(),
-              original_language: z.string().optional(),
-              original_title: z.string().optional(),
-              overview: z.string().optional(),
+              imdb_id: z.unknown().nullable().optional(),
+              original_language: z.string().nullable().optional(),
+              original_title: z.string().nullable().optional(),
+              overview: z.string().nullable().optional(),
               popularity: z.number().default(0),
-              poster_path: z.unknown().optional(),
-              production_companies: z.array(z.unknown()).optional(),
-              production_countries: z.array(z.unknown()).optional(),
-              release_date: z.string().optional(),
+              poster_path: z.unknown().nullable().optional(),
+              production_companies: z.array(z.unknown()).nullable().optional(),
+              production_countries: z.array(z.unknown()).nullable().optional(),
+              release_date: z.string().nullable().optional(),
               revenue: z.number().default(0),
               runtime: z.number().default(0),
-              spoken_languages: z.array(z.unknown()).optional(),
-              status: z.string().optional(),
-              tagline: z.string().optional(),
-              title: z.string().optional(),
+              spoken_languages: z.array(z.unknown()).nullable().optional(),
+              status: z.string().nullable().optional(),
+              tagline: z.string().nullable().optional(),
+              title: z.string().nullable().optional(),
               video: z.boolean().default(true),
               vote_average: z.number().default(0),
               vote_count: z.number().default(0),
@@ -5835,12 +6316,12 @@ export const operationsSchema = z.object({
   }),
   "tv-series-latest-id": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5848,62 +6329,64 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               adult: z.boolean().default(true),
-              backdrop_path: z.unknown().optional(),
-              created_by: z.array(z.unknown()).optional(),
-              episode_run_time: z.array(z.unknown()).optional(),
-              first_air_date: z.string().optional(),
-              genres: z.array(z.unknown()).optional(),
-              homepage: z.string().optional(),
+              backdrop_path: z.unknown().nullable().optional(),
+              created_by: z.array(z.unknown()).nullable().optional(),
+              episode_run_time: z.array(z.unknown()).nullable().optional(),
+              first_air_date: z.string().nullable().optional(),
+              genres: z.array(z.unknown()).nullable().optional(),
+              homepage: z.string().nullable().optional(),
               id: z.number().default(0),
               in_production: z.boolean().default(true),
-              languages: z.array(z.unknown()).optional(),
-              last_air_date: z.string().optional(),
+              languages: z.array(z.unknown()).nullable().optional(),
+              last_air_date: z.string().nullable().optional(),
               last_episode_to_air: z
                 .object({
                   id: z.number().default(0),
-                  name: z.string().optional(),
-                  overview: z.string().optional(),
+                  name: z.string().nullable().optional(),
+                  overview: z.string().nullable().optional(),
                   vote_average: z.number().default(0),
                   vote_count: z.number().default(0),
-                  air_date: z.string().optional(),
+                  air_date: z.string().nullable().optional(),
                   episode_number: z.number().default(0),
-                  production_code: z.string().optional(),
-                  runtime: z.unknown().optional(),
+                  production_code: z.string().nullable().optional(),
+                  runtime: z.unknown().nullable().optional(),
                   season_number: z.number().default(0),
                   show_id: z.number().default(0),
-                  still_path: z.unknown().optional(),
+                  still_path: z.unknown().nullable().optional(),
                 })
+                .nullable()
                 .optional(),
-              name: z.string().optional(),
-              next_episode_to_air: z.unknown().optional(),
-              networks: z.array(z.unknown()).optional(),
+              name: z.string().nullable().optional(),
+              next_episode_to_air: z.unknown().nullable().optional(),
+              networks: z.array(z.unknown()).nullable().optional(),
               number_of_episodes: z.number().default(0),
               number_of_seasons: z.number().default(0),
-              origin_country: z.array(z.string()).optional(),
-              original_language: z.string().optional(),
-              original_name: z.string().optional(),
-              overview: z.string().optional(),
+              origin_country: z.array(z.string()).nullable().optional(),
+              original_language: z.string().nullable().optional(),
+              original_name: z.string().nullable().optional(),
+              overview: z.string().nullable().optional(),
               popularity: z.number().default(0),
-              poster_path: z.unknown().optional(),
-              production_companies: z.array(z.unknown()).optional(),
-              production_countries: z.array(z.unknown()).optional(),
+              poster_path: z.unknown().nullable().optional(),
+              production_companies: z.array(z.unknown()).nullable().optional(),
+              production_countries: z.array(z.unknown()).nullable().optional(),
               seasons: z
                 .array(
                   z.object({
-                    air_date: z.unknown().optional(),
+                    air_date: z.unknown().nullable().optional(),
                     episode_count: z.number().default(0),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.unknown().optional(),
+                    name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.unknown().nullable().optional(),
                     season_number: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
-              spoken_languages: z.array(z.unknown()).optional(),
-              status: z.string().optional(),
-              tagline: z.string().optional(),
-              type: z.string().optional(),
+              spoken_languages: z.array(z.unknown()).nullable().optional(),
+              status: z.string().nullable().optional(),
+              tagline: z.string().nullable().optional(),
+              type: z.string().nullable().optional(),
               vote_average: z.number().default(0),
               vote_count: z.number().default(0),
             }),
@@ -5916,16 +6399,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -5938,24 +6422,26 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                     roles: z
                       .array(
                         z.object({
-                          credit_id: z.string().optional(),
-                          character: z.string().optional(),
+                          credit_id: z.string().nullable().optional(),
+                          character: z.string().nullable().optional(),
                           episode_count: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
                     total_episode_count: z.number().default(0),
                     order: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
@@ -5963,24 +6449,26 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                     jobs: z
                       .array(
                         z.object({
-                          credit_id: z.string().optional(),
-                          job: z.string().optional(),
+                          credit_id: z.string().nullable().optional(),
+                          job: z.string().nullable().optional(),
                           episode_count: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
-                    department: z.string().optional(),
+                    department: z.string().nullable().optional(),
                     total_episode_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -5991,14 +6479,14 @@ export const operationsSchema = z.object({
   }),
   "tv-series-alternative-titles": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6009,11 +6497,12 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    title: z.string().optional(),
-                    type: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
+                    type: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -6023,14 +6512,14 @@ export const operationsSchema = z.object({
   }),
   "tv-series-content-ratings": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6040,11 +6529,12 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    descriptors: z.array(z.unknown()).optional(),
-                    iso_3166_1: z.string().optional(),
-                    rating: z.string().optional(),
+                    descriptors: z.array(z.unknown()).nullable().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    rating: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -6057,16 +6547,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6079,16 +6570,17 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     order: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
@@ -6096,16 +6588,17 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
-                    credit_id: z.string().optional(),
-                    department: z.string().optional(),
-                    job: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
+                    department: z.string().nullable().optional(),
+                    job: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -6116,14 +6609,14 @@ export const operationsSchema = z.object({
   }),
   "tv-series-episode-groups": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6133,22 +6626,24 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    description: z.string().optional(),
+                    description: z.string().nullable().optional(),
                     episode_count: z.number().default(0),
                     group_count: z.number().default(0),
-                    id: z.string().optional(),
-                    name: z.string().optional(),
+                    id: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     network: z
                       .object({
                         id: z.number().default(0),
-                        logo_path: z.string().optional(),
-                        name: z.string().optional(),
-                        origin_country: z.string().optional(),
+                        logo_path: z.string().nullable().optional(),
+                        name: z.string().nullable().optional(),
+                        origin_country: z.string().nullable().optional(),
                       })
+                      .nullable()
                       .optional(),
                     type: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -6159,14 +6654,14 @@ export const operationsSchema = z.object({
   }),
   "tv-series-external-ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6174,15 +6669,15 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               id: z.number().default(0),
-              imdb_id: z.string().optional(),
-              freebase_mid: z.string().optional(),
-              freebase_id: z.string().optional(),
+              imdb_id: z.string().nullable().optional(),
+              freebase_mid: z.string().nullable().optional(),
+              freebase_id: z.string().nullable().optional(),
               tvdb_id: z.number().default(0),
               tvrage_id: z.number().default(0),
-              wikidata_id: z.string().optional(),
-              facebook_id: z.string().optional(),
-              instagram_id: z.string().optional(),
-              twitter_id: z.string().optional(),
+              wikidata_id: z.string().nullable().optional(),
+              facebook_id: z.string().nullable().optional(),
+              instagram_id: z.string().nullable().optional(),
+              twitter_id: z.string().nullable().optional(),
             }),
           }),
         })
@@ -6191,14 +6686,14 @@ export const operationsSchema = z.object({
   }),
   "tv-series-keywords": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6209,10 +6704,11 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    name: z.string().optional(),
+                    name: z.string().nullable().optional(),
                     id: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -6224,17 +6720,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6246,22 +6743,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
+                    backdrop_path: z.string().nullable().optional(),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
-                    media_type: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    name: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     popularity: z.number().default(0),
-                    first_air_date: z.string().optional(),
+                    first_air_date: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -6275,17 +6773,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6297,22 +6796,24 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    author: z.string().optional(),
+                    author: z.string().nullable().optional(),
                     author_details: z
                       .object({
-                        name: z.string().optional(),
-                        username: z.string().optional(),
-                        avatar_path: z.string().optional(),
+                        name: z.string().nullable().optional(),
+                        username: z.string().nullable().optional(),
+                        avatar_path: z.string().nullable().optional(),
                         rating: z.number().default(0),
                       })
+                      .nullable()
                       .optional(),
-                    content: z.string().optional(),
-                    created_at: z.string().optional(),
-                    id: z.string().optional(),
-                    updated_at: z.string().optional(),
-                    url: z.string().optional(),
+                    content: z.string().nullable().optional(),
+                    created_at: z.string().nullable().optional(),
+                    id: z.string().nullable().optional(),
+                    updated_at: z.string().nullable().optional(),
+                    url: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -6324,14 +6825,14 @@ export const operationsSchema = z.object({
   }),
   "tv-series-screened-theatrically": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6347,6 +6848,7 @@ export const operationsSchema = z.object({
                     season_number: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -6358,17 +6860,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6380,21 +6883,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    name: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -6406,14 +6910,14 @@ export const operationsSchema = z.object({
   }),
   "tv-series-translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6424,20 +6928,22 @@ export const operationsSchema = z.object({
               translations: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    iso_639_1: z.string().optional(),
-                    name: z.string().optional(),
-                    english_name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    english_name: z.string().nullable().optional(),
                     data: z
                       .object({
-                        name: z.string().optional(),
-                        overview: z.string().optional(),
-                        homepage: z.string().optional(),
-                        tagline: z.string().optional(),
+                        name: z.string().nullable().optional(),
+                        overview: z.string().nullable().optional(),
+                        homepage: z.string().nullable().optional(),
+                        tagline: z.string().nullable().optional(),
                       })
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -6451,20 +6957,22 @@ export const operationsSchema = z.object({
         .object({
           include_video_language: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "filter the list results by language, supports more than one value by using a comma",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6475,18 +6983,19 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    iso_639_1: z.string().optional(),
-                    iso_3166_1: z.string().optional(),
-                    name: z.string().optional(),
-                    key: z.string().optional(),
-                    site: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    key: z.string().nullable().optional(),
+                    site: z.string().nullable().optional(),
                     size: z.number().default(0),
-                    type: z.string().optional(),
+                    type: z.string().nullable().optional(),
                     official: z.boolean().default(true),
-                    published_at: z.string().optional(),
-                    id: z.string().optional(),
+                    published_at: z.string().nullable().optional(),
+                    id: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -6496,14 +7005,14 @@ export const operationsSchema = z.object({
   }),
   "tv-series-watch-providers": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -6515,1515 +7024,1711 @@ export const operationsSchema = z.object({
                 .object({
                   AE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   EC: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   EG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ES: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   FI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   FR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GF: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GQ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HN: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ID: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IQ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   JM: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   JP: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   KE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   KR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MD: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MX: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       ads: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SC: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SN: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SV: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TW: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   UG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   US: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       free: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   UY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   VE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ZA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ZM: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                 })
+                .nullable()
                 .optional(),
             }),
           }),
@@ -8035,9 +8740,10 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          guest_session_id: z.string().optional(),
-          session_id: z.string().optional(),
+          guest_session_id: z.string().nullable().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       header: z.object({
         "Content-Type": z.string(),
@@ -8045,7 +8751,7 @@ export const operationsSchema = z.object({
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -8055,6 +8761,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -8063,7 +8770,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -8074,21 +8781,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          guest_session_id: z.string().optional(),
-          session_id: z.string().optional(),
+          guest_session_id: z.string().nullable().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       header: z
         .object({
-          "Content-Type": z.string().optional(),
+          "Content-Type": z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8096,7 +8805,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -8107,18 +8816,19 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          session_id: z.string().optional(),
-          guest_session_id: z.string().optional(),
+          session_id: z.string().nullable().optional(),
+          guest_session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8135,9 +8845,11 @@ export const operationsSchema = z.object({
                       .object({
                         value: z.number().default(0),
                       })
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -8149,17 +8861,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8172,24 +8885,26 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                     roles: z
                       .array(
                         z.object({
-                          credit_id: z.string().optional(),
-                          character: z.string().optional(),
+                          credit_id: z.string().nullable().optional(),
+                          character: z.string().nullable().optional(),
                           episode_count: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
                     total_episode_count: z.number().default(0),
                     order: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
@@ -8197,24 +8912,26 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.unknown().optional(),
+                    profile_path: z.unknown().nullable().optional(),
                     jobs: z
                       .array(
                         z.object({
-                          credit_id: z.string().optional(),
-                          job: z.string().optional(),
+                          credit_id: z.string().nullable().optional(),
+                          job: z.string().nullable().optional(),
                           episode_count: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
-                    department: z.string().optional(),
+                    department: z.string().nullable().optional(),
                     total_episode_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -8227,18 +8944,19 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          end_date: z.string().optional(),
-          page: z.number().optional(),
-          start_date: z.string().optional(),
+          end_date: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          start_date: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         season_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8248,24 +8966,27 @@ export const operationsSchema = z.object({
               changes: z
                 .array(
                   z.object({
-                    key: z.string().optional(),
+                    key: z.string().nullable().optional(),
                     items: z
                       .array(
                         z.object({
-                          id: z.string().optional(),
-                          action: z.string().optional(),
-                          time: z.string().optional(),
+                          id: z.string().nullable().optional(),
+                          action: z.string().nullable().optional(),
+                          time: z.string().nullable().optional(),
                           value: z
                             .object({
                               episode_id: z.number().default(0),
                               episode_number: z.number().default(0),
                             })
+                            .nullable()
                             .optional(),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -8277,17 +8998,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8300,16 +9022,17 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     order: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
@@ -8317,16 +9040,17 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.unknown().optional(),
-                    credit_id: z.string().optional(),
-                    department: z.string().optional(),
-                    job: z.string().optional(),
+                    profile_path: z.unknown().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
+                    department: z.string().nullable().optional(),
+                    job: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -8337,15 +9061,15 @@ export const operationsSchema = z.object({
   }),
   "tv-season-external-ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8353,11 +9077,11 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               id: z.number().default(0),
-              freebase_mid: z.string().optional(),
-              freebase_id: z.string().optional(),
+              freebase_mid: z.string().nullable().optional(),
+              freebase_id: z.string().nullable().optional(),
               tvdb_id: z.number().default(0),
-              tvrage_id: z.unknown().optional(),
-              wikidata_id: z.string().optional(),
+              tvrage_id: z.unknown().nullable().optional(),
+              wikidata_id: z.string().nullable().optional(),
             }),
           }),
         })
@@ -8366,15 +9090,15 @@ export const operationsSchema = z.object({
   }),
   "tv-season-translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8385,18 +9109,20 @@ export const operationsSchema = z.object({
               translations: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    iso_639_1: z.string().optional(),
-                    name: z.string().optional(),
-                    english_name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    english_name: z.string().nullable().optional(),
                     data: z
                       .object({
-                        name: z.string().optional(),
-                        overview: z.string().optional(),
+                        name: z.string().nullable().optional(),
+                        overview: z.string().nullable().optional(),
                       })
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -8410,21 +9136,23 @@ export const operationsSchema = z.object({
         .object({
           include_video_language: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "filter the list results by language, supports more than one value by using a comma",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8435,18 +9163,19 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    iso_639_1: z.string().optional(),
-                    iso_3166_1: z.string().optional(),
-                    name: z.string().optional(),
-                    key: z.string().optional(),
-                    site: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    key: z.string().nullable().optional(),
+                    site: z.string().nullable().optional(),
                     size: z.number().default(0),
-                    type: z.string().optional(),
+                    type: z.string().nullable().optional(),
                     official: z.boolean().default(true),
-                    published_at: z.string().optional(),
-                    id: z.string().optional(),
+                    published_at: z.string().nullable().optional(),
+                    id: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -8458,18 +9187,19 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
         episode_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8482,50 +9212,53 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     order: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               crew: z
                 .array(
                   z.object({
-                    department: z.string().optional(),
-                    job: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    department: z.string().nullable().optional(),
+                    job: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               guest_stars: z
                 .array(
                   z.object({
-                    character: z.string().optional(),
-                    credit_id: z.string().optional(),
+                    character: z.string().nullable().optional(),
+                    credit_id: z.string().nullable().optional(),
                     order: z.number().default(0),
                     adult: z.boolean().default(true),
                     gender: z.number().default(0),
                     id: z.number().default(0),
-                    known_for_department: z.string().optional(),
-                    name: z.string().optional(),
-                    original_name: z.string().optional(),
+                    known_for_department: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    profile_path: z.string().optional(),
+                    profile_path: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               id: z.number().default(0),
             }),
@@ -8536,16 +9269,16 @@ export const operationsSchema = z.object({
   }),
   "tv-episode-external-ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
         episode_number: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8553,12 +9286,12 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               id: z.number().default(0),
-              imdb_id: z.string().optional(),
-              freebase_mid: z.string().optional(),
-              freebase_id: z.string().optional(),
+              imdb_id: z.string().nullable().optional(),
+              freebase_mid: z.string().nullable().optional(),
+              freebase_id: z.string().nullable().optional(),
               tvdb_id: z.number().default(0),
               tvrage_id: z.number().default(0),
-              wikidata_id: z.string().optional(),
+              wikidata_id: z.string().nullable().optional(),
             }),
           }),
         })
@@ -8567,16 +9300,16 @@ export const operationsSchema = z.object({
   }),
   "tv-episode-translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
         episode_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8587,18 +9320,20 @@ export const operationsSchema = z.object({
               translations: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    iso_639_1: z.string().optional(),
-                    name: z.string().optional(),
-                    english_name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    english_name: z.string().nullable().optional(),
                     data: z
                       .object({
-                        name: z.string().optional(),
-                        overview: z.string().optional(),
+                        name: z.string().nullable().optional(),
+                        overview: z.string().nullable().optional(),
                       })
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -8612,22 +9347,24 @@ export const operationsSchema = z.object({
         .object({
           include_video_language: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "filter the list results by language, supports more than one value by using a comma",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
         episode_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8638,18 +9375,19 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    iso_639_1: z.string().optional(),
-                    iso_3166_1: z.string().optional(),
-                    name: z.string().optional(),
-                    key: z.string().optional(),
-                    site: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    key: z.string().nullable().optional(),
+                    site: z.string().nullable().optional(),
                     size: z.number().default(0),
-                    type: z.string().optional(),
+                    type: z.string().nullable().optional(),
                     official: z.boolean().default(true),
-                    published_at: z.string().optional(),
-                    id: z.string().optional(),
+                    published_at: z.string().nullable().optional(),
+                    id: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -8661,9 +9399,10 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          guest_session_id: z.string().optional(),
-          session_id: z.string().optional(),
+          guest_session_id: z.string().nullable().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       header: z.object({
         "Content-Type": z.string(),
@@ -8673,7 +9412,7 @@ export const operationsSchema = z.object({
         season_number: z.number(),
         episode_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -8683,6 +9422,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -8691,7 +9431,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -8702,23 +9442,25 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          guest_session_id: z.string().optional(),
-          session_id: z.string().optional(),
+          guest_session_id: z.string().nullable().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       header: z
         .object({
-          "Content-Type": z.string().optional(),
+          "Content-Type": z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
         episode_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8726,7 +9468,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -8737,16 +9479,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          session_id: z.string().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8757,22 +9500,25 @@ export const operationsSchema = z.object({
                 .object({
                   gravatar: z
                     .object({
-                      hash: z.string().optional(),
+                      hash: z.string().nullable().optional(),
                     })
+                    .nullable()
                     .optional(),
                   tmdb: z
                     .object({
-                      avatar_path: z.string().optional(),
+                      avatar_path: z.string().nullable().optional(),
                     })
+                    .nullable()
                     .optional(),
                 })
+                .nullable()
                 .optional(),
               id: z.number().default(0),
-              iso_639_1: z.string().optional(),
-              iso_3166_1: z.string().optional(),
-              name: z.string().optional(),
+              iso_639_1: z.string().nullable().optional(),
+              iso_3166_1: z.string().nullable().optional(),
+              name: z.string().nullable().optional(),
               include_adult: z.boolean().default(true),
-              username: z.string().optional(),
+              username: z.string().nullable().optional(),
             }),
           }),
         })
@@ -8783,17 +9529,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          page: z.number().optional(),
-          session_id: z.string().optional(),
+          page: z.number().nullable().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8804,16 +9551,17 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    description: z.string().optional(),
+                    description: z.string().nullable().optional(),
                     favorite_count: z.number().default(0),
                     id: z.number().default(0),
                     item_count: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    list_type: z.string().optional(),
-                    name: z.string().optional(),
-                    poster_path: z.unknown().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    list_type: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    poster_path: z.unknown().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -8827,21 +9575,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          session_id: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          session_id: z.string().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8853,21 +9603,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -8881,21 +9632,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          session_id: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          session_id: z.string().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8907,21 +9660,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    name: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -8935,21 +9689,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          session_id: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          session_id: z.string().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -8961,22 +9717,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     rating: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -8990,21 +9747,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          session_id: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          session_id: z.string().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -9016,22 +9775,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    name: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     rating: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -9045,21 +9805,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          session_id: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          session_id: z.string().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -9070,21 +9832,22 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    air_date: z.string().optional(),
+                    air_date: z.string().nullable().optional(),
                     episode_number: z.number().default(0),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    overview: z.string().optional(),
-                    production_code: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    production_code: z.string().nullable().optional(),
                     runtime: z.number().default(0),
                     season_number: z.number().default(0),
                     show_id: z.number().default(0),
-                    still_path: z.string().optional(),
+                    still_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     rating: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -9098,21 +9861,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          session_id: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          session_id: z.string().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -9124,21 +9889,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -9152,21 +9918,23 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
-          session_id: z.string().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          session_id: z.string().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -9178,21 +9946,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    name: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -9206,14 +9975,15 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          session_id: z.string().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -9223,6 +9993,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -9231,7 +10002,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -9242,14 +10013,15 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          session_id: z.string().optional(),
+          session_id: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         account_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -9259,6 +10031,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -9267,7 +10040,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -9276,12 +10049,12 @@ export const operationsSchema = z.object({
   }),
   "certification-movie-list": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -9293,409 +10066,455 @@ export const operationsSchema = z.object({
                   AU: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   BG: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   BR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   CA: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   "CA-QC": z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   DE: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   DK: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   ES: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   FI: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   FR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   GB: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   HU: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   IN: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   IT: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   LT: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   MY: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   NL: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   NO: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   NZ: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   PH: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   PT: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   RU: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   SE: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   US: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   KR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   SK: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   TH: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   MX: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   ID: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   TR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   AR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   GR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   TW: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   ZA: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   SG: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   IE: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   PR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   JP: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   VI: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   CH: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   IL: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   HK: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   MO: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   LV: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   LU: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                 })
+                .nullable()
                 .optional(),
             }),
           }),
@@ -9705,12 +10524,12 @@ export const operationsSchema = z.object({
   }),
   "certifications-tv-list": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -9722,364 +10541,405 @@ export const operationsSchema = z.object({
                   AU: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   BR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   CA: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   "CA-QC": z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   DE: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   ES: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   FR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   GB: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   HU: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   KR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   LT: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   NL: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   PH: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   PT: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   RU: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   SK: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   TH: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   US: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   IT: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   FI: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   MY: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   NZ: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   NO: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   BG: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   MX: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   IN: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   DK: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   SE: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   ID: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   TR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   AR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   PL: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   MA: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   GR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   IL: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   TW: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   ZA: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   SG: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   PR: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                   VI: z
                     .array(
                       z.object({
-                        certification: z.string().optional(),
-                        meaning: z.string().optional(),
+                        certification: z.string().nullable().optional(),
+                        meaning: z.string().nullable().optional(),
                         order: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                 })
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10091,16 +10951,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          end_date: z.string().optional(),
-          page: z.number().optional(),
-          start_date: z.string().optional(),
+          end_date: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          start_date: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10114,6 +10975,7 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                   }),
                 )
+                .nullable()
                 .optional(),
               page: z.number().default(0),
               total_pages: z.number().default(0),
@@ -10128,16 +10990,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          end_date: z.string().optional(),
-          page: z.number().optional(),
-          start_date: z.string().optional(),
+          end_date: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          start_date: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10151,6 +11014,7 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                   }),
                 )
+                .nullable()
                 .optional(),
               page: z.number().default(0),
               total_pages: z.number().default(0),
@@ -10165,16 +11029,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          end_date: z.string().optional(),
-          page: z.number().optional(),
-          start_date: z.string().optional(),
+          end_date: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
+          start_date: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10188,6 +11053,7 @@ export const operationsSchema = z.object({
                     adult: z.boolean().default(true),
                   }),
                 )
+                .nullable()
                 .optional(),
               page: z.number().default(0),
               total_pages: z.number().default(0),
@@ -10202,16 +11068,17 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         collection_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10219,30 +11086,31 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               id: z.number().default(0),
-              name: z.string().optional(),
-              overview: z.string().optional(),
-              poster_path: z.string().optional(),
-              backdrop_path: z.string().optional(),
+              name: z.string().nullable().optional(),
+              overview: z.string().nullable().optional(),
+              poster_path: z.string().nullable().optional(),
+              backdrop_path: z.string().nullable().optional(),
               parts: z
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
+                    backdrop_path: z.string().nullable().optional(),
                     id: z.number().default(0),
-                    title: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
-                    media_type: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    title: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    media_type: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     popularity: z.number().default(0),
-                    release_date: z.string().optional(),
+                    release_date: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10256,20 +11124,22 @@ export const operationsSchema = z.object({
         .object({
           include_image_language: z
             .string()
+            .nullable()
             .optional()
             .describe(
               "specify a comma separated list of ISO-639-1 values to query, for example: `en,null`",
             ),
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         collection_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10282,26 +11152,28 @@ export const operationsSchema = z.object({
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.unknown().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.unknown().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               posters: z
                 .array(
                   z.object({
                     aspect_ratio: z.number().default(0),
                     height: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    file_path: z.string().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    file_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10311,14 +11183,14 @@ export const operationsSchema = z.object({
   }),
   "collection-translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         collection_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10329,19 +11201,21 @@ export const operationsSchema = z.object({
               translations: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    iso_639_1: z.string().optional(),
-                    name: z.string().optional(),
-                    english_name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    english_name: z.string().nullable().optional(),
                     data: z
                       .object({
-                        title: z.string().optional(),
-                        overview: z.string().optional(),
-                        homepage: z.string().optional(),
+                        title: z.string().nullable().optional(),
+                        overview: z.string().nullable().optional(),
+                        homepage: z.string().nullable().optional(),
                       })
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10351,28 +11225,28 @@ export const operationsSchema = z.object({
   }),
   "company-details": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         company_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              description: z.string().optional(),
-              headquarters: z.string().optional(),
-              homepage: z.string().optional(),
+              description: z.string().nullable().optional(),
+              headquarters: z.string().nullable().optional(),
+              homepage: z.string().nullable().optional(),
               id: z.number().default(0),
-              logo_path: z.string().optional(),
-              name: z.string().optional(),
-              origin_country: z.string().optional(),
-              parent_company: z.unknown().optional(),
+              logo_path: z.string().nullable().optional(),
+              name: z.string().nullable().optional(),
+              origin_country: z.string().nullable().optional(),
+              parent_company: z.unknown().nullable().optional(),
             }),
           }),
         })
@@ -10381,14 +11255,14 @@ export const operationsSchema = z.object({
   }),
   "company-alternative-names": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         company_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10399,10 +11273,11 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    name: z.string().optional(),
-                    type: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    type: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10412,14 +11287,14 @@ export const operationsSchema = z.object({
   }),
   "company-images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         company_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10431,15 +11306,16 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     aspect_ratio: z.number().default(0),
-                    file_path: z.string().optional(),
+                    file_path: z.string().nullable().optional(),
                     height: z.number().default(0),
-                    id: z.string().optional(),
-                    file_type: z.string().optional(),
+                    id: z.string().nullable().optional(),
+                    file_type: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10449,72 +11325,75 @@ export const operationsSchema = z.object({
   }),
   "credit-details": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         credit_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              credit_type: z.string().optional(),
-              department: z.string().optional(),
-              job: z.string().optional(),
+              credit_type: z.string().nullable().optional(),
+              department: z.string().nullable().optional(),
+              job: z.string().nullable().optional(),
               media: z
                 .object({
                   adult: z.boolean().default(true),
-                  backdrop_path: z.string().optional(),
+                  backdrop_path: z.string().nullable().optional(),
                   id: z.number().default(0),
-                  name: z.string().optional(),
-                  original_language: z.string().optional(),
-                  original_name: z.string().optional(),
-                  overview: z.string().optional(),
-                  poster_path: z.string().optional(),
-                  media_type: z.string().optional(),
-                  genre_ids: z.array(z.number()).optional(),
+                  name: z.string().nullable().optional(),
+                  original_language: z.string().nullable().optional(),
+                  original_name: z.string().nullable().optional(),
+                  overview: z.string().nullable().optional(),
+                  poster_path: z.string().nullable().optional(),
+                  media_type: z.string().nullable().optional(),
+                  genre_ids: z.array(z.number()).nullable().optional(),
                   popularity: z.number().default(0),
-                  first_air_date: z.string().optional(),
+                  first_air_date: z.string().nullable().optional(),
                   vote_average: z.number().default(0),
                   vote_count: z.number().default(0),
-                  origin_country: z.array(z.string()).optional(),
-                  character: z.string().optional(),
-                  episodes: z.array(z.unknown()).optional(),
+                  origin_country: z.array(z.string()).nullable().optional(),
+                  character: z.string().nullable().optional(),
+                  episodes: z.array(z.unknown()).nullable().optional(),
                   seasons: z
                     .array(
                       z.object({
-                        air_date: z.string().optional(),
+                        air_date: z.string().nullable().optional(),
                         episode_count: z.number().default(0),
                         id: z.number().default(0),
-                        name: z.string().optional(),
-                        overview: z.string().optional(),
-                        poster_path: z.string().optional(),
+                        name: z.string().nullable().optional(),
+                        overview: z.string().nullable().optional(),
+                        poster_path: z.string().nullable().optional(),
                         season_number: z.number().default(0),
                         show_id: z.number().default(0),
                       }),
                     )
+                    .nullable()
                     .optional(),
                 })
+                .nullable()
                 .optional(),
-              media_type: z.string().optional(),
-              id: z.string().optional(),
+              media_type: z.string().nullable().optional(),
+              id: z.string().nullable().optional(),
               person: z
                 .object({
                   adult: z.boolean().default(true),
                   id: z.number().default(0),
-                  name: z.string().optional(),
-                  original_name: z.string().optional(),
-                  media_type: z.string().optional(),
+                  name: z.string().nullable().optional(),
+                  original_name: z.string().nullable().optional(),
+                  media_type: z.string().nullable().optional(),
                   popularity: z.number().default(0),
                   gender: z.number().default(0),
-                  known_for_department: z.string().optional(),
-                  profile_path: z.string().optional(),
+                  known_for_department: z.string().nullable().optional(),
+                  profile_path: z.string().nullable().optional(),
                 })
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10526,14 +11405,15 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10544,9 +11424,10 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    name: z.string().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10558,14 +11439,15 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10576,9 +11458,10 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    name: z.string().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10590,20 +11473,22 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         guest_session_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10615,22 +11500,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     rating: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -10644,20 +11530,22 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         guest_session_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10669,22 +11557,23 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    origin_country: z.array(z.string()).optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
+                    origin_country: z.array(z.string()).nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    first_air_date: z.string().optional(),
-                    name: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    first_air_date: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     rating: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -10698,20 +11587,22 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
           sort_by: z
             .union([z.literal("created_at.asc"), z.literal("created_at.desc")])
+            .nullable()
             .optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         guest_session_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10722,21 +11613,22 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    air_date: z.string().optional(),
+                    air_date: z.string().nullable().optional(),
                     episode_number: z.number().default(0),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    overview: z.string().optional(),
-                    production_code: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    production_code: z.string().nullable().optional(),
                     runtime: z.number().default(0),
                     season_number: z.number().default(0),
                     show_id: z.number().default(0),
-                    still_path: z.string().optional(),
+                    still_path: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     rating: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -10750,14 +11642,15 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10767,11 +11660,12 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    iso_3166_1: z.string().optional(),
-                    english_name: z.string().optional(),
-                    native_name: z.string().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    english_name: z.string().nullable().optional(),
+                    native_name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10783,15 +11677,16 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          watch_region: z.string().optional(),
+          language: z.string().nullable().optional(),
+          watch_region: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10867,13 +11762,15 @@ export const operationsSchema = z.object({
                         UG: z.number().default(0),
                         IL: z.number().default(0),
                       })
+                      .nullable()
                       .optional(),
                     display_priority: z.number().default(0),
-                    logo_path: z.string().optional(),
-                    provider_name: z.string().optional(),
+                    logo_path: z.string().nullable().optional(),
+                    provider_name: z.string().nullable().optional(),
                     provider_id: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10885,15 +11782,16 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          watch_region: z.string().optional(),
+          language: z.string().nullable().optional(),
+          watch_region: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -10969,13 +11867,15 @@ export const operationsSchema = z.object({
                         UG: z.number().default(0),
                         IL: z.number().default(0),
                       })
+                      .nullable()
                       .optional(),
                     display_priority: z.number().default(0),
-                    logo_path: z.string().optional(),
-                    provider_name: z.string().optional(),
+                    logo_path: z.string().nullable().optional(),
+                    provider_name: z.string().nullable().optional(),
                     provider_id: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -10985,14 +11885,14 @@ export const operationsSchema = z.object({
   }),
   "keyword-details": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         keyword_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11000,7 +11900,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               id: z.number().default(0),
-              name: z.string().optional(),
+              name: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11011,18 +11911,19 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          include_adult: z.boolean().optional(),
-          language: z.string().optional(),
-          page: z.number().optional(),
+          include_adult: z.boolean().nullable().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         keyword_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11035,21 +11936,22 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -11063,52 +11965,54 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         list_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              created_by: z.string().optional(),
-              description: z.string().optional(),
+              created_by: z.string().nullable().optional(),
+              description: z.string().nullable().optional(),
               favorite_count: z.number().default(0),
-              id: z.string().optional(),
+              id: z.string().nullable().optional(),
               items: z
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
-                    genre_ids: z.array(z.number()).optional(),
+                    backdrop_path: z.string().nullable().optional(),
+                    genre_ids: z.array(z.number()).nullable().optional(),
                     id: z.number().default(0),
-                    media_type: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_title: z.string().optional(),
-                    overview: z.string().optional(),
+                    media_type: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_title: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
                     popularity: z.number().default(0),
-                    poster_path: z.string().optional(),
-                    release_date: z.string().optional(),
-                    title: z.string().optional(),
+                    poster_path: z.string().nullable().optional(),
+                    release_date: z.string().nullable().optional(),
+                    title: z.string().nullable().optional(),
                     video: z.boolean().default(true),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
               item_count: z.number().default(0),
-              iso_639_1: z.string().optional(),
-              name: z.string().optional(),
-              poster_path: z.string().optional(),
+              iso_639_1: z.string().nullable().optional(),
+              name: z.string().nullable().optional(),
+              poster_path: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11120,13 +12024,13 @@ export const operationsSchema = z.object({
       query: z.object({
         session_id: z.string(),
       }),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         list_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11134,7 +12038,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11145,17 +12049,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          movie_id: z.number().optional(),
+          language: z.string().nullable().optional(),
+          movie_id: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         list_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11175,9 +12080,9 @@ export const operationsSchema = z.object({
       query: z.object({
         session_id: z.string(),
       }),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -11187,6 +12092,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -11194,7 +12100,7 @@ export const operationsSchema = z.object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
               success: z.boolean().default(true),
               status_code: z.number().default(0),
               list_id: z.number().default(0),
@@ -11209,20 +12115,21 @@ export const operationsSchema = z.object({
       query: z.object({
         session_id: z.string(),
       }),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         list_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
         content: z.object({
           "application/json": z.object({
-            RAW_BODY: z.string().optional(),
+            RAW_BODY: z.string().nullable().optional(),
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -11231,7 +12138,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11243,11 +12150,11 @@ export const operationsSchema = z.object({
       query: z.object({
         session_id: z.string(),
       }),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         list_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -11257,6 +12164,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -11265,7 +12173,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11278,13 +12186,13 @@ export const operationsSchema = z.object({
         session_id: z.string(),
         confirm: z.boolean(),
       }),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         list_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11292,7 +12200,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11301,26 +12209,26 @@ export const operationsSchema = z.object({
   }),
   "network-details": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         network_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              headquarters: z.string().optional(),
-              homepage: z.string().optional(),
+              headquarters: z.string().nullable().optional(),
+              homepage: z.string().nullable().optional(),
               id: z.number().default(0),
-              logo_path: z.string().optional(),
-              name: z.string().optional(),
-              origin_country: z.string().optional(),
+              logo_path: z.string().nullable().optional(),
+              name: z.string().nullable().optional(),
+              origin_country: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11329,14 +12237,14 @@ export const operationsSchema = z.object({
   }),
   "details-copy": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         network_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11347,10 +12255,11 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    name: z.string().optional(),
-                    type: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    type: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -11360,14 +12269,14 @@ export const operationsSchema = z.object({
   }),
   "alternative-names-copy": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         network_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11379,15 +12288,16 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     aspect_ratio: z.number().default(0),
-                    file_path: z.string().optional(),
+                    file_path: z.string().nullable().optional(),
                     height: z.number().default(0),
-                    id: z.string().optional(),
-                    file_type: z.string().optional(),
+                    id: z.string().nullable().optional(),
+                    file_type: z.string().nullable().optional(),
                     vote_average: z.number().default(0),
                     vote_count: z.number().default(0),
                     width: z.number().default(0),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -11397,38 +12307,39 @@ export const operationsSchema = z.object({
   }),
   "review-details": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         review_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              id: z.string().optional(),
-              author: z.string().optional(),
+              id: z.string().nullable().optional(),
+              author: z.string().nullable().optional(),
               author_details: z
                 .object({
-                  name: z.string().optional(),
-                  username: z.string().optional(),
-                  avatar_path: z.string().optional(),
+                  name: z.string().nullable().optional(),
+                  username: z.string().nullable().optional(),
+                  avatar_path: z.string().nullable().optional(),
                   rating: z.number().default(0),
                 })
+                .nullable()
                 .optional(),
-              content: z.string().optional(),
-              created_at: z.string().optional(),
-              iso_639_1: z.string().optional(),
+              content: z.string().nullable().optional(),
+              created_at: z.string().nullable().optional(),
+              iso_639_1: z.string().nullable().optional(),
               media_id: z.number().default(0),
-              media_title: z.string().optional(),
-              media_type: z.string().optional(),
-              updated_at: z.string().optional(),
-              url: z.string().optional(),
+              media_title: z.string().nullable().optional(),
+              media_type: z.string().nullable().optional(),
+              updated_at: z.string().nullable().optional(),
+              url: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11437,12 +12348,12 @@ export const operationsSchema = z.object({
   }),
   "authentication-validate-key": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11451,7 +12362,7 @@ export const operationsSchema = z.object({
             "application/json": z.object({
               success: z.boolean().default(true),
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
             }),
           }),
         })
@@ -11462,7 +12373,7 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               status_code: z.number().default(0),
-              status_message: z.string().optional(),
+              status_message: z.string().nullable().optional(),
               success: z.boolean().default(true),
             }),
           }),
@@ -11474,17 +12385,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
         season_number: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -11496,1490 +12408,1683 @@ export const operationsSchema = z.object({
                 .object({
                   AE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   AU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   BS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   CZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   DZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   EC: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   EG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ES: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   FI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   FR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GF: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GQ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   GT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HN: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   HU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ID: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IQ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   IT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   JM: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   JP: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   KE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   KR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LB: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   LY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MD: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MX: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   MZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   NZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PL: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       rent: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   PY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RO: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RS: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   RU: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SC: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SI: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SK: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SN: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   SV: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TH: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TR: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TT: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TW: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   TZ: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   UG: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   US: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       buy: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       free: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   UY: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   VE: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ZA: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                   ZM: z
                     .object({
-                      link: z.string().optional(),
+                      link: z.string().nullable().optional(),
                       flatrate: z
                         .array(
                           z.object({
-                            logo_path: z.string().optional(),
+                            logo_path: z.string().nullable().optional(),
                             provider_id: z.number().default(0),
-                            provider_name: z.string().optional(),
+                            provider_name: z.string().nullable().optional(),
                             display_priority: z.number().default(0),
                           }),
                         )
+                        .nullable()
                         .optional(),
                     })
+                    .nullable()
                     .optional(),
                 })
+                .nullable()
                 .optional(),
             }),
           }),
@@ -12991,14 +14096,15 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
+          language: z.string().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13006,9 +14112,9 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.array(
               z.object({
-                iso_3166_1: z.string().optional(),
-                english_name: z.string().optional(),
-                native_name: z.string().optional(),
+                iso_3166_1: z.string().nullable().optional(),
+                english_name: z.string().nullable().optional(),
+                native_name: z.string().nullable().optional(),
               }),
             ),
           }),
@@ -13018,12 +14124,12 @@ export const operationsSchema = z.object({
   }),
   "configuration-jobs": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13031,8 +14137,8 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.array(
               z.object({
-                department: z.string().optional(),
-                jobs: z.array(z.string()).optional(),
+                department: z.string().nullable().optional(),
+                jobs: z.array(z.string()).nullable().optional(),
               }),
             ),
           }),
@@ -13042,12 +14148,12 @@ export const operationsSchema = z.object({
   }),
   "configuration-languages": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13055,9 +14161,9 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.array(
               z.object({
-                iso_639_1: z.string().optional(),
-                english_name: z.string().optional(),
-                name: z.string().optional(),
+                iso_639_1: z.string().nullable().optional(),
+                english_name: z.string().nullable().optional(),
+                name: z.string().nullable().optional(),
               }),
             ),
           }),
@@ -13067,12 +14173,12 @@ export const operationsSchema = z.object({
   }),
   "configuration-primary-translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13086,12 +14192,12 @@ export const operationsSchema = z.object({
   }),
   "configuration-timezones": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13099,8 +14205,8 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.array(
               z.object({
-                iso_3166_1: z.string().optional(),
-                zones: z.array(z.string()).optional(),
+                iso_3166_1: z.string().nullable().optional(),
+                zones: z.array(z.string()).nullable().optional(),
               }),
             ),
           }),
@@ -13110,10 +14216,10 @@ export const operationsSchema = z.object({
   }),
   "authentication-create-session-from-login": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     requestBody: z
       .object({
@@ -13123,6 +14229,7 @@ export const operationsSchema = z.object({
           }),
         }),
       })
+      .nullable()
       .optional(),
     responses: z.object({
       200: z
@@ -13131,8 +14238,8 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               success: z.boolean().default(true),
-              expires_at: z.string().optional(),
-              request_token: z.string().optional(),
+              expires_at: z.string().nullable().optional(),
+              request_token: z.string().nullable().optional(),
             }),
           }),
         })
@@ -13141,12 +14248,12 @@ export const operationsSchema = z.object({
   }),
   "person-latest-id": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13154,19 +14261,19 @@ export const operationsSchema = z.object({
           content: z.object({
             "application/json": z.object({
               adult: z.boolean().default(true),
-              also_known_as: z.array(z.unknown()).optional(),
-              biography: z.string().optional(),
-              birthday: z.unknown().optional(),
-              deathday: z.unknown().optional(),
+              also_known_as: z.array(z.unknown()).nullable().optional(),
+              biography: z.string().nullable().optional(),
+              birthday: z.unknown().nullable().optional(),
+              deathday: z.unknown().nullable().optional(),
               gender: z.number().default(0),
-              homepage: z.unknown().optional(),
+              homepage: z.unknown().nullable().optional(),
               id: z.number().default(0),
-              imdb_id: z.unknown().optional(),
-              known_for_department: z.unknown().optional(),
-              name: z.string().optional(),
-              place_of_birth: z.unknown().optional(),
+              imdb_id: z.unknown().nullable().optional(),
+              known_for_department: z.unknown().nullable().optional(),
+              name: z.string().nullable().optional(),
+              place_of_birth: z.unknown().nullable().optional(),
               popularity: z.number().default(0),
-              profile_path: z.unknown().optional(),
+              profile_path: z.unknown().nullable().optional(),
             }),
           }),
         })
@@ -13175,14 +14282,14 @@ export const operationsSchema = z.object({
   }),
   "tv-episode-changes-by-id": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         episode_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13192,19 +14299,21 @@ export const operationsSchema = z.object({
               changes: z
                 .array(
                   z.object({
-                    key: z.string().optional(),
+                    key: z.string().nullable().optional(),
                     items: z
                       .array(
                         z.object({
-                          id: z.string().optional(),
-                          action: z.string().optional(),
-                          time: z.string().optional(),
-                          value: z.string().optional(),
+                          id: z.string().nullable().optional(),
+                          action: z.string().nullable().optional(),
+                          time: z.string().nullable().optional(),
+                          value: z.string().nullable().optional(),
                         }),
                       )
+                      .nullable()
                       .optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
             }),
           }),
@@ -13214,61 +14323,64 @@ export const operationsSchema = z.object({
   }),
   "tv-episode-group-details": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         tv_episode_group_id: z.string(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
           headers: z.record(z.unknown()),
           content: z.object({
             "application/json": z.object({
-              description: z.string().optional(),
+              description: z.string().nullable().optional(),
               episode_count: z.number().default(0),
               group_count: z.number().default(0),
               groups: z
                 .array(
                   z.object({
-                    id: z.string().optional(),
-                    name: z.string().optional(),
+                    id: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
                     order: z.number().default(0),
                     episodes: z
                       .array(
                         z.object({
-                          air_date: z.string().optional(),
+                          air_date: z.string().nullable().optional(),
                           episode_number: z.number().default(0),
                           id: z.number().default(0),
-                          name: z.string().optional(),
-                          overview: z.string().optional(),
-                          production_code: z.string().optional(),
-                          runtime: z.unknown().optional(),
+                          name: z.string().nullable().optional(),
+                          overview: z.string().nullable().optional(),
+                          production_code: z.string().nullable().optional(),
+                          runtime: z.unknown().nullable().optional(),
                           season_number: z.number().default(0),
                           show_id: z.number().default(0),
-                          still_path: z.string().optional(),
+                          still_path: z.string().nullable().optional(),
                           vote_average: z.number().default(0),
                           vote_count: z.number().default(0),
                           order: z.number().default(0),
                         }),
                       )
+                      .nullable()
                       .optional(),
                     locked: z.boolean().default(true),
                   }),
                 )
+                .nullable()
                 .optional(),
-              id: z.string().optional(),
-              name: z.string().optional(),
+              id: z.string().nullable().optional(),
+              name: z.string().nullable().optional(),
               network: z
                 .object({
                   id: z.number().default(0),
-                  logo_path: z.string().optional(),
-                  name: z.string().optional(),
-                  origin_country: z.string().optional(),
+                  logo_path: z.string().nullable().optional(),
+                  name: z.string().nullable().optional(),
+                  origin_country: z.string().nullable().optional(),
                 })
+                .nullable()
                 .optional(),
               type: z.number().default(0),
             }),
@@ -13281,13 +14393,13 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z.object({
         query: z.string(),
-        page: z.number().optional(),
+        page: z.number().nullable().optional(),
       }),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13299,11 +14411,12 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    logo_path: z.string().optional(),
-                    name: z.string().optional(),
-                    origin_country: z.string().optional(),
+                    logo_path: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    origin_country: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -13317,16 +14430,16 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z.object({
         query: z.string(),
-        include_adult: z.boolean().optional(),
-        language: z.string().optional(),
-        page: z.number().optional(),
-        region: z.string().optional(),
+        include_adult: z.boolean().nullable().optional(),
+        language: z.string().nullable().optional(),
+        page: z.number().nullable().optional(),
+        region: z.string().nullable().optional(),
       }),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13338,15 +14451,16 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     adult: z.boolean().default(true),
-                    backdrop_path: z.string().optional(),
+                    backdrop_path: z.string().nullable().optional(),
                     id: z.number().default(0),
-                    name: z.string().optional(),
-                    original_language: z.string().optional(),
-                    original_name: z.string().optional(),
-                    overview: z.string().optional(),
-                    poster_path: z.string().optional(),
+                    name: z.string().nullable().optional(),
+                    original_language: z.string().nullable().optional(),
+                    original_name: z.string().nullable().optional(),
+                    overview: z.string().nullable().optional(),
+                    poster_path: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -13360,13 +14474,13 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z.object({
         query: z.string(),
-        page: z.number().optional(),
+        page: z.number().nullable().optional(),
       }),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13378,9 +14492,10 @@ export const operationsSchema = z.object({
                 .array(
                   z.object({
                     id: z.number().default(0),
-                    name: z.string().optional(),
+                    name: z.string().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -13394,17 +14509,18 @@ export const operationsSchema = z.object({
     parameters: z.object({
       query: z
         .object({
-          language: z.string().optional(),
-          page: z.number().optional(),
+          language: z.string().nullable().optional(),
+          page: z.number().nullable().optional(),
         })
+        .nullable()
         .optional(),
-      header: z.never().optional(),
+      header: z.never().nullable().optional(),
       path: z.object({
         series_id: z.number(),
       }),
-      cookie: z.never().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    requestBody: z.never().optional(),
+    requestBody: z.never().nullable().optional(),
     responses: z.object({
       200: z
         .object({
@@ -13416,16 +14532,17 @@ export const operationsSchema = z.object({
               results: z
                 .array(
                   z.object({
-                    description: z.string().optional(),
+                    description: z.string().nullable().optional(),
                     favorite_count: z.number().default(0),
                     id: z.number().default(0),
                     item_count: z.number().default(0),
-                    iso_639_1: z.string().optional(),
-                    iso_3166_1: z.string().optional(),
-                    name: z.string().optional(),
-                    poster_path: z.unknown().optional(),
+                    iso_639_1: z.string().nullable().optional(),
+                    iso_3166_1: z.string().nullable().optional(),
+                    name: z.string().nullable().optional(),
+                    poster_path: z.unknown().nullable().optional(),
                   }),
                 )
+                .nullable()
                 .optional(),
               total_pages: z.number().default(0),
               total_results: z.number().default(0),
@@ -13453,2637 +14570,2637 @@ export const defsSchema = z.record(z.never());
 export const pathsSchema = z.object({
   "/3/search/movie": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["search-movie"].describe(
       "Search for movies by their original, translated and alternative titles.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/discover/movie": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["discover-movie"].describe(
       "Find movies using over 30 filters and sort options.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-details"].describe(
       "Get the top level details of a movie by ID.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-details"].describe(
       "Get the details of a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/search/tv": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["search-tv"].describe(
       "Search for TV shows by their original, translated and also known as names.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/search/multi": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["search-multi"].describe(
       "Use multi search when you want to search for movies, TV shows and people in a single request.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/search/person": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["search-person"].describe(
       "Search for people by their name and also known as names.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/configuration": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["configuration-details"].describe(
       "Query the API configuration details.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-details"].describe(
       "Query the details of a TV season.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}": z.object(
     {
       parameters: z.object({
-        query: z.never().optional(),
-        header: z.never().optional(),
-        path: z.never().optional(),
-        cookie: z.never().optional(),
+        query: z.never().nullable().optional(),
+        header: z.never().nullable().optional(),
+        path: z.never().nullable().optional(),
+        cookie: z.never().nullable().optional(),
       }),
       get: operationsSchema.shape["tv-episode-details"].describe(
         "Query the details of a TV episode.",
       ),
-      put: z.never().optional(),
-      post: z.never().optional(),
-      delete: z.never().optional(),
-      options: z.never().optional(),
-      head: z.never().optional(),
-      patch: z.never().optional(),
-      trace: z.never().optional(),
+      put: z.never().nullable().optional(),
+      post: z.never().nullable().optional(),
+      delete: z.never().nullable().optional(),
+      options: z.never().nullable().optional(),
+      head: z.never().nullable().optional(),
+      patch: z.never().nullable().optional(),
+      trace: z.never().nullable().optional(),
     },
   ),
   "/3/discover/tv": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["discover-tv"].describe(
       "Find TV shows using over 30 filters and sort options.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-images"].describe(
       "Get the images that belong to a movie.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-images"].describe(
       "Get the images that belong to a TV series.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-images"].describe(
       "Get the images that belong to a TV season.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}/images":
     z.object({
       parameters: z.object({
-        query: z.never().optional(),
-        header: z.never().optional(),
-        path: z.never().optional(),
-        cookie: z.never().optional(),
+        query: z.never().nullable().optional(),
+        header: z.never().nullable().optional(),
+        path: z.never().nullable().optional(),
+        cookie: z.never().nullable().optional(),
       }),
       get: operationsSchema.shape["tv-episode-images"].describe(
         "Get the images that belong to a TV episode.",
       ),
-      put: z.never().optional(),
-      post: z.never().optional(),
-      delete: z.never().optional(),
-      options: z.never().optional(),
-      head: z.never().optional(),
-      patch: z.never().optional(),
-      trace: z.never().optional(),
+      put: z.never().nullable().optional(),
+      post: z.never().nullable().optional(),
+      delete: z.never().nullable().optional(),
+      options: z.never().nullable().optional(),
+      head: z.never().nullable().optional(),
+      patch: z.never().nullable().optional(),
+      trace: z.never().nullable().optional(),
     }),
   "/3/trending/all/{time_window}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["trending-all"].describe(
       "Get the trending movies, TV shows and people.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/trending/movie/{time_window}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["trending-movies"].describe(
       "Get the trending movies on TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/trending/tv/{time_window}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["trending-tv"].describe(
       "Get the trending TV shows on TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/account_states": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-account-states"].describe(
       "Get the rating, watchlist and favourite status of an account.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/account_states": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-account-states"].describe(
       "Get the rating, watchlist and favourite status.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}/account_states":
     z.object({
       parameters: z.object({
-        query: z.never().optional(),
-        header: z.never().optional(),
-        path: z.never().optional(),
-        cookie: z.never().optional(),
+        query: z.never().nullable().optional(),
+        header: z.never().nullable().optional(),
+        path: z.never().nullable().optional(),
+        cookie: z.never().nullable().optional(),
       }),
       get: operationsSchema.shape["tv-episode-account-states"].describe(
         "Get the rating, watchlist and favourite status.",
       ),
-      put: z.never().optional(),
-      post: z.never().optional(),
-      delete: z.never().optional(),
-      options: z.never().optional(),
-      head: z.never().optional(),
-      patch: z.never().optional(),
-      trace: z.never().optional(),
+      put: z.never().nullable().optional(),
+      post: z.never().nullable().optional(),
+      delete: z.never().nullable().optional(),
+      options: z.never().nullable().optional(),
+      head: z.never().nullable().optional(),
+      patch: z.never().nullable().optional(),
+      trace: z.never().nullable().optional(),
     }),
   "/3/trending/person/{time_window}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["trending-people"].describe(
       "Get the trending people on TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/alternative_titles": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-alternative-titles"].describe(
       "Get the alternative titles for a movie.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/changes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-changes"].describe(
       "Get the recent changes for a movie.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/credits": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-credits"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/external_ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-external-ids"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/keywords": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-keywords"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/lists": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-lists"].describe(
       "Get the lists that a movie has been added to.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/recommendations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-recommendations"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/release_dates": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-release-dates"].describe(
       "Get the release dates and certifications for a movie.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/reviews": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-reviews"].describe(
       "Get the user reviews for a movie.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/similar": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-similar"].describe(
       "Get the similar movies based on genres and keywords.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-translations"].describe(
       "Get the translations for a movie.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/videos": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-videos"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/watch/providers": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-watch-providers"].describe(
       "Get the list of streaming providers we have for a movie.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/{movie_id}/rating": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["movie-add-rating"].describe(
       "Rate a movie and save it to your rated list.",
     ),
     delete: operationsSchema.shape["movie-delete-rating"].describe(
       "Delete a user rating.",
     ),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/authentication/guest_session/new": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["authentication-create-guest-session"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/authentication/token/new": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["authentication-create-request-token"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/authentication/session/new": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["authentication-create-session"],
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/authentication/session/convert/4": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["authentication-create-session-from-v4-token"],
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/authentication/session": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
-    post: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
     delete: operationsSchema.shape["authentication-delete-session"],
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/find/{external_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["find-by-id"].describe(
       "Find data by external ID's.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-details"].describe(
       "Query the top level details of a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}/changes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-changes"].describe(
       "Get the recent changes for a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/changes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-changes"].describe(
       "Get the recent changes for a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}/images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-images"].describe(
       "Get the profile images that belong to a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}/movie_credits": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-movie-credits"].describe(
       "Get the movie credits for a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}/tv_credits": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-tv-credits"].describe(
       "Get the TV credits that belong to a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}/combined_credits": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-combined-credits"].describe(
       "Get the combined movie and TV credits that belong to a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}/external_ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-external-ids"].describe(
       "Get the external ID's that belong to a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}/tagged_images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-tagged-images"].describe(
       "Get the tagged images for a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/{person_id}/translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape.translations.describe(
       "Get the translations that belong to a person.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/popular": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-popular-list"].describe(
       "Get a list of people ordered by popularity.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/popular": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-popular-list"].describe(
       "Get a list of movies ordered by popularity.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/top_rated": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-top-rated-list"].describe(
       "Get a list of movies ordered by rating.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/upcoming": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-upcoming-list"].describe(
       "Get a list of movies that are being released soon.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/now_playing": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-now-playing-list"].describe(
       "Get a list of movies that are currently in theatres.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/airing_today": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-airing-today-list"].describe(
       "Get a list of TV shows airing today.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/on_the_air": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-on-the-air-list"].describe(
       "Get a list of TV shows that air in the next 7 days.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/popular": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-popular-list"].describe(
       "Get a list of TV shows ordered by popularity.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/top_rated": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-top-rated-list"].describe(
       "Get a list of TV shows ordered by rating.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/latest": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["movie-latest-id"].describe(
       "Get the newest movie ID.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/latest": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-latest-id"].describe(
       "Get the newest TV show ID.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/aggregate_credits": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-aggregate-credits"].describe(
       "Get the aggregate credits (cast and crew) that have been added to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/alternative_titles": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-alternative-titles"].describe(
       "Get the alternative titles that have been added to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/content_ratings": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-content-ratings"].describe(
       "Get the content ratings that have been added to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/credits": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-credits"].describe(
       "Get the latest season credits of a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/episode_groups": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-episode-groups"].describe(
       "Get the episode groups that have been added to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/external_ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-external-ids"].describe(
       "Get a list of external IDs that have been added to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/keywords": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-keywords"].describe(
       "Get a list of keywords that have been added to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/recommendations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-recommendations"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/reviews": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-reviews"].describe(
       "Get the reviews that have been added to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/screened_theatrically": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-screened-theatrically"].describe(
       "Get the seasons and episodes that have screened theatrically.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/similar": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-similar"].describe(
       "Get the similar TV shows.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-translations"].describe(
       "Get the translations that have been added to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/videos": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-videos"].describe(
       "Get the videos that belong to a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/watch/providers": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-series-watch-providers"].describe(
       "Get the list of streaming providers we have for a TV show.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/rating": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["tv-series-add-rating"].describe(
       "Rate a TV show and save it to your rated list.",
     ),
     delete: operationsSchema.shape["tv-series-delete-rating"],
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/account_states": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-account-states"].describe(
       "Get the rating, watchlist and favourite status.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/aggregate_credits": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-aggregate-credits"].describe(
       "Get the aggregate credits (cast and crew) that have been added to a TV season.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/season/{season_id}/changes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-changes-by-id"].describe(
       "Get the recent changes for a TV season.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/credits": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-credits"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/external_ids": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-external-ids"].describe(
       "Get a list of external IDs that have been added to a TV season.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-translations"].describe(
       "Get the translations for a TV season.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/videos": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-videos"].describe(
       "Get the videos that belong to a TV season.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}/credits":
     z.object({
       parameters: z.object({
-        query: z.never().optional(),
-        header: z.never().optional(),
-        path: z.never().optional(),
-        cookie: z.never().optional(),
+        query: z.never().nullable().optional(),
+        header: z.never().nullable().optional(),
+        path: z.never().nullable().optional(),
+        cookie: z.never().nullable().optional(),
       }),
       get: operationsSchema.shape["tv-episode-credits"],
-      put: z.never().optional(),
-      post: z.never().optional(),
-      delete: z.never().optional(),
-      options: z.never().optional(),
-      head: z.never().optional(),
-      patch: z.never().optional(),
-      trace: z.never().optional(),
+      put: z.never().nullable().optional(),
+      post: z.never().nullable().optional(),
+      delete: z.never().nullable().optional(),
+      options: z.never().nullable().optional(),
+      head: z.never().nullable().optional(),
+      patch: z.never().nullable().optional(),
+      trace: z.never().nullable().optional(),
     }),
   "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}/external_ids":
     z.object({
       parameters: z.object({
-        query: z.never().optional(),
-        header: z.never().optional(),
-        path: z.never().optional(),
-        cookie: z.never().optional(),
+        query: z.never().nullable().optional(),
+        header: z.never().nullable().optional(),
+        path: z.never().nullable().optional(),
+        cookie: z.never().nullable().optional(),
       }),
       get: operationsSchema.shape["tv-episode-external-ids"].describe(
         "Get a list of external IDs that have been added to a TV episode.",
       ),
-      put: z.never().optional(),
-      post: z.never().optional(),
-      delete: z.never().optional(),
-      options: z.never().optional(),
-      head: z.never().optional(),
-      patch: z.never().optional(),
-      trace: z.never().optional(),
+      put: z.never().nullable().optional(),
+      post: z.never().nullable().optional(),
+      delete: z.never().nullable().optional(),
+      options: z.never().nullable().optional(),
+      head: z.never().nullable().optional(),
+      patch: z.never().nullable().optional(),
+      trace: z.never().nullable().optional(),
     }),
   "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}/translations":
     z.object({
       parameters: z.object({
-        query: z.never().optional(),
-        header: z.never().optional(),
-        path: z.never().optional(),
-        cookie: z.never().optional(),
+        query: z.never().nullable().optional(),
+        header: z.never().nullable().optional(),
+        path: z.never().nullable().optional(),
+        cookie: z.never().nullable().optional(),
       }),
       get: operationsSchema.shape["tv-episode-translations"].describe(
         "Get the translations that have been added to a TV episode.",
       ),
-      put: z.never().optional(),
-      post: z.never().optional(),
-      delete: z.never().optional(),
-      options: z.never().optional(),
-      head: z.never().optional(),
-      patch: z.never().optional(),
-      trace: z.never().optional(),
+      put: z.never().nullable().optional(),
+      post: z.never().nullable().optional(),
+      delete: z.never().nullable().optional(),
+      options: z.never().nullable().optional(),
+      head: z.never().nullable().optional(),
+      patch: z.never().nullable().optional(),
+      trace: z.never().nullable().optional(),
     }),
   "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}/videos":
     z.object({
       parameters: z.object({
-        query: z.never().optional(),
-        header: z.never().optional(),
-        path: z.never().optional(),
-        cookie: z.never().optional(),
+        query: z.never().nullable().optional(),
+        header: z.never().nullable().optional(),
+        path: z.never().nullable().optional(),
+        cookie: z.never().nullable().optional(),
       }),
       get: operationsSchema.shape["tv-episode-videos"].describe(
         "Get the videos that belong to a TV episode.",
       ),
-      put: z.never().optional(),
-      post: z.never().optional(),
-      delete: z.never().optional(),
-      options: z.never().optional(),
-      head: z.never().optional(),
-      patch: z.never().optional(),
-      trace: z.never().optional(),
+      put: z.never().nullable().optional(),
+      post: z.never().nullable().optional(),
+      delete: z.never().nullable().optional(),
+      options: z.never().nullable().optional(),
+      head: z.never().nullable().optional(),
+      patch: z.never().nullable().optional(),
+      trace: z.never().nullable().optional(),
     }),
   "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}/rating":
     z.object({
       parameters: z.object({
-        query: z.never().optional(),
-        header: z.never().optional(),
-        path: z.never().optional(),
-        cookie: z.never().optional(),
+        query: z.never().nullable().optional(),
+        header: z.never().nullable().optional(),
+        path: z.never().nullable().optional(),
+        cookie: z.never().nullable().optional(),
       }),
-      get: z.never().optional(),
-      put: z.never().optional(),
+      get: z.never().nullable().optional(),
+      put: z.never().nullable().optional(),
       post: operationsSchema.shape["tv-episode-add-rating"].describe(
         "Rate a TV episode and save it to your rated list.",
       ),
       delete: operationsSchema.shape["tv-episode-delete-rating"].describe(
         "Delete your rating on a TV episode.",
       ),
-      options: z.never().optional(),
-      head: z.never().optional(),
-      patch: z.never().optional(),
-      trace: z.never().optional(),
+      options: z.never().nullable().optional(),
+      head: z.never().nullable().optional(),
+      patch: z.never().nullable().optional(),
+      trace: z.never().nullable().optional(),
     }),
   "/3/account/{account_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-details"].describe(
       "Get the public details of an account on TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/lists": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-lists"].describe(
       "Get a users list of custom lists.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/favorite/movies": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-get-favorites"].describe(
       "Get a users list of favourite movies.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/favorite/tv": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-favorite-tv"].describe(
       "Get a users list of favourite TV shows.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/rated/movies": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-rated-movies"].describe(
       "Get a users list of rated movies.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/rated/tv": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-rated-tv"].describe(
       "Get a users list of rated TV shows.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/rated/tv/episodes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-rated-tv-episodes"].describe(
       "Get a users list of rated TV episodes.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/watchlist/movies": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-watchlist-movies"].describe(
       "Get a list of movies added to a users watchlist.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/watchlist/tv": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["account-watchlist-tv"].describe(
       "Get a list of TV shows added to a users watchlist.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/favorite": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["account-add-favorite"].describe(
       "Mark a movie or TV show as a favourite.",
     ),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/account/{account_id}/watchlist": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["account-add-to-watchlist"].describe(
       "Add a movie or TV show to your watchlist.",
     ),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/certification/movie/list": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["certification-movie-list"].describe(
       "Get an up to date list of the officially supported movie certifications on TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/certification/tv/list": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["certifications-tv-list"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/movie/changes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["changes-movie-list"].describe(
       "Get a list of all of the movie ids that have been changed in the past 24 hours.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/changes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["changes-tv-list"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/changes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["changes-people-list"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/collection/{collection_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["collection-details"].describe(
       "Get collection details by ID.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/collection/{collection_id}/images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["collection-images"].describe(
       "Get the images that belong to a collection.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/collection/{collection_id}/translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["collection-translations"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/company/{company_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["company-details"].describe(
       "Get the company details by ID.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/company/{company_id}/alternative_names": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["company-alternative-names"].describe(
       "Get the company details by ID.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/company/{company_id}/images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["company-images"].describe(
       "Get the company logos by id.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/credit/{credit_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["credit-details"].describe(
       "Get a movie or TV credit details by ID.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/genre/movie/list": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["genre-movie-list"].describe(
       "Get the list of official genres for movies.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/genre/tv/list": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["genre-tv-list"].describe(
       "Get the list of official genres for TV shows.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/guest_session/{guest_session_id}/rated/movies": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["guest-session-rated-movies"].describe(
       "Get the rated movies for a guest session.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/guest_session/{guest_session_id}/rated/tv": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["guest-session-rated-tv"].describe(
       "Get the rated TV shows for a guest session.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/guest_session/{guest_session_id}/rated/tv/episodes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["guest-session-rated-tv-episodes"].describe(
       "Get the rated TV episodes for a guest session.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/watch/providers/regions": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["watch-providers-available-regions"].describe(
       "Get the list of the countries we have watch provider (OTT/streaming) data for.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/watch/providers/movie": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["watch-providers-movie-list"].describe(
       "Get the list of streaming providers we have for movies.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/watch/providers/tv": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["watch-provider-tv-list"].describe(
       "Get the list of streaming providers we have for TV shows.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/keyword/{keyword_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["keyword-details"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/keyword/{keyword_id}/movies": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["keyword-movies"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/list/{list_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["list-details"],
-    put: z.never().optional(),
-    post: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
     delete: operationsSchema.shape["list-delete"].describe("Delete a list."),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/list/{list_id}/item_status": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["list-check-item-status"].describe(
       "Use this method to check if an item has already been added to the list.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/list": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["list-create"],
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/list/{list_id}/add_item": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["list-add-movie"].describe(
       "Add a movie to a list.",
     ),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/list/{list_id}/remove_item": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["list-remove-movie"].describe(
       "Remove a movie from a list.",
     ),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/list/{list_id}/clear": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape["list-clear"].describe(
       "Clear all items from a list.",
     ),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/network/{network_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["network-details"],
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/network/{network_id}/alternative_names": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["details-copy"].describe(
       "Get the alternative names of a network.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/network/{network_id}/images": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["alternative-names-copy"].describe(
       "Get the TV network logos by id.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/review/{review_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["review-details"].describe(
       "Retrieve the details of a movie or TV show review.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/authentication": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["authentication-validate-key"].describe(
       "Test your API Key to see if it's valid.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/season/{season_number}/watch/providers": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-season-watch-providers"].describe(
       "Get the list of streaming providers we have for a TV season.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/configuration/countries": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["configuration-countries"].describe(
       "Get the list of countries (ISO 3166-1 tags) used throughout TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/configuration/jobs": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["configuration-jobs"].describe(
       "Get the list of the jobs and departments we use on TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/configuration/languages": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["configuration-languages"].describe(
       "Get the list of languages (ISO 639-1 tags) used throughout TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/configuration/primary_translations": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["configuration-primary-translations"].describe(
       "Get a list of the officially supported translations on TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/configuration/timezones": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["configuration-timezones"].describe(
       "Get the list of timezones used throughout TMDB.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/authentication/token/validate_with_login": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
-    get: z.never().optional(),
-    put: z.never().optional(),
+    get: z.never().nullable().optional(),
+    put: z.never().nullable().optional(),
     post: operationsSchema.shape[
       "authentication-create-session-from-login"
     ].describe(
       "This method allows an application to validate a request token by entering a username and password.",
     ),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/person/latest": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["person-latest-id"].describe(
       "Get the newest created person. This is a live response and will continuously change.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/episode/{episode_id}/changes": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-episode-changes-by-id"].describe(
       "Get the recent changes for a TV episode.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/episode_group/{tv_episode_group_id}": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["tv-episode-group-details"].describe(
       "Get the details of a TV episode group.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/search/company": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["search-company"].describe(
       "Search for companies by their original and alternative names.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/search/collection": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["search-collection"].describe(
       "Search for collections by their original, translated and alternative names.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/search/keyword": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["search-keyword"].describe(
       "Search for keywords by their name.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
   "/3/tv/{series_id}/lists": z.object({
     parameters: z.object({
-      query: z.never().optional(),
-      header: z.never().optional(),
-      path: z.never().optional(),
-      cookie: z.never().optional(),
+      query: z.never().nullable().optional(),
+      header: z.never().nullable().optional(),
+      path: z.never().nullable().optional(),
+      cookie: z.never().nullable().optional(),
     }),
     get: operationsSchema.shape["lists-copy"].describe(
       "Get the lists that a TV series has been added to.",
     ),
-    put: z.never().optional(),
-    post: z.never().optional(),
-    delete: z.never().optional(),
-    options: z.never().optional(),
-    head: z.never().optional(),
-    patch: z.never().optional(),
-    trace: z.never().optional(),
+    put: z.never().nullable().optional(),
+    post: z.never().nullable().optional(),
+    delete: z.never().nullable().optional(),
+    options: z.never().nullable().optional(),
+    head: z.never().nullable().optional(),
+    patch: z.never().nullable().optional(),
+    trace: z.never().nullable().optional(),
   }),
 });
