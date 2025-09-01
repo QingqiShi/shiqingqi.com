@@ -1,4 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import type { paths } from "@/_generated/tmdbV3";
 import { apiRequestWrapper } from "./api-request-wrapper";
 import type {
   fetchMovieList,
@@ -9,11 +10,27 @@ import type {
   fetchTvShowGenres,
 } from "./tmdb-api";
 import type { fetchConfiguration } from "./tmdb-api";
+import type { MediaListItem } from "./types";
+
+type MovieResult = NonNullable<
+  paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"]["results"]
+>[0];
+type TvResult = NonNullable<
+  paths["/3/discover/tv"]["get"]["responses"]["200"]["content"]["application/json"]["results"]
+>[0];
+type MediaResult = MovieResult | TvResult;
 
 export const tmdbScope = [{ scope: "tmdb" }];
 
 type MovieListParams = Parameters<typeof fetchMovieList>[0] & { type: "movie" };
 type TvShowListParams = Parameters<typeof fetchTvShowList>[0] & { type: "tv" };
+
+function isMovieListResult(
+  type: "movie" | "tv",
+  result: MediaResult,
+): result is MovieResult {
+  return type === "movie";
+}
 
 export const mediaList = (params: MovieListParams | TvShowListParams) => {
   return infiniteQueryOptions({
@@ -40,8 +57,22 @@ export const mediaList = (params: MovieListParams | TvShowListParams) => {
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
     select: (data) => {
       const mediaList = data.pages
-        .flatMap((page) => page.results)
-        .filter((x) => !!x);
+        .flatMap<MediaResult>((page) => page.results ?? [])
+        .map<MediaListItem>((media) =>
+          isMovieListResult(params.type, media)
+            ? {
+                id: media.id,
+                title: media.title,
+                posterPath: media.poster_path,
+                rating: media.vote_average,
+              }
+            : {
+                id: media.id,
+                title: media.name,
+                posterPath: media.poster_path,
+                rating: media.vote_average,
+              },
+        );
       // Removes duplicates
       return Array.from(
         new Map(mediaList.map((media) => [media.id, media])).values(),
@@ -80,10 +111,24 @@ export const similarMedia = (params: SimilarMediaParams) => {
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    select: (data) => {
+    select: (data: { pages: Array<{ results?: MediaResult[] }> }) => {
       const mediaList = data.pages
-        .flatMap((page) => page.results)
-        .filter((x) => !!x);
+        .flatMap<MediaResult>((page) => page.results ?? [])
+        .map<MediaListItem>((media) =>
+          isMovieListResult(params.type, media)
+            ? {
+                id: media.id,
+                title: media.title,
+                posterPath: media.poster_path,
+                rating: media.vote_average,
+              }
+            : {
+                id: media.id,
+                title: media.name,
+                posterPath: media.poster_path,
+                rating: media.vote_average,
+              },
+        );
       // Removes duplicates
       return Array.from(
         new Map(mediaList.map((media) => [media.id, media])).values(),
