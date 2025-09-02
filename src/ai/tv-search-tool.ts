@@ -17,7 +17,7 @@ type TvSearchParams = NonNullable<
 export const searchTvShowsByTitleTool = zodResponsesFunction({
   name: "search_tv_shows_by_title",
   description:
-    "Search for specific TV shows by their title, original title, or also known as names. Use this when users ask for a specific TV show name or want to find shows with particular titles.",
+    "Search for TV shows by their original, translated and also known as names. Use this when users ask for a specific TV show name or want to find shows with particular titles.",
   parameters: tvSearchSchema,
 });
 

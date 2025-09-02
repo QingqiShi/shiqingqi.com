@@ -17,7 +17,7 @@ type MovieSearchParams = NonNullable<
 export const searchMoviesByTitleTool = zodResponsesFunction({
   name: "search_movies_by_title",
   description:
-    "Search for specific movies by their title, original title, or alternative titles. Use this when users ask for a specific movie name or want to find movies with particular titles.",
+    "Search for movies by their original, translated and alternative titles. Use this when users ask for a specific movie name or want to find movies with particular titles.",
   parameters: movieSearchSchema,
 });
 

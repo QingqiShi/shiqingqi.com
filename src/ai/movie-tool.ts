@@ -20,7 +20,7 @@ type MovieDiscoveryParams = NonNullable<
 export const movieDiscoveryTool = zodResponsesFunction({
   name: "discover_movies",
   description:
-    "Discover and search for movies based on various criteria like genre, rating, and sorting preferences. Use this when users ask about finding movies, movie recommendations, or want to explore movies by specific criteria.",
+    "Find movies using over 30 filters and sort options. Use this when users ask about finding movies, movie recommendations, or want to explore movies by specific criteria.",
   parameters: movieDiscoverySchema,
 });
 
