@@ -20,7 +20,7 @@ type TvDiscoveryParams = NonNullable<
 export const tvDiscoveryTool = zodResponsesFunction({
   name: "discover_tv_shows",
   description:
-    "Discover and search for TV shows based on various criteria like genre, rating, and sorting preferences. Use this when users ask about finding TV shows, series recommendations, or want to explore TV shows by specific criteria.",
+    "Find TV shows using over 30 filters and sort options. Use this when users ask about finding TV shows, series recommendations, or want to explore TV shows by specific criteria.",
   parameters: tvDiscoverySchema,
 });
 
