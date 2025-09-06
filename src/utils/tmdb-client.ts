@@ -85,7 +85,7 @@ export async function tmdbGet<TPath extends keyof paths>(
 
     // Additional security check: ensure the URL is still pointing to TMDB
     const urlObj = new URL(url);
-    if (!urlObj.hostname.endsWith("themoviedb.org")) {
+    if (urlObj.hostname !== "api.themoviedb.org") {
       throw new Error("Invalid URL: must be a TMDB API endpoint");
     }
 
