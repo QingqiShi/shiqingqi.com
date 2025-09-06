@@ -1,8 +1,8 @@
 import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
+import { searchTvShows } from "@/_generated/tmdb-server-functions";
 import { operationsSchema } from "@/_generated/tmdb-zod";
 import type { paths } from "@/_generated/tmdbV3";
-import { searchTvShowsByTitle } from "@/utils/tmdb-api";
 
 // Extract Zod schema from generated schemas
 const tvSearchSchema =
@@ -35,9 +35,7 @@ export async function executeTvSearchToolCall(toolCall: {
 
   // Parse and validate with Zod schema
   const validatedParams = tvSearchSchema.parse(args);
-  const tvResults = await searchTvShowsByTitle(
-    validatedParams as TvSearchParams,
-  );
+  const tvResults = await searchTvShows(validatedParams as TvSearchParams);
 
   return {
     call_id: toolCall.call_id,

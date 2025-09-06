@@ -4,8 +4,11 @@ import { zodTextFormat } from "openai/helpers/zod";
 import type { ResponseInput } from "openai/resources/responses/responses.mjs";
 import "server-only";
 import { z } from "zod";
+import {
+  getMovieGenres,
+  getTvShowGenres,
+} from "@/_generated/tmdb-server-functions";
 import type { SupportedLocale } from "@/types";
-import { fetchMovieGenres, fetchTvShowGenres } from "@/utils/tmdb-api";
 import type { MediaListItem } from "@/utils/types";
 import { OPENAI_MODEL, openaiClient } from "./client";
 import { availableTools, executeToolCall } from "./tools";
@@ -48,21 +51,21 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
 
   try {
     const [movieGenreResponse, tvGenreResponse] = await Promise.all([
-      fetchMovieGenres({ language: locale }),
-      fetchTvShowGenres({ language: locale }),
+      getMovieGenres({ language: locale }),
+      getTvShowGenres({ language: locale }),
     ]);
 
     // Format movie genres
     if (movieGenreResponse.genres) {
       movieGenres = movieGenreResponse.genres
-        .map((genre) => `${genre.name} (${genre.id})`)
+        .map((genre) => `${genre.name || "Unknown"} (${genre.id})`)
         .join(", ");
     }
 
     // Format TV genres
     if (tvGenreResponse.genres) {
       tvGenres = tvGenreResponse.genres
-        .map((genre) => `${genre.name} (${genre.id})`)
+        .map((genre) => `${genre.name || "Unknown"} (${genre.id})`)
         .join(", ");
     }
   } catch (error) {

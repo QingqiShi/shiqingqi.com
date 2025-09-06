@@ -1,8 +1,8 @@
 import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
+import { discoverMovies } from "@/_generated/tmdb-server-functions";
 import { operationsSchema } from "@/_generated/tmdb-zod";
 import type { paths } from "@/_generated/tmdbV3";
-import { fetchMovieList } from "@/utils/tmdb-api";
 
 // Extract Zod schema from generated schemas and make it required
 const movieDiscoverySchema = operationsSchema.shape[
@@ -38,7 +38,7 @@ export async function executeMovieToolCall(toolCall: {
 
   // Parse and validate with Zod schema
   const validatedParams = movieDiscoverySchema.parse(args);
-  const movieResults = await fetchMovieList(
+  const movieResults = await discoverMovies(
     validatedParams as MovieDiscoveryParams,
   );
 

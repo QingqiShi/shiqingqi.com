@@ -1,12 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
+import { getConfiguration } from "@/_generated/tmdb-server-functions";
 import { breakpoints } from "@/breakpoints";
 import { ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchConfiguration } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
@@ -30,7 +30,7 @@ export function SimilarMedia({
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery({
     ...tmdbQueries.configuration,
-    queryFn: async () => fetchConfiguration(),
+    queryFn: async () => getConfiguration(),
   });
 
   return (

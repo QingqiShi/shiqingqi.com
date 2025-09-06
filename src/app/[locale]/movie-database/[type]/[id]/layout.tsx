@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import {
+  getMovieDetails,
+  getTvShowDetails,
+} from "@/_generated/tmdb-server-functions";
 import { breakpoints } from "@/breakpoints";
 import { Footer } from "@/components/home/footer";
 import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
@@ -9,7 +13,6 @@ import { TranslationProvider } from "@/components/shared/translation-provider";
 import { BASE_URL } from "@/constants";
 import { space } from "@/tokens.stylex";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchMovieDetails, fetchTvShowDetails } from "@/utils/tmdb-api";
 import translations from "./translations.json";
 import type { LayoutProps, PageProps } from "./types";
 
@@ -25,7 +28,10 @@ export async function generateMetadata({
   }
 
   if (type === "movie") {
-    const movieDetails = await fetchMovieDetails(id, { language: locale });
+    const movieDetails = await getMovieDetails({
+      movie_id: id,
+      language: locale,
+    });
     return {
       title:
         movieDetails.title ?? movieDetails.original_title ?? t("titleFallback"),
@@ -39,7 +45,10 @@ export async function generateMetadata({
       },
     } satisfies Metadata;
   } else {
-    const tvShowDetails = await fetchTvShowDetails(id, { language: locale });
+    const tvShowDetails = await getTvShowDetails({
+      series_id: id,
+      language: locale,
+    });
     return {
       title:
         tvShowDetails.name ?? tvShowDetails.original_name ?? t("titleFallback"),

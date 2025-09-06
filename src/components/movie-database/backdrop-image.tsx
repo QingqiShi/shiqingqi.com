@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { getConfiguration } from "@/_generated/tmdb-server-functions";
 import { breakpoints } from "@/breakpoints";
 import { color, layer, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
-import { fetchConfiguration } from "@/utils/tmdb-api";
 
 interface BackdropImageProps {
   backdropPath: string;
@@ -16,7 +16,7 @@ interface BackdropImageProps {
  * The component supports lazy loading and generates `srcSet` for responsive image handling.
  */
 export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
-  const config = await fetchConfiguration();
+  const config = await getConfiguration();
 
   if (!config.images?.base_url || !config.images?.backdrop_sizes) {
     return null;

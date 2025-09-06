@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { getTvShowVideos } from "@/_generated/tmdb-server-functions";
 import { space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchTvShowVideos } from "@/utils/tmdb-api";
 import { TrailerButton } from "./trailer-button";
 import translations from "./translations.json";
 
@@ -12,7 +12,10 @@ interface TvShowTrailerProps {
 }
 
 export async function TvShowTrailer({ tvShowId, locale }: TvShowTrailerProps) {
-  const trailers = await fetchTvShowVideos(tvShowId);
+  const trailers = await getTvShowVideos({
+    series_id: tvShowId,
+    language: locale,
+  });
 
   const { t } = getTranslations(translations, locale);
 

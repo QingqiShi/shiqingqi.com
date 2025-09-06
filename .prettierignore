@@ -25,7 +25,6 @@ tsconfig.tsbuildinfo
 .env*
 
 # IDE
-.vscode/
 .idea/
 
 # OS files

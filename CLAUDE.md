@@ -9,7 +9,8 @@ pnpm lint:changed       # Lint changed files
 pnpm format:write       # Format all files
 pnpm format:changed     # Format changed files
 pnpm test               # Run tests
-pnpm codegen            # Generate TMDB API types
+pnpm codegen            # Generate TMDB API types and server functions
+pnpm codegen:tmdb       # Generate only TMDB server functions
 ```
 
 # Key Architecture Patterns
@@ -21,17 +22,17 @@ pnpm codegen            # Generate TMDB API types
 - Server components call server functions directly
 - Client components use TanStack Query to `fetch` from API routes which are wrappers around server functions
 - Mutations from client components call server functions directly
-- TMDB API calls using tmdb-client
+- TMDB API calls using auto-generated server functions from `tmdb-server-functions.ts`
 </notes>
 <example>
 
 ```tsx
-import { tmdbGet } from "@/utils/tmdb-client";
+import { discoverMovies } from "@/utils/tmdb-server-functions";
 function serverFunction() {
   return fetch(URL, headers);
 }
 function ServerComponent() {
-  const movies = await tmdbGet("/3/discover/movie", {
+  const movies = await discoverMovies({
     page: 1,
     with_genres: "28",
   });
@@ -46,13 +47,11 @@ function ServerComponent() {
 <!-- API Route -->
 
 ```ts
-// src/app/api/tmdb/movie-list/route.ts
+// src/app/api/tmdb/discover-movies/route.ts
 import { apiRouteWrapper } from "@/utils/api-route-wrapper";
-import { tmdbGet } from "@/utils/tmdb-client";
+import { discoverMovies } from "@/utils/tmdb-server-functions";
 
-export const GET = apiRouteWrapper(async (params) => {
-  return tmdbGet("/3/discover/movie", params);
-});
+export const GET = apiRouteWrapper(discoverMovies);
 
 // src/app/api/some-api-route.ts
 import { apiRouteWrapper } from "@/utils/api-route-wrapper";
@@ -205,6 +204,8 @@ ALWAYS follow these rules
 - AVOID type assertions (`as Type`)
 - Prefer letting TypeScript infer types over explicit type annotations
 - AVOID mocking in tests. Only exception is network mocks using MSW.
+- TMDB server functions in `src/_generated/tmdb-server-functions.ts` are auto-generated - DO NOT edit manually. Use `pnpm codegen:tmdb` to regenerate.
+- Auto-generated TMDB files are git-ignored and must be regenerated after cloning: `pnpm codegen:tmdb`
 
 # IN PROGRESS
 

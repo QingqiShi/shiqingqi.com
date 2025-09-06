@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { getMovieVideos } from "@/_generated/tmdb-server-functions";
 import { space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchMovieVideos } from "@/utils/tmdb-api";
 import { TrailerButton } from "./trailer-button";
 import translations from "./translations.json";
 
@@ -12,7 +12,11 @@ interface TrailerProps {
 }
 
 export async function Trailer({ movieId, locale }: TrailerProps) {
-  const trailers = await fetchMovieVideos(movieId);
+  const trailers = await getMovieVideos({
+    movie_id: movieId,
+    // Hardcode to English as trailers are often only available in English
+    language: "en",
+  });
 
   const { t } = getTranslations(translations, locale);
 
