@@ -33,7 +33,7 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
     process.cwd(),
     "src",
     "ai",
-    "system-instructions.md"
+    "system-instructions.md",
   );
   const template = readFileSync(instructionsPath, "utf-8");
 
@@ -85,7 +85,7 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
 
 export async function agent(
   userMessage: string,
-  locale: SupportedLocale = "en"
+  locale: SupportedLocale = "en",
 ): Promise<AgentResponse> {
   try {
     const instructions = await getSystemInstructions(locale);

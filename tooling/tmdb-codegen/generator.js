@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { endpoints, apiRoutes } from './endpoints-config.js';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { endpoints, apiRoutes } from "./endpoints-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectRoot = path.join(__dirname, '../..');
+const projectRoot = path.join(__dirname, "../..");
 
 /**
  * Generate TMDB server functions and API routes from configuration
@@ -21,46 +21,55 @@ const projectRoot = path.join(__dirname, '../..');
 function extractPathParams(pathPattern) {
   const matches = pathPattern.match(/{([^}]+)}/g);
   if (!matches) return [];
-  return matches.map(match => match.slice(1, -1)); // Remove { and }
+  return matches.map((match) => match.slice(1, -1)); // Remove { and }
 }
 
 function generateServerFunctions() {
-  const functions = endpoints.map(endpoint => {
-    const { path: endpointPath, functionName, defaults = {}, requiredParams = false } = endpoint;
-    
+  const functions = endpoints.map((endpoint) => {
+    const {
+      path: endpointPath,
+      functionName,
+      defaults = {},
+      requiredParams = false,
+    } = endpoint;
+
     // Auto-detect path parameters
     const pathParams = extractPathParams(endpointPath);
-    
+
     // Generate parameter type
     const hasPathParams = pathParams.length > 0;
     let paramType;
-    
+
     if (hasPathParams) {
-      const pathParamType = pathParams.map(param => `${param}: string`).join('; ');
+      const pathParamType = pathParams
+        .map((param) => `${param}: string`)
+        .join("; ");
       paramType = `params: { ${pathParamType} } & QueryParams<"${endpointPath}", "get">`;
     } else if (requiredParams) {
       paramType = `params: QueryParams<"${endpointPath}", "get">`;
     } else {
       paramType = `params?: QueryParams<"${endpointPath}", "get">`;
     }
-    
+
     // Generate function body
     let functionBody;
-    
+
     if (hasPathParams) {
-      const destructure = `{ ${pathParams.join(', ')}, ...queryParams }`;
-      const pathParamsObj = `{ ${pathParams.join(', ')} }`;
+      const destructure = `{ ${pathParams.join(", ")}, ...queryParams }`;
+      const pathParamsObj = `{ ${pathParams.join(", ")} }`;
       functionBody = `  const ${destructure} = params;
   return tmdbGet("${endpointPath}", queryParams, ${pathParamsObj});`;
     } else if (Object.keys(defaults).length > 0) {
       functionBody = `  return tmdbGet("${endpointPath}", {
-    ${Object.entries(defaults).map(([key, value]) => `"${key}": ${JSON.stringify(value)}`).join(',\n    ')},
+    ${Object.entries(defaults)
+      .map(([key, value]) => `"${key}": ${JSON.stringify(value)}`)
+      .join(",\n    ")},
     ...params,
   });`;
     } else {
       functionBody = `  return tmdbGet("${endpointPath}", params);`;
     }
-    
+
     return `export async function ${functionName}(
   ${paramType},
 ) {
@@ -81,27 +90,32 @@ import { tmdbGet, type QueryParams } from "./tmdb-client";
  * Do not edit manually - changes will be overwritten.
  */
 
-${functions.join('\n\n')}
+${functions.join("\n\n")}
 `;
 
-  const outputPath = path.join(projectRoot, 'src', 'utils', 'tmdb-server-functions.ts');
-  fs.writeFileSync(outputPath, fileContent, 'utf8');
-  console.log('✅ Generated tmdb-server-functions.ts');
+  const outputPath = path.join(
+    projectRoot,
+    "src",
+    "utils",
+    "tmdb-server-functions.ts",
+  );
+  fs.writeFileSync(outputPath, fileContent, "utf8");
+  console.log("✅ Generated tmdb-server-functions.ts");
 }
 
 function generateApiRoutes() {
   // Clean up existing API route files
-  const apiDir = path.join(projectRoot, 'src', 'app', 'api', 'tmdb');
+  const apiDir = path.join(projectRoot, "src", "app", "api", "tmdb");
   if (fs.existsSync(apiDir)) {
     // Only remove files that match our generation pattern
     const files = fs.readdirSync(apiDir);
-    files.forEach(file => {
+    files.forEach((file) => {
       const filePath = path.join(apiDir, file);
       if (fs.statSync(filePath).isDirectory()) {
-        const routeFile = path.join(filePath, 'route.ts');
+        const routeFile = path.join(filePath, "route.ts");
         if (fs.existsSync(routeFile)) {
-          const content = fs.readFileSync(routeFile, 'utf8');
-          if (content.includes('apiRouteWrapper')) {
+          const content = fs.readFileSync(routeFile, "utf8");
+          if (content.includes("apiRouteWrapper")) {
             fs.rmSync(filePath, { recursive: true });
             console.log(`🗑️  Removed existing route: ${file}`);
           }
@@ -114,51 +128,53 @@ function generateApiRoutes() {
   apiRoutes.forEach(({ functionName, routePath }) => {
     const routeDir = path.join(apiDir, routePath);
     fs.mkdirSync(routeDir, { recursive: true });
-    
+
     const routeContent = `import { apiRouteWrapper } from "@/utils/api-route-wrapper";
 import { ${functionName} } from "@/utils/tmdb-server-functions";
 
 export const GET = apiRouteWrapper(${functionName});
 `;
 
-    const routeFile = path.join(routeDir, 'route.ts');
-    fs.writeFileSync(routeFile, routeContent, 'utf8');
+    const routeFile = path.join(routeDir, "route.ts");
+    fs.writeFileSync(routeFile, routeContent, "utf8");
     console.log(`✅ Generated API route: /api/tmdb/${routePath}`);
   });
 }
 
 function generateEndpointTypes() {
   // Generate a helper file for endpoint paths
-  const endpointPaths = endpoints.map(e => e.path);
+  const endpointPaths = endpoints.map((e) => e.path);
   const typeContent = `/**
  * TMDB endpoint paths - auto-generated
  * Do not edit manually - changes will be overwritten.
  */
 
-export type TMDBEndpointPaths = ${endpointPaths.map(p => `"${p}"`).join(' | ')};
+export type TMDBEndpointPaths = ${endpointPaths.map((p) => `"${p}"`).join(" | ")};
 
 export const TMDB_ENDPOINTS = [
-${endpointPaths.map(p => `  "${p}"`).join(',\n')}
+${endpointPaths.map((p) => `  "${p}"`).join(",\n")}
 ] as const;
 `;
 
-  const typesPath = path.join(projectRoot, 'src', 'utils', 'tmdb-endpoints.ts');
-  fs.writeFileSync(typesPath, typeContent, 'utf8');
-  console.log('✅ Generated tmdb-endpoints.ts');
+  const typesPath = path.join(projectRoot, "src", "utils", "tmdb-endpoints.ts");
+  fs.writeFileSync(typesPath, typeContent, "utf8");
+  console.log("✅ Generated tmdb-endpoints.ts");
 }
 
 // Main execution
 function main() {
-  console.log('🚀 Generating TMDB functions and API routes...');
-  
+  console.log("🚀 Generating TMDB functions and API routes...");
+
   try {
     generateServerFunctions();
     generateApiRoutes();
     generateEndpointTypes();
-    
-    console.log(`✨ Generated ${endpoints.length} functions and ${apiRoutes.length} API routes successfully!`);
+
+    console.log(
+      `✨ Generated ${endpoints.length} functions and ${apiRoutes.length} API routes successfully!`,
+    );
   } catch (error) {
-    console.error('❌ Error generating TMDB functions:', error);
+    console.error("❌ Error generating TMDB functions:", error);
     process.exit(1);
   }
 }

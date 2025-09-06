@@ -39,13 +39,13 @@ export const mediaList = (params: MovieListParams | TvShowListParams) => {
         const { page, type, ...queryParams } = params;
         return apiRequestWrapper<typeof discoverTvShows>(
           "/api/tmdb/discover-tv-shows",
-          { ...queryParams, page: pageParam }
+          { ...queryParams, page: pageParam },
         );
       } else {
         const { page, type, ...queryParams } = params;
         return apiRequestWrapper<typeof discoverMovies>(
           "/api/tmdb/discover-movies",
-          { ...queryParams, page: pageParam }
+          { ...queryParams, page: pageParam },
         );
       }
     },
@@ -69,11 +69,11 @@ export const mediaList = (params: MovieListParams | TvShowListParams) => {
                 title: media.name,
                 posterPath: media.poster_path,
                 rating: media.vote_average,
-              }
+              },
         );
       // Removes duplicates
       return Array.from(
-        new Map(mediaList.map((media) => [media.id, media])).values()
+        new Map(mediaList.map((media) => [media.id, media])).values(),
       );
     },
   });
@@ -99,7 +99,7 @@ export const similarMedia = (params: SimilarMediaParams) => {
             ...queryParams,
             series_id: id,
             page: pageParam,
-          }
+          },
         );
       } else {
         const { page, type, id, ...queryParams } = params;
@@ -109,7 +109,7 @@ export const similarMedia = (params: SimilarMediaParams) => {
             ...queryParams,
             movie_id: id,
             page: pageParam,
-          }
+          },
         );
       }
     },
@@ -133,11 +133,11 @@ export const similarMedia = (params: SimilarMediaParams) => {
                 title: media.name,
                 posterPath: media.poster_path,
                 rating: media.vote_average,
-              }
+              },
         );
       // Removes duplicates
       return Array.from(
-        new Map(mediaList.map((media) => [media.id, media])).values()
+        new Map(mediaList.map((media) => [media.id, media])).values(),
       );
     },
   });
@@ -148,7 +148,7 @@ export const configuration = queryOptions({
   queryFn: async () =>
     apiRequestWrapper<typeof getConfiguration>(
       "/api/tmdb/get-configuration",
-      undefined
+      undefined,
     ),
   staleTime: 24 * 60 * 60 * 1000,
   gcTime: 24 * 60 * 60 * 1000,
@@ -167,13 +167,13 @@ export const genres = (params: GenresParams) =>
         const { type, ...queryParams } = params;
         return apiRequestWrapper<typeof getTvShowGenres>(
           "/api/tmdb/get-tv-genres",
-          queryParams
+          queryParams,
         );
       } else {
         const { type, ...queryParams } = params;
         return apiRequestWrapper<typeof getMovieGenres>(
           "/api/tmdb/get-movie-genres",
-          queryParams
+          queryParams,
         );
       }
     },

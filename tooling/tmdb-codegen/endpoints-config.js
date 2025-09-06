@@ -12,31 +12,41 @@ export const endpoints = [
   { path: "/3/genre/tv/list", functionName: "getTvShowGenres" },
 
   // Movie Discovery & Lists
-  { 
-    path: "/3/discover/movie", 
+  {
+    path: "/3/discover/movie",
     functionName: "discoverMovies",
-    defaults: { "vote_count.gte": 300, "vote_average.gte": 3 }
+    defaults: { "vote_count.gte": 300, "vote_average.gte": 3 },
   },
 
   // TV Discovery & Lists
-  { 
-    path: "/3/discover/tv", 
+  {
+    path: "/3/discover/tv",
     functionName: "discoverTvShows",
-    defaults: { "vote_count.gte": 300, "vote_average.gte": 3 }
+    defaults: { "vote_count.gte": 300, "vote_average.gte": 3 },
   },
 
   // Movie Details & Media
   { path: "/3/movie/{movie_id}", functionName: "getMovieDetails" },
   { path: "/3/movie/{movie_id}/videos", functionName: "getMovieVideos" },
-  { path: "/3/movie/{movie_id}/recommendations", functionName: "getMovieRecommendations" },
+  {
+    path: "/3/movie/{movie_id}/recommendations",
+    functionName: "getMovieRecommendations",
+  },
 
-  // TV Details & Media  
+  // TV Details & Media
   { path: "/3/tv/{series_id}", functionName: "getTvShowDetails" },
   { path: "/3/tv/{series_id}/videos", functionName: "getTvShowVideos" },
-  { path: "/3/tv/{series_id}/recommendations", functionName: "getTvShowRecommendations" },
+  {
+    path: "/3/tv/{series_id}/recommendations",
+    functionName: "getTvShowRecommendations",
+  },
 
   // Search Functions
-  { path: "/3/search/movie", functionName: "searchMovies", requiredParams: true },
+  {
+    path: "/3/search/movie",
+    functionName: "searchMovies",
+    requiredParams: true,
+  },
   { path: "/3/search/tv", functionName: "searchTvShows", requiredParams: true },
 ];
 
@@ -47,6 +57,12 @@ export const apiRoutes = [
   { functionName: "getTvShowGenres", routePath: "get-tv-genres" },
   { functionName: "discoverMovies", routePath: "discover-movies" },
   { functionName: "discoverTvShows", routePath: "discover-tv-shows" },
-  { functionName: "getMovieRecommendations", routePath: "get-movie-recommendations" },
-  { functionName: "getTvShowRecommendations", routePath: "get-tv-show-recommendations" },
+  {
+    functionName: "getMovieRecommendations",
+    routePath: "get-movie-recommendations",
+  },
+  {
+    functionName: "getTvShowRecommendations",
+    routePath: "get-tv-show-recommendations",
+  },
 ];
