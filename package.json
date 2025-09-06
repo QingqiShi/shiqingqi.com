@@ -10,7 +10,7 @@
   "scripts": {
     "predev": "rimraf .next && rimraf public/sw.js",
     "prebuild": "rimraf .next && rimraf public/sw.js && pnpm codegen",
-    "codegen": "pnpm run \"/^codegen:.*/\"",
+    "codegen": "npm-run-all codegen:*",
     "codegen:openapi": "openapi-typescript https://developer.themoviedb.org/openapi/64542913e1f86100738e227f -o src/_generated/tmdbV3.d.ts && prettier 'src/_generated/tmdbV3.d.ts' -w",
     "codegen:zod": "ts-to-zod src/_generated/tmdbV3.d.ts src/_generated/tmdb-zod.ts && node tooling/tmdb-codegen/fix-zod-optional.js && prettier 'src/_generated/tmdb-zod.ts' -w",
     "codegen:tmdb": "node tooling/tmdb-codegen/generator.js && prettier 'src/_generated/*.ts' -w",
@@ -77,6 +77,7 @@
     "jsdom": "^26.1.0",
     "modern-normalize": "^3.0.1",
     "next-i18n-router": "^5.5.3",
+    "npm-run-all2": "^8.0.4",
     "openapi-typescript": "^7.6.1",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^16.1.1",
