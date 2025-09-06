@@ -55,6 +55,13 @@ async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+/** Sanitize path parameter values to prevent SSRF attacks */
+function sanitizePathParam(value: string): string {
+  // Only allow alphanumeric characters, hyphens, and underscores
+  // This prevents directory traversal and URL manipulation
+  return value.replace(/[^a-zA-Z0-9\-_]/g, "");
+}
+
 /** Generic TMDB API client - call any endpoint with full type safety */
 export async function tmdbGet<TPath extends keyof paths>(
   path: TPath,
@@ -62,11 +69,12 @@ export async function tmdbGet<TPath extends keyof paths>(
   pathParams?: PathParams<TPath>,
 ) {
   return cache(async () => {
-    // Replace path parameters
+    // Replace path parameters with sanitized values
     let resolvedPath = path as string;
     if (pathParams) {
       for (const [key, value] of Object.entries(pathParams)) {
-        resolvedPath = resolvedPath.replace(`{${key}}`, value);
+        const sanitizedValue = sanitizePathParam(value);
+        resolvedPath = resolvedPath.replace(`{${key}}`, sanitizedValue);
       }
     }
 
@@ -74,6 +82,12 @@ export async function tmdbGet<TPath extends keyof paths>(
       baseUrl: `${BASE_URL}${resolvedPath}`,
       params,
     });
+
+    // Additional security check: ensure the URL is still pointing to TMDB
+    const urlObj = new URL(url);
+    if (!urlObj.hostname.endsWith("themoviedb.org")) {
+      throw new Error("Invalid URL: must be a TMDB API endpoint");
+    }
 
     const errorMessage = `Failed to fetch ${path}`;
     return tmdbFetch<ResponseType<TPath, "get">>(url, errorMessage);
