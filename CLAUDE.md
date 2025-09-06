@@ -1,4 +1,4 @@
-## Essential Commands
+# Essential Commands
 
 ```bash
 pnpm dev                # Start dev server
@@ -6,88 +6,210 @@ pnpm build              # Full Next.js build (including type checking and lintin
 pnpm build:tsc          # TypeScript type checking
 pnpm lint               # Lint all files
 pnpm lint:changed       # Lint changed files
-pnpm format             # Format all files
+pnpm format:write       # Format all files
 pnpm format:changed     # Format changed files
 pnpm test               # Run tests
 pnpm codegen            # Generate TMDB API types
 ```
 
-## Task Completion Requirements
+# Key Architecture Patterns
 
-**CRITICAL: Before considering ANY task complete, ALWAYS run:**
-These checks are mandatory and must never be skipped.
+<pattern>
+<topic>Data Fetching</topic>
+<notes>
+- Use `fetch` API inside server functions
+- Server components call server functions directly
+- Client components use TanStack Query to `fetch` from API routes which are wrappers around server functions
+- Mutations from client components call server functions directly
+- TMDB API calls using tmdb-client
+</notes>
+<example>
 
-```bash
-pnpm test
-pnpm build:tsc
-pnpm lint:changed
-pnpm format:changed # if lint modified any files
+```tsx
+import { tmdbGet } from "@/utils/tmdb-client";
+function serverFunction() {
+  return fetch(URL, headers);
+}
+function ServerComponent() {
+  const movies = await tmdbGet("/3/discover/movie", {
+    page: 1,
+    with_genres: "28",
+  });
+  const myResults = await serverFunction();
+  return <div>...</div>;
+}
 ```
 
-## Key Architecture Patterns
+</example>
+<example>
 
-**Data Fetching:**
+<!-- API Route -->
 
-- **Server components:** Call `tmdb-api.ts` functions directly
-- **Client components:** Use TanStack Query → API routes → Server functions (never direct)
+```ts
+// src/app/api/tmdb/movie-list/route.ts
+import { apiRouteWrapper } from "@/utils/api-route-wrapper";
+import { tmdbGet } from "@/utils/tmdb-client";
 
-**⚠️ CRITICAL: Never Call Server Functions Directly from React Query**
+export const GET = apiRouteWrapper(async (params) => {
+  return tmdbGet("/3/discover/movie", params);
+});
 
-Server functions cause Router setState errors. API routes are required proxies:
+// src/app/api/some-api-route.ts
+import { apiRouteWrapper } from "@/utils/api-route-wrapper";
+import { myServerFunction } from "@/some-server-function";
 
-```typescript
-// ✅ CORRECT: Client → API Route → Server Function
-queryFn: ({ pageParam }) =>
-  apiRequestWrapper("/api/tmdb/movie-list", { ...params, page: pageParam });
-
-// ❌ BREAKS: Client → Server Function
-queryFn: ({ pageParam }) => fetchMovieList({ ...params, page: pageParam });
+export const GET = apiRouteWrapper(async (params) => {
+  return myServerFunction(params);
+});
 ```
 
-**Internationalization:**
+<!-- Client Component -->
 
+```tsx
+"use client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { apiRequestWrapper } from "@/utils/api-request-wrapper";
+
+function ClientComponent() {
+  const { data: movies } = useSuspenseQuery({
+    queryKey: [{ scope: "movies", page: 1, with_genres: "28" }],
+    queryFn: () =>
+      apiRequestWrapper("/api/tmdb/movie-list", {
+        page: 1,
+        with_genres: "28",
+      }),
+  });
+
+  const { data: movies } = useSuspenseQuery({
+    queryKey: [{ scope: "someApiRoute" }],
+    queryFn: () =>
+      apiRequestWrapper("/api/some-api-route", {
+        foo: "bar",
+      }),
+  });
+
+  return <div>...</div>;
+}
+```
+
+</example>
+</pattern>
+
+<pattern>
+<topic>Internationalization</topic>
+<notes>
 - Routes use `[locale]` parameter (en/zh)
 - Use `getLocalePath()` for localized URLs
-- `useTranslations()` hook with colocated `translations.json` files
+- Translations for server components are defined in `translations.json` under the `components` and routes folders
+- Translations for client components are defined in `[name].translations.json` broken down by component to allow tree shaking
+- Server components use the `getTranslations` util to obtain translated texts
+- Client components use the `useTranslations()` hook which reads translations from context
+- To pass translations to clients a server component parent must render `<TranslationContextProvider />` with the right translation content
+</notes>
+</pattern>
 
-**Styling:**
+<pattern>
+<topic>Styling</topic>
+<notes>
+- Use StyleX
+- Design tokens in `src/tokens.stylex.ts`
+- Custom babel plugins to enable
+  - css prop `css={styles.someStyle}` transpiles to `{...stylex.props}`
+  - `@breakpoints` is defined through the babel plugin defined in `.babelrc.js` and the typing declared in `src/babel.d.ts`
+</notes>
+<example>
 
-- StyleX CSS-in-JS with design tokens in `src/tokens.stylex.ts`
+```tsx
+import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@/breakpoints";
+import { color, controlSize, font } from "@/tokens.stylex";
 
-**React Context (React 19):**
+function Button({ children, isActive, hideLabelOnMobile, ...props }) {
+  return (
+    <button
+      {...props}
+      css={[
+        styles.button,
+        isActive && styles.active,
+        hideLabelOnMobile && styles.hideLabelOnMobile,
+      ]}
+    >
+      {children}
+    </button>
+  );
+}
 
+const styles = stylex.create({
+  button: {
+    // Use design tokens
+    fontSize: controlSize._4,
+    fontWeight: font.weight_5,
+    minHeight: controlSize._9,
+    paddingBlock: controlSize._1,
+    paddingInline: controlSize._3,
+
+    // Responsive design with breakpoints
+    display: { default: "none", [breakpoints.md]: "inline-flex" },
+
+    // Theme-aware colors
+    color: color.textMain,
+    backgroundColor: {
+      default: color.backgroundRaised,
+      ":hover": color.backgroundHover,
+    },
+  },
+  active: {
+    backgroundColor: color.controlActive,
+    color: color.textOnActive,
+  },
+  hideLabelOnMobile: {
+    paddingLeft: {
+      default: controlSize._3,
+      [breakpoints.md]: controlSize._2,
+    },
+  },
+});
+```
+
+</example>
+</pattern>
+
+<pattern>
+<topic>Cutting-edge React</topic>
+<notes>
+- React 19
 - Use shorthand syntax: `<Context value={...}>` instead of `<Context.Provider value={...}>`
 - Use `use()` hook instead of `useContext()` for consuming context
+- React Compiler enabled, so
+  - No need for `useMemo`, `useCallback`, or `memo()` - React Compiler handles optimization automatically
+  - Use `@inferEffectDependencies` comment at top of client component files to enable automatic useEffect dependency inference
+  - Can omit useEffect dependency arrays when using `@inferEffectDependencies` - React Compiler infers them
+  - Avoid manual memoization patterns
+</notes>
+</pattern>
 
-**React Compiler:**
+<pattern>
+<topic>Testing</topic>
+<notes>
+- Uses Vitest for client components and synchronous server components
+- Unique setup integrating with babel and using `enforce: pre` to handle StyleX transformations
+</notes>
+</pattern>
 
-- No need for `useMemo`, `useCallback`, or `memo()` - React Compiler handles optimization automatically
-- Use `@inferEffectDependencies` comment at top of client component files to enable automatic useEffect dependency inference
-- Can omit useEffect dependency arrays when using `@inferEffectDependencies` - React Compiler infers them
-- Avoid manual memoization patterns
+# CRITICAL INSTRUCTIONS
 
-**TypeScript:**
+ALWAYS follow these rules
 
-- **⚠️ CRITICAL: NEVER EVER use the `any` type unless for complex type utilities**
-- **⚠️ CRITICAL: We should almost never need type assertions (`as Type`)**
-- Always use proper TypeScript types, unions, generics, and proper type guards
-- Prefer strict typing and let TypeScript infer types naturally
-
-## Testing Setup (Vitest)
-
-### Unique Configuration Aspects
-
-- **Shared Babel Config**: Single `.babelrc.js` handles both Next.js and Vitest
-  - `modules: process.env.NODE_ENV === "test" ? false : "auto"` preserves ESM for Vitest
-  - StyleX transformations enabled in tests via `test: process.env.NODE_ENV === "test"`
-- **StyleX Support**: Full StyleX in tests through `vite-plugin-babel` with `enforce: "pre"`
-- **Test Structure**: Tests colocated with components (`*.test.{ts,tsx}`), custom utils in `src/test-utils.tsx`
-- **Path Aliases**: Consistent `@/` alias across TypeScript, Vitest, and Babel configs
+- Run `pnpm lint:changed` `pnpm test` and `pnpm build:tsc` before any task is considered complete.
+- NEVER EVER use `any` type explicitly or implicitly
+- AVOID type assertions (`as Type`)
+- Prefer letting TypeScript infer types over explicit type annotations
+- AVOID mocking in tests. Only exception is network mocks using MSW.
 
 # IN PROGRESS
 
 We are currently implementing a project to integrate AI into the movie-database functionality.
-Product requirements exists in: PRD.md
+Product requirements exist in: PRD.md
 Useful guides about OpenAI API integration in: OPENAI.md
 Current development plan and progress in DEV_PLAN.md
 
