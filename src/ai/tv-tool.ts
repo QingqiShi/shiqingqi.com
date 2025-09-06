@@ -2,7 +2,7 @@ import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
 import { operationsSchema } from "@/_generated/tmdb-zod";
 import type { paths } from "@/_generated/tmdbV3";
-import { fetchTvShowList } from "@/utils/tmdb-api";
+import { discoverTvShows } from "@/utils/tmdb-server-functions";
 
 // Extract Zod schema from generated schemas
 const tvDiscoverySchema = operationsSchema.shape[
@@ -38,7 +38,7 @@ export async function executeTvToolCall(toolCall: {
 
   // Parse and validate with Zod schema
   const validatedParams = tvDiscoverySchema.parse(args);
-  const tvResults = await fetchTvShowList(validatedParams as TvDiscoveryParams);
+  const tvResults = await discoverTvShows(validatedParams as TvDiscoveryParams);
 
   return {
     call_id: toolCall.call_id,

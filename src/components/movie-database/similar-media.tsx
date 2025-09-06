@@ -6,8 +6,8 @@ import { ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
-import { fetchConfiguration } from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
+import { getConfiguration } from "@/utils/tmdb-server-functions";
 import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";
@@ -30,7 +30,7 @@ export function SimilarMedia({
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery({
     ...tmdbQueries.configuration,
-    queryFn: async () => fetchConfiguration(),
+    queryFn: async () => getConfiguration(),
   });
 
   return (

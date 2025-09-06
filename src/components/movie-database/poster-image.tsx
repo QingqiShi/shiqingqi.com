@@ -42,7 +42,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
   const srcSet = sizes
     .map(
       (size) =>
-        `${config.images?.secure_base_url}w${size}${posterPath} ${size}w`,
+        `${config.images?.secure_base_url}w${size}${posterPath} ${size}w`
     )
     .join(", ");
 

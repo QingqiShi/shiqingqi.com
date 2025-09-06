@@ -2,7 +2,7 @@ import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
 import { operationsSchema } from "@/_generated/tmdb-zod";
 import type { paths } from "@/_generated/tmdbV3";
-import { searchMoviesByTitle } from "@/utils/tmdb-api";
+import { searchMovies } from "@/utils/tmdb-server-functions";
 
 // Extract Zod schema from generated schemas
 const movieSearchSchema =
@@ -35,9 +35,7 @@ export async function executeMovieSearchToolCall(toolCall: {
 
   // Parse and validate with Zod schema
   const validatedParams = movieSearchSchema.parse(args);
-  const movieResults = await searchMoviesByTitle(
-    validatedParams as MovieSearchParams,
-  );
+  const movieResults = await searchMovies(validatedParams as MovieSearchParams);
 
   return {
     call_id: toolCall.call_id,

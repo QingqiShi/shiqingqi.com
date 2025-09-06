@@ -9,12 +9,12 @@ import type { PageProps } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
 import type { GenreFilterType, Sort } from "@/utils/media-filters-context";
-import {
-  fetchConfiguration,
-  fetchMovieList,
-  fetchTvShowList,
-} from "@/utils/tmdb-api";
 import * as tmdbQueries from "@/utils/tmdb-queries";
+import {
+  discoverMovies,
+  discoverTvShows,
+  getConfiguration,
+} from "@/utils/tmdb-server-functions";
 import translations from "../translations.json";
 
 export default async function Page(
@@ -50,7 +50,7 @@ export default async function Page(
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery({
     ...tmdbQueries.configuration,
-    queryFn: () => fetchConfiguration(),
+    queryFn: () => getConfiguration(),
   });
   const queryParams = {
     language: params.locale,
@@ -63,14 +63,24 @@ export default async function Page(
     void queryClient.prefetchInfiniteQuery({
       ...tmdbQueries.mediaList({ type: "tv", ...queryParams }),
       queryFn: async ({ pageParam }) => {
-        return fetchTvShowList({ ...queryParams, page: pageParam });
+        return discoverTvShows({
+          "vote_count.gte": 300,
+          "vote_average.gte": 3,
+          ...queryParams,
+          page: pageParam,
+        });
       },
     });
   } else {
     void queryClient.prefetchInfiniteQuery({
       ...tmdbQueries.mediaList({ type: "movie", ...queryParams }),
       queryFn: async ({ pageParam }) => {
-        return fetchMovieList({ ...queryParams, page: pageParam });
+        return discoverMovies({
+          "vote_count.gte": 300,
+          "vote_average.gte": 3,
+          ...queryParams,
+          page: pageParam,
+        });
       },
     });
   }

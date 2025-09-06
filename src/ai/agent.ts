@@ -5,7 +5,7 @@ import type { ResponseInput } from "openai/resources/responses/responses.mjs";
 import "server-only";
 import { z } from "zod";
 import type { SupportedLocale } from "@/types";
-import { fetchMovieGenres, fetchTvShowGenres } from "@/utils/tmdb-api";
+import { getMovieGenres, getTvShowGenres } from "@/utils/tmdb-server-functions";
 import type { MediaListItem } from "@/utils/types";
 import { OPENAI_MODEL, openaiClient } from "./client";
 import { availableTools, executeToolCall } from "./tools";
@@ -33,7 +33,7 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
     process.cwd(),
     "src",
     "ai",
-    "system-instructions.md",
+    "system-instructions.md"
   );
   const template = readFileSync(instructionsPath, "utf-8");
 
@@ -48,21 +48,21 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
 
   try {
     const [movieGenreResponse, tvGenreResponse] = await Promise.all([
-      fetchMovieGenres({ language: locale }),
-      fetchTvShowGenres({ language: locale }),
+      getMovieGenres({ language: locale }),
+      getTvShowGenres({ language: locale }),
     ]);
 
     // Format movie genres
     if (movieGenreResponse.genres) {
       movieGenres = movieGenreResponse.genres
-        .map((genre) => `${genre.name} (${genre.id})`)
+        .map((genre) => `${genre.name || "Unknown"} (${genre.id})`)
         .join(", ");
     }
 
     // Format TV genres
     if (tvGenreResponse.genres) {
       tvGenres = tvGenreResponse.genres
-        .map((genre) => `${genre.name} (${genre.id})`)
+        .map((genre) => `${genre.name || "Unknown"} (${genre.id})`)
         .join(", ");
     }
   } catch (error) {
@@ -85,7 +85,7 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
 
 export async function agent(
   userMessage: string,
-  locale: SupportedLocale = "en",
+  locale: SupportedLocale = "en"
 ): Promise<AgentResponse> {
   try {
     const instructions = await getSystemInstructions(locale);

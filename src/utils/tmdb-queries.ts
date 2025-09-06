@@ -1,35 +1,33 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import type { paths } from "@/_generated/tmdbV3";
 import { apiRequestWrapper } from "./api-request-wrapper";
-import type {
-  fetchMovieList,
-  fetchSimilarMovies,
-  fetchTvShowList,
-  fetchSimilarTvShows,
-  fetchMovieGenres,
-  fetchTvShowGenres,
-} from "./tmdb-api";
-import type { fetchConfiguration } from "./tmdb-api";
+import type { QueryParams, ResponseType } from "./tmdb-client";
+import type { getMovieGenres, getTvShowGenres } from "./tmdb-server-functions";
+import {
+  type discoverMovies,
+  type discoverTvShows,
+  type getConfiguration,
+  type getMovieRecommendations,
+  type getTvShowRecommendations,
+} from "./tmdb-server-functions";
 import type { MediaListItem } from "./types";
 
 type MovieResult = NonNullable<
-  paths["/3/discover/movie"]["get"]["responses"]["200"]["content"]["application/json"]["results"]
->[0];
+  ResponseType<"/3/discover/movie", "get">["results"]
+>[number];
 type TvResult = NonNullable<
-  paths["/3/discover/tv"]["get"]["responses"]["200"]["content"]["application/json"]["results"]
->[0];
+  ResponseType<"/3/discover/tv", "get">["results"]
+>[number];
 type MediaResult = MovieResult | TvResult;
 
 export const tmdbScope = [{ scope: "tmdb" }];
 
-type MovieListParams = Parameters<typeof fetchMovieList>[0] & { type: "movie" };
-type TvShowListParams = Parameters<typeof fetchTvShowList>[0] & { type: "tv" };
+type MovieListParams = QueryParams<"/3/discover/movie", "get"> & {
+  type: "movie";
+};
+type TvShowListParams = QueryParams<"/3/discover/tv", "get"> & { type: "tv" };
 
-function isMovieListResult(
-  type: "movie" | "tv",
-  result: MediaResult,
-): result is MovieResult {
-  return type === "movie";
+function isMovieListResult(result: MediaResult): result is MovieResult {
+  return "name" in result;
 }
 
 export const mediaList = (params: MovieListParams | TvShowListParams) => {
@@ -39,15 +37,15 @@ export const mediaList = (params: MovieListParams | TvShowListParams) => {
     queryFn: async ({ pageParam }) => {
       if (params.type === "tv") {
         const { page, type, ...queryParams } = params;
-        return apiRequestWrapper<typeof fetchTvShowList>(
-          "/api/tmdb/tv-show-list",
-          { ...queryParams, page: pageParam },
+        return apiRequestWrapper<typeof discoverTvShows>(
+          "/api/tmdb/discover-tv-shows",
+          { ...queryParams, page: pageParam }
         );
       } else {
         const { page, type, ...queryParams } = params;
-        return apiRequestWrapper<typeof fetchMovieList>(
-          "/api/tmdb/movie-list",
-          { ...queryParams, page: pageParam },
+        return apiRequestWrapper<typeof discoverMovies>(
+          "/api/tmdb/discover-movies",
+          { ...queryParams, page: pageParam }
         );
       }
     },
@@ -59,7 +57,7 @@ export const mediaList = (params: MovieListParams | TvShowListParams) => {
       const mediaList = data.pages
         .flatMap<MediaResult>((page) => page.results ?? [])
         .map<MediaListItem>((media) =>
-          isMovieListResult(params.type, media)
+          isMovieListResult(media)
             ? {
                 id: media.id,
                 title: media.title,
@@ -71,11 +69,11 @@ export const mediaList = (params: MovieListParams | TvShowListParams) => {
                 title: media.name,
                 posterPath: media.poster_path,
                 rating: media.vote_average,
-              },
+              }
         );
       // Removes duplicates
       return Array.from(
-        new Map(mediaList.map((media) => [media.id, media])).values(),
+        new Map(mediaList.map((media) => [media.id, media])).values()
       );
     },
   });
@@ -95,15 +93,23 @@ export const similarMedia = (params: SimilarMediaParams) => {
     queryFn: async ({ pageParam }) => {
       if (params.type === "tv") {
         const { page, type, id, ...queryParams } = params;
-        return apiRequestWrapper<typeof fetchSimilarTvShows>(
-          "/api/tmdb/similar-tv-shows",
-          { ...queryParams, seriesId: id, page: pageParam },
+        return apiRequestWrapper<typeof getTvShowRecommendations>(
+          "/api/tmdb/get-tv-show-recommendations",
+          {
+            ...queryParams,
+            series_id: id,
+            page: pageParam,
+          }
         );
       } else {
         const { page, type, id, ...queryParams } = params;
-        return apiRequestWrapper<typeof fetchSimilarMovies>(
-          "/api/tmdb/similar-movies",
-          { ...queryParams, movieId: id, page: pageParam },
+        return apiRequestWrapper<typeof getMovieRecommendations>(
+          "/api/tmdb/get-movie-recommendations",
+          {
+            ...queryParams,
+            movie_id: id,
+            page: pageParam,
+          }
         );
       }
     },
@@ -111,11 +117,11 @@ export const similarMedia = (params: SimilarMediaParams) => {
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    select: (data: { pages: Array<{ results?: MediaResult[] }> }) => {
+    select: (data) => {
       const mediaList = data.pages
         .flatMap<MediaResult>((page) => page.results ?? [])
         .map<MediaListItem>((media) =>
-          isMovieListResult(params.type, media)
+          isMovieListResult(media)
             ? {
                 id: media.id,
                 title: media.title,
@@ -127,11 +133,11 @@ export const similarMedia = (params: SimilarMediaParams) => {
                 title: media.name,
                 posterPath: media.poster_path,
                 rating: media.vote_average,
-              },
+              }
         );
       // Removes duplicates
       return Array.from(
-        new Map(mediaList.map((media) => [media.id, media])).values(),
+        new Map(mediaList.map((media) => [media.id, media])).values()
       );
     },
   });
@@ -140,9 +146,9 @@ export const similarMedia = (params: SimilarMediaParams) => {
 export const configuration = queryOptions({
   queryKey: [{ query: "configuration", ...tmdbScope }],
   queryFn: async () =>
-    apiRequestWrapper<typeof fetchConfiguration>(
+    apiRequestWrapper<typeof getConfiguration>(
       "/api/tmdb/get-configuration",
-      undefined,
+      undefined
     ),
   staleTime: 24 * 60 * 60 * 1000,
   gcTime: 24 * 60 * 60 * 1000,
@@ -159,15 +165,15 @@ export const genres = (params: GenresParams) =>
     queryFn: async () => {
       if (params.type === "tv") {
         const { type, ...queryParams } = params;
-        return apiRequestWrapper<typeof fetchTvShowGenres>(
-          "/api/tmdb/tv-genres",
-          queryParams,
+        return apiRequestWrapper<typeof getTvShowGenres>(
+          "/api/tmdb/get-tv-genres",
+          queryParams
         );
       } else {
         const { type, ...queryParams } = params;
-        return apiRequestWrapper<typeof fetchMovieGenres>(
-          "/api/tmdb/movie-genres",
-          queryParams,
+        return apiRequestWrapper<typeof getMovieGenres>(
+          "/api/tmdb/get-movie-genres",
+          queryParams
         );
       }
     },

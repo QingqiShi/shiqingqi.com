@@ -11,12 +11,12 @@ import { skeletonTokens } from "@/components/shared/skeleton.stylex";
 import { border, color, controlSize, font, space } from "@/tokens.stylex";
 import { getTranslations } from "@/utils/get-translations";
 import {
-  fetchConfiguration,
-  fetchMovieDetails,
-  fetchMovieVideos,
-  fetchTvShowDetails,
-  fetchTvShowVideos,
-} from "@/utils/tmdb-api";
+  getConfiguration,
+  getMovieDetails,
+  getMovieVideos,
+  getTvShowDetails,
+  getTvShowVideos,
+} from "@/utils/tmdb-server-functions";
 import translations from "./translations.json";
 import type { PageProps } from "./types";
 
@@ -30,16 +30,19 @@ export default async function Page({ params }: PageProps) {
   }
 
   // Pre-fetch configuration
-  void fetchConfiguration();
+  void getConfiguration();
 
   const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
 
   if (type === "movie") {
     // Start the most important fetch before pre-fetch requests
-    const movieDetailsPromise = fetchMovieDetails(id, { language: locale });
+    const movieDetailsPromise = getMovieDetails({
+      movie_id: id,
+      language: locale,
+    });
 
     // Pre-fetch
-    void fetchMovieVideos(id);
+    void getMovieVideos({ movie_id: id, language: locale });
 
     const movie = await movieDetailsPromise;
     const hours = Math.floor(movie.runtime / 60);
@@ -94,10 +97,13 @@ export default async function Page({ params }: PageProps) {
     );
   } else {
     // TV Show
-    const tvShowDetailsPromise = fetchTvShowDetails(id, { language: locale });
+    const tvShowDetailsPromise = getTvShowDetails({
+      series_id: id,
+      language: locale,
+    });
 
     // Pre-fetch
-    void fetchTvShowVideos(id);
+    void getTvShowVideos({ series_id: id, language: locale });
 
     const tvShow = await tvShowDetailsPromise;
 
