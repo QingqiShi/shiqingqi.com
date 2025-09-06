@@ -4,8 +4,11 @@ import { zodTextFormat } from "openai/helpers/zod";
 import type { ResponseInput } from "openai/resources/responses/responses.mjs";
 import "server-only";
 import { z } from "zod";
+import {
+  getMovieGenres,
+  getTvShowGenres,
+} from "@/_generated/tmdb-server-functions";
 import type { SupportedLocale } from "@/types";
-import { getMovieGenres, getTvShowGenres } from "@/utils/tmdb-server-functions";
 import type { MediaListItem } from "@/utils/types";
 import { OPENAI_MODEL, openaiClient } from "./client";
 import { availableTools, executeToolCall } from "./tools";

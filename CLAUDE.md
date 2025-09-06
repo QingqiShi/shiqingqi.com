@@ -204,7 +204,7 @@ ALWAYS follow these rules
 - AVOID type assertions (`as Type`)
 - Prefer letting TypeScript infer types over explicit type annotations
 - AVOID mocking in tests. Only exception is network mocks using MSW.
-- TMDB server functions in `src/utils/tmdb-server-functions.ts` are auto-generated - DO NOT edit manually. Use `pnpm codegen:tmdb` to regenerate.
+- TMDB server functions in `src/_generated/tmdb-server-functions.ts` are auto-generated - DO NOT edit manually. Use `pnpm codegen:tmdb` to regenerate.
 - Auto-generated TMDB files are git-ignored and must be regenerated after cloning: `pnpm codegen:tmdb`
 
 # IN PROGRESS

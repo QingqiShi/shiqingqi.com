@@ -80,7 +80,7 @@ ${functionBody}
   const fileContent = `"use server";
 
 import "server-only";
-import { tmdbGet, type QueryParams } from "./tmdb-client";
+import { tmdbGet, type QueryParams } from "../utils/tmdb-client";
 
 /**
  * Server functions for TMDB APIs - can be called from server components directly
@@ -96,7 +96,7 @@ ${functions.join("\n\n")}
   const outputPath = path.join(
     projectRoot,
     "src",
-    "utils",
+    "_generated",
     "tmdb-server-functions.ts",
   );
   fs.writeFileSync(outputPath, fileContent, "utf8");
@@ -129,8 +129,8 @@ function generateApiRoutes() {
     const routeDir = path.join(apiDir, routePath);
     fs.mkdirSync(routeDir, { recursive: true });
 
-    const routeContent = `import { apiRouteWrapper } from "@/utils/api-route-wrapper";
-import { ${functionName} } from "@/utils/tmdb-server-functions";
+    const routeContent = `import { ${functionName} } from "@/_generated/tmdb-server-functions";
+import { apiRouteWrapper } from "@/utils/api-route-wrapper";
 
 export const GET = apiRouteWrapper(${functionName});
 `;
@@ -156,7 +156,7 @@ ${endpointPaths.map((p) => `  "${p}"`).join(",\n")}
 ] as const;
 `;
 
-  const typesPath = path.join(projectRoot, "src", "utils", "tmdb-endpoints.ts");
+  const typesPath = path.join(projectRoot, "src", "_generated", "tmdb-endpoints.ts");
   fs.writeFileSync(typesPath, typeContent, "utf8");
   console.log("✅ Generated tmdb-endpoints.ts");
 }

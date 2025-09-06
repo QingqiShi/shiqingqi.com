@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { getTvShowVideos } from "@/_generated/tmdb-server-functions";
 import { space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
-import { getTvShowVideos } from "@/utils/tmdb-server-functions";
 import { TrailerButton } from "./trailer-button";
 import translations from "./translations.json";
 

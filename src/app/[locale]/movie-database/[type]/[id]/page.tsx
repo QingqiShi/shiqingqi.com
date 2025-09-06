@@ -1,6 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import {
+  getConfiguration,
+  getMovieDetails,
+  getMovieVideos,
+  getTvShowDetails,
+  getTvShowVideos,
+} from "@/_generated/tmdb-server-functions";
 import { breakpoints } from "@/breakpoints";
 import { BackdropImage } from "@/components/movie-database/backdrop-image";
 import { SimilarMedia } from "@/components/movie-database/similar-media";
@@ -10,13 +17,6 @@ import { Skeleton } from "@/components/shared/skeleton";
 import { skeletonTokens } from "@/components/shared/skeleton.stylex";
 import { border, color, controlSize, font, space } from "@/tokens.stylex";
 import { getTranslations } from "@/utils/get-translations";
-import {
-  getConfiguration,
-  getMovieDetails,
-  getMovieVideos,
-  getTvShowDetails,
-  getTvShowVideos,
-} from "@/utils/tmdb-server-functions";
 import translations from "./translations.json";
 import type { PageProps } from "./types";
 

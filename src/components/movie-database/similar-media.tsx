@@ -1,13 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
+import { getConfiguration } from "@/_generated/tmdb-server-functions";
 import { breakpoints } from "@/breakpoints";
 import { ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";
 import { getTranslations } from "@/utils/get-translations";
 import * as tmdbQueries from "@/utils/tmdb-queries";
-import { getConfiguration } from "@/utils/tmdb-server-functions";
 import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";

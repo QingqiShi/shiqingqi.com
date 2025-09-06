@@ -1,8 +1,8 @@
 import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
+import { discoverMovies } from "@/_generated/tmdb-server-functions";
 import { operationsSchema } from "@/_generated/tmdb-zod";
 import type { paths } from "@/_generated/tmdbV3";
-import { discoverMovies } from "@/utils/tmdb-server-functions";
 
 // Extract Zod schema from generated schemas and make it required
 const movieDiscoverySchema = operationsSchema.shape[

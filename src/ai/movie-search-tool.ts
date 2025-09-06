@@ -1,8 +1,8 @@
 import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
+import { searchMovies } from "@/_generated/tmdb-server-functions";
 import { operationsSchema } from "@/_generated/tmdb-zod";
 import type { paths } from "@/_generated/tmdbV3";
-import { searchMovies } from "@/utils/tmdb-server-functions";
 
 // Extract Zod schema from generated schemas
 const movieSearchSchema =

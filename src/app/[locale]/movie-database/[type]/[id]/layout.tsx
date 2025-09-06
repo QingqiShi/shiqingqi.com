@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import {
+  getMovieDetails,
+  getTvShowDetails,
+} from "@/_generated/tmdb-server-functions";
 import { breakpoints } from "@/breakpoints";
 import { Footer } from "@/components/home/footer";
 import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
@@ -9,10 +13,6 @@ import { TranslationProvider } from "@/components/shared/translation-provider";
 import { BASE_URL } from "@/constants";
 import { space } from "@/tokens.stylex";
 import { getTranslations } from "@/utils/get-translations";
-import {
-  getMovieDetails,
-  getTvShowDetails,
-} from "@/utils/tmdb-server-functions";
 import translations from "./translations.json";
 import type { LayoutProps, PageProps } from "./types";
 

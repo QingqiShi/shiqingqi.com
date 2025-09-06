@@ -1,14 +1,15 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import type {
+  discoverMovies,
+  discoverTvShows,
+  getConfiguration,
+  getMovieGenres,
+  getMovieRecommendations,
+  getTvShowGenres,
+  getTvShowRecommendations,
+} from "../_generated/tmdb-server-functions";
 import { apiRequestWrapper } from "./api-request-wrapper";
 import type { QueryParams, ResponseType } from "./tmdb-client";
-import type { getMovieGenres, getTvShowGenres } from "./tmdb-server-functions";
-import {
-  type discoverMovies,
-  type discoverTvShows,
-  type getConfiguration,
-  type getMovieRecommendations,
-  type getTvShowRecommendations,
-} from "./tmdb-server-functions";
 import type { MediaListItem } from "./types";
 
 type MovieResult = NonNullable<

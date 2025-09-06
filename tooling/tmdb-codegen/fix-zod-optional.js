@@ -8,7 +8,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const zodFilePath = path.join(__dirname, "../src/_generated/tmdb-zod.ts");
+const zodFilePath = path.join(__dirname, "../../src/_generated/tmdb-zod.ts");
 
 try {
   let content = fs.readFileSync(zodFilePath, "utf8");
