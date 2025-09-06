@@ -28,7 +28,7 @@ type MovieListParams = QueryParams<"/3/discover/movie", "get"> & {
 type TvShowListParams = QueryParams<"/3/discover/tv", "get"> & { type: "tv" };
 
 function isMovieListResult(result: MediaResult): result is MovieResult {
-  return "name" in result;
+  return "title" in result;
 }
 
 export const mediaList = (params: MovieListParams | TvShowListParams) => {

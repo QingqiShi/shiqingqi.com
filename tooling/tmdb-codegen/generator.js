@@ -156,7 +156,12 @@ ${endpointPaths.map((p) => `  "${p}"`).join(",\n")}
 ] as const;
 `;
 
-  const typesPath = path.join(projectRoot, "src", "_generated", "tmdb-endpoints.ts");
+  const typesPath = path.join(
+    projectRoot,
+    "src",
+    "_generated",
+    "tmdb-endpoints.ts",
+  );
   fs.writeFileSync(typesPath, typeContent, "utf8");
   console.log("✅ Generated tmdb-endpoints.ts");
 }
