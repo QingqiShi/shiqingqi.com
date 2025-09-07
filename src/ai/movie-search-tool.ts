@@ -4,7 +4,7 @@ import { searchMovies } from "@/_generated/tmdb-server-functions";
 import { operationsSchema } from "@/_generated/tmdb-zod";
 import type { paths } from "@/_generated/tmdbV3";
 
-// Extract Zod schema from generated schemas
+// Extract Zod schema from generated schemas (backward compatible)
 const movieSearchSchema =
   operationsSchema.shape["search-movie"].shape.parameters.shape.query;
 
