@@ -195,6 +195,43 @@ const styles = stylex.create({
 </notes>
 </pattern>
 
+<pattern>
+<topic>TMDB Code Generation</topic>
+<notes>
+- Uses selective Zod schema generation for optimal performance (98.7% size reduction)
+- Only generates Zod schemas for endpoints marked with `needsZodSchema: true` in `endpoints-config.js`
+- AI tools require Zod schemas for OpenAI Structured Outputs validation
+- Custom generator at `tooling/tmdb-codegen/generate-selective-zod.js` creates hand-crafted schemas
+- Automatically applies OpenAI compatibility fixes (`.nullable().optional()`)
+- Generated file goes from 16K lines to ~200 lines, dramatically improving dev experience
+</notes>
+<example>
+
+```js
+// tooling/tmdb-codegen/endpoints-config.js
+export const endpoints = [
+  {
+    path: "/3/search/movie",
+    functionName: "searchMovies",
+    needsZodSchema: true, // Required for AI tools - triggers Zod generation
+  },
+  {
+    path: "/3/movie/{movie_id}",
+    functionName: "getMovieDetails",
+    // No needsZodSchema flag = no Zod schema generated
+  },
+];
+```
+
+```bash
+# Regenerate optimized schemas
+pnpm codegen:zod     # Only generates needed schemas (super fast!)
+pnpm codegen         # Full pipeline including TypeScript types
+```
+
+</example>
+</pattern>
+
 # CRITICAL INSTRUCTIONS
 
 ALWAYS follow these rules

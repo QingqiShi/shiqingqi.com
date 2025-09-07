@@ -27,6 +27,7 @@
     ".next/types/**/*.ts",
     "src/.breakpoints.config.ts",
     "tooling/stylex-css-prop/index.js",
+    "tooling/**/*.ts",
     "vitest.config.mts"
   ],
   "exclude": ["node_modules", "public/*"]

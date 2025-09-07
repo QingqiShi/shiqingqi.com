@@ -16,6 +16,7 @@ export const endpoints = [
     path: "/3/discover/movie",
     functionName: "discoverMovies",
     defaults: { "vote_count.gte": 300, "vote_average.gte": 3 },
+    needsZodSchema: true, // Required for AI tools
   },
 
   // TV Discovery & Lists
@@ -23,6 +24,7 @@ export const endpoints = [
     path: "/3/discover/tv",
     functionName: "discoverTvShows",
     defaults: { "vote_count.gte": 300, "vote_average.gte": 3 },
+    needsZodSchema: true, // Required for AI tools
   },
 
   // Movie Details & Media
@@ -46,8 +48,14 @@ export const endpoints = [
     path: "/3/search/movie",
     functionName: "searchMovies",
     requiredParams: true,
+    needsZodSchema: true, // Required for AI tools
   },
-  { path: "/3/search/tv", functionName: "searchTvShows", requiredParams: true },
+  {
+    path: "/3/search/tv",
+    functionName: "searchTvShows",
+    requiredParams: true,
+    needsZodSchema: true, // Required for AI tools
+  },
 ];
 
 // API routes to generate (maps function names to route paths)
