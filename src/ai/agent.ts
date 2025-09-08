@@ -1,10 +1,12 @@
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { zodTextFormat } from "openai/helpers/zod";
 import type { ResponseInput } from "openai/resources/responses/responses.mjs";
 import "server-only";
 import { z } from "zod";
 import {
+  getConfigurationCountries,
+  getConfigurationLanguages,
   getMovieGenres,
   getTvShowGenres,
 } from "@/_generated/tmdb-server-functions";
@@ -45,36 +47,74 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
   const currentMonth = now.toLocaleString("en-US", { month: "long" });
   const currentDate = now.toISOString().split("T")[0];
 
-  // Fetch genre lists from TMDB
+  // Fetch reference data from TMDB
   let movieGenres = "";
   let tvGenres = "";
+  let countries = "";
+  let languages = "";
 
   try {
-    const [movieGenreResponse, tvGenreResponse] = await Promise.all([
+    const [
+      movieGenreResponse,
+      tvGenreResponse,
+      countriesResponse,
+      languagesResponse,
+    ] = await Promise.all([
       getMovieGenres({ language: locale }),
       getTvShowGenres({ language: locale }),
+      getConfigurationCountries(),
+      getConfigurationLanguages(),
     ]);
 
     // Format movie genres
     if (movieGenreResponse.genres) {
       movieGenres = movieGenreResponse.genres
-        .map((genre) => `${genre.name || "Unknown"} (${genre.id})`)
+        .map((genre) => `${genre.name || "Unknown"} (ID: ${genre.id})`)
         .join(", ");
     }
 
     // Format TV genres
     if (tvGenreResponse.genres) {
       tvGenres = tvGenreResponse.genres
-        .map((genre) => `${genre.name || "Unknown"} (${genre.id})`)
+        .map((genre) => `${genre.name || "Unknown"} (ID: ${genre.id})`)
+        .join(", ");
+    }
+
+    // Format countries
+    if (countriesResponse && Array.isArray(countriesResponse)) {
+      const filteredCountries = countriesResponse
+        .filter(
+          (country): country is { iso_3166_1: string; english_name: string } =>
+            Boolean(country.iso_3166_1 && country.english_name),
+        )
+        .sort((a, b) => a.english_name.localeCompare(b.english_name));
+      countries = filteredCountries
+        .map((country) => `${country.english_name} (${country.iso_3166_1})`)
+        .join(", ");
+    }
+
+    // Format languages
+    if (languagesResponse && Array.isArray(languagesResponse)) {
+      const filteredLanguages = languagesResponse
+        .filter((lang): lang is { iso_639_1: string; english_name: string } =>
+          Boolean(lang.iso_639_1 && lang.english_name),
+        )
+        .sort((a, b) => a.english_name.localeCompare(b.english_name));
+      languages = filteredLanguages
+        .map((language) => `${language.english_name} (${language.iso_639_1})`)
         .join(", ");
     }
   } catch (error) {
-    console.error("Failed to fetch genres:", error);
-    // Fallback to hardcoded genres if API fails
+    console.error("Failed to fetch reference data:", error);
+    // Fallback to hardcoded data if API fails
     movieGenres =
-      "Action (28), Adventure (12), Animation (16), Comedy (35), Crime (80), Documentary (99), Drama (18), Family (10751), Fantasy (14), History (36), Horror (27), Music (10402), Mystery (9648), Romance (10749), Science Fiction (878), TV Movie (10770), Thriller (53), War (10752), Western (37)";
+      "Action (ID: 28), Adventure (ID: 12), Animation (ID: 16), Comedy (ID: 35), Crime (ID: 80), Documentary (ID: 99), Drama (ID: 18), Family (ID: 10751), Fantasy (ID: 14), History (ID: 36), Horror (ID: 27), Music (ID: 10402), Mystery (ID: 9648), Romance (ID: 10749), Science Fiction (ID: 878), TV Movie (ID: 10770), Thriller (ID: 53), War (ID: 10752), Western (ID: 37)";
     tvGenres =
-      "Action & Adventure (10759), Animation (16), Comedy (35), Crime (80), Documentary (99), Drama (18), Family (10751), Kids (10762), Mystery (9648), News (10763), Reality (10764), Sci-Fi & Fantasy (10765), Soap (10766), Talk (10767), War & Politics (10768), Western (37)";
+      "Action & Adventure (ID: 10759), Animation (ID: 16), Comedy (ID: 35), Crime (ID: 80), Documentary (ID: 99), Drama (ID: 18), Family (ID: 10751), Kids (ID: 10762), Mystery (ID: 9648), News (ID: 10763), Reality (ID: 10764), Sci-Fi & Fantasy (ID: 10765), Soap (ID: 10766), Talk (ID: 10767), War & Politics (ID: 10768), Western (ID: 37)";
+    countries =
+      "United States (US), United Kingdom (GB), Canada (CA), Australia (AU), Germany (DE), France (FR), Italy (IT), Spain (ES), Japan (JP), South Korea (KR), China (CN), India (IN), Brazil (BR), Mexico (MX), Argentina (AR), Russia (RU), Sweden (SE), Norway (NO), Denmark (DK), Netherlands (NL)";
+    languages =
+      "English (en), Spanish (es), French (fr), German (de), Italian (it), Portuguese (pt), Japanese (ja), Korean (ko), Chinese (zh), Hindi (hi), Russian (ru), Arabic (ar), Dutch (nl), Swedish (sv), Norwegian (no), Danish (da), Finnish (fi), Polish (pl), Turkish (tr), Greek (el)";
   }
 
   return template
@@ -83,7 +123,9 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
     .replace("{currentMonth}", currentMonth)
     .replace("{currentYear}", currentYear.toString())
     .replace("{movieGenres}", movieGenres)
-    .replace("{tvGenres}", tvGenres);
+    .replace("{tvGenres}", tvGenres)
+    .replace("{countries}", countries)
+    .replace("{languages}", languages);
 }
 
 export async function agent(
@@ -102,6 +144,7 @@ export async function agent(
         content: userMessage,
       },
     ];
+    console.log("message", userMessage);
 
     const fullConversation: ResponseInput = [...initialMessages];
 
@@ -111,7 +154,7 @@ export async function agent(
     let iteration = 0;
 
     while (!toolCallingComplete && iteration < maxIterations) {
-      console.log("fullConversation", fullConversation);
+      console.log("send");
       const response = await openaiClient.responses.create({
         model: OPENAI_MODEL,
         input: fullConversation,
@@ -119,14 +162,21 @@ export async function agent(
       });
 
       if (response.status !== "completed") {
+        console.log("message not completed", response.output);
         return {
           items: [],
           error: `Tool calling phase failed: ${response.status}`,
         };
       }
 
-      let hasToolCalls = false;
-      let hasMessage = false;
+      let hasCompletionCall = false;
+
+      // Collect all tool calls for parallel execution
+      const toolCalls: Array<{
+        name: string;
+        arguments: string;
+        call_id: string;
+      }> = [];
 
       for (const outputItem of response.output) {
         const item = outputItem as {
@@ -138,63 +188,84 @@ export async function agent(
         };
 
         if (item.type === "function_call") {
-          hasToolCalls = true;
-
-          console.log("arguments", item.arguments);
-
-          try {
-            // Auto-inject language parameter based on locale
-            const toolArgs = JSON.parse(item.arguments || "{}") as Record<
-              string,
-              unknown
-            >;
-
-            if (!toolArgs.language) {
-              toolArgs.language = locale === "zh" ? "zh-CN" : "en-US";
-            }
-
-            fullConversation.push({
-              type: "function_call",
-              call_id: item.call_id!,
-              name: item.name!,
-              arguments: item.arguments ?? "",
-            });
-
-            const result = await executeToolCall({
-              name: item.name!,
-              arguments: JSON.stringify(toolArgs),
-              call_id: item.call_id!,
-            });
-
-            // Add tool result to conversation
-            fullConversation.push({
-              type: "function_call_output",
-              call_id: item.call_id!,
-              output: JSON.stringify(result.result),
-            });
-          } catch (error) {
-            console.error("Tool execution error:", error);
-            // Add error result to conversation
-            fullConversation.push({
-              type: "function_call_output",
-              call_id: item.call_id!,
-              output: JSON.stringify({
-                error: `Failed to execute ${item.name}`,
-              }),
-            });
+          // Check if this is the completion call
+          if (item.name === "complete_phase_1") {
+            hasCompletionCall = true;
           }
+
+          // Auto-inject language parameter based on locale
+          const toolArgs = JSON.parse(item.arguments || "{}") as Record<
+            string,
+            unknown
+          >;
+
+          if (!toolArgs.language) {
+            toolArgs.language = locale === "zh" ? "zh-CN" : "en-US";
+          }
+
+          console.log("message tool", item.name);
+
+          // Add function call to conversation
+          fullConversation.push({
+            type: "function_call",
+            call_id: item.call_id!,
+            name: item.name!,
+            arguments: item.arguments ?? "",
+          });
+
+          // Collect for parallel execution
+          toolCalls.push({
+            name: item.name!,
+            arguments: JSON.stringify(toolArgs),
+            call_id: item.call_id!,
+          });
         } else if (item.type === "message" && item.content) {
-          hasMessage = true;
           // Add AI's response to conversation
           fullConversation.push({
             role: "assistant",
             content: item.content,
           });
+          console.log("message", item.content);
         }
       }
 
-      // Detection: AI is done with tools if it sent a message without more tool calls
-      if (hasMessage && !hasToolCalls) {
+      // Execute all tool calls in parallel
+      if (toolCalls.length > 0) {
+        const results = await Promise.all(
+          toolCalls.map(async (toolCall) => {
+            try {
+              const result = await executeToolCall(toolCall);
+              return {
+                success: true,
+                call_id: toolCall.call_id,
+                result: result.result,
+              };
+            } catch (error) {
+              console.error("Tool execution error:", error);
+              return {
+                success: false,
+                call_id: toolCall.call_id,
+                error: `Failed to execute ${toolCall.name}`,
+              };
+            }
+          }),
+        );
+
+        // Add all tool results to conversation
+        for (const result of results) {
+          fullConversation.push({
+            type: "function_call_output",
+            call_id: result.call_id,
+            output: JSON.stringify(
+              result.success ? result.result : { error: result.error },
+            ),
+          });
+          console.log("message tool output", result.call_id);
+        }
+      }
+
+      // Detection: AI is done with Phase 1 if it called complete_phase_1
+      if (hasCompletionCall) {
         toolCallingComplete = true;
       }
 
@@ -202,6 +273,7 @@ export async function agent(
     }
 
     // Phase 2: Structured output for final processing
+    console.log("send");
     const finalResponse = await openaiClient.responses.parse({
       model: OPENAI_MODEL,
       input: [
@@ -218,6 +290,11 @@ export async function agent(
     });
 
     if (finalResponse.status !== "completed") {
+      console.log(
+        "message not completed",
+        finalResponse.status,
+        finalResponse.output,
+      );
       return {
         items: [],
         error: `Structured output phase failed: ${finalResponse.status}`,
@@ -230,6 +307,21 @@ export async function agent(
         items: [],
         error: "No parsed output available from final processing",
       };
+    }
+
+    console.log("parsed");
+
+    // Save conversation for debugging in development only
+    if (process.env.NODE_ENV === "development") {
+      try {
+        writeFileSync(
+          `/tmp/ai-conversation-${Date.now()}.json`,
+          JSON.stringify({ fullConversation, finalResponse, parsed }, null, 2),
+        );
+        console.log("Debug conversation saved to /tmp/");
+      } catch (debugError) {
+        console.error("Failed to save debug conversation:", debugError);
+      }
     }
 
     return {
