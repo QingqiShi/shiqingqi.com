@@ -5,6 +5,14 @@ import {
 } from "./movie-search-tool";
 import { movieDiscoveryTool, executeMovieToolCall } from "./movie-tool";
 import {
+  searchPersonByNameTool,
+  executePersonSearchToolCall,
+} from "./person-search-tool";
+import {
+  phaseCompletionTool,
+  executePhaseCompletionToolCall,
+} from "./phase-completion-tool";
+import {
   searchTvShowsByTitleTool,
   executeTvSearchToolCall,
 } from "./tv-search-tool";
@@ -16,6 +24,8 @@ export const availableTools = [
   tvDiscoveryTool,
   searchMoviesByTitleTool,
   searchTvShowsByTitleTool,
+  searchPersonByNameTool,
+  phaseCompletionTool,
 ];
 
 // Main tool execution function - routes to specific tool handlers
@@ -36,6 +46,12 @@ export async function executeToolCall(toolCall: {
 
     case "search_tv_shows_by_title":
       return executeTvSearchToolCall(toolCall);
+
+    case "search_person_by_name":
+      return executePersonSearchToolCall(toolCall);
+
+    case "complete_phase_1":
+      return executePhaseCompletionToolCall(toolCall);
 
     default:
       throw new Error(`Unknown tool: ${toolCall.name}`);

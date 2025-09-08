@@ -35,7 +35,16 @@ export async function executeMovieSearchToolCall(toolCall: {
 
   // Parse and validate with Zod schema
   const validatedParams = movieSearchSchema.parse(args);
-  const movieResults = await searchMovies(validatedParams as MovieSearchParams);
+
+  // Remove undefined values to avoid issues with the API
+  const strippedParams = { ...validatedParams };
+  Object.keys(strippedParams).forEach((key) => {
+    if (!strippedParams[key as keyof MovieSearchParams]) {
+      delete strippedParams[key as keyof MovieSearchParams];
+    }
+  });
+
+  const movieResults = await searchMovies(strippedParams as MovieSearchParams);
 
   return {
     call_id: toolCall.call_id,

@@ -3,7 +3,6 @@ import { zodResponsesFunction } from "openai/helpers/zod";
 import { discoverTvShows } from "@/_generated/tmdb-server-functions";
 import { operationsSchema } from "@/_generated/tmdb-zod";
 import type { paths } from "@/_generated/tmdbV3";
-
 // Extract Zod schema from generated schemas
 const tvDiscoverySchema = operationsSchema.shape[
   "discover-tv"
@@ -38,7 +37,28 @@ export async function executeTvToolCall(toolCall: {
 
   // Parse and validate with Zod schema
   const validatedParams = tvDiscoverySchema.parse(args);
-  const tvResults = await discoverTvShows(validatedParams as TvDiscoveryParams);
+
+  // Remove undefined values to avoid issues with the API
+  const strippedParams = { ...validatedParams };
+  Object.keys(strippedParams).forEach((key) => {
+    if (!strippedParams[key as keyof TvDiscoveryParams]) {
+      delete strippedParams[key as keyof TvDiscoveryParams];
+    }
+  });
+
+  // Convert null values to undefined for TMDB API compatibility
+  const sanitizedParams = Object.fromEntries(
+    Object.entries(strippedParams).map(([key, value]) => [
+      key,
+      value === null ? undefined : value,
+    ]),
+  );
+
+  const tvResults = await discoverTvShows({
+    "vote_count.gte": 300,
+    "vote_average.gte": 3,
+    ...sanitizedParams,
+  } as TvDiscoveryParams);
 
   return {
     call_id: toolCall.call_id,

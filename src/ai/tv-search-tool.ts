@@ -35,7 +35,16 @@ export async function executeTvSearchToolCall(toolCall: {
 
   // Parse and validate with Zod schema
   const validatedParams = tvSearchSchema.parse(args);
-  const tvResults = await searchTvShows(validatedParams as TvSearchParams);
+
+  // Remove undefined values to avoid issues with the API
+  const strippedParams = { ...validatedParams };
+  Object.keys(strippedParams).forEach((key) => {
+    if (!strippedParams[key as keyof TvSearchParams]) {
+      delete strippedParams[key as keyof TvSearchParams];
+    }
+  });
+
+  const tvResults = await searchTvShows(strippedParams as TvSearchParams);
 
   return {
     call_id: toolCall.call_id,

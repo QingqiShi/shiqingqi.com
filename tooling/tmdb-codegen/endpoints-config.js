@@ -6,6 +6,14 @@
 export const endpoints = [
   // Configuration
   { path: "/3/configuration", functionName: "getConfiguration" },
+  {
+    path: "/3/configuration/countries",
+    functionName: "getConfigurationCountries",
+  },
+  {
+    path: "/3/configuration/languages",
+    functionName: "getConfigurationLanguages",
+  },
 
   // Genres
   { path: "/3/genre/movie/list", functionName: "getMovieGenres" },
@@ -53,6 +61,12 @@ export const endpoints = [
   {
     path: "/3/search/tv",
     functionName: "searchTvShows",
+    requiredParams: true,
+    needsZodSchema: true, // Required for AI tools
+  },
+  {
+    path: "/3/search/person",
+    functionName: "searchPerson",
     requiredParams: true,
     needsZodSchema: true, // Required for AI tools
   },

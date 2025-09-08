@@ -38,9 +38,28 @@ export async function executeMovieToolCall(toolCall: {
 
   // Parse and validate with Zod schema
   const validatedParams = movieDiscoverySchema.parse(args);
-  const movieResults = await discoverMovies(
-    validatedParams as MovieDiscoveryParams,
+
+  // Remove undefined values to avoid issues with the API
+  const strippedParams = { ...validatedParams };
+  Object.keys(strippedParams).forEach((key) => {
+    if (!strippedParams[key as keyof MovieDiscoveryParams]) {
+      delete strippedParams[key as keyof MovieDiscoveryParams];
+    }
+  });
+
+  // Convert null values to undefined for TMDB API compatibility
+  const sanitizedParams = Object.fromEntries(
+    Object.entries(strippedParams).map(([key, value]) => [
+      key,
+      value === null ? undefined : value,
+    ]),
   );
+
+  const movieResults = await discoverMovies({
+    "vote_count.gte": 300,
+    "vote_average.gte": 3,
+    ...sanitizedParams,
+  } as MovieDiscoveryParams);
 
   return {
     call_id: toolCall.call_id,
