@@ -19,7 +19,7 @@
     "build:tsc": "tsc --noEmit",
     "start": "next start",
     "lint": "next lint",
-    "lint:changed": "git diff --name-only --diff-filter=d HEAD | grep -E '\\.(js|jsx|ts|tsx)$' | xargs -r next lint --fix --file",
+    "lint:changed": "(git diff --name-only --diff-filter=d HEAD; git ls-files --others --exclude-standard) | grep -E '\\.(js|jsx|ts|tsx)$' | sort -u | xargs -r next lint --fix --file",
     "format:write": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,md,mjs}' --ignore-path .gitignore",
     "format:check": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,md,mjs}' --ignore-path .gitignore",
     "format:changed": "git diff --name-only --diff-filter=d HEAD | grep -E '\\.(js|jsx|ts|tsx|json|css|md|mjs)$' | xargs -r prettier --write",

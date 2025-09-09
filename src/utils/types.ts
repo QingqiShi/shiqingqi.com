@@ -8,6 +8,7 @@ export type MediaListItem = {
   title?: string | null;
   posterPath?: string | null;
   rating?: number | null;
+  mediaType?: "movie" | "tv" | null;
 };
 
 export type Genre = NonNullable<

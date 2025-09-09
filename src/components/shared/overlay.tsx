@@ -2,6 +2,7 @@ import { X } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 
 import type { PropsWithChildren } from "react";
+import { createPortal } from "react-dom";
 import { breakpoints } from "@/breakpoints";
 import { useCssId } from "@/hooks/use-css-id";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
@@ -32,22 +33,24 @@ export function Overlay({
           }
       `}
       </style>
-      {isOpen && (
-        <div>
-          <div
-            css={styles.backdrop}
-            onClick={onClose}
-            style={{ viewTransitionName: `${id}-backdrop` }}
-          />
-          <div
-            css={styles.content}
-            style={{ viewTransitionName: `${id}-overlay` }}
-          >
-            <Button css={styles.closeButton} icon={<X />} onClick={onClose} />
-            {children}
-          </div>
-        </div>
-      )}
+      {isOpen &&
+        createPortal(
+          <div>
+            <div
+              css={styles.backdrop}
+              onClick={onClose}
+              style={{ viewTransitionName: `${id}-backdrop` }}
+            />
+            <div
+              css={styles.content}
+              style={{ viewTransitionName: `${id}-overlay` }}
+            >
+              <Button css={styles.closeButton} icon={<X />} onClick={onClose} />
+              {children}
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

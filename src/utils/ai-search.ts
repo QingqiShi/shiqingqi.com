@@ -29,7 +29,6 @@ export interface AISearchResponse {
     rating?: number | null;
   }>;
   count: number;
-  error?: string;
 }
 
 export async function performAISearch(
@@ -42,17 +41,6 @@ export async function performAISearch(
 
     // Execute AI agent
     const result = await agent(query, locale as SupportedLocale);
-
-    if (result.error) {
-      return {
-        success: false,
-        query,
-        locale,
-        items: result.items,
-        count: result.items.length,
-        error: result.error,
-      };
-    }
 
     return {
       success: true,

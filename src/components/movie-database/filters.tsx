@@ -9,6 +9,7 @@ import { GenreFilterButton } from "./genre-filter-button";
 import { MediaTypeToggle } from "./media-type-toggle";
 import { MobileFiltersButton } from "./mobile-filters-button";
 import { ResetFilter } from "./reset-filter";
+import { SearchButton } from "./search-button";
 import { SortFilter } from "./sort-filter";
 import { TmdbCredit } from "./tmdb-credit";
 
@@ -19,55 +20,40 @@ interface FiltersProps {
 
 export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
   return (
-    <>
-      <FiltersContainer
-        desktopChildren={
-          <>
-            <MediaTypeToggle />
-            <GenreFilterButton />
-            <SortFilter hideLabel />
-            <ResetFilter hideLabel />
-            <TmdbCredit locale={locale} position="topLeft" />
-          </>
-        }
-        mobileChildren={
-          <>
-            <MediaTypeToggle mobile />
-            <TmdbCredit locale={locale} position="viewportWidth" />
-            <MobileFiltersButton
-              menuContent={
-                <div css={styles.mobileMenuContent}>
-                  <SortFilter bright />
-                  <GenreFilter />
-                  <ResetFilter bright />
-                </div>
-              }
-            >
-              {mobileButtonLabel}
-            </MobileFiltersButton>
-          </>
-        }
-      />
-    </>
+    <FiltersContainer
+      desktopChildren={
+        <>
+          <MediaTypeToggle />
+          <GenreFilterButton />
+          <SortFilter hideLabel />
+          <ResetFilter hideLabel />
+          <SearchButton />
+          <TmdbCredit locale={locale} position="topLeft" />
+        </>
+      }
+      mobileChildren={
+        <>
+          <MediaTypeToggle mobile />
+          <SearchButton />
+          <TmdbCredit locale={locale} position="viewportWidth" />
+          <MobileFiltersButton
+            menuContent={
+              <div css={styles.mobileMenuContent}>
+                <SortFilter bright />
+                <GenreFilter />
+                <ResetFilter bright />
+              </div>
+            }
+          >
+            {mobileButtonLabel}
+          </MobileFiltersButton>
+        </>
+      }
+    />
   );
 }
 
 const styles = stylex.create({
-  desktopMenuContent: {
-    alignItems: "center",
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._4,
-    padding: controlSize._3,
-    maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
-    overflow: "auto",
-  },
-
-  mobileIcon: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   mobileMenuContent: {
     alignItems: "center",
     display: "flex",

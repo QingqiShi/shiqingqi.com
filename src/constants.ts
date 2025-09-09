@@ -3,5 +3,6 @@ export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
 export const ALLOWED_REFERER = [
   BASE_URL,
   "http://localhost:3000",
+  "qingqi-pc.tail8615af.ts.net:3000",
   "vercel.app",
 ];
