@@ -1,3 +1,5 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
 import { Card } from "@/components/shared/card";
 import { useTranslations } from "@/hooks/use-translations";
