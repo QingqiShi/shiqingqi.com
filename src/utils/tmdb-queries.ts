@@ -64,12 +64,14 @@ export const mediaList = (params: MovieListParams | TvShowListParams) => {
                 title: media.title,
                 posterPath: media.poster_path,
                 rating: media.vote_average,
+                mediaType: params.type,
               }
             : {
                 id: media.id,
                 title: media.name,
                 posterPath: media.poster_path,
                 rating: media.vote_average,
+                mediaType: params.type,
               },
         );
       // Removes duplicates
@@ -128,12 +130,14 @@ export const similarMedia = (params: SimilarMediaParams) => {
                 title: media.title,
                 posterPath: media.poster_path,
                 rating: media.vote_average,
+                mediaType: params.type,
               }
             : {
                 id: media.id,
                 title: media.name,
                 posterPath: media.poster_path,
                 rating: media.vote_average,
+                mediaType: params.type,
               },
         );
       // Removes duplicates

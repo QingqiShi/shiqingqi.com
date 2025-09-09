@@ -8,21 +8,18 @@ import type { MediaListItem } from "@/utils/types";
 import { PosterImage } from "./poster-image";
 import type translations from "./poster-image.translations.json";
 
-type MediaType = "movie" | "tv";
-
 interface MediaCardProps {
   media: MediaListItem;
-  mediaType: MediaType;
   allowFollow?: boolean;
 }
 
-export function MediaCard({ media, mediaType, allowFollow }: MediaCardProps) {
+export function MediaCard({ media, allowFollow }: MediaCardProps) {
   const { t } = useTranslations<typeof translations>("posterImage");
   const { locale } = useTranslationContext();
   const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
 
   const href = getLocalePath(
-    `/movie-database/${mediaType}/${media.id.toString()}`,
+    `/movie-database/${media.mediaType}/${media.id.toString()}`,
     locale,
   );
 

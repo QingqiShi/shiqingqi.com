@@ -12,7 +12,7 @@ import {
 } from "@/_generated/tmdb-server-functions";
 import type { SupportedLocale } from "@/types";
 import type { MediaListItem } from "@/utils/types";
-import { OPENAI_MODEL, openaiClient } from "./client";
+import { getOpenAIClient, getOpenAIModel } from "./client";
 import { availableTools, executeToolCall } from "./tools";
 
 // MediaListItem schema matching the type structure
@@ -21,6 +21,7 @@ const MediaListItemSchema = z.object({
   title: z.string().optional().nullable(),
   posterPath: z.string().optional().nullable(),
   rating: z.number().optional().nullable(),
+  mediaType: z.enum(["movie", "tv"]).optional().nullable(),
 });
 
 // Agent response schema - array of MediaListItem
@@ -30,7 +31,6 @@ const AgentResponseSchema = z.object({
 
 interface AgentResponse {
   items: MediaListItem[];
-  error?: string;
 }
 
 async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
@@ -132,207 +132,173 @@ export async function agent(
   userMessage: string,
   locale: SupportedLocale = "en",
 ): Promise<AgentResponse> {
-  try {
-    const instructions = await getSystemInstructions(locale);
-    const initialMessages = [
-      {
-        role: "developer" as const,
-        content: instructions,
-      },
-      {
-        role: "user" as const,
-        content: userMessage,
-      },
-    ];
-    console.log("message", userMessage);
+  const instructions = await getSystemInstructions(locale);
+  const initialMessages = [
+    {
+      role: "developer" as const,
+      content: instructions,
+    },
+    {
+      role: "user" as const,
+      content: userMessage,
+    },
+  ];
 
-    const fullConversation: ResponseInput = [...initialMessages];
+  const fullConversation: ResponseInput = [...initialMessages];
 
-    // Phase 1: Tool calling loop
-    let toolCallingComplete = false;
-    const maxIterations = 5; // Prevent infinite loops
-    let iteration = 0;
+  // Phase 1: Tool calling loop
+  let toolCallingComplete = false;
+  const maxIterations = 5; // Prevent infinite loops
+  let iteration = 0;
 
-    while (!toolCallingComplete && iteration < maxIterations) {
-      console.log("send");
-      const response = await openaiClient.responses.create({
-        model: OPENAI_MODEL,
-        input: fullConversation,
-        tools: availableTools,
-      });
-
-      if (response.status !== "completed") {
-        console.log("message not completed", response.output);
-        return {
-          items: [],
-          error: `Tool calling phase failed: ${response.status}`,
-        };
-      }
-
-      let hasCompletionCall = false;
-
-      // Collect all tool calls for parallel execution
-      const toolCalls: Array<{
-        name: string;
-        arguments: string;
-        call_id: string;
-      }> = [];
-
-      for (const outputItem of response.output) {
-        const item = outputItem as {
-          type: string;
-          content?: string;
-          name?: string;
-          arguments?: string;
-          call_id?: string;
-        };
-
-        if (item.type === "function_call") {
-          // Check if this is the completion call
-          if (item.name === "complete_phase_1") {
-            hasCompletionCall = true;
-          }
-
-          // Auto-inject language parameter based on locale
-          const toolArgs = JSON.parse(item.arguments || "{}") as Record<
-            string,
-            unknown
-          >;
-
-          if (!toolArgs.language) {
-            toolArgs.language = locale === "zh" ? "zh-CN" : "en-US";
-          }
-
-          console.log("message tool", item.name);
-
-          // Add function call to conversation
-          fullConversation.push({
-            type: "function_call",
-            call_id: item.call_id!,
-            name: item.name!,
-            arguments: item.arguments ?? "",
-          });
-
-          // Collect for parallel execution
-          toolCalls.push({
-            name: item.name!,
-            arguments: JSON.stringify(toolArgs),
-            call_id: item.call_id!,
-          });
-        } else if (item.type === "message" && item.content) {
-          // Add AI's response to conversation
-          fullConversation.push({
-            role: "assistant",
-            content: item.content,
-          });
-          console.log("message", item.content);
-        }
-      }
-
-      // Execute all tool calls in parallel
-      if (toolCalls.length > 0) {
-        const results = await Promise.all(
-          toolCalls.map(async (toolCall) => {
-            try {
-              const result = await executeToolCall(toolCall);
-              return {
-                success: true,
-                call_id: toolCall.call_id,
-                result: result.result,
-              };
-            } catch (error) {
-              console.error("Tool execution error:", error);
-              return {
-                success: false,
-                call_id: toolCall.call_id,
-                error: `Failed to execute ${toolCall.name}`,
-              };
-            }
-          }),
-        );
-
-        // Add all tool results to conversation
-        for (const result of results) {
-          fullConversation.push({
-            type: "function_call_output",
-            call_id: result.call_id,
-            output: JSON.stringify(
-              result.success ? result.result : { error: result.error },
-            ),
-          });
-          console.log("message tool output", result.call_id);
-        }
-      }
-
-      // Detection: AI is done with Phase 1 if it called complete_phase_1
-      if (hasCompletionCall) {
-        toolCallingComplete = true;
-      }
-
-      iteration++;
-    }
-
-    // Phase 2: Structured output for final processing
-    console.log("send");
-    const finalResponse = await openaiClient.responses.parse({
-      model: OPENAI_MODEL,
-      input: [
-        ...fullConversation,
-        {
-          role: "developer",
-          content:
-            "Based on all the TMDB data retrieved, provide a final filtered and ranked list of recommendations that best match the user's original query. Consider relevance, ratings, diversity, and user preferences. Return only the most relevant results.",
-        },
-      ],
-      text: {
-        format: zodTextFormat(AgentResponseSchema, "media_list"),
-      },
+  while (!toolCallingComplete && iteration < maxIterations) {
+    const response = await getOpenAIClient().responses.create({
+      model: getOpenAIModel(),
+      input: fullConversation,
+      tools: availableTools,
     });
 
-    if (finalResponse.status !== "completed") {
-      console.log(
-        "message not completed",
-        finalResponse.status,
-        finalResponse.output,
-      );
-      return {
-        items: [],
-        error: `Structured output phase failed: ${finalResponse.status}`,
-      };
+    if (response.status !== "completed") {
+      throw new Error(`Tool calling phase failed: ${response.status}`);
     }
 
-    const parsed = finalResponse.output_parsed;
-    if (!parsed) {
-      return {
-        items: [],
-        error: "No parsed output available from final processing",
+    let hasCompletionCall = false;
+
+    // Collect all tool calls for parallel execution
+    const toolCalls: Array<{
+      name: string;
+      arguments: string;
+      call_id: string;
+    }> = [];
+
+    for (const outputItem of response.output) {
+      const item = outputItem as {
+        type: string;
+        content?: string;
+        name?: string;
+        arguments?: string;
+        call_id?: string;
       };
-    }
 
-    console.log("parsed");
+      if (item.type === "function_call") {
+        // Check if this is the completion call
+        if (item.name === "complete_phase_1") {
+          hasCompletionCall = true;
+        }
 
-    // Save conversation for debugging in development only
-    if (process.env.NODE_ENV === "development") {
-      try {
-        writeFileSync(
-          `/tmp/ai-conversation-${Date.now()}.json`,
-          JSON.stringify({ fullConversation, finalResponse, parsed }, null, 2),
-        );
-        console.log("Debug conversation saved to /tmp/");
-      } catch (debugError) {
-        console.error("Failed to save debug conversation:", debugError);
+        // Auto-inject language parameter based on locale
+        const toolArgs = JSON.parse(item.arguments || "{}") as Record<
+          string,
+          unknown
+        >;
+
+        if (!toolArgs.language) {
+          toolArgs.language = locale === "zh" ? "zh-CN" : "en-US";
+        }
+
+        // Add function call to conversation
+        fullConversation.push({
+          type: "function_call",
+          call_id: item.call_id!,
+          name: item.name!,
+          arguments: item.arguments ?? "",
+        });
+
+        // Collect for parallel execution
+        toolCalls.push({
+          name: item.name!,
+          arguments: JSON.stringify(toolArgs),
+          call_id: item.call_id!,
+        });
+      } else if (item.type === "message" && item.content) {
+        // Add AI's response to conversation
+        fullConversation.push({
+          role: "assistant",
+          content: item.content,
+        });
       }
     }
 
-    return {
-      items: parsed.media_list,
-    };
-  } catch (error) {
-    console.error("Error in AI agent:", error);
+    // Execute all tool calls in parallel
+    if (toolCalls.length > 0) {
+      const results = await Promise.all(
+        toolCalls.map(async (toolCall) => {
+          try {
+            const result = await executeToolCall(toolCall);
+            return {
+              success: true,
+              call_id: toolCall.call_id,
+              result: result.result,
+            };
+          } catch (error) {
+            console.error("Tool execution error:", error);
+            return {
+              success: false,
+              call_id: toolCall.call_id,
+              error: `Failed to execute ${toolCall.name}`,
+            };
+          }
+        }),
+      );
 
-    return {
-      items: [],
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+      // Add all tool results to conversation
+      for (const result of results) {
+        fullConversation.push({
+          type: "function_call_output",
+          call_id: result.call_id,
+          output: JSON.stringify(
+            result.success ? result.result : { error: result.error },
+          ),
+        });
+      }
+    }
+
+    // Detection: AI is done with Phase 1 if it called complete_phase_1
+    if (hasCompletionCall) {
+      toolCallingComplete = true;
+    }
+
+    iteration++;
   }
+
+  // Phase 2: Structured output for final processing
+  const finalResponse = await getOpenAIClient().responses.parse({
+    model: getOpenAIModel(),
+    input: [
+      ...fullConversation,
+      {
+        role: "developer",
+        content:
+          "Based on all the TMDB data retrieved, provide a final filtered and ranked list of recommendations that best match the user's original query. Consider relevance, ratings, diversity, and user preferences. IMPORTANT: Extract posterPath (from poster_path field) and mediaType from the TMDB API responses. For movies use mediaType: 'movie', for TV shows use mediaType: 'tv'. Return only the most relevant results.",
+      },
+    ],
+    text: {
+      format: zodTextFormat(AgentResponseSchema, "media_list"),
+    },
+  });
+
+  if (finalResponse.status !== "completed") {
+    throw new Error(`Structured output phase failed: ${finalResponse.status}`);
+  }
+
+  const parsed = finalResponse.output_parsed;
+  if (!parsed) {
+    throw new Error("No parsed output available from final processing");
+  }
+
+  // Save conversation for debugging in development only
+  if (process.env.NODE_ENV === "development") {
+    try {
+      writeFileSync(
+        `/tmp/ai-conversation-${Date.now()}.json`,
+        JSON.stringify({ fullConversation, finalResponse, parsed }, null, 2),
+      );
+    } catch (debugError) {
+      console.error("Failed to save debug conversation:", debugError);
+    }
+  }
+
+  return {
+    items: parsed.media_list,
+  };
 }

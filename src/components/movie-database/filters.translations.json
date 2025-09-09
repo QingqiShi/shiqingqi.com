@@ -34,5 +34,21 @@
   "resetDescription": {
     "en": "Reset sorting and filters",
     "zh": "重置筛选与排序"
+  },
+  "aiSearch": {
+    "en": "AI Search",
+    "zh": "AI 搜索"
+  },
+  "aiSearchLabel": {
+    "en": "Search movies and TV shows with AI",
+    "zh": "使用 AI 搜索电影和电视剧"
+  },
+  "aiSearchPlaceholder": {
+    "en": "Search with AI: 'best sci-fi movies from 2023' or 'funny Korean dramas'...",
+    "zh": "AI 搜索：'2023年最佳科幻电影'或'搞笑韩剧'..."
+  },
+  "aiSearchHint": {
+    "en": "Press Enter to search or Escape to close",
+    "zh": "按回车搜索或按 Esc 关闭"
   }
 }

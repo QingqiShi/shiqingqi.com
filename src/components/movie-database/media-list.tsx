@@ -67,13 +67,7 @@ export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
       key={JSON.stringify(tmdbQueryOptions)}
       data={items}
       components={gridComponents}
-      itemContent={(index) => (
-        <ItemContent
-          index={index}
-          items={items}
-          mediaType={deferredMediaType}
-        />
-      )}
+      itemContent={(index) => <ItemContent index={index} items={items} />}
       endReached={() => {
         if (hasNextPage && !isFetching) {
           void fetchNextPage();
@@ -89,11 +83,9 @@ export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
 const ItemContent = memo(function ItemContent({
   index,
   items,
-  mediaType,
 }: {
   index: number;
   items: MediaListItem[];
-  mediaType: "movie" | "tv";
 }) {
   const item = items[index];
 
@@ -103,13 +95,7 @@ const ItemContent = memo(function ItemContent({
 
   const allowFollow = index < 20;
 
-  return (
-    <MediaCard
-      media={item}
-      mediaType={mediaType === "tv" ? "tv" : "movie"}
-      allowFollow={allowFollow}
-    />
-  );
+  return <MediaCard media={item} allowFollow={allowFollow} />;
 });
 
 const gridComponents = {

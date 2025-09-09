@@ -62,7 +62,7 @@ export function SimilarMediaList({
       components={gridComponents}
       itemContent={(index) =>
         media[index] ? (
-          <MediaCard media={media[index]} mediaType={mediaType} />
+          <MediaCard media={media[index]} />
         ) : (
           <Skeleton css={styles.skeleton} delay={index * 100} />
         )

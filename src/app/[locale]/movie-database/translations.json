@@ -22,5 +22,17 @@
   "filterMobileButtonLabel": {
     "en": "Refine",
     "zh": "筛选"
+  },
+  "aiSearchResults": {
+    "en": "AI Search Results",
+    "zh": "AI 搜索结果"
+  },
+  "noQuery": {
+    "en": "Please provide a search query",
+    "zh": "请提供搜索关键词"
+  },
+  "noResults": {
+    "en": "No results found for your search",
+    "zh": "没有找到匹配的结果"
   }
 }

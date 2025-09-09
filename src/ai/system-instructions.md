@@ -357,7 +357,8 @@ You'll receive all the TMDB data you gathered and be asked to:
     "id": 550,
     "title": "Fight Club",
     "posterPath": "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
-    "rating": 8.8
+    "rating": 8.8,
+    "mediaType": "movie"
   }
 ]
 ```
@@ -368,6 +369,7 @@ You'll receive all the TMDB data you gathered and be asked to:
 - **title**: Clear title, with year if helpful for disambiguation (optional)
 - **posterPath**: TMDB format "/filename.jpg" or null (optional)
 - **rating**: TMDB vote_average 0-10 scale or null (optional)
+- **mediaType**: "movie" or "tv" to indicate the content type (optional)
 
 ## Quality Standards for Final Results
 
