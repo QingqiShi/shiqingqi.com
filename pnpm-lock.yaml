@@ -15,43 +15,43 @@ importers:
     dependencies:
       '@mui/utils':
         specifier: ^6.4.8
-        version: 6.4.8(@types/react@19.1.8)(react@19.1.0)
+        version: 6.4.8(@types/react@19.1.12)(react@19.1.1)
       '@phosphor-icons/react':
         specifier: ^2.1.7
-        version: 2.1.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 2.1.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@serwist/next':
         specifier: ^9.1.0
-        version: 9.1.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(typescript@5.8.3)(webpack@5.97.1)
+        version: 9.1.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(typescript@5.8.3)(webpack@5.97.1)
       '@stylexjs/stylex':
         specifier: ^0.15.3
         version: 0.15.3
       '@tanstack/react-query':
         specifier: 5.66.3
-        version: 5.66.3(react@19.1.0)
+        version: 5.66.3(react@19.1.1)
       '@vercel/analytics':
         specifier: ^1.5.0
-        version: 1.5.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+        version: 1.5.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
       '@vercel/speed-insights':
         specifier: 1.2.0
-        version: 1.2.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+        version: 1.2.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
       next:
         specifier: 15.4.7
-        version: 15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       openai:
         specifier: ^5.16.0
         version: 5.16.0(ws@8.18.3)(zod@3.24.2)
       react:
-        specifier: 19.1.0
-        version: 19.1.0
+        specifier: 19.1.1
+        version: 19.1.1
       react-dom:
-        specifier: 19.1.0
-        version: 19.1.0(react@19.1.0)
+        specifier: 19.1.1
+        version: 19.1.1(react@19.1.1)
       react-error-boundary:
         specifier: ^5.0.0
-        version: 5.0.0(react@19.1.0)
+        version: 5.0.0(react@19.1.1)
       react-virtuoso:
         specifier: ^4.13.0
-        version: 4.13.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 4.13.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       serwist:
         specifier: ^9.1.0
         version: 9.1.0(typescript@5.8.3)
@@ -100,7 +100,7 @@ importers:
         version: 6.8.0
       '@testing-library/react':
         specifier: ^16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@testing-library/user-event':
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
@@ -111,11 +111,11 @@ importers:
         specifier: ^24.3.1
         version: 24.3.1
       '@types/react':
-        specifier: 19.1.8
-        version: 19.1.8
+        specifier: 19.1.12
+        version: 19.1.12
       '@types/react-dom':
-        specifier: 19.1.6
-        version: 19.1.6(@types/react@19.1.8)
+        specifier: 19.1.9
+        version: 19.1.9(@types/react@19.1.12)
       '@vitejs/plugin-react':
         specifier: ^5.0.1
         version: 5.0.1(vite@7.1.3(@types/node@24.3.1)(terser@5.43.1)(tsx@4.20.5))
@@ -1536,13 +1536,13 @@ packages:
   '@types/prop-types@15.7.14':
     resolution: {integrity: sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==}
 
-  '@types/react-dom@19.1.6':
-    resolution: {integrity: sha512-4hOiT/dwO8Ko0gV1m/TJZYk3y0KBnY9vzDh7W+DH17b2HFSOGgdj33dhihPeuy3l0q23+4e+hoXHV6hCC4dCXw==}
+  '@types/react-dom@19.1.9':
+    resolution: {integrity: sha512-qXRuZaOsAdXKFyOhRBg6Lqqc0yay13vN7KrIg4L7N4aaHN68ma9OK3NE1BoDFgFOTfM7zg+3/8+2n8rLUH3OKQ==}
     peerDependencies:
       '@types/react': ^19.0.0
 
-  '@types/react@19.1.8':
-    resolution: {integrity: sha512-AwAfQ2Wa5bCx9WP8nZL2uMZWod7J7/JSplxbTmBQ5ms6QpqNYm672H0Vu9ZVKVngQ+ii4R/byguVEUZQyeg44g==}
+  '@types/react@19.1.12':
+    resolution: {integrity: sha512-cMoR+FoAf/Jyq6+Df2/Z41jISvGZZ2eTlnsaJRptmZ76Caldwy1odD4xTr/gNV9VLj0AWgg/nmkevIyUfIIq5w==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -3391,8 +3391,8 @@ packages:
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
 
-  node-releases@2.0.20:
-    resolution: {integrity: sha512-7gK6zSXEH6neM212JgfYFXe+GmZQM+fia5SsusuBIUgnPheLFBmIPhtFoAQRj8/7wASYQnbDlHPVwY0BefoFgA==}
+  node-releases@2.0.21:
+    resolution: {integrity: sha512-5b0pgg78U3hwXkCM8Z9b2FJdPZlr9Psr9V2gQPESdGHqbntyFJKFW4r5TeWGFzafGY3hzs1JC62VEQMbl1JFkw==}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -3793,10 +3793,10 @@ packages:
   randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
 
-  react-dom@19.1.0:
-    resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
+  react-dom@19.1.1:
+    resolution: {integrity: sha512-Dlq/5LAZgF0Gaz6yiqZCf6VCcZs1ghAJyrsu84Q/GT0gV+mCxbfmKNoGRKBYMJ8IEdGPqu49YWXD02GCknEDkw==}
     peerDependencies:
-      react: ^19.1.0
+      react: ^19.1.1
 
   react-error-boundary@5.0.0:
     resolution: {integrity: sha512-tnjAxG+IkpLephNcePNA7v6F/QpWLH8He65+DmedchDwg162JZqx4NmbXj0mlAYVVEd81OW7aFhmbsScYfiAFQ==}
@@ -3822,8 +3822,8 @@ packages:
       react: '>=16 || >=17 || >= 18 || >= 19'
       react-dom: '>=16 || >=17 || >= 18 || >=19'
 
-  react@19.1.0:
-    resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==}
+  react@19.1.1:
+    resolution: {integrity: sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.0:
@@ -5502,21 +5502,21 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
     optional: true
 
-  '@mui/types@7.2.24(@types/react@19.1.8)':
+  '@mui/types@7.2.24(@types/react@19.1.12)':
     optionalDependencies:
-      '@types/react': 19.1.8
+      '@types/react': 19.1.12
 
-  '@mui/utils@6.4.8(@types/react@19.1.8)(react@19.1.0)':
+  '@mui/utils@6.4.8(@types/react@19.1.12)(react@19.1.1)':
     dependencies:
       '@babel/runtime': 7.28.3
-      '@mui/types': 7.2.24(@types/react@19.1.8)
+      '@mui/types': 7.2.24(@types/react@19.1.12)
       '@types/prop-types': 15.7.14
       clsx: 2.1.1
       prop-types: 15.8.1
-      react: 19.1.0
+      react: 19.1.1
       react-is: 19.0.0
     optionalDependencies:
-      '@types/react': 19.1.8
+      '@types/react': 19.1.12
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
@@ -5594,10 +5594,10 @@ snapshots:
       wordwrap: 1.0.0
       wrap-ansi: 7.0.0
 
-  '@phosphor-icons/react@2.1.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@phosphor-icons/react@2.1.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -5703,14 +5703,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.3
 
-  '@serwist/next@9.1.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(typescript@5.8.3)(webpack@5.97.1)':
+  '@serwist/next@9.1.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(typescript@5.8.3)(webpack@5.97.1)':
     dependencies:
       '@serwist/build': 9.1.0(typescript@5.8.3)
       '@serwist/webpack-plugin': 9.1.0(typescript@5.8.3)(webpack@5.97.1)
       '@serwist/window': 9.1.0(typescript@5.8.3)
       chalk: 5.4.1
       glob: 10.4.5
-      next: 15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      next: 15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       serwist: 9.1.0(typescript@5.8.3)
       zod: 4.0.5
     optionalDependencies:
@@ -5774,10 +5774,10 @@ snapshots:
 
   '@tanstack/query-core@5.66.3': {}
 
-  '@tanstack/react-query@5.66.3(react@19.1.0)':
+  '@tanstack/react-query@5.66.3(react@19.1.1)':
     dependencies:
       '@tanstack/query-core': 5.66.3
-      react: 19.1.0
+      react: 19.1.1
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -5799,15 +5799,15 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
-  '@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@babel/runtime': 7.28.3
       '@testing-library/dom': 10.4.1
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
     optionalDependencies:
-      '@types/react': 19.1.8
-      '@types/react-dom': 19.1.6(@types/react@19.1.8)
+      '@types/react': 19.1.12
+      '@types/react-dom': 19.1.9(@types/react@19.1.12)
 
   '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.1)':
     dependencies:
@@ -5871,11 +5871,11 @@ snapshots:
 
   '@types/prop-types@15.7.14': {}
 
-  '@types/react-dom@19.1.6(@types/react@19.1.8)':
+  '@types/react-dom@19.1.9(@types/react@19.1.12)':
     dependencies:
-      '@types/react': 19.1.8
+      '@types/react': 19.1.12
 
-  '@types/react@19.1.8':
+  '@types/react@19.1.12':
     dependencies:
       csstype: 3.1.3
 
@@ -6133,15 +6133,15 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vercel/analytics@1.5.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
+  '@vercel/analytics@1.5.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)':
     optionalDependencies:
-      next: 15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react: 19.1.0
+      next: 15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
 
-  '@vercel/speed-insights@1.2.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
+  '@vercel/speed-insights@1.2.0(next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)':
     optionalDependencies:
-      next: 15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react: 19.1.0
+      next: 15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
 
   '@vitejs/plugin-react@5.0.1(vite@7.1.3(@types/node@24.3.1)(terser@5.43.1)(tsx@4.20.5))':
     dependencies:
@@ -6558,7 +6558,7 @@ snapshots:
     dependencies:
       caniuse-lite: 1.0.30001741
       electron-to-chromium: 1.5.218
-      node-releases: 2.0.20
+      node-releases: 2.0.21
       update-browserslist-db: 1.1.3(browserslist@4.25.4)
     optional: true
 
@@ -8023,15 +8023,15 @@ snapshots:
       '@formatjs/intl-localematcher': 0.5.10
       negotiator: 0.6.4
 
-  next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  next@15.4.7(@babel/core@7.28.3)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       '@next/env': 15.4.7
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001741
       postcss: 8.4.31
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      styled-jsx: 5.1.6(@babel/core@7.28.3)(react@19.1.0)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+      styled-jsx: 5.1.6(@babel/core@7.28.3)(react@19.1.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.4.7
       '@next/swc-darwin-x64': 15.4.7
@@ -8049,7 +8049,7 @@ snapshots:
 
   node-releases@2.0.19: {}
 
-  node-releases@2.0.20:
+  node-releases@2.0.21:
     optional: true
 
   normalize-path@3.0.0: {}
@@ -8507,15 +8507,15 @@ snapshots:
       safe-buffer: 5.2.1
     optional: true
 
-  react-dom@19.1.0(react@19.1.0):
+  react-dom@19.1.1(react@19.1.1):
     dependencies:
-      react: 19.1.0
+      react: 19.1.1
       scheduler: 0.26.0
 
-  react-error-boundary@5.0.0(react@19.1.0):
+  react-error-boundary@5.0.0(react@19.1.1):
     dependencies:
       '@babel/runtime': 7.28.3
-      react: 19.1.0
+      react: 19.1.1
 
   react-is@16.13.1: {}
 
@@ -8525,12 +8525,12 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-virtuoso@4.13.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  react-virtuoso@4.13.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
-  react@19.1.0: {}
+  react@19.1.1: {}
 
   read-cache@1.0.0:
     dependencies:
@@ -8967,10 +8967,10 @@ snapshots:
     dependencies:
       js-tokens: 9.0.1
 
-  styled-jsx@5.1.6(@babel/core@7.28.3)(react@19.1.0):
+  styled-jsx@5.1.6(@babel/core@7.28.3)(react@19.1.1):
     dependencies:
       client-only: 0.0.1
-      react: 19.1.0
+      react: 19.1.1
     optionalDependencies:
       '@babel/core': 7.28.3
 
