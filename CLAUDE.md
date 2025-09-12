@@ -13,6 +13,15 @@ pnpm codegen            # Generate TMDB API types and server functions
 pnpm codegen:tmdb       # Generate only TMDB server functions
 ```
 
+# Package Management
+
+This project uses corepack to manage pnpm versions:
+
+- pnpm version is specified in package.json's `packageManager` field
+- corepack automatically uses the exact version specified
+- To upgrade pnpm: run `corepack use pnpm@latest` (automatically updates package.json)
+- If getting signature verification errors, update corepack first: `npm install -g corepack@latest`
+
 # Key Architecture Patterns
 
 <pattern>
