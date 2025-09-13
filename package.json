@@ -28,7 +28,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@mui/utils": "^6.4.8",
+    "@mui/utils": "^7.3.2",
     "@phosphor-icons/react": "^2.1.7",
     "@serwist/next": "^9.1.0",
     "@stylexjs/stylex": "^0.15.3",
