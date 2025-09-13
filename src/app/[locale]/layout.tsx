@@ -6,24 +6,32 @@ import { globalStyles } from "@/app/global-styles";
 import { Header } from "@/components/shared/header";
 import { HeaderSkeleton } from "@/components/shared/header-skeleton";
 import { i18nConfig } from "@/i18n-config";
-import type { LayoutProps } from "@/types";
+import type { SupportedLocale } from "@/types";
 import { themeHack } from "@/utils/theme-hack";
+import { validateLocale } from "@/utils/validate-locale";
 
-export default async function RootLayout({ params, children }: LayoutProps) {
+export default async function RootLayout({
+  params,
+  children,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
+  const validatedLocale: SupportedLocale = validateLocale(locale);
 
-  if (!i18nConfig.locales.includes(locale)) {
+  if (!i18nConfig.locales.includes(validatedLocale)) {
     notFound();
   }
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={validatedLocale} suppressHydrationWarning>
       <head>
         {process.env.NODE_ENV === "development" && (
           // eslint-disable-next-line @next/next/no-sync-scripts
           <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
         )}
-        {locale === "en" && (
+        {validatedLocale === "en" && (
           <link
             rel="preload"
             href="/InterVariableOptimized.woff2"
@@ -36,7 +44,7 @@ export default async function RootLayout({ params, children }: LayoutProps) {
       <body css={globalStyles.body}>
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
         <Suspense fallback={<HeaderSkeleton />}>
-          <Header locale={locale} />
+          <Header locale={validatedLocale} />
         </Suspense>
         {children}
         <Analytics />

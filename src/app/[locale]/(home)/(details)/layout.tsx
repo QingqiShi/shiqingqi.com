@@ -1,6 +1,9 @@
-import type { LayoutProps } from "@/types";
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   return (
     <div>
       <article>{children}</article>

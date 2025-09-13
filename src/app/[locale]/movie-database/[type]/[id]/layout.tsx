@@ -12,15 +12,18 @@ import cardTranslations from "@/components/shared/card.translations.json";
 import { TranslationProvider } from "@/components/shared/translation-provider";
 import { BASE_URL } from "@/constants";
 import { space } from "@/tokens.stylex";
+import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
+import { validateLocale } from "@/utils/validate-locale";
 import translations from "./translations.json";
-import type { LayoutProps, PageProps } from "./types";
+import type { PageProps } from "./types";
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale, type, id } = await params;
-  const { t } = getTranslations(translations, locale);
+  const validatedLocale: SupportedLocale = validateLocale(locale);
+  const { t } = getTranslations(translations, validatedLocale);
 
   // Validate type
   if (type !== "movie" && type !== "tv") {
@@ -30,7 +33,7 @@ export async function generateMetadata({
   if (type === "movie") {
     const movieDetails = await getMovieDetails({
       movie_id: id,
-      language: locale,
+      language: validatedLocale,
     });
     return {
       title:
@@ -47,7 +50,7 @@ export async function generateMetadata({
   } else {
     const tvShowDetails = await getTvShowDetails({
       series_id: id,
-      language: locale,
+      language: validatedLocale,
     });
     return {
       title:
@@ -64,11 +67,18 @@ export async function generateMetadata({
   }
 }
 
-export default async function Layout({ children, params }: LayoutProps) {
+export default async function Layout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string; type: string; id: string }>;
+}) {
   const { locale } = await params;
+  const validatedLocale: SupportedLocale = validateLocale(locale);
   return (
     <TranslationProvider
-      locale={locale}
+      locale={validatedLocale}
       translations={{
         card: cardTranslations,
         posterImage: posterImageTranslations,
@@ -77,7 +87,7 @@ export default async function Layout({ children, params }: LayoutProps) {
       <main>{children}</main>
       <div css={styles.container}>
         <div css={styles.wrapperInner}>
-          <Footer locale={locale} />
+          <Footer locale={validatedLocale} />
         </div>
       </div>
     </TranslationProvider>
