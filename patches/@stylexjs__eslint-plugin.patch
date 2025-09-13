@@ -2,8 +2,8 @@ diff --git a/lib/stylex-valid-styles.js b/lib/stylex-valid-styles.js
 index 0145be6d2beeb5064294ecfc2902ed8239bf6e95..0497c582074e14b3f63082b0dcca6996420b2202 100644
 --- a/lib/stylex-valid-styles.js
 +++ b/lib/stylex-valid-styles.js
-@@ -250,31 +250,36 @@ const stylexValidStyles = {
-         if ((0, _isStylexDefineVarsToken.default)(styleKey, stylexDefineVarsTokenImports)) {
+@@ -254,31 +254,36 @@ const stylexValidStyles = {
+         if ((0, _isStylexResolvedVarsToken.default)(styleKey, stylexResolvedVarsTokenImports)) {
            return undefined;
          }
 -        if (style.computed && styleKey.type !== 'Literal') {
