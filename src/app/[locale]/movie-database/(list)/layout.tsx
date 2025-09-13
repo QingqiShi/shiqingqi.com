@@ -12,16 +12,24 @@ import cardTranslations from "@/components/shared/card.translations.json";
 import { Skeleton } from "@/components/shared/skeleton";
 import { TranslationProvider } from "@/components/shared/translation-provider";
 import { controlSize, ratio, space } from "@/tokens.stylex";
-import type { LayoutProps } from "@/types";
+import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
+import { validateLocale } from "@/utils/validate-locale";
 import translations from "../translations.json";
 
-export default async function Layout({ children, params }: LayoutProps) {
+export default async function Layout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
-  const { t } = getTranslations(translations, locale);
+  const validatedLocale: SupportedLocale = validateLocale(locale);
+  const { t } = getTranslations(translations, validatedLocale);
   return (
     <TranslationProvider
-      locale={locale}
+      locale={validatedLocale}
       translations={{
         card: cardTranslations,
         posterImage: posterImageTranslations,

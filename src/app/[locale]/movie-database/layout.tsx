@@ -3,13 +3,15 @@ import type { Metadata } from "next";
 import { Providers } from "@/components/shared/providers";
 import { BASE_URL } from "@/constants";
 import { space } from "@/tokens.stylex";
-import type { LayoutProps, PageProps } from "@/types";
+import type { PageProps, SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
+import { validateLocale } from "@/utils/validate-locale";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
-  const { t } = getTranslations(translations, params.locale);
+  const validatedLocale: SupportedLocale = validateLocale(params.locale);
+  const { t } = getTranslations(translations, validatedLocale);
   return {
     title: {
       default: t("title"),
@@ -26,7 +28,12 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   } satisfies Metadata;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   return (
     <Providers>
       <div css={styles.container}>{children}</div>

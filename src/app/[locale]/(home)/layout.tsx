@@ -10,14 +10,16 @@ import { FlowGradient } from "@/components/shared/flow-gradient/flow-gradient";
 import { BASE_URL } from "@/constants";
 import { i18nConfig } from "@/i18n-config";
 import { color, layer, space } from "@/tokens.stylex";
-import type { LayoutProps, PageProps } from "@/types";
+import type { PageProps, SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
+import { validateLocale } from "@/utils/validate-locale";
 import { glowTokens } from "./layout.stylex";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
-  const { t } = getTranslations(translations, params.locale);
+  const validatedLocale = validateLocale(params.locale);
+  const { t } = getTranslations(translations, validatedLocale);
   return {
     title: {
       default: t("title"),
@@ -40,10 +42,17 @@ export function generateStaticParams() {
   return [{ lang: "en" }, { lang: "zh" }];
 }
 
-export default async function Layout({ children, params }: LayoutProps) {
+export default async function Layout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
+  const validatedLocale: SupportedLocale = validateLocale(locale);
 
-  if (!i18nConfig.locales.includes(locale)) {
+  if (!i18nConfig.locales.includes(validatedLocale)) {
     notFound();
   }
 
@@ -61,7 +70,7 @@ export default async function Layout({ children, params }: LayoutProps) {
         <div css={styles.wrapperInner}>
           <BackgroundLines />
           <main css={styles.main}>{children}</main>
-          <Footer locale={locale} />
+          <Footer locale={validatedLocale} />
         </div>
       </div>
     </>
