@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@stylexjs/eslint-plugin':
-    hash: e12e6216c35d6a4ced7d5fcad80349a1b3551f682df9e479eeb672b77edc29ce
+    hash: 772d5ee1c742307d715e15c7352a38c04044a4eb49a39efb8ebdb6cce8072c8c
     path: patches/@stylexjs__eslint-plugin.patch
 
 importers:
@@ -91,7 +91,7 @@ importers:
         version: 0.15.4
       '@stylexjs/eslint-plugin':
         specifier: ^0.15.4
-        version: 0.15.4(patch_hash=e12e6216c35d6a4ced7d5fcad80349a1b3551f682df9e479eeb672b77edc29ce)
+        version: 0.15.4(patch_hash=772d5ee1c742307d715e15c7352a38c04044a4eb49a39efb8ebdb6cce8072c8c)
       '@stylexjs/postcss-plugin':
         specifier: ^0.15.4
         version: 0.15.4
@@ -5681,7 +5681,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stylexjs/eslint-plugin@0.15.4(patch_hash=e12e6216c35d6a4ced7d5fcad80349a1b3551f682df9e479eeb672b77edc29ce)':
+  '@stylexjs/eslint-plugin@0.15.4(patch_hash=772d5ee1c742307d715e15c7352a38c04044a4eb49a39efb8ebdb6cce8072c8c)':
     dependencies:
       css-shorthand-expand: 1.2.0
       micromatch: 4.0.8
