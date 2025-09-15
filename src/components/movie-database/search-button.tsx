@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkle } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
@@ -66,7 +66,7 @@ export function SearchButton() {
   return (
     <>
       <Button
-        icon={<Sparkle weight="fill" role="presentation" />}
+        icon={<SparkleIcon weight="fill" role="presentation" />}
         onClick={() => void startViewTransition(() => setIsOverlayOpen(true))}
         type="button"
         aria-label={t("aiSearchLabel")}

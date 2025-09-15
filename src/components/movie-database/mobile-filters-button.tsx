@@ -1,6 +1,6 @@
 "use client";
 
-import { Funnel } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren, ReactNode } from "react";
 import { useMediaFilters } from "@/hooks/use-media-filters";
@@ -22,7 +22,7 @@ export function MobileFiltersButton({
       buttonProps={{
         icon: (
           <span css={styles.mobileIcon}>
-            <Funnel weight="bold" role="presentation" />
+            <FunnelIcon weight="bold" role="presentation" />
           </span>
         ),
         type: "button",

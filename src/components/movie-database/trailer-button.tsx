@@ -1,6 +1,6 @@
 "use client";
 
-import { Play } from "@phosphor-icons/react/Play";
+import { PlayIcon } from "@phosphor-icons/react/Play";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
@@ -23,7 +23,7 @@ export function TrailerButton({
   return (
     <>
       <Button
-        icon={<Play weight="fill" role="presentation" />}
+        icon={<PlayIcon weight="fill" role="presentation" />}
         isActive
         onClick={() => startViewTransition(() => setIsOpen(true))}
       >

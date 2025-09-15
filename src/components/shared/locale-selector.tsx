@@ -1,6 +1,6 @@
 "use client";
 
-import { Translate } from "@phosphor-icons/react/Translate";
+import { TranslateIcon } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
@@ -33,7 +33,7 @@ export function LocaleSelector({
       buttonProps={{
         type: "button",
         "aria-label": ariaLabel,
-        icon: <Translate weight="bold" role="presentation" />,
+        icon: <TranslateIcon weight="bold" role="presentation" />,
         hideLabelOnMobile: true,
       }}
       menuContent={

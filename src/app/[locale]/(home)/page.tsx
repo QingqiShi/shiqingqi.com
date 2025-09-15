@@ -1,4 +1,4 @@
-import { FilmSlate } from "@phosphor-icons/react/dist/ssr/FilmSlate";
+import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints";
 import { BackgroundLines } from "@/components/home/background-lines";
@@ -46,7 +46,7 @@ export default async function Home(props: PageProps) {
         <h2 css={styles.sectionTitle}>{t("projectSection")}</h2>
         <div css={styles.cardList}>
           <ProjectCard
-            icon={<FilmSlate size={64} weight="fill" />}
+            icon={<FilmSlateIcon size={64} weight="fill" />}
             href={getLocalePath("/movie-database", locale)}
             css={[styles.card, styles.movieDatabase]}
             name={t("movieDatabase")}

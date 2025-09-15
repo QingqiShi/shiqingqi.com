@@ -1,7 +1,7 @@
 "use client";
 
-import { Moon } from "@phosphor-icons/react/Moon";
-import { Sun } from "@phosphor-icons/react/Sun";
+import { MoonIcon } from "@phosphor-icons/react/Moon";
+import { SunIcon } from "@phosphor-icons/react/Sun";
 import * as stylex from "@stylexjs/stylex";
 import { useLayoutEffect, useRef, useState } from "react";
 import { getDocumentClassName } from "@/app/global-styles";
@@ -84,8 +84,8 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           title={labels[2]}
         >
           <div css={styles.systemIcon}>
-            <Moon weight="fill" css={styles.systemMoon} />
-            <Sun weight="fill" css={styles.systemSun} />
+            <MoonIcon weight="fill" css={styles.systemMoon} />
+            <SunIcon weight="fill" css={styles.systemSun} />
           </div>
         </Button>
       </div>
@@ -111,10 +111,10 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         }
       />
       <span css={[styles.icon, styles.moon]} aria-hidden>
-        <Moon weight="fill" />
+        <MoonIcon weight="fill" />
       </span>
       <span css={[styles.icon, styles.sun]} aria-hidden>
-        <Sun weight="fill" />
+        <SunIcon weight="fill" />
       </span>
     </div>
   );

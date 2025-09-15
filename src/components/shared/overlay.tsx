@@ -1,4 +1,4 @@
-import { X } from "@phosphor-icons/react/X";
+import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 
 import type { PropsWithChildren } from "react";
@@ -45,7 +45,11 @@ export function Overlay({
               css={styles.content}
               style={{ viewTransitionName: `${id}-overlay` }}
             >
-              <Button css={styles.closeButton} icon={<X />} onClick={onClose} />
+              <Button
+                css={styles.closeButton}
+                icon={<XIcon />}
+                onClick={onClose}
+              />
               {children}
             </div>
           </div>,

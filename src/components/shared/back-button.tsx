@@ -1,7 +1,7 @@
 "use client";
 
-import { CaretLeft } from "@phosphor-icons/react/dist/ssr/CaretLeft";
-import { House } from "@phosphor-icons/react/dist/ssr/House";
+import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
+import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
 import { breakpoints } from "@/breakpoints";
@@ -39,12 +39,16 @@ export function BackButton({ locale, label }: BackButtonProps) {
           : getLocalePath("/movie-database", locale);
       return (
         <AnchorButton
-          icon={<CaretLeft weight="bold" role="presentation" />}
+          icon={<CaretLeftIcon weight="bold" role="presentation" />}
           href={targetPath}
           aria-label={label}
         >
           <span css={styles.desktopVisible}>{label}</span>
-          <House weight="bold" role="presentation" css={styles.mobileVisible} />
+          <HouseIcon
+            weight="bold"
+            role="presentation"
+            css={styles.mobileVisible}
+          />
         </AnchorButton>
       );
     }
@@ -59,12 +63,12 @@ export function BackButton({ locale, label }: BackButtonProps) {
 
   return (
     <AnchorButton
-      icon={<CaretLeft weight="bold" role="presentation" />}
+      icon={<CaretLeftIcon weight="bold" role="presentation" />}
       href={targetPath}
       aria-label={label}
     >
       <span css={styles.desktopVisible}>{label}</span>
-      <House weight="bold" role="presentation" css={styles.mobileVisible} />
+      <HouseIcon weight="bold" role="presentation" css={styles.mobileVisible} />
     </AnchorButton>
   );
 }

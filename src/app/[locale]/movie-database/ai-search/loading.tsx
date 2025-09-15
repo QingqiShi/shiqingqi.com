@@ -1,4 +1,4 @@
-import { Sparkle } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { color, space } from "@/tokens.stylex";
 
@@ -7,7 +7,7 @@ export default function Loading() {
     <div css={styles.container}>
       <div css={styles.content}>
         <div css={styles.iconContainer}>
-          <Sparkle
+          <SparkleIcon
             size={48}
             weight="fill"
             css={styles.icon}
