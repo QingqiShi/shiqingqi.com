@@ -5,6 +5,8 @@ import {
   discoverMovies,
   discoverTvShows,
   getConfiguration,
+  getMovieGenres,
+  getTvShowGenres,
 } from "@/_generated/tmdb-server-functions";
 import { Filters } from "@/components/movie-database/filters";
 import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
@@ -46,11 +48,18 @@ export default async function Page(
     Array.isArray(searchParams.sort) ? searchParams.sort[0] : searchParams.sort
   ) as Sort | undefined;
 
-  // Fetch config and initial page
+  // Fetch config, genres, and initial page
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery({
     ...tmdbQueries.configuration,
     queryFn: () => getConfiguration(),
+  });
+  void queryClient.prefetchQuery({
+    ...tmdbQueries.genres({ type: mediaType, language: params.locale }),
+    queryFn: () =>
+      mediaType === "tv"
+        ? getTvShowGenres({ language: params.locale })
+        : getMovieGenres({ language: params.locale }),
   });
   const queryParams = {
     language: params.locale,
