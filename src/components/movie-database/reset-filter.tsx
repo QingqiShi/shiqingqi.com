@@ -1,6 +1,6 @@
 "use client";
 
-import { FunnelX } from "@phosphor-icons/react/dist/ssr/FunnelX";
+import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { AnchorButton } from "../shared/anchor-button";
@@ -30,7 +30,7 @@ export function ResetFilter({ bright, hideLabel }: ResetFilterProps) {
           e.preventDefault();
           reset();
         }}
-        icon={<FunnelX />}
+        icon={<FunnelXIcon />}
         bright={bright}
       >
         {t("reset")}

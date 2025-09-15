@@ -1,6 +1,6 @@
 "use client";
 
-import { Funnel } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
@@ -21,7 +21,7 @@ export function GenreFilterButton() {
         </div>
       }
       buttonProps={{
-        icon: <Funnel weight="bold" role="presentation" />,
+        icon: <FunnelIcon weight="bold" role="presentation" />,
         type: "button",
         isActive: genres.size > 0,
       }}

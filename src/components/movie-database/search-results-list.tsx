@@ -1,4 +1,4 @@
-import { Sparkle } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@/tokens.stylex";
 import type { MediaListItem } from "@/utils/types";
@@ -19,7 +19,7 @@ export function SearchResultsList({
   if (items.length === 0) {
     return (
       <div css={styles.emptyState}>
-        <Sparkle size={48} weight="fill" css={styles.emptyIcon} />
+        <SparkleIcon size={48} weight="fill" css={styles.emptyIcon} />
         <p css={styles.emptyText}>{noResultsLabel}</p>
         <p css={styles.emptyQuery}>"{query}"</p>
       </div>

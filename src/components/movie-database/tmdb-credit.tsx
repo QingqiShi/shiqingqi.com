@@ -1,6 +1,6 @@
 "use client";
 
-import { Info } from "@phosphor-icons/react/dist/ssr/Info";
+import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
 import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
@@ -20,7 +20,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
   return (
     <MenuButton
       position={position}
-      buttonProps={{ icon: <Info /> }}
+      buttonProps={{ icon: <InfoIcon /> }}
       menuContent={
         <div
           css={[

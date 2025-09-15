@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
 import { useTranslations } from "@/hooks/use-translations";
 import { border, color, font, layer, shadow, space } from "@/tokens.stylex";
@@ -18,7 +18,7 @@ export function Card({ children, className, style, ...rest }: CardProps) {
       <div css={styles.detailsBackdrop} />
       <div css={styles.detailsIndicator}>
         <span css={styles.detailsText}>{t("details")}</span>
-        <ArrowRight />
+        <ArrowRightIcon />
       </div>
     </Anchor>
   );
