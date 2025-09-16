@@ -57,7 +57,20 @@ grep -A 50 '"devDependencies"' package.json | grep "$1"
    pnpm build:tsc  # Fix TypeScript errors
    pnpm lint       # Fix linting errors
    pnpm test       # Fix test failures
+   ```
 
+   For systematic fixes across multiple files, use refactoring-agent:
+
+   ```
+   Use refactoring-agent to fix build issues systematically:
+   - Update all files with same pattern of TypeScript errors
+   - Apply consistent lint fixes across the codebase
+   - Update test files with same breaking changes
+
+   Focus on monotonic transformations that need identical fixes.
+   ```
+
+   ```bash
    # Push fixes
    git add .
    git commit -m "Fix build issues for $1 update"
@@ -86,6 +99,17 @@ grep -A 50 '"devDependencies"' package.json | grep "$1"
    gh pr view [PR_NUMBER]
    ```
 
+   If PR description lacks migration information, use library-expert agent:
+
+   ```
+   Use library-expert agent to research breaking changes for "$1" update:
+   - What are the breaking changes between version X and version Y?
+   - What migration steps are required for this update?
+   - Are there any known compatibility issues with our stack?
+
+   Focus on actionable migration guidance, not general library information.
+   ```
+
 3. Run comprehensive tests:
 
    ```bash
@@ -101,20 +125,45 @@ grep -A 50 '"devDependencies"' package.json | grep "$1"
    - Update imports/exports if needed
    - Commit fixes with descriptive messages
 
-5. Use hawkeye agent for visual regression testing:
+   For systematic changes across multiple files (import updates, API changes), use refactoring-agent:
 
    ```
-   Please use the hawkeye agent to take screenshots of key pages and verify no visual regressions:
-   - Homepage (/en and /zh)
-   - Movie database (/en/movie-database and /zh/movie-database)
-   - Search functionality
-   - Navigation and responsive layouts
+   Use refactoring-agent for monotonic updates required by "$1":
+   - Update all import statements from old API to new API
+   - Replace deprecated method calls with new equivalents
+   - Update type definitions that changed in the new version
 
-   Check for:
-   - Visual layout issues
-   - Console errors
-   - Failed network requests
-   - Hydration mismatches
+   Apply identical patterns across all affected files systematically.
+   ```
+
+5. Visual regression testing:
+
+   First start the dev server:
+
+   ```bash
+   pnpm dev
+   ```
+
+   Use hawkeye agent to compare BEFORE (production) vs AFTER (PR branch):
+
+   ```
+   Use hawkeye agent to compare visual differences:
+   - Compare production site vs local dev server
+   - Test key pages: homepage (/en, /zh), movie database, search
+   - Focus on layout changes, broken styling, responsive issues
+
+   Provide both URLs to hawkeye for proper comparison:
+   - Production: https://shiqingqi.com
+   - Local: http://localhost:3000
+   ```
+
+   Alternatively, use bug-validator for single-environment UI validation:
+
+   ```
+   Use bug-validator to validate UI functionality:
+   - Test core user flows (navigation, search, responsive layout)
+   - Check for console errors and network failures
+   - Verify no hydration mismatches or layout breaks
    ```
 
 6. Clean up test artifacts:
