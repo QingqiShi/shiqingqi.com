@@ -95,6 +95,12 @@
   "pnpm": {
     "patchedDependencies": {
       "@stylexjs/eslint-plugin": "patches/@stylexjs__eslint-plugin.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@vercel/speed-insights",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }
