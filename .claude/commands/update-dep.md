@@ -138,11 +138,18 @@ grep -A 50 '"devDependencies"' package.json | grep "$1"
 
 5. Visual regression testing:
 
-   First start the dev server:
+   Start the dev server in background mode and track its process ID:
 
    ```bash
-   pnpm dev
+   # Start dev server in background and save PID
+   pnpm dev &
+   DEV_PID=$!
+
+   # Wait for server to be ready
+   sleep 15
    ```
+
+   Note: Next.js will automatically use port 3001 if port 3000 is blocked. Check the console output to see which port it's using.
 
    Use hawkeye agent to compare BEFORE (production) vs AFTER (PR branch):
 
@@ -154,7 +161,7 @@ grep -A 50 '"devDependencies"' package.json | grep "$1"
 
    Provide both URLs to hawkeye for proper comparison:
    - Production: https://shiqingqi.com
-   - Local: http://localhost:3000
+   - Local: http://localhost:3000 (or :3001 if port conflict occurred)
    ```
 
    Alternatively, use bug-validator for single-environment UI validation:
@@ -164,6 +171,21 @@ grep -A 50 '"devDependencies"' package.json | grep "$1"
    - Test core user flows (navigation, search, responsive layout)
    - Check for console errors and network failures
    - Verify no hydration mismatches or layout breaks
+   - Use URL: http://localhost:3000 (or :3001 if port conflict occurred)
+   ```
+
+   After visual testing is complete, kill the dev server:
+
+   ```bash
+   # Kill the dev server process we started
+   kill $DEV_PID 2>/dev/null || true
+   ```
+
+   If Next.js reported that port 3000 was in use and automatically switched to 3001, you should also kill whatever process is blocking port 3000 to prevent future conflicts:
+
+   ```bash
+   # Only run this if Next.js complained about port 3000
+   lsof -ti:3000 | xargs -r kill -9 2>/dev/null || true
    ```
 
 6. Clean up test artifacts:
