@@ -84,8 +84,8 @@ importers:
         specifier: ^9.35.0
         version: 9.35.0
       '@next/eslint-plugin-next':
-        specifier: ^15.5.2
-        version: 15.5.2
+        specifier: ^15.5.3
+        version: 15.5.3
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.55.0
@@ -1173,9 +1173,6 @@ packages:
 
   '@next/env@15.5.3':
     resolution: {integrity: sha512-RSEDTRqyihYXygx/OJXwvVupfr9m04+0vH8vyy0HfZ7keRto6VX9BbEk0J2PUk0VGy6YhklJUSrgForov5F9pw==}
-
-  '@next/eslint-plugin-next@15.5.2':
-    resolution: {integrity: sha512-lkLrRVxcftuOsJNhWatf1P2hNVfh98k/omQHrCEPPriUypR6RcS13IvLdIrEvkm9AH2Nu2YpR5vLqBuy6twH3Q==}
 
   '@next/eslint-plugin-next@15.5.3':
     resolution: {integrity: sha512-SdhaKdko6dpsSr0DldkESItVrnPYB1NS2NpShCSX5lc7SSQmLZt5Mug6t2xbiuVWEVDLZSuIAoQyYVBYp0dR5g==}
@@ -5524,10 +5521,6 @@ snapshots:
     optional: true
 
   '@next/env@15.5.3': {}
-
-  '@next/eslint-plugin-next@15.5.2':
-    dependencies:
-      fast-glob: 3.3.1
 
   '@next/eslint-plugin-next@15.5.3':
     dependencies:
