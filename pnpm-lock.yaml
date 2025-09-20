@@ -50,8 +50,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(react@19.1.1)
       react-virtuoso:
-        specifier: ^4.13.0
-        version: 4.13.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^4.14.0
+        version: 4.14.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       serwist:
         specifier: ^9.1.0
         version: 9.1.0(typescript@5.8.3)
@@ -3641,8 +3641,8 @@ packages:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
 
-  react-virtuoso@4.13.0:
-    resolution: {integrity: sha512-XHv2Fglpx80yFPdjZkV9d1baACKghg/ucpDFEXwaix7z0AfVQj+mF6lM+YQR6UC/TwzXG2rJKydRMb3+7iV3PA==}
+  react-virtuoso@4.14.0:
+    resolution: {integrity: sha512-fR+eiCvirSNIRvvCD7ueJPRsacGQvUbjkwgWzBZXVq+yWypoH7mRUvWJzGHIdoRaCZCT+6mMMMwIG2S1BW3uwA==}
     peerDependencies:
       react: '>=16 || >=17 || >= 18 || >= 19'
       react-dom: '>=16 || >=17 || >= 18 || >=19'
@@ -8058,7 +8058,7 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-virtuoso@4.13.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+  react-virtuoso@4.14.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
