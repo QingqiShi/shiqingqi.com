@@ -38,8 +38,8 @@ importers:
         specifier: 15.5.3
         version: 15.5.3(@babel/core@7.28.4)(@playwright/test@1.55.0)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       openai:
-        specifier: ^5.20.3
-        version: 5.20.3(ws@8.18.3)(zod@3.25.76)
+        specifier: ^5.22.0
+        version: 5.22.0(ws@8.18.3)(zod@3.25.76)
       react:
         specifier: 19.1.1
         version: 19.1.1
@@ -3254,8 +3254,8 @@ packages:
     resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
     engines: {node: '>= 0.4'}
 
-  openai@5.20.3:
-    resolution: {integrity: sha512-8V0KgAcPFppDIP8uMBOkhRrhDBuxNQYQxb9IovP4NN4VyaYGISAzYexyYYuAwVul2HB75Wpib0xDboYJqRMNow==}
+  openai@5.22.0:
+    resolution: {integrity: sha512-uSsYZ+vw9JxUwnMTcT9bj5sGM5qY/4du2BIf1KSqDRZF9nhSlJYsBLPRwBZTOW+HNyjwGviR0SsoDPv5lpPrBw==}
     hasBin: true
     peerDependencies:
       ws: ^8.18.0
@@ -7605,7 +7605,7 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
 
-  openai@5.20.3(ws@8.18.3)(zod@3.25.76):
+  openai@5.22.0(ws@8.18.3)(zod@3.25.76):
     optionalDependencies:
       ws: 8.18.3
       zod: 3.25.76
