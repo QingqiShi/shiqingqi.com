@@ -17,6 +17,8 @@ export default tsEslint.config([
       "postcss.config.js",
       "tooling/**/*",
       "src/_generated/**/*",
+      ".next/**/*",
+      "next-env.d.ts",
     ],
   },
   js.configs.recommended,
