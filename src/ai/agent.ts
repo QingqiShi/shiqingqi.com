@@ -106,37 +106,28 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
     }
   } catch (error) {
     console.error("Failed to fetch reference data:", error);
-    // Fallback to hardcoded data if API fails
-    movieGenres =
-      "Action (ID: 28), Adventure (ID: 12), Animation (ID: 16), Comedy (ID: 35), Crime (ID: 80), Documentary (ID: 99), Drama (ID: 18), Family (ID: 10751), Fantasy (ID: 14), History (ID: 36), Horror (ID: 27), Music (ID: 10402), Mystery (ID: 9648), Romance (ID: 10749), Science Fiction (ID: 878), TV Movie (ID: 10770), Thriller (ID: 53), War (ID: 10752), Western (ID: 37)";
-    tvGenres =
-      "Action & Adventure (ID: 10759), Animation (ID: 16), Comedy (ID: 35), Crime (ID: 80), Documentary (ID: 99), Drama (ID: 18), Family (ID: 10751), Kids (ID: 10762), Mystery (ID: 9648), News (ID: 10763), Reality (ID: 10764), Sci-Fi & Fantasy (ID: 10765), Soap (ID: 10766), Talk (ID: 10767), War & Politics (ID: 10768), Western (ID: 37)";
-    countries =
-      "United States (US), United Kingdom (GB), Canada (CA), Australia (AU), Germany (DE), France (FR), Italy (IT), Spain (ES), Japan (JP), South Korea (KR), China (CN), India (IN), Brazil (BR), Mexico (MX), Argentina (AR), Russia (RU), Sweden (SE), Norway (NO), Denmark (DK), Netherlands (NL)";
-    languages =
-      "English (en), Spanish (es), French (fr), German (de), Italian (it), Portuguese (pt), Japanese (ja), Korean (ko), Chinese (zh), Hindi (hi), Russian (ru), Arabic (ar), Dutch (nl), Swedish (sv), Norwegian (no), Danish (da), Finnish (fi), Polish (pl), Turkish (tr), Greek (el)";
+    throw error;
   }
 
   return template
-    .replace("{currentDate}", currentDate)
-    .replace("{locale}", locale)
-    .replace("{currentMonth}", currentMonth)
-    .replace("{currentYear}", currentYear.toString())
-    .replace("{movieGenres}", movieGenres)
-    .replace("{tvGenres}", tvGenres)
-    .replace("{countries}", countries)
-    .replace("{languages}", languages);
+    .replaceAll("{currentDate}", currentDate)
+    .replaceAll("{locale}", locale)
+    .replaceAll("{currentMonth}", currentMonth)
+    .replaceAll("{currentYear}", currentYear.toString())
+    .replaceAll("{movieGenres}", movieGenres)
+    .replaceAll("{tvGenres}", tvGenres)
+    .replaceAll("{countries}", countries)
+    .replaceAll("{languages}", languages);
 }
 
 export async function agent(
   userMessage: string,
   locale: SupportedLocale = "en",
 ): Promise<AgentResponse> {
-  const instructions = await getSystemInstructions(locale);
-  const initialMessages = [
+  const fullConversation: ResponseInput = [
     {
       role: "developer" as const,
-      content: instructions,
+      content: await getSystemInstructions(locale),
     },
     {
       role: "user" as const,
@@ -144,18 +135,20 @@ export async function agent(
     },
   ];
 
-  const fullConversation: ResponseInput = [...initialMessages];
-
   // Phase 1: Tool calling loop
   let toolCallingComplete = false;
   const maxIterations = 5; // Prevent infinite loops
   let iteration = 0;
+
+  console.log("user message: ", userMessage);
 
   while (!toolCallingComplete && iteration < maxIterations) {
     const response = await getOpenAIClient().responses.create({
       model: getOpenAIModel(),
       input: fullConversation,
       tools: availableTools,
+      reasoning: { effort: "low", summary: "auto" },
+      text: { verbosity: "low" },
     });
 
     if (response.status !== "completed") {
@@ -172,15 +165,11 @@ export async function agent(
     }> = [];
 
     for (const outputItem of response.output) {
-      const item = outputItem as {
-        type: string;
-        content?: string;
-        name?: string;
-        arguments?: string;
-        call_id?: string;
-      };
+      const item = outputItem;
+      fullConversation.push(item);
 
       if (item.type === "function_call") {
+        console.log("tool call: ", item.name);
         // Check if this is the completion call
         if (item.name === "complete_phase_1") {
           hasCompletionCall = true;
@@ -196,25 +185,11 @@ export async function agent(
           toolArgs.language = locale === "zh" ? "zh-CN" : "en-US";
         }
 
-        // Add function call to conversation
-        fullConversation.push({
-          type: "function_call",
-          call_id: item.call_id!,
-          name: item.name!,
-          arguments: item.arguments ?? "",
-        });
-
         // Collect for parallel execution
         toolCalls.push({
-          name: item.name!,
+          name: item.name,
           arguments: JSON.stringify(toolArgs),
-          call_id: item.call_id!,
-        });
-      } else if (item.type === "message" && item.content) {
-        // Add AI's response to conversation
-        fullConversation.push({
-          role: "assistant",
-          content: item.content,
+          call_id: item.call_id,
         });
       }
     }
@@ -254,7 +229,7 @@ export async function agent(
     }
 
     // Detection: AI is done with Phase 1 if it called complete_phase_1
-    if (hasCompletionCall) {
+    if (hasCompletionCall || !toolCalls.length) {
       toolCallingComplete = true;
     }
 
@@ -262,16 +237,13 @@ export async function agent(
   }
 
   // Phase 2: Structured output for final processing
+  fullConversation.push({
+    role: "developer",
+    content: "Begin phase 2 and return structured final results",
+  });
   const finalResponse = await getOpenAIClient().responses.parse({
     model: getOpenAIModel(),
-    input: [
-      ...fullConversation,
-      {
-        role: "developer",
-        content:
-          "Based on all the TMDB data retrieved, provide a final filtered and ranked list of recommendations that best match the user's original query. Consider relevance, ratings, diversity, and user preferences. IMPORTANT: Extract posterPath (from poster_path field) and mediaType from the TMDB API responses. For movies use mediaType: 'movie', for TV shows use mediaType: 'tv'. Return only the most relevant results.",
-      },
-    ],
+    input: fullConversation,
     text: {
       format: zodTextFormat(AgentResponseSchema, "media_list"),
     },
@@ -286,13 +258,14 @@ export async function agent(
     throw new Error("No parsed output available from final processing");
   }
 
+  finalResponse.output.forEach((output) => fullConversation.push(output));
+
   // Save conversation for debugging in development only
   if (process.env.NODE_ENV === "development") {
     try {
-      writeFileSync(
-        `/tmp/ai-conversation-${Date.now()}.json`,
-        JSON.stringify({ fullConversation, finalResponse, parsed }, null, 2),
-      );
+      const logFile = `/tmp/ai-conversation-${Date.now()}.json`;
+      writeFileSync(logFile, JSON.stringify(fullConversation, null, 2));
+      console.log(`Debug conversation saved to ${logFile}`);
     } catch (debugError) {
       console.error("Failed to save debug conversation:", debugError);
     }
