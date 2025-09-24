@@ -1,14 +1,15 @@
 import js from "@eslint/js";
 import nextPlugin from "@next/eslint-plugin-next";
+import stylexjs from "@stylexjs/eslint-plugin";
 import importPlugin from "eslint-plugin-import";
 import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
-import stylexjs from "@stylexjs/eslint-plugin";
 import reactCompiler from "eslint-plugin-react-compiler";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
+import { defineConfig } from "eslint/config";
 import tsEslint from "typescript-eslint";
 
-export default tsEslint.config([
+export default defineConfig([
   {
     ignores: [
       ".babelrc.js",
@@ -19,6 +20,7 @@ export default tsEslint.config([
       "src/_generated/**/*",
       ".next/**/*",
       "next-env.d.ts",
+      "public/sw.js",
     ],
   },
   js.configs.recommended,
