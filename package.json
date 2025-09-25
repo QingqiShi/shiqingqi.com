@@ -53,7 +53,7 @@
     "@eslint/compat": "^1.4.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
-    "@next/eslint-plugin-next": "^15.5.3",
+    "@next/eslint-plugin-next": "^15.5.4",
     "@playwright/test": "^1.55.1",
     "@stylexjs/babel-plugin": "^0.15.4",
     "@stylexjs/eslint-plugin": "^0.15.4",
