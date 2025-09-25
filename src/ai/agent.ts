@@ -140,8 +140,6 @@ export async function agent(
   const maxIterations = 5; // Prevent infinite loops
   let iteration = 0;
 
-  console.log("user message: ", userMessage);
-
   while (!toolCallingComplete && iteration < maxIterations) {
     const response = await getOpenAIClient().responses.create({
       model: getOpenAIModel(),
@@ -169,7 +167,6 @@ export async function agent(
       fullConversation.push(item);
 
       if (item.type === "function_call") {
-        console.log("tool call: ", item.name);
         // Check if this is the completion call
         if (item.name === "complete_phase_1") {
           hasCompletionCall = true;
@@ -265,7 +262,6 @@ export async function agent(
     try {
       const logFile = `/tmp/ai-conversation-${Date.now()}.json`;
       writeFileSync(logFile, JSON.stringify(fullConversation, null, 2));
-      console.log(`Debug conversation saved to ${logFile}`);
     } catch (debugError) {
       console.error("Failed to save debug conversation:", debugError);
     }
