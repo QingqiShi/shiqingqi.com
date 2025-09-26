@@ -1,12 +1,14 @@
 ---
-description: Update a dependency using Dependabot PR with automated testing and merging
+description: Validate a Dependabot PR with automated testing and merge if validated.
 args:
   - name: dependency
     description: Name of the dependency to update (e.g., 'react', 'next', 'eslint')
     required: true
 ---
 
-You are tasked with updating the dependency "$1" using the automated Dependabot workflow. Follow these steps:
+**IMPORTANT**: Use the TodoWrite tool to create a detailed todo list tracking each step of the validation process.
+
+Follow these steps to validate the given dependency.
 
 ## 1. Find Dependabot PR
 
@@ -39,194 +41,84 @@ grep -A 50 '"devDependencies"' package.json | grep "$1"
 
 ### If Dev Dependency:
 
-1. Check if PR CI is passing:
-   ```bash
-   gh pr checks [PR_NUMBER]
-   ```
-2. If all checks pass:
-   ```bash
-   # Auto-merge with squash
-   gh pr merge [PR_NUMBER] --squash --auto
-   ```
-3. If checks are failing:
+We can rely on CI checks.
 
-   ```bash
-   # Checkout locally and fix
-   gh pr checkout [PR_NUMBER]
-   pnpm install
-   pnpm build:tsc  # Fix TypeScript errors
-   pnpm lint       # Fix linting errors
-   pnpm test       # Fix test failures
-   ```
+```bash
+gh pr checks [PR_NUMBER]
+# If all checks pass:
+gh pr merge [PR_NUMBER] --squash --auto
+```
 
-   For systematic fixes across multiple files, use refactoring-agent:
+If there are failing CI checks:
 
-   ```
-   Use refactoring-agent to fix build issues systematically:
-   - Update all files with same pattern of TypeScript errors
-   - Apply consistent lint fixes across the codebase
-   - Update test files with same breaking changes
-
-   Focus on monotonic transformations that need identical fixes.
-   ```
-
-   ```bash
-   # Push fixes
-   git add .
-   git commit -m "Fix build issues for $1 update"
-   git push
-
-   # Merge after fixes
-   gh pr merge [PR_NUMBER] --squash --auto
-   ```
+1. Check out the PR locally and run `pnpm install`.
+2. Use the PR description combined with doc-reader to understand breaking changes and migration steps.
+3. Use refactoring-agent to make systematic refactoring to fix the breaking changes.
+4. Re-run the CI checks locally to verify the fix worked; iterate step 2 until all checks pass.
+5. Commit and push the changes, then set auto-merge with squash.
 
 ### If Runtime Dependency:
 
-1. Always checkout locally for testing:
+1. First, follow dev dependency instructions to ensure static checks are all passing.
+2. Check out the PR locally if you haven't already, and after checked out, run `pnpm install`.
+3. Start the local dev server in the background with `pnpm dev` (then sleep for 30s).
+4. **Verify local server is running**: Check that the dev server started successfully on port 3000 by testing `curl -f http://localhost:3000` or similar. If the port is taken, use `fuser -k 3000/tcp` to kill the process using the port and restart the local dev server.
+5. **CRITICAL**: Run each playwright task sequentially (never in parallel). For each screenshot task, use descriptive filenames with the pattern `[step]-[prod/local]-[page].png`. Use the playwright-agent individually for each task with retry logic (up to 3 attempts per task):
 
-   ```bash
-   gh pr checkout [PR_NUMBER]
-   pnpm install
-   ```
+5a. Take a screenshot of https://qingqi.dev → save as `5a-prod-homepage.png`
+5b. Take a screenshot of http://localhost:3000 → save as `5b-local-homepage.png`
+5c. Take a screenshot of https://qingqi.dev/experiences/citadel → save as `5c-prod-citadel.png`
+5d. Take a screenshot of http://localhost:3000/experiences/citadel → save as `5d-local-citadel.png`
+5e. Take a screenshot of https://qingqi.dev/movie-database → save as `5e-prod-movies.png`
+5f. Take a screenshot of http://localhost:3000/movie-database → save as `5f-local-movies.png`
+5g. Take a screenshot of https://qingqi.dev/movie-database?type=tv&genre=10759 → save as `5g-prod-tvshows.png`
+5h. Take a screenshot of http://localhost:3000/movie-database?type=tv&genre=10759 → save as `5h-local-tvshows.png`
+5i. Take a screenshot of https://qingqi.dev/movie-database/movie/617126 → save as `5i-prod-moviedetail.png`
+5j. Take a screenshot of http://localhost:3000/movie-database/movie/617126 → save as `5j-local-moviedetail.png`
+5k. Open https://qingqi.dev, click the toggle "Switch to dark theme" (or light mode), then take a screenshot → save as `5k-prod-darkmode.png`
+5l. Open http://localhost:3000, click the toggle "Switch to dark theme" (or light mode), then take a screenshot → save as `5l-local-darkmode.png`
+5m. Open https://qingqi.dev, click the button "Languages", then click "中文", then take a screenshot → save as `5m-prod-chinese.png`
+5n. Open http://localhost:3000, click the button "Languages", then click "中文", then take a screenshot → save as `5n-local-chinese.png`
 
-2. Research the update for breaking changes:
+6. **Compare screenshots using playwright-agent**: For each pair, use the playwright-agent to perform visual comparison between:
 
-   ```bash
-   # Check what versions are being updated
-   gh pr diff [PR_NUMBER] -- package.json
+- `5a-prod-homepage.png` and `5b-local-homepage.png`
+- `5c-prod-citadel.png` and `5d-local-citadel.png`
+- `5e-prod-movies.png` and `5f-local-movies.png`
+- `5g-prod-tvshows.png` and `5h-local-tvshows.png`
+- `5i-prod-moviedetail.png` and `5j-local-moviedetail.png`
+- `5k-prod-darkmode.png` and `5l-local-darkmode.png`
+- `5m-prod-chinese.png` and `5n-local-chinese.png`
 
-   # Look at PR description for changelog links
-   gh pr view [PR_NUMBER]
-   ```
+**Visual Diff Failure Handling**: If any visual comparison shows significant differences:
+- Document the specific differences found
+- Analyze whether the differences are:
+  - Expected (e.g., timestamp differences, dynamic content)
+  - Regression issues that need fixing
+  - Acceptable changes due to the dependency update
+- If regressions are found, create a detailed plan to fix them before proceeding
+- Only proceed with merge if all differences are acceptable or fixed
 
-   If PR description lacks migration information, use library-expert agent:
+7. **Navigation User Flow Testing**: Use playwright-agent with retry logic (up to 3 attempts) to run through the following navigation user flow sequentially:
 
-   ```
-   Use library-expert agent to research breaking changes for "$1" update:
-   - What are the breaking changes between version X and version Y?
-   - What migration steps are required for this update?
-   - Are there any known compatibility issues with our stack?
+- Open the home page (http://localhost:3000)
+- Click on the link with label "Citadel August 2021 to now, click to view details"
+- Expect the text "At Citadel, I work as a software engineer" to be on the screen
+- Click on the link with label "Back"
+- Expect to be back on the home page
+- Click on the "Movie database" card
+- Click on "TV Shows"
+- Expect the URL search param `?type=tv` to be added
 
-   Focus on actionable migration guidance, not general library information.
-   ```
+**CRITICAL REMINDERS**:
+- Kill the background task (`pnpm dev`) when done
+- Clean up all the screenshots after testing is complete
 
-3. Run comprehensive tests:
+**Success Path**: If all Playwright tests pass and visual comparisons are acceptable, set auto-merge with squash: `gh pr merge [PR_NUMBER] --squash --auto`
 
-   ```bash
-   pnpm build:tsc  # TypeScript checks
-   pnpm lint       # Linting
-   pnpm test       # Unit tests
-   pnpm build      # Full production build
-   ```
-
-4. If tests fail, fix the issues:
-   - Update code for breaking changes
-   - Fix TypeScript errors without using type assertions
-   - Update imports/exports if needed
-   - Commit fixes with descriptive messages
-
-   For systematic changes across multiple files (import updates, API changes), use refactoring-agent:
-
-   ```
-   Use refactoring-agent for monotonic updates required by "$1":
-   - Update all import statements from old API to new API
-   - Replace deprecated method calls with new equivalents
-   - Update type definitions that changed in the new version
-
-   Apply identical patterns across all affected files systematically.
-   ```
-
-5. Visual regression testing:
-
-   Start the dev server in background mode and track its process ID:
-
-   ```bash
-   # Start dev server in background and save PID
-   pnpm dev &
-   DEV_PID=$!
-
-   # Wait for server to be ready
-   sleep 15
-   ```
-
-   Note: Next.js will automatically use port 3001 if port 3000 is blocked. Check the console output to see which port it's using.
-
-   Use hawkeye agent to compare BEFORE (production) vs AFTER (PR branch):
-
-   ```
-   Use hawkeye agent to compare visual differences:
-   - Compare production site vs local dev server
-   - Test key pages: homepage (/en, /zh), movie database, search
-   - Focus on layout changes, broken styling, responsive issues
-
-   Provide both URLs to hawkeye for proper comparison:
-   - Production: https://shiqingqi.com
-   - Local: http://localhost:3000 (or :3001 if port conflict occurred)
-   ```
-
-   Alternatively, use bug-validator for single-environment UI validation:
-
-   ```
-   Use bug-validator to validate UI functionality:
-   - Test core user flows (navigation, search, responsive layout)
-   - Check for console errors and network failures
-   - Verify no hydration mismatches or layout breaks
-   - Use URL: http://localhost:3000 (or :3001 if port conflict occurred)
-   ```
-
-   After visual testing is complete, kill the dev server:
-
-   ```bash
-   # Kill the dev server process we started
-   kill $DEV_PID 2>/dev/null || true
-   ```
-
-   If Next.js reported that port 3000 was in use and automatically switched to 3001, you should also kill whatever process is blocking port 3000 to prevent future conflicts:
-
-   ```bash
-   # Only run this if Next.js complained about port 3000
-   lsof -ti:3000 | xargs -r kill -9 2>/dev/null || true
-   ```
-
-6. Clean up test artifacts:
-
-   ```bash
-   # Remove any screenshot directories
-   rm -rf .playwright-mcp/
-   # Remove any other test artifacts
-   ```
-
-7. Push any fixes and merge:
-
-   ```bash
-   git add .
-   git commit -m "Fix compatibility issues for $1 update"
-   git push
-
-   # Merge with squash
-   gh pr merge [PR_NUMBER] --squash --auto
-   ```
-
-## 4. Final Verification
-
-After merging, verify the update was successful:
-
-```bash
-# Switch back to main branch
-git checkout master
-git pull
-
-# Verify the dependency was updated
-grep "$1" package.json
-```
-
-## Error Handling
-
-If any step fails:
-
-- Provide clear error messages
-- Suggest manual intervention steps
-- Don't auto-merge if any tests are failing
-- Always prefer proper fixes over type assertions or workarounds
-
-Remember: Dev dependencies can be auto-merged if CI passes, but runtime dependencies always require local testing and visual verification.
+**Failure Handling**: If any Playwright tests fail or visual differences are concerning:
+1. Document specific failures or visual regressions found
+2. Analyze root cause (dependency breaking change, environment issue, etc.)
+3. Propose a detailed remediation plan with specific steps
+4. Wait for user confirmation before proceeding with fixes
+5. Do NOT merge until all issues are resolved
