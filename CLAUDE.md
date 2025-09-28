@@ -8,7 +8,8 @@ pnpm lint               # Lint all files
 pnpm lint:changed       # Lint changed files
 pnpm format:write       # Format all files
 pnpm format:changed     # Format changed files
-pnpm test               # Run tests
+pnpm test               # Run unit tests (Vitest)
+pnpm test:e2e           # Run E2E tests (Playwright) - auto-starts dev server
 pnpm codegen            # Generate TMDB API types and server functions
 pnpm codegen:tmdb       # Generate only TMDB server functions
 ```
@@ -199,8 +200,11 @@ const styles = stylex.create({
 <pattern>
 <topic>Testing</topic>
 <notes>
-- Uses Vitest for client components and synchronous server components
-- Unique setup integrating with babel and using `enforce: pre` to handle StyleX transformations
+- Uses Vitest for unit testing client components and synchronous server components
+- Uses Playwright for E2E testing with automatic dev server startup
+- E2E tests located in `e2e/` directory
+- Playwright config includes HTML reporter and trace collection on retry
+- Unique Vitest setup integrating with babel and using `enforce: pre` to handle StyleX transformations
 </notes>
 </pattern>
 
@@ -291,7 +295,7 @@ rm -rf .playwright-mcp/  # Remove screenshot directories
 
 ALWAYS follow these rules
 
-- Run `pnpm lint:changed` `pnpm test` and `pnpm build:tsc` before any task is considered complete.
+- Run `pnpm lint:changed` `pnpm test` `pnpm test:e2e` and `pnpm build:tsc` before any task is considered complete.
 - NEVER EVER use `any` type explicitly or implicitly
 - AVOID type assertions (`as Type`)
 - Prefer letting TypeScript infer types over explicit type annotations
