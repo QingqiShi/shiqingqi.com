@@ -93,6 +93,9 @@
     "vitest": "^3.2.4"
   },
   "pnpm": {
+    "overrides": {
+      "supports-color": "^8.1.1"
+    },
     "patchedDependencies": {
       "@stylexjs/eslint-plugin": "patches/@stylexjs__eslint-plugin.patch"
     },
