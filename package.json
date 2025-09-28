@@ -25,7 +25,8 @@
     "format:changed": "git diff --name-only --diff-filter=d HEAD | grep -E '\\.(js|jsx|ts|tsx|json|css|md|mjs)$' | xargs -r prettier --write",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@mui/utils": "^7.3.2",
