@@ -205,7 +205,52 @@ const styles = stylex.create({
 - E2E tests located in `e2e/` directory
 - Playwright config includes HTML reporter and trace collection on retry
 - Unique Vitest setup integrating with babel and using `enforce: pre` to handle StyleX transformations
-</notes>
+
+**E2E Testing Best Practices:**
+
+- **Test like a user, not a developer** - Wait for visible UI changes (text, elements appearing/disappearing) rather than technical state (URLs, cookies, localStorage, networkidle)
+- **Use semantic locators** - Prefer `page.getByRole('button', { name: 'Submit' })` over CSS selectors or `locator('[aria-label="..."]')`
+- **Avoid testing implementation details** - Don't assert on cookies, localStorage, internal state, or URL paths - test what users see
+- **Avoid arbitrary waits** - Replace `waitForTimeout()` with `waitFor(() => expect(element).toBeVisible())` or waiting for text changes
+- **Simplify test setup** - Minimize beforeEach steps, avoid redundant navigations (navigate once, don't clear then reload)
+  </notes>
+  <example>
+
+```typescript
+// ❌ Bad: Testing implementation details with technical waits
+test("language switch", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle"); // Technical state
+  await page.context().clearCookies();
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+
+  const button = page.locator('button[aria-label="Select a language"]'); // CSS selector
+  await button.click();
+  await page.waitForTimeout(200); // Arbitrary wait
+
+  const option = page.locator('a[aria-label="切换至中文"]');
+  await option.click();
+  await page.waitForFunction(() => window.location.pathname.includes("/zh")); // URL check
+
+  const cookies = await page.context().cookies(); // Implementation detail
+  expect(cookies.find((c) => c.name === "NEXT_LOCALE")?.value).toBe("zh");
+});
+
+// ✅ Good: Testing user-visible behavior
+test("language switch", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Select a language" }).click();
+  await page.getByRole("link", { name: "切换至中文" }).click();
+
+  // Wait for actual content to change
+  await expect(page.getByRole("heading", { name: "欢迎" })).toBeVisible();
+});
+```
+
+</example>
 </pattern>
 
 <pattern>
