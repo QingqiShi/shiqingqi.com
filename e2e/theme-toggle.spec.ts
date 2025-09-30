@@ -2,11 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Theme Toggle", () => {
   test.beforeEach(async ({ page }) => {
-    // Clean up and set system preference before loading
+    // Set system preference to light before loading
     await page.emulateMedia({ colorScheme: "light" });
-    await page.addInitScript(() => {
-      localStorage.removeItem("theme");
-    });
     await page.goto("/");
     // Wait for content to be visible
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

@@ -1,3 +1,16 @@
+# CRITICAL DEBUGGING LESSONS
+
+## Environment Variables and Configuration
+
+**ALWAYS verify configuration names by reading the actual source code FIRST before setting up external configuration (GitHub secrets, env files, etc).**
+
+### Example: CI Failing with 401 Unauthorized
+
+❌ **Wrong approach**: Assume environment variable names, add them to GitHub secrets, debug why they're not passed correctly
+✅ **Right approach**: `grep -r "process.env.TMDB" src/` → Find actual variable name in code → Use that exact name
+
+**Key principle**: Never assume configuration names. Always check what the code expects before configuring external systems.
+
 # Essential Commands
 
 ```bash

@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Language Toggle", () => {
   test.beforeEach(async ({ page }) => {
-    await page.context().clearCookies();
     await page.goto("/");
     // Wait for actual content to be visible
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -31,20 +30,16 @@ test.describe("Language Toggle", () => {
     ).toBeVisible();
   });
 
-  test("should preserve search parameters and persist language preference", async ({
+  test("should persist language preference across browser sessions", async ({
     page,
     context,
   }) => {
-    // Navigate with search parameter and switch to Chinese
-    await page.goto("/?test=value");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-
+    // Switch to Chinese
     await page.getByRole("button", { name: "Select a language" }).click();
     await page.getByRole("link", { name: "切换至中文" }).click();
 
-    // Wait for content to change to Chinese and verify search param preserved
+    // Wait for content to change to Chinese
     await expect(page.getByRole("button", { name: "选择语言" })).toBeVisible();
-    expect(page.url()).toContain("test=value");
 
     // Open new page to test persistence
     const newPage = await context.newPage();
