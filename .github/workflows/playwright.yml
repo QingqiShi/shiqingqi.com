@@ -10,24 +10,62 @@ jobs:
       contents: read
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4, 5, 6, 7]
+        shardTotal: [7]
     steps:
     - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
     - uses: actions/setup-node@v4
       with:
-        node-version: lts/*
+        node-version: '22'
+        cache: 'pnpm'
     - name: Install dependencies
-      run: npm install -g pnpm && pnpm install
-    - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps
+      run: pnpm install --frozen-lockfile
     - name: Run Playwright tests
-      run: pnpm exec playwright test
+      run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       env:
         TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
-    - uses: actions/upload-artifact@v4
+    - name: Upload blob report to GitHub Actions Artifacts
       if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: blob-report-${{ matrix.shardIndex }}
+        path: blob-report
+        retention-days: 1
+
+  merge-reports:
+    permissions:
+      contents: read
+    if: ${{ !cancelled() }}
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'pnpm'
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+    - name: Download blob reports from GitHub Actions Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: all-blob-reports
+        pattern: blob-report-*
+        merge-multiple: true
+    - name: Merge into HTML Report
+      run: pnpm exec playwright merge-reports --reporter html ./all-blob-reports
+    - name: Upload HTML report
+      uses: actions/upload-artifact@v4
       with:
         name: playwright-report
-        path: playwright-report/
+        path: playwright-report
         retention-days: 30
