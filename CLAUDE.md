@@ -303,52 +303,6 @@ pnpm codegen         # Full pipeline including TypeScript types
 </example>
 </pattern>
 
-# Dependency Update Testing Strategy
-
-## Dev Dependencies (Safe to Auto-Merge)
-
-- TypeScript, ESLint, Prettier, @types/\*, testing libraries
-- If CI passes → merge directly
-- No local testing needed
-
-## Runtime Dependencies (Require Manual Testing)
-
-- Framework updates (Next.js, React)
-- UI libraries (@mui/\*, stylex)
-- Data fetching (tanstack-query)
-- Critical utilities affecting production
-
-### Required Runtime Tests:
-
-1. **Visual Regression**
-   - Screenshot key pages (homepage, movie database, AI search)
-   - Test both /en and /zh locales
-   - Check responsive breakpoints
-
-2. **Feature Testing**
-   - Movie search and filters
-   - AI search functionality with natural language queries
-   - Navigation and routing
-   - API integrations (TMDB)
-
-3. **Console Monitoring**
-   - No errors in browser console
-   - No failed network requests
-   - No React hydration mismatches
-
-### Testing Commands:
-
-```bash
-# Checkout PR and test runtime dependencies
-gh pr checkout [PR_NUMBER]
-pnpm install && pnpm dev
-# Browse: http://localhost:3000/en and http://localhost:3000/zh
-# Test features manually, then merge if all good
-
-# IMPORTANT: Clean up any testing artifacts
-rm -rf .playwright-mcp/  # Remove screenshot directories
-```
-
 # CRITICAL INSTRUCTIONS
 
 ALWAYS follow these rules
