@@ -41,6 +41,8 @@ jobs:
         retention-days: 1
 
   merge-reports:
+    permissions:
+      contents: read
     if: ${{ !cancelled() }}
     needs: [test]
     runs-on: ubuntu-latest
