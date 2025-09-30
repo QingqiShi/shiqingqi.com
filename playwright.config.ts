@@ -67,7 +67,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 300 * 1000, // 5 minutes for dev server to start
     env: {
-      TMDB_API_KEY: process.env.TMDB_API_KEY,
+      TMDB_API_TOKEN: process.env.TMDB_API_TOKEN,
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       OPENAI_MODEL: process.env.OPENAI_MODEL,
     },

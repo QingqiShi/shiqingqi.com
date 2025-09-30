@@ -22,7 +22,7 @@ jobs:
     - name: Run Playwright tests
       run: pnpm exec playwright test
       env:
-        TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        TMDB_API_TOKEN: ${{ secrets.TMDB_API_KEY }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
     - uses: actions/upload-artifact@v4
