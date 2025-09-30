@@ -61,64 +61,37 @@ If there are failing CI checks:
 
 1. First, follow dev dependency instructions to ensure static checks are all passing.
 2. Check out the PR locally if you haven't already, and after checked out, run `pnpm install`.
-3. Start the local dev server in the background with `pnpm dev` (then sleep for 30s).
-4. **Verify local server is running**: Check that the dev server started successfully on port 3000 by testing `curl -f http://localhost:3000` or similar. If the port is taken, use `fuser -k 3000/tcp` to kill the process using the port and restart the local dev server.
-5. **CRITICAL**: Run each playwright task sequentially (never in parallel). For each screenshot task, use descriptive filenames with the pattern `[step]-[prod/local]-[page].png`. Use the playwright-agent individually for each task with retry logic (up to 3 attempts per task):
+3. **Run comprehensive E2E tests**: Execute `pnpm test:e2e` which automatically:
+   - Starts the dev server
+   - Runs all Playwright tests covering:
+     - Homepage portfolio with all sections (Projects, Experiences, Education)
+     - Navigation flows between pages
+     - Language toggle (English ↔ Chinese) with persistence
+     - Theme toggle (light ↔ dark) with system preference detection and persistence
+     - Movie/TV browsing with filters, sorting, and infinite scroll
+     - Media detail pages (movie and TV shows)
+     - Experience and education detail pages
+     - Browser back navigation
+     - URL parameter persistence
+   - Shuts down the dev server
+4. **Analyze test results**:
+   - If all tests pass → runtime validation complete, proceed to merge
+   - If tests fail → investigate failures:
+     - Check test output for specific failing assertions
+     - Review error messages and stack traces
+     - Determine if failures are due to:
+       - Actual regressions from the dependency update
+       - Breaking changes requiring code updates
+       - Flaky tests (re-run once to confirm)
+     - If actual regressions: create a detailed fix plan and implement before merging
+     - If breaking changes: use doc-reader and refactoring-agent to apply migrations
 
-5a. Take a screenshot of https://qingqi.dev → save as `5a-prod-homepage.png`
-5b. Take a screenshot of http://localhost:3000 → save as `5b-local-homepage.png`
-5c. Take a screenshot of https://qingqi.dev/experiences/citadel → save as `5c-prod-citadel.png`
-5d. Take a screenshot of http://localhost:3000/experiences/citadel → save as `5d-local-citadel.png`
-5e. Take a screenshot of https://qingqi.dev/movie-database → save as `5e-prod-movies.png`
-5f. Take a screenshot of http://localhost:3000/movie-database → save as `5f-local-movies.png`
-5g. Take a screenshot of https://qingqi.dev/movie-database?type=tv&genre=10759 → save as `5g-prod-tvshows.png`
-5h. Take a screenshot of http://localhost:3000/movie-database?type=tv&genre=10759 → save as `5h-local-tvshows.png`
-5i. Take a screenshot of https://qingqi.dev/movie-database/movie/617126 → save as `5i-prod-moviedetail.png`
-5j. Take a screenshot of http://localhost:3000/movie-database/movie/617126 → save as `5j-local-moviedetail.png`
-5k. Open https://qingqi.dev, click the toggle "Switch to dark theme" (or light mode), then take a screenshot → save as `5k-prod-darkmode.png`
-5l. Open http://localhost:3000, click the toggle "Switch to dark theme" (or light mode), then take a screenshot → save as `5l-local-darkmode.png`
-5m. Open https://qingqi.dev, click the button "Languages", then click "中文", then take a screenshot → save as `5m-prod-chinese.png`
-5n. Open http://localhost:3000, click the button "Languages", then click "中文", then take a screenshot → save as `5n-local-chinese.png`
+**Success Path**: If all E2E tests pass, set auto-merge with squash: `gh pr merge [PR_NUMBER] --squash --auto`
 
-6. **Compare screenshots using playwright-agent**: For each pair, use the playwright-agent to perform visual comparison between:
+**Failure Handling**: If E2E tests fail:
 
-- `5a-prod-homepage.png` and `5b-local-homepage.png`
-- `5c-prod-citadel.png` and `5d-local-citadel.png`
-- `5e-prod-movies.png` and `5f-local-movies.png`
-- `5g-prod-tvshows.png` and `5h-local-tvshows.png`
-- `5i-prod-moviedetail.png` and `5j-local-moviedetail.png`
-- `5k-prod-darkmode.png` and `5l-local-darkmode.png`
-- `5m-prod-chinese.png` and `5n-local-chinese.png`
-
-**Visual Diff Failure Handling**: If any visual comparison shows significant differences:
-- Document the specific differences found
-- Analyze whether the differences are:
-  - Expected (e.g., timestamp differences, dynamic content)
-  - Regression issues that need fixing
-  - Acceptable changes due to the dependency update
-- If regressions are found, create a detailed plan to fix them before proceeding
-- Only proceed with merge if all differences are acceptable or fixed
-
-7. **Navigation User Flow Testing**: Use playwright-agent with retry logic (up to 3 attempts) to run through the following navigation user flow sequentially:
-
-- Open the home page (http://localhost:3000)
-- Click on the link with label "Citadel August 2021 to now, click to view details"
-- Expect the text "At Citadel, I work as a software engineer" to be on the screen
-- Click on the link with label "Back"
-- Expect to be back on the home page
-- Click on the "Movie database" card
-- Click on "TV Shows"
-- Expect the URL search param `?type=tv` to be added
-
-**CRITICAL REMINDERS**:
-- Kill the background task (`pnpm dev`) when done
-- Clean up all the screenshots after testing is complete
-
-**Success Path**: If all Playwright tests pass and visual comparisons are acceptable, set auto-merge with squash: `gh pr merge [PR_NUMBER] --squash --auto`
-
-**Failure Handling**: If any Playwright tests fail or visual differences are concerning:
-1. Document specific failures or visual regressions found
-2. Analyze root cause (dependency breaking change, environment issue, etc.)
+1. Document specific test failures and error messages
+2. Analyze root cause (dependency breaking change, test environment issue, etc.)
 3. Propose a detailed remediation plan with specific steps
 4. Wait for user confirmation before proceeding with fixes
 5. Do NOT merge until all issues are resolved
