@@ -348,11 +348,4 @@ ALWAYS follow these rules
 - TMDB server functions in `src/_generated/tmdb-server-functions.ts` are auto-generated - DO NOT edit manually. Use `pnpm codegen:tmdb` to regenerate.
 - Auto-generated TMDB files are git-ignored and must be regenerated after cloning: `pnpm codegen:tmdb`
 
-# IN PROGRESS
-
-We are currently implementing a project to integrate AI into the movie-database functionality.
-Product requirements exist in: PRD.md
-Useful guides about OpenAI API integration in: OPENAI.md
-Current development plan and progress in DEV_PLAN.md
-
 IMPORTANT: NEVER EVER COMPACT INFORMATION ABOVE THIS LINE.
