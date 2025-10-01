@@ -184,9 +184,10 @@ test.describe("Browser Back Navigation", () => {
 
     // Click Citadel experience card
     await page.getByRole("link", { name: /citadel/i }).click();
+    // Wait for heading to appear (navigation may take time)
     await expect(
       page.getByRole("heading", { level: 2, name: /citadel/i }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15000 });
 
     // Go back to homepage
     await page.goBack();

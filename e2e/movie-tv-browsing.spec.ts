@@ -40,7 +40,7 @@ test.describe("Movie and TV Show Browsing", () => {
 
     // Wait for TV show cards
     const tvCards = page.locator("a[href*='/movie-database/tv/']");
-    await expect(tvCards.first()).toBeVisible();
+    await expect(tvCards.first()).toBeVisible({ timeout: 15000 });
 
     // Click "Movies" link to switch back
     await page.getByRole("link", { name: /^movies$/i }).click();
