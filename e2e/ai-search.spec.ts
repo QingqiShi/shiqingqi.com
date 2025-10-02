@@ -18,8 +18,8 @@ test.describe("AI-Powered Search", () => {
     // Verify some empty state UI is visible (h1 or message)
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
-    // Should not have result cards
-    const cards = page.locator("a[href*='/movie-database/movie/']");
+    // Should not have result cards (cards are links containing images)
+    const cards = page.getByRole("link").filter({ has: page.getByRole("img") });
     expect(await cards.count()).toBe(0);
   });
 

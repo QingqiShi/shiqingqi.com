@@ -62,8 +62,11 @@ test.describe("Homepage Portfolio", () => {
       await projectCard.click();
 
       // Wait for movie database page to load (long timeout for dev mode on-demand build)
-      const movieCards = page.locator("a[href*='/movie-database/movie/']");
-      await expect(movieCards.first()).toBeVisible({ timeout: 30000 });
+      // Cards are links containing images
+      const cards = page
+        .getByRole("link")
+        .filter({ has: page.getByRole("img") });
+      await expect(cards.first()).toBeVisible({ timeout: 30000 });
     });
   });
 
