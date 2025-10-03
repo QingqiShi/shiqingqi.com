@@ -24,7 +24,7 @@ export default defineConfig({
   /* Run tests in parallel on CI for faster execution */
   workers: process.env.CI ? "50%" : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? "blob" : "html",
+  reporter: process.env.CI ? "blob" : [["html", { open: "never" }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
