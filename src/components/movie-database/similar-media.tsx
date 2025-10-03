@@ -1,7 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
-import { getConfiguration } from "@/_generated/tmdb-server-functions";
+import {
+  getConfiguration,
+  getMovieRecommendations,
+  getTvShowRecommendations,
+} from "@/_generated/tmdb-server-functions";
 import { breakpoints } from "@/breakpoints";
 import { ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
@@ -26,11 +30,37 @@ export function SimilarMedia({
 }: SimilarMediaProps) {
   const { t } = getTranslations(translations, locale);
 
-  // Only prefetch configuration server-side, not the similar media data
   const queryClient = getQueryClient();
+
+  // Prefetch configuration
   void queryClient.prefetchQuery({
     ...tmdbQueries.configuration,
     queryFn: async () => getConfiguration(),
+  });
+
+  // Prefetch similar media data to prevent SSR errors
+  void queryClient.prefetchInfiniteQuery({
+    ...tmdbQueries.similarMedia({
+      type: mediaType,
+      id: mediaId,
+      page: 1,
+      language: locale,
+    }),
+    queryFn: async ({ pageParam }) => {
+      if (mediaType === "tv") {
+        return getTvShowRecommendations({
+          series_id: mediaId,
+          page: pageParam,
+          language: locale,
+        });
+      } else {
+        return getMovieRecommendations({
+          movie_id: mediaId,
+          page: pageParam,
+          language: locale,
+        });
+      }
+    },
   });
 
   return (
