@@ -39,8 +39,6 @@ next-env.d.ts
 public/sw*
 public/swe-worker*
 
-# Auto-generated files are now committed to the repo
-
 # Playwright
 node_modules/
 /test-results/
