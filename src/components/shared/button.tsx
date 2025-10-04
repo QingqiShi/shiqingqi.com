@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { color, controlSize, font } from "@/tokens.stylex";
 import { buttonTokens } from "./button.stylex";
 

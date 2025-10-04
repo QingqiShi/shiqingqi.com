@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSearchParams } from "next/navigation";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
 import { layer, space } from "@/tokens.stylex";

@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { BackButton } from "@/components/shared/back-button";
 import { LocaleSelector } from "@/components/shared/locale-selector";
 import { ThemeSwitch } from "@/components/shared/theme-switch";

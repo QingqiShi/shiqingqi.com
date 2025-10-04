@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { HTMLAttributes, PropsWithChildren, Ref } from "react";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 
 export function Grid({
   children,

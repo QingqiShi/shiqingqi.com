@@ -1,6 +1,6 @@
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { EducationCard } from "@/components/home/education-card";
 import { ExperienceCard } from "@/components/home/experience-card";

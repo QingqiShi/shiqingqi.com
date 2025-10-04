@@ -3,7 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 
 import type { PropsWithChildren } from "react";
 import { createPortal } from "react-dom";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { useCssId } from "@/hooks/use-css-id";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";

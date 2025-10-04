@@ -6,7 +6,7 @@ import {
   getMovieRecommendations,
   getTvShowRecommendations,
 } from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getQueryClient } from "@/utils/get-query-client";

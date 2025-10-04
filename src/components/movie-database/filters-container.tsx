@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { layer, space } from "@/tokens.stylex";
 
 interface FiltersContainerProps {

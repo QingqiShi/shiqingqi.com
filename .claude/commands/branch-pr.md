@@ -27,7 +27,6 @@ Analyze staged changes to infer branch name and PR title automatically. Follow t
    → Create and checkout new branch with inferred name
    → Create commit with staged files using inferred commit message focusing on **intent**
    → Commit message should explain **why** the change was made, not just what was changed
-   → Include Claude Code signature in commit message
 
 5. **Push and Create PR**
    → Push branch to origin with upstream tracking

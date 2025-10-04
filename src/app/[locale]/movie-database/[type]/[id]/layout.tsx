@@ -5,7 +5,7 @@ import {
   getMovieDetails,
   getTvShowDetails,
 } from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { Footer } from "@/components/home/footer";
 import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
 import cardTranslations from "@/components/shared/card.translations.json";

@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";

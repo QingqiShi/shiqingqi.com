@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { color, controlSize } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
 import { anchorTokens } from "./anchor.stylex";
