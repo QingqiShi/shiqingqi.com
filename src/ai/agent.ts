@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { zodTextFormat } from "openai/helpers/zod";
 import type { ResponseInput } from "openai/resources/responses/responses.mjs";
+import { cacheSignal } from "react";
 import "server-only";
 import { z } from "zod";
 import {
@@ -105,7 +106,10 @@ async function getSystemInstructions(locale: SupportedLocale): Promise<string> {
         .join(", ");
     }
   } catch (error) {
-    console.error("Failed to fetch reference data:", error);
+    // Only log real errors, not cancellation errors
+    if (!cacheSignal()?.aborted) {
+      console.error("Failed to fetch reference data:", error);
+    }
     throw error;
   }
 
@@ -206,7 +210,10 @@ export async function agent(
               result: result.result,
             };
           } catch (error) {
-            console.error("Tool execution error:", error);
+            // Only log real errors, not cancellation errors
+            if (!cacheSignal()?.aborted) {
+              console.error("Tool execution error:", error);
+            }
             return {
               success: false,
               call_id: toolCall.call_id,

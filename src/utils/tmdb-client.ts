@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { cache } from "react";
+import { cache, cacheSignal } from "react";
 import type { paths } from "@/_generated/tmdbV3";
 import { buildTmdbUrl } from "./build-tmdb-url";
 
@@ -44,6 +44,7 @@ async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
     },
     cache: "force-cache",
     next: { revalidate: 86400 },
+    signal: cacheSignal(),
   });
 
   if (!response.ok) {
