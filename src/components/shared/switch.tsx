@@ -3,13 +3,7 @@
 
 import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   border,
   color,
@@ -44,13 +38,10 @@ export function Switch({
     name: "Switch",
   });
 
-  const setControlledValue = useCallback(
-    (newValue: SwitchState) => {
-      setValue(newValue);
-      onChange?.(newValue);
-    },
-    [onChange, setValue],
-  );
+  function setControlledValue(newValue: SwitchState) {
+    setValue(newValue);
+    onChange?.(newValue);
+  }
 
   // Sync value with input due to check box having two different value states (specifically `indeterminate`)
   useLayoutEffect(() => {
@@ -59,7 +50,7 @@ export function Switch({
     }
     elRef.current.indeterminate = value === "indeterminate";
     elRef.current.checked = value === "on";
-  }, [value]);
+  });
 
   // States and refs for tracking dragging state
   const initialRectRef = useRef<DOMRect | null>(null);
@@ -140,7 +131,7 @@ export function Switch({
   const [initialRendered, setInitialRendered] = useState(false);
   useEffect(() => {
     setInitialRendered(true);
-  }, []);
+  });
 
   return (
     <input

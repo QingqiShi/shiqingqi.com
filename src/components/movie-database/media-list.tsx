@@ -1,8 +1,9 @@
+// @inferEffectDependencies
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { memo, useDeferredValue, useLayoutEffect, useState } from "react";
+import { useDeferredValue, useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { breakpoints } from "@/breakpoints.stylex";
 import { Grid } from "@/components/movie-database/grid";
@@ -54,7 +55,7 @@ export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
     const onResize = () => setHeight(window.innerHeight);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, []);
+  });
 
   const [initialCount] = useState(items.length);
 
@@ -80,7 +81,7 @@ export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
   );
 }
 
-const ItemContent = memo(function ItemContent({
+function ItemContent({
   index,
   items,
 }: {
@@ -96,7 +97,7 @@ const ItemContent = memo(function ItemContent({
   const allowFollow = index < 20;
 
   return <MediaCard media={item} allowFollow={allowFollow} />;
-});
+}
 
 const gridComponents = {
   List: Grid,
