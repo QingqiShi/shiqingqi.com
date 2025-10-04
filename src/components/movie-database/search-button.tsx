@@ -1,3 +1,4 @@
+// @inferEffectDependencies
 "use client";
 
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
@@ -28,7 +29,7 @@ export function SearchButton() {
     if (isOverlayOpen && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isOverlayOpen]);
+  });
 
   const handleClose = () => {
     void startViewTransition(() => setIsOverlayOpen(false));
@@ -50,7 +51,7 @@ export function SearchButton() {
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOverlayOpen, handleClose]);
+  });
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

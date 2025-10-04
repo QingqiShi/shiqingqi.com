@@ -1,3 +1,4 @@
+// @inferEffectDependencies
 "use client";
 
 import { MoonIcon } from "@phosphor-icons/react/Moon";
@@ -49,7 +50,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           ? "#000000"
           : "#ffffff",
     );
-  }, [preferDark, theme]);
+  });
 
   const [hasFocus, setHasFocus] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

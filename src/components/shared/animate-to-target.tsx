@@ -1,3 +1,4 @@
+// @inferEffectDependencies
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
@@ -122,7 +123,7 @@ export function AnimateToTarget({
       containerAnimation.cancel();
       innerAnimation.cancel();
     };
-  }, [targetId, animateToTarget]);
+  });
 
   return (
     <div

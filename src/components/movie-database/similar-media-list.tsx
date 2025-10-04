@@ -1,3 +1,4 @@
+// @inferEffectDependencies
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
@@ -49,7 +50,7 @@ export function SimilarMediaList({
     const onResize = () => setHeight(window.innerHeight);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, []);
+  });
 
   if (!media.length) {
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
