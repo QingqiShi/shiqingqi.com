@@ -36,7 +36,6 @@ Analyze staged changes to infer branch name and PR title automatically. Follow t
    - Push branch to origin with upstream tracking
    - Create GitHub PR using `gh` CLI with inferred title in **conventional commit format**
    - Include basic PR description summarizing the changes and intent
-   - **IMPORTANT**: Escape backticks (`) in PR description to prevent GitHub rendering issues
 
 6. **Return Results**
    - Provide the PR URL for easy access

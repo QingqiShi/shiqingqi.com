@@ -1,7 +1,9 @@
 # Implementation Plan: Theme Toggle E2E Tests
 
+**Status:** completed
+**Created:** 2025-09-27
+**Completed on:** 2025-09-27
 **Spec Reference:** `ai-artifacts/specs/001-theme-toggle.md`
-**Plan Created:** 2025-09-27
 **Planning Scope:** Set up Playwright testing infrastructure and write end-to-end tests for the existing theme toggle feature
 
 ## Executive Summary

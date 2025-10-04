@@ -1,7 +1,9 @@
 # Implementation Plan: Movie and TV Show Detail Pages E2E Tests
 
+**Status:** completed
+**Created:** 2025-09-30
+**Completed on:** 2025-09-30
 **Spec Reference:** `ai-artifacts/specs/006-media-detail-pages.md`
-**Plan Created:** 2025-09-30
 **Planning Scope:** Write basic Playwright E2E tests for movie and TV show detail pages
 
 ## Executive Summary

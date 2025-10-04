@@ -1,7 +1,9 @@
 # Implementation Plan: AI-Powered Natural Language Movie and TV Show Search E2E Tests
 
+**Status:** completed
+**Created:** 2025-09-30
+**Completed on:** 2025-09-30
 **Spec Reference:** `ai-artifacts/specs/007-ai-movie-search.md`
-**Plan Created:** 2025-09-30
 **Planning Scope:** Write basic Playwright E2E tests for AI-powered natural language search feature
 
 ## Executive Summary

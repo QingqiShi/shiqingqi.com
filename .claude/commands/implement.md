@@ -30,6 +30,25 @@ Given the plan file reference and optional implementation scope, follow this wor
    - Extract spec reference from plan and read the original `ai-artifacts/specs/[SPEC_FILE].md`
    - If any files are missing: **ERROR** with appropriate message
 
+   - **Validate Plan and Spec Status:**
+     - Extract Status fields from plan and spec headers (treat missing as active/planned for backward compatibility)
+     - IF plan.status == "obsolete":
+       - ERROR: "❌ Cannot implement obsolete plan '{PLAN_FILE}'"
+       - STOP execution
+     - IF spec.status == "superseded":
+       - IF plan.status == "completed":
+         - Display info: "ℹ️ HISTORICAL IMPLEMENTATION - Spec '{spec_file}' was superseded by: {superseded_by}. This plan was completed before the spec breakdown. Continuing as historical record..."
+         - Continue to step 2
+       - ELSE IF plan.status IN ["in-progress", "planned"]:
+         - Display warning: "⚠️ SUPERSEDED SPEC - Spec '{spec_file}' was superseded by: {superseded_by}. Recommend: Implement plans for successor specs instead. Continue with this plan? (not recommended) (y/n)"
+         - PAUSE for confirmation
+         - If user says no: STOP
+     - ELSE IF spec.status == "deprecated":
+       - ERROR: "❌ Cannot implement plan for deprecated spec '{spec_file}'"
+       - STOP execution
+     - ELSE IF spec.status == "active" OR not present:
+       - Continue to step 2
+
 2. **Initialize Todo Tracking**
    - Use TodoWrite tool to create essential workflow todos:
      - "Read plan file and understand implementation approach"
@@ -37,6 +56,10 @@ Given the plan file reference and optional implementation scope, follow this wor
      - Add specific implementation task todos as you work through each phase
      - "Update plan file with implementation progress"
    - Always maintain the workflow todos as reminders of the process discipline
+
+   - **Update Plan Status:**
+     - If plan status is "planned", update to "in_progress"
+     - Update header: `**Status:** in_progress`
 
 3. **Execute Implementation**
    - Work through the specified scope systematically according to the plan
@@ -49,3 +72,8 @@ Given the plan file reference and optional implementation scope, follow this wor
    - Update acceptance criteria: `- [x] Criteria validated`
    - Add implementation notes when deviating from the plan
    - Keep the plan file as the source of truth for what's actually done
+
+   - **Update Plan Status on Completion:**
+     - When all phases in scope are completed, update plan header:
+       - `**Status:** completed`
+       - `**Completed on:** [current date]`
