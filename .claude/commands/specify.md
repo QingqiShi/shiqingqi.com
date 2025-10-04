@@ -14,11 +14,33 @@ Given that feature description, do this:
 
 1. Parse user description from input
    → If empty: ERROR "No feature description provided"
-2. Read `ai-artifacts/templates/spec-template.md` to understand required sections
-3. Determine the correct SPEC_FILE to use
-   → Use the spec file mentioned in user input if available
-   → Create new spec file in `ai-artifacts/specs/`, following naming convention like `001-my-new-feature.md`
-4. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings:
+
+2. Detect scenario type
+   → **Breakdown scenario:** User mentions "break down", "split", "separate into multiple specs" OR user references existing spec number
+   → **Normal creation:** Creating a new spec from description
+
+3. Execute appropriate workflow:
+
+   **IF breakdown scenario:**
+   - Read original spec file to preserve metadata
+   - Update original spec header (keep file in place):
+     - **Status:** superseded
+     - **Created:** [preserve original date]
+     - **Superseded on:** [current date]
+     - **Superseded by:** [comma-separated list of new spec numbers]
+     - **Reason:** [extract from user request or infer]
+   - Read `ai-artifacts/templates/spec-template.md` to understand required sections
+   - Create new granular specs using template (status: active from template)
+   - Report: "Spec {original} marked as superseded. Created: {new_specs}"
+   - STOP (breakdown complete)
+
+   **IF normal creation:**
+   - Determine SPEC_FILE: `ai-artifacts/specs/[NUMBER]-[name].md` (e.g., `001-my-new-feature.md`)
+   - Read `ai-artifacts/templates/spec-template.md` to understand required sections
+   - Write the specification to SPEC_FILE using template structure
+   - Continue to step 4
+
+4. Write the specification using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings:
    a. Extract key concepts from description
    → Identify: actors, actions, data, constraints
    b. For each unclear aspect:

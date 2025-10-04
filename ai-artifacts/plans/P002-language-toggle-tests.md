@@ -1,7 +1,9 @@
 # Implementation Plan: Language Toggle E2E Tests
 
+**Status:** completed
+**Created:** 2025-09-29
+**Completed on:** 2025-09-29
 **Spec Reference:** `ai-artifacts/specs/002-language-toggle.md`
-**Plan Created:** 2025-09-29
 **Planning Scope:** Playwright E2E testing for language toggle feature
 
 ## Executive Summary

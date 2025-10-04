@@ -27,6 +27,18 @@ Given the spec file reference and optional planning scope, do this:
 1. **Validate Prerequisites**
    → Read `ai-artifacts/specs/[SPEC_FILE].md` to understand the feature specification
    → If file not found: **ERROR:** "Spec file not found. Run /specify first."
+
+   → **Validate Spec Status:**
+   - Extract Status field from spec header (treat missing as "active" for backward compatibility)
+   - IF status == "superseded":
+     - Extract "Superseded by" field
+     - Display warning: "⚠️ SPEC SUPERSEDED - Spec '{SPEC_FILE}' was superseded by: {list successor specs}. The feature was broken down into smaller specs. Recommend: Plan one of the successor specs instead. Continue with superseded spec? (y/n)"
+     - PAUSE for user confirmation
+     - If user says no: STOP with message to plan successor specs
+   - ELSE IF status == "deprecated":
+     - ERROR: "❌ Cannot plan deprecated spec '{SPEC_FILE}'"
+     - STOP execution
+
    → If contains [NEEDS CLARIFICATION]: **ERROR:** "Spec has unresolved ambiguities. Update spec first."
    → If spec incomplete: **ERROR:** "Spec must be complete before planning."
    → Read `ai-artifacts/templates/plan-template.md` to understand required sections

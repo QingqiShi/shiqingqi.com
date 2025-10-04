@@ -1,6 +1,7 @@
 # Feature Specification: [FEATURE NAME]
 
-**Created**: [DATE]
+**Status:** active
+**Created:** [DATE]
 
 ## User Scenarios & Testing _(mandatory)_
 

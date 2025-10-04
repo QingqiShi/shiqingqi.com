@@ -1,7 +1,8 @@
 # Implementation Plan: [Feature Name]
 
+**Status:** planned
+**Created:** [DATE]
 **Spec Reference:** `ai-artifacts/specs/[SPEC_FILE].md`
-**Plan Created:** [DATE]
 **Planning Scope:** [SCOPE_DESCRIPTION]
 
 ## Executive Summary

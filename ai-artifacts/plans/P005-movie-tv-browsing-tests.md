@@ -1,7 +1,9 @@
 # Implementation Plan: Movie and TV Show Browsing with Filtering E2E Tests
 
+**Status:** completed
+**Created:** 2025-09-30
+**Completed on:** 2025-09-30
 **Spec Reference:** `ai-artifacts/specs/005-movie-tv-browsing.md`
-**Plan Created:** 2025-09-30
 **Planning Scope:** Write basic Playwright E2E tests for movie/TV browsing with filtering features
 
 ## Executive Summary
