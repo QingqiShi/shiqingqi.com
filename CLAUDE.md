@@ -217,6 +217,7 @@ const styles = stylex.create({
 - Uses Playwright for E2E testing with automatic dev server startup
 - E2E tests located in `e2e/` directory
 - Playwright config includes HTML reporter and trace collection on retry
+- Full E2E tests are expected to take around 15 minutes
 - Unique Vitest setup integrating with babel and using `enforce: pre` to handle StyleX transformations
 
 **E2E Testing Best Practices:**

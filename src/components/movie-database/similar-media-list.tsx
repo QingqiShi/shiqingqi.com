@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { Grid } from "@/components/movie-database/grid";
 import { color, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";

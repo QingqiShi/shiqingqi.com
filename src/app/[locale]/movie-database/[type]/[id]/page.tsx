@@ -8,7 +8,7 @@ import {
   getTvShowDetails,
   getTvShowVideos,
 } from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { BackdropImage } from "@/components/movie-database/backdrop-image";
 import { SimilarMedia } from "@/components/movie-database/similar-media";
 import { Trailer } from "@/components/movie-database/trailer";

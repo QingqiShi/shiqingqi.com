@@ -4,7 +4,7 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { useTranslations } from "@/hooks/use-translations";
 import { color, font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";

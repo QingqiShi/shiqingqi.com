@@ -4,7 +4,7 @@ import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { AnchorButton } from "@/components/shared/anchor-button";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath, normalizePath } from "@/utils/pathname";

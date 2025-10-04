@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { controlSize, layer, space } from "@/tokens.stylex";
 import { Skeleton } from "./skeleton";
 import { skeletonTokens } from "./skeleton.stylex";

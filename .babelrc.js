@@ -25,18 +25,13 @@ module.exports = {
         },
       },
     ],
+    "./tooling/stylex-css-prop",
     [
       "./tooling/stylex-breakpoints",
       {
-        breakpoints: {
-          sm: 320,
-          md: 768,
-          lg: 1080,
-          xl: 2000,
-        },
+        rootDir: __dirname,
       },
     ],
-    "./tooling/stylex-css-prop",
     [
       "@stylexjs/babel-plugin",
       {

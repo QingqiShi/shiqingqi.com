@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { getConfiguration } from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { color, layer, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 

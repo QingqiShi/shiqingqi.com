@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { breakpoints } from "@/breakpoints";
+import { breakpoints } from "@/breakpoints.stylex";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { Footer } from "@/components/home/footer";
 import { FlowGradient } from "@/components/shared/flow-gradient/flow-gradient";
