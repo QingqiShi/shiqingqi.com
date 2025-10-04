@@ -29,7 +29,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@mui/utils": "^7.3.2",
+    "@mui/utils": "^7.3.3",
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "^9.2.1",
     "@stylexjs/stylex": "^0.16.0",
