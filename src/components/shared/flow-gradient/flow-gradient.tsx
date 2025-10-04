@@ -1,5 +1,6 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { cacheSignal } from "react";
 import { FlowGradientClient } from "./flow-gradient-client";
 
 export async function FlowGradient() {
@@ -12,6 +13,7 @@ export async function FlowGradient() {
               // 24 Hours
               cache: "force-cache",
               next: { revalidate: 86400 },
+              signal: cacheSignal(),
             },
           ).then((result) => result.text()),
           fetch(
@@ -20,6 +22,7 @@ export async function FlowGradient() {
               // 24 Hours
               cache: "force-cache",
               next: { revalidate: 86400 },
+              signal: cacheSignal(),
             },
           ).then((result) => result.text()),
         ]
