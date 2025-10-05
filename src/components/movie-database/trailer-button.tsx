@@ -3,6 +3,7 @@
 import { PlayIcon } from "@phosphor-icons/react/Play";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
+import { breakpoints } from "@/breakpoints.stylex";
 import type { SupportedLocale } from "@/types";
 import { Button } from "../shared/button";
 import { Dialog } from "../shared/dialog";
@@ -36,7 +37,6 @@ export function TrailerButton({
           <iframe
             css={styles.video}
             src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}&autoplay=1`}
-            frameBorder="0"
             allowFullScreen
             title="Trailer video player"
           />
@@ -49,14 +49,18 @@ export function TrailerButton({
 const styles = stylex.create({
   videoContainer: {
     width: "100%",
-    paddingBottom: "56.25%", // 16:9 aspect ratio (9/16 = 0.5625)
+    aspectRatio: "16 / 9",
     position: "relative",
-    height: 0,
+    minHeight: {
+      default: "90dvh",
+      [breakpoints.md]: "auto",
+    },
   },
   video: {
     position: "absolute",
     inset: 0,
     width: "100%",
     height: "100%",
+    borderWidth: 0,
   },
 });

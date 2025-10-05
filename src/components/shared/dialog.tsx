@@ -167,11 +167,11 @@ const styles = stylex.create({
     },
     maxWidth: {
       default: "none",
-      [breakpoints.md]: "720px",
+      [breakpoints.md]: "1600px",
     },
     maxHeight: {
       default: "90dvh",
-      [breakpoints.md]: "none",
+      [breakpoints.md]: "90vh",
     },
 
     // Responsive transform
