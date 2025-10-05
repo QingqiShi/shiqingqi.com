@@ -173,7 +173,7 @@ const styles = stylex.create({
     },
     width: {
       default: "100dvw",
-      [breakpoints.md]: "auto",
+      [breakpoints.md]: "90vw",
     },
     maxWidth: {
       default: "none",
@@ -201,12 +201,11 @@ const styles = stylex.create({
       default: 0,
       [breakpoints.md]: border.radius_4,
     },
-
-    paddingBottom: space._8,
   },
   closeButton: {
     position: "absolute",
     right: { default: space._2, [breakpoints.md]: space._5 },
     top: { default: space._2, [breakpoints.md]: space._5 },
+    zIndex: 1,
   },
 });

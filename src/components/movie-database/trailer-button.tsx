@@ -36,22 +36,30 @@ export function TrailerButton({
         onClose={() => startViewTransition(() => setIsOpen(false))}
         ariaLabel={`Trailer for ${title}`}
       >
-        <iframe
-          css={styles.video}
-          width="720"
-          height="405"
-          src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}&autoplay=1`}
-          frameBorder="0"
-          allowFullScreen
-          title="Trailer video player"
-        />
+        <div css={styles.videoContainer}>
+          <iframe
+            css={styles.video}
+            src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}&autoplay=1`}
+            frameBorder="0"
+            allowFullScreen
+            title="Trailer video player"
+          />
+        </div>
       </Dialog>
     </>
   );
 }
 
 const styles = stylex.create({
+  videoContainer: {
+    width: "100%",
+    paddingBottom: "56.25%", // 16:9 aspect ratio (9/16 = 0.5625)
+    position: "relative",
+    height: 0,
+  },
   video: {
+    position: "absolute",
+    inset: 0,
     width: "100%",
     height: "100%",
   },
