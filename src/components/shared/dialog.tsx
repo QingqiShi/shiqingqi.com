@@ -1,8 +1,8 @@
+// @inferEffectDependencies
 "use client";
 
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
-
 import type { PropsWithChildren } from "react";
 import { useEffect, useRef } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
@@ -35,22 +35,18 @@ export function Dialog({
     } else if (!isOpen && dialog.open) {
       dialog.close();
     }
-  }, [isOpen]);
+  });
 
   // Handle close event (Escape key, form submission, programmatic close)
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
 
-    const handleClose = () => {
-      onClose();
-    };
-
-    dialog.addEventListener("close", handleClose);
+    dialog.addEventListener("close", onClose);
     return () => {
-      dialog.removeEventListener("close", handleClose);
+      dialog.removeEventListener("close", onClose);
     };
-  }, [onClose]);
+  });
 
   // Handle backdrop click
   const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
@@ -194,15 +190,9 @@ const styles = stylex.create({
       [breakpoints.md]: "translate(-50%, -50%)",
     },
 
-    // Responsive border radius
-    borderTopLeftRadius: {
-      default: border.radius_4,
-      [breakpoints.md]: border.radius_4,
-    },
-    borderTopRightRadius: {
-      default: border.radius_4,
-      [breakpoints.md]: border.radius_4,
-    },
+    // Border radius: rounded top on mobile, fully rounded on desktop
+    borderTopLeftRadius: border.radius_4,
+    borderTopRightRadius: border.radius_4,
     borderBottomLeftRadius: {
       default: 0,
       [breakpoints.md]: border.radius_4,
