@@ -10,6 +10,13 @@ import { useCssId } from "@/hooks/use-css-id";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
 
+const ANIMATION_DURATION = {
+  MOBILE: 300,
+  DESKTOP: 200,
+} as const;
+
+const MOBILE_BREAKPOINT = 768;
+
 interface DialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,46 +32,71 @@ export function Dialog({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const id = useCssId();
   const [shouldRender, setShouldRender] = useState(false);
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [animationDuration, setAnimationDuration] = useState<number>(
+    ANIMATION_DURATION.DESKTOP,
+  );
 
-  // Control rendering - keep dialog in DOM during close animation
+  // Detect viewport size for animation duration (client-side only)
+  useEffect(() => {
+    const updateDuration = () => {
+      setAnimationDuration(
+        window.innerWidth < MOBILE_BREAKPOINT
+          ? ANIMATION_DURATION.MOBILE
+          : ANIMATION_DURATION.DESKTOP,
+      );
+    };
+
+    updateDuration();
+    window.addEventListener("resize", updateDuration);
+    return () => window.removeEventListener("resize", updateDuration);
+  });
+
+  // Control dialog lifecycle and cleanup
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
-      // Cancel any pending close
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current);
         closeTimeoutRef.current = null;
       }
-    } else {
-      // Delay unmount to allow exit animation
-      const duration = window.innerWidth >= 768 ? 200 : 300;
+    } else if (shouldRender) {
       closeTimeoutRef.current = setTimeout(() => {
         setShouldRender(false);
         const dialog = dialogRef.current;
         if (dialog?.open) {
-          dialog.close();
+          try {
+            dialog.close();
+          } catch (error) {
+            console.error("Failed to close dialog:", error);
+          }
         }
-      }, duration);
-      return () => {
-        if (closeTimeoutRef.current) {
-          clearTimeout(closeTimeoutRef.current);
-        }
-      };
+      }, animationDuration);
     }
+
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+    };
   });
 
-  // Handle showModal when dialog should be visible
+  // Handle showModal when dialog mounts
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog || !shouldRender) return;
 
     if (!dialog.open) {
-      dialog.showModal();
+      try {
+        dialog.showModal();
+      } catch (error) {
+        console.error("Failed to show dialog:", error);
+      }
     }
   });
 
-  // Handle close event (Escape key)
+  // Handle native close events (Escape key, programmatic close)
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
@@ -99,21 +131,21 @@ export function Dialog({
 
           ::view-transition-new(${id}-dialog) {
             animation-name: ${slideInMobile};
-            animation-duration: 300ms;
+            animation-duration: ${ANIMATION_DURATION.MOBILE}ms;
           }
           ::view-transition-old(${id}-dialog) {
             animation-name: ${slideOutMobile};
-            animation-duration: 300ms;
+            animation-duration: ${ANIMATION_DURATION.MOBILE}ms;
           }
 
-          @media (min-width: 768px) {
+          @media (min-width: ${MOBILE_BREAKPOINT}px) {
             ::view-transition-new(${id}-dialog) {
               animation-name: ${fadeScaleIn};
-              animation-duration: 200ms;
+              animation-duration: ${ANIMATION_DURATION.DESKTOP}ms;
             }
             ::view-transition-old(${id}-dialog) {
               animation-name: ${fadeScaleOut};
-              animation-duration: 200ms;
+              animation-duration: ${ANIMATION_DURATION.DESKTOP}ms;
             }
           }
         `}
@@ -124,13 +156,16 @@ export function Dialog({
         onClick={handleBackdropClick}
         aria-label={ariaLabel}
         aria-modal="true"
-        style={{ viewTransitionName: isOpen ? `${id}-dialog` : undefined }}
+        style={{
+          viewTransitionName: shouldRender ? `${id}-dialog` : undefined,
+        }}
       >
         <Button
           css={styles.closeButton}
           icon={<XIcon />}
           onClick={onClose}
           autoFocus
+          aria-label={ariaLabel ? `Close ${ariaLabel}` : "Close dialog"}
         />
         {children}
       </dialog>
