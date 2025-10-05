@@ -4,200 +4,97 @@
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
-import { useCssId } from "@/hooks/use-css-id";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
 
-const ANIMATION_DURATION = {
-  MOBILE: 300,
-  DESKTOP: 200,
-} as const;
-
-const MOBILE_BREAKPOINT = 768;
+const ANIMATION_DURATION = 300;
 
 interface DialogProps {
-  isOpen: boolean;
-  onClose: () => void;
+  id: string;
+  onClose?: () => void;
   ariaLabel?: string;
 }
 
 export function Dialog({
   children,
-  isOpen,
+  id,
   onClose,
   ariaLabel,
 }: PropsWithChildren<DialogProps>) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const id = useCssId();
-  const [shouldRender, setShouldRender] = useState(false);
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [animationDuration, setAnimationDuration] = useState<number>(
-    ANIMATION_DURATION.DESKTOP,
-  );
-
-  // Detect viewport size for animation duration (client-side only)
-  useEffect(() => {
-    const updateDuration = () => {
-      setAnimationDuration(
-        window.innerWidth < MOBILE_BREAKPOINT
-          ? ANIMATION_DURATION.MOBILE
-          : ANIMATION_DURATION.DESKTOP,
-      );
-    };
-
-    updateDuration();
-    window.addEventListener("resize", updateDuration);
-    return () => window.removeEventListener("resize", updateDuration);
-  });
-
-  // Control dialog lifecycle and cleanup
-  useEffect(() => {
-    if (isOpen) {
-      setShouldRender(true);
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-        closeTimeoutRef.current = null;
-      }
-    } else if (shouldRender) {
-      closeTimeoutRef.current = setTimeout(() => {
-        setShouldRender(false);
-        const dialog = dialogRef.current;
-        if (dialog?.open) {
-          try {
-            dialog.close();
-          } catch (error) {
-            console.error("Failed to close dialog:", error);
-          }
-        }
-      }, animationDuration);
-    }
-
-    return () => {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-        closeTimeoutRef.current = null;
-      }
-    };
-  });
-
-  // Handle showModal when dialog mounts
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog || !shouldRender) return;
-
-    if (!dialog.open) {
-      try {
-        dialog.showModal();
-      } catch (error) {
-        console.error("Failed to show dialog:", error);
-      }
-    }
-  });
-
-  // Handle native close events (Escape key, programmatic close)
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
-    dialog.addEventListener("close", onClose);
-    return () => {
-      dialog.removeEventListener("close", onClose);
-    };
-  });
-
-  if (!shouldRender) return null;
-
-  // Handle backdrop click
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
-    // Check if click target is the dialog element itself (backdrop area)
-    if (event.target === dialog) {
-      onClose();
-    }
-  };
 
   return (
-    <>
-      {/* Backdrop styling and view transition animations */}
-      <style>
-        {`
-          dialog::backdrop {
-            background-color: rgba(0, 0, 0, 0.7);
-          }
-
-          ::view-transition-new(${id}-dialog) {
-            animation-name: ${slideInMobile};
-            animation-duration: ${ANIMATION_DURATION.MOBILE}ms;
-          }
-          ::view-transition-old(${id}-dialog) {
-            animation-name: ${slideOutMobile};
-            animation-duration: ${ANIMATION_DURATION.MOBILE}ms;
-          }
-
-          @media (min-width: ${MOBILE_BREAKPOINT}px) {
-            ::view-transition-new(${id}-dialog) {
-              animation-name: ${fadeScaleIn};
-              animation-duration: ${ANIMATION_DURATION.DESKTOP}ms;
-            }
-            ::view-transition-old(${id}-dialog) {
-              animation-name: ${fadeScaleOut};
-              animation-duration: ${ANIMATION_DURATION.DESKTOP}ms;
-            }
-          }
-        `}
-      </style>
-      <dialog
-        ref={dialogRef}
-        css={styles.dialog}
-        onClick={handleBackdropClick}
-        aria-label={ariaLabel}
-        aria-modal="true"
-        style={{
-          viewTransitionName: shouldRender ? `${id}-dialog` : undefined,
-        }}
-      >
-        <Button
-          css={styles.closeButton}
-          icon={<XIcon />}
-          onClick={onClose}
-          autoFocus
-          aria-label={ariaLabel ? `Close ${ariaLabel}` : "Close dialog"}
-        />
-        {children}
-      </dialog>
-    </>
+    <dialog
+      ref={dialogRef}
+      id={id}
+      css={styles.dialog}
+      closedby="any"
+      onClose={onClose}
+      aria-label={ariaLabel}
+      aria-modal="true"
+    >
+      <Button
+        css={styles.closeButton}
+        icon={<XIcon />}
+        commandfor={id}
+        command="close"
+        autoFocus
+        aria-label={ariaLabel ? `Close ${ariaLabel}` : "Close dialog"}
+      />
+      {children}
+    </dialog>
   );
 }
 
 // Mobile slide animations
 const slideInMobile = stylex.keyframes({
-  from: {
+  "0%": {
+    display: "none",
     transform: "translateY(100dvh)",
+  },
+  "100%": {
+    display: "block",
+    transform: "translateY(0)",
   },
 });
 
 const slideOutMobile = stylex.keyframes({
-  to: {
+  "0%": {
+    display: "block",
+    transform: "translateY(0)",
+  },
+  "100%": {
+    display: "none",
     transform: "translateY(100dvh)",
   },
 });
 
 // Desktop fade + scale animations
 const fadeScaleIn = stylex.keyframes({
-  from: {
+  "0%": {
+    display: "none",
     opacity: 0,
-    transform: "scale(0.95)",
+    transform: "translate(-50%, -50%) scale(0.95)",
+  },
+  "100%": {
+    display: "block",
+    opacity: 1,
+    transform: "translate(-50%, -50%) scale(1)",
   },
 });
 
 const fadeScaleOut = stylex.keyframes({
-  to: {
+  "0%": {
+    display: "block",
+    opacity: 1,
+    transform: "translate(-50%, -50%) scale(1)",
+  },
+  "100%": {
+    display: "none",
     opacity: 0,
-    transform: "scale(0.95)",
+    transform: "translate(-50%, -50%) scale(0.95)",
   },
 });
 
@@ -210,10 +107,39 @@ const styles = stylex.create({
     margin: 0,
 
     // Common styles
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: {
+      default: color.backgroundRaised,
+      // eslint-disable-next-line @stylexjs/valid-styles
+      ":open": {
+        "::backdrop": {
+          default: "rgba(0, 0, 0, 0.7)",
+          "@starting-style": "transparent",
+        },
+      },
+      "::backdrop": "transparent",
+    },
     overflow: "hidden",
     boxShadow: shadow._6,
     zIndex: layer.tooltip,
+
+    // Transitions for backdrop (per MDN - transitions work, keyframes don't)
+    transition: {
+      default: `overlay ${ANIMATION_DURATION}ms ease-out allow-discrete, display ${ANIMATION_DURATION}ms ease-out allow-discrete`,
+      "::backdrop": `background-color ${ANIMATION_DURATION}ms ease-out, display ${ANIMATION_DURATION}ms ease-out allow-discrete, overlay ${ANIMATION_DURATION}ms ease-out allow-discrete`,
+    },
+
+    // Animations for dialog
+    animationName: {
+      default: slideOutMobile,
+      // eslint-disable-next-line @stylexjs/valid-styles
+      ":open": {
+        default: slideInMobile,
+        [breakpoints.md]: fadeScaleIn,
+      },
+      [breakpoints.md]: fadeScaleOut,
+    },
+    animationDuration: `${ANIMATION_DURATION}ms`,
+    animationTimingFunction: "ease-out",
 
     // Responsive positioning
     position: "fixed",
@@ -255,15 +181,15 @@ const styles = stylex.create({
     },
 
     // Border radius: rounded top on mobile, fully rounded on desktop
-    borderTopLeftRadius: border.radius_4,
-    borderTopRightRadius: border.radius_4,
+    borderTopLeftRadius: border.radius_3,
+    borderTopRightRadius: border.radius_3,
     borderBottomLeftRadius: {
       default: 0,
-      [breakpoints.md]: border.radius_4,
+      [breakpoints.md]: border.radius_3,
     },
     borderBottomRightRadius: {
       default: 0,
-      [breakpoints.md]: border.radius_4,
+      [breakpoints.md]: border.radius_3,
     },
   },
   closeButton: {

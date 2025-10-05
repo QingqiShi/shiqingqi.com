@@ -3,9 +3,7 @@
 import { PlayIcon } from "@phosphor-icons/react/Play";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { useState } from "react";
 import type { SupportedLocale } from "@/types";
-import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "../shared/button";
 import { Dialog } from "../shared/dialog";
 
@@ -21,21 +19,19 @@ export function TrailerButton({
   locale,
   title,
 }: PropsWithChildren<TrailerButtonProps>) {
-  const [isOpen, setIsOpen] = useState(false);
+  const dialogId = `trailer-dialog-${trailerId}`;
+
   return (
     <>
       <Button
         icon={<PlayIcon weight="fill" role="presentation" />}
         isActive
-        onClick={() => startViewTransition(() => setIsOpen(true))}
+        commandfor={dialogId}
+        command="show-modal"
       >
         {children}
       </Button>
-      <Dialog
-        isOpen={isOpen}
-        onClose={() => startViewTransition(() => setIsOpen(false))}
-        ariaLabel={`Trailer for ${title}`}
-      >
+      <Dialog id={dialogId} ariaLabel={`Trailer for ${title}`}>
         <div css={styles.videoContainer}>
           <iframe
             css={styles.video}
