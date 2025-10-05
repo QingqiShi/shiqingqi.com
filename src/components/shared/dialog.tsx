@@ -4,7 +4,7 @@
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
 import { useCssId } from "@/hooks/use-css-id";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
@@ -24,20 +24,47 @@ export function Dialog({
 }: PropsWithChildren<DialogProps>) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const id = useCssId();
+  const [shouldRender, setShouldRender] = useState(false);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle showModal/close based on isOpen state
+  // Control rendering - keep dialog in DOM during close animation
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
-    if (isOpen && !dialog.open) {
-      dialog.showModal();
-    } else if (!isOpen && dialog.open) {
-      dialog.close();
+    if (isOpen) {
+      setShouldRender(true);
+      // Cancel any pending close
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+    } else {
+      // Delay unmount to allow exit animation
+      const duration = window.innerWidth >= 768 ? 200 : 300;
+      closeTimeoutRef.current = setTimeout(() => {
+        setShouldRender(false);
+        const dialog = dialogRef.current;
+        if (dialog?.open) {
+          dialog.close();
+        }
+      }, duration);
+      return () => {
+        if (closeTimeoutRef.current) {
+          clearTimeout(closeTimeoutRef.current);
+        }
+      };
     }
   });
 
-  // Handle close event (Escape key, form submission, programmatic close)
+  // Handle showModal when dialog should be visible
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog || !shouldRender) return;
+
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+  });
+
+  // Handle close event (Escape key)
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
@@ -47,6 +74,8 @@ export function Dialog({
       dialog.removeEventListener("close", onClose);
     };
   });
+
+  if (!shouldRender) return null;
 
   // Handle backdrop click
   const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
@@ -95,7 +124,7 @@ export function Dialog({
         onClick={handleBackdropClick}
         aria-label={ariaLabel}
         aria-modal="true"
-        style={{ viewTransitionName: `${id}-dialog` }}
+        style={{ viewTransitionName: isOpen ? `${id}-dialog` : undefined }}
       >
         <Button
           css={styles.closeButton}
