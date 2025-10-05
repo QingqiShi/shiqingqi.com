@@ -9,9 +9,14 @@ import translations from "./translations.json";
 interface TvShowTrailerProps {
   tvShowId: string;
   locale: SupportedLocale;
+  title: string;
 }
 
-export async function TvShowTrailer({ tvShowId, locale }: TvShowTrailerProps) {
+export async function TvShowTrailer({
+  tvShowId,
+  locale,
+  title,
+}: TvShowTrailerProps) {
   const trailers = await getTvShowVideos({
     series_id: tvShowId,
     language: locale,
@@ -26,7 +31,7 @@ export async function TvShowTrailer({ tvShowId, locale }: TvShowTrailerProps) {
 
   return (
     <div css={styles.container}>
-      <TrailerButton trailerId={trailer.key} locale={locale}>
+      <TrailerButton trailerId={trailer.key} locale={locale} title={title}>
         {t("playTrailer")}
       </TrailerButton>
     </div>

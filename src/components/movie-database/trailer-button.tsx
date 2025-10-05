@@ -7,17 +7,19 @@ import { useState } from "react";
 import type { SupportedLocale } from "@/types";
 import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "../shared/button";
-import { Overlay } from "../shared/overlay";
+import { Dialog } from "../shared/dialog";
 
 interface TrailerButtonProps {
   trailerId: string;
   locale: SupportedLocale;
+  title: string;
 }
 
 export function TrailerButton({
   children,
   trailerId,
   locale,
+  title,
 }: PropsWithChildren<TrailerButtonProps>) {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -29,19 +31,21 @@ export function TrailerButton({
       >
         {children}
       </Button>
-      <Overlay
+      <Dialog
         isOpen={isOpen}
         onClose={() => startViewTransition(() => setIsOpen(false))}
+        ariaLabel={`Trailer for ${title}`}
       >
         <iframe
           css={styles.video}
           width="720"
           height="405"
-          src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
+          src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}&autoplay=1`}
           frameBorder="0"
           allowFullScreen
+          title="Trailer video player"
         />
-      </Overlay>
+      </Dialog>
     </>
   );
 }
