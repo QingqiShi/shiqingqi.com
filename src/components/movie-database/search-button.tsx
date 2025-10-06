@@ -59,7 +59,7 @@ export function SearchButton() {
       <Button
         icon={<SparkleIcon weight="fill" role="presentation" />}
         commandfor={dialogId}
-        command="showModal"
+        command="show-modal"
         type="button"
         aria-label={t("aiSearchLabel")}
         hideLabelOnMobile
