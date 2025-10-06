@@ -50,15 +50,12 @@ const styles = stylex.create({
   videoContainer: {
     width: "100%",
     aspectRatio: "16 / 9",
-    position: "relative",
     minHeight: {
       default: "90dvh",
       [breakpoints.md]: "auto",
     },
   },
   video: {
-    position: "absolute",
-    inset: 0,
     width: "100%",
     height: "100%",
     borderWidth: 0,

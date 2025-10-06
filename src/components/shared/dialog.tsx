@@ -40,7 +40,6 @@ export function Dialog({
         icon={<XIcon />}
         commandfor={id}
         command="close"
-        autoFocus
         aria-label={ariaLabel ? `Close ${ariaLabel}` : "Close dialog"}
       />
       {children}
@@ -120,9 +119,11 @@ const styles = stylex.create({
     },
     overflow: "hidden",
     boxShadow: shadow._6,
-    zIndex: layer.tooltip,
+    zIndex: layer.overlay,
 
-    // Transitions for backdrop (per MDN - transitions work, keyframes don't)
+    // Transitions for backdrop and dialog
+    // allow-discrete on display/overlay keeps the dialog/backdrop in the DOM during the animation
+    // This allows the backdrop to animate on close and the dialog to complete its exit animation
     transition: {
       default: `overlay ${ANIMATION_DURATION}ms ease-out allow-discrete, display ${ANIMATION_DURATION}ms ease-out allow-discrete`,
       "::backdrop": `background-color ${ANIMATION_DURATION}ms ease-out, display ${ANIMATION_DURATION}ms ease-out allow-discrete, overlay ${ANIMATION_DURATION}ms ease-out allow-discrete`,
@@ -196,6 +197,6 @@ const styles = stylex.create({
     position: "absolute",
     right: { default: space._2, [breakpoints.md]: space._5 },
     top: { default: space._2, [breakpoints.md]: space._5 },
-    zIndex: 1,
+    zIndex: layer.content,
   },
 });
