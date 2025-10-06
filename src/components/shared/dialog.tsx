@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
+import { dialogAnimationVars } from "./dialog.stylex";
 
 const ANIMATION_DURATION = 300;
 
@@ -114,31 +115,23 @@ const styles = stylex.create({
 
     // Transform for animations
     // Mobile: slide up from bottom, Desktop: fade + scale from center
+    // Uses CSS variables to handle responsive values in @starting-style
     transform: {
-      default: "translateY(100dvh)",
-      [breakpoints.md]: "translate(-50%, -50%) scale(0.95)",
+      default: dialogAnimationVars.startingTransform,
       // eslint-disable-next-line @stylexjs/valid-styles
       ":open": {
-        default: "translateY(0)",
-        [breakpoints.md]: "translate(-50%, -50%) scale(1)",
-        "@starting-style": {
-          default: "translateY(100dvh)",
-          [breakpoints.md]: "translate(-50%, -50%) scale(0.95)",
-        },
+        default: dialogAnimationVars.openTransform,
+        "@starting-style": dialogAnimationVars.startingTransform,
       },
     },
 
     // Opacity for desktop fade animation
     opacity: {
-      default: 1,
-      [breakpoints.md]: 0,
+      default: dialogAnimationVars.startingOpacity,
       // eslint-disable-next-line @stylexjs/valid-styles
       ":open": {
         default: 1,
-        "@starting-style": {
-          default: 1,
-          [breakpoints.md]: 0,
-        },
+        "@starting-style": dialogAnimationVars.startingOpacity,
       },
     },
 
