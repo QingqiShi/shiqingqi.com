@@ -47,56 +47,6 @@ export function Dialog({
   );
 }
 
-// Mobile slide animations
-const slideInMobile = stylex.keyframes({
-  "0%": {
-    display: "none",
-    transform: "translateY(100dvh)",
-  },
-  "100%": {
-    display: "block",
-    transform: "translateY(0)",
-  },
-});
-
-const slideOutMobile = stylex.keyframes({
-  "0%": {
-    display: "block",
-    transform: "translateY(0)",
-  },
-  "100%": {
-    display: "none",
-    transform: "translateY(100dvh)",
-  },
-});
-
-// Desktop fade + scale animations
-const fadeScaleIn = stylex.keyframes({
-  "0%": {
-    display: "none",
-    opacity: 0,
-    transform: "translate(-50%, -50%) scale(0.95)",
-  },
-  "100%": {
-    display: "block",
-    opacity: 1,
-    transform: "translate(-50%, -50%) scale(1)",
-  },
-});
-
-const fadeScaleOut = stylex.keyframes({
-  "0%": {
-    display: "block",
-    opacity: 1,
-    transform: "translate(-50%, -50%) scale(1)",
-  },
-  "100%": {
-    display: "none",
-    opacity: 0,
-    transform: "translate(-50%, -50%) scale(0.95)",
-  },
-});
-
 const styles = stylex.create({
   dialog: {
     // Reset default dialog styles
@@ -125,22 +75,9 @@ const styles = stylex.create({
     // allow-discrete on display/overlay keeps the dialog/backdrop in the DOM during the animation
     // This allows the backdrop to animate on close and the dialog to complete its exit animation
     transition: {
-      default: `overlay ${ANIMATION_DURATION}ms ease-out allow-discrete, display ${ANIMATION_DURATION}ms ease-out allow-discrete`,
+      default: `transform ${ANIMATION_DURATION}ms ease-out, opacity ${ANIMATION_DURATION}ms ease-out, overlay ${ANIMATION_DURATION}ms ease-out allow-discrete, display ${ANIMATION_DURATION}ms ease-out allow-discrete`,
       "::backdrop": `background-color ${ANIMATION_DURATION}ms ease-out, display ${ANIMATION_DURATION}ms ease-out allow-discrete, overlay ${ANIMATION_DURATION}ms ease-out allow-discrete`,
     },
-
-    // Animations for dialog
-    animationName: {
-      default: slideOutMobile,
-      // eslint-disable-next-line @stylexjs/valid-styles
-      ":open": {
-        default: slideInMobile,
-        [breakpoints.md]: fadeScaleIn,
-      },
-      [breakpoints.md]: fadeScaleOut,
-    },
-    animationDuration: `${ANIMATION_DURATION}ms`,
-    animationTimingFunction: "ease-out",
 
     // Responsive positioning
     position: "fixed",
@@ -175,10 +112,34 @@ const styles = stylex.create({
       [breakpoints.md]: "90vh",
     },
 
-    // Responsive transform
+    // Transform for animations
+    // Mobile: slide up from bottom, Desktop: fade + scale from center
     transform: {
-      default: "none",
-      [breakpoints.md]: "translate(-50%, -50%)",
+      default: "translateY(100dvh)",
+      [breakpoints.md]: "translate(-50%, -50%) scale(0.95)",
+      // eslint-disable-next-line @stylexjs/valid-styles
+      ":open": {
+        default: "translateY(0)",
+        [breakpoints.md]: "translate(-50%, -50%) scale(1)",
+        "@starting-style": {
+          default: "translateY(100dvh)",
+          [breakpoints.md]: "translate(-50%, -50%) scale(0.95)",
+        },
+      },
+    },
+
+    // Opacity for desktop fade animation
+    opacity: {
+      default: 1,
+      [breakpoints.md]: 0,
+      // eslint-disable-next-line @stylexjs/valid-styles
+      ":open": {
+        default: 1,
+        "@starting-style": {
+          default: 1,
+          [breakpoints.md]: 0,
+        },
+      },
     },
 
     // Border radius: rounded top on mobile, fully rounded on desktop
