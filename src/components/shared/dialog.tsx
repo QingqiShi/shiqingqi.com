@@ -4,7 +4,7 @@
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { useRef } from "react";
+import { forwardRef } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
@@ -18,17 +18,13 @@ interface DialogProps {
   ariaLabel?: string;
 }
 
-export function Dialog({
-  children,
-  id,
-  onClose,
-  ariaLabel,
-}: PropsWithChildren<DialogProps>) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
+export const Dialog = forwardRef<
+  HTMLDialogElement,
+  PropsWithChildren<DialogProps>
+>(function Dialog({ children, id, onClose, ariaLabel }, ref) {
   return (
     <dialog
-      ref={dialogRef}
+      ref={ref}
       id={id}
       css={styles.dialog}
       closedby="any"
@@ -46,7 +42,7 @@ export function Dialog({
       {children}
     </dialog>
   );
-}
+});
 
 const styles = stylex.create({
   dialog: {
