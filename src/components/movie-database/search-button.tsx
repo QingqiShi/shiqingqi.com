@@ -4,7 +4,8 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState, useEffect } from "react";
+import type { PropsWithChildren } from "react";
+import { useRef, useState, useEffect, use, createContext } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
 import { useTranslations } from "@/hooks/use-translations";
 import { color, font, space } from "@/tokens.stylex";
@@ -14,7 +15,9 @@ import { Button } from "../shared/button";
 import { Dialog } from "../shared/dialog";
 import type translations from "./filters.translations.json";
 
-export function SearchButton() {
+const SearchDialogContext = createContext<string | null>(null);
+
+export function SearchDialogProvider({ children }: PropsWithChildren) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
@@ -32,7 +35,6 @@ export function SearchButton() {
       inputRef.current?.focus();
     };
 
-    // Listen for dialog open event
     dialog.addEventListener("toggle", handleOpen);
     return () => dialog.removeEventListener("toggle", handleOpen);
   });
@@ -46,7 +48,6 @@ export function SearchButton() {
     event.preventDefault();
     if (!query.trim()) return;
 
-    // Navigate to AI search results page
     const searchUrl = getLocalePath("/movie-database/ai-search", locale);
     router.push(`${searchUrl}?q=${encodeURIComponent(query.trim())}`);
     handleClose();
@@ -55,17 +56,8 @@ export function SearchButton() {
   const dialogId = "ai-search-dialog";
 
   return (
-    <>
-      <Button
-        icon={<SparkleIcon weight="fill" role="presentation" />}
-        commandfor={dialogId}
-        command="show-modal"
-        type="button"
-        aria-label={t("aiSearchLabel")}
-        hideLabelOnMobile
-      >
-        {t("aiSearch")}
-      </Button>
+    <SearchDialogContext value={dialogId}>
+      {children}
       <Dialog
         ref={dialogRef}
         id={dialogId}
@@ -89,7 +81,29 @@ export function SearchButton() {
           </form>
         </div>
       </Dialog>
-    </>
+    </SearchDialogContext>
+  );
+}
+
+export function SearchButton() {
+  const dialogId = use(SearchDialogContext);
+  const { t } = useTranslations<typeof translations>("filters");
+
+  if (!dialogId) {
+    throw new Error("SearchButton must be used within SearchDialogProvider");
+  }
+
+  return (
+    <Button
+      icon={<SparkleIcon weight="fill" role="presentation" />}
+      commandfor={dialogId}
+      command="show-modal"
+      type="button"
+      aria-label={t("aiSearchLabel")}
+      hideLabelOnMobile
+    >
+      {t("aiSearch")}
+    </Button>
   );
 }
 
