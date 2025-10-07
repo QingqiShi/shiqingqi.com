@@ -9,9 +9,10 @@ import translations from "./translations.json";
 interface TrailerProps {
   movieId: string;
   locale: SupportedLocale;
+  title: string;
 }
 
-export async function Trailer({ movieId, locale }: TrailerProps) {
+export async function Trailer({ movieId, locale, title }: TrailerProps) {
   const trailers = await getMovieVideos({
     movie_id: movieId,
     // Hardcode to English as trailers are often only available in English
@@ -27,7 +28,7 @@ export async function Trailer({ movieId, locale }: TrailerProps) {
 
   return (
     <div css={styles.container}>
-      <TrailerButton trailerId={trailer.key} locale={locale}>
+      <TrailerButton trailerId={trailer.key} locale={locale} title={title}>
         {t("playTrailer")}
       </TrailerButton>
     </div>

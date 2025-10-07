@@ -4,78 +4,66 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState, useEffect } from "react";
+import type { PropsWithChildren } from "react";
+import { useRef, useState, useEffect, use, createContext } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
 import { useTranslations } from "@/hooks/use-translations";
 import { color, font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
-import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "../shared/button";
-import { Overlay } from "../shared/overlay";
+import { Dialog } from "../shared/dialog";
 import type translations from "./filters.translations.json";
 
-export function SearchButton() {
-  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
-  const [query, setQuery] = useState("");
+const SearchDialogContext = createContext<string | null>(null);
+
+export function SearchDialogProvider({ children }: PropsWithChildren) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
   const router = useRouter();
   const pathname = usePathname();
   const locale: SupportedLocale = pathname.startsWith("/zh") ? "zh" : "en";
   const { t } = useTranslations<typeof translations>("filters");
 
-  // Auto-focus when opened
+  // Auto-focus input when dialog opens
   useEffect(() => {
-    if (isOverlayOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const handleOpen = () => {
+      inputRef.current?.focus();
+    };
+
+    dialog.addEventListener("toggle", handleOpen);
+    return () => dialog.removeEventListener("toggle", handleOpen);
   });
 
   const handleClose = () => {
-    void startViewTransition(() => setIsOverlayOpen(false));
-    // Reset state when closing
-    setTimeout(() => {
-      setQuery("");
-    }, 150); // Small delay to avoid visual glitches during closing animation
+    setQuery("");
+    dialogRef.current?.close();
   };
-
-  // Handle ESC key to close
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOverlayOpen) {
-        handleClose();
-      }
-    };
-
-    if (isOverlayOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-    }
-  });
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!query.trim()) return;
 
-    // Navigate to AI search results page
     const searchUrl = getLocalePath("/movie-database/ai-search", locale);
     router.push(`${searchUrl}?q=${encodeURIComponent(query.trim())}`);
     handleClose();
-    setQuery("");
   };
 
+  const dialogId = "ai-search-dialog";
+
   return (
-    <>
-      <Button
-        icon={<SparkleIcon weight="fill" role="presentation" />}
-        onClick={() => void startViewTransition(() => setIsOverlayOpen(true))}
-        type="button"
-        aria-label={t("aiSearchLabel")}
-        hideLabelOnMobile
+    <SearchDialogContext value={dialogId}>
+      {children}
+      <Dialog
+        ref={dialogRef}
+        id={dialogId}
+        onClose={handleClose}
+        ariaLabel={t("aiSearch")}
       >
-        {t("aiSearch")}
-      </Button>
-      <Overlay isOpen={isOverlayOpen} onClose={handleClose}>
         <div css={styles.container}>
           <h2 css={styles.title}>{t("aiSearch")}</h2>
           <form onSubmit={handleSubmit} css={styles.form}>
@@ -92,8 +80,30 @@ export function SearchButton() {
             <div css={styles.hint}>{t("aiSearchHint")}</div>
           </form>
         </div>
-      </Overlay>
-    </>
+      </Dialog>
+    </SearchDialogContext>
+  );
+}
+
+export function SearchButton() {
+  const dialogId = use(SearchDialogContext);
+  const { t } = useTranslations<typeof translations>("filters");
+
+  if (!dialogId) {
+    throw new Error("SearchButton must be used within SearchDialogProvider");
+  }
+
+  return (
+    <Button
+      icon={<SparkleIcon weight="fill" role="presentation" />}
+      commandfor={dialogId}
+      command="show-modal"
+      type="button"
+      aria-label={t("aiSearchLabel")}
+      hideLabelOnMobile
+    >
+      {t("aiSearch")}
+    </Button>
   );
 }
 
