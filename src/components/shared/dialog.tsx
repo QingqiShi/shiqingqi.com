@@ -4,8 +4,9 @@
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
+import { usePreventScroll } from "@/hooks/use-prevent-scroll";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
 import { dialogAnimationVars } from "./dialog.stylex";
@@ -22,9 +23,51 @@ export const Dialog = forwardRef<
   HTMLDialogElement,
   PropsWithChildren<DialogProps>
 >(function Dialog({ children, id, onClose, ariaLabel }, ref) {
+  const [isOpen, setIsOpen] = useState(false);
+  const internalRef = useRef<HTMLDialogElement>(null);
+
+  // Merge refs
+  const dialogRef = (node: HTMLDialogElement | null) => {
+    internalRef.current = node;
+    if (typeof ref === "function") {
+      ref(node);
+    } else if (ref) {
+      ref.current = node;
+    }
+  };
+
+  // Track open state via MutationObserver
+  useEffect(() => {
+    const node = internalRef.current;
+    if (!node) return;
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "open"
+        ) {
+          setIsOpen(node.open);
+        }
+      }
+    });
+
+    observer.observe(node, {
+      attributes: true,
+      attributeFilter: ["open"],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  });
+
+  // Prevent body scroll when dialog is open
+  usePreventScroll({ isDisabled: !isOpen });
+
   return (
     <dialog
-      ref={ref}
+      ref={dialogRef}
       id={id}
       css={styles.dialog}
       closedby="any"
