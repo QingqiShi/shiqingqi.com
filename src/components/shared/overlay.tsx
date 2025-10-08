@@ -13,6 +13,7 @@ import {
 import { createPortal } from "react-dom";
 import { breakpoints } from "@/breakpoints.stylex";
 import { useCssId } from "@/hooks/use-css-id";
+import { usePreventScroll } from "@/hooks/use-prevent-scroll";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
 
@@ -34,6 +35,9 @@ export function Overlay({
       setIsMounted(true);
     });
   }, []);
+
+  // Prevent body scroll when overlay is open
+  usePreventScroll({ isDisabled: !isOpen });
 
   if (!isMounted) {
     return null;
