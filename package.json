@@ -36,8 +36,6 @@
     "@tanstack/react-query": "5.90.2",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "1.2.0",
-    "dialog-closedby-polyfill": "^1.1.0",
-    "invokers-polyfill": "^0.5.7",
     "next": "15.5.4",
     "openai": "^6.1.0",
     "react": "19.2.0",

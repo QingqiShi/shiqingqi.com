@@ -9,7 +9,7 @@ import { GenreFilterButton } from "./genre-filter-button";
 import { MediaTypeToggle } from "./media-type-toggle";
 import { MobileFiltersButton } from "./mobile-filters-button";
 import { ResetFilter } from "./reset-filter";
-import { SearchButton, SearchDialogProvider } from "./search-button";
+import { SearchButton } from "./search-button";
 import { SortFilter } from "./sort-filter";
 import { TmdbCredit } from "./tmdb-credit";
 
@@ -20,38 +20,36 @@ interface FiltersProps {
 
 export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
   return (
-    <SearchDialogProvider>
-      <FiltersContainer
-        desktopChildren={
-          <>
-            <MediaTypeToggle />
-            <GenreFilterButton />
-            <SortFilter hideLabel />
-            <ResetFilter hideLabel />
-            <SearchButton />
-            <TmdbCredit locale={locale} position="topLeft" />
-          </>
-        }
-        mobileChildren={
-          <>
-            <MediaTypeToggle mobile />
-            <SearchButton />
-            <TmdbCredit locale={locale} position="viewportWidth" />
-            <MobileFiltersButton
-              menuContent={
-                <div css={styles.mobileMenuContent}>
-                  <SortFilter bright />
-                  <GenreFilter />
-                  <ResetFilter bright />
-                </div>
-              }
-            >
-              {mobileButtonLabel}
-            </MobileFiltersButton>
-          </>
-        }
-      />
-    </SearchDialogProvider>
+    <FiltersContainer
+      desktopChildren={
+        <>
+          <MediaTypeToggle />
+          <GenreFilterButton />
+          <SortFilter hideLabel />
+          <ResetFilter hideLabel />
+          <SearchButton />
+          <TmdbCredit locale={locale} position="topLeft" />
+        </>
+      }
+      mobileChildren={
+        <>
+          <MediaTypeToggle mobile />
+          <SearchButton />
+          <TmdbCredit locale={locale} position="viewportWidth" />
+          <MobileFiltersButton
+            menuContent={
+              <div css={styles.mobileMenuContent}>
+                <SortFilter bright />
+                <GenreFilter />
+                <ResetFilter bright />
+              </div>
+            }
+          >
+            {mobileButtonLabel}
+          </MobileFiltersButton>
+        </>
+      }
+    />
   );
 }
 

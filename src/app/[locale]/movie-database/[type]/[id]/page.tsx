@@ -88,13 +88,7 @@ export default async function Page({ params }: PageProps) {
                 <Skeleton css={styles.trailerButtonSkeleton} width={120} />
               }
             >
-              <Trailer
-                movieId={id}
-                locale={locale}
-                title={
-                  movie.title ?? movie.original_title ?? t("titleFallback")
-                }
-              />
+              <Trailer movieId={id} locale={locale} />
             </Suspense>
           </div>
         </div>
@@ -155,13 +149,7 @@ export default async function Page({ params }: PageProps) {
                 <Skeleton css={styles.trailerButtonSkeleton} width={120} />
               }
             >
-              <TvShowTrailer
-                tvShowId={id}
-                locale={locale}
-                title={
-                  tvShow.name ?? tvShow.original_name ?? t("titleFallback")
-                }
-              />
+              <TvShowTrailer tvShowId={id} locale={locale} />
             </Suspense>
           </div>
         </div>
