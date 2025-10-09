@@ -1,15 +1,16 @@
-# CRITICAL DEBUGGING LESSONS
+# CRITICAL INSTRUCTIONS
 
-## Environment Variables and Configuration
+ALWAYS follow these rules
 
-**ALWAYS verify configuration names by reading the actual source code FIRST before setting up external configuration (GitHub secrets, env files, etc).**
-
-### Example: CI Failing with 401 Unauthorized
-
-❌ **Wrong approach**: Assume environment variable names, add them to GitHub secrets, debug why they're not passed correctly
-✅ **Right approach**: `grep -r "process.env.TMDB" src/` → Find actual variable name in code → Use that exact name
-
-**Key principle**: Never assume configuration names. Always check what the code expects before configuring external systems.
+- Run `pnpm lint:changed` `pnpm test` `pnpm test:e2e` and `pnpm build:tsc` before any task is considered complete.
+- NEVER EVER use `any` type explicitly or implicitly
+- AVOID type assertions (`as Type`)
+- Prefer letting TypeScript infer types over explicit type annotations
+- AVOID mocking in tests. Only exception is network mocks using MSW.
+- TMDB server functions in `src/_generated/tmdb-server-functions.ts` are auto-generated - DO NOT edit manually. Use `pnpm codegen:tmdb` to regenerate.
+- Auto-generated TMDB files are git-ignored and must be regenerated after cloning: `pnpm codegen:tmdb`
+- ALWAYS verify environment variable names by reading source code FIRST before setting up external configuration (GitHub secrets, env files, etc.)
+- NEVER chain bash commands with `&&` - use separate Bash tool calls instead for better error handling and visibility
 
 # Essential Commands
 
@@ -304,16 +305,6 @@ pnpm codegen         # Full pipeline including TypeScript types
 </example>
 </pattern>
 
-# CRITICAL INSTRUCTIONS
-
-ALWAYS follow these rules
-
-- Run `pnpm lint:changed` `pnpm test` `pnpm test:e2e` and `pnpm build:tsc` before any task is considered complete.
-- NEVER EVER use `any` type explicitly or implicitly
-- AVOID type assertions (`as Type`)
-- Prefer letting TypeScript infer types over explicit type annotations
-- AVOID mocking in tests. Only exception is network mocks using MSW.
-- TMDB server functions in `src/_generated/tmdb-server-functions.ts` are auto-generated - DO NOT edit manually. Use `pnpm codegen:tmdb` to regenerate.
-- Auto-generated TMDB files are git-ignored and must be regenerated after cloning: `pnpm codegen:tmdb`
+---
 
 IMPORTANT: NEVER EVER COMPACT INFORMATION ABOVE THIS LINE.
