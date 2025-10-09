@@ -1,11 +1,16 @@
 // @inferEffectDependencies
 "use client";
 
+import useForkRef from "@mui/utils/useForkRef";
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
+import {
+  disableBodyScrollLock,
+  enableBodyScrollLock,
+} from "@/hooks/use-prevent-scroll";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
 import { dialogAnimationVars } from "./dialog.stylex";
@@ -22,9 +27,35 @@ export const Dialog = forwardRef<
   HTMLDialogElement,
   PropsWithChildren<DialogProps>
 >(function Dialog({ children, id, onClose, ariaLabel }, ref) {
+  const internalRef = useRef<HTMLDialogElement>(null);
+  const dialogRef = useForkRef(ref, internalRef);
+
+  // Track open state and manage body scroll lock
+  useEffect(() => {
+    const dialog = internalRef.current;
+    if (!dialog) return;
+
+    const observer = new MutationObserver(() => {
+      if (dialog.open) {
+        enableBodyScrollLock();
+      } else {
+        disableBodyScrollLock();
+      }
+    });
+
+    observer.observe(dialog, {
+      attributes: true,
+      attributeFilter: ["open"],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  });
+
   return (
     <dialog
-      ref={ref}
+      ref={dialogRef}
       id={id}
       css={styles.dialog}
       closedby="any"

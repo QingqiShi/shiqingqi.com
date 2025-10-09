@@ -108,3 +108,76 @@ test("should open trailer dialog, display video, and close", async ({
   // Verify dialog is closed
   await expect(dialog).not.toBeVisible();
 });
+
+test("should prevent body scroll when trailer dialog is open", async ({
+  page,
+}) => {
+  await page.goto(`/en/movie-database/movie/${FIGHT_CLUB_ID}`);
+
+  // Scroll down a bit to have some scroll position
+  await page.evaluate(() => window.scrollTo(0, 200));
+  await page.waitForFunction(() => window.scrollY === 200);
+
+  const scrollYBeforeDialog = await page.evaluate(() => window.scrollY);
+  expect(scrollYBeforeDialog).toBe(200);
+
+  // Open trailer dialog
+  await page.getByRole("button", { name: /play trailer/i }).click();
+
+  const dialog = page.getByRole("dialog", { name: /trailer for/i });
+  await expect(dialog).toBeVisible();
+
+  // Wait for body scroll lock to be applied
+  await page.waitForFunction(() => document.body.style.overflow === "hidden", {
+    timeout: 1000,
+  });
+
+  // Verify body has scroll lock styles applied
+  const bodyStyles = await page.evaluate(() => {
+    const body = document.body;
+    return {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+  });
+
+  expect(bodyStyles.overflow).toBe("hidden");
+  expect(bodyStyles.position).toBe("fixed");
+  expect(bodyStyles.top).toBe("-200px"); // Should match scroll position
+  expect(bodyStyles.width).toBe("100%");
+
+  // Try to scroll - scroll position should not change
+  await page.mouse.wheel(0, 500);
+  await page.waitForTimeout(100); // Wait for any potential scroll
+
+  const scrollYDuringDialog = await page.evaluate(() => window.scrollY);
+  // Scroll position should remain 200 (or possibly 0 due to fixed positioning)
+  // The important thing is it doesn't increase
+  expect(scrollYDuringDialog).toBeLessThanOrEqual(200);
+
+  // Close dialog
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+
+  // Verify body styles are restored
+  const bodyStylesAfter = await page.evaluate(() => {
+    const body = document.body;
+    return {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+  });
+
+  // Styles should be cleared (empty strings mean default/inherited values)
+  expect(bodyStylesAfter.overflow).toBe("");
+  expect(bodyStylesAfter.position).toBe("");
+
+  // Scroll position should be restored to 200
+  await page.waitForFunction(() => window.scrollY === 200, { timeout: 1000 });
+  const scrollYAfterDialog = await page.evaluate(() => window.scrollY);
+  expect(scrollYAfterDialog).toBe(200);
+});
