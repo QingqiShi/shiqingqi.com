@@ -1,6 +1,3 @@
-// @inferEffectDependencies
-import { useEffect } from "react";
-
 function getScrollbarWidth() {
   // Create invisible container
   const outer = document.createElement("div");
@@ -21,46 +18,47 @@ function getScrollbarWidth() {
   return scrollbarWidth;
 }
 
-interface UsePreventScrollOptions {
-  isDisabled?: boolean;
-}
+// Store state for scroll lock management
+let scrollY = 0;
+let originalOverflow = "";
+let originalPosition = "";
+let originalTop = "";
+let originalWidth = "";
+let originalPaddingRight = "";
+let lockCount = 0;
 
 /**
- * Prevents scrolling on the document body while enabled.
+ * Enables body scroll lock.
  * Works across all platforms including iOS Safari.
  *
- * - Preserves scroll position when locking/unlocking
+ * - Preserves scroll position when locking
  * - Prevents layout shift from scrollbar disappearing
  * - Uses position: fixed technique for iOS compatibility
+ * - Supports multiple simultaneous locks (reference counted)
  *
- * @param options - Configuration options
- * @param options.isDisabled - When true, scroll prevention is disabled
+ * Must be paired with `disableBodyScrollLock()` to restore scrolling.
  *
  * @example
  * ```tsx
- * function Dialog({ isOpen }) {
- *   usePreventScroll({ isDisabled: !isOpen });
- *   return <dialog>...</dialog>;
+ * function handleDialogOpen() {
+ *   enableBodyScrollLock();
  * }
  * ```
  */
-export function usePreventScroll(options: UsePreventScrollOptions = {}): void {
-  const { isDisabled = false } = options;
+export function enableBodyScrollLock(): void {
+  lockCount++;
 
-  useEffect(() => {
-    if (isDisabled) {
-      return;
-    }
-
+  // Only apply lock styles on first lock
+  if (lockCount === 1) {
     // Store original values
-    const originalOverflow = document.body.style.overflow;
-    const originalPosition = document.body.style.position;
-    const originalTop = document.body.style.top;
-    const originalWidth = document.body.style.width;
-    const originalPaddingRight = document.body.style.paddingRight;
+    originalOverflow = document.body.style.overflow;
+    originalPosition = document.body.style.position;
+    originalTop = document.body.style.top;
+    originalWidth = document.body.style.width;
+    originalPaddingRight = document.body.style.paddingRight;
 
     // Get current scroll position
-    const scrollY = window.pageYOffset;
+    scrollY = window.pageYOffset;
     const scrollbarWidth = getScrollbarWidth();
 
     // Apply scroll lock with iOS-compatible technique
@@ -73,17 +71,39 @@ export function usePreventScroll(options: UsePreventScrollOptions = {}): void {
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
+  }
+}
 
-    // Cleanup: restore original state
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.position = originalPosition;
-      document.body.style.top = originalTop;
-      document.body.style.width = originalWidth;
-      document.body.style.paddingRight = originalPaddingRight;
+/**
+ * Disables body scroll lock and restores scroll position.
+ *
+ * Must be called the same number of times as `enableBodyScrollLock()`
+ * to fully restore scrolling (reference counted).
+ *
+ * @example
+ * ```tsx
+ * function handleDialogClose() {
+ *   disableBodyScrollLock();
+ * }
+ * ```
+ */
+export function disableBodyScrollLock(): void {
+  if (lockCount === 0) {
+    return;
+  }
 
-      // Restore scroll position
-      window.scrollTo(0, scrollY);
-    };
-  });
+  lockCount--;
+
+  // Only restore when all locks are released
+  if (lockCount === 0) {
+    // Restore original state
+    document.body.style.overflow = originalOverflow;
+    document.body.style.position = originalPosition;
+    document.body.style.top = originalTop;
+    document.body.style.width = originalWidth;
+    document.body.style.paddingRight = originalPaddingRight;
+
+    // Restore scroll position
+    window.scrollTo(0, scrollY);
+  }
 }

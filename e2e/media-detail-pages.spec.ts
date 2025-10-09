@@ -127,6 +127,11 @@ test("should prevent body scroll when trailer dialog is open", async ({
   const dialog = page.getByRole("dialog", { name: /trailer for/i });
   await expect(dialog).toBeVisible();
 
+  // Wait for body scroll lock to be applied
+  await page.waitForFunction(() => document.body.style.overflow === "hidden", {
+    timeout: 1000,
+  });
+
   // Verify body has scroll lock styles applied
   const bodyStyles = await page.evaluate(() => {
     const body = document.body;
