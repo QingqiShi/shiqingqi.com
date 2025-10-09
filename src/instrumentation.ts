@@ -1,4 +1,4 @@
-export async function register() {
+export function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     // Server-side instrumentation (none needed)
   }
