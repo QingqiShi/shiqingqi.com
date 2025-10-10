@@ -14,7 +14,7 @@
     "codegen:openapi": "openapi-typescript https://developer.themoviedb.org/openapi/64542913e1f86100738e227f -o src/_generated/tmdbV3.d.ts && prettier 'src/_generated/tmdbV3.d.ts' -w",
     "codegen:zod": "tsx tooling/tmdb-codegen/generate-selective-zod.ts && prettier 'src/_generated/tmdb-zod.ts' -w",
     "codegen:tmdb": "node tooling/tmdb-codegen/generator.js && prettier 'src/_generated/*.ts' -w",
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "build:tsc": "tsc --noEmit",
     "start": "next start",
@@ -36,10 +36,10 @@
     "@tanstack/react-query": "5.90.2",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "1.2.0",
-    "next": "15.5.4",
+    "next": "16.0.0-beta.0",
     "openai": "^6.1.0",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "react": "19.3.0-canary-4b3e662e-20251008",
+    "react-dom": "19.3.0-canary-4b3e662e-20251008",
     "react-error-boundary": "^6.0.0",
     "react-virtuoso": "^4.14.1",
     "serwist": "^9.2.1",
@@ -56,7 +56,7 @@
     "@eslint/compat": "^1.4.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.37.0",
-    "@next/eslint-plugin-next": "^15.5.4",
+    "@next/eslint-plugin-next": "16.0.0-beta.0",
     "@playwright/test": "^1.56.0",
     "@stylexjs/babel-plugin": "^0.16.1",
     "@stylexjs/eslint-plugin": "^0.16.1",
@@ -74,7 +74,7 @@
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "eslint": "^9.37.0",
-    "eslint-config-next": "15.5.4",
+    "eslint-config-next": "16.0.0-beta.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "eslint-plugin-unicorn": "^61.0.2",
@@ -96,7 +96,9 @@
   },
   "pnpm": {
     "overrides": {
-      "supports-color": "^8.1.1"
+      "supports-color": "^8.1.1",
+      "@types/react": "19.2.2",
+      "@types/react-dom": "19.2.1"
     },
     "onlyBuiltDependencies": [
       "@vercel/speed-insights",

@@ -2,13 +2,14 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import type { PropsWithChildren } from "react";
 import {
+  Activity,
   useEffect,
   useId,
   useRef,
   useState,
   type ComponentProps,
+  type PropsWithChildren,
   type ReactNode,
 } from "react";
 import {
@@ -60,7 +61,7 @@ export function MenuButton({
 
   return (
     <>
-      {isMenuShown && (
+      <Activity mode={isMenuShown ? "visible" : "hidden"}>
         <div
           css={styles.backdrop}
           onClick={() => {
@@ -70,7 +71,7 @@ export function MenuButton({
             }
           }}
         />
-      )}
+      </Activity>
       <div
         css={styles.container}
         ref={containerRef}
@@ -93,24 +94,20 @@ export function MenuButton({
         >
           {children && <span>{children}</span>}
         </Button>
-        <div
-          css={[
-            styles.menuContainer,
-            !isMenuShown && styles.hidden,
-            styles[position],
-          ]}
-        >
-          <AnimateToTarget
-            css={[styles.menu]}
-            animateToTarget={!isMenuShown}
-            targetId={targetId}
-          >
-            <div>
-              {children && <div css={styles.menuTitle}>{children}</div>}
-              {menuContent}
-            </div>
-          </AnimateToTarget>
-        </div>
+        <Activity mode={isMenuShown ? "visible" : "hidden"}>
+          <div css={[styles.menuContainer, styles[position]]}>
+            <AnimateToTarget
+              css={[styles.menu]}
+              animateToTarget={!isMenuShown}
+              targetId={targetId}
+            >
+              <div>
+                {children && <div css={styles.menuTitle}>{children}</div>}
+                {menuContent}
+              </div>
+            </AnimateToTarget>
+          </div>
+        </Activity>
       </div>
     </>
   );
@@ -125,9 +122,6 @@ const styles = stylex.create({
     position: "absolute",
     zIndex: layer.overlay,
     borderRadius: border.radius_2,
-  },
-  hidden: {
-    pointerEvents: "none",
   },
   menu: {
     backgroundColor: color.controlTrack,
