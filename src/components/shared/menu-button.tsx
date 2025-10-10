@@ -53,7 +53,7 @@ export function MenuButton({
     if (isMenuShown) {
       outsideClicked.current = false;
     }
-  });
+  }, [isMenuShown]);
 
   const targetId = useId();
 

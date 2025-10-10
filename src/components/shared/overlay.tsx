@@ -33,7 +33,7 @@ export function Overlay({
     startTransition(() => {
       setIsMounted(true);
     });
-  });
+  }, []);
 
   if (!isMounted) {
     return null;

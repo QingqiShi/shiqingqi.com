@@ -28,7 +28,7 @@ export function SearchButton() {
     if (isOverlayOpen && inputRef.current) {
       inputRef.current.focus();
     }
-  });
+  }, [isOverlayOpen]);
 
   const handleClose = () => {
     void startViewTransition(() => setIsOverlayOpen(false));
@@ -42,7 +42,10 @@ export function SearchButton() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOverlayOpen) {
-        handleClose();
+        void startViewTransition(() => setIsOverlayOpen(false));
+        setTimeout(() => {
+          setQuery("");
+        }, 150);
       }
     };
 
@@ -50,7 +53,7 @@ export function SearchButton() {
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  });
+  }, [isOverlayOpen, setIsOverlayOpen, setQuery]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
