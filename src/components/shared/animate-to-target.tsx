@@ -1,4 +1,3 @@
-// @inferEffectDependencies
 "use client";
 
 import * as stylex from "@stylexjs/stylex";

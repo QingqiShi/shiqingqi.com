@@ -1,4 +1,3 @@
-// @inferEffectDependencies
 "use client";
 
 import { XIcon } from "@phosphor-icons/react/X";

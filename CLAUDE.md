@@ -204,8 +204,6 @@ const styles = stylex.create({
 - Use `use()` hook instead of `useContext()` for consuming context
 - React Compiler enabled, so
   - No need for `useMemo`, `useCallback`, or `memo()` - React Compiler handles optimization automatically
-  - Use `@inferEffectDependencies` comment at top of client component files to enable automatic useEffect dependency inference
-  - Can omit useEffect dependency arrays when using `@inferEffectDependencies` - React Compiler infers them
   - Avoid manual memoization patterns
 </notes>
 </pattern>

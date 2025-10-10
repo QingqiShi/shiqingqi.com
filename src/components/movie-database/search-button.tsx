@@ -1,4 +1,3 @@
-// @inferEffectDependencies
 "use client";
 
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
