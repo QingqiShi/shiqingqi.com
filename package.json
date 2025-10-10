@@ -37,7 +37,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "1.2.0",
     "next": "16.0.0-beta.0",
-    "openai": "^6.1.0",
+    "openai": "^6.3.0",
     "react": "19.3.0-canary-4b3e662e-20251008",
     "react-dom": "19.3.0-canary-4b3e662e-20251008",
     "react-error-boundary": "^6.0.0",
