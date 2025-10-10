@@ -2,9 +2,7 @@ module.exports = async () => {
   /** @type {import('next').NextConfig} */
   const nextConfig = {
     reactStrictMode: true,
-    experimental: {
-      reactCompiler: true,
-    },
+    reactCompiler: true,
   };
 
   const withSerwist = (await import("@serwist/next")).default({

@@ -1,7 +1,16 @@
+// @inferEffectDependencies
+"use client";
+
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 
-import type { PropsWithChildren } from "react";
+import {
+  Activity,
+  startTransition,
+  useEffect,
+  useState,
+  type PropsWithChildren,
+} from "react";
 import { createPortal } from "react-dom";
 import { breakpoints } from "@/breakpoints.stylex";
 import { useCssId } from "@/hooks/use-css-id";
@@ -19,6 +28,17 @@ export function Overlay({
   onClose,
 }: PropsWithChildren<OverlayProps>) {
   const id = useCssId();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    startTransition(() => {
+      setIsMounted(true);
+    });
+  });
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
@@ -33,8 +53,8 @@ export function Overlay({
           }
       `}
       </style>
-      {isOpen &&
-        createPortal(
+      {createPortal(
+        <Activity mode={isOpen ? "visible" : "hidden"}>
           <div>
             <div
               css={styles.backdrop}
@@ -52,9 +72,10 @@ export function Overlay({
               />
               {children}
             </div>
-          </div>,
-          document.body,
-        )}
+          </div>
+        </Activity>,
+        document.body,
+      )}
     </>
   );
 }
