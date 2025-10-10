@@ -168,7 +168,7 @@ export function MediaFiltersProvider({
 
     window.history.replaceState({}, "", url);
     window.scrollTo({ behavior: "smooth", top: 0 });
-  });
+  }, [mediaFilters]);
 
   return (
     <MediaFiltersContext

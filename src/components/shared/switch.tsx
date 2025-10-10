@@ -50,7 +50,7 @@ export function Switch({
     }
     elRef.current.indeterminate = value === "indeterminate";
     elRef.current.checked = value === "on";
-  });
+  }, [value]);
 
   // States and refs for tracking dragging state
   const initialRectRef = useRef<DOMRect | null>(null);

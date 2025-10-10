@@ -20,7 +20,7 @@ export function useClickAway<T extends HTMLElement = HTMLElement>(
       document.removeEventListener("mousedown", handler);
       document.removeEventListener("touchstart", handler);
     };
-  });
+  }, [callback]);
 
   return ref;
 }

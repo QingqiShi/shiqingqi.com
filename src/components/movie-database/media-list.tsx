@@ -54,7 +54,7 @@ export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
     const onResize = () => setHeight(window.innerHeight);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  });
+  }, []);
 
   const [initialCount] = useState(items.length);
 
