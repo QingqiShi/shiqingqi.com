@@ -49,7 +49,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           ? "#000000"
           : "#ffffff",
     );
-  });
+  }, [theme, preferDark]);
 
   const [hasFocus, setHasFocus] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

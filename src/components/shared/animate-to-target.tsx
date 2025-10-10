@@ -122,7 +122,7 @@ export function AnimateToTarget({
       containerAnimation.cancel();
       innerAnimation.cancel();
     };
-  });
+  }, [animateToTarget, targetId]);
 
   return (
     <div

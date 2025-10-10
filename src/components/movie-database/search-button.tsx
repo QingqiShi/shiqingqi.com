@@ -53,7 +53,7 @@ export function SearchButton() {
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOverlayOpen, setIsOverlayOpen, setQuery]);
+  }, [isOverlayOpen]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
