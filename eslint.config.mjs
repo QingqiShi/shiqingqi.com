@@ -3,7 +3,6 @@ import nextPlugin from "@next/eslint-plugin-next";
 import stylexjs from "@stylexjs/eslint-plugin";
 import importPlugin from "eslint-plugin-import";
 import reactPlugin from "eslint-plugin-react";
-import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import { defineConfig } from "eslint/config";
@@ -32,7 +31,6 @@ export default defineConfig([
       react: reactPlugin,
       "react-hooks": reactHooksPlugin,
       "@stylexjs": stylexjs,
-      "react-compiler": reactCompiler,
       unicorn: eslintPluginUnicorn,
     },
     languageOptions: {
@@ -46,6 +44,7 @@ export default defineConfig([
     rules: {
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
+      ...reactHooksPlugin.configs["recommended-latest"].rules,
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
@@ -76,7 +75,6 @@ export default defineConfig([
         },
       ],
       "one-var": ["error", "never"],
-      "react-compiler/react-compiler": "error",
       "unicorn/no-unused-properties": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",

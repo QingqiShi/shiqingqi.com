@@ -1,4 +1,3 @@
-// @inferEffectDependencies
 "use client";
 
 import { MoonIcon } from "@phosphor-icons/react/Moon";

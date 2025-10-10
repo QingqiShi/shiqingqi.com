@@ -1,4 +1,3 @@
-// @inferEffectDependencies
 import { useEffect, useRef } from "react";
 
 export function useClickAway<T extends HTMLElement = HTMLElement>(

@@ -1,9 +1,8 @@
-// @inferEffectDependencies
 "use client";
 
 import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import {
   border,
   color,
@@ -30,6 +29,7 @@ export function Switch({
   ...rest
 }: SwitchProps) {
   const elRef = useRef<HTMLInputElement>(null);
+  const hasSetInitialRendered = useRef(false);
 
   // Optionally controlled state
   const [value, setValue] = useControlled({
@@ -129,13 +129,18 @@ export function Switch({
   // Enable animation styles only after the component has fully mounted
   // This prevents switches from animating when switching routes or changing locales
   const [initialRendered, setInitialRendered] = useState(false);
-  useEffect(() => {
-    setInitialRendered(true);
-  });
+
+  const refCallback = (node: HTMLInputElement | null) => {
+    elRef.current = node;
+    if (node && !hasSetInitialRendered.current) {
+      hasSetInitialRendered.current = true;
+      setInitialRendered(true);
+    }
+  };
 
   return (
     <input
-      ref={elRef}
+      ref={refCallback}
       {...rest}
       className={className}
       style={style}
