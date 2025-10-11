@@ -2,8 +2,7 @@
 
 import { TranslateIcon } from "@phosphor-icons/react/Translate";
 import * as stylex from "@stylexjs/stylex";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { LOCALE_COOKIE_NAME } from "@/constants";
 import { controlSize } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
@@ -24,7 +23,6 @@ export function LocaleSelector({
 }: LocaleSelectorProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const router = useRouter();
 
   const searchString = searchParams.size ? `?${searchParams.toString()}` : "";
 
@@ -43,8 +41,11 @@ export function LocaleSelector({
             href={`${getLocalePath(pathname, "en")}${searchString}`}
             isActive={locale === "en"}
             autoFocus={locale !== "en"}
-            onBeforeNavigation={() => setLocaleCookie("en")}
-            onAfterNavigation={() => router.refresh()}
+            onBeforeNavigation={() => {
+              // next-i18n-router will always respect the locale cookie when navigating to a path without prefix
+              // to avoid switching language on reload, we need to set the cookie to "en" manually.
+              setLocaleCookie("en");
+            }}
           >
             <span>English</span>
             <span>🇬🇧</span>
@@ -54,8 +55,6 @@ export function LocaleSelector({
             href={`${getLocalePath(pathname, "zh")}${searchString}`}
             isActive={locale === "zh"}
             autoFocus={locale === "en"}
-            onBeforeNavigation={() => setLocaleCookie("zh")}
-            onAfterNavigation={() => router.refresh()}
           >
             <span>中文</span>
             <span>🇨🇳</span>
@@ -70,10 +69,8 @@ export function LocaleSelector({
 
 function setLocaleCookie(locale: SupportedLocale) {
   // set cookie for next-i18n-router
-  const days = 30;
-  const date = new Date();
-  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${LOCALE_COOKIE_NAME}=${locale};expires=${date.toUTCString()};path=/`;
+  const maxAge = 31536000; // 1 year in seconds
+  document.cookie = `${LOCALE_COOKIE_NAME}=${locale};maxAge=${maxAge};path=/;SameSite=Lax`;
 }
 
 const styles = stylex.create({

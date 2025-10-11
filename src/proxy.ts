@@ -7,6 +7,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Only applies this middleware to files in the app directory
+  // Only applies this proxy to files in the app directory
   matcher: "/((?!api|static|.*\\..*|_next).*)",
 };
