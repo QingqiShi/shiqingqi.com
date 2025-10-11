@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { globalStyles } from "@/app/global-styles";
+import { SerwistProvider } from "@/components/serwist-provider";
 import { Header } from "@/components/shared/header";
 import { HeaderSkeleton } from "@/components/shared/header-skeleton";
 import { i18nConfig } from "@/i18n-config";
@@ -42,13 +43,15 @@ export default async function RootLayout({
         )}
       </head>
       <body css={globalStyles.body}>
-        <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-        <Suspense fallback={<HeaderSkeleton />}>
-          <Header locale={validatedLocale} />
-        </Suspense>
-        {children}
-        <Analytics />
-        <SpeedInsights />
+        <SerwistProvider swUrl="/serwist/sw.js">
+          <script dangerouslySetInnerHTML={{ __html: themeHack }} />
+          <Suspense fallback={<HeaderSkeleton />}>
+            <Header locale={validatedLocale} />
+          </Suspense>
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </SerwistProvider>
       </body>
     </html>
   );
