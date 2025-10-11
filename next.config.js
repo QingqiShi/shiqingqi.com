@@ -3,13 +3,8 @@ module.exports = async () => {
   const nextConfig = {
     reactStrictMode: true,
     reactCompiler: true,
+    serverExternalPackages: ["esbuild-wasm"],
   };
 
-  const withSerwist = (await import("@serwist/next")).default({
-    swSrc: "src/sw.ts",
-    swDest: "public/sw.js",
-    disable: process.env.NODE_ENV === "development",
-  });
-
-  return withSerwist(nextConfig);
+  return nextConfig;
 };
