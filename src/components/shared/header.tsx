@@ -49,6 +49,7 @@ const styles = stylex.create({
     height: space._10,
     zIndex: layer.header,
     pointerEvents: "none",
+    paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
   },
   nav: {
     maxWidth: {
@@ -64,7 +65,7 @@ const styles = stylex.create({
     alignItems: "center",
     pointerEvents: "none",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right) + var(--removed-body-scroll-bar-size, 0px))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
   },
   navContent: {
     pointerEvents: "all",
