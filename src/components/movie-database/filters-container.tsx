@@ -41,6 +41,7 @@ const styles = stylex.create({
     left: 0,
     zIndex: layer.overlay,
     pointerEvents: "none",
+    paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
   },
   desktopInnerContainer: {
     width: "100%",
@@ -63,7 +64,7 @@ const styles = stylex.create({
 
   mobileContainer: {
     position: "fixed",
-    right: space._3,
+    right: `calc(${space._3} + var(--removed-body-scroll-bar-size, 0px))`,
     top: `calc(${space._10} + env(safe-area-inset-top))`,
     zIndex: layer.overlay,
     display: "flex",
