@@ -56,23 +56,21 @@ export function Overlay({
       {createPortal(
         <Activity mode={isOpen ? "visible" : "hidden"}>
           <RemoveScroll enabled={isOpen} allowPinchZoom>
-            <div>
-              <div
-                css={styles.backdrop}
+            <div
+              css={styles.backdrop}
+              onClick={onClose}
+              style={{ viewTransitionName: `${id}-backdrop` }}
+            />
+            <div
+              css={styles.content}
+              style={{ viewTransitionName: `${id}-overlay` }}
+            >
+              <Button
+                css={styles.closeButton}
+                icon={<XIcon />}
                 onClick={onClose}
-                style={{ viewTransitionName: `${id}-backdrop` }}
               />
-              <div
-                css={styles.content}
-                style={{ viewTransitionName: `${id}-overlay` }}
-              >
-                <Button
-                  css={styles.closeButton}
-                  icon={<XIcon />}
-                  onClick={onClose}
-                />
-                {children}
-              </div>
+              {children}
             </div>
           </RemoveScroll>
         </Activity>,
