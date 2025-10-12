@@ -74,6 +74,12 @@ export function usePreventScroll(options: UsePreventScrollOptions = {}): void {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
 
+    // Expose scrollbar width as CSS variable for fixed elements
+    document.body.style.setProperty(
+      "--removed-body-scroll-bar-size",
+      `${scrollbarWidth}px`,
+    );
+
     // Cleanup: restore original state
     return () => {
       document.body.style.overflow = originalOverflow;
@@ -81,6 +87,9 @@ export function usePreventScroll(options: UsePreventScrollOptions = {}): void {
       document.body.style.top = originalTop;
       document.body.style.width = originalWidth;
       document.body.style.paddingRight = originalPaddingRight;
+
+      // Remove CSS variable
+      document.body.style.removeProperty("--removed-body-scroll-bar-size");
 
       // Restore scroll position
       window.scrollTo(0, scrollY);

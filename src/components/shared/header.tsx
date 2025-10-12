@@ -64,7 +64,7 @@ const styles = stylex.create({
     alignItems: "center",
     pointerEvents: "none",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right) + var(--removed-body-scroll-bar-size, 0px))`,
   },
   navContent: {
     pointerEvents: "all",

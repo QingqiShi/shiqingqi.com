@@ -92,8 +92,11 @@ test("should open trailer overlay, display video, and close", async ({
   await page.getByRole("button", { name: /play trailer/i }).click();
   await expect(iframe).toBeVisible();
 
+  // Wait for view transition animation to complete before clicking backdrop
+  await page.waitForTimeout(500);
+
   // Click backdrop to close (click at viewport coordinates outside overlay content)
-  await page.mouse.click(10, 10);
+  await page.mouse.click(5, 5);
 
   // Verify overlay is closed
   await expect(iframe).not.toBeVisible();
