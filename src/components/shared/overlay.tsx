@@ -11,9 +11,9 @@ import {
   type PropsWithChildren,
 } from "react";
 import { createPortal } from "react-dom";
+import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "@/breakpoints.stylex";
 import { useCssId } from "@/hooks/use-css-id";
-import { usePreventScroll } from "@/hooks/use-prevent-scroll";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
 
@@ -36,9 +36,6 @@ export function Overlay({
     });
   }, []);
 
-  // Prevent body scroll when overlay is open
-  usePreventScroll({ isDisabled: !isOpen });
-
   if (!isMounted) {
     return null;
   }
@@ -58,24 +55,26 @@ export function Overlay({
       </style>
       {createPortal(
         <Activity mode={isOpen ? "visible" : "hidden"}>
-          <div>
-            <div
-              css={styles.backdrop}
-              onClick={onClose}
-              style={{ viewTransitionName: `${id}-backdrop` }}
-            />
-            <div
-              css={styles.content}
-              style={{ viewTransitionName: `${id}-overlay` }}
-            >
-              <Button
-                css={styles.closeButton}
-                icon={<XIcon />}
+          <RemoveScroll enabled={isOpen} allowPinchZoom>
+            <div>
+              <div
+                css={styles.backdrop}
                 onClick={onClose}
+                style={{ viewTransitionName: `${id}-backdrop` }}
               />
-              {children}
+              <div
+                css={styles.content}
+                style={{ viewTransitionName: `${id}-overlay` }}
+              >
+                <Button
+                  css={styles.closeButton}
+                  icon={<XIcon />}
+                  onClick={onClose}
+                />
+                {children}
+              </div>
             </div>
-          </div>
+          </RemoveScroll>
         </Activity>,
         document.body,
       )}

@@ -120,22 +120,6 @@ test("should prevent body scroll when trailer overlay is open", async ({
   const iframe = page.locator('iframe[src*="youtube.com/embed"]');
   await expect(iframe).toBeVisible();
 
-  // Verify body has scroll lock styles applied
-  const bodyStyles = await page.evaluate(() => {
-    const body = document.body;
-    return {
-      overflow: body.style.overflow,
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
-    };
-  });
-
-  expect(bodyStyles.overflow).toBe("hidden");
-  expect(bodyStyles.position).toBe("fixed");
-  expect(bodyStyles.top).toBe("-200px"); // Should match scroll position
-  expect(bodyStyles.width).toBe("100%");
-
   // Try to scroll - scroll position should not change
   await page.mouse.wheel(0, 500);
   await page.waitForTimeout(100); // Wait for any potential scroll
@@ -152,21 +136,6 @@ test("should prevent body scroll when trailer overlay is open", async ({
     .last();
   await closeButton.click();
   await expect(iframe).not.toBeVisible();
-
-  // Verify body styles are restored
-  const bodyStylesAfter = await page.evaluate(() => {
-    const body = document.body;
-    return {
-      overflow: body.style.overflow,
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
-    };
-  });
-
-  // Styles should be cleared (empty strings mean default/inherited values)
-  expect(bodyStylesAfter.overflow).toBe("");
-  expect(bodyStylesAfter.position).toBe("");
 
   // Scroll position should be restored to 200
   await page.waitForFunction(() => window.scrollY === 200, { timeout: 1000 });
