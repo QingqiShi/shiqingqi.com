@@ -49,7 +49,7 @@ const styles = stylex.create({
     height: space._10,
     zIndex: layer.header,
     pointerEvents: "none",
-    paddingRight: "var(--removed-body-scroll-bar-size)",
+    paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
   },
   nav: {
     maxWidth: {
