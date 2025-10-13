@@ -30,7 +30,7 @@ export function Overlay({
         exit="slide-out"
         onEnter={() => setScrollLockEnabled(true)}
       >
-        <RemoveScroll enabled={scrollLockEnabled} allowPinchZoom>
+        <RemoveScroll enabled={scrollLockEnabled} allowPinchZoom forwardProps>
           <div css={styles.content}>
             <Button
               css={styles.closeButton}
