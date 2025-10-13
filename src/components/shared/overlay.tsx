@@ -22,7 +22,7 @@ export function Overlay({
       <ViewTransition>
         <div css={styles.backdrop} onClick={onClose} />
       </ViewTransition>
-      <ViewTransition>
+      <ViewTransition enter="slide-in" exit="slide-out">
         <div css={styles.content}>
           <Button css={styles.closeButton} icon={<XIcon />} onClick={onClose} />
           {children}
