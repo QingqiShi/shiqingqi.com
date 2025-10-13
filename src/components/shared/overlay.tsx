@@ -4,7 +4,6 @@ import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 
 import {
-  Activity,
   ViewTransition,
   startTransition,
   useEffect,
@@ -39,21 +38,19 @@ export function Overlay({
     return null;
   }
 
+  if (!isOpen) {
+    return null;
+  }
+
   return createPortal(
     <ViewTransition enter="slide-in" exit="slide-out">
-      <Activity mode={isOpen ? "visible" : "hidden"}>
-        <RemoveScroll enabled={isOpen} allowPinchZoom>
-          <div css={styles.backdrop} onClick={onClose} />
-          <div css={styles.content}>
-            <Button
-              css={styles.closeButton}
-              icon={<XIcon />}
-              onClick={onClose}
-            />
-            {children}
-          </div>
-        </RemoveScroll>
-      </Activity>
+      <RemoveScroll enabled={isOpen} allowPinchZoom>
+        <div css={styles.backdrop} onClick={onClose} />
+        <div css={styles.content}>
+          <Button css={styles.closeButton} icon={<XIcon />} onClick={onClose} />
+          {children}
+        </div>
+      </RemoveScroll>
     </ViewTransition>,
     document.body,
   );
