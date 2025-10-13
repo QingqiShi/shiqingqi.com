@@ -46,6 +46,26 @@
   }
 }
 
+@keyframes slide-in {
+  from {
+    transform: translateY(100dvh);
+  }
+}
+
+@keyframes slide-out {
+  to {
+    transform: translateY(100dvh);
+  }
+}
+
+::view-transition-old(overlay) {
+  animation: slide-out;
+}
+
+::view-transition-new(overlay) {
+  animation: slide-in;
+}
+
 /**
  * The @stylex directive is used by the @stylexjs/postcss-plugin.
  * It is automatically replaced with generated CSS during builds.

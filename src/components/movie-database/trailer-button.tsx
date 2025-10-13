@@ -3,9 +3,8 @@
 import { PlayIcon } from "@phosphor-icons/react/Play";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import type { SupportedLocale } from "@/types";
-import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "../shared/button";
 import { Overlay } from "../shared/overlay";
 
@@ -25,13 +24,13 @@ export function TrailerButton({
       <Button
         icon={<PlayIcon weight="fill" role="presentation" />}
         isActive
-        onClick={() => startViewTransition(() => setIsOpen(true))}
+        onClick={() => startTransition(() => setIsOpen(true))}
       >
         {children}
       </Button>
       <Overlay
         isOpen={isOpen}
-        onClose={() => startViewTransition(() => setIsOpen(false))}
+        onClose={() => startTransition(() => setIsOpen(false))}
       >
         <iframe
           css={styles.video}
