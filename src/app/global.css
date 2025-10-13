@@ -58,11 +58,11 @@
   }
 }
 
-::view-transition-old(overlay) {
+::view-transition-old(.slide-out) {
   animation: slide-out;
 }
 
-::view-transition-new(overlay) {
+::view-transition-new(.slide-in) {
   animation: slide-in;
 }
 

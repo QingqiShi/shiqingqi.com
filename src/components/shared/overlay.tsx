@@ -40,7 +40,7 @@ export function Overlay({
   }
 
   return createPortal(
-    <ViewTransition name="overlay" enter="slide-in" exit="slide-out">
+    <ViewTransition enter="slide-in" exit="slide-out">
       <Activity mode={isOpen ? "visible" : "hidden"}>
         <RemoveScroll enabled={isOpen} allowPinchZoom>
           <div css={styles.backdrop} onClick={onClose} />
