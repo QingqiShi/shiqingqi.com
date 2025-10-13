@@ -93,8 +93,8 @@ importers:
         specifier: ^9.37.0
         version: 9.37.0
       '@next/eslint-plugin-next':
-        specifier: 16.0.0-canary.0
-        version: 16.0.0-canary.0
+        specifier: 16.0.0-canary.3
+        version: 16.0.0-canary.3
       '@playwright/test':
         specifier: ^1.56.0
         version: 1.56.0
@@ -1042,6 +1042,9 @@ packages:
 
   '@next/eslint-plugin-next@16.0.0-canary.0':
     resolution: {integrity: sha512-Stla1v82qe7TrGjKPBjwG8kCw4TL2yoovYYBt8qXCV612VytfbTHD2cSSiHpioTu5FcXQ0SN4G4rT0upHdRJqg==}
+
+  '@next/eslint-plugin-next@16.0.0-canary.3':
+    resolution: {integrity: sha512-Uk7BWQ2QqYTWKMW3sJcjtfhtWLFq8ShOTWuIMGqwjJAvPTGFq1Xv4VZYALDup6ADc9FwfZidWLz2RjJxUS1NBg==}
 
   '@next/swc-darwin-arm64@16.0.0-canary.0':
     resolution: {integrity: sha512-GWb2IzE9F+J6ypprD/WKmijiyF66yQIJHWO3aPVqQC2hRuCT4i+ITmrGK+xEBC8KrZJBtbljIigZ7eOQDZiMkw==}
@@ -5131,6 +5134,10 @@ snapshots:
   '@next/env@16.0.0-canary.0': {}
 
   '@next/eslint-plugin-next@16.0.0-canary.0':
+    dependencies:
+      fast-glob: 3.3.1
+
+  '@next/eslint-plugin-next@16.0.0-canary.3':
     dependencies:
       fast-glob: 3.3.1
 
