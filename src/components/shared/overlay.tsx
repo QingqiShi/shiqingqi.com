@@ -58,7 +58,6 @@ const styles = stylex.create({
     paddingBottom: space._8,
     zIndex: layer.tooltip,
     borderRadius: border.radius_4,
-    overflow: "hidden",
     boxShadow: shadow._6,
   },
 });
