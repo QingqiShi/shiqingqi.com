@@ -3,7 +3,7 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
-import { startTransition, useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { breakpoints } from "@/breakpoints.stylex";
 import { useTranslations } from "@/hooks/use-translations";
 import { color, font, space } from "@/tokens.stylex";
@@ -30,7 +30,7 @@ export function SearchButton() {
   }, [isOverlayOpen]);
 
   const handleClose = () => {
-    void startTransition(() => setIsOverlayOpen(false));
+    setIsOverlayOpen(false);
     // Reset state when closing
     setTimeout(() => {
       setQuery("");
@@ -41,7 +41,7 @@ export function SearchButton() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOverlayOpen) {
-        void startTransition(() => setIsOverlayOpen(false));
+        setIsOverlayOpen(false);
         setTimeout(() => {
           setQuery("");
         }, 150);
@@ -69,15 +69,14 @@ export function SearchButton() {
     <>
       <Button
         icon={<SparkleIcon weight="fill" role="presentation" />}
-        onClick={() => void startTransition(() => setIsOverlayOpen(true))}
+        onClick={() => setIsOverlayOpen(true)}
         type="button"
         aria-label={t("aiSearchLabel")}
         hideLabelOnMobile
       >
         {t("aiSearch")}
       </Button>
-      {isOverlayOpen && (
-        <Overlay onClose={handleClose}>
+      <Overlay isOpen={isOverlayOpen} onClose={handleClose}>
           <div css={styles.container}>
             <h2 css={styles.title}>{t("aiSearch")}</h2>
             <form onSubmit={handleSubmit} css={styles.form}>

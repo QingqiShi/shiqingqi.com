@@ -3,7 +3,11 @@
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 
-import { ViewTransition, useState, type PropsWithChildren } from "react";
+import {
+  ViewTransition,
+  useDeferredValue,
+  type PropsWithChildren,
+} from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "@/breakpoints.stylex";
@@ -11,37 +15,43 @@ import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
 
 interface OverlayProps {
+  isOpen: boolean;
   onClose: () => void;
 }
 
 export function Overlay({
   children,
+  isOpen,
   onClose,
 }: PropsWithChildren<OverlayProps>) {
-  const [scrollLockEnabled, setScrollLockEnabled] = useState(false);
+  const deferredIsOpen = useDeferredValue(isOpen);
+
+  if (!isOpen && !deferredIsOpen) {
+    return null;
+  }
 
   return createPortal(
-    <>
-      <ViewTransition>
-        <div css={styles.backdrop} onClick={onClose} />
-      </ViewTransition>
-      <ViewTransition
-        enter="slide-in"
-        exit="slide-out"
-        onEnter={() => setScrollLockEnabled(true)}
-      >
-        <RemoveScroll enabled={false} allowPinchZoom forwardProps>
-          <div css={styles.content}>
-            <Button
-              css={styles.closeButton}
-              icon={<XIcon />}
-              onClick={onClose}
-            />
-            {children}
-          </div>
-        </RemoveScroll>
-      </ViewTransition>
-    </>,
+    <RemoveScroll enabled={isOpen} allowPinchZoom forwardProps>
+      <div>
+        {deferredIsOpen && (
+          <>
+            <ViewTransition>
+              <div css={styles.backdrop} onClick={onClose} />
+            </ViewTransition>
+            <ViewTransition enter="slide-in" exit="slide-out">
+              <div css={styles.content}>
+                <Button
+                  css={styles.closeButton}
+                  icon={<XIcon />}
+                  onClick={onClose}
+                />
+                {children}
+              </div>
+            </ViewTransition>
+          </>
+        )}
+      </div>
+    </RemoveScroll>,
     document.body,
   );
 }

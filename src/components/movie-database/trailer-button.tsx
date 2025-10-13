@@ -3,7 +3,7 @@
 import { PlayIcon } from "@phosphor-icons/react/Play";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { startTransition, useState } from "react";
+import { useState } from "react";
 import type { SupportedLocale } from "@/types";
 import { Button } from "../shared/button";
 import { Overlay } from "../shared/overlay";
@@ -19,27 +19,26 @@ export function TrailerButton({
   locale,
 }: PropsWithChildren<TrailerButtonProps>) {
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <>
       <Button
         icon={<PlayIcon weight="fill" role="presentation" />}
         isActive
-        onClick={() => startTransition(() => setIsOpen(true))}
+        onClick={() => setIsOpen(true)}
       >
         {children}
       </Button>
-      {isOpen && (
-        <Overlay onClose={() => startTransition(() => setIsOpen(false))}>
-          <iframe
-            css={styles.video}
-            width="720"
-            height="405"
-            src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
-            frameBorder="0"
-            allowFullScreen
-          />
-        </Overlay>
-      )}
+      <Overlay isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <iframe
+          css={styles.video}
+          width="720"
+          height="405"
+          src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
+          frameBorder="0"
+          allowFullScreen
+        />
+      </Overlay>
     </>
   );
 }
