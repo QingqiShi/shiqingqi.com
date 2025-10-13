@@ -19,15 +19,17 @@ export function Overlay({
   onClose,
 }: PropsWithChildren<OverlayProps>) {
   return createPortal(
-    <ViewTransition>
-      <RemoveScroll enabled allowPinchZoom>
+    <RemoveScroll enabled allowPinchZoom>
+      <ViewTransition>
         <div css={styles.backdrop} onClick={onClose} />
+      </ViewTransition>
+      <ViewTransition>
         <div css={styles.content}>
           <Button css={styles.closeButton} icon={<XIcon />} onClick={onClose} />
           {children}
         </div>
-      </RemoveScroll>
-    </ViewTransition>,
+      </ViewTransition>
+    </RemoveScroll>,
     document.body,
   );
 }
