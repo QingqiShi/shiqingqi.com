@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { controlSize, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
+import { FixedContainerContent } from "../shared/fixed-container-content";
 import { FiltersContainer } from "./filters-container";
 import { GenreFilter } from "./genre-filter";
 import { GenreFilterButton } from "./genre-filter-button";
@@ -23,30 +24,42 @@ export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
     <FiltersContainer
       desktopChildren={
         <>
-          <MediaTypeToggle />
+          <FixedContainerContent>
+            <MediaTypeToggle />
+          </FixedContainerContent>
           <GenreFilterButton />
-          <SortFilter hideLabel />
-          <ResetFilter hideLabel />
-          <SearchButton />
+          <FixedContainerContent>
+            <SortFilter hideLabel />
+          </FixedContainerContent>
+          <FixedContainerContent>
+            <ResetFilter hideLabel />
+          </FixedContainerContent>
+          <FixedContainerContent>
+            <SearchButton />
+          </FixedContainerContent>
           <TmdbCredit locale={locale} position="topLeft" />
         </>
       }
       mobileChildren={
         <>
           <MediaTypeToggle mobile />
-          <SearchButton />
-          <TmdbCredit locale={locale} position="viewportWidth" />
-          <MobileFiltersButton
-            menuContent={
-              <div css={styles.mobileMenuContent}>
-                <SortFilter bright />
-                <GenreFilter />
-                <ResetFilter bright />
-              </div>
-            }
-          >
-            {mobileButtonLabel}
-          </MobileFiltersButton>
+          <div css={styles.content}>
+            <FixedContainerContent>
+              <SearchButton />
+            </FixedContainerContent>
+            <TmdbCredit locale={locale} position="viewportWidth" />
+            <MobileFiltersButton
+              menuContent={
+                <div css={styles.mobileMenuContent}>
+                  <SortFilter bright />
+                  <GenreFilter />
+                  <ResetFilter bright />
+                </div>
+              }
+            >
+              {mobileButtonLabel}
+            </MobileFiltersButton>
+          </div>
         </>
       }
     />
@@ -63,5 +76,10 @@ const styles = stylex.create({
     width: `calc(100dvw - (${space._3} * 2))`,
     maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
     overflow: "auto",
+    willChange: "transform",
+  },
+  content: {
+    display: "flex",
+    gap: space._1,
   },
 });

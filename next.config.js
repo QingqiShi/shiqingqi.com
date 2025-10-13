@@ -4,6 +4,9 @@ module.exports = async () => {
     reactStrictMode: true,
     reactCompiler: true,
     serverExternalPackages: ["esbuild-wasm"],
+    experimental: {
+      viewTransition: true,
+    },
   };
 
   return nextConfig;

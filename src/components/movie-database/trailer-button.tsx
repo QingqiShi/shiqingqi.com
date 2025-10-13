@@ -5,7 +5,6 @@ import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import type { SupportedLocale } from "@/types";
-import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "../shared/button";
 import { Overlay } from "../shared/overlay";
 
@@ -20,19 +19,17 @@ export function TrailerButton({
   locale,
 }: PropsWithChildren<TrailerButtonProps>) {
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <>
       <Button
         icon={<PlayIcon weight="fill" role="presentation" />}
         isActive
-        onClick={() => startViewTransition(() => setIsOpen(true))}
+        onClick={() => setIsOpen(true)}
       >
         {children}
       </Button>
-      <Overlay
-        isOpen={isOpen}
-        onClose={() => startViewTransition(() => setIsOpen(false))}
-      >
+      <Overlay isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <iframe
           css={styles.video}
           width="720"

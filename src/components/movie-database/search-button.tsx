@@ -9,7 +9,6 @@ import { useTranslations } from "@/hooks/use-translations";
 import { color, font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
-import { startViewTransition } from "@/utils/start-view-transition";
 import { Button } from "../shared/button";
 import { Overlay } from "../shared/overlay";
 import type translations from "./filters.translations.json";
@@ -31,7 +30,7 @@ export function SearchButton() {
   }, [isOverlayOpen]);
 
   const handleClose = () => {
-    void startViewTransition(() => setIsOverlayOpen(false));
+    setIsOverlayOpen(false);
     // Reset state when closing
     setTimeout(() => {
       setQuery("");
@@ -42,7 +41,7 @@ export function SearchButton() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOverlayOpen) {
-        void startViewTransition(() => setIsOverlayOpen(false));
+        setIsOverlayOpen(false);
         setTimeout(() => {
           setQuery("");
         }, 150);
@@ -70,7 +69,7 @@ export function SearchButton() {
     <>
       <Button
         icon={<SparkleIcon weight="fill" role="presentation" />}
-        onClick={() => void startViewTransition(() => setIsOverlayOpen(true))}
+        onClick={() => setIsOverlayOpen(true)}
         type="button"
         aria-label={t("aiSearchLabel")}
         hideLabelOnMobile

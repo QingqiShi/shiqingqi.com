@@ -1,15 +1,23 @@
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { globalStyles } from "@/app/global-styles";
 import { SerwistProvider } from "@/components/serwist-provider";
+import { PortalTargetProvider } from "@/components/shared/fixed-element-portal-target";
 import { Header } from "@/components/shared/header";
 import { HeaderSkeleton } from "@/components/shared/header-skeleton";
 import { i18nConfig } from "@/i18n-config";
 import type { SupportedLocale } from "@/types";
 import { themeHack } from "@/utils/theme-hack";
 import { validateLocale } from "@/utils/validate-locale";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  viewportFit: "cover",
+};
 
 export default async function RootLayout({
   params,
@@ -43,14 +51,19 @@ export default async function RootLayout({
         )}
       </head>
       <body css={globalStyles.body}>
-        <SerwistProvider swUrl="/serwist/sw.js">
-          <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-          <Suspense fallback={<HeaderSkeleton />}>
-            <Header locale={validatedLocale} />
-          </Suspense>
-          {children}
-          <Analytics />
-          <SpeedInsights />
+        <SerwistProvider
+          swUrl="/serwist/sw.js"
+          register={process.env.NODE_ENV !== "development"}
+        >
+          <PortalTargetProvider>
+            <script dangerouslySetInnerHTML={{ __html: themeHack }} />
+            <Suspense fallback={<HeaderSkeleton />}>
+              <Header locale={validatedLocale} />
+            </Suspense>
+            {children}
+            <Analytics />
+            <SpeedInsights />
+          </PortalTargetProvider>
         </SerwistProvider>
       </body>
     </html>

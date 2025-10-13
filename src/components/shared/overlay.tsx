@@ -2,19 +2,16 @@
 
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
-
 import {
-  Activity,
-  startTransition,
-  useEffect,
-  useState,
+  useDeferredValue,
+  ViewTransition,
   type PropsWithChildren,
 } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "@/breakpoints.stylex";
-import { useCssId } from "@/hooks/use-css-id";
-import { border, color, layer, shadow, space } from "@/tokens.stylex";
+import { usePortalTarget } from "@/contexts/portal-context";
+import { border, color, layer, space } from "@/tokens.stylex";
 import { Button } from "./button";
 
 interface OverlayProps {
@@ -27,80 +24,45 @@ export function Overlay({
   isOpen,
   onClose,
 }: PropsWithChildren<OverlayProps>) {
-  const id = useCssId();
-  const [isMounted, setIsMounted] = useState(false);
+  const portalTarget = usePortalTarget();
+  const deferredIsOpen = useDeferredValue(isOpen);
 
-  useEffect(() => {
-    startTransition(() => {
-      setIsMounted(true);
-    });
-  }, []);
-
-  if (!isMounted) {
+  if (!deferredIsOpen || !portalTarget) {
     return null;
   }
 
-  return (
+  return createPortal(
     <>
-      {/* Using inline style until the new viewTransitionClass API is ready https://github.com/facebook/stylex/issues/866 */}
-      <style>
-        {`
-          ::view-transition-new(${id}-overlay) {
-            animation-name: ${slideIn};
-          }
-          ::view-transition-old(${id}-overlay) {
-            animation-name: ${slideOut};
-          }
-      `}
-      </style>
-      {createPortal(
-        <Activity mode={isOpen ? "visible" : "hidden"}>
-          <RemoveScroll enabled={isOpen} allowPinchZoom>
-            <div
-              css={styles.backdrop}
+      <ViewTransition>
+        <div css={styles.backdrop} onClick={onClose} />
+      </ViewTransition>
+      <ViewTransition enter="slide-in" exit="slide-out">
+        <RemoveScroll enabled={deferredIsOpen} allowPinchZoom forwardProps>
+          <div css={styles.content}>
+            <Button
+              css={styles.closeButton}
+              icon={<XIcon />}
               onClick={onClose}
-              style={{ viewTransitionName: `${id}-backdrop` }}
             />
-            <div
-              css={styles.content}
-              style={{ viewTransitionName: `${id}-overlay` }}
-            >
-              <Button
-                css={styles.closeButton}
-                icon={<XIcon />}
-                onClick={onClose}
-              />
-              {children}
-            </div>
-          </RemoveScroll>
-        </Activity>,
-        document.body,
-      )}
-    </>
+            {children}
+          </div>
+        </RemoveScroll>
+      </ViewTransition>
+    </>,
+    portalTarget,
   );
 }
 
-const slideIn = stylex.keyframes({
-  from: {
-    transform: "translateY(100dvh)",
-  },
-});
-
-const slideOut = stylex.keyframes({
-  to: {
-    transform: "translateY(100dvh)",
-  },
-});
-
 const styles = stylex.create({
   backdrop: {
-    position: "fixed",
+    position: "absolute",
     top: 0,
     left: 0,
-    width: "100dvw",
-    height: "100dvh",
+    width: "100%",
+    height: "100%",
     backgroundColor: "rgba(0, 0, 0, 0.7)",
     zIndex: layer.tooltip,
+    pointerEvents: "all",
   },
   closeButton: {
     position: "absolute",
@@ -108,16 +70,16 @@ const styles = stylex.create({
     top: { default: space._2, [breakpoints.md]: space._5 },
   },
   content: {
-    position: "fixed",
+    position: "absolute",
     top: space._8,
     left: 0,
-    right: 0,
-    height: "100dvh",
+    width: "calc(100% - var(--removed-body-scroll-bar-size, 0px))",
+    height: `100%`,
     backgroundColor: color.backgroundRaised,
     paddingBottom: space._8,
     zIndex: layer.tooltip,
     borderRadius: border.radius_4,
     overflow: "hidden",
-    boxShadow: shadow._6,
+    pointerEvents: "all",
   },
 });
