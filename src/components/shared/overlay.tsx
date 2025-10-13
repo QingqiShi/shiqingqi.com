@@ -5,7 +5,6 @@ import * as stylex from "@stylexjs/stylex";
 
 import { ViewTransition, type PropsWithChildren } from "react";
 import { createPortal } from "react-dom";
-import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "@/breakpoints.stylex";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
 import { Button } from "./button";
@@ -19,7 +18,7 @@ export function Overlay({
   onClose,
 }: PropsWithChildren<OverlayProps>) {
   return createPortal(
-    <RemoveScroll enabled allowPinchZoom>
+    <>
       <ViewTransition>
         <div css={styles.backdrop} onClick={onClose} />
       </ViewTransition>
@@ -29,7 +28,7 @@ export function Overlay({
           {children}
         </div>
       </ViewTransition>
-    </RemoveScroll>,
+    </>,
     document.body,
   );
 }
