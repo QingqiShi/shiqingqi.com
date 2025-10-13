@@ -77,24 +77,23 @@ export function SearchButton() {
         {t("aiSearch")}
       </Button>
       <Overlay isOpen={isOverlayOpen} onClose={handleClose}>
-          <div css={styles.container}>
-            <h2 css={styles.title}>{t("aiSearch")}</h2>
-            <form onSubmit={handleSubmit} css={styles.form}>
-              <input
-                ref={inputRef}
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("aiSearchPlaceholder")}
-                css={styles.input}
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <div css={styles.hint}>{t("aiSearchHint")}</div>
-            </form>
-          </div>
-        </Overlay>
-      )}
+        <div css={styles.container}>
+          <h2 css={styles.title}>{t("aiSearch")}</h2>
+          <form onSubmit={handleSubmit} css={styles.form}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("aiSearchPlaceholder")}
+              css={styles.input}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <div css={styles.hint}>{t("aiSearchHint")}</div>
+          </form>
+        </div>
+      </Overlay>
     </>
   );
 }
