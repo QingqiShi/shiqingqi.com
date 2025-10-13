@@ -19,7 +19,7 @@ export function Overlay({
   onClose,
 }: PropsWithChildren<OverlayProps>) {
   return createPortal(
-    <ViewTransition enter="slide-in" exit="slide-out">
+    <ViewTransition>
       <RemoveScroll enabled allowPinchZoom>
         <div css={styles.backdrop} onClick={onClose} />
         <div css={styles.content}>
