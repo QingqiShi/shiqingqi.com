@@ -67,7 +67,5 @@ const styles = stylex.create({
     right: `calc(${space._3} + var(--removed-body-scroll-bar-size, 0px))`,
     top: `calc(${space._10} + env(safe-area-inset-top))`,
     zIndex: layer.overlay,
-    display: "flex",
-    gap: space._1,
   },
 });

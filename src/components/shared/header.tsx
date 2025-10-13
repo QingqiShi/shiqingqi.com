@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@/breakpoints.stylex";
 import { BackButton } from "@/components/shared/back-button";
+import { FixedContainerContent } from "@/components/shared/fixed-container-content";
 import { LocaleSelector } from "@/components/shared/locale-selector";
 import { ThemeSwitch } from "@/components/shared/theme-switch";
 import { layer, space } from "@/tokens.stylex";
@@ -18,17 +19,19 @@ export function Header({ locale }: HeaderProps) {
   return (
     <header css={styles.container}>
       <nav css={styles.nav}>
-        <div css={styles.navContent}>
+        <FixedContainerContent css={styles.navContent}>
           <BackButton locale={locale} label={t("backLabel")} />
-        </div>
+        </FixedContainerContent>
         <div css={styles.navContent}>
-          <ThemeSwitch
-            labels={[
-              t("switchToLight"),
-              t("switchToDark"),
-              t("switchToSystem"),
-            ]}
-          />
+          <FixedContainerContent>
+            <ThemeSwitch
+              labels={[
+                t("switchToLight"),
+                t("switchToDark"),
+                t("switchToSystem"),
+              ]}
+            />
+          </FixedContainerContent>
           <LocaleSelector
             label={t("localeSelectorLabel")}
             ariaLabel={t("localeSelectorAriaLabel")}

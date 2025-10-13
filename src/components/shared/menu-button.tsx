@@ -20,6 +20,7 @@ import {
 } from "@/tokens.stylex";
 import { AnimateToTarget } from "./animate-to-target";
 import { Button } from "./button";
+import { FixedContainerContent } from "./fixed-container-content";
 
 interface MenuButtonProps {
   /** Button prop overrides */
@@ -83,15 +84,17 @@ export function MenuButton({
           }
         }}
       >
-        <Button
-          {...buttonProps}
-          onClick={() => setIsMenuShown(true)}
-          disabled={disabled}
-          id={targetId}
-          labelId={`${targetId}-label`}
-        >
-          {children && <span>{children}</span>}
-        </Button>
+        <FixedContainerContent>
+          <Button
+            {...buttonProps}
+            onClick={() => setIsMenuShown(true)}
+            disabled={disabled}
+            id={targetId}
+            labelId={`${targetId}-label`}
+          >
+            {children && <span>{children}</span>}
+          </Button>
+        </FixedContainerContent>
         <div
           css={[
             styles.menuContainer,

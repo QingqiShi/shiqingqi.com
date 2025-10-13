@@ -8,6 +8,7 @@ import { useTranslations } from "@/hooks/use-translations";
 import { layer, space } from "@/tokens.stylex";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
+import { FixedContainerContent } from "../shared/fixed-container-content";
 import type translations from "./media-type-toggle.translations.json";
 
 interface MediaTypeToggleProps {
@@ -34,22 +35,24 @@ export function MediaTypeToggle({ mobile }: MediaTypeToggleProps) {
   };
 
   const content = (
-    <AnchorButtonGroup>
-      <AnchorButton
-        href={setMediaTypeUrl("movie")}
-        isActive={isMovies}
-        onClick={handleMovieClick}
-      >
-        {mobile ? t("moviesShort") : t("movies")}
-      </AnchorButton>
-      <AnchorButton
-        href={setMediaTypeUrl("tv")}
-        isActive={isTv}
-        onClick={handleTvClick}
-      >
-        {mobile ? t("tvShowsShort") : t("tvShows")}
-      </AnchorButton>
-    </AnchorButtonGroup>
+    <FixedContainerContent>
+      <AnchorButtonGroup>
+        <AnchorButton
+          href={setMediaTypeUrl("movie")}
+          isActive={isMovies}
+          onClick={handleMovieClick}
+        >
+          {mobile ? t("moviesShort") : t("movies")}
+        </AnchorButton>
+        <AnchorButton
+          href={setMediaTypeUrl("tv")}
+          isActive={isTv}
+          onClick={handleTvClick}
+        >
+          {mobile ? t("tvShowsShort") : t("tvShows")}
+        </AnchorButton>
+      </AnchorButtonGroup>
+    </FixedContainerContent>
   );
 
   if (mobile) {
@@ -67,11 +70,12 @@ const styles = stylex.create({
   },
   mobileContainer: {
     position: "fixed",
-    bottom: `calc(${space._7} + env(safe-area-inset-bottom))`,
+    bottom: `calc(${space._2} + env(safe-area-inset-bottom))`,
     left: `calc(50% - var(--removed-body-scroll-bar-size, 0px) / 2)`,
     transform: "translateX(-50%)",
     zIndex: layer.overlay,
     pointerEvents: "all",
     whiteSpace: "nowrap",
+    willChange: "transform",
   },
 });

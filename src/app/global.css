@@ -48,28 +48,24 @@
 
 @keyframes slide-in {
   from {
-    transform: translateY(100dvh) scale(0.95);
+    transform: translateY(100dvh);
   }
 }
 
 @keyframes slide-out {
   to {
-    transform: translateY(100dvh) scale(0.95);
+    transform: translateY(100dvh);
   }
 }
 
-::view-transition-group(.slide-in),
-::view-transition-group(.slide-out) {
-  position: fixed;
-  inset: 0;
-}
-
 ::view-transition-old(.slide-out) {
-  animation: slide-out 300ms ease-out;
+  animation: slide-out 250ms cubic-bezier(0.32, 0.72, 0, 1);
+  animation-fill-mode: forwards;
 }
 
 ::view-transition-new(.slide-in) {
-  animation: slide-in 300ms ease-in;
+  animation: slide-in 250ms cubic-bezier(0.32, 0.72, 0, 1);
+  animation-fill-mode: forwards;
 }
 
 /**
