@@ -11,6 +11,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import { createPortal } from "react-dom";
+import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "@/breakpoints.stylex";
 import { useCssId } from "@/hooks/use-css-id";
 import { border, color, layer, shadow, space } from "@/tokens.stylex";
@@ -54,7 +55,7 @@ export function Overlay({
       </style>
       {createPortal(
         <Activity mode={isOpen ? "visible" : "hidden"}>
-          <div>
+          <RemoveScroll enabled={isOpen} allowPinchZoom>
             <div
               css={styles.backdrop}
               onClick={onClose}
@@ -71,7 +72,7 @@ export function Overlay({
               />
               {children}
             </div>
-          </div>
+          </RemoveScroll>
         </Activity>,
         document.body,
       )}

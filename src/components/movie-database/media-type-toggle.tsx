@@ -68,7 +68,7 @@ const styles = stylex.create({
   mobileContainer: {
     position: "fixed",
     bottom: `calc(${space._7} + env(safe-area-inset-bottom))`,
-    left: "50%",
+    left: `calc(50% - var(--removed-body-scroll-bar-size, 0px) / 2)`,
     transform: "translateX(-50%)",
     zIndex: layer.overlay,
     pointerEvents: "all",

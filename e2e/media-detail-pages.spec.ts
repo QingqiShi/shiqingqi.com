@@ -65,3 +65,80 @@ test("should display English and Chinese UI labels and localized content", async
   await page.goto(`/zh/movie-database/movie/${FIGHT_CLUB_ID}`);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
+
+test("should open trailer overlay, display video, and close", async ({
+  page,
+}) => {
+  await page.goto(`/en/movie-database/movie/${FIGHT_CLUB_ID}`);
+
+  // Click play trailer button
+  await page.getByRole("button", { name: /play trailer/i }).click();
+
+  // Verify YouTube iframe is present (indicates overlay is open)
+  const iframe = page.locator('iframe[src*="youtube.com/embed"]');
+  await expect(iframe).toBeVisible();
+
+  // Close overlay using close button
+  const closeButton = page
+    .getByRole("button")
+    .filter({ has: page.locator("svg") })
+    .last();
+  await closeButton.click();
+
+  // Verify overlay is closed
+  await expect(iframe).not.toBeVisible();
+
+  // Reopen overlay and test backdrop click
+  await page.getByRole("button", { name: /play trailer/i }).click();
+  await expect(iframe).toBeVisible();
+
+  // Wait for view transition animation to complete before clicking backdrop
+  await page.waitForTimeout(500);
+
+  // Click backdrop to close (click at viewport coordinates outside overlay content)
+  await page.mouse.click(5, 5);
+
+  // Verify overlay is closed
+  await expect(iframe).not.toBeVisible();
+});
+
+test("should prevent body scroll when trailer overlay is open", async ({
+  page,
+}) => {
+  await page.goto(`/en/movie-database/movie/${FIGHT_CLUB_ID}`);
+
+  // Scroll down a bit to have some scroll position
+  await page.evaluate(() => window.scrollTo(0, 200));
+  await page.waitForFunction(() => window.scrollY === 200);
+
+  const scrollYBeforeOverlay = await page.evaluate(() => window.scrollY);
+  expect(scrollYBeforeOverlay).toBe(200);
+
+  // Open trailer overlay
+  await page.getByRole("button", { name: /play trailer/i }).click();
+
+  const iframe = page.locator('iframe[src*="youtube.com/embed"]');
+  await expect(iframe).toBeVisible();
+
+  // Try to scroll - scroll position should not change
+  await page.mouse.wheel(0, 500);
+  await page.waitForTimeout(100); // Wait for any potential scroll
+
+  const scrollYDuringOverlay = await page.evaluate(() => window.scrollY);
+  // Scroll position should remain 200 (or possibly 0 due to fixed positioning)
+  // The important thing is it doesn't increase
+  expect(scrollYDuringOverlay).toBeLessThanOrEqual(200);
+
+  // Close overlay
+  const closeButton = page
+    .getByRole("button")
+    .filter({ has: page.locator("svg") })
+    .last();
+  await closeButton.click();
+  await expect(iframe).not.toBeVisible();
+
+  // Scroll position should be restored to 200
+  await page.waitForFunction(() => window.scrollY === 200, { timeout: 1000 });
+  const scrollYAfterOverlay = await page.evaluate(() => window.scrollY);
+  expect(scrollYAfterOverlay).toBe(200);
+});
