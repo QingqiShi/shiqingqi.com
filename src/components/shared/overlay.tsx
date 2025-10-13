@@ -57,7 +57,5 @@ const styles = stylex.create({
     backgroundColor: color.backgroundRaised,
     paddingBottom: space._8,
     zIndex: layer.tooltip,
-    borderRadius: border.radius_4,
-    boxShadow: shadow._6,
   },
 });

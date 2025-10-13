@@ -48,13 +48,13 @@
 
 @keyframes slide-in {
   from {
-    transform: translateY(100dvh);
+    transform: translateY(100dvh) scale(0.95);
   }
 }
 
 @keyframes slide-out {
   to {
-    transform: translateY(100dvh);
+    transform: translateY(100dvh) scale(0.95);
   }
 }
 
