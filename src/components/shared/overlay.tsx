@@ -31,7 +31,7 @@ export function Overlay({
   }
 
   return createPortal(
-    <RemoveScroll enabled={isOpen} allowPinchZoom forwardProps>
+    <RemoveScroll enabled={false} allowPinchZoom forwardProps>
       <div>
         {deferredIsOpen && (
           <>
