@@ -58,11 +58,17 @@
   }
 }
 
-::view-transition-old(overlay-content):only-child {
+::view-transition-group(.slide-in),
+::view-transition-group(.slide-out) {
+  position: fixed;
+  inset: 0;
+}
+
+::view-transition-old(.slide-out) {
   animation: slide-out 300ms ease-out;
 }
 
-::view-transition-new(overlay-content):only-child {
+::view-transition-new(.slide-in) {
   animation: slide-in 300ms ease-in;
 }
 

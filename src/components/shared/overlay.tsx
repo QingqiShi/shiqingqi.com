@@ -38,7 +38,7 @@ export function Overlay({
             <ViewTransition>
               <div css={styles.backdrop} onClick={onClose} />
             </ViewTransition>
-            <ViewTransition>
+            <ViewTransition enter="slide-in" exit="slide-out">
               <div css={styles.content}>
                 <Button
                   css={styles.closeButton}
@@ -65,7 +65,6 @@ const styles = stylex.create({
     height: "100dvh",
     backgroundColor: "rgba(0, 0, 0, 0.7)",
     zIndex: layer.tooltip,
-    viewTransitionName: "overlay-backdrop",
   },
   closeButton: {
     position: "absolute",
@@ -83,6 +82,5 @@ const styles = stylex.create({
     zIndex: layer.tooltip,
     borderRadius: border.radius_4,
     overflow: "hidden",
-    viewTransitionName: "overlay-content",
   },
 });
