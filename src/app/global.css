@@ -58,11 +58,11 @@
   }
 }
 
-::view-transition-old(.slide-out) {
+::view-transition-old(overlay-content):only-child {
   animation: slide-out 300ms ease-out;
 }
 
-::view-transition-new(.slide-in) {
+::view-transition-new(overlay-content):only-child {
   animation: slide-in 300ms ease-in;
 }
 
