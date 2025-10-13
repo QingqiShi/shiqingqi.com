@@ -59,11 +59,11 @@
 }
 
 ::view-transition-old(.slide-out) {
-  animation: slide-out;
+  animation: slide-out 300ms ease-out;
 }
 
 ::view-transition-new(.slide-in) {
-  animation: slide-in;
+  animation: slide-in 300ms ease-in;
 }
 
 /**
