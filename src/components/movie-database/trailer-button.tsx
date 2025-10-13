@@ -28,19 +28,18 @@ export function TrailerButton({
       >
         {children}
       </Button>
-      <Overlay
-        isOpen={isOpen}
-        onClose={() => startTransition(() => setIsOpen(false))}
-      >
-        <iframe
-          css={styles.video}
-          width="720"
-          height="405"
-          src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
-          frameBorder="0"
-          allowFullScreen
-        />
-      </Overlay>
+      {isOpen && (
+        <Overlay onClose={() => startTransition(() => setIsOpen(false))}>
+          <iframe
+            css={styles.video}
+            width="720"
+            height="405"
+            src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
+            frameBorder="0"
+            allowFullScreen
+          />
+        </Overlay>
+      )}
     </>
   );
 }

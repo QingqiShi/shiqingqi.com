@@ -76,7 +76,7 @@ export function SearchButton() {
       >
         {t("aiSearch")}
       </Button>
-      <Overlay isOpen={isOverlayOpen} onClose={handleClose}>
+      {isOverlayOpen && <Overlay onClose={handleClose}>
         <div css={styles.container}>
           <h2 css={styles.title}>{t("aiSearch")}</h2>
           <form onSubmit={handleSubmit} css={styles.form}>
