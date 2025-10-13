@@ -3,7 +3,7 @@
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 
-import { ViewTransition, type PropsWithChildren } from "react";
+import { ViewTransition, useState, type PropsWithChildren } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "@/breakpoints.stylex";
@@ -18,13 +18,19 @@ export function Overlay({
   children,
   onClose,
 }: PropsWithChildren<OverlayProps>) {
+  const [scrollLockEnabled, setScrollLockEnabled] = useState(false);
+
   return createPortal(
     <>
       <ViewTransition>
         <div css={styles.backdrop} onClick={onClose} />
       </ViewTransition>
-      <ViewTransition enter="slide-in" exit="slide-out">
-        <RemoveScroll enabled allowPinchZoom>
+      <ViewTransition
+        enter="slide-in"
+        exit="slide-out"
+        onEnter={() => setScrollLockEnabled(true)}
+      >
+        <RemoveScroll enabled={scrollLockEnabled} allowPinchZoom>
           <div css={styles.content}>
             <Button
               css={styles.closeButton}
