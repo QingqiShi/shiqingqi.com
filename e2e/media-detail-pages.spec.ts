@@ -120,9 +120,11 @@ test("should prevent body scroll when trailer overlay is open", async ({
   const iframe = page.locator('iframe[src*="youtube.com/embed"]');
   await expect(iframe).toBeVisible();
 
+  // Wait for scroll lock to be applied by checking data attribute added by RemoveScroll
+  await page.waitForSelector("[data-scroll-locked]", { timeout: 1000 });
+
   // Try to scroll - scroll position should not change
   await page.mouse.wheel(0, 500);
-  await page.waitForTimeout(100); // Wait for any potential scroll
 
   const scrollYDuringOverlay = await page.evaluate(() => window.scrollY);
   // Scroll position should remain 200 (or possibly 0 due to fixed positioning)
