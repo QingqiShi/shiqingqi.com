@@ -34,5 +34,57 @@
   "noResults": {
     "en": "No results found for your search",
     "zh": "没有找到匹配的结果"
+  },
+  "chatInputPlaceholder": {
+    "en": "Ask about movies or TV shows...",
+    "zh": "询问电影或电视剧..."
+  },
+  "clearConversation": {
+    "en": "Clear conversation",
+    "zh": "清空对话"
+  },
+  "clearConversationConfirm": {
+    "en": "Are you sure? This cannot be undone.",
+    "zh": "确定要清空吗？此操作无法撤销。"
+  },
+  "exampleQuery1": {
+    "en": "Recent superhero movies",
+    "zh": "最近的超级英雄电影"
+  },
+  "exampleQuery2": {
+    "en": "Highly rated sci-fi TV shows",
+    "zh": "高分科幻电视剧"
+  },
+  "exampleQuery3": {
+    "en": "Oscar-winning dramas from 2023",
+    "zh": "2023年奥斯卡获奖剧情片"
+  },
+  "messagesRemaining": {
+    "en": "{count} messages remaining",
+    "zh": "还剩 {count} 条消息"
+  },
+  "conversationLimitReached": {
+    "en": "Conversation limit reached. Please clear to continue.",
+    "zh": "已达对话上限。请清空以继续。"
+  },
+  "reconnecting": {
+    "en": "Reconnecting...",
+    "zh": "重新连接中..."
+  },
+  "connectionLost": {
+    "en": "Connection lost",
+    "zh": "连接已断开"
+  },
+  "retrying": {
+    "en": "Retrying ({attempt}/3)...",
+    "zh": "重试中 ({attempt}/3)..."
+  },
+  "clear": {
+    "en": "Clear",
+    "zh": "清空"
+  },
+  "cancel": {
+    "en": "Cancel",
+    "zh": "取消"
   }
 }
