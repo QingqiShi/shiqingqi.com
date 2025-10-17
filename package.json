@@ -58,7 +58,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.37.0",
     "@next/eslint-plugin-next": "16.0.0-canary.4",
-    "@playwright/test": "^1.56.0",
+    "@playwright/test": "^1.56.1",
     "@serwist/turbopack": "10.0.0-preview.10",
     "@stylexjs/babel-plugin": "^0.16.1",
     "@stylexjs/eslint-plugin": "^0.16.1",
