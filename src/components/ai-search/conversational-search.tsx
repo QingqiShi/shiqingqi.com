@@ -23,12 +23,8 @@ export function ConversationalSearch({
   onInitialQuerySent,
 }: ConversationalSearchProps) {
   const { t } = useTranslations<typeof translations>("movie-database");
-  const {
-    messages,
-    sendMessage,
-    clearConversation,
-    isStreaming,
-  } = useConversationalAISearch(locale);
+  const { messages, sendMessage, clearConversation, isStreaming } =
+    useConversationalAISearch(locale);
 
   const initialQuerySentRef = useRef(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);

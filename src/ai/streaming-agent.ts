@@ -52,7 +52,8 @@ function convertToResponseInput(
 
   for (const msg of messages) {
     conversationHistory.push({
-      role: msg.role === "assistant" ? ("assistant" as const) : ("user" as const),
+      role:
+        msg.role === "assistant" ? ("assistant" as const) : ("user" as const),
       content: msg.content,
     });
   }
@@ -76,7 +77,10 @@ export async function* streamingAgent(
   }
 
   try {
-    const fullConversation = convertToResponseInput(messages, systemInstructions);
+    const fullConversation = convertToResponseInput(
+      messages,
+      systemInstructions,
+    );
 
     // Phase 1: Tool calling loop with streaming
     let toolCallingComplete = false;
@@ -279,7 +283,9 @@ export async function* streamingAgent(
     });
 
     if (finalResponse.status !== "completed") {
-      throw new Error(`Structured output phase failed: ${finalResponse.status}`);
+      throw new Error(
+        `Structured output phase failed: ${finalResponse.status}`,
+      );
     }
 
     const parsed = finalResponse.output_parsed;

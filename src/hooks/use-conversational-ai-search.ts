@@ -196,7 +196,10 @@ export function useConversationalAISearch(
         setMessages((prev) => {
           const updated = [...prev];
           const lastMessage = updated[updated.length - 1];
-          if (lastMessage?.role === "assistant" && lastMessage.status === "streaming") {
+          if (
+            lastMessage?.role === "assistant" &&
+            lastMessage.status === "streaming"
+          ) {
             lastMessage.thinking = "Still processing...";
           }
           return updated;
@@ -206,189 +209,189 @@ export function useConversationalAISearch(
       // Wrap async logic in IIFE to avoid returning Promise
       void (async () => {
         try {
-        // Prepare conversation history for API
-        const conversationHistory = [
-          ...messages.map((msg) => ({
-            role: msg.role,
-            content: msg.content,
-            results: msg.results,
-          })),
-          { role: "user" as const, content },
-        ];
+          // Prepare conversation history for API
+          const conversationHistory = [
+            ...messages.map((msg) => ({
+              role: msg.role,
+              content: msg.content,
+              results: msg.results,
+            })),
+            { role: "user" as const, content },
+          ];
 
-        // Open SSE connection
-        const response = await fetch("/api/ai-search/stream", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            messages: conversationHistory,
-            locale,
-          }),
-          signal: abortControllerRef.current?.signal,
-        });
+          // Open SSE connection
+          const response = await fetch("/api/ai-search/stream", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              messages: conversationHistory,
+              locale,
+            }),
+            signal: abortControllerRef.current?.signal,
+          });
 
-        if (!response.ok) {
-          const errorData = (await response.json()) as { error: string };
-          throw new Error(errorData.error || "Failed to start stream");
-        }
-
-        if (!response.body) {
-          throw new Error("Response body is null");
-        }
-
-        // Process SSE stream
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-         
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            break;
+          if (!response.ok) {
+            const errorData = (await response.json()) as { error: string };
+            throw new Error(errorData.error || "Failed to start stream");
           }
 
-          // Decode chunk
-          buffer += decoder.decode(value, { stream: true });
+          if (!response.body) {
+            throw new Error("Response body is null");
+          }
 
-          // Process complete SSE events (lines ending with \n\n)
-          const lines = buffer.split("\n\n");
-          buffer = lines[lines.length - 1] ?? ""; // Keep incomplete line in buffer
+          // Process SSE stream
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
 
-          for (let i = 0; i < lines.length - 1; i++) {
-            const line = lines[i]?.trim();
-            if (!line || !line.startsWith("data: ")) {
-              continue;
+          while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+              break;
             }
 
-            try {
-              const eventData = line.substring(6); // Remove "data: " prefix
-              const event = JSON.parse(eventData) as StreamingEvent;
+            // Decode chunk
+            buffer += decoder.decode(value, { stream: true });
 
-              // Handle event types
-              if (event.type === "thinking") {
-                // Clear processing timer on first event
-                if (processingTimerRef.current) {
-                  clearTimeout(processingTimerRef.current);
-                  processingTimerRef.current = null;
-                }
+            // Process complete SSE events (lines ending with \n\n)
+            const lines = buffer.split("\n\n");
+            buffer = lines[lines.length - 1] ?? ""; // Keep incomplete line in buffer
 
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastMessage = updated[updated.length - 1];
-                  if (lastMessage?.role === "assistant") {
-                    lastMessage.thinking = event.summary;
-                  }
-                  return updated;
-                });
-              } else if (event.type === "text_delta") {
-                // Clear processing timer on first event
-                if (processingTimerRef.current) {
-                  clearTimeout(processingTimerRef.current);
-                  processingTimerRef.current = null;
-                }
-
-
-                handleTextDelta(event.delta);
-              } else if (event.type === "results") {
-                // Flush any pending text first
-                handleStreamEnd();
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastMessage = updated[updated.length - 1];
-                  if (lastMessage?.role === "assistant") {
-                    lastMessage.results = event.items;
-                  }
-                  return updated;
-                });
-              } else if (event.type === "done") {
-                // Flush remaining buffer
-                handleStreamEnd();
-
-                // Mark as complete
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastMessage = updated[updated.length - 1];
-                  if (lastMessage?.role === "assistant") {
-                    lastMessage.status = "complete";
-                    // Clear thinking indicator on completion
-                    lastMessage.thinking = undefined;
-                  }
-                  return updated;
-                });
-
-                setIsStreaming(false);
-                break;
-              } else if (event.type === "error") {
-                // Flush remaining buffer
-                handleStreamEnd();
-
-                // Set error state
-                const errorMessage = event.message || "An error occurred";
-                setError(errorMessage);
-
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  const lastMessage = updated[updated.length - 1];
-                  if (lastMessage?.role === "assistant") {
-                    lastMessage.status = "error";
-                    lastMessage.error = errorMessage;
-                  }
-                  return updated;
-                });
-
-                setIsStreaming(false);
-                break;
+            for (let i = 0; i < lines.length - 1; i++) {
+              const line = lines[i]?.trim();
+              if (!line || !line.startsWith("data: ")) {
+                continue;
               }
-            } catch (parseError) {
-              console.error("Failed to parse SSE event:", parseError);
-              // Continue processing other events
+
+              try {
+                const eventData = line.substring(6); // Remove "data: " prefix
+                const event = JSON.parse(eventData) as StreamingEvent;
+
+                // Handle event types
+                if (event.type === "thinking") {
+                  // Clear processing timer on first event
+                  if (processingTimerRef.current) {
+                    clearTimeout(processingTimerRef.current);
+                    processingTimerRef.current = null;
+                  }
+
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    const lastMessage = updated[updated.length - 1];
+                    if (lastMessage?.role === "assistant") {
+                      lastMessage.thinking = event.summary;
+                    }
+                    return updated;
+                  });
+                } else if (event.type === "text_delta") {
+                  // Clear processing timer on first event
+                  if (processingTimerRef.current) {
+                    clearTimeout(processingTimerRef.current);
+                    processingTimerRef.current = null;
+                  }
+
+                  handleTextDelta(event.delta);
+                } else if (event.type === "results") {
+                  // Flush any pending text first
+                  handleStreamEnd();
+
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    const lastMessage = updated[updated.length - 1];
+                    if (lastMessage?.role === "assistant") {
+                      lastMessage.results = event.items;
+                    }
+                    return updated;
+                  });
+                } else if (event.type === "done") {
+                  // Flush remaining buffer
+                  handleStreamEnd();
+
+                  // Mark as complete
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    const lastMessage = updated[updated.length - 1];
+                    if (lastMessage?.role === "assistant") {
+                      lastMessage.status = "complete";
+                      // Clear thinking indicator on completion
+                      lastMessage.thinking = undefined;
+                    }
+                    return updated;
+                  });
+
+                  setIsStreaming(false);
+                  break;
+                } else if (event.type === "error") {
+                  // Flush remaining buffer
+                  handleStreamEnd();
+
+                  // Set error state
+                  const errorMessage = event.message || "An error occurred";
+                  setError(errorMessage);
+
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    const lastMessage = updated[updated.length - 1];
+                    if (lastMessage?.role === "assistant") {
+                      lastMessage.status = "error";
+                      lastMessage.error = errorMessage;
+                    }
+                    return updated;
+                  });
+
+                  setIsStreaming(false);
+                  break;
+                }
+              } catch (parseError) {
+                console.error("Failed to parse SSE event:", parseError);
+                // Continue processing other events
+              }
             }
           }
-        }
 
-        // Stream ended normally
-        handleStreamEnd();
-        setIsStreaming(false);
-      } catch (err) {
-        console.error("Stream error:", err);
-
-        // Clear processing timer
-        if (processingTimerRef.current) {
-          clearTimeout(processingTimerRef.current);
-          processingTimerRef.current = null;
-        }
-
-        // Check if this was an abort (user cancelled)
-        if (err instanceof Error && err.name === "AbortError") {
-          // Don't show error for user-initiated cancellation
+          // Stream ended normally
+          handleStreamEnd();
           setIsStreaming(false);
-          return;
-        }
+        } catch (err) {
+          console.error("Stream error:", err);
 
-        // Handle other errors
-        handleStreamEnd();
-
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to connect to AI service";
-
-        setError(errorMessage);
-
-        setMessages((prev) => {
-          const updated = [...prev];
-          const lastMessage = updated[updated.length - 1];
-          if (lastMessage?.role === "assistant") {
-            lastMessage.status = "error";
-            lastMessage.error = errorMessage;
+          // Clear processing timer
+          if (processingTimerRef.current) {
+            clearTimeout(processingTimerRef.current);
+            processingTimerRef.current = null;
           }
-          return updated;
-        });
 
-        setIsStreaming(false);
+          // Check if this was an abort (user cancelled)
+          if (err instanceof Error && err.name === "AbortError") {
+            // Don't show error for user-initiated cancellation
+            setIsStreaming(false);
+            return;
+          }
+
+          // Handle other errors
+          handleStreamEnd();
+
+          const errorMessage =
+            err instanceof Error
+              ? err.message
+              : "Failed to connect to AI service";
+
+          setError(errorMessage);
+
+          setMessages((prev) => {
+            const updated = [...prev];
+            const lastMessage = updated[updated.length - 1];
+            if (lastMessage?.role === "assistant") {
+              lastMessage.status = "error";
+              lastMessage.error = errorMessage;
+            }
+            return updated;
+          });
+
+          setIsStreaming(false);
         }
       })();
     },

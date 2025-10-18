@@ -48,7 +48,11 @@ export function ConfirmDialog({
               <Button onClick={onCancel} type="button">
                 {cancelLabel}
               </Button>
-              <Button onClick={onConfirm} type="button" css={styles.confirmButton}>
+              <Button
+                onClick={onConfirm}
+                type="button"
+                css={styles.confirmButton}
+              >
                 {confirmLabel}
               </Button>
             </div>

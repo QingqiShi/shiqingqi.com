@@ -7,9 +7,12 @@ import type { SupportedLocale } from "@/types";
 
 // System instructions for the AI agent
 const SYSTEM_INSTRUCTIONS = `You are a helpful movie and TV show search assistant.
-Help users discover content by understanding their preferences and refining searches through conversation.
-When you have enough information to provide results, call the appropriate tools.
-After gathering results, call complete_phase_1 to move to the final response phase.`;
+ALWAYS try to fetch results using the available tools based on the user's request, even with limited information.
+Use reasonable defaults: if no year specified, search recent releases; if no genre specified, use the closest match.
+For queries like "popular action movies", immediately call discover_movies with genre=action and sort_by=popularity.
+For specific titles, use search_movies_by_title or search_tv_shows_by_title.
+After calling tools and getting results, call complete_phase_1 to generate your final response.
+Be conversational but PROACTIVE - fetch data first, explain later.`;
 
 // Validate referer to prevent unauthorized access
 function validateReferer(request: NextRequest): boolean {
@@ -27,9 +30,7 @@ function validateReferer(request: NextRequest): boolean {
 }
 
 // Validate message format and constraints
-function validateMessages(
-  messages: unknown,
-): messages is ClientMessage[] {
+function validateMessages(messages: unknown): messages is ClientMessage[] {
   if (!Array.isArray(messages)) {
     return false;
   }
@@ -113,8 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate locale
-    const locale: SupportedLocale =
-      body.locale === "zh" ? "zh" : "en";
+    const locale: SupportedLocale = body.locale === "zh" ? "zh" : "en";
 
     // Sanitize all messages
     const sanitizedMessages = body.messages.map(sanitizeMessage);
@@ -129,6 +129,15 @@ export async function POST(request: NextRequest) {
     // Create ReadableStream
     const stream = new ReadableStream({
       async start(controller) {
+        let isClosed = false;
+
+        const safeClose = () => {
+          if (!isClosed) {
+            controller.close();
+            isClosed = true;
+          }
+        };
+
         try {
           // Start streaming agent
           const eventStream = streamingAgent(
@@ -142,7 +151,7 @@ export async function POST(request: NextRequest) {
             // Check if client disconnected or timeout occurred
             if (abortController.signal.aborted) {
               console.log("Stream aborted (client disconnect or timeout)");
-              controller.close();
+              safeClose();
               return;
             }
 
@@ -157,7 +166,7 @@ export async function POST(request: NextRequest) {
           }
 
           // Close stream
-          controller.close();
+          safeClose();
         } catch (error) {
           console.error("Streaming error:", error);
 
@@ -182,14 +191,12 @@ export async function POST(request: NextRequest) {
           };
 
           try {
-            controller.enqueue(
-              new TextEncoder().encode(formatSSE(errorEvent)),
-            );
+            controller.enqueue(new TextEncoder().encode(formatSSE(errorEvent)));
           } catch {
             // Controller might be closed already
           }
 
-          controller.close();
+          safeClose();
         } finally {
           // Clear timeout
           clearTimeout(timeoutId);
@@ -219,8 +226,7 @@ export async function POST(request: NextRequest) {
     // Return JSON error for non-streaming errors
     return Response.json(
       {
-        error:
-          error instanceof Error ? error.message : "Internal server error",
+        error: error instanceof Error ? error.message : "Internal server error",
       },
       { status: 500 },
     );

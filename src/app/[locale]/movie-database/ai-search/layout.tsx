@@ -3,9 +3,7 @@ import type { PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import translations from "../translations.json";
 
-export async function generateMetadata(
-  props: PageProps,
-): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   const { t } = getTranslations(translations, params.locale);
 

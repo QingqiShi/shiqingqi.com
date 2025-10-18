@@ -2,7 +2,14 @@
 
 import { PaperPlaneRight } from "@phosphor-icons/react/dist/ssr/PaperPlaneRight";
 import * as stylex from "@stylexjs/stylex";
-import { forwardRef, useRef, useState, useEffect, useImperativeHandle, type FormEvent } from "react";
+import {
+  forwardRef,
+  useRef,
+  useState,
+  useEffect,
+  useImperativeHandle,
+  type FormEvent,
+} from "react";
 import { color, controlSize, font, space } from "@/tokens.stylex";
 
 export interface ChatInputProps {
@@ -16,95 +23,100 @@ export interface ChatInputRef {
   focus: () => void;
 }
 
-export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(function ChatInput({
-  onSubmit,
-  disabled = false,
-  placeholder = "Type a message...",
-  maxLength = 1000,
-}, ref) {
-  const [value, setValue] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Expose focus method via ref
-  useImperativeHandle(ref, () => ({
-    focus: () => {
-      textareaRef.current?.focus();
+export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
+  function ChatInput(
+    {
+      onSubmit,
+      disabled = false,
+      placeholder = "Type a message...",
+      maxLength = 1000,
     },
-  }));
+    ref,
+  ) {
+    const [value, setValue] = useState("");
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  }, [value]);
+    // Expose focus method via ref
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        textareaRef.current?.focus();
+      },
+    }));
 
-  // Auto-focus when enabled
-  useEffect(() => {
-    if (!disabled && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [disabled]);
+    // Auto-resize textarea
+    useEffect(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      }
+    }, [value]);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const trimmedValue = value.trim();
+    // Auto-focus when enabled
+    useEffect(() => {
+      if (!disabled && textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }, [disabled]);
 
-    if (trimmedValue && !disabled) {
-      onSubmit(trimmedValue);
-      setValue("");
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Submit on Enter, new line on Shift+Enter
-    if (e.key === "Enter" && !e.shiftKey) {
+    const handleSubmit = (e: FormEvent) => {
       e.preventDefault();
-      handleSubmit(e);
-    }
-  };
+      const trimmedValue = value.trim();
 
-  const isOverLimit = value.length > maxLength;
-  const canSubmit = value.trim().length > 0 && !disabled && !isOverLimit;
+      if (trimmedValue && !disabled) {
+        onSubmit(trimmedValue);
+        setValue("");
+      }
+    };
 
-  return (
-    <form onSubmit={handleSubmit} css={styles.form}>
-      <div css={styles.inputContainer}>
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={disabled}
-          css={[styles.textarea, isOverLimit && styles.textareaError]}
-          rows={1}
-          aria-label={placeholder}
-          aria-invalid={isOverLimit}
-          aria-describedby="char-counter"
-        />
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          css={styles.sendButton}
-          aria-label="Send message"
-        >
-          <PaperPlaneRight weight="fill" size={20} />
-        </button>
-      </div>
-      <div css={styles.footer}>
-        <span
-          id="char-counter"
-          css={[styles.charCounter, isOverLimit && styles.charCounterError]}
-          aria-live="polite"
-        >
-          {value.length}/{maxLength}
-        </span>
-      </div>
-    </form>
-  );
-});
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // Submit on Enter, new line on Shift+Enter
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit(e);
+      }
+    };
+
+    const isOverLimit = value.length > maxLength;
+    const canSubmit = value.trim().length > 0 && !disabled && !isOverLimit;
+
+    return (
+      <form onSubmit={handleSubmit} css={styles.form}>
+        <div css={styles.inputContainer}>
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            disabled={disabled}
+            css={[styles.textarea, isOverLimit && styles.textareaError]}
+            rows={1}
+            aria-label={placeholder}
+            aria-invalid={isOverLimit}
+            aria-describedby="char-counter"
+          />
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            css={styles.sendButton}
+            aria-label="Send message"
+          >
+            <PaperPlaneRight weight="fill" size={20} />
+          </button>
+        </div>
+        <div css={styles.footer}>
+          <span
+            id="char-counter"
+            css={[styles.charCounter, isOverLimit && styles.charCounterError]}
+            aria-live="polite"
+          >
+            {value.length}/{maxLength}
+          </span>
+        </div>
+      </form>
+    );
+  },
+);
 
 const styles = stylex.create({
   form: {

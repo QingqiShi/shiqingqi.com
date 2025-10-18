@@ -32,7 +32,8 @@ export function ChatContainer({
   const checkIfNearBottom = () => {
     if (!scrollContainerRef.current) return true;
 
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    const { scrollTop, scrollHeight, clientHeight } =
+      scrollContainerRef.current;
     const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
     return distanceFromBottom < 100;
   };
