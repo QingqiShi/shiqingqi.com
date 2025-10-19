@@ -1,5 +1,3 @@
-"use client";
-
 import * as stylex from "@stylexjs/stylex";
 import { controlSize, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
@@ -28,10 +26,8 @@ export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
             <MediaTypeToggle />
           </FixedContainerContent>
           <GenreFilterButton />
-          <FixedContainerContent>
+          <FixedContainerContent css={styles.content}>
             <SortFilter hideLabel />
-          </FixedContainerContent>
-          <FixedContainerContent>
             <ResetFilter hideLabel />
           </FixedContainerContent>
           <FixedContainerContent>
