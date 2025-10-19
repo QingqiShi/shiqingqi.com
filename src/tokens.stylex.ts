@@ -10,12 +10,12 @@ const light = {
   textOnControlThumb: "#292929",
 
   backgroundMain: "#ffffff",
-  backgroundRaised: "#ebe4e5",
-  backgroundHover: "#e6dddd",
+  backgroundRaised: "#f5f5f5",
+  backgroundHover: "#f0f0f0",
   backgroundTranslucent: "rgba(0, 0, 0, 0.01)",
   backgroundMainChannels: "255,255,255",
 
-  controlTrack: "#ccc5c5",
+  controlTrack: "#e0e0e0",
   controlThumb: "#ffffff",
   controlActive: "#7e10c2",
   controlActiveHover: "#9e2de3",
@@ -43,12 +43,12 @@ const dark: { [key in keyof typeof light]: string } = {
   textOnControlThumb: "#000000",
 
   backgroundMain: "#000000",
-  backgroundRaised: "#414141",
-  backgroundHover: "#535353",
+  backgroundRaised: "#1a1a1a",
+  backgroundHover: "#2a2a2a",
   backgroundTranslucent: "rgba(255, 255, 255, 0.1)",
   backgroundMainChannels: "0,0,0",
 
-  controlTrack: "#414141",
+  controlTrack: "#1a1a1a",
   controlThumb: "#bbbbbb",
   controlActive: "#933bc9",
   controlActiveHover: "#a751db",
