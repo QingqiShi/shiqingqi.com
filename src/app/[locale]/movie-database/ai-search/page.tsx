@@ -1,126 +1,77 @@
-import * as stylex from "@stylexjs/stylex";
-import { Suspense } from "react";
-import { Grid } from "@/components/movie-database/grid";
-import { SearchContent } from "@/components/movie-database/search-content";
-import { Skeleton } from "@/components/shared/skeleton";
-import { color, ratio, space } from "@/tokens.stylex";
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { ConversationalSearch } from "@/components/ai-search/conversational-search";
+import { TranslationContextProvider } from "@/components/shared/translation-context-provider";
 import type { PageProps } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
 import translations from "../translations.json";
+import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
+import cardTranslations from "@/components/shared/card.translations.json";
 
-interface AISearchPageProps extends PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
+export default function AISearchPage(props: PageProps) {
+  const params = props.params;
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-export default async function AISearchPage(props: AISearchPageProps) {
-  const params = await props.params;
-  const searchParams = await props.searchParams;
+  // Extract initial query from URL (computed, not state)
+  const initialQuery = useMemo(
+    () => searchParams.get("initial") ?? undefined,
+    [searchParams],
+  );
 
-  const { t } = getTranslations(translations, params.locale);
+  const [locale, setLocale] = useState<"en" | "zh">("en");
 
-  const query = Array.isArray(searchParams.q)
-    ? searchParams.q[0]
-    : searchParams.q;
+  useEffect(() => {
+    void (async () => {
+      const resolvedParams = await params;
+      setLocale(resolvedParams.locale);
+    })();
+  }, [params]);
+
+  const handleInitialQuerySent = () => {
+    // Clear the initial query param from URL after sending
+    router.replace(`/${locale}/movie-database/ai-search`);
+  };
+
+  // Transform translations for provider
+  const transformedTranslations: { [key: string]: string } = {};
+  for (const [key, value] of Object.entries(translations)) {
+    if (typeof value === "object" && value !== null && locale in value) {
+      transformedTranslations[key] = value[locale];
+    }
+  }
+
+  // Transform poster image translations
+  const transformedPosterImageTranslations: { [key: string]: string } = {};
+  for (const [key, value] of Object.entries(posterImageTranslations)) {
+    if (typeof value === "object" && value !== null && locale in value) {
+      transformedPosterImageTranslations[key] = value[locale];
+    }
+  }
+
+  // Transform card translations
+  const transformedCardTranslations: { [key: string]: string } = {};
+  for (const [key, value] of Object.entries(cardTranslations)) {
+    if (typeof value === "object" && value !== null && locale in value) {
+      transformedCardTranslations[key] = value[locale];
+    }
+  }
 
   return (
-    <div css={styles.container}>
-      <AISearchHeader title={t("aiSearchResults")} query={query} />
-
-      {!query ? (
-        <div css={styles.emptyState}>
-          <p css={styles.emptyText}>{t("noQuery")}</p>
-        </div>
-      ) : (
-        <Suspense
-          fallback={
-            <Grid>
-              {Array.from({ length: 20 }).map((_, i) => (
-                <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
-              ))}
-            </Grid>
-          }
-        >
-          <SearchContent query={query} locale={params.locale} />
-        </Suspense>
-      )}
-    </div>
+    <TranslationContextProvider
+      translations={{
+        "movie-database": transformedTranslations,
+        posterImage: transformedPosterImageTranslations,
+        card: transformedCardTranslations,
+      }}
+      locale={locale}
+    >
+      <ConversationalSearch
+        locale={locale}
+        initialQuery={initialQuery}
+        onInitialQuerySent={handleInitialQuerySent}
+      />
+    </TranslationContextProvider>
   );
 }
-
-interface AISearchHeaderProps {
-  title: string;
-  query?: string;
-}
-
-function AISearchHeader({ title, query }: AISearchHeaderProps) {
-  return (
-    <div css={styles.header}>
-      <div css={styles.headerContent}>
-        <h1 css={styles.title}>{title}</h1>
-        {query && <p css={styles.queryText}>"{query}"</p>}
-      </div>
-    </div>
-  );
-}
-
-const styles = stylex.create({
-  container: {
-    padding: space._3,
-    maxWidth: "1200px",
-    marginInline: "auto",
-  },
-
-  header: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: space._4,
-    marginBottom: space._6,
-    flexWrap: "wrap",
-  },
-
-  headerContent: {
-    flexGrow: 1,
-    minWidth: 0,
-  },
-
-  title: {
-    fontSize: "24px",
-    fontWeight: 700,
-    color: color.textMain,
-    margin: 0,
-    marginBottom: space._1,
-  },
-
-  queryText: {
-    fontSize: "16px",
-    color: color.controlActive,
-    fontWeight: 600,
-    margin: 0,
-  },
-
-  resultCount: {
-    color: color.textMuted,
-    fontWeight: 400,
-  },
-
-  emptyState: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "400px",
-    textAlign: "center",
-    padding: space._6,
-  },
-
-  emptyText: {
-    fontSize: "18px",
-    color: color.textMuted,
-    margin: 0,
-  },
-
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
-  },
-});

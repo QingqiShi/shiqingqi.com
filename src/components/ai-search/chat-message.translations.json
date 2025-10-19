@@ -1,0 +1,18 @@
+{
+  "en": {
+    "thinking": "Thinking: {summary}...",
+    "stillProcessing": "Still processing...",
+    "retryButton": "Retry",
+    "errorMessage": "An error occurred",
+    "noResults": "No results found",
+    "streamingIndicator": "●●●"
+  },
+  "zh": {
+    "thinking": "思考中：{summary}...",
+    "stillProcessing": "仍在处理中...",
+    "retryButton": "重试",
+    "errorMessage": "发生错误",
+    "noResults": "未找到结果",
+    "streamingIndicator": "●●●"
+  }
+}

@@ -58,9 +58,9 @@ export function SearchButton() {
     event.preventDefault();
     if (!query.trim()) return;
 
-    // Navigate to AI search results page
+    // Navigate to AI search page with initial query
     const searchUrl = getLocalePath("/movie-database/ai-search", locale);
-    router.push(`${searchUrl}?q=${encodeURIComponent(query.trim())}`);
+    router.push(`${searchUrl}?initial=${encodeURIComponent(query.trim())}`);
     handleClose();
     setQuery("");
   };
