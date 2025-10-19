@@ -47,7 +47,7 @@ export default async function Layout({
           <Suspense
             fallback={
               <>
-                <FiltersSkeleton />
+                <FiltersSkeleton locale={validatedLocale} />
                 <Grid>
                   {Array.from({ length: 20 }).map((_, i) => (
                     <Skeleton key={i} css={styles.skeleton} delay={i * 100} />

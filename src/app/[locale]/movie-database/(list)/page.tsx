@@ -104,7 +104,7 @@ export default async function Page(
           mediaType,
         }}
       >
-        <Suspense fallback={<FiltersSkeleton />}>
+        <Suspense fallback={<FiltersSkeleton locale={params.locale} />}>
           <Filters
             locale={params.locale}
             mobileButtonLabel={t("filterMobileButtonLabel")}
