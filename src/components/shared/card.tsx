@@ -2,6 +2,7 @@
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
+import { ViewTransition } from "react";
 import { useTranslations } from "@/hooks/use-translations";
 import { border, color, font, layer, shadow, space } from "@/tokens.stylex";
 import { Anchor } from "./anchor";
@@ -13,14 +14,16 @@ type CardProps = React.ComponentProps<typeof Anchor>;
 export function Card({ children, className, style, ...rest }: CardProps) {
   const { t } = useTranslations<typeof translations>("card");
   return (
-    <Anchor {...rest} className={className} style={style} css={styles.card}>
-      {children}
-      <div css={styles.detailsBackdrop} />
-      <div css={styles.detailsIndicator}>
-        <span css={styles.detailsText}>{t("details")}</span>
-        <ArrowRightIcon />
-      </div>
-    </Anchor>
+    <ViewTransition name="card">
+      <Anchor {...rest} className={className} style={style} css={styles.card}>
+        {children}
+        <div css={styles.detailsBackdrop} />
+        <div css={styles.detailsIndicator}>
+          <span css={styles.detailsText}>{t("details")}</span>
+          <ArrowRightIcon />
+        </div>
+      </Anchor>
+    </ViewTransition>
   );
 }
 
