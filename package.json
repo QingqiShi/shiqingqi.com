@@ -59,7 +59,7 @@
     "@eslint/js": "^9.38.0",
     "@next/eslint-plugin-next": "16.0.0-canary.4",
     "@playwright/test": "^1.56.1",
-    "@serwist/turbopack": "10.0.0-preview.10",
+    "@serwist/turbopack": "10.0.0-preview.14",
     "@stylexjs/babel-plugin": "^0.16.1",
     "@stylexjs/eslint-plugin": "^0.16.1",
     "@stylexjs/postcss-plugin": "^0.16.1",
