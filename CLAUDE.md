@@ -2,7 +2,7 @@
 
 ALWAYS follow these rules
 
-- Run `pnpm lint:changed` `pnpm test` and `pnpm build:tsc` before any task is considered complete.
+- Run `pnpm format:changed`, `pnpm lint:changed`, `pnpm test`, and `pnpm build:tsc` before any task is considered complete.
 - NEVER EVER use `any` type explicitly or implicitly
 - AVOID type assertions (`as Type`)
 - Prefer letting TypeScript infer types over explicit type annotations
