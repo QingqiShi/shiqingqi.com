@@ -55,17 +55,17 @@ export default async function RootLayout({
           swUrl="/serwist/sw.js"
           register={process.env.NODE_ENV !== "development"}
         >
-          <PortalTargetProvider>
-            <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-            <ViewTransition>
+          <script dangerouslySetInnerHTML={{ __html: themeHack }} />
+          <ViewTransition>
+            <PortalTargetProvider>
               <Suspense fallback={<HeaderSkeleton />}>
                 <Header locale={validatedLocale} />
               </Suspense>
               {children}
-            </ViewTransition>
-            <Analytics />
-            <SpeedInsights />
-          </PortalTargetProvider>
+            </PortalTargetProvider>
+          </ViewTransition>
+          <Analytics />
+          <SpeedInsights />
         </SerwistProvider>
       </body>
     </html>
