@@ -1,9 +1,7 @@
-import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { Card } from "@/components/shared/card";
 import { Skeleton } from "@/components/shared/skeleton";
-import { svgTokens } from "@/logos/svg.stylex";
-import { color, font, ratio, space } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 
 interface ExperienceCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode;
@@ -18,36 +16,24 @@ export function ExperienceCard({
   ...rest
 }: ExperienceCardProps) {
   return (
-    <Card {...rest} className={className} style={style} css={styles.card}>
+    <Card
+      {...rest}
+      className={cn(
+        "items-center grid gap-1 grid-rows-[1fr_auto] justify-start",
+        "[--svg-fill:theme(colors.gray.11)] dark:[--svg-fill:theme(colors.grayDark.11)]",
+        "hover:[--svg-fill:theme(colors.gray.12)] dark:hover:[--svg-fill:theme(colors.grayDark.12)]",
+        className,
+      )}
+      style={style}
+    >
       <Suspense fallback={<Skeleton />}>
-        <div css={styles.logo}>{logo}</div>
+        <div className="flex items-center aspect-[2/1] h-full justify-start min-h-0">
+          {logo}
+        </div>
       </Suspense>
-      <time css={styles.dates}>{dates}</time>
+      <time className="text-sm font-semibold text-gray-11 dark:text-grayDark-11">
+        {dates}
+      </time>
     </Card>
   );
 }
-
-const styles = stylex.create({
-  card: {
-    alignItems: "center",
-    display: "grid",
-    gap: space._1,
-    gridTemplateRows: "1fr auto",
-    justifyContent: "flex-start",
-    // Override svg css variables to be muted when not hovering
-    [svgTokens.fill]: { ":not(:hover)": color.textMuted },
-  },
-  logo: {
-    alignItems: "center",
-    aspectRatio: ratio.double,
-    display: "flex",
-    height: "100%",
-    justifyContent: "flex-start",
-    minHeight: 0,
-  },
-  dates: {
-    fontSize: font.size_00,
-    fontWeight: font.weight_6,
-    color: color.textMuted,
-  },
-});

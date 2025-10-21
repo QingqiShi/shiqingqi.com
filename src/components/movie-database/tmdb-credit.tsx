@@ -1,11 +1,10 @@
 "use client";
 
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
-import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
 import { useTranslations } from "@/hooks/use-translations";
-import { border, font, space } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 import type { SupportedLocale } from "@/types";
 import { MenuButton } from "../shared/menu-button";
 import type translations from "./translations.json";
@@ -23,12 +22,12 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
       buttonProps={{ icon: <InfoIcon /> }}
       menuContent={
         <div
-          css={[
-            styles.container,
-            position === "viewportWidth" && styles.viewportContainer,
-          ]}
+          className={cn(
+            "p-2 flex gap-2 items-center text-base",
+            position === "viewportWidth" ? "" : "w-[50dvw] max-w-[500px]",
+          )}
         >
-          <div css={styles.imageContainer}>
+          <div className="bg-[#0d253f] rounded-2xl p-2">
             <Image
               src="/tmdb.svg"
               alt={t("tmdbLogo")}
@@ -42,24 +41,3 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
     />
   );
 }
-
-const styles = stylex.create({
-  container: {
-    padding: space._2,
-    display: "flex",
-    gap: space._2,
-    alignItems: "center",
-    width: "50dvw",
-    maxWidth: 500,
-    fontSize: font.size_0,
-  },
-  viewportContainer: {
-    width: null,
-    maxWidth: null,
-  },
-  imageContainer: {
-    backgroundColor: "#0d253f",
-    borderRadius: border.radius_2,
-    padding: space._2,
-  },
-});

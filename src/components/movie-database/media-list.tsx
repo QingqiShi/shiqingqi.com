@@ -1,13 +1,10 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useDeferredValue, useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
-import { breakpoints } from "@/breakpoints.stylex";
 import { Grid } from "@/components/movie-database/grid";
 import { useMediaFilters } from "@/hooks/use-media-filters";
-import { color, ratio, space } from "@/tokens.stylex";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
 import type { MediaListItem } from "@/utils/types";
@@ -59,7 +56,11 @@ export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
   const [initialCount] = useState(items.length);
 
   if (!items.length) {
-    return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
+    return (
+      <div className="max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)] my-0 mx-auto pl-[calc(0.75rem+env(safe-area-inset-left))] pr-[calc(0.75rem+env(safe-area-inset-right))] text-gray-11 dark:text-grayDark-11 text-center">
+        🙉 {notFoundLabel}
+      </div>
+    );
   }
 
   return (
@@ -90,7 +91,12 @@ function ItemContent({
   const item = items[index];
 
   if (!item) {
-    return <Skeleton css={styles.skeleton} delay={index * 100} />;
+    return (
+      <Skeleton
+        className="aspect-[2/3] w-full overflow-hidden"
+        delay={index * 100}
+      />
+    );
   }
 
   const allowFollow = index < 20;
@@ -101,23 +107,3 @@ function ItemContent({
 const gridComponents = {
   List: Grid,
 };
-
-const styles = stylex.create({
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
-    overflow: "hidden",
-  },
-  notFound: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    color: color.textMuted,
-    textAlign: "center",
-  },
-});

@@ -1,9 +1,7 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { Card } from "@/components/shared/card";
 import { useTranslations } from "@/hooks/use-translations";
-import { border, color, font, layer, ratio, space } from "@/tokens.stylex";
 import { getLocalePath } from "@/utils/pathname";
 import { useTranslationContext } from "@/utils/translation-context";
 import type { MediaListItem } from "@/utils/types";
@@ -28,73 +26,27 @@ export function MediaCard({ media, allowFollow }: MediaCardProps) {
   return (
     <Card
       href={href}
-      css={styles.card}
+      className="aspect-[2/3] w-full"
       aria-label={media.title ?? undefined}
       rel={allowFollow ? undefined : "nofollow"}
     >
-      <div css={styles.posterContainer}>
+      <div className="absolute top-0 left-0 right-0 bottom-0 z-base">
         {media.posterPath && media.title ? (
           <PosterImage posterPath={media.posterPath} alt={media.title} />
         ) : (
-          <div css={[styles.poster, styles.errored]}>
+          <div className="w-full h-full object-cover absolute flex flex-col items-center justify-center text-center surface-raised z-background">
             <div>{media.title}</div>
-            <div css={styles.errorText}>{t("failedToLoadImage")}</div>
+            <div className="text-sm text-gray-11 dark:text-grayDark-11">
+              {t("failedToLoadImage")}
+            </div>
           </div>
         )}
         {media.rating ? (
-          <div css={styles.rating}>{formatter.format(media.rating)}</div>
+          <div className="absolute top-1 left-1 w-6 h-6 rounded-full surface-raised border-[.2em] border-gray-12 dark:border-grayDark-12 text-sm flex items-center justify-center">
+            {formatter.format(media.rating)}
+          </div>
         ) : null}
       </div>
     </Card>
   );
 }
-
-const styles = stylex.create({
-  card: {
-    aspectRatio: ratio.poster,
-    width: "100%",
-  },
-  posterContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: layer.base,
-  },
-  poster: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  errored: {
-    position: "absolute",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    backgroundColor: color.backgroundRaised,
-    zIndex: layer.background,
-  },
-  errorText: {
-    fontSize: font.size_00,
-    color: color.textMuted,
-  },
-  rating: {
-    position: "absolute",
-    top: space._1,
-    left: space._1,
-    width: space._5,
-    height: space._5,
-    borderRadius: border.radius_round,
-    backgroundColor: color.backgroundRaised,
-    borderWidth: ".2em",
-    borderColor: color.textMain,
-    borderStyle: "solid",
-    fontSize: font.size_00,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

@@ -2,15 +2,16 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@/test-utils";
 import { Button } from "./button";
 
-describe("Button StyleX Integration", () => {
-  it("renders button with StyleX classes applied", () => {
+describe("Button Tailwind Integration", () => {
+  it("renders button with Tailwind classes applied", () => {
     render(<Button>Test Button</Button>);
 
     const button = screen.getByRole("button");
 
-    // Verify that StyleX is working by checking that real classes are applied
+    // Verify that Tailwind classes are applied
     expect(button.className).toBeTruthy();
-    expect(button.className).toContain("button__styles.button");
+    expect(button.className).toContain("inline-flex");
+    expect(button.className).toContain("rounded-full");
   });
 
   it("applies different classes for bright variant", () => {
@@ -24,7 +25,7 @@ describe("Button StyleX Integration", () => {
 
     // Different variants should have different class names
     expect(normalButton?.className).not.toBe(brightButton?.className);
-    expect(brightButton?.className).toContain("bright");
+    expect(brightButton?.className).toContain("bg-white");
   });
 
   it("applies different classes for active state", () => {
@@ -38,6 +39,6 @@ describe("Button StyleX Integration", () => {
 
     // Active state should have different class names
     expect(normalButton?.className).not.toBe(activeButton?.className);
-    expect(activeButton?.className).toContain("active");
+    expect(activeButton?.className).toContain("bg-purple-9");
   });
 });

@@ -3,7 +3,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { globalStyles } from "@/app/global-styles";
 import { SerwistProvider } from "@/components/serwist-provider";
 import { PortalTargetProvider } from "@/components/shared/fixed-element-portal-target";
 import { Header } from "@/components/shared/header";
@@ -50,7 +49,7 @@ export default async function RootLayout({
           />
         )}
       </head>
-      <body css={globalStyles.body}>
+      <body>
         <SerwistProvider
           swUrl="/serwist/sw.js"
           register={process.env.NODE_ENV !== "development"}

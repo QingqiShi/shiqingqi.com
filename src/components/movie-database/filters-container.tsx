@@ -1,7 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { breakpoints } from "@/breakpoints.stylex";
-import { layer, space } from "@/tokens.stylex";
 
 interface FiltersContainerProps {
   desktopChildren?: ReactNode;
@@ -14,58 +11,16 @@ export function FiltersContainer({
 }: FiltersContainerProps) {
   return (
     <>
-      <div css={[styles.desktopContainer, styles.desktopVisible]}>
-        <div css={styles.desktopInnerContainer}>
-          <div css={styles.desktopContent}>{desktopChildren}</div>
+      <div className="hidden md:inline-flex fixed top-[calc(2.5rem+env(safe-area-inset-top))] right-0 left-0 z-overlay pointer-events-none pr-[var(--removed-body-scroll-bar-size,0px)]">
+        <div className="w-full max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)] mx-auto pl-[calc(0.75rem+env(safe-area-inset-left))] pr-[calc(0.75rem+env(safe-area-inset-right))] pointer-events-none flex">
+          <div className="pointer-events-auto flex items-center gap-1">
+            {desktopChildren}
+          </div>
         </div>
       </div>
-      <div css={[styles.mobileContainer, styles.mobileVisible]}>
+      <div className="inline-flex md:hidden fixed right-[calc(0.75rem+var(--removed-body-scroll-bar-size,0px))] top-[calc(2.5rem+env(safe-area-inset-top))] z-overlay">
         {mobileChildren}
       </div>
     </>
   );
 }
-
-const styles = stylex.create({
-  desktopVisible: {
-    display: { default: "none", [breakpoints.md]: "inline-flex" },
-  },
-  mobileVisible: {
-    display: { default: "inline-flex", [breakpoints.md]: "none" },
-  },
-
-  desktopContainer: {
-    position: "fixed",
-    top: `calc(${space._10} + env(safe-area-inset-top))`,
-    right: 0,
-    left: 0,
-    zIndex: layer.overlay,
-    pointerEvents: "none",
-    paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
-  },
-  desktopInnerContainer: {
-    width: "100%",
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
-    marginInline: "auto",
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    pointerEvents: "none",
-    display: "flex",
-  },
-  desktopContent: {
-    pointerEvents: "all",
-    display: "flex",
-    alignItems: "center",
-    gap: space._1,
-  },
-
-  mobileContainer: {
-    position: "fixed",
-    right: `calc(${space._3} + var(--removed-body-scroll-bar-size, 0px))`,
-    top: `calc(${space._10} + env(safe-area-inset-top))`,
-    zIndex: layer.overlay,
-  },
-});

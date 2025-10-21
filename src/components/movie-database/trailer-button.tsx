@@ -1,7 +1,6 @@
 "use client";
 
 import { PlayIcon } from "@phosphor-icons/react/Play";
-import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import type { SupportedLocale } from "@/types";
@@ -31,7 +30,7 @@ export function TrailerButton({
       </Button>
       <Overlay isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <iframe
-          css={styles.video}
+          className="w-full h-full"
           width="720"
           height="405"
           src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
@@ -42,10 +41,3 @@ export function TrailerButton({
     </>
   );
 }
-
-const styles = stylex.create({
-  video: {
-    width: "100%",
-    height: "100%",
-  },
-});

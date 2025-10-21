@@ -1,10 +1,8 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useState, type ReactNode } from "react";
 import { PORTAL_TARGET_ID } from "@/constants/portal";
 import { PortalContext } from "@/contexts/portal-context";
-import { layer } from "@/tokens.stylex";
 
 /**
  * A provider component that renders a fixed portal target element and makes it
@@ -37,20 +35,11 @@ export function PortalTargetProvider({ children }: { children: ReactNode }) {
   return (
     <PortalContext value={{ portalTarget }}>
       {children}
-      <div id={PORTAL_TARGET_ID} ref={setPortalTarget} css={styles.container} />
+      <div
+        id={PORTAL_TARGET_ID}
+        ref={setPortalTarget}
+        className="fixed top-0 left-0 w-full h-dvh pointer-events-none z-tooltip will-change-transform"
+      />
     </PortalContext>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100dvh",
-    pointerEvents: "none",
-    zIndex: layer.tooltip,
-    willChange: "transform",
-  },
-});

@@ -1,7 +1,7 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useLayoutEffect, useRef, type PropsWithChildren } from "react";
+import { cn } from "@/lib/utils";
 
 const animationOptions: KeyframeAnimationOptions = {
   duration: 300,
@@ -127,35 +127,23 @@ export function AnimateToTarget({
   return (
     <div
       ref={containerRef}
-      className={className}
+      className={cn(
+        "origin-top-left will-change-transform",
+        inline && "inline-block",
+        animateToTarget && "pointer-events-none opacity-0",
+        className,
+      )}
       style={style}
-      css={[
-        styles.container,
-        inline && styles.inline,
-        animateToTarget && styles.hidden,
-      ]}
     >
-      <div ref={innerRef} css={[styles.inner, inline && styles.inline]}>
+      <div
+        ref={innerRef}
+        className={cn(
+          "origin-top-left will-change-transform",
+          inline && "inline-block",
+        )}
+      >
         {children}
       </div>
     </div>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    transformOrigin: "top left",
-    willChange: "transform",
-  },
-  inner: {
-    transformOrigin: "top left",
-    willChange: "transform",
-  },
-  inline: {
-    display: "inline-block",
-  },
-  hidden: {
-    pointerEvents: "none",
-    opacity: 0,
-  },
-});

@@ -1,5 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, ReactNode, Ref } from "react";
+import { cn } from "@/lib/utils";
 
 interface FixedContainerContentProps {
   children: ReactNode;
@@ -32,14 +32,12 @@ export function FixedContainerContent({
   ref,
 }: FixedContainerContentProps) {
   return (
-    <div ref={ref} css={styles.container} className={className} style={style}>
+    <div
+      ref={ref}
+      className={cn("will-change-transform", className)}
+      style={style}
+    >
       {children}
     </div>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    willChange: "transform",
-  },
-});

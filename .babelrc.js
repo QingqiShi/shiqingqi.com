@@ -25,28 +25,5 @@ module.exports = {
         },
       },
     ],
-    "./tooling/stylex-css-prop",
-    [
-      "./tooling/stylex-breakpoints",
-      {
-        rootDir: __dirname,
-      },
-    ],
-    [
-      "@stylexjs/babel-plugin",
-      {
-        dev: process.env.NODE_ENV === "development",
-        test: process.env.NODE_ENV === "test",
-        runtimeInjection: false,
-        genConditionalClasses: true,
-        treeshakeCompensation: true,
-        styleResolution: "property-specificity",
-        enableMediaQueryOrder: true,
-        unstable_moduleResolution: {
-          type: "commonJS",
-          rootDir: __dirname,
-        },
-      },
-    ],
   ],
 };

@@ -1,6 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
-import { font, space } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { Anchor } from "../shared/anchor";
@@ -16,13 +14,20 @@ export function Footer({ locale }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer css={styles.footer}>
-      <div css={[styles.section, styles.linksSection]}>
+    <footer className="flex flex-wrap justify-between items-center pb-8 mt-[40px] sm:mt-[64px]">
+      <div
+        className={cn(
+          "flex flex-col",
+          "items-center md:items-start md:items-center",
+          "mb-7 md:mb-0",
+          "w-full md:w-1/2",
+        )}
+      >
         <Anchor
           href="https://github.com/QingqiShi"
           target="_blank"
           rel="nofollow me noopener noreferrer"
-          css={styles.link}
+          className="block text-base [&:not(:last-of-type)]:mb-0 py-1 md:py-0"
         >
           GitHub
         </Anchor>
@@ -34,59 +39,22 @@ export function Footer({ locale }: FooterProps) {
           }
           target="_blank"
           rel="nofollow me noopener noreferrer"
-          css={styles.link}
+          className="block text-base [&:not(:last-of-type)]:mb-0 py-1 md:py-0"
         >
           LinkedIn
         </Anchor>
       </div>
-      <div css={[styles.section, styles.copyrightSection]}>
+      <div
+        className={cn(
+          "w-full md:w-1/2",
+          "text-center md:text-right md:items-center md:justify-end",
+        )}
+      >
         <small>
-          <span css={styles.name}>{t("name")}</span>
-          <span css={styles.copyright}>© {currentYear}</span>
+          <span className="block font-extrabold text-2xl">{t("name")}</span>
+          <span className="block font-extrabold text-xl">© {currentYear}</span>
         </small>
       </div>
     </footer>
   );
 }
-
-const styles = stylex.create({
-  footer: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingBottom: space._8,
-    marginTop: { default: space._9, [breakpoints.sm]: space._11 },
-  },
-  section: {
-    alignItems: { default: null, [breakpoints.md]: "center" },
-  },
-  linksSection: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: { default: "center", [breakpoints.md]: "flex-start" },
-    marginBottom: { default: space._7, [breakpoints.md]: 0 },
-    width: { default: "100%", [breakpoints.md]: "50%" },
-  },
-  copyrightSection: {
-    width: { default: "100%", [breakpoints.md]: "50%" },
-    textAlign: { default: "center", [breakpoints.md]: "right" },
-    justifyContent: { default: null, [breakpoints.md]: "flex-end" },
-  },
-  name: {
-    display: "block",
-    fontWeight: font.weight_8,
-    fontSize: font.size_4,
-  },
-  copyright: {
-    display: "block",
-    fontWeight: font.weight_8,
-    fontSize: font.size_3,
-  },
-  link: {
-    display: "block",
-    fontSize: font.size_0,
-    marginBottom: { default: null, ":not(:last-of-type)": space._0 },
-    paddingBlock: { default: space._1, [breakpoints.md]: 0 },
-  },
-});

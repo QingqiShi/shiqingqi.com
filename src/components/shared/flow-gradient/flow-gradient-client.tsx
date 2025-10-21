@@ -1,9 +1,7 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTheme } from "@/hooks/use-theme";
-import { color, layer } from "@/tokens.stylex";
 import { init, start } from "./loop";
 
 interface FlowGradientClientProps {
@@ -37,17 +35,7 @@ export function FlowGradientClient({ vs, fs }: FlowGradientClientProps) {
           }
         }
       }}
-      css={styles.canvas}
+      className="w-full h-full surface-main will-change-transform z-base"
     />
   );
 }
-
-const styles = stylex.create({
-  canvas: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: color.backgroundMain,
-    willChange: "transform",
-    zIndex: layer.base,
-  },
-});

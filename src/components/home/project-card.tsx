@@ -1,8 +1,6 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { Card } from "@/components/shared/card";
-import { svgTokens } from "@/logos/svg.stylex";
-import { color, font, space } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 
 interface ProjectCardProps extends React.ComponentProps<typeof Card> {
   icon: ReactNode;
@@ -19,44 +17,27 @@ export function ProjectCard({
   ...rest
 }: ProjectCardProps) {
   return (
-    <Card {...rest} className={className} style={style} css={styles.card}>
-      <div css={styles.row}>
-        <div css={styles.logo}>{icon}</div>
-        <div css={styles.name}>{name}</div>
+    <Card
+      {...rest}
+      className={cn(
+        "relative text-gray-11 dark:text-grayDark-11",
+        "[--svg-fill:theme(colors.gray.11)] dark:[--svg-fill:theme(colors.grayDark.11)]",
+        "hover:[--svg-fill:theme(colors.gray.12)] dark:hover:[--svg-fill:theme(colors.grayDark.12)]",
+        className,
+      )}
+      style={style}
+    >
+      <div className="grid grid-cols-[64px_1fr] items-center gap-0 mb-1">
+        <div className="flex items-center justify-start min-h-0 [color:var(--svg-fill)]">
+          {icon}
+        </div>
+        <div className="text-base font-bold text-gray-11 dark:text-grayDark-11">
+          {name}
+        </div>
       </div>
-      <div css={styles.description}>{description}</div>
+      <div className="text-sm font-normal text-gray-11 dark:text-grayDark-11">
+        {description}
+      </div>
     </Card>
   );
 }
-
-const styles = stylex.create({
-  card: {
-    position: "relative",
-    color: color.textMuted,
-    [svgTokens.fill]: { ":not(:hover)": color.textMuted },
-  },
-  row: {
-    display: "grid",
-    gridTemplateColumns: "64px 1fr",
-    alignItems: "center",
-    gap: space._0,
-    marginBottom: space._1,
-  },
-  logo: {
-    alignItems: "center",
-    display: "flex",
-    justifyContent: "flex-start",
-    minHeight: 0,
-    color: svgTokens.fill,
-  },
-  name: {
-    fontSize: font.size_0,
-    fontWeight: font.weight_7,
-    color: color.textMuted,
-  },
-  description: {
-    fontSize: font.size_00,
-    fontWeight: font.weight_4,
-    color: color.textMuted,
-  },
-});

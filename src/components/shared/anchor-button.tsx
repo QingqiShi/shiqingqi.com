@@ -1,9 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
-import { color, controlSize } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 import { Anchor } from "./anchor";
-import { anchorTokens } from "./anchor.stylex";
-import { buttonTokens } from "./button.stylex";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
   bright?: boolean;
@@ -25,24 +21,41 @@ export function AnchorButton({
   return (
     <Anchor
       {...props}
-      className={className}
+      className={cn(
+        // Base styles
+        "inline-flex items-center gap-2",
+        "min-h-[40px] md:min-h-[32px]",
+        "py-1 px-3 rounded-full",
+        "text-base no-underline cursor-pointer",
+        "transition-all duration-200",
+
+        // Icon padding adjustment
+        icon && children && (hideLabelOnMobile ? "pl-3 md:pl-2" : "pl-2"),
+
+        // Variant styles
+        !isActive &&
+          !bright && [
+            "surface-raised surface-hover",
+            "text-gray-12 dark:text-grayDark-12",
+          ],
+        isActive && ["bg-purple-9 text-white", "hover:bg-purple-10"],
+        bright && [
+          "bg-white dark:bg-gray-11",
+          "text-gray-12 dark:text-grayDark-1",
+          "hover:brightness-110",
+        ],
+
+        className,
+      )}
       style={style}
-      css={[
-        styles.button,
-        !!icon &&
-          !!children &&
-          (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
-        bright && styles.bright,
-        isActive && styles.active,
-      ]}
     >
-      {icon && <span css={styles.icon}>{icon}</span>}
+      {icon && <span className="inline-flex">{icon}</span>}
       {children && (
         <span
-          css={[
-            styles.childrenContainer,
-            hideLabelOnMobile && styles.hideLabelOnMobile,
-          ]}
+          className={cn(
+            "inline-flex items-center gap-2",
+            hideLabelOnMobile && "hidden md:inline-flex",
+          )}
         >
           {children}
         </span>
@@ -50,68 +63,3 @@ export function AnchorButton({
     </Anchor>
   );
 }
-
-const styles = stylex.create({
-  button: {
-    // Reset
-    fontSize: controlSize._4,
-    textDecoration: "none",
-    cursor: "pointer",
-
-    // Custom styles
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
-    height: buttonTokens.height,
-    paddingBlock: controlSize._1,
-    paddingInline: controlSize._3,
-    borderRadius: buttonTokens.borderRadius,
-    boxShadow: buttonTokens.boxShadow,
-    transition: "background 0.2s ease",
-    backgroundColor: {
-      default: color.backgroundRaised,
-      ":hover": color.backgroundHover,
-      ":disabled:hover": color.backgroundRaised,
-    },
-    opacity: {
-      default: null,
-      ":disabled": 0.7,
-    },
-    [anchorTokens.color]: buttonTokens.color,
-  },
-  hasIcon: {
-    paddingLeft: controlSize._2,
-  },
-  hasIconHideLabel: {
-    paddingLeft: { default: controlSize._3, [breakpoints.md]: controlSize._2 },
-  },
-  icon: {
-    display: "inline-flex",
-  },
-  childrenContainer: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
-  },
-  hideLabelOnMobile: {
-    display: { default: "none", [breakpoints.md]: "inline-flex" },
-  },
-  active: {
-    [anchorTokens.color]: {
-      default: color.textOnActive,
-      ":hover": color.textOnActive,
-    },
-    backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
-      ":disabled:hover": color.controlActive,
-    },
-  },
-  bright: {
-    backgroundColor: color.controlThumb,
-    [buttonTokens.color]: color.textOnControlThumb,
-    filter: {
-      ":hover": "brightness(1.2)",
-    },
-  },
-});

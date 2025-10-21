@@ -1,7 +1,6 @@
-import * as stylex from "@stylexjs/stylex";
 import { useRouter } from "next/navigation";
 import type { PropsWithChildren } from "react";
-import { color, font, border, controlSize } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 
 interface ItemProps {
   ariaLabel?: string;
@@ -28,7 +27,16 @@ export function MenuItem({
       href={href}
       aria-label={ariaLabel}
       role="menuItem"
-      css={[styles.item, isActive && styles.itemActive]}
+      className={cn(
+        "flex items-center justify-between gap-5 md:gap-[20px]",
+        "h-[40px] md:h-[32px] p-3 md:p-[12px]",
+        "font-semibold text-base md:text-[16px]",
+        "rounded-sm no-underline",
+        "transition-colors duration-200",
+        isActive
+          ? "text-white bg-purple-9 pointer-events-none"
+          : "text-gray-12 dark:text-grayDark-12 hover:text-gray-11 dark:hover:text-grayDark-11 hover:bg-gray-3 dark:hover:bg-grayDark-3",
+      )}
       ref={(el) => {
         if (autoFocus) el?.focus();
       }}
@@ -45,26 +53,3 @@ export function MenuItem({
     </a>
   );
 }
-
-const styles = stylex.create({
-  item: {
-    color: { default: color.textMain, ":hover": color.textMuted },
-    fontWeight: font.weight_6,
-    alignItems: "center",
-    backgroundColor: { default: null, ":hover": color.backgroundHover },
-    borderRadius: border.radius_1,
-    display: "flex",
-    fontSize: controlSize._4,
-    gap: controlSize._5,
-    height: controlSize._9,
-    justifyContent: "space-between",
-    padding: controlSize._3,
-    textDecoration: "none",
-    transition: "background-color 0.2s",
-  },
-  itemActive: {
-    color: color.textOnActive,
-    backgroundColor: color.controlActive,
-    pointerEvents: "none",
-  },
-});

@@ -1,20 +1,21 @@
-import * as stylex from "@stylexjs/stylex";
 import Link from "next/link";
-import { border } from "@/tokens.stylex";
-import { anchorTokens } from "./anchor.stylex";
+import { cn } from "@/lib/utils";
 
 export function Anchor({
   className,
-  style,
   ...props
 }: React.ComponentProps<typeof Link>) {
-  return <Link {...props} className={className} style={style} css={styles.a} />;
+  return (
+    <Link
+      {...props}
+      className={cn(
+        "font-semibold",
+        "text-gray-12 dark:text-grayDark-12",
+        "hover:text-gray-11 dark:hover:text-grayDark-11",
+        "hover:underline hover:decoration-2",
+        "transition-colors duration-200",
+        className,
+      )}
+    />
+  );
 }
-
-const styles = stylex.create({
-  a: {
-    color: anchorTokens.color,
-    fontWeight: anchorTokens.fontWeight,
-    textDecorationThickness: { default: null, ":hover": border.size_2 },
-  },
-});

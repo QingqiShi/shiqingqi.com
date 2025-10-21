@@ -1,9 +1,7 @@
-import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { Grid } from "@/components/movie-database/grid";
 import { SearchContent } from "@/components/movie-database/search-content";
 import { Skeleton } from "@/components/shared/skeleton";
-import { color, ratio, space } from "@/tokens.stylex";
 import type { PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import translations from "../translations.json";
@@ -23,19 +21,25 @@ export default async function AISearchPage(props: AISearchPageProps) {
     : searchParams.q;
 
   return (
-    <div css={styles.container}>
+    <div className="p-3 max-w-[1200px] mx-auto">
       <AISearchHeader title={t("aiSearchResults")} query={query} />
 
       {!query ? (
-        <div css={styles.emptyState}>
-          <p css={styles.emptyText}>{t("noQuery")}</p>
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6">
+          <p className="text-lg text-gray-11 dark:text-grayDark-11 m-0">
+            {t("noQuery")}
+          </p>
         </div>
       ) : (
         <Suspense
           fallback={
             <Grid>
               {Array.from({ length: 20 }).map((_, i) => (
-                <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
+                <Skeleton
+                  key={i}
+                  className="aspect-poster w-full"
+                  delay={i * 100}
+                />
               ))}
             </Grid>
           }
@@ -54,73 +58,17 @@ interface AISearchHeaderProps {
 
 function AISearchHeader({ title, query }: AISearchHeaderProps) {
   return (
-    <div css={styles.header}>
-      <div css={styles.headerContent}>
-        <h1 css={styles.title}>{title}</h1>
-        {query && <p css={styles.queryText}>"{query}"</p>}
+    <div className="flex items-start gap-4 mb-6 flex-wrap">
+      <div className="flex-grow min-w-0">
+        <h1 className="text-2xl font-bold text-gray-12 dark:text-grayDark-12 m-0 mb-1">
+          {title}
+        </h1>
+        {query && (
+          <p className="text-base text-control-active font-semibold m-0">
+            "{query}"
+          </p>
+        )}
       </div>
     </div>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    padding: space._3,
-    maxWidth: "1200px",
-    marginInline: "auto",
-  },
-
-  header: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: space._4,
-    marginBottom: space._6,
-    flexWrap: "wrap",
-  },
-
-  headerContent: {
-    flexGrow: 1,
-    minWidth: 0,
-  },
-
-  title: {
-    fontSize: "24px",
-    fontWeight: 700,
-    color: color.textMain,
-    margin: 0,
-    marginBottom: space._1,
-  },
-
-  queryText: {
-    fontSize: "16px",
-    color: color.controlActive,
-    fontWeight: 600,
-    margin: 0,
-  },
-
-  resultCount: {
-    color: color.textMuted,
-    fontWeight: 400,
-  },
-
-  emptyState: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "400px",
-    textAlign: "center",
-    padding: space._6,
-  },
-
-  emptyText: {
-    fontSize: "18px",
-    color: color.textMuted,
-    margin: 0,
-  },
-
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
-  },
-});

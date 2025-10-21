@@ -1,10 +1,8 @@
 "use client";
 
 import { TranslateIcon } from "@phosphor-icons/react/Translate";
-import * as stylex from "@stylexjs/stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { LOCALE_COOKIE_NAME } from "@/constants";
-import { controlSize } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 import { MenuButton } from "./menu-button";
@@ -35,7 +33,7 @@ export function LocaleSelector({
         hideLabelOnMobile: true,
       }}
       menuContent={
-        <div css={styles.menu}>
+        <div className="flex flex-col gap-1 overflow-hidden p-1">
           <MenuItem
             ariaLabel="Switch to English"
             href={`${getLocalePath(pathname, "en")}${searchString}`}
@@ -72,18 +70,3 @@ function setLocaleCookie(locale: SupportedLocale) {
   const maxAge = 31536000; // 1 year in seconds
   document.cookie = `${LOCALE_COOKIE_NAME}=${locale};maxAge=${maxAge};path=/;SameSite=Lax`;
 }
-
-const styles = stylex.create({
-  menu: {
-    display: "flex",
-    flexDirection: "column",
-    gap: controlSize._1,
-    overflow: "hidden",
-    padding: controlSize._1,
-  },
-  menuShown: {
-    opacity: 1,
-    pointerEvents: "all",
-    transform: "scale(1, 1)",
-  },
-});

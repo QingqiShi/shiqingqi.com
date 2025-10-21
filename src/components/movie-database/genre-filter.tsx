@@ -1,11 +1,9 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useId } from "react";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
-import { controlSize, space } from "@/tokens.stylex";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { useTranslationContext } from "@/utils/translation-context";
 import { AnchorButton } from "../shared/anchor-button";
@@ -40,10 +38,10 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
   const id = useId();
 
   return (
-    <div css={styles.container}>
+    <div className="flex flex-col gap-4 overflow-auto w-[100dvw] max-w-[min(11.25rem,calc(100dvw-0.75rem-env(safe-area-inset-left)-0.75rem-env(safe-area-inset-right)))]">
       <div>
         {!hideTitle && <MenuLabel>{t("genre")}</MenuLabel>}
-        <div css={styles.genreList}>
+        <div className="flex flex-wrap gap-2">
           {allGenres?.map((genre) => {
             const idString = genre.id.toString();
             const isActive = genres.has(idString);
@@ -104,19 +102,3 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
     </div>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-    overflow: "auto",
-    width: "100dvw",
-    maxWidth: `min(${space._15}, calc(100dvw - ${space._3} - env(safe-area-inset-left) - ${space._3} - env(safe-area-inset-right)))`,
-  },
-  genreList: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: controlSize._2,
-  },
-});

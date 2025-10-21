@@ -1,5 +1,3 @@
-import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import translations from "../../app/[locale]/(home)/(details)/translations.json";
@@ -22,36 +20,14 @@ export function DetailPageTitle({
   const { t } = getTranslations(translations, locale);
 
   return (
-    <header css={styles.container}>
-      <h2 css={styles.subtitle}>
+    <header className="flex flex-col gap-1 pb-8">
+      <h2 className="text-base font-bold text-gray-11 dark:text-grayDark-11 m-0">
         {t(type)} - {title}
       </h2>
-      <h1 css={styles.title}>{role}</h1>
-      <time css={styles.date}>{date}</time>
+      <h1 className="text-4xl m-0">{role}</h1>
+      <time className="block text-base text-gray-11 dark:text-grayDark-11">
+        {date}
+      </time>
     </header>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-    paddingBottom: space._8,
-  },
-  subtitle: {
-    fontSize: font.size_0,
-    fontWeight: font.weight_7,
-    color: color.textMuted,
-    margin: 0,
-  },
-  title: {
-    fontSize: font.size_5,
-    margin: 0,
-  },
-  date: {
-    display: "block",
-    fontSize: font.size_0,
-    color: color.textMuted,
-  },
-});

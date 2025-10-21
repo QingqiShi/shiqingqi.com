@@ -1,6 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
 import { getMovieVideos } from "@/_generated/tmdb-server-functions";
-import { space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { TrailerButton } from "./trailer-button";
@@ -26,16 +24,10 @@ export async function Trailer({ movieId, locale }: TrailerProps) {
   if (!trailer || !trailer.key) return null;
 
   return (
-    <div css={styles.container}>
+    <div className="pt-5">
       <TrailerButton trailerId={trailer.key} locale={locale}>
         {t("playTrailer")}
       </TrailerButton>
     </div>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    paddingTop: space._5,
-  },
-});

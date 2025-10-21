@@ -1,12 +1,9 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
-import { breakpoints } from "@/breakpoints.stylex";
 import { Grid } from "@/components/movie-database/grid";
-import { color, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import { Skeleton } from "../shared/skeleton";
@@ -52,7 +49,11 @@ export function SimilarMediaList({
   }, []);
 
   if (!media.length) {
-    return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
+    return (
+      <div className="max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)] my-0 mx-auto pl-[calc(0.75rem+env(safe-area-inset-left))] pr-[calc(0.75rem+env(safe-area-inset-right))] text-gray-11 dark:text-grayDark-11 text-center">
+        🙉 {notFoundLabel}
+      </div>
+    );
   }
 
   return (
@@ -64,7 +65,10 @@ export function SimilarMediaList({
         media[index] ? (
           <MediaCard media={media[index]} />
         ) : (
-          <Skeleton css={styles.skeleton} delay={index * 100} />
+          <Skeleton
+            className="aspect-[2/3] w-full overflow-hidden"
+            delay={index * 100}
+          />
         )
       }
       endReached={() => {
@@ -82,23 +86,3 @@ export function SimilarMediaList({
 const gridComponents = {
   List: Grid,
 };
-
-const styles = stylex.create({
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
-    overflow: "hidden",
-  },
-  notFound: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    color: color.textMuted,
-    textAlign: "center",
-  },
-});

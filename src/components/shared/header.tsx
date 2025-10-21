@@ -1,10 +1,8 @@
-import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
 import { BackButton } from "@/components/shared/back-button";
 import { FixedContainerContent } from "@/components/shared/fixed-container-content";
 import { LocaleSelector } from "@/components/shared/locale-selector";
 import { ThemeSwitch } from "@/components/shared/theme-switch";
-import { layer, space } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import translations from "./translations.json";
@@ -17,12 +15,20 @@ export function Header({ locale }: HeaderProps) {
   const { t } = getTranslations(translations, locale);
 
   return (
-    <header css={styles.container}>
-      <nav css={styles.nav}>
-        <FixedContainerContent css={styles.navContent}>
+    <header className="fixed top-[env(safe-area-inset-top)] right-0 left-0 h-20 z-header pointer-events-none pr-[var(--removed-body-scroll-bar-size,0px)]">
+      <nav
+        className={cn(
+          "max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)]",
+          "my-0 mx-auto py-0 h-full",
+          "flex justify-between items-center",
+          "pointer-events-none",
+          "pl-[calc(1rem+env(safe-area-inset-left))] pr-[calc(1rem+env(safe-area-inset-right))]",
+        )}
+      >
+        <FixedContainerContent className="pointer-events-auto flex items-center gap-2">
           <BackButton locale={locale} label={t("backLabel")} />
         </FixedContainerContent>
-        <div css={styles.navContent}>
+        <div className="pointer-events-auto flex items-center gap-2">
           <FixedContainerContent>
             <ThemeSwitch
               labels={[
@@ -42,38 +48,3 @@ export function Header({ locale }: HeaderProps) {
     </header>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    position: "fixed",
-    top: "env(safe-area-inset-top)",
-    right: 0,
-    left: 0,
-    height: space._10,
-    zIndex: layer.header,
-    pointerEvents: "none",
-    paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
-  },
-  nav: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    height: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    pointerEvents: "none",
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-  },
-  navContent: {
-    pointerEvents: "all",
-    display: "flex",
-    alignItems: "center",
-    gap: space._1,
-  },
-});

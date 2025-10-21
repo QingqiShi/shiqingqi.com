@@ -1,6 +1,5 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import {
   useEffect,
@@ -10,14 +9,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import {
-  border,
-  color,
-  controlSize,
-  layer,
-  shadow,
-  space,
-} from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 import { AnimateToTarget } from "./animate-to-target";
 import { Button } from "./button";
 import { FixedContainerContent } from "./fixed-container-content";
@@ -58,11 +50,20 @@ export function MenuButton({
 
   const targetId = useId();
 
+  const positionClasses = {
+    topRight: "top-0 right-0",
+    topLeft: "top-0 left-0",
+    bottomLeft: "bottom-0 left-0",
+    bottomRight: "bottom-0 right-0",
+    viewportWidth:
+      "fixed left-2 right-2 -translate-y-[40px] md:-translate-y-[32px]",
+  };
+
   return (
     <>
       {isMenuShown && (
         <div
-          css={styles.backdrop}
+          className="fixed top-0 left-0 right-0 bottom-0 z-overlay"
           onClick={() => {
             if (isMenuShown) {
               setIsMenuShown(false);
@@ -72,7 +73,7 @@ export function MenuButton({
         />
       )}
       <div
-        css={styles.container}
+        className="relative inline-block"
         ref={containerRef}
         onBlur={(e) => {
           if (
@@ -96,19 +97,23 @@ export function MenuButton({
           </Button>
         </FixedContainerContent>
         <div
-          css={[
-            styles.menuContainer,
-            !isMenuShown && styles.hidden,
-            styles[position],
-          ]}
+          className={cn(
+            "absolute z-overlay rounded-2xl",
+            !isMenuShown && "pointer-events-none",
+            positionClasses[position],
+          )}
         >
           <AnimateToTarget
-            css={[styles.menu]}
+            className="surface-raised shadow-2xl rounded-2xl overflow-hidden"
             animateToTarget={!isMenuShown}
             targetId={targetId}
           >
             <div>
-              {children && <div css={styles.menuTitle}>{children}</div>}
+              {children && (
+                <div className="text-base px-3 py-2 pb-1 text-gray-11 dark:text-grayDark-11">
+                  {children}
+                </div>
+              )}
               {menuContent}
             </div>
           </AnimateToTarget>
@@ -117,59 +122,3 @@ export function MenuButton({
     </>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    position: "relative",
-    display: "inline-block",
-  },
-  menuContainer: {
-    position: "absolute",
-    zIndex: layer.overlay,
-    borderRadius: border.radius_2,
-  },
-  hidden: {
-    pointerEvents: "none",
-  },
-  menu: {
-    backgroundColor: color.controlTrack,
-    boxShadow: shadow._5,
-    borderRadius: border.radius_2,
-    overflow: "hidden",
-  },
-  menuTitle: {
-    fontSize: controlSize._3,
-    padding: `${controlSize._2} ${controlSize._3} ${controlSize._1}`,
-    color: color.textMuted,
-  },
-  topRight: {
-    top: 0,
-    right: 0,
-  },
-  topLeft: {
-    top: 0,
-    left: 0,
-  },
-  bottomLeft: {
-    bottom: 0,
-    left: 0,
-  },
-  bottomRight: {
-    bottom: 0,
-    right: 0,
-  },
-  viewportWidth: {
-    position: "fixed",
-    left: space._2,
-    right: space._2,
-    transform: `translate(0, calc(-1 * ${controlSize._9}))`,
-  },
-  backdrop: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: layer.overlay,
-  },
-});

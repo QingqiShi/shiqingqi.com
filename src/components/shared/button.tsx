@@ -1,8 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { breakpoints } from "@/breakpoints.stylex";
-import { color, controlSize, font } from "@/tokens.stylex";
-import { buttonTokens } from "./button.stylex";
+import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ComponentProps<"button"> {
   bright?: boolean;
@@ -20,31 +17,62 @@ export function Button({
   icon,
   isActive,
   labelId,
-  style,
   ...props
 }: ButtonProps) {
   return (
     <button
       {...props}
-      className={className}
-      style={style}
-      css={[
-        styles.button,
-        !!icon &&
-          !!children &&
-          (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
-        bright && styles.bright,
-        isActive && styles.active,
-      ]}
+      className={cn(
+        // Base styles
+        "inline-flex items-center justify-center",
+        "border-0 appearance-none",
+        "font-medium rounded-full shadow-md",
+        "transition-all duration-200",
+        "min-h-[40px] md:min-h-[32px]",
+        "px-3 md:px-[12px] py-1 md:py-[4px]",
+        "gap-2 md:gap-[8px]",
+
+        // Default variant (secondary)
+        !isActive &&
+          !bright && [
+            "surface-raised",
+            "text-gray-12 dark:text-grayDark-12",
+            "hover:bg-gray-3 dark:hover:bg-grayDark-3",
+          ],
+
+        // Active variant (primary)
+        isActive && [
+          "bg-purple-9 text-white",
+          "hover:bg-purple-10",
+          "dark:bg-purpleDark-9 dark:hover:bg-purpleDark-10",
+        ],
+
+        // Bright variant
+        bright && [
+          "bg-white dark:bg-gray-11",
+          "text-gray-12 dark:text-grayDark-12",
+          "hover:brightness-110",
+        ],
+
+        // Icon padding adjustments
+        icon && children && !hideLabelOnMobile && "pl-2 md:pl-[8px]",
+        icon && children && hideLabelOnMobile && "pl-3 md:pl-[8px]",
+
+        // Disabled state
+        "disabled:opacity-70 disabled:cursor-not-allowed",
+        "disabled:hover:bg-gray-2 dark:disabled:hover:bg-grayDark-2",
+
+        className,
+      )}
     >
-      {icon && <span css={styles.icon}>{icon}</span>}
+      {icon && <span className="inline-flex">{icon}</span>}
       {children && (
         <span
-          css={[
-            styles.childrenContainer,
-            hideLabelOnMobile && styles.hideLabelOnMobile,
-          ]}
           id={labelId}
+          className={cn(
+            "inline-flex items-center gap-2 md:gap-[8px]",
+            hideLabelOnMobile && "hidden md:inline-flex",
+          )}
         >
           {children}
         </span>
@@ -52,71 +80,3 @@ export function Button({
     </button>
   );
 }
-
-const styles = stylex.create({
-  button: {
-    // Reset
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
-    fontSize: controlSize._4,
-    fontWeight: font.weight_5,
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
-
-    // Custom styles
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
-    minHeight: controlSize._9,
-    paddingBlock: controlSize._1,
-    paddingInline: controlSize._3,
-    borderRadius: buttonTokens.borderRadius,
-    color: buttonTokens.color,
-    boxShadow: buttonTokens.boxShadow,
-    transition: "background 0.2s ease",
-    backgroundColor: {
-      default: color.backgroundRaised,
-      ":hover": color.backgroundHover,
-      ":disabled:hover": color.backgroundRaised,
-    },
-    opacity: {
-      default: null,
-      ":disabled": 0.7,
-    },
-  },
-  hasIcon: {
-    paddingLeft: controlSize._2,
-  },
-  hasIconHideLabel: {
-    paddingLeft: { default: controlSize._3, [breakpoints.md]: controlSize._2 },
-  },
-  icon: {
-    display: "inline-flex",
-  },
-  childrenContainer: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
-  },
-  hideLabelOnMobile: {
-    display: { default: "none", [breakpoints.md]: "inline-flex" },
-  },
-  active: {
-    [buttonTokens.color]: {
-      default: color.textOnActive,
-      ":hover": color.textOnActive,
-    },
-    backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
-      ":disabled:hover": color.controlActive,
-    },
-  },
-  bright: {
-    backgroundColor: color.controlThumb,
-    [buttonTokens.color]: color.textOnControlThumb,
-    filter: {
-      ":hover": "brightness(1.1)",
-    },
-  },
-});

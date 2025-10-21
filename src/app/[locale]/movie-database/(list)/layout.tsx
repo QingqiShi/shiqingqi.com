@@ -1,4 +1,3 @@
-import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import HomeLayout from "@/app/[locale]/(home)/layout";
@@ -11,7 +10,6 @@ import movieDatabaseTranslations from "@/components/movie-database/translations.
 import cardTranslations from "@/components/shared/card.translations.json";
 import { Skeleton } from "@/components/shared/skeleton";
 import { TranslationProvider } from "@/components/shared/translation-provider";
-import { controlSize, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { validateLocale } from "@/utils/validate-locale";
@@ -43,14 +41,18 @@ export default async function Layout({
           <HomeLayout params={params}>😢 {t("errorMessage")}</HomeLayout>
         }
       >
-        <main css={styles.container}>
+        <main className="pt-[calc(3rem+0.75rem)]">
           <Suspense
             fallback={
               <>
                 <FiltersSkeleton locale={validatedLocale} />
                 <Grid>
                   {Array.from({ length: 20 }).map((_, i) => (
-                    <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
+                    <Skeleton
+                      key={i}
+                      className="aspect-poster w-full"
+                      delay={i * 100}
+                    />
                   ))}
                 </Grid>
               </>
@@ -63,15 +65,3 @@ export default async function Layout({
     </TranslationProvider>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    paddingTop: {
-      default: `calc(${controlSize._9} + ${space._3})`,
-    },
-  },
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
-  },
-});

@@ -1,64 +1,37 @@
-import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
-import { border, color, layer } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 
 export function BackgroundLines() {
+  const lineBaseClasses =
+    "hidden absolute top-0 bottom-0 w-px bg-[linear-gradient(theme(colors.gray.11)_33%,transparent_0%)] dark:bg-[linear-gradient(theme(colors.grayDark.11)_33%,transparent_0%)] bg-right bg-[length:1px_8px] bg-repeat-y";
+
   return (
-    <div css={styles.linesContainer} role="presentation">
-      <div css={[styles.line, styles.line1]} role="presentation" />
-      <div css={[styles.line, styles.line2]} role="presentation" />
-      <div css={[styles.line, styles.line3]} role="presentation" />
-      <div css={[styles.line, styles.line4]} role="presentation" />
-      <div css={[styles.line, styles.line5]} role="presentation" />
+    <div
+      className="absolute top-0 right-0 bottom-0 left-0 z-base pointer-events-none opacity-24"
+      role="presentation"
+    >
+      <div
+        className={cn(lineBaseClasses, "block left-0")}
+        role="presentation"
+      />
+      <div
+        className={cn(
+          lineBaseClasses,
+          "sm:block sm:left-1/2 md:left-1/3 lg:left-1/4",
+        )}
+        role="presentation"
+      />
+      <div
+        className={cn(lineBaseClasses, "md:block md:left-2/3 lg:left-1/2")}
+        role="presentation"
+      />
+      <div
+        className={cn(lineBaseClasses, "lg:block lg:left-3/4")}
+        role="presentation"
+      />
+      <div
+        className={cn(lineBaseClasses, "block left-full")}
+        role="presentation"
+      />
     </div>
   );
 }
-
-const styles = stylex.create({
-  linesContainer: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: layer.base,
-    pointerEvents: "none",
-    opacity: 0.24,
-  },
-  line: {
-    display: "none",
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: border.size_1,
-    backgroundImage: `linear-gradient(${color.textMuted} 33%, transparent 0%)`,
-    backgroundPosition: "right",
-    backgroundSize: `${border.size_1} ${border.size_3}`,
-    backgroundRepeat: "repeat-y",
-  },
-  line1: {
-    display: "block",
-    left: 0,
-  },
-  line2: {
-    display: { default: "none", [breakpoints.sm]: "block" },
-    left: {
-      default: null,
-      [breakpoints.sm]: "50%",
-      [breakpoints.md]: "33.3%",
-      [breakpoints.lg]: "25%",
-    },
-  },
-  line3: {
-    display: { default: "none", [breakpoints.md]: "block" },
-    left: { default: null, [breakpoints.md]: "66.6%", [breakpoints.lg]: "50%" },
-  },
-  line4: {
-    display: { default: "none", [breakpoints.lg]: "block" },
-    left: { default: null, [breakpoints.lg]: "75%" },
-  },
-  line5: {
-    display: "block",
-    left: "100%",
-  },
-});

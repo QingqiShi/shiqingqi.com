@@ -1,17 +1,14 @@
-import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   getMovieDetails,
   getTvShowDetails,
 } from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints.stylex";
 import { Footer } from "@/components/home/footer";
 import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
 import cardTranslations from "@/components/shared/card.translations.json";
 import { TranslationProvider } from "@/components/shared/translation-provider";
 import { BASE_URL } from "@/constants";
-import { space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { validateLocale } from "@/utils/validate-locale";
@@ -85,28 +82,11 @@ export default async function Layout({
       }}
     >
       <main>{children}</main>
-      <div css={styles.container}>
-        <div css={styles.wrapperInner}>
+      <div className="max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)] mx-auto py-0 ps-[env(safe-area-inset-left)] pe-[env(safe-area-inset-right)]">
+        <div className="px-3">
           <Footer locale={validatedLocale} />
         </div>
       </div>
     </TranslationProvider>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    paddingLeft: `env(safe-area-inset-left)`,
-    paddingRight: `env(safe-area-inset-right)`,
-  },
-  wrapperInner: {
-    paddingInline: space._3,
-  },
-});

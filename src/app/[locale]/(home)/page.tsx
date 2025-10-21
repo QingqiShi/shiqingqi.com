@@ -1,6 +1,4 @@
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
-import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { EducationCard } from "@/components/home/education-card";
 import { ExperienceCard } from "@/components/home/experience-card";
@@ -12,9 +10,7 @@ import BristolLogo from "@/logos/bristol-logo";
 import CitadelLogo from "@/logos/citadel-logo";
 import NottinghamLogo from "@/logos/nottingham-logo";
 import SpotifyLogo from "@/logos/spotify-logo";
-import { svgTokens } from "@/logos/svg.stylex";
 import WtcLogo from "@/logos/wtc-logo";
-import { color, font, space } from "@/tokens.stylex";
 import type { PageProps } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { getLocalePath } from "@/utils/pathname";
@@ -33,22 +29,22 @@ export default async function Home(props: PageProps) {
       translations={{ card: cardTranslations }}
     >
       <BackgroundLines />
-      <section css={styles.headlineContainer}>
-        <h1 css={styles.headline}>
+      <section className="pb-7 sm:pb-9">
+        <h1 className="m-0 mb-3 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold">
           {t("headline_1")}
           <br />
           {t("headline_2")}
         </h1>
-        <p css={styles.brief}>{t("brief", { parse: true })}</p>
+        <p className="m-0">{t("brief", { parse: true })}</p>
       </section>
 
       <section>
-        <h2 css={styles.sectionTitle}>{t("projectSection")}</h2>
-        <div css={styles.cardList}>
+        <h2 className="mt-7 mb-3 text-3xl font-bold">{t("projectSection")}</h2>
+        <div className="flex flex-wrap">
           <ProjectCard
             icon={<FilmSlateIcon size={64} weight="fill" />}
             href={getLocalePath("/movie-database", locale)}
-            css={[styles.card, styles.movieDatabase]}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 [--svg-fill:var(--color-brand-tmdb)]"
             name={t("movieDatabase")}
             description={t("movieDatabaseDescription")}
             scroll
@@ -57,13 +53,15 @@ export default async function Home(props: PageProps) {
       </section>
 
       <section>
-        <h2 css={styles.sectionTitle}>{t("experiencesSection")}</h2>
-        <div css={styles.cardList}>
+        <h2 className="mt-7 mb-3 text-3xl font-bold">
+          {t("experiencesSection")}
+        </h2>
+        <div className="flex flex-wrap">
           <ExperienceCard
             logo={<CitadelLogo />}
             dates={t("citadelDate")}
             href={getLocalePath("/experiences/citadel", locale)}
-            css={styles.card}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
             aria-label={t("citadelLabel")}
             scroll
           />
@@ -71,7 +69,7 @@ export default async function Home(props: PageProps) {
             logo={<SpotifyLogo />}
             dates={t("spotifyDate")}
             href={getLocalePath("/experiences/spotify", locale)}
-            css={styles.card}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
             aria-label={t("spotifyLabel")}
           />
           <ExperienceCard
@@ -81,27 +79,29 @@ export default async function Home(props: PageProps) {
               "/experiences/wunderman-thompson-commerce",
               locale,
             )}
-            css={styles.card}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
             aria-label={t("wtcLabel")}
           />
         </div>
       </section>
       <section>
-        <h2 css={styles.sectionTitle}>{t("educationSection")}</h2>
-        <div css={styles.cardList}>
+        <h2 className="mt-7 mb-3 text-3xl font-bold">
+          {t("educationSection")}
+        </h2>
+        <div className="flex flex-wrap">
           <EducationCard
             logo={<BristolLogo title={t("uob")} />}
             name={t("uob")}
             dates={t("uobDate")}
             href={getLocalePath("/education/university-of-bristol", locale)}
-            css={styles.card}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
           />
           <EducationCard
             logo={<NottinghamLogo title={t("uon")} />}
             name={t("uon")}
             dates={t("uonDate")}
             href={getLocalePath("/education/university-of-nottingham", locale)}
-            css={styles.card}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
           />
           <EducationCard
             logo={{ src: AGSB, alt: t("agsb") }}
@@ -111,53 +111,10 @@ export default async function Home(props: PageProps) {
               "/education/altrincham-grammar-school-for-boys",
               locale,
             )}
-            css={styles.card}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
           />
         </div>
       </section>
     </TranslationProvider>
   );
 }
-
-const styles = stylex.create({
-  headlineContainer: {
-    padding: {
-      default: `0 0 ${space._7}`,
-      [breakpoints.sm]: `0 0 ${space._9}`,
-    },
-  },
-  headline: {
-    margin: `0 0 ${space._3} 0`,
-    fontSize: {
-      default: font.size_5,
-      [breakpoints.sm]: font.size_6,
-      [breakpoints.md]: font.size_7,
-      [breakpoints.lg]: font.size_8,
-    },
-    fontWeight: font.weight_8,
-  },
-  brief: {
-    margin: 0,
-  },
-  sectionTitle: {
-    marginTop: space._7,
-    marginBottom: space._3,
-    fontSize: font.size_3,
-    fontWeight: font.weight_7,
-  },
-  cardList: {
-    display: "flex",
-    flexWrap: "wrap",
-  },
-  card: {
-    width: {
-      default: "100%",
-      [breakpoints.sm]: "50%",
-      [breakpoints.md]: "33.3%",
-      [breakpoints.lg]: "25%",
-    },
-  },
-  movieDatabase: {
-    [svgTokens.fill]: color.brandTmdb,
-  },
-});

@@ -1,10 +1,8 @@
 "use client";
 
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
-import * as stylex from "@stylexjs/stylex";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
-import { controlSize, space } from "@/tokens.stylex";
 import { MenuButton } from "../shared/menu-button";
 import type translations from "./filters.translations.json";
 import { GenreFilter } from "./genre-filter";
@@ -16,7 +14,7 @@ export function GenreFilterButton() {
   return (
     <MenuButton
       menuContent={
-        <div css={styles.desktopMenuContent}>
+        <div className="flex items-center flex-wrap gap-4 p-3 max-h-[calc(100dvh-80px-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1em-8px-4px-12px)] overflow-auto">
           <GenreFilter hideTitle />
         </div>
       }
@@ -32,15 +30,3 @@ export function GenreFilterButton() {
     </MenuButton>
   );
 }
-
-const styles = stylex.create({
-  desktopMenuContent: {
-    alignItems: "center",
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._4,
-    padding: controlSize._3,
-    maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
-    overflow: "auto",
-  },
-});

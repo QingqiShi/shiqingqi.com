@@ -1,7 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties } from "react";
-import { color } from "@/tokens.stylex";
-import { svgTokens } from "./svg.stylex";
 
 interface NottinghamLogoProps {
   title: string;
@@ -19,10 +16,10 @@ export default function NottinghamLogo({
       viewBox="0 0 115.79 170"
       className={className}
       style={style}
-      css={styles.svg}
+      fill="currentColor"
     >
       <title>{title}</title>
-      <g>
+      <g className="[fill:var(--svg-fill)]">
         <path
           d="M90.113,27.729V12.489c7.457,1.824,12.927,4.307,18.723,7.459v14.243
    C103.041,31.542,96.747,29.219,90.113,27.729"
@@ -48,14 +45,3 @@ export default function NottinghamLogo({
     </svg>
   );
 }
-
-const styles = stylex.create({
-  svg: {
-    color: stylex.firstThatWorks(svgTokens.fill, color.brandNottingham),
-    fill: "currentColor",
-    objectFit: "contain",
-    width: "100%",
-    height: "100%",
-    transition: "fill .2s",
-  },
-});

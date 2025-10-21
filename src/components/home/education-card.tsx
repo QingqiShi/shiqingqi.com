@@ -1,12 +1,9 @@
-import * as stylex from "@stylexjs/stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";
 import { Card } from "@/components/shared/card";
-import { cardTokens } from "@/components/shared/card.stylex";
 import { Skeleton } from "@/components/shared/skeleton";
-import { svgTokens } from "@/logos/svg.stylex";
-import { color, font, ratio, space } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 
 interface EducationCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode | { src: StaticImageData; alt: string };
@@ -23,68 +20,36 @@ export function EducationCard({
   ...rest
 }: EducationCardProps) {
   return (
-    <Card {...rest} className={className} style={style} css={styles.card}>
-      <div css={styles.row}>
-        <div css={styles.logo}>
+    <Card
+      {...rest}
+      className={cn(
+        "aspect-video items-center grid gap-1 grid-rows-[1fr_auto] justify-start",
+        "[--svg-fill:theme(colors.gray.11)] dark:[--svg-fill:theme(colors.grayDark.11)]",
+        "hover:[--svg-fill:theme(colors.gray.12)] dark:hover:[--svg-fill:theme(colors.grayDark.12)]",
+        className,
+      )}
+      style={style}
+    >
+      <div className="flex items-center gap-1">
+        <div className="flex items-center aspect-square justify-start min-h-0 w-2/5">
           {typeof logo === "object" && logo && "src" in logo ? (
             <Image
               src={logo.src}
               alt={logo.alt}
               title={logo.alt}
-              css={styles.img}
+              className="h-full max-w-full object-contain [filter:var(--card-image-filter)] transition-[filter] duration-200"
             />
           ) : (
             <Suspense fallback={<Skeleton fill />}>{logo}</Suspense>
           )}
         </div>
-        <span css={styles.name}>{name}</span>
+        <span className="text-base font-bold w-3/5 text-gray-11 dark:text-grayDark-11">
+          {name}
+        </span>
       </div>
-      <time css={styles.dates}>{dates}</time>
+      <time className="text-sm font-semibold text-gray-11 dark:text-grayDark-11">
+        {dates}
+      </time>
     </Card>
   );
 }
-
-const styles = stylex.create({
-  card: {
-    aspectRatio: ratio.tv,
-    alignItems: "center",
-    display: "grid",
-    gap: space._1,
-    gridTemplateRows: "1fr auto",
-    justifyContent: "flex-start",
-
-    // Override svg css variables to be muted when not hovering
-    [svgTokens.fill]: { ":not(:hover)": color.textMuted },
-  },
-  row: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._1,
-  },
-  name: {
-    fontSize: font.size_0,
-    fontWeight: font.weight_7,
-    width: "60%",
-    color: color.textMuted,
-  },
-  logo: {
-    alignItems: "center",
-    aspectRatio: ratio.square,
-    display: "flex",
-    justifyContent: "flex-start",
-    minHeight: 0,
-    width: "40%",
-  },
-  img: {
-    height: "100%",
-    maxWidth: "100%",
-    objectFit: "contain",
-    filter: cardTokens.imageFilter,
-    transition: "filter .2s",
-  },
-  dates: {
-    fontSize: font.size_00,
-    fontWeight: font.weight_6,
-    color: color.textMuted,
-  },
-});

@@ -1,11 +1,8 @@
 module.exports = {
   plugins: {
     "postcss-import": {},
-    "@stylexjs/postcss-plugin": {
-      include: ["src/**/*.{js,jsx,ts,tsx}"],
-      useCSSLayers: true,
-    },
-
+    tailwindcss: {},
+    autoprefixer: {},
     "postcss-flexbugs-fixes": {},
     "postcss-preset-env": {
       autoprefixer: {

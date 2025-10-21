@@ -1,56 +1,23 @@
-import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
-import { controlSize, layer, space } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "./skeleton";
-import { skeletonTokens } from "./skeleton.stylex";
 
 export function HeaderSkeleton() {
   return (
-    <div css={styles.container}>
-      <div css={styles.nav}>
+    <div className="fixed top-0 right-0 left-0 h-20 z-header pointer-events-none pr-[var(--removed-body-scroll-bar-size,0px)]">
+      <div
+        className={cn(
+          "max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)]",
+          "my-0 mx-auto py-0 h-full",
+          "flex justify-between items-center",
+          "pointer-events-none",
+          "pl-[calc(1rem+env(safe-area-inset-left))] pr-[calc(1rem+env(safe-area-inset-right))]",
+        )}
+      >
         <div />
-        <div css={styles.navContent}>
-          <Skeleton css={styles.localeButton} width={120} />
+        <div className="pointer-events-auto flex items-center gap-1">
+          <Skeleton width={120} height={40} className="md:h-[32px]" />
         </div>
       </div>
     </div>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    position: "fixed",
-    top: 0,
-    right: 0,
-    left: 0,
-    height: space._10,
-    zIndex: layer.header,
-    pointerEvents: "none",
-    paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
-  },
-  nav: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    height: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    pointerEvents: "none",
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-  },
-  navContent: {
-    pointerEvents: "all",
-    display: "flex",
-    alignItems: "center",
-    gap: space._1,
-  },
-  localeButton: {
-    [skeletonTokens.height]: controlSize._9,
-  },
-});

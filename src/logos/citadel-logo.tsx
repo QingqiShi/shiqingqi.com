@@ -1,7 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties } from "react";
-import { color } from "@/tokens.stylex";
-import { svgTokens } from "./svg.stylex";
 
 interface CitadelLogoProps {
   className?: string;
@@ -14,10 +11,17 @@ export default function CitadelLogo({ className, style }: CitadelLogoProps) {
       viewBox="0 0 842 100"
       className={className}
       style={style}
-      css={styles.svg}
+      fill="currentColor"
+      clipRule="evenodd"
+      strokeLinejoin="round"
+      strokeMiterlimit="2"
+      fillRule="nonzero"
     >
       <title>Citadel</title>
-      <g transform="matrix(4.16667,0,0,4.16667,0,0)">
+      <g
+        transform="matrix(4.16667,0,0,4.16667,0,0)"
+        className="[fill:var(--svg-fill)]"
+      >
         <rect x="0" y="16.807" width="45.979" height="6.619" />
         <rect x="0" y="0.43" width="9.195" height="6.617" />
         <rect x="18.392" y="0.43" width="9.195" height="6.617" />
@@ -35,18 +39,3 @@ export default function CitadelLogo({ className, style }: CitadelLogoProps) {
     </svg>
   );
 }
-
-const styles = stylex.create({
-  svg: {
-    color: stylex.firstThatWorks(svgTokens.fill, color.brandCitadel),
-    fill: "currentColor",
-    clipRule: "evenodd",
-    strokeLinejoin: "round",
-    strokeMiterlimit: 2,
-    fillRule: "nonzero",
-    objectFit: "contain",
-    width: "100%",
-    height: "100%",
-    transition: "fill .2s",
-  },
-});

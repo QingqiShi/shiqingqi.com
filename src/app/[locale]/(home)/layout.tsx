@@ -1,19 +1,15 @@
-import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { breakpoints } from "@/breakpoints.stylex";
 import { BackgroundLines } from "@/components/home/background-lines";
 import { Footer } from "@/components/home/footer";
 import { FlowGradient } from "@/components/shared/flow-gradient/flow-gradient";
 import { BASE_URL } from "@/constants";
 import { i18nConfig } from "@/i18n-config";
-import { color, layer, space } from "@/tokens.stylex";
 import type { PageProps, SupportedLocale } from "@/types";
 import { getTranslations } from "@/utils/get-translations";
 import { validateLocale } from "@/utils/validate-locale";
-import { glowTokens } from "./layout.stylex";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -58,69 +54,31 @@ export default async function Layout({
 
   return (
     <>
-      <div css={styles.flowGradient} role="presentation">
+      <div
+        className="absolute top-0 left-0 right-0 z-base h-[400px] sm:h-[500px] md:h-[600px] lg:h-[400px] xl:h-[max(400px,80dvh)]"
+        role="presentation"
+      >
         <Suspense fallback={null}>
           <ErrorBoundary fallback={null}>
             <FlowGradient />
           </ErrorBoundary>
         </Suspense>
       </div>
-      <div css={styles.glow} role="presentation" />
-      <div css={styles.container}>
-        <div css={styles.wrapperInner}>
+      <div
+        className="absolute bottom-0 left-0 right-0 z-base overflow-hidden pointer-events-none h-[500px]"
+        style={{
+          backgroundImage: `radial-gradient(circle calc(500px*5) at center calc(500px*5), var(--color-control-active) calc(500px*4), transparent)`,
+          opacity: "var(--color-opacity-active)",
+        }}
+        role="presentation"
+      />
+      <div className="max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)] mx-auto py-0 px-3 ps-[calc(0.75rem+env(safe-area-inset-left))] pe-[calc(0.75rem+env(safe-area-inset-right))]">
+        <div className="relative">
           <BackgroundLines />
-          <main css={styles.main}>{children}</main>
+          <main className="pt-11 sm:pt-12">{children}</main>
           <Footer locale={validatedLocale} />
         </div>
       </div>
     </>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-  },
-  wrapperInner: {
-    position: "relative",
-  },
-  main: {
-    paddingTop: {
-      default: space._11,
-      [breakpoints.sm]: space._12,
-    },
-  },
-  flowGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: layer.base,
-    height: {
-      default: space._15,
-      [breakpoints.md]: space._16,
-      [breakpoints.lg]: space._15,
-      [breakpoints.xl]: `max(${space._15}, 80dvh)`,
-    },
-  },
-  glow: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: layer.base,
-    overflow: "hidden",
-    pointerEvents: "none",
-    backgroundImage: `radial-gradient(circle calc(${glowTokens.height}*5) at center calc(${glowTokens.height}*5), ${color.controlActive} calc(${glowTokens.height}*4), transparent)`,
-    opacity: color.opacityActive,
-    height: glowTokens.height,
-  },
-});

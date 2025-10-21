@@ -1,11 +1,8 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useSearchParams } from "next/navigation";
-import { breakpoints } from "@/breakpoints.stylex";
 import { useMediaFilters } from "@/hooks/use-media-filters";
 import { useTranslations } from "@/hooks/use-translations";
-import { layer, space } from "@/tokens.stylex";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { FixedContainerContent } from "../shared/fixed-container-content";
@@ -57,25 +54,11 @@ export function MediaTypeToggle({ mobile }: MediaTypeToggleProps) {
 
   if (mobile) {
     return (
-      <div css={[styles.mobileContainer, styles.mobileVisible]}>{content}</div>
+      <div className="flex md:hidden fixed bottom-[calc(8px+env(safe-area-inset-bottom))] left-[calc(50%-var(--removed-body-scroll-bar-size,0px)/2)] -translate-x-1/2 z-overlay pointer-events-auto whitespace-nowrap will-change-transform">
+        {content}
+      </div>
     );
   }
 
   return content;
 }
-
-const styles = stylex.create({
-  mobileVisible: {
-    display: { default: "flex", [breakpoints.md]: "none" },
-  },
-  mobileContainer: {
-    position: "fixed",
-    bottom: `calc(${space._2} + env(safe-area-inset-bottom))`,
-    left: `calc(50% - var(--removed-body-scroll-bar-size, 0px) / 2)`,
-    transform: "translateX(-50%)",
-    zIndex: layer.overlay,
-    pointerEvents: "all",
-    whiteSpace: "nowrap",
-    willChange: "transform",
-  },
-});

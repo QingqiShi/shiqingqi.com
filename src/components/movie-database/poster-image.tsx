@@ -1,11 +1,9 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Skeleton } from "@/components/shared/skeleton";
 import { useTranslations } from "@/hooks/use-translations";
-import { color, font, layer } from "@/tokens.stylex";
 import * as tmdbQueries from "@/utils/tmdb-queries";
 import type translations from "./poster-image.translations.json";
 
@@ -27,9 +25,11 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
 
   if (!config.images?.base_url || !config.images?.poster_sizes) {
     return (
-      <div css={[styles.poster, styles.errored]}>
+      <div className="w-full h-full object-cover absolute flex flex-col items-center justify-center surface-raised z-background">
         <div>{alt}</div>
-        <div css={styles.errorText}>{t("failedToLoadImage")}</div>
+        <div className="text-sm text-gray-11 dark:text-grayDark-11">
+          {t("failedToLoadImage")}
+        </div>
       </div>
     );
   }
@@ -48,12 +48,17 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
 
   return (
     <>
-      {!imgLoaded && <Skeleton fill css={styles.errored} />}
-      {/* Disabling no-img-element rule as the images here are from a third party provider and is already 
+      {!imgLoaded && (
+        <Skeleton
+          fill
+          className="absolute flex flex-col items-center justify-center surface-raised z-background"
+        />
+      )}
+      {/* Disabling no-img-element rule as the images here are from a third party provider and is already
       optimized */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        css={styles.poster}
+        className="w-full h-full object-cover"
         alt={alt}
         src={src}
         srcSet={srcSet}
@@ -68,24 +73,3 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
     </>
   );
 }
-
-const styles = stylex.create({
-  poster: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
-  errored: {
-    position: "absolute",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: color.backgroundRaised,
-    zIndex: layer.background,
-  },
-  errorText: {
-    fontSize: font.size_00,
-    color: color.textMuted,
-  },
-});

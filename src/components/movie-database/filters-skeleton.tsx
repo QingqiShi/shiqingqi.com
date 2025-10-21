@@ -1,8 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
-import { controlSize, layer, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { Skeleton } from "../shared/skeleton";
-import { skeletonTokens } from "../shared/skeleton.stylex";
 import { FiltersContainer } from "./filters-container";
 
 interface FiltersSkeletonProps {
@@ -16,23 +13,23 @@ export function FiltersSkeleton({ locale }: FiltersSkeletonProps) {
     <FiltersContainer
       desktopChildren={
         <>
-          <Skeleton css={styles.control} width={widths.desktopMediaType} />
-          <Skeleton css={styles.control} width={widths.desktopGenre} />
-          <Skeleton css={styles.control} width={widths.desktopSort} />
-          <Skeleton css={styles.control} width={widths.desktopSearch} />
-          <Skeleton css={styles.control} width={widths.desktopInfo} />
+          <Skeleton className="h-9" width={widths.desktopMediaType} />
+          <Skeleton className="h-9" width={widths.desktopGenre} />
+          <Skeleton className="h-9" width={widths.desktopSort} />
+          <Skeleton className="h-9" width={widths.desktopSearch} />
+          <Skeleton className="h-9" width={widths.desktopInfo} />
         </>
       }
       mobileChildren={
         <>
           <Skeleton
-            css={[styles.control, styles.mobileMediaTypeToggle]}
+            className="fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] left-[calc(50%-var(--removed-body-scroll-bar-size,0px)/2)] -translate-x-1/2 z-overlay will-change-transform h-9"
             width={widths.mobileMediaType}
           />
-          <div css={styles.content}>
-            <Skeleton css={styles.control} width={widths.mobileSearch} />
-            <Skeleton css={styles.control} width={widths.mobileInfo} />
-            <Skeleton css={styles.control} width={widths.mobileFilters} />
+          <div className="flex gap-1">
+            <Skeleton className="h-9" width={widths.mobileSearch} />
+            <Skeleton className="h-9" width={widths.mobileInfo} />
+            <Skeleton className="h-9" width={widths.mobileFilters} />
           </div>
         </>
       }
@@ -64,21 +61,3 @@ const controlWidths = {
     mobileFilters: 91,
   },
 };
-
-const styles = stylex.create({
-  control: {
-    [skeletonTokens.height]: controlSize._9,
-  },
-  content: {
-    display: "flex",
-    gap: space._1,
-  },
-  mobileMediaTypeToggle: {
-    position: "fixed",
-    bottom: `calc(${space._2} + env(safe-area-inset-bottom))`,
-    left: `calc(50% - var(--removed-body-scroll-bar-size, 0px) / 2)`,
-    transform: "translateX(-50%)",
-    zIndex: layer.overlay,
-    willChange: "transform",
-  },
-});

@@ -1,7 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { border, color, controlSize, shadow } from "@/tokens.stylex";
-import { buttonTokens } from "./button.stylex";
+import { cn } from "@/lib/utils";
 
 interface AnchorButtonGroupProps {
   bright?: boolean;
@@ -12,25 +10,14 @@ export function AnchorButtonGroup({
   children,
 }: PropsWithChildren<AnchorButtonGroupProps>) {
   return (
-    <div css={[styles.container, bright && styles.bright]}>{children}</div>
+    <div
+      className={cn(
+        "inline-flex gap-1 p-1 rounded-2xl shadow-md justify-center relative",
+        "[--button-border-radius:theme(borderRadius.lg)] [--button-box-shadow:none] [--button-height:32px]",
+        bright ? "bg-white dark:bg-gray-11" : "surface-raised",
+      )}
+    >
+      {children}
+    </div>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    display: "inline-flex",
-    gap: controlSize._1,
-    backgroundColor: color.backgroundRaised,
-    padding: controlSize._1,
-    borderRadius: border.radius_2,
-    boxShadow: shadow._2,
-    justifyContent: "center",
-    position: "relative",
-    [buttonTokens.borderRadius]: border.radius_1,
-    [buttonTokens.boxShadow]: "none",
-    [buttonTokens.height]: controlSize._8,
-  },
-  bright: {
-    backgroundColor: color.controlThumb,
-  },
-});

@@ -1,7 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, Ref } from "react";
-import { border, color } from "@/tokens.stylex";
-import { skeletonTokens } from "./skeleton.stylex";
+import { cn } from "@/lib/utils";
 
 interface SkeletonProps {
   fill?: boolean;
@@ -25,51 +23,21 @@ export function Skeleton({
   return (
     <div
       ref={ref}
-      css={[
-        styles.skeleton,
-        fill && styles.fill,
-        !!width && styles.width(width),
-        !!height && styles.height(height),
-        !!delay && styles.delay(delay),
-      ]}
-      className={className}
-      style={style}
+      className={cn(
+        "animate-pulse rounded-md bg-gray-10 dark:bg-grayDark-10 opacity-30 overflow-hidden",
+        fill && "w-full h-full",
+        className,
+      )}
+      style={{
+        ...style,
+        width: fill ? "100%" : width ? `${width}px` : undefined,
+        height: fill ? "100%" : height ? `${height}px` : undefined,
+        animationDelay: delay ? `${delay}ms` : undefined,
+        animationDuration: "2s",
+        animationTimingFunction: "cubic-bezier(.4,0,.6,1)",
+        animationFillMode: "both",
+        animationIterationCount: "infinite",
+      }}
     />
   );
 }
-
-const pulse = stylex.keyframes({
-  "50%": {
-    opacity: 0.1,
-  },
-});
-
-const styles = stylex.create({
-  skeleton: {
-    animationName: pulse,
-    animationDuration: "2s",
-    animationTimingFunction: "cubic-bezier(.4,0,.6,1)",
-    animationFillMode: "both",
-    animationIterationCount: "infinite",
-    animationDelay: skeletonTokens.delay,
-    backgroundColor: color.textMuted,
-    borderRadius: border.radius_2,
-    overflow: "hidden",
-    opacity: 0.3,
-    width: skeletonTokens.width,
-    height: skeletonTokens.height,
-  },
-  fill: {
-    [skeletonTokens.width]: "100%",
-    [skeletonTokens.height]: "100%",
-  },
-  width: (width: number) => ({
-    [skeletonTokens.width]: `${width}px`,
-  }),
-  height: (height: number) => ({
-    [skeletonTokens.height]: `${height}px`,
-  }),
-  delay: (delay: number) => ({
-    [skeletonTokens.delay]: `${delay}ms`,
-  }),
-});

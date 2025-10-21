@@ -1,12 +1,9 @@
 "use client";
 
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
-import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
-import { breakpoints } from "@/breakpoints.stylex";
 import { useTranslations } from "@/hooks/use-translations";
-import { color, font, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath } from "@/utils/pathname";
 import { Button } from "../shared/button";
@@ -77,74 +74,27 @@ export function SearchButton() {
         {t("aiSearch")}
       </Button>
       <Overlay isOpen={isOverlayOpen} onClose={handleClose}>
-        <div css={styles.container}>
-          <h2 css={styles.title}>{t("aiSearch")}</h2>
-          <form onSubmit={handleSubmit} css={styles.form}>
+        <div className="h-full flex flex-col overflow-hidden p-4">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-12 dark:text-grayDark-12 m-0 mb-4">
+            {t("aiSearch")}
+          </h2>
+          <form onSubmit={handleSubmit} className="w-full">
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("aiSearchPlaceholder")}
-              css={styles.input}
+              className="w-full text-lg font-normal leading-6 p-3 border-0 outline-none text-gray-12 dark:text-grayDark-12 placeholder:text-gray-11 dark:placeholder:text-grayDark-11"
               autoComplete="off"
               spellCheck={false}
             />
-            <div css={styles.hint}>{t("aiSearchHint")}</div>
+            <div className="text-base text-gray-11 dark:text-grayDark-11 p-3 px-4 border-t border-gray-6 dark:border-grayDark-6 text-center m-0">
+              {t("aiSearchHint")}
+            </div>
           </form>
         </div>
       </Overlay>
     </>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    padding: space._4,
-  },
-
-  title: {
-    fontSize: {
-      default: font.size_3,
-      [breakpoints.md]: font.size_4,
-    },
-    fontWeight: font.weight_6,
-    color: color.textMain,
-    margin: 0,
-    marginBottom: space._4,
-  },
-
-  form: {
-    width: "100%",
-  },
-
-  input: {
-    width: "100%",
-    fontSize: font.size_2,
-    fontWeight: font.weight_4,
-    lineHeight: 1.5,
-    padding: `${space._3} ${space._3}`,
-    borderWidth: 0,
-    borderStyle: "none",
-    outline: "none",
-    color: color.textMain,
-    "::placeholder": {
-      color: color.textMuted,
-    },
-  },
-
-  hint: {
-    fontSize: font.size_0,
-    color: color.textMuted,
-    padding: `${space._3} ${space._4}`,
-    borderTopWidth: "1px",
-    borderTopStyle: "solid",
-    borderTopColor: color.controlTrack,
-    textAlign: "center",
-    margin: 0,
-  },
-});

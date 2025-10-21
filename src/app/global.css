@@ -1,4 +1,7 @@
 @import "modern-normalize/modern-normalize.css" layer(normalize);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @font-face {
   font-family: "Inter";
@@ -25,15 +28,51 @@
     U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
 }
 
-@layer normalize {
+@layer base {
+  :root {
+    /* Brand colors - Light mode */
+    --brand-tmdb: #4a7957;
+    --brand-citadel: rgb(26, 54, 104);
+    --brand-wtc-plus: #e661b2;
+    --brand-wtc-letter: #0a47ed;
+    --brand-bristol: #bf2f38;
+    --brand-nottingham: #005480;
+    --brand-spotify: #1ecc5a;
+
+    /* Dynamic CSS variables for interactive components */
+    --switch-thumb-position: 0px;
+  }
+
+  .dark {
+    /* Brand colors - Dark mode (adjusted for better contrast) */
+    --brand-tmdb: #90cea1;
+    --brand-citadel: rgb(129, 174, 255);
+    --brand-wtc-plus: #ff84cf;
+    --brand-wtc-letter: #8dacff;
+    --brand-bristol: #ff535d;
+    --brand-nottingham: #0098e7;
+    --brand-spotify: #1ecc5a;
+  }
+
+  * {
+    @apply border-gray-6 dark:border-grayDark-6;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+
   html {
+    @apply bg-gray-1 dark:bg-grayDark-1;
+    @apply text-gray-12 dark:text-grayDark-12;
+    font-family: Inter, Inter-fallback, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     min-height: 100dvh;
   }
 
   body {
+    @apply bg-gray-1 dark:bg-grayDark-1;
+    @apply text-gray-12 dark:text-grayDark-12;
     min-height: 100dvh;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
+    position: relative;
   }
 
   input[type="checkbox"] {
@@ -41,8 +80,81 @@
     height: unset;
   }
 
+  /* Typography defaults */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold;
+    @apply text-gray-12 dark:text-grayDark-12;
+  }
+
+  /* Smooth color transitions for theme switching */
   * {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  /* Disable transitions for motion-reduced users */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Utility for backdrop blur effects */
+  .backdrop-glass {
+    @apply backdrop-blur-md bg-gray-1/80 dark:bg-grayDark-1/80;
+  }
+
+  /* Utility for elevated surfaces */
+  .surface-raised {
+    @apply bg-gray-2 dark:bg-grayDark-2;
+  }
+
+  /* Utility for interactive hover states */
+  .surface-hover {
+    @apply hover:bg-gray-3 dark:hover:bg-grayDark-3;
+  }
+
+  /* Utility for active/pressed states */
+  .surface-active {
+    @apply bg-gray-4 dark:bg-grayDark-4;
+  }
+}
+
+@layer utilities {
+  /* Text color utilities with semantic names */
+  .text-primary {
+    @apply text-gray-12 dark:text-grayDark-12;
+  }
+
+  .text-secondary {
+    @apply text-gray-11 dark:text-grayDark-11;
+  }
+
+  .text-tertiary {
+    @apply text-gray-10 dark:text-grayDark-10;
+  }
+
+  /* Focus ring utility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-purple-9 focus:ring-offset-2 focus:ring-offset-gray-1 dark:focus:ring-offset-grayDark-1;
+  }
+
+  /* Bento grid utilities */
+  .bento-grid {
+    @apply grid grid-cols-12 gap-4 auto-rows-[200px];
   }
 }
 
@@ -58,6 +170,28 @@
   }
 }
 
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes animate-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
 ::view-transition-old(.slide-out) {
   animation: slide-out 250ms cubic-bezier(0.32, 0.72, 0, 1);
   animation-fill-mode: forwards;
@@ -67,9 +201,3 @@
   animation: slide-in 250ms cubic-bezier(0.32, 0.72, 0, 1);
   animation-fill-mode: forwards;
 }
-
-/**
- * The @stylex directive is used by the @stylexjs/postcss-plugin.
- * It is automatically replaced with generated CSS during builds.
- */
-@stylex;

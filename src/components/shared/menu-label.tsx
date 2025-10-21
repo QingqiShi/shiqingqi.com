@@ -1,15 +1,9 @@
-import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { color, controlSize } from "@/tokens.stylex";
 
 export function MenuLabel({ children }: PropsWithChildren) {
-  return <div css={styles.label}>{children}</div>;
+  return (
+    <div className="text-base pb-2 text-gray-11 dark:text-grayDark-11">
+      {children}
+    </div>
+  );
 }
-
-const styles = stylex.create({
-  label: {
-    fontSize: controlSize._3,
-    padding: `0 0 ${controlSize._2}`,
-    color: color.textMuted,
-  },
-});

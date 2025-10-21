@@ -1,7 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
 import { getConfiguration } from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints.stylex";
-import { color, layer, ratio, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 
 interface BackdropImageProps {
@@ -35,88 +32,26 @@ export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
     .join(", ");
 
   return (
-    <div css={styles.container}>
-      {/* Disabling no-img-element rule as the images here are from a third party provider and is already 
+    <div className="absolute top-0 left-0 z-background overflow-hidden w-full">
+      {/* Disabling no-img-element rule as the images here are from a third party provider and is already
       optimized */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        css={styles.image}
+        className="w-[100dvw] min-h-[calc(96px+64px)] xl:max-h-[calc(50dvh+80px)] aspect-[21/9] relative object-cover object-center"
         alt={alt}
         src={src}
         srcSet={srcSet}
         sizes="100vw"
       />
 
-      <div role="presentation" css={styles.mask1} />
-      <div role="presentation" css={styles.mask2} />
+      <div
+        role="presentation"
+        className="absolute top-0 left-0 w-full h-full z-base bg-[radial-gradient(farthest-side_at_73%_21%,transparent,theme(colors.gray.1))] dark:bg-[radial-gradient(farthest-side_at_73%_21%,transparent,theme(colors.grayDark.1))]"
+      />
+      <div
+        role="presentation"
+        className="absolute left-0 z-base w-full top-[96px] h-0 lg:top-[calc(32px+clamp(96px,30dvw,30dvh))] lg:h-[calc(100%-32px-clamp(96px,30dvw,30dvh))] xl:top-[calc(32px+min(80px,30dvh))] xl:h-[calc(100%-32px-min(80px,20dvh))] bg-[linear-gradient(to_bottom,rgba(255,255,255,0)_0%,rgba(255,255,255,0.013)_8.1%,rgba(255,255,255,0.049)_15.5%,rgba(255,255,255,0.104)_22.4%,rgba(255,255,255,0.175)_28.9%,rgba(255,255,255,0.259)_35%,rgba(255,255,255,0.352)_41%,rgba(255,255,255,0.45)_46.7%,rgba(255,255,255,0.55)_52.5%,rgba(255,255,255,0.648)_58.3%,rgba(255,255,255,0.741)_64.3%,rgba(255,255,255,0.825)_70.5%,rgba(255,255,255,0.896)_77.1%,rgba(255,255,255,0.951)_84.2%,rgba(255,255,255,0.987)_91.8%,rgb(255,255,255)_100%)] dark:bg-[linear-gradient(to_bottom,rgba(0,0,0,0)_0%,rgba(0,0,0,0.013)_8.1%,rgba(0,0,0,0.049)_15.5%,rgba(0,0,0,0.104)_22.4%,rgba(0,0,0,0.175)_28.9%,rgba(0,0,0,0.259)_35%,rgba(0,0,0,0.352)_41%,rgba(0,0,0,0.45)_46.7%,rgba(0,0,0,0.55)_52.5%,rgba(0,0,0,0.648)_58.3%,rgba(0,0,0,0.741)_64.3%,rgba(0,0,0,0.825)_70.5%,rgba(0,0,0,0.896)_77.1%,rgba(0,0,0,0.951)_84.2%,rgba(0,0,0,0.987)_91.8%,rgb(0,0,0)_100%)]"
+      />
     </div>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: layer.background,
-    overflow: "hidden",
-    width: "100%",
-  },
-  mask1: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    zIndex: layer.base,
-    backgroundImage: `radial-gradient(farthest-side at 73% 21%, transparent, ${color.backgroundMain})`,
-  },
-  mask2: {
-    position: "absolute",
-    left: 0,
-    zIndex: layer.base,
-    width: "100%",
-    top: {
-      default: space._12,
-      [breakpoints.lg]: `calc(${space._8} + clamp(${space._12}, 30dvw, 30dvh))`,
-      [breakpoints.xl]: `calc(${space._8} + min(${space._13}, 30dvh))`,
-    },
-    height: {
-      default: 0,
-      [breakpoints.lg]: `calc(100% - ${space._8} - clamp(${space._12}, 30dvw, 30dvh))`,
-      [breakpoints.xl]: `calc(100% - ${space._8} - min(${space._13}, 20dvh))`,
-    },
-    // https://larsenwork.com/easing-gradients/
-    backgroundImage: `linear-gradient(
-      to bottom,
-      rgba(${color.backgroundMainChannels}, 0) 0%,
-      rgba(${color.backgroundMainChannels}, 0.013) 8.1%,
-      rgba(${color.backgroundMainChannels}, 0.049) 15.5%,
-      rgba(${color.backgroundMainChannels}, 0.104) 22.4%,
-      rgba(${color.backgroundMainChannels}, 0.175) 28.9%,
-      rgba(${color.backgroundMainChannels}, 0.259) 35%,
-      rgba(${color.backgroundMainChannels}, 0.352) 41%,
-      rgba(${color.backgroundMainChannels}, 0.45) 46.7%,
-      rgba(${color.backgroundMainChannels}, 0.55) 52.5%,
-      rgba(${color.backgroundMainChannels}, 0.648) 58.3%,
-      rgba(${color.backgroundMainChannels}, 0.741) 64.3%,
-      rgba(${color.backgroundMainChannels}, 0.825) 70.5%,
-      rgba(${color.backgroundMainChannels}, 0.896) 77.1%,
-      rgba(${color.backgroundMainChannels}, 0.951) 84.2%,
-      rgba(${color.backgroundMainChannels}, 0.987) 91.8%,
-      rgb(${color.backgroundMainChannels}) 100%
-    )`,
-  },
-  image: {
-    width: "100dvw",
-    minHeight: `calc(${space._14} + ${space._11})`,
-    maxHeight: {
-      default: null,
-      [breakpoints.xl]: `calc(50dvh + ${space._13})`,
-    },
-    aspectRatio: ratio.wide,
-    position: "relative",
-    objectFit: "cover",
-    objectPosition: "center center",
-  },
-});

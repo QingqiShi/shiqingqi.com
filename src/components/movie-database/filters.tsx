@@ -1,5 +1,3 @@
-import * as stylex from "@stylexjs/stylex";
-import { controlSize, space } from "@/tokens.stylex";
 import type { SupportedLocale } from "@/types";
 import { FixedContainerContent } from "../shared/fixed-container-content";
 import { FiltersContainer } from "./filters-container";
@@ -26,7 +24,7 @@ export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
             <MediaTypeToggle />
           </FixedContainerContent>
           <GenreFilterButton />
-          <FixedContainerContent css={styles.content}>
+          <FixedContainerContent className="flex gap-1">
             <SortFilter hideLabel />
             <ResetFilter hideLabel />
           </FixedContainerContent>
@@ -39,14 +37,14 @@ export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
       mobileChildren={
         <>
           <MediaTypeToggle mobile />
-          <div css={styles.content}>
+          <div className="flex gap-1">
             <FixedContainerContent>
               <SearchButton />
             </FixedContainerContent>
             <TmdbCredit locale={locale} position="viewportWidth" />
             <MobileFiltersButton
               menuContent={
-                <div css={styles.mobileMenuContent}>
+                <div className="flex items-center flex-wrap gap-4 p-2 w-[calc(100dvw-24px)] max-h-[calc(100dvh-80px-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1em-8px-4px-12px)] overflow-auto will-change-transform">
                   <SortFilter bright />
                   <GenreFilter />
                   <ResetFilter bright />
@@ -61,21 +59,3 @@ export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
     />
   );
 }
-
-const styles = stylex.create({
-  mobileMenuContent: {
-    alignItems: "center",
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._4,
-    padding: space._2,
-    width: `calc(100dvw - (${space._3} * 2))`,
-    maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
-    overflow: "auto",
-    willChange: "transform",
-  },
-  content: {
-    display: "flex",
-    gap: space._1,
-  },
-});

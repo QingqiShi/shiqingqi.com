@@ -2,9 +2,7 @@
 
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
-import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
-import { breakpoints } from "@/breakpoints.stylex";
 import { AnchorButton } from "@/components/shared/anchor-button";
 import type { SupportedLocale } from "@/types";
 import { getLocalePath, normalizePath } from "@/utils/pathname";
@@ -43,11 +41,11 @@ export function BackButton({ locale, label }: BackButtonProps) {
           href={targetPath}
           aria-label={label}
         >
-          <span css={styles.desktopVisible}>{label}</span>
+          <span className="hidden md:inline-flex">{label}</span>
           <HouseIcon
             weight="bold"
             role="presentation"
-            css={styles.mobileVisible}
+            className="inline-flex md:hidden"
           />
         </AnchorButton>
       );
@@ -67,20 +65,12 @@ export function BackButton({ locale, label }: BackButtonProps) {
       href={targetPath}
       aria-label={label}
     >
-      <span css={styles.desktopVisible}>{label}</span>
-      <HouseIcon weight="bold" role="presentation" css={styles.mobileVisible} />
+      <span className="hidden md:inline-flex">{label}</span>
+      <HouseIcon
+        weight="bold"
+        role="presentation"
+        className="inline-flex md:hidden"
+      />
     </AnchorButton>
   );
 }
-
-const styles = stylex.create({
-  desktopVisible: {
-    display: {
-      default: "none",
-      [breakpoints.md]: "inline-flex",
-    },
-  },
-  mobileVisible: {
-    display: { default: "inline-flex", [breakpoints.md]: "none" },
-  },
-});

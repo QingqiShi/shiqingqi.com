@@ -1,117 +1,90 @@
 "use client";
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import * as stylex from "@stylexjs/stylex";
 import { useTranslations } from "@/hooks/use-translations";
-import { border, color, font, layer, shadow, space } from "@/tokens.stylex";
+import { cn } from "@/lib/utils";
 import { Anchor } from "./anchor";
-import { cardTokens } from "./card.stylex";
 import type translations from "./card.translations.json";
 
 type CardProps = React.ComponentProps<typeof Anchor>;
 
-export function Card({ children, className, style, ...rest }: CardProps) {
+export function Card({ children, className, ...rest }: CardProps) {
   const { t } = useTranslations<typeof translations>("card");
   return (
-    <Anchor {...rest} className={className} style={style} css={styles.card}>
+    <Anchor
+      {...rest}
+      className={cn(
+        // Base styles
+        "block w-full no-underline",
+        "text-base rounded-md text-left p-4",
+        "overflow-hidden cursor-pointer relative",
+        "text-gray-12 dark:text-grayDark-12",
+
+        // Transitions
+        "transition-all duration-200",
+
+        // Hover effects
+        "hover:shadow-2xl hover:z-content",
+        "hover:bg-gray-1/10 dark:hover:bg-grayDark-1/10",
+        "hover:scale-105 hover:-translate-y-1",
+        "hover:backdrop-blur-[2rem]",
+
+        // Custom properties for children (details indicator & image filter)
+        "[--card-details-opacity:0] hover:[--card-details-opacity:1]",
+        "[--card-details-transform:translate3d(0,0.5rem,0)] hover:[--card-details-transform:translate3d(0,0,0)]",
+        "[--card-image-filter:grayscale(100%)] hover:[--card-image-filter:grayscale(0%)]",
+
+        className,
+      )}
+    >
       {children}
-      <div css={styles.detailsBackdrop} />
-      <div css={styles.detailsIndicator}>
-        <span css={styles.detailsText}>{t("details")}</span>
+
+      {/* Details backdrop gradient */}
+      <div
+        className={cn(
+          "absolute top-0 right-0 pointer-events-none",
+          "h-20 w-40",
+          "transition-opacity duration-200",
+          "opacity-[var(--card-details-opacity)]",
+        )}
+        style={{
+          backgroundImage: `linear-gradient(
+            to bottom left,
+            rgb(255 255 255 / 0.7) 0%,
+            rgb(255 255 255 / 0.691) 4.05%,
+            rgb(255 255 255 / 0.666) 7.75%,
+            rgb(255 255 255 / 0.627) 11.2%,
+            rgb(255 255 255 / 0.577) 14.45%,
+            rgb(255 255 255 / 0.519) 17.5%,
+            rgb(255 255 255 / 0.454) 20.5%,
+            rgb(255 255 255 / 0.385) 23.35%,
+            rgb(255 255 255 / 0.315) 26.25%,
+            rgb(255 255 255 / 0.246) 29.15%,
+            rgb(255 255 255 / 0.181) 32.15%,
+            rgb(255 255 255 / 0.123) 35.25%,
+            rgb(255 255 255 / 0.073) 38.55%,
+            rgb(255 255 255 / 0.034) 42.1%,
+            rgb(255 255 255 / 0.009) 45.9%,
+            rgb(255 255 255 / 0) 50%
+          )`,
+        }}
+      />
+
+      {/* Details indicator */}
+      <div
+        className={cn(
+          "absolute right-2 top-2 z-content",
+          "flex items-center gap-1",
+          "text-xs pointer-events-none",
+          "text-gray-12 dark:text-grayDark-12",
+          "transition-all duration-200",
+          "opacity-[var(--card-details-opacity)]",
+          "translate-x-[var(--card-details-transform)]",
+        )}
+      >
+        <span className="font-semibold">{t("details")}</span>
         <ArrowRightIcon />
       </div>
     </Anchor>
   );
 }
-
-const styles = stylex.create({
-  card: {
-    display: "block",
-    width: "100%",
-    borderStyle: "none",
-    textDecoration: "none",
-    fontSize: font.size_1,
-    borderRadius: border.radius_2,
-    textAlign: "left",
-    padding: space._3,
-    overflow: "hidden",
-    transition:
-      "box-shadow 0.2s, transform 0.2s, background-color 0.2s, fill 0.2s",
-    cursor: "pointer",
-    position: "relative",
-    color: color.textMain,
-    boxShadow: { default: "none", ":hover": shadow._5 },
-    zIndex: { ":hover": layer.content },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": color.backgroundTranslucent,
-    },
-    transform: {
-      default: null,
-      ":hover": "scale(1.05) translate3d(0, -0.2rem, 0)",
-    },
-    backdropFilter: { default: null, ":hover": "blur(2rem)" },
-
-    [cardTokens.detailsIndicatorOpacity]: {
-      default: 0,
-      ":hover": 1,
-    },
-    [cardTokens.detailsIndicatorTransform]: {
-      default: "translate3d(0, 0.5rem, 0)",
-      ":hover": "translate3d(0, 0, 0)",
-    },
-    [cardTokens.imageFilter]: {
-      default: "grayscale(100%)",
-      ":hover": "grayscale(0%)",
-    },
-  },
-  detailsBackdrop: {
-    // https://larsenwork.com/easing-gradients/
-    backgroundImage: `linear-gradient(
-        to bottom left,
-        rgba(${color.backgroundMainChannels}, 0.7) 0%,
-        rgba(${color.backgroundMainChannels}, 0.691) 4.05%,
-        rgba(${color.backgroundMainChannels}, 0.666) 7.75%,
-        rgba(${color.backgroundMainChannels}, 0.627) 11.2%,
-        rgba(${color.backgroundMainChannels}, 0.577) 14.45%,
-        rgba(${color.backgroundMainChannels}, 0.519) 17.5%,
-        rgba(${color.backgroundMainChannels}, 0.454) 20.5%,
-        rgba(${color.backgroundMainChannels}, 0.385) 23.35%,
-        rgba(${color.backgroundMainChannels}, 0.315) 26.25%,
-        rgba(${color.backgroundMainChannels}, 0.246) 29.15%,
-        rgba(${color.backgroundMainChannels}, 0.181) 32.15%,
-        rgba(${color.backgroundMainChannels}, 0.123) 35.25%,
-        rgba(${color.backgroundMainChannels}, 0.073) 38.55%,
-        rgba(${color.backgroundMainChannels}, 0.034) 42.1%,
-        rgba(${color.backgroundMainChannels}, 0.009) 45.9%,
-        rgba(${color.backgroundMainChannels}, 0) 50%
-      )`,
-    content: "",
-    position: "absolute",
-    top: 0,
-    right: 0,
-    height: space._10,
-    width: space._12,
-    opacity: cardTokens.detailsIndicatorOpacity,
-    pointerEvents: "none",
-    transition: "opacity 0.2s",
-  },
-  detailsIndicator: {
-    alignItems: "center",
-    color: color.textMain,
-    display: "flex",
-    fontSize: font.size_00,
-    gap: space._0,
-    opacity: cardTokens.detailsIndicatorOpacity,
-    pointerEvents: "none",
-    position: "absolute",
-    right: space._1,
-    top: space._1,
-    transform: cardTokens.detailsIndicatorTransform,
-    transition: "opacity 0.2s, transform 0.2s",
-    zIndex: layer.content,
-  },
-  detailsText: {
-    fontWeight: font.weight_6,
-  },
-});

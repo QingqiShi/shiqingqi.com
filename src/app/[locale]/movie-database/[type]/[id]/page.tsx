@@ -1,4 +1,3 @@
-import * as stylex from "@stylexjs/stylex";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import {
@@ -8,14 +7,11 @@ import {
   getTvShowDetails,
   getTvShowVideos,
 } from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints.stylex";
 import { BackdropImage } from "@/components/movie-database/backdrop-image";
 import { SimilarMedia } from "@/components/movie-database/similar-media";
 import { Trailer } from "@/components/movie-database/trailer";
 import { TvShowTrailer } from "@/components/movie-database/tv-show-trailer";
 import { Skeleton } from "@/components/shared/skeleton";
-import { skeletonTokens } from "@/components/shared/skeleton.stylex";
-import { border, color, controlSize, font, space } from "@/tokens.stylex";
 import { getTranslations } from "@/utils/get-translations";
 import translations from "./translations.json";
 import type { PageProps } from "./types";
@@ -50,7 +46,7 @@ export default async function Page({ params }: PageProps) {
 
     return (
       <>
-        <div css={styles.container}>
+        <div className="max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)] mx-auto py-0 mb-10 ps-[env(safe-area-inset-left)] pe-[env(safe-area-inset-right)]">
           {movie.backdrop_path && (
             <BackdropImage
               backdropPath={movie.backdrop_path}
@@ -58,17 +54,19 @@ export default async function Page({ params }: PageProps) {
               locale={locale}
             />
           )}
-          <div css={styles.hero}>
-            <div css={styles.ratingContainer}>
-              <div css={styles.rating}>
+          <div className="pt-12 md:pt-[clamp(2.5rem,20dvw,30dvh)] xl:pt-[min(3.5rem,30dvh)] px-3 flex flex-col justify-end gap-3">
+            <div className="w-9 h-9 rounded-full surface-raised border-0 border-gray-11 dark:border-grayDark-11 border-solid text-xs flex flex-col items-center justify-center">
+              <div className="text-5xl font-extrabold">
                 {formatter.format(movie.vote_average)}
               </div>
-              <div css={styles.count}>{movie.vote_count}</div>
+              <div className="text-base text-gray-11 dark:text-grayDark-11">
+                {movie.vote_count}
+              </div>
             </div>
-            <h1 css={styles.h1}>
+            <h1 className="text-6xl m-0">
               {movie.title ?? movie.original_title ?? t("titleFallback")}
             </h1>
-            <div css={styles.meta}>
+            <div className="text-base m-0">
               {[
                 movie.release_date?.split("-")[0],
                 `${hours > 0 ? `${hours}${t("hours")} ` : ""}${minutes}${t("minutes")}`,
@@ -81,13 +79,9 @@ export default async function Page({ params }: PageProps) {
                 .join(" • ")}
             </div>
             {(movie.overview || movie.tagline) && (
-              <p css={styles.description}>{movie.overview ?? movie.tagline}</p>
+              <p className="text-lg m-0">{movie.overview ?? movie.tagline}</p>
             )}
-            <Suspense
-              fallback={
-                <Skeleton css={styles.trailerButtonSkeleton} width={120} />
-              }
-            >
+            <Suspense fallback={<Skeleton className="h-[3rem]" width={120} />}>
               <Trailer movieId={id} locale={locale} />
             </Suspense>
           </div>
@@ -109,7 +103,7 @@ export default async function Page({ params }: PageProps) {
 
     return (
       <>
-        <div css={styles.container}>
+        <div className="max-w-[1080px] xl:max-w-[calc((1080/24)*1rem)] mx-auto py-0 mb-10 ps-[env(safe-area-inset-left)] pe-[env(safe-area-inset-right)]">
           {tvShow.backdrop_path && (
             <BackdropImage
               backdropPath={tvShow.backdrop_path}
@@ -117,17 +111,19 @@ export default async function Page({ params }: PageProps) {
               locale={locale}
             />
           )}
-          <div css={styles.hero}>
-            <div css={styles.ratingContainer}>
-              <div css={styles.rating}>
+          <div className="pt-12 md:pt-[clamp(2.5rem,20dvw,30dvh)] xl:pt-[min(3.5rem,30dvh)] px-3 flex flex-col justify-end gap-3">
+            <div className="w-9 h-9 rounded-full surface-raised border-0 border-gray-11 dark:border-grayDark-11 border-solid text-xs flex flex-col items-center justify-center">
+              <div className="text-5xl font-extrabold">
                 {formatter.format(tvShow.vote_average)}
               </div>
-              <div css={styles.count}>{tvShow.vote_count}</div>
+              <div className="text-base text-gray-11 dark:text-grayDark-11">
+                {tvShow.vote_count}
+              </div>
             </div>
-            <h1 css={styles.h1}>
+            <h1 className="text-6xl m-0">
               {tvShow.name ?? tvShow.original_name ?? t("titleFallback")}
             </h1>
-            <div css={styles.meta}>
+            <div className="text-base m-0">
               {[
                 tvShow.first_air_date?.split("-")[0],
                 `${tvShow.number_of_seasons}${t("seasons")} • ${tvShow.number_of_episodes}${t("episodes")}`,
@@ -140,15 +136,9 @@ export default async function Page({ params }: PageProps) {
                 .join(" • ")}
             </div>
             {(tvShow.overview || tvShow.tagline) && (
-              <p css={styles.description}>
-                {tvShow.overview ?? tvShow.tagline}
-              </p>
+              <p className="text-lg m-0">{tvShow.overview ?? tvShow.tagline}</p>
             )}
-            <Suspense
-              fallback={
-                <Skeleton css={styles.trailerButtonSkeleton} width={120} />
-              }
-            >
+            <Suspense fallback={<Skeleton className="h-[3rem]" width={120} />}>
               <TvShowTrailer tvShowId={id} locale={locale} />
             </Suspense>
           </div>
@@ -158,67 +148,3 @@ export default async function Page({ params }: PageProps) {
     );
   }
 }
-
-const styles = stylex.create({
-  container: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
-    marginBlock: 0,
-    marginInline: "auto",
-    marginBottom: space._10,
-    paddingBlock: 0,
-    paddingLeft: `env(safe-area-inset-left)`,
-    paddingRight: `env(safe-area-inset-right)`,
-  },
-  hero: {
-    paddingTop: {
-      default: space._12,
-      [breakpoints.md]: `clamp(${space._10}, 20dvw, 30dvh)`,
-      [breakpoints.xl]: `min(${space._13}, 30dvh)`,
-    },
-    paddingInline: space._3,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "flex-end",
-    gap: space._3,
-  },
-  h1: {
-    fontSize: font.size_6,
-    margin: 0,
-  },
-  meta: {
-    fontSize: font.size_0,
-    margin: 0,
-  },
-  description: {
-    fontSize: font.size_1,
-    margin: 0,
-  },
-  ratingContainer: {
-    width: space._9,
-    height: space._9,
-    borderRadius: border.radius_round,
-    backgroundColor: color.backgroundRaised,
-    borderWidth: space._0,
-    borderColor: color.textMuted,
-    borderStyle: "solid",
-    fontSize: font.size_00,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  rating: {
-    fontSize: font.size_4,
-    fontWeight: font.weight_8,
-  },
-  count: {
-    fontSize: font.size_0,
-    color: color.textMuted,
-  },
-  trailerButtonSkeleton: {
-    [skeletonTokens.height]: controlSize._9,
-  },
-});
