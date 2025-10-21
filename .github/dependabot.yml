@@ -22,12 +22,13 @@ updates:
           - "@next/eslint-plugin-next"
       eslint:
         patterns:
-          - eslint
+          - "eslint"
           - "@eslint*"
+          - "typescript-eslint"
       react:
         patterns:
-          - react
-          - react-dom
+          - "react"
+          - "react-dom"
           - "@types/react"
           - "@types/react-dom"
       react-compiler:
@@ -41,6 +42,22 @@ updates:
       stylex:
         patterns:
           - "@stylex*"
+      babel:
+        patterns:
+          - "@babel*"
+          - "@types/babel__*"
+      testing-library:
+        patterns:
+          - "@testing-library*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest*"
+          - "@vitejs/plugin-react"
+          - "vite-plugin-babel"
+      postcss:
+        patterns:
+          - "postcss-*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
