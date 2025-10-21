@@ -46,6 +46,9 @@
   }
 }
 
+/* ===== View Transition Animations ===== */
+
+/* Slide animations for modal-like transitions */
 @keyframes slide-in {
   from {
     transform: translateY(100dvh);

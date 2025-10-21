@@ -2,7 +2,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 import { globalStyles } from "@/app/global-styles";
 import { SerwistProvider } from "@/components/serwist-provider";
 import { PortalTargetProvider } from "@/components/shared/fixed-element-portal-target";
@@ -55,15 +55,17 @@ export default async function RootLayout({
           swUrl="/serwist/sw.js"
           register={process.env.NODE_ENV !== "development"}
         >
-          <PortalTargetProvider>
-            <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-            <Suspense fallback={<HeaderSkeleton />}>
-              <Header locale={validatedLocale} />
-            </Suspense>
-            {children}
-            <Analytics />
-            <SpeedInsights />
-          </PortalTargetProvider>
+          <script dangerouslySetInnerHTML={{ __html: themeHack }} />
+          <ViewTransition>
+            <PortalTargetProvider>
+              <Suspense fallback={<HeaderSkeleton />}>
+                <Header locale={validatedLocale} />
+              </Suspense>
+              {children}
+            </PortalTargetProvider>
+          </ViewTransition>
+          <Analytics />
+          <SpeedInsights />
         </SerwistProvider>
       </body>
     </html>
