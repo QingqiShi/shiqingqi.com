@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { useRouter } from "next/navigation";
 import type { PropsWithChildren } from "react";
-import { useTransition } from "react";
 import { color, font, border, controlSize } from "@/tokens.stylex";
 
 interface ItemProps {
@@ -23,7 +22,6 @@ export function MenuItem({
   onAfterNavigation,
 }: PropsWithChildren<ItemProps>) {
   const router = useRouter();
-  const [, startTransition] = useTransition();
 
   return (
     <a
@@ -39,9 +37,7 @@ export function MenuItem({
         e.preventDefault();
 
         onBeforeNavigation?.();
-        startTransition(() => {
-          router.push(href);
-        });
+        router.push(href);
         onAfterNavigation?.();
       }}
     >
