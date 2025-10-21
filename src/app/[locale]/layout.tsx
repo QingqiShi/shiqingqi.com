@@ -57,10 +57,12 @@ export default async function RootLayout({
         >
           <PortalTargetProvider>
             <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-            <Suspense fallback={<HeaderSkeleton />}>
-              <Header locale={validatedLocale} />
-            </Suspense>
-            <ViewTransition>{children}</ViewTransition>
+            <ViewTransition>
+              <Suspense fallback={<HeaderSkeleton />}>
+                <Header locale={validatedLocale} />
+              </Suspense>
+              {children}
+            </ViewTransition>
             <Analytics />
             <SpeedInsights />
           </PortalTargetProvider>
