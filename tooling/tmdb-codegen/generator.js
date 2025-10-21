@@ -25,57 +25,61 @@ function extractPathParams(pathPattern) {
 }
 
 function generateServerFunctions() {
-  const functions = endpoints.map((endpoint) => {
-    const {
-      path: endpointPath,
-      functionName,
-      defaults = {},
-      requiredParams = false,
-    } = endpoint;
+  const functions = endpoints
+    .slice()
+    .sort((a, b) => a.functionName.localeCompare(b.functionName))
+    .map((endpoint) => {
+      const {
+        path: endpointPath,
+        functionName,
+        defaults = {},
+        requiredParams = false,
+      } = endpoint;
 
-    // Auto-detect path parameters
-    const pathParams = extractPathParams(endpointPath);
+      // Auto-detect path parameters
+      const pathParams = extractPathParams(endpointPath);
 
-    // Generate parameter type
-    const hasPathParams = pathParams.length > 0;
-    let paramType;
+      // Generate parameter type
+      const hasPathParams = pathParams.length > 0;
+      let paramType;
 
-    if (hasPathParams) {
-      const pathParamType = pathParams
-        .map((param) => `${param}: string`)
-        .join("; ");
-      paramType = `params: { ${pathParamType} } & QueryParams<"${endpointPath}", "get">`;
-    } else if (requiredParams) {
-      paramType = `params: QueryParams<"${endpointPath}", "get">`;
-    } else {
-      paramType = `params?: QueryParams<"${endpointPath}", "get">`;
-    }
+      if (hasPathParams) {
+        const pathParamType = pathParams
+          .map((param) => `${param}: string`)
+          .join("; ");
+        paramType = `params: { ${pathParamType} } & QueryParams<"${endpointPath}", "get">`;
+      } else if (requiredParams) {
+        paramType = `params: QueryParams<"${endpointPath}", "get">`;
+      } else {
+        paramType = `params?: QueryParams<"${endpointPath}", "get">`;
+      }
 
-    // Generate function body
-    let functionBody;
+      // Generate function body
+      let functionBody;
 
-    if (hasPathParams) {
-      const destructure = `{ ${pathParams.join(", ")}, ...queryParams }`;
-      const pathParamsObj = `{ ${pathParams.join(", ")} }`;
-      functionBody = `  const ${destructure} = params;
+      if (hasPathParams) {
+        const destructure = `{ ${pathParams.join(", ")}, ...queryParams }`;
+        const pathParamsObj = `{ ${pathParams.join(", ")} }`;
+        functionBody = `  const ${destructure} = params;
   return tmdbGet("${endpointPath}", queryParams, ${pathParamsObj});`;
-    } else if (Object.keys(defaults).length > 0) {
-      functionBody = `  return tmdbGet("${endpointPath}", {
+      } else if (Object.keys(defaults).length > 0) {
+        functionBody = `  return tmdbGet("${endpointPath}", {
     ${Object.entries(defaults)
+      .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, value]) => `"${key}": ${JSON.stringify(value)}`)
       .join(",\n    ")},
     ...params,
   });`;
-    } else {
-      functionBody = `  return tmdbGet("${endpointPath}", params);`;
-    }
+      } else {
+        functionBody = `  return tmdbGet("${endpointPath}", params);`;
+      }
 
-    return `export async function ${functionName}(
+      return `export async function ${functionName}(
   ${paramType},
 ) {
 ${functionBody}
 }`;
-  });
+    });
 
   const fileContent = `"use server";
 
@@ -108,7 +112,7 @@ function generateApiRoutes() {
   const apiDir = path.join(projectRoot, "src", "app", "api", "tmdb");
   if (fs.existsSync(apiDir)) {
     // Only remove files that match our generation pattern
-    const files = fs.readdirSync(apiDir);
+    const files = fs.readdirSync(apiDir).sort();
     files.forEach((file) => {
       const filePath = path.join(apiDir, file);
       if (fs.statSync(filePath).isDirectory()) {
@@ -150,7 +154,7 @@ export const GET = apiRouteWrapper(${functionName});
 
 function generateEndpointTypes() {
   // Generate a helper file for endpoint paths
-  const endpointPaths = endpoints.map((e) => e.path);
+  const endpointPaths = endpoints.map((e) => e.path).sort();
   const typeContent = `/**
  * TMDB endpoint paths - auto-generated
  * Do not edit manually - changes will be overwritten.

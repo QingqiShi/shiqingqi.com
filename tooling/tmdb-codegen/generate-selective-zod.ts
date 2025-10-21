@@ -39,7 +39,8 @@ const REQUIRED_OPERATIONS = endpoints
     // /3/discover/movie -> discover-movie
     const path = endpoint.path.replace(/^\/3\//, "").replace(/\{[^}]+\}/g, "");
     return path.replace(/\//g, "-"); // Replace ALL slashes with dashes
-  });
+  })
+  .sort();
 
 /**
  * TypeScript to Zod schema converter using Compiler API
@@ -261,13 +262,6 @@ function generateSelectiveZodFile() {
 
   console.log("✅ Created TypeScript program for AST parsing");
 
-  // Backup existing file for comparison
-  if (fs.existsSync(outputPath)) {
-    const backupPath = outputPath + ".backup";
-    fs.copyFileSync(outputPath, backupPath);
-    console.log(`   📋 Backed up existing file for comparison`);
-  }
-
   let separateSchemas = "";
   let operationsZodEntries = "";
   let generatedCount = 0;
@@ -326,23 +320,6 @@ ${operationsZodEntries}});
   console.log(`   📦 File size: ${(stats.size / 1024).toFixed(1)}KB`);
   console.log(`   📝 Line count: ${lineCount} lines`);
   console.log(`   💾 Saved to: ${outputPath}`);
-
-  // Calculate size reduction estimate
-  const backupPath = outputPath + ".backup";
-  if (fs.existsSync(backupPath)) {
-    const oldStats = fs.statSync(backupPath);
-    const reduction = (
-      ((oldStats.size - stats.size) / oldStats.size) *
-      100
-    ).toFixed(1);
-    const sizeSavings = ((oldStats.size - stats.size) / 1024).toFixed(1);
-    console.log(`   📉 Size reduction: ${reduction}% (saved ${sizeSavings}KB)`);
-    console.log(
-      `   📊 Before: ${(oldStats.size / 1024).toFixed(1)}KB → After: ${(
-        stats.size / 1024
-      ).toFixed(1)}KB`,
-    );
-  }
 }
 
 /**

@@ -187,6 +187,30 @@ export const searchMovieSchema = z.object({
   }),
 });
 
+// search-person schema for direct import (tree-shakable)
+export const searchPersonSchema = z.object({
+  parameters: z.object({
+    query: z.object({
+      query: z.string(),
+      include_adult: z.boolean().nullable().optional(),
+      language: z.string().nullable().optional(),
+      page: z.number().nullable().optional(),
+    }),
+    header: z.never().nullable().optional(),
+    path: z.never().nullable().optional(),
+    cookie: z.never().nullable().optional(),
+  }),
+  requestBody: z.never().nullable().optional(),
+  responses: z.object({
+    200: z.object({
+      headers: z.record(z.unknown()),
+      content: z.object({
+        "application/json": z.unknown(),
+      }),
+    }),
+  }),
+});
+
 // search-tv schema for direct import (tree-shakable)
 export const searchTvSchema = z.object({
   parameters: z.object({
@@ -213,35 +237,11 @@ export const searchTvSchema = z.object({
   }),
 });
 
-// search-person schema for direct import (tree-shakable)
-export const searchPersonSchema = z.object({
-  parameters: z.object({
-    query: z.object({
-      query: z.string(),
-      include_adult: z.boolean().nullable().optional(),
-      language: z.string().nullable().optional(),
-      page: z.number().nullable().optional(),
-    }),
-    header: z.never().nullable().optional(),
-    path: z.never().nullable().optional(),
-    cookie: z.never().nullable().optional(),
-  }),
-  requestBody: z.never().nullable().optional(),
-  responses: z.object({
-    200: z.object({
-      headers: z.record(z.unknown()),
-      content: z.object({
-        "application/json": z.unknown(),
-      }),
-    }),
-  }),
-});
-
 // Backward compatibility object (prefer individual imports above for better tree-shaking)
 export const operationsSchema = z.object({
   "discover-movie": discoverMovieSchema,
   "discover-tv": discoverTvSchema,
   "search-movie": searchMovieSchema,
-  "search-tv": searchTvSchema,
   "search-person": searchPersonSchema,
+  "search-tv": searchTvSchema,
 });

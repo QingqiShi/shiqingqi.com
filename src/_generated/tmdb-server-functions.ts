@@ -11,6 +11,26 @@ import { tmdbGet, type QueryParams } from "../utils/tmdb-client";
  * Do not edit manually - changes will be overwritten.
  */
 
+export async function discoverMovies(
+  params?: QueryParams<"/3/discover/movie", "get">,
+) {
+  return tmdbGet("/3/discover/movie", {
+    "vote_average.gte": 3,
+    "vote_count.gte": 300,
+    ...params,
+  });
+}
+
+export async function discoverTvShows(
+  params?: QueryParams<"/3/discover/tv", "get">,
+) {
+  return tmdbGet("/3/discover/tv", {
+    "vote_average.gte": 3,
+    "vote_count.gte": 300,
+    ...params,
+  });
+}
+
 export async function getConfiguration(
   params?: QueryParams<"/3/configuration", "get">,
 ) {
@@ -29,38 +49,6 @@ export async function getConfigurationLanguages(
   return tmdbGet("/3/configuration/languages", params);
 }
 
-export async function getMovieGenres(
-  params?: QueryParams<"/3/genre/movie/list", "get">,
-) {
-  return tmdbGet("/3/genre/movie/list", params);
-}
-
-export async function getTvShowGenres(
-  params?: QueryParams<"/3/genre/tv/list", "get">,
-) {
-  return tmdbGet("/3/genre/tv/list", params);
-}
-
-export async function discoverMovies(
-  params?: QueryParams<"/3/discover/movie", "get">,
-) {
-  return tmdbGet("/3/discover/movie", {
-    "vote_count.gte": 300,
-    "vote_average.gte": 3,
-    ...params,
-  });
-}
-
-export async function discoverTvShows(
-  params?: QueryParams<"/3/discover/tv", "get">,
-) {
-  return tmdbGet("/3/discover/tv", {
-    "vote_count.gte": 300,
-    "vote_average.gte": 3,
-    ...params,
-  });
-}
-
 export async function getMovieDetails(
   params: { movie_id: string } & QueryParams<"/3/movie/{movie_id}", "get">,
 ) {
@@ -68,14 +56,10 @@ export async function getMovieDetails(
   return tmdbGet("/3/movie/{movie_id}", queryParams, { movie_id });
 }
 
-export async function getMovieVideos(
-  params: { movie_id: string } & QueryParams<
-    "/3/movie/{movie_id}/videos",
-    "get"
-  >,
+export async function getMovieGenres(
+  params?: QueryParams<"/3/genre/movie/list", "get">,
 ) {
-  const { movie_id, ...queryParams } = params;
-  return tmdbGet("/3/movie/{movie_id}/videos", queryParams, { movie_id });
+  return tmdbGet("/3/genre/movie/list", params);
 }
 
 export async function getMovieRecommendations(
@@ -90,6 +74,16 @@ export async function getMovieRecommendations(
   });
 }
 
+export async function getMovieVideos(
+  params: { movie_id: string } & QueryParams<
+    "/3/movie/{movie_id}/videos",
+    "get"
+  >,
+) {
+  const { movie_id, ...queryParams } = params;
+  return tmdbGet("/3/movie/{movie_id}/videos", queryParams, { movie_id });
+}
+
 export async function getTvShowDetails(
   params: { series_id: string } & QueryParams<"/3/tv/{series_id}", "get">,
 ) {
@@ -97,14 +91,10 @@ export async function getTvShowDetails(
   return tmdbGet("/3/tv/{series_id}", queryParams, { series_id });
 }
 
-export async function getTvShowVideos(
-  params: { series_id: string } & QueryParams<
-    "/3/tv/{series_id}/videos",
-    "get"
-  >,
+export async function getTvShowGenres(
+  params?: QueryParams<"/3/genre/tv/list", "get">,
 ) {
-  const { series_id, ...queryParams } = params;
-  return tmdbGet("/3/tv/{series_id}/videos", queryParams, { series_id });
+  return tmdbGet("/3/genre/tv/list", params);
 }
 
 export async function getTvShowRecommendations(
@@ -119,20 +109,30 @@ export async function getTvShowRecommendations(
   });
 }
 
+export async function getTvShowVideos(
+  params: { series_id: string } & QueryParams<
+    "/3/tv/{series_id}/videos",
+    "get"
+  >,
+) {
+  const { series_id, ...queryParams } = params;
+  return tmdbGet("/3/tv/{series_id}/videos", queryParams, { series_id });
+}
+
 export async function searchMovies(
   params: QueryParams<"/3/search/movie", "get">,
 ) {
   return tmdbGet("/3/search/movie", params);
 }
 
-export async function searchTvShows(
-  params: QueryParams<"/3/search/tv", "get">,
-) {
-  return tmdbGet("/3/search/tv", params);
-}
-
 export async function searchPerson(
   params: QueryParams<"/3/search/person", "get">,
 ) {
   return tmdbGet("/3/search/person", params);
+}
+
+export async function searchTvShows(
+  params: QueryParams<"/3/search/tv", "get">,
+) {
+  return tmdbGet("/3/search/tv", params);
 }
