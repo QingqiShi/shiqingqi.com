@@ -174,8 +174,8 @@ importers:
         specifier: ^8.0.4
         version: 8.0.4
       openapi-typescript:
-        specifier: ^7.6.1
-        version: 7.6.1(typescript@5.9.3)
+        specifier: ^7.10.1
+        version: 7.10.1(typescript@5.9.3)
       postcss-flexbugs-fixes:
         specifier: ^5.0.2
         version: 5.0.2(postcss@8.5.6)
@@ -1126,14 +1126,14 @@ packages:
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
-  '@redocly/ajv@8.11.2':
-    resolution: {integrity: sha512-io1JpnwtIcvojV7QKDUSIuMN/ikdOUd1ReEnUnMKGfDVridQZ31J0MmIuqwuRjWDZfmvr+Q0MqCcfHM2gTivOg==}
+  '@redocly/ajv@8.11.3':
+    resolution: {integrity: sha512-4P3iZse91TkBiY+Dx5DUgxQ9GXkVJf++cmI0MOyLDxV9b5MUBI4II6ES8zA5JCbO72nKAJxWrw4PUPW+YP3ZDQ==}
 
-  '@redocly/config@0.20.3':
-    resolution: {integrity: sha512-Nyyv1Bj7GgYwj/l46O0nkH1GTKWbO3Ixe7KFcn021aZipkZd+z8Vlu1BwkhqtVgivcKaClaExtWU/lDHkjBzag==}
+  '@redocly/config@0.22.2':
+    resolution: {integrity: sha512-roRDai8/zr2S9YfmzUfNhKjOF0NdcOIqF7bhf4MVC5UxpjIysDjyudvlAiVbpPHp3eDRWbdzUgtkK1a7YiDNyQ==}
 
-  '@redocly/openapi-core@1.30.0':
-    resolution: {integrity: sha512-ZZc+FXKoQXJ9cOR7qRKHxOfKOsGCj2wSodklKdtM2FofzyjzvIwn1rksD5+9iJxvHuORPOPv3ppAHcM+iMr/Ag==}
+  '@redocly/openapi-core@1.34.5':
+    resolution: {integrity: sha512-0EbE8LRbkogtcCXU7liAyC00n9uNG9hJ+eMyHFdUsy9lB/WGqnEBgwjA9q2cyzAVcdTkQqTBBU1XePNnN3OijA==}
     engines: {node: '>=18.17.0', npm: '>=9.5.0'}
 
   '@rolldown/pluginutils@1.0.0-beta.38':
@@ -2799,8 +2799,8 @@ packages:
     resolution: {integrity: sha512-m6FAo/spmsW2Ab2fU35JTYwtOKa2yAwXSwgjSv1TJzh4Mh7mC3lzAOVLBprb72XsTrgkEIsl7YrFNAiDiRhIGg==}
     engines: {node: '>=12'}
 
-  index-to-position@0.1.2:
-    resolution: {integrity: sha512-MWDKS3AS1bGCHLBA2VLImJz42f7bJh8wQsTGCzI3j519/CASStoDONUBVz2I/VID0MpiX3SGSnbOD2xUalbE5g==}
+  index-to-position@1.2.0:
+    resolution: {integrity: sha512-Yg7+ztRkqslMAS2iFaU+Oa4KTSidr63OsFGlOrJoW981kIYO3CGCS3wA95P1mUi/IVSJkn0D479KTJpVpvFNuw==}
     engines: {node: '>=18'}
 
   internal-slot@1.1.0:
@@ -3284,8 +3284,8 @@ packages:
       zod:
         optional: true
 
-  openapi-typescript@7.6.1:
-    resolution: {integrity: sha512-F7RXEeo/heF3O9lOXo2bNjCOtfp7u+D6W3a3VNEH2xE6v+fxLtn5nq0uvUcA1F5aT+CMhNeC5Uqtg5tlXFX/ag==}
+  openapi-typescript@7.10.1:
+    resolution: {integrity: sha512-rBcU8bjKGGZQT4K2ekSTY2Q5veOQbVG/lTKZ49DeCyT9z62hM2Vj/LLHjDHC9W7LJG8YMHcdXpRZDqC1ojB/lw==}
     hasBin: true
     peerDependencies:
       typescript: ^5.x
@@ -3325,8 +3325,8 @@ packages:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
 
-  parse-json@8.1.0:
-    resolution: {integrity: sha512-rum1bPifK5SSar35Z6EKZuYPJx85pkNaFrxBK3mwdfSJ1/WKbYrjoW/zTPSjRRamfmVX1ACBIdFAO0VRErW/EA==}
+  parse-json@8.3.0:
+    resolution: {integrity: sha512-ybiGyvspI+fAoRQbIPRddCcSTV9/LsJbf0e/S85VLowVGzRmokfneg2kwVW/KU5rOXrPSbF1qAKPMgNTqqROQQ==}
     engines: {node: '>=18'}
 
   parse5@8.0.0:
@@ -4108,8 +4108,8 @@ packages:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
 
-  type-fest@4.35.0:
-    resolution: {integrity: sha512-2/AwEFQDFEy30iOLjrvHDIH7e4HEWH+f1Yl1bI5XMqzuoCUqwYCdxachgsgv0og/JdVZUhbfjcJAoHj5L1753A==}
+  type-fest@4.41.0:
+    resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
   typed-array-buffer@1.0.3:
@@ -5248,19 +5248,19 @@ snapshots:
 
   '@polka/url@1.0.0-next.29': {}
 
-  '@redocly/ajv@8.11.2':
+  '@redocly/ajv@8.11.3':
     dependencies:
       fast-deep-equal: 3.1.3
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
       uri-js-replace: 1.0.1
 
-  '@redocly/config@0.20.3': {}
+  '@redocly/config@0.22.2': {}
 
-  '@redocly/openapi-core@1.30.0(supports-color@8.1.1)':
+  '@redocly/openapi-core@1.34.5(supports-color@8.1.1)':
     dependencies:
-      '@redocly/ajv': 8.11.2
-      '@redocly/config': 0.20.3
+      '@redocly/ajv': 8.11.3
+      '@redocly/config': 0.22.2
       colorette: 1.4.0
       https-proxy-agent: 7.0.6(supports-color@8.1.1)
       js-levenshtein: 1.1.6
@@ -7226,7 +7226,7 @@ snapshots:
 
   indent-string@5.0.0: {}
 
-  index-to-position@0.1.2: {}
+  index-to-position@1.2.0: {}
 
   internal-slot@1.1.0:
     dependencies:
@@ -7710,12 +7710,12 @@ snapshots:
       ws: 8.18.3
       zod: 3.25.76
 
-  openapi-typescript@7.6.1(typescript@5.9.3):
+  openapi-typescript@7.10.1(typescript@5.9.3):
     dependencies:
-      '@redocly/openapi-core': 1.30.0(supports-color@8.1.1)
+      '@redocly/openapi-core': 1.34.5(supports-color@8.1.1)
       ansi-colors: 4.1.3
       change-case: 5.4.4
-      parse-json: 8.1.0
+      parse-json: 8.3.0
       supports-color: 8.1.1
       typescript: 5.9.3
       yargs-parser: 21.1.1
@@ -7759,11 +7759,11 @@ snapshots:
     dependencies:
       callsites: 3.1.0
 
-  parse-json@8.1.0:
+  parse-json@8.3.0:
     dependencies:
       '@babel/code-frame': 7.27.1
-      index-to-position: 0.1.2
-      type-fest: 4.35.0
+      index-to-position: 1.2.0
+      type-fest: 4.41.0
 
   parse5@8.0.0:
     dependencies:
@@ -8646,7 +8646,7 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
 
-  type-fest@4.35.0: {}
+  type-fest@4.41.0: {}
 
   typed-array-buffer@1.0.3:
     dependencies:
