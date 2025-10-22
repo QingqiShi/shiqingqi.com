@@ -1,0 +1,92 @@
+@import "@radix-ui/colors/gray.css";
+@import "@radix-ui/colors/gray-dark.css";
+@import "@radix-ui/colors/purple.css";
+@import "@radix-ui/colors/purple-dark.css";
+@import "@radix-ui/colors/green.css";
+@import "@radix-ui/colors/green-dark.css";
+
+@theme {
+  /* Gray colors for light mode */
+  --color-gray-1: var(--gray-1);
+  --color-gray-2: var(--gray-2);
+  --color-gray-3: var(--gray-3);
+  --color-gray-4: var(--gray-4);
+  --color-gray-5: var(--gray-5);
+  --color-gray-6: var(--gray-6);
+  --color-gray-7: var(--gray-7);
+  --color-gray-8: var(--gray-8);
+  --color-gray-9: var(--gray-9);
+  --color-gray-10: var(--gray-10);
+  --color-gray-11: var(--gray-11);
+  --color-gray-12: var(--gray-12);
+
+  /* Gray colors for dark mode */
+  --color-grayDark-1: var(--gray-dark-1);
+  --color-grayDark-2: var(--gray-dark-2);
+  --color-grayDark-3: var(--gray-dark-3);
+  --color-grayDark-4: var(--gray-dark-4);
+  --color-grayDark-5: var(--gray-dark-5);
+  --color-grayDark-6: var(--gray-dark-6);
+  --color-grayDark-7: var(--gray-dark-7);
+  --color-grayDark-8: var(--gray-dark-8);
+  --color-grayDark-9: var(--gray-dark-9);
+  --color-grayDark-10: var(--gray-dark-10);
+  --color-grayDark-11: var(--gray-dark-11);
+  --color-grayDark-12: var(--gray-dark-12);
+
+  /* Purple colors for light mode */
+  --color-purple-1: var(--purple-1);
+  --color-purple-2: var(--purple-2);
+  --color-purple-3: var(--purple-3);
+  --color-purple-4: var(--purple-4);
+  --color-purple-5: var(--purple-5);
+  --color-purple-6: var(--purple-6);
+  --color-purple-7: var(--purple-7);
+  --color-purple-8: var(--purple-8);
+  --color-purple-9: var(--purple-9);
+  --color-purple-10: var(--purple-10);
+  --color-purple-11: var(--purple-11);
+  --color-purple-12: var(--purple-12);
+
+  /* Purple colors for dark mode */
+  --color-purpleDark-1: var(--purple-dark-1);
+  --color-purpleDark-2: var(--purple-dark-2);
+  --color-purpleDark-3: var(--purple-dark-3);
+  --color-purpleDark-4: var(--purple-dark-4);
+  --color-purpleDark-5: var(--purple-dark-5);
+  --color-purpleDark-6: var(--purple-dark-6);
+  --color-purpleDark-7: var(--purple-dark-7);
+  --color-purpleDark-8: var(--purple-dark-8);
+  --color-purpleDark-9: var(--purple-dark-9);
+  --color-purpleDark-10: var(--purple-dark-10);
+  --color-purpleDark-11: var(--purple-dark-11);
+  --color-purpleDark-12: var(--purple-dark-12);
+
+  /* Green colors for light mode */
+  --color-green-1: var(--green-1);
+  --color-green-2: var(--green-2);
+  --color-green-3: var(--green-3);
+  --color-green-4: var(--green-4);
+  --color-green-5: var(--green-5);
+  --color-green-6: var(--green-6);
+  --color-green-7: var(--green-7);
+  --color-green-8: var(--green-8);
+  --color-green-9: var(--green-9);
+  --color-green-10: var(--green-10);
+  --color-green-11: var(--green-11);
+  --color-green-12: var(--green-12);
+
+  /* Green colors for dark mode */
+  --color-greenDark-1: var(--green-dark-1);
+  --color-greenDark-2: var(--green-dark-2);
+  --color-greenDark-3: var(--green-dark-3);
+  --color-greenDark-4: var(--green-dark-4);
+  --color-greenDark-5: var(--green-dark-5);
+  --color-greenDark-6: var(--green-dark-6);
+  --color-greenDark-7: var(--green-dark-7);
+  --color-greenDark-8: var(--green-dark-8);
+  --color-greenDark-9: var(--green-dark-9);
+  --color-greenDark-10: var(--green-dark-10);
+  --color-greenDark-11: var(--green-dark-11);
+  --color-greenDark-12: var(--green-dark-12);
+}

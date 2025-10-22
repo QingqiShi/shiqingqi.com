@@ -1,7 +1,6 @@
 @import "modern-normalize/modern-normalize.css" layer(normalize);
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "./radix-colors.css";
 
 @font-face {
   font-family: "Inter";
