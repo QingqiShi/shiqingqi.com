@@ -6,7 +6,7 @@
     "node": "22.x",
     "pnpm": ">=9"
   },
-  "packageManager": "pnpm@10.15.1+sha512.34e538c329b5553014ca8e8f4535997f96180a1d0f614339357449935350d924e22f8614682191264ec33d1462ac21561aff97f6bb18065351c162c7e8f6de67",
+  "packageManager": "pnpm@10.19.0+sha512.c9fc7236e92adf5c8af42fd5bf1612df99c2ceb62f27047032f4720b33f8eacdde311865e91c411f2774f618d82f320808ecb51718bfa82c060c4ba7c76a32b8",
   "scripts": {
     "predev": "rimraf .next && rimraf public/sw.js",
     "prebuild": "rimraf .next && rimraf public/sw.js",
@@ -97,16 +97,11 @@
     "vitest": "^4.0.3"
   },
   "pnpm": {
-    "overrides": {
-      "supports-color": "^8.1.1",
-      "@types/react": "19.2.2",
-      "@types/react-dom": "19.2.2"
-    },
     "onlyBuiltDependencies": [
-      "@vercel/speed-insights",
-      "esbuild",
-      "sharp",
-      "unrs-resolver"
+      "@vercel/speed-insights@1.2.0",
+      "esbuild@0.25.11",
+      "sharp@0.34.4",
+      "unrs-resolver@1.11.1"
     ]
   }
 }
