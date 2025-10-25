@@ -36,6 +36,11 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* Language-specific line-height adjustments for better Chinese typography */
+  :lang(zh) {
+    line-height: 1.65;
+  }
+
   input[type="checkbox"] {
     width: unset;
     height: unset;
