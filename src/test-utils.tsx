@@ -1,8 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { RenderOptions } from "@testing-library/react";
-import { render } from "@testing-library/react";
 import type { ReactElement } from "react";
 import React from "react";
+import { render, userEvent } from "vitest-browser-react";
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -26,11 +25,10 @@ function AllTheProviders({ children }: { children: React.ReactNode }) {
   );
 }
 
-const customRender = (
+const customRender = async (
   ui: ReactElement,
-  options?: Omit<RenderOptions, "wrapper">,
+  options?: { wrapper?: React.ComponentType<{ children: React.ReactNode }> },
 ) => render(ui, { wrapper: AllTheProviders, ...options });
 
-export * from "@testing-library/react";
-export { customRender as render };
-export { default as userEvent } from "@testing-library/user-event";
+export { customRender as render, userEvent };
+export * from "vitest-browser-react";

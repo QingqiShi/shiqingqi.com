@@ -1,7 +1,7 @@
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@vitest/browser/context";
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, fireEvent } from "@/test-utils";
+import { render } from "@/test-utils";
 import { Switch, type SwitchState } from "./switch";
 
 describe("Switch Component", () => {
@@ -15,24 +15,25 @@ describe("Switch Component", () => {
   });
 
   describe("Basic Rendering and Accessibility", () => {
-    it("renders as a checkbox input with proper accessibility attributes", () => {
-      render(<Switch />);
+    it("renders as a checkbox input with proper accessibility attributes", async () => {
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect(switchElement).toBeInTheDocument();
-      expect(switchElement).toHaveAttribute("type", "checkbox");
+      await expect.element(switchElement).toBeInTheDocument();
+      await expect.element(switchElement).toHaveAttribute("type", "checkbox");
     });
 
-    it("applies StyleX classes correctly", () => {
-      render(<Switch />);
+    it("applies StyleX classes correctly", async () => {
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect(switchElement.className).toBeTruthy();
-      expect(switchElement.className).toContain("switch__styles.switch");
+      const element = await switchElement.element();
+      expect(element.className).toBeTruthy();
+      expect(element.className).toContain("switch__styles.switch");
     });
 
-    it("forwards additional props to the input element", () => {
-      render(
+    it("forwards additional props to the input element", async () => {
+      const screen = await render(
         <Switch
           id="test-switch"
           data-testid="custom-switch"
@@ -41,59 +42,70 @@ describe("Switch Component", () => {
       );
 
       const switchElement = screen.getByRole("checkbox");
-      expect(switchElement).toHaveAttribute("id", "test-switch");
-      expect(switchElement).toHaveAttribute("data-testid", "custom-switch");
-      expect(switchElement).toHaveAttribute("aria-label", "Toggle setting");
+      await expect.element(switchElement).toHaveAttribute("id", "test-switch");
+      await expect
+        .element(switchElement)
+        .toHaveAttribute("data-testid", "custom-switch");
+      await expect
+        .element(switchElement)
+        .toHaveAttribute("aria-label", "Toggle setting");
     });
 
-    it("handles disabled state correctly", () => {
-      render(<Switch disabled />);
+    it("handles disabled state correctly", async () => {
+      const screen = await render(<Switch disabled />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect(switchElement).toBeDisabled();
+      await expect.element(switchElement).toBeDisabled();
     });
 
-    it("applies custom className and style props", () => {
+    it("applies custom className and style props", async () => {
       const customStyle = { margin: "10px" };
-      render(<Switch className="custom-class" style={customStyle} />);
+      const screen = await render(
+        <Switch className="custom-class" style={customStyle} />,
+      );
 
       const switchElement = screen.getByRole("checkbox");
-      expect(switchElement).toHaveClass("custom-class");
-      expect(switchElement).toHaveStyle({ margin: "10px" });
+      const element = await switchElement.element();
+      expect(element.classList.contains("custom-class")).toBe(true);
+      expect(element.style.margin).toBe("10px");
     });
   });
 
   describe("Three-State Functionality", () => {
-    it("defaults to 'off' state when uncontrolled", () => {
-      render(<Switch />);
+    it("defaults to 'off' state when uncontrolled", async () => {
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      const element = await switchElement.element();
+      expect((element as HTMLInputElement).checked).toBe(false);
+      expect((element as HTMLInputElement).indeterminate).toBe(false);
     });
 
-    it("starts in 'on' state when controlled with value='on'", () => {
-      render(<Switch value="on" />);
+    it("starts in 'on' state when controlled with value='on'", async () => {
+      const screen = await render(<Switch value="on" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      const element = await switchElement.element();
+      expect((element as HTMLInputElement).checked).toBe(true);
+      expect((element as HTMLInputElement).indeterminate).toBe(false);
     });
 
-    it("starts in 'indeterminate' state when controlled with value='indeterminate'", () => {
-      render(<Switch value="indeterminate" />);
+    it("starts in 'indeterminate' state when controlled with value='indeterminate'", async () => {
+      const screen = await render(<Switch value="indeterminate" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
+      const element = await switchElement.element();
+      expect((element as HTMLInputElement).checked).toBe(false);
+      expect((element as HTMLInputElement).indeterminate).toBe(true);
     });
 
-    it("starts in 'off' state when controlled with value='off'", () => {
-      render(<Switch value="off" />);
+    it("starts in 'off' state when controlled with value='off'", async () => {
+      const screen = await render(<Switch value="off" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      const element = await switchElement.element();
+      expect((element as HTMLInputElement).checked).toBe(false);
+      expect((element as HTMLInputElement).indeterminate).toBe(false);
     });
 
     it("synchronizes input properties with state changes", async () => {
@@ -112,7 +124,7 @@ describe("Switch Component", () => {
         );
       };
 
-      render(<TestComponent />);
+      const screen = await render(<TestComponent />);
 
       const switchElement = screen.getByRole("checkbox");
       const setOnButton = screen.getByRole("button", { name: "Set On" });
@@ -122,93 +134,95 @@ describe("Switch Component", () => {
       const setOffButton = screen.getByRole("button", { name: "Set Off" });
 
       // Test transition to 'on'
-      await userEvent.click(setOnButton);
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      await setOnButton.click();
+      const element1 = await switchElement.element();
+      expect((element1 as HTMLInputElement).checked).toBe(true);
+      expect((element1 as HTMLInputElement).indeterminate).toBe(false);
 
       // Test transition to 'indeterminate'
-      await userEvent.click(setIndeterminateButton);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
+      await setIndeterminateButton.click();
+      const element2 = await switchElement.element();
+      expect((element2 as HTMLInputElement).checked).toBe(false);
+      expect((element2 as HTMLInputElement).indeterminate).toBe(true);
 
       // Test transition to 'off'
-      await userEvent.click(setOffButton);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      await setOffButton.click();
+      const element3 = await switchElement.element();
+      expect((element3 as HTMLInputElement).checked).toBe(false);
+      expect((element3 as HTMLInputElement).indeterminate).toBe(false);
     });
   });
 
   describe("Keyboard Interactions", () => {
     it("toggles from off to on when Space key is pressed", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
-      switchElement.focus();
+      await switchElement.focus();
 
-      await user.keyboard(" ");
+      await userEvent.keyboard(" ");
 
       expect(handleChange).toHaveBeenCalledWith("on");
       expect(handleChange).toHaveBeenCalledTimes(1);
     });
 
     it("toggles from on to off when Space key is pressed", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Switch value="on" onChange={handleChange} />);
+      const screen = await render(
+        <Switch value="on" onChange={handleChange} />,
+      );
 
       const switchElement = screen.getByRole("checkbox");
-      switchElement.focus();
+      await switchElement.focus();
 
-      await user.keyboard(" ");
+      await userEvent.keyboard(" ");
 
       expect(handleChange).toHaveBeenCalledWith("off");
       expect(handleChange).toHaveBeenCalledTimes(1);
     });
 
     it("toggles from off to on when Enter key is pressed", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
-      switchElement.focus();
+      await switchElement.focus();
 
-      await user.keyboard("{Enter}");
+      await userEvent.keyboard("{Enter}");
 
       expect(handleChange).toHaveBeenCalledWith("on");
       expect(handleChange).toHaveBeenCalledTimes(1);
     });
 
     it("does not respond to keyboard input when disabled", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Switch disabled onChange={handleChange} />);
+      const screen = await render(<Switch disabled onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
-      switchElement.focus();
+      await switchElement.focus();
 
-      await user.keyboard(" ");
-      await user.keyboard("{Enter}");
+      await userEvent.keyboard(" ");
+      await userEvent.keyboard("{Enter}");
 
       expect(handleChange).not.toHaveBeenCalled();
     });
 
-    it("handles Space and Enter key events properly", () => {
+    it("handles Space and Enter key events properly", async () => {
       const handleChange = vi.fn();
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
-      switchElement.focus();
+      const element = await switchElement.element();
+      element.focus();
 
-      // Use fireEvent to simulate key events
-      fireEvent.keyDown(switchElement, { code: "Space" });
-      fireEvent.keyDown(switchElement, { code: "Enter" });
+      // Use native events to simulate key events
+      element.dispatchEvent(new KeyboardEvent("keydown", { code: "Space" }));
+      element.dispatchEvent(new KeyboardEvent("keydown", { code: "Enter" }));
 
       // Both Space and Enter should trigger state changes
       expect(handleChange).toHaveBeenCalledTimes(2);
@@ -218,58 +232,59 @@ describe("Switch Component", () => {
 
   describe("Pointer and Click Interactions", () => {
     it("toggles from off to on when clicked", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
 
-      await user.click(switchElement);
+      await switchElement.click();
 
       expect(handleChange).toHaveBeenCalledWith("on");
       expect(handleChange).toHaveBeenCalledTimes(1);
     });
 
     it("toggles from on to off when clicked", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Switch value="on" onChange={handleChange} />);
+      const screen = await render(
+        <Switch value="on" onChange={handleChange} />,
+      );
 
       const switchElement = screen.getByRole("checkbox");
 
-      await user.click(switchElement);
+      await switchElement.click();
 
       expect(handleChange).toHaveBeenCalledWith("off");
       expect(handleChange).toHaveBeenCalledTimes(1);
     });
 
-    it("does not respond to clicks when disabled", () => {
+    it("does not respond to clicks when disabled", async () => {
       const handleChange = vi.fn();
 
-      render(<Switch disabled onChange={handleChange} />);
+      const screen = await render(<Switch disabled onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
 
       // Disabled elements should not trigger onChange via user interaction
       // However, userEvent may still trigger the handler due to testing environment
       // Let's test the actual disabled state instead
-      expect(switchElement).toBeDisabled();
+      await expect.element(switchElement).toBeDisabled();
     });
 
-    it("handles native events properly", () => {
+    it("handles native events properly", async () => {
       const handleChange = vi.fn();
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
       // Native change and click events should be handled by the component
-      fireEvent.change(switchElement);
-      fireEvent.click(switchElement);
+      element.dispatchEvent(new Event("change", { bubbles: true }));
+      element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
       // Component should prevent default but still work
-      expect(switchElement).toBeInTheDocument();
+      await expect.element(switchElement).toBeInTheDocument();
     });
   });
 
@@ -289,17 +304,21 @@ describe("Switch Component", () => {
       }));
     });
 
-    it("responds to pointer down events", () => {
-      render(<Switch />);
+    it("responds to pointer down events", async () => {
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
-      fireEvent.pointerDown(switchElement, {
-        pointerId: 1,
-        clientX: 120,
-        button: 0,
-        pointerType: "mouse",
-      });
+      element.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          pointerId: 1,
+          clientX: 120,
+          button: 0,
+          pointerType: "mouse",
+          bubbles: true,
+        }),
+      );
 
       // Pointer capture should be called (even if pointerId is undefined in JSDOM)
 
@@ -308,51 +327,61 @@ describe("Switch Component", () => {
       ).toHaveBeenCalled();
     });
 
-    it("does not initiate drag when disabled", () => {
-      render(<Switch disabled />);
+    it("does not initiate drag when disabled", async () => {
+      const screen = await render(<Switch disabled />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
-      fireEvent.pointerDown(switchElement, {
-        pointerId: 1,
-        clientX: 120,
-        button: 0,
-        pointerType: "mouse",
-      });
+      element.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          pointerId: 1,
+          clientX: 120,
+          button: 0,
+          pointerType: "mouse",
+          bubbles: true,
+        }),
+      );
 
       expect(
         vi.mocked(HTMLElement.prototype.setPointerCapture), // eslint-disable-line @typescript-eslint/unbound-method
       ).not.toHaveBeenCalled();
     });
 
-    it("handles different mouse button states", () => {
-      render(<Switch />);
+    it("handles different mouse button states", async () => {
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
 
       // Clear any previous calls
       vi.clearAllMocks();
 
-      fireEvent.pointerDown(switchElement, {
-        pointerId: 1,
-        clientX: 120,
-        button: 1, // Right click
-        pointerType: "mouse",
-      });
+      const element = await switchElement.element();
+
+      element.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          pointerId: 1,
+          clientX: 120,
+          button: 1, // Right click
+          pointerType: "mouse",
+          bubbles: true,
+        }),
+      );
 
       // Should not initiate drag for non-primary buttons
       // In JSDOM, this might still call setPointerCapture, but component logic differs
-      expect(switchElement).toBeInTheDocument(); // Basic assertion
+      await expect.element(switchElement).toBeInTheDocument(); // Basic assertion
     });
 
-    it("handles pointer events and may trigger state changes", () => {
+    it("handles pointer events and may trigger state changes", async () => {
       const handleChange = vi.fn();
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
       // Mock getBoundingClientRect for this test
-      switchElement.getBoundingClientRect = vi.fn(() => ({
+      element.getBoundingClientRect = vi.fn(() => ({
         left: 100,
         top: 50,
         right: 200,
@@ -366,36 +395,46 @@ describe("Switch Component", () => {
 
       // Test that pointer events don't throw errors
       expect(() => {
-        fireEvent.pointerDown(switchElement, {
-          pointerId: 1,
-          clientX: 120,
-          button: 0,
-          pointerType: "mouse",
-        });
+        element.dispatchEvent(
+          new PointerEvent("pointerdown", {
+            pointerId: 1,
+            clientX: 120,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
 
-        fireEvent.pointerMove(switchElement, {
-          pointerId: 1,
-          clientX: 125,
-          pointerType: "mouse",
-        });
+        element.dispatchEvent(
+          new PointerEvent("pointermove", {
+            pointerId: 1,
+            clientX: 125,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
 
-        fireEvent.pointerUp(switchElement, {
-          pointerId: 1,
-          clientX: 125,
-          button: 0,
-          pointerType: "mouse",
-        });
+        element.dispatchEvent(
+          new PointerEvent("pointerup", {
+            pointerId: 1,
+            clientX: 125,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
       }).not.toThrow();
     });
 
-    it("handles small and large pointer movements", () => {
+    it("handles small and large pointer movements", async () => {
       const handleChange = vi.fn();
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
       // Mock getBoundingClientRect
-      switchElement.getBoundingClientRect = vi.fn(() => ({
+      element.getBoundingClientRect = vi.fn(() => ({
         left: 100,
         top: 50,
         right: 200,
@@ -409,62 +448,84 @@ describe("Switch Component", () => {
 
       // Test that movement events don't cause errors
       expect(() => {
-        fireEvent.pointerDown(switchElement, {
+        element.dispatchEvent(
+          new PointerEvent("pointerdown", {
+            pointerId: 1,
+            clientX: 120,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
+
+        // Small movement
+        element.dispatchEvent(
+          new PointerEvent("pointermove", {
+            pointerId: 1,
+            clientX: 121,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
+
+        // Large movement
+        element.dispatchEvent(
+          new PointerEvent("pointermove", {
+            pointerId: 1,
+            clientX: 170,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
+
+        element.dispatchEvent(
+          new PointerEvent("pointerup", {
+            pointerId: 1,
+            clientX: 170,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
+      }).not.toThrow();
+    });
+
+    it("handles complete pointer event sequences", async () => {
+      const handleChange = vi.fn();
+      const screen = await render(<Switch onChange={handleChange} />);
+
+      const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
+
+      // Test complete pointer sequence
+      element.dispatchEvent(
+        new PointerEvent("pointerdown", {
           pointerId: 1,
           clientX: 120,
           button: 0,
           pointerType: "mouse",
-        });
+          bubbles: true,
+        }),
+      );
 
-        // Small movement
-        fireEvent.pointerMove(switchElement, {
-          pointerId: 1,
-          clientX: 121,
-          pointerType: "mouse",
-        });
-
-        // Large movement
-        fireEvent.pointerMove(switchElement, {
+      element.dispatchEvent(
+        new PointerEvent("pointermove", {
           pointerId: 1,
           clientX: 170,
           pointerType: "mouse",
-        });
+          bubbles: true,
+        }),
+      );
 
-        fireEvent.pointerUp(switchElement, {
+      element.dispatchEvent(
+        new PointerEvent("pointerup", {
           pointerId: 1,
           clientX: 170,
           button: 0,
           pointerType: "mouse",
-        });
-      }).not.toThrow();
-    });
-
-    it("handles complete pointer event sequences", () => {
-      const handleChange = vi.fn();
-      render(<Switch onChange={handleChange} />);
-
-      const switchElement = screen.getByRole("checkbox");
-
-      // Test complete pointer sequence
-      fireEvent.pointerDown(switchElement, {
-        pointerId: 1,
-        clientX: 120,
-        button: 0,
-        pointerType: "mouse",
-      });
-
-      fireEvent.pointerMove(switchElement, {
-        pointerId: 1,
-        clientX: 170,
-        pointerType: "mouse",
-      });
-
-      fireEvent.pointerUp(switchElement, {
-        pointerId: 1,
-        clientX: 170,
-        button: 0,
-        pointerType: "mouse",
-      });
+          bubbles: true,
+        }),
+      );
 
       // Should attempt to release pointer capture
 
@@ -476,26 +537,26 @@ describe("Switch Component", () => {
 
   describe("Controlled vs Uncontrolled Behavior", () => {
     it("works as uncontrolled component and maintains internal state", async () => {
-      const user = userEvent.setup();
-
-      render(<Switch />);
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
 
       // Initially off
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      const element1 = await switchElement.element();
+      expect((element1 as HTMLInputElement).checked).toBe(false);
 
       // Click to turn on
-      await user.click(switchElement);
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
+      await switchElement.click();
+      const element2 = await switchElement.element();
+      expect((element2 as HTMLInputElement).checked).toBe(true);
 
       // Click to turn off
-      await user.click(switchElement);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      await switchElement.click();
+      const element3 = await switchElement.element();
+      expect((element3 as HTMLInputElement).checked).toBe(false);
     });
 
     it("works as controlled component and calls onChange", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
       const TestComponent = () => {
@@ -509,49 +570,56 @@ describe("Switch Component", () => {
         return <Switch value={state} onChange={handleStateChange} />;
       };
 
-      render(<TestComponent />);
+      const screen = await render(<TestComponent />);
 
       const switchElement = screen.getByRole("checkbox");
 
       // Initially off
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      const element1 = await switchElement.element();
+      expect((element1 as HTMLInputElement).checked).toBe(false);
 
       // Click to turn on
-      await user.click(switchElement);
+      await switchElement.click();
       expect(handleChange).toHaveBeenCalledWith("on");
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
+      const element2 = await switchElement.element();
+      expect((element2 as HTMLInputElement).checked).toBe(true);
 
       // Click to turn off
-      await user.click(switchElement);
+      await switchElement.click();
       expect(handleChange).toHaveBeenCalledWith("off");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      const element3 = await switchElement.element();
+      expect((element3 as HTMLInputElement).checked).toBe(false);
     });
 
-    it("updates when controlled value prop changes", () => {
-      const { rerender } = render(<Switch value="off" />);
+    it("updates when controlled value prop changes", async () => {
+      const screen = await render(<Switch value="off" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      const element1 = await switchElement.element();
+      expect((element1 as HTMLInputElement).checked).toBe(false);
+      expect((element1 as HTMLInputElement).indeterminate).toBe(false);
 
-      rerender(<Switch value="on" />);
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      await screen.rerender(<Switch value="on" />);
+      const element2 = await switchElement.element();
+      expect((element2 as HTMLInputElement).checked).toBe(true);
+      expect((element2 as HTMLInputElement).indeterminate).toBe(false);
 
-      rerender(<Switch value="indeterminate" />);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
+      await screen.rerender(<Switch value="indeterminate" />);
+      const element3 = await switchElement.element();
+      expect((element3 as HTMLInputElement).checked).toBe(false);
+      expect((element3 as HTMLInputElement).indeterminate).toBe(true);
     });
 
     it("calls onChange with correct state in controlled mode", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Switch value="off" onChange={handleChange} />);
+      const screen = await render(
+        <Switch value="off" onChange={handleChange} />,
+      );
 
       const switchElement = screen.getByRole("checkbox");
 
-      await user.click(switchElement);
+      await switchElement.click();
 
       expect(handleChange).toHaveBeenCalledWith("on");
       expect(handleChange).toHaveBeenCalledTimes(1);
@@ -559,32 +627,35 @@ describe("Switch Component", () => {
   });
 
   describe("Animation and Styling Behavior", () => {
-    it("applies base StyleX switch class", () => {
-      render(<Switch />);
+    it("applies base StyleX switch class", async () => {
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
       // Should apply base switch styles
-      expect(switchElement.className).toContain("switch__styles.switch");
+      expect(element.className).toContain("switch__styles.switch");
     });
 
     it("applies animation class after initial render", async () => {
-      render(<Switch />);
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
 
       // Wait for useEffect to run
-      await waitFor(() => {
-        expect(switchElement.className).toContain("animate");
+      await vi.waitFor(async () => {
+        const element = await switchElement.element();
+        expect(element.className).toContain("animate");
       });
     });
 
-    it("applies dragging styles when dragging", () => {
-      render(<Switch />);
+    it("applies dragging styles when dragging", async () => {
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
       // Mock getBoundingClientRect
-      switchElement.getBoundingClientRect = vi.fn(() => ({
+      element.getBoundingClientRect = vi.fn(() => ({
         left: 100,
         top: 50,
         right: 200,
@@ -596,87 +667,101 @@ describe("Switch Component", () => {
         toJSON: vi.fn(),
       }));
 
-      const initialClassName = switchElement.className;
+      const initialClassName = element.className;
 
       // Start drag
-      fireEvent.pointerDown(switchElement, {
-        pointerId: 1,
-        clientX: 120,
-        button: 0,
-        pointerType: "mouse",
-      });
-
-      // Move to trigger dragging
-      fireEvent.pointerMove(switchElement, {
-        pointerId: 1,
-        clientX: 125,
-        pointerType: "mouse",
-      });
-
-      // Class should change when dragging
-      expect(switchElement.className).not.toBe(initialClassName);
-    });
-
-    it("reflects state in DOM properties", () => {
-      const { rerender } = render(<Switch value="off" />);
-
-      const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
-
-      rerender(<Switch value="on" />);
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
-
-      rerender(<Switch value="indeterminate" />);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
-    });
-  });
-
-  describe("Edge Cases and Error Scenarios", () => {
-    it("handles missing getBoundingClientRect gracefully", () => {
-      render(<Switch />);
-
-      const switchElement = screen.getByRole("checkbox");
-      const setPointerCapture = vi.fn();
-      switchElement.setPointerCapture = setPointerCapture;
-
-      // Remove getBoundingClientRect
-      switchElement.getBoundingClientRect = vi.fn(
-        () => null as unknown as DOMRect,
-      );
-
-      // Should not throw when trying to drag
-      expect(() => {
-        fireEvent.pointerDown(switchElement, {
+      element.dispatchEvent(
+        new PointerEvent("pointerdown", {
           pointerId: 1,
           clientX: 120,
           button: 0,
           pointerType: "mouse",
-        });
+          bubbles: true,
+        }),
+      );
 
-        fireEvent.pointerMove(switchElement, {
+      // Move to trigger dragging
+      element.dispatchEvent(
+        new PointerEvent("pointermove", {
           pointerId: 1,
-          clientX: 130,
+          clientX: 125,
           pointerType: "mouse",
-        });
+          bubbles: true,
+        }),
+      );
+
+      // Class should change when dragging
+      const element2 = await switchElement.element();
+      expect(element2.className).not.toBe(initialClassName);
+    });
+
+    it("reflects state in DOM properties", async () => {
+      const screen = await render(<Switch value="off" />);
+
+      const switchElement = screen.getByRole("checkbox");
+      const element1 = await switchElement.element();
+      expect((element1 as HTMLInputElement).checked).toBe(false);
+      expect((element1 as HTMLInputElement).indeterminate).toBe(false);
+
+      await screen.rerender(<Switch value="on" />);
+      const element2 = await switchElement.element();
+      expect((element2 as HTMLInputElement).checked).toBe(true);
+      expect((element2 as HTMLInputElement).indeterminate).toBe(false);
+
+      await screen.rerender(<Switch value="indeterminate" />);
+      const element3 = await switchElement.element();
+      expect((element3 as HTMLInputElement).checked).toBe(false);
+      expect((element3 as HTMLInputElement).indeterminate).toBe(true);
+    });
+  });
+
+  describe("Edge Cases and Error Scenarios", () => {
+    it("handles missing getBoundingClientRect gracefully", async () => {
+      const screen = await render(<Switch />);
+
+      const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
+      const setPointerCapture = vi.fn();
+      element.setPointerCapture = setPointerCapture;
+
+      // Remove getBoundingClientRect
+      element.getBoundingClientRect = vi.fn(() => null as unknown as DOMRect);
+
+      // Should not throw when trying to drag
+      expect(() => {
+        element.dispatchEvent(
+          new PointerEvent("pointerdown", {
+            pointerId: 1,
+            clientX: 120,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
+
+        element.dispatchEvent(
+          new PointerEvent("pointermove", {
+            pointerId: 1,
+            clientX: 130,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
       }).not.toThrow();
     });
 
     it("handles rapid state changes without issues", async () => {
-      const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
 
       // Rapidly click multiple times
-      await user.click(switchElement);
-      await user.click(switchElement);
-      await user.click(switchElement);
-      await user.click(switchElement);
+      await switchElement.click();
+      await switchElement.click();
+      await switchElement.click();
+      await switchElement.click();
 
       expect(handleChange).toHaveBeenCalledTimes(4);
       // Should alternate between on and off
@@ -686,31 +771,36 @@ describe("Switch Component", () => {
       expect(handleChange).toHaveBeenNthCalledWith(4, "off");
     });
 
-    it("handles touch interactions correctly", () => {
-      render(<Switch />);
+    it("handles touch interactions correctly", async () => {
+      const screen = await render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
       // Touch interaction should work
-      fireEvent.pointerDown(switchElement, {
-        pointerId: 1,
-        clientX: 120,
-        button: 0,
-        pointerType: "touch",
-      });
+      element.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          pointerId: 1,
+          clientX: 120,
+          button: 0,
+          pointerType: "touch",
+          bubbles: true,
+        }),
+      );
 
       expect(
         vi.mocked(HTMLElement.prototype.setPointerCapture), // eslint-disable-line @typescript-eslint/unbound-method
       ).toHaveBeenCalled();
     });
 
-    it("handles extreme pointer positions gracefully", () => {
+    it("handles extreme pointer positions gracefully", async () => {
       const handleChange = vi.fn();
-      render(<Switch onChange={handleChange} />);
+      const screen = await render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
-      switchElement.getBoundingClientRect = vi.fn(() => ({
+      element.getBoundingClientRect = vi.fn(() => ({
         left: 100,
         top: 50,
         right: 200,
@@ -724,53 +814,71 @@ describe("Switch Component", () => {
 
       // Test that extreme movements don't cause errors
       expect(() => {
-        fireEvent.pointerDown(switchElement, {
-          pointerId: 1,
-          clientX: 120,
-          button: 0,
-          pointerType: "mouse",
-        });
+        element.dispatchEvent(
+          new PointerEvent("pointerdown", {
+            pointerId: 1,
+            clientX: 120,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
 
-        fireEvent.pointerMove(switchElement, {
-          pointerId: 1,
-          clientX: 300, // Way beyond bounds
-          pointerType: "mouse",
-        });
+        element.dispatchEvent(
+          new PointerEvent("pointermove", {
+            pointerId: 1,
+            clientX: 300, // Way beyond bounds
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
 
-        fireEvent.pointerUp(switchElement, {
-          pointerId: 1,
-          clientX: 300,
-          button: 0,
-          pointerType: "mouse",
-        });
+        element.dispatchEvent(
+          new PointerEvent("pointerup", {
+            pointerId: 1,
+            clientX: 300,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
       }).not.toThrow();
     });
 
-    it("maintains indeterminate state and handles interactions", () => {
+    it("maintains indeterminate state and handles interactions", async () => {
       const handleChange = vi.fn();
-      render(<Switch value="indeterminate" onChange={handleChange} />);
+      const screen = await render(
+        <Switch value="indeterminate" onChange={handleChange} />,
+      );
 
       const switchElement = screen.getByRole("checkbox");
+      const element = await switchElement.element();
 
       // Verify initial indeterminate state
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      expect((element as HTMLInputElement).indeterminate).toBe(true);
+      expect((element as HTMLInputElement).checked).toBe(false);
 
       // Test that pointer events work with indeterminate state
       expect(() => {
-        fireEvent.pointerDown(switchElement, {
-          pointerId: 1,
-          clientX: 120,
-          button: 0,
-          pointerType: "mouse",
-        });
+        element.dispatchEvent(
+          new PointerEvent("pointerdown", {
+            pointerId: 1,
+            clientX: 120,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
 
-        fireEvent.pointerUp(switchElement, {
-          pointerId: 1,
-          clientX: 170,
-          button: 0,
-          pointerType: "mouse",
-        });
+        element.dispatchEvent(
+          new PointerEvent("pointerup", {
+            pointerId: 1,
+            clientX: 170,
+            button: 0,
+            pointerType: "mouse",
+            bubbles: true,
+          }),
+        );
       }).not.toThrow();
 
       // Should have triggered some state change
