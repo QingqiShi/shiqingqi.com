@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 import { Card } from "@/components/shared/card";
 import { cardTokens } from "@/components/shared/card.stylex";
 import { Skeleton } from "@/components/shared/skeleton";
@@ -37,9 +37,13 @@ export function EducationCard({
             <Suspense fallback={<Skeleton fill />}>{logo}</Suspense>
           )}
         </div>
-        <span css={styles.name}>{name}</span>
+        <ViewTransition name={`${name.replaceAll(" ", "-")}-name`}>
+          <span css={styles.name}>{name}</span>
+        </ViewTransition>
       </div>
-      <time css={styles.dates}>{dates}</time>
+      <ViewTransition name={`${name.replaceAll(" ", "-")}-date`}>
+        <time css={styles.dates}>{dates}</time>
+      </ViewTransition>
     </Card>
   );
 }

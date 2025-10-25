@@ -44,7 +44,27 @@
     "zh": "机械"
   },
   "exampleProjects": {
-    "en": "Example Projects:",
-    "zh": "项目:"
+    "en": "EXAMPLE PROJECTS",
+    "zh": "项目"
+  },
+  "gameOfLifeTitle": {
+    "en": "Game of Life website",
+    "zh": "生命游戏网站"
+  },
+  "gameOfLifeDescription": {
+    "en": "An interactive implementation of Conway's Game of Life featuring customizable patterns, speed controls, and a visual canvas interface.",
+    "zh": "康威生命游戏的互动实现，具有可自定义图案、速度控制和可视化画布界面。"
+  },
+  "rayTracerTitle": {
+    "en": "Ray Tracer",
+    "zh": "光线追踪器"
+  },
+  "rayTracerDescription": {
+    "en": "A sophisticated 3D rendering engine implementing advanced ray tracing algorithms to simulate realistic lighting, shadows, and reflections.",
+    "zh": "一个复杂的3D渲染引擎，实现了先进的光线追踪算法，以模拟逼真的光照、阴影和反射。"
+  },
+  "viewProject": {
+    "en": "VIEW PROJECT",
+    "zh": "查看项目"
   }
 }
