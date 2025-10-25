@@ -1,6 +1,6 @@
 import React, { use } from "react";
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@/test-utils";
+import { render } from "@/test-utils";
 import type { TranslationConfig } from "@/types";
 import { TranslationContext } from "@/utils/translation-context";
 import { TranslationProvider } from "./translation-provider";
@@ -28,8 +28,8 @@ describe("TranslationProvider", () => {
     },
   };
 
-  it("provides translations and renders children for both locales", () => {
-    const { rerender } = render(
+  it("provides translations and renders children for both locales", async () => {
+    const screen = await render(
       <TranslationProvider translations={mockTranslations} locale="en">
         <div data-testid="test-child">Test Content</div>
         <TestConsumer />
@@ -37,28 +37,28 @@ describe("TranslationProvider", () => {
     );
 
     // Verify children render
-    expect(screen.getByTestId("test-child")).toBeInTheDocument();
-    expect(screen.getByText("Test Content")).toBeInTheDocument();
+    await expect.element(screen.getByTestId("test-child")).toBeInTheDocument();
+    await expect.element(screen.getByText("Test Content")).toBeInTheDocument();
 
     // Verify English translations
-    expect(screen.getByTestId("locale")).toHaveTextContent("en");
-    expect(screen.getByTestId("hello")).toHaveTextContent("Hello");
-    expect(screen.getByTestId("submit")).toHaveTextContent("Submit");
+    await expect.element(screen.getByTestId("locale")).toHaveTextContent("en");
+    await expect.element(screen.getByTestId("hello")).toHaveTextContent("Hello");
+    await expect.element(screen.getByTestId("submit")).toHaveTextContent("Submit");
 
-    // Test Chinese locale
-    rerender(
+    // Test Chinese locale - render new screen
+    const screenZh = await render(
       <TranslationProvider translations={mockTranslations} locale="zh">
         <div data-testid="test-child">Test Content</div>
         <TestConsumer />
       </TranslationProvider>,
     );
 
-    expect(screen.getByTestId("locale")).toHaveTextContent("zh");
-    expect(screen.getByTestId("hello")).toHaveTextContent("你好");
-    expect(screen.getByTestId("submit")).toHaveTextContent("提交");
+    await expect.element(screenZh.getByTestId("locale")).toHaveTextContent("zh");
+    await expect.element(screenZh.getByTestId("hello")).toHaveTextContent("你好");
+    await expect.element(screenZh.getByTestId("submit")).toHaveTextContent("提交");
   });
 
-  it("handles empty translations", () => {
+  it("handles empty translations", async () => {
     function EmptyConsumer() {
       const context = use(TranslationContext);
       return (
@@ -68,16 +68,16 @@ describe("TranslationProvider", () => {
       );
     }
 
-    render(
+    const screen = await render(
       <TranslationProvider translations={{}} locale="en">
         <EmptyConsumer />
       </TranslationProvider>,
     );
 
-    expect(screen.getByTestId("empty")).toHaveTextContent("{}");
+    await expect.element(screen.getByTestId("empty")).toHaveTextContent("{}");
   });
 
-  it("provides context without errors", () => {
+  it("provides context without errors", async () => {
     function ContextConsumer() {
       const context = use(TranslationContext);
       if (!context) return <div data-testid="no-context">No context</div>;
@@ -85,13 +85,13 @@ describe("TranslationProvider", () => {
       return <div data-testid="has-context">Has context</div>;
     }
 
-    render(
+    const screen = await render(
       <TranslationProvider translations={mockTranslations} locale="en">
         <ContextConsumer />
       </TranslationProvider>,
     );
 
-    expect(screen.getByTestId("has-context")).toBeInTheDocument();
-    expect(screen.queryByTestId("no-context")).not.toBeInTheDocument();
+    await expect.element(screen.getByTestId("has-context")).toBeInTheDocument();
+    expect(screen.queryByTestId("no-context")).toBe(null);
   });
 });

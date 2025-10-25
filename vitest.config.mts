@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { playwright } from "@vitest/browser-playwright";
 import react from "@vitejs/plugin-react";
 import babel from "vite-plugin-babel";
 import { defineConfig } from "vitest/config";
@@ -20,7 +21,13 @@ export default defineConfig({
     }),
   ],
   test: {
-    environment: "jsdom",
+    browser: {
+      enabled: true,
+      provider: playwright(),
+      instances: [
+        { browser: "chromium" },
+      ],
+    },
     globals: true,
     setupFiles: ["./src/test-setup.ts"],
     include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}", "tooling/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
