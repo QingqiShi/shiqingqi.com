@@ -33,8 +33,8 @@ importers:
         specifier: 16.0.0
         version: 16.0.0(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-9724e3e6-20251008(react@19.3.0-canary-9724e3e6-20251008))(react@19.3.0-canary-9724e3e6-20251008)
       openai:
-        specifier: ^6.1.0
-        version: 6.1.0(ws@8.18.3)(zod@3.25.76)
+        specifier: ^6.7.0
+        version: 6.7.0(ws@8.18.3)(zod@3.25.76)
       react:
         specifier: 19.3.0-canary-9724e3e6-20251008
         version: 19.3.0-canary-9724e3e6-20251008
@@ -3123,8 +3123,8 @@ packages:
     resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
     engines: {node: '>= 0.4'}
 
-  openai@6.1.0:
-    resolution: {integrity: sha512-5sqb1wK67HoVgGlsPwcH2bUbkg66nnoIYKoyV9zi5pZPqh7EWlmSrSDjAh4O5jaIg/0rIlcDKBtWvZBuacmGZg==}
+  openai@6.7.0:
+    resolution: {integrity: sha512-mgSQXa3O/UXTbA8qFzoa7aydbXBJR5dbLQXCRapAOtoNT+v69sLdKMZzgiakpqhclRnhPggPAXoniVGn2kMY2A==}
     hasBin: true
     peerDependencies:
       ws: ^8.18.0
@@ -7314,7 +7314,7 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
 
-  openai@6.1.0(ws@8.18.3)(zod@3.25.76):
+  openai@6.7.0(ws@8.18.3)(zod@3.25.76):
     optionalDependencies:
       ws: 8.18.3
       zod: 3.25.76
