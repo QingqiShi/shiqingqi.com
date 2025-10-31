@@ -56,15 +56,16 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingBottom: space._8,
-    marginTop: { default: space._9, [breakpoints.sm]: space._11 },
+    marginTop: { default: space._7, [breakpoints.sm]: space._9 },
   },
   section: {
     alignItems: { default: null, [breakpoints.md]: "center" },
   },
   linksSection: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: { default: "column", [breakpoints.md]: "row" },
     alignItems: { default: "center", [breakpoints.md]: "flex-start" },
+    gap: { default: 0, [breakpoints.md]: space._4 },
     marginBottom: { default: space._7, [breakpoints.md]: 0 },
     width: { default: "100%", [breakpoints.md]: "50%" },
   },
@@ -86,7 +87,8 @@ const styles = stylex.create({
   link: {
     display: "block",
     fontSize: font.size_0,
-    marginBottom: { default: null, ":not(:last-of-type)": space._0 },
-    paddingBlock: { default: space._1, [breakpoints.md]: 0 },
+    marginBottom: { default: null, ":not(:last-of-type)": space._1 },
+    paddingBlock: { default: space._2, [breakpoints.md]: space._1 },
+    whiteSpace: "nowrap",
   },
 });

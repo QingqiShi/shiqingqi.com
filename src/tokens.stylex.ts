@@ -171,7 +171,8 @@ export const lightTheme = stylex.createTheme(color, light);
 export const darkTheme = stylex.createTheme(color, dark);
 
 export const font = stylex.defineVars({
-  family: "Inter,Inter-fallback,sans-serif",
+  family:
+    "Inter,'PingFang SC','Noto Sans SC','Microsoft YaHei',Inter-fallback,sans-serif",
 
   size_00: ".6rem",
   size_0: ".8rem",
