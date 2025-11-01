@@ -1,7 +1,7 @@
 import "server-only";
 import { z } from "zod";
-import { agent } from "@/ai/agent";
-import type { SupportedLocale } from "@/types";
+import { agent } from "#src/ai/agent.ts";
+import type { SupportedLocale } from "#src/types.ts";
 
 // Request validation schema
 const SearchParamsSchema = z.object({

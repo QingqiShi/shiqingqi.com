@@ -3,7 +3,7 @@
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren, ReactNode } from "react";
-import { useMediaFilters } from "@/hooks/use-media-filters";
+import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { MenuButton } from "../shared/menu-button";
 
 interface MobileFiltersButtonProps {

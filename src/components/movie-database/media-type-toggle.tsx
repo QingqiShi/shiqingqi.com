@@ -2,10 +2,10 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSearchParams } from "next/navigation";
-import { breakpoints } from "@/breakpoints.stylex";
-import { useMediaFilters } from "@/hooks/use-media-filters";
-import { useTranslations } from "@/hooks/use-translations";
-import { layer, space } from "@/tokens.stylex";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
+import { useTranslations } from "#src/hooks/use-translations.ts";
+import { layer, space } from "#src/tokens.stylex.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { FixedContainerContent } from "../shared/fixed-container-content";

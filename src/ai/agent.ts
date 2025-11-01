@@ -10,9 +10,9 @@ import {
   getConfigurationLanguages,
   getMovieGenres,
   getTvShowGenres,
-} from "@/_generated/tmdb-server-functions";
-import type { SupportedLocale } from "@/types";
-import type { MediaListItem } from "@/utils/types";
+} from "#src/_generated/tmdb-server-functions.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 import { getOpenAIClient, getOpenAIModel } from "./client";
 import { availableTools, executeToolCall } from "./tools";
 

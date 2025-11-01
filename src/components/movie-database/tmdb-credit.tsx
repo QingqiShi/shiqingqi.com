@@ -4,9 +4,9 @@ import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
 import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
-import { useTranslations } from "@/hooks/use-translations";
-import { border, font, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
+import { useTranslations } from "#src/hooks/use-translations.ts";
+import { border, font, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
 import { MenuButton } from "../shared/menu-button";
 import type translations from "./translations.json";
 

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import type { TranslationConfig } from "@/types";
-import { parseMessage } from "@/utils/parse-message";
-import { useTranslationContext } from "@/utils/translation-context";
+import type { TranslationConfig } from "#src/types.ts";
+import { parseMessage } from "#src/utils/parse-message.tsx";
+import { useTranslationContext } from "#src/utils/translation-context.ts";
 
 /**
  * Same as `getTranslations`, but for client components.
@@ -21,8 +21,7 @@ export function useTranslations<T extends TranslationConfig>(
     key: keyof T,
     { parse }: { parse?: boolean } = {},
   ): ReactNode | string {
-    const message =
-      translations[namespace][key as keyof (typeof translations)[string]];
+    const message = translations[namespace][key as string];
     if (!message) {
       throw new Error(`Translation for key "${key.toString()}" not found`);
     }

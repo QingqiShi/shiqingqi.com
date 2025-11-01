@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { useTheme } from "@/hooks/use-theme";
-import { color, layer } from "@/tokens.stylex";
+import { useMediaQuery } from "#src/hooks/use-media-query.ts";
+import { useTheme } from "#src/hooks/use-theme.ts";
+import { color, layer } from "#src/tokens.stylex.ts";
 import { init, start } from "./loop";
 
 interface FlowGradientClientProps {

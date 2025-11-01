@@ -4,17 +4,17 @@ import { notFound } from "next/navigation";
 import {
   getMovieDetails,
   getTvShowDetails,
-} from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints.stylex";
-import { Footer } from "@/components/home/footer";
-import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
-import cardTranslations from "@/components/shared/card.translations.json";
-import { TranslationProvider } from "@/components/shared/translation-provider";
-import { BASE_URL } from "@/constants";
-import { space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
-import { validateLocale } from "@/utils/validate-locale";
+} from "#src/_generated/tmdb-server-functions.ts";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { Footer } from "#src/components/home/footer.tsx";
+import posterImageTranslations from "#src/components/movie-database/poster-image.translations.json";
+import cardTranslations from "#src/components/shared/card.translations.json";
+import { TranslationProvider } from "#src/components/shared/translation-provider.tsx";
+import { BASE_URL } from "#src/constants.ts";
+import { space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
+import { validateLocale } from "#src/utils/validate-locale.ts";
 import translations from "./translations.json";
 import type { PageProps } from "./types";
 

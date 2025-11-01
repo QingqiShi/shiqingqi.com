@@ -5,13 +5,13 @@ import {
   getConfiguration,
   getMovieRecommendations,
   getTvShowRecommendations,
-} from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints.stylex";
-import { ratio, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
-import { getQueryClient } from "@/utils/get-query-client";
-import { getTranslations } from "@/utils/get-translations";
-import * as tmdbQueries from "@/utils/tmdb-queries";
+} from "#src/_generated/tmdb-server-functions.ts";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { ratio, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import { getQueryClient } from "#src/utils/get-query-client.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
+import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";

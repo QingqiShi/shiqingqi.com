@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { breakpoints } from "@/breakpoints.stylex";
-import { color, controlSize, font } from "@/tokens.stylex";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { color, controlSize, font } from "#src/tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex";
 
 interface ButtonProps extends ComponentProps<"button"> {

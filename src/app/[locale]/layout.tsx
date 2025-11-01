@@ -3,15 +3,15 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense, ViewTransition } from "react";
-import { globalStyles } from "@/app/global-styles";
-import { SerwistProvider } from "@/components/serwist-provider";
-import { PortalTargetProvider } from "@/components/shared/fixed-element-portal-target";
-import { Header } from "@/components/shared/header";
-import { HeaderSkeleton } from "@/components/shared/header-skeleton";
-import { i18nConfig } from "@/i18n-config";
-import type { SupportedLocale } from "@/types";
-import { themeHack } from "@/utils/theme-hack";
-import { validateLocale } from "@/utils/validate-locale";
+import { globalStyles } from "#src/app/global-styles.ts";
+import { SerwistProvider } from "#src/components/serwist-provider.tsx";
+import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
+import { HeaderSkeleton } from "#src/components/shared/header-skeleton.tsx";
+import { Header } from "#src/components/shared/header.tsx";
+import { i18nConfig } from "#src/i18n-config.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import { themeHack } from "#src/utils/theme-hack.ts";
+import { validateLocale } from "#src/utils/validate-locale.ts";
 
 export const viewport: Viewport = {
   width: "device-width",

@@ -7,16 +7,16 @@ import {
   getMovieVideos,
   getTvShowDetails,
   getTvShowVideos,
-} from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints.stylex";
-import { BackdropImage } from "@/components/movie-database/backdrop-image";
-import { SimilarMedia } from "@/components/movie-database/similar-media";
-import { Trailer } from "@/components/movie-database/trailer";
-import { TvShowTrailer } from "@/components/movie-database/tv-show-trailer";
-import { Skeleton } from "@/components/shared/skeleton";
-import { skeletonTokens } from "@/components/shared/skeleton.stylex";
-import { border, color, controlSize, font, space } from "@/tokens.stylex";
-import { getTranslations } from "@/utils/get-translations";
+} from "#src/_generated/tmdb-server-functions.ts";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { BackdropImage } from "#src/components/movie-database/backdrop-image.tsx";
+import { SimilarMedia } from "#src/components/movie-database/similar-media.tsx";
+import { Trailer } from "#src/components/movie-database/trailer.tsx";
+import { TvShowTrailer } from "#src/components/movie-database/tv-show-trailer.tsx";
+import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
+import { Skeleton } from "#src/components/shared/skeleton.tsx";
+import { border, color, controlSize, font, space } from "#src/tokens.stylex.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
 import translations from "./translations.json";
 import type { PageProps } from "./types";
 

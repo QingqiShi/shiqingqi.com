@@ -10,7 +10,7 @@ import {
   layer,
   ratio,
   shadow,
-} from "@/tokens.stylex";
+} from "#src/tokens.stylex.ts";
 import { switchTokens } from "./switch.stylex";
 
 export type SwitchState = "off" | "on" | "indeterminate";

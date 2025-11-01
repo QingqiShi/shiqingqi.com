@@ -7,16 +7,19 @@ import {
   getConfiguration,
   getMovieGenres,
   getTvShowGenres,
-} from "@/_generated/tmdb-server-functions";
-import { Filters } from "@/components/movie-database/filters";
-import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
-import { MediaFiltersProvider } from "@/components/movie-database/media-filters-provider";
-import { MediaList } from "@/components/movie-database/media-list";
-import type { PageProps } from "@/types";
-import { getQueryClient } from "@/utils/get-query-client";
-import { getTranslations } from "@/utils/get-translations";
-import type { GenreFilterType, Sort } from "@/utils/media-filters-context";
-import * as tmdbQueries from "@/utils/tmdb-queries";
+} from "#src/_generated/tmdb-server-functions.ts";
+import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton.tsx";
+import { Filters } from "#src/components/movie-database/filters.tsx";
+import { MediaFiltersProvider } from "#src/components/movie-database/media-filters-provider.tsx";
+import { MediaList } from "#src/components/movie-database/media-list.tsx";
+import type { PageProps } from "#src/types.ts";
+import { getQueryClient } from "#src/utils/get-query-client.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
+import type {
+  GenreFilterType,
+  Sort,
+} from "#src/utils/media-filters-context.ts";
+import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import translations from "../translations.json";
 
 export default async function Page(

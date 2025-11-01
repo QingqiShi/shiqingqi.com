@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "@/types";
+import type { SupportedLocale } from "#src/types.ts";
 
 export function validateLocale(locale: string): SupportedLocale {
   if (locale === "en" || locale === "zh") {

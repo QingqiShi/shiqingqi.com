@@ -1,12 +1,19 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { Card } from "@/components/shared/card";
-import { useTranslations } from "@/hooks/use-translations";
-import { border, color, font, layer, ratio, space } from "@/tokens.stylex";
-import { getLocalePath } from "@/utils/pathname";
-import { useTranslationContext } from "@/utils/translation-context";
-import type { MediaListItem } from "@/utils/types";
+import { Card } from "#src/components/shared/card.tsx";
+import { useTranslations } from "#src/hooks/use-translations.ts";
+import {
+  border,
+  color,
+  font,
+  layer,
+  ratio,
+  space,
+} from "#src/tokens.stylex.ts";
+import { getLocalePath } from "#src/utils/pathname.ts";
+import { useTranslationContext } from "#src/utils/translation-context.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 import { PosterImage } from "./poster-image";
 import type translations from "./poster-image.translations.json";
 

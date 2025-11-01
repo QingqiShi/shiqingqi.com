@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
-import { Providers } from "@/components/shared/providers";
-import { BASE_URL } from "@/constants";
-import { space } from "@/tokens.stylex";
-import type { PageProps, SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
-import { validateLocale } from "@/utils/validate-locale";
+import { Providers } from "#src/components/shared/providers.tsx";
+import { BASE_URL } from "#src/constants.ts";
+import { space } from "#src/tokens.stylex.ts";
+import type { PageProps, SupportedLocale } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
+import { validateLocale } from "#src/utils/validate-locale.ts";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

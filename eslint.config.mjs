@@ -20,6 +20,7 @@ export default defineConfig([
       ".next/**/*",
       "next-env.d.ts",
       "public/sw.js",
+      "playwright-report/**/*",
     ],
   },
   js.configs.recommended,
@@ -62,7 +63,7 @@ export default defineConfig([
         {
           pathGroups: [
             {
-              pattern: "@/**/*",
+              pattern: "#src/**/*",
               group: "parent",
               position: "before",
             },

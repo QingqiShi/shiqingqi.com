@@ -6,8 +6,8 @@ import type {
   GenreFilterType,
   MediaType,
   Sort,
-} from "@/utils/media-filters-context";
-import { MediaFiltersContext } from "@/utils/media-filters-context";
+} from "#src/utils/media-filters-context.ts";
+import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
 
 const emptyFilters = {
   genreFilterType: "all" as GenreFilterType,

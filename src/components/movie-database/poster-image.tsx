@@ -3,10 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Skeleton } from "@/components/shared/skeleton";
-import { useTranslations } from "@/hooks/use-translations";
-import { color, font, layer } from "@/tokens.stylex";
-import * as tmdbQueries from "@/utils/tmdb-queries";
+import { Skeleton } from "#src/components/shared/skeleton.tsx";
+import { useTranslations } from "#src/hooks/use-translations.ts";
+import { color, font, layer } from "#src/tokens.stylex.ts";
+import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type translations from "./poster-image.translations.json";
 
 interface PosterImageProps {

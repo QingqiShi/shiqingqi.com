@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { controlSize, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
+import { controlSize, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
 import { FixedContainerContent } from "../shared/fixed-container-content";
 import { FiltersContainer } from "./filters-container";
 import { GenreFilter } from "./genre-filter";

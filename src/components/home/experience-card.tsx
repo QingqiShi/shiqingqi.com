@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
-import { Card } from "@/components/shared/card";
-import { Skeleton } from "@/components/shared/skeleton";
-import { svgTokens } from "@/logos/svg.stylex";
-import { color, font, ratio, space } from "@/tokens.stylex";
+import { Card } from "#src/components/shared/card.tsx";
+import { Skeleton } from "#src/components/shared/skeleton.tsx";
+import { svgTokens } from "#src/logos/svg.stylex.ts";
+import { color, font, ratio, space } from "#src/tokens.stylex.ts";
 
 interface ExperienceCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode;

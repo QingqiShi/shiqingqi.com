@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties } from "react";
-import { color } from "@/tokens.stylex";
+import { color } from "#src/tokens.stylex.ts";
 import { svgTokens } from "./svg.stylex";
 
 interface NottinghamLogoProps {

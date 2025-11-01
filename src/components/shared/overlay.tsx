@@ -9,9 +9,9 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
-import { breakpoints } from "@/breakpoints.stylex";
-import { usePortalTarget } from "@/contexts/portal-context";
-import { border, color, layer, space } from "@/tokens.stylex";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { usePortalTarget } from "#src/contexts/portal-context.tsx";
+import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { Button } from "./button";
 
 interface OverlayProps {

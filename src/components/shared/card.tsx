@@ -2,8 +2,15 @@
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
-import { useTranslations } from "@/hooks/use-translations";
-import { border, color, font, layer, shadow, space } from "@/tokens.stylex";
+import { useTranslations } from "#src/hooks/use-translations.ts";
+import {
+  border,
+  color,
+  font,
+  layer,
+  shadow,
+  space,
+} from "#src/tokens.stylex.ts";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
 import type translations from "./card.translations.json";

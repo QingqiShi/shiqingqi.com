@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
 
 const light = {
   colorScheme: "light",

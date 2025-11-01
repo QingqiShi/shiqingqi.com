@@ -1,6 +1,6 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
-import { color, space } from "@/tokens.stylex";
+import { color, space } from "#src/tokens.stylex.ts";
 
 export default function Loading() {
   return (

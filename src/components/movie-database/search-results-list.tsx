@@ -1,7 +1,7 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@/tokens.stylex";
-import type { MediaListItem } from "@/utils/types";
+import { color, font, space } from "#src/tokens.stylex.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 import { Grid } from "./grid";
 import { MediaCard } from "./media-card";
 

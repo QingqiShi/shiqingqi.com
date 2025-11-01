@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
-import { lightTheme, darkTheme, color, font } from "@/tokens.stylex";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { lightTheme, darkTheme, color, font } from "#src/tokens.stylex.ts";
 
 export const globalStyles = stylex.create({
   global: {

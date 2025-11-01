@@ -1,4 +1,4 @@
-import type { paths } from "@/_generated/tmdbV3";
+import type { paths } from "#src/_generated/tmdbV3.d.ts";
 
 export type Configuration =
   paths["/3/configuration"]["get"]["responses"]["200"]["content"]["application/json"];

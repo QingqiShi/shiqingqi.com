@@ -2,9 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useState, type ReactNode } from "react";
-import { PORTAL_TARGET_ID } from "@/constants/portal";
-import { PortalContext } from "@/contexts/portal-context";
-import { layer } from "@/tokens.stylex";
+import { PORTAL_TARGET_ID } from "#src/constants/portal.ts";
+import { PortalContext } from "#src/contexts/portal-context.tsx";
+import { layer } from "#src/tokens.stylex.ts";
 
 /**
  * A provider component that renders a fixed portal target element and makes it

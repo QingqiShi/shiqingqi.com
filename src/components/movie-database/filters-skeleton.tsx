@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { controlSize, layer, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
+import { controlSize, layer, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
 import { Skeleton } from "../shared/skeleton";
 import { skeletonTokens } from "../shared/skeleton.stylex";
 import { FiltersContainer } from "./filters-container";

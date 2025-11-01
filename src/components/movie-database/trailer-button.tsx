@@ -4,7 +4,7 @@ import { PlayIcon } from "@phosphor-icons/react/Play";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
-import type { SupportedLocale } from "@/types";
+import type { SupportedLocale } from "#src/types.ts";
 import { Button } from "../shared/button";
 import { Overlay } from "../shared/overlay";
 

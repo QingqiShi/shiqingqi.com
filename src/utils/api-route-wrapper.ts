@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { ALLOWED_REFERER } from "@/constants";
+import { ALLOWED_REFERER } from "#src/constants.ts";
 
 /**
  * Makes it easier to create dynamic routes (route handlers) for server actions.

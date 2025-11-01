@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useRouter } from "next/navigation";
 import type { PropsWithChildren } from "react";
 import { useTransition } from "react";
-import { color, font, border, controlSize } from "@/tokens.stylex";
+import { color, font, border, controlSize } from "#src/tokens.stylex.ts";
 
 interface ItemProps {
   ariaLabel?: string;
