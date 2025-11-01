@@ -1,12 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
-import { BackButton } from "@/components/shared/back-button";
-import { FixedContainerContent } from "@/components/shared/fixed-container-content";
-import { LocaleSelector } from "@/components/shared/locale-selector";
-import { ThemeSwitch } from "@/components/shared/theme-switch";
-import { layer, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { BackButton } from "#src/components/shared/back-button.tsx";
+import { FixedContainerContent } from "#src/components/shared/fixed-container-content.tsx";
+import { LocaleSelector } from "#src/components/shared/locale-selector.tsx";
+import { ThemeSwitch } from "#src/components/shared/theme-switch.tsx";
+import { layer, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
 import translations from "./translations.json";
 
 interface HeaderProps {

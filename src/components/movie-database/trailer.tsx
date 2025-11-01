@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
-import { getMovieVideos } from "@/_generated/tmdb-server-functions";
-import { space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
+import { getMovieVideos } from "#src/_generated/tmdb-server-functions.ts";
+import { space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
 import { TrailerButton } from "./trailer-button";
 import translations from "./translations.json";
 

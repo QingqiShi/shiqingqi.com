@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "@/types";
+import type { SupportedLocale } from "#src/types.ts";
 
 const localePrefixes = /^\/(en|zh)($|\/)/;
 

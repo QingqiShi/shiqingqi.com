@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@/test-utils";
+import { render, screen } from "#src/test-utils.tsx";
 import { Card } from "./card";
 
-vi.mock("@/hooks/use-translations", () => ({
+vi.mock("#src/hooks/use-translations.ts", () => ({
   useTranslations: () => ({
     t: (key: string) => (key === "details" ? "View Details" : key),
   }),

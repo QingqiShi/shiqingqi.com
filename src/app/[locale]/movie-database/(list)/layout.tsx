@@ -1,20 +1,20 @@
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import HomeLayout from "@/app/[locale]/(home)/layout";
-import { FiltersSkeleton } from "@/components/movie-database/filters-skeleton";
-import filtersTranslations from "@/components/movie-database/filters.translations.json";
-import { Grid } from "@/components/movie-database/grid";
-import mediaTypeToggleTranslations from "@/components/movie-database/media-type-toggle.translations.json";
-import posterImageTranslations from "@/components/movie-database/poster-image.translations.json";
-import movieDatabaseTranslations from "@/components/movie-database/translations.json";
-import cardTranslations from "@/components/shared/card.translations.json";
-import { Skeleton } from "@/components/shared/skeleton";
-import { TranslationProvider } from "@/components/shared/translation-provider";
-import { controlSize, ratio, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
-import { validateLocale } from "@/utils/validate-locale";
+import HomeLayout from "#src/app/[locale]/(home)/layout.tsx";
+import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton.tsx";
+import filtersTranslations from "#src/components/movie-database/filters.translations.json";
+import { Grid } from "#src/components/movie-database/grid.tsx";
+import mediaTypeToggleTranslations from "#src/components/movie-database/media-type-toggle.translations.json";
+import posterImageTranslations from "#src/components/movie-database/poster-image.translations.json";
+import movieDatabaseTranslations from "#src/components/movie-database/translations.json";
+import cardTranslations from "#src/components/shared/card.translations.json";
+import { Skeleton } from "#src/components/shared/skeleton.tsx";
+import { TranslationProvider } from "#src/components/shared/translation-provider.tsx";
+import { controlSize, ratio, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
+import { validateLocale } from "#src/utils/validate-locale.ts";
 import translations from "../translations.json";
 
 export default async function Layout({

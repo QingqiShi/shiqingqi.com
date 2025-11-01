@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
+import { color, font, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
 import translations from "../../app/[locale]/(home)/(details)/translations.json";
 
 interface PageTitleProps {

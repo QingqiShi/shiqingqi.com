@@ -5,7 +5,7 @@
  * Do not edit manually - changes will be overwritten.
  */
 
-import { discoverMovies } from "@/_generated/tmdb-server-functions";
-import { apiRouteWrapper } from "@/utils/api-route-wrapper";
+import { discoverMovies } from "#src/_generated/tmdb-server-functions.ts";
+import { apiRouteWrapper } from "#src/utils/api-route-wrapper.ts";
 
 export const GET = apiRouteWrapper(discoverMovies);

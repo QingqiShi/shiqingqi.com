@@ -4,11 +4,11 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
-import { breakpoints } from "@/breakpoints.stylex";
-import { Grid } from "@/components/movie-database/grid";
-import { color, ratio, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
-import * as tmdbQueries from "@/utils/tmdb-queries";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { Grid } from "#src/components/movie-database/grid.tsx";
+import { color, ratio, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { Skeleton } from "../shared/skeleton";
 import { MediaCard } from "./media-card";
 

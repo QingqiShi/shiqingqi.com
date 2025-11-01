@@ -1,8 +1,8 @@
 "use client";
 
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
-import { useMediaFilters } from "@/hooks/use-media-filters";
-import { useTranslations } from "@/hooks/use-translations";
+import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
+import { useTranslations } from "#src/hooks/use-translations.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { MenuLabel } from "../shared/menu-label";
 import type translations from "./filters.translations.json";

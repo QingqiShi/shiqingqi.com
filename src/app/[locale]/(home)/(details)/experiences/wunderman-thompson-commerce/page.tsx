@@ -1,6 +1,6 @@
-import { DetailPageTitle } from "@/components/home/detail-page-title";
-import type { PageProps } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
+import { DetailPageTitle } from "#src/components/home/detail-page-title.tsx";
+import type { PageProps } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
 import translations from "./translations.json";
 
 export default async function Page(props: PageProps) {

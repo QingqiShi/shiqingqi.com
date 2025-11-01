@@ -140,8 +140,8 @@ function generateApiRoutes() {
  * Do not edit manually - changes will be overwritten.
  */
 
-import { ${functionName} } from "@/_generated/tmdb-server-functions";
-import { apiRouteWrapper } from "@/utils/api-route-wrapper";
+import { ${functionName} } from "#src/_generated/tmdb-server-functions.ts";
+import { apiRouteWrapper } from "#src/utils/api-route-wrapper.ts";
 
 export const GET = apiRouteWrapper(${functionName});
 `;

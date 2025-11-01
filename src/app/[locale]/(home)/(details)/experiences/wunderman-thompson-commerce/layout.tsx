@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { BASE_URL } from "@/constants";
-import type { PageProps } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
-import { validateLocale } from "@/utils/validate-locale";
+import { BASE_URL } from "#src/constants.ts";
+import type { PageProps } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
+import { validateLocale } from "#src/utils/validate-locale.ts";
 import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

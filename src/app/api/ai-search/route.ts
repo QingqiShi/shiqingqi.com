@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
-import { performAISearch } from "@/utils/ai-search";
-import { apiRouteWrapper } from "@/utils/api-route-wrapper";
+import { performAISearch } from "#src/utils/ai-search.ts";
+import { apiRouteWrapper } from "#src/utils/api-route-wrapper.ts";
 
 export const GET = apiRouteWrapper(performAISearch);
 
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   if (referer) {
     try {
       const refererUrl = new URL(referer);
-      const { ALLOWED_REFERER } = await import("@/constants");
+      const { ALLOWED_REFERER } = await import("#src/constants.ts");
       if (
         !ALLOWED_REFERER.some((allowedReferer) =>
           refererUrl.origin.endsWith(allowedReferer),

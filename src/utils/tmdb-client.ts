@@ -2,7 +2,7 @@
 
 import "server-only";
 import { cache, cacheSignal } from "react";
-import type { paths } from "@/_generated/tmdbV3";
+import type { paths } from "#src/_generated/tmdbV3.d.ts";
 import { buildTmdbUrl } from "./build-tmdb-url";
 
 const BASE_URL = "https://api.themoviedb.org";

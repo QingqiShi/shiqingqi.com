@@ -1,8 +1,8 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
-import type { SupportedLocale } from "@/types";
-import { TranslationContext } from "@/utils/translation-context";
+import type { SupportedLocale } from "#src/types.ts";
+import { TranslationContext } from "#src/utils/translation-context.ts";
 
 interface TranslationContextProviderProps {
   locale: SupportedLocale;

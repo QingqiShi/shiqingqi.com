@@ -17,7 +17,7 @@ import {
   layer,
   shadow,
   space,
-} from "@/tokens.stylex";
+} from "#src/tokens.stylex.ts";
 import { AnimateToTarget } from "./animate-to-target";
 import { Button } from "./button";
 import { FixedContainerContent } from "./fixed-container-content";

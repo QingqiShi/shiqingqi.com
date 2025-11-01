@@ -1,5 +1,5 @@
 import { use } from "react";
-import { MediaFiltersContext } from "@/utils/media-filters-context";
+import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
 
 export function useMediaFilters() {
   const value = use(MediaFiltersContext);

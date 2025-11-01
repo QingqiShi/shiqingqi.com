@@ -5,7 +5,7 @@
  * Do not edit manually - changes will be overwritten.
  */
 
-import { getTvShowGenres } from "@/_generated/tmdb-server-functions";
-import { apiRouteWrapper } from "@/utils/api-route-wrapper";
+import { getTvShowGenres } from "#src/_generated/tmdb-server-functions.ts";
+import { apiRouteWrapper } from "#src/utils/api-route-wrapper.ts";
 
 export const GET = apiRouteWrapper(getTvShowGenres);

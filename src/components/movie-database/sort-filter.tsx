@@ -1,7 +1,7 @@
 "use client";
 
-import { useMediaFilters } from "@/hooks/use-media-filters";
-import { useTranslations } from "@/hooks/use-translations";
+import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
+import { useTranslations } from "#src/hooks/use-translations.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { MenuLabel } from "../shared/menu-label";

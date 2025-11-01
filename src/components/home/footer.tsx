@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@/breakpoints.stylex";
-import { font, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { font, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
 import { Anchor } from "../shared/anchor";
 import translations from "./translations.json";
 

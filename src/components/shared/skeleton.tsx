@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, Ref } from "react";
-import { border, color } from "@/tokens.stylex";
+import { border, color } from "#src/tokens.stylex.ts";
 import { skeletonTokens } from "./skeleton.stylex";
 
 interface SkeletonProps {

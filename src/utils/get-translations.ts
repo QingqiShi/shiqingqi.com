@@ -1,6 +1,6 @@
 import "server-only";
 import type { ReactNode } from "react";
-import type { SupportedLocale, TranslationConfig } from "@/types";
+import type { SupportedLocale, TranslationConfig } from "#src/types.ts";
 import { parseMessage } from "./parse-message";
 
 export function getTranslations<T extends TranslationConfig>(

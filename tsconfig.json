@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "allowJs": true,
     "erasableSyntaxOnly": true,
     "esModuleInterop": true,
@@ -7,19 +8,17 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext", "WebWorker"],
-    "module": "esnext",
+    "module": "preserve",
     "moduleResolution": "bundler",
     "noEmit": true,
     "noImplicitAny": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
     "plugins": [
       {
         "name": "next"
       }
     ],
     "resolveJsonModule": true,
+    "resolvePackageJsonImports": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",

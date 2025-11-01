@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import { border, color, controlSize, shadow } from "@/tokens.stylex";
+import { border, color, controlSize, shadow } from "#src/tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex";
 
 interface AnchorButtonGroupProps {

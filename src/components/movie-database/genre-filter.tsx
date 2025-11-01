@@ -3,11 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useId } from "react";
-import { useMediaFilters } from "@/hooks/use-media-filters";
-import { useTranslations } from "@/hooks/use-translations";
-import { controlSize, space } from "@/tokens.stylex";
-import * as tmdbQueries from "@/utils/tmdb-queries";
-import { useTranslationContext } from "@/utils/translation-context";
+import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
+import { useTranslations } from "#src/hooks/use-translations.ts";
+import { controlSize, space } from "#src/tokens.stylex.ts";
+import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { useTranslationContext } from "#src/utils/translation-context.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { MenuLabel } from "../shared/menu-label";

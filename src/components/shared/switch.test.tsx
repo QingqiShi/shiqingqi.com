@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, fireEvent } from "@/test-utils";
+import { render, screen, waitFor, fireEvent } from "#src/test-utils.tsx";
 import { Switch, type SwitchState } from "./switch";
 
 describe("Switch Component", () => {

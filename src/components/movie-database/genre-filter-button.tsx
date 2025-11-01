@@ -2,9 +2,9 @@
 
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
-import { useMediaFilters } from "@/hooks/use-media-filters";
-import { useTranslations } from "@/hooks/use-translations";
-import { controlSize, space } from "@/tokens.stylex";
+import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
+import { useTranslations } from "#src/hooks/use-translations.ts";
+import { controlSize, space } from "#src/tokens.stylex.ts";
 import { MenuButton } from "../shared/menu-button";
 import type translations from "./filters.translations.json";
 import { GenreFilter } from "./genre-filter";

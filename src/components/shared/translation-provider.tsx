@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import type { SupportedLocale, TranslationConfig } from "@/types";
+import type { SupportedLocale, TranslationConfig } from "#src/types.ts";
 import { TranslationContextProvider } from "./translation-context-provider";
 
 interface TranslationProviderProps {

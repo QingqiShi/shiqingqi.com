@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@/test-utils";
+import { render, screen } from "#src/test-utils.tsx";
 import { Button } from "./button";
 
 describe("Button StyleX Integration", () => {

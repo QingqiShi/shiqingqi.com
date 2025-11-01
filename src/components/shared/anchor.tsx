@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import Link from "next/link";
-import { border } from "@/tokens.stylex";
+import { border } from "#src/tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex";
 
 export function Anchor({

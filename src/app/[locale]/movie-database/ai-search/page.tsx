@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
-import { Grid } from "@/components/movie-database/grid";
-import { SearchContent } from "@/components/movie-database/search-content";
-import { Skeleton } from "@/components/shared/skeleton";
-import { color, ratio, space } from "@/tokens.stylex";
-import type { PageProps } from "@/types";
-import { getTranslations } from "@/utils/get-translations";
+import { Grid } from "#src/components/movie-database/grid.tsx";
+import { SearchContent } from "#src/components/movie-database/search-content.tsx";
+import { Skeleton } from "#src/components/shared/skeleton.tsx";
+import { color, ratio, space } from "#src/tokens.stylex.ts";
+import type { PageProps } from "#src/types.ts";
+import { getTranslations } from "#src/utils/get-translations.ts";
 import translations from "../translations.json";
 
 interface AISearchPageProps extends PageProps {

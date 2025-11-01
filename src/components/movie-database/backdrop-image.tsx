@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
-import { getConfiguration } from "@/_generated/tmdb-server-functions";
-import { breakpoints } from "@/breakpoints.stylex";
-import { color, layer, ratio, space } from "@/tokens.stylex";
-import type { SupportedLocale } from "@/types";
+import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
+import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { color, layer, ratio, space } from "#src/tokens.stylex.ts";
+import type { SupportedLocale } from "#src/types.ts";
 
 interface BackdropImageProps {
   backdropPath: string;

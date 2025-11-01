@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import type { SupportedLocale } from "@/types";
-import type { MediaListItem } from "@/utils/types";
+import type { SupportedLocale } from "#src/types.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 
 interface AISearchRequest {
   query: string;

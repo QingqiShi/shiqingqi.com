@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { SupportedTheme } from "@/types";
+import type { SupportedTheme } from "#src/types.ts";
 
 const STORAGE_KEY = "theme";
 

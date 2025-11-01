@@ -1,8 +1,8 @@
 import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
-import { discoverTvShows } from "@/_generated/tmdb-server-functions";
-import { operationsSchema } from "@/_generated/tmdb-zod";
-import type { paths } from "@/_generated/tmdbV3";
+import { discoverTvShows } from "#src/_generated/tmdb-server-functions.ts";
+import { operationsSchema } from "#src/_generated/tmdb-zod.ts";
+import type { paths } from "#src/_generated/tmdbV3.d.ts";
 // Extract Zod schema from generated schemas
 const tvDiscoverySchema = operationsSchema.shape[
   "discover-tv"

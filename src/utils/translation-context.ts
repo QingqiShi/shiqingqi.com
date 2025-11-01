@@ -1,5 +1,5 @@
 import { createContext, use } from "react";
-import type { SupportedLocale } from "@/types";
+import type { SupportedLocale } from "#src/types.ts";
 
 export const TranslationContext = createContext<{
   locale: SupportedLocale;
