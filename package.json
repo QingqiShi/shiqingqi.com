@@ -83,7 +83,7 @@
     "eslint-config-next": "16.0.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-unicorn": "^62.0.0",
-    "jsdom": "^27.0.1",
+    "jsdom": "^27.1.0",
     "modern-normalize": "^3.0.1",
     "next-i18n-router": "^5.5.5",
     "npm-run-all2": "^8.0.4",
