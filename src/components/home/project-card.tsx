@@ -35,11 +35,15 @@ const styles = stylex.create({
   card: {
     position: "relative",
     color: color.textMuted,
+    containerType: "inline-size",
     [svgTokens.fill]: { ":not(:hover)": color.textMuted },
   },
   row: {
     display: "grid",
-    gridTemplateColumns: "64px 1fr",
+    gridTemplateColumns: {
+      default: "1fr",
+      "@container (min-width: 180px)": "64px 1fr",
+    },
     alignItems: "center",
     gap: space._0,
     marginBottom: space._1,
@@ -52,7 +56,12 @@ const styles = stylex.create({
     color: svgTokens.fill,
   },
   name: {
-    fontSize: font.size_0,
+    fontSize: {
+      default: font.size_0,
+      "@container (min-width: 180px)": font.size_1,
+      "@container (min-width: 220px)": font.size_3,
+      "@container (min-width: 300px)": font.size_4,
+    },
     fontWeight: font.weight_7,
     color: color.textMuted,
   },
