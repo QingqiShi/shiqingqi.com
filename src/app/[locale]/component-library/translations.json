@@ -1,0 +1,22 @@
+{
+  "title": {
+    "en": "Component Library | Qingqi Shi",
+    "zh": "组件库 | 石清琪"
+  },
+  "description": {
+    "en": "Explore Qingqi Shi's component library - a collection of beautiful, reusable components crafted with care for modern web applications.",
+    "zh": "探索石清琪的组件库 - 为现代网页应用精心打造的精美、可重用组件集合。"
+  },
+  "titleTemplate": {
+    "en": "%s | Component Library | Qingqi Shi",
+    "zh": "%s | 组件库 | 石清琪"
+  },
+  "heading": {
+    "en": "Component Library",
+    "zh": "组件库"
+  },
+  "comingSoon": {
+    "en": "Coming soon. Stay tuned for beautiful, reusable components crafted with care.",
+    "zh": "即将推出。敬请期待精心打造的精美、可重用组件。"
+  }
+}

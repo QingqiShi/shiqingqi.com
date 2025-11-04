@@ -1,4 +1,5 @@
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
+import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { BackgroundLines } from "#src/components/home/background-lines.tsx";
@@ -51,6 +52,14 @@ export default async function Home(props: PageProps) {
             css={[styles.card, styles.movieDatabase]}
             name={t("movieDatabase")}
             description={t("movieDatabaseDescription")}
+            scroll
+          />
+          <ProjectCard
+            icon={<PackageIcon size={64} weight="fill" />}
+            href={getLocalePath("/component-library", locale)}
+            css={[styles.card, styles.componentLibrary]}
+            name={t("componentLibrary")}
+            description={t("componentLibraryDescription")}
             scroll
           />
         </div>
@@ -159,5 +168,8 @@ const styles = stylex.create({
   },
   movieDatabase: {
     [svgTokens.fill]: color.brandTmdb,
+  },
+  componentLibrary: {
+    [svgTokens.fill]: color.controlActive,
   },
 });

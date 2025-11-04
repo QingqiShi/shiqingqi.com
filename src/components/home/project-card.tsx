@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode } from "react";
+import { ViewTransition, type ReactNode } from "react";
 import { Card } from "#src/components/shared/card.tsx";
 import { svgTokens } from "#src/logos/svg.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
@@ -22,7 +22,9 @@ export function ProjectCard({
     <Card {...rest} className={className} style={style} css={styles.card}>
       <div css={styles.row}>
         <div css={styles.logo}>{icon}</div>
-        <div css={styles.name}>{name}</div>
+        <ViewTransition name={`project-card-name-${name}`}>
+          <div css={styles.name}>{name}</div>
+        </ViewTransition>
       </div>
       <div css={styles.description}>{description}</div>
     </Card>
