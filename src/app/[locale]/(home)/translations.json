@@ -90,5 +90,13 @@
   "movieDatabaseDescription": {
     "en": "Find your next blockbuster, one filter at a time.",
     "zh": "你的下一个大片，只差一次筛选!"
+  },
+  "componentLibrary": {
+    "en": "Component Library",
+    "zh": "组件库"
+  },
+  "componentLibraryDescription": {
+    "en": "Beautiful components, crafted with care.",
+    "zh": "精心打造的精美组件。"
   }
 }
