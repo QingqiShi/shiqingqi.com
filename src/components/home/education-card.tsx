@@ -46,8 +46,9 @@ export function EducationCard({
 
 const styles = stylex.create({
   card: {
-    aspectRatio: ratio.tv,
+    aspectRatio: { default: null, "@container (min-width: 220px)": ratio.tv },
     alignItems: "center",
+    containerType: "inline-size",
     display: "grid",
     gap: space._1,
     gridTemplateRows: "1fr auto",
@@ -60,11 +61,23 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     gap: space._1,
+    flexWrap: {
+      default: "wrap",
+      "@container (min-width: 180px)": "nowrap",
+    },
   },
   name: {
-    fontSize: font.size_0,
+    fontSize: {
+      default: font.size_0,
+      "@container (min-width: 180px)": font.size_0,
+      "@container (min-width: 220px)": font.size_2,
+      "@container (min-width: 300px)": font.size_4,
+    },
     fontWeight: font.weight_7,
-    width: "60%",
+    width: {
+      default: "100%",
+      "@container (min-width: 180px)": "60%",
+    },
     color: color.textMuted,
   },
   logo: {
@@ -73,7 +86,10 @@ const styles = stylex.create({
     display: "flex",
     justifyContent: "flex-start",
     minHeight: 0,
-    width: "40%",
+    width: {
+      default: "64px",
+      "@container (min-width: 180px)": "40%",
+    },
   },
   img: {
     height: "100%",
