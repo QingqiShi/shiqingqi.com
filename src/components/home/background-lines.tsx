@@ -50,11 +50,21 @@ const styles = stylex.create({
     },
   },
   line3: {
-    display: { default: "none", [breakpoints.md]: "block" },
+    display: {
+      default: "none",
+      // Adding an extra breakpoint to avoid overlap with line2 on the first pixel of md screens
+      [breakpoints.sm]: "none",
+      [breakpoints.md]: "block",
+    },
     left: { default: null, [breakpoints.md]: "66.6%", [breakpoints.lg]: "50%" },
   },
   line4: {
-    display: { default: "none", [breakpoints.lg]: "block" },
+    display: {
+      default: "none",
+      // Adding extra breakpoints to avoid overlap with line3 on the first pixel of lg screens
+      [breakpoints.md]: "none",
+      [breakpoints.lg]: "block",
+    },
     left: { default: null, [breakpoints.lg]: "75%" },
   },
   line5: {

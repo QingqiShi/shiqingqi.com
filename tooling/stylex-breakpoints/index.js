@@ -68,6 +68,7 @@ function parseBreakpointsFromFile(rootDir) {
 
   // Traverse the AST to find the defineConsts call
   traverse(ast, {
+    /** @param {import('@babel/traverse').NodePath<import('@babel/types').CallExpression>} path */
     CallExpression(path) {
       const { node } = path;
 
