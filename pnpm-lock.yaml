@@ -98,7 +98,7 @@ importers:
         version: 1.56.1
       '@serwist/turbopack':
         specifier: 10.0.0-preview.14
-        version: 10.0.0-preview.14(esbuild-wasm@0.25.11)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-6160773f-20251023(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023)(typescript@5.9.3)
+        version: 10.0.0-preview.14(esbuild-wasm@0.25.12)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-6160773f-20251023(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023)(typescript@5.9.3)
       '@stylexjs/babel-plugin':
         specifier: ^0.16.3
         version: 0.16.3
@@ -148,8 +148,8 @@ importers:
         specifier: 19.0.0-beta-714736e-20250131
         version: 19.0.0-beta-714736e-20250131
       esbuild-wasm:
-        specifier: ^0.25.11
-        version: 0.25.11
+        specifier: ^0.25.12
+        version: 0.25.12
       eslint:
         specifier: ^9.39.1
         version: 9.39.1
@@ -2413,8 +2413,8 @@ packages:
     resolution: {integrity: sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==}
     engines: {node: '>= 0.4'}
 
-  esbuild-wasm@0.25.11:
-    resolution: {integrity: sha512-60gllbYFIRGzB6KALBB5Va9Wy3VeCi2U0NgmM7r+TFnRgzeEyoCn2D7fhacW2zWbd7MUeTKLDE7RlfYGBQ00bw==}
+  esbuild-wasm@0.25.12:
+    resolution: {integrity: sha512-rZqkjL3Y6FwLpSHzLnaEy8Ps6veCNo1kZa9EOfJvmWtBq5dJH4iVjfmOO6Mlkv9B0tt9WFPFmb/VxlgJOnueNg==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -5442,12 +5442,12 @@ snapshots:
     transitivePeerDependencies:
       - webpack
 
-  '@serwist/turbopack@10.0.0-preview.14(esbuild-wasm@0.25.11)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-6160773f-20251023(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023)(typescript@5.9.3)':
+  '@serwist/turbopack@10.0.0-preview.14(esbuild-wasm@0.25.12)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-6160773f-20251023(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023)(typescript@5.9.3)':
     dependencies:
       '@serwist/build': 10.0.0-preview.14(typescript@5.9.3)
       '@serwist/window': 10.0.0-preview.14(typescript@5.9.3)
       '@swc/core': 1.13.5
-      esbuild-wasm: 0.25.11
+      esbuild-wasm: 0.25.12
       kolorist: 1.8.0
       next: 16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-6160773f-20251023(react@19.3.0-canary-6160773f-20251023))(react@19.3.0-canary-6160773f-20251023)
       react: 19.3.0-canary-6160773f-20251023
@@ -6564,7 +6564,7 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
-  esbuild-wasm@0.25.11: {}
+  esbuild-wasm@0.25.12: {}
 
   esbuild@0.25.11:
     optionalDependencies:
