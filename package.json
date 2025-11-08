@@ -100,13 +100,5 @@
     "typescript-eslint": "^8.46.3",
     "vite-plugin-babel": "^1.3.2",
     "vitest": "^4.0.7"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@vercel/speed-insights@1.2.0",
-      "esbuild@0.25.11",
-      "sharp@0.34.4",
-      "unrs-resolver@1.11.1"
-    ]
   }
 }
