@@ -113,6 +113,73 @@ function MyComponent({ items }) {
 export default memo(MyComponent);
 ```
 
+## React 19 ViewTransition + Suspense Pattern
+
+### The Hydration Issue
+
+When using `<ViewTransition>` to wrap content that includes Suspense boundaries, you may encounter hydration errors if some children are in Suspense while others are not.
+
+**Error Message:**
+
+```
+A tree hydrated but some attributes of the server rendered HTML didn't match the client properties.
+This won't be patched up. This can happen if a SSR-ed Client Component used...
+Specifically: style={{view-transition-name:"_T_0_"}}
+```
+
+**Root Cause:**
+
+- ViewTransition uses a "just-in-time" mechanism to apply `view-transition-name` styles only when transitions trigger
+- During SSR hydration, content reveals from non-Suspense children trigger ViewTransition activation
+- This causes the client to apply styles during hydration that weren't in the server HTML
+- React detects the mismatch and logs a hydration warning
+
+### The Solution: Consistent Suspense Boundaries
+
+**✅ Correct (All content in Suspense):**
+
+```tsx
+<ViewTransition>
+  <Suspense fallback={<HeaderSkeleton />}>
+    <Header />
+  </Suspense>
+  <Suspense fallback={null}>{children}</Suspense>
+</ViewTransition>
+```
+
+**❌ Incorrect (Mixed Suspense/non-Suspense):**
+
+```tsx
+<ViewTransition>
+  <Suspense fallback={<HeaderSkeleton />}>
+    <Header />
+  </Suspense>
+  {children} {/* NOT in Suspense - causes hydration error! */}
+</ViewTransition>
+```
+
+**Alternative (Suspense outside ViewTransition):**
+
+```tsx
+<Suspense fallback={<LoadingSkeleton />}>
+  <ViewTransition>
+    <Header />
+    {children}
+  </ViewTransition>
+</Suspense>
+```
+
+Note: This alternative forces all content into the same loading state, which may not be desirable if Header and children should load independently.
+
+### Why This Fixes It
+
+By wrapping all children in Suspense boundaries:
+
+- Content reveals are coordinated through React's Suspense mechanism
+- ViewTransition doesn't activate prematurely during hydration
+- Server and client rendering remain consistent
+- No hydration mismatch occurs
+
 ## Key Rules
 
 1. **Context Shorthand**: Always use `<Context value={...}>` instead of `<Context.Provider value={...}>`
@@ -121,6 +188,7 @@ export default memo(MyComponent);
 4. **No useCallback**: React Compiler automatically stabilizes function references
 5. **No memo()**: React Compiler automatically optimizes component re-renders
 6. **Trust the Compiler**: Let React Compiler handle optimization instead of manual patterns
+7. **ViewTransition + Suspense**: When using ViewTransition with Suspense, ensure all children are within Suspense boundaries to prevent hydration errors
 
 ## When Manual Optimization Might Be Needed
 

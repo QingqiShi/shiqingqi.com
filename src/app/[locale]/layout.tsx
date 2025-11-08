@@ -61,7 +61,7 @@ export default async function RootLayout({
               <Suspense fallback={<HeaderSkeleton />}>
                 <Header locale={validatedLocale} />
               </Suspense>
-              {children}
+              <Suspense fallback={null}>{children}</Suspense>
             </PortalTargetProvider>
           </ViewTransition>
           <Analytics />
