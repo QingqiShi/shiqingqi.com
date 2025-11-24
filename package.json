@@ -34,7 +34,7 @@
   "dependencies": {
     "@mui/utils": "^7.3.5",
     "@phosphor-icons/react": "^2.1.10",
-    "@serwist/next": "^9.2.1",
+    "@serwist/next": "^9.2.3",
     "@stylexjs/stylex": "^0.16.3",
     "@tanstack/react-query": "5.90.7",
     "@vercel/analytics": "^1.5.0",
