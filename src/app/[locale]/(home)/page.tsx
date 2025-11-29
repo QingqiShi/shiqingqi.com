@@ -34,11 +34,11 @@ export default async function Home(props: PageProps) {
       translations={{ card: cardTranslations }}
     >
       <BackgroundLines />
-      <section css={styles.headlineContainer}>
-        <h1 css={styles.headline}>
-          {t("headline_1")}
+      <section css={styles.heroContainer}>
+        <h1 css={styles.display}>
+          {t("hero_display_1")}
           <br />
-          {t("headline_2")}
+          {t("hero_display_2")}
         </h1>
         <p css={styles.brief}>{t("brief", { parse: true })}</p>
       </section>
@@ -115,6 +115,7 @@ export default async function Home(props: PageProps) {
           <EducationCard
             logo={{ src: AGSB, alt: t("agsb") }}
             name={t("agsb")}
+            nameSubText={t("agsbSubText")}
             dates={t("agsbDate")}
             href={getLocalePath(
               "/education/altrincham-grammar-school-for-boys",
@@ -129,29 +130,26 @@ export default async function Home(props: PageProps) {
 }
 
 const styles = stylex.create({
-  headlineContainer: {
-    padding: {
-      default: `0 0 ${space._7}`,
-      [breakpoints.sm]: `0 0 ${space._9}`,
+  heroContainer: {
+    paddingBlockStart: `clamp(${space._12}, 30dvh, ${space._14})`,
+    paddingBlockEnd: {
+      default: space._7,
+      [breakpoints.sm]: space._9,
     },
   },
-  headline: {
+  display: {
     margin: `0 0 ${space._3} 0`,
-    fontSize: {
-      default: font.size_5,
-      [breakpoints.sm]: font.size_6,
-      [breakpoints.md]: font.size_7,
-      [breakpoints.lg]: font.size_8,
-    },
+    fontSize: font.vpDisplay,
     fontWeight: font.weight_8,
   },
   brief: {
     margin: 0,
+    fontSize: font.vpSubDisplay,
   },
   sectionTitle: {
     marginTop: space._7,
     marginBottom: space._3,
-    fontSize: font.size_3,
+    fontSize: font.vpHeading2,
     fontWeight: font.weight_7,
   },
   cardList: {

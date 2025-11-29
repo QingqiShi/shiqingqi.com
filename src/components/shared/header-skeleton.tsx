@@ -1,5 +1,4 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { controlSize, layer, space } from "#src/tokens.stylex.ts";
 import { Skeleton } from "./skeleton";
 import { skeletonTokens } from "./skeleton.stylex";
@@ -29,10 +28,7 @@ const styles = stylex.create({
     paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
   },
   nav: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
+    maxInlineSize: "1140px",
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

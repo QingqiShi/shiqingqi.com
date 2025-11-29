@@ -66,7 +66,7 @@ function AISearchHeader({ title, query }: AISearchHeaderProps) {
 const styles = stylex.create({
   container: {
     padding: space._3,
-    maxWidth: "1200px",
+    maxInlineSize: "1200px",
     marginInline: "auto",
   },
 

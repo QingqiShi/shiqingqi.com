@@ -124,7 +124,7 @@ const styles = stylex.create({
   container: {
     display: "block",
     position: "relative",
-    fontSize: font.size_1,
+    fontSize: font.uiBody,
     [themeSwitchTokens.systemLeft]: { default: null, ":hover": "-100%" },
     [themeSwitchTokens.systemOpacity]: { default: null, ":hover": "1" },
     [themeSwitchTokens.systemPointerEvents]: {
@@ -153,7 +153,7 @@ const styles = stylex.create({
     aspectRatio: ratio.square,
     bottom: 0,
     display: "flex",
-    fontSize: font.size_1,
+    fontSize: font.uiBody,
     justifyContent: "center",
     pointerEvents: "none",
     position: "absolute",

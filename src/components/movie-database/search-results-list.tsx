@@ -56,14 +56,14 @@ const styles = stylex.create({
   },
 
   emptyText: {
-    fontSize: font.size_2,
+    fontSize: font.uiHeading3,
     color: color.textMuted,
     margin: 0,
     marginBottom: space._2,
   },
 
   emptyQuery: {
-    fontSize: font.size_1,
+    fontSize: font.uiBody,
     color: color.controlActive,
     fontWeight: font.weight_6,
     margin: 0,

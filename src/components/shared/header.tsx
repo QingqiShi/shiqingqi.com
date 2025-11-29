@@ -1,5 +1,4 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { BackButton } from "#src/components/shared/back-button.tsx";
 import { FixedContainerContent } from "#src/components/shared/fixed-container-content.tsx";
 import { LocaleSelector } from "#src/components/shared/locale-selector.tsx";
@@ -55,10 +54,7 @@ const styles = stylex.create({
     paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
   },
   nav: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
+    maxInlineSize: "1140px",
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

@@ -6,7 +6,6 @@ import {
   getMovieRecommendations,
   getTvShowRecommendations,
 } from "#src/_generated/tmdb-server-functions.ts";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { ratio, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
@@ -91,10 +90,7 @@ export function SimilarMedia({
 
 const styles = stylex.create({
   container: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
+    maxInlineSize: "1140px",
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

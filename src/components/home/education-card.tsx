@@ -11,12 +11,14 @@ import { color, font, ratio, space } from "#src/tokens.stylex.ts";
 interface EducationCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode | { src: StaticImageData; alt: string };
   name: string;
+  nameSubText?: string;
   dates: string;
 }
 
 export function EducationCard({
   logo,
   name,
+  nameSubText,
   dates,
   className,
   style,
@@ -37,7 +39,10 @@ export function EducationCard({
             <Suspense fallback={<Skeleton fill />}>{logo}</Suspense>
           )}
         </div>
-        <span css={styles.name}>{name}</span>
+        <div css={styles.name}>
+          <span>{name}</span>
+          {nameSubText && <span css={styles.subText}> {nameSubText}</span>}
+        </div>
       </div>
       <time css={styles.dates}>{dates}</time>
     </Card>
@@ -58,49 +63,46 @@ const styles = stylex.create({
     [svgTokens.fill]: { ":not(:hover)": color.textMuted },
   },
   row: {
-    display: "flex",
+    display: "grid",
+    gridTemplateColumns: {
+      default: "1fr",
+      "@container (min-width: 180px)": "64px 1fr",
+    },
     alignItems: "center",
-    gap: space._1,
-    flexWrap: {
-      default: "wrap",
-      "@container (min-width: 180px)": "nowrap",
-    },
-  },
-  name: {
-    fontSize: {
-      default: font.size_0,
-      "@container (min-width: 180px)": font.size_0,
-      "@container (min-width: 220px)": font.size_2,
-      "@container (min-width: 300px)": font.size_4,
-    },
-    fontWeight: font.weight_7,
-    width: {
-      default: "100%",
-      "@container (min-width: 180px)": "60%",
-    },
-    color: color.textMuted,
+    gap: space._2,
+    marginBottom: space._1,
   },
   logo: {
     alignItems: "center",
-    aspectRatio: ratio.square,
     display: "flex",
     justifyContent: "flex-start",
-    minHeight: 0,
-    width: {
-      default: "64px",
-      "@container (min-width: 180px)": "40%",
+    maxInlineSize: "64px",
+    blockSize: "64px",
+    aspectRatio: {
+      default: null,
+      "@container (min-width: 180px)": ratio.square,
     },
+  },
+  name: {
+    fontSize: font.cqTitle,
+    fontWeight: font.weight_7,
+    color: color.textMuted,
+  },
+  subText: {
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_6,
+    display: "block",
   },
   img: {
     height: "100%",
-    maxWidth: "100%",
+    maxInlineSize: "100%",
     objectFit: "contain",
     filter: cardTokens.imageFilter,
     transition: "filter .2s",
   },
   dates: {
-    fontSize: font.size_00,
-    fontWeight: font.weight_6,
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_4,
     color: color.textMuted,
   },
 });

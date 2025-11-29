@@ -4,7 +4,6 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useDeferredValue, useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { color, ratio, space } from "#src/tokens.stylex.ts";
@@ -109,10 +108,7 @@ const styles = stylex.create({
     overflow: "hidden",
   },
   notFound: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
+    maxInlineSize: "1140px",
     marginBlock: 0,
     marginInline: "auto",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,

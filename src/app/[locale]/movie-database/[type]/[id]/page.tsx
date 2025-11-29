@@ -161,10 +161,7 @@ export default async function Page({ params }: PageProps) {
 
 const styles = stylex.create({
   container: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
+    maxInlineSize: "1140px",
     marginBlock: 0,
     marginInline: "auto",
     marginBottom: space._10,
@@ -185,37 +182,37 @@ const styles = stylex.create({
     gap: space._3,
   },
   h1: {
-    fontSize: font.size_6,
+    fontSize: font.vpHeading1,
     margin: 0,
   },
   meta: {
-    fontSize: font.size_0,
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
     margin: 0,
   },
   description: {
-    fontSize: font.size_1,
+    fontSize: font.uiBody,
     margin: 0,
   },
   ratingContainer: {
-    width: space._9,
-    height: space._9,
+    width: space._10,
+    height: space._10,
     borderRadius: border.radius_round,
     backgroundColor: color.backgroundRaised,
     borderWidth: space._0,
     borderColor: color.textMuted,
     borderStyle: "solid",
-    fontSize: font.size_00,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
   },
   rating: {
-    fontSize: font.size_4,
+    fontSize: font.uiHeading1,
     fontWeight: font.weight_8,
   },
   count: {
-    fontSize: font.size_0,
+    fontSize: font.uiBodySmall,
     color: color.textMuted,
   },
   trailerButtonSkeleton: {
