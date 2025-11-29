@@ -76,16 +76,16 @@ const styles = stylex.create({
   name: {
     display: "block",
     fontWeight: font.weight_8,
-    fontSize: font.size_4,
+    fontSize: font.vpHeading2,
   },
   copyright: {
     display: "block",
     fontWeight: font.weight_8,
-    fontSize: font.size_3,
+    fontSize: font.vpHeading3,
   },
   link: {
     display: "block",
-    fontSize: font.size_0,
+    fontSize: font.uiBodySmall,
     marginBottom: { default: null, ":not(:last-of-type)": space._0 },
     paddingBlock: { default: space._1, [breakpoints.md]: 0 },
   },

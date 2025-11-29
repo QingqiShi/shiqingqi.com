@@ -11,11 +11,11 @@
     "en": "%s | Qingqi Shi",
     "zh": "%s | 石清琪"
   },
-  "headline_1": {
+  "hero_display_1": {
     "en": "Hi, I'm Qingqi.",
     "zh": "嗨，我叫石清琪。"
   },
-  "headline_2": {
+  "hero_display_2": {
     "en": "I'm a software engineer.",
     "zh": "我是一名软件工程师。"
   },
@@ -76,8 +76,12 @@
     "zh": "2013年9月 - 2016年7月"
   },
   "agsb": {
-    "en": "Altrincham Grammar School for Boys",
-    "zh": "奥尔特灵厄姆文法男校"
+    "en": "Altrincham",
+    "zh": "奥尔特灵厄姆"
+  },
+  "agsbSubText": {
+    "en": "Grammar School for Boys",
+    "zh": "文法男校"
   },
   "agsbDate": {
     "en": "Sep 2011 - Jul 2013",

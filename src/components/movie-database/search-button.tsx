@@ -3,8 +3,7 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState, useEffect } from "react";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "#src/hooks/use-translations.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
@@ -108,10 +107,7 @@ const styles = stylex.create({
   },
 
   title: {
-    fontSize: {
-      default: font.size_3,
-      [breakpoints.md]: font.size_4,
-    },
+    fontSize: font.vpHeading2,
     fontWeight: font.weight_6,
     color: color.textMain,
     margin: 0,
@@ -124,7 +120,7 @@ const styles = stylex.create({
 
   input: {
     width: "100%",
-    fontSize: font.size_2,
+    fontSize: font.uiHeading3,
     fontWeight: font.weight_4,
     lineHeight: 1.5,
     padding: `${space._3} ${space._3}`,
@@ -138,7 +134,7 @@ const styles = stylex.create({
   },
 
   hint: {
-    fontSize: font.size_0,
+    fontSize: font.uiBodySmall,
     color: color.textMuted,
     padding: `${space._3} ${space._4}`,
     borderTopWidth: "1px",

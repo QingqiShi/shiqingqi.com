@@ -25,11 +25,11 @@ const styles = stylex.create({
   },
   heading: {
     margin: `0 0 ${space._4} 0`,
-    fontSize: font.size_6,
+    fontSize: font.vpHeading1,
     fontWeight: font.weight_8,
   },
   message: {
     margin: 0,
-    fontSize: font.size_3,
+    fontSize: font.vpHeading3,
   },
 });

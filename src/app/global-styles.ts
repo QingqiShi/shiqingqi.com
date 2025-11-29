@@ -1,18 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { lightTheme, darkTheme, color, font } from "#src/tokens.stylex.ts";
 
 export const globalStyles = stylex.create({
   global: {
     backgroundColor: color.backgroundMain,
     colorScheme: color.colorScheme,
-    fontSize: {
-      default: "16px",
-      [breakpoints.sm]: "18px",
-      [breakpoints.md]: "20px",
-      [breakpoints.lg]: "24px",
-      [breakpoints.xl]: "26px",
-    },
+    fontSize: "16px",
   },
   body: {
     color: color.textMain,

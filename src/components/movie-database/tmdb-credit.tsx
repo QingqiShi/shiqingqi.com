@@ -50,12 +50,12 @@ const styles = stylex.create({
     gap: space._2,
     alignItems: "center",
     width: "50dvw",
-    maxWidth: 500,
-    fontSize: font.size_0,
+    maxInlineSize: 500,
+    fontSize: font.uiBodySmall,
   },
   viewportContainer: {
     width: null,
-    maxWidth: null,
+    maxInlineSize: null,
   },
   imageContainer: {
     backgroundColor: "#0d253f",

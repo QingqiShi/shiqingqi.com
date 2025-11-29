@@ -173,16 +173,50 @@ export const darkTheme = stylex.createTheme(color, dark);
 export const font = stylex.defineVars({
   family: "Inter,Inter-fallback,sans-serif",
 
-  size_00: ".6rem",
-  size_0: ".8rem",
-  size_1: "1rem",
-  size_2: "1.1rem",
-  size_3: "1.25rem",
-  size_4: "1.5rem",
-  size_5: "2rem",
-  size_6: "2.5rem",
-  size_7: "3rem",
-  size_8: "3.5rem",
+  // Static typography - UI elements
+  uiHeading1: "1.5rem",
+  uiHeading2: "1.25rem",
+  uiHeading3: "1.1rem",
+  uiBody: "1rem",
+  uiBodySmall: ".85rem",
+
+  // Viewport-responsive typography landing pages
+  vpDisplay: {
+    default: "2rem",
+    [breakpoints.sm]: "2.8rem",
+    [breakpoints.md]: "3.75rem",
+    [breakpoints.lg]: "5.25rem",
+  },
+  vpSubDisplay: {
+    default: "1rem",
+    [breakpoints.sm]: "1.1rem",
+    [breakpoints.md]: "1.3rem",
+    [breakpoints.lg]: "1.6rem",
+  },
+  vpHeading1: {
+    default: "1.3rem",
+    [breakpoints.sm]: "1.4rem",
+    [breakpoints.md]: "1.6rem",
+    [breakpoints.lg]: "2rem",
+  },
+  vpHeading2: {
+    default: "1.2rem",
+    [breakpoints.sm]: "1.3rem",
+    [breakpoints.md]: "1.5rem",
+    [breakpoints.lg]: "1.8rem",
+  },
+  vpHeading3: {
+    default: "1rem",
+    [breakpoints.sm]: "1.1rem",
+    [breakpoints.md]: "1.2rem",
+    [breakpoints.lg]: "1.3rem",
+  },
+
+  // Container-responsive typography - items inside responsive grids
+  cqTitle: {
+    default: "clamp(1.1rem, 0.96rem + 1.56cqmin, 1.4rem)",
+    [breakpoints.lg]: "1.5rem",
+  },
 
   weight_1: stylex.types.integer(100),
   weight_2: stylex.types.integer(200),

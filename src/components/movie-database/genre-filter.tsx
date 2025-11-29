@@ -112,7 +112,7 @@ const styles = stylex.create({
     gap: space._4,
     overflow: "auto",
     width: "100dvw",
-    maxWidth: `min(${space._15}, calc(100dvw - ${space._3} - env(safe-area-inset-left) - ${space._3} - env(safe-area-inset-right)))`,
+    maxInlineSize: `min(${space._15}, calc(100dvw - ${space._3} - env(safe-area-inset-left) - ${space._3} - env(safe-area-inset-right)))`,
   },
   genreList: {
     display: "flex",

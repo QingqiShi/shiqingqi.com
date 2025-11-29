@@ -47,7 +47,7 @@ const styles = stylex.create({
 
   content: {
     textAlign: "center",
-    maxWidth: "400px",
+    maxInlineSize: "400px",
   },
 
   iconContainer: {

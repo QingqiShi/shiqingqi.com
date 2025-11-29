@@ -5,7 +5,6 @@ import {
   getMovieDetails,
   getTvShowDetails,
 } from "#src/_generated/tmdb-server-functions.ts";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { Footer } from "#src/components/home/footer.tsx";
 import posterImageTranslations from "#src/components/movie-database/poster-image.translations.json";
 import cardTranslations from "#src/components/shared/card.translations.json";
@@ -96,10 +95,7 @@ export default async function Layout({
 
 const styles = stylex.create({
   container: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
+    maxInlineSize: "1140px",
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

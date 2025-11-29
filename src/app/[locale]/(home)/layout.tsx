@@ -79,10 +79,7 @@ export default async function Layout({
 
 const styles = stylex.create({
   container: {
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
+    maxInlineSize: "1140px",
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,
@@ -92,12 +89,7 @@ const styles = stylex.create({
   wrapperInner: {
     position: "relative",
   },
-  main: {
-    paddingTop: {
-      default: space._11,
-      [breakpoints.sm]: space._12,
-    },
-  },
+  main: {},
   flowGradient: {
     position: "absolute",
     top: 0,

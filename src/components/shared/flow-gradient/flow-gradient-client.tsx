@@ -28,8 +28,8 @@ export function FlowGradientClient({ vs, fs }: FlowGradientClientProps) {
                 ? { colorBackground: [0, 0, 0] }
                 : {
                     colorBackground: [1, 1, 1],
-                    colorTop: [0.3, 0.3, 0.5],
-                    colorBottom: [0.3, 0.3, 1],
+                    colorTop: [0.6, 0.5, 0.7],
+                    colorBottom: [0.4, 0.4, 1],
                     colorAltTop: [1, 0.3, 0.3],
                     colorAltBottom: [1, 0.3, 0.3],
                   },

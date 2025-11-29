@@ -85,7 +85,7 @@ const styles = stylex.create({
     zIndex: layer.background,
   },
   errorText: {
-    fontSize: font.size_00,
+    fontSize: font.uiBodySmall,
     color: color.textMuted,
   },
 });

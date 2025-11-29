@@ -44,11 +44,8 @@ const styles = stylex.create({
     paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
   },
   desktopInnerContainer: {
-    width: "100%",
-    maxWidth: {
-      default: "1080px",
-      [breakpoints.xl]: "calc((1080 / 24) * 1rem)",
-    },
+    inlineSize: "100%",
+    maxInlineSize: "1140px",
     marginInline: "auto",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,

@@ -40,18 +40,18 @@ const styles = stylex.create({
     paddingBottom: space._8,
   },
   subtitle: {
-    fontSize: font.size_0,
+    fontSize: font.vpHeading3,
     fontWeight: font.weight_7,
     color: color.textMuted,
     margin: 0,
   },
   title: {
-    fontSize: font.size_5,
+    fontSize: font.vpHeading1,
     margin: 0,
   },
   date: {
     display: "block",
-    fontSize: font.size_0,
+    fontSize: font.uiBody,
     color: color.textMuted,
   },
 });
