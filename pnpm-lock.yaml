@@ -48,8 +48,8 @@ importers:
         specifier: ^2.7.1
         version: 2.7.1(@types/react@19.2.7)(react@19.3.0-canary-52684925-20251110)
       react-virtuoso:
-        specifier: ^4.14.1
-        version: 4.14.1(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)
+        specifier: ^4.16.1
+        version: 4.16.1(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)
       serwist:
         specifier: 10.0.0-preview.14
         version: 10.0.0-preview.14(typescript@5.9.3)
@@ -3726,8 +3726,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-virtuoso@4.14.1:
-    resolution: {integrity: sha512-NRUF1ak8lY+Tvc6WN9cce59gU+lilzVtOozP+pm9J7iHshLGGjsiAB4rB2qlBPHjFbcXOQpT+7womNHGDUql8w==}
+  react-virtuoso@4.16.1:
+    resolution: {integrity: sha512-V9ZDw7TFspJb02gNWqHyVZvaMaCFaoL30F/tOVepCI12kdLjA2oxFfWvNC66AVJdOH5cwiq8317p2Q9OpG+TDw==}
     peerDependencies:
       react: '>=16 || >=17 || >= 18 || >= 19'
       react-dom: '>=16 || >=17 || >= 18 || >=19'
@@ -8098,7 +8098,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.7
 
-  react-virtuoso@4.14.1(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110):
+  react-virtuoso@4.16.1(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110):
     dependencies:
       react: 19.3.0-canary-52684925-20251110
       react-dom: 19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110)
