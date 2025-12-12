@@ -18,8 +18,8 @@ importers:
         specifier: ^9.2.3
         version: 9.2.3(next@16.0.10(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))(typescript@5.9.3)(webpack@5.97.1)
       '@stylexjs/stylex':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.17.2
+        version: 0.17.2
       '@tanstack/react-query':
         specifier: 5.90.11
         version: 5.90.11(react@19.3.0-canary-52684925-20251110)
@@ -100,14 +100,14 @@ importers:
         specifier: 10.0.0-preview.14
         version: 10.0.0-preview.14(esbuild-wasm@0.25.12)(next@16.0.10(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)(typescript@5.9.3)
       '@stylexjs/babel-plugin':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.17.2
+        version: 0.17.2
       '@stylexjs/eslint-plugin':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.17.2
+        version: 0.17.2
       '@stylexjs/postcss-plugin':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.17.2
+        version: 0.17.2
       '@testing-library/jest-dom':
         specifier: ^6.9.1
         version: 6.9.1
@@ -1479,20 +1479,20 @@ packages:
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
-  '@stylexjs/babel-plugin@0.17.0':
-    resolution: {integrity: sha512-L3nVEo6vvpw5OUGR1SZTZvTzNAz0/1BTQgx1i78IkhvhnewC0Pe39b1GAKhv8uko7v5mz8zn4DEJ+MVsAN1qJA==}
+  '@stylexjs/babel-plugin@0.17.2':
+    resolution: {integrity: sha512-eSiuJ+ulTgF+8UvGumAQZeWvyLpim4zvoN8pKRgDoCeGpoBiE8SmPogPSpv+PmPSB37gJKiJY+L6JENjtBG83A==}
 
-  '@stylexjs/eslint-plugin@0.17.0':
-    resolution: {integrity: sha512-h65BtIBJ6ieMKdvxFQWKGveFmCR7vhy0RPKNPBYGV4IxxnlKH/S2xtX7x/K44OLxXFmrrA2O8egXFLA+oJRLXQ==}
+  '@stylexjs/eslint-plugin@0.17.2':
+    resolution: {integrity: sha512-RSspdfrAOoDZlrDXUmExSVncF24WHBqp5BPTYi9U45M0Nz4Dkw9nes9AJ48/A9OYKAGh1vNGe74oCgEtJbV4sw==}
 
-  '@stylexjs/postcss-plugin@0.17.0':
-    resolution: {integrity: sha512-aVQ18BE7TiYqddsquiZo8dABprYHT7Rnz88c02EtigPay5a9mXXaYYsFsFhca59L81+ZTQ/bALsL/9XGJ3cW4g==}
+  '@stylexjs/postcss-plugin@0.17.2':
+    resolution: {integrity: sha512-3tprLPLjoM4vnr0DP1+0hX4BXgBTmeRz8NeqyX4r6Podr/e4iKntPuHVrFSeHQ2oQ1VBa593CL3CYoh7yx8Efg==}
 
-  '@stylexjs/shared@0.17.0':
-    resolution: {integrity: sha512-iOyZfHV0rKbIUe+fdjwIFPb3a0SUSE5u+ADMrC/OF+QZeUncbng58MWHnbWo6yeg+4J6onBZIywiI/pJJ6rYUQ==}
+  '@stylexjs/shared@0.17.2':
+    resolution: {integrity: sha512-DBsIpSTQAMj3+KCgRAHcAa7QmRJMP4uDQ6zkdWBUcmiiG4lzHP2Lwues3h4dVXkGEagIXad0+lHMa/tBzabSGg==}
 
-  '@stylexjs/stylex@0.17.0':
-    resolution: {integrity: sha512-dgAmC7FFIObzwkPsLxXIzgOyueO+rwCVqWW0THMr0S/Hohu7Har2a5kls+PstSpS7CiVn4HJ4OfyYK0PyPbJfQ==}
+  '@stylexjs/stylex@0.17.2':
+    resolution: {integrity: sha512-aa10cV1khT/vb92a1RvF9+6FMWKcbE9Ka9RI1rN20xIaAIZaUFTUuymBpVmfAUM3wgAAz/1h7bdFM6PpP2e5gA==}
 
   '@swc/core-darwin-arm64@1.13.5':
     resolution: {integrity: sha512-lKNv7SujeXvKn16gvQqUQI5DdyY8v7xcoO3k06/FJbHJS90zEwZdQiMNRiqpYw/orU543tPaWgz7cIYWhbopiQ==}
@@ -2125,8 +2125,8 @@ packages:
     resolution: {integrity: sha512-JMWsdF+O8Orq3EMukbUN1QfbLK9mX2CkUmQBcW2T0s8OmdAUL5LLM/6wFwSrqXzlXB13yhyK9gTKS1rIizOduQ==}
     hasBin: true
 
-  baseline-browser-mapping@2.9.6:
-    resolution: {integrity: sha512-v9BVVpOTLB59C9E7aSnmIF8h7qRsFpx+A2nugVMTszEOMcfjlZMsXRm4LF23I3Z9AJxc8ANpIvzbzONoX9VJlg==}
+  baseline-browser-mapping@2.9.7:
+    resolution: {integrity: sha512-k9xFKplee6KIio3IDbwj+uaCLpqzOwakOgmqzPezM0sFJlFKcg30vk2wOiAJtkTSfx0SSQDSe8q+mWA/fSH5Zg==}
     hasBin: true
 
   bidi-js@1.0.3:
@@ -5535,30 +5535,30 @@ snapshots:
 
   '@standard-schema/spec@1.0.0': {}
 
-  '@stylexjs/babel-plugin@0.17.0':
+  '@stylexjs/babel-plugin@0.17.2':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/helper-module-imports': 7.27.1
       '@babel/traverse': 7.28.5
       '@babel/types': 7.28.5
       '@dual-bundle/import-meta-resolve': 4.2.1
-      '@stylexjs/shared': 0.17.0
-      '@stylexjs/stylex': 0.17.0
+      '@stylexjs/shared': 0.17.2
+      '@stylexjs/stylex': 0.17.2
       postcss-value-parser: 4.2.0
     transitivePeerDependencies:
       - supports-color
 
-  '@stylexjs/eslint-plugin@0.17.0':
+  '@stylexjs/eslint-plugin@0.17.2':
     dependencies:
-      '@stylexjs/shared': 0.17.0
+      '@stylexjs/shared': 0.17.2
       css-shorthand-expand: 1.2.0
       micromatch: 4.0.8
       postcss-value-parser: 4.2.0
 
-  '@stylexjs/postcss-plugin@0.17.0':
+  '@stylexjs/postcss-plugin@0.17.2':
     dependencies:
       '@babel/core': 7.28.5
-      '@stylexjs/babel-plugin': 0.17.0
+      '@stylexjs/babel-plugin': 0.17.2
       fast-glob: 3.3.3
       glob-parent: 6.0.2
       is-glob: 4.0.3
@@ -5566,9 +5566,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stylexjs/shared@0.17.0': {}
+  '@stylexjs/shared@0.17.2': {}
 
-  '@stylexjs/stylex@0.17.0':
+  '@stylexjs/stylex@0.17.2':
     dependencies:
       css-mediaquery: 0.1.2
       invariant: 2.2.4
@@ -6258,7 +6258,7 @@ snapshots:
 
   baseline-browser-mapping@2.8.20: {}
 
-  baseline-browser-mapping@2.9.6:
+  baseline-browser-mapping@2.9.7:
     optional: true
 
   bidi-js@1.0.3:
@@ -6296,7 +6296,7 @@ snapshots:
 
   browserslist@4.28.1:
     dependencies:
-      baseline-browser-mapping: 2.9.6
+      baseline-browser-mapping: 2.9.7
       caniuse-lite: 1.0.30001760
       electron-to-chromium: 1.5.267
       node-releases: 2.0.27
