@@ -15,8 +15,10 @@ import { switchTokens } from "./switch.stylex";
 
 export type SwitchState = "off" | "on" | "indeterminate";
 
-interface SwitchProps
-  extends Omit<React.ComponentProps<"input">, "checked" | "onChange"> {
+interface SwitchProps extends Omit<
+  React.ComponentProps<"input">,
+  "checked" | "onChange"
+> {
   value?: SwitchState;
   onChange?: (state: SwitchState) => void;
 }
