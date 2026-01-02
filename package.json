@@ -44,7 +44,7 @@
     "react": "19.3.0-canary-52684925-20251110",
     "react-dom": "19.3.0-canary-52684925-20251110",
     "react-error-boundary": "^6.0.0",
-    "react-remove-scroll": "^2.7.1",
+    "react-remove-scroll": "^2.7.2",
     "react-virtuoso": "^4.17.0",
     "serwist": "10.0.0-preview.14",
     "sharp": "^0.34.5",
