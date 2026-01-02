@@ -15,8 +15,8 @@ importers:
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)
       '@serwist/next':
-        specifier: ^9.2.3
-        version: 9.2.3(next@16.1.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))(typescript@5.9.3)(webpack@5.97.1)
+        specifier: ^9.4.2
+        version: 9.4.2(next@16.1.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)(typescript@5.9.3)(webpack@5.97.1)
       '@stylexjs/stylex':
         specifier: ^0.17.0
         version: 0.17.0
@@ -1441,8 +1441,8 @@ packages:
       typescript:
         optional: true
 
-  '@serwist/build@9.2.3':
-    resolution: {integrity: sha512-UU38GDsTerzoCRDIT5v62W/CcTMLfGZm/tAa+u8XLBU0y0f2aJ2GCfsHnI1eXhEuWvt4Y7Imx/uG2ww2KWIBWQ==}
+  '@serwist/build@9.4.2':
+    resolution: {integrity: sha512-DVwXEs8zbYxkm9FlwRVGtsnakWuJ5wfre4UL9CABbjh4lzkqrLidkrZZA0zc33kqUtDEfxhG/QWukOl+ujJDlA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       typescript: '>=5.0.0'
@@ -1450,13 +1450,17 @@ packages:
       typescript:
         optional: true
 
-  '@serwist/next@9.2.3':
-    resolution: {integrity: sha512-sbStIaen8H6ZhNCtfxAuZ2haujJe8nPFRBiq5KQFYYi5iyFrDGLpYICmRTBP6Oc1pQBmsAqbBZzIjjC60d+7zg==}
+  '@serwist/next@9.4.2':
+    resolution: {integrity: sha512-S7LYUGDd1Cc/HGrfitSPeeew1I++VAVcgTFToXe6lejz1JpjjlyTmM060r3aZvqb6lAvyukZ27DT21WUjSogSA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
+      '@serwist/cli': ^9.4.2
       next: '>=14.0.0'
+      react: '>=18.0.0'
       typescript: '>=5.0.0'
     peerDependenciesMeta:
+      '@serwist/cli':
+        optional: true
       typescript:
         optional: true
 
@@ -1475,8 +1479,8 @@ packages:
   '@serwist/utils@10.0.0-preview.14':
     resolution: {integrity: sha512-zPZg8/mAGdZRil+E0dAcywtw3yaPqJZbAJrlL5EVLuWOqunjAdNG1vh5Pc3LJxDnugi19pkWIAn4cGHlQpqWEQ==}
 
-  '@serwist/webpack-plugin@9.2.3':
-    resolution: {integrity: sha512-y1Ag1a7LARo/LtPVRSrfGO5PG4BZdc1NiMGAq+CGlBH/PJa7RQimo4iq9C94pjxusEsP4yHnsDQ06+GVTQ6gww==}
+  '@serwist/webpack-plugin@9.4.2':
+    resolution: {integrity: sha512-pj7NxWkEB9yG6xQJ3NKGnbw+sFdzIi66eLgfvVIPco2toBbNllC/SFLo3+VtE0ITi5XcMAgfT87dT1Y/0iVGVA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       typescript: '>=5.0.0'
@@ -1495,8 +1499,8 @@ packages:
       typescript:
         optional: true
 
-  '@serwist/window@9.2.3':
-    resolution: {integrity: sha512-6bK01QAaFI+oXTmDSQHvsw0kTTNlj79PFkox+0Z9XYNqTVLoXY9C6BFmZNvxNxEinOqCSm7cms4I5V54E9/1XA==}
+  '@serwist/window@9.4.2':
+    resolution: {integrity: sha512-v1PqWOHj/ysNg9G84hq2ej4FzOQZsbld74QmsI4AXGYCji/dP+wcpvz/I6kw+fRH2/9ZhX3KuJHWHPUebBe5+Q==}
     peerDependencies:
       typescript: '>=5.0.0'
     peerDependenciesMeta:
@@ -2189,6 +2193,9 @@ packages:
   caniuse-lite@1.0.30001761:
     resolution: {integrity: sha512-JF9ptu1vP2coz98+5051jZ4PwQgd2ni8A+gYSN7EA7dPKIMf0pDlSUxhdmVOaV3/fYK5uWBkgSXJaRLr4+3A6g==}
 
+  caniuse-lite@1.0.30001762:
+    resolution: {integrity: sha512-PxZwGNvH7Ak8WX5iXzoK1KPZttBXNPuaOvI2ZYU7NrlM+d9Ov+TUvlLOBNGzVXAntMSMMlJPd+jY6ovrVjSmUw==}
+
   chai@6.2.1:
     resolution: {integrity: sha512-p4Z49OGG5W/WBCPSS/dH3jQ73kD6tiMmUM+bckNK6Jr5JHMG3k9bg/BvKR8lKmtVBKmOiuVaV2ws8s9oSbwysg==}
     engines: {node: '>=18'}
@@ -2196,10 +2203,6 @@ packages:
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
-
-  chalk@5.6.2:
-    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   change-case@5.4.4:
     resolution: {integrity: sha512-HRQyTk2/YPEkt9TnUPbOpr64Uw3KOicFWPVBb+xiHvd6eBx/qPr9xqfBFDT8P2vWsvvz4jbEkfDe71W3VyNu2w==}
@@ -3860,8 +3863,8 @@ packages:
       typescript:
         optional: true
 
-  serwist@9.2.3:
-    resolution: {integrity: sha512-menorUH09SpLvU7R25TvG0TuQ12MUDpQ5NKGohbtREF8YI+0D++Abn59XCmvvMp2n740rBizIkeqWq0m6U+++g==}
+  serwist@9.4.2:
+    resolution: {integrity: sha512-IHbZjUTAOdUstD/ZWRxgG4aCaxyZtQVLxkvVIGHJh3u0+uIMXweBSDaOOXZCP8luXYdbpfb5AdSU8oQiFKlHCQ==}
     peerDependencies:
       typescript: '>=5.0.0'
     peerDependenciesMeta:
@@ -4423,11 +4426,11 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.1.12:
-    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
-
   zod@4.1.5:
     resolution: {integrity: sha512-rcUUZqlLJgBC33IT3PNMgsCq6TzLQEG/Ei/KTCU0PedSWRMAXoOUN+4t/0H+Q8bdnLPdqUYnvboJT0bn/229qg==}
+
+  zod@4.2.1:
+    resolution: {integrity: sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw==}
 
 snapshots:
 
@@ -5457,26 +5460,29 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  '@serwist/build@9.2.3(typescript@5.9.3)':
+  '@serwist/build@9.4.2(typescript@5.9.3)':
     dependencies:
       common-tags: 1.8.2
       glob: 10.5.0
       pretty-bytes: 6.1.1
       source-map: 0.8.0-beta.0
-      zod: 4.1.12
+      zod: 4.2.1
     optionalDependencies:
       typescript: 5.9.3
 
-  '@serwist/next@9.2.3(next@16.1.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))(typescript@5.9.3)(webpack@5.97.1)':
+  '@serwist/next@9.4.2(next@16.1.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)(typescript@5.9.3)(webpack@5.97.1)':
     dependencies:
-      '@serwist/build': 9.2.3(typescript@5.9.3)
-      '@serwist/webpack-plugin': 9.2.3(typescript@5.9.3)(webpack@5.97.1)
-      '@serwist/window': 9.2.3(typescript@5.9.3)
-      chalk: 5.6.2
+      '@serwist/build': 9.4.2(typescript@5.9.3)
+      '@serwist/webpack-plugin': 9.4.2(typescript@5.9.3)(webpack@5.97.1)
+      '@serwist/window': 9.4.2(typescript@5.9.3)
+      browserslist: 4.28.1
       glob: 10.5.0
+      kolorist: 1.8.0
       next: 16.1.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)
-      serwist: 9.2.3(typescript@5.9.3)
-      zod: 4.1.12
+      react: 19.3.0-canary-52684925-20251110
+      semver: 7.7.3
+      serwist: 9.4.2(typescript@5.9.3)
+      zod: 4.2.1
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -5503,11 +5509,11 @@ snapshots:
       common-tags: 1.8.2
       kolorist: 1.8.0
 
-  '@serwist/webpack-plugin@9.2.3(typescript@5.9.3)(webpack@5.97.1)':
+  '@serwist/webpack-plugin@9.4.2(typescript@5.9.3)(webpack@5.97.1)':
     dependencies:
-      '@serwist/build': 9.2.3(typescript@5.9.3)
+      '@serwist/build': 9.4.2(typescript@5.9.3)
       pretty-bytes: 6.1.1
-      zod: 4.1.12
+      zod: 4.2.1
     optionalDependencies:
       typescript: 5.9.3
       webpack: 5.97.1
@@ -5519,10 +5525,10 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  '@serwist/window@9.2.3(typescript@5.9.3)':
+  '@serwist/window@9.4.2(typescript@5.9.3)':
     dependencies:
       '@types/trusted-types': 2.0.7
-      serwist: 9.2.3(typescript@5.9.3)
+      serwist: 9.4.2(typescript@5.9.3)
     optionalDependencies:
       typescript: 5.9.3
 
@@ -6262,7 +6268,7 @@ snapshots:
   browserslist@4.28.1:
     dependencies:
       baseline-browser-mapping: 2.9.11
-      caniuse-lite: 1.0.30001761
+      caniuse-lite: 1.0.30001762
       electron-to-chromium: 1.5.267
       node-releases: 2.0.27
       update-browserslist-db: 1.2.3(browserslist@4.28.1)
@@ -6293,14 +6299,14 @@ snapshots:
 
   caniuse-lite@1.0.30001761: {}
 
+  caniuse-lite@1.0.30001762: {}
+
   chai@6.2.1: {}
 
   chalk@4.1.2:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
-
-  chalk@5.6.2: {}
 
   change-case@5.4.4: {}
 
@@ -8294,7 +8300,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  serwist@9.2.3(typescript@5.9.3):
+  serwist@9.4.2(typescript@5.9.3):
     dependencies:
       idb: 8.0.3
     optionalDependencies:
@@ -8934,6 +8940,6 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zod@4.1.12: {}
-
   zod@4.1.5: {}
+
+  zod@4.2.1: {}
