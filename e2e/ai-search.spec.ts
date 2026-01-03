@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("AI-Powered Search", () => {
   test("should display AI search button on browse page", async ({ page }) => {
-    await page.goto("/en/movie-database");
+    await page.goto("/movie-database");
 
     // Verify AI search button is visible (sparkle icon button)
     const searchButtons = page.getByRole("button", { name: /search/i });
@@ -13,7 +13,7 @@ test.describe("AI-Powered Search", () => {
     page,
   }) => {
     // Navigate to AI search page without query parameter
-    await page.goto("/en/movie-database/ai-search");
+    await page.goto("/movie-database/ai-search");
 
     // Verify some empty state UI is visible (h1 or message)
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

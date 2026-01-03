@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Movie and TV Show Browsing", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/en/movie-database");
+    await page.goto("/movie-database");
     // Wait for content to load
     await expect(page.getByRole("link", { name: /movies/i })).toBeVisible();
   });
@@ -199,9 +199,7 @@ test.describe("Movie and TV Show Browsing", () => {
     page,
   }) => {
     // Navigate with filter parameters (genre 18 = Drama, works for both movies and TV)
-    await page.goto(
-      "/en/movie-database?type=tv&genre=18&sort=vote_average.desc",
-    );
+    await page.goto("/movie-database?type=tv&genre=18&sort=vote_average.desc");
 
     // Verify media cards appear (confirms URL filters were applied)
     const cards = page.getByRole("link").filter({ has: page.getByRole("img") });
@@ -226,7 +224,7 @@ test.describe("Movie and TV Show Browsing", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
     // Navigate back to browse page with TV shows
-    await page.goto("/en/movie-database?type=tv");
+    await page.goto("/movie-database?type=tv");
 
     // Test TV show card navigation
     await expect(cards.first()).toBeVisible();
@@ -240,7 +238,7 @@ test.describe("Movie and TV Show Browsing", () => {
     test("should display English UI labels and genre names", async ({
       page,
     }) => {
-      await page.goto("/en/movie-database");
+      await page.goto("/movie-database");
 
       // Verify English labels
       await expect(page.getByRole("link", { name: "Movies" })).toBeVisible();

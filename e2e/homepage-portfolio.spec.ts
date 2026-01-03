@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Homepage Portfolio", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/en");
+    await page.goto("/");
     // Wait for h1 heading to ensure page has loaded
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
@@ -107,7 +107,7 @@ test.describe("Homepage Portfolio", () => {
       ).toBeVisible({ timeout: 15000 });
 
       // Go back to homepage
-      await page.goto("/en");
+      await page.goto("/");
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       // Click Spotify card
@@ -117,7 +117,7 @@ test.describe("Homepage Portfolio", () => {
       ).toBeVisible({ timeout: 15000 });
 
       // Go back to homepage
-      await page.goto("/en");
+      await page.goto("/");
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       // Click Wunderman Thompson Commerce card
@@ -171,7 +171,7 @@ test.describe("Homepage Portfolio", () => {
       ).toBeVisible({ timeout: 15000 });
 
       // Go back to homepage
-      await page.goto("/en");
+      await page.goto("/");
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       // Click University of Nottingham card
@@ -201,7 +201,7 @@ test.describe("Homepage Portfolio", () => {
       page,
     }) => {
       // Verify English content
-      await page.goto("/en");
+      await page.goto("/");
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(
         page.getByText(/hi.*i'm qingqi.*i'm a software engineer/is),
