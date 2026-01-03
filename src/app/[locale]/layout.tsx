@@ -52,8 +52,8 @@ export default async function RootLayout({
       </head>
       <body css={globalStyles.body}>
         <SerwistProvider
-          swUrl="/serwist/sw.js"
-          register={process.env.NODE_ENV !== "development"}
+          swUrl="/sw.js"
+          disable={process.env.NODE_ENV === "development"}
         >
           <script dangerouslySetInnerHTML={{ __html: themeHack }} />
           <ViewTransition>
