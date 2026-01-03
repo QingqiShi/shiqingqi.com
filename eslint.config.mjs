@@ -20,6 +20,7 @@ export default defineConfig([
       ".next/**/*",
       "next-env.d.ts",
       "public/sw.js",
+      "public/serwist/**/*",
       "playwright-report/**/*",
     ],
   },
