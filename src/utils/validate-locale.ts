@@ -1,9 +1,12 @@
 import type { SupportedLocale } from "#src/types.ts";
 
+export function isValidLocale(locale: string): locale is SupportedLocale {
+  return locale === "en" || locale === "zh";
+}
+
 export function validateLocale(locale: string): SupportedLocale {
-  if (locale === "en" || locale === "zh") {
+  if (isValidLocale(locale)) {
     return locale;
   }
-  // Fallback to English for invalid locales (should never happen with Next.js routing)
   return "en";
 }

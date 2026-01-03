@@ -200,4 +200,18 @@ test.describe("Language Toggle", () => {
     // Should return 404 for invalid locale
     expect(response?.status()).toBe(404);
   });
+
+  test("should return 404 for file-like paths misinterpreted as locales", async ({
+    page,
+  }) => {
+    // This path was previously causing a 500 error because "icon.c148568d.png"
+    // was being interpreted as a locale
+    const response = await page.goto("/icon.c148568d.png");
+
+    // Verify 404 status (not 500 server error)
+    expect(response?.status()).toBe(404);
+
+    // Verify user sees the 404 page
+    await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
+  });
 });

@@ -28,10 +28,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   } satisfies Metadata;
 }
 
-export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "zh" }];
-}
-
 export default async function Layout({
   children,
   params,

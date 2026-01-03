@@ -21,10 +21,6 @@ import { getTranslations } from "#src/utils/get-translations.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 import translations from "./translations.json";
 
-export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "zh" }];
-}
-
 export default async function Home(props: PageProps) {
   const { locale } = await props.params;
   const { t } = getTranslations(translations, locale);
