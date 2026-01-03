@@ -34,7 +34,8 @@
     "tooling/stylex-css-prop/index.js",
     "tooling/**/*.ts",
     "vitest.config.mts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "serwist.config.mjs"
   ],
   "exclude": ["node_modules", "public/*"]
 }
