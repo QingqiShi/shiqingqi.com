@@ -5,7 +5,7 @@ test.describe("Experience Detail Pages", () => {
     page,
   }) => {
     // Verify Citadel page
-    await page.goto("/en/experiences/citadel");
+    await page.goto("/experiences/citadel");
     await expect(
       page.getByRole("heading", { level: 2, name: /experience.*citadel/i }),
     ).toBeVisible();
@@ -15,7 +15,7 @@ test.describe("Experience Detail Pages", () => {
     await expect(timeElement).toContainText(/\d{4}/); // Should contain a year
 
     // Verify Spotify page
-    await page.goto("/en/experiences/spotify");
+    await page.goto("/experiences/spotify");
     await expect(
       page.getByRole("heading", { level: 2, name: /experience.*spotify/i }),
     ).toBeVisible();
@@ -23,7 +23,7 @@ test.describe("Experience Detail Pages", () => {
     await expect(page.locator("time")).toBeVisible();
 
     // Verify Wunderman Thompson Commerce page
-    await page.goto("/en/experiences/wunderman-thompson-commerce");
+    await page.goto("/experiences/wunderman-thompson-commerce");
     await expect(
       page.getByRole("heading", {
         level: 2,
@@ -38,16 +38,16 @@ test.describe("Experience Detail Pages", () => {
     page,
   }) => {
     // Verify Citadel page content and technology
-    await page.goto("/en/experiences/citadel");
+    await page.goto("/experiences/citadel");
     await expect(page.locator("p").first()).toBeVisible();
     await expect(page.getByText(/typescript/i)).toBeVisible();
 
     // Verify Spotify page content
-    await page.goto("/en/experiences/spotify");
+    await page.goto("/experiences/spotify");
     await expect(page.locator("p").first()).toBeVisible();
 
     // Verify Wunderman Thompson Commerce page content
-    await page.goto("/en/experiences/wunderman-thompson-commerce");
+    await page.goto("/experiences/wunderman-thompson-commerce");
     await expect(page.locator("p").first()).toBeVisible();
   });
 });
@@ -57,7 +57,7 @@ test.describe("Education Detail Pages", () => {
     page,
   }) => {
     // Verify University of Bristol page
-    await page.goto("/en/education/university-of-bristol");
+    await page.goto("/education/university-of-bristol");
     await expect(
       page.getByRole("heading", {
         level: 2,
@@ -68,7 +68,7 @@ test.describe("Education Detail Pages", () => {
     await expect(page.locator("time")).toBeVisible();
 
     // Verify University of Nottingham page
-    await page.goto("/en/education/university-of-nottingham");
+    await page.goto("/education/university-of-nottingham");
     await expect(
       page.getByRole("heading", {
         level: 2,
@@ -79,7 +79,7 @@ test.describe("Education Detail Pages", () => {
     await expect(page.locator("time")).toBeVisible();
 
     // Verify Altrincham Grammar School page
-    await page.goto("/en/education/altrincham-grammar-school-for-boys");
+    await page.goto("/education/altrincham-grammar-school-for-boys");
     await expect(
       page.getByRole("heading", {
         level: 2,
@@ -94,7 +94,7 @@ test.describe("Education Detail Pages", () => {
     page,
   }) => {
     // Verify Bristol page with grade, modules, and project links
-    await page.goto("/en/education/university-of-bristol");
+    await page.goto("/education/university-of-bristol");
     await expect(page.getByText(/grade.*merit/i)).toBeVisible();
     await expect(page.getByText(/core courses/i)).toBeVisible();
     await expect(page.getByText(/web development/i)).toBeVisible();
@@ -109,11 +109,11 @@ test.describe("Education Detail Pages", () => {
     await expect(rayTracerLink).toHaveAttribute("target", "_blank");
 
     // Verify University of Nottingham content
-    await page.goto("/en/education/university-of-nottingham");
+    await page.goto("/education/university-of-nottingham");
     await expect(page.locator("p").first()).toBeVisible();
 
     // Verify Altrincham Grammar School content
-    await page.goto("/en/education/altrincham-grammar-school-for-boys");
+    await page.goto("/education/altrincham-grammar-school-for-boys");
     await expect(page.locator("p").first()).toBeVisible();
   });
 });
@@ -122,25 +122,25 @@ test("should load experience and education pages correctly when accessed directl
   page,
 }) => {
   // Navigate directly to Citadel page
-  await page.goto("/en/experiences/citadel");
+  await page.goto("/experiences/citadel");
   await expect(
     page.getByRole("heading", { level: 2, name: /citadel/i }),
   ).toBeVisible();
 
   // Navigate directly to Spotify page
-  await page.goto("/en/experiences/spotify");
+  await page.goto("/experiences/spotify");
   await expect(
     page.getByRole("heading", { level: 2, name: /spotify/i }),
   ).toBeVisible();
 
   // Navigate directly to University of Bristol page
-  await page.goto("/en/education/university-of-bristol");
+  await page.goto("/education/university-of-bristol");
   await expect(
     page.getByRole("heading", { level: 2, name: /bristol/i }),
   ).toBeVisible();
 
   // Navigate directly to University of Nottingham page
-  await page.goto("/en/education/university-of-nottingham");
+  await page.goto("/education/university-of-nottingham");
   await expect(
     page.getByRole("heading", { level: 2, name: /nottingham/i }),
   ).toBeVisible();
@@ -149,22 +149,24 @@ test("should load experience and education pages correctly when accessed directl
 test("should display English and Chinese content for experience and education pages", async ({
   page,
 }) => {
+  // Check all English content first (before any Chinese navigation sets locale cookie)
   // Verify English experience page
-  await page.goto("/en/experiences/citadel");
+  await page.goto("/experiences/citadel");
   await expect(
     page.getByRole("heading", { level: 2, name: /experience/i }),
   ).toBeVisible();
 
+  // Verify English education page
+  await page.goto("/education/university-of-bristol");
+  await expect(
+    page.getByRole("heading", { level: 2, name: /education/i }),
+  ).toBeVisible();
+
+  // Now check Chinese content (will set NEXT_LOCALE=zh cookie)
   // Verify Chinese experience page
   await page.goto("/zh/experiences/citadel");
   await expect(
     page.getByRole("heading", { level: 2, name: /工作/i }),
-  ).toBeVisible();
-
-  // Verify English education page
-  await page.goto("/en/education/university-of-bristol");
-  await expect(
-    page.getByRole("heading", { level: 2, name: /education/i }),
   ).toBeVisible();
 
   // Verify Chinese education page
@@ -179,7 +181,7 @@ test.describe("Browser Back Navigation", () => {
     page,
   }) => {
     // Navigate to homepage
-    await page.goto("/en");
+    await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
     // Click Citadel experience card
