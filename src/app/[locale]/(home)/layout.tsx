@@ -27,7 +27,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     },
     description: t("description"),
     applicationName: t("title"),
-    manifest: "/manifest.json",
     alternates: {
       canonical: new URL("/", BASE_URL).toString(),
       languages: {

@@ -39,6 +39,10 @@ next-env.d.ts
 public/sw*
 public/swe-worker*
 
+# Generated PWA icons and manifest
+public/pwa-*.png
+src/app/manifest.json
+
 # Playwright
 node_modules/
 /test-results/
