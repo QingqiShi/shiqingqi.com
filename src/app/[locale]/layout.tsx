@@ -8,16 +8,21 @@ import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
 import { HeaderSkeleton } from "#src/components/shared/header-skeleton.tsx";
 import { Header } from "#src/components/shared/header.tsx";
-import { i18nConfig } from "#src/i18n-config.ts";
-import type { SupportedLocale } from "#src/types.ts";
 import { themeHack } from "#src/utils/theme-hack.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { isValidLocale } from "#src/utils/validate-locale.ts";
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1.0,
   viewportFit: "cover",
 };
+
+// Only allow locales defined in generateStaticParams, return 404 for others
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return [{ locale: "en" }, { locale: "zh" }];
+}
 
 export default async function RootLayout({
   params,
@@ -27,14 +32,13 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const validatedLocale: SupportedLocale = validateLocale(locale);
 
-  if (!i18nConfig.locales.includes(validatedLocale)) {
+  if (!isValidLocale(locale)) {
     notFound();
   }
 
   return (
-    <html lang={validatedLocale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Cleanup old service worker at /serwist/sw.js - can be removed after migration */}
         <script
@@ -57,7 +61,7 @@ export default async function RootLayout({
           // eslint-disable-next-line @next/next/no-sync-scripts
           <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
         )}
-        {validatedLocale === "en" && (
+        {locale === "en" && (
           <link
             rel="preload"
             href="/InterVariableOptimized.woff2"
@@ -76,7 +80,7 @@ export default async function RootLayout({
           <ViewTransition>
             <PortalTargetProvider>
               <Suspense fallback={<HeaderSkeleton />}>
-                <Header locale={validatedLocale} />
+                <Header locale={locale} />
               </Suspense>
               <Suspense fallback={null}>{children}</Suspense>
             </PortalTargetProvider>

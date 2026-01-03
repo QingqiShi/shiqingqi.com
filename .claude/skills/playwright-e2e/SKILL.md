@@ -187,9 +187,21 @@ if (await page.getByRole("button", { name: "Accept" }).isVisible()) {
 ## Running Tests
 
 ```bash
-pnpm test:e2e    # Run all E2E tests (auto-starts dev server)
-pnpm test        # Run unit tests (Vitest)
+pnpm test:e2e                              # Run all E2E tests (auto-starts dev server)
+pnpm test:e2e e2e/some-file.spec.ts        # Run specific test file
+pnpm test:e2e --grep "test name"           # Run tests matching pattern
+pnpm test                                  # Run unit tests (Vitest)
 ```
+
+## Verification Workflow
+
+**IMPORTANT: After writing or modifying E2E tests, YOU must run them to verify they pass.**
+
+1. Run the specific test file or use `--grep` to run just the new test
+2. If the test fails, fix the issue and re-run
+3. Only report completion after the test passes
+
+Do NOT tell the user to run the tests themselves - run them and report the results.
 
 ## Key Reminders
 
