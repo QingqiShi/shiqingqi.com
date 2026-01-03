@@ -36,6 +36,23 @@ export default async function RootLayout({
   return (
     <html lang={validatedLocale} suppressHydrationWarning>
       <head>
+        {/* Cleanup old service worker at /serwist/sw.js - can be removed after migration */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for (var i = 0; i < registrations.length; i++) {
+                    var reg = registrations[i];
+                    if (reg.active && reg.active.scriptURL.indexOf('/serwist/') !== -1) {
+                      reg.unregister().then(function() { location.reload(); });
+                    }
+                  }
+                });
+              }
+            `,
+          }}
+        />
         {process.env.NODE_ENV === "development" && (
           // eslint-disable-next-line @next/next/no-sync-scripts
           <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
