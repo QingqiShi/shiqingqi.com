@@ -4,6 +4,14 @@ module.exports = async () => {
     reactStrictMode: true,
     reactCompiler: true,
     serverExternalPackages: ["esbuild-wasm"],
+    turbopack: {
+      rules: {
+        "*.glsl": {
+          loaders: ["raw-loader"],
+          as: "*.js",
+        },
+      },
+    },
   };
 
   return nextConfig;

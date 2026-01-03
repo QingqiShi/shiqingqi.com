@@ -1,47 +1,50 @@
-import * as fs from "node:fs/promises";
-import * as path from "node:path";
-import { cacheSignal } from "react";
-import { FlowGradientClient } from "./flow-gradient-client";
+"use client";
 
-export async function FlowGradient() {
-  const [fragShader, vertShader] = await Promise.all(
-    process.env.NODE_ENV === "production"
-      ? [
-          fetch(
-            "https://0tius9gdxi32io0t.public.blob.vercel-storage.com/shaders/fs.glsl",
-            {
-              // 24 Hours
-              cache: "force-cache",
-              next: { revalidate: 86400 },
-              signal: cacheSignal(),
-            },
-          ).then((result) => result.text()),
-          fetch(
-            "https://0tius9gdxi32io0t.public.blob.vercel-storage.com/shaders/vs.glsl",
-            {
-              // 24 Hours
-              cache: "force-cache",
-              next: { revalidate: 86400 },
-              signal: cacheSignal(),
-            },
-          ).then((result) => result.text()),
-        ]
-      : [
-          fs.readFile(
-            path.resolve(
-              process.cwd(),
-              "./src/components/shared/flow-gradient/shaders/fs.glsl",
-            ),
-            "utf-8",
-          ),
-          fs.readFile(
-            path.resolve(
-              process.cwd(),
-              "./src/components/shared/flow-gradient/shaders/vs.glsl",
-            ),
-            "utf-8",
-          ),
-        ],
+import * as stylex from "@stylexjs/stylex";
+import { useMediaQuery } from "#src/hooks/use-media-query.ts";
+import { useTheme } from "#src/hooks/use-theme.ts";
+import { color, layer } from "#src/tokens.stylex.ts";
+import { init, start } from "./loop";
+import fs from "./shaders/fs.glsl";
+import vs from "./shaders/vs.glsl";
+
+export function FlowGradient() {
+  const [theme] = useTheme();
+  const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
+  const isDark = theme === "system" ? preferDark : theme === "dark";
+
+  return (
+    <canvas
+      ref={(el) => {
+        if (el) {
+          const context = init(el, vs, fs);
+          if (context) {
+            return start(
+              context,
+              isDark
+                ? { colorBackground: [0, 0, 0] }
+                : {
+                    colorBackground: [1, 1, 1],
+                    colorTop: [0.6, 0.5, 0.7],
+                    colorBottom: [0.4, 0.4, 1],
+                    colorAltTop: [1, 0.3, 0.3],
+                    colorAltBottom: [1, 0.3, 0.3],
+                  },
+            );
+          }
+        }
+      }}
+      css={styles.canvas}
+    />
   );
-  return <FlowGradientClient fs={fragShader} vs={vertShader} />;
 }
+
+const styles = stylex.create({
+  canvas: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: color.backgroundMain,
+    willChange: "transform",
+    zIndex: layer.base,
+  },
+});

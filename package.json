@@ -94,6 +94,7 @@
     "postcss-import": "^16.1.1",
     "postcss-preset-env": "^10.5.0",
     "prettier": "^3.7.4",
+    "raw-loader": "^4.0.2",
     "rimraf": "^6.1.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
