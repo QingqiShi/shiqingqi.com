@@ -81,7 +81,7 @@
     "@vitest/ui": "^4.0.16",
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
-    "esbuild-wasm": "^0.25.12",
+    "esbuild-wasm": "^0.27.2",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.1",
     "eslint-plugin-import": "^2.32.0",
