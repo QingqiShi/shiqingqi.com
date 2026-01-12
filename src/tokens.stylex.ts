@@ -14,6 +14,8 @@ const light = {
   backgroundHover: "#f0f0f0",
   backgroundTranslucent: "rgba(0, 0, 0, 0.01)",
   backgroundMainChannels: "255,255,255",
+  backgroundCalculatorButton: "#e0e0e0",
+  backgroundCalculatorButtonHover: "#ffffff",
 
   controlTrack: "#e0e0e0",
   controlThumb: "#ffffff",
@@ -26,6 +28,7 @@ const light = {
   shadowStrength: "1%",
 
   brandTmdb: "#4a7957",
+  brandCalculator: "#ff8000",
   brandCitadel: "rgb(26,54,104)",
   brandWtcPlus: "#e661b2",
   brandWtcLetter: "#0a47ed",
@@ -47,6 +50,8 @@ const dark: { [key in keyof typeof light]: string } = {
   backgroundHover: "#2a2a2a",
   backgroundTranslucent: "rgba(255, 255, 255, 0.1)",
   backgroundMainChannels: "0,0,0",
+  backgroundCalculatorButton: "#444850",
+  backgroundCalculatorButtonHover: "#5e6065",
 
   controlTrack: "#1a1a1a",
   controlThumb: "#bbbbbb",
@@ -59,6 +64,7 @@ const dark: { [key in keyof typeof light]: string } = {
   shadowStrength: "25%",
 
   brandTmdb: "#90cea1",
+  brandCalculator: "#ff7f00",
   brandCitadel: "rgb(129,174,255)",
   brandWtcPlus: "#ff84cf",
   brandWtcLetter: "#8dacff",
@@ -108,6 +114,14 @@ export const color = stylex.defineVars({
     default: light.backgroundMainChannels,
     [constants.DARK]: dark.backgroundMainChannels,
   },
+  backgroundCalculatorButton: {
+    default: light.backgroundCalculatorButton,
+    [constants.DARK]: dark.backgroundCalculatorButton,
+  },
+  backgroundCalculatorButtonHover: {
+    default: light.backgroundCalculatorButtonHover,
+    [constants.DARK]: dark.backgroundCalculatorButtonHover,
+  },
 
   controlTrack: {
     default: light.controlTrack,
@@ -141,6 +155,10 @@ export const color = stylex.defineVars({
   },
 
   brandTmdb: { default: light.brandTmdb, [constants.DARK]: dark.brandTmdb },
+  brandCalculator: {
+    default: light.brandCalculator,
+    [constants.DARK]: dark.brandCalculator,
+  },
   brandCitadel: {
     default: light.brandCitadel,
     [constants.DARK]: dark.brandCitadel,

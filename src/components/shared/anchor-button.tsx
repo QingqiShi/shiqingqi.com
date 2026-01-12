@@ -69,9 +69,9 @@ const styles = stylex.create({
     boxShadow: buttonTokens.boxShadow,
     transition: "background 0.2s ease",
     backgroundColor: {
-      default: color.backgroundRaised,
-      ":hover": color.backgroundHover,
-      ":disabled:hover": color.backgroundRaised,
+      default: buttonTokens.backgroundColor,
+      ":hover": buttonTokens.backgroundColorHover,
+      ":disabled:hover": buttonTokens.backgroundColorDisabledHover,
     },
     opacity: {
       default: null,

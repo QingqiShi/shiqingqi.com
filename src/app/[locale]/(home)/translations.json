@@ -102,5 +102,13 @@
   "componentLibraryDescription": {
     "en": "Beautiful components, crafted with care.",
     "zh": "精心打造的精美组件。"
+  },
+  "calculator": {
+    "en": "Calculator",
+    "zh": "计算器"
+  },
+  "calculatorDescription": {
+    "en": "A simple calculator demo.",
+    "zh": "一个简单的计算器演示"
   }
 }

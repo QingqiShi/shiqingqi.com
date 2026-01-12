@@ -2,5 +2,5 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "prettier.resolveGlobalModules": false,
   "prettier.useEditorConfig": false,
-  "cSpell.words": ["cqmax", "cqmin"]
+  "cSpell.words": ["cqmax", "cqmin", "squircle"]
 }
