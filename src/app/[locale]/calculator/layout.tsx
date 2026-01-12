@@ -39,7 +39,7 @@ const styles = stylex.create({
     paddingTop: `calc(${space._10} + env(safe-area-inset-top))`,
     paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,
     height: "100dvh",
-    display: "flex",
+    display: "grid",
     justifyContent: "center",
     alignItems: "center",
   },

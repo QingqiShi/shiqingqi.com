@@ -211,7 +211,7 @@ export default function Page() {
 
   return (
     <div css={styles.container}>
-      <div css={styles.resultContainer}>
+      <div css={styles.resultContainer} role="status" aria-live="polite">
         {[...tokens, currentToken]
           .map((token) =>
             Number.isNaN(token.value) ? "Error" : String(token.value),
@@ -247,30 +247,29 @@ export default function Page() {
 
 const styles = stylex.create({
   container: {
+    height: "600px",
     aspectRatio: ratio.poster,
-    maxWidth: "100%",
-    maxHeight: "100%",
-    height: "100%",
     borderRadius: border.radius_5,
     backgroundColor: color.backgroundRaised,
     overflow: "hidden",
     boxShadow: shadow._5,
     display: "flex",
     flexDirection: "column",
+    containerType: "inline-size",
     // New CSS property, not yet recognized by stylex eslint plugin
     // eslint-disable-next-line @stylexjs/valid-styles
     cornerShape: "squircle",
   },
   resultContainer: {
-    height: "20%",
+    flexGrow: 1,
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "flex-end",
-    padding: space._1,
-    fontSize: "calc(min(100dvw, 100dvh) / 15)",
+    padding: space._3,
+    fontSize: "calc(100cqMin / 8)",
   },
   buttonsContainer: {
-    flexGrow: 1,
+    height: "80%",
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
     gridTemplateRows: "repeat(5, 1fr)",
@@ -290,22 +289,23 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    [buttonTokens.backgroundColor]: {
-      default: color.backgroundTranslucent,
-    },
+    transition: "background-color 0.2s ease",
+    [buttonTokens.backgroundColor]: color.backgroundCalculatorButton,
+    [buttonTokens.backgroundColorHover]: color.backgroundCalculatorButton,
+    filter: { ":hover": "brightness(1.1)" },
   },
   buttonLabel: {
-    fontSize: "calc(min(100dvw, 100dvh) / 25)",
+    fontSize: "calc(100cqMin / 15)",
   },
   zeroButton: {
     borderRadius: "50cqh",
     width: "100%",
+    height: "100%",
     aspectRatio: null,
   },
   rowEndButton: {
     backgroundColor: color.brandCalculator,
-    [buttonTokens.backgroundColor]: {
-      default: color.brandCalculator,
-    },
+    [buttonTokens.backgroundColor]: color.brandCalculator,
+    [buttonTokens.backgroundColorHover]: color.brandCalculator,
   },
 });

@@ -14,6 +14,8 @@ const light = {
   backgroundHover: "#f0f0f0",
   backgroundTranslucent: "rgba(0, 0, 0, 0.01)",
   backgroundMainChannels: "255,255,255",
+  backgroundCalculatorButton: "#e0e0e0",
+  backgroundCalculatorButtonHover: "#ffffff",
 
   controlTrack: "#e0e0e0",
   controlThumb: "#ffffff",
@@ -48,6 +50,8 @@ const dark: { [key in keyof typeof light]: string } = {
   backgroundHover: "#2a2a2a",
   backgroundTranslucent: "rgba(255, 255, 255, 0.1)",
   backgroundMainChannels: "0,0,0",
+  backgroundCalculatorButton: "#444850",
+  backgroundCalculatorButtonHover: "#5e6065",
 
   controlTrack: "#1a1a1a",
   controlThumb: "#bbbbbb",
@@ -109,6 +113,14 @@ export const color = stylex.defineVars({
   backgroundMainChannels: {
     default: light.backgroundMainChannels,
     [constants.DARK]: dark.backgroundMainChannels,
+  },
+  backgroundCalculatorButton: {
+    default: light.backgroundCalculatorButton,
+    [constants.DARK]: dark.backgroundCalculatorButton,
+  },
+  backgroundCalculatorButtonHover: {
+    default: light.backgroundCalculatorButtonHover,
+    [constants.DARK]: dark.backgroundCalculatorButtonHover,
   },
 
   controlTrack: {
