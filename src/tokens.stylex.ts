@@ -26,6 +26,7 @@ const light = {
   shadowStrength: "1%",
 
   brandTmdb: "#4a7957",
+  brandCalculator: "#ff8000",
   brandCitadel: "rgb(26,54,104)",
   brandWtcPlus: "#e661b2",
   brandWtcLetter: "#0a47ed",
@@ -59,6 +60,7 @@ const dark: { [key in keyof typeof light]: string } = {
   shadowStrength: "25%",
 
   brandTmdb: "#90cea1",
+  brandCalculator: "#ff7f00",
   brandCitadel: "rgb(129,174,255)",
   brandWtcPlus: "#ff84cf",
   brandWtcLetter: "#8dacff",
@@ -141,6 +143,10 @@ export const color = stylex.defineVars({
   },
 
   brandTmdb: { default: light.brandTmdb, [constants.DARK]: dark.brandTmdb },
+  brandCalculator: {
+    default: light.brandCalculator,
+    [constants.DARK]: dark.brandCalculator,
+  },
   brandCitadel: {
     default: light.brandCitadel,
     [constants.DARK]: dark.brandCitadel,

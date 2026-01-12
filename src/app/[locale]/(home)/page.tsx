@@ -1,3 +1,4 @@
+import { CalculatorIcon } from "@phosphor-icons/react/dist/ssr/Calculator";
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
@@ -48,6 +49,14 @@ export default async function Home(props: PageProps) {
             css={[styles.card, styles.movieDatabase]}
             name={t("movieDatabase")}
             description={t("movieDatabaseDescription")}
+            scroll
+          />
+          <ProjectCard
+            icon={<CalculatorIcon size={64} weight="fill" />}
+            href={getLocalePath("/calculator", locale)}
+            css={[styles.card, styles.calculator]}
+            name={t("calculator")}
+            description={t("calculatorDescription")}
             scroll
           />
           <ProjectCard
@@ -165,5 +174,8 @@ const styles = stylex.create({
   },
   componentLibrary: {
     [svgTokens.fill]: color.controlActive,
+  },
+  calculator: {
+    [svgTokens.fill]: color.brandCalculator,
   },
 });
