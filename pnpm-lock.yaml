@@ -169,8 +169,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       next-i18n-router:
-        specifier: ^5.5.5
-        version: 5.5.5(next@16.1.2(@babel/core@7.28.6)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))
+        specifier: ^5.5.6
+        version: 5.5.6(next@16.1.2(@babel/core@7.28.6)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -3485,8 +3485,8 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  next-i18n-router@5.5.5:
-    resolution: {integrity: sha512-soJD/JdC1Wew3LZqzFC3+9rdo4QT4cX6Xej4dSU/ObBFXhLHonMMBoa2nXsMHXPIcfdnSUDBTc6B2hrby4nzsg==}
+  next-i18n-router@5.5.6:
+    resolution: {integrity: sha512-6AUAdhTf4hAt4X8k7HnOaVGQka6Nhim+NPu9Ne5jOgibAA7p2vPQTQi7rrvU9Uounb/Z0oc5Lrv0VPmDAtHSnw==}
     peerDependencies:
       next: ^13 || ^14 || ^15 || ^16
 
@@ -8076,7 +8076,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-i18n-router@5.5.5(next@16.1.2(@babel/core@7.28.6)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)):
+  next-i18n-router@5.5.6(next@16.1.2(@babel/core@7.28.6)(@playwright/test@1.56.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)):
     dependencies:
       '@formatjs/intl-localematcher': 0.6.2
       negotiator: 1.0.0
