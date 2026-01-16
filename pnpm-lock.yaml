@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@mui/utils':
-        specifier: ^7.3.6
-        version: 7.3.6(@types/react@19.2.8)(react@19.3.0-canary-52684925-20251110)
+        specifier: ^7.3.7
+        version: 7.3.7(@types/react@19.2.8)(react@19.3.0-canary-52684925-20251110)
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)
@@ -1349,16 +1349,16 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@mui/types@7.4.9':
-    resolution: {integrity: sha512-dNO8Z9T2cujkSIaCnWwprfeKmTWh97cnjkgmpFJ2sbfXLx8SMZijCYHOtP/y5nnUb/Rm2omxbDMmtUoSaUtKaw==}
+  '@mui/types@7.4.10':
+    resolution: {integrity: sha512-0+4mSjknSu218GW3isRqoxKRTOrTLd/vHi/7UC4+wZcUrOAqD9kRk7UQRL1mcrzqRoe7s3UT6rsRpbLkW5mHpQ==}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@types/react':
         optional: true
 
-  '@mui/utils@7.3.6':
-    resolution: {integrity: sha512-jn+Ba02O6PiFs7nKva8R2aJJ9kJC+3kQ2R0BbKNY3KQQ36Qng98GnPRFTlbwYTdMD6hLEBKaMLUktyg/rTfd2w==}
+  '@mui/utils@7.3.7':
+    resolution: {integrity: sha512-+YjnjMRnyeTkWnspzoxRdiSOgkrcpTikhNPoxOZW0APXx+urHtUoXJ9lbtCZRCA5a4dg5gSbd19alL1DvRs5fg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -5721,16 +5721,16 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mui/types@7.4.9(@types/react@19.2.8)':
+  '@mui/types@7.4.10(@types/react@19.2.8)':
     dependencies:
       '@babel/runtime': 7.28.6
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@mui/utils@7.3.6(@types/react@19.2.8)(react@19.3.0-canary-52684925-20251110)':
+  '@mui/utils@7.3.7(@types/react@19.2.8)(react@19.3.0-canary-52684925-20251110)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@mui/types': 7.4.9(@types/react@19.2.8)
+      '@mui/types': 7.4.10(@types/react@19.2.8)
       '@types/prop-types': 15.7.15
       clsx: 2.1.1
       prop-types: 15.8.1
