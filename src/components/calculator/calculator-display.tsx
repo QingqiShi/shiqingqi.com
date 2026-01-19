@@ -16,9 +16,7 @@ export function CalculatorDisplay({
   tokens,
   currentToken,
 }: CalculatorDisplayProps) {
-  const displayText = [...tokens, currentToken]
-    .map(formatTokenValue)
-    .join(" ");
+  const displayText = [...tokens, currentToken].map(formatTokenValue).join(" ");
 
   return (
     <div css={styles.container} role="status" aria-live="polite">
