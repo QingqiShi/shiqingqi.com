@@ -22,8 +22,8 @@ export type BinaryOperator = (typeof binaryOperators)[number];
 export const unaryOperators = ["±", "%"] as const;
 export type UnaryOperator = (typeof unaryOperators)[number];
 
-export const binaryOperatorsSet = new Set<BinaryOperator>(binaryOperators);
-export const unaryOperatorsSet = new Set<UnaryOperator>(unaryOperators);
+export const binaryOperatorsSet: Set<string> = new Set(binaryOperators);
+export const unaryOperatorsSet: Set<string> = new Set(unaryOperators);
 
 // Number characters
 export const numbersSet = new Set([

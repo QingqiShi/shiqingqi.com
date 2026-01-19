@@ -6,11 +6,11 @@ import {
 } from "./types.ts";
 
 export function isBinaryOperator(value: string): value is BinaryOperator {
-  return binaryOperatorsSet.has(value as BinaryOperator);
+  return binaryOperatorsSet.has(value);
 }
 
 export function isUnaryOperator(value: string): value is "±" | "%" {
-  return unaryOperatorsSet.has(value as "±" | "%");
+  return unaryOperatorsSet.has(value);
 }
 
 export function computeBinaryOperation(
