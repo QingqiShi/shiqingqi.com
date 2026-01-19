@@ -83,4 +83,15 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/movie-database" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/movie-database" />
   </url>
+
+  <url>
+    <loc>https://qingqi.dev/calculator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/calculator" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/calculator" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/calculator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/calculator" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/calculator" />
+  </url>
 </urlset>
