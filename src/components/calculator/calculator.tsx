@@ -29,6 +29,37 @@ export function Calculator() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [currentToken, setCurrentToken] = useState<Token>(createInitialToken());
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    const key = event.key;
+    const keyMap: Record<string, string> = {
+      "0": "0",
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "+": "+",
+      "-": "−",
+      "*": "×",
+      "/": "÷",
+      Enter: "=",
+      "=": "=",
+      Escape: "ac",
+      Backspace: "ac",
+      ".": ".",
+      "%": "%",
+    };
+
+    if (key in keyMap) {
+      event.preventDefault();
+      handleClick(keyMap[key]);
+    }
+  };
+
   const handleClick = (label: string) => {
     if (label === BUTTON_CLEAR) {
       setTokens([]);
@@ -103,7 +134,13 @@ export function Calculator() {
   };
 
   return (
-    <div css={styles.container}>
+    <div
+      css={styles.container}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="application"
+      aria-label="Calculator"
+    >
       <CalculatorDisplay tokens={tokens} currentToken={currentToken} />
       <div css={styles.buttonsContainer}>
         {buttons.map((row, rowIndex) => (
@@ -138,6 +175,12 @@ const styles = stylex.create({
     // New CSS property, not yet recognized by stylex eslint plugin
     // eslint-disable-next-line @stylexjs/valid-styles
     cornerShape: "squircle",
+    outline: {
+      ":focus-visible": `2px solid ${color.brandCalculator}`,
+    },
+    outlineOffset: {
+      ":focus-visible": "2px",
+    },
   },
   buttonsContainer: {
     height: "80%",

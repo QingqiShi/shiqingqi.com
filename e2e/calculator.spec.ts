@@ -13,19 +13,21 @@ test.describe("Calculator", () => {
       await expect(page.getByRole("button", { name: num })).toBeVisible();
     }
 
-    // Operator buttons
-    await expect(page.getByRole("button", { name: "+" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "−" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "×" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "÷" })).toBeVisible();
+    // Operator buttons (using accessible names from aria-label)
+    await expect(page.getByRole("button", { name: "Add" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Subtract" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Multiply" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Divide" })).toBeVisible();
 
-    // Special buttons
-    await expect(page.getByRole("button", { name: /ac/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: "=" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "±" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "%" })).toBeVisible();
+    // Special buttons (using accessible names from aria-label)
+    await expect(page.getByRole("button", { name: "All clear" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Equals" })).toBeVisible();
     await expect(
-      page.getByRole("button", { name: ".", exact: true }),
+      page.getByRole("button", { name: "Toggle sign" }),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Percent" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Decimal point" }),
     ).toBeVisible();
   });
 
@@ -33,9 +35,9 @@ test.describe("Calculator", () => {
     const result = page.getByRole("status");
 
     await page.getByRole("button", { name: "2" }).click();
-    await page.getByRole("button", { name: "+" }).click();
+    await page.getByRole("button", { name: "Add" }).click();
     await page.getByRole("button", { name: "3" }).click();
-    await page.getByRole("button", { name: "=" }).click();
+    await page.getByRole("button", { name: "Equals" }).click();
 
     await expect(result).toHaveText("5");
   });
@@ -44,9 +46,9 @@ test.describe("Calculator", () => {
     const result = page.getByRole("status");
 
     await page.getByRole("button", { name: "9" }).click();
-    await page.getByRole("button", { name: "−" }).click();
+    await page.getByRole("button", { name: "Subtract" }).click();
     await page.getByRole("button", { name: "4" }).click();
-    await page.getByRole("button", { name: "=" }).click();
+    await page.getByRole("button", { name: "Equals" }).click();
 
     await expect(result).toHaveText("5");
   });
@@ -55,9 +57,9 @@ test.describe("Calculator", () => {
     const result = page.getByRole("status");
 
     await page.getByRole("button", { name: "3" }).click();
-    await page.getByRole("button", { name: "×" }).click();
+    await page.getByRole("button", { name: "Multiply" }).click();
     await page.getByRole("button", { name: "4" }).click();
-    await page.getByRole("button", { name: "=" }).click();
+    await page.getByRole("button", { name: "Equals" }).click();
 
     await expect(result).toHaveText("12");
   });
@@ -66,9 +68,9 @@ test.describe("Calculator", () => {
     const result = page.getByRole("status");
 
     await page.getByRole("button", { name: "8" }).click();
-    await page.getByRole("button", { name: "÷" }).click();
+    await page.getByRole("button", { name: "Divide" }).click();
     await page.getByRole("button", { name: "2" }).click();
-    await page.getByRole("button", { name: "=" }).click();
+    await page.getByRole("button", { name: "Equals" }).click();
 
     await expect(result).toHaveText("4");
   });
@@ -78,11 +80,11 @@ test.describe("Calculator", () => {
 
     // 2 + 3 × 4 = 14 (not 20)
     await page.getByRole("button", { name: "2" }).click();
-    await page.getByRole("button", { name: "+" }).click();
+    await page.getByRole("button", { name: "Add" }).click();
     await page.getByRole("button", { name: "3" }).click();
-    await page.getByRole("button", { name: "×" }).click();
+    await page.getByRole("button", { name: "Multiply" }).click();
     await page.getByRole("button", { name: "4" }).click();
-    await page.getByRole("button", { name: "=" }).click();
+    await page.getByRole("button", { name: "Equals" }).click();
 
     await expect(result).toHaveText("14");
   });
@@ -91,7 +93,7 @@ test.describe("Calculator", () => {
     const result = page.getByRole("status");
 
     await page.getByRole("button", { name: "5" }).click();
-    await page.getByRole("button", { name: "±" }).click();
+    await page.getByRole("button", { name: "Toggle sign" }).click();
 
     await expect(result).toHaveText("-5");
   });
@@ -101,7 +103,7 @@ test.describe("Calculator", () => {
 
     await page.getByRole("button", { name: "5" }).click();
     await page.getByRole("button", { name: "0" }).click();
-    await page.getByRole("button", { name: "%" }).click();
+    await page.getByRole("button", { name: "Percent" }).click();
 
     await expect(result).toHaveText("0.5");
   });
@@ -110,9 +112,9 @@ test.describe("Calculator", () => {
     const result = page.getByRole("status");
 
     await page.getByRole("button", { name: "5" }).click();
-    await page.getByRole("button", { name: "÷" }).click();
+    await page.getByRole("button", { name: "Divide" }).click();
     await page.getByRole("button", { name: "0" }).click();
-    await page.getByRole("button", { name: "=" }).click();
+    await page.getByRole("button", { name: "Equals" }).click();
 
     await expect(result).toHaveText("Error");
   });
@@ -128,8 +130,8 @@ test.describe("Calculator", () => {
     // Verify 123 is displayed
     await expect(result).toHaveText("123");
 
-    // Press AC
-    await page.getByRole("button", { name: /ac/i }).click();
+    // Press AC (All clear)
+    await page.getByRole("button", { name: "All clear" }).click();
 
     // Verify display shows 0
     await expect(result).toHaveText("0");
@@ -137,7 +139,7 @@ test.describe("Calculator", () => {
 
   test("prevents multiple decimal points", async ({ page }) => {
     const result = page.getByRole("status");
-    const decimalButton = page.getByRole("button", { name: ".", exact: true });
+    const decimalButton = page.getByRole("button", { name: "Decimal point" });
 
     await page.getByRole("button", { name: "1" }).click();
     await decimalButton.click();

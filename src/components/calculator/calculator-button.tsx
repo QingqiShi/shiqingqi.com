@@ -11,6 +11,18 @@ interface CalculatorButtonProps {
   onClick: () => void;
 }
 
+const labelDescriptions: Record<string, string> = {
+  ac: "All clear",
+  "±": "Toggle sign",
+  "%": "Percent",
+  "÷": "Divide",
+  "×": "Multiply",
+  "−": "Subtract",
+  "+": "Add",
+  "=": "Equals",
+  ".": "Decimal point",
+};
+
 export function CalculatorButton({
   label,
   isZero = false,
@@ -26,6 +38,7 @@ export function CalculatorButton({
           isRowEnd && styles.rowEndButton,
         ]}
         onClick={onClick}
+        aria-label={labelDescriptions[label] ?? label}
       >
         <span css={styles.buttonLabel}>{label}</span>
       </Button>
@@ -51,6 +64,12 @@ const styles = stylex.create({
     [buttonTokens.backgroundColor]: color.backgroundCalculatorButton,
     [buttonTokens.backgroundColorHover]: color.backgroundCalculatorButton,
     filter: { ":hover": "brightness(1.1)" },
+    outline: {
+      ":focus-visible": `2px solid ${color.brandCalculator}`,
+    },
+    outlineOffset: {
+      ":focus-visible": "2px",
+    },
   },
   buttonLabel: {
     fontSize: "calc(100cqMin / 15)",
