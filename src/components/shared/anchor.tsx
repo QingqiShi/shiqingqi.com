@@ -2,21 +2,20 @@
 
 import * as stylex from "@stylexjs/stylex";
 import Link from "next/link";
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { border } from "#src/tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex";
 
-export function Anchor({
-  className,
-  style,
-  onMouseEnter,
-  ...props
-}: React.ComponentProps<typeof Link>) {
+export const Anchor = forwardRef<
+  HTMLAnchorElement,
+  React.ComponentProps<typeof Link>
+>(function Anchor({ className, style, onMouseEnter, ...props }, ref) {
   const [prefetch, setPrefetch] = useState(false);
 
   return (
     <Link
       {...props}
+      ref={ref}
       prefetch={prefetch ? null : false}
       onMouseEnter={(e) => {
         setPrefetch(true);
@@ -27,7 +26,7 @@ export function Anchor({
       css={styles.a}
     />
   );
-}
+});
 
 const styles = stylex.create({
   a: {

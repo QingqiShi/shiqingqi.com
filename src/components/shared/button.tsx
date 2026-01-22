@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
-import type { ComponentProps } from "react";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { color, controlSize, font } from "#src/tokens.stylex.ts";
+import { useRef, type ComponentProps } from "react";
+import { usePressHandlers } from "#src/hooks/use-press-handlers.ts";
+import { controlSize, font } from "#src/tokens.stylex.ts";
+import { sharedStyles } from "./button-shared.stylex";
 import { buttonTokens } from "./button.stylex";
 
 interface ButtonProps extends ComponentProps<"button"> {
@@ -16,33 +17,52 @@ export function Button({
   bright,
   children,
   className,
+  disabled,
   hideLabelOnMobile,
   icon,
   isActive,
   labelId,
   style,
-  ...props
+  ...restProps
 }: ButtonProps) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const { isPressed, releasedOutside, pressedStyle, handlers } =
+    usePressHandlers({
+      disabled,
+      targetRef: buttonRef,
+      ...restProps,
+    });
+
   return (
     <button
-      {...props}
+      {...restProps}
+      ref={buttonRef}
       className={className}
-      style={style}
+      disabled={disabled}
+      style={{ ...style, ...pressedStyle }}
       css={[
+        sharedStyles.base,
         styles.button,
         !!icon &&
           !!children &&
-          (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
-        bright && styles.bright,
-        isActive && styles.active,
+          (hideLabelOnMobile
+            ? sharedStyles.hasIconHideLabel
+            : sharedStyles.hasIcon),
+        bright && sharedStyles.bright,
+        isActive && sharedStyles.active,
+        isPressed && !disabled && sharedStyles.pressed,
+        isPressed && !disabled && bright && sharedStyles.pressedBright,
+        releasedOutside && sharedStyles.releasedOutside,
       ]}
+      {...handlers}
     >
-      {icon && <span css={styles.icon}>{icon}</span>}
+      {icon && <span css={sharedStyles.icon}>{icon}</span>}
       {children && (
         <span
           css={[
-            styles.childrenContainer,
-            hideLabelOnMobile && styles.hideLabelOnMobile,
+            sharedStyles.childrenContainer,
+            hideLabelOnMobile && sharedStyles.hideLabelOnMobile,
           ]}
           id={labelId}
         >
@@ -55,7 +75,7 @@ export function Button({
 
 const styles = stylex.create({
   button: {
-    // Reset
+    // Button-specific resets
     borderWidth: 0,
     borderStyle: "none",
     appearance: "none",
@@ -63,17 +83,9 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
 
-    // Custom styles
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
+    // Button-specific styles
     minHeight: controlSize._9,
-    paddingBlock: controlSize._1,
-    paddingInline: controlSize._3,
-    borderRadius: buttonTokens.borderRadius,
     color: buttonTokens.color,
-    boxShadow: buttonTokens.boxShadow,
-    transition: "background 0.2s ease",
     backgroundColor: {
       default: buttonTokens.backgroundColor,
       ":hover": buttonTokens.backgroundColorHover,
@@ -82,41 +94,6 @@ const styles = stylex.create({
     opacity: {
       default: null,
       ":disabled": 0.7,
-    },
-  },
-  hasIcon: {
-    paddingLeft: controlSize._2,
-  },
-  hasIconHideLabel: {
-    paddingLeft: { default: controlSize._3, [breakpoints.md]: controlSize._2 },
-  },
-  icon: {
-    display: "inline-flex",
-  },
-  childrenContainer: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
-  },
-  hideLabelOnMobile: {
-    display: { default: "none", [breakpoints.md]: "inline-flex" },
-  },
-  active: {
-    [buttonTokens.color]: {
-      default: color.textOnActive,
-      ":hover": color.textOnActive,
-    },
-    backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
-      ":disabled:hover": color.controlActive,
-    },
-  },
-  bright: {
-    backgroundColor: color.controlThumb,
-    [buttonTokens.color]: color.textOnControlThumb,
-    filter: {
-      ":hover": "brightness(1.1)",
     },
   },
 });

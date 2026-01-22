@@ -60,7 +60,6 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "background-color 0.2s ease",
     [buttonTokens.backgroundColor]: color.backgroundCalculatorButton,
     [buttonTokens.backgroundColorHover]: color.backgroundCalculatorButton,
     filter: { ":hover": "brightness(1.1)" },
