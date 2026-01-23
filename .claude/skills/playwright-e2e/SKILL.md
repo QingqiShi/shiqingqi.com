@@ -1,5 +1,5 @@
 ---
-name: Testing with Playwright
+name: playwright-e2e
 description: Playwright end-to-end (e2e) testing best practices for user-centric testing using semantic locators. Use when writing E2E tests, integration tests, user flow tests, Playwright tests, test specs, or when the user mentions Playwright, e2e tests, getByRole, test flows, or user testing.
 ---
 

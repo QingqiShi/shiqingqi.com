@@ -1,5 +1,5 @@
 ---
-name: Styling with StyleX
+name: stylex-styling
 description: StyleX styling patterns using design tokens, breakpoints, and custom css prop. Use when working with styles, CSS, design tokens, breakpoints, responsive design, themes, styling components, css prop, stylex.create, or when the user mentions StyleX, tokens.stylex, controlSize, color tokens, or breakpoints.
 ---
 
