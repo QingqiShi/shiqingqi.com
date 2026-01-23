@@ -1,8 +1,12 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { color, controlSize } from "#src/tokens.stylex.ts";
+import { useRef } from "react";
+import { usePressHandlers } from "#src/hooks/use-press-handlers.ts";
+import { controlSize } from "#src/tokens.stylex.ts";
 import { Anchor } from "./anchor";
 import { anchorTokens } from "./anchor.stylex";
+import { sharedStyles } from "./button-shared.stylex";
 import { buttonTokens } from "./button.stylex";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
@@ -20,28 +24,44 @@ export function AnchorButton({
   icon,
   isActive,
   style,
-  ...props
+  ...restProps
 }: AnchorButtonProps) {
+  const anchorRef = useRef<HTMLAnchorElement>(null);
+
+  const { isPressed, releasedOutside, pressedStyle, handlers } =
+    usePressHandlers({
+      targetRef: anchorRef,
+      ...restProps,
+    });
+
   return (
     <Anchor
-      {...props}
+      {...restProps}
+      ref={anchorRef}
       className={className}
-      style={style}
+      style={{ ...style, ...pressedStyle }}
       css={[
-        styles.button,
+        sharedStyles.base,
+        styles.anchorButton,
         !!icon &&
           !!children &&
-          (hideLabelOnMobile ? styles.hasIconHideLabel : styles.hasIcon),
-        bright && styles.bright,
-        isActive && styles.active,
+          (hideLabelOnMobile
+            ? sharedStyles.hasIconHideLabel
+            : sharedStyles.hasIcon),
+        bright && sharedStyles.bright,
+        isActive && sharedStyles.active,
+        isPressed && sharedStyles.pressed,
+        isPressed && bright && sharedStyles.pressedBright,
+        releasedOutside && sharedStyles.releasedOutside,
       ]}
+      {...handlers}
     >
-      {icon && <span css={styles.icon}>{icon}</span>}
+      {icon && <span css={sharedStyles.icon}>{icon}</span>}
       {children && (
         <span
           css={[
-            styles.childrenContainer,
-            hideLabelOnMobile && styles.hideLabelOnMobile,
+            sharedStyles.childrenContainer,
+            hideLabelOnMobile && sharedStyles.hideLabelOnMobile,
           ]}
         >
           {children}
@@ -52,66 +72,14 @@ export function AnchorButton({
 }
 
 const styles = stylex.create({
-  button: {
-    // Reset
+  anchorButton: {
+    // Anchor-specific resets
     fontSize: controlSize._4,
     textDecoration: "none",
     cursor: "pointer",
 
-    // Custom styles
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
+    // Anchor-specific styles
     height: buttonTokens.height,
-    paddingBlock: controlSize._1,
-    paddingInline: controlSize._3,
-    borderRadius: buttonTokens.borderRadius,
-    boxShadow: buttonTokens.boxShadow,
-    transition: "background 0.2s ease",
-    backgroundColor: {
-      default: buttonTokens.backgroundColor,
-      ":hover": buttonTokens.backgroundColorHover,
-      ":disabled:hover": buttonTokens.backgroundColorDisabledHover,
-    },
-    opacity: {
-      default: null,
-      ":disabled": 0.7,
-    },
     [anchorTokens.color]: buttonTokens.color,
-  },
-  hasIcon: {
-    paddingLeft: controlSize._2,
-  },
-  hasIconHideLabel: {
-    paddingLeft: { default: controlSize._3, [breakpoints.md]: controlSize._2 },
-  },
-  icon: {
-    display: "inline-flex",
-  },
-  childrenContainer: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: controlSize._2,
-  },
-  hideLabelOnMobile: {
-    display: { default: "none", [breakpoints.md]: "inline-flex" },
-  },
-  active: {
-    [anchorTokens.color]: {
-      default: color.textOnActive,
-      ":hover": color.textOnActive,
-    },
-    backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
-      ":disabled:hover": color.controlActive,
-    },
-  },
-  bright: {
-    backgroundColor: color.controlThumb,
-    [buttonTokens.color]: color.textOnControlThumb,
-    filter: {
-      ":hover": "brightness(1.2)",
-    },
   },
 });
