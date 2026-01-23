@@ -1,5 +1,5 @@
 ---
-name: Using React 19 Patterns
+name: react19-patterns
 description: React 19 patterns and React Compiler behavior with Context shorthand syntax and use() hook. Use when working with Context, useContext, use() hook, Provider components, optimization patterns like useMemo, useCallback, memo, memoization, or when the user mentions React 19, React Compiler, Context.Provider, or manual optimization.
 ---
 

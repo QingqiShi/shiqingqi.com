@@ -1,5 +1,5 @@
 ---
-name: Fetching Data
+name: data-fetching
 description: Data fetching patterns for server/client components using fetch API, TanStack Query, useSuspenseQuery, apiRouteWrapper, and apiRequestWrapper. Use when implementing data loading, API calls, server functions, queries, mutations, API routes, or when the user mentions TanStack Query, useSuspenseQuery, apiRouteWrapper, apiRequestWrapper, tmdb-server-functions, or data fetching.
 ---
 

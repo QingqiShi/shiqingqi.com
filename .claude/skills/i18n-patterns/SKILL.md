@@ -1,5 +1,5 @@
 ---
-name: Internationalizing Components
+name: i18n-patterns
 description: Internationalization (i18n) patterns for server and client components using getTranslations and useTranslations. Use when working with translations, locales, multilingual content, translation files, TranslationContextProvider, locale switching, or when the user mentions i18n, translations, getTranslations, useTranslations, or translation.json files.
 ---
 

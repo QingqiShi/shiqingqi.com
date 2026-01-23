@@ -1,5 +1,5 @@
 ---
-name: Managing Packages
+name: package-management
 description: Package management using pnpm and corepack with packageManager field in package.json. This skill should be used when installing dependencies, upgrading packages, troubleshooting package manager issues, or working with pnpm commands. Explicit triggers include "upgrade pnpm", "update pnpm", "pnpm version", "pnpm install", "pnpm add", "corepack", "package installation", "dependency updates", or "packageManager field".
 ---
 

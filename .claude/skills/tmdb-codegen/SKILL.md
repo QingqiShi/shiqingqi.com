@@ -1,5 +1,5 @@
 ---
-name: Generating TMDB Code
+name: tmdb-codegen
 description: TMDB API code generation workflow with selective Zod schemas using pnpm codegen:tmdb. Use when working with TMDB endpoints, regenerating types, adding TMDB API functionality, modifying endpoints-config.js, tmdb-server-functions.ts, Zod schemas, or when the user mentions TMDB codegen, endpoints-config, pnpm codegen:tmdb, needsZodSchema, or auto-generated TMDB files.
 ---
 
