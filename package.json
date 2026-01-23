@@ -77,8 +77,8 @@
     "@types/react": "19.2.9",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
-    "@vitest/coverage-v8": "^4.0.17",
-    "@vitest/ui": "^4.0.17",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "esbuild-wasm": "^0.27.2",
@@ -101,6 +101,6 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.1",
     "vite-plugin-babel": "^1.4.1",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.18"
   }
 }
