@@ -73,7 +73,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/babel__core": "^7.20.5",
     "@types/babel__traverse": "^7.28.0",
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.1.0",
     "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
