@@ -1,5 +1,6 @@
 import { CalculatorIcon } from "@phosphor-icons/react/dist/ssr/Calculator";
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
+import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
@@ -43,6 +44,14 @@ export default async function Home(props: PageProps) {
       <section>
         <h2 css={styles.sectionTitle}>{t("projectSection")}</h2>
         <div css={styles.cardList}>
+          <ProjectCard
+            icon={<GraduationCapIcon size={64} weight="fill" />}
+            href="https://studentloanstudy.uk/"
+            target="_blank"
+            css={[styles.card, styles.studentLoan]}
+            name={t("studentLoanCalculator")}
+            description={t("studentLoanCalculatorDescription")}
+          />
           <ProjectCard
             icon={<FilmSlateIcon size={64} weight="fill" />}
             href={getLocalePath("/movie-database", locale)}
@@ -177,5 +186,8 @@ const styles = stylex.create({
   },
   calculator: {
     [svgTokens.fill]: color.brandCalculator,
+  },
+  studentLoan: {
+    [svgTokens.fill]: color.brandStudentLoan,
   },
 });
