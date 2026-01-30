@@ -27,7 +27,7 @@ const light = {
   shadowColor: "220 3% 15%",
   shadowStrength: "1%",
 
-  brandTmdb: "#4a7957",
+  brandTmdb: "#0ea5e9",
   brandCalculator: "#ff8000",
   brandCitadel: "rgb(26,54,104)",
   brandWtcPlus: "#e661b2",
@@ -35,6 +35,7 @@ const light = {
   brandBristol: "#bf2f38",
   brandNottingham: "#005480",
   brandSpotify: "#1ecc5a",
+  brandStudentLoan: "#10b981",
 };
 
 const dark: { [key in keyof typeof light]: string } = {
@@ -63,7 +64,7 @@ const dark: { [key in keyof typeof light]: string } = {
   shadowColor: "220 40% 2%",
   shadowStrength: "25%",
 
-  brandTmdb: "#90cea1",
+  brandTmdb: "#38bdf8",
   brandCalculator: "#ff7f00",
   brandCitadel: "rgb(129,174,255)",
   brandWtcPlus: "#ff84cf",
@@ -71,6 +72,7 @@ const dark: { [key in keyof typeof light]: string } = {
   brandBristol: "#ff535d",
   brandNottingham: "#0098e7",
   brandSpotify: "#1ecc5a",
+  brandStudentLoan: "#34d399",
 };
 
 export const constants = stylex.defineConsts({
@@ -182,6 +184,10 @@ export const color = stylex.defineVars({
   brandSpotify: {
     default: light.brandSpotify,
     [constants.DARK]: dark.brandSpotify,
+  },
+  brandStudentLoan: {
+    default: light.brandStudentLoan,
+    [constants.DARK]: dark.brandStudentLoan,
   },
 });
 

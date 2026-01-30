@@ -110,5 +110,13 @@
   "calculatorDescription": {
     "en": "A simple calculator demo.",
     "zh": "一个简单的计算器演示"
+  },
+  "studentLoanCalculator": {
+    "en": "Student Loan Calculator",
+    "zh": "学生贷款计算器"
+  },
+  "studentLoanCalculatorDescription": {
+    "en": "Calculate and understand your student loan.",
+    "zh": "计算和了解您的学生贷款。"
   }
 }
