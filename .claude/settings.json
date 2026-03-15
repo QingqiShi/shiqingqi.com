@@ -1,0 +1,44 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'CMD=$(jq -r .tool_input.command) && if echo \"$CMD\" | grep -qE \"\\bnpm\\b|\\bnpx\\b\"; then echo \"Use pnpm/pnpx instead of npm/npx. This project uses pnpm.\" >&2; exit 2; fi'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Read|Write|Edit|MultiEdit|Glob|Grep|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/worktree-guard.sh\""
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'NAME=$(jq -r .name) && REPO=$(git rev-parse --show-toplevel) && DIR=\"$REPO/.claude/worktrees/$NAME\" && git worktree add \"$DIR\" >&2 && cd \"$DIR\" && pnpm install >&2 && echo \"$DIR\"'"
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'WORKTREE_PATH=$(jq -r .worktree_path) && git worktree remove \"$WORKTREE_PATH\" --force >&2'"
+          }
+        ]
+      }
+    ]
+  }
+}
