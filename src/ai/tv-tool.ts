@@ -3,6 +3,7 @@ import { zodResponsesFunction } from "openai/helpers/zod";
 import { discoverTvShows } from "#src/_generated/tmdb-server-functions.ts";
 import { operationsSchema } from "#src/_generated/tmdb-zod.ts";
 import type { paths } from "#src/_generated/tmdbV3.d.ts";
+import { sanitizeParams } from "./sanitize-params";
 // Extract Zod schema from generated schemas
 const tvDiscoverySchema = operationsSchema.shape[
   "discover-tv"
@@ -33,31 +34,14 @@ export async function executeTvToolCall(toolCall: {
     throw new Error(`Unknown tool: ${toolCall.name}`);
   }
 
-  const args = JSON.parse(toolCall.arguments) as Record<string, unknown>;
-
-  // Parse and validate with Zod schema
-  const validatedParams = tvDiscoverySchema.parse(args);
-
-  // Remove undefined values to avoid issues with the API
-  const strippedParams = { ...validatedParams };
-  Object.keys(strippedParams).forEach((key) => {
-    if (!strippedParams[key as keyof TvDiscoveryParams]) {
-      delete strippedParams[key as keyof TvDiscoveryParams];
-    }
-  });
-
-  // Convert null values to undefined for TMDB API compatibility
-  const sanitizedParams = Object.fromEntries(
-    Object.entries(strippedParams).map(([key, value]) => [
-      key,
-      value === null ? undefined : value,
-    ]),
+  const validatedParams = tvDiscoverySchema.parse(
+    JSON.parse(toolCall.arguments || "{}"),
   );
 
   const tvResults = await discoverTvShows({
     "vote_count.gte": 300,
     "vote_average.gte": 3,
-    ...sanitizedParams,
+    ...sanitizeParams(validatedParams),
   } as TvDiscoveryParams);
 
   return {
