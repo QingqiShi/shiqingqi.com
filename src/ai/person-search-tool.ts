@@ -3,6 +3,7 @@ import { zodResponsesFunction } from "openai/helpers/zod";
 import { searchPerson } from "#src/_generated/tmdb-server-functions.ts";
 import { operationsSchema } from "#src/_generated/tmdb-zod.ts";
 import type { paths } from "#src/_generated/tmdbV3.d.ts";
+import { sanitizeParams } from "./sanitize-params";
 
 // Extract Zod schema from generated schemas
 const personSearchSchema =
@@ -31,21 +32,12 @@ export async function executePersonSearchToolCall(toolCall: {
     throw new Error(`Unknown tool: ${toolCall.name}`);
   }
 
-  const args = JSON.parse(toolCall.arguments) as Record<string, unknown>;
-
-  // Parse and validate with Zod schema
-  const validatedParams = personSearchSchema.parse(args);
-
-  // Remove undefined values to avoid issues with the API
-  const strippedParams = { ...validatedParams };
-  Object.keys(strippedParams).forEach((key) => {
-    if (!strippedParams[key as keyof PersonSearchParams]) {
-      delete strippedParams[key as keyof PersonSearchParams];
-    }
-  });
+  const validatedParams = personSearchSchema.parse(
+    JSON.parse(toolCall.arguments || "{}"),
+  );
 
   const personResults = await searchPerson(
-    strippedParams as PersonSearchParams,
+    sanitizeParams(validatedParams) as PersonSearchParams,
   );
 
   return {

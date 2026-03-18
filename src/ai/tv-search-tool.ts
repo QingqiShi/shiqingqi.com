@@ -3,6 +3,7 @@ import { zodResponsesFunction } from "openai/helpers/zod";
 import { searchTvShows } from "#src/_generated/tmdb-server-functions.ts";
 import { operationsSchema } from "#src/_generated/tmdb-zod.ts";
 import type { paths } from "#src/_generated/tmdbV3.d.ts";
+import { sanitizeParams } from "./sanitize-params";
 
 // Extract Zod schema from generated schemas
 const tvSearchSchema =
@@ -31,20 +32,13 @@ export async function executeTvSearchToolCall(toolCall: {
     throw new Error(`Unknown tool: ${toolCall.name}`);
   }
 
-  const args = JSON.parse(toolCall.arguments) as Record<string, unknown>;
+  const validatedParams = tvSearchSchema.parse(
+    JSON.parse(toolCall.arguments || "{}"),
+  );
 
-  // Parse and validate with Zod schema
-  const validatedParams = tvSearchSchema.parse(args);
-
-  // Remove undefined values to avoid issues with the API
-  const strippedParams = { ...validatedParams };
-  Object.keys(strippedParams).forEach((key) => {
-    if (!strippedParams[key as keyof TvSearchParams]) {
-      delete strippedParams[key as keyof TvSearchParams];
-    }
-  });
-
-  const tvResults = await searchTvShows(strippedParams as TvSearchParams);
+  const tvResults = await searchTvShows(
+    sanitizeParams(validatedParams) as TvSearchParams,
+  );
 
   return {
     call_id: toolCall.call_id,

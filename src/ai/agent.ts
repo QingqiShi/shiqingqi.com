@@ -169,18 +169,17 @@ export async function agent(
     }> = [];
 
     for (const outputItem of response.output) {
-      const item = outputItem;
-      fullConversation.push(item);
+      fullConversation.push(outputItem);
 
-      if (item.type === "function_call") {
-        console.log("tool call: ", item.name);
+      if (outputItem.type === "function_call") {
+        console.log("tool call: ", outputItem.name);
         // Check if this is the completion call
-        if (item.name === "complete_phase_1") {
+        if (outputItem.name === "complete_phase_1") {
           hasCompletionCall = true;
         }
 
         // Auto-inject language parameter based on locale
-        const toolArgs = JSON.parse(item.arguments || "{}") as Record<
+        const toolArgs = JSON.parse(outputItem.arguments || "{}") as Record<
           string,
           unknown
         >;
@@ -191,9 +190,9 @@ export async function agent(
 
         // Collect for parallel execution
         toolCalls.push({
-          name: item.name,
+          name: outputItem.name,
           arguments: JSON.stringify(toolArgs),
-          call_id: item.call_id,
+          call_id: outputItem.call_id,
         });
       }
     }
@@ -265,10 +264,9 @@ export async function agent(
     throw new Error("No parsed output available from final processing");
   }
 
-  finalResponse.output.forEach((output) => fullConversation.push(output));
-
   // Save conversation for debugging in development only
   if (process.env.NODE_ENV === "development") {
+    finalResponse.output.forEach((output) => fullConversation.push(output));
     try {
       const logFile = `/tmp/ai-conversation-${Date.now()}.json`;
       writeFileSync(logFile, JSON.stringify(fullConversation, null, 2));
