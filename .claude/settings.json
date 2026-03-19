@@ -11,6 +11,15 @@
         ]
       },
       {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(jq -r \".tool_input.file_path // empty\") && if [ -n \"$FILE\" ] && basename \"$FILE\" | grep -qE \"^\\.env(\\.|$)\"; then echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PreToolUse\\\",\\\"permissionDecision\\\":\\\"deny\\\",\\\"permissionDecisionReason\\\":\\\"Reading .env files is not allowed\\\"}}\"; fi'"
+          }
+        ]
+      },
+      {
         "matcher": "Bash|Read|Write|Edit|MultiEdit|Glob|Grep|NotebookEdit",
         "hooks": [
           {
@@ -25,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'NAME=$(jq -r .name) && REPO=$(git rev-parse --show-toplevel) && DIR=\"$REPO/.claude/worktrees/$NAME\" && git worktree add \"$DIR\" >&2 && cd \"$DIR\" && pnpm install >&2 && echo \"$DIR\"'"
+            "command": "bash -c 'NAME=$(jq -r .name) && REPO=$(git rev-parse --show-toplevel) && DIR=\"$REPO/.claude/worktrees/$NAME\" && git worktree add \"$DIR\" >&2 && cd \"$DIR\" && pnpm install >&2 && SRC=\"$REPO/.claude/settings.local.json\" && if [ -f \"$SRC\" ]; then cp \"$SRC\" \"$DIR/.claude/settings.local.json\" >&2; fi && ENV=\"$REPO/.env.local\" && if [ -f \"$ENV\" ]; then cp \"$ENV\" \"$DIR/.env.local\" >&2; fi && echo \"$DIR\"'"
           }
         ]
       }
