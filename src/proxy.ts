@@ -5,7 +5,9 @@ import { i18nConfig } from "./i18n-config";
 
 function validateReferer(request: NextRequest): NextResponse | null {
   const referer = request.headers.get("Referer") ?? "";
-  if (!referer) return null;
+  if (!referer) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
 
   try {
     const refererUrl = new URL(referer);

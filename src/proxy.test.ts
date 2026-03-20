@@ -25,10 +25,11 @@ describe("proxy referer validation for API routes", () => {
     expect(response.status).toBe(200);
   });
 
-  it("allows requests with no referer", () => {
+  it("rejects requests with no referer", async () => {
     const response = proxy(apiRequest("/api/ai-chat"));
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "Unauthorized" });
   });
 
   it("rejects requests with unauthorized referer", async () => {

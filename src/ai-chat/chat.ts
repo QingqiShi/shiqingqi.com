@@ -1,15 +1,10 @@
 import { generateText } from "ai";
 import "server-only";
-import { z } from "zod";
 import { getAnthropicModel } from "./client";
+import type { ChatInput } from "./schema";
 import { getChatSystemInstructions } from "./system-instructions";
 
-export const chatInputSchema = z.object({
-  message: z.string().min(1).max(2000),
-  locale: z.enum(["en", "zh"]).default("en"),
-});
-
-export type ChatInput = z.infer<typeof chatInputSchema>;
+export { chatInputSchema, type ChatInput } from "./schema";
 
 export async function chat({ message, locale }: ChatInput) {
   const system = getChatSystemInstructions(locale);

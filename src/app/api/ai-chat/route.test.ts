@@ -1,12 +1,9 @@
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
-import { z } from "zod";
+import { chatInputSchema } from "#src/ai-chat/schema.ts";
 
 vi.mock("#src/ai-chat/chat.ts", () => ({
-  chatInputSchema: z.object({
-    message: z.string().min(1).max(2000),
-    locale: z.enum(["en", "zh"]).default("en"),
-  }),
+  chatInputSchema,
   chat: vi.fn(),
 }));
 
@@ -77,7 +74,7 @@ describe("POST /api/ai-chat", () => {
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({
       success: false,
-      error: "API key invalid",
+      error: "Internal server error",
     });
   });
 });
