@@ -1,12 +1,36 @@
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { i18nRouter } from "next-i18n-router";
+import { ALLOWED_REFERER } from "#src/constants.ts";
 import { i18nConfig } from "./i18n-config";
 
+function validateReferer(request: NextRequest): NextResponse | null {
+  const referer = request.headers.get("Referer") ?? "";
+  if (!referer) return null;
+
+  try {
+    const refererUrl = new URL(referer);
+    if (
+      !ALLOWED_REFERER.some((allowedReferer) =>
+        refererUrl.origin.endsWith(allowedReferer),
+      )
+    ) {
+      throw new Error("Unauthorized");
+    }
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
+  return null;
+}
+
 export function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    return validateReferer(request) ?? NextResponse.next();
+  }
+
   return i18nRouter(request, i18nConfig);
 }
 
 export const config = {
-  // Only applies this proxy to files in the app directory
-  matcher: "/((?!api|static|.*\\..*|_next).*)",
+  matcher: ["/((?!static|.*\\..*|_next).*)"],
 };

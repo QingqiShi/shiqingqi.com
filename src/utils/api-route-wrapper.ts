@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { ALLOWED_REFERER } from "#src/constants.ts";
 
 /**
  * Makes it easier to create dynamic routes (route handlers) for server actions.
@@ -16,21 +15,6 @@ export function apiRouteWrapper(
   ) => Promise<unknown>,
 ) {
   return async function routeHandler(request: NextRequest) {
-    const referer = request.headers.get("Referer") ?? "";
-    if (referer) {
-      try {
-        const refererUrl = new URL(referer);
-        if (
-          !ALLOWED_REFERER.some((allowedReferer) =>
-            refererUrl.origin.endsWith(allowedReferer),
-          )
-        ) {
-          return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-        }
-      } catch {
-        // Invalid referer URL, but allow the request to proceed
-      }
-    }
     const result = await serverFunction(
       Object.fromEntries(request.nextUrl.searchParams.entries()),
     );

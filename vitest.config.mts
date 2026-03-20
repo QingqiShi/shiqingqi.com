@@ -38,6 +38,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "#src": path.resolve(__dirname, "./src"),
+      "server-only": path.resolve(__dirname, "./src/test-stubs/server-only.ts"),
     },
   },
 });
