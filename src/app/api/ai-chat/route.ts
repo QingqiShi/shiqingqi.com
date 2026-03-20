@@ -5,8 +5,9 @@ import { chat, chatInputSchema } from "#src/ai-chat/chat.ts";
 export async function POST(request: NextRequest) {
   try {
     const body: unknown = await request.json();
-    const result = await chat(chatInputSchema.parse(body));
-    return Response.json({ success: true, text: result.text });
+    const input = chatInputSchema.parse(body);
+    const result = await chat(input);
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json(
