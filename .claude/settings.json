@@ -1,4 +1,18 @@
 {
+  "sandbox": {
+    "enabled": true
+  },
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "deny": ["Read(./.env)", "Read(./.env.*)"]
+  },
+  "worktree": {
+    "symlinkDirectories": [
+      "node_modules",
+      ".claude/settings.local.json",
+      ".env.local"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -25,26 +39,6 @@
           {
             "type": "command",
             "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/worktree-guard.sh\""
-          }
-        ]
-      }
-    ],
-    "WorktreeCreate": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'NAME=$(jq -r .name) && REPO=$(git rev-parse --show-toplevel) && DIR=\"$REPO/.claude/worktrees/$NAME\" && git worktree add \"$DIR\" >&2 && cd \"$DIR\" && pnpm install >&2 && SRC=\"$REPO/.claude/settings.local.json\" && if [ -f \"$SRC\" ]; then cp \"$SRC\" \"$DIR/.claude/settings.local.json\" >&2; fi && ENV=\"$REPO/.env.local\" && if [ -f \"$ENV\" ]; then cp \"$ENV\" \"$DIR/.env.local\" >&2; fi && echo \"$DIR\"'"
-          }
-        ]
-      }
-    ],
-    "WorktreeRemove": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'WORKTREE_PATH=$(jq -r .worktree_path) && git worktree remove \"$WORKTREE_PATH\" --force >&2'"
           }
         ]
       }
