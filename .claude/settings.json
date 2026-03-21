@@ -1,7 +1,4 @@
 {
-  "sandbox": {
-    "enabled": true
-  },
   "permissions": {
     "defaultMode": "bypassPermissions",
     "deny": ["Read(./.env)", "Read(./.env.*)"]
