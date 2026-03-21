@@ -108,7 +108,7 @@ const styles = stylex.create({
   container: {
     width: "100%",
     display: "flex",
-    alignItems: "flex-end",
+    alignItems: "center",
     gap: space._1,
     backgroundColor: color.backgroundRaised,
     borderRadius: border.radius_3,
