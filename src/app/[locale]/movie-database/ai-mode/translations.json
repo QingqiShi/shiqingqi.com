@@ -1,0 +1,18 @@
+{
+  "title": {
+    "en": "AI Mode",
+    "zh": "AI 模式"
+  },
+  "description": {
+    "en": "Chat with AI about movies and TV shows",
+    "zh": "与 AI 聊电影和电视剧"
+  },
+  "errorMessage": {
+    "en": "Something went wrong. Please try again.",
+    "zh": "出错了，请重试。"
+  },
+  "placeholder": {
+    "en": "Ask about movies and TV shows...",
+    "zh": "询问关于电影和电视剧的问题..."
+  }
+}
