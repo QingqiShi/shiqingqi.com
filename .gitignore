@@ -53,3 +53,6 @@ node_modules/
 
 # Playwright CLI
 .playwright-cli
+
+# Skill eval workspaces
+.claude/skills/*-workspace/

@@ -27,19 +27,3 @@ pnpm test:e2e           # Run E2E tests (Playwright) - auto-starts dev server
 pnpm codegen            # Generate TMDB API types and server functions
 pnpm codegen:tmdb       # Generate only TMDB server functions
 ```
-
-# Agent Skills
-
-This project uses specialized Agent Skills. Activate the appropriate skill when working on these areas:
-
-- **Managing Packages** - When working with dependencies, package installation, or pnpm configuration
-- **Fetching Data** - When implementing API routes, server functions, TanStack Query, or data loading
-- **Internationalizing Components** - When working with translations, locales, or multilingual content
-- **Styling with StyleX** - When working with styles, CSS, design tokens, or responsive design
-- **Using React 19 Patterns** - When working with Context, hooks, or optimization patterns (useMemo, useCallback, memo)
-- **Testing with Playwright** - When writing E2E tests or Playwright tests (Note: Unit tests use Vitest)
-- **Generating TMDB Code** - When working with TMDB endpoints or regenerating types (NEVER manually edit generated files)
-
----
-
-IMPORTANT: NEVER EVER COMPACT INFORMATION ABOVE THIS LINE.

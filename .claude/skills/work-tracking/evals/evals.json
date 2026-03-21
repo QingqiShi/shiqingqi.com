@@ -1,0 +1,74 @@
+{
+  "skill_name": "work-tracking",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Create an issue to track adding a dark mode toggle to the settings page",
+      "expected_output": "Should use `feature` label, ask about milestone, add to project board #3, and create the issue with gh issue create",
+      "files": [],
+      "assertions": [
+        {
+          "id": "uses-feature-label",
+          "text": "Uses the `feature` label (not `enhancement` or other generic labels)"
+        },
+        {
+          "id": "includes-label-flag",
+          "text": "The gh issue create command includes a --label flag"
+        },
+        {
+          "id": "adds-to-project-board",
+          "text": "Includes a `gh project item-add 3 --owner QingqiShi` command to add the issue to the project board"
+        },
+        {
+          "id": "asks-about-milestone",
+          "text": "Asks the user which milestone the issue belongs to, or acknowledges that a milestone should be assigned"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "File a bug — the movie search crashes when you type special characters like &",
+      "expected_output": "Should use `bug` label, ask about milestone, add to project board #3, and create the issue with gh issue create",
+      "files": [],
+      "assertions": [
+        { "id": "uses-bug-label", "text": "Uses the `bug` label" },
+        {
+          "id": "includes-label-flag",
+          "text": "The gh issue create command includes a --label flag"
+        },
+        {
+          "id": "adds-to-project-board",
+          "text": "Includes a `gh project item-add 3 --owner QingqiShi` command to add the issue to the project board"
+        },
+        {
+          "id": "asks-about-milestone",
+          "text": "Asks the user which milestone the issue belongs to, or acknowledges that a milestone should be assigned"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What's the current status of the AI overhaul project?",
+      "expected_output": "Should query the project board and milestones, summarize progress by phase",
+      "files": [],
+      "assertions": [
+        {
+          "id": "queries-project-board",
+          "text": "Uses `gh project item-list` or equivalent to query the project board"
+        },
+        {
+          "id": "queries-milestones",
+          "text": "Queries milestones using `gh api` or `gh issue list --milestone`"
+        },
+        {
+          "id": "organized-by-phase",
+          "text": "Summary is organized by milestone/phase, not just a flat list"
+        },
+        {
+          "id": "shows-progress",
+          "text": "Shows progress indicators (e.g., open vs closed issues, or counts per status)"
+        }
+      ]
+    }
+  ]
+}
