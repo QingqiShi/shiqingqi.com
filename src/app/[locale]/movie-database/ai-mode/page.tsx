@@ -3,6 +3,7 @@ import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getTranslations } from "#src/utils/get-translations.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
+import { ChatInputSection } from "./chat-input-section";
 import translations from "./translations.json";
 
 export default async function Page({
@@ -23,7 +24,11 @@ export default async function Page({
         </div>
       </div>
       <div css={styles.inputArea}>
-        <div css={styles.inputPlaceholder}>{t("placeholder")}</div>
+        <ChatInputSection
+          placeholder={t("placeholder")}
+          sendLabel={t("sendLabel")}
+          stopLabel={t("stopLabel")}
+        />
       </div>
     </>
   );
@@ -60,12 +65,5 @@ const styles = stylex.create({
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.controlTrack,
-  },
-  inputPlaceholder: {
-    backgroundColor: color.backgroundRaised,
-    borderRadius: border.radius_3,
-    padding: space._3,
-    color: color.textMuted,
-    fontSize: font.uiBody,
   },
 });

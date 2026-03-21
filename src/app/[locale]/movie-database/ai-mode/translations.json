@@ -14,5 +14,13 @@
   "placeholder": {
     "en": "Ask about movies and TV shows...",
     "zh": "询问关于电影和电视剧的问题..."
+  },
+  "sendLabel": {
+    "en": "Send message",
+    "zh": "发送消息"
+  },
+  "stopLabel": {
+    "en": "Stop generating",
+    "zh": "停止生成"
   }
 }
