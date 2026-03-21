@@ -1,13 +1,7 @@
 import userEvent from "@testing-library/user-event";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { ChatInputBar } from "./chat-input-bar";
-
-// Mock Pointer Capture API which is not available in jsdom
-beforeAll(() => {
-  HTMLElement.prototype.setPointerCapture = vi.fn();
-  HTMLElement.prototype.releasePointerCapture = vi.fn();
-});
 
 function renderInputBar(
   overrides: {

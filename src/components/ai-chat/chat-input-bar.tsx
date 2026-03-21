@@ -5,7 +5,6 @@ import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
 import * as stylex from "@stylexjs/stylex";
 import { useRef, useState } from "react";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
-import { Button } from "../shared/button";
 
 interface ChatInputBarProps {
   placeholder: string;
@@ -83,21 +82,23 @@ export function ChatInputBar({
         autoComplete="off"
       />
       {isLoading ? (
-        <Button
+        <button
           type="button"
-          icon={<StopIcon weight="fill" role="presentation" />}
           aria-label={stopLabel}
           onClick={handleStop}
-          isActive
-        />
+          css={[styles.iconButton, styles.iconButtonActive]}
+        >
+          <StopIcon weight="fill" role="presentation" />
+        </button>
       ) : (
-        <Button
+        <button
           type="submit"
-          icon={<ArrowUpIcon weight="bold" role="presentation" />}
           aria-label={sendLabel}
           disabled={!trimmed}
-          isActive={!!trimmed}
-        />
+          css={[styles.iconButton, !!trimmed && styles.iconButtonActive]}
+        >
+          <ArrowUpIcon weight="bold" role="presentation" />
+        </button>
       )}
     </form>
   );
@@ -111,9 +112,9 @@ const styles = stylex.create({
     gap: space._1,
     backgroundColor: color.backgroundRaised,
     borderRadius: border.radius_3,
-    paddingBlock: space._1,
+    paddingBlock: space._2,
     paddingLeft: space._3,
-    paddingRight: space._1,
+    paddingRight: space._2,
   },
   textarea: {
     flexGrow: 1,
@@ -126,11 +127,33 @@ const styles = stylex.create({
     fontFamily: font.family,
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_4,
-    padding: `${space._1} 0`,
+    padding: 0,
     maxHeight: "200px",
     overflowY: "auto",
     "::placeholder": {
       color: color.textMuted,
     },
+  },
+  iconButton: {
+    flexShrink: 0,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "1.75rem",
+    height: "1.75rem",
+    borderRadius: border.radius_round,
+    borderWidth: 0,
+    borderStyle: "none",
+    appearance: "none",
+    cursor: { default: "pointer", ":disabled": "default" },
+    padding: 0,
+    backgroundColor: color.controlTrack,
+    color: color.textMuted,
+    opacity: { default: null, ":disabled": 0.5 },
+    transition: "background-color 0.15s ease, color 0.15s ease",
+  },
+  iconButtonActive: {
+    backgroundColor: color.controlActive,
+    color: color.textOnActive,
   },
 });
