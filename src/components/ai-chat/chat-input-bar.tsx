@@ -96,7 +96,7 @@ export function ChatInputBar({
           icon={<ArrowUpIcon weight="bold" role="presentation" />}
           aria-label={sendLabel}
           disabled={!trimmed}
-          bright
+          isActive={!!trimmed}
         />
       )}
     </form>
