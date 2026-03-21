@@ -4,6 +4,7 @@ import type { SupportedLocale } from "#src/types.ts";
 import { getTranslations } from "#src/utils/get-translations.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import { ChatInputSection } from "./chat-input-section";
+import { ChatMessagesSection } from "./chat-messages-section";
 import translations from "./translations.json";
 
 export default async function Page({
@@ -17,12 +18,16 @@ export default async function Page({
 
   return (
     <>
-      <div css={styles.messagesArea}>
-        <div css={styles.welcomeContainer}>
-          <h1 css={styles.welcomeTitle}>{t("title")}</h1>
-          <p css={styles.welcomeDescription}>{t("description")}</p>
-        </div>
-      </div>
+      <ChatMessagesSection
+        emptyState={
+          <div css={styles.welcomeContainer}>
+            <h1 css={styles.welcomeTitle}>{t("title")}</h1>
+            <p css={styles.welcomeDescription}>{t("description")}</p>
+          </div>
+        }
+        typingIndicatorLabel={t("typingIndicator")}
+        scrollToBottomLabel={t("scrollToBottom")}
+      />
       <div css={styles.inputArea}>
         <ChatInputSection
           placeholder={t("placeholder")}
@@ -35,14 +40,6 @@ export default async function Page({
 }
 
 const styles = stylex.create({
-  messagesArea: {
-    flexGrow: 1,
-    overflowY: "auto",
-    padding: space._3,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   welcomeContainer: {
     textAlign: "center",
   },
@@ -59,11 +56,14 @@ const styles = stylex.create({
     margin: 0,
   },
   inputArea: {
+    position: "sticky",
+    bottom: 0,
     flexShrink: 0,
     padding: space._3,
     paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.controlTrack,
+    backgroundColor: color.backgroundMain,
   },
 });
