@@ -9,16 +9,16 @@ import { anchorTokens } from "./anchor.stylex";
 export const Anchor = forwardRef<
   HTMLAnchorElement,
   React.ComponentProps<typeof Link>
->(function Anchor({ className, style, onMouseEnter, ...props }, ref) {
-  const [prefetch, setPrefetch] = useState(false);
+>(function Anchor({ className, style, prefetch, onMouseEnter, ...props }, ref) {
+  const [hovered, setHovered] = useState(false);
 
   return (
     <Link
       {...props}
       ref={ref}
-      prefetch={prefetch ? null : false}
+      prefetch={prefetch === false ? false : hovered ? null : false}
       onMouseEnter={(e) => {
-        setPrefetch(true);
+        setHovered(true);
         onMouseEnter?.(e);
       }}
       className={className}
