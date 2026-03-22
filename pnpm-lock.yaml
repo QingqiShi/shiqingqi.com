@@ -213,9 +213,6 @@ importers:
       raw-loader:
         specifier: ^4.0.2
         version: 4.0.2(webpack@5.97.1(esbuild@0.27.2))
-      rimraf:
-        specifier: ^6.1.2
-        version: 6.1.2
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -3285,10 +3282,6 @@ packages:
     deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
-  glob@13.0.0:
-    resolution: {integrity: sha512-tvZgpqk6fz4BaNZ66ZsRaZnbHvP/jG3uKJvAZOwEVUL4RTA5nJeeLYfyN9/VA8NX/V3IBG+hkeuGpKjvELkVhA==}
-    engines: {node: 20 || >=22}
-
   glob@9.3.5:
     resolution: {integrity: sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -4732,11 +4725,6 @@ packages:
 
   rgba-regex@1.0.0:
     resolution: {integrity: sha512-zgn5OjNQXLUTdq8m17KdaicF6w89TZs8ZU8y0AYENIU6wG8GG6LLm0yLSiPY8DmaYmHdgRW8rnApjoT0fQRfMg==}
-
-  rimraf@6.1.2:
-    resolution: {integrity: sha512-cFCkPslJv7BAXJsYlK1dZsbP8/ZNLkCAQ0bi1hf5EKX2QHegmDFEFA6QhuYJlk7UDdc+02JjO80YSOrWPpw06g==}
-    engines: {node: 20 || >=22}
-    hasBin: true
 
   rollup@4.56.0:
     resolution: {integrity: sha512-9FwVqlgUHzbXtDg9RCMgodF3Ua4Na6Gau+Sdt9vyCN4RhHfVKX2DCHy3BjMLTDd47ITDhYAnTwGulWTblJSDLg==}
@@ -8743,12 +8731,6 @@ snapshots:
       package-json-from-dist: 1.0.1
       path-scurry: 2.0.1
 
-  glob@13.0.0:
-    dependencies:
-      minimatch: 10.1.2
-      minipass: 7.1.2
-      path-scurry: 2.0.1
-
   glob@9.3.5:
     dependencies:
       fs.realpath: 1.0.0
@@ -10474,11 +10456,6 @@ snapshots:
   rgb-regex@1.0.1: {}
 
   rgba-regex@1.0.0: {}
-
-  rimraf@6.1.2:
-    dependencies:
-      glob: 13.0.0
-      package-json-from-dist: 1.0.1
 
   rollup@4.56.0:
     dependencies:
