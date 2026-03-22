@@ -35,7 +35,9 @@
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",
     "eval": "evalite",
-    "eval:dev": "evalite watch"
+    "eval:dev": "evalite watch",
+    "ingest:vector": "tsx tooling/vector-ingest/ingest.ts",
+    "verify:vector": "tsx tooling/vector-ingest/verify.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.58",

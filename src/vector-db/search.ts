@@ -44,15 +44,15 @@ export function buildFilterString(
     );
   }
 
-  if (filters.directors) {
-    for (const director of filters.directors) {
-      conditions.push(`directors CONTAINS "${sanitizeFilterValue(director)}"`);
+  if (filters.directorIds) {
+    for (const id of filters.directorIds) {
+      conditions.push(`directorIds CONTAINS ${id}`);
     }
   }
 
-  if (filters.cast) {
-    for (const actor of filters.cast) {
-      conditions.push(`cast CONTAINS "${sanitizeFilterValue(actor)}"`);
+  if (filters.castIds) {
+    for (const id of filters.castIds) {
+      conditions.push(`castIds CONTAINS ${id}`);
     }
   }
 
