@@ -33,6 +33,9 @@ public/swe-worker*
 public/pwa-*.png
 src/app/manifest.json
 
+# Generated i18n bundles
+src/_generated/i18n/
+
 # Playwright
 /test-results/
 /playwright-report/

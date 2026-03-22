@@ -1,10 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import { AIChatView } from "./ai-chat-view";
-import translations from "./translations.json";
 
 export default async function Page({
   params,
@@ -13,22 +12,37 @@ export default async function Page({
 }) {
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
-  const { t } = getTranslations(translations, validatedLocale);
 
   return (
     <AIChatView
       locale={validatedLocale}
       emptyState={
         <div css={styles.welcomeContainer}>
-          <h1 css={styles.welcomeTitle}>{t("title")}</h1>
-          <p css={styles.welcomeDescription}>{t("description")}</p>
+          <h1 css={styles.welcomeTitle}>
+            {t({ en: "AI Mode", zh: "AI 模式" })}
+          </h1>
+          <p css={styles.welcomeDescription}>
+            {t({
+              en: "Chat with AI about movies and TV shows",
+              zh: "与 AI 聊电影和电视剧",
+            })}
+          </p>
         </div>
       }
-      typingIndicatorLabel={t("typingIndicator")}
-      scrollToBottomLabel={t("scrollToBottom")}
-      placeholder={t("placeholder")}
-      sendLabel={t("sendLabel")}
-      stopLabel={t("stopLabel")}
+      typingIndicatorLabel={t({
+        en: "AI is thinking…",
+        zh: "AI 正在思考…",
+      })}
+      scrollToBottomLabel={t({
+        en: "Scroll to bottom",
+        zh: "滚动到底部",
+      })}
+      placeholder={t({
+        en: "Ask about movies and TV shows...",
+        zh: "询问关于电影和电视剧的问题...",
+      })}
+      sendLabel={t({ en: "Send message", zh: "发送消息" })}
+      stopLabel={t({ en: "Stop generating", zh: "停止生成" })}
     />
   );
 }

@@ -15,7 +15,6 @@ export default defineConfig([
       "eslint.config.mjs",
       "next.config.js",
       "postcss.config.js",
-      "tooling/**/*",
       "src/_generated/**/*",
       ".next/**/*",
       "next-env.d.ts",
@@ -89,6 +88,36 @@ export default defineConfig([
           ignoreRestSiblings: true,
         },
       ],
+    },
+  },
+  // Tooling JS files are CJS and not covered by tsconfig, so disable
+  // type-checked rules and configure for Node.js/CommonJS.
+  {
+    files: ["tooling/**/*.js"],
+    ...tsEslint.configs.disableTypeChecked,
+    languageOptions: {
+      sourceType: "commonjs",
+      parserOptions: { projectService: false },
+      globals: {
+        __dirname: "readonly",
+        __filename: "readonly",
+        console: "readonly",
+        module: "readonly",
+        require: "readonly",
+        process: "readonly",
+      },
+    },
+    rules: {
+      ...tsEslint.configs.disableTypeChecked.rules,
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  // Tooling MJS files (ESM) — disable type-checked rules only.
+  {
+    files: ["tooling/**/*.mjs"],
+    ...tsEslint.configs.disableTypeChecked,
+    languageOptions: {
+      parserOptions: { projectService: false },
     },
   },
 ]);

@@ -3,15 +3,13 @@
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
-import { useTranslations } from "#src/hooks/use-translations.ts";
+import { t } from "#src/i18n.ts";
 import { controlSize, space } from "#src/tokens.stylex.ts";
 import { MenuButton } from "../shared/menu-button";
-import type translations from "./filters.translations.json";
 import { GenreFilter } from "./genre-filter";
 
 export function GenreFilterButton() {
   const { genres } = useMediaFilters();
-  const { t } = useTranslations<typeof translations>("filters");
 
   return (
     <MenuButton
@@ -27,7 +25,7 @@ export function GenreFilterButton() {
       }}
       position="topLeft"
     >
-      {t("genre")}
+      {t({ en: "Genre", zh: "类型" })}
       {genres.size ? ` (${genres.size})` : null}
     </MenuButton>
   );

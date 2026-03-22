@@ -15,14 +15,12 @@ import { Trailer } from "#src/components/movie-database/trailer.tsx";
 import { TvShowTrailer } from "#src/components/movie-database/tv-show-trailer.tsx";
 import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
+import { t } from "#src/i18n.ts";
 import { border, color, controlSize, font, space } from "#src/tokens.stylex.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
-import translations from "./translations.json";
 import type { PageProps } from "./types";
 
 export default async function Page({ params }: PageProps) {
   const { type, id, locale } = await params;
-  const { t } = getTranslations(translations, locale);
 
   // Validate type
   if (type !== "movie" && type !== "tv") {
@@ -54,7 +52,11 @@ export default async function Page({ params }: PageProps) {
           {movie.backdrop_path && (
             <BackdropImage
               backdropPath={movie.backdrop_path}
-              alt={movie.title ?? movie.original_title ?? t("titleFallback")}
+              alt={
+                movie.title ??
+                movie.original_title ??
+                t({ en: "Untitled", zh: "佚名" })
+              }
               locale={locale}
             />
           )}
@@ -66,16 +68,18 @@ export default async function Page({ params }: PageProps) {
               <div css={styles.count}>{movie.vote_count}</div>
             </div>
             <h1 css={styles.h1}>
-              {movie.title ?? movie.original_title ?? t("titleFallback")}
+              {movie.title ??
+                movie.original_title ??
+                t({ en: "Untitled", zh: "佚名" })}
             </h1>
             <div css={styles.meta}>
               {[
                 movie.release_date?.split("-")[0],
-                `${hours > 0 ? `${hours}${t("hours")} ` : ""}${minutes}${t("minutes")}`,
+                `${hours > 0 ? `${hours}${t({ en: "h", zh: " 小时" })} ` : ""}${minutes}${t({ en: "m", zh: " 分钟" })}`,
                 movie.genres
                   ?.map((genre) => genre.name)
                   .filter(Boolean)
-                  .join(t("comma")),
+                  .join(t({ en: ", ", zh: "、" })),
               ]
                 .filter(Boolean)
                 .join(" • ")}
@@ -113,7 +117,11 @@ export default async function Page({ params }: PageProps) {
           {tvShow.backdrop_path && (
             <BackdropImage
               backdropPath={tvShow.backdrop_path}
-              alt={tvShow.name ?? tvShow.original_name ?? t("titleFallback")}
+              alt={
+                tvShow.name ??
+                tvShow.original_name ??
+                t({ en: "Untitled", zh: "佚名" })
+              }
               locale={locale}
             />
           )}
@@ -125,16 +133,18 @@ export default async function Page({ params }: PageProps) {
               <div css={styles.count}>{tvShow.vote_count}</div>
             </div>
             <h1 css={styles.h1}>
-              {tvShow.name ?? tvShow.original_name ?? t("titleFallback")}
+              {tvShow.name ??
+                tvShow.original_name ??
+                t({ en: "Untitled", zh: "佚名" })}
             </h1>
             <div css={styles.meta}>
               {[
                 tvShow.first_air_date?.split("-")[0],
-                `${tvShow.number_of_seasons}${t("seasons")} • ${tvShow.number_of_episodes}${t("episodes")}`,
+                `${tvShow.number_of_seasons}${t({ en: " seasons", zh: " 季" })} • ${tvShow.number_of_episodes}${t({ en: " episodes", zh: " 集" })}`,
                 tvShow.genres
                   ?.map((genre) => genre.name)
                   .filter(Boolean)
-                  .join(t("comma")),
+                  .join(t({ en: ", ", zh: "、" })),
               ]
                 .filter(Boolean)
                 .join(" • ")}

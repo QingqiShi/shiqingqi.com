@@ -1,10 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { getMovieVideos } from "#src/_generated/tmdb-server-functions.ts";
+import { t } from "#src/i18n.ts";
 import { space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
 import { TrailerButton } from "./trailer-button";
-import translations from "./translations.json";
 
 interface TrailerProps {
   movieId: string;
@@ -18,8 +17,6 @@ export async function Trailer({ movieId, locale }: TrailerProps) {
     language: "en",
   });
 
-  const { t } = getTranslations(translations, locale);
-
   const trailer = trailers.results?.find(
     (video) => video.type === "Trailer" && video.official,
   );
@@ -28,7 +25,7 @@ export async function Trailer({ movieId, locale }: TrailerProps) {
   return (
     <div css={styles.container}>
       <TrailerButton trailerId={trailer.key} locale={locale}>
-        {t("playTrailer")}
+        {t({ en: "Play trailer", zh: "播放预告" })}
       </TrailerButton>
     </div>
   );

@@ -1,30 +1,24 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
-import type { SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
-import translations from "../../app/[locale]/(home)/(details)/translations.json";
 
 interface PageTitleProps {
   type: "experience" | "education";
   title: string;
   role: string;
   date: string;
-  locale: SupportedLocale;
 }
 
-export function DetailPageTitle({
-  date,
-  locale,
-  role,
-  title,
-  type,
-}: PageTitleProps) {
-  const { t } = getTranslations(translations, locale);
+export function DetailPageTitle({ date, role, title, type }: PageTitleProps) {
+  const typeLabel =
+    type === "experience"
+      ? t({ en: "Experience", zh: "工作" })
+      : t({ en: "Education", zh: "学习" });
 
   return (
     <header css={styles.container}>
       <h2 css={styles.subtitle}>
-        {t(type)} - {title}
+        {typeLabel} - {title}
       </h2>
       <h1 css={styles.title}>{role}</h1>
       <time css={styles.date}>{date}</time>

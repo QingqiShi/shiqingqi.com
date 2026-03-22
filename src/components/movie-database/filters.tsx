@@ -1,6 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
 import { controlSize, space } from "#src/tokens.stylex.ts";
-import type { SupportedLocale } from "#src/types.ts";
 import { FixedContainerContent } from "../shared/fixed-container-content";
 import { FiltersContainer } from "./filters-container";
 import { GenreFilter } from "./genre-filter";
@@ -13,11 +12,10 @@ import { SortFilter } from "./sort-filter";
 import { TmdbCredit } from "./tmdb-credit";
 
 interface FiltersProps {
-  locale: SupportedLocale;
   mobileButtonLabel: string;
 }
 
-export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
+export function Filters({ mobileButtonLabel }: FiltersProps) {
   return (
     <FiltersContainer
       desktopChildren={
@@ -33,7 +31,7 @@ export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
           <FixedContainerContent>
             <SearchButton />
           </FixedContainerContent>
-          <TmdbCredit locale={locale} position="topLeft" />
+          <TmdbCredit position="topLeft" />
         </>
       }
       mobileChildren={
@@ -43,7 +41,7 @@ export function Filters({ locale, mobileButtonLabel }: FiltersProps) {
             <FixedContainerContent>
               <SearchButton />
             </FixedContainerContent>
-            <TmdbCredit locale={locale} position="viewportWidth" />
+            <TmdbCredit position="viewportWidth" />
             <MobileFiltersButton
               menuContent={
                 <div css={styles.mobileMenuContent}>

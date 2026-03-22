@@ -4,10 +4,9 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
-import { useTranslations } from "#src/hooks/use-translations.ts";
+import { t } from "#src/i18n.ts";
 import { color, font, layer } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import type translations from "./poster-image.translations.json";
 
 interface PosterImageProps {
   posterPath: string;
@@ -20,7 +19,6 @@ interface PosterImageProps {
  * The component supports lazy loading and generates `srcSet` for responsive image handling.
  */
 export function PosterImage({ posterPath, alt }: PosterImageProps) {
-  const { t } = useTranslations<typeof translations>("posterImage");
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
 
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -29,7 +27,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
     return (
       <div css={[styles.poster, styles.errored]}>
         <div>{alt}</div>
-        <div css={styles.errorText}>{t("failedToLoadImage")}</div>
+        <div css={styles.errorText}>{t({ en: "No Poster", zh: "无海报" })}</div>
       </div>
     );
   }
@@ -49,7 +47,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
   return (
     <>
       {!imgLoaded && <Skeleton fill css={styles.errored} />}
-      {/* Disabling no-img-element rule as the images here are from a third party provider and is already 
+      {/* Disabling no-img-element rule as the images here are from a third party provider and is already
       optimized */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

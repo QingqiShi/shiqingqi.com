@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
+import { t } from "#src/i18n.ts";
 import type { PageProps } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
-import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
-  const validatedLocale = validateLocale(params.locale);
-  const { t } = getTranslations(translations, validatedLocale);
+  validateLocale(params.locale);
   return {
-    title: t("title"),
-    description: t("description"),
+    title: t({
+      en: "Education at University of Nottingham",
+      zh: "诺丁汉大学 教育",
+    }),
+    description: t({
+      en: "Qingqi graduated from the University of Nottingham with a First-class Honours degree in BSc Computer Science.",
+      zh: "石清琪毕业于诺丁汉大学，取得了《计算机科学》荣誉理学学士。",
+    }),
     alternates: {
       canonical: new URL(
         "/education/university-of-nottingham",

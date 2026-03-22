@@ -8,6 +8,8 @@ import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
 import { HeaderSkeleton } from "#src/components/shared/header-skeleton.tsx";
 import { Header } from "#src/components/shared/header.tsx";
+import { I18nProvider } from "#src/i18n/i18n-provider.tsx";
+import { setLocale } from "#src/i18n/server-locale.ts";
 import { themeHack } from "#src/utils/theme-hack.ts";
 import { isValidLocale } from "#src/utils/validate-locale.ts";
 
@@ -36,6 +38,8 @@ export default async function RootLayout({
   if (!isValidLocale(locale)) {
     notFound();
   }
+
+  setLocale(locale);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -72,22 +76,24 @@ export default async function RootLayout({
         )}
       </head>
       <body css={globalStyles.body}>
-        <SerwistProvider
-          swUrl="/sw.js"
-          disable={process.env.NODE_ENV === "development"}
-        >
-          <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-          <ViewTransition>
-            <PortalTargetProvider>
-              <Suspense fallback={<HeaderSkeleton />}>
-                <Header locale={locale} />
-              </Suspense>
-              <Suspense fallback={null}>{children}</Suspense>
-            </PortalTargetProvider>
-          </ViewTransition>
-          <Analytics />
-          <SpeedInsights />
-        </SerwistProvider>
+        <I18nProvider locale={locale}>
+          <SerwistProvider
+            swUrl="/sw.js"
+            disable={process.env.NODE_ENV === "development"}
+          >
+            <script dangerouslySetInnerHTML={{ __html: themeHack }} />
+            <ViewTransition>
+              <PortalTargetProvider>
+                <Suspense fallback={<HeaderSkeleton />}>
+                  <Header locale={locale} />
+                </Suspense>
+                <Suspense fallback={null}>{children}</Suspense>
+              </PortalTargetProvider>
+            </ViewTransition>
+            <Analytics />
+            <SpeedInsights />
+          </SerwistProvider>
+        </I18nProvider>
       </body>
     </html>
   );

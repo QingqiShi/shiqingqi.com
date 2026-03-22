@@ -1,30 +1,35 @@
 import { DetailPageTitle } from "#src/components/home/detail-page-title.tsx";
-import type { PageProps } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
-import translations from "./translations.json";
+import { t } from "#src/i18n.ts";
 
-export default async function Page(props: PageProps) {
-  const params = await props.params;
-  const { t } = getTranslations(translations, params.locale);
+export default function Page() {
   return (
     <>
       <DetailPageTitle
         type="education"
-        title={t("schoolName")}
-        role={t("course")}
-        date={t("date")}
-        locale={params.locale}
+        title={t({ en: "University of Nottingham", zh: "诺丁汉大学" })}
+        role={t({
+          en: "BSc Hons Computer Science",
+          zh: "荣誉理学学士 - 计算机科学",
+        })}
+        date={t({ en: "Sep 2013 - Jul 2016", zh: "2013年9月 - 2016年7月" })}
       />
-      <p>{t("grade")}</p>
-      <p>{t("modules")}</p>
+      <p>
+        {t({ en: "Grade: First-class Honours", zh: "学位等级：一等荣誉学位" })}
+      </p>
+      <p>{t({ en: "Core Courses:", zh: "核心科目：" })}</p>
       <ul>
-        <li>{t("dataStructures")}</li>
-        <li>{t("algorithms")}</li>
-        <li>{t("database")}</li>
-        <li>{t("security")}</li>
-        <li>{t("network")}</li>
+        <li>{t({ en: "Data Structures", zh: "数据结构" })}</li>
+        <li>{t({ en: "Algorithms", zh: "算法" })}</li>
+        <li>{t({ en: "Database", zh: "数据库" })}</li>
+        <li>{t({ en: "Security", zh: "信息安全" })}</li>
+        <li>{t({ en: "Network", zh: "网络" })}</li>
       </ul>
-      <p>{t("society")}</p>
+      <p>
+        {t({
+          en: "Extra: Chinese Students and Scholars Association, IT Officer",
+          zh: "社团：中国学生学者联谊会 IT 部长",
+        })}
+      </p>
     </>
   );
 }

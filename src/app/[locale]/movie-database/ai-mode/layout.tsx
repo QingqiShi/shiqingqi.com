@@ -2,24 +2,18 @@ import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { ErrorBoundary } from "react-error-boundary";
 import { BASE_URL } from "#src/constants.ts";
+import { t } from "#src/i18n.ts";
 import { color, space } from "#src/tokens.stylex.ts";
-import type { SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
-import translations from "./translations.json";
 
-export async function generateMetadata({
-  params,
-}: {
+export function generateMetadata(_props: {
   params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const validatedLocale: SupportedLocale = validateLocale(locale);
-  const { t } = getTranslations(translations, validatedLocale);
-
+}): Metadata {
   return {
-    title: t("title"),
-    description: t("description"),
+    title: t({ en: "AI Mode", zh: "AI 模式" }),
+    description: t({
+      en: "Chat with AI about movies and TV shows",
+      zh: "与 AI 聊电影和电视剧",
+    }),
     alternates: {
       canonical: new URL("/movie-database/ai-mode", BASE_URL).toString(),
       languages: {
@@ -30,22 +24,17 @@ export async function generateMetadata({
   } satisfies Metadata;
 }
 
-export default async function Layout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const validatedLocale: SupportedLocale = validateLocale(locale);
-  const { t } = getTranslations(translations, validatedLocale);
-
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary
       fallback={
         <div css={styles.errorContainer}>
-          <p css={styles.errorText}>{t("errorMessage")}</p>
+          <p css={styles.errorText}>
+            {t({
+              en: "Something went wrong. Please try again.",
+              zh: "出错了，请重试。",
+            })}
+          </p>
         </div>
       }
     >

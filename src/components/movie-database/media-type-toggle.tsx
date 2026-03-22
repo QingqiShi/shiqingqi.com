@@ -4,19 +4,17 @@ import * as stylex from "@stylexjs/stylex";
 import { useSearchParams } from "next/navigation";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
-import { useTranslations } from "#src/hooks/use-translations.ts";
+import { t } from "#src/i18n.ts";
 import { layer, space } from "#src/tokens.stylex.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { FixedContainerContent } from "../shared/fixed-container-content";
-import type translations from "./media-type-toggle.translations.json";
 
 interface MediaTypeToggleProps {
   mobile?: boolean;
 }
 
 export function MediaTypeToggle({ mobile }: MediaTypeToggleProps) {
-  const { t } = useTranslations<typeof translations>("mediaTypeToggle");
   const searchParams = useSearchParams();
   const { setMediaType, setMediaTypeUrl } = useMediaFilters();
 
@@ -42,14 +40,16 @@ export function MediaTypeToggle({ mobile }: MediaTypeToggleProps) {
           isActive={isMovies}
           onClick={handleMovieClick}
         >
-          {mobile ? t("moviesShort") : t("movies")}
+          {t({ en: "Movies", zh: "电影" })}
         </AnchorButton>
         <AnchorButton
           href={setMediaTypeUrl("tv")}
           isActive={isTv}
           onClick={handleTvClick}
         >
-          {mobile ? t("tvShowsShort") : t("tvShows")}
+          {mobile
+            ? t({ en: "TV", zh: "电视" })
+            : t({ en: "TV Shows", zh: "电视剧" })}
         </AnchorButton>
       </AnchorButtonGroup>
     </FixedContainerContent>

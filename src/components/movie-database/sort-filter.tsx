@@ -1,11 +1,10 @@
 "use client";
 
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
-import { useTranslations } from "#src/hooks/use-translations.ts";
+import { t } from "#src/i18n.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { MenuLabel } from "../shared/menu-label";
-import type translations from "./filters.translations.json";
 
 interface SortFilterProps {
   bright?: boolean;
@@ -14,11 +13,10 @@ interface SortFilterProps {
 
 export function SortFilter({ bright, hideLabel }: SortFilterProps) {
   const { sort, setSort, setSortUrl } = useMediaFilters();
-  const { t } = useTranslations<typeof translations>("filters");
 
   return (
     <div>
-      {!hideLabel && <MenuLabel>{t("sort")}</MenuLabel>}
+      {!hideLabel && <MenuLabel>{t({ en: "Sort", zh: "排序" })}</MenuLabel>}
       <AnchorButtonGroup bright={bright}>
         <AnchorButton
           href={
@@ -37,7 +35,7 @@ export function SortFilter({ bright, hideLabel }: SortFilterProps) {
           rel="nofollow"
           prefetch={false}
         >
-          {t("popularity")}
+          {t({ en: "Popularity", zh: "热度" })}
           {sort === "popularity.asc" && " ↑"}
           {sort === "popularity.desc" && " ↓"}
         </AnchorButton>
@@ -60,7 +58,7 @@ export function SortFilter({ bright, hideLabel }: SortFilterProps) {
           rel="nofollow"
           prefetch={false}
         >
-          {t("rating")}
+          {t({ en: "Rating", zh: "评分" })}
           {sort === "vote_average.asc" && " ↑"}
           {sort === "vote_average.desc" && " ↓"}
         </AnchorButton>
