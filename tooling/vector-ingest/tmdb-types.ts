@@ -60,7 +60,7 @@ export type TmdbWatchProviderCountry = NonNullable<
 
 export const dailyExportEntrySchema = z.object({
   id: z.number(),
-  adult: z.boolean(),
+  adult: z.boolean().optional().default(false),
   popularity: z.number(),
   video: z.boolean().optional(),
 });
