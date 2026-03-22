@@ -44,6 +44,9 @@ src/_generated/i18n/
 /playwright/.auth/
 .playwright-cli
 
+# Evalite
+.evalite/
+
 # Claude Code
 .claude/worktrees/
 .claude/skills/*-workspace/
