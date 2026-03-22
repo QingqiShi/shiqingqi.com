@@ -1,9 +1,8 @@
+import eslintReact from "@eslint-react/eslint-plugin";
 import js from "@eslint/js";
-import nextPlugin from "@next/eslint-plugin-next";
 import stylexjs from "@stylexjs/eslint-plugin";
-import importPlugin from "eslint-plugin-import";
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
+import nextConfig from "eslint-config-next";
+import importPlugin from "eslint-plugin-import-x";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import { defineConfig } from "eslint/config";
 import tsEslint from "typescript-eslint";
@@ -22,14 +21,15 @@ export default defineConfig([
       "playwright-report/**/*",
     ],
   },
+  ...nextConfig,
   js.configs.recommended,
   ...tsEslint.configs.recommendedTypeChecked,
+  eslintReact.configs["recommended-typescript"],
+  eslintReact.configs["disable-conflict-eslint-plugin-react"],
+  eslintReact.configs["disable-conflict-eslint-plugin-react-hooks"],
   {
     plugins: {
-      "@next/next": nextPlugin,
-      import: importPlugin,
-      react: reactPlugin,
-      "react-hooks": reactHooksPlugin,
+      "import-x": importPlugin,
       "@stylexjs": stylexjs,
       unicorn: eslintPluginUnicorn,
     },
@@ -42,9 +42,26 @@ export default defineConfig([
       },
     },
     rules: {
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs["core-web-vitals"].rules,
-      ...reactHooksPlugin.configs["recommended-latest"].rules,
+      // --- eslint-plugin-react → @eslint-react/eslint-plugin ---
+      // eslint-plugin-react (via eslint-config-next) crashes on ESLint 10.
+      "react/display-name": "off",
+      "react/jsx-key": "off",
+      "react/jsx-no-comment-textnodes": "off",
+      "react/jsx-no-duplicate-props": "off",
+      "react/jsx-no-undef": "off",
+      "react/jsx-uses-react": "off",
+      "react/jsx-uses-vars": "off",
+      "react/no-children-prop": "off",
+      "react/no-danger-with-children": "off",
+      "react/no-deprecated": "off",
+      "react/no-direct-mutation-state": "off",
+      "react/no-find-dom-node": "off",
+      "react/no-is-mounted": "off",
+      "react/no-render-return-value": "off",
+      "react/no-string-refs": "off",
+      "react/no-unescaped-entities": "off",
+      "react/require-render-return": "off",
+      // --- end eslint-plugin-react → @eslint-react/eslint-plugin ---
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
@@ -57,7 +74,7 @@ export default defineConfig([
           },
         },
       ],
-      "import/order": [
+      "import-x/order": [
         "error",
         {
           pathGroups: [
