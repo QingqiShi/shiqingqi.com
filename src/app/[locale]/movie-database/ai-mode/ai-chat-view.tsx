@@ -56,6 +56,8 @@ export function AIChatView({
 
 const styles = stylex.create({
   inputArea: {
+    position: "sticky",
+    bottom: 0,
     flexShrink: 0,
     padding: space._3,
     paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,

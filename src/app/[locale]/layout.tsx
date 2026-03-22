@@ -17,6 +17,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1.0,
   viewportFit: "cover",
+  interactiveWidget: "resizes-content",
 };
 
 // Only allow locales defined in generateStaticParams, return 404 for others

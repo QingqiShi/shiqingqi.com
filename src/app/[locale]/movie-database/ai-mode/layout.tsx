@@ -47,8 +47,7 @@ const styles = stylex.create({
   container: {
     display: "flex",
     flexDirection: "column",
-    height: `calc(100dvh - ${space._10} - env(safe-area-inset-top))`,
-    overflow: "hidden",
+    minHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top))`,
     maxInlineSize: "1140px",
     marginBlock: 0,
     marginInline: "auto",
