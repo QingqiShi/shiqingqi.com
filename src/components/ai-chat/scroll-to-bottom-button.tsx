@@ -31,10 +31,10 @@ export function ScrollToBottomButton({
 
 const styles = stylex.create({
   button: {
-    position: "fixed",
-    bottom: `calc(${space._10} + env(safe-area-inset-bottom))`,
-    left: "50%",
-    transform: "translateX(-50%)",
+    position: "sticky",
+    bottom: space._2,
+    alignSelf: "center",
+    marginTop: "auto",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",

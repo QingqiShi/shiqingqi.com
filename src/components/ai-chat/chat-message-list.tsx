@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ChatStatus, UIMessage } from "ai";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { space } from "#src/tokens.stylex.ts";
 import { ChatMessage } from "./chat-message";
 import { ScrollToBottomButton } from "./scroll-to-bottom-button";
@@ -26,24 +26,30 @@ export function ChatMessageList({
   scrollToBottomLabel,
 }: ChatMessageListProps) {
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: "smooth",
-    });
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: "smooth",
+      });
+    }
     setIsAtBottom(true);
   };
 
   useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
     const handleScroll = () => {
-      const { scrollHeight } = document.documentElement;
       const atBottom =
-        scrollHeight - window.scrollY - window.innerHeight < SCROLL_THRESHOLD;
+        el.scrollHeight - el.scrollTop - el.clientHeight < SCROLL_THRESHOLD;
       setIsAtBottom(atBottom);
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
   const lastMessageRole =
@@ -51,15 +57,17 @@ export function ChatMessageList({
 
   useEffect(() => {
     if (messages.length === 0) return;
+    const el = scrollRef.current;
+    if (!el) return;
     if (isAtBottom || lastMessageRole === "user") {
-      window.scrollTo({ top: document.documentElement.scrollHeight });
+      el.scrollTo?.({ top: el.scrollHeight });
     }
   }, [messages.length, lastMessageRole, isAtBottom]);
 
   const showTypingIndicator = status === "submitted";
 
   return (
-    <div css={styles.container}>
+    <div ref={scrollRef} css={styles.container}>
       {messages.length === 0 ? (
         <div css={styles.emptyStateWrapper}>{emptyState}</div>
       ) : (
@@ -87,6 +95,8 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     padding: space._3,
+    overflowY: "auto",
+    WebkitOverflowScrolling: "touch",
   },
   emptyStateWrapper: {
     display: "flex",
