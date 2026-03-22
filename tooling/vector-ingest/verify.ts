@@ -59,7 +59,9 @@ async function main() {
   console.log("\nVerification complete.");
 }
 
-main().catch((error: unknown) => {
-  console.error("Fatal error:", error);
-  process.exit(1);
-});
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((error: unknown) => {
+    console.error("Fatal error:", error);
+    process.exit(1);
+  });
+}
