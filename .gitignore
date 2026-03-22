@@ -41,6 +41,9 @@ src/app/manifest.json
 /playwright/.auth/
 .playwright-cli
 
+# Evalite
+.evalite/
+
 # Claude Code
 .claude/worktrees/
 .claude/skills/*-workspace/
