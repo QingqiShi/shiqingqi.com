@@ -65,6 +65,31 @@ describe("ChatMessage", () => {
     expect(screen.getByText("Thinking about this...")).toBeInTheDocument();
   });
 
+  it("renders markdown in assistant messages", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "assistant",
+          parts: [{ type: "text", text: "This is **bold** and *italic*" }],
+        })}
+      />,
+    );
+    expect(screen.getByText("bold").tagName).toBe("STRONG");
+    expect(screen.getByText("italic").tagName).toBe("EM");
+  });
+
+  it("does not render markdown in user messages", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "user",
+          parts: [{ type: "text", text: "This is **not bold**" }],
+        })}
+      />,
+    );
+    expect(screen.getByText("This is **not bold**")).toBeInTheDocument();
+  });
+
   it("does not crash on step-start parts", () => {
     render(
       <ChatMessage

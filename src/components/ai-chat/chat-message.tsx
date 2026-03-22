@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { isReasoningUIPart, isTextUIPart, type UIMessage } from "ai";
 import { memo } from "react";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
+import { MarkdownContent } from "./markdown-content";
 
 interface ChatMessageProps {
   message: UIMessage;
@@ -20,10 +21,17 @@ export const ChatMessage = memo(function ChatMessage({
     >
       {message.parts.map((part, index) => {
         if (isTextUIPart(part)) {
+          if (isUser) {
+            return (
+              <p key={index} css={[styles.partBase, styles.text]}>
+                {part.text}
+              </p>
+            );
+          }
           return (
-            <p key={index} css={[styles.partBase, styles.text]}>
-              {part.text}
-            </p>
+            <div key={index} css={styles.partBase}>
+              <MarkdownContent content={part.text} />
+            </div>
           );
         }
 
@@ -64,14 +72,15 @@ const styles = stylex.create({
   },
   partBase: {
     margin: 0,
-    whiteSpace: "pre-wrap",
     wordBreak: "break-word",
     lineHeight: font.lineHeight_4,
-  },
-  text: {
     fontSize: font.uiBody,
   },
+  text: {
+    whiteSpace: "pre-wrap",
+  },
   reasoning: {
+    whiteSpace: "pre-wrap",
     fontSize: font.uiBodySmall,
     color: color.textMuted,
     fontStyle: "italic",
