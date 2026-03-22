@@ -5671,7 +5671,9 @@ export interface operations {
   };
   "credit-details": {
     parameters: {
-      query?: never;
+      query?: {
+        language?: string;
+      };
       header?: never;
       path: {
         credit_id: string;
@@ -6094,7 +6096,6 @@ export interface operations {
     parameters: {
       query: {
         external_source:
-          | ""
           | "imdb_id"
           | "facebook_id"
           | "instagram_id"
@@ -13593,6 +13594,8 @@ export interface operations {
                * @example 18528
                */
               vote_count: number;
+              name?: string;
+              original_name?: string;
             }[];
             /**
              * @default 0
@@ -19008,18 +19011,58 @@ export interface operations {
              */
             id: number;
             results?: {
-              AE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=AE */
+              AD?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=AD */
                 link?: string;
                 flatrate?: {
-                  /** @example /xEPXbwbfABzPrUTWbgtDFH1NOa.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 24
+                   */
+                  display_priority: number;
+                }[];
+              };
+              AE?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=AE */
+                link?: string;
+                flatrate?: {
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
                    * @example 629
                    */
                   provider_id: number;
-                  /** @example OSN */
+                  /** @example OSN+ */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 7
+                   */
+                  display_priority: number;
+                }[];
+              };
+              AG?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=AG */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
@@ -19029,46 +19072,30 @@ export interface operations {
                 }[];
               };
               AR?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=AR */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=AR */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /nr5UBW4IGKgBwmhpTMOfcvnX2vX.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 467
                    */
                   provider_id: number;
-                  /** @example HBO Max */
+                  /** @example DIRECTV GO */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 5
+                   * @example 12
                    */
                   display_priority: number;
                 }[];
               };
               AT?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=AT */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=AT */
                 link?: string;
-                flatrate?: {
-                  /** @example /y0kyIFElN5sJAsmW8Txj69wzrD2.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 321
-                   */
-                  provider_id: number;
-                  /** @example Sky X */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 23
-                   */
-                  display_priority: number;
-                }[];
                 buy?: {
-                  /** @example /5NyLm42TmCqCMOZFvH4fcoSNKEW.jpg */
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -19083,12 +19110,44 @@ export interface operations {
                    */
                   display_priority: number;
                 }[];
+                flatrate?: {
+                  /** @example /kAZkQcIxMxTmlwdgSB05fqtymp0.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 29
+                   */
+                  provider_id: number;
+                  /** @example Sky Go */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 8
+                   */
+                  display_priority: number;
+                }[];
               };
               AU?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=AU */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=AU */
                 link?: string;
+                flatrate?: {
+                  /** @example /fejdSG7TwNQ5E0p6u7A6LVs280R.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 134
+                   */
+                  provider_id: number;
+                  /** @example Foxtel Now */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 8
+                   */
+                  display_priority: number;
+                }[];
                 buy?: {
-                  /** @example /peURlLlr8jggOwK53fJ5wdQl05y.jpg */
+                  /** @example /oMYZg3cGAGp9ecKGlBgumcjDmnN.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -19099,179 +19158,159 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 10
-                   */
-                  display_priority: number;
-                }[];
-                flatrate?: {
-                  /** @example /d3ixI1no0EpTj2i7u0Sd2DBXVlG.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 385
-                   */
-                  provider_id: number;
-                  /** @example BINGE */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 3
+                   * @example 11
                    */
                   display_priority: number;
                 }[];
               };
               BA?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=BA */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BA */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 28
+                   * @example 27
                    */
                   display_priority: number;
                 }[];
               };
               BB?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=BB */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BB */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 28
+                   * @example 23
                    */
                   display_priority: number;
                 }[];
               };
               BE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=BE */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BE */
                 link?: string;
-                flatrate?: {
-                  /** @example /pq8p1umEnJjdFAP1nFvNArTR61X.jpg */
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 311
+                   * @example 10
                    */
                   provider_id: number;
-                  /** @example Be TV Go */
+                  /** @example Amazon Video */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 4
+                   * @example 33
+                   */
+                  display_priority: number;
+                }[];
+                flatrate?: {
+                  /** @example /kwftIxtjuCAROIcdd53UEjzSmca.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1857
+                   */
+                  provider_id: number;
+                  /** @example Telenet */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 31
                    */
                   display_priority: number;
                 }[];
               };
               BG?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=BG */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BG */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 15
+                   * @example 21
+                   */
+                  display_priority: number;
+                }[];
+              };
+              BH?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BH */
+                link?: string;
+                flatrate?: {
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 629
+                   */
+                  provider_id: number;
+                  /** @example OSN+ */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 29
                    */
                   display_priority: number;
                 }[];
               };
               BO?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=BO */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BO */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 3
+                   * @example 30
                    */
                   display_priority: number;
                 }[];
               };
               BR?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=BR */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BR */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 7
-                   */
-                  display_priority: number;
-                }[];
-              };
-              BS?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=BS */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 28
-                   */
-                  display_priority: number;
-                }[];
-              };
-              CA?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=CA */
-                link?: string;
-                buy?: {
-                  /** @example /peURlLlr8jggOwK53fJ5wdQl05y.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 2
-                   */
-                  provider_id: number;
-                  /** @example Apple TV */
                   provider_name?: string;
                   /**
                    * @default 0
@@ -19279,8 +19318,52 @@ export interface operations {
                    */
                   display_priority: number;
                 }[];
+              };
+              BS?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BS */
+                link?: string;
                 flatrate?: {
-                  /** @example /gJ3yVMWouaVj6iHd59TISJ1TlM5.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 24
+                   */
+                  display_priority: number;
+                }[];
+              };
+              BZ?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=BZ */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 9
+                   */
+                  display_priority: number;
+                }[];
+              };
+              CA?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=CA */
+                link?: string;
+                flatrate?: {
+                  /** @example /ewOptMVIYcOadMGGJz8DJueH2bH.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -19295,12 +19378,28 @@ export interface operations {
                    */
                   display_priority: number;
                 }[];
+                buy?: {
+                  /** @example /oMYZg3cGAGp9ecKGlBgumcjDmnN.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 2
+                   */
+                  provider_id: number;
+                  /** @example Apple TV */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 5
+                   */
+                  display_priority: number;
+                }[];
               };
               CH?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=CH */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=CH */
                 link?: string;
                 buy?: {
-                  /** @example /tbEdFQDwx5LEVr8WpSeXQSIirVq.jpg */
+                  /** @example /8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -19316,7 +19415,7 @@ export interface operations {
                   display_priority: number;
                 }[];
                 flatrate?: {
-                  /** @example /sHP8XLo4Ac4WMbziRyAdRQdb76q.jpg */
+                  /** @example /ytApMa9fThUQUFTn696AeNBrB8f.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -19327,16 +19426,16 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 7
+                   * @example 6
                    */
                   display_priority: number;
                 }[];
               };
               CI?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=CI */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=CI */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -19347,20 +19446,20 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 25
+                   * @example 19
                    */
                   display_priority: number;
                 }[];
               };
               CL?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=CL */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=CL */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -19372,15 +19471,35 @@ export interface operations {
                   display_priority: number;
                 }[];
               };
-              CO?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=CO */
+              CM?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=CM */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 55
+                   */
+                  provider_id: number;
+                  /** @example ShowMax */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 0
+                   */
+                  display_priority: number;
+                }[];
+              };
+              CO?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=CO */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -19393,14 +19512,14 @@ export interface operations {
                 }[];
               };
               CR?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=CR */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=CR */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -19413,30 +19532,218 @@ export interface operations {
                 }[];
               };
               CZ?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=CZ */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=CZ */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /489t5n9o1KhH7voGNQkrXT7vBKV.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1939
+                   */
+                  provider_id: number;
+                  /** @example Lepsi TV */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 26
+                   */
+                  display_priority: number;
+                }[];
+              };
+              DE?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=DE */
+                link?: string;
+                flatrate?: {
+                  /** @example /kAZkQcIxMxTmlwdgSB05fqtymp0.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 29
+                   */
+                  provider_id: number;
+                  /** @example Sky Go */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 8
+                   */
+                  display_priority: number;
+                }[];
+                buy?: {
+                  /** @example /oMYZg3cGAGp9ecKGlBgumcjDmnN.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 2
+                   */
+                  provider_id: number;
+                  /** @example Apple TV */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 4
+                   */
+                  display_priority: number;
+                }[];
+              };
+              DK?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=DK */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 22
+                   * @example 39
                    */
                   display_priority: number;
                 }[];
               };
-              DE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=DE */
+              DO?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=DO */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 30
+                   */
+                  display_priority: number;
+                }[];
+              };
+              EC?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=EC */
+                link?: string;
+                flatrate?: {
+                  /** @example /tRNA2CRgA4XHvd7Mx9dH3sFtDVb.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 339
+                   */
+                  provider_id: number;
+                  /** @example MovistarTV */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 4
+                   */
+                  display_priority: number;
+                }[];
+              };
+              EG?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=EG */
+                link?: string;
+                flatrate?: {
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 629
+                   */
+                  provider_id: number;
+                  /** @example OSN+ */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 20
+                   */
+                  display_priority: number;
+                }[];
+              };
+              ES?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=ES */
+                link?: string;
+                flatrate?: {
+                  /** @example /f6TRLB3H4jDpFEZ0z2KWSSvu1SB.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 149
+                   */
+                  provider_id: number;
+                  /** @example Movistar Plus+ Ficción Total */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 6
+                   */
+                  display_priority: number;
+                }[];
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 32
+                   */
+                  display_priority: number;
+                }[];
+              };
+              FI?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=FI */
+                link?: string;
+                flatrate?: {
+                  /** @example /eglAxQEXSO13p6gNf3HKymrIu7y.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 540
+                   */
+                  provider_id: number;
+                  /** @example Elisa Viihde */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 18
+                   */
+                  display_priority: number;
+                }[];
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 54
+                   */
+                  display_priority: number;
+                }[];
+              };
+              FR?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=FR */
                 link?: string;
                 buy?: {
-                  /** @example /peURlLlr8jggOwK53fJ5wdQl05y.jpg */
+                  /** @example /oMYZg3cGAGp9ecKGlBgumcjDmnN.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -19452,31 +19759,127 @@ export interface operations {
                   display_priority: number;
                 }[];
                 flatrate?: {
-                  /** @example /MiVcYLkztM6qqLeVSYWHFCUcXx.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 30
+                   * @example 1899
                    */
                   provider_id: number;
-                  /** @example WOW */
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 5
+                   * @example 78
                    */
                   display_priority: number;
                 }[];
               };
-              DK?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=DK */
+              GB?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=GB */
                 link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                buy?: {
+                  /** @example /oMYZg3cGAGp9ecKGlBgumcjDmnN.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 2
+                   */
+                  provider_id: number;
+                  /** @example Apple TV */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 4
+                   */
+                  display_priority: number;
+                }[];
+                flatrate?: {
+                  /** @example /g0E9h3JAeIwmdvxlT73jiEuxdNj.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 39
+                   */
+                  provider_id: number;
+                  /** @example Now TV */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 43
+                   */
+                  display_priority: number;
+                }[];
+              };
+              GG?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=GG */
+                link?: string;
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 84
+                   */
+                  display_priority: number;
+                }[];
+              };
+              GQ?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=GQ */
+                link?: string;
+                flatrate?: {
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 55
+                   */
+                  provider_id: number;
+                  /** @example ShowMax */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 7
+                   */
+                  display_priority: number;
+                }[];
+              };
+              GT?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=GT */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 4
+                   */
+                  display_priority: number;
+                }[];
+              };
+              GY?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=GY */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -19488,223 +19891,35 @@ export interface operations {
                   display_priority: number;
                 }[];
               };
-              DO?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=DO */
+              HK?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=HK */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 28
+                   * @example 38
                    */
                   display_priority: number;
                 }[];
               };
-              DZ?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=DZ */
+              HN?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=HN */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 55
-                   */
-                  provider_id: number;
-                  /** @example ShowMax */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 27
-                   */
-                  display_priority: number;
-                }[];
-              };
-              EC?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=EC */
-                link?: string;
-                flatrate?: {
-                  /** @example /cDzkhgvozSr4GW2aRdV22uDuFpw.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 339
-                   */
-                  provider_id: number;
-                  /** @example Movistar Play */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 4
-                   */
-                  display_priority: number;
-                }[];
-              };
-              EG?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=EG */
-                link?: string;
-                flatrate?: {
-                  /** @example /xEPXbwbfABzPrUTWbgtDFH1NOa.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 629
-                   */
-                  provider_id: number;
-                  /** @example OSN */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 28
-                   */
-                  display_priority: number;
-                }[];
-              };
-              ES?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=ES */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 9
-                   */
-                  display_priority: number;
-                }[];
-              };
-              FI?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=FI */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 4
-                   */
-                  display_priority: number;
-                }[];
-                buy?: {
-                  /** @example /shq88b09gTBYC4hA7K7MUL8Q4zP.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 68
-                   */
-                  provider_id: number;
-                  /** @example Microsoft Store */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 12
-                   */
-                  display_priority: number;
-                }[];
-              };
-              FR?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=FR */
-                link?: string;
-                flatrate?: {
-                  /** @example /loOaayvNiLnD0zKl70TO2L5vlAL.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 1870
-                   */
-                  provider_id: number;
-                  /** @example Pass Warner Amazon Channel */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 95
-                   */
-                  display_priority: number;
-                }[];
-                buy?: {
-                  /** @example /peURlLlr8jggOwK53fJ5wdQl05y.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 2
-                   */
-                  provider_id: number;
-                  /** @example Apple TV */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 5
-                   */
-                  display_priority: number;
-                }[];
-              };
-              GB?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=GB */
-                link?: string;
-                flatrate?: {
-                  /** @example /fBHHXKC34ffxAsQvDe0ZJbvmTEQ.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 29
-                   */
-                  provider_id: number;
-                  /** @example Sky Go */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 9
-                   */
-                  display_priority: number;
-                }[];
-                buy?: {
-                  /** @example /5NyLm42TmCqCMOZFvH4fcoSNKEW.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 10
-                   */
-                  provider_id: number;
-                  /** @example Amazon Video */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 4
-                   */
-                  display_priority: number;
-                }[];
-              };
-              GF?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=GF */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -19716,171 +19931,87 @@ export interface operations {
                   display_priority: number;
                 }[];
               };
-              GH?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=GH */
-                link?: string;
-                flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 55
-                   */
-                  provider_id: number;
-                  /** @example ShowMax */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 11
-                   */
-                  display_priority: number;
-                }[];
-              };
-              GQ?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=GQ */
-                link?: string;
-                flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 55
-                   */
-                  provider_id: number;
-                  /** @example ShowMax */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 11
-                   */
-                  display_priority: number;
-                }[];
-              };
-              GT?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=GT */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 4
-                   */
-                  display_priority: number;
-                }[];
-              };
-              HK?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=HK */
-                link?: string;
-                flatrate?: {
-                  /** @example /bxdNcDbk1ohVeOMmM3eusAAiTLw.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 425
-                   */
-                  provider_id: number;
-                  /** @example HBO Go */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 40
-                   */
-                  display_priority: number;
-                }[];
-              };
-              HN?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=HN */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 4
-                   */
-                  display_priority: number;
-                }[];
-              };
               HR?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=HR */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=HR */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 34
+                   * @example 33
                    */
                   display_priority: number;
                 }[];
               };
               HU?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=HU */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=HU */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 22
+                   * @example 28
                    */
                   display_priority: number;
                 }[];
               };
               ID?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=ID */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=ID */
                 link?: string;
                 flatrate?: {
-                  /** @example /bxdNcDbk1ohVeOMmM3eusAAiTLw.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 425
+                   * @example 1899
                    */
                   provider_id: number;
-                  /** @example HBO Go */
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 14
+                   * @example 39
                    */
                   display_priority: number;
                 }[];
               };
               IE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=IE */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=IE */
                 link?: string;
+                flatrate?: {
+                  /** @example /g0E9h3JAeIwmdvxlT73jiEuxdNj.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 39
+                   */
+                  provider_id: number;
+                  /** @example Now TV */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  display_priority: number;
+                }[];
                 buy?: {
-                  /** @example /2pCbao1J9s0DMak2KKnEzmzHni8.jpg */
+                  /** @example /6AKbY2ayaEuH4zKg2prqoVQ9iaY.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -19895,124 +20026,52 @@ export interface operations {
                    */
                   display_priority: number;
                 }[];
-                flatrate?: {
-                  /** @example /fBHHXKC34ffxAsQvDe0ZJbvmTEQ.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 29
-                   */
-                  provider_id: number;
-                  /** @example Sky Go */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 8
-                   */
-                  display_priority: number;
-                }[];
               };
-              IL?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=IL */
+              IN?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=IN */
                 link?: string;
                 flatrate?: {
-                  /** @example /xEPXbwbfABzPrUTWbgtDFH1NOa.jpg */
+                  /** @example /kVqjgpcwvDJOhCupjcLzwwtOp52.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 629
+                   * @example 2336
                    */
                   provider_id: number;
-                  /** @example OSN */
+                  /** @example JioHotstar */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 13
+                   * @example 5
                    */
                   display_priority: number;
                 }[];
               };
               IQ?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=IQ */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=IQ */
                 link?: string;
                 flatrate?: {
-                  /** @example /xEPXbwbfABzPrUTWbgtDFH1NOa.jpg */
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
                    * @example 629
                    */
                   provider_id: number;
-                  /** @example OSN */
+                  /** @example OSN+ */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 12
+                   * @example 7
                    */
                   display_priority: number;
                 }[];
               };
               IT?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=IT */
-                link?: string;
-                flatrate?: {
-                  /** @example /fBHHXKC34ffxAsQvDe0ZJbvmTEQ.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 29
-                   */
-                  provider_id: number;
-                  /** @example Sky Go */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 8
-                   */
-                  display_priority: number;
-                }[];
-                buy?: {
-                  /** @example /cksgBjTHV3rzAVaO2zUyS1mH4Ke.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 40
-                   */
-                  provider_id: number;
-                  /** @example Chili */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 11
-                   */
-                  display_priority: number;
-                }[];
-              };
-              JM?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=JM */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 27
-                   */
-                  display_priority: number;
-                }[];
-              };
-              JP?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=JP */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=IT */
                 link?: string;
                 buy?: {
-                  /** @example /5NyLm42TmCqCMOZFvH4fcoSNKEW.jpg */
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20023,12 +20082,72 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 6
+                   * @example 33
                    */
                   display_priority: number;
                 }[];
                 flatrate?: {
-                  /** @example /npg1OiBidQSndMsBZwgEPOYU6Jq.jpg */
+                  /** @example /g0E9h3JAeIwmdvxlT73jiEuxdNj.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 39
+                   */
+                  provider_id: number;
+                  /** @example Now TV */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  display_priority: number;
+                }[];
+              };
+              JM?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=JM */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 22
+                   */
+                  display_priority: number;
+                }[];
+              };
+              JO?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=JO */
+                link?: string;
+                flatrate?: {
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 629
+                   */
+                  provider_id: number;
+                  /** @example OSN+ */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 31
+                   */
+                  display_priority: number;
+                }[];
+              };
+              JP?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=JP */
+                link?: string;
+                flatrate?: {
+                  /** @example /a5T7vNaGvoeckYO6rQkHolvyYf4.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20039,12 +20158,12 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 4
+                   * @example 2
                    */
                   display_priority: number;
                 }[];
-                rent?: {
-                  /** @example /5NyLm42TmCqCMOZFvH4fcoSNKEW.jpg */
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20055,16 +20174,32 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 6
+                   * @example 5
+                   */
+                  display_priority: number;
+                }[];
+                rent?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 5
                    */
                   display_priority: number;
                 }[];
               };
               KE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=KE */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=KE */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20072,6 +20207,46 @@ export interface operations {
                    */
                   provider_id: number;
                   /** @example ShowMax */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 7
+                   */
+                  display_priority: number;
+                }[];
+              };
+              LB?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=LB */
+                link?: string;
+                flatrate?: {
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 629
+                   */
+                  provider_id: number;
+                  /** @example OSN+ */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 7
+                   */
+                  display_priority: number;
+                }[];
+              };
+              LC?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=LC */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
@@ -20080,51 +20255,71 @@ export interface operations {
                   display_priority: number;
                 }[];
               };
-              KR?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=KR */
+              MC?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=MC */
                 link?: string;
                 flatrate?: {
-                  /** @example /2ioan5BX5L9tz4fIGU93blTeFhv.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 356
+                   * @example 1899
                    */
                   provider_id: number;
-                  /** @example wavve */
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 3
+                   * @example 25
                    */
                   display_priority: number;
                 }[];
               };
-              LB?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=LB */
+              MD?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=MD */
                 link?: string;
                 flatrate?: {
-                  /** @example /xEPXbwbfABzPrUTWbgtDFH1NOa.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 629
+                   * @example 1899
                    */
                   provider_id: number;
-                  /** @example OSN */
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 13
+                   * @example 25
                    */
                   display_priority: number;
                 }[];
               };
-              LY?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=LY */
+              ME?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=ME */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 6
+                   */
+                  display_priority: number;
+                }[];
+              };
+              MG?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=MG */
+                link?: string;
+                flatrate?: {
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20135,20 +20330,20 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 27
+                   * @example 0
                    */
                   display_priority: number;
                 }[];
               };
-              MD?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=MD */
+              MK?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=MK */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -20160,31 +20355,31 @@ export interface operations {
                   display_priority: number;
                 }[];
               };
-              MK?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=MK */
+              ML?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=ML */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 55
                    */
                   provider_id: number;
-                  /** @example HBO Max */
+                  /** @example ShowMax */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 29
+                   * @example 0
                    */
                   display_priority: number;
                 }[];
               };
               MU?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=MU */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=MU */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20195,172 +20390,20 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 8
+                   * @example 5
                    */
                   display_priority: number;
                 }[];
               };
               MX?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=MX */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=MX */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 11
-                   */
-                  display_priority: number;
-                }[];
-              };
-              MY?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=MY */
-                link?: string;
-                flatrate?: {
-                  /** @example /bxdNcDbk1ohVeOMmM3eusAAiTLw.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 425
-                   */
-                  provider_id: number;
-                  /** @example HBO Go */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 14
-                   */
-                  display_priority: number;
-                }[];
-              };
-              MZ?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=MZ */
-                link?: string;
-                flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 55
-                   */
-                  provider_id: number;
-                  /** @example ShowMax */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 10
-                   */
-                  display_priority: number;
-                }[];
-              };
-              NE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=NE */
-                link?: string;
-                flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 55
-                   */
-                  provider_id: number;
-                  /** @example ShowMax */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 25
-                   */
-                  display_priority: number;
-                }[];
-              };
-              NG?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=NG */
-                link?: string;
-                flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 55
-                   */
-                  provider_id: number;
-                  /** @example ShowMax */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 27
-                   */
-                  display_priority: number;
-                }[];
-              };
-              NL?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=NL */
-                link?: string;
-                buy?: {
-                  /** @example /shq88b09gTBYC4hA7K7MUL8Q4zP.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 68
-                   */
-                  provider_id: number;
-                  /** @example Microsoft Store */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 12
-                   */
-                  display_priority: number;
-                }[];
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 47
-                   */
-                  display_priority: number;
-                }[];
-              };
-              NO?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=NO */
-                link?: string;
-                buy?: {
-                  /** @example /shq88b09gTBYC4hA7K7MUL8Q4zP.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 68
-                   */
-                  provider_id: number;
-                  /** @example Microsoft Store */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 9
-                   */
-                  display_priority: number;
-                }[];
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -20372,11 +20415,183 @@ export interface operations {
                   display_priority: number;
                 }[];
               };
-              NZ?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=NZ */
+              MY?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=MY */
                 link?: string;
                 flatrate?: {
-                  /** @example /od4YNSSLgOP3p8EtQTnEYfrPa77.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 31
+                   */
+                  display_priority: number;
+                }[];
+              };
+              MZ?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=MZ */
+                link?: string;
+                flatrate?: {
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 55
+                   */
+                  provider_id: number;
+                  /** @example ShowMax */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 7
+                   */
+                  display_priority: number;
+                }[];
+              };
+              NE?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=NE */
+                link?: string;
+                flatrate?: {
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 55
+                   */
+                  provider_id: number;
+                  /** @example ShowMax */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 19
+                   */
+                  display_priority: number;
+                }[];
+              };
+              NG?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=NG */
+                link?: string;
+                flatrate?: {
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 55
+                   */
+                  provider_id: number;
+                  /** @example ShowMax */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 21
+                   */
+                  display_priority: number;
+                }[];
+              };
+              NI?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=NI */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 13
+                   */
+                  display_priority: number;
+                }[];
+              };
+              NL?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=NL */
+                link?: string;
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 34
+                   */
+                  display_priority: number;
+                }[];
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 48
+                   */
+                  display_priority: number;
+                }[];
+              };
+              NO?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=NO */
+                link?: string;
+                flatrate?: {
+                  /** @example /3ZigBD8WTEPcEHAvMWiJGUsv5u4.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 578
+                   */
+                  provider_id: number;
+                  /** @example Strim */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 27
+                   */
+                  display_priority: number;
+                }[];
+              };
+              NZ?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=NZ */
+                link?: string;
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 59
+                   */
+                  display_priority: number;
+                }[];
+                flatrate?: {
+                  /** @example /iscLKFDwQlr0BAgVDBcuRapLiwC.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20387,99 +20602,63 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 2
+                   * @example 3
+                   */
+                  display_priority: number;
+                }[];
+              };
+              OM?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=OM */
+                link?: string;
+                flatrate?: {
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 629
+                   */
+                  provider_id: number;
+                  /** @example OSN+ */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 31
                    */
                   display_priority: number;
                 }[];
               };
               PA?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=PA */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=PA */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 27
+                   * @example 30
                    */
                   display_priority: number;
                 }[];
               };
               PE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=PE */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=PE */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 8
-                   */
-                  display_priority: number;
-                }[];
-              };
-              PH?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=PH */
-                link?: string;
-                flatrate?: {
-                  /** @example /bxdNcDbk1ohVeOMmM3eusAAiTLw.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 425
-                   */
-                  provider_id: number;
-                  /** @example HBO Go */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 12
-                   */
-                  display_priority: number;
-                }[];
-              };
-              PL?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=PL */
-                link?: string;
-                rent?: {
-                  /** @example /bZNXgd8fwVTD68aAGlElkpAtu7b.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 549
-                   */
-                  provider_id: number;
-                  /** @example IPLA */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 17
-                   */
-                  display_priority: number;
-                }[];
-                flatrate?: {
-                  /** @example /l5Wxbsgral716BOtZsGyPVNn8GC.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 250
-                   */
-                  provider_id: number;
-                  /** @example Horizon */
                   provider_name?: string;
                   /**
                    * @default 0
@@ -20488,95 +20667,15 @@ export interface operations {
                   display_priority: number;
                 }[];
               };
-              PS?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=PS */
+              PH?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=PH */
                 link?: string;
                 flatrate?: {
-                  /** @example /xEPXbwbfABzPrUTWbgtDFH1NOa.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 629
-                   */
-                  provider_id: number;
-                  /** @example OSN */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 12
-                   */
-                  display_priority: number;
-                }[];
-              };
-              PT?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=PT */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 28
-                   */
-                  display_priority: number;
-                }[];
-              };
-              PY?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=PY */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 3
-                   */
-                  display_priority: number;
-                }[];
-              };
-              RO?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=RO */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 17
-                   */
-                  display_priority: number;
-                }[];
-              };
-              RS?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=RS */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -20588,11 +20687,163 @@ export interface operations {
                   display_priority: number;
                 }[];
               };
-              RU?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=RU */
+              PL?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=PL */
                 link?: string;
                 flatrate?: {
-                  /** @example /w1T8s7FqakcfucR8cgOvbe6UeXN.jpg */
+                  /** @example /jhMNVBV2UocEGepRkr9oFPD7Gpb.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 505
+                   */
+                  provider_id: number;
+                  /** @example Player */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  display_priority: number;
+                }[];
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 27
+                   */
+                  display_priority: number;
+                }[];
+              };
+              PT?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=PT */
+                link?: string;
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 43
+                   */
+                  display_priority: number;
+                }[];
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 32
+                   */
+                  display_priority: number;
+                }[];
+              };
+              PY?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=PY */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 29
+                   */
+                  display_priority: number;
+                }[];
+              };
+              QA?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=QA */
+                link?: string;
+                flatrate?: {
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 629
+                   */
+                  provider_id: number;
+                  /** @example OSN+ */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 31
+                   */
+                  display_priority: number;
+                }[];
+              };
+              RO?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=RO */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 23
+                   */
+                  display_priority: number;
+                }[];
+              };
+              RS?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=RS */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 28
+                   */
+                  display_priority: number;
+                }[];
+              };
+              RU?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=RU */
+                link?: string;
+                flatrate?: {
+                  /** @example /5z8dpQN27kybhn21EVLZcJPpMEo.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20609,30 +20860,30 @@ export interface operations {
                 }[];
               };
               SA?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=SA */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=SA */
                 link?: string;
                 flatrate?: {
-                  /** @example /xEPXbwbfABzPrUTWbgtDFH1NOa.jpg */
+                  /** @example /kC6JTo59Gj6I4vJPyBAYGh0sKAE.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
                    * @example 629
                    */
                   provider_id: number;
-                  /** @example OSN */
+                  /** @example OSN+ */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 25
+                   * @example 20
                    */
                   display_priority: number;
                 }[];
               };
               SC?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=SC */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=SC */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20643,96 +20894,96 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 9
+                   * @example 6
                    */
                   display_priority: number;
                 }[];
               };
               SE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=SE */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=SE */
                 link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 39
+                   */
+                  display_priority: number;
+                }[];
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 4
-                   */
-                  display_priority: number;
-                }[];
-                buy?: {
-                  /** @example /shq88b09gTBYC4hA7K7MUL8Q4zP.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 68
-                   */
-                  provider_id: number;
-                  /** @example Microsoft Store */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 7
+                   * @example 44
                    */
                   display_priority: number;
                 }[];
               };
               SG?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=SG */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=SG */
                 link?: string;
                 flatrate?: {
-                  /** @example /bxdNcDbk1ohVeOMmM3eusAAiTLw.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 425
-                   */
-                  provider_id: number;
-                  /** @example HBO Go */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 13
-                   */
-                  display_priority: number;
-                }[];
-              };
-              SI?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=SI */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 29
+                   * @example 31
+                   */
+                  display_priority: number;
+                }[];
+              };
+              SI?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=SI */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 28
                    */
                   display_priority: number;
                 }[];
               };
               SK?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=SK */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=SK */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -20745,10 +20996,10 @@ export interface operations {
                 }[];
               };
               SN?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=SN */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=SN */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -20759,80 +21010,120 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 11
+                   * @example 7
                    */
                   display_priority: number;
                 }[];
               };
               SV?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=SV */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=SV */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 25
+                   * @example 30
+                   */
+                  display_priority: number;
+                }[];
+              };
+              TC?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=TC */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  display_priority: number;
+                }[];
+              };
+              TD?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=TD */
+                link?: string;
+                flatrate?: {
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 55
+                   */
+                  provider_id: number;
+                  /** @example ShowMax */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 0
                    */
                   display_priority: number;
                 }[];
               };
               TH?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=TH */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=TH */
                 link?: string;
                 flatrate?: {
-                  /** @example /bxdNcDbk1ohVeOMmM3eusAAiTLw.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 425
+                   * @example 1899
                    */
                   provider_id: number;
-                  /** @example HBO Go */
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 12
+                   * @example 30
                    */
                   display_priority: number;
                 }[];
               };
               TR?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=TR */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=TR */
                 link?: string;
                 flatrate?: {
-                  /** @example /z3XAGCCbDD3KTZFvc96Ytr3XR56.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 341
+                   * @example 1899
                    */
                   provider_id: number;
-                  /** @example blutv */
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 2
+                   * @example 29
                    */
                   display_priority: number;
                 }[];
               };
               TT?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=TT */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=TT */
                 link?: string;
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
@@ -20845,162 +21136,106 @@ export interface operations {
                 }[];
               };
               TW?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=TW */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=TW */
                 link?: string;
                 flatrate?: {
-                  /** @example /bxdNcDbk1ohVeOMmM3eusAAiTLw.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 425
+                   * @example 1899
                    */
                   provider_id: number;
-                  /** @example HBO Go */
+                  /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 40
-                   */
-                  display_priority: number;
-                }[];
-              };
-              TZ?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=TZ */
-                link?: string;
-                flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 55
-                   */
-                  provider_id: number;
-                  /** @example ShowMax */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 9
-                   */
-                  display_priority: number;
-                }[];
-              };
-              UG?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=UG */
-                link?: string;
-                flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 55
-                   */
-                  provider_id: number;
-                  /** @example ShowMax */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 10
+                   * @example 38
                    */
                   display_priority: number;
                 }[];
               };
               US?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=US */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=US */
                 link?: string;
-                buy?: {
-                  /** @example /peURlLlr8jggOwK53fJ5wdQl05y.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 2
-                   */
-                  provider_id: number;
-                  /** @example Apple TV */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 4
-                   */
-                  display_priority: number;
-                }[];
-                free?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
-                   */
-                  provider_id: number;
-                  /** @example HBO Max */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 7
-                   */
-                  display_priority: number;
-                }[];
                 flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 7
+                   * @example 11
+                   */
+                  display_priority: number;
+                }[];
+                buy?: {
+                  /** @example /seGSXajazLMCKGB5hnRCidtjay1.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 10
+                   */
+                  provider_id: number;
+                  /** @example Amazon Video */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 6
                    */
                   display_priority: number;
                 }[];
               };
               UY?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=UY */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=UY */
                 link?: string;
                 flatrate?: {
-                  /** @example /kV8XFGI5OLJKl72dI8DtnKplfFr.jpg */
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
-                   * @example 467
-                   */
-                  provider_id: number;
-                  /** @example DIRECTV GO */
-                  provider_name?: string;
-                  /**
-                   * @default 0
-                   * @example 9
-                   */
-                  display_priority: number;
-                }[];
-              };
-              VE?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=VE */
-                link?: string;
-                flatrate?: {
-                  /** @example /Ajqyt5aNxNGjmF9uOfxArGrdf3X.jpg */
-                  logo_path?: string;
-                  /**
-                   * @default 0
-                   * @example 384
+                   * @example 1899
                    */
                   provider_id: number;
                   /** @example HBO Max */
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 8
+                   * @example 3
+                   */
+                  display_priority: number;
+                }[];
+              };
+              VE?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=VE */
+                link?: string;
+                flatrate?: {
+                  /** @example /jbe4gVSfRlbPTdESXhEKpornsfu.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 1899
+                   */
+                  provider_id: number;
+                  /** @example HBO Max */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 27
                    */
                   display_priority: number;
                 }[];
               };
               ZA?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=ZA */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=ZA */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -21017,10 +21252,10 @@ export interface operations {
                 }[];
               };
               ZM?: {
-                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/season/1/watch?locale=ZM */
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=ZM */
                 link?: string;
                 flatrate?: {
-                  /** @example /okiQZMXnqwv0aD3QDYmu5DBNLce.jpg */
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
                   logo_path?: string;
                   /**
                    * @default 0
@@ -21031,7 +21266,27 @@ export interface operations {
                   provider_name?: string;
                   /**
                    * @default 0
-                   * @example 10
+                   * @example 7
+                   */
+                  display_priority: number;
+                }[];
+              };
+              ZW?: {
+                /** @example https://www.themoviedb.org/tv/1399-game-of-thrones/watch?locale=ZW */
+                link?: string;
+                flatrate?: {
+                  /** @example /ilR8XFZOr3e3wETQ4ZXLjXQXrts.jpg */
+                  logo_path?: string;
+                  /**
+                   * @default 0
+                   * @example 55
+                   */
+                  provider_id: number;
+                  /** @example ShowMax */
+                  provider_name?: string;
+                  /**
+                   * @default 0
+                   * @example 0
                    */
                   display_priority: number;
                 }[];
