@@ -17,6 +17,7 @@ module.exports = {
     ],
   ],
   plugins: [
+    "./tooling/i18n-babel-plugin",
     [
       "module-resolver",
       {
@@ -48,5 +49,5 @@ module.exports = {
         },
       },
     ],
-  ],
+  ].filter(Boolean),
 };

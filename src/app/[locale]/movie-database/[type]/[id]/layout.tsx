@@ -6,15 +6,11 @@ import {
   getTvShowDetails,
 } from "#src/_generated/tmdb-server-functions.ts";
 import { Footer } from "#src/components/home/footer.tsx";
-import posterImageTranslations from "#src/components/movie-database/poster-image.translations.json";
-import cardTranslations from "#src/components/shared/card.translations.json";
-import { TranslationProvider } from "#src/components/shared/translation-provider.tsx";
 import { BASE_URL } from "#src/constants.ts";
+import { t } from "#src/i18n.ts";
 import { space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
-import translations from "./translations.json";
 import type { PageProps } from "./types";
 
 export async function generateMetadata({
@@ -22,7 +18,6 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { locale, type, id } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
-  const { t } = getTranslations(translations, validatedLocale);
 
   // Validate type
   if (type !== "movie" && type !== "tv") {
@@ -36,7 +31,9 @@ export async function generateMetadata({
     });
     return {
       title:
-        movieDetails.title ?? movieDetails.original_title ?? t("titleFallback"),
+        movieDetails.title ??
+        movieDetails.original_title ??
+        t({ en: "Untitled", zh: "佚名" }),
       description: movieDetails.tagline,
       alternates: {
         canonical: new URL(`/movie-database/movie/${id}`, BASE_URL).toString(),
@@ -53,7 +50,9 @@ export async function generateMetadata({
     });
     return {
       title:
-        tvShowDetails.name ?? tvShowDetails.original_name ?? t("titleFallback"),
+        tvShowDetails.name ??
+        tvShowDetails.original_name ??
+        t({ en: "Untitled", zh: "佚名" }),
       description: tvShowDetails.tagline,
       alternates: {
         canonical: new URL(`/movie-database/tv/${id}`, BASE_URL).toString(),
@@ -76,20 +75,14 @@ export default async function Layout({
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
   return (
-    <TranslationProvider
-      locale={validatedLocale}
-      translations={{
-        card: cardTranslations,
-        posterImage: posterImageTranslations,
-      }}
-    >
+    <>
       <main>{children}</main>
       <div css={styles.container}>
         <div css={styles.wrapperInner}>
           <Footer locale={validatedLocale} />
         </div>
       </div>
-    </TranslationProvider>
+    </>
   );
 }
 

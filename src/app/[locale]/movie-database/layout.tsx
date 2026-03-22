@@ -2,22 +2,26 @@ import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { Providers } from "#src/components/shared/providers.tsx";
 import { BASE_URL } from "#src/constants.ts";
+import { t } from "#src/i18n.ts";
 import { space } from "#src/tokens.stylex.ts";
-import type { PageProps, SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
-import translations from "./translations.json";
+import type { PageProps } from "#src/types.ts";
 
-export async function generateMetadata(props: PageProps): Promise<Metadata> {
-  const params = await props.params;
-  const validatedLocale: SupportedLocale = validateLocale(params.locale);
-  const { t } = getTranslations(translations, validatedLocale);
+export function generateMetadata(_props: PageProps): Metadata {
   return {
     title: {
-      default: t("title"),
-      template: t("titleTemplate"),
+      default: t({
+        en: "Movie Database | Qingqi Shi",
+        zh: "影视数据库 | 石清琪",
+      }),
+      template: t({
+        en: "%s | Movie Database | Qingqi Shi",
+        zh: "%s | 影视数据库 | 石清琪",
+      }),
     },
-    description: t("description"),
+    description: t({
+      en: "Qingqi's Movie Database (QMDB) is a tool to help you find ratings and reviews for the newest movie and TV shows.",
+      zh: "石清琪的影视数据库 (QMDB) 是一个帮助您查找最新电影和电视剧评分与影评的工具。",
+    }),
     alternates: {
       canonical: new URL("/movie-database", BASE_URL).toString(),
       languages: {

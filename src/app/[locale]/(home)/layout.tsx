@@ -9,24 +9,25 @@ import { Footer } from "#src/components/home/footer.tsx";
 import { FlowGradient } from "#src/components/shared/flow-gradient/flow-gradient.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { i18nConfig } from "#src/i18n-config.ts";
+import { t } from "#src/i18n.ts";
 import { color, layer, space } from "#src/tokens.stylex.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import { glowTokens } from "./layout.stylex";
-import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
-  const validatedLocale = validateLocale(params.locale);
-  const { t } = getTranslations(translations, validatedLocale);
+  validateLocale(params.locale);
   return {
     title: {
-      default: t("title"),
-      template: t("titleTemplate"),
+      default: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      template: t({ en: "%s | Qingqi Shi", zh: "%s | 石清琪" }),
     },
-    description: t("description"),
-    applicationName: t("title"),
+    description: t({
+      en: "Explore the personal website of Qingqi Shi, a software engineer who values the craftsman's spirit and specializes in React, TypeScript, and web development. Discover his professional experiences, technical skills, and educational background.",
+      zh: "探索石清琪的个人网站，他是一位信奉匠人精神并擅长 React、TypeScript 和 Web 开发的软件工程师。了解他的职业经历、技术技能和教育背景。",
+    }),
+    applicationName: t({ en: "Qingqi Shi", zh: "石清琪" }),
     alternates: {
       canonical: new URL("/", BASE_URL).toString(),
       languages: {

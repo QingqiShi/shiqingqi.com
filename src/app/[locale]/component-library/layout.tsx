@@ -1,23 +1,29 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
-import { TranslationProvider } from "#src/components/shared/translation-provider.tsx";
 import { BASE_URL } from "#src/constants.ts";
+import { t } from "#src/i18n.ts";
 import { controlSize, space } from "#src/tokens.stylex.ts";
-import type { PageProps, SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
+import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
-import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
-  const validatedLocale: SupportedLocale = validateLocale(params.locale);
-  const { t } = getTranslations(translations, validatedLocale);
+  validateLocale(params.locale);
   return {
     title: {
-      default: t("title"),
-      template: t("titleTemplate"),
+      default: t({
+        en: "Component Library | Qingqi Shi",
+        zh: "组件库 | 石清琪",
+      }),
+      template: t({
+        en: "%s | Component Library | Qingqi Shi",
+        zh: "%s | 组件库 | 石清琪",
+      }),
     },
-    description: t("description"),
+    description: t({
+      en: "Explore Qingqi Shi's component library - a collection of beautiful, reusable components crafted with care for modern web applications.",
+      zh: "探索石清琪的组件库 - 为现代网页应用精心打造的精美、可重用组件集合。",
+    }),
     alternates: {
       canonical: new URL("/component-library", BASE_URL).toString(),
       languages: {
@@ -28,25 +34,11 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   } satisfies Metadata;
 }
 
-export default async function Layout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const validatedLocale: SupportedLocale = validateLocale(locale);
-
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <TranslationProvider
-      locale={validatedLocale}
-      translations={{ componentLibrary: translations }}
-    >
-      <div css={styles.container}>
-        <main css={styles.main}>{children}</main>
-      </div>
-    </TranslationProvider>
+    <div css={styles.container}>
+      <main css={styles.main}>{children}</main>
+    </div>
   );
 }
 

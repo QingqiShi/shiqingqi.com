@@ -3,10 +3,9 @@ import { Suspense } from "react";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { SearchContent } from "#src/components/movie-database/search-content.tsx";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
+import { t } from "#src/i18n.ts";
 import { color, ratio, space } from "#src/tokens.stylex.ts";
 import type { PageProps } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
-import translations from "../translations.json";
 
 interface AISearchPageProps extends PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -16,19 +15,22 @@ export default async function AISearchPage(props: AISearchPageProps) {
   const params = await props.params;
   const searchParams = await props.searchParams;
 
-  const { t } = getTranslations(translations, params.locale);
-
   const query = Array.isArray(searchParams.q)
     ? searchParams.q[0]
     : searchParams.q;
 
   return (
     <div css={styles.container}>
-      <AISearchHeader title={t("aiSearchResults")} query={query} />
+      <AISearchHeader
+        title={t({ en: "AI Search Results", zh: "AI 搜索结果" })}
+        query={query}
+      />
 
       {!query ? (
         <div css={styles.emptyState}>
-          <p css={styles.emptyText}>{t("noQuery")}</p>
+          <p css={styles.emptyText}>
+            {t({ en: "Please provide a search query", zh: "请提供搜索关键词" })}
+          </p>
         </div>
       ) : (
         <Suspense

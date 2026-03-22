@@ -2,24 +2,21 @@
 
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "#src/hooks/use-translations.ts";
+import { useLocale } from "#src/hooks/use-locale.ts";
+import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
-import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 import { Button } from "../shared/button";
 import { Overlay } from "../shared/overlay";
-import type translations from "./filters.translations.json";
 
 export function SearchButton() {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const pathname = usePathname();
-  const locale: SupportedLocale = pathname.startsWith("/zh") ? "zh" : "en";
-  const { t } = useTranslations<typeof translations>("filters");
+  const locale = useLocale();
 
   // Auto-focus when opened
   useEffect(() => {
@@ -70,26 +67,37 @@ export function SearchButton() {
         icon={<SparkleIcon weight="fill" role="presentation" />}
         onClick={() => setIsOverlayOpen(true)}
         type="button"
-        aria-label={t("aiSearchLabel")}
+        aria-label={t({
+          en: "Search movies and TV shows with AI",
+          zh: "使用 AI 搜索电影和电视剧",
+        })}
         hideLabelOnMobile
       >
-        {t("aiSearch")}
+        {t({ en: "AI Search", zh: "AI 搜索" })}
       </Button>
       <Overlay isOpen={isOverlayOpen} onClose={handleClose}>
         <div css={styles.container}>
-          <h2 css={styles.title}>{t("aiSearch")}</h2>
+          <h2 css={styles.title}>{t({ en: "AI Search", zh: "AI 搜索" })}</h2>
           <form onSubmit={handleSubmit} css={styles.form}>
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("aiSearchPlaceholder")}
+              placeholder={t({
+                en: "Search with AI: 'best sci-fi movies from 2023' or 'funny Korean dramas'...",
+                zh: "AI 搜索：'2023年最佳科幻电影'或'搞笑韩剧'...",
+              })}
               css={styles.input}
               autoComplete="off"
               spellCheck={false}
             />
-            <div css={styles.hint}>{t("aiSearchHint")}</div>
+            <div css={styles.hint}>
+              {t({
+                en: "Press Enter to search or Escape to close",
+                zh: "按回车搜索或按 Esc 关闭",
+              })}
+            </div>
           </form>
         </div>
       </Overlay>

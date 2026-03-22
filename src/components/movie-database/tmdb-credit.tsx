@@ -4,19 +4,15 @@ import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
 import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
-import { useTranslations } from "#src/hooks/use-translations.ts";
+import { t } from "#src/i18n.ts";
 import { border, font, space } from "#src/tokens.stylex.ts";
-import type { SupportedLocale } from "#src/types.ts";
 import { MenuButton } from "../shared/menu-button";
-import type translations from "./translations.json";
 
 interface TmdbCreditProps {
-  locale: SupportedLocale;
   position: ComponentProps<typeof MenuButton>["position"];
 }
 
 export function TmdbCredit({ position }: TmdbCreditProps) {
-  const { t } = useTranslations<typeof translations>("movieDatabase");
   return (
     <MenuButton
       position={position}
@@ -31,12 +27,17 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
           <div css={styles.imageContainer}>
             <Image
               src="/tmdb.svg"
-              alt={t("tmdbLogo")}
+              alt={t({ en: "TMDB Logo", zh: "TMDB Logo" })}
               width={100}
               height={50}
             />
           </div>
-          <span>{t("tmdbCredits")}</span>
+          <span>
+            {t({
+              en: "This product uses the TMDB API but is not endorsed or certified by TMDB.",
+              zh: "本产品使用了 TMDB 提供的 API，但并未获得 TMDB 的官方认可或认证。",
+            })}
+          </span>
         </div>
       }
     />

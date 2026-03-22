@@ -1,19 +1,20 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
+import { t } from "#src/i18n.ts";
 import { space } from "#src/tokens.stylex.ts";
-import type { PageProps, SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
+import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
-import translations from "./translations.json";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
-  const validatedLocale: SupportedLocale = validateLocale(params.locale);
-  const { t } = getTranslations(translations, validatedLocale);
+  validateLocale(params.locale);
   return {
-    title: t("title"),
-    description: t("description"),
+    title: t({ en: "Calculator | Qingqi Shi", zh: "计算器 | 石清琪" }),
+    description: t({
+      en: "Qingqi's simple calculator demo.",
+      zh: "一个简单的计算器演示",
+    }),
     alternates: {
       canonical: new URL("/calculator", BASE_URL).toString(),
       languages: {

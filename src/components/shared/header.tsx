@@ -3,37 +3,34 @@ import { BackButton } from "#src/components/shared/back-button.tsx";
 import { FixedContainerContent } from "#src/components/shared/fixed-container-content.tsx";
 import { LocaleSelector } from "#src/components/shared/locale-selector.tsx";
 import { ThemeSwitch } from "#src/components/shared/theme-switch.tsx";
+import { t } from "#src/i18n.ts";
 import { layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
-import translations from "./translations.json";
 
 interface HeaderProps {
   locale: SupportedLocale;
 }
 
 export function Header({ locale }: HeaderProps) {
-  const { t } = getTranslations(translations, locale);
-
   return (
     <header css={styles.container}>
       <nav css={styles.nav}>
         <FixedContainerContent css={styles.navContent}>
-          <BackButton locale={locale} label={t("backLabel")} />
+          <BackButton locale={locale} label={t({ en: "Back", zh: "返回" })} />
         </FixedContainerContent>
         <div css={styles.navContent}>
           <FixedContainerContent>
             <ThemeSwitch
               labels={[
-                t("switchToLight"),
-                t("switchToDark"),
-                t("switchToSystem"),
+                t({ en: "Switch to light theme", zh: "切换至浅色模式" }),
+                t({ en: "Switch to dark theme", zh: "切换至深色模式" }),
+                t({ en: "Switch to system theme", zh: "切换至系统颜色模式" }),
               ]}
             />
           </FixedContainerContent>
           <LocaleSelector
-            label={t("localeSelectorLabel")}
-            ariaLabel={t("localeSelectorAriaLabel")}
+            label={t({ en: "Language", zh: "语言" })}
+            ariaLabel={t({ en: "Select a language", zh: "选择语言" })}
             locale={locale}
           />
         </div>

@@ -1,12 +1,8 @@
+import { createHash } from "node:crypto";
 import { describe, it, expect, vi } from "vitest";
+import { I18nContext } from "#src/i18n/i18n-context.ts";
 import { render, screen } from "#src/test-utils.tsx";
 import { Card } from "./card";
-
-vi.mock("#src/hooks/use-translations.ts", () => ({
-  useTranslations: () => ({
-    t: (key: string) => (key === "details" ? "View Details" : key),
-  }),
-}));
 
 vi.mock("./card.stylex", () => ({
   cardTokens: {
@@ -16,9 +12,24 @@ vi.mock("./card.stylex", () => ({
   },
 }));
 
+function hashKey(en: string, zh: string) {
+  return createHash("sha256")
+    .update(en + "\0" + zh)
+    .digest("hex")
+    .slice(0, 8);
+}
+
+const translations = {
+  [hashKey("Details", "详情")]: "Details",
+};
+
+function renderCard(ui: React.ReactElement) {
+  return render(<I18nContext value={{ translations }}>{ui}</I18nContext>);
+}
+
 describe("Card", () => {
   it("renders children content", () => {
-    render(
+    renderCard(
       <Card href="/test">
         <div>Test Content</div>
       </Card>,
@@ -28,7 +39,7 @@ describe("Card", () => {
   });
 
   it("renders as an anchor element with href", () => {
-    render(
+    renderCard(
       <Card href="/test-link">
         <div>Card Content</div>
       </Card>,
@@ -39,17 +50,17 @@ describe("Card", () => {
   });
 
   it("displays details indicator text", () => {
-    render(
+    renderCard(
       <Card href="/test">
         <div>Card Content</div>
       </Card>,
     );
 
-    expect(screen.getByText("View Details")).toBeInTheDocument();
+    expect(screen.getByText("Details")).toBeInTheDocument();
   });
 
   it("accepts and applies additional props", () => {
-    render(
+    renderCard(
       <Card href="/test" aria-label="Custom Card">
         <div>Card Content</div>
       </Card>,

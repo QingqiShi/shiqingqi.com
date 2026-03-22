@@ -1,18 +1,15 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { t } from "#src/i18n.ts";
 import { font, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
 import { Anchor } from "../shared/anchor";
-import translations from "./translations.json";
 
 interface FooterProps {
   locale: SupportedLocale;
 }
 
 export function Footer({ locale }: FooterProps) {
-  const { t } = getTranslations(translations, locale);
-
   const currentYear = new Date().getFullYear();
 
   return (
@@ -41,7 +38,7 @@ export function Footer({ locale }: FooterProps) {
       </div>
       <div css={[styles.section, styles.copyrightSection]}>
         <small>
-          <span css={styles.name}>{t("name")}</span>
+          <span css={styles.name}>{t({ en: "Qingqi Shi", zh: "石清琪" })}</span>
           <span css={styles.copyright}>© {currentYear}</span>
         </small>
       </div>

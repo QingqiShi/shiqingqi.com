@@ -3,15 +3,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useId } from "react";
+import { useLocale } from "#src/hooks/use-locale.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
-import { useTranslations } from "#src/hooks/use-translations.ts";
+import { t } from "#src/i18n.ts";
 import { controlSize, space } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import { useTranslationContext } from "#src/utils/translation-context.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { MenuLabel } from "../shared/menu-label";
-import type translations from "./filters.translations.json";
 
 interface GenreFilterProps {
   hideTitle?: boolean;
@@ -28,8 +27,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
     mediaType,
   } = useMediaFilters();
 
-  const { t } = useTranslations<typeof translations>("filters");
-  const { locale } = useTranslationContext();
+  const locale = useLocale();
 
   // Fetch genres based on current media type
   const genreQuery = tmdbQueries.genres({ type: mediaType, language: locale });
@@ -42,7 +40,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
   return (
     <div css={styles.container}>
       <div>
-        {!hideTitle && <MenuLabel>{t("genre")}</MenuLabel>}
+        {!hideTitle && <MenuLabel>{t({ en: "Genre", zh: "类型" })}</MenuLabel>}
         <div css={styles.genreList}>
           {allGenres?.map((genre) => {
             const idString = genre.id.toString();
@@ -71,7 +69,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
 
       {genres.size > 1 && (
         <div>
-          <MenuLabel>{t("filterType")}</MenuLabel>
+          <MenuLabel>{t({ en: "Matching", zh: "选中类型" })}</MenuLabel>
           <AnchorButtonGroup bright>
             <AnchorButton
               href={setGenreFilterTypeUrl("all")}
@@ -84,7 +82,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
               rel="nofollow"
               bright
             >
-              {t("all")}
+              {t({ en: "All selected", zh: "全部匹配" })}
             </AnchorButton>
             <AnchorButton
               href={setGenreFilterTypeUrl("any")}
@@ -97,7 +95,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
               rel="nofollow"
               bright
             >
-              {t("any")}
+              {t({ en: "Any selected", zh: "匹配任一" })}
             </AnchorButton>
           </AnchorButtonGroup>
         </div>

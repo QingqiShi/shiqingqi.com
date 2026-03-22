@@ -12,15 +12,14 @@ import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton
 import { Filters } from "#src/components/movie-database/filters.tsx";
 import { MediaFiltersProvider } from "#src/components/movie-database/media-filters-provider.tsx";
 import { MediaList } from "#src/components/movie-database/media-list.tsx";
+import { t } from "#src/i18n.ts";
 import type { PageProps } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
 import type {
   GenreFilterType,
   Sort,
 } from "#src/utils/media-filters-context.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import translations from "../translations.json";
 
 export default async function Page(
   props: PageProps & {
@@ -30,8 +29,6 @@ export default async function Page(
   await connection();
   const params = await props.params;
   const searchParams = await props.searchParams;
-
-  const { t } = getTranslations(translations, params.locale);
 
   const type = (
     Array.isArray(searchParams.type) ? searchParams.type[0] : searchParams.type
@@ -108,12 +105,15 @@ export default async function Page(
         }}
       >
         <Suspense fallback={<FiltersSkeleton locale={params.locale} />}>
-          <Filters
-            locale={params.locale}
-            mobileButtonLabel={t("filterMobileButtonLabel")}
-          />
+          <Filters mobileButtonLabel={t({ en: "Refine", zh: "筛选" })} />
         </Suspense>
-        <MediaList initialPage={1} notFoundLabel={t("notFound")} />
+        <MediaList
+          initialPage={1}
+          notFoundLabel={t({
+            en: "No movies found that match the criteria, please update the filters",
+            zh: "没有找到符合条件的电影，请更新筛选条件",
+          })}
+        />
       </MediaFiltersProvider>
     </HydrationBoundary>
   );

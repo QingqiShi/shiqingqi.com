@@ -6,15 +6,14 @@ import {
   getMovieRecommendations,
   getTvShowRecommendations,
 } from "#src/_generated/tmdb-server-functions.ts";
+import { t } from "#src/i18n.ts";
 import { ratio, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import { getTranslations } from "#src/utils/get-translations.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";
-import translations from "./translations.json";
 
 interface SimilarMediaProps {
   mediaId: string;
@@ -27,8 +26,6 @@ export function SimilarMedia({
   mediaType,
   locale,
 }: SimilarMediaProps) {
-  const { t } = getTranslations(translations, locale);
-
   const queryClient = getQueryClient();
 
   // Prefetch configuration
@@ -65,7 +62,7 @@ export function SimilarMedia({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div css={styles.container}>
-        <h2 css={styles.heading}>{t("similar")}</h2>
+        <h2 css={styles.heading}>{t({ en: "Similar", zh: "类似" })}</h2>
       </div>
       <Suspense
         fallback={
@@ -81,7 +78,10 @@ export function SimilarMedia({
           mediaType={mediaType}
           locale={locale}
           initialPage={1}
-          notFoundLabel={t("notFound")}
+          notFoundLabel={t({
+            en: "No similar content found",
+            zh: "没找到类似内容",
+          })}
         />
       </Suspense>
     </HydrationBoundary>

@@ -2,10 +2,9 @@
 
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
-import { useTranslations } from "#src/hooks/use-translations.ts";
+import { t } from "#src/i18n.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { MenuLabel } from "../shared/menu-label";
-import type translations from "./filters.translations.json";
 
 interface ResetFilterProps {
   bright?: boolean;
@@ -15,15 +14,17 @@ interface ResetFilterProps {
 export function ResetFilter({ bright, hideLabel }: ResetFilterProps) {
   const { canReset, reset, resetUrl } = useMediaFilters();
 
-  const { t } = useTranslations<typeof translations>("filters");
-
   if (!canReset) {
     return null;
   }
 
   return (
     <div>
-      {!hideLabel && <MenuLabel>{t("resetDescription")}</MenuLabel>}
+      {!hideLabel && (
+        <MenuLabel>
+          {t({ en: "Reset sorting and filters", zh: "重置筛选与排序" })}
+        </MenuLabel>
+      )}
       <AnchorButton
         href={resetUrl()}
         onClick={(e) => {
@@ -33,7 +34,7 @@ export function ResetFilter({ bright, hideLabel }: ResetFilterProps) {
         icon={<FunnelXIcon />}
         bright={bright}
       >
-        {t("reset")}
+        {t({ en: "Reset", zh: "重置" })}
       </AnchorButton>
     </div>
   );
