@@ -2,11 +2,12 @@ import { createInterface } from "node:readline";
 import { Readable } from "node:stream";
 import { createGunzip } from "node:zlib";
 import type { RateLimiter } from "./rate-limiter.ts";
-import type {
-  DailyExportEntry,
-  TmdbChangesResponse,
-  TmdbMovieDetail,
-  TmdbTvDetail,
+import {
+  type DailyExportEntry,
+  type TmdbChangesResponse,
+  type TmdbMovieDetail,
+  type TmdbTvDetail,
+  dailyExportEntrySchema,
 } from "./tmdb-types.ts";
 
 const TMDB_API_BASE = "https://api.themoviedb.org";
@@ -58,7 +59,7 @@ export class TmdbClient {
     for await (const line of rl) {
       const trimmed = line.trim();
       if (!trimmed) continue;
-      const entry = JSON.parse(trimmed) as DailyExportEntry;
+      const entry = dailyExportEntrySchema.parse(JSON.parse(trimmed));
       entries.push(entry);
     }
 
@@ -110,6 +111,9 @@ export class TmdbClient {
     return [...ids];
   }
 
+  // TMDB API responses are typed via auto-generated OpenAPI definitions.
+  // Full Zod validation is impractical (22k lines of generated types).
+  // We trust the API contract; daily exports use Zod at their boundary.
   async apiFetch<T>(path: string, retries = 0): Promise<T> {
     const MAX_RETRIES = 5;
     const url = `${TMDB_API_BASE}${path}`;
@@ -128,7 +132,7 @@ export class TmdbClient {
       }
       this.rateLimiter.onRateLimited();
       await this.rateLimiter.acquire();
-      return this.apiFetch<T>(path, retries + 1);
+      return this.apiFetch(path, retries + 1);
     }
 
     if (!response.ok) {
@@ -138,6 +142,9 @@ export class TmdbClient {
     }
 
     this.rateLimiter.resetBackoff();
-    return (await response.json()) as T;
+    // response.json() returns Promise<any>. We trust the TMDB OpenAPI contract
+    // for typing; full Zod validation is impractical for 22k lines of generated types.
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return response.json();
   }
 }

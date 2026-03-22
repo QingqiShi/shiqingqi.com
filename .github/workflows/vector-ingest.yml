@@ -39,12 +39,13 @@ jobs:
       - name: Run ingestion (manual)
         if: github.event_name == 'workflow_dispatch'
         run: |
-          if [ "${{ inputs.mode }}" = "incremental" ]; then
+          if [ "$MODE" = "incremental" ]; then
             pnpm ingest:vector --incremental --days=1
           else
             pnpm ingest:vector
           fi
         env:
+          MODE: ${{ inputs.mode }}
           TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
           UPSTASH_VECTOR_REST_URL: ${{ secrets.UPSTASH_VECTOR_REST_URL }}
           UPSTASH_VECTOR_REST_TOKEN: ${{ secrets.UPSTASH_VECTOR_REST_TOKEN }}

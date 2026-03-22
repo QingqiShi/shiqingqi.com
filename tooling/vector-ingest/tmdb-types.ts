@@ -3,6 +3,7 @@
  * Only DailyExportEntry is hand-written (daily export files aren't an API endpoint).
  */
 
+import { z } from "zod";
 import type { operations } from "../../src/_generated/tmdbV3.d.ts";
 
 /** Extract the JSON response type from a TMDB API operation. */
@@ -56,9 +57,12 @@ export type TmdbWatchProviderCountry = NonNullable<
 >;
 
 /** Daily export file entry (not an API response — hand-written). */
-export type DailyExportEntry = {
-  id: number;
-  adult: boolean;
-  popularity: number;
-  video?: boolean;
-};
+
+export const dailyExportEntrySchema = z.object({
+  id: z.number(),
+  adult: z.boolean(),
+  popularity: z.number(),
+  video: z.boolean().optional(),
+});
+
+export type DailyExportEntry = z.infer<typeof dailyExportEntrySchema>;

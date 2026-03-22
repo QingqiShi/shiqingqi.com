@@ -1,30 +1,42 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { RateLimiter } from "./rate-limiter.ts";
+import { describe, it, expect } from "vitest";
+import { type Clock, RateLimiter } from "./rate-limiter.ts";
+
+function makeFakeClock(): Clock & {
+  time: number;
+  advance: (ms: number) => void;
+} {
+  let time = 0;
+  return {
+    get time() {
+      return time;
+    },
+    now: () => time,
+    sleep: () => Promise.resolve(),
+    advance: (ms: number) => {
+      time += ms;
+    },
+  };
+}
 
 describe("RateLimiter", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it("allows immediate acquisition when tokens available", async () => {
-    const limiter = new RateLimiter(10, 1000);
+    const clock = makeFakeClock();
+    const limiter = new RateLimiter(10, 1000, clock);
     await limiter.acquire();
     expect(limiter.tokens).toBe(9);
   });
 
   it("tracks backoff on rate limit", () => {
-    const limiter = new RateLimiter(10, 1000);
+    const clock = makeFakeClock();
+    const limiter = new RateLimiter(10, 1000, clock);
     limiter.onRateLimited();
     expect(limiter.backoffMs).toBe(1000);
     expect(limiter.tokens).toBe(0);
   });
 
   it("doubles backoff on repeated rate limits", () => {
-    const limiter = new RateLimiter(10, 1000);
+    const clock = makeFakeClock();
+    const limiter = new RateLimiter(10, 1000, clock);
     limiter.onRateLimited();
     expect(limiter.backoffMs).toBe(1000);
     limiter.onRateLimited();
@@ -34,26 +46,27 @@ describe("RateLimiter", () => {
   });
 
   it("resets backoff", () => {
-    const limiter = new RateLimiter(10, 1000);
+    const clock = makeFakeClock();
+    const limiter = new RateLimiter(10, 1000, clock);
     limiter.onRateLimited();
     limiter.resetBackoff();
     expect(limiter.backoffMs).toBe(0);
   });
 
   it("refills tokens after time passes", async () => {
-    const limiter = new RateLimiter(10, 1000);
+    const clock = makeFakeClock();
+    const limiter = new RateLimiter(10, 1000, clock);
     for (let i = 0; i < 10; i++) {
       await limiter.acquire();
     }
     expect(limiter.tokens).toBe(0);
 
-    vi.advanceTimersByTime(1000);
+    clock.advance(1000);
     await limiter.acquire();
     expect(limiter.tokens).toBe(9);
   });
 
   it("serializes concurrent acquire calls", async () => {
-    vi.useRealTimers();
     const limiter = new RateLimiter(5, 1000);
 
     // Fire 5 concurrent acquires

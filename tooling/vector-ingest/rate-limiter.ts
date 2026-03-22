@@ -1,3 +1,13 @@
+export type Clock = {
+  now: () => number;
+  sleep: (ms: number) => Promise<void>;
+};
+
+const defaultClock: Clock = {
+  now: () => Date.now(),
+  sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+};
+
 /**
  * Token-bucket rate limiter for TMDB API requests.
  * Targets 30 req/s (conservative under TMDB's ~40 req/s limit).
@@ -13,16 +23,18 @@ export class RateLimiter {
   maxTokens: number;
   refillIntervalMs: number;
   private pending: Promise<void> = Promise.resolve();
+  private clock: Clock;
 
-  constructor(maxTokens = 30, refillIntervalMs = 1000) {
+  constructor(maxTokens = 30, refillIntervalMs = 1000, clock?: Clock) {
     this.maxTokens = maxTokens;
     this.refillIntervalMs = refillIntervalMs;
     this.tokens = maxTokens;
-    this.lastRefill = Date.now();
+    this.clock = clock ?? defaultClock;
+    this.lastRefill = this.clock.now();
   }
 
   private refill() {
-    const now = Date.now();
+    const now = this.clock.now();
     const elapsed = now - this.lastRefill;
     const tokensToAdd = Math.floor(
       (elapsed / this.refillIntervalMs) * this.maxTokens,
@@ -41,7 +53,7 @@ export class RateLimiter {
 
   private async acquireInternal(): Promise<void> {
     if (this.backoffMs > 0) {
-      await sleep(this.backoffMs);
+      await this.clock.sleep(this.backoffMs);
       this.backoffMs = 0;
     }
 
@@ -49,7 +61,7 @@ export class RateLimiter {
 
     if (this.tokens <= 0) {
       const waitMs = Math.ceil(this.refillIntervalMs / this.maxTokens);
-      await sleep(waitMs);
+      await this.clock.sleep(waitMs);
       this.refill();
     }
 
@@ -64,8 +76,4 @@ export class RateLimiter {
   resetBackoff(): void {
     this.backoffMs = 0;
   }
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
