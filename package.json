@@ -11,9 +11,8 @@
     "#src/*": "./src/*"
   },
   "scripts": {
-    "predev": "rimraf .next",
     "watch:i18n": "tsx tooling/i18n-codegen/generator.ts --watch",
-    "prebuild": "rimraf .next && npm-run-all codegen:pwa-icons codegen:i18n",
+    "prebuild": "npm-run-all codegen:pwa-icons codegen:i18n",
     "codegen": "npm-run-all codegen:*",
     "codegen:i18n": "tsx tooling/i18n-codegen/generator.ts",
     "codegen:openapi": "openapi-typescript https://developer.themoviedb.org/openapi/tmdb-api.json -o src/_generated/tmdbV3.d.ts && prettier 'src/_generated/tmdbV3.d.ts' -w",
@@ -109,7 +108,6 @@
     "postcss-preset-env": "^11.1.2",
     "prettier": "^3.8.1",
     "raw-loader": "^4.0.2",
-    "rimraf": "^6.1.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.55.0",
