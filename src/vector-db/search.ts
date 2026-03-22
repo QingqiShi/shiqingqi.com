@@ -67,7 +67,10 @@ export function buildFilterString(
 }
 
 function escapeFilterValue(value: string): string {
-  return value.replace(/'/g, "\\'");
+  // Escape backslashes first, then single quotes.
+  // Order matters: escaping quotes first would produce \\' from \',
+  // which a parser could interpret as (escaped-backslash)(end-of-string).
+  return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
 export function mapQueryResult(

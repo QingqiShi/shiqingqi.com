@@ -24,10 +24,13 @@ export const vectorSearchFiltersSchema = z.object({
   releaseYearMin: z.number().int().optional(),
   releaseYearMax: z.number().int().optional(),
   voteAverageMin: z.number().optional(),
-  originalLanguage: z.string().optional(),
-  directors: z.array(z.string()).optional(),
-  cast: z.array(z.string()).optional(),
-  streamingPlatforms: z.array(z.string()).optional(),
+  originalLanguage: z
+    .string()
+    .regex(/^[a-z]{2}$/)
+    .optional(),
+  directors: z.array(z.string().max(200)).optional(),
+  cast: z.array(z.string().max(200)).optional(),
+  streamingPlatforms: z.array(z.string().max(100)).optional(),
 });
 
 export type VectorSearchFilters = z.infer<typeof vectorSearchFiltersSchema>;

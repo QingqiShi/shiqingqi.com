@@ -101,6 +101,18 @@ describe("buildFilterString", () => {
       "cast CONTAINS 'Lupita Nyong\\'o'",
     );
   });
+
+  it("escapes backslashes before quotes to prevent injection", () => {
+    expect(
+      buildFilterString({ cast: ["foo\\' OR 1=1 OR x='bar"] }),
+    ).toBe("cast CONTAINS 'foo\\\\\\' OR 1=1 OR x=\\'bar'");
+  });
+
+  it("escapes standalone backslashes", () => {
+    expect(buildFilterString({ directors: ["back\\slash"] })).toBe(
+      "directors CONTAINS 'back\\\\slash'",
+    );
+  });
 });
 
 describe("vectorSearchFiltersSchema", () => {
@@ -136,6 +148,28 @@ describe("vectorSearchFiltersSchema", () => {
   it("rejects non-integer releaseYearMin", () => {
     expect(() =>
       vectorSearchFiltersSchema.parse({ releaseYearMin: 2020.5 }),
+    ).toThrow();
+  });
+
+  it("accepts valid ISO 639-1 originalLanguage", () => {
+    const result = vectorSearchFiltersSchema.parse({ originalLanguage: "en" });
+    expect(result.originalLanguage).toBe("en");
+  });
+
+  it("rejects invalid originalLanguage format", () => {
+    expect(() =>
+      vectorSearchFiltersSchema.parse({ originalLanguage: "english" }),
+    ).toThrow();
+    expect(() =>
+      vectorSearchFiltersSchema.parse({
+        originalLanguage: "' OR 1=1 --",
+      }),
+    ).toThrow();
+  });
+
+  it("rejects overly long cast names", () => {
+    expect(() =>
+      vectorSearchFiltersSchema.parse({ cast: ["a".repeat(201)] }),
     ).toThrow();
   });
 });
