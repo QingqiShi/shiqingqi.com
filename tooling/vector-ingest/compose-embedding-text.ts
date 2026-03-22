@@ -79,7 +79,7 @@ export function extractCast(cast: TmdbCastMember[]): {
   ids: number[];
   names: string[];
 } {
-  const top = cast.sort((a, b) => a.order - b.order).slice(0, TOP_CAST);
+  const top = cast.toSorted((a, b) => a.order - b.order).slice(0, TOP_CAST);
   return {
     ids: top.map((c) => c.id),
     names: top.flatMap((c) => (c.name ? [c.name] : [])),
