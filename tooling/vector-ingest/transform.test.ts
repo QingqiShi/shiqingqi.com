@@ -21,7 +21,9 @@ describe("transformMovie", () => {
       popularity: 60.5,
       posterPath: "/pB8BM7pdSp6B6Ih7QI4S2t0POsFJ.jpg",
       originalLanguage: "en",
+      directorIds: [7467],
       directors: ["David Fincher"],
+      castIds: [819, 287, 1283],
       cast: ["Edward Norton", "Brad Pitt", "Helena Bonham Carter"],
       streamingPlatforms: ["Netflix", "Hulu"],
     });

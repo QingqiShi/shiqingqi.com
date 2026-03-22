@@ -101,12 +101,14 @@ describe("extractDirectors", () => {
       makeMovieDetail().credits.crew ?? [],
       "movie",
     );
-    expect(directors).toEqual(["David Fincher"]);
+    expect(directors.names).toEqual(["David Fincher"]);
+    expect(directors.ids).toEqual([7467]);
   });
 
   it("falls back to Executive Producer for TV", () => {
     const directors = extractDirectors(makeTvDetail().credits.crew ?? [], "tv");
-    expect(directors).toEqual(["Vince Gilligan"]);
+    expect(directors.names).toEqual(["Vince Gilligan"]);
+    expect(directors.ids).toEqual([66633]);
   });
 
   it("prefers Series Director for TV when available", () => {
@@ -131,7 +133,8 @@ describe("extractDirectors", () => {
       },
     ];
     const directors = extractDirectors(crew, "tv");
-    expect(directors).toEqual(["Series Dir"]);
+    expect(directors.names).toEqual(["Series Dir"]);
+    expect(directors.ids).toEqual([1]);
   });
 });
 
@@ -168,10 +171,11 @@ describe("extractStreamingPlatforms", () => {
 describe("extractCast", () => {
   it("extracts top cast members by order", () => {
     const cast = extractCast(makeMovieDetail().credits.cast ?? []);
-    expect(cast).toEqual([
+    expect(cast.names).toEqual([
       "Edward Norton",
       "Brad Pitt",
       "Helena Bonham Carter",
     ]);
+    expect(cast.ids).toEqual([819, 287, 1283]);
   });
 });

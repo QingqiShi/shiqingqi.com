@@ -55,25 +55,27 @@ describe("buildFilterString", () => {
     );
   });
 
-  it("filters by directors", () => {
-    expect(buildFilterString({ directors: ["Christopher Nolan"] })).toBe(
-      'directors CONTAINS "Christopher Nolan"',
+  it("filters by directorIds", () => {
+    expect(buildFilterString({ directorIds: [525] })).toBe(
+      "directorIds CONTAINS 525",
     );
   });
 
-  it("filters by cast", () => {
-    expect(buildFilterString({ cast: ["Leonardo DiCaprio"] })).toBe(
-      'cast CONTAINS "Leonardo DiCaprio"',
+  it("filters by multiple directorIds", () => {
+    expect(buildFilterString({ directorIds: [525, 7467] })).toBe(
+      "directorIds CONTAINS 525 AND directorIds CONTAINS 7467",
     );
   });
 
-  it("filters by multiple cast members", () => {
-    expect(
-      buildFilterString({
-        cast: ["Leonardo DiCaprio", "Joseph Gordon-Levitt"],
-      }),
-    ).toBe(
-      'cast CONTAINS "Leonardo DiCaprio" AND cast CONTAINS "Joseph Gordon-Levitt"',
+  it("filters by castIds", () => {
+    expect(buildFilterString({ castIds: [6193] })).toBe(
+      "castIds CONTAINS 6193",
+    );
+  });
+
+  it("filters by multiple castIds", () => {
+    expect(buildFilterString({ castIds: [6193, 2524] })).toBe(
+      "castIds CONTAINS 6193 AND castIds CONTAINS 2524",
     );
   });
 
@@ -96,21 +98,17 @@ describe("buildFilterString", () => {
     );
   });
 
-  it("preserves single quotes in values (safe inside double-quote delimiters)", () => {
-    expect(buildFilterString({ cast: ["Lupita Nyong'o"] })).toBe(
-      'cast CONTAINS "Lupita Nyong\'o"',
-    );
+  it("strips double quotes from streaming platform values", () => {
+    expect(
+      buildFilterString({
+        streamingPlatforms: ['test" OR category = "actor'],
+      }),
+    ).toBe('streamingPlatforms CONTAINS "test OR category = actor"');
   });
 
-  it("strips double quotes from values to prevent injection", () => {
-    expect(buildFilterString({ cast: ['test" OR category = "actor'] })).toBe(
-      'cast CONTAINS "test OR category = actor"',
-    );
-  });
-
-  it("preserves backslashes in values (not special in Upstash filters)", () => {
-    expect(buildFilterString({ directors: ["back\\slash"] })).toBe(
-      'directors CONTAINS "back\\slash"',
+  it("preserves single quotes in streaming platform values", () => {
+    expect(buildFilterString({ streamingPlatforms: ["Lupita's Stream"] })).toBe(
+      'streamingPlatforms CONTAINS "Lupita\'s Stream"',
     );
   });
 });
@@ -122,7 +120,7 @@ describe("vectorSearchFiltersSchema", () => {
       genreIds: [28, 12],
       releaseYearMin: 2020,
       voteAverageMin: 7.0,
-      cast: ["Leonardo DiCaprio"],
+      castIds: [6193],
     });
     expect(result.mediaType).toBe("movie");
     expect(result.genreIds).toEqual([28, 12]);
@@ -167,9 +165,21 @@ describe("vectorSearchFiltersSchema", () => {
     ).toThrow();
   });
 
-  it("rejects overly long cast names", () => {
+  it("rejects non-integer directorIds", () => {
     expect(() =>
-      vectorSearchFiltersSchema.parse({ cast: ["a".repeat(201)] }),
+      vectorSearchFiltersSchema.parse({ directorIds: [1.5] }),
+    ).toThrow();
+  });
+
+  it("rejects non-integer castIds", () => {
+    expect(() => vectorSearchFiltersSchema.parse({ castIds: [1.5] })).toThrow();
+  });
+
+  it("rejects overly long streaming platform names", () => {
+    expect(() =>
+      vectorSearchFiltersSchema.parse({
+        streamingPlatforms: ["a".repeat(101)],
+      }),
     ).toThrow();
   });
 });
@@ -188,7 +198,9 @@ describe("mapQueryResult", () => {
     popularity: 100,
     posterPath: "/poster.jpg",
     originalLanguage: "en",
+    directorIds: [525],
     directors: ["Christopher Nolan"],
+    castIds: [6193],
     cast: ["Leonardo DiCaprio"],
     streamingPlatforms: ["Netflix"],
   };

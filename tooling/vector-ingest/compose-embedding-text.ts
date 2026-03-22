@@ -60,28 +60,30 @@ export function extractKeywordsFromTv(detail: TmdbTvDetail): string[] {
 export function extractDirectors(
   crew: TmdbCrewMember[],
   mediaType: "movie" | "tv",
-): string[] {
+): { ids: number[]; names: string[] } {
   const job = mediaType === "movie" ? "Director" : "Series Director";
-  const directors = crew
-    .filter((c) => c.job === job)
-    .flatMap((c) => (c.name ? [c.name] : []));
+  let matches = crew.filter((c) => c.job === job);
 
   // For TV, fall back to Executive Producer if no Series Director credit
-  if (directors.length === 0 && mediaType === "tv") {
-    return crew
-      .filter((c) => c.job === "Executive Producer")
-      .slice(0, 3)
-      .flatMap((c) => (c.name ? [c.name] : []));
+  if (matches.length === 0 && mediaType === "tv") {
+    matches = crew.filter((c) => c.job === "Executive Producer").slice(0, 3);
   }
 
-  return directors;
+  return {
+    ids: matches.map((c) => c.id),
+    names: matches.flatMap((c) => (c.name ? [c.name] : [])),
+  };
 }
 
-export function extractCast(cast: TmdbCastMember[]): string[] {
-  return cast
-    .sort((a, b) => a.order - b.order)
-    .slice(0, TOP_CAST)
-    .flatMap((c) => (c.name ? [c.name] : []));
+export function extractCast(cast: TmdbCastMember[]): {
+  ids: number[];
+  names: string[];
+} {
+  const top = cast.sort((a, b) => a.order - b.order).slice(0, TOP_CAST);
+  return {
+    ids: top.map((c) => c.id),
+    names: top.flatMap((c) => (c.name ? [c.name] : [])),
+  };
 }
 
 export function extractStreamingPlatforms(

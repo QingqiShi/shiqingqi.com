@@ -13,7 +13,9 @@ export type MediaMetadata = {
   popularity: number;
   posterPath: string | null;
   originalLanguage: string;
+  directorIds: number[];
   directors: string[];
+  castIds: number[];
   cast: string[];
   streamingPlatforms: string[];
 };
@@ -28,8 +30,8 @@ export const vectorSearchFiltersSchema = z.object({
     .string()
     .regex(/^[a-z]{2}$/)
     .optional(),
-  directors: z.array(z.string().max(200)).optional(),
-  cast: z.array(z.string().max(200)).optional(),
+  directorIds: z.array(z.number().int()).optional(),
+  castIds: z.array(z.number().int()).optional(),
   streamingPlatforms: z.array(z.string().max(100)).optional(),
 });
 
