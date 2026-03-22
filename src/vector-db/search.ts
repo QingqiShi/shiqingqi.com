@@ -1,5 +1,6 @@
 import "server-only";
 import type { QueryResult } from "@upstash/vector";
+import type { SupportedLocale } from "#src/types.ts";
 import { getVectorIndex } from "./client";
 import type {
   MediaMetadata,
@@ -16,7 +17,7 @@ export function buildFilterString(
   const conditions: string[] = [];
 
   if (filters.mediaType) {
-    conditions.push(`mediaType = '${filters.mediaType}'`);
+    conditions.push(`mediaType = "${sanitizeFilterValue(filters.mediaType)}"`);
   }
 
   if (filters.genreIds) {
@@ -39,26 +40,26 @@ export function buildFilterString(
 
   if (filters.originalLanguage) {
     conditions.push(
-      `originalLanguage = '${escapeFilterValue(filters.originalLanguage)}'`,
+      `originalLanguage = "${sanitizeFilterValue(filters.originalLanguage)}"`,
     );
   }
 
   if (filters.directors) {
     for (const director of filters.directors) {
-      conditions.push(`directors CONTAINS '${escapeFilterValue(director)}'`);
+      conditions.push(`directors CONTAINS "${sanitizeFilterValue(director)}"`);
     }
   }
 
   if (filters.cast) {
     for (const actor of filters.cast) {
-      conditions.push(`cast CONTAINS '${escapeFilterValue(actor)}'`);
+      conditions.push(`cast CONTAINS "${sanitizeFilterValue(actor)}"`);
     }
   }
 
   if (filters.streamingPlatforms) {
     for (const platform of filters.streamingPlatforms) {
       conditions.push(
-        `streamingPlatforms CONTAINS '${escapeFilterValue(platform)}'`,
+        `streamingPlatforms CONTAINS "${sanitizeFilterValue(platform)}"`,
       );
     }
   }
@@ -66,11 +67,12 @@ export function buildFilterString(
   return conditions.length > 0 ? conditions.join(" AND ") : undefined;
 }
 
-function escapeFilterValue(value: string): string {
-  // Escape backslashes first, then single quotes.
-  // Order matters: escaping quotes first would produce \\' from \',
-  // which a parser could interpret as (escaped-backslash)(end-of-string).
-  return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+// Upstash Vector filter strings have no escape mechanism for quote characters.
+// Empirically verified: \' and \" are NOT recognized as escape sequences.
+// Strategy: use double-quote delimiters and strip double quotes from values.
+// Single quotes, backslashes, and all other characters are safe inside "...".
+function sanitizeFilterValue(value: string): string {
+  return value.replace(/"/g, "");
 }
 
 export function mapQueryResult(
@@ -99,6 +101,7 @@ export function mapQueryResult(
 
 export async function searchSimilar(
   query: string,
+  locale: SupportedLocale,
   options?: { filters?: VectorSearchFilters; topK?: number },
 ): Promise<VectorSearchResult[]> {
   const index = getVectorIndex();
@@ -107,7 +110,7 @@ export async function searchSimilar(
     ? buildFilterString(options.filters)
     : undefined;
 
-  const results = await index.query<MediaMetadata>({
+  const results = await index.namespace(locale).query<MediaMetadata>({
     data: query,
     topK,
     filter,

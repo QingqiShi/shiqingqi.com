@@ -11,7 +11,7 @@ describe("buildFilterString", () => {
 
   it("filters by mediaType", () => {
     expect(buildFilterString({ mediaType: "movie" })).toBe(
-      "mediaType = 'movie'",
+      'mediaType = "movie"',
     );
   });
 
@@ -51,19 +51,19 @@ describe("buildFilterString", () => {
 
   it("filters by originalLanguage", () => {
     expect(buildFilterString({ originalLanguage: "en" })).toBe(
-      "originalLanguage = 'en'",
+      'originalLanguage = "en"',
     );
   });
 
   it("filters by directors", () => {
     expect(buildFilterString({ directors: ["Christopher Nolan"] })).toBe(
-      "directors CONTAINS 'Christopher Nolan'",
+      'directors CONTAINS "Christopher Nolan"',
     );
   });
 
   it("filters by cast", () => {
     expect(buildFilterString({ cast: ["Leonardo DiCaprio"] })).toBe(
-      "cast CONTAINS 'Leonardo DiCaprio'",
+      'cast CONTAINS "Leonardo DiCaprio"',
     );
   });
 
@@ -73,13 +73,13 @@ describe("buildFilterString", () => {
         cast: ["Leonardo DiCaprio", "Joseph Gordon-Levitt"],
       }),
     ).toBe(
-      "cast CONTAINS 'Leonardo DiCaprio' AND cast CONTAINS 'Joseph Gordon-Levitt'",
+      'cast CONTAINS "Leonardo DiCaprio" AND cast CONTAINS "Joseph Gordon-Levitt"',
     );
   });
 
   it("filters by streamingPlatforms", () => {
     expect(buildFilterString({ streamingPlatforms: ["Netflix"] })).toBe(
-      "streamingPlatforms CONTAINS 'Netflix'",
+      'streamingPlatforms CONTAINS "Netflix"',
     );
   });
 
@@ -92,25 +92,25 @@ describe("buildFilterString", () => {
         voteAverageMin: 7.0,
       }),
     ).toBe(
-      "mediaType = 'movie' AND genreIds CONTAINS 878 AND releaseYear >= 2020 AND voteAverage >= 7",
+      'mediaType = "movie" AND genreIds CONTAINS 878 AND releaseYear >= 2020 AND voteAverage >= 7',
     );
   });
 
-  it("escapes single quotes in string values", () => {
+  it("preserves single quotes in values (safe inside double-quote delimiters)", () => {
     expect(buildFilterString({ cast: ["Lupita Nyong'o"] })).toBe(
-      "cast CONTAINS 'Lupita Nyong\\'o'",
+      'cast CONTAINS "Lupita Nyong\'o"',
     );
   });
 
-  it("escapes backslashes before quotes to prevent injection", () => {
-    expect(
-      buildFilterString({ cast: ["foo\\' OR 1=1 OR x='bar"] }),
-    ).toBe("cast CONTAINS 'foo\\\\\\' OR 1=1 OR x=\\'bar'");
+  it("strips double quotes from values to prevent injection", () => {
+    expect(buildFilterString({ cast: ['test" OR category = "actor'] })).toBe(
+      'cast CONTAINS "test OR category = actor"',
+    );
   });
 
-  it("escapes standalone backslashes", () => {
+  it("preserves backslashes in values (not special in Upstash filters)", () => {
     expect(buildFilterString({ directors: ["back\\slash"] })).toBe(
-      "directors CONTAINS 'back\\\\slash'",
+      'directors CONTAINS "back\\slash"',
     );
   });
 });
