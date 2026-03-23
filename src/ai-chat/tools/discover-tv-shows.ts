@@ -5,15 +5,15 @@ import type { SupportedLocale } from "#src/types.ts";
 
 export const discoverTvShowsInputSchema = z.object({
   sort_by: z
-    .union([
-      z.literal("popularity.asc"),
-      z.literal("popularity.desc"),
-      z.literal("vote_average.asc"),
-      z.literal("vote_average.desc"),
-      z.literal("vote_count.asc"),
-      z.literal("vote_count.desc"),
-      z.literal("first_air_date.asc"),
-      z.literal("first_air_date.desc"),
+    .enum([
+      "popularity.asc",
+      "popularity.desc",
+      "vote_average.asc",
+      "vote_average.desc",
+      "vote_count.asc",
+      "vote_count.desc",
+      "first_air_date.asc",
+      "first_air_date.desc",
     ])
     .optional()
     .describe(

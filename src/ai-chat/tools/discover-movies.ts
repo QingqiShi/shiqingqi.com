@@ -5,17 +5,17 @@ import type { SupportedLocale } from "#src/types.ts";
 
 export const discoverMoviesInputSchema = z.object({
   sort_by: z
-    .union([
-      z.literal("popularity.asc"),
-      z.literal("popularity.desc"),
-      z.literal("revenue.asc"),
-      z.literal("revenue.desc"),
-      z.literal("primary_release_date.asc"),
-      z.literal("primary_release_date.desc"),
-      z.literal("vote_average.asc"),
-      z.literal("vote_average.desc"),
-      z.literal("vote_count.asc"),
-      z.literal("vote_count.desc"),
+    .enum([
+      "popularity.asc",
+      "popularity.desc",
+      "revenue.asc",
+      "revenue.desc",
+      "primary_release_date.asc",
+      "primary_release_date.desc",
+      "vote_average.asc",
+      "vote_average.desc",
+      "vote_count.asc",
+      "vote_count.desc",
     ])
     .optional()
     .describe(
