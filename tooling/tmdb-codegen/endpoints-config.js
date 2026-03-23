@@ -80,6 +80,11 @@ export const endpoints = [
     requiredParams: true,
     needsZodSchema: true, // Required for AI tools
   },
+  {
+    path: "/3/search/multi",
+    functionName: "searchMulti",
+    requiredParams: true,
+  },
 ];
 
 // API routes to generate (maps function names to route paths)

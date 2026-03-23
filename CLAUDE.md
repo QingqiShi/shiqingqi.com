@@ -26,4 +26,8 @@ pnpm test               # Run unit tests (Vitest)
 pnpm test:e2e           # Run E2E tests (Playwright) - auto-starts dev server
 pnpm codegen            # Generate TMDB API types and server functions
 pnpm codegen:tmdb       # Generate only TMDB server functions
+pnpm eval               # Run ALL AI chat evals (expensive - hits real LLM APIs)
+pnpm eval <filter>      # Run a subset of evals matching the filter, e.g. `pnpm eval tmdb-search`
 ```
+
+- **Evals are expensive** (they hit real LLM APIs). When working on a specific eval, use `pnpm eval <name>` to run only that file (e.g. `pnpm eval tmdb-search`). Only run `pnpm eval` without a filter when a full eval suite run is needed.
