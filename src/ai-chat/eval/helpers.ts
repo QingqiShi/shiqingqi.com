@@ -1,7 +1,8 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import type { UIMessage } from "ai";
-import { convertToModelMessages, generateText } from "ai";
+import { convertToModelMessages, generateText, stepCountIs } from "ai";
 import { getChatSystemInstructions } from "#src/ai-chat/system-instructions.ts";
+import { createSemanticSearchTool } from "#src/ai-chat/tools/semantic-search.ts";
 
 const MODEL_ID = "claude-sonnet-4-6";
 
@@ -63,6 +64,7 @@ function isNetworkError(error: unknown): boolean {
 async function generateWithRetry({ messages, locale }: GenerateOptions) {
   const system = getChatSystemInstructions(locale);
   const modelMessages = await convertToModelMessages(messages);
+  const tools = { semantic_search: createSemanticSearchTool(locale) };
 
   let lastError: unknown;
 
@@ -72,6 +74,8 @@ async function generateWithRetry({ messages, locale }: GenerateOptions) {
         model: getEvalModel(),
         system,
         messages: modelMessages,
+        tools,
+        stopWhen: stepCountIs(5),
       });
     } catch (error) {
       lastError = error;

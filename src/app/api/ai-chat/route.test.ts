@@ -1,8 +1,9 @@
-import { simulateReadableStream, streamText } from "ai";
+import { simulateReadableStream, stepCountIs, streamText } from "ai";
 import { MockLanguageModelV3 } from "ai/test";
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 import { chatInputSchema } from "#src/ai-chat/schema.ts";
+import { createSemanticSearchTool } from "#src/ai-chat/tools/semantic-search.ts";
 
 vi.mock("#src/ai-chat/chat.ts", () => ({
   chatInputSchema,
@@ -48,6 +49,8 @@ describe("POST /api/ai-chat", () => {
         },
       }),
       messages: [{ role: "user", content: "test" }],
+      tools: { semantic_search: createSemanticSearchTool("en") },
+      stopWhen: stepCountIs(5),
     });
     vi.mocked(chat).mockResolvedValueOnce(result);
 
