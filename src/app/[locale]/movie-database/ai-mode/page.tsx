@@ -1,6 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { RecommendedMedia } from "#src/components/ai-chat/recommended-media.tsx";
+import { SuggestionChips } from "#src/components/ai-chat/suggestion-chips.tsx";
 import { t } from "#src/i18n.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
+import { space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import { AIChatView } from "./ai-chat-view";
@@ -18,15 +20,31 @@ export default async function Page({
       locale={validatedLocale}
       emptyState={
         <div css={styles.welcomeContainer}>
-          <h1 css={styles.welcomeTitle}>
-            {t({ en: "AI Mode", zh: "AI 模式" })}
-          </h1>
-          <p css={styles.welcomeDescription}>
-            {t({
-              en: "Chat with AI about movies and TV shows",
-              zh: "与 AI 聊电影和电视剧",
+          <SuggestionChips
+            groupLabel={t({
+              en: "Suggested prompts",
+              zh: "推荐提问",
             })}
-          </p>
+            suggestions={[
+              t({
+                en: "What should I watch tonight?",
+                zh: "今晚该看什么？",
+              }),
+              t({
+                en: "Find me a sci-fi thriller",
+                zh: "找一部科幻惊悚片",
+              }),
+              t({
+                en: "Best movies of 2025",
+                zh: "2025年最佳电影",
+              }),
+              t({
+                en: "Shows similar to Breaking Bad",
+                zh: "类似《绝命毒师》的剧",
+              }),
+            ]}
+          />
+          <RecommendedMedia locale={validatedLocale} />
         </div>
       }
       typingIndicatorLabel={t({
@@ -49,18 +67,9 @@ export default async function Page({
 
 const styles = stylex.create({
   welcomeContainer: {
-    textAlign: "center",
-  },
-  welcomeTitle: {
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_6,
-    color: color.textMain,
-    margin: 0,
-    marginBottom: space._2,
-  },
-  welcomeDescription: {
-    fontSize: font.uiBody,
-    color: color.textMuted,
-    margin: 0,
+    display: "flex",
+    flexDirection: "column",
+    gap: space._5,
+    width: "100%",
   },
 });

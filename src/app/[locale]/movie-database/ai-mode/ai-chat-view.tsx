@@ -3,9 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { useAIChat } from "#src/ai-chat/use-ai-chat.ts";
+import { ChatActionsContext } from "#src/components/ai-chat/chat-actions-context.tsx";
 import { ChatInputBar } from "#src/components/ai-chat/chat-input-bar.tsx";
 import { ChatMessageList } from "#src/components/ai-chat/chat-message-list.tsx";
-import { border, color, space } from "#src/tokens.stylex.ts";
+import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
 interface AIChatViewProps {
@@ -29,8 +30,12 @@ export function AIChatView({
 }: AIChatViewProps) {
   const { messages, status, sendMessage, stop } = useAIChat({ locale });
 
+  const handleSend = (text: string) => {
+    void sendMessage({ text });
+  };
+
   return (
-    <>
+    <ChatActionsContext value={{ sendMessage: handleSend }}>
       <ChatMessageList
         messages={messages}
         status={status}
@@ -44,23 +49,36 @@ export function AIChatView({
           sendLabel={sendLabel}
           stopLabel={stopLabel}
           status={status}
-          onSend={(text) => {
-            void sendMessage({ text });
-          }}
+          onSend={handleSend}
           onStop={stop}
         />
       </div>
-    </>
+    </ChatActionsContext>
   );
 }
+
+/**
+ * Horizontal inset from viewport edge to content inside ChatMessageList.
+ * Padding chain: layout (space._3 + safe-area) + ChatMessageList (space._3).
+ * See also: recommended-media-row.tsx which uses the same offsets.
+ */
+const contentInsetLeft = `calc(${space._3} + ${space._3} + env(safe-area-inset-left, 0px))`;
+const contentInsetRight = `calc(${space._3} + ${space._3} + env(safe-area-inset-right, 0px))`;
+const layoutInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`;
+const layoutInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
 
 const styles = stylex.create({
   inputArea: {
     position: "sticky",
     bottom: 0,
     flexShrink: 0,
-    padding: space._3,
+    zIndex: layer.content,
+    paddingTop: space._3,
     paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,
+    paddingLeft: contentInsetLeft,
+    paddingRight: contentInsetRight,
+    marginLeft: `calc(-1 * ${layoutInsetLeft})`,
+    marginRight: `calc(-1 * ${layoutInsetRight})`,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.controlTrack,

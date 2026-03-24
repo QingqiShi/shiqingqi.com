@@ -1,10 +1,9 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { color, space } from "#src/tokens.stylex.ts";
 import type { Token } from "./types.ts";
-
-const SCROLL_THRESHOLD = 1;
 
 interface CalculatorDisplayProps {
   tokens: Token[];
@@ -24,8 +23,7 @@ export function CalculatorDisplay({
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [isScrollable, setIsScrollable] = useState(false);
-  const [showLeftGradient, setShowLeftGradient] = useState(false);
-  const [showRightGradient, setShowRightGradient] = useState(false);
+  const { showLeftFade, showRightFade } = useScrollFades(containerRef);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -71,24 +69,6 @@ export function CalculatorDisplay({
     return () => observer.disconnect();
   }, [displayText]);
 
-  // Update gradient visibility based on scroll position
-  useLayoutEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const updateGradients = () => {
-      const scrollLeft = container.scrollLeft;
-      const maxScroll = container.scrollWidth - container.clientWidth;
-      setShowLeftGradient(scrollLeft > SCROLL_THRESHOLD);
-      setShowRightGradient(scrollLeft < maxScroll - SCROLL_THRESHOLD);
-    };
-
-    container.addEventListener("scroll", updateGradients);
-    updateGradients();
-
-    return () => container.removeEventListener("scroll", updateGradients);
-  }, [isScrollable]);
-
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !isScrollable) return;
@@ -115,14 +95,14 @@ export function CalculatorDisplay({
             css={[
               styles.gradient,
               styles.leftGradient,
-              showLeftGradient && styles.visible,
+              showLeftFade && styles.visible,
             ]}
           />
           <div
             css={[
               styles.gradient,
               styles.rightGradient,
-              showRightGradient && styles.visible,
+              showRightFade && styles.visible,
             ]}
           />
         </>
