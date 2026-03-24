@@ -17,6 +17,8 @@ export type TMDBEndpointPaths =
   | "/3/search/movie"
   | "/3/search/person"
   | "/3/search/tv"
+  | "/3/trending/movie/{time_window}"
+  | "/3/trending/tv/{time_window}"
   | "/3/tv/{series_id}"
   | "/3/tv/{series_id}/recommendations"
   | "/3/tv/{series_id}/videos";
@@ -35,6 +37,8 @@ export const TMDB_ENDPOINTS = [
   "/3/search/movie",
   "/3/search/person",
   "/3/search/tv",
+  "/3/trending/movie/{time_window}",
+  "/3/trending/tv/{time_window}",
   "/3/tv/{series_id}",
   "/3/tv/{series_id}/recommendations",
   "/3/tv/{series_id}/videos",

@@ -19,6 +19,16 @@ export const endpoints = [
   { path: "/3/genre/movie/list", functionName: "getMovieGenres" },
   { path: "/3/genre/tv/list", functionName: "getTvShowGenres" },
 
+  // Trending
+  {
+    path: "/3/trending/movie/{time_window}",
+    functionName: "getTrendingMovies",
+  },
+  {
+    path: "/3/trending/tv/{time_window}",
+    functionName: "getTrendingTvShows",
+  },
+
   // Movie Discovery & Lists
   {
     path: "/3/discover/movie",

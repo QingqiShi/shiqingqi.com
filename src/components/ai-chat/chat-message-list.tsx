@@ -91,8 +91,9 @@ const styles = stylex.create({
   emptyStateWrapper: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     flexGrow: 1,
+    paddingTop: space._8,
   },
   messagesList: {
     display: "flex",
