@@ -1,10 +1,11 @@
+import { appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { Index } from "@upstash/vector";
 import { config } from "dotenv";
 import type { MediaMetadata } from "../../src/vector-db/types.ts";
 import { LOCALES, getRequiredEnv } from "./constants.ts";
 import { RateLimiter } from "./rate-limiter.ts";
-import { TmdbClient } from "./tmdb-client.ts";
+import { TmdbApiError, TmdbClient } from "./tmdb-client.ts";
 import type {
   DailyExportEntry,
   TmdbMovieDetail,
@@ -18,8 +19,18 @@ export const MIN_POPULARITY_MOVIE = 2;
 export const MIN_POPULARITY_TV = 7;
 export const MIN_VOTE_COUNT = 20;
 const UPSERT_BATCH_SIZE = 100;
+const DELETE_BATCH_SIZE = 100;
 const CONCURRENCY = 5;
-const ERROR_RATE_THRESHOLD = 0.5;
+
+export type IngestStats = {
+  locale: string;
+  mediaType: "movie" | "tv";
+  total: number;
+  upserted: number;
+  deleted: number;
+  skippedVoteCount: number;
+  otherErrors: number;
+};
 
 /** Subset of TmdbClient methods used by the orchestrator. */
 export type TmdbFetcher = {
@@ -38,6 +49,7 @@ export type TmdbFetcher = {
 
 export type VectorNamespace = {
   upsert: (records: VectorRecord[]) => Promise<unknown>;
+  delete: (ids: string[]) => Promise<unknown>;
 };
 
 function formatDate(date: Date): string {
@@ -89,10 +101,18 @@ async function main() {
       token: getRequiredEnv("UPSTASH_VECTOR_REST_TOKEN"),
     });
 
+  let allStats: IngestStats[];
   if (incremental) {
-    await runIncremental(tmdb, createIndex, days, dryRun, limit);
+    allStats = await runIncremental(tmdb, createIndex, days, dryRun, limit);
   } else {
-    await runFull(tmdb, createIndex, dryRun, limit);
+    allStats = await runFull(tmdb, createIndex, dryRun, limit);
+  }
+
+  writeSummary(allStats);
+
+  const hasErrors = allStats.some((s) => s.otherErrors > 0);
+  if (hasErrors) {
+    process.exit(1);
   }
 }
 
@@ -101,7 +121,7 @@ export async function runFull(
   createIndex: () => { namespace: (locale: string) => VectorNamespace },
   dryRun: boolean,
   limit?: number,
-) {
+): Promise<IngestStats[]> {
   console.log("Starting full ingestion...");
 
   // Try today first, fall back to yesterday (exports generate ~7-8 AM UTC)
@@ -142,7 +162,7 @@ export async function runFull(
 
   if (dryRun) {
     console.log("\n[DRY RUN] Stopping before API calls and upserts.");
-    return;
+    return [];
   }
 
   const vectorIndex = createIndex();
@@ -156,18 +176,21 @@ export async function runFull(
     tvIds = tvIds.slice(0, limit);
   }
 
+  const allStats: IngestStats[] = [];
+
   for (const locale of LOCALES) {
     console.log(`\nIngesting locale: ${locale}`);
     const ns = vectorIndex.namespace(locale);
 
     console.log(`  Fetching and upserting movies...`);
-    await fetchAndUpsert(tmdb, movieIds, "movie", locale, ns);
+    allStats.push(await fetchAndUpsert(tmdb, movieIds, "movie", locale, ns));
 
     console.log(`  Fetching and upserting TV shows...`);
-    await fetchAndUpsert(tmdb, tvIds, "tv", locale, ns);
+    allStats.push(await fetchAndUpsert(tmdb, tvIds, "tv", locale, ns));
   }
 
   console.log("\nFull ingestion complete.");
+  return allStats;
 }
 
 export async function runIncremental(
@@ -176,7 +199,7 @@ export async function runIncremental(
   days: number,
   dryRun: boolean,
   limit?: number,
-) {
+): Promise<IngestStats[]> {
   console.log(`Starting incremental ingestion (last ${days} day(s))...`);
 
   const endDate = new Date();
@@ -194,7 +217,7 @@ export async function runIncremental(
 
   if (dryRun) {
     console.log("\n[DRY RUN] Stopping before API calls and upserts.");
-    return;
+    return [];
   }
 
   if (limit !== undefined) {
@@ -204,6 +227,7 @@ export async function runIncremental(
   }
 
   const vectorIndex = createIndex();
+  const allStats: IngestStats[] = [];
 
   for (const locale of LOCALES) {
     console.log(`\nIngesting locale: ${locale}`);
@@ -211,16 +235,39 @@ export async function runIncremental(
 
     if (movieIds.length > 0) {
       console.log(`  Fetching and upserting ${movieIds.length} movies...`);
-      await fetchAndUpsert(tmdb, movieIds, "movie", locale, ns);
+      allStats.push(await fetchAndUpsert(tmdb, movieIds, "movie", locale, ns));
     }
 
     if (tvIds.length > 0) {
       console.log(`  Fetching and upserting ${tvIds.length} TV shows...`);
-      await fetchAndUpsert(tmdb, tvIds, "tv", locale, ns);
+      allStats.push(await fetchAndUpsert(tmdb, tvIds, "tv", locale, ns));
     }
   }
 
   console.log("\nIncremental ingestion complete.");
+  return allStats;
+}
+
+async function upsertWithRetry(
+  namespace: VectorNamespace,
+  records: VectorRecord[],
+): Promise<number> {
+  try {
+    await namespace.upsert(records);
+    return records.length;
+  } catch (firstError) {
+    console.error(`    Upsert failed, retrying: ${String(firstError)}`);
+    await sleep(1000);
+    try {
+      await namespace.upsert(records);
+      return records.length;
+    } catch (retryError) {
+      console.error(
+        `    Upsert retry failed, skipping batch of ${records.length}: ${String(retryError)}`,
+      );
+      return 0;
+    }
+  }
 }
 
 export async function fetchAndUpsert(
@@ -229,12 +276,14 @@ export async function fetchAndUpsert(
   mediaType: "movie" | "tv",
   locale: string,
   namespace: VectorNamespace,
-) {
+): Promise<IngestStats> {
   let processed = 0;
   let upserted = 0;
   let skippedVoteCount = 0;
-  let errors = 0;
+  let notFoundErrors = 0;
+  let otherErrors = 0;
   const batch: VectorRecord[] = [];
+  const toDelete: string[] = [];
 
   // Process IDs with controlled concurrency
   for (let i = 0; i < ids.length; i += CONCURRENCY) {
@@ -252,12 +301,21 @@ export async function fetchAndUpsert(
       }),
     );
 
-    for (const result of results) {
+    for (const [idx, result] of results.entries()) {
       processed++;
       if (result.status === "rejected") {
-        errors++;
-        if (errors <= 10) {
-          console.error(`    Error: ${String(result.reason)}`);
+        const id = chunk[idx];
+        if (
+          result.reason instanceof TmdbApiError &&
+          result.reason.statusCode === 404
+        ) {
+          notFoundErrors++;
+          toDelete.push(`${mediaType}-${id}`);
+        } else {
+          otherErrors++;
+          if (otherErrors <= 10) {
+            console.error(`    Error: ${String(result.reason)}`);
+          }
         }
         continue;
       }
@@ -268,67 +326,96 @@ export async function fetchAndUpsert(
       batch.push(result.value);
     }
 
-    // Flush batch when full
+    // Flush delete batch
+    if (toDelete.length >= DELETE_BATCH_SIZE) {
+      const idsToDelete = toDelete.splice(0);
+      await namespace.delete(idsToDelete);
+    }
+
+    // Flush upsert batch when full
     if (batch.length >= UPSERT_BATCH_SIZE) {
       const toUpsert = batch.splice(0);
-      try {
-        await namespace.upsert(toUpsert);
-        upserted += toUpsert.length;
-      } catch (firstError) {
-        console.error(`    Upsert failed, retrying: ${String(firstError)}`);
-        await sleep(1000);
-        try {
-          await namespace.upsert(toUpsert);
-          upserted += toUpsert.length;
-        } catch (retryError) {
-          console.error(
-            `    Upsert retry failed, skipping batch of ${toUpsert.length}: ${String(retryError)}`,
-          );
-          errors += toUpsert.length;
-        }
-      }
+      const count = await upsertWithRetry(namespace, toUpsert);
+      upserted += count;
+      otherErrors += toUpsert.length - count;
     }
 
     // Progress logging
     if (processed % 500 === 0 || processed === ids.length) {
       console.log(
-        `    Progress: ${processed}/${ids.length} processed, ${upserted + batch.length} upserted, ${skippedVoteCount} skipped (low votes), ${errors} errors`,
+        `    Progress: ${processed}/${ids.length} processed, ${upserted + batch.length} upserted, ${notFoundErrors} deleted, ${skippedVoteCount} skipped (low votes), ${otherErrors} errors`,
       );
     }
   }
 
-  // Flush remaining
+  // Flush remaining deletes
+  if (toDelete.length > 0) {
+    await namespace.delete(toDelete.splice(0));
+  }
+
+  // Flush remaining upserts
   if (batch.length > 0) {
     const toUpsert = batch.splice(0);
-    try {
-      await namespace.upsert(toUpsert);
-      upserted += toUpsert.length;
-    } catch (firstError) {
-      console.error(`    Upsert failed, retrying: ${String(firstError)}`);
-      await sleep(1000);
-      try {
-        await namespace.upsert(toUpsert);
-        upserted += toUpsert.length;
-      } catch (retryError) {
-        console.error(
-          `    Upsert retry failed, skipping batch of ${toUpsert.length}: ${String(retryError)}`,
-        );
-        errors += toUpsert.length;
-      }
-    }
+    const count = await upsertWithRetry(namespace, toUpsert);
+    upserted += count;
+    otherErrors += toUpsert.length - count;
   }
 
   console.log(
-    `    Done: ${upserted} upserted, ${skippedVoteCount} skipped, ${errors} errors`,
+    `    Done: ${upserted} upserted, ${notFoundErrors} deleted, ${skippedVoteCount} skipped, ${otherErrors} errors`,
   );
 
-  if (ids.length > 0 && errors / ids.length > ERROR_RATE_THRESHOLD) {
-    throw new Error(
-      `Error rate too high: ${errors}/${ids.length} (${((errors / ids.length) * 100).toFixed(1)}%) — aborting`,
+  return {
+    locale,
+    mediaType,
+    total: ids.length,
+    upserted,
+    deleted: notFoundErrors,
+    skippedVoteCount,
+    otherErrors,
+  };
+}
+
+export function writeSummary(allStats: IngestStats[]) {
+  if (allStats.length === 0) return;
+
+  const summaryPath = process.env["GITHUB_STEP_SUMMARY"];
+  const mdLines = summaryPath
+    ? [
+        "## Vector Ingestion Summary",
+        "",
+        "| Locale | Type | Total | Upserted | Deleted | Skipped | Errors |",
+        "|--------|------|-------|----------|---------|---------|--------|",
+      ]
+    : undefined;
+
+  console.log("\n=== Ingestion Summary ===");
+  console.log("Locale | Type  | Total | Upserted | Deleted | Skipped | Errors");
+  console.log("-------|-------|-------|----------|---------|---------|-------");
+
+  for (const s of allStats) {
+    console.log(
+      `${s.locale.padEnd(6)} | ${s.mediaType.padEnd(5)} | ${String(s.total).padStart(5)} | ${String(s.upserted).padStart(8)} | ${String(s.deleted).padStart(7)} | ${String(s.skippedVoteCount).padStart(7)} | ${String(s.otherErrors).padStart(6)}`,
+    );
+    if (s.deleted > 0) {
+      console.log(
+        `::notice::${s.locale}/${s.mediaType}: deleted ${s.deleted} stale vectors (TMDB 404)`,
+      );
+    }
+    if (s.otherErrors > 0) {
+      console.log(
+        `::warning::${s.locale}/${s.mediaType}: ${s.otherErrors} unexpected errors`,
+      );
+    }
+    mdLines?.push(
+      `| ${s.locale} | ${s.mediaType} | ${s.total} | ${s.upserted} | ${s.deleted} | ${s.skippedVoteCount} | ${s.otherErrors} |`,
     );
   }
 
-  return { upserted, skippedVoteCount, errors };
+  if (summaryPath && mdLines) {
+    mdLines.push("");
+    appendFileSync(summaryPath, mdLines.join("\n"));
+  }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
