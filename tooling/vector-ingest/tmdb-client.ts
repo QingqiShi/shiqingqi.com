@@ -13,6 +13,15 @@ import {
 const TMDB_API_BASE = "https://api.themoviedb.org";
 const TMDB_EXPORT_BASE = "https://files.tmdb.org/p/exports";
 
+export class TmdbApiError extends Error {
+  readonly statusCode: number;
+
+  constructor(statusCode: number, path: string, statusText: string) {
+    super(`TMDB API error: ${statusCode} ${statusText} (${path})`);
+    this.statusCode = statusCode;
+  }
+}
+
 export class TmdbClient {
   apiToken: string;
   rateLimiter: RateLimiter;
@@ -136,9 +145,7 @@ export class TmdbClient {
     }
 
     if (!response.ok) {
-      throw new Error(
-        `TMDB API error: ${response.status} ${response.statusText} (${path})`,
-      );
+      throw new TmdbApiError(response.status, path, response.statusText);
     }
 
     this.rateLimiter.resetBackoff();
