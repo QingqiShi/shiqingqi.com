@@ -6,6 +6,7 @@ import { getAnthropicModel } from "./client";
 import type { ChatInput } from "./schema";
 import { getChatSystemInstructions } from "./system-instructions";
 import { createSemanticSearchTool } from "./tools/semantic-search";
+import { createTmdbSearchTool } from "./tools/tmdb-search";
 
 export { chatInputSchema, type ChatInput } from "./schema";
 
@@ -21,7 +22,10 @@ export async function chat({ messages, locale, model }: ChatOptions) {
     model: model ?? getAnthropicModel(),
     system,
     messages: modelMessages,
-    tools: { semantic_search: createSemanticSearchTool(locale) },
+    tools: {
+      semantic_search: createSemanticSearchTool(locale),
+      tmdb_search: createTmdbSearchTool(locale),
+    },
     stopWhen: stepCountIs(5),
     prepareStep: ({ messages, model }) => ({
       messages: addCacheControlToMessages({ messages, model }),

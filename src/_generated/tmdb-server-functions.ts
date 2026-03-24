@@ -147,6 +147,12 @@ export async function searchMovies(
   return tmdbGet("/3/search/movie", params);
 }
 
+export async function searchMulti(
+  params: QueryParams<"/3/search/multi", "get">,
+) {
+  return tmdbGet("/3/search/multi", params);
+}
+
 export async function searchPerson(
   params: QueryParams<"/3/search/person", "get">,
 ) {
