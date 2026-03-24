@@ -24,6 +24,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test-setup.ts"],
     include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}", "tooling/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    exclude: ["src/ai-chat/eval/**/*.eval.ts"],
     coverage: {
       reporter: ["text", "json", "html"],
       exclude: [
