@@ -1,16 +1,8 @@
 import { createHash } from "node:crypto";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { I18nContext } from "#src/i18n/i18n-context.ts";
 import { render, screen } from "#src/test-utils.tsx";
 import { Card } from "./card";
-
-vi.mock("./card.stylex", () => ({
-  cardTokens: {
-    detailsIndicatorOpacity: "detailsIndicatorOpacity",
-    detailsIndicatorTransform: "detailsIndicatorTransform",
-    imageFilter: "imageFilter",
-  },
-}));
 
 function hashKey(en: string, zh: string) {
   return createHash("sha256")
