@@ -1,49 +1,63 @@
-import { evalite } from "evalite";
-import { generateMultiTurnResponse } from "./helpers.ts";
-import { matchesPattern, minLength } from "./scorers.ts";
+import { describe, it } from "vitest";
+import { runMultiTurnEval } from "./run-eval";
+import type { MultiTurnEvalCase } from "./types";
 
-evalite("Multi-turn: Refinement", {
-  data: () => [
-    {
-      input: [
-        { userMessage: "Recommend me a movie" },
-        { userMessage: "Something more recent, from the last few years" },
-      ],
-    },
-  ],
-  task: async (turns) => {
-    const results = await generateMultiTurnResponse(turns);
-    const lastTurn = results[results.length - 1];
-    if (!lastTurn) {
-      throw new Error("No results from multi-turn conversation");
-    }
-    return lastTurn.responseText;
+const cases: MultiTurnEvalCase[] = [
+  {
+    name: "Refines by recency",
+    turns: [
+      {
+        content:
+          "I love thriller movies like Sicario and No Country for Old Men",
+      },
+      {
+        content:
+          "Those are great but a bit old. What about thrillers from the last 2-3 years?",
+      },
+    ],
+    criteria: [
+      "The final response includes thriller movie recommendations",
+      "The assistant adjusted its recommendations toward more recent titles",
+    ],
+    requireToolCall: "semantic_search",
   },
-  scorers: [minLength(50), matchesPattern(/\b(201[5-9]|202[0-9])\b/)],
-});
+  {
+    name: "Genre switch",
+    turns: [
+      { content: "Recommend a horror movie" },
+      { content: "Actually, I'd prefer a comedy instead" },
+    ],
+    criteria: [
+      "The final response recommends comedy movies, not horror",
+      "The assistant acknowledged and respected the genre change",
+    ],
+  },
+  {
+    name: "Context retention",
+    turns: [
+      { content: "I absolutely loved Parasite" },
+      { content: "What else should I watch?" },
+    ],
+    criteria: [
+      "Recommendations are influenced by the user's love of Parasite",
+      "Suggestions are thematically or stylistically related to Parasite (e.g. Korean cinema, social commentary, thriller elements)",
+    ],
+  },
+  {
+    name: "Topic switch within domain",
+    turns: [
+      { content: "What are some good sci-fi movies?" },
+      { content: "Actually, I'm more in the mood for romantic comedies" },
+    ],
+    criteria: [
+      "The final response recommends romantic comedies, not sci-fi",
+      "The assistant pivoted to the new genre within the entertainment domain",
+    ],
+  },
+];
 
-evalite("Multi-turn: Genre switch", {
-  data: () => [
-    {
-      input: [
-        { userMessage: "Recommend me a horror movie" },
-        {
-          userMessage:
-            "Actually, I changed my mind. How about a comedy instead?",
-        },
-      ],
-    },
-  ],
-  task: async (turns) => {
-    const results = await generateMultiTurnResponse(turns);
-    const lastTurn = results[results.length - 1];
-    if (!lastTurn) {
-      throw new Error("No results from multi-turn conversation");
-    }
-    return lastTurn.responseText;
-  },
-  scorers: [
-    minLength(50),
-    matchesPattern(/comedy|comedies|funny|laugh|humou?r|hilarious/i),
-  ],
+describe("Multi-turn", () => {
+  it.each(cases)("$name", async (evalCase) => {
+    await runMultiTurnEval(evalCase);
+  });
 });

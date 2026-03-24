@@ -10,6 +10,7 @@
       ".env.local"
     ]
   },
+  "showClearContextOnPlanAccept": true,
   "hooks": {
     "PreToolUse": [
       {
