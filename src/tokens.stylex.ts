@@ -23,6 +23,8 @@ const light = {
   controlActive: "#7e10c2",
   controlActiveHover: "#9e2de3",
 
+  border: "#e0e0e0",
+
   opacityActive: "0.1",
 
   shadowColor: "220 3% 15%",
@@ -60,6 +62,8 @@ const dark: { [key in keyof typeof light]: string } = {
   controlThumb: "#bbbbbb",
   controlActive: "#933bc9",
   controlActiveHover: "#a751db",
+
+  border: "#333333",
 
   opacityActive: "0.2",
 
@@ -147,6 +151,8 @@ export const color = stylex.defineVars({
     default: light.controlActiveHover,
     [constants.DARK]: dark.controlActiveHover,
   },
+
+  border: { default: light.border, [constants.DARK]: dark.border },
 
   opacityActive: {
     default: light.opacityActive,
