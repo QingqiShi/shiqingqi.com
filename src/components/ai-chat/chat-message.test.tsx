@@ -101,4 +101,91 @@ describe("ChatMessage", () => {
     );
     expect(screen.getByText("After step")).toBeInTheDocument();
   });
+
+  it("renders present_media cards from search results lookup", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "assistant",
+          parts: [
+            { type: "text", text: "Here are some results:" },
+            {
+              type: "dynamic-tool",
+              toolName: "tmdb_search",
+              toolCallId: "search-call",
+              state: "output-available",
+              input: { query: "Inception" },
+              output: [
+                {
+                  id: 1,
+                  media_type: "movie",
+                  title: "Inception",
+                  poster_path: "/inception.jpg",
+                  vote_average: 8.4,
+                },
+                {
+                  id: 2,
+                  media_type: "movie",
+                  title: "Other Movie",
+                  poster_path: "/other.jpg",
+                  vote_average: 5.0,
+                },
+              ],
+            },
+            {
+              type: "dynamic-tool",
+              toolName: "present_media",
+              toolCallId: "present-call",
+              state: "output-available",
+              input: { media: [{ id: 1, media_type: "movie" }] },
+              output: { media: [{ id: 1, media_type: "movie" }] },
+            },
+            { type: "text", text: "Hope that helps!" },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Here are some results:")).toBeInTheDocument();
+    expect(screen.getByText("Hope that helps!")).toBeInTheDocument();
+    // Only the presented item renders as a card, not all search results
+    expect(screen.getByAltText("Inception")).toBeInTheDocument();
+    expect(screen.queryByAltText("Other Movie")).not.toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute(
+      "href",
+      "/movie-database/movie/1",
+    );
+  });
+
+  it("does not render cards for search tool parts", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "assistant",
+          parts: [
+            {
+              type: "dynamic-tool",
+              toolName: "tmdb_search",
+              toolCallId: "search-call",
+              state: "output-available",
+              input: { query: "Inception" },
+              output: [
+                {
+                  id: 1,
+                  media_type: "movie",
+                  title: "Inception",
+                  poster_path: "/inception.jpg",
+                  vote_average: 8.4,
+                },
+              ],
+            },
+          ],
+        })}
+      />,
+    );
+
+    // Search tool parts render nothing — only present_media renders cards
+    expect(screen.queryByAltText("Inception")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
 });

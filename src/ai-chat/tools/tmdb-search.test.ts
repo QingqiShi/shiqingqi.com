@@ -275,7 +275,7 @@ describe("tmdb search execute", () => {
     const result = items[0] as Record<string, unknown>;
     const keys = Object.keys(result);
     expect(keys).not.toContain("adult");
-    expect(keys).not.toContain("poster_path");
+    expect(keys).toContain("poster_path");
     expect(keys).not.toContain("video");
     expect(keys).not.toContain("vote_count");
     expect(keys).toContain("id");

@@ -1,9 +1,18 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { isReasoningUIPart, isTextUIPart, type UIMessage } from "ai";
-import { memo } from "react";
+import {
+  getToolName,
+  isReasoningUIPart,
+  isTextUIPart,
+  isToolUIPart,
+  type UIMessage,
+} from "ai";
+import { memo, useMemo } from "react";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
+import { ChatToolPart } from "./chat-tool-part";
+import { buildSearchResultsMap } from "./map-tool-output";
 import { MarkdownContent } from "./markdown-content";
 
 interface ChatMessageProps {
@@ -14,6 +23,26 @@ export const ChatMessage = memo(function ChatMessage({
   message,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
+
+  const searchResultsMap = useMemo(() => {
+    const map = new Map<string, MediaListItem>();
+    for (const part of message.parts) {
+      if (
+        isToolUIPart(part) &&
+        "output" in part &&
+        part.state === "output-available"
+      ) {
+        const name = getToolName(part);
+        if (name === "tmdb_search" || name === "semantic_search") {
+          const partMap = buildSearchResultsMap(name, part.output);
+          for (const [key, value] of partMap) {
+            map.set(key, value);
+          }
+        }
+      }
+    }
+    return map;
+  }, [message.parts]);
 
   return (
     <div
@@ -43,7 +72,18 @@ export const ChatMessage = memo(function ChatMessage({
           );
         }
 
-        // Other part types handled in #1651
+        if (isToolUIPart(part)) {
+          return (
+            <ChatToolPart
+              key={index}
+              toolName={getToolName(part)}
+              state={part.state}
+              input={"input" in part ? part.input : undefined}
+              searchResultsMap={searchResultsMap}
+            />
+          );
+        }
+
         return null;
       })}
     </div>

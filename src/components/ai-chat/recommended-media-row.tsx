@@ -3,12 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { useRef } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { useLocale } from "#src/hooks/use-locale.ts";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
-import { t } from "#src/i18n.ts";
-import { border, color, font, ratio, space } from "#src/tokens.stylex.ts";
+import { color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
-import { PosterImage } from "../movie-database/poster-image";
+import { CompactMediaCard } from "./compact-media-card";
 
 interface RecommendedMediaRowProps {
   title: string;
@@ -37,7 +35,7 @@ export function RecommendedMediaRow({
         >
           {items.map((item) => (
             <div key={item.id} css={styles.cardWrapper}>
-              <CompactCard media={item} />
+              <CompactMediaCard media={item} />
             </div>
           ))}
         </div>
@@ -53,34 +51,6 @@ export function RecommendedMediaRow({
         />
       </div>
     </section>
-  );
-}
-
-function CompactCard({ media }: { media: MediaListItem }) {
-  const locale = useLocale();
-  const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
-
-  return (
-    <div css={styles.compactCard}>
-      {media.posterPath && media.title ? (
-        <PosterImage posterPath={media.posterPath} alt={media.title} />
-      ) : (
-        <div css={styles.noPoster}>
-          <div>{media.title}</div>
-          <div css={styles.noPosterLabel}>
-            {t({ en: "No Poster", zh: "无海报" })}
-          </div>
-        </div>
-      )}
-      {media.rating ? (
-        <div
-          css={styles.compactRating}
-          aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(media.rating)}`}
-        >
-          {formatter.format(media.rating)}
-        </div>
-      ) : null}
-    </div>
   );
 }
 
@@ -152,44 +122,5 @@ const styles = stylex.create({
     [breakpoints.lg]: {
       width: "175px",
     },
-  },
-  compactCard: {
-    position: "relative",
-    aspectRatio: ratio.poster,
-    width: "100%",
-    borderRadius: border.radius_2,
-    overflow: "hidden",
-  },
-  noPoster: {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    backgroundColor: color.backgroundRaised,
-    fontSize: font.uiBodySmall,
-  },
-  noPosterLabel: {
-    fontSize: "0.7rem",
-    color: color.textMuted,
-  },
-  compactRating: {
-    position: "absolute",
-    top: space._0,
-    left: space._0,
-    width: "1.4rem",
-    height: "1.4rem",
-    borderRadius: border.radius_round,
-    backgroundColor: color.backgroundRaised,
-    borderWidth: "1.5px",
-    borderColor: color.textMain,
-    borderStyle: "solid",
-    fontSize: "0.6rem",
-    fontWeight: font.weight_6,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

@@ -5,6 +5,7 @@ import { addCacheControlToMessages } from "./addCacheControlToMessages";
 import { getAnthropicModel } from "./client";
 import type { ChatInput } from "./schema";
 import { getChatSystemInstructions } from "./system-instructions";
+import { createPresentMediaTool } from "./tools/present-media";
 import { createSemanticSearchTool } from "./tools/semantic-search";
 import { createTmdbSearchTool } from "./tools/tmdb-search";
 
@@ -25,6 +26,7 @@ export async function chat({ messages, locale, model }: ChatOptions) {
     tools: {
       semantic_search: createSemanticSearchTool(locale),
       tmdb_search: createTmdbSearchTool(locale),
+      present_media: createPresentMediaTool(),
     },
     stopWhen: stepCountIs(5),
     prepareStep: ({ messages, model }) => ({
