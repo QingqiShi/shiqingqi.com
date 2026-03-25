@@ -94,7 +94,7 @@ const styles = stylex.create({
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
-    padding: space._3,
+    paddingBlock: space._3,
   },
   emptyStateWrapper: {
     display: "flex",
