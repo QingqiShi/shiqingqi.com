@@ -39,6 +39,7 @@ function mapResult(result: MultiSearchResult) {
     // Shared fields
     overview: result.overview,
     vote_average: result.vote_average,
+    poster_path: result.poster_path,
     genre_ids: result.genre_ids,
     original_language: result.original_language,
     popularity: result.popularity,
