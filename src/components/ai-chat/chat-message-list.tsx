@@ -64,8 +64,16 @@ export function ChatMessageList({
         <div css={styles.emptyStateWrapper}>{emptyState}</div>
       ) : (
         <div css={styles.messagesList}>
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+          {messages.map((message, index) => (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              isStreaming={
+                status === "streaming" &&
+                message.role === "assistant" &&
+                index === messages.length - 1
+              }
+            />
           ))}
           {showTypingIndicator && (
             <TypingIndicator label={typingIndicatorLabel} />

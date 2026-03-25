@@ -18,10 +18,12 @@ import { ToolVisualOutput } from "./tool-visual-output";
 
 interface ChatMessageProps {
   message: UIMessage;
+  isStreaming?: boolean;
 }
 
 export const ChatMessage = memo(function ChatMessage({
   message,
+  isStreaming = false,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
 
@@ -113,7 +115,12 @@ export const ChatMessage = memo(function ChatMessage({
           const toolInput = "input" in part ? part.input : undefined;
           return (
             <div key={index}>
-              {isFirstTool && <ToolActivityGroup toolParts={toolParts} />}
+              {isFirstTool && (
+                <ToolActivityGroup
+                  toolParts={toolParts}
+                  isStreaming={isStreaming}
+                />
+              )}
               {hasPresentMedia && (
                 <ToolVisualOutput
                   toolName={toolName}

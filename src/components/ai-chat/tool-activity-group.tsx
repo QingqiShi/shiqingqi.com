@@ -15,14 +15,19 @@ interface ToolPartData {
 
 interface ToolActivityGroupProps {
   toolParts: ReadonlyArray<ToolPartData>;
+  isStreaming?: boolean;
 }
 
-export function ToolActivityGroup({ toolParts }: ToolActivityGroupProps) {
+export function ToolActivityGroup({
+  toolParts,
+  isStreaming = false,
+}: ToolActivityGroupProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   if (toolParts.length === 0) return null;
 
-  const allComplete = toolParts.every((p) => TERMINAL_STATES.has(p.state));
+  const allComplete =
+    !isStreaming && toolParts.every((p) => TERMINAL_STATES.has(p.state));
 
   if (!allComplete) {
     return (

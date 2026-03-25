@@ -89,4 +89,13 @@ describe("ToolActivityGroup", () => {
     const { container } = render(<ToolActivityGroup toolParts={[]} />);
     expect(container.innerHTML).toBe("");
   });
+
+  it("does not collapse when all tools complete but still streaming", () => {
+    render(<ToolActivityGroup toolParts={completeParts} isStreaming />);
+
+    // Should show all lines directly, no disclosure button
+    expect(screen.getByText("TMDB Search")).toBeInTheDocument();
+    expect(screen.getByText("Semantic Search")).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
 });
