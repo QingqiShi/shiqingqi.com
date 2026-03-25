@@ -20,8 +20,9 @@ export const tmdbSearchInputSchema = z.object({
 
 const TOOL_DESCRIPTION =
   "Search TMDB for movies, TV shows, and people by name. " +
-  "Use this tool when the user mentions a specific movie, TV show, or person by name, " +
+  "Use this tool ONLY when the user mentions a specific movie, TV show, or person by name, " +
   "or wants to look up a particular title or actor/director. " +
+  "Do NOT use this to verify or re-search titles already returned by semantic_search. " +
   "Results include a media_type field (movie, tv, or person) to distinguish result types. " +
   "For thematic or mood-based queries, use semantic_search instead.";
 
