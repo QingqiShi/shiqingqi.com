@@ -11,38 +11,71 @@ import {
 import { memo, useMemo } from "react";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
-import { ChatToolPart } from "./chat-tool-part";
 import { buildSearchResultsMap } from "./map-tool-output";
 import { MarkdownContent } from "./markdown-content";
+import { ToolActivityGroup } from "./tool-activity-group";
+import { ToolVisualOutput } from "./tool-visual-output";
 
 interface ChatMessageProps {
   message: UIMessage;
+  isStreaming?: boolean;
 }
 
 export const ChatMessage = memo(function ChatMessage({
   message,
+  isStreaming = false,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
 
-  const searchResultsMap = useMemo(() => {
-    const map = new Map<string, MediaListItem>();
-    for (const part of message.parts) {
-      if (
-        isToolUIPart(part) &&
-        "output" in part &&
-        part.state === "output-available"
-      ) {
-        const name = getToolName(part);
-        if (name === "tmdb_search" || name === "semantic_search") {
-          const partMap = buildSearchResultsMap(name, part.output);
-          for (const [key, value] of partMap) {
-            map.set(key, value);
+  const { searchResultsMap, toolParts, hasVisibleContent, firstToolIndex } =
+    useMemo(() => {
+      const map = new Map<string, MediaListItem>();
+      const parts: Array<{
+        toolName: string;
+        state: string;
+        input: unknown;
+      }> = [];
+      let visible = false;
+      let firstTool = -1;
+
+      for (let i = 0; i < message.parts.length; i++) {
+        const part = message.parts[i];
+
+        if (isToolUIPart(part)) {
+          const name = getToolName(part);
+          if (firstTool === -1) firstTool = i;
+          parts.push({
+            toolName: name,
+            state: part.state,
+            input: "input" in part ? part.input : undefined,
+          });
+          visible = true;
+
+          if (
+            "output" in part &&
+            part.state === "output-available" &&
+            (name === "tmdb_search" || name === "semantic_search")
+          ) {
+            const partMap = buildSearchResultsMap(name, part.output);
+            for (const [key, value] of partMap) {
+              map.set(key, value);
+            }
           }
+        } else if (!visible) {
+          if (isTextUIPart(part) && part.text.length > 0) visible = true;
+          else if (isReasoningUIPart(part)) visible = true;
         }
       }
-    }
-    return map;
-  }, [message.parts]);
+
+      return {
+        searchResultsMap: map,
+        toolParts: parts,
+        hasVisibleContent: visible,
+        firstToolIndex: firstTool,
+      };
+    }, [message.parts]);
+
+  if (!hasVisibleContent) return null;
 
   return (
     <div
@@ -73,17 +106,34 @@ export const ChatMessage = memo(function ChatMessage({
         }
 
         if (isToolUIPart(part)) {
+          const toolName = getToolName(part);
+          const isFirstTool = index === firstToolIndex;
+          const hasPresentMedia = toolName === "present_media";
+
+          if (!isFirstTool && !hasPresentMedia) return null;
+
+          const toolInput = "input" in part ? part.input : undefined;
           return (
-            <ChatToolPart
-              key={index}
-              toolName={getToolName(part)}
-              state={part.state}
-              input={"input" in part ? part.input : undefined}
-              searchResultsMap={searchResultsMap}
-            />
+            <div key={index}>
+              {isFirstTool && (
+                <ToolActivityGroup
+                  toolParts={toolParts}
+                  isStreaming={isStreaming}
+                />
+              )}
+              {hasPresentMedia && (
+                <ToolVisualOutput
+                  toolName={toolName}
+                  state={part.state}
+                  input={toolInput}
+                  searchResultsMap={searchResultsMap}
+                />
+              )}
+            </div>
           );
         }
 
+        // step-start, source-url, source-document, file, data — intentionally invisible
         return null;
       })}
     </div>

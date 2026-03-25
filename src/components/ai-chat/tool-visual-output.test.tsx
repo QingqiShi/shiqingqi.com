@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import type { MediaListItem } from "#src/utils/types.ts";
-import { ChatToolPart } from "./chat-tool-part";
+import { ToolVisualOutput } from "./tool-visual-output";
 
 const searchResultsMap = new Map<string, MediaListItem>([
   [
@@ -28,78 +28,11 @@ const searchResultsMap = new Map<string, MediaListItem>([
 
 const emptyMap = new Map<string, MediaListItem>();
 
-describe("ChatToolPart", () => {
-  describe("search tools", () => {
-    it("shows activity indicator while tmdb_search is in progress", () => {
-      render(
-        <ChatToolPart
-          toolName="tmdb_search"
-          state="input-streaming"
-          input={undefined}
-          searchResultsMap={emptyMap}
-        />,
-      );
-
-      expect(screen.getByRole("status")).toBeInTheDocument();
-    });
-
-    it("shows activity indicator while semantic_search is in progress", () => {
-      render(
-        <ChatToolPart
-          toolName="semantic_search"
-          state="input-available"
-          input={{ query: "sci-fi" }}
-          searchResultsMap={emptyMap}
-        />,
-      );
-
-      expect(screen.getByRole("status")).toBeInTheDocument();
-    });
-
-    it("renders nothing for completed tmdb_search", () => {
-      const { container } = render(
-        <ChatToolPart
-          toolName="tmdb_search"
-          state="output-available"
-          input={{ query: "Inception" }}
-          searchResultsMap={searchResultsMap}
-        />,
-      );
-
-      expect(container.innerHTML).toBe("");
-    });
-
-    it("renders nothing for completed semantic_search", () => {
-      const { container } = render(
-        <ChatToolPart
-          toolName="semantic_search"
-          state="output-available"
-          input={{ query: "sci-fi" }}
-          searchResultsMap={searchResultsMap}
-        />,
-      );
-
-      expect(container.innerHTML).toBe("");
-    });
-
-    it("shows error for failed search tool", () => {
-      render(
-        <ChatToolPart
-          toolName="tmdb_search"
-          state="output-error"
-          input={undefined}
-          searchResultsMap={emptyMap}
-        />,
-      );
-
-      expect(screen.getByRole("alert")).toBeInTheDocument();
-    });
-  });
-
+describe("ToolVisualOutput", () => {
   describe("present_media", () => {
     it("renders skeleton for input-streaming", () => {
       const { container } = render(
-        <ChatToolPart
+        <ToolVisualOutput
           toolName="present_media"
           state="input-streaming"
           input={undefined}
@@ -112,7 +45,7 @@ describe("ChatToolPart", () => {
 
     it("renders cards for input-available", () => {
       render(
-        <ChatToolPart
+        <ToolVisualOutput
           toolName="present_media"
           state="input-available"
           input={{ media: [{ id: 1, media_type: "movie" }] }}
@@ -129,7 +62,7 @@ describe("ChatToolPart", () => {
 
     it("renders cards for output-available", () => {
       render(
-        <ChatToolPart
+        <ToolVisualOutput
           toolName="present_media"
           state="output-available"
           input={{
@@ -150,7 +83,7 @@ describe("ChatToolPart", () => {
 
     it("renders fallback card when ID not in search results", () => {
       render(
-        <ChatToolPart
+        <ToolVisualOutput
           toolName="present_media"
           state="output-available"
           input={{ media: [{ id: 999, media_type: "movie" }] }}
@@ -166,7 +99,7 @@ describe("ChatToolPart", () => {
 
     it("shows error for output-error state", () => {
       render(
-        <ChatToolPart
+        <ToolVisualOutput
           toolName="present_media"
           state="output-error"
           input={undefined}
@@ -178,23 +111,36 @@ describe("ChatToolPart", () => {
     });
   });
 
-  describe("unknown tools", () => {
-    it("shows activity indicator while in progress", () => {
-      render(
-        <ChatToolPart
-          toolName="unknown_tool"
-          state="input-streaming"
-          input={undefined}
-          searchResultsMap={emptyMap}
+  describe("non-present_media tools", () => {
+    it("returns null for tmdb_search", () => {
+      const { container } = render(
+        <ToolVisualOutput
+          toolName="tmdb_search"
+          state="output-available"
+          input={{ query: "test" }}
+          searchResultsMap={searchResultsMap}
         />,
       );
 
-      expect(screen.getByRole("status")).toBeInTheDocument();
+      expect(container.innerHTML).toBe("");
     });
 
-    it("returns null when complete", () => {
+    it("returns null for semantic_search", () => {
       const { container } = render(
-        <ChatToolPart
+        <ToolVisualOutput
+          toolName="semantic_search"
+          state="output-available"
+          input={{ query: "test" }}
+          searchResultsMap={searchResultsMap}
+        />,
+      );
+
+      expect(container.innerHTML).toBe("");
+    });
+
+    it("returns null for unknown tools", () => {
+      const { container } = render(
+        <ToolVisualOutput
           toolName="unknown_tool"
           state="output-available"
           input={{}}
@@ -203,19 +149,6 @@ describe("ChatToolPart", () => {
       );
 
       expect(container.innerHTML).toBe("");
-    });
-
-    it("shows error for output-error state", () => {
-      render(
-        <ChatToolPart
-          toolName="unknown_tool"
-          state="output-error"
-          input={undefined}
-          searchResultsMap={emptyMap}
-        />,
-      );
-
-      expect(screen.getByRole("alert")).toBeInTheDocument();
     });
   });
 });

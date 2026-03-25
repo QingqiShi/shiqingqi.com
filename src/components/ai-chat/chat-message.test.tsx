@@ -102,6 +102,18 @@ describe("ChatMessage", () => {
     expect(screen.getByText("After step")).toBeInTheDocument();
   });
 
+  it("returns null for message with only step-start parts", () => {
+    const { container } = render(
+      <ChatMessage
+        message={createMessage({
+          role: "assistant",
+          parts: [{ type: "step-start" }],
+        })}
+      />,
+    );
+    expect(container.innerHTML).toBe("");
+  });
+
   it("renders present_media cards from search results lookup", () => {
     render(
       <ChatMessage
@@ -157,7 +169,7 @@ describe("ChatMessage", () => {
     );
   });
 
-  it("does not render cards for search tool parts", () => {
+  it("does not render cards for search tool parts but shows activity", () => {
     render(
       <ChatMessage
         message={createMessage({
@@ -184,8 +196,40 @@ describe("ChatMessage", () => {
       />,
     );
 
-    // Search tool parts render nothing — only present_media renders cards
+    // Search tool parts render no media cards
     expect(screen.queryByAltText("Inception")).not.toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    // But the tool activity group is present (collapsed, showing "1 tool call")
+    expect(screen.getByText("1 tool call")).toBeInTheDocument();
+  });
+
+  it("shows tool activity group for tool parts", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "assistant",
+          parts: [
+            {
+              type: "dynamic-tool",
+              toolName: "tmdb_search",
+              toolCallId: "search-1",
+              state: "output-available",
+              input: { query: "Inception" },
+              output: [],
+            },
+            {
+              type: "dynamic-tool",
+              toolName: "semantic_search",
+              toolCallId: "search-2",
+              state: "output-available",
+              input: { query: "sci-fi" },
+              output: [],
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByText("2 tool calls")).toBeInTheDocument();
   });
 });
