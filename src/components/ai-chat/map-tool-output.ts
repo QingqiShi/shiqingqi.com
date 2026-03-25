@@ -1,7 +1,7 @@
 import { presentMediaInputSchema } from "#src/ai-chat/tools/present-media.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
