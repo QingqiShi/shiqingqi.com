@@ -142,7 +142,7 @@ export const ChatMessage = memo(function ChatMessage({
 
 const styles = stylex.create({
   bubble: {
-    maxWidth: "85%",
+    maxWidth: "100%",
     paddingBlock: space._2,
     paddingInline: space._3,
   },

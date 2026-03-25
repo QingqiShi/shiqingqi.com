@@ -58,14 +58,12 @@ export function AIChatView({
 }
 
 /**
- * Horizontal inset from viewport edge to content inside ChatMessageList.
- * Padding chain: layout (space._3 + safe-area) + ChatMessageList (space._3).
+ * Horizontal inset from viewport edge to content.
+ * Padding chain: layout (space._3 + safe-area).
  * See also: recommended-media-row.tsx which uses the same offsets.
  */
-const contentInsetLeft = `calc(${space._3} + ${space._3} + env(safe-area-inset-left, 0px))`;
-const contentInsetRight = `calc(${space._3} + ${space._3} + env(safe-area-inset-right, 0px))`;
-const layoutInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`;
-const layoutInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
+const contentInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`;
+const contentInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
 
 const styles = stylex.create({
   inputArea: {
@@ -77,8 +75,8 @@ const styles = stylex.create({
     paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,
     paddingLeft: contentInsetLeft,
     paddingRight: contentInsetRight,
-    marginLeft: `calc(-1 * ${layoutInsetLeft})`,
-    marginRight: `calc(-1 * ${layoutInsetRight})`,
+    marginLeft: `calc(-1 * ${contentInsetLeft})`,
+    marginRight: `calc(-1 * ${contentInsetRight})`,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.controlTrack,

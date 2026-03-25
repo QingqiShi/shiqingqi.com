@@ -142,6 +142,7 @@ const styles = stylex.create({
   },
   label: {
     fontWeight: 500,
+    whiteSpace: "nowrap",
   },
   separator: {
     opacity: 0.5,
