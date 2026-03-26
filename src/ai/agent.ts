@@ -144,8 +144,6 @@ export async function agent(
   const maxIterations = 5; // Prevent infinite loops
   let iteration = 0;
 
-  console.log("user message: ", userMessage);
-
   while (!toolCallingComplete && iteration < maxIterations) {
     const response = await getOpenAIClient().responses.create({
       model: getOpenAIModel(),
@@ -172,7 +170,6 @@ export async function agent(
       fullConversation.push(outputItem);
 
       if (outputItem.type === "function_call") {
-        console.log("tool call: ", outputItem.name);
         // Check if this is the completion call
         if (outputItem.name === "complete_phase_1") {
           hasCompletionCall = true;
