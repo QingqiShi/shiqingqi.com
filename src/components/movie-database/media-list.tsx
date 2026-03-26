@@ -7,6 +7,7 @@ import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
+import { t } from "#src/i18n.ts";
 import { color, ratio, space } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
@@ -15,10 +16,9 @@ import { MediaCard } from "./media-card";
 
 interface MediaListProps {
   initialPage: number;
-  notFoundLabel: string;
 }
 
-export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
+export function MediaList({ initialPage }: MediaListProps) {
   const locale = useLocale();
   const { genres, genreFilterType, sort, mediaType } = useMediaFilters();
 
@@ -58,6 +58,16 @@ export function MediaList({ initialPage, notFoundLabel }: MediaListProps) {
   const [initialCount] = useState(items.length);
 
   if (!items.length) {
+    const notFoundLabel =
+      mediaType === "tv"
+        ? t({
+            en: "No TV shows found that match the criteria, please update the filters",
+            zh: "没有找到符合条件的电视剧，请更新筛选条件",
+          })
+        : t({
+            en: "No movies found that match the criteria, please update the filters",
+            zh: "没有找到符合条件的电影，请更新筛选条件",
+          });
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
   }
 
