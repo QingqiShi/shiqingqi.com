@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import type { MediaListItem } from "#src/utils/types.ts";
+import { MediaDetailProvider } from "./media-detail-context";
 import { RecommendedMediaRow } from "./recommended-media-row";
 
 const mockItems: ReadonlyArray<MediaListItem> = [
@@ -22,43 +23,61 @@ const mockItems: ReadonlyArray<MediaListItem> = [
 
 describe("RecommendedMediaRow", () => {
   it("renders section title", () => {
-    render(<RecommendedMediaRow title="Trending Movies" items={mockItems} />);
+    render(
+      <MediaDetailProvider>
+        <RecommendedMediaRow title="Trending Movies" items={mockItems} />
+      </MediaDetailProvider>,
+    );
     expect(
       screen.getByRole("heading", { name: "Trending Movies" }),
     ).toBeInTheDocument();
   });
 
   it("renders poster images for each item", () => {
-    render(<RecommendedMediaRow title="Trending Movies" items={mockItems} />);
+    render(
+      <MediaDetailProvider>
+        <RecommendedMediaRow title="Trending Movies" items={mockItems} />
+      </MediaDetailProvider>,
+    );
     expect(screen.getByAltText("Movie One")).toBeInTheDocument();
     expect(screen.getByAltText("Movie Two")).toBeInTheDocument();
   });
 
   it("renders rating badges", () => {
-    render(<RecommendedMediaRow title="Trending Movies" items={mockItems} />);
+    render(
+      <MediaDetailProvider>
+        <RecommendedMediaRow title="Trending Movies" items={mockItems} />
+      </MediaDetailProvider>,
+    );
     expect(screen.getByText("8.5")).toBeInTheDocument();
     expect(screen.getByText("7.2")).toBeInTheDocument();
   });
 
-  it("does not render links", () => {
-    render(<RecommendedMediaRow title="Trending Movies" items={mockItems} />);
-    expect(screen.queryAllByRole("link")).toHaveLength(0);
+  it("renders cards as buttons", () => {
+    render(
+      <MediaDetailProvider>
+        <RecommendedMediaRow title="Trending Movies" items={mockItems} />
+      </MediaDetailProvider>,
+    );
+    expect(screen.queryAllByRole("button")).toHaveLength(2);
   });
 
   it("renders no-poster fallback when posterPath is null", () => {
     render(
-      <RecommendedMediaRow
-        title="Trending Movies"
-        items={[
-          {
-            id: 99,
-            title: "No Poster Movie",
-            posterPath: null,
-            rating: 6.3,
-            mediaType: "movie",
-          },
-        ]}
-      />,
+      <MediaDetailProvider>
+        <RecommendedMediaRow
+          title="Trending Movies"
+          items={[
+            {
+              id: 99,
+              title: "No Poster Movie",
+              posterPath: null,
+              rating: 6.3,
+              mediaType: "movie",
+            },
+          ]}
+        />
+      </MediaDetailProvider>,
     );
 
     expect(screen.getByText("No Poster Movie")).toBeInTheDocument();
@@ -67,7 +86,9 @@ describe("RecommendedMediaRow", () => {
 
   it("renders nothing when items array is empty", () => {
     const { container } = render(
-      <RecommendedMediaRow title="Trending Movies" items={[]} />,
+      <MediaDetailProvider>
+        <RecommendedMediaRow title="Trending Movies" items={[]} />
+      </MediaDetailProvider>,
     );
     expect(container.querySelector("section")).toBeNull();
   });

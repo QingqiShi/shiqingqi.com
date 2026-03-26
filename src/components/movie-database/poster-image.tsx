@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
 import { color, font, layer } from "#src/tokens.stylex.ts";
+import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 
 interface PosterImageProps {
@@ -32,17 +33,11 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
     );
   }
 
-  const sizes = config.images.poster_sizes
-    .filter((size) => size.startsWith("w"))
-    .map((size) => Number(size.replace("w", "")));
-
-  const src = `${config.images?.secure_base_url}w${sizes[sizes.length - 1]}${posterPath}`;
-  const srcSet = sizes
-    .map(
-      (size) =>
-        `${config.images?.secure_base_url}w${size}${posterPath} ${size}w`,
-    )
-    .join(", ");
+  const { src, srcSet } = buildSrcSet(
+    config.images.secure_base_url ?? config.images.base_url,
+    config.images.poster_sizes,
+    posterPath,
+  );
 
   return (
     <>

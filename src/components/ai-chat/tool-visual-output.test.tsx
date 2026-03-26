@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import type { MediaListItem } from "#src/utils/types.ts";
+import { MediaDetailProvider } from "./media-detail-context";
 import { ToolVisualOutput } from "./tool-visual-output";
 
 const searchResultsMap = new Map<string, MediaListItem>([
@@ -32,12 +33,14 @@ describe("ToolVisualOutput", () => {
   describe("present_media", () => {
     it("renders skeleton for input-streaming", () => {
       const { container } = render(
-        <ToolVisualOutput
-          toolName="present_media"
-          state="input-streaming"
-          input={undefined}
-          searchResultsMap={searchResultsMap}
-        />,
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_media"
+            state="input-streaming"
+            input={undefined}
+            searchResultsMap={searchResultsMap}
+          />
+        </MediaDetailProvider>,
       );
 
       expect(container.innerHTML).not.toBe("");
@@ -45,66 +48,66 @@ describe("ToolVisualOutput", () => {
 
     it("renders cards for input-available", () => {
       render(
-        <ToolVisualOutput
-          toolName="present_media"
-          state="input-available"
-          input={{ media: [{ id: 1, media_type: "movie" }] }}
-          searchResultsMap={searchResultsMap}
-        />,
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_media"
+            state="input-available"
+            input={{ media: [{ id: 1, media_type: "movie" }] }}
+            searchResultsMap={searchResultsMap}
+          />
+        </MediaDetailProvider>,
       );
 
       expect(screen.getByAltText("Inception")).toBeInTheDocument();
-      expect(screen.getByRole("link")).toHaveAttribute(
-        "href",
-        "/movie-database/movie/1",
-      );
+      expect(screen.getByRole("button")).toBeInTheDocument();
     });
 
     it("renders cards for output-available", () => {
       render(
-        <ToolVisualOutput
-          toolName="present_media"
-          state="output-available"
-          input={{
-            media: [
-              { id: 100, media_type: "tv" },
-              { id: 1, media_type: "movie" },
-            ],
-          }}
-          searchResultsMap={searchResultsMap}
-        />,
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_media"
+            state="output-available"
+            input={{
+              media: [
+                { id: 100, media_type: "tv" },
+                { id: 1, media_type: "movie" },
+              ],
+            }}
+            searchResultsMap={searchResultsMap}
+          />
+        </MediaDetailProvider>,
       );
 
-      const links = screen.getAllByRole("link");
-      expect(links).toHaveLength(2);
-      expect(links[0]).toHaveAttribute("href", "/movie-database/tv/100");
-      expect(links[1]).toHaveAttribute("href", "/movie-database/movie/1");
+      const buttons = screen.getAllByRole("button");
+      expect(buttons).toHaveLength(2);
     });
 
     it("renders fallback card when ID not in search results", () => {
       render(
-        <ToolVisualOutput
-          toolName="present_media"
-          state="output-available"
-          input={{ media: [{ id: 999, media_type: "movie" }] }}
-          searchResultsMap={emptyMap}
-        />,
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_media"
+            state="output-available"
+            input={{ media: [{ id: 999, media_type: "movie" }] }}
+            searchResultsMap={emptyMap}
+          />
+        </MediaDetailProvider>,
       );
 
-      expect(screen.getByRole("link")).toHaveAttribute(
-        "href",
-        "/movie-database/movie/999",
-      );
+      expect(screen.getByRole("button")).toBeInTheDocument();
     });
 
     it("shows error for output-error state", () => {
       render(
-        <ToolVisualOutput
-          toolName="present_media"
-          state="output-error"
-          input={undefined}
-          searchResultsMap={searchResultsMap}
-        />,
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_media"
+            state="output-error"
+            input={undefined}
+            searchResultsMap={searchResultsMap}
+          />
+        </MediaDetailProvider>,
       );
 
       expect(screen.getByRole("alert")).toBeInTheDocument();

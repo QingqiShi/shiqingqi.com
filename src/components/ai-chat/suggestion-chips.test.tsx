@@ -7,7 +7,13 @@ import { SuggestionChips } from "./suggestion-chips";
 function renderChips(suggestions: ReadonlyArray<string>) {
   const sendMessage = vi.fn();
   const result = render(
-    <ChatActionsContext value={{ sendMessage }}>
+    <ChatActionsContext
+      value={{
+        sendMessage,
+        attachedMedia: null,
+        setAttachedMedia: vi.fn(),
+      }}
+    >
       <SuggestionChips
         suggestions={suggestions}
         groupLabel="Suggested prompts"

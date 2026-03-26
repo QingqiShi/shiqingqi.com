@@ -1,11 +1,16 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useAIChat } from "#src/ai-chat/use-ai-chat.ts";
-import { ChatActionsContext } from "#src/components/ai-chat/chat-actions-context.tsx";
+import {
+  ChatActionsContext,
+  type AttachedMedia,
+} from "#src/components/ai-chat/chat-actions-context.tsx";
 import { ChatInputBar } from "#src/components/ai-chat/chat-input-bar.tsx";
 import { ChatMessageList } from "#src/components/ai-chat/chat-message-list.tsx";
+import { MediaDetailProvider } from "#src/components/ai-chat/media-detail-context.tsx";
+import { MediaDetailOverlay } from "#src/components/ai-chat/media-detail-overlay.tsx";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
@@ -29,31 +34,49 @@ export function AIChatView({
   stopLabel,
 }: AIChatViewProps) {
   const { messages, status, sendMessage, stop } = useAIChat({ locale });
+  const [attachedMedia, setAttachedMedia] = useState<AttachedMedia | null>(
+    null,
+  );
 
   const handleSend = (text: string) => {
-    void sendMessage({ text });
+    const message = attachedMedia
+      ? `[About: ${attachedMedia.title} (${attachedMedia.mediaType})] ${text}`
+      : text;
+    setAttachedMedia(null);
+    void sendMessage({ text: message });
   };
 
   return (
-    <ChatActionsContext value={{ sendMessage: handleSend }}>
-      <ChatMessageList
-        messages={messages}
-        status={status}
-        emptyState={emptyState}
-        typingIndicatorLabel={typingIndicatorLabel}
-        scrollToBottomLabel={scrollToBottomLabel}
-      />
-      <div css={styles.inputArea}>
-        <ChatInputBar
-          placeholder={placeholder}
-          sendLabel={sendLabel}
-          stopLabel={stopLabel}
+    <MediaDetailProvider>
+      <ChatActionsContext
+        value={{
+          sendMessage: handleSend,
+          attachedMedia,
+          setAttachedMedia,
+        }}
+      >
+        <ChatMessageList
+          messages={messages}
           status={status}
-          onSend={handleSend}
-          onStop={stop}
+          emptyState={emptyState}
+          typingIndicatorLabel={typingIndicatorLabel}
+          scrollToBottomLabel={scrollToBottomLabel}
         />
-      </div>
-    </ChatActionsContext>
+        <div css={styles.inputArea}>
+          <ChatInputBar
+            placeholder={placeholder}
+            sendLabel={sendLabel}
+            stopLabel={stopLabel}
+            status={status}
+            attachedMedia={attachedMedia}
+            onSend={handleSend}
+            onStop={stop}
+            onClearAttachment={() => setAttachedMedia(null)}
+          />
+        </div>
+        <MediaDetailOverlay />
+      </ChatActionsContext>
+    </MediaDetailProvider>
   );
 }
 

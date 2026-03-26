@@ -102,4 +102,8 @@ export const apiRoutes = [
     functionName: "getTvShowRecommendations",
     routePath: "get-tv-show-recommendations",
   },
+  { functionName: "getMovieDetails", routePath: "get-movie-details" },
+  { functionName: "getTvShowDetails", routePath: "get-tv-show-details" },
+  { functionName: "getMovieVideos", routePath: "get-movie-videos" },
+  { functionName: "getTvShowVideos", routePath: "get-tv-show-videos" },
 ];

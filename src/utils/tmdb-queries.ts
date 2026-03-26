@@ -3,10 +3,14 @@ import type {
   discoverMovies,
   discoverTvShows,
   getConfiguration,
+  getMovieDetails,
   getMovieGenres,
   getMovieRecommendations,
+  getMovieVideos,
+  getTvShowDetails,
   getTvShowGenres,
   getTvShowRecommendations,
+  getTvShowVideos,
 } from "../_generated/tmdb-server-functions";
 import { apiRequestWrapper } from "./api-request-wrapper";
 import type { QueryParams, ResponseType } from "./tmdb-client";
@@ -184,4 +188,106 @@ export const genres = (params: GenresParams) =>
     },
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
+  });
+
+function formatMovieRuntime(minutes: number, language?: string) {
+  if (!minutes) return "";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return new Intl.DurationFormat(language, { style: "narrow" }).format({
+    hours,
+    minutes: mins,
+  });
+}
+
+type MediaDetailParams = {
+  type: "movie" | "tv";
+  id: string;
+  language?: string;
+};
+
+export interface NormalizedMediaDetail {
+  title: string;
+  posterPath: string | null;
+  backdropPath: string | null;
+  year: string | undefined;
+  duration: string;
+  genreText: string;
+  overview: string | null;
+  tagline: string | null;
+  voteAverage: number;
+  voteCount: number;
+}
+
+export const mediaDetail = (params: MediaDetailParams) =>
+  queryOptions({
+    queryKey: [{ query: "mediaDetail", ...tmdbScope, ...params }],
+    queryFn: async (): Promise<NormalizedMediaDetail> => {
+      if (params.type === "tv") {
+        const { type, id, ...queryParams } = params;
+        const data = await apiRequestWrapper<typeof getTvShowDetails>(
+          "/api/tmdb/get-tv-show-details",
+          { ...queryParams, series_id: id },
+        );
+        return {
+          title: data.name ?? data.original_name ?? "",
+          posterPath: data.poster_path ?? null,
+          backdropPath: data.backdrop_path ?? null,
+          year: data.first_air_date?.split("-")[0],
+          duration: data.number_of_seasons
+            ? `${data.number_of_seasons}${params.language === "zh" ? " 季" : " seasons"}`
+            : "",
+          genreText:
+            data.genres
+              ?.map((g) => g.name)
+              .filter((n): n is string => n !== undefined)
+              .join(", ") ?? "",
+          overview: data.overview ?? null,
+          tagline: data.tagline ?? null,
+          voteAverage: data.vote_average,
+          voteCount: data.vote_count,
+        };
+      }
+      const { type, id, ...queryParams } = params;
+      const data = await apiRequestWrapper<typeof getMovieDetails>(
+        "/api/tmdb/get-movie-details",
+        { ...queryParams, movie_id: id },
+      );
+      return {
+        title: data.title ?? data.original_title ?? "",
+        posterPath: data.poster_path ?? null,
+        backdropPath: data.backdrop_path ?? null,
+        year: data.release_date?.split("-")[0],
+        duration: formatMovieRuntime(data.runtime, params.language),
+        genreText:
+          data.genres
+            ?.map((g) => g.name)
+            .filter((n): n is string => n !== undefined)
+            .join(", ") ?? "",
+        overview: data.overview ?? null,
+        tagline: data.tagline ?? null,
+        voteAverage: data.vote_average,
+        voteCount: data.vote_count,
+      };
+    },
+  });
+
+export const mediaVideos = (params: MediaDetailParams) =>
+  queryOptions({
+    queryKey: [{ query: "mediaVideos", ...tmdbScope, ...params }],
+    queryFn: async () => {
+      if (params.type === "tv") {
+        const { type, id, ...queryParams } = params;
+        return apiRequestWrapper<typeof getTvShowVideos>(
+          "/api/tmdb/get-tv-show-videos",
+          { ...queryParams, series_id: id },
+        );
+      } else {
+        const { type, id, ...queryParams } = params;
+        return apiRequestWrapper<typeof getMovieVideos>(
+          "/api/tmdb/get-movie-videos",
+          { ...queryParams, movie_id: id },
+        );
+      }
+    },
   });

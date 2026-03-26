@@ -1,26 +1,31 @@
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
+import type { AttachedMedia } from "./chat-actions-context";
 import { ChatInputBar } from "./chat-input-bar";
 
 function renderInputBar(
   overrides: {
     status?: "submitted" | "streaming" | "ready" | "error";
+    attachedMedia?: AttachedMedia | null;
   } = {},
 ) {
   const onSend = vi.fn();
   const onStop = vi.fn();
+  const onClearAttachment = vi.fn();
   const result = render(
     <ChatInputBar
       placeholder="Ask about movies..."
       sendLabel="Send message"
       stopLabel="Stop generating"
       status={overrides.status ?? "ready"}
+      attachedMedia={overrides.attachedMedia ?? null}
       onSend={onSend}
       onStop={onStop}
+      onClearAttachment={onClearAttachment}
     />,
   );
-  return { ...result, props: { onSend, onStop } };
+  return { ...result, props: { onSend, onStop, onClearAttachment } };
 }
 
 describe("ChatInputBar rendering", () => {
@@ -148,6 +153,38 @@ describe("ChatInputBar loading state", () => {
     renderInputBar({ status: "streaming" });
 
     expect(screen.getByPlaceholderText("Ask about movies...")).toBeDisabled();
+  });
+});
+
+describe("ChatInputBar attachment tag", () => {
+  it("shows attachment tag when attachedMedia is provided", () => {
+    renderInputBar({
+      attachedMedia: { id: 1, mediaType: "movie", title: "Inception" },
+    });
+
+    expect(screen.getByText("Inception")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Remove attachment" }),
+    ).toBeInTheDocument();
+  });
+
+  it("calls onClearAttachment when dismiss button is clicked", async () => {
+    const user = userEvent.setup();
+    const { props } = renderInputBar({
+      attachedMedia: { id: 1, mediaType: "movie", title: "Inception" },
+    });
+
+    await user.click(screen.getByRole("button", { name: "Remove attachment" }));
+
+    expect(props.onClearAttachment).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not show attachment tag when attachedMedia is null", () => {
+    renderInputBar();
+
+    expect(
+      screen.queryByRole("button", { name: "Remove attachment" }),
+    ).not.toBeInTheDocument();
   });
 });
 
