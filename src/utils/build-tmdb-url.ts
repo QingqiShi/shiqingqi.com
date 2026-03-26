@@ -12,7 +12,7 @@ export function buildTmdbUrl({
   const url = new URL(baseUrl);
 
   Object.entries(params).forEach(([key, value]) => {
-    if (value != null && value !== undefined) {
+    if (value != null) {
       // Omit TMDB API defaults
       if (key === "language" && value === "en") {
         return;
