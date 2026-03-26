@@ -107,13 +107,7 @@ export default async function Page(
         <Suspense fallback={<FiltersSkeleton locale={params.locale} />}>
           <Filters mobileButtonLabel={t({ en: "Refine", zh: "筛选" })} />
         </Suspense>
-        <MediaList
-          initialPage={1}
-          notFoundLabel={t({
-            en: "No movies found that match the criteria, please update the filters",
-            zh: "没有找到符合条件的电影，请更新筛选条件",
-          })}
-        />
+        <MediaList initialPage={1} />
       </MediaFiltersProvider>
     </HydrationBoundary>
   );
