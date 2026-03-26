@@ -15,10 +15,18 @@ export function apiRouteWrapper(
   ) => Promise<unknown>,
 ) {
   return async function routeHandler(request: NextRequest) {
-    const result = await serverFunction(
-      Object.fromEntries(request.nextUrl.searchParams.entries()),
-    );
+    try {
+      const result = await serverFunction(
+        Object.fromEntries(request.nextUrl.searchParams.entries()),
+      );
 
-    return NextResponse.json(result);
+      return NextResponse.json(result);
+    } catch (error) {
+      console.error("API route error:", error);
+      return NextResponse.json(
+        { error: "Internal server error" },
+        { status: 500 },
+      );
+    }
   };
 }
