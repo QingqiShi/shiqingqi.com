@@ -60,11 +60,17 @@ export default async function Page({ params }: PageProps) {
             />
           )}
           <div css={styles.hero}>
-            <div css={styles.ratingContainer}>
-              <div css={styles.rating}>
+            <div
+              css={styles.ratingContainer}
+              role="img"
+              aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(movie.vote_average)}${t({ en: " out of 10", zh: "/10" })}, ${t({ en: "based on", zh: "基于" })} ${movie.vote_count.toLocaleString(locale)} ${t({ en: "votes", zh: "票" })}`}
+            >
+              <div css={styles.rating} aria-hidden="true">
                 {formatter.format(movie.vote_average)}
               </div>
-              <div css={styles.count}>{movie.vote_count}</div>
+              <div css={styles.count} aria-hidden="true">
+                {movie.vote_count}
+              </div>
             </div>
             <h1 css={styles.h1}>
               {movie.title ??
@@ -124,11 +130,17 @@ export default async function Page({ params }: PageProps) {
             />
           )}
           <div css={styles.hero}>
-            <div css={styles.ratingContainer}>
-              <div css={styles.rating}>
+            <div
+              css={styles.ratingContainer}
+              role="img"
+              aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(tvShow.vote_average)}${t({ en: " out of 10", zh: "/10" })}, ${t({ en: "based on", zh: "基于" })} ${tvShow.vote_count.toLocaleString(locale)} ${t({ en: "votes", zh: "票" })}`}
+            >
+              <div css={styles.rating} aria-hidden="true">
                 {formatter.format(tvShow.vote_average)}
               </div>
-              <div css={styles.count}>{tvShow.vote_count}</div>
+              <div css={styles.count} aria-hidden="true">
+                {tvShow.vote_count}
+              </div>
             </div>
             <h1 css={styles.h1}>
               {tvShow.name ??
