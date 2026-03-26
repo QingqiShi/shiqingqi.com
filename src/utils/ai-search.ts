@@ -1,7 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { agent } from "#src/ai/agent.ts";
-import type { SupportedLocale } from "#src/types.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 
 // Request validation schema
 const SearchParamsSchema = z.object({
@@ -22,12 +22,7 @@ export interface AISearchResponse {
   success: boolean;
   query: string;
   locale: string;
-  items: Array<{
-    id: number;
-    title?: string | null;
-    posterPath?: string | null;
-    rating?: number | null;
-  }>;
+  items: MediaListItem[];
   count: number;
 }
 
@@ -40,7 +35,7 @@ export async function performAISearch(
     const { query, locale } = validatedData;
 
     // Execute AI agent
-    const result = await agent(query, locale as SupportedLocale);
+    const result = await agent(query, locale);
 
     return {
       success: true,
@@ -54,6 +49,7 @@ export async function performAISearch(
     if (error instanceof z.ZodError) {
       throw new Error(
         `Invalid parameters: ${error.errors.map((e) => e.message).join(", ")}`,
+        { cause: error },
       );
     }
 
