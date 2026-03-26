@@ -1,7 +1,11 @@
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
 import { createTmdbSearchTool, tmdbSearchInputSchema } from "./tmdb-search";
+
+beforeAll(() => {
+  process.env.TMDB_API_TOKEN = "test-token";
+});
 
 const TMDB_BASE = "https://api.themoviedb.org";
 
