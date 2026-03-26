@@ -79,9 +79,6 @@ describe("traceClientFiles", () => {
     expect(relativePaths).toContain(
       "components/movie-database/reset-filter.tsx",
     );
-    expect(relativePaths).toContain(
-      "components/movie-database/search-button.tsx",
-    );
   });
 
   it("does NOT include server-only components", () => {

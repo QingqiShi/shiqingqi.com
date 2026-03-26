@@ -4,7 +4,7 @@ test.describe("Movie and TV Show Browsing", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/movie-database");
     // Wait for content to load
-    await expect(page.getByRole("link", { name: /movies/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /^movies$/i })).toBeVisible();
   });
 
   test("should display movie grid with filter controls by default", async ({
@@ -241,8 +241,12 @@ test.describe("Movie and TV Show Browsing", () => {
       await page.goto("/movie-database");
 
       // Verify English labels
-      await expect(page.getByRole("link", { name: "Movies" })).toBeVisible();
-      await expect(page.getByRole("link", { name: "TV Shows" })).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "Movies", exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "TV Shows", exact: true }),
+      ).toBeVisible();
 
       // Open genre menu and verify English genre names
       await page.getByRole("button", { name: /^genre/i }).click();
@@ -258,7 +262,9 @@ test.describe("Movie and TV Show Browsing", () => {
       await expect(
         page.getByRole("link", { name: "电影" }).first(),
       ).toBeVisible();
-      await expect(page.getByRole("link", { name: "电视剧" })).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "电视剧", exact: true }),
+      ).toBeVisible();
 
       // Open genre menu and verify Chinese genre names
       await page.getByRole("button", { name: /类型/i }).click();
