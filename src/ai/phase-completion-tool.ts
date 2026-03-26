@@ -18,9 +18,9 @@ export function executePhaseCompletionToolCall(toolCall: {
   arguments: string;
   call_id: string;
 }) {
-  const args = JSON.parse(toolCall.arguments) as z.infer<
-    typeof phaseCompletionSchema
-  >;
+  const args = phaseCompletionSchema.parse(
+    JSON.parse(toolCall.arguments || "{}"),
+  );
 
   return {
     success: true,
