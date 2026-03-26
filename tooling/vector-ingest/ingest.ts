@@ -17,7 +17,8 @@ config({ path: ".env.local" });
 
 export const MIN_POPULARITY_MOVIE = 2;
 export const MIN_POPULARITY_TV = 7;
-export const MIN_VOTE_COUNT = 20;
+export const MIN_VOTE_COUNT = 15;
+export const TRENDING_LIMIT = 100;
 const UPSERT_BATCH_SIZE = 100;
 const DELETE_BATCH_SIZE = 100;
 const CONCURRENCY = 5;
@@ -45,6 +46,7 @@ export type TmdbFetcher = {
     startDate: string,
     endDate: string,
   ) => Promise<number[]>;
+  fetchTrending: (type: "movie" | "tv", limit: number) => Promise<number[]>;
 };
 
 export type VectorNamespace = {
@@ -206,13 +208,29 @@ export async function runIncremental(
   const startDate = new Date(endDate);
   startDate.setDate(startDate.getDate() - days);
 
-  let [movieIds, tvIds] = await Promise.all([
-    tmdb.fetchChanges("movie", formatDate(startDate), formatDate(endDate)),
-    tmdb.fetchChanges("tv", formatDate(startDate), formatDate(endDate)),
-  ]);
+  const [changedMovieIds, changedTvIds, trendingMovieIds, trendingTvIds] =
+    await Promise.all([
+      tmdb.fetchChanges("movie", formatDate(startDate), formatDate(endDate)),
+      tmdb.fetchChanges("tv", formatDate(startDate), formatDate(endDate)),
+      tmdb.fetchTrending("movie", TRENDING_LIMIT),
+      tmdb.fetchTrending("tv", TRENDING_LIMIT),
+    ]);
+
+  // Overlapping IDs use the trending path (no vote count gate) rather than
+  // the changes path, so a new release that is both trending and changed
+  // still gets ingested even with 0 votes.
+  const trendingMovieSet = new Set(trendingMovieIds);
+  const trendingTvSet = new Set(trendingTvIds);
+  const changesOnlyMovieIds = changedMovieIds.filter(
+    (id) => !trendingMovieSet.has(id),
+  );
+  const changesOnlyTvIds = changedTvIds.filter((id) => !trendingTvSet.has(id));
 
   console.log(
-    `Changes found: ${movieIds.length} movies, ${tvIds.length} TV shows`,
+    `Changes: ${changedMovieIds.length} movies, ${changedTvIds.length} TV shows`,
+  );
+  console.log(
+    `Trending: ${trendingMovieIds.length} movies, ${trendingTvIds.length} TV shows`,
   );
 
   if (dryRun) {
@@ -220,10 +238,40 @@ export async function runIncremental(
     return [];
   }
 
+  type IngestBatch = {
+    ids: number[];
+    mediaType: "movie" | "tv";
+    label: string;
+    minVoteCount: number;
+  };
+
+  const batches: IngestBatch[] = [
+    {
+      ids: changesOnlyMovieIds,
+      mediaType: "movie",
+      label: "changed",
+      minVoteCount: MIN_VOTE_COUNT,
+    },
+    {
+      ids: changesOnlyTvIds,
+      mediaType: "tv",
+      label: "changed",
+      minVoteCount: MIN_VOTE_COUNT,
+    },
+    {
+      ids: trendingMovieIds,
+      mediaType: "movie",
+      label: "trending",
+      minVoteCount: 0,
+    },
+    { ids: trendingTvIds, mediaType: "tv", label: "trending", minVoteCount: 0 },
+  ];
+
   if (limit !== undefined) {
     console.log(`  Limiting to ${limit} per media type`);
-    movieIds = movieIds.slice(0, limit);
-    tvIds = tvIds.slice(0, limit);
+    for (const batch of batches) {
+      batch.ids = batch.ids.slice(0, limit);
+    }
   }
 
   const vectorIndex = createIndex();
@@ -233,14 +281,23 @@ export async function runIncremental(
     console.log(`\nIngesting locale: ${locale}`);
     const ns = vectorIndex.namespace(locale);
 
-    if (movieIds.length > 0) {
-      console.log(`  Fetching and upserting ${movieIds.length} movies...`);
-      allStats.push(await fetchAndUpsert(tmdb, movieIds, "movie", locale, ns));
-    }
-
-    if (tvIds.length > 0) {
-      console.log(`  Fetching and upserting ${tvIds.length} TV shows...`);
-      allStats.push(await fetchAndUpsert(tmdb, tvIds, "tv", locale, ns));
+    for (const batch of batches) {
+      if (batch.ids.length > 0) {
+        const label = batch.mediaType === "tv" ? "TV shows" : "movies";
+        console.log(
+          `  Fetching and upserting ${batch.ids.length} ${batch.label} ${label}...`,
+        );
+        allStats.push(
+          await fetchAndUpsert(
+            tmdb,
+            batch.ids,
+            batch.mediaType,
+            locale,
+            ns,
+            batch.minVoteCount,
+          ),
+        );
+      }
     }
   }
 
@@ -276,6 +333,7 @@ export async function fetchAndUpsert(
   mediaType: "movie" | "tv",
   locale: string,
   namespace: VectorNamespace,
+  minVoteCount = MIN_VOTE_COUNT,
 ): Promise<IngestStats> {
   let processed = 0;
   let upserted = 0;
@@ -292,11 +350,11 @@ export async function fetchAndUpsert(
       chunk.map(async (id) => {
         if (mediaType === "movie") {
           const detail = await tmdb.fetchMovieDetail(id, locale);
-          if (detail.vote_count < MIN_VOTE_COUNT) return null;
+          if (detail.vote_count < minVoteCount) return null;
           return transformMovie(detail);
         }
         const detail = await tmdb.fetchTvDetail(id, locale);
-        if (detail.vote_count < MIN_VOTE_COUNT) return null;
+        if (detail.vote_count < minVoteCount) return null;
         return transformTv(detail);
       }),
     );

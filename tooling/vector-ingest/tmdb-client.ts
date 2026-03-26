@@ -6,6 +6,7 @@ import {
   type DailyExportEntry,
   type TmdbChangesResponse,
   type TmdbMovieDetail,
+  type TmdbTrendingResponse,
   type TmdbTvDetail,
   dailyExportEntrySchema,
 } from "./tmdb-types.ts";
@@ -118,6 +119,31 @@ export class TmdbClient {
     }
 
     return [...ids];
+  }
+
+  /**
+   * Fetch trending movie or TV IDs from TMDB's trending endpoint.
+   * Uses the "day" time window and returns up to `limit` unique IDs.
+   */
+  async fetchTrending(type: "movie" | "tv", limit: number): Promise<number[]> {
+    const ids: number[] = [];
+    let page = 1;
+    const path = type === "movie" ? "movie" : "tv";
+
+    while (ids.length < limit) {
+      await this.rateLimiter.acquire();
+      const response = await this.apiFetch<TmdbTrendingResponse>(
+        `/3/trending/${path}/day?page=${page}`,
+      );
+      for (const result of response.results ?? []) {
+        ids.push(result.id);
+        if (ids.length >= limit) break;
+      }
+      if (page >= response.total_pages) break;
+      page++;
+    }
+
+    return ids;
   }
 
   // TMDB API responses are typed via auto-generated OpenAPI definitions.
