@@ -57,7 +57,6 @@ export default async function Page({ params }: PageProps) {
                 movie.original_title ??
                 t({ en: "Untitled", zh: "佚名" })
               }
-              locale={locale}
             />
           )}
           <div css={styles.hero}>
@@ -122,7 +121,6 @@ export default async function Page({ params }: PageProps) {
                 tvShow.original_name ??
                 t({ en: "Untitled", zh: "佚名" })
               }
-              locale={locale}
             />
           )}
           <div css={styles.hero}>
