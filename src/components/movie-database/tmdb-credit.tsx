@@ -16,7 +16,10 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
   return (
     <MenuButton
       position={position}
-      buttonProps={{ icon: <InfoIcon /> }}
+      buttonProps={{
+        icon: <InfoIcon />,
+        "aria-label": t({ en: "TMDB attribution info", zh: "TMDB 版权信息" }),
+      }}
       menuContent={
         <div
           css={[
