@@ -94,4 +94,15 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/calculator" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/calculator" />
   </url>
+
+  <url>
+    <loc>https://qingqi.dev/component-library</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/component-library" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/component-library" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/component-library</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/component-library" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/component-library" />
+  </url>
 </urlset>
