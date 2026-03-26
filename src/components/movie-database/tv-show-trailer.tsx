@@ -23,7 +23,13 @@ export async function TvShowTrailer({ tvShowId, locale }: TvShowTrailerProps) {
 
   return (
     <div css={styles.container}>
-      <TrailerButton trailerId={trailer.key} locale={locale}>
+      <TrailerButton
+        trailerId={trailer.key}
+        locale={locale}
+        iframeTitle={
+          trailer.name ?? t({ en: "TV show trailer", zh: "电视剧预告片" })
+        }
+      >
         {t({ en: "Play trailer", zh: "播放预告" })}
       </TrailerButton>
     </div>

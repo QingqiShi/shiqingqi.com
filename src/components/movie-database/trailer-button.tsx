@@ -11,12 +11,14 @@ import { Overlay } from "../shared/overlay";
 interface TrailerButtonProps {
   trailerId: string;
   locale: SupportedLocale;
+  iframeTitle: string;
 }
 
 export function TrailerButton({
   children,
   trailerId,
   locale,
+  iframeTitle,
 }: PropsWithChildren<TrailerButtonProps>) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,6 +37,7 @@ export function TrailerButton({
           width="720"
           height="405"
           src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
+          title={iframeTitle}
           frameBorder="0"
           allowFullScreen
         />
