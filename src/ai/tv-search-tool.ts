@@ -2,17 +2,11 @@ import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
 import { searchTvShows } from "#src/_generated/tmdb-server-functions.ts";
 import { operationsSchema } from "#src/_generated/tmdb-zod.ts";
-import type { paths } from "#src/_generated/tmdbV3.d.ts";
 import { sanitizeParams } from "./sanitize-params";
 
 // Extract Zod schema from generated schemas
 const tvSearchSchema =
   operationsSchema.shape["search-tv"].shape.parameters.shape.query;
-
-// Type definition for tool parameters (using existing generated types)
-type TvSearchParams = NonNullable<
-  paths["/3/search/tv"]["get"]["parameters"]["query"]
->;
 
 // OpenAI Function Tool Definition using zodResponsesFunction helper
 export const searchTvShowsByTitleTool = zodResponsesFunction({
@@ -36,9 +30,7 @@ export async function executeTvSearchToolCall(toolCall: {
     JSON.parse(toolCall.arguments || "{}"),
   );
 
-  const tvResults = await searchTvShows(
-    sanitizeParams(validatedParams) as TvSearchParams,
-  );
+  const tvResults = await searchTvShows(sanitizeParams(validatedParams));
 
   return {
     call_id: toolCall.call_id,

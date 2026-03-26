@@ -2,17 +2,11 @@ import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
 import { searchMovies } from "#src/_generated/tmdb-server-functions.ts";
 import { operationsSchema } from "#src/_generated/tmdb-zod.ts";
-import type { paths } from "#src/_generated/tmdbV3.d.ts";
 import { sanitizeParams } from "./sanitize-params";
 
 // Extract Zod schema from generated schemas (backward compatible)
 const movieSearchSchema =
   operationsSchema.shape["search-movie"].shape.parameters.shape.query;
-
-// Type definition for tool parameters (using existing generated types)
-type MovieSearchParams = NonNullable<
-  paths["/3/search/movie"]["get"]["parameters"]["query"]
->;
 
 // OpenAI Function Tool Definition using zodResponsesFunction helper
 export const searchMoviesByTitleTool = zodResponsesFunction({
@@ -36,9 +30,7 @@ export async function executeMovieSearchToolCall(toolCall: {
     JSON.parse(toolCall.arguments || "{}"),
   );
 
-  const movieResults = await searchMovies(
-    sanitizeParams(validatedParams) as MovieSearchParams,
-  );
+  const movieResults = await searchMovies(sanitizeParams(validatedParams));
 
   return {
     call_id: toolCall.call_id,

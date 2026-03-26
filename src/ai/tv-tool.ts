@@ -2,7 +2,6 @@ import "server-only";
 import { zodResponsesFunction } from "openai/helpers/zod";
 import { discoverTvShows } from "#src/_generated/tmdb-server-functions.ts";
 import { operationsSchema } from "#src/_generated/tmdb-zod.ts";
-import type { paths } from "#src/_generated/tmdbV3.d.ts";
 import { sanitizeParams } from "./sanitize-params";
 // Extract Zod schema from generated schemas
 const tvDiscoverySchema = operationsSchema.shape[
@@ -10,11 +9,6 @@ const tvDiscoverySchema = operationsSchema.shape[
 ].shape.parameters.shape.query
   .unwrap()
   .unwrap();
-
-// Type definition for tool parameters (using existing generated types)
-type TvDiscoveryParams = NonNullable<
-  paths["/3/discover/tv"]["get"]["parameters"]["query"]
->;
 
 // OpenAI Function Tool Definition using zodResponsesFunction helper
 export const tvDiscoveryTool = zodResponsesFunction({
@@ -42,7 +36,7 @@ export async function executeTvToolCall(toolCall: {
     "vote_count.gte": 300,
     "vote_average.gte": 3,
     ...sanitizeParams(validatedParams),
-  } as TvDiscoveryParams);
+  });
 
   return {
     call_id: toolCall.call_id,
