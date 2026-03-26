@@ -34,7 +34,7 @@ export async function generateMetadata({
         movieDetails.title ??
         movieDetails.original_title ??
         t({ en: "Untitled", zh: "佚名" }),
-      description: movieDetails.tagline,
+      description: movieDetails.overview || movieDetails.tagline,
       alternates: {
         canonical: new URL(`/movie-database/movie/${id}`, BASE_URL).toString(),
         languages: {
@@ -53,7 +53,7 @@ export async function generateMetadata({
         tvShowDetails.name ??
         tvShowDetails.original_name ??
         t({ en: "Untitled", zh: "佚名" }),
-      description: tvShowDetails.tagline,
+      description: tvShowDetails.overview || tvShowDetails.tagline,
       alternates: {
         canonical: new URL(`/movie-database/tv/${id}`, BASE_URL).toString(),
         languages: {
