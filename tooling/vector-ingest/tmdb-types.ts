@@ -41,6 +41,9 @@ export type TmdbTvDetail = TvDetailsBase & {
 /** Changes list response (movie and TV share the same shape). */
 export type TmdbChangesResponse = OperationResponse<"changes-movie-list">;
 
+/** Trending list response (movie and TV share the same shape). */
+export type TmdbTrendingResponse = OperationResponse<"trending-movies">;
+
 // Sub-type aliases for use in function signatures.
 // TV cast type used as the base because it's a superset of fields common to both movie/TV.
 export type TmdbCastMember = NonNullable<TvCredits["cast"]>[number];
