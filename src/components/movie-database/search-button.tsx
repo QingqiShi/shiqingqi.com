@@ -88,6 +88,10 @@ export function SearchButton() {
                 en: "Search with AI: 'best sci-fi movies from 2023' or 'funny Korean dramas'...",
                 zh: "AI 搜索：'2023年最佳科幻电影'或'搞笑韩剧'...",
               })}
+              aria-label={t({
+                en: "AI search query",
+                zh: "AI 搜索查询",
+              })}
               css={styles.input}
               autoComplete="off"
               spellCheck={false}
