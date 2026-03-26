@@ -63,7 +63,7 @@ export function ChatMessageList({
       {messages.length === 0 ? (
         <div css={styles.emptyStateWrapper}>{emptyState}</div>
       ) : (
-        <div css={styles.messagesList}>
+        <div role="log" css={styles.messagesList}>
           {messages.map((message, index) => (
             <ChatMessage
               key={message.id}

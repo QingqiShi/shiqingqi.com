@@ -98,4 +98,24 @@ describe("ChatMessageList", () => {
       screen.getByRole("button", { name: "Scroll to bottom" }),
     ).toBeInTheDocument();
   });
+
+  it("uses log role on messages container for screen reader announcements", () => {
+    const messages = [
+      createMessage({
+        id: "1",
+        role: "user",
+        parts: [{ type: "text", text: "Hello" }],
+      }),
+    ];
+
+    render(
+      <ChatMessageList messages={messages} status="ready" {...defaultProps} />,
+    );
+    expect(screen.getByRole("log")).toBeInTheDocument();
+  });
+
+  it("does not render log role when messages list is empty", () => {
+    render(<ChatMessageList messages={[]} status="ready" {...defaultProps} />);
+    expect(screen.queryByRole("log")).not.toBeInTheDocument();
+  });
 });
