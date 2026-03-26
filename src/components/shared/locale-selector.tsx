@@ -81,9 +81,4 @@ const styles = stylex.create({
     overflow: "hidden",
     padding: controlSize._1,
   },
-  menuShown: {
-    opacity: 1,
-    pointerEvents: "all",
-    transform: "scale(1, 1)",
-  },
 });
