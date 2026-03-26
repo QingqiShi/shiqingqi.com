@@ -3,8 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { useRef } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { useLocale } from "#src/hooks/use-locale.ts";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
+import { getLocalePath } from "#src/utils/pathname.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
 
@@ -19,6 +21,7 @@ export function RecommendedMediaRow({
 }: RecommendedMediaRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { showLeftFade, showRightFade } = useScrollFades(scrollRef);
+  const locale = useLocale();
 
   if (items.length === 0) return null;
 
@@ -35,7 +38,17 @@ export function RecommendedMediaRow({
         >
           {items.map((item) => (
             <div key={item.id} css={styles.cardWrapper}>
-              <CompactMediaCard media={item} />
+              <CompactMediaCard
+                media={item}
+                href={
+                  item.mediaType
+                    ? getLocalePath(
+                        `/movie-database/${item.mediaType}/${item.id.toString()}`,
+                        locale,
+                      )
+                    : undefined
+                }
+              />
             </div>
           ))}
         </div>

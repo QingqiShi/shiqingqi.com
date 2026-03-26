@@ -40,8 +40,48 @@ describe("RecommendedMediaRow", () => {
     expect(screen.getByText("7.2")).toBeInTheDocument();
   });
 
-  it("does not render links", () => {
+  it("renders links to detail pages", () => {
     render(<RecommendedMediaRow title="Trending Movies" items={mockItems} />);
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(2);
+    expect(links[0]).toHaveAttribute("href", "/movie-database/movie/1");
+    expect(links[1]).toHaveAttribute("href", "/movie-database/movie/2");
+  });
+
+  it("renders links for TV items with correct type", () => {
+    render(
+      <RecommendedMediaRow
+        title="Trending TV Shows"
+        items={[
+          {
+            id: 10,
+            title: "TV Show One",
+            posterPath: "/tv1.jpg",
+            rating: 9.0,
+            mediaType: "tv",
+          },
+        ]}
+      />,
+    );
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute("href", "/movie-database/tv/10");
+  });
+
+  it("does not render link when mediaType is missing", () => {
+    render(
+      <RecommendedMediaRow
+        title="Trending"
+        items={[
+          {
+            id: 5,
+            title: "Unknown Type",
+            posterPath: "/unknown.jpg",
+            rating: 7.0,
+          },
+        ]}
+      />,
+    );
     expect(screen.queryAllByRole("link")).toHaveLength(0);
   });
 
