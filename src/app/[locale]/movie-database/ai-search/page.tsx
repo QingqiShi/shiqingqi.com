@@ -4,7 +4,7 @@ import { Grid } from "#src/components/movie-database/grid.tsx";
 import { SearchContent } from "#src/components/movie-database/search-content.tsx";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
-import { color, ratio, space } from "#src/tokens.stylex.ts";
+import { color, font, ratio, space } from "#src/tokens.stylex.ts";
 import type { PageProps } from "#src/types.ts";
 
 interface AISearchPageProps extends PageProps {
@@ -86,23 +86,18 @@ const styles = stylex.create({
   },
 
   title: {
-    fontSize: "24px",
-    fontWeight: 700,
+    fontSize: font.uiHeading1,
+    fontWeight: font.weight_7,
     color: color.textMain,
     margin: 0,
     marginBottom: space._1,
   },
 
   queryText: {
-    fontSize: "16px",
+    fontSize: font.uiBody,
     color: color.controlActive,
-    fontWeight: 600,
+    fontWeight: font.weight_6,
     margin: 0,
-  },
-
-  resultCount: {
-    color: color.textMuted,
-    fontWeight: 400,
   },
 
   emptyState: {
@@ -116,7 +111,7 @@ const styles = stylex.create({
   },
 
   emptyText: {
-    fontSize: "18px",
+    fontSize: font.uiHeading3,
     color: color.textMuted,
     margin: 0,
   },
