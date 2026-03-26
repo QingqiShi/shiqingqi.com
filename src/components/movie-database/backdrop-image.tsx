@@ -2,18 +2,16 @@ import * as stylex from "@stylexjs/stylex";
 import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { color, layer, ratio, space } from "#src/tokens.stylex.ts";
-import type { SupportedLocale } from "#src/types.ts";
 
 interface BackdropImageProps {
   backdropPath: string;
   alt: string;
-  locale: SupportedLocale;
 }
 
 /**
- * A component that renders a backdrop image with localization and responsive sizing.
- * If the required configuration is unavailable or the image fails to load, a fallback UI is displayed.
- * The component supports lazy loading and generates `srcSet` for responsive image handling.
+ * A component that renders a backdrop image with responsive sizing.
+ * If the required configuration is unavailable, nothing is rendered.
+ * The component generates `srcSet` for responsive image handling.
  */
 export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
   const config = await getConfiguration();
