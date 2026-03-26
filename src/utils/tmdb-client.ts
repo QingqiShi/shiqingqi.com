@@ -6,7 +6,14 @@ import type { paths } from "#src/_generated/tmdbV3.d.ts";
 import { buildTmdbUrl } from "./build-tmdb-url";
 
 const BASE_URL = "https://api.themoviedb.org";
-const API = process.env.TMDB_API_TOKEN;
+
+function getApiToken(): string {
+  const token = process.env.TMDB_API_TOKEN;
+  if (!token) {
+    throw new Error("TMDB_API_TOKEN is not set");
+  }
+  return token;
+}
 
 /** Extract path parameters from a path string */
 export type PathParams<T extends string> =
@@ -40,7 +47,7 @@ async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: `Bearer ${API}`,
+      Authorization: `Bearer ${getApiToken()}`,
     },
     cache: "force-cache",
     next: { revalidate: 86400 },
