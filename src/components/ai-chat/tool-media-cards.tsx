@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useRef } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
+import { t } from "#src/i18n.ts";
 import { scrollX } from "#src/primitives/layout.stylex.ts";
 import { color, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
@@ -27,6 +28,8 @@ export function ToolMediaCards({ items }: ToolMediaCardsProps) {
         ref={scrollRef}
         css={[scrollX.base, styles.scrollContainer]}
         role="list"
+        aria-label={t({ en: "Search results", zh: "搜索结果" })}
+        tabIndex={0}
       >
         {items.map((item) => {
           const { mediaType } = item;
