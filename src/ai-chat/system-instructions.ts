@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import "server-only";
 import type { SupportedLocale } from "#src/types.ts";
 
 let template: string | null = null;
