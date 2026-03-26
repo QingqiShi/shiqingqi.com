@@ -105,4 +105,15 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/movie-database/ai-mode" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/movie-database/ai-mode" />
   </url>
+
+  <url>
+    <loc>https://qingqi.dev/component-library</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/component-library" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/component-library" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/component-library</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/component-library" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/component-library" />
+  </url>
 </urlset>
