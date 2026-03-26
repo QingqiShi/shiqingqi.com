@@ -1,10 +1,9 @@
 import "server-only";
 import { z } from "zod";
 import { agent } from "#src/ai/agent.ts";
-import type { SupportedLocale } from "#src/types.ts";
 
 // Request validation schema
-const SearchParamsSchema = z.object({
+export const searchParamsSchema = z.object({
   query: z
     .string()
     .min(1, "Query cannot be empty")
@@ -13,10 +12,7 @@ const SearchParamsSchema = z.object({
   locale: z.enum(["en", "zh"]).optional().default("en"),
 });
 
-export interface AISearchParams {
-  query: string;
-  locale?: string;
-}
+export type AISearchParams = z.input<typeof searchParamsSchema>;
 
 export interface AISearchResponse {
   success: boolean;
@@ -36,11 +32,10 @@ export async function performAISearch(
 ): Promise<AISearchResponse> {
   try {
     // Validate and sanitize input parameters
-    const validatedData = SearchParamsSchema.parse(params);
-    const { query, locale } = validatedData;
+    const { query, locale } = searchParamsSchema.parse(params);
 
     // Execute AI agent
-    const result = await agent(query, locale as SupportedLocale);
+    const result = await agent(query, locale);
 
     return {
       success: true,
@@ -54,6 +49,7 @@ export async function performAISearch(
     if (error instanceof z.ZodError) {
       throw new Error(
         `Invalid parameters: ${error.errors.map((e) => e.message).join(", ")}`,
+        { cause: error },
       );
     }
 
