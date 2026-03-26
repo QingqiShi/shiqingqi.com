@@ -57,6 +57,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
         srcSet={srcSet}
         sizes="auto,(max-width: 326px) 100vw,(max-width: 485px) 50vw,(max-width: 644px) 33.3vw,(max-width: 767px) 25vw,(max-width: 969px) 33.3vw,(max-width: 1079px) 25vw,(max-width: 1259px) 33.3vw,(max-width: 1571px) 25vw,362px"
         loading="lazy"
+        onLoad={() => setImgLoaded(true)}
         ref={(el) => {
           if (el && el.complete) {
             setImgLoaded(true);
