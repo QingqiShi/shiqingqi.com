@@ -12,10 +12,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("AI Search POST error:", error);
     return Response.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Internal server error",
-      },
+      { success: false, error: "Internal server error" },
       { status: 500 },
     );
   }
