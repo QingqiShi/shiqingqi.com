@@ -11,6 +11,7 @@ import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
+import { t } from "#src/i18n.ts";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { Button } from "./button";
 
@@ -41,7 +42,8 @@ export function Overlay({
           <div css={styles.content}>
             <Button
               css={styles.closeButton}
-              icon={<XIcon />}
+              icon={<XIcon role="presentation" />}
+              aria-label={t({ en: "Close", zh: "关闭" })}
               onClick={onClose}
             />
             {children}
