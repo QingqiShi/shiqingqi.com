@@ -100,11 +100,6 @@ const styles = stylex.create({
     margin: 0,
   },
 
-  resultCount: {
-    color: color.textMuted,
-    fontWeight: 400,
-  },
-
   emptyState: {
     display: "flex",
     flexDirection: "column",
