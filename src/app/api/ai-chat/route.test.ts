@@ -3,6 +3,7 @@ import { MockLanguageModelV3 } from "ai/test";
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 import { chatInputSchema } from "#src/ai-chat/schema.ts";
+import { createPresentMediaTool } from "#src/ai-chat/tools/present-media.ts";
 import { createSemanticSearchTool } from "#src/ai-chat/tools/semantic-search.ts";
 import { createTmdbSearchTool } from "#src/ai-chat/tools/tmdb-search.ts";
 
@@ -53,6 +54,7 @@ describe("POST /api/ai-chat", () => {
       tools: {
         semantic_search: createSemanticSearchTool("en"),
         tmdb_search: createTmdbSearchTool("en"),
+        present_media: createPresentMediaTool(),
       },
       stopWhen: stepCountIs(5),
     });
