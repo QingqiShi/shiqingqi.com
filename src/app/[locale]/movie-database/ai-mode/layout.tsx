@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ErrorBoundary } from "react-error-boundary";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
-import { color, space } from "#src/tokens.stylex.ts";
+import { color, font, space } from "#src/tokens.stylex.ts";
 
 export function generateMetadata(_props: {
   params: Promise<{ locale: string }>;
@@ -63,7 +63,7 @@ const styles = stylex.create({
     padding: space._6,
   },
   errorText: {
-    fontSize: "18px",
+    fontSize: font.uiHeading3,
     color: color.textMuted,
     margin: 0,
   },
