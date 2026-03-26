@@ -45,4 +45,21 @@ describe("proxy referer validation for API routes", () => {
     expect(response.status).toBe(403);
     expect(await response.json()).toEqual({ error: "Unauthorized" });
   });
+
+  it("allows requests from Vercel preview deployments", () => {
+    const response = proxy(
+      apiRequest("/api/ai-chat", "https://my-app-abc123.vercel.app/search"),
+    );
+
+    expect(response.status).toBe(200);
+  });
+
+  it("rejects requests from domains ending in vercel.app that are not subdomains", async () => {
+    const response = proxy(
+      apiRequest("/api/ai-chat", "https://evilvercel.app/search"),
+    );
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "Unauthorized" });
+  });
 });
