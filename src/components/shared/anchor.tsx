@@ -11,14 +11,22 @@ export function Anchor({
   style,
   prefetch,
   onMouseEnter,
+  rel,
+  target,
   ref,
   ...props
 }: React.ComponentProps<typeof Link>) {
   const [hovered, setHovered] = useState(false);
 
+  // Automatically ensure noopener and noreferrer are present for _blank links
+  const resolvedRel =
+    target === "_blank" ? mergeRel(rel, "noopener noreferrer") : rel;
+
   return (
     <Link
       {...props}
+      target={target}
+      rel={resolvedRel}
       ref={ref}
       prefetch={prefetch === false ? false : hovered ? null : false}
       onMouseEnter={(e) => {
@@ -30,6 +38,18 @@ export function Anchor({
       css={styles.a}
     />
   );
+}
+
+/**
+ * Merges rel tokens, deduplicating any that already exist.
+ */
+function mergeRel(existing: string | undefined, required: string): string {
+  if (!existing) return required;
+  const tokens = new Set(existing.split(/\s+/));
+  for (const token of required.split(/\s+/)) {
+    tokens.add(token);
+  }
+  return [...tokens].join(" ");
 }
 
 const styles = stylex.create({
