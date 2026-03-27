@@ -223,6 +223,7 @@ export const mediaDetail = (params: MediaDetailParams) =>
   queryOptions({
     queryKey: [{ query: "mediaDetail", ...tmdbScope, ...params }],
     queryFn: async (): Promise<NormalizedMediaDetail> => {
+      const genreSeparator = params.language === "zh" ? "、" : ", ";
       if (params.type === "tv") {
         const { type, id, ...queryParams } = params;
         const data = await apiRequestWrapper<typeof getTvShowDetails>(
@@ -241,7 +242,7 @@ export const mediaDetail = (params: MediaDetailParams) =>
             data.genres
               ?.map((g) => g.name)
               .filter((n): n is string => n !== undefined)
-              .join(", ") ?? "",
+              .join(genreSeparator) ?? "",
           overview: data.overview ?? null,
           tagline: data.tagline ?? null,
           voteAverage: data.vote_average,
@@ -263,7 +264,7 @@ export const mediaDetail = (params: MediaDetailParams) =>
           data.genres
             ?.map((g) => g.name)
             .filter((n): n is string => n !== undefined)
-            .join(", ") ?? "",
+            .join(genreSeparator) ?? "",
         overview: data.overview ?? null,
         tagline: data.tagline ?? null,
         voteAverage: data.vote_average,
