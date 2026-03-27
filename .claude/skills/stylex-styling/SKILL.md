@@ -11,115 +11,97 @@ This project uses StyleX for styling with design tokens, responsive breakpoints,
 
 ## Design Primitives
 
-Pre-built composable utility styles in `src/primitives/`. Import directly from individual files (e.g., `#src/primitives/flex.stylex.ts`) and compose via the `css` prop.
+Multi-property composable styles in `src/primitives/`. Each primitive combines 2+ CSS properties that encode a common pattern. Import directly from individual files.
 
-### Available Primitives
+### Flex Layouts (`#src/primitives/flex.stylex.ts`)
 
-| Import       | Values                                                                         | CSS Property             |
-| ------------ | ------------------------------------------------------------------------------ | ------------------------ |
-| `flex`       | `row`, `col`, `wrap`, `inline`                                                 | display + flexDirection  |
-| `align`      | `start`, `center`, `end`, `baseline`, `stretch`                                | alignItems               |
-| `justify`    | `start`, `center`, `end`, `between`                                            | justifyContent           |
-| `grow`       | `_0`, `_1`                                                                     | flexGrow                 |
-| `shrink`     | `_0`, `_1`                                                                     | flexShrink               |
-| `grid`       | `base`, `inline`                                                               | display: grid            |
-| `place`      | `center`, `start`                                                              | placeItems               |
-| `gap`        | `_none`, `_00`–`_8`                                                            | gap                      |
-| `p`          | `_none`, `_00`–`_8`                                                            | padding                  |
-| `pb`         | `_none`, `_00`–`_8`                                                            | paddingBlock             |
-| `pi`         | `_none`, `_00`–`_8`                                                            | paddingInline            |
-| `m`          | `_none`, `_00`–`_8`                                                            | margin                   |
-| `mb`         | `_none`, `_00`–`_8`                                                            | marginBlock              |
-| `mi`         | `_none`, `_00`–`_8`                                                            | marginInline             |
-| `text`       | `display`, `subDisplay`, `heading1`–`3`, `uiHeading1`–`3`, `body`, `bodySmall` | fontSize                 |
-| `weight`     | `_1`–`_9`                                                                      | fontWeight               |
-| `leading`    | `_00`–`_5`                                                                     | lineHeight               |
-| `textColor`  | `main`, `muted`, `onActive`                                                    | color                    |
-| `bg`         | `main`, `raised`, `hover`, `translucent`, `transparent`                        | backgroundColor          |
-| `rounded`    | `none`, `_1`–`_5`, `round`                                                     | borderRadius             |
-| `elevation`  | `none`, `_1`–`_6`                                                              | boxShadow                |
-| `position`   | `relative`, `absolute`, `fixed`, `sticky`                                      | position                 |
-| `overflow`   | `hidden`, `auto`, `visible`                                                    | overflow                 |
-| `z`          | `background`, `base`, `content`, `overlay`, `header`, `tooltip`, `toaster`     | zIndex                   |
-| `size`       | `full`, `fullWidth`, `fullHeight`                                              | width/height             |
-| `inset`      | `_0`                                                                           | top/right/bottom/left: 0 |
-| `pointer`    | `none`, `all`                                                                  | pointerEvents            |
-| `transition` | `none`, `all`, `colors`, `opacity`, `shadow`, `transform`                      | transition               |
-| `animate`    | `fadeIn`, `fadeOut`, `slideUp`, `slideDown`, `pulse`, `bounce`                 | animation                |
+Common layout patterns:
 
-### Motion Constants
+| Export              | Properties                                                         |
+| ------------------- | ------------------------------------------------------------------ |
+| `flex.row`          | display: flex + alignItems: center                                 |
+| `flex.col`          | display: flex + flexDirection: column                              |
+| `flex.center`       | display: flex + alignItems: center + justifyContent: center        |
+| `flex.between`      | display: flex + alignItems: center + justifyContent: space-between |
+| `flex.wrap`         | display: flex + flexWrap: wrap + alignItems: center                |
+| `flex.inlineCenter` | display: inline-flex + alignItems: center + justifyContent: center |
 
-Exported from `#src/primitives/*.stylex.ts` for building custom transitions:
+Layout modifiers (override defaults from flex primitives):
 
-- `REDUCED_MOTION` — `"@media (prefers-reduced-motion: reduce)"` media query string
+| Export    | Values                                          |
+| --------- | ----------------------------------------------- |
+| `align`   | `start`, `center`, `end`, `baseline`, `stretch` |
+| `justify` | `start`, `center`, `end`, `between`             |
+| `grow`    | `_0`, `_1`                                      |
+| `shrink`  | `_0`, `_1`                                      |
+
+```tsx
+import { flex, align, justify } from "#src/primitives/flex.stylex.ts";
+
+// Common row — vertically centered by default
+<div css={flex.row}>
+
+// Override alignment
+<div css={[flex.row, align.end]}>
+
+// Toolbar pattern
+<header css={flex.between}>
+```
+
+### Layout Patterns (`#src/primitives/layout.stylex.ts`)
+
+| Export              | Properties                                                     |
+| ------------------- | -------------------------------------------------------------- |
+| `absoluteFill.all`  | position: absolute + top/right/bottom/left: 0                  |
+| `absoluteFill.x`    | position: absolute + left: 0 + right: 0                        |
+| `absoluteFill.y`    | position: absolute + top: 0 + bottom: 0                        |
+| `fixedFill.all`     | position: fixed + top/right/bottom/left: 0                     |
+| `scrollX.base`      | overflowX: auto + scrollbarWidth: none                         |
+| `scrollY.base`      | overflowY: auto                                                |
+| `truncate.base`     | overflow: hidden + textOverflow: ellipsis + whiteSpace: nowrap |
+| `imageCover.base`   | objectFit: cover + width: 100% + height: 100%                  |
+| `imageContain.base` | objectFit: contain + width: 100% + height: 100%                |
+
+### Resets (`#src/primitives/reset.stylex.ts`)
+
+| Export             | Properties                                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `buttonReset.base` | appearance: none + borderWidth: 0 + borderStyle: none + backgroundColor: transparent + padding: 0 + cursor: pointer |
+
+### Motion (`#src/primitives/motion.stylex.ts`)
+
+**Transition presets** (transition string + reduced-motion override):
+
+| `transition.*` | Effect                                                 |
+| -------------- | ------------------------------------------------------ |
+| `none`         | transition: none                                       |
+| `all`          | all 200ms ease (reduced-motion: colors + opacity only) |
+| `colors`       | color + background-color + border-color                |
+| `opacity`      | opacity 200ms ease                                     |
+| `shadow`       | box-shadow 200ms ease                                  |
+| `transform`    | transform 200ms ease (reduced-motion: none)            |
+
+**Animation presets** (keyframes + duration + timing + iteration):
+
+| `animate.*`             | Effect                                                |
+| ----------------------- | ----------------------------------------------------- |
+| `fadeIn` / `fadeOut`    | opacity transition, 200ms                             |
+| `slideUp` / `slideDown` | translateY entrance, 300ms (reduced-motion: disabled) |
+| `pulse`                 | opacity pulse, 2s infinite                            |
+| `bounce`                | scale + opacity bounce, 1.4s infinite                 |
+| `expand` / `collapse`   | grid-template-rows 0fr↔1fr, 300ms                     |
+
+**Constants** for building custom transitions:
+
 - `duration` — `{ _75, _100, _150, _200, _300, _500, _700, _1000 }` (ms strings)
-- `easing` — `{ linear, ease, easeIn, easeOut, easeInOut, entrance }` (CSS timing functions)
+- `easing` — `{ linear, ease, easeIn, easeOut, easeInOut, entrance }`
+- `motionConstants.REDUCED_MOTION` — media query string (defined via `stylex.defineConsts`, works cross-module as computed keys in `stylex.create`)
 
 ### When to Use Primitives vs Component Styles
 
-- **Use primitives** for common patterns: flex layout, spacing, text styling, backgrounds, positioning
-- **Use component `stylex.create`** for: responsive breakpoint overrides, pseudo-selectors (`:hover`), complex/one-off styles, component-specific values
-- **Mix both** — compose primitives with component styles in the same `css` array
-
-### Example: Before and After
-
-**Before** (verbose component styles):
-
-```tsx
-import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "#src/tokens.stylex.ts";
-
-<header css={styles.container}>
-  <h2 css={styles.subtitle}>{title}</h2>
-  <h1 css={styles.title}>{role}</h1>
-  <time css={styles.date}>{date}</time>
-</header>;
-
-const styles = stylex.create({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-    paddingBottom: space._8,
-  },
-  subtitle: {
-    fontSize: font.vpHeading3,
-    fontWeight: font.weight_7,
-    color: color.textMuted,
-    margin: 0,
-  },
-  title: {
-    fontSize: font.vpHeading1,
-    margin: 0,
-  },
-  date: {
-    display: "block",
-    fontSize: font.uiBody,
-    color: color.textMuted,
-  },
-});
-```
-
-**After** (with primitives):
-
-```tsx
-import * as stylex from "@stylexjs/stylex";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { gap, m } from "#src/primitives/spacing.stylex.ts";
-import { text, textColor, weight } from "#src/primitives/text.stylex.ts";
-import { space } from "#src/tokens.stylex.ts";
-
-<header css={[flex.col, gap._1, styles.container]}>
-  <h2 css={[text.heading3, weight._7, textColor.muted, m._none]}>{title}</h2>
-  <h1 css={[text.heading1, m._none]}>{role}</h1>
-  <time css={[text.body, textColor.muted, styles.date]}>{date}</time>
-</header>;
-
-const styles = stylex.create({
-  container: { paddingBottom: space._8 },
-  date: { display: "block" },
-});
-```
+- **Use primitives** for multi-property patterns: flex layouts, fills, truncation, resets, transitions
+- **Use layout modifiers** to override primitive defaults: `css={[flex.row, align.end]}`
+- **Use `stylex.create`** for: single-property styling (colors, spacing, typography, borders), responsive breakpoints, pseudo-selectors, component-specific values
 
 ## Key Patterns
 
@@ -150,15 +132,14 @@ const styles = stylex.create({
 
 ## Best Practices
 
-1. **Use primitives for common patterns** - flex layout, spacing, text, backgrounds, positioning
-2. **Always use design tokens** - Never hardcode colors, spacing, or font values
-3. **Use the css prop** - Don't use `{...stylex.props()}` directly
-4. **Conditional styles with arrays** - `css={[base, condition && conditional]}`
-5. **Responsive by default** - Consider mobile-first with breakpoint overrides
-6. **Theme-aware colors** - Use color tokens that adapt to light/dark themes
-7. **Pseudo-selectors in objects** - `{ default: value, ":hover": hoverValue }`
-8. **Respect reduced motion** - Use `REDUCED_MOTION` from primitives for animation/transition media queries
-9. **Logical properties** - Prefer `paddingBlock`/`paddingInline` over `paddingTop`/`paddingLeft`
+1. **Use primitives for multi-property patterns** — flex layouts, fills, truncation, resets
+2. **Use design tokens for single properties** — `fontSize: font.uiBody`, `gap: space._3`, `borderRadius: border.radius_2`
+3. **Use the css prop** — Don't use `{...stylex.props()}` directly
+4. **Conditional styles with arrays** — `css={[base, condition && conditional]}`
+5. **Responsive by default** — Consider mobile-first with breakpoint overrides
+6. **Theme-aware colors** — Use color tokens that adapt to light/dark themes
+7. **Pseudo-selectors in objects** — `{ default: value, ":hover": hoverValue }`
+8. **Logical properties** — Prefer `paddingBlock`/`paddingInline` over `paddingTop`/`paddingLeft`
 
 ## Common Patterns
 
@@ -187,16 +168,16 @@ backgroundColor: {
 
 ```tsx
 import {
-  REDUCED_MOTION,
   duration,
   easing,
+  motionConstants,
 } from "#src/primitives/motion.stylex.ts";
 
 const styles = stylex.create({
   animated: {
     transition: {
       default: `transform ${duration._150} ${easing.easeOut}, filter ${duration._150} ${easing.easeOut}`,
-      [REDUCED_MOTION]: "none",
+      [motionConstants.REDUCED_MOTION]: "none",
     },
   },
 });

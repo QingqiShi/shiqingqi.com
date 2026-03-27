@@ -1,12 +1,28 @@
 import * as stylex from "@stylexjs/stylex";
 
+// Multi-property layout primitives — common flex patterns
 export const flex = stylex.create({
-  row: { display: "flex", flexDirection: "row" },
+  row: { display: "flex", alignItems: "center" },
   col: { display: "flex", flexDirection: "column" },
-  wrap: { display: "flex", flexWrap: "wrap" },
-  inline: { display: "inline-flex" },
+  center: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  between: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  wrap: { display: "flex", flexWrap: "wrap", alignItems: "center" },
+  inlineCenter: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
 
+// Single-property layout modifiers — override defaults from flex primitives
 export const align = stylex.create({
   start: { alignItems: "flex-start" },
   center: { alignItems: "center" },

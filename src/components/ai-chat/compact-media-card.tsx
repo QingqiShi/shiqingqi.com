@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, ratio } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { MediaPoster } from "../movie-database/media-poster";
@@ -17,7 +18,7 @@ export function CompactMediaCard({ media, onClick }: CompactMediaCardProps) {
     return (
       <button
         type="button"
-        css={[styles.compactCard, styles.compactCardButton]}
+        css={[buttonReset.base, styles.compactCard]}
         onClick={onClick}
         aria-label={media.title ?? undefined}
       >
@@ -38,13 +39,5 @@ const styles = stylex.create({
     overflow: "hidden",
     display: "block",
     color: "inherit",
-  },
-  compactCardButton: {
-    appearance: "none",
-    backgroundColor: "transparent",
-    borderWidth: 0,
-    borderStyle: "none",
-    padding: 0,
-    cursor: "pointer",
   },
 });

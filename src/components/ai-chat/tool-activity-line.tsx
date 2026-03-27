@@ -4,6 +4,8 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
+import { truncate } from "#src/primitives/layout.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import { isRecord } from "./map-tool-output";
 
@@ -80,8 +82,8 @@ export function ToolActivityLine({
   }
 
   return (
-    <div css={styles.line}>
-      <span css={styles.icon}>
+    <div css={[flex.row, styles.line]}>
+      <span css={[flex.center, styles.icon]}>
         {isInProgress && <span css={styles.pulsingDot} />}
         {isComplete && (
           <CheckIcon size={ICON_SIZE} weight="bold" aria-hidden="true" />
@@ -100,7 +102,7 @@ export function ToolActivityLine({
           <span css={styles.separator} aria-hidden="true">
             ·
           </span>
-          <span css={styles.summary}>{summary}</span>
+          <span css={truncate.base}>{summary}</span>
         </>
       )}
     </div>
@@ -114,8 +116,6 @@ const pulse = stylex.keyframes({
 
 const styles = stylex.create({
   line: {
-    display: "flex",
-    alignItems: "center",
     gap: space._1,
     fontSize: font.uiBodySmall,
     color: color.textMuted,
@@ -123,9 +123,6 @@ const styles = stylex.create({
     minHeight: "1.5rem",
   },
   icon: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     width: "14px",
     height: "14px",
     flexShrink: 0,
@@ -146,10 +143,5 @@ const styles = stylex.create({
   },
   separator: {
     opacity: 0.5,
-  },
-  summary: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   },
 });

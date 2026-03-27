@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 
-export const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+
+export const motionConstants = stylex.defineConsts({
+  REDUCED_MOTION,
+});
 
 export const duration = {
   _75: "75ms",
@@ -73,6 +77,16 @@ const bounceKeyframes = stylex.keyframes({
   "40%": { opacity: 1, transform: "scale(1)" },
 });
 
+const expandKeyframes = stylex.keyframes({
+  from: { gridTemplateRows: "0fr" },
+  to: { gridTemplateRows: "1fr" },
+});
+
+const collapseKeyframes = stylex.keyframes({
+  from: { gridTemplateRows: "1fr" },
+  to: { gridTemplateRows: "0fr" },
+});
+
 export const animate = stylex.create({
   fadeIn: {
     animationName: fadeInKeyframes,
@@ -112,5 +126,19 @@ export const animate = stylex.create({
     animationTimingFunction: "ease-in-out",
     animationIterationCount: "infinite",
     animationFillMode: "both",
+  },
+  expand: {
+    display: "grid",
+    animationName: expandKeyframes,
+    animationDuration: "300ms",
+    animationTimingFunction: "ease-out",
+    animationFillMode: "forwards",
+  },
+  collapse: {
+    display: "grid",
+    animationName: collapseKeyframes,
+    animationDuration: "300ms",
+    animationTimingFunction: "ease-out",
+    animationFillMode: "forwards",
   },
 });

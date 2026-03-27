@@ -1,40 +1,58 @@
 import * as stylex from "@stylexjs/stylex";
-import { layer } from "#src/tokens.stylex.ts";
 
-export const position = stylex.create({
-  relative: { position: "relative" },
-  absolute: { position: "absolute" },
-  fixed: { position: "fixed" },
-  sticky: { position: "sticky" },
+// Position + inset fills
+export const absoluteFill = stylex.create({
+  all: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  x: { position: "absolute", left: 0, right: 0 },
+  y: { position: "absolute", top: 0, bottom: 0 },
 });
 
-export const overflow = stylex.create({
-  hidden: { overflow: "hidden" },
-  auto: { overflow: "auto" },
-  visible: { overflow: "visible" },
+export const fixedFill = stylex.create({
+  all: {
+    position: "fixed",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
 });
 
-export const z = stylex.create({
-  background: { zIndex: layer.background },
-  base: { zIndex: layer.base },
-  content: { zIndex: layer.content },
-  overlay: { zIndex: layer.overlay },
-  header: { zIndex: layer.header },
-  tooltip: { zIndex: layer.tooltip },
-  toaster: { zIndex: layer.toaster },
+// Scroll containers — overflow + scrollbar behavior
+export const scrollX = stylex.create({
+  base: {
+    overflowX: "auto",
+    scrollbarWidth: "none",
+  },
 });
 
-export const size = stylex.create({
-  full: { width: "100%", height: "100%" },
-  fullWidth: { width: "100%" },
-  fullHeight: { height: "100%" },
+export const scrollY = stylex.create({
+  base: {
+    overflowY: "auto",
+  },
 });
 
-export const inset = stylex.create({
-  _0: { top: 0, right: 0, bottom: 0, left: 0 },
+// Text truncation — the 3-property recipe
+export const truncate = stylex.create({
+  base: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
 });
 
-export const pointer = stylex.create({
-  none: { pointerEvents: "none" },
-  all: { pointerEvents: "all" },
+// Image sizing — objectFit + dimensions
+export const imageCover = stylex.create({
+  base: {
+    objectFit: "cover",
+    width: "100%",
+    height: "100%",
+  },
+});
+
+export const imageContain = stylex.create({
+  base: {
+    objectFit: "contain",
+    width: "100%",
+    height: "100%",
+  },
 });

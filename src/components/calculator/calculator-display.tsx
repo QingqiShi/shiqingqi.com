@@ -2,7 +2,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
-import { pointer, position } from "#src/primitives/layout.stylex.ts";
 import { color, space } from "#src/tokens.stylex.ts";
 import type { Token } from "./types.ts";
 
@@ -79,7 +78,7 @@ export function CalculatorDisplay({
   }, [displayText, isScrollable]);
 
   return (
-    <div css={[position.relative, styles.wrapper]}>
+    <div css={styles.wrapper}>
       <div
         ref={containerRef}
         css={[styles.container, isScrollable && styles.scrollable]}
@@ -94,8 +93,6 @@ export function CalculatorDisplay({
         <>
           <div
             css={[
-              position.absolute,
-              pointer.none,
               styles.gradient,
               styles.leftGradient,
               showLeftFade && styles.visible,
@@ -103,8 +100,6 @@ export function CalculatorDisplay({
           />
           <div
             css={[
-              position.absolute,
-              pointer.none,
               styles.gradient,
               styles.rightGradient,
               showRightFade && styles.visible,
@@ -119,6 +114,7 @@ export function CalculatorDisplay({
 const styles = stylex.create({
   wrapper: {
     height: "20%",
+    position: "relative",
   },
   container: {
     height: "100%",
@@ -138,10 +134,12 @@ const styles = stylex.create({
     lineHeight: "0.9em",
   },
   gradient: {
+    position: "absolute",
     top: 0,
     bottom: 0,
     // Wide enough to cover padding + fade zone
     width: `calc(${space._3} + ${space._5})`,
+    pointerEvents: "none",
     opacity: 0,
     transition: "opacity 200ms ease-out",
   },

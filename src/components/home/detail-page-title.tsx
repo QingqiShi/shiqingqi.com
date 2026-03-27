@@ -1,9 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { gap, m } from "#src/primitives/spacing.stylex.ts";
-import { text, textColor, weight } from "#src/primitives/text.stylex.ts";
-import { space } from "#src/tokens.stylex.ts";
+import { color, font, space } from "#src/tokens.stylex.ts";
 
 interface PageTitleProps {
   type: "experience" | "education";
@@ -19,21 +16,36 @@ export function DetailPageTitle({ date, role, title, type }: PageTitleProps) {
       : t({ en: "Education", zh: "学习" });
 
   return (
-    <header css={[flex.col, gap._1, styles.container]}>
-      <h2 css={[text.heading3, weight._7, textColor.muted, m._none]}>
+    <header css={styles.container}>
+      <h2 css={styles.subtitle}>
         {typeLabel} - {title}
       </h2>
-      <h1 css={[text.heading1, m._none]}>{role}</h1>
-      <time css={[text.body, textColor.muted, styles.date]}>{date}</time>
+      <h1 css={styles.title}>{role}</h1>
+      <time css={styles.date}>{date}</time>
     </header>
   );
 }
 
 const styles = stylex.create({
   container: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._1,
     paddingBottom: space._8,
+  },
+  subtitle: {
+    fontSize: font.vpHeading3,
+    fontWeight: font.weight_7,
+    color: color.textMuted,
+    margin: 0,
+  },
+  title: {
+    fontSize: font.vpHeading1,
+    margin: 0,
   },
   date: {
     display: "block",
+    fontSize: font.uiBody,
+    color: color.textMuted,
   },
 });
