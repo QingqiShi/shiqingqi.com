@@ -1,7 +1,6 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { memo } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -112,9 +111,7 @@ interface MarkdownContentProps {
   content: string;
 }
 
-export const MarkdownContent = memo(function MarkdownContent({
-  content,
-}: MarkdownContentProps) {
+export function MarkdownContent({ content }: MarkdownContentProps) {
   return (
     <div css={styles.wrapper}>
       <ReactMarkdown components={components} remarkPlugins={remarkPlugins}>
@@ -122,4 +119,4 @@ export const MarkdownContent = memo(function MarkdownContent({
       </ReactMarkdown>
     </div>
   );
-});
+}

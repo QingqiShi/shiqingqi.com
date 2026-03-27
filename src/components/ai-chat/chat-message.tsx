@@ -8,7 +8,6 @@ import {
   isToolUIPart,
   type UIMessage,
 } from "ai";
-import { memo, useMemo } from "react";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { buildSearchResultsMap } from "./map-tool-output";
@@ -21,59 +20,14 @@ interface ChatMessageProps {
   isStreaming?: boolean;
 }
 
-export const ChatMessage = memo(function ChatMessage({
+export function ChatMessage({
   message,
   isStreaming = false,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   const { searchResultsMap, toolParts, hasVisibleContent, firstToolIndex } =
-    useMemo(() => {
-      const map = new Map<string, MediaListItem>();
-      const parts: Array<{
-        toolName: string;
-        state: string;
-        input: unknown;
-      }> = [];
-      let visible = false;
-      let firstTool = -1;
-
-      for (let i = 0; i < message.parts.length; i++) {
-        const part = message.parts[i];
-
-        if (isToolUIPart(part)) {
-          const name = getToolName(part);
-          if (firstTool === -1) firstTool = i;
-          parts.push({
-            toolName: name,
-            state: part.state,
-            input: "input" in part ? part.input : undefined,
-          });
-          visible = true;
-
-          if (
-            "output" in part &&
-            part.state === "output-available" &&
-            (name === "tmdb_search" || name === "semantic_search")
-          ) {
-            const partMap = buildSearchResultsMap(name, part.output);
-            for (const [key, value] of partMap) {
-              map.set(key, value);
-            }
-          }
-        } else if (!visible) {
-          if (isTextUIPart(part) && part.text.length > 0) visible = true;
-          else if (isReasoningUIPart(part)) visible = true;
-        }
-      }
-
-      return {
-        searchResultsMap: map,
-        toolParts: parts,
-        hasVisibleContent: visible,
-        firstToolIndex: firstTool,
-      };
-    }, [message.parts]);
+    deriveMessageData(message.parts);
 
   if (!hasVisibleContent) return null;
 
@@ -138,7 +92,49 @@ export const ChatMessage = memo(function ChatMessage({
       })}
     </div>
   );
-});
+}
+
+function deriveMessageData(parts: UIMessage["parts"]) {
+  const searchResultsMap = new Map<string, MediaListItem>();
+  const toolParts: Array<{
+    toolName: string;
+    state: string;
+    input: unknown;
+  }> = [];
+  let hasVisibleContent = false;
+  let firstToolIndex = -1;
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+
+    if (isToolUIPart(part)) {
+      const name = getToolName(part);
+      if (firstToolIndex === -1) firstToolIndex = i;
+      toolParts.push({
+        toolName: name,
+        state: part.state,
+        input: "input" in part ? part.input : undefined,
+      });
+      hasVisibleContent = true;
+
+      if (
+        "output" in part &&
+        part.state === "output-available" &&
+        (name === "tmdb_search" || name === "semantic_search")
+      ) {
+        const partMap = buildSearchResultsMap(name, part.output);
+        for (const [key, value] of partMap) {
+          searchResultsMap.set(key, value);
+        }
+      }
+    } else if (!hasVisibleContent) {
+      if (isTextUIPart(part) && part.text.length > 0) hasVisibleContent = true;
+      else if (isReasoningUIPart(part)) hasVisibleContent = true;
+    }
+  }
+
+  return { searchResultsMap, toolParts, hasVisibleContent, firstToolIndex };
+}
 
 const styles = stylex.create({
   bubble: {
