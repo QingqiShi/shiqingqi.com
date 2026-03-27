@@ -10,7 +10,7 @@ function subscribe(onStoreChange: () => void) {
 }
 
 let themeSingleton: string | null = null;
-function setIsMenuShown(newTheme: SupportedTheme) {
+function setTheme(newTheme: SupportedTheme) {
   themeSingleton = newTheme;
   localStorage.setItem(STORAGE_KEY, newTheme);
   listeners.forEach((listener) => listener());
@@ -28,5 +28,5 @@ export function useTheme() {
     () => themeSingleton ?? localStorage.getItem(STORAGE_KEY),
     () => "system",
   );
-  return [getSupportedTheme(theme), setIsMenuShown] as const;
+  return [getSupportedTheme(theme), setTheme] as const;
 }
