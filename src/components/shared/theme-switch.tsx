@@ -8,6 +8,7 @@ import { getDocumentClassName } from "#src/app/global-styles.ts";
 import { Button } from "#src/components/shared/button.tsx";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";
 import { useTheme } from "#src/hooks/use-theme.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { color, controlSize, font, ratio, space } from "#src/tokens.stylex.ts";
 import type { SwitchState } from "./switch";
 import { Switch } from "./switch";
@@ -110,10 +111,10 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           ]
         }
       />
-      <span css={[styles.icon, styles.moon]} aria-hidden>
+      <span css={[flex.center, styles.icon, styles.moon]} aria-hidden>
         <MoonIcon weight="fill" />
       </span>
-      <span css={[styles.icon, styles.sun]} aria-hidden>
+      <span css={[flex.center, styles.icon, styles.sun]} aria-hidden>
         <SunIcon weight="fill" />
       </span>
     </div>
@@ -149,12 +150,9 @@ const styles = stylex.create({
     [color.controlActive]: { default: color.backgroundRaised },
   },
   icon: {
-    alignItems: "center",
     aspectRatio: ratio.square,
     bottom: 0,
-    display: "flex",
     fontSize: font.uiBody,
-    justifyContent: "center",
     pointerEvents: "none",
     position: "absolute",
     top: 0,

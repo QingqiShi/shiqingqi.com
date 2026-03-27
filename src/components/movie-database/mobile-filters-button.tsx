@@ -1,9 +1,9 @@
 "use client";
 
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
-import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren, ReactNode } from "react";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { MenuButton } from "../shared/menu-button";
 
 interface MobileFiltersButtonProps {
@@ -21,7 +21,7 @@ export function MobileFiltersButton({
       menuContent={menuContent}
       buttonProps={{
         icon: (
-          <span css={styles.mobileIcon}>
+          <span css={flex.center}>
             <FunnelIcon weight="bold" role="presentation" />
           </span>
         ),
@@ -35,11 +35,3 @@ export function MobileFiltersButton({
     </MenuButton>
   );
 }
-
-const styles = stylex.create({
-  mobileIcon: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

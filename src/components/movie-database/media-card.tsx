@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Card } from "#src/components/shared/card.tsx";
 import { useLocale } from "#src/hooks/use-locale.ts";
+import { absoluteFill } from "#src/primitives/layout.stylex.ts";
 import { layer, ratio } from "#src/tokens.stylex.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
@@ -29,7 +30,7 @@ export function MediaCard({ media, allowFollow }: MediaCardProps) {
       aria-label={media.title ?? undefined}
       rel={allowFollow ? undefined : "nofollow"}
     >
-      <div css={styles.posterContainer}>
+      <div css={[absoluteFill.all, styles.posterContainer]}>
         <MediaPoster media={media} />
       </div>
     </Card>
@@ -42,11 +43,6 @@ const styles = stylex.create({
     width: "100%",
   },
   posterContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
     zIndex: layer.base,
   },
 });

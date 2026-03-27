@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { absoluteFill } from "#src/primitives/layout.stylex.ts";
 import { color, layer, ratio, space } from "#src/tokens.stylex.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 
@@ -40,7 +41,7 @@ export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
         sizes="100vw"
       />
 
-      <div role="presentation" css={styles.mask1} />
+      <div role="presentation" css={[absoluteFill.all, styles.mask1]} />
       <div role="presentation" css={styles.mask2} />
     </div>
   );
@@ -56,11 +57,6 @@ const styles = stylex.create({
     width: "100%",
   },
   mask1: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
     zIndex: layer.base,
     backgroundImage: `radial-gradient(farthest-side at 73% 21%, transparent, ${color.backgroundMain})`,
   },

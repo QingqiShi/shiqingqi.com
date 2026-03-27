@@ -5,6 +5,7 @@ import { memo } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 
 const styles = stylex.create({
@@ -75,8 +76,6 @@ const styles = stylex.create({
     paddingBlock: space._00,
   },
   wrapper: {
-    display: "flex",
-    flexDirection: "column",
     gap: space._2,
   },
 });
@@ -116,7 +115,7 @@ export const MarkdownContent = memo(function MarkdownContent({
   content,
 }: MarkdownContentProps) {
   return (
-    <div css={styles.wrapper}>
+    <div css={[flex.col, styles.wrapper]}>
       <ReactMarkdown components={components} remarkPlugins={remarkPlugins}>
         {content}
       </ReactMarkdown>

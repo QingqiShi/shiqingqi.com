@@ -5,6 +5,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
+import { imageCover } from "#src/primitives/layout.stylex.ts";
 import { color, font, layer } from "#src/tokens.stylex.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
@@ -26,7 +28,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
 
   if (!config.images?.base_url || !config.images?.poster_sizes) {
     return (
-      <div css={[styles.poster, styles.errored]}>
+      <div css={[imageCover.base, flex.center, styles.errored]}>
         <div>{alt}</div>
         <div css={styles.errorText}>{t({ en: "No Poster", zh: "无海报" })}</div>
       </div>
@@ -41,12 +43,12 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
 
   return (
     <>
-      {!imgLoaded && <Skeleton fill css={styles.errored} />}
+      {!imgLoaded && <Skeleton fill css={[flex.center, styles.errored]} />}
       {/* Disabling no-img-element rule as the images here are from a third party provider and is already
       optimized */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        css={styles.poster}
+        css={imageCover.base}
         alt={alt}
         src={src}
         srcSet={srcSet}
@@ -64,17 +66,9 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
 }
 
 const styles = stylex.create({
-  poster: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
   errored: {
     position: "absolute",
-    display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: color.backgroundRaised,
     zIndex: layer.background,
   },

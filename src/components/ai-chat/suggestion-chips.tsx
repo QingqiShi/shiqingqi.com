@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { flex, justify } from "#src/primitives/flex.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { useChatActions } from "./chat-actions-context";
 
@@ -16,7 +17,11 @@ export function SuggestionChips({
   const { sendMessage } = useChatActions();
 
   return (
-    <div role="group" aria-label={groupLabel} css={styles.container}>
+    <div
+      role="group"
+      aria-label={groupLabel}
+      css={[flex.wrap, justify.center, styles.container]}
+    >
       {suggestions.map((text) => (
         <button
           key={text}
@@ -33,9 +38,6 @@ export function SuggestionChips({
 
 const styles = stylex.create({
   container: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
     gap: space._1,
   },
   chip: {

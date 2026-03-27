@@ -1,6 +1,7 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
 import { Fragment, useState } from "react";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, color, ratio, shadow, space } from "#src/tokens.stylex.ts";
 import { CalculatorButton } from "./calculator-button.tsx";
 import { CalculatorDisplay } from "./calculator-display.tsx";
@@ -135,7 +136,7 @@ export function Calculator() {
 
   return (
     <div
-      css={styles.container}
+      css={[flex.col, styles.container]}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="application"
@@ -169,8 +170,6 @@ const styles = stylex.create({
     backgroundColor: color.backgroundRaised,
     overflow: "hidden",
     boxShadow: shadow._5,
-    display: "flex",
-    flexDirection: "column",
     containerType: "inline-size",
     // New CSS property, not yet recognized by stylex eslint plugin
     // eslint-disable-next-line @stylexjs/valid-styles

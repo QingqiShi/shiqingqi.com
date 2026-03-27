@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { controlSize, space } from "#src/tokens.stylex.ts";
 import { FixedContainerContent } from "../shared/fixed-container-content";
 import { FiltersContainer } from "./filters-container";
@@ -44,7 +45,7 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
             <TmdbCredit position="viewportWidth" />
             <MobileFiltersButton
               menuContent={
-                <div css={styles.mobileMenuContent}>
+                <div css={[flex.wrap, styles.mobileMenuContent]}>
                   <SortFilter bright />
                   <GenreFilter />
                   <ResetFilter bright />
@@ -62,9 +63,6 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
 
 const styles = stylex.create({
   mobileMenuContent: {
-    alignItems: "center",
-    display: "flex",
-    flexWrap: "wrap",
     gap: space._4,
     padding: space._2,
     width: `calc(100dvw - (${space._3} * 2))`,

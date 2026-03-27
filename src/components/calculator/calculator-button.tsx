@@ -2,6 +2,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { buttonTokens } from "#src/components/shared/button.stylex.ts";
 import { Button } from "#src/components/shared/button.tsx";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, color, ratio } from "#src/tokens.stylex.ts";
 
 interface CalculatorButtonProps {
@@ -33,6 +34,7 @@ export function CalculatorButton({
     <div css={isZero && styles.zeroContainer}>
       <Button
         css={[
+          flex.center,
           styles.button,
           isZero && styles.zeroButton,
           isRowEnd && styles.rowEndButton,
@@ -57,9 +59,6 @@ const styles = stylex.create({
     borderWidth: 0,
     appearance: "unset",
     textTransform: "uppercase",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     [buttonTokens.backgroundColor]: color.backgroundCalculatorButton,
     [buttonTokens.backgroundColorHover]: color.backgroundCalculatorButton,
     filter: { ":hover": "brightness(1.1)" },

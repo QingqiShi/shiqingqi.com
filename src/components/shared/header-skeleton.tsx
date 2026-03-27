@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { controlSize, layer, space } from "#src/tokens.stylex.ts";
 import { Skeleton } from "./skeleton";
 import { skeletonTokens } from "./skeleton.stylex";
@@ -6,9 +7,9 @@ import { skeletonTokens } from "./skeleton.stylex";
 export function HeaderSkeleton() {
   return (
     <div css={styles.container}>
-      <div css={styles.nav}>
+      <div css={[flex.between, styles.nav]}>
         <div />
-        <div css={styles.navContent}>
+        <div css={[flex.row, styles.navContent]}>
           <Skeleton css={styles.localeButton} width={120} />
         </div>
       </div>
@@ -33,17 +34,12 @@ const styles = stylex.create({
     marginInline: "auto",
     paddingBlock: 0,
     height: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
     pointerEvents: "none",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
   },
   navContent: {
     pointerEvents: "all",
-    display: "flex",
-    alignItems: "center",
     gap: space._1,
   },
   localeButton: {

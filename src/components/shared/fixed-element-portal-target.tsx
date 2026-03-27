@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useState, type ReactNode } from "react";
 import { PORTAL_TARGET_ID } from "#src/constants/portal.ts";
 import { PortalContext } from "#src/contexts/portal-context.tsx";
+import { fixedFill } from "#src/primitives/layout.stylex.ts";
 import { layer } from "#src/tokens.stylex.ts";
 
 /**
@@ -37,17 +38,17 @@ export function PortalTargetProvider({ children }: { children: ReactNode }) {
   return (
     <PortalContext value={{ portalTarget }}>
       {children}
-      <div id={PORTAL_TARGET_ID} ref={setPortalTarget} css={styles.container} />
+      <div
+        id={PORTAL_TARGET_ID}
+        ref={setPortalTarget}
+        css={[fixedFill.all, styles.container]}
+      />
     </PortalContext>
   );
 }
 
 const styles = stylex.create({
   container: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
     height: "100dvh",
     pointerEvents: "none",
     zIndex: layer.tooltip,

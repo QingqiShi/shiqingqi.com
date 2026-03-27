@@ -6,6 +6,7 @@ import { useId } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { controlSize, space } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { AnchorButton } from "../shared/anchor-button";
@@ -38,7 +39,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
   const id = useId();
 
   return (
-    <div css={styles.container}>
+    <div css={[flex.col, styles.container]}>
       <div>
         {!hideTitle && <MenuLabel>{t({ en: "Genre", zh: "类型" })}</MenuLabel>}
         <div css={styles.genreList}>
@@ -106,8 +107,6 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
 
 const styles = stylex.create({
   container: {
-    display: "flex",
-    flexDirection: "column",
     gap: space._4,
     overflow: "auto",
     width: "100dvw",

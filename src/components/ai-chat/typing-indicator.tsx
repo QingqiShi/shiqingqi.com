@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 
 const DOT_COUNT = 3;
@@ -12,7 +13,7 @@ interface TypingIndicatorProps {
 
 export function TypingIndicator({ label }: TypingIndicatorProps) {
   return (
-    <div role="status" aria-label={label} css={styles.container}>
+    <div role="status" aria-label={label} css={[flex.row, styles.container]}>
       {Array.from({ length: DOT_COUNT }, (_, i) => (
         <span
           key={i}
@@ -32,8 +33,6 @@ const bounce = stylex.keyframes({
 
 const styles = stylex.create({
   container: {
-    display: "flex",
-    alignItems: "center",
     gap: space._1,
     paddingBlock: space._1,
   },

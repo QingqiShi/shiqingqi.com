@@ -7,6 +7,9 @@ import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
+import { flex } from "#src/primitives/flex.stylex.ts";
+import { fixedFill } from "#src/primitives/layout.stylex.ts";
+import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { MediaDetailContent } from "./media-detail-content";
 import { useMediaDetail } from "./media-detail-context";
@@ -45,12 +48,12 @@ export function MediaDetailOverlay() {
   return createPortal(
     <>
       <div
-        css={styles.backdrop}
+        css={[fixedFill.all, styles.backdrop]}
         onClick={() => setFocusedMedia(null)}
         aria-hidden="true"
       />
       <RemoveScroll allowPinchZoom forwardProps>
-        <div css={styles.cardContainer}>
+        <div css={[fixedFill.all, styles.cardContainer]}>
           <div
             css={styles.card}
             role="dialog"
@@ -59,7 +62,7 @@ export function MediaDetailOverlay() {
             <button
               ref={closeButtonRef}
               type="button"
-              css={styles.closeButton}
+              css={[buttonReset.base, flex.inlineCenter, styles.closeButton]}
               onClick={() => setFocusedMedia(null)}
               aria-label="Close"
             >
@@ -91,11 +94,6 @@ const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
 
 const styles = stylex.create({
   backdrop: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
     backgroundColor: "rgba(0, 0, 0, 0.7)",
     zIndex: layer.overlay,
     pointerEvents: "all",
@@ -105,11 +103,6 @@ const styles = stylex.create({
     animationFillMode: "backwards",
   },
   cardContainer: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
     zIndex: layer.tooltip,
     pointerEvents: "none",
     display: "flex",
@@ -141,19 +134,11 @@ const styles = stylex.create({
     top: space._2,
     right: space._2,
     zIndex: layer.content,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
     width: "2rem",
     height: "2rem",
     borderRadius: border.radius_round,
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
-    padding: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     color: "white",
-    cursor: "pointer",
     transition: "background-color 0.15s ease",
   },
 });

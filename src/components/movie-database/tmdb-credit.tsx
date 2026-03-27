@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, font, space } from "#src/tokens.stylex.ts";
 import { MenuButton } from "../shared/menu-button";
 
@@ -23,6 +24,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
       menuContent={
         <div
           css={[
+            flex.row,
             styles.container,
             position === "viewportWidth" && styles.viewportContainer,
           ]}
@@ -50,9 +52,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
 const styles = stylex.create({
   container: {
     padding: space._2,
-    display: "flex",
     gap: space._2,
-    alignItems: "center",
     width: "50dvw",
     maxInlineSize: 500,
     fontSize: font.uiBodySmall,
