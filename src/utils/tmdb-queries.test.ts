@@ -158,6 +158,30 @@ describe("mediaDetail", () => {
       expect(result.genreText).toBe("Drama, Thriller");
     });
 
+    it("joins genres with Chinese separator when language is zh", async () => {
+      server.use(
+        http.get("*/api/tmdb/get-movie-details", () =>
+          HttpResponse.json(
+            movieDetailsResponse({
+              genres: [
+                { id: 18, name: "剧情" },
+                { id: 53, name: "惊悚" },
+              ],
+            }),
+          ),
+        ),
+      );
+
+      const options = mediaDetail({
+        type: "movie",
+        id: "550",
+        language: "zh",
+      });
+      const result = await options.queryFn!({} as never);
+
+      expect(result.genreText).toBe("剧情、惊悚");
+    });
+
     it("passes movie_id and language as query params", async () => {
       let requestUrl = "";
       server.use(
@@ -231,6 +255,30 @@ describe("mediaDetail", () => {
       const result = await options.queryFn!({} as never);
 
       expect(result.duration).toBe("");
+    });
+
+    it("joins genres with Chinese separator when language is zh", async () => {
+      server.use(
+        http.get("*/api/tmdb/get-tv-show-details", () =>
+          HttpResponse.json(
+            tvDetailsResponse({
+              genres: [
+                { id: 10765, name: "科幻" },
+                { id: 18, name: "剧情" },
+              ],
+            }),
+          ),
+        ),
+      );
+
+      const options = mediaDetail({
+        type: "tv",
+        id: "1399",
+        language: "zh",
+      });
+      const result = await options.queryFn!({} as never);
+
+      expect(result.genreText).toBe("科幻、剧情");
     });
 
     it("formats seasons in Chinese when language is zh", async () => {
