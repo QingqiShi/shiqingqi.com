@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import type { MediaListItem } from "#src/utils/types.ts";
+import { MediaDetailProvider } from "./media-detail-context";
 import { ToolMediaCards } from "./tool-media-cards";
 
 const mockItems: ReadonlyArray<MediaListItem> = [
@@ -21,44 +22,56 @@ const mockItems: ReadonlyArray<MediaListItem> = [
 ];
 
 describe("ToolMediaCards", () => {
-  it("renders cards with correct links", () => {
-    render(<ToolMediaCards items={mockItems} />);
+  it("renders cards as buttons", () => {
+    render(
+      <MediaDetailProvider>
+        <ToolMediaCards items={mockItems} />
+      </MediaDetailProvider>,
+    );
 
-    const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(2);
-    expect(links[0]).toHaveAttribute("href", "/movie-database/movie/1");
-    expect(links[1]).toHaveAttribute("href", "/movie-database/tv/2");
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(2);
   });
 
   it("renders poster images", () => {
-    render(<ToolMediaCards items={mockItems} />);
+    render(
+      <MediaDetailProvider>
+        <ToolMediaCards items={mockItems} />
+      </MediaDetailProvider>,
+    );
 
     expect(screen.getByAltText("Inception")).toBeInTheDocument();
     expect(screen.getByAltText("Breaking Bad")).toBeInTheDocument();
   });
 
   it("returns null when items array is empty", () => {
-    const { container } = render(<ToolMediaCards items={[]} />);
+    const { container } = render(
+      <MediaDetailProvider>
+        <ToolMediaCards items={[]} />
+      </MediaDetailProvider>,
+    );
 
     expect(container.innerHTML).toBe("");
   });
 
-  it("renders cards without links when mediaType is null", () => {
+  it("renders cards without buttons when mediaType is null", () => {
     render(
-      <ToolMediaCards
-        items={[
-          {
-            id: 99,
-            title: "Unknown Type",
-            posterPath: "/unknown.jpg",
-            rating: 5.0,
-            mediaType: null,
-          },
-        ]}
-      />,
+      <MediaDetailProvider>
+        <ToolMediaCards
+          items={[
+            {
+              id: 99,
+              title: "Unknown Type",
+              posterPath: "/unknown.jpg",
+              rating: 5.0,
+              mediaType: null,
+            },
+          ]}
+        />
+      </MediaDetailProvider>,
     );
 
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
     expect(screen.getByAltText("Unknown Type")).toBeInTheDocument();
   });
 });

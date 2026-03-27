@@ -396,10 +396,14 @@ function transformTCall(t, path, state) {
 
   const translations = extractTranslations(t, firstArg);
   if (!translations) {
-    console.warn(
-      `[i18n-babel-plugin] Invalid t() call: first argument must be an object with "en" and "zh" string literal properties.`,
+    const loc = path.node.loc;
+    const position = loc
+      ? ` at ${state.filename ?? "<unknown>"}:${loc.start.line}:${loc.start.column}`
+      : "";
+    throw path.buildCodeFrameError(
+      `Invalid t() call${position}: first argument must be an object with "en" and "zh" string literal properties. ` +
+        `Template literals with interpolation are not supported — use the locale variable directly instead.`,
     );
-    return;
   }
 
   const key = generateKey(translations.en, translations.zh);

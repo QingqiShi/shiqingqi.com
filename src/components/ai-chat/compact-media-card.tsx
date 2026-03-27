@@ -4,21 +4,25 @@ import * as stylex from "@stylexjs/stylex";
 import { border, ratio } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { MediaPoster } from "../movie-database/media-poster";
-import { Anchor } from "../shared/anchor";
 
 interface CompactMediaCardProps {
   media: MediaListItem;
-  href?: string;
+  onClick?: () => void;
 }
 
-export function CompactMediaCard({ media, href }: CompactMediaCardProps) {
+export function CompactMediaCard({ media, onClick }: CompactMediaCardProps) {
   const content = <MediaPoster media={media} compact />;
 
-  if (href) {
+  if (onClick) {
     return (
-      <Anchor href={href} css={styles.compactCard}>
+      <button
+        type="button"
+        css={[styles.compactCard, styles.compactCardButton]}
+        onClick={onClick}
+        aria-label={media.title ?? undefined}
+      >
         {content}
-      </Anchor>
+      </button>
     );
   }
 
@@ -33,7 +37,14 @@ const styles = stylex.create({
     borderRadius: border.radius_2,
     overflow: "hidden",
     display: "block",
-    textDecoration: "none",
     color: "inherit",
+  },
+  compactCardButton: {
+    appearance: "none",
+    backgroundColor: "transparent",
+    borderWidth: 0,
+    borderStyle: "none",
+    padding: 0,
+    cursor: "pointer",
   },
 });

@@ -2,17 +2,21 @@
 
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { useRef, useState } from "react";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
+import type { AttachedMedia } from "./chat-actions-context";
 
 interface ChatInputBarProps {
   placeholder: string;
   sendLabel: string;
   stopLabel: string;
   status: "submitted" | "streaming" | "ready" | "error";
+  attachedMedia: AttachedMedia | null;
   onSend: (text: string) => void;
   onStop: () => void;
+  onClearAttachment: () => void;
 }
 
 export function ChatInputBar({
@@ -20,8 +24,10 @@ export function ChatInputBar({
   sendLabel,
   stopLabel,
   status,
+  attachedMedia,
   onSend,
   onStop,
+  onClearAttachment,
 }: ChatInputBarProps) {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -69,6 +75,21 @@ export function ChatInputBar({
 
   return (
     <form onSubmit={handleSubmit} css={styles.container}>
+      {attachedMedia && (
+        <div css={styles.attachmentRow}>
+          <span css={styles.attachmentTag}>
+            {attachedMedia.title}
+            <button
+              type="button"
+              aria-label="Remove attachment"
+              onClick={onClearAttachment}
+              css={styles.attachmentDismiss}
+            >
+              <XIcon size={12} />
+            </button>
+          </span>
+        </div>
+      )}
       <textarea
         ref={textareaRef}
         value={text}
@@ -108,6 +129,7 @@ const styles = stylex.create({
   container: {
     width: "100%",
     display: "flex",
+    flexWrap: "wrap",
     alignItems: "center",
     gap: space._1,
     backgroundColor: color.backgroundRaised,
@@ -115,6 +137,47 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingLeft: space._3,
     paddingRight: space._2,
+  },
+  attachmentRow: {
+    width: "100%",
+    display: "flex",
+    paddingBottom: space._1,
+  },
+  attachmentTag: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: space._1,
+    backgroundColor: color.backgroundHover,
+    borderRadius: border.radius_round,
+    paddingBlock: space._0,
+    paddingLeft: space._2,
+    paddingRight: space._1,
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    maxWidth: "100%",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  attachmentDismiss: {
+    flexShrink: 0,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "1rem",
+    height: "1rem",
+    borderRadius: border.radius_round,
+    borderWidth: 0,
+    borderStyle: "none",
+    appearance: "none",
+    padding: 0,
+    backgroundColor: {
+      default: "transparent",
+      ":hover": color.controlTrack,
+    },
+    color: color.textMuted,
+    cursor: "pointer",
+    transition: "background-color 0.15s ease",
   },
   textarea: {
     flexGrow: 1,

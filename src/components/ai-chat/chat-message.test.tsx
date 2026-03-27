@@ -2,6 +2,7 @@ import type { UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { ChatMessage } from "./chat-message";
+import { MediaDetailProvider } from "./media-detail-context";
 
 function createMessage(
   overrides: Partial<UIMessage> & Pick<UIMessage, "role" | "parts">,
@@ -116,46 +117,48 @@ describe("ChatMessage", () => {
 
   it("renders present_media cards from search results lookup", () => {
     render(
-      <ChatMessage
-        message={createMessage({
-          role: "assistant",
-          parts: [
-            { type: "text", text: "Here are some results:" },
-            {
-              type: "dynamic-tool",
-              toolName: "tmdb_search",
-              toolCallId: "search-call",
-              state: "output-available",
-              input: { query: "Inception" },
-              output: [
-                {
-                  id: 1,
-                  media_type: "movie",
-                  title: "Inception",
-                  poster_path: "/inception.jpg",
-                  vote_average: 8.4,
-                },
-                {
-                  id: 2,
-                  media_type: "movie",
-                  title: "Other Movie",
-                  poster_path: "/other.jpg",
-                  vote_average: 5.0,
-                },
-              ],
-            },
-            {
-              type: "dynamic-tool",
-              toolName: "present_media",
-              toolCallId: "present-call",
-              state: "output-available",
-              input: { media: [{ id: 1, media_type: "movie" }] },
-              output: { media: [{ id: 1, media_type: "movie" }] },
-            },
-            { type: "text", text: "Hope that helps!" },
-          ],
-        })}
-      />,
+      <MediaDetailProvider>
+        <ChatMessage
+          message={createMessage({
+            role: "assistant",
+            parts: [
+              { type: "text", text: "Here are some results:" },
+              {
+                type: "dynamic-tool",
+                toolName: "tmdb_search",
+                toolCallId: "search-call",
+                state: "output-available",
+                input: { query: "Inception" },
+                output: [
+                  {
+                    id: 1,
+                    media_type: "movie",
+                    title: "Inception",
+                    poster_path: "/inception.jpg",
+                    vote_average: 8.4,
+                  },
+                  {
+                    id: 2,
+                    media_type: "movie",
+                    title: "Other Movie",
+                    poster_path: "/other.jpg",
+                    vote_average: 5.0,
+                  },
+                ],
+              },
+              {
+                type: "dynamic-tool",
+                toolName: "present_media",
+                toolCallId: "present-call",
+                state: "output-available",
+                input: { media: [{ id: 1, media_type: "movie" }] },
+                output: { media: [{ id: 1, media_type: "movie" }] },
+              },
+              { type: "text", text: "Hope that helps!" },
+            ],
+          })}
+        />
+      </MediaDetailProvider>,
     );
 
     expect(screen.getByText("Here are some results:")).toBeInTheDocument();
@@ -163,10 +166,9 @@ describe("ChatMessage", () => {
     // Only the presented item renders as a card, not all search results
     expect(screen.getByAltText("Inception")).toBeInTheDocument();
     expect(screen.queryByAltText("Other Movie")).not.toBeInTheDocument();
-    expect(screen.getByRole("link")).toHaveAttribute(
-      "href",
-      "/movie-database/movie/1",
-    );
+    expect(
+      screen.getByRole("button", { name: "Inception" }),
+    ).toBeInTheDocument();
   });
 
   it("does not render cards for search tool parts but shows activity", () => {

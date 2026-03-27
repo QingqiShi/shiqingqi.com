@@ -3,12 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { useRef } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { useLocale } from "#src/hooks/use-locale.ts";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { color, space } from "#src/tokens.stylex.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
+import { useMediaDetail } from "./media-detail-context";
 
 interface ToolMediaCardsProps {
   items: ReadonlyArray<MediaListItem>;
@@ -17,28 +16,35 @@ interface ToolMediaCardsProps {
 export function ToolMediaCards({ items }: ToolMediaCardsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { showLeftFade, showRightFade } = useScrollFades(scrollRef);
-  const locale = useLocale();
+  const { setFocusedMedia } = useMediaDetail();
 
   if (items.length === 0) return null;
 
   return (
     <div css={styles.scrollWrapper}>
       <div ref={scrollRef} css={styles.scrollContainer} role="list">
-        {items.map((item) => (
-          <div key={item.id} css={styles.cardWrapper} role="listitem">
-            <CompactMediaCard
-              media={item}
-              href={
-                item.mediaType
-                  ? getLocalePath(
-                      `/movie-database/${item.mediaType}/${item.id.toString()}`,
-                      locale,
-                    )
-                  : undefined
-              }
-            />
-          </div>
-        ))}
+        {items.map((item) => {
+          const { mediaType } = item;
+          return (
+            <div key={item.id} css={styles.cardWrapper} role="listitem">
+              <CompactMediaCard
+                media={item}
+                onClick={
+                  mediaType
+                    ? () => {
+                        setFocusedMedia({
+                          id: item.id,
+                          mediaType,
+                          title: item.title,
+                          posterPath: item.posterPath,
+                        });
+                      }
+                    : undefined
+                }
+              />
+            </div>
+          );
+        })}
       </div>
       <div
         css={[styles.fadeEdge, styles.fadeLeft]}

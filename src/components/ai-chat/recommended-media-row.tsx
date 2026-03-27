@@ -7,6 +7,7 @@ import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
+import { useMediaDetail } from "./media-detail-context";
 
 interface RecommendedMediaRowProps {
   title: string;
@@ -19,6 +20,7 @@ export function RecommendedMediaRow({
 }: RecommendedMediaRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { showLeftFade, showRightFade } = useScrollFades(scrollRef);
+  const { setFocusedMedia } = useMediaDetail();
 
   if (items.length === 0) return null;
 
@@ -33,11 +35,28 @@ export function RecommendedMediaRow({
           aria-label={title}
           tabIndex={0}
         >
-          {items.map((item) => (
-            <div key={item.id} css={styles.cardWrapper}>
-              <CompactMediaCard media={item} />
-            </div>
-          ))}
+          {items.map((item) => {
+            const { mediaType } = item;
+            return (
+              <div key={item.id} css={styles.cardWrapper}>
+                <CompactMediaCard
+                  media={item}
+                  onClick={
+                    mediaType
+                      ? () => {
+                          setFocusedMedia({
+                            id: item.id,
+                            mediaType,
+                            title: item.title,
+                            posterPath: item.posterPath,
+                          });
+                        }
+                      : undefined
+                  }
+                />
+              </div>
+            );
+          })}
         </div>
         <div
           css={[styles.fadeEdge, styles.fadeLeft]}

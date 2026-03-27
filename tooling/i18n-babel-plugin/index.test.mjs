@@ -301,38 +301,39 @@ const msg = translate({ en: "Hello", zh: "你好" });
   });
 
   describe("invalid t() calls", () => {
-    it("leaves t() with a string argument untouched", () => {
+    it("throws on t() with a string argument", () => {
       const input = `
 import { t } from "#src/i18n";
 const msg = t("not an object");
 `;
-      const output = transform(input);
-
-      // The call should remain as-is
-      expect(output).toContain('t("not an object")');
-      // Import is still removed since it came from #src/i18n
-      expect(output).not.toContain(`from "#src/i18n"`);
+      expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
     });
 
-    it("leaves t() with missing en property untouched", () => {
+    it("throws on t() with missing en property", () => {
       const input = `
 import { t } from "#src/i18n";
 const msg = t({ zh: "你好" });
 `;
-      const output = transform(input);
-
-      expect(output).toContain("t({");
+      expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
     });
 
-    it("leaves t() with non-literal values untouched", () => {
+    it("throws on t() with non-literal values", () => {
       const input = `
 import { t } from "#src/i18n";
 const en = "Hello";
 const msg = t({ en: en, zh: "你好" });
 `;
-      const output = transform(input);
+      expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
+    });
 
-      expect(output).toContain("t({");
+    it("throws on t() with template literals containing interpolation", () => {
+      const input = `
+import { t } from "#src/i18n";
+const name = "World";
+const msg = t({ en: \`Hello \${name}\`, zh: \`你好\${name}\` });
+`;
+      expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
+      expect(() => transform(input)).toThrow(/Template literals/);
     });
   });
 

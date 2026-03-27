@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { CompactMediaCard } from "./compact-media-card";
 
@@ -69,7 +70,7 @@ describe("CompactMediaCard", () => {
     expect(screen.queryByLabelText(/User rating/)).not.toBeInTheDocument();
   });
 
-  it("renders as a link when href is provided", () => {
+  it("renders as a div when onClick is not provided", () => {
     render(
       <CompactMediaCard
         media={{
@@ -79,17 +80,13 @@ describe("CompactMediaCard", () => {
           rating: 8.4,
           mediaType: "movie",
         }}
-        href="/movie-database/movie/1"
       />,
     );
 
-    expect(screen.getByRole("link")).toHaveAttribute(
-      "href",
-      "/movie-database/movie/1",
-    );
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("renders as a div when href is not provided", () => {
+  it("renders as a button when onClick is provided", () => {
     render(
       <CompactMediaCard
         media={{
@@ -99,9 +96,31 @@ describe("CompactMediaCard", () => {
           rating: 8.4,
           mediaType: "movie",
         }}
+        onClick={vi.fn()}
       />,
     );
 
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.getByRole("button")).toBeInTheDocument();
+  });
+
+  it("calls onClick when clicked", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    render(
+      <CompactMediaCard
+        media={{
+          id: 1,
+          title: "Inception",
+          posterPath: "/inception.jpg",
+          rating: 8.4,
+          mediaType: "movie",
+        }}
+        onClick={onClick}
+      />,
+    );
+
+    await user.click(screen.getByRole("button"));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

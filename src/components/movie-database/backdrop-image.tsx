@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { color, layer, ratio, space } from "#src/tokens.stylex.ts";
+import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 
 interface BackdropImageProps {
   backdropPath: string;
@@ -20,17 +21,11 @@ export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
     return null;
   }
 
-  const sizes = config.images.backdrop_sizes
-    .filter((size) => size.startsWith("w"))
-    .map((size) => Number(size.replace("w", "")));
-
-  const src = `${config.images?.secure_base_url}w${sizes[sizes.length - 1]}${backdropPath}`;
-  const srcSet = sizes
-    .map(
-      (size) =>
-        `${config.images?.secure_base_url}w${size}${backdropPath} ${size}w`,
-    )
-    .join(", ");
+  const { src, srcSet } = buildSrcSet(
+    config.images.secure_base_url ?? config.images.base_url,
+    config.images.backdrop_sizes,
+    backdropPath,
+  );
 
   return (
     <div css={styles.container}>
