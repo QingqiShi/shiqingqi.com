@@ -4,7 +4,6 @@ import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap"
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { BackgroundLines } from "#src/components/home/background-lines.tsx";
 import { EducationCard } from "#src/components/home/education-card.tsx";
 import { ExperienceCard } from "#src/components/home/experience-card.tsx";
 import { ProjectCard } from "#src/components/home/project-card.tsx";
@@ -24,7 +23,6 @@ export default async function Home(props: PageProps) {
   const { locale } = await props.params;
   return (
     <>
-      <BackgroundLines />
       <section css={styles.heroContainer}>
         <h1 css={styles.display}>
           {t({ en: "Hi, I'm Qingqi.", zh: "嗨，我叫石清琪。" })}
