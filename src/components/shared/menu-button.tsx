@@ -77,7 +77,7 @@ export function MenuButton({
         onBlur={(e) => {
           if (
             isMenuShown &&
-            !containerRef.current?.contains(e.currentTarget) &&
+            !containerRef.current?.contains(e.relatedTarget) &&
             !outsideClicked.current
           ) {
             setIsMenuShown(false);
