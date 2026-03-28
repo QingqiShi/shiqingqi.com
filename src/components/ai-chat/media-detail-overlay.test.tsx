@@ -44,7 +44,7 @@ function renderWithOverlay() {
 }
 
 describe("MediaDetailOverlay", () => {
-  it("opens a dialog when a media card is clicked", async () => {
+  it("opens a modal dialog when a media card is clicked", async () => {
     const user = userEvent.setup();
     renderWithOverlay();
 
@@ -52,6 +52,8 @@ describe("MediaDetailOverlay", () => {
 
     await user.click(screen.getByRole("button", { name: "Inception" }));
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAttribute("aria-modal", "true");
   });
 });

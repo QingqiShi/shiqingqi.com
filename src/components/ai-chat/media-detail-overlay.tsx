@@ -58,6 +58,7 @@ export function MediaDetailOverlay() {
           <div
             css={styles.card}
             role="dialog"
+            aria-modal="true"
             aria-label={focusedMedia.title ?? undefined}
           >
             <button
