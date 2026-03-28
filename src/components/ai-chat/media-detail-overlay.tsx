@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
+import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { fixedFill } from "#src/primitives/layout.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
@@ -64,7 +65,7 @@ export function MediaDetailOverlay() {
               type="button"
               css={[buttonReset.base, flex.inlineCenter, styles.closeButton]}
               onClick={() => setFocusedMedia(null)}
-              aria-label="Close"
+              aria-label={t({ en: "Close", zh: "关闭" })}
             >
               <XIcon size={20} />
             </button>
