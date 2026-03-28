@@ -1,5 +1,4 @@
 import {
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -61,14 +60,14 @@ export function usePressAnimation<T extends HTMLElement>({
   const [releasedOutside, setReleasedOutside] = useState(false);
   const [nudgeOffset, setNudgeOffset] = useState({ x: 0, y: 0 });
 
-  const clearReleaseTimeout = useCallback(() => {
+  function clearReleaseTimeout() {
     if (releaseTimeoutRef.current !== null) {
       clearTimeout(releaseTimeoutRef.current);
       releaseTimeoutRef.current = null;
     }
-  }, []);
+  }
 
-  const handlePress = useCallback(() => {
+  function handlePress() {
     if (disabled) return;
     clearReleaseTimeout();
 
@@ -95,9 +94,9 @@ export function usePressAnimation<T extends HTMLElement>({
     setReleasedOutside(false);
     setNudgeOffset({ x: 0, y: 0 });
     pressStartTimeRef.current = performance.now();
-  }, [disabled, clearReleaseTimeout, targetRef]);
+  }
 
-  const handleRelease = useCallback((isOutside: boolean) => {
+  function handleRelease(isOutside: boolean) {
     if (!isPressedRef.current) return;
 
     const elapsed = performance.now() - pressStartTimeRef.current;
@@ -118,108 +117,90 @@ export function usePressAnimation<T extends HTMLElement>({
       isPressedRef.current = false;
       setNudgeOffset({ x: 0, y: 0 });
     }
-  }, []);
+  }
 
-  const onPointerDown = useCallback(
-    (event: ReactPointerEvent<T>) => {
-      if (disabled) return;
+  function onPointerDown(event: ReactPointerEvent<T>) {
+    if (disabled) return;
 
-      // Capture pointer to receive pointerup even outside the element
-      targetRef.current?.setPointerCapture(event.pointerId);
-      pointerIdRef.current = event.pointerId;
+    // Capture pointer to receive pointerup even outside the element
+    targetRef.current?.setPointerCapture(event.pointerId);
+    pointerIdRef.current = event.pointerId;
+    handlePress();
+  }
+
+  function onPointerUp(event: ReactPointerEvent<T>) {
+    if (pointerIdRef.current !== null) {
+      targetRef.current?.releasePointerCapture(pointerIdRef.current);
+      pointerIdRef.current = null;
+    }
+    // Check actual pointer position since pointerleave doesn't fire with pointer capture
+    const rect = targetRef.current?.getBoundingClientRect();
+    const isOutside = isPointerOutside(rect, event.clientX, event.clientY);
+    releasedOutsideRef.current = isOutside; // Set synchronously before click fires
+    handleRelease(isOutside);
+  }
+
+  function onPointerMove(event: ReactPointerEvent<T>) {
+    if (!isPressed || !targetRef.current) return;
+
+    const rect = targetRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // Check if pointer is outside the button
+    const isOutside = isPointerOutside(rect, event.clientX, event.clientY);
+
+    if (isOutside) {
+      // Calculate direction from center to pointer
+      const dx = event.clientX - centerX;
+      const dy = event.clientY - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > 0) {
+        // Normalize and scale to max offset
+        const scale = Math.min(MAX_NUDGE_OFFSET / distance, 1);
+        setNudgeOffset({
+          x: dx * scale,
+          y: dy * scale,
+        });
+      }
+    } else {
+      setNudgeOffset({ x: 0, y: 0 });
+    }
+  }
+
+  function onKeyDown(event: KeyboardEvent<T>) {
+    if (disabled) return;
+    if (event.key === "Enter" || event.key === " ") {
+      // Prevent space from scrolling the page
+      if (event.key === " ") {
+        event.preventDefault();
+      }
       handlePress();
-    },
-    [disabled, handlePress, targetRef],
-  );
+    }
+  }
 
-  const onPointerUp = useCallback(
-    (event: ReactPointerEvent<T>) => {
-      if (pointerIdRef.current !== null) {
-        targetRef.current?.releasePointerCapture(pointerIdRef.current);
-        pointerIdRef.current = null;
-      }
-      // Check actual pointer position since pointerleave doesn't fire with pointer capture
-      const rect = targetRef.current?.getBoundingClientRect();
-      const isOutside = isPointerOutside(rect, event.clientX, event.clientY);
-      releasedOutsideRef.current = isOutside; // Set synchronously before click fires
-      handleRelease(isOutside);
-    },
-    [handleRelease, targetRef],
-  );
-
-  const onPointerMove = useCallback(
-    (event: ReactPointerEvent<T>) => {
-      if (!isPressed || !targetRef.current) return;
-
-      const rect = targetRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      // Check if pointer is outside the button
-      const isOutside = isPointerOutside(rect, event.clientX, event.clientY);
-
-      if (isOutside) {
-        // Calculate direction from center to pointer
-        const dx = event.clientX - centerX;
-        const dy = event.clientY - centerY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance > 0) {
-          // Normalize and scale to max offset
-          const scale = Math.min(MAX_NUDGE_OFFSET / distance, 1);
-          setNudgeOffset({
-            x: dx * scale,
-            y: dy * scale,
-          });
-        }
-      } else {
-        setNudgeOffset({ x: 0, y: 0 });
-      }
-    },
-    [isPressed, targetRef],
-  );
-
-  const onKeyDown = useCallback(
-    (event: KeyboardEvent<T>) => {
-      if (disabled) return;
-      if (event.key === "Enter" || event.key === " ") {
-        // Prevent space from scrolling the page
-        if (event.key === " ") {
-          event.preventDefault();
-        }
-        handlePress();
-      }
-    },
-    [disabled, handlePress],
-  );
-
-  const onKeyUp = useCallback(
-    (event: KeyboardEvent<T>) => {
-      if (event.key === "Enter" || event.key === " ") {
-        handleRelease(false);
-      }
-    },
-    [handleRelease],
-  );
+  function onKeyUp(event: KeyboardEvent<T>) {
+    if (event.key === "Enter" || event.key === " ") {
+      handleRelease(false);
+    }
+  }
 
   // Prevent context menu from interrupting the press state
-  const onContextMenu = useCallback(
-    (_event: MouseEvent<T>) => {
-      if (isPressed) {
-        handleRelease(true);
-      }
-    },
-    [isPressed, handleRelease],
-  );
+  function onContextMenu(_event: MouseEvent<T>) {
+    if (isPressed) {
+      handleRelease(true);
+    }
+  }
 
   // Returns true if click should be allowed, resets the flag
-  const shouldAllowClick = useCallback(() => {
+  function shouldAllowClick() {
     if (releasedOutsideRef.current) {
       releasedOutsideRef.current = false;
       return false;
     }
     return true;
-  }, []);
+  }
 
   // Cleanup timeout on unmount to prevent memory leaks
   useEffect(() => {
@@ -239,7 +220,7 @@ export function usePressAnimation<T extends HTMLElement>({
     };
     window.addEventListener("blur", handleWindowBlur);
     return () => window.removeEventListener("blur", handleWindowBlur);
-  }, [handleRelease]);
+  });
 
   return {
     isPressed,

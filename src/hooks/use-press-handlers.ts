@@ -1,5 +1,4 @@
 import {
-  useCallback,
   type RefObject,
   type PointerEvent as ReactPointerEvent,
   type PointerEventHandler,
@@ -59,64 +58,43 @@ export function usePressHandlers<T extends HTMLElement>({
     targetRef,
   });
 
-  const handlePointerDown = useCallback(
-    (event: ReactPointerEvent<T>) => {
-      onPointerDown?.(event);
-      pressHandlers.onPointerDown(event);
-    },
-    [pressHandlers, onPointerDown],
-  );
+  function handlePointerDown(event: ReactPointerEvent<T>) {
+    onPointerDown?.(event);
+    pressHandlers.onPointerDown(event);
+  }
 
-  const handlePointerUp = useCallback(
-    (event: ReactPointerEvent<T>) => {
-      onPointerUp?.(event);
-      pressHandlers.onPointerUp(event);
-    },
-    [pressHandlers, onPointerUp],
-  );
+  function handlePointerUp(event: ReactPointerEvent<T>) {
+    onPointerUp?.(event);
+    pressHandlers.onPointerUp(event);
+  }
 
-  const handlePointerMove = useCallback(
-    (event: ReactPointerEvent<T>) => {
-      onPointerMove?.(event);
-      pressHandlers.onPointerMove(event);
-    },
-    [pressHandlers, onPointerMove],
-  );
+  function handlePointerMove(event: ReactPointerEvent<T>) {
+    onPointerMove?.(event);
+    pressHandlers.onPointerMove(event);
+  }
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<T>) => {
-      onKeyDown?.(event);
-      pressHandlers.onKeyDown(event);
-    },
-    [pressHandlers, onKeyDown],
-  );
+  function handleKeyDown(event: KeyboardEvent<T>) {
+    onKeyDown?.(event);
+    pressHandlers.onKeyDown(event);
+  }
 
-  const handleKeyUp = useCallback(
-    (event: KeyboardEvent<T>) => {
-      onKeyUp?.(event);
-      pressHandlers.onKeyUp(event);
-    },
-    [pressHandlers, onKeyUp],
-  );
+  function handleKeyUp(event: KeyboardEvent<T>) {
+    onKeyUp?.(event);
+    pressHandlers.onKeyUp(event);
+  }
 
-  const handleContextMenu = useCallback(
-    (event: MouseEvent<T>) => {
-      pressHandlers.onContextMenu(event);
-    },
-    [pressHandlers],
-  );
+  function handleContextMenu(event: MouseEvent<T>) {
+    pressHandlers.onContextMenu(event);
+  }
 
-  const handleClick = useCallback(
-    (event: MouseEvent<T>) => {
-      if (!shouldAllowClick()) {
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
-      onClick?.(event);
-    },
-    [onClick, shouldAllowClick],
-  );
+  function handleClick(event: MouseEvent<T>) {
+    if (!shouldAllowClick()) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    onClick?.(event);
+  }
 
   const pressedStyle =
     isPressed && !disabled
