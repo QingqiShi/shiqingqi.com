@@ -23,13 +23,6 @@ import { Skeleton } from "../shared/skeleton";
 import { useChatActions } from "./chat-actions-context";
 import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
 
-function formatMovieRuntime(minutes: number) {
-  if (!minutes) return "";
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours > 0 ? `${hours}${t({ en: "h", zh: " 小时" })} ` : ""}${mins}${t({ en: "m", zh: " 分钟" })}`;
-}
-
 export function MediaDetailContent({
   id,
   mediaType,
@@ -70,21 +63,7 @@ export function MediaDetailContent({
   const imageBaseUrl = config?.images?.secure_base_url;
 
   const metaParts = detail
-    ? [
-        detail.releaseDate?.split("-")[0],
-        mediaType === "tv"
-          ? detail.numberOfSeasons
-            ? `${detail.numberOfSeasons} ${
-                new Intl.PluralRules(locale ?? "en").select(
-                  detail.numberOfSeasons,
-                ) === "one"
-                  ? t({ en: "season", zh: "季" })
-                  : t({ en: "seasons", zh: "季" })
-              }`
-            : ""
-          : formatMovieRuntime(detail.runtime),
-        detail.genres.join(t({ en: ", ", zh: "、" })),
-      ]
+    ? [detail.year, detail.duration, detail.genreText]
         .filter(Boolean)
         .join(" • ")
     : null;
@@ -142,11 +121,15 @@ export function MediaDetailContent({
           ) : null}
           <div css={styles.headerInfo}>
             {detail ? (
-              <div css={styles.ratingRow}>
-                <span css={styles.rating}>
+              <div
+                css={styles.ratingRow}
+                role="img"
+                aria-label={`${t({ en: "User rating:", zh: "用户评分:" })} ${formatter.format(detail.voteAverage)}${t({ en: " out of 10, based on ", zh: "/10，基于 " })}${detail.voteCount.toLocaleString(locale)}${t({ en: " votes", zh: " 票" })}`}
+              >
+                <span css={styles.rating} aria-hidden="true">
                   {formatter.format(detail.voteAverage)}
                 </span>
-                <span css={styles.voteCount}>
+                <span css={styles.voteCount} aria-hidden="true">
                   ({formatter.format(detail.voteCount)})
                 </span>
               </div>
@@ -173,11 +156,7 @@ export function MediaDetailContent({
               css={styles.trailerLink}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={
-                locale === "zh"
-                  ? `观看${displayTitle}的预告`
-                  : `Watch trailer for ${displayTitle}`
-              }
+              aria-label={`${t({ en: "Watch trailer for", zh: "观看" })} ${displayTitle}${t({ en: "", zh: "的预告" })}`}
             >
               <PlayIcon weight="fill" size={14} />
               {t({ en: "Trailer", zh: "预告" })}

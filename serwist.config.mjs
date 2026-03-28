@@ -6,5 +6,10 @@ export default await serwist({
   // HTML pages are runtime-cached as users browse (RSC payloads for client-side nav)
   // Precaching HTML has limited value since client-side navigation uses RSC, not HTML
   precachePrerendered: false,
-  globIgnores: ["**/pwa-*.png", "**/vercel.svg", "**/next.svg"],
+  globIgnores: [
+    "**/_global-error*",
+    "**/pwa-*.png",
+    "**/vercel.svg",
+    "**/next.svg",
+  ],
 });

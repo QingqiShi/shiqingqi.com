@@ -24,7 +24,7 @@ type TvResult = NonNullable<
 >[number];
 type MediaResult = MovieResult | TvResult;
 
-const tmdbScope = { scope: "tmdb" } as const;
+export const tmdbScope = [{ scope: "tmdb" }];
 
 type MovieListParams = QueryParams<"/3/discover/movie", "get"> & {
   type: "movie";
@@ -190,6 +190,16 @@ export const genres = (params: GenresParams) =>
     gcTime: 24 * 60 * 60 * 1000,
   });
 
+function formatMovieRuntime(minutes: number, language?: string) {
+  if (!minutes) return "";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return new Intl.DurationFormat(language, { style: "narrow" }).format({
+    hours,
+    minutes: mins,
+  });
+}
+
 type MediaDetailParams = {
   type: "movie" | "tv";
   id: string;
@@ -200,10 +210,9 @@ export interface NormalizedMediaDetail {
   title: string;
   posterPath: string | null;
   backdropPath: string | null;
-  releaseDate: string | undefined;
-  runtime: number;
-  numberOfSeasons: number;
-  genres: string[];
+  year: string | undefined;
+  duration: string;
+  genreText: string;
   overview: string | null;
   tagline: string | null;
   voteAverage: number;
@@ -214,6 +223,7 @@ export const mediaDetail = (params: MediaDetailParams) =>
   queryOptions({
     queryKey: [{ query: "mediaDetail", ...tmdbScope, ...params }],
     queryFn: async (): Promise<NormalizedMediaDetail> => {
+      const genreSeparator = params.language === "zh" ? "、" : ", ";
       if (params.type === "tv") {
         const { type, id, ...queryParams } = params;
         const data = await apiRequestWrapper<typeof getTvShowDetails>(
@@ -224,13 +234,15 @@ export const mediaDetail = (params: MediaDetailParams) =>
           title: data.name ?? data.original_name ?? "",
           posterPath: data.poster_path ?? null,
           backdropPath: data.backdrop_path ?? null,
-          releaseDate: data.first_air_date,
-          runtime: 0,
-          numberOfSeasons: data.number_of_seasons,
-          genres:
+          year: data.first_air_date?.split("-")[0],
+          duration: data.number_of_seasons
+            ? `${data.number_of_seasons}${params.language === "zh" ? " 季" : " seasons"}`
+            : "",
+          genreText:
             data.genres
               ?.map((g) => g.name)
-              .filter((n): n is string => n !== undefined) ?? [],
+              .filter((n): n is string => n !== undefined)
+              .join(genreSeparator) ?? "",
           overview: data.overview ?? null,
           tagline: data.tagline ?? null,
           voteAverage: data.vote_average,
@@ -246,13 +258,13 @@ export const mediaDetail = (params: MediaDetailParams) =>
         title: data.title ?? data.original_title ?? "",
         posterPath: data.poster_path ?? null,
         backdropPath: data.backdrop_path ?? null,
-        releaseDate: data.release_date,
-        runtime: data.runtime,
-        numberOfSeasons: 0,
-        genres:
+        year: data.release_date?.split("-")[0],
+        duration: formatMovieRuntime(data.runtime, params.language),
+        genreText:
           data.genres
             ?.map((g) => g.name)
-            .filter((n): n is string => n !== undefined) ?? [],
+            .filter((n): n is string => n !== undefined)
+            .join(genreSeparator) ?? "",
         overview: data.overview ?? null,
         tagline: data.tagline ?? null,
         voteAverage: data.vote_average,

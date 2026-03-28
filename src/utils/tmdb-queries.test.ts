@@ -100,10 +100,9 @@ describe("mediaDetail", () => {
         title: "Fight Club",
         posterPath: "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
         backdropPath: "/hZkgoQYus5vegHoetLkCJzb17zJ.jpg",
-        releaseDate: "1999-10-15",
-        runtime: 139,
-        numberOfSeasons: 0,
-        genres: ["Drama"],
+        year: "1999",
+        duration: "2h 19m",
+        genreText: "Drama",
         overview: "A ticking-time-bomb insomniac...",
         tagline: "Mischief. Mayhem. Soap.",
         voteAverage: 8.4,
@@ -126,7 +125,7 @@ describe("mediaDetail", () => {
       expect(result.title).toBe("FC");
     });
 
-    it("returns raw runtime for zero value", async () => {
+    it("returns empty duration for zero runtime", async () => {
       server.use(
         http.get("*/api/tmdb/get-movie-details", () =>
           HttpResponse.json(movieDetailsResponse({ runtime: 0 })),
@@ -136,10 +135,10 @@ describe("mediaDetail", () => {
       const options = mediaDetail({ type: "movie", id: "550" });
       const result = await options.queryFn!({} as never);
 
-      expect(result.runtime).toBe(0);
+      expect(result.duration).toBe("");
     });
 
-    it("returns genres as array", async () => {
+    it("joins multiple genres", async () => {
       server.use(
         http.get("*/api/tmdb/get-movie-details", () =>
           HttpResponse.json(
@@ -156,7 +155,31 @@ describe("mediaDetail", () => {
       const options = mediaDetail({ type: "movie", id: "550" });
       const result = await options.queryFn!({} as never);
 
-      expect(result.genres).toEqual(["Drama", "Thriller"]);
+      expect(result.genreText).toBe("Drama, Thriller");
+    });
+
+    it("joins genres with Chinese separator when language is zh", async () => {
+      server.use(
+        http.get("*/api/tmdb/get-movie-details", () =>
+          HttpResponse.json(
+            movieDetailsResponse({
+              genres: [
+                { id: 18, name: "剧情" },
+                { id: 53, name: "惊悚" },
+              ],
+            }),
+          ),
+        ),
+      );
+
+      const options = mediaDetail({
+        type: "movie",
+        id: "550",
+        language: "zh",
+      });
+      const result = await options.queryFn!({} as never);
+
+      expect(result.genreText).toBe("剧情、惊悚");
     });
 
     it("passes movie_id and language as query params", async () => {
@@ -196,10 +219,9 @@ describe("mediaDetail", () => {
         title: "Game of Thrones",
         posterPath: "/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg",
         backdropPath: "/6LWy0jvMpmjoS9fojNgHIKoWL05.jpg",
-        releaseDate: "2011-04-17",
-        runtime: 0,
-        numberOfSeasons: 8,
-        genres: ["Sci-Fi & Fantasy"],
+        year: "2011",
+        duration: "8 seasons",
+        genreText: "Sci-Fi & Fantasy",
         overview: "Seven noble families fight...",
         tagline: "Winter Is Coming",
         voteAverage: 8.4,
@@ -222,7 +244,7 @@ describe("mediaDetail", () => {
       expect(result.title).toBe("GoT");
     });
 
-    it("returns raw numberOfSeasons", async () => {
+    it("returns empty duration when number_of_seasons is falsy", async () => {
       server.use(
         http.get("*/api/tmdb/get-tv-show-details", () =>
           HttpResponse.json(tvDetailsResponse({ number_of_seasons: 0 })),
@@ -232,10 +254,10 @@ describe("mediaDetail", () => {
       const options = mediaDetail({ type: "tv", id: "1399" });
       const result = await options.queryFn!({} as never);
 
-      expect(result.numberOfSeasons).toBe(0);
+      expect(result.duration).toBe("");
     });
 
-    it("returns genres as array", async () => {
+    it("joins genres with Chinese separator when language is zh", async () => {
       server.use(
         http.get("*/api/tmdb/get-tv-show-details", () =>
           HttpResponse.json(
@@ -249,10 +271,31 @@ describe("mediaDetail", () => {
         ),
       );
 
-      const options = mediaDetail({ type: "tv", id: "1399" });
+      const options = mediaDetail({
+        type: "tv",
+        id: "1399",
+        language: "zh",
+      });
       const result = await options.queryFn!({} as never);
 
-      expect(result.genres).toEqual(["科幻", "剧情"]);
+      expect(result.genreText).toBe("科幻、剧情");
+    });
+
+    it("formats seasons in Chinese when language is zh", async () => {
+      server.use(
+        http.get("*/api/tmdb/get-tv-show-details", () =>
+          HttpResponse.json(tvDetailsResponse()),
+        ),
+      );
+
+      const options = mediaDetail({
+        type: "tv",
+        id: "1399",
+        language: "zh",
+      });
+      const result = await options.queryFn!({} as never);
+
+      expect(result.duration).toBe("8 季");
     });
 
     it("passes series_id and language as query params", async () => {

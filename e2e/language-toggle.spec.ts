@@ -15,7 +15,7 @@ test.describe("Language Toggle", () => {
 
     // Open language selector and switch to Chinese
     await page.getByRole("button", { name: "Select a language" }).click();
-    await page.getByRole("menuitem", { name: "切换至中文" }).click();
+    await page.getByRole("link", { name: "切换至中文" }).click();
 
     // Wait for content to change to Chinese (button text changes)
     await expect(page.getByRole("button", { name: "选择语言" })).toBeVisible({
@@ -24,7 +24,7 @@ test.describe("Language Toggle", () => {
 
     // Switch back to English
     await page.getByRole("button", { name: "选择语言" }).click();
-    await page.getByRole("menuitem", { name: "Switch to English" }).click();
+    await page.getByRole("link", { name: "Switch to English" }).click();
 
     // Wait for content to change back to English (button text changes)
     await expect(
@@ -38,7 +38,7 @@ test.describe("Language Toggle", () => {
   }) => {
     // Switch to Chinese
     await page.getByRole("button", { name: "Select a language" }).click();
-    await page.getByRole("menuitem", { name: "切换至中文" }).click();
+    await page.getByRole("link", { name: "切换至中文" }).click();
 
     // Wait for content to change to Chinese
     await expect(page.getByRole("button", { name: "选择语言" })).toBeVisible({
@@ -68,7 +68,7 @@ test.describe("Language Toggle", () => {
 
     // Switch to English
     await page.getByRole("button", { name: "选择语言" }).click();
-    await page.getByRole("menuitem", { name: "Switch to English" }).click();
+    await page.getByRole("link", { name: "Switch to English" }).click();
 
     // Wait for language switch to complete
     await expect(
@@ -144,7 +144,7 @@ test.describe("Language Toggle", () => {
 
     // Switch to Chinese
     await page.getByRole("button", { name: "Select a language" }).click();
-    await page.getByRole("menuitem", { name: "切换至中文" }).click();
+    await page.getByRole("link", { name: "切换至中文" }).click();
 
     // Wait for language switch to complete
     await expect(page.getByRole("button", { name: "选择语言" })).toBeVisible({
@@ -156,7 +156,7 @@ test.describe("Language Toggle", () => {
 
     // Switch back to English
     await page.getByRole("button", { name: "选择语言" }).click();
-    await page.getByRole("menuitem", { name: "Switch to English" }).click();
+    await page.getByRole("link", { name: "Switch to English" }).click();
 
     // Wait for language switch to complete
     await expect(
@@ -173,7 +173,7 @@ test.describe("Language Toggle", () => {
     // First, switch to Chinese to save the preference
     await page.goto("/");
     await page.getByRole("button", { name: "Select a language" }).click();
-    await page.getByRole("menuitem", { name: "切换至中文" }).click();
+    await page.getByRole("link", { name: "切换至中文" }).click();
 
     // Wait for language switch to complete
     await expect(page.getByRole("button", { name: "选择语言" })).toBeVisible({

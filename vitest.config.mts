@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
-import babel from "@rolldown/plugin-babel";
+import babel from "vite-plugin-babel";
 import { defineConfig } from "vitest/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -9,57 +9,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [
     babel({
-      include: /src\/.*\.(tsx?|jsx?)$/,
-      presets: [
-        [
-          "@babel/preset-env",
-          {
-            targets: { node: "current" },
-            modules: false,
-          },
-        ],
-        [
-          "@babel/preset-react",
-          {
-            runtime: "automatic",
-          },
-        ],
-        "@babel/preset-typescript",
-      ],
-      plugins: [
-        "./tooling/i18n-babel-plugin",
-        [
-          "module-resolver",
-          {
-            alias: {
-              "#src": "./src",
-            },
-          },
-        ],
-        "./tooling/stylex-css-prop",
-        [
-          "./tooling/stylex-breakpoints",
-          {
-            rootDir: __dirname,
-          },
-        ],
-        [
-          "@stylexjs/babel-plugin",
-          {
-            dev: false,
-            test: true,
-            runtimeInjection: false,
-            genConditionalClasses: true,
-            treeshakeCompensation: true,
-            styleResolution: "property-specificity",
-            enableMediaQueryOrder: true,
-            unstable_moduleResolution: {
-              type: "commonJS",
-              rootDir: __dirname,
-            },
-          },
-        ],
-      ],
+      babelConfig: {
+        configFile: true,
+      },
+      filter: /src\/.*\.(tsx?|jsx?)$/,
+      enforce: "pre",
     }),
     react({
       jsxRuntime: "automatic",
