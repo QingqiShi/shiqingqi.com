@@ -30,7 +30,7 @@ export function MenuItem({
     <a
       href={href}
       aria-label={ariaLabel}
-      role="menuItem"
+      role="menuitem"
       css={[flex.between, styles.item, isActive && styles.itemActive]}
       ref={(el) => {
         if (autoFocus) el?.focus();
