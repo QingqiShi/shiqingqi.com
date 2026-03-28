@@ -54,6 +54,34 @@ describe("ToolMediaCards", () => {
     expect(container.innerHTML).toBe("");
   });
 
+  it("renders all cards when items share the same TMDB id but differ by media type", () => {
+    render(
+      <MediaDetailProvider>
+        <ToolMediaCards
+          items={[
+            {
+              id: 123,
+              title: "Same ID Movie",
+              posterPath: "/movie.jpg",
+              rating: 7.0,
+              mediaType: "movie",
+            },
+            {
+              id: 123,
+              title: "Same ID TV Show",
+              posterPath: "/tv.jpg",
+              rating: 8.0,
+              mediaType: "tv",
+            },
+          ]}
+        />
+      </MediaDetailProvider>,
+    );
+
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(2);
+  });
+
   it("renders cards without buttons when mediaType is null", () => {
     render(
       <MediaDetailProvider>

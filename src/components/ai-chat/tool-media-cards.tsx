@@ -31,7 +31,11 @@ export function ToolMediaCards({ items }: ToolMediaCardsProps) {
         {items.map((item) => {
           const { mediaType } = item;
           return (
-            <div key={item.id} css={styles.cardWrapper} role="listitem">
+            <div
+              key={`${item.mediaType ?? "unknown"}-${item.id}`}
+              css={styles.cardWrapper}
+              role="listitem"
+            >
               <CompactMediaCard
                 media={item}
                 onClick={
