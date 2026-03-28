@@ -22,6 +22,7 @@ interface AIChatViewProps {
   placeholder: string;
   sendLabel: string;
   stopLabel: string;
+  removeAttachmentLabel: string;
 }
 
 export function AIChatView({
@@ -32,6 +33,7 @@ export function AIChatView({
   placeholder,
   sendLabel,
   stopLabel,
+  removeAttachmentLabel,
 }: AIChatViewProps) {
   const { messages, status, sendMessage, stop } = useAIChat({ locale });
   const [attachedMedia, setAttachedMedia] = useState<AttachedMedia | null>(
@@ -67,6 +69,7 @@ export function AIChatView({
             placeholder={placeholder}
             sendLabel={sendLabel}
             stopLabel={stopLabel}
+            removeAttachmentLabel={removeAttachmentLabel}
             status={status}
             attachedMedia={attachedMedia}
             onSend={handleSend}

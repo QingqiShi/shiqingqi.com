@@ -15,6 +15,7 @@ interface ChatInputBarProps {
   placeholder: string;
   sendLabel: string;
   stopLabel: string;
+  removeAttachmentLabel: string;
   status: "submitted" | "streaming" | "ready" | "error";
   attachedMedia: AttachedMedia | null;
   onSend: (text: string) => void;
@@ -26,6 +27,7 @@ export function ChatInputBar({
   placeholder,
   sendLabel,
   stopLabel,
+  removeAttachmentLabel,
   status,
   attachedMedia,
   onSend,
@@ -84,7 +86,7 @@ export function ChatInputBar({
             {attachedMedia.title}
             <button
               type="button"
-              aria-label="Remove attachment"
+              aria-label={removeAttachmentLabel}
               onClick={onClearAttachment}
               css={[
                 flex.inlineCenter,

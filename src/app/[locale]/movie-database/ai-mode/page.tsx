@@ -61,6 +61,7 @@ export default async function Page({
       })}
       sendLabel={t({ en: "Send message", zh: "发送消息" })}
       stopLabel={t({ en: "Stop generating", zh: "停止生成" })}
+      removeAttachmentLabel={t({ en: "Remove attachment", zh: "移除附件" })}
     />
   );
 }

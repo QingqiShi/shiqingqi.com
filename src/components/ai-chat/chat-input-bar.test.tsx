@@ -18,6 +18,7 @@ function renderInputBar(
       placeholder="Ask about movies..."
       sendLabel="Send message"
       stopLabel="Stop generating"
+      removeAttachmentLabel="Remove attachment"
       status={overrides.status ?? "ready"}
       attachedMedia={overrides.attachedMedia ?? null}
       onSend={onSend}
