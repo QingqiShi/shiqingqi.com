@@ -5,6 +5,9 @@ import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { useRef, useState } from "react";
+import { flex } from "#src/primitives/flex.stylex.ts";
+import { truncate } from "#src/primitives/layout.stylex.ts";
+import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { AttachedMedia } from "./chat-actions-context";
 
@@ -74,16 +77,20 @@ export function ChatInputBar({
   }
 
   return (
-    <form onSubmit={handleSubmit} css={styles.container}>
+    <form onSubmit={handleSubmit} css={[flex.wrap, styles.container]}>
       {attachedMedia && (
         <div css={styles.attachmentRow}>
-          <span css={styles.attachmentTag}>
+          <span css={[truncate.base, styles.attachmentTag]}>
             {attachedMedia.title}
             <button
               type="button"
               aria-label="Remove attachment"
               onClick={onClearAttachment}
-              css={styles.attachmentDismiss}
+              css={[
+                flex.inlineCenter,
+                buttonReset.base,
+                styles.attachmentDismiss,
+              ]}
             >
               <XIcon size={12} />
             </button>
@@ -107,7 +114,12 @@ export function ChatInputBar({
           type="button"
           aria-label={stopLabel}
           onClick={handleStop}
-          css={[styles.iconButton, styles.iconButtonActive]}
+          css={[
+            flex.inlineCenter,
+            buttonReset.base,
+            styles.iconButton,
+            styles.iconButtonActive,
+          ]}
         >
           <StopIcon weight="fill" role="presentation" />
         </button>
@@ -116,7 +128,12 @@ export function ChatInputBar({
           type="submit"
           aria-label={sendLabel}
           disabled={!trimmed}
-          css={[styles.iconButton, !!trimmed && styles.iconButtonActive]}
+          css={[
+            flex.inlineCenter,
+            buttonReset.base,
+            styles.iconButton,
+            !!trimmed && styles.iconButtonActive,
+          ]}
         >
           <ArrowUpIcon weight="bold" role="presentation" />
         </button>
@@ -128,9 +145,6 @@ export function ChatInputBar({
 const styles = stylex.create({
   container: {
     width: "100%",
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
     gap: space._1,
     backgroundColor: color.backgroundRaised,
     borderRadius: border.radius_3,
@@ -155,28 +169,17 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     color: color.textMuted,
     maxWidth: "100%",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   },
   attachmentDismiss: {
     flexShrink: 0,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
     width: "1rem",
     height: "1rem",
     borderRadius: border.radius_round,
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
-    padding: 0,
     backgroundColor: {
       default: "transparent",
       ":hover": color.controlTrack,
     },
     color: color.textMuted,
-    cursor: "pointer",
     transition: "background-color 0.15s ease",
   },
   textarea: {
@@ -199,17 +202,10 @@ const styles = stylex.create({
   },
   iconButton: {
     flexShrink: 0,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
     width: "1.75rem",
     height: "1.75rem",
     borderRadius: border.radius_round,
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
     cursor: { default: "pointer", ":disabled": "default" },
-    padding: 0,
     backgroundColor: color.controlTrack,
     color: color.textMuted,
     opacity: { default: null, ":disabled": 0.5 },

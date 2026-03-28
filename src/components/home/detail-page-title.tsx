@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 
 interface PageTitleProps {
@@ -16,7 +17,7 @@ export function DetailPageTitle({ date, role, title, type }: PageTitleProps) {
       : t({ en: "Education", zh: "学习" });
 
   return (
-    <header css={styles.container}>
+    <header css={[flex.col, styles.container]}>
       <h2 css={styles.subtitle}>
         {typeLabel} - {title}
       </h2>
@@ -28,8 +29,6 @@ export function DetailPageTitle({ date, role, title, type }: PageTitleProps) {
 
 const styles = stylex.create({
   container: {
-    display: "flex",
-    flexDirection: "column",
     gap: space._1,
     paddingBottom: space._8,
   },

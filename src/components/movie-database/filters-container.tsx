@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { layer, space } from "#src/tokens.stylex.ts";
 
 interface FiltersContainerProps {
@@ -16,7 +17,7 @@ export function FiltersContainer({
     <>
       <div css={[styles.desktopContainer, styles.desktopVisible]}>
         <div css={styles.desktopInnerContainer}>
-          <div css={styles.desktopContent}>{desktopChildren}</div>
+          <div css={[flex.row, styles.desktopContent]}>{desktopChildren}</div>
         </div>
       </div>
       <div css={[styles.mobileContainer, styles.mobileVisible]}>
@@ -54,8 +55,6 @@ const styles = stylex.create({
   },
   desktopContent: {
     pointerEvents: "all",
-    display: "flex",
-    alignItems: "center",
     gap: space._1,
   },
 

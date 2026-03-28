@@ -3,6 +3,7 @@
 import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
+import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import {
   border,
   color,
@@ -147,6 +148,7 @@ export function Switch({
       className={className}
       style={style}
       css={[
+        buttonReset.base,
         styles.switch,
         initialRendered && styles.animate,
         isDragging && styles.dragging(position),
@@ -169,10 +171,6 @@ export function Switch({
 
 const styles = stylex.create({
   switch: {
-    // Reset
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
     fontSize: controlSize._4,
     margin: 0,
 

@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useState } from "react";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { space } from "#src/tokens.stylex.ts";
 import { ChatMessage } from "./chat-message";
 import { ScrollToBottomButton } from "./scroll-to-bottom-button";
@@ -59,11 +60,11 @@ export function ChatMessageList({
   const showTypingIndicator = status === "submitted";
 
   return (
-    <div css={styles.container}>
+    <div css={[flex.col, styles.container]}>
       {messages.length === 0 ? (
         <div css={styles.emptyStateWrapper}>{emptyState}</div>
       ) : (
-        <div role="log" css={styles.messagesList}>
+        <div role="log" css={[flex.col, styles.messagesList]}>
           {messages.map((message, index) => (
             <ChatMessage
               key={message.id}
@@ -92,8 +93,6 @@ export function ChatMessageList({
 const styles = stylex.create({
   container: {
     flexGrow: 1,
-    display: "flex",
-    flexDirection: "column",
     paddingBlock: space._3,
   },
   emptyStateWrapper: {
@@ -104,8 +103,6 @@ const styles = stylex.create({
     paddingTop: space._8,
   },
   messagesList: {
-    display: "flex",
-    flexDirection: "column",
     gap: space._2,
   },
 });

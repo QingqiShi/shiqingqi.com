@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { imageCover } from "#src/primitives/layout.stylex.ts";
 import {
   border,
   color,
@@ -210,7 +211,7 @@ function PosterImage({
     // TMDB images are already optimized by the provider — no need for next/image
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      css={styles.posterImage}
+      css={imageCover.base}
       alt={alt}
       src={src}
       srcSet={srcSet}
@@ -291,11 +292,6 @@ const styles = stylex.create({
     overflow: "hidden",
     boxShadow: shadow._2,
     zIndex: layer.content,
-  },
-  posterImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
   },
   headerInfo: {
     display: "flex",

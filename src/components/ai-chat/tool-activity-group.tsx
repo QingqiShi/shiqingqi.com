@@ -4,6 +4,8 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
+import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import { TERMINAL_STATES, ToolActivityLine } from "./tool-activity-line";
 
@@ -54,7 +56,7 @@ export function ToolActivityGroup({
     <div css={styles.container}>
       <button
         type="button"
-        css={styles.disclosureButton}
+        css={[buttonReset.base, flex.row, styles.disclosureButton]}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
       >
@@ -87,14 +89,8 @@ const styles = stylex.create({
     paddingBlock: space._1,
   },
   disclosureButton: {
-    display: "flex",
-    alignItems: "center",
     gap: space._1,
-    backgroundColor: "transparent",
-    borderWidth: 0,
-    padding: 0,
     margin: 0,
-    cursor: "pointer",
     fontSize: font.uiBodySmall,
     color: color.textMuted,
     lineHeight: 1.4,

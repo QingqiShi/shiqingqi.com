@@ -2,9 +2,9 @@
 
 import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import * as stylex from "@stylexjs/stylex";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
+import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, shadow, space } from "#src/tokens.stylex.ts";
-
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 
 interface ScrollToBottomButtonProps {
   visible: boolean;
@@ -22,7 +22,11 @@ export function ScrollToBottomButton({
       type="button"
       aria-label={label}
       onClick={onClick}
-      css={[styles.button, visible ? styles.visible : styles.hidden]}
+      css={[
+        buttonReset.base,
+        styles.button,
+        visible ? styles.visible : styles.hidden,
+      ]}
     >
       <ArrowDownIcon weight="bold" role="presentation" />
     </button>
@@ -41,10 +45,6 @@ const styles = stylex.create({
     width: "2rem",
     height: "2rem",
     borderRadius: border.radius_round,
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
-    cursor: "pointer",
     padding: 0,
     backgroundColor: color.backgroundRaised,
     color: {
@@ -54,7 +54,7 @@ const styles = stylex.create({
     boxShadow: shadow._2,
     transition: {
       default: "opacity 0.2s ease, transform 0.2s ease",
-      [REDUCED_MOTION]: "opacity 0.2s ease",
+      [motionConstants.REDUCED_MOTION]: "opacity 0.2s ease",
     },
   },
   visible: {

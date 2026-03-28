@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { PosterImage } from "./poster-image";
@@ -21,7 +22,13 @@ export function MediaPoster({ media, compact }: MediaPosterProps) {
       {media.posterPath && media.title ? (
         <PosterImage posterPath={media.posterPath} alt={media.title} />
       ) : (
-        <div css={[styles.noPoster, compact && styles.noPosterCompact]}>
+        <div
+          css={[
+            flex.center,
+            styles.noPoster,
+            compact && styles.noPosterCompact,
+          ]}
+        >
           <div>{media.title}</div>
           <div css={styles.noPosterLabel}>
             {t({ en: "No Poster", zh: "无海报" })}
@@ -30,7 +37,7 @@ export function MediaPoster({ media, compact }: MediaPosterProps) {
       )}
       {media.rating ? (
         <div
-          css={[styles.rating, compact && styles.ratingCompact]}
+          css={[flex.center, styles.rating, compact && styles.ratingCompact]}
           aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(media.rating)}`}
         >
           {formatter.format(media.rating)}
@@ -44,10 +51,7 @@ const styles = stylex.create({
   noPoster: {
     width: "100%",
     height: "100%",
-    display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
     textAlign: "center",
     backgroundColor: color.backgroundRaised,
     borderWidth: 1,
@@ -76,9 +80,6 @@ const styles = stylex.create({
     borderColor: color.textMain,
     borderStyle: "solid",
     fontSize: font.uiBodySmall,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
   },
   ratingCompact: {
     top: space._0,

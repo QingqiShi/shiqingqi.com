@@ -4,6 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { useRef } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
+import { scrollX } from "#src/primitives/layout.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
@@ -25,12 +27,12 @@ export function RecommendedMediaRow({
   if (items.length === 0) return null;
 
   return (
-    <section css={styles.section}>
+    <section css={[flex.col, styles.section]}>
       <h2 css={styles.title}>{title}</h2>
       <div css={styles.scrollWrapper}>
         <div
           ref={scrollRef}
-          css={styles.scrollContainer}
+          css={[scrollX.base, styles.scrollContainer]}
           role="region"
           aria-label={title}
           tabIndex={0}
@@ -83,8 +85,6 @@ const contentInsetRight = `calc(${space._3} + ${space._3} + env(safe-area-inset-
 
 const styles = stylex.create({
   section: {
-    display: "flex",
-    flexDirection: "column",
     gap: space._2,
   },
   title: {
@@ -103,9 +103,7 @@ const styles = stylex.create({
   scrollContainer: {
     display: "flex",
     gap: space._2,
-    overflowX: "auto",
     scrollSnapType: "x mandatory",
-    scrollbarWidth: "none",
     paddingBottom: space._1,
     paddingLeft: contentInsetLeft,
     paddingRight: contentInsetRight,

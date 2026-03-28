@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { t } from "#src/i18n.ts";
+import { flex, justify } from "#src/primitives/flex.stylex.ts";
 import { font, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { Anchor } from "../shared/anchor";
@@ -13,8 +14,8 @@ export function Footer({ locale }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer css={styles.footer}>
-      <div css={[styles.section, styles.linksSection]}>
+    <footer css={[flex.wrap, justify.between, styles.footer]}>
+      <div css={[flex.col, styles.section, styles.linksSection]}>
         <Anchor
           href="https://github.com/QingqiShi"
           target="_blank"
@@ -48,10 +49,6 @@ export function Footer({ locale }: FooterProps) {
 
 const styles = stylex.create({
   footer: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignItems: "center",
     paddingBottom: space._8,
     marginTop: { default: space._9, [breakpoints.sm]: space._11 },
   },
@@ -59,8 +56,6 @@ const styles = stylex.create({
     alignItems: { default: null, [breakpoints.md]: "center" },
   },
   linksSection: {
-    display: "flex",
-    flexDirection: "column",
     alignItems: { default: "center", [breakpoints.md]: "flex-start" },
     marginBottom: { default: space._7, [breakpoints.md]: 0 },
     width: { default: "100%", [breakpoints.md]: "50%" },

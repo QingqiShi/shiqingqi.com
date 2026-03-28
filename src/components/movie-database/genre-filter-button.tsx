@@ -4,6 +4,7 @@ import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { controlSize, space } from "#src/tokens.stylex.ts";
 import { MenuButton } from "../shared/menu-button";
 import { GenreFilter } from "./genre-filter";
@@ -14,7 +15,7 @@ export function GenreFilterButton() {
   return (
     <MenuButton
       menuContent={
-        <div css={styles.desktopMenuContent}>
+        <div css={[flex.wrap, styles.desktopMenuContent]}>
           <GenreFilter hideTitle />
         </div>
       }
@@ -33,9 +34,6 @@ export function GenreFilterButton() {
 
 const styles = stylex.create({
   desktopMenuContent: {
-    alignItems: "center",
-    display: "flex",
-    flexWrap: "wrap",
     gap: space._4,
     padding: controlSize._3,
     maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { BackButton } from "#src/components/shared/back-button.tsx";
 import { FixedContainerContent } from "#src/components/shared/fixed-container-content.tsx";
 import { LocaleSelector } from "#src/components/shared/locale-selector.tsx";
@@ -14,11 +15,11 @@ interface HeaderProps {
 export function Header({ locale }: HeaderProps) {
   return (
     <header css={styles.container}>
-      <nav css={styles.nav}>
-        <FixedContainerContent css={styles.navContent}>
+      <nav css={[flex.between, styles.nav]}>
+        <FixedContainerContent css={[flex.row, styles.navContent]}>
           <BackButton locale={locale} label={t({ en: "Back", zh: "返回" })} />
         </FixedContainerContent>
-        <div css={styles.navContent}>
+        <div css={[flex.row, styles.navContent]}>
           <FixedContainerContent>
             <ThemeSwitch
               labels={[
@@ -56,17 +57,12 @@ const styles = stylex.create({
     marginInline: "auto",
     paddingBlock: 0,
     height: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
     pointerEvents: "none",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
   },
   navContent: {
     pointerEvents: "all",
-    display: "flex",
-    alignItems: "center",
     gap: space._1,
   },
 });

@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useRef } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
+import { scrollX } from "#src/primitives/layout.stylex.ts";
 import { color, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
@@ -22,7 +23,11 @@ export function ToolMediaCards({ items }: ToolMediaCardsProps) {
 
   return (
     <div css={styles.scrollWrapper}>
-      <div ref={scrollRef} css={styles.scrollContainer} role="list">
+      <div
+        ref={scrollRef}
+        css={[scrollX.base, styles.scrollContainer]}
+        role="list"
+      >
         {items.map((item) => {
           const { mediaType } = item;
           return (
@@ -69,9 +74,7 @@ const styles = stylex.create({
   scrollContainer: {
     display: "flex",
     gap: space._2,
-    overflowX: "auto",
     scrollSnapType: "x mandatory",
-    scrollbarWidth: "none",
     padding: space._3,
     scrollPaddingLeft: space._3,
     scrollPaddingRight: space._3,
