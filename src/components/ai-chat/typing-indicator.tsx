@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "#src/primitives/flex.stylex.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
+import { border, color, font, space } from "#src/tokens.stylex.ts";
 
 const DOT_COUNT = 3;
 const DOT_DELAY_MS = 160;
@@ -39,7 +39,7 @@ const styles = stylex.create({
   dot: {
     width: "0.375rem",
     height: "0.375rem",
-    borderRadius: "50%",
+    borderRadius: border.radius_round,
     backgroundColor: color.textMuted,
     animationName: bounce,
     animationDuration: "1.4s",

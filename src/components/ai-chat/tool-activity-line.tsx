@@ -6,7 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { truncate } from "#src/primitives/layout.stylex.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
+import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { isRecord } from "./map-tool-output";
 
 export const TERMINAL_STATES = new Set([
@@ -130,7 +130,7 @@ const styles = stylex.create({
   pulsingDot: {
     width: "0.375rem",
     height: "0.375rem",
-    borderRadius: "50%",
+    borderRadius: border.radius_round,
     backgroundColor: color.textMuted,
     animationName: pulse,
     animationDuration: "1.4s",
@@ -138,7 +138,7 @@ const styles = stylex.create({
     animationIterationCount: "infinite",
   },
   label: {
-    fontWeight: 500,
+    fontWeight: font.weight_5,
     whiteSpace: "nowrap",
   },
   separator: {
