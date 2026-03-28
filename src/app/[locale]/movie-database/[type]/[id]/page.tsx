@@ -116,6 +116,16 @@ export default async function Page({ params }: PageProps) {
 
     const tvShow = await tvShowDetailsPromise;
 
+    const pluralRules = new Intl.PluralRules(locale);
+    const seasonLabel =
+      pluralRules.select(tvShow.number_of_seasons) === "one"
+        ? t({ en: "season", zh: "季" })
+        : t({ en: "seasons", zh: "季" });
+    const episodeLabel =
+      pluralRules.select(tvShow.number_of_episodes) === "one"
+        ? t({ en: "episode", zh: "集" })
+        : t({ en: "episodes", zh: "集" });
+
     return (
       <>
         <div css={styles.container}>
@@ -150,7 +160,7 @@ export default async function Page({ params }: PageProps) {
             <div css={styles.meta}>
               {[
                 tvShow.first_air_date?.split("-")[0],
-                `${tvShow.number_of_seasons}${t({ en: " seasons", zh: " 季" })} • ${tvShow.number_of_episodes}${t({ en: " episodes", zh: " 集" })}`,
+                `${tvShow.number_of_seasons} ${seasonLabel} • ${tvShow.number_of_episodes} ${episodeLabel}`,
                 tvShow.genres
                   ?.map((genre) => genre.name)
                   .filter(Boolean)
