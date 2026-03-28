@@ -25,8 +25,9 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
 
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgErrored, setImgErrored] = useState(false);
 
-  if (!config.images?.base_url || !config.images?.poster_sizes) {
+  if (!config.images?.base_url || !config.images?.poster_sizes || imgErrored) {
     return (
       <div css={[imageCover.base, flex.center, styles.errored]}>
         <div>{alt}</div>
@@ -55,6 +56,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
         sizes="auto,(max-width: 326px) 100vw,(max-width: 485px) 50vw,(max-width: 644px) 33.3vw,(max-width: 767px) 25vw,(max-width: 969px) 33.3vw,(max-width: 1079px) 25vw,(max-width: 1259px) 33.3vw,(max-width: 1571px) 25vw,362px"
         loading="lazy"
         onLoad={() => setImgLoaded(true)}
+        onError={() => setImgErrored(true)}
         ref={(el) => {
           if (el && el.complete) {
             setImgLoaded(true);
