@@ -19,12 +19,14 @@ import { Button } from "./button";
 interface OverlayProps {
   isOpen: boolean;
   onClose: () => void;
+  "aria-label"?: string;
 }
 
 export function Overlay({
   children,
   isOpen,
   onClose,
+  "aria-label": ariaLabel,
 }: PropsWithChildren<OverlayProps>) {
   const portalTarget = usePortalTarget();
   const deferredIsOpen = useDeferredValue(isOpen);
@@ -49,11 +51,16 @@ export function Overlay({
   return createPortal(
     <>
       <ViewTransition>
-        <div css={styles.backdrop} onClick={onClose} />
+        <div css={styles.backdrop} onClick={onClose} aria-hidden="true" />
       </ViewTransition>
       <ViewTransition enter="slide-in" exit="slide-out">
         <RemoveScroll enabled={deferredIsOpen} allowPinchZoom forwardProps>
-          <div css={styles.content} role="dialog" aria-modal="true">
+          <div
+            css={styles.content}
+            role="dialog"
+            aria-modal="true"
+            aria-label={ariaLabel}
+          >
             <Button
               css={styles.closeButton}
               icon={<XIcon role="presentation" />}
