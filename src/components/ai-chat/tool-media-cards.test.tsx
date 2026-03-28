@@ -22,6 +22,17 @@ const mockItems: ReadonlyArray<MediaListItem> = [
 ];
 
 describe("ToolMediaCards", () => {
+  it("renders a labeled, keyboard-focusable list", () => {
+    render(
+      <MediaDetailProvider>
+        <ToolMediaCards items={mockItems} />
+      </MediaDetailProvider>,
+    );
+
+    const list = screen.getByRole("list", { name: "Search results" });
+    expect(list).toHaveAttribute("tabindex", "0");
+  });
+
   it("renders cards as buttons", () => {
     render(
       <MediaDetailProvider>
