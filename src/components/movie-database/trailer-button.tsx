@@ -31,7 +31,11 @@ export function TrailerButton({
       >
         {children}
       </Button>
-      <Overlay isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <Overlay
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        aria-label={iframeTitle}
+      >
         <iframe
           css={styles.video}
           width="720"
