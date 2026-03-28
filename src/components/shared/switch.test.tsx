@@ -4,6 +4,36 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "#src/test-utils.tsx";
 import { Switch, type SwitchState } from "./switch";
 
+function ThreeStateTestComponent() {
+  const [state, setState] = React.useState<SwitchState>("off");
+
+  return (
+    <>
+      <Switch value={state} onChange={setState} />
+      <button onClick={() => setState("on")}>Set On</button>
+      <button onClick={() => setState("indeterminate")}>
+        Set Indeterminate
+      </button>
+      <button onClick={() => setState("off")}>Set Off</button>
+    </>
+  );
+}
+
+function ControlledTestComponent({
+  onChange,
+}: {
+  onChange: (state: SwitchState) => void;
+}) {
+  const [state, setState] = React.useState<SwitchState>("off");
+
+  const handleStateChange = (newState: SwitchState) => {
+    setState(newState);
+    onChange(newState);
+  };
+
+  return <Switch value={state} onChange={handleStateChange} />;
+}
+
 describe("Switch Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -68,51 +98,36 @@ describe("Switch Component", () => {
       render(<Switch />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
     });
 
     it("starts in 'on' state when controlled with value='on'", () => {
       render(<Switch value="on" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
     });
 
     it("starts in 'indeterminate' state when controlled with value='indeterminate'", () => {
       render(<Switch value="indeterminate" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).toBePartiallyChecked();
     });
 
     it("starts in 'off' state when controlled with value='off'", () => {
       render(<Switch value="off" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
     });
 
     it("synchronizes input properties with state changes", async () => {
-      const TestComponent = () => {
-        const [state, setState] = React.useState<SwitchState>("off");
-
-        return (
-          <>
-            <Switch value={state} onChange={setState} />
-            <button onClick={() => setState("on")}>Set On</button>
-            <button onClick={() => setState("indeterminate")}>
-              Set Indeterminate
-            </button>
-            <button onClick={() => setState("off")}>Set Off</button>
-          </>
-        );
-      };
-
-      render(<TestComponent />);
+      render(<ThreeStateTestComponent />);
 
       const switchElement = screen.getByRole("checkbox");
       const setOnButton = screen.getByRole("button", { name: "Set On" });
@@ -123,18 +138,18 @@ describe("Switch Component", () => {
 
       // Test transition to 'on'
       await userEvent.click(setOnButton);
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
 
       // Test transition to 'indeterminate'
       await userEvent.click(setIndeterminateButton);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).toBePartiallyChecked();
 
       // Test transition to 'off'
       await userEvent.click(setOffButton);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
     });
   });
 
@@ -483,64 +498,53 @@ describe("Switch Component", () => {
       const switchElement = screen.getByRole("checkbox");
 
       // Initially off
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      expect(switchElement).not.toBeChecked();
 
       // Click to turn on
       await user.click(switchElement);
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
+      expect(switchElement).toBeChecked();
 
       // Click to turn off
       await user.click(switchElement);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      expect(switchElement).not.toBeChecked();
     });
 
     it("works as controlled component and calls onChange", async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      const TestComponent = () => {
-        const [state, setState] = React.useState<SwitchState>("off");
-
-        const handleStateChange = (newState: SwitchState) => {
-          setState(newState);
-          handleChange(newState);
-        };
-
-        return <Switch value={state} onChange={handleStateChange} />;
-      };
-
-      render(<TestComponent />);
+      render(<ControlledTestComponent onChange={handleChange} />);
 
       const switchElement = screen.getByRole("checkbox");
 
       // Initially off
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      expect(switchElement).not.toBeChecked();
 
       // Click to turn on
       await user.click(switchElement);
       expect(handleChange).toHaveBeenCalledWith("on");
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
+      expect(switchElement).toBeChecked();
 
       // Click to turn off
       await user.click(switchElement);
       expect(handleChange).toHaveBeenCalledWith("off");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      expect(switchElement).not.toBeChecked();
     });
 
     it("updates when controlled value prop changes", () => {
       const { rerender } = render(<Switch value="off" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
 
       rerender(<Switch value="on" />);
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
 
       rerender(<Switch value="indeterminate" />);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).toBePartiallyChecked();
     });
 
     it("calls onChange with correct state in controlled mode", async () => {
@@ -621,16 +625,16 @@ describe("Switch Component", () => {
       const { rerender } = render(<Switch value="off" />);
 
       const switchElement = screen.getByRole("checkbox");
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
 
       rerender(<Switch value="on" />);
-      expect((switchElement as HTMLInputElement).checked).toBe(true);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(false);
+      expect(switchElement).toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
 
       rerender(<Switch value="indeterminate" />);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).toBePartiallyChecked();
     });
   });
 
@@ -753,8 +757,8 @@ describe("Switch Component", () => {
       const switchElement = screen.getByRole("checkbox");
 
       // Verify initial indeterminate state
-      expect((switchElement as HTMLInputElement).indeterminate).toBe(true);
-      expect((switchElement as HTMLInputElement).checked).toBe(false);
+      expect(switchElement).toBePartiallyChecked();
+      expect(switchElement).not.toBeChecked();
 
       // Test that pointer events work with indeterminate state
       expect(() => {
