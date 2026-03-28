@@ -24,7 +24,7 @@ type TvResult = NonNullable<
 >[number];
 type MediaResult = MovieResult | TvResult;
 
-export const tmdbScope = [{ scope: "tmdb" }];
+const tmdbScope = { scope: "tmdb" } as const;
 
 type MovieListParams = QueryParams<"/3/discover/movie", "get"> & {
   type: "movie";
