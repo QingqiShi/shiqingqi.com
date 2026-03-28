@@ -15,6 +15,11 @@ import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";
 
+const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
+  key: `skeleton-${i}`,
+  delay: i * 100,
+}));
+
 interface SimilarMediaProps {
   mediaId: string;
   mediaType: "movie" | "tv";
@@ -67,8 +72,12 @@ export function SimilarMedia({
       <Suspense
         fallback={
           <Grid>
-            {Array.from({ length: 20 }).map((_, i) => (
-              <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
+            {SKELETON_ITEMS.map((item) => (
+              <Skeleton
+                key={item.key}
+                css={styles.skeleton}
+                delay={item.delay}
+              />
             ))}
           </Grid>
         }

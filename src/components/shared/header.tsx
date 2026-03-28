@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
-import { flex } from "#src/primitives/flex.stylex.ts";
 import { BackButton } from "#src/components/shared/back-button.tsx";
 import { FixedContainerContent } from "#src/components/shared/fixed-container-content.tsx";
 import { LocaleSelector } from "#src/components/shared/locale-selector.tsx";
 import { ThemeSwitch } from "#src/components/shared/theme-switch.tsx";
 import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
 import { layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 

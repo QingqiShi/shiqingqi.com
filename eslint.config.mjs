@@ -92,6 +92,7 @@ export default defineConfig([
         },
       ],
       "one-var": ["error", "never"],
+      "@eslint-react/set-state-in-effect": "off",
       "unicorn/no-unused-properties": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",

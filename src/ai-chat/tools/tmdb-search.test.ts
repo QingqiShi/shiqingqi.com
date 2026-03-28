@@ -275,9 +275,9 @@ describe("tmdb search execute", () => {
       },
     );
 
-    const items = results as unknown[];
-    const result = items[0] as Record<string, unknown>;
-    const keys = Object.keys(result);
+    expect(Array.isArray(results)).toBe(true);
+    if (!Array.isArray(results)) return;
+    const keys = Object.keys(results[0]);
     expect(keys).not.toContain("adult");
     expect(keys).toContain("poster_path");
     expect(keys).not.toContain("video");
@@ -310,6 +310,8 @@ describe("tmdb search execute", () => {
       },
     );
 
+    expect(Array.isArray(results)).toBe(true);
+    if (!Array.isArray(results)) return;
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(
       expect.objectContaining({

@@ -26,8 +26,13 @@ export function ChatMessage({
 }: ChatMessageProps) {
   const isUser = message.role === "user";
 
-  const { searchResultsMap, toolParts, hasVisibleContent, firstToolIndex } =
-    deriveMessageData(message.parts);
+  const {
+    searchResultsMap,
+    toolParts,
+    hasVisibleContent,
+    firstToolIndex,
+    partKeys,
+  } = deriveMessageData(message.parts);
 
   if (!hasVisibleContent) return null;
 
@@ -36,16 +41,17 @@ export function ChatMessage({
       css={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}
     >
       {message.parts.map((part, index) => {
+        const key = partKeys[index];
         if (isTextUIPart(part)) {
           if (isUser) {
             return (
-              <p key={index} css={[styles.partBase, styles.text]}>
+              <p key={key} css={[styles.partBase, styles.text]}>
                 {part.text}
               </p>
             );
           }
           return (
-            <div key={index} css={styles.partBase}>
+            <div key={key} css={styles.partBase}>
               <MarkdownContent content={part.text} />
             </div>
           );
@@ -53,7 +59,7 @@ export function ChatMessage({
 
         if (isReasoningUIPart(part)) {
           return (
-            <p key={index} css={[styles.partBase, styles.reasoning]}>
+            <p key={key} css={[styles.partBase, styles.reasoning]}>
               {part.text}
             </p>
           );
@@ -68,7 +74,7 @@ export function ChatMessage({
 
           const toolInput = "input" in part ? part.input : undefined;
           return (
-            <div key={index}>
+            <div key={key}>
               {isFirstTool && (
                 <ToolActivityGroup
                   toolParts={toolParts}
@@ -97,20 +103,34 @@ export function ChatMessage({
 function deriveMessageData(parts: UIMessage["parts"]) {
   const searchResultsMap = new Map<string, MediaListItem>();
   const toolParts: Array<{
+    toolCallId: string;
     toolName: string;
     state: string;
     input: unknown;
   }> = [];
   let hasVisibleContent = false;
   let firstToolIndex = -1;
+  const partKeys: string[] = [];
+  const typeCounts = new Map<string, number>();
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
+
+    // Generate a stable key for each part
+    if (isToolUIPart(part)) {
+      partKeys.push(`tool-${part.toolCallId}`);
+    } else {
+      const typeKey = part.type;
+      const count = typeCounts.get(typeKey) ?? 0;
+      typeCounts.set(typeKey, count + 1);
+      partKeys.push(`${typeKey}-${count}`);
+    }
 
     if (isToolUIPart(part)) {
       const name = getToolName(part);
       if (firstToolIndex === -1) firstToolIndex = i;
       toolParts.push({
+        toolCallId: part.toolCallId,
         toolName: name,
         state: part.state,
         input: "input" in part ? part.input : undefined,
@@ -133,7 +153,13 @@ function deriveMessageData(parts: UIMessage["parts"]) {
     }
   }
 
-  return { searchResultsMap, toolParts, hasVisibleContent, firstToolIndex };
+  return {
+    searchResultsMap,
+    toolParts,
+    hasVisibleContent,
+    firstToolIndex,
+    partKeys,
+  };
 }
 
 const styles = stylex.create({

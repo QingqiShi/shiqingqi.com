@@ -21,27 +21,33 @@ module.exports = function stylexBabelPlugin({ types: t }) {
         if (path.node.name.name === "css") {
           state.cssPropUsed = true;
 
-          /** @type {import('@babel/core').NodePath<JSXOpeningElement> | null} Get the parent JSXOpeningElement */
-          // @ts-expect-error
-          const jsxElement = path.findParent((p) =>
-            t.isJSXOpeningElement(p.node),
-          );
+          const jsxElement =
+            /** @type {import('@babel/core').NodePath<JSXOpeningElement> | null} */
+            (
+              path.findParent((/** @type {NodePath} */ p) =>
+                t.isJSXOpeningElement(p.node),
+              )
+            );
           if (!jsxElement) return;
 
           // Extract the `className` and `style` attributes
           const openingElement = jsxElement.node;
-          /** @type {JSXAttribute | undefined} */
-          // @ts-expect-error
-          const classNameAttr = openingElement.attributes.find(
-            /** @param {any} attr */ (attr) =>
-              t.isJSXAttribute(attr) && attr.name.name === "className",
-          );
-          /** @type {JSXAttribute | undefined} */
-          // @ts-expect-error
-          const styleAttr = openingElement.attributes.find(
-            /** @param {any} attr */ (attr) =>
-              t.isJSXAttribute(attr) && attr.name.name === "style",
-          );
+          const classNameAttr =
+            /** @type {JSXAttribute | undefined} */
+            (
+              openingElement.attributes.find(
+                /** @param {any} attr */ (attr) =>
+                  t.isJSXAttribute(attr) && attr.name.name === "className",
+              )
+            );
+          const styleAttr =
+            /** @type {JSXAttribute | undefined} */
+            (
+              openingElement.attributes.find(
+                /** @param {any} attr */ (attr) =>
+                  t.isJSXAttribute(attr) && attr.name.name === "style",
+              )
+            );
 
           // Get the value of the `css` prop
           const cssValue = path.node.value;

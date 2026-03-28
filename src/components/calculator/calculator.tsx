@@ -28,7 +28,7 @@ function createInitialToken(): Token {
 
 export function Calculator() {
   const [tokens, setTokens] = useState<Token[]>([]);
-  const [currentToken, setCurrentToken] = useState<Token>(createInitialToken());
+  const [currentToken, setCurrentToken] = useState<Token>(createInitialToken);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     const key = event.key;
@@ -144,14 +144,14 @@ export function Calculator() {
     >
       <CalculatorDisplay tokens={tokens} currentToken={currentToken} />
       <div css={styles.buttonsContainer}>
-        {buttons.map((row, rowIndex) => (
-          <Fragment key={rowIndex}>
-            {row.map((label, buttonIndex) => (
+        {buttons.map((row) => (
+          <Fragment key={row.join("")}>
+            {row.map((label) => (
               <CalculatorButton
-                key={buttonIndex}
+                key={label}
                 label={label}
                 isZero={label === BUTTON_ZERO}
-                isRowEnd={buttonIndex === row.length - 1}
+                isRowEnd={label === row[row.length - 1]}
                 onClick={() => handleClick(label)}
               />
             ))}
@@ -171,8 +171,6 @@ const styles = stylex.create({
     overflow: "hidden",
     boxShadow: shadow._5,
     containerType: "inline-size",
-    // New CSS property, not yet recognized by stylex eslint plugin
-    // eslint-disable-next-line @stylexjs/valid-styles
     cornerShape: "squircle",
     outline: {
       ":focus-visible": `2px solid ${color.brandCalculator}`,

@@ -10,6 +10,11 @@ import { controlSize, ratio, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
+const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
+  key: `skeleton-${i}`,
+  delay: i * 100,
+}));
+
 export default async function Layout({
   children,
   params,
@@ -36,8 +41,12 @@ export default async function Layout({
             <>
               <FiltersSkeleton locale={validatedLocale} />
               <Grid>
-                {Array.from({ length: 20 }).map((_, i) => (
-                  <Skeleton key={i} css={styles.skeleton} delay={i * 100} />
+                {SKELETON_ITEMS.map((item) => (
+                  <Skeleton
+                    key={item.key}
+                    css={styles.skeleton}
+                    delay={item.delay}
+                  />
                 ))}
               </Grid>
             </>

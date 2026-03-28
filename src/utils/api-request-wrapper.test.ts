@@ -131,15 +131,22 @@ describe("apiRequestWrapper", () => {
 
     it("throws when called during SSR", async () => {
       const originalWindow = globalThis.window;
-      // @ts-expect-error -- simulating SSR by removing window
-      delete globalThis.window;
+      Object.defineProperty(globalThis, "window", {
+        value: undefined,
+        writable: true,
+        configurable: true,
+      });
 
       try {
         await expect(
           apiRequestWrapper<TestServerFn>("/api/test", {}),
         ).rejects.toThrow("apiRequestWrapper called during SSR");
       } finally {
-        globalThis.window = originalWindow;
+        Object.defineProperty(globalThis, "window", {
+          value: originalWindow,
+          writable: true,
+          configurable: true,
+        });
       }
     });
   });

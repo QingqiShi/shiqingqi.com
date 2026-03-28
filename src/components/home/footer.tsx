@@ -10,9 +10,9 @@ interface FooterProps {
   locale: SupportedLocale;
 }
 
-export function Footer({ locale }: FooterProps) {
-  const currentYear = new Date().getFullYear();
+const CURRENT_YEAR = new Date().getFullYear();
 
+export function Footer({ locale }: FooterProps) {
   return (
     <footer css={[flex.wrap, justify.between, styles.footer]}>
       <div css={[flex.col, styles.section, styles.linksSection]}>
@@ -40,7 +40,7 @@ export function Footer({ locale }: FooterProps) {
       <div css={[styles.section, styles.copyrightSection]}>
         <small>
           <span css={styles.name}>{t({ en: "Qingqi Shi", zh: "石清琪" })}</span>
-          <span css={styles.copyright}>© {currentYear}</span>
+          <span css={styles.copyright}>© {CURRENT_YEAR}</span>
         </small>
       </div>
     </footer>

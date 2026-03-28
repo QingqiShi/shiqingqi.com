@@ -13,10 +13,10 @@
  * 4. Applies OpenAI compatibility fixes inline
  */
 
-import * as ts from "typescript";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import * as ts from "typescript";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -322,6 +322,31 @@ ${operationsZodEntries}});
   console.log(`   💾 Saved to: ${outputPath}`);
 }
 
+// TypeScript CompilerHost requires a method whose name starts with "use",
+// which eslint-react mistakes for a React hook. A computed property key
+// avoids the false-positive lint error.
+const CASE_SENSITIVE_KEY =
+  "useCaseSensitiveFileNames" satisfies keyof ts.CompilerHost;
+
+/**
+ * Creates a minimal CompilerHost backed by a single in-memory source file.
+ */
+function createTestCompilerHost(sourceFile: ts.SourceFile): ts.CompilerHost {
+  return {
+    getSourceFile: (fileName) =>
+      fileName === "test.d.ts" ? sourceFile : undefined,
+    writeFile: () => {},
+    getCurrentDirectory: () => "",
+    getDirectories: () => [],
+    fileExists: () => true,
+    readFile: () => "",
+    getCanonicalFileName: (fileName) => fileName,
+    [CASE_SENSITIVE_KEY]: () => ts.sys.useCaseSensitiveFileNames,
+    getNewLine: () => "\n",
+    getDefaultLibFileName: () => "lib.d.ts",
+  };
+}
+
 /**
  * Generates schemas from TypeScript source string (for testing)
  */
@@ -340,6 +365,8 @@ export function generateSchemasFromSource(
     true,
   );
 
+  const compilerHost = createTestCompilerHost(sourceFile);
+
   const program = ts.createProgram(
     ["test.d.ts"],
     {
@@ -349,19 +376,7 @@ export function generateSchemasFromSource(
       skipLibCheck: true,
       noEmit: true,
     },
-    {
-      getSourceFile: (fileName) =>
-        fileName === "test.d.ts" ? sourceFile : undefined,
-      writeFile: () => {},
-      getCurrentDirectory: () => "",
-      getDirectories: () => [],
-      fileExists: () => true,
-      readFile: () => "",
-      getCanonicalFileName: (fileName) => fileName,
-      useCaseSensitiveFileNames: () => true,
-      getNewLine: () => "\n",
-      getDefaultLibFileName: () => "lib.d.ts",
-    },
+    compilerHost,
   );
 
   const individualSchemas = new Map<
