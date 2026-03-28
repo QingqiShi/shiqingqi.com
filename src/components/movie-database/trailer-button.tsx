@@ -38,7 +38,7 @@ export function TrailerButton({
           height="405"
           src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
           title={iframeTitle}
-          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
         />
       </Overlay>
@@ -50,5 +50,6 @@ const styles = stylex.create({
   video: {
     width: "100%",
     height: "100%",
+    borderWidth: 0,
   },
 });
