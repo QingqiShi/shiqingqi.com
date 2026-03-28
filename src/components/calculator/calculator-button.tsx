@@ -2,6 +2,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { buttonTokens } from "#src/components/shared/button.stylex.ts";
 import { Button } from "#src/components/shared/button.tsx";
+import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, color, ratio } from "#src/tokens.stylex.ts";
 
@@ -12,17 +13,30 @@ interface CalculatorButtonProps {
   onClick: () => void;
 }
 
-const labelDescriptions: Record<string, string> = {
-  ac: "All clear",
-  "±": "Toggle sign",
-  "%": "Percent",
-  "÷": "Divide",
-  "×": "Multiply",
-  "−": "Subtract",
-  "+": "Add",
-  "=": "Equals",
-  ".": "Decimal point",
-};
+function getLabelDescription(label: string): string {
+  switch (label) {
+    case "ac":
+      return t({ en: "All clear", zh: "全部清除" });
+    case "±":
+      return t({ en: "Toggle sign", zh: "切换正负" });
+    case "%":
+      return t({ en: "Percent", zh: "百分比" });
+    case "÷":
+      return t({ en: "Divide", zh: "除以" });
+    case "×":
+      return t({ en: "Multiply", zh: "乘以" });
+    case "−":
+      return t({ en: "Subtract", zh: "减去" });
+    case "+":
+      return t({ en: "Add", zh: "加上" });
+    case "=":
+      return t({ en: "Equals", zh: "等于" });
+    case ".":
+      return t({ en: "Decimal point", zh: "小数点" });
+    default:
+      return label;
+  }
+}
 
 export function CalculatorButton({
   label,
@@ -40,7 +54,7 @@ export function CalculatorButton({
           isRowEnd && styles.rowEndButton,
         ]}
         onClick={onClick}
-        aria-label={labelDescriptions[label] ?? label}
+        aria-label={getLabelDescription(label)}
       >
         <span css={styles.buttonLabel}>{label}</span>
       </Button>
