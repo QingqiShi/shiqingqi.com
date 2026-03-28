@@ -76,7 +76,7 @@
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "16.1.6",
-    "@playwright/test": "^1.58.0",
+    "@playwright/test": "^1.58.2",
     "@serwist/cli": "^9.5.7",
     "@stylexjs/babel-plugin": "^0.17.0",
     "@stylexjs/eslint-plugin": "^0.17.0",
