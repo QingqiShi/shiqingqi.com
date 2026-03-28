@@ -11,15 +11,19 @@ export async function apiRequestWrapper<
   }
   const baseUrl = window.location.origin;
   const url = new URL(`${baseUrl}${apiRoute}`);
-  for (const entry of Object.entries(params)) {
-    if (entry[1]) {
-      if (Array.isArray(entry[1])) {
-        entry[1].forEach((value) => {
-          url.searchParams.append(entry[0], String(value));
-        });
-      } else {
-        url.searchParams.set(entry[0], String(entry[1] as unknown));
+  for (const [key, value] of Object.entries(params)) {
+    if (value == null) continue;
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        url.searchParams.append(key, `${item}`);
       }
+    } else if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean"
+    ) {
+      url.searchParams.set(key, `${value}`);
     }
   }
   const response = await fetch(url.toString(), {
