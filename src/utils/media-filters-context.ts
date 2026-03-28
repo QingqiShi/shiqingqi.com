@@ -1,12 +1,7 @@
 import { createContext } from "react";
+import type { GenreFilterType, MediaType, Sort } from "./media-filter-types";
 
-export type GenreFilterType = "all" | "any";
-export type Sort =
-  | "popularity.asc"
-  | "popularity.desc"
-  | "vote_average.asc"
-  | "vote_average.desc";
-export type MediaType = "movie" | "tv";
+export type { GenreFilterType, MediaType, Sort } from "./media-filter-types";
 
 export const MediaFiltersContext = createContext<{
   genres: Set<string>;
