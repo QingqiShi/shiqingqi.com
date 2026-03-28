@@ -23,6 +23,13 @@ import { Skeleton } from "../shared/skeleton";
 import { useChatActions } from "./chat-actions-context";
 import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
 
+function formatMovieRuntime(minutes: number) {
+  if (!minutes) return "";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours > 0 ? `${hours}${t({ en: "h", zh: " 小时" })} ` : ""}${mins}${t({ en: "m", zh: " 分钟" })}`;
+}
+
 export function MediaDetailContent({
   id,
   mediaType,
@@ -63,7 +70,21 @@ export function MediaDetailContent({
   const imageBaseUrl = config?.images?.secure_base_url;
 
   const metaParts = detail
-    ? [detail.year, detail.duration, detail.genreText]
+    ? [
+        detail.releaseDate?.split("-")[0],
+        mediaType === "tv"
+          ? detail.numberOfSeasons
+            ? `${detail.numberOfSeasons} ${
+                new Intl.PluralRules(locale ?? "en").select(
+                  detail.numberOfSeasons,
+                ) === "one"
+                  ? t({ en: "season", zh: "季" })
+                  : t({ en: "seasons", zh: "季" })
+              }`
+            : ""
+          : formatMovieRuntime(detail.runtime),
+        detail.genres.join(t({ en: ", ", zh: "、" })),
+      ]
         .filter(Boolean)
         .join(" • ")
     : null;
