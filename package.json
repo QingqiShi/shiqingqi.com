@@ -72,8 +72,8 @@
     "@babel/traverse": "^7.29.0",
     "@babel/types": "^7.29.0",
     "@eslint-react/eslint-plugin": "^3.0.0",
-    "@eslint/compat": "^2.0.2",
-    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/compat": "^2.0.3",
+    "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "16.1.6",
     "@playwright/test": "^1.58.0",
@@ -96,7 +96,7 @@
     "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "dotenv": "^17.3.1",
     "esbuild-wasm": "^0.27.2",
-    "eslint": "^10.0.0",
+    "eslint": "^10.1.0",
     "eslint-config-next": "^16.2.1",
     "eslint-plugin-import-x": "^4.16.2",
     "eslint-plugin-unicorn": "^62.0.0",
@@ -113,7 +113,7 @@
     "raw-loader": "^4.0.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.55.0",
+    "typescript-eslint": "^8.57.2",
     "vite-plugin-babel": "^1.4.1",
     "vitest": "^4.0.18"
   }
