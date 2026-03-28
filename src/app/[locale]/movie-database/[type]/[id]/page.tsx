@@ -19,6 +19,13 @@ import { t } from "#src/i18n.ts";
 import { border, color, controlSize, font, space } from "#src/tokens.stylex.ts";
 import type { PageProps } from "./types";
 
+function formatRuntime(runtime: number) {
+  if (!runtime) return "";
+  const hours = Math.floor(runtime / 60);
+  const minutes = runtime % 60;
+  return `${hours > 0 ? `${hours}${t({ en: "h", zh: " 小时" })} ` : ""}${minutes}${t({ en: "m", zh: " 分钟" })}`;
+}
+
 export default async function Page({ params }: PageProps) {
   const { type, id, locale } = await params;
 
@@ -43,8 +50,6 @@ export default async function Page({ params }: PageProps) {
     void getMovieVideos({ movie_id: id, language: "en" });
 
     const movie = await movieDetailsPromise;
-    const hours = Math.floor(movie.runtime / 60);
-    const minutes = movie.runtime % 60;
 
     return (
       <>
@@ -80,7 +85,7 @@ export default async function Page({ params }: PageProps) {
             <div css={styles.meta}>
               {[
                 movie.release_date?.split("-")[0],
-                `${hours > 0 ? `${hours}${t({ en: "h", zh: " 小时" })} ` : ""}${minutes}${t({ en: "m", zh: " 分钟" })}`,
+                formatRuntime(movie.runtime),
                 movie.genres
                   ?.map((genre) => genre.name)
                   .filter(Boolean)
