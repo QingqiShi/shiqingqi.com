@@ -13,7 +13,8 @@ interface TvShowTrailerProps {
 export async function TvShowTrailer({ tvShowId, locale }: TvShowTrailerProps) {
   const trailers = await getTvShowVideos({
     series_id: tvShowId,
-    language: locale,
+    // Hardcode to English as trailers are often only available in English
+    language: "en",
   });
 
   const trailer = trailers.results?.find(

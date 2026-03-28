@@ -39,8 +39,8 @@ export default async function Page({ params }: PageProps) {
       language: locale,
     });
 
-    // Pre-fetch
-    void getMovieVideos({ movie_id: id, language: locale });
+    // Pre-fetch (hardcode to English — trailers are often only available in English)
+    void getMovieVideos({ movie_id: id, language: "en" });
 
     const movie = await movieDetailsPromise;
     const hours = Math.floor(movie.runtime / 60);
@@ -111,8 +111,8 @@ export default async function Page({ params }: PageProps) {
       language: locale,
     });
 
-    // Pre-fetch
-    void getTvShowVideos({ series_id: id, language: locale });
+    // Pre-fetch (hardcode to English — trailers are often only available in English)
+    void getTvShowVideos({ series_id: id, language: "en" });
 
     const tvShow = await tvShowDetailsPromise;
 
