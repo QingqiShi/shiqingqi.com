@@ -15,6 +15,7 @@ interface ChatMessageListProps {
   messages: ReadonlyArray<UIMessage>;
   status: ChatStatus;
   emptyState: ReactNode;
+  messagesLabel: string;
   typingIndicatorLabel: string;
   scrollToBottomLabel: string;
 }
@@ -23,6 +24,7 @@ export function ChatMessageList({
   messages,
   status,
   emptyState,
+  messagesLabel,
   typingIndicatorLabel,
   scrollToBottomLabel,
 }: ChatMessageListProps) {
@@ -64,7 +66,11 @@ export function ChatMessageList({
       {messages.length === 0 ? (
         <div css={styles.emptyStateWrapper}>{emptyState}</div>
       ) : (
-        <div role="log" css={[flex.col, styles.messagesList]}>
+        <div
+          role="log"
+          aria-label={messagesLabel}
+          css={[flex.col, styles.messagesList]}
+        >
           {messages.map((message, index) => (
             <ChatMessage
               key={message.id}

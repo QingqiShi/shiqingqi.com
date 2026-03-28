@@ -17,6 +17,7 @@ import type { SupportedLocale } from "#src/types.ts";
 interface AIChatViewProps {
   locale: SupportedLocale;
   emptyState: ReactNode;
+  messagesLabel: string;
   typingIndicatorLabel: string;
   scrollToBottomLabel: string;
   placeholder: string;
@@ -28,6 +29,7 @@ interface AIChatViewProps {
 export function AIChatView({
   locale,
   emptyState,
+  messagesLabel,
   typingIndicatorLabel,
   scrollToBottomLabel,
   placeholder,
@@ -61,6 +63,7 @@ export function AIChatView({
           messages={messages}
           status={status}
           emptyState={emptyState}
+          messagesLabel={messagesLabel}
           typingIndicatorLabel={typingIndicatorLabel}
           scrollToBottomLabel={scrollToBottomLabel}
         />
