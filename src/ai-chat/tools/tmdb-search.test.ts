@@ -283,4 +283,37 @@ describe("tmdb search execute", () => {
     expect(keys).toContain("title");
     expect(keys).toContain("overview");
   });
+
+  it("includes first_air_date for TV results", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/search/multi`, () =>
+        HttpResponse.json({
+          page: 1,
+          results: [tvResult({ id: 1, name: "Breaking Bad" })],
+          total_pages: 1,
+          total_results: 1,
+        }),
+      ),
+    );
+
+    const tool = createTmdbSearchTool("en");
+    const results = await tool.execute!(
+      { query: "Breaking Bad" },
+      {
+        toolCallId: "test",
+        messages: [],
+        abortSignal: AbortSignal.timeout(5000),
+      },
+    );
+
+    expect(results).toHaveLength(1);
+    expect(results[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        name: "Breaking Bad",
+        media_type: "tv",
+        first_air_date: "2023-06-01",
+      }),
+    );
+  });
 });

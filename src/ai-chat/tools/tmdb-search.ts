@@ -4,9 +4,12 @@ import { searchMulti } from "#src/_generated/tmdb-server-functions.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import type { ResponseType } from "#src/utils/tmdb-client.ts";
 
+// The TMDB OpenAPI spec omits first_air_date from the multi-search union type,
+// but the API returns it for TV results at runtime (verified against the live
+// API on 2026-03-28). Extend the generated type to include the missing field.
 type MultiSearchResult = NonNullable<
   ResponseType<"/3/search/multi", "get">["results"]
->[number];
+>[number] & { first_air_date?: string };
 
 export const tmdbSearchInputSchema = z.object({
   query: z
@@ -37,6 +40,7 @@ function mapResult(result: MultiSearchResult) {
     release_date: result.release_date,
     // TV / Person fields
     name: result.name,
+    first_air_date: result.first_air_date,
     // Shared fields
     overview: result.overview,
     vote_average: result.vote_average,
