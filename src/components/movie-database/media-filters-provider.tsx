@@ -10,9 +10,13 @@ import type {
 import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
 
 const emptyFilters = {
-  genreFilterType: "all" as GenreFilterType,
-  sort: "popularity.desc" as Sort,
-  mediaType: "movie" as MediaType,
+  genreFilterType: "all",
+  sort: "popularity.desc",
+  mediaType: "movie",
+} satisfies {
+  genreFilterType: GenreFilterType;
+  sort: Sort;
+  mediaType: MediaType;
 };
 
 interface MediaFiltersProviderProps {

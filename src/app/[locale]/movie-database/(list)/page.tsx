@@ -15,10 +15,7 @@ import { MediaList } from "#src/components/movie-database/media-list.tsx";
 import { t } from "#src/i18n.ts";
 import type { PageProps } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import type {
-  GenreFilterType,
-  Sort,
-} from "#src/utils/media-filters-context.ts";
+import { isGenreFilterType, isSort } from "#src/utils/media-filter-types.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 
 export default async function Page(
@@ -30,23 +27,25 @@ export default async function Page(
   const params = await props.params;
   const searchParams = await props.searchParams;
 
-  const type = (
-    Array.isArray(searchParams.type) ? searchParams.type[0] : searchParams.type
-  ) as "movie" | "tv" | undefined;
-  const mediaType = type === "tv" ? "tv" : "movie";
+  const rawType = Array.isArray(searchParams.type)
+    ? searchParams.type[0]
+    : searchParams.type;
+  const mediaType = rawType === "tv" ? "tv" : "movie";
 
   const genres =
     typeof searchParams.genre === "string"
       ? [searchParams.genre]
       : searchParams.genre;
-  const genreFilterType = (
-    Array.isArray(searchParams.genreFilterType)
-      ? searchParams.genreFilterType[0]
-      : searchParams.genreFilterType
-  ) as GenreFilterType | undefined;
-  const sort = (
-    Array.isArray(searchParams.sort) ? searchParams.sort[0] : searchParams.sort
-  ) as Sort | undefined;
+  const rawGenreFilterType = Array.isArray(searchParams.genreFilterType)
+    ? searchParams.genreFilterType[0]
+    : searchParams.genreFilterType;
+  const genreFilterType = isGenreFilterType(rawGenreFilterType)
+    ? rawGenreFilterType
+    : undefined;
+  const rawSort = Array.isArray(searchParams.sort)
+    ? searchParams.sort[0]
+    : searchParams.sort;
+  const sort = isSort(rawSort) ? rawSort : undefined;
 
   // Fetch config, genres, and initial page
   const queryClient = getQueryClient();
