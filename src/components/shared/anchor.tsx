@@ -2,14 +2,18 @@
 
 import * as stylex from "@stylexjs/stylex";
 import Link from "next/link";
-import { forwardRef, useState } from "react";
+import { useState } from "react";
 import { border } from "#src/tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex";
 
-export const Anchor = forwardRef<
-  HTMLAnchorElement,
-  React.ComponentProps<typeof Link>
->(function Anchor({ className, style, prefetch, onMouseEnter, ...props }, ref) {
+export function Anchor({
+  className,
+  style,
+  prefetch,
+  onMouseEnter,
+  ref,
+  ...props
+}: React.ComponentProps<typeof Link>) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -26,7 +30,7 @@ export const Anchor = forwardRef<
       css={styles.a}
     />
   );
-});
+}
 
 const styles = stylex.create({
   a: {
