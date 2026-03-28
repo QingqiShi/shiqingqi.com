@@ -3,6 +3,7 @@
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 import {
+  useEffect,
   useDeferredValue,
   ViewTransition,
   type PropsWithChildren,
@@ -28,6 +29,19 @@ export function Overlay({
   const portalTarget = usePortalTarget();
   const deferredIsOpen = useDeferredValue(isOpen);
 
+  useEffect(() => {
+    if (!deferredIsOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [deferredIsOpen, onClose]);
+
   if (!deferredIsOpen || !portalTarget) {
     return null;
   }
@@ -39,7 +53,7 @@ export function Overlay({
       </ViewTransition>
       <ViewTransition enter="slide-in" exit="slide-out">
         <RemoveScroll enabled={deferredIsOpen} allowPinchZoom forwardProps>
-          <div css={styles.content}>
+          <div css={styles.content} role="dialog" aria-modal="true">
             <Button
               css={styles.closeButton}
               icon={<XIcon role="presentation" />}
