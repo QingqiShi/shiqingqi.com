@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import {
   useEffect,
   useDeferredValue,
+  useRef,
   ViewTransition,
   type PropsWithChildren,
 } from "react";
@@ -30,9 +31,25 @@ export function Overlay({
 }: PropsWithChildren<OverlayProps>) {
   const portalTarget = usePortalTarget();
   const deferredIsOpen = useDeferredValue(isOpen);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!deferredIsOpen) return;
+
+    // Remember the element that had focus before the overlay opened
+    triggerRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
+    // Move focus into the dialog once the portal renders
+    requestAnimationFrame(() => {
+      const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      firstFocusable?.focus();
+    });
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -41,7 +58,11 @@ export function Overlay({
     }
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      // Restore focus to the element that opened the overlay
+      triggerRef.current?.focus();
+    };
   }, [deferredIsOpen, onClose]);
 
   if (!deferredIsOpen || !portalTarget) {
@@ -56,6 +77,7 @@ export function Overlay({
       <ViewTransition enter="slide-in" exit="slide-out">
         <RemoveScroll enabled={deferredIsOpen} allowPinchZoom forwardProps>
           <div
+            ref={dialogRef}
             css={styles.content}
             role="dialog"
             aria-modal="true"
