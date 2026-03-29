@@ -13,10 +13,17 @@ import { fixedFill } from "#src/primitives/layout.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { MediaDetailContent } from "./media-detail-content";
-import { useMediaDetail } from "./media-detail-context";
+import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function getDialogLabel(media: FocusedMedia): string {
+  if (media.title) return media.title;
+  if (media.mediaType === "movie")
+    return t({ en: "Movie details", zh: "电影详情" });
+  return t({ en: "TV show details", zh: "电视剧详情" });
+}
 
 export function MediaDetailOverlay() {
   const { focusedMedia, setFocusedMedia } = useMediaDetail();
@@ -86,7 +93,7 @@ export function MediaDetailOverlay() {
             css={styles.card}
             role="dialog"
             aria-modal="true"
-            aria-label={focusedMedia.title ?? undefined}
+            aria-label={getDialogLabel(focusedMedia)}
           >
             <button
               ref={closeButtonRef}

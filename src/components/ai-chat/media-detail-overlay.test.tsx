@@ -25,6 +25,15 @@ const mockItems: ReadonlyArray<MediaListItem> = [
   },
 ];
 
+const mockItemsWithMissingTitle: ReadonlyArray<MediaListItem> = [
+  {
+    id: 789,
+    posterPath: "/unknown.jpg",
+    rating: 6.0,
+    mediaType: "movie",
+  },
+];
+
 function renderWithOverlay() {
   return render(
     <PortalTargetProvider>
@@ -145,5 +154,42 @@ describe("MediaDetailOverlay", () => {
 
     // Focus should wrap to the last focusable element
     expect(lastFocusable).toHaveFocus();
+  });
+
+  it("labels dialog with media title when available", async () => {
+    const user = userEvent.setup();
+    renderWithOverlay();
+
+    await user.click(screen.getByRole("button", { name: "Inception" }));
+
+    expect(
+      screen.getByRole("dialog", { name: "Inception" }),
+    ).toBeInTheDocument();
+  });
+
+  it("falls back to media type label when title is missing", async () => {
+    const user = userEvent.setup();
+    render(
+      <PortalTargetProvider>
+        <MediaDetailProvider>
+          <ChatActionsContext
+            value={{
+              sendMessage: vi.fn(),
+              attachedMedia: null,
+              setAttachedMedia: vi.fn(),
+            }}
+          >
+            <ToolMediaCards items={mockItemsWithMissingTitle} />
+            <MediaDetailOverlay />
+          </ChatActionsContext>
+        </MediaDetailProvider>
+      </PortalTargetProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Movie" }));
+
+    expect(
+      screen.getByRole("dialog", { name: "Movie details" }),
+    ).toBeInTheDocument();
   });
 });
