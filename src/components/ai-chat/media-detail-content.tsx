@@ -16,19 +16,13 @@ import {
   shadow,
   space,
 } from "#src/tokens.stylex.ts";
+import { formatRuntime } from "#src/utils/format-runtime.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { Button } from "../shared/button";
 import { Skeleton } from "../shared/skeleton";
 import { useChatActions } from "./chat-actions-context";
 import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
-
-function formatMovieRuntime(minutes: number) {
-  if (!minutes) return "";
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours > 0 ? `${hours}${t({ en: "h", zh: " 小时" })} ` : ""}${mins}${t({ en: "m", zh: " 分钟" })}`;
-}
 
 export function MediaDetailContent({
   id,
@@ -82,7 +76,11 @@ export function MediaDetailContent({
                   : t({ en: "seasons", zh: "季" })
               }`
             : ""
-          : formatMovieRuntime(detail.runtime),
+          : formatRuntime(
+              detail.runtime,
+              t({ en: "h", zh: " 小时" }),
+              t({ en: "m", zh: " 分钟" }),
+            ),
         detail.genres.join(t({ en: ", ", zh: "、" })),
       ]
         .filter(Boolean)

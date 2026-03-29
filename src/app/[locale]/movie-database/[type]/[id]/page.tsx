@@ -17,14 +17,8 @@ import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
 import { border, color, controlSize, font, space } from "#src/tokens.stylex.ts";
+import { formatRuntime } from "#src/utils/format-runtime.ts";
 import type { PageProps } from "./types";
-
-function formatRuntime(runtime: number) {
-  if (!runtime) return "";
-  const hours = Math.floor(runtime / 60);
-  const minutes = runtime % 60;
-  return `${hours > 0 ? `${hours}${t({ en: "h", zh: " 小时" })} ` : ""}${minutes}${t({ en: "m", zh: " 分钟" })}`;
-}
 
 export default async function Page({ params }: PageProps) {
   const { type, id, locale } = await params;
@@ -85,7 +79,11 @@ export default async function Page({ params }: PageProps) {
             <div css={styles.meta}>
               {[
                 movie.release_date?.split("-")[0],
-                formatRuntime(movie.runtime),
+                formatRuntime(
+                  movie.runtime,
+                  t({ en: "h", zh: " 小时" }),
+                  t({ en: "m", zh: " 分钟" }),
+                ),
                 movie.genres
                   ?.map((genre) => genre.name)
                   .filter(Boolean)
