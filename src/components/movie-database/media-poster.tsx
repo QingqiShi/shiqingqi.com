@@ -38,9 +38,10 @@ export function MediaPoster({ media, compact }: MediaPosterProps) {
       {media.rating ? (
         <div
           css={[flex.center, styles.rating, compact && styles.ratingCompact]}
+          role="img"
           aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(media.rating)}`}
         >
-          {formatter.format(media.rating)}
+          <span aria-hidden="true">{formatter.format(media.rating)}</span>
         </div>
       ) : null}
     </>
