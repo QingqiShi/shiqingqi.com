@@ -1,3 +1,4 @@
+import { fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
@@ -55,5 +56,94 @@ describe("MediaDetailOverlay", () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveAttribute("aria-modal", "true");
+  });
+
+  it("moves focus to close button when dialog opens", async () => {
+    const user = userEvent.setup();
+    renderWithOverlay();
+
+    await user.click(screen.getByRole("button", { name: "Inception" }));
+
+    // requestAnimationFrame is used to defer focus, so wait for it
+    await vi.waitFor(() => {
+      expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+    });
+  });
+
+  it("closes dialog and restores focus on Escape", async () => {
+    const user = userEvent.setup();
+    renderWithOverlay();
+
+    const triggerButton = screen.getByRole("button", { name: "Inception" });
+    await user.click(triggerButton);
+
+    await vi.waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
+
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(triggerButton).toHaveFocus();
+  });
+
+  it("traps focus within the dialog on Tab", async () => {
+    const user = userEvent.setup();
+    renderWithOverlay();
+
+    await user.click(screen.getByRole("button", { name: "Inception" }));
+
+    await vi.waitFor(() => {
+      expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+    });
+
+    // The dialog contains focusable elements (close button, "Add to chat" button, etc.).
+    // Tabbing forward from the last focusable element should wrap to the first.
+    const dialog = screen.getByRole("dialog");
+    const focusableElements = dialog.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    expect(focusableElements.length).toBeGreaterThanOrEqual(2);
+
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+    lastFocusable.focus();
+    expect(lastFocusable).toHaveFocus();
+
+    // Dispatch Tab keydown on document (where the handler is registered)
+    fireEvent.keyDown(document, { key: "Tab" });
+
+    // Focus should wrap to the first focusable element
+    expect(firstFocusable).toHaveFocus();
+  });
+
+  it("traps focus within the dialog on Shift+Tab", async () => {
+    const user = userEvent.setup();
+    renderWithOverlay();
+
+    await user.click(screen.getByRole("button", { name: "Inception" }));
+
+    await vi.waitFor(() => {
+      expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+    });
+
+    // Close button is the first focusable element in the dialog.
+    // Shift+Tab from the first element should wrap to the last.
+    const dialog = screen.getByRole("dialog");
+    const focusableElements = dialog.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    expect(focusableElements.length).toBeGreaterThanOrEqual(2);
+
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+    firstFocusable.focus();
+    expect(firstFocusable).toHaveFocus();
+
+    // Dispatch Shift+Tab keydown on document (where the handler is registered)
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+
+    // Focus should wrap to the last focusable element
+    expect(lastFocusable).toHaveFocus();
   });
 });
