@@ -45,18 +45,19 @@ describe("Switch Component", () => {
   });
 
   describe("Basic Rendering and Accessibility", () => {
-    it("renders as a checkbox input with proper accessibility attributes", () => {
+    it("renders as a switch with proper accessibility attributes", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).toBeInTheDocument();
       expect(switchElement).toHaveAttribute("type", "checkbox");
+      expect(switchElement).toHaveAttribute("role", "switch");
     });
 
     it("applies StyleX classes correctly", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement.className).toBeTruthy();
       expect(switchElement.className).toContain("switch__styles.switch");
     });
@@ -70,7 +71,7 @@ describe("Switch Component", () => {
         />,
       );
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).toHaveAttribute("id", "test-switch");
       expect(switchElement).toHaveAttribute("data-testid", "custom-switch");
       expect(switchElement).toHaveAttribute("aria-label", "Toggle setting");
@@ -79,7 +80,7 @@ describe("Switch Component", () => {
     it("handles disabled state correctly", () => {
       render(<Switch disabled />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).toBeDisabled();
     });
 
@@ -87,7 +88,7 @@ describe("Switch Component", () => {
       const customStyle = { margin: "10px" };
       render(<Switch className="custom-class" style={customStyle} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).toHaveClass("custom-class");
       expect(switchElement).toHaveStyle({ margin: "10px" });
     });
@@ -97,7 +98,7 @@ describe("Switch Component", () => {
     it("defaults to 'off' state when uncontrolled", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).not.toBeChecked();
       expect(switchElement).not.toBePartiallyChecked();
     });
@@ -105,7 +106,7 @@ describe("Switch Component", () => {
     it("starts in 'on' state when controlled with value='on'", () => {
       render(<Switch value="on" />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).toBeChecked();
       expect(switchElement).not.toBePartiallyChecked();
     });
@@ -113,7 +114,7 @@ describe("Switch Component", () => {
     it("starts in 'indeterminate' state when controlled with value='indeterminate'", () => {
       render(<Switch value="indeterminate" />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).not.toBeChecked();
       expect(switchElement).toBePartiallyChecked();
     });
@@ -121,7 +122,7 @@ describe("Switch Component", () => {
     it("starts in 'off' state when controlled with value='off'", () => {
       render(<Switch value="off" />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).not.toBeChecked();
       expect(switchElement).not.toBePartiallyChecked();
     });
@@ -129,7 +130,7 @@ describe("Switch Component", () => {
     it("synchronizes input properties with state changes", async () => {
       render(<ThreeStateTestComponent />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       const setOnButton = screen.getByRole("button", { name: "Set On" });
       const setIndeterminateButton = screen.getByRole("button", {
         name: "Set Indeterminate",
@@ -160,7 +161,7 @@ describe("Switch Component", () => {
 
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       switchElement.focus();
 
       await user.keyboard(" ");
@@ -175,7 +176,7 @@ describe("Switch Component", () => {
 
       render(<Switch value="on" onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       switchElement.focus();
 
       await user.keyboard(" ");
@@ -190,7 +191,7 @@ describe("Switch Component", () => {
 
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       switchElement.focus();
 
       await user.keyboard("{Enter}");
@@ -205,7 +206,7 @@ describe("Switch Component", () => {
 
       render(<Switch disabled onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       switchElement.focus();
 
       await user.keyboard(" ");
@@ -218,7 +219,7 @@ describe("Switch Component", () => {
       const handleChange = vi.fn();
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       switchElement.focus();
 
       // Use fireEvent to simulate key events
@@ -238,7 +239,7 @@ describe("Switch Component", () => {
 
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       await user.click(switchElement);
 
@@ -252,7 +253,7 @@ describe("Switch Component", () => {
 
       render(<Switch value="on" onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       await user.click(switchElement);
 
@@ -265,7 +266,7 @@ describe("Switch Component", () => {
 
       render(<Switch disabled onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Disabled elements should not trigger onChange via user interaction
       // However, userEvent may still trigger the handler due to testing environment
@@ -277,7 +278,7 @@ describe("Switch Component", () => {
       const handleChange = vi.fn();
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Native change and click events should be handled by the component
       fireEvent.change(switchElement);
@@ -307,7 +308,7 @@ describe("Switch Component", () => {
     it("responds to pointer down events", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       fireEvent.pointerDown(switchElement, {
         pointerId: 1,
@@ -326,7 +327,7 @@ describe("Switch Component", () => {
     it("does not initiate drag when disabled", () => {
       render(<Switch disabled />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       fireEvent.pointerDown(switchElement, {
         pointerId: 1,
@@ -343,7 +344,7 @@ describe("Switch Component", () => {
     it("handles different mouse button states", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Clear any previous calls
       vi.clearAllMocks();
@@ -364,7 +365,7 @@ describe("Switch Component", () => {
       const handleChange = vi.fn();
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Mock getBoundingClientRect for this test
       switchElement.getBoundingClientRect = vi.fn(() => ({
@@ -407,7 +408,7 @@ describe("Switch Component", () => {
       const handleChange = vi.fn();
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Mock getBoundingClientRect
       switchElement.getBoundingClientRect = vi.fn(() => ({
@@ -458,7 +459,7 @@ describe("Switch Component", () => {
       const handleChange = vi.fn();
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Test complete pointer sequence
       fireEvent.pointerDown(switchElement, {
@@ -495,7 +496,7 @@ describe("Switch Component", () => {
 
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Initially off
       expect(switchElement).not.toBeChecked();
@@ -515,7 +516,7 @@ describe("Switch Component", () => {
 
       render(<ControlledTestComponent onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Initially off
       expect(switchElement).not.toBeChecked();
@@ -534,7 +535,7 @@ describe("Switch Component", () => {
     it("updates when controlled value prop changes", () => {
       const { rerender } = render(<Switch value="off" />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).not.toBeChecked();
       expect(switchElement).not.toBePartiallyChecked();
 
@@ -553,7 +554,7 @@ describe("Switch Component", () => {
 
       render(<Switch value="off" onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       await user.click(switchElement);
 
@@ -566,7 +567,7 @@ describe("Switch Component", () => {
     it("applies base StyleX switch class", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       // Should apply base switch styles
       expect(switchElement.className).toContain("switch__styles.switch");
     });
@@ -574,7 +575,7 @@ describe("Switch Component", () => {
     it("applies animation class after initial render", async () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Wait for useEffect to run
       await waitFor(() => {
@@ -585,7 +586,7 @@ describe("Switch Component", () => {
     it("applies dragging styles when dragging", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Mock getBoundingClientRect
       switchElement.getBoundingClientRect = vi.fn(() => ({
@@ -624,7 +625,7 @@ describe("Switch Component", () => {
     it("reflects state in DOM properties", () => {
       const { rerender } = render(<Switch value="off" />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       expect(switchElement).not.toBeChecked();
       expect(switchElement).not.toBePartiallyChecked();
 
@@ -642,7 +643,7 @@ describe("Switch Component", () => {
     it("handles missing getBoundingClientRect gracefully", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
       const setPointerCapture = vi.fn();
       switchElement.setPointerCapture = setPointerCapture;
 
@@ -674,7 +675,7 @@ describe("Switch Component", () => {
 
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Rapidly click multiple times
       await user.click(switchElement);
@@ -693,7 +694,7 @@ describe("Switch Component", () => {
     it("handles touch interactions correctly", () => {
       render(<Switch />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Touch interaction should work
       fireEvent.pointerDown(switchElement, {
@@ -712,7 +713,7 @@ describe("Switch Component", () => {
       const handleChange = vi.fn();
       render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       switchElement.getBoundingClientRect = vi.fn(() => ({
         left: 100,
@@ -754,7 +755,7 @@ describe("Switch Component", () => {
       const handleChange = vi.fn();
       render(<Switch value="indeterminate" onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("checkbox");
+      const switchElement = screen.getByRole("switch");
 
       // Verify initial indeterminate state
       expect(switchElement).toBePartiallyChecked();
