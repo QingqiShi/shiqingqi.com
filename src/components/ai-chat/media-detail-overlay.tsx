@@ -10,6 +10,7 @@ import { usePortalTarget } from "#src/contexts/portal-context.tsx";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { fixedFill } from "#src/primitives/layout.stylex.ts";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { MediaDetailContent } from "./media-detail-content";
@@ -160,7 +161,10 @@ const styles = stylex.create({
     overflow: "hidden",
     overflowY: "auto",
     pointerEvents: "all",
-    animationName: slideUp,
+    animationName: {
+      default: slideUp,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
     animationDuration: "300ms",
     animationTimingFunction: easing,
     animationFillMode: "backwards",
