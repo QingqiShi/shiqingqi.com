@@ -123,4 +123,70 @@ describe("CompactMediaCard", () => {
 
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it("uses title as button aria-label when available", () => {
+    render(
+      <CompactMediaCard
+        media={{
+          id: 1,
+          title: "Inception",
+          posterPath: "/inception.jpg",
+          rating: 8.4,
+          mediaType: "movie",
+        }}
+        onClick={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Inception" }),
+    ).toBeInTheDocument();
+  });
+
+  it("falls back to 'Movie' aria-label when title is missing for movie", () => {
+    render(
+      <CompactMediaCard
+        media={{
+          id: 1,
+          posterPath: "/inception.jpg",
+          rating: 8.4,
+          mediaType: "movie",
+        }}
+        onClick={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Movie" })).toBeInTheDocument();
+  });
+
+  it("falls back to 'TV show' aria-label when title is missing for tv", () => {
+    render(
+      <CompactMediaCard
+        media={{
+          id: 1,
+          posterPath: "/show.jpg",
+          rating: 7.0,
+          mediaType: "tv",
+        }}
+        onClick={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "TV show" })).toBeInTheDocument();
+  });
+
+  it("falls back to 'Media' aria-label when title and mediaType are missing", () => {
+    render(
+      <CompactMediaCard
+        media={{
+          id: 1,
+          posterPath: "/unknown.jpg",
+          rating: 5.0,
+        }}
+        onClick={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Media" })).toBeInTheDocument();
+  });
 });
