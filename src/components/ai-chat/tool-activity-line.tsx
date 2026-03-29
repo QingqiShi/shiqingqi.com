@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { truncate } from "#src/primitives/layout.stylex.ts";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { isRecord } from "./map-tool-output";
 
@@ -114,6 +115,11 @@ const pulse = stylex.keyframes({
   "50%": { opacity: 1, transform: "scale(1)" },
 });
 
+const pulseReduced = stylex.keyframes({
+  "0%, 100%": { opacity: 0.4 },
+  "50%": { opacity: 1 },
+});
+
 const styles = stylex.create({
   line: {
     gap: space._1,
@@ -132,7 +138,10 @@ const styles = stylex.create({
     height: "0.375rem",
     borderRadius: border.radius_round,
     backgroundColor: color.textMuted,
-    animationName: pulse,
+    animationName: {
+      default: pulse,
+      [motionConstants.REDUCED_MOTION]: pulseReduced,
+    },
     animationDuration: "1.4s",
     animationTimingFunction: "ease-in-out",
     animationIterationCount: "infinite",
