@@ -21,6 +21,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
         icon: <InfoIcon />,
         "aria-label": t({ en: "TMDB attribution info", zh: "TMDB 版权信息" }),
       }}
+      popupRole={undefined}
       menuContent={
         <div
           css={[

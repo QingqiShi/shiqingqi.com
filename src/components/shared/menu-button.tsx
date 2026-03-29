@@ -36,6 +36,12 @@ interface MenuButtonProps {
     | "viewportWidth";
   /** Disable the menu trigger. */
   disabled?: boolean;
+  /**
+   * Set the ARIA role for the popup content. Defaults to `"menu"` for menus
+   * that contain `menuitem` children. Set to `"group"` or `undefined` when
+   * the popup contains other interactive controls (e.g. toggle buttons).
+   */
+  popupRole?: "menu" | "group" | undefined;
 }
 
 /** A button that expands into a menu. */
@@ -45,6 +51,7 @@ export function MenuButton({
   menuContent,
   position = "topRight",
   disabled,
+  popupRole = "menu",
 }: PropsWithChildren<MenuButtonProps>) {
   const [isMenuShown, setIsMenuShown] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,6 +70,7 @@ export function MenuButton({
       {isMenuShown && (
         <div
           css={styles.backdrop}
+          aria-hidden="true"
           onClick={() => {
             if (isMenuShown) {
               setIsMenuShown(false);
@@ -74,6 +82,13 @@ export function MenuButton({
       <div
         css={styles.container}
         ref={containerRef}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && isMenuShown) {
+            e.stopPropagation();
+            setIsMenuShown(false);
+            document.getElementById(targetId)?.focus();
+          }
+        }}
         onBlur={(e) => {
           if (
             isMenuShown &&
@@ -87,6 +102,8 @@ export function MenuButton({
         <FixedContainerContent>
           <Button
             {...buttonProps}
+            aria-expanded={isMenuShown}
+            aria-haspopup={popupRole === "menu" ? "menu" : "true"}
             onClick={() => setIsMenuShown(true)}
             disabled={disabled}
             id={targetId}
@@ -107,7 +124,10 @@ export function MenuButton({
             animateToTarget={!isMenuShown}
             targetId={targetId}
           >
-            <div>
+            <div
+              role={popupRole}
+              aria-labelledby={popupRole ? `${targetId}-label` : undefined}
+            >
               {children && <div css={styles.menuTitle}>{children}</div>}
               {menuContent}
             </div>
