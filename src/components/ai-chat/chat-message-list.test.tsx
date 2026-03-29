@@ -1,11 +1,12 @@
-import type { UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
+import type { ChatUIMessage } from "#src/ai-chat/use-ai-chat.ts";
 import { render, screen } from "#src/test-utils.tsx";
 import { ChatMessageList } from "./chat-message-list";
 
 function createMessage(
-  overrides: Partial<UIMessage> & Pick<UIMessage, "id" | "role" | "parts">,
-): UIMessage {
+  overrides: Partial<ChatUIMessage> &
+    Pick<ChatUIMessage, "id" | "role" | "parts">,
+): ChatUIMessage {
   return overrides;
 }
 

@@ -3,6 +3,7 @@ import { convertToModelMessages, stepCountIs, streamText } from "ai";
 import "server-only";
 import { addCacheControlToMessages } from "./addCacheControlToMessages";
 import { getAnthropicModel } from "./client";
+import { contextManagementProviderOptions } from "./context-management";
 import type { ChatInput } from "./schema";
 import { getChatSystemInstructions } from "./system-instructions";
 import { createPresentMediaTool } from "./tools/present-media";
@@ -28,6 +29,7 @@ export async function chat({ messages, locale, model }: ChatOptions) {
       tmdb_search: createTmdbSearchTool(locale),
       present_media: createPresentMediaTool(),
     },
+    providerOptions: contextManagementProviderOptions,
     stopWhen: stepCountIs(5),
     prepareStep: ({ messages, model }) => ({
       messages: addCacheControlToMessages({ messages, model }),

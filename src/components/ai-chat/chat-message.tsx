@@ -6,10 +6,12 @@ import {
   isReasoningUIPart,
   isTextUIPart,
   isToolUIPart,
+  type TextUIPart,
   type UIMessage,
 } from "ai";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
+import { CompactionNotice } from "./compaction-notice";
 import { buildSearchResultsMap } from "./map-tool-output";
 import { MarkdownContent } from "./markdown-content";
 import { ToolActivityGroup } from "./tool-activity-group";
@@ -48,6 +50,13 @@ export function ChatMessage({
               <p key={key} css={[styles.partBase, styles.text]}>
                 {part.text}
               </p>
+            );
+          }
+          if (isCompactionPart(part)) {
+            return (
+              <div key={index} css={styles.partBase}>
+                <CompactionNotice />
+              </div>
             );
           }
           return (
@@ -98,6 +107,10 @@ export function ChatMessage({
       })}
     </div>
   );
+}
+
+function isCompactionPart(part: TextUIPart): boolean {
+  return part.providerMetadata?.anthropic?.type === "compaction";
 }
 
 function deriveMessageData(parts: UIMessage["parts"]) {

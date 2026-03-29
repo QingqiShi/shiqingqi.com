@@ -284,9 +284,13 @@ function main(): void {
   console.log(`  ${enPath}`);
   console.log(`  ${zhPath}`);
 
-  // Generate per-page client bundles, loaders, and manifest
+  // Generate per-page client bundles, loaders, and manifest.
+  // Pass raw (pre-merge) entries so that each file retains all its t() keys.
+  // mergeResults deduplicates by key and keeps only one file reference, which
+  // would cause keys shared across files to be missing from some page bundles.
   console.log("\nGenerating per-page client bundles...");
-  generatePerPageBundles(merged.entries);
+  const allFileEntries = results.flatMap((r) => r.entries);
+  generatePerPageBundles(allFileEntries);
 }
 
 main();
