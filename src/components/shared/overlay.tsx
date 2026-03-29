@@ -17,6 +17,9 @@ import { t } from "#src/i18n.ts";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { Button } from "./button";
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
+
 interface OverlayProps {
   isOpen: boolean;
   onClose: () => void;
@@ -45,15 +48,33 @@ export function Overlay({
 
     // Move focus into the dialog once the portal renders
     requestAnimationFrame(() => {
-      const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      );
+      const firstFocusable =
+        dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
       firstFocusable?.focus();
     });
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         onClose();
+        return;
+      }
+
+      // Trap focus within the dialog
+      if (event.key === "Tab" && dialogRef.current) {
+        const focusableElements =
+          dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+        if (focusableElements.length === 0) return;
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     }
 
