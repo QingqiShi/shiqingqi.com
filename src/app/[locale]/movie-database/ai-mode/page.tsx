@@ -59,6 +59,10 @@ export default async function Page({
         en: "Scroll to bottom",
         zh: "滚动到底部",
       })}
+      errorLabel={t({
+        en: "Something went wrong. Please try again.",
+        zh: "出了点问题，请重试。",
+      })}
       placeholder={t({
         en: "Ask about movies and TV shows...",
         zh: "询问关于电影和电视剧的问题...",
