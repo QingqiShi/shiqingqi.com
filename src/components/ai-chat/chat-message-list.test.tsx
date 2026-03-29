@@ -94,11 +94,19 @@ describe("ChatMessageList", () => {
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
-  it("renders scroll-to-bottom button", () => {
-    render(<ChatMessageList messages={[]} status="ready" {...defaultProps} />);
+  it("renders scroll-to-bottom button hidden when there are no messages", () => {
+    const { container } = render(
+      <ChatMessageList messages={[]} status="ready" {...defaultProps} />,
+    );
+    // The button exists in the DOM but is hidden from the accessibility tree
     expect(
-      screen.getByRole("button", { name: "Scroll to bottom" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Scroll to bottom" }),
+    ).not.toBeInTheDocument();
+    const button = container.querySelector(
+      'button[aria-label="Scroll to bottom"]',
+    );
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute("aria-hidden", "true");
   });
 
   it("uses log role with accessible label on messages container", () => {
