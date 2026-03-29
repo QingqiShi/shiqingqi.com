@@ -3,20 +3,39 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useState } from "react";
+import {
+  COMPACTION_TRIGGER_TOKENS,
+  USAGE_WARNING_RATIO,
+} from "#src/ai-chat/context-management-shared.ts";
+import type { ChatMessageMetadata } from "#src/ai-chat/use-ai-chat.ts";
+import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
-import { space } from "#src/tokens.stylex.ts";
+import { color, font, space } from "#src/tokens.stylex.ts";
 import { ChatMessage } from "./chat-message";
 import { ScrollToBottomButton } from "./scroll-to-bottom-button";
 import { TypingIndicator } from "./typing-indicator";
 
 const SCROLL_THRESHOLD = 50;
+const USAGE_WARNING_THRESHOLD = COMPACTION_TRIGGER_TOKENS * USAGE_WARNING_RATIO;
 
 interface ChatMessageListProps {
-  messages: ReadonlyArray<UIMessage>;
+  messages: ReadonlyArray<UIMessage<ChatMessageMetadata>>;
   status: ChatStatus;
   emptyState: ReactNode;
   typingIndicatorLabel: string;
   scrollToBottomLabel: string;
+}
+
+function getLatestInputTokens(
+  messages: ReadonlyArray<UIMessage<ChatMessageMetadata>>,
+): number {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    if (msg?.role === "assistant" && msg.metadata?.inputTokens != null) {
+      return msg.metadata.inputTokens;
+    }
+  }
+  return 0;
 }
 
 export function ChatMessageList({
@@ -58,6 +77,8 @@ export function ChatMessageList({
   }, [messages.length, lastMessageRole, isAtBottom]);
 
   const showTypingIndicator = status === "submitted";
+  const latestInputTokens = getLatestInputTokens(messages);
+  const showUsageWarning = latestInputTokens >= USAGE_WARNING_THRESHOLD;
 
   return (
     <div css={[flex.col, styles.container]}>
@@ -80,6 +101,11 @@ export function ChatMessageList({
             <TypingIndicator label={typingIndicatorLabel} />
           )}
         </div>
+      )}
+      {showUsageWarning && (
+        <p css={styles.usageWarning}>
+          {t({ en: "Long conversation", zh: "长对话" })}
+        </p>
       )}
       <ScrollToBottomButton
         visible={!isAtBottom && messages.length > 0}
@@ -104,5 +130,12 @@ const styles = stylex.create({
   },
   messagesList: {
     gap: space._2,
+  },
+  usageWarning: {
+    margin: 0,
+    textAlign: "center",
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    paddingBlock: space._1,
   },
 });
