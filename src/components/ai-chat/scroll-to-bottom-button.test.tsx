@@ -32,4 +32,46 @@ describe("ScrollToBottomButton", () => {
 
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
+
+  it("is hidden from accessibility tree when not visible", () => {
+    render(
+      <ScrollToBottomButton
+        visible={false}
+        label="Scroll to bottom"
+        onClick={() => {}}
+      />,
+    );
+
+    // aria-hidden removes it from the accessible role query
+    expect(
+      screen.queryByRole("button", { name: "Scroll to bottom" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("is removed from tab order when not visible", () => {
+    const { container } = render(
+      <ScrollToBottomButton
+        visible={false}
+        label="Scroll to bottom"
+        onClick={() => {}}
+      />,
+    );
+
+    const button = container.querySelector("button");
+    expect(button).toHaveAttribute("tabindex", "-1");
+  });
+
+  it("is in the tab order when visible", () => {
+    const { container } = render(
+      <ScrollToBottomButton
+        visible={true}
+        label="Scroll to bottom"
+        onClick={() => {}}
+      />,
+    );
+
+    const button = container.querySelector("button");
+    expect(button).toHaveAttribute("tabindex", "0");
+    expect(button).toHaveAttribute("aria-hidden", "false");
+  });
 });

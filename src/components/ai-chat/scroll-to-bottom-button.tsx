@@ -21,6 +21,8 @@ export function ScrollToBottomButton({
     <button
       type="button"
       aria-label={label}
+      aria-hidden={!visible}
+      tabIndex={visible ? 0 : -1}
       onClick={onClick}
       css={[
         buttonReset.base,
