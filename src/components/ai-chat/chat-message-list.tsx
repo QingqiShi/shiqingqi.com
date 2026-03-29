@@ -104,7 +104,10 @@ export function ChatMessageList({
       )}
       {showUsageWarning && (
         <p css={styles.usageWarning}>
-          {t({ en: "Long conversation", zh: "长对话" })}
+          {t({
+            en: "The conversation is getting lengthy",
+            zh: "对话越来越长",
+          })}
         </p>
       )}
       <ScrollToBottomButton
