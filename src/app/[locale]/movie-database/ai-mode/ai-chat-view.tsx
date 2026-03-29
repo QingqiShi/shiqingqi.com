@@ -11,6 +11,7 @@ import { ChatInputBar } from "#src/components/ai-chat/chat-input-bar.tsx";
 import { ChatMessageList } from "#src/components/ai-chat/chat-message-list.tsx";
 import { MediaDetailProvider } from "#src/components/ai-chat/media-detail-context.tsx";
 import { MediaDetailOverlay } from "#src/components/ai-chat/media-detail-overlay.tsx";
+import { SessionRestoreBanner } from "#src/components/ai-chat/session-restore-banner.tsx";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
@@ -39,7 +40,15 @@ export function AIChatView({
   stopLabel,
   removeAttachmentLabel,
 }: AIChatViewProps) {
-  const { messages, status, error, sendMessage, stop } = useAIChat({ locale });
+  const {
+    messages,
+    status,
+    error,
+    sendMessage,
+    stop,
+    previousSessionId,
+    continueSession,
+  } = useAIChat({ locale });
   const [attachedMedia, setAttachedMedia] = useState<AttachedMedia | null>(
     null,
   );
@@ -61,6 +70,9 @@ export function AIChatView({
           setAttachedMedia,
         }}
       >
+        {previousSessionId && messages.length === 0 && (
+          <SessionRestoreBanner onContinue={continueSession} />
+        )}
         <ChatMessageList
           messages={messages}
           status={status}

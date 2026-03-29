@@ -10,7 +10,7 @@ import { createPresentMediaTool } from "./tools/present-media";
 import { createSemanticSearchTool } from "./tools/semantic-search";
 import { createTmdbSearchTool } from "./tools/tmdb-search";
 
-export { chatInputSchema, type ChatInput } from "./schema";
+export type { ChatInput } from "./schema";
 
 interface ChatOptions extends ChatInput {
   model?: LanguageModel;
