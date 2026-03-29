@@ -142,11 +142,15 @@ export function MediaDetailContent({
           ) : null}
           <div css={styles.headerInfo}>
             {detail ? (
-              <div css={styles.ratingRow}>
-                <span css={styles.rating}>
+              <div
+                css={styles.ratingRow}
+                role="img"
+                aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(detail.voteAverage)}${t({ en: " out of 10", zh: "/10" })}, ${formatter.format(detail.voteCount)} ${t({ en: "votes", zh: "票" })}`}
+              >
+                <span css={styles.rating} aria-hidden="true">
                   {formatter.format(detail.voteAverage)}
                 </span>
-                <span css={styles.voteCount}>
+                <span css={styles.voteCount} aria-hidden="true">
                   ({formatter.format(detail.voteCount)})
                 </span>
               </div>
