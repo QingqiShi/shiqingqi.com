@@ -54,7 +54,7 @@ export function ChatMessage({
           }
           if (isCompactionPart(part)) {
             return (
-              <div key={index} css={styles.partBase}>
+              <div key={key} css={styles.partBase}>
                 <CompactionNotice />
               </div>
             );
