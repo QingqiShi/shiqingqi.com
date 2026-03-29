@@ -1,6 +1,7 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
 import { Fragment, useState } from "react";
+import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, color, ratio, shadow, space } from "#src/tokens.stylex.ts";
 import { CalculatorButton } from "./calculator-button.tsx";
@@ -140,7 +141,7 @@ export function Calculator() {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="application"
-      aria-label="Calculator"
+      aria-label={t({ en: "Calculator", zh: "计算器" })}
     >
       <CalculatorDisplay tokens={tokens} currentToken={currentToken} />
       <div css={styles.buttonsContainer}>
