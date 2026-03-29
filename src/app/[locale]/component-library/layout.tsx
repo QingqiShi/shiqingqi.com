@@ -9,27 +9,48 @@ import { validateLocale } from "#src/utils/validate-locale.ts";
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   validateLocale(params.locale);
+
+  const title = t({
+    en: "Component Library | Qingqi Shi",
+    zh: "组件库 | 石清琪",
+  });
+  const description = t({
+    en: "Explore Qingqi Shi's component library - a collection of beautiful, reusable components crafted with care for modern web applications.",
+    zh: "探索石清琪的组件库 - 为现代网页应用精心打造的精美、可重用组件集合。",
+  });
+  const url =
+    params.locale === "zh"
+      ? new URL("/zh/component-library", BASE_URL).toString()
+      : new URL("/component-library", BASE_URL).toString();
+
   return {
     title: {
-      default: t({
-        en: "Component Library | Qingqi Shi",
-        zh: "组件库 | 石清琪",
-      }),
+      default: title,
       template: t({
         en: "%s | Component Library | Qingqi Shi",
         zh: "%s | 组件库 | 石清琪",
       }),
     },
-    description: t({
-      en: "Explore Qingqi Shi's component library - a collection of beautiful, reusable components crafted with care for modern web applications.",
-      zh: "探索石清琪的组件库 - 为现代网页应用精心打造的精美、可重用组件集合。",
-    }),
+    description,
     alternates: {
       canonical: new URL("/component-library", BASE_URL).toString(),
       languages: {
         en: new URL("/component-library", BASE_URL).toString(),
         zh: new URL("/zh/component-library", BASE_URL).toString(),
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      locale: params.locale === "zh" ? "zh_CN" : "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   } satisfies Metadata;
 }
