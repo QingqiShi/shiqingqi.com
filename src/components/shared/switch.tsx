@@ -32,7 +32,7 @@ export function Switch({
   ...rest
 }: SwitchProps) {
   const elRef = useRef<HTMLInputElement>(null);
-  const hasSetInitialRendered = useRef(false);
+  const hasSetInitialRenderedRef = useRef(false);
 
   // Optionally controlled state
   const [value, setValue] = useControlled({
@@ -135,8 +135,8 @@ export function Switch({
 
   const refCallback = (node: HTMLInputElement | null) => {
     elRef.current = node;
-    if (node && !hasSetInitialRendered.current) {
-      hasSetInitialRendered.current = true;
+    if (node && !hasSetInitialRenderedRef.current) {
+      hasSetInitialRenderedRef.current = true;
       setInitialRendered(true);
     }
   };

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { generateKey } from "./hash.js";
 import { extractFromSource, mergeResults } from "./extractor.ts";
+import { generateKey } from "./hash.js";
 
 describe("generateKey", () => {
   it("returns a deterministic 8-character hex string", () => {

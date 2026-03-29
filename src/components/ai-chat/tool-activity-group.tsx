@@ -10,6 +10,7 @@ import { color, font, space } from "#src/tokens.stylex.ts";
 import { TERMINAL_STATES, ToolActivityLine } from "./tool-activity-line";
 
 interface ToolPartData {
+  toolCallId: string;
   toolName: string;
   state: string;
   input: unknown;
@@ -34,9 +35,9 @@ export function ToolActivityGroup({
   if (!allComplete) {
     return (
       <div css={styles.container}>
-        {toolParts.map((part, i) => (
+        {toolParts.map((part) => (
           <ToolActivityLine
-            key={i}
+            key={part.toolCallId}
             toolName={part.toolName}
             state={part.state}
             input={part.input}
@@ -70,9 +71,9 @@ export function ToolActivityGroup({
       </button>
       {isOpen && (
         <div css={styles.expandedContent}>
-          {toolParts.map((part, i) => (
+          {toolParts.map((part) => (
             <ToolActivityLine
-              key={i}
+              key={part.toolCallId}
               toolName={part.toolName}
               state={part.state}
               input={part.input}

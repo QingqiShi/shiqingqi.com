@@ -49,10 +49,10 @@ export function MenuButton({
   const [isMenuShown, setIsMenuShown] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const outsideClicked = useRef(false);
+  const outsideClickedRef = useRef(false);
   useEffect(() => {
     if (isMenuShown) {
-      outsideClicked.current = false;
+      outsideClickedRef.current = false;
     }
   }, [isMenuShown]);
 
@@ -66,7 +66,7 @@ export function MenuButton({
           onClick={() => {
             if (isMenuShown) {
               setIsMenuShown(false);
-              outsideClicked.current = true;
+              outsideClickedRef.current = true;
             }
           }}
         />
@@ -78,7 +78,7 @@ export function MenuButton({
           if (
             isMenuShown &&
             !containerRef.current?.contains(e.relatedTarget) &&
-            !outsideClicked.current
+            !outsideClickedRef.current
           ) {
             setIsMenuShown(false);
           }

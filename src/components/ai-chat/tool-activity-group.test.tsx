@@ -4,16 +4,19 @@ import { ToolActivityGroup } from "./tool-activity-group";
 
 const completeParts = [
   {
+    toolCallId: "call-1",
     toolName: "tmdb_search",
     state: "output-available",
     input: { query: "Inception" },
   },
   {
+    toolCallId: "call-2",
     toolName: "semantic_search",
     state: "output-available",
     input: { query: "sci-fi" },
   },
   {
+    toolCallId: "call-3",
     toolName: "present_media",
     state: "output-available",
     input: { media: [{ id: 1, media_type: "movie" }] },
@@ -22,11 +25,17 @@ const completeParts = [
 
 const inProgressParts = [
   {
+    toolCallId: "call-4",
     toolName: "tmdb_search",
     state: "output-available",
     input: { query: "Inception" },
   },
-  { toolName: "semantic_search", state: "input-streaming", input: undefined },
+  {
+    toolCallId: "call-5",
+    toolName: "semantic_search",
+    state: "input-streaming",
+    input: undefined,
+  },
 ] as const;
 
 describe("ToolActivityGroup", () => {

@@ -1,5 +1,6 @@
 import { parse } from "@babel/parser";
-import type { NodePath, TraverseOptions } from "@babel/traverse";
+import type { NodePath } from "@babel/traverse";
+import type { CallExpression, ImportDeclaration } from "@babel/types";
 import {
   isIdentifier,
   isImportSpecifier,
@@ -7,18 +8,13 @@ import {
   isObjectProperty,
   isStringLiteral,
 } from "@babel/types";
-import type { CallExpression, ImportDeclaration, Node } from "@babel/types";
-import { createRequire } from "node:module";
 import { generateKey } from "./hash.js";
 
-// @babel/traverse CJS module shape: { default: traverseFn, ... }
-// Using createRequire avoids ESM interop inconsistencies between tsx and vitest.
-const _require = createRequire(import.meta.url);
-const _traverseModule: { default: TraverseFn } = _require("@babel/traverse");
-
-type TraverseFn = (parent: Node, opts: TraverseOptions) => void;
-
-const traverse: TraverseFn = _traverseModule.default;
+// @babel/traverse is a CJS module whose default export is the traverse function.
+// Dynamic import() resolves the CJS→ESM interop correctly in both tsx and vitest,
+// and unlike createRequire it preserves type information from @types/babel__traverse.
+const _traverseModule = await import("@babel/traverse");
+const traverse = _traverseModule.default;
 
 /** A single extracted translation entry. */
 export interface TranslationEntry {
