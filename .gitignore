@@ -51,3 +51,4 @@ src/_generated/i18n/
 # Claude Code
 .claude/worktrees/
 .claude/skills/*-workspace/
+.claude/scheduled_tasks.lock
