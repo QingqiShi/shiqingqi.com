@@ -29,6 +29,7 @@ export function MobileFiltersButton({
         isActive: canReset,
       }}
       position="topRight"
+      popupRole="group"
     >
       {children}
       {genres.size ? ` (${genres.size})` : null}
