@@ -5,7 +5,11 @@ import nextConfig from "eslint-config-next";
 import importPlugin from "eslint-plugin-import-x";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import { defineConfig } from "eslint/config";
+import { createRequire } from "node:module";
 import tsEslint from "typescript-eslint";
+
+const require = createRequire(import.meta.url);
+const i18nPlugin = require("./tooling/eslint-plugin-i18n/index.js");
 
 export default defineConfig([
   {
@@ -32,6 +36,7 @@ export default defineConfig([
       "import-x": importPlugin,
       "@stylexjs": stylexjs,
       unicorn: eslintPluginUnicorn,
+      i18n: i18nPlugin,
     },
     languageOptions: {
       ecmaVersion: "latest",
@@ -94,6 +99,7 @@ export default defineConfig([
       "one-var": ["error", "never"],
       "@eslint-react/set-state-in-effect": "off",
       "unicorn/no-unused-properties": "error",
+      "i18n/no-t-outside-render": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -106,6 +112,13 @@ export default defineConfig([
           ignoreRestSiblings: true,
         },
       ],
+    },
+  },
+  // Test files may call t() outside render scope for unit testing purposes.
+  {
+    files: ["**/*.test.{ts,tsx,js,mjs}", "**/*.spec.{ts,tsx,js,mjs}"],
+    rules: {
+      "i18n/no-t-outside-render": "off",
     },
   },
   // Tooling JS files are CJS and not covered by tsconfig, so disable
