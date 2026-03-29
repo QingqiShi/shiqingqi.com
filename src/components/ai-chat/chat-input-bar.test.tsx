@@ -1,3 +1,4 @@
+import { fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
@@ -116,6 +117,19 @@ describe("ChatInputBar typing and sending", () => {
     const textarea = screen.getByPlaceholderText("Ask about movies...");
     await user.type(textarea, "   ");
     await user.keyboard("{Enter}");
+
+    expect(props.onSend).not.toHaveBeenCalled();
+  });
+
+  it("does not send when Enter is pressed during IME composition", async () => {
+    const user = userEvent.setup();
+    const { props } = renderInputBar();
+
+    const textarea = screen.getByPlaceholderText("Ask about movies...");
+    await user.type(textarea, "hello");
+
+    // Simulate Enter during IME composition (e.g. confirming a Chinese character)
+    fireEvent.keyDown(textarea, { key: "Enter", isComposing: true });
 
     expect(props.onSend).not.toHaveBeenCalled();
   });
