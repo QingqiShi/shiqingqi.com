@@ -21,10 +21,12 @@ const USAGE_WARNING_THRESHOLD = COMPACTION_TRIGGER_TOKENS * USAGE_WARNING_RATIO;
 interface ChatMessageListProps {
   messages: ReadonlyArray<UIMessage<ChatMessageMetadata>>;
   status: ChatStatus;
+  error: Error | undefined;
   emptyState: ReactNode;
   messagesLabel: string;
   typingIndicatorLabel: string;
   scrollToBottomLabel: string;
+  errorLabel: string;
 }
 
 function getLatestInputTokens(
@@ -42,10 +44,12 @@ function getLatestInputTokens(
 export function ChatMessageList({
   messages,
   status,
+  error,
   emptyState,
   messagesLabel,
   typingIndicatorLabel,
   scrollToBottomLabel,
+  errorLabel,
 }: ChatMessageListProps) {
   const [isAtBottom, setIsAtBottom] = useState(true);
 
@@ -79,6 +83,7 @@ export function ChatMessageList({
   }, [messages.length, lastMessageRole, isAtBottom]);
 
   const showTypingIndicator = status === "submitted";
+  const showError = status === "error" && error != null;
   const latestInputTokens = getLatestInputTokens(messages);
   const showUsageWarning = latestInputTokens >= USAGE_WARNING_THRESHOLD;
 
@@ -105,6 +110,11 @@ export function ChatMessageList({
           ))}
           {showTypingIndicator && (
             <TypingIndicator label={typingIndicatorLabel} />
+          )}
+          {showError && (
+            <p css={styles.errorMessage} role="alert">
+              {errorLabel}
+            </p>
           )}
         </div>
       )}
@@ -146,5 +156,13 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     color: color.textMuted,
     paddingBlock: space._1,
+  },
+  errorMessage: {
+    margin: 0,
+    textAlign: "center",
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    fontStyle: "italic",
+    paddingBlock: space._2,
   },
 });

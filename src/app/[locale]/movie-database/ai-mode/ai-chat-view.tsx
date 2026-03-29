@@ -20,6 +20,7 @@ interface AIChatViewProps {
   messagesLabel: string;
   typingIndicatorLabel: string;
   scrollToBottomLabel: string;
+  errorLabel: string;
   placeholder: string;
   sendLabel: string;
   stopLabel: string;
@@ -32,12 +33,13 @@ export function AIChatView({
   messagesLabel,
   typingIndicatorLabel,
   scrollToBottomLabel,
+  errorLabel,
   placeholder,
   sendLabel,
   stopLabel,
   removeAttachmentLabel,
 }: AIChatViewProps) {
-  const { messages, status, sendMessage, stop } = useAIChat({ locale });
+  const { messages, status, error, sendMessage, stop } = useAIChat({ locale });
   const [attachedMedia, setAttachedMedia] = useState<AttachedMedia | null>(
     null,
   );
@@ -62,10 +64,12 @@ export function AIChatView({
         <ChatMessageList
           messages={messages}
           status={status}
+          error={error}
           emptyState={emptyState}
           messagesLabel={messagesLabel}
           typingIndicatorLabel={typingIndicatorLabel}
           scrollToBottomLabel={scrollToBottomLabel}
+          errorLabel={errorLabel}
         />
         <div css={styles.inputArea}>
           <ChatInputBar

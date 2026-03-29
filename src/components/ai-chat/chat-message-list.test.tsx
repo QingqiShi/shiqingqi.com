@@ -15,6 +15,8 @@ const defaultProps = {
   messagesLabel: "Chat messages",
   typingIndicatorLabel: "AI is thinking…",
   scrollToBottomLabel: "Scroll to bottom",
+  errorLabel: "Something went wrong. Please try again.",
+  error: undefined,
 };
 
 describe("ChatMessageList", () => {
@@ -129,5 +131,62 @@ describe("ChatMessageList", () => {
   it("does not render log role when messages list is empty", () => {
     render(<ChatMessageList messages={[]} status="ready" {...defaultProps} />);
     expect(screen.queryByRole("log")).not.toBeInTheDocument();
+  });
+
+  it("shows error message when status is error and error is present", () => {
+    const messages = [
+      createMessage({
+        id: "1",
+        role: "user",
+        parts: [{ type: "text", text: "Hello" }],
+      }),
+    ];
+
+    render(
+      <ChatMessageList
+        {...defaultProps}
+        messages={messages}
+        status="error"
+        error={new Error("Network failure")}
+      />,
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Something went wrong. Please try again.",
+    );
+  });
+
+  it("does not show error message when status is ready", () => {
+    const messages = [
+      createMessage({
+        id: "1",
+        role: "user",
+        parts: [{ type: "text", text: "Hello" }],
+      }),
+    ];
+
+    render(
+      <ChatMessageList {...defaultProps} messages={messages} status="ready" />,
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("does not show error message when status is error but error is undefined", () => {
+    const messages = [
+      createMessage({
+        id: "1",
+        role: "user",
+        parts: [{ type: "text", text: "Hello" }],
+      }),
+    ];
+
+    render(
+      <ChatMessageList
+        {...defaultProps}
+        messages={messages}
+        status="error"
+        error={undefined}
+      />,
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
