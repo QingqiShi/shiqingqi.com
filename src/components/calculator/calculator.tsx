@@ -62,11 +62,32 @@ export function Calculator() {
     }
   };
 
+  const isError =
+    currentToken.type === "number" && Number.isNaN(currentToken.value);
+
   const handleClick = (label: string) => {
     if (label === BUTTON_CLEAR) {
       setTokens([]);
       setCurrentToken(createInitialToken());
       return;
+    }
+
+    // After an error (NaN), any input except AC should start fresh
+    if (isError) {
+      setTokens([]);
+      if (numbersSet.has(label)) {
+        setCurrentToken({ type: "number", value: Number(label), raw: label });
+        return;
+      }
+      if (isBinaryOperator(label) || isUnaryOperator(label)) {
+        setCurrentToken(createInitialToken());
+        return;
+      }
+      // Equals after error: just reset
+      if (label === BUTTON_EQUALS) {
+        setCurrentToken(createInitialToken());
+        return;
+      }
     }
 
     if (numbersSet.has(label)) {
