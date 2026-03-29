@@ -5,21 +5,43 @@ import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 
-export function generateMetadata(_props: {
+export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
-}): Metadata {
+}): Promise<Metadata> {
+  const { locale } = await props.params;
+
+  const title = t({ en: "AI Mode", zh: "AI 模式" });
+  const description = t({
+    en: "Chat with AI about movies and TV shows",
+    zh: "与 AI 聊电影和电视剧",
+  });
+  const url =
+    locale === "zh"
+      ? new URL("/zh/movie-database/ai-mode", BASE_URL).toString()
+      : new URL("/movie-database/ai-mode", BASE_URL).toString();
+
   return {
-    title: t({ en: "AI Mode", zh: "AI 模式" }),
-    description: t({
-      en: "Chat with AI about movies and TV shows",
-      zh: "与 AI 聊电影和电视剧",
-    }),
+    title,
+    description,
     alternates: {
       canonical: new URL("/movie-database/ai-mode", BASE_URL).toString(),
       languages: {
         en: new URL("/movie-database/ai-mode", BASE_URL).toString(),
         zh: new URL("/zh/movie-database/ai-mode", BASE_URL).toString(),
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      locale: locale === "zh" ? "zh_CN" : "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   } satisfies Metadata;
 }

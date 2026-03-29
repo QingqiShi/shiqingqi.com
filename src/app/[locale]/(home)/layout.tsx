@@ -18,15 +18,23 @@ import { glowTokens } from "./layout.stylex";
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   validateLocale(params.locale);
+
+  const title = t({ en: "Qingqi Shi", zh: "石清琪" });
+  const description = t({
+    en: "Explore the personal website of Qingqi Shi, a software engineer who values the craftsman's spirit and specializes in React, TypeScript, and web development. Discover his professional experiences, technical skills, and educational background.",
+    zh: "探索石清琪的个人网站，他是一位信奉匠人精神并擅长 React、TypeScript 和 Web 开发的软件工程师。了解他的职业经历、技术技能和教育背景。",
+  });
+  const url =
+    params.locale === "zh"
+      ? new URL("/zh", BASE_URL).toString()
+      : new URL("/", BASE_URL).toString();
+
   return {
     title: {
-      default: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      default: title,
       template: t({ en: "%s | Qingqi Shi", zh: "%s | 石清琪" }),
     },
-    description: t({
-      en: "Explore the personal website of Qingqi Shi, a software engineer who values the craftsman's spirit and specializes in React, TypeScript, and web development. Discover his professional experiences, technical skills, and educational background.",
-      zh: "探索石清琪的个人网站，他是一位信奉匠人精神并擅长 React、TypeScript 和 Web 开发的软件工程师。了解他的职业经历、技术技能和教育背景。",
-    }),
+    description,
     applicationName: t({ en: "Qingqi Shi", zh: "石清琪" }),
     alternates: {
       canonical: new URL("/", BASE_URL).toString(),
@@ -34,6 +42,19 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
         en: new URL("/", BASE_URL).toString(),
         zh: new URL("/zh", BASE_URL).toString(),
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      locale: params.locale === "zh" ? "zh_CN" : "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   } satisfies Metadata;
 }

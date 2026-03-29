@@ -9,18 +9,39 @@ import { validateLocale } from "#src/utils/validate-locale.ts";
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   validateLocale(params.locale);
+
+  const title = t({ en: "Calculator | Qingqi Shi", zh: "计算器 | 石清琪" });
+  const description = t({
+    en: "Qingqi's simple calculator demo.",
+    zh: "一个简单的计算器演示",
+  });
+  const url =
+    params.locale === "zh"
+      ? new URL("/zh/calculator", BASE_URL).toString()
+      : new URL("/calculator", BASE_URL).toString();
+
   return {
-    title: t({ en: "Calculator | Qingqi Shi", zh: "计算器 | 石清琪" }),
-    description: t({
-      en: "Qingqi's simple calculator demo.",
-      zh: "一个简单的计算器演示",
-    }),
+    title,
+    description,
     alternates: {
       canonical: new URL("/calculator", BASE_URL).toString(),
       languages: {
         en: new URL("/calculator", BASE_URL).toString(),
         zh: new URL("/zh/calculator", BASE_URL).toString(),
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      locale: params.locale === "zh" ? "zh_CN" : "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   } satisfies Metadata;
 }
