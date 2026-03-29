@@ -68,7 +68,7 @@ export default async function Page({ params }: PageProps) {
                 {formatter.format(movie.vote_average)}
               </div>
               <div css={styles.count} aria-hidden="true">
-                {movie.vote_count}
+                {formatter.format(movie.vote_count)}
               </div>
             </div>
             <h1 css={styles.h1}>
@@ -152,7 +152,7 @@ export default async function Page({ params }: PageProps) {
                 {formatter.format(tvShow.vote_average)}
               </div>
               <div css={styles.count} aria-hidden="true">
-                {tvShow.vote_count}
+                {formatter.format(tvShow.vote_count)}
               </div>
             </div>
             <h1 css={styles.h1}>
