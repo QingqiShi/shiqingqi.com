@@ -74,6 +74,32 @@ const styles = stylex.create({
     paddingInline: space._00,
     paddingBlock: space._00,
   },
+  tableWrapper: {
+    overflowX: "auto",
+    marginBlock: 0,
+  },
+  table: {
+    borderCollapse: "collapse",
+    width: "100%",
+    fontSize: font.uiBodySmall,
+  },
+  th: {
+    textAlign: "left",
+    fontWeight: font.weight_6,
+    paddingBlock: space._1,
+    paddingInline: space._2,
+    borderBottomWidth: border.size_2,
+    borderBottomStyle: "solid",
+    borderBottomColor: color.controlTrack,
+    whiteSpace: "nowrap",
+  },
+  td: {
+    paddingBlock: space._1,
+    paddingInline: space._2,
+    borderBottomWidth: border.size_1,
+    borderBottomStyle: "solid",
+    borderBottomColor: color.controlTrack,
+  },
   wrapper: {
     gap: space._2,
   },
@@ -102,6 +128,13 @@ const components: Components = {
     }
     return <code css={styles.codeInline} {...props} />;
   },
+  table: ({ node, ...props }) => (
+    <div css={styles.tableWrapper}>
+      <table css={styles.table} {...props} />
+    </div>
+  ),
+  th: ({ node, ...props }) => <th css={styles.th} {...props} />,
+  td: ({ node, ...props }) => <td css={styles.td} {...props} />,
 };
 
 const remarkPlugins = [remarkGfm];

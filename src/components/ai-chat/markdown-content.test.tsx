@@ -93,4 +93,31 @@ describe("MarkdownContent", () => {
     expect(screen.getByText("First paragraph")).toBeInTheDocument();
     expect(screen.getByText("Second paragraph")).toBeInTheDocument();
   });
+
+  it("renders GFM tables with header and data rows", () => {
+    const table = [
+      "| Title | Year | Rating |",
+      "| --- | --- | --- |",
+      "| Inception | 2010 | 8.8 |",
+      "| Interstellar | 2014 | 8.7 |",
+    ].join("\n");
+
+    render(<MarkdownContent content={table} />);
+
+    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getAllByRole("columnheader")).toHaveLength(3);
+    expect(screen.getByText("Title").tagName).toBe("TH");
+    expect(screen.getByText("Inception").tagName).toBe("TD");
+    expect(screen.getByText("Interstellar").tagName).toBe("TD");
+    expect(screen.getAllByRole("row")).toHaveLength(3);
+  });
+
+  it("wraps tables in a scrollable container", () => {
+    const table = ["| A | B |", "| --- | --- |", "| 1 | 2 |"].join("\n");
+
+    const { container } = render(<MarkdownContent content={table} />);
+
+    const tableEl = container.querySelector("table");
+    expect(tableEl?.parentElement?.tagName).toBe("DIV");
+  });
 });
