@@ -67,6 +67,10 @@ export function ChatInputBar({
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    // Skip during IME composition (e.g. Chinese/Japanese/Korean input) —
+    // Enter should confirm the composed characters, not submit the message.
+    if (event.nativeEvent.isComposing) return;
+
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       send();
