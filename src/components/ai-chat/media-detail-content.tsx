@@ -268,6 +268,7 @@ function BackdropImage({
         src={src}
         srcSet={srcSet}
         sizes="600px"
+        loading="lazy"
       />
       <div role="presentation" css={styles.backdropGradient} />
     </div>
