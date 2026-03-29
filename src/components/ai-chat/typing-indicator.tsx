@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "#src/primitives/flex.stylex.ts";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 
 const DOT_COUNT = 3;
@@ -31,6 +32,11 @@ const bounce = stylex.keyframes({
   "40%": { opacity: 1, transform: "scale(1)" },
 });
 
+const bounceReduced = stylex.keyframes({
+  "0%, 80%, 100%": { opacity: 0.3 },
+  "40%": { opacity: 1 },
+});
+
 const styles = stylex.create({
   container: {
     gap: space._1,
@@ -41,7 +47,10 @@ const styles = stylex.create({
     height: "0.375rem",
     borderRadius: border.radius_round,
     backgroundColor: color.textMuted,
-    animationName: bounce,
+    animationName: {
+      default: bounce,
+      [motionConstants.REDUCED_MOTION]: bounceReduced,
+    },
     animationDuration: "1.4s",
     animationTimingFunction: "ease-in-out",
     animationIterationCount: "infinite",
