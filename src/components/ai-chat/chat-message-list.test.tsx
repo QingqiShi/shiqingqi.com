@@ -12,6 +12,7 @@ function createMessage(
 
 const defaultProps = {
   emptyState: <div>Welcome to AI Mode</div>,
+  messagesLabel: "Chat messages",
   typingIndicatorLabel: "AI is thinking…",
   scrollToBottomLabel: "Scroll to bottom",
 };
@@ -100,7 +101,7 @@ describe("ChatMessageList", () => {
     ).toBeInTheDocument();
   });
 
-  it("uses log role on messages container for screen reader announcements", () => {
+  it("uses log role with accessible label on messages container", () => {
     const messages = [
       createMessage({
         id: "1",
@@ -112,7 +113,9 @@ describe("ChatMessageList", () => {
     render(
       <ChatMessageList messages={messages} status="ready" {...defaultProps} />,
     );
-    expect(screen.getByRole("log")).toBeInTheDocument();
+    expect(
+      screen.getByRole("log", { name: "Chat messages" }),
+    ).toBeInTheDocument();
   });
 
   it("does not render log role when messages list is empty", () => {

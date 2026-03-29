@@ -47,6 +47,10 @@ export default async function Page({
           <RecommendedMedia locale={validatedLocale} />
         </div>
       }
+      messagesLabel={t({
+        en: "Chat messages",
+        zh: "聊天消息",
+      })}
       typingIndicatorLabel={t({
         en: "AI is thinking…",
         zh: "AI 正在思考…",
