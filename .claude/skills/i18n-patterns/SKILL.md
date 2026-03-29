@@ -180,3 +180,4 @@ The parent page/layout must be in the manifest for client translations to work. 
 - Manually adding `setLocale` to page files — the Babel plugin does this automatically
 - Creating separate `translations.json` files — translations live inline in the component
 - Using `getTranslations()` or `useTranslations()` — these no longer exist; use `t()` everywhere
+- Calling `t()` outside render scope — `t()` must be called directly in a React component body, custom hook, or `generateMetadata()`. It cannot be used in `useEffect`, event handlers, callbacks (`.map()`, `.then()`), `setTimeout`, module scope, or exported non-component functions. The ESLint rule `i18n/no-t-outside-render` enforces this. Non-exported helper functions are allowed only if every call site is in render scope.
