@@ -13,14 +13,23 @@ interface MediaPosterProps {
   compact?: boolean;
 }
 
+function getPosterAlt(media: MediaListItem): string {
+  if (media.title) return media.title;
+  if (media.mediaType === "movie")
+    return t({ en: "Movie poster", zh: "电影海报" });
+  if (media.mediaType === "tv")
+    return t({ en: "TV show poster", zh: "电视剧海报" });
+  return t({ en: "Media poster", zh: "媒体海报" });
+}
+
 export function MediaPoster({ media, compact }: MediaPosterProps) {
   const locale = useLocale();
   const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
 
   return (
     <>
-      {media.posterPath && media.title ? (
-        <PosterImage posterPath={media.posterPath} alt={media.title} />
+      {media.posterPath ? (
+        <PosterImage posterPath={media.posterPath} alt={getPosterAlt(media)} />
       ) : (
         <div
           css={[
