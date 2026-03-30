@@ -217,6 +217,20 @@ describe("POST /api/ai-chat", () => {
     });
   });
 
+  it("returns 400 for regenerate-message without sessionId", async () => {
+    const response = await POST(
+      chatRequest({
+        trigger: "regenerate-message",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      success: false,
+      error: "Invalid request body",
+    });
+  });
+
   it("returns 400 for invalid locale", async () => {
     const response = await POST(
       chatRequest({

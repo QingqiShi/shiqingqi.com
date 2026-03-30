@@ -31,12 +31,6 @@ export async function POST(request: NextRequest) {
         messages = [input.message];
       }
     } else {
-      if (!input.sessionId) {
-        return Response.json(
-          { success: false, error: "Invalid request body" },
-          { status: 400 },
-        );
-      }
       const stored = await getSessionMessages(input.sessionId);
       if (!stored) {
         return Response.json({ error: "session-not-found" }, { status: 404 });
