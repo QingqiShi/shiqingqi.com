@@ -10,8 +10,8 @@ describe("formatRuntime", () => {
     expect(formatRuntime(45, "h", "m")).toBe("45m");
   });
 
-  it("formats exactly one hour", () => {
-    expect(formatRuntime(60, "h", "m")).toBe("1h 0m");
+  it("formats exactly one hour without trailing minutes", () => {
+    expect(formatRuntime(60, "h", "m")).toBe("1h");
   });
 
   it("returns empty string for zero", () => {
@@ -22,8 +22,8 @@ describe("formatRuntime", () => {
     expect(formatRuntime(NaN, "h", "m")).toBe("");
   });
 
-  it("formats large values", () => {
-    expect(formatRuntime(240, "h", "m")).toBe("4h 0m");
+  it("formats exact multiples of an hour without trailing minutes", () => {
+    expect(formatRuntime(240, "h", "m")).toBe("4h");
   });
 
   it("formats single-digit minutes", () => {
