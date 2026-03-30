@@ -42,8 +42,8 @@ importers:
         specifier: 1.3.1
         version: 1.3.1(next@16.1.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)
       ai:
-        specifier: ^6.0.116
-        version: 6.0.116(zod@3.25.76)
+        specifier: ^6.0.141
+        version: 6.0.141(zod@3.25.76)
       next:
         specifier: 16.1.7
         version: 16.1.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)
@@ -258,14 +258,14 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/gateway@3.0.66':
-    resolution: {integrity: sha512-SIQ0YY0iMuv+07HLsZ+bB990zUJ6S4ujORAh+Jv1V2KGNn73qQKnGO0JBk+w+Res8YqOFSycwDoWcFlQrVxS4A==}
+  '@ai-sdk/gateway@3.0.77':
+    resolution: {integrity: sha512-UdwIG2H2YMuntJQ5L+EmED5XiwnlvDT3HOmKfVFxR4Nq/RSLFA/HcchhwfNXHZ5UJjyuL2VO0huLbWSZ9ijemQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/gateway@3.0.77':
-    resolution: {integrity: sha512-UdwIG2H2YMuntJQ5L+EmED5XiwnlvDT3HOmKfVFxR4Nq/RSLFA/HcchhwfNXHZ5UJjyuL2VO0huLbWSZ9ijemQ==}
+  '@ai-sdk/gateway@3.0.83':
+    resolution: {integrity: sha512-LvlWujbSdEkTBXBLFtF7GS6riXdHhH0O+DpDrCaNQvXeHmSF2jKsOg7JWXiCgygAHM5cWFAO3JYmZp83DjiuBQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -2823,14 +2823,14 @@ packages:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
 
-  ai@6.0.116:
-    resolution: {integrity: sha512-7yM+cTmyRLeNIXwt4Vj+mrrJgVQ9RMIW5WO0ydoLoYkewIvsMcvUmqS4j2RJTUXaF1HphwmSKUMQ/HypNRGOmA==}
+  ai@6.0.133:
+    resolution: {integrity: sha512-8YBTQdRtIpa7gLKWLvUHLnKxI5lEyV1z9o20+8uDjMs4EOGuv62fQivHD/Yi7SBidzEhAORjCBcQrQ5Lu2V0Vw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  ai@6.0.133:
-    resolution: {integrity: sha512-8YBTQdRtIpa7gLKWLvUHLnKxI5lEyV1z9o20+8uDjMs4EOGuv62fQivHD/Yi7SBidzEhAORjCBcQrQ5Lu2V0Vw==}
+  ai@6.0.141:
+    resolution: {integrity: sha512-+GomGQWaId3xN0wcugUW/H7xMMaFkID2PiS7K/Wugj45G3efv0BXhQ3psRZoQVoRbOpdNoUqcK/KTB+FR4h6qg==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -6014,14 +6014,14 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.19(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/gateway@3.0.66(zod@3.25.76)':
+  '@ai-sdk/gateway@3.0.77(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
-      '@ai-sdk/provider-utils': 4.0.19(zod@3.25.76)
+      '@ai-sdk/provider-utils': 4.0.21(zod@3.25.76)
       '@vercel/oidc': 3.1.0
       zod: 3.25.76
 
-  '@ai-sdk/gateway@3.0.77(zod@3.25.76)':
+  '@ai-sdk/gateway@3.0.83(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
       '@ai-sdk/provider-utils': 4.0.21(zod@3.25.76)
@@ -8598,17 +8598,17 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ai@6.0.116(zod@3.25.76):
-    dependencies:
-      '@ai-sdk/gateway': 3.0.66(zod@3.25.76)
-      '@ai-sdk/provider': 3.0.8
-      '@ai-sdk/provider-utils': 4.0.19(zod@3.25.76)
-      '@opentelemetry/api': 1.9.0
-      zod: 3.25.76
-
   ai@6.0.133(zod@3.25.76):
     dependencies:
       '@ai-sdk/gateway': 3.0.77(zod@3.25.76)
+      '@ai-sdk/provider': 3.0.8
+      '@ai-sdk/provider-utils': 4.0.21(zod@3.25.76)
+      '@opentelemetry/api': 1.9.0
+      zod: 3.25.76
+
+  ai@6.0.141(zod@3.25.76):
+    dependencies:
+      '@ai-sdk/gateway': 3.0.83(zod@3.25.76)
       '@ai-sdk/provider': 3.0.8
       '@ai-sdk/provider-utils': 4.0.21(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
