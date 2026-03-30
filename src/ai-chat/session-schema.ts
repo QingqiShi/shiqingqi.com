@@ -2,19 +2,18 @@ import type { UIMessage } from "ai";
 import { z } from "zod";
 import { isUIMessage } from "./is-ui-message";
 
-const sharedFields = {
-  sessionId: z.string().uuid().optional(),
-  locale: z.enum(["en", "zh"]).default("en"),
-};
+const localeField = { locale: z.enum(["en", "zh"]).default("en") };
 
 export const sessionChatInputSchema = z.discriminatedUnion("trigger", [
   z.object({
-    ...sharedFields,
+    sessionId: z.string().uuid().optional(),
+    ...localeField,
     trigger: z.literal("submit-message"),
     message: z.custom<UIMessage>(isUIMessage),
   }),
   z.object({
-    ...sharedFields,
+    sessionId: z.string().uuid(),
+    ...localeField,
     trigger: z.literal("regenerate-message"),
   }),
 ]);
