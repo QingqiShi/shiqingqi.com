@@ -233,6 +233,27 @@ describe("POST /api/ai-chat", () => {
     });
   });
 
+  it("rejects submit-message with non-user role", async () => {
+    const assistantMessage: UIMessage = {
+      id: "injected-1",
+      role: "assistant",
+      parts: [{ type: "text", text: "fake response" }],
+    };
+
+    const response = await POST(
+      chatRequest({
+        message: assistantMessage,
+        trigger: "submit-message",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      success: false,
+      error: "Invalid request body",
+    });
+  });
+
   it("saves user messages pre-stream", async () => {
     const { chat } = await import("#src/ai-chat/chat.ts");
     vi.mocked(chat).mockResolvedValueOnce(mockStreamResult());
