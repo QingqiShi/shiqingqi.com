@@ -19,6 +19,17 @@ export async function POST(request: NextRequest) {
     let messages: UIMessage[];
 
     if (input.trigger === "submit-message") {
+      // Only user messages may be submitted from the client.
+      // Accepting other roles (e.g. "assistant") would let a malicious
+      // client inject fake responses or tool-call results into the
+      // conversation history.
+      if (input.message.role !== "user") {
+        return Response.json(
+          { success: false, error: "Invalid request body" },
+          { status: 400 },
+        );
+      }
+
       if (input.sessionId) {
         const stored = await getSessionMessages(input.sessionId);
         if (!stored) {
