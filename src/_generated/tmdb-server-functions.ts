@@ -84,6 +84,18 @@ export async function getMovieVideos(
   return tmdbGet("/3/movie/{movie_id}/videos", queryParams, { movie_id });
 }
 
+export async function getMovieWatchProviders(
+  params: { movie_id: string } & QueryParams<
+    "/3/movie/{movie_id}/watch/providers",
+    "get"
+  >,
+) {
+  const { movie_id, ...queryParams } = params;
+  return tmdbGet("/3/movie/{movie_id}/watch/providers", queryParams, {
+    movie_id,
+  });
+}
+
 export async function getTrendingMovies(
   params: { time_window: string } & QueryParams<
     "/3/trending/movie/{time_window}",
@@ -139,6 +151,18 @@ export async function getTvShowVideos(
 ) {
   const { series_id, ...queryParams } = params;
   return tmdbGet("/3/tv/{series_id}/videos", queryParams, { series_id });
+}
+
+export async function getTvShowWatchProviders(
+  params: { series_id: string } & QueryParams<
+    "/3/tv/{series_id}/watch/providers",
+    "get"
+  >,
+) {
+  const { series_id, ...queryParams } = params;
+  return tmdbGet("/3/tv/{series_id}/watch/providers", queryParams, {
+    series_id,
+  });
 }
 
 export async function searchMovies(

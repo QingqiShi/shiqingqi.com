@@ -37,6 +37,17 @@ describe("ToolActivityLine", () => {
       expect(screen.getByText("Presenting Results")).toBeInTheDocument();
     });
 
+    it("maps watch_providers to Watch Providers", () => {
+      render(
+        <ToolActivityLine
+          toolName="watch_providers"
+          state="output-available"
+          input={{ id: 550, media_type: "movie", region: "US" }}
+        />,
+      );
+      expect(screen.getByText("Watch Providers")).toBeInTheDocument();
+    });
+
     it("shows raw name for unknown tools", () => {
       render(
         <ToolActivityLine
@@ -139,6 +150,17 @@ describe("ToolActivityLine", () => {
         />,
       );
       expect(screen.getByText("1 item")).toBeInTheDocument();
+    });
+
+    it("shows region for watch_providers", () => {
+      render(
+        <ToolActivityLine
+          toolName="watch_providers"
+          state="output-available"
+          input={{ id: 550, media_type: "movie", region: "GB" }}
+        />,
+      );
+      expect(screen.getByText("GB")).toBeInTheDocument();
     });
 
     it("omits summary for unknown tools", () => {

@@ -53,6 +53,16 @@ export const endpoints = [
     functionName: "getMovieRecommendations",
   },
 
+  // Watch Providers
+  {
+    path: "/3/movie/{movie_id}/watch/providers",
+    functionName: "getMovieWatchProviders",
+  },
+  {
+    path: "/3/tv/{series_id}/watch/providers",
+    functionName: "getTvShowWatchProviders",
+  },
+
   // TV Details & Media
   { path: "/3/tv/{series_id}", functionName: "getTvShowDetails" },
   { path: "/3/tv/{series_id}/videos", functionName: "getTvShowVideos" },

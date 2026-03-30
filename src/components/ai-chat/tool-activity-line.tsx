@@ -64,6 +64,9 @@ export function ToolActivityLine({
     case "present_media":
       label = t({ en: "Presenting Results", zh: "展示结果" });
       break;
+    case "watch_providers":
+      label = t({ en: "Watch Providers", zh: "观看渠道" });
+      break;
     default:
       label = toolName;
   }
@@ -74,6 +77,10 @@ export function ToolActivityLine({
   let summary: string | null = null;
   if (toolName === "tmdb_search" || toolName === "semantic_search") {
     summary = getQuerySummary(input);
+  } else if (toolName === "watch_providers") {
+    if (isRecord(input) && typeof input.region === "string") {
+      summary = input.region;
+    }
   } else if (toolName === "present_media") {
     const count = getMediaCount(input);
     if (count !== null) {

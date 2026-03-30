@@ -1,0 +1,295 @@
+"use client";
+
+import * as stylex from "@stylexjs/stylex";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { t } from "#src/i18n.ts";
+import { flex } from "#src/primitives/flex.stylex.ts";
+import { border, color, font, space } from "#src/tokens.stylex.ts";
+import { buildSrcSet } from "#src/utils/tmdb-image.ts";
+import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { isRecord } from "./map-tool-output";
+
+interface ProviderEntry {
+  id: number;
+  name: string;
+  logoPath: string;
+}
+
+interface WatchProviderData {
+  id: number;
+  mediaType: "movie" | "tv";
+  region: string;
+  providers: {
+    link: string | null;
+    flatrate: ProviderEntry[];
+    rent: ProviderEntry[];
+    buy: ProviderEntry[];
+    ads: ProviderEntry[];
+    free: ProviderEntry[];
+  } | null;
+}
+
+type ProviderCategory = "flatrate" | "free" | "ads" | "rent" | "buy";
+
+const CATEGORY_KEYS: ReadonlyArray<ProviderCategory> = [
+  "flatrate",
+  "free",
+  "ads",
+  "rent",
+  "buy",
+];
+
+function parseProviderEntry(entry: unknown): ProviderEntry | null {
+  if (!isRecord(entry)) return null;
+  if (typeof entry.id !== "number") return null;
+  if (typeof entry.name !== "string") return null;
+  if (typeof entry.logoPath !== "string") return null;
+  return { id: entry.id, name: entry.name, logoPath: entry.logoPath };
+}
+
+function parseProviderList(list: unknown): ProviderEntry[] {
+  if (!Array.isArray(list)) return [];
+  const entries: ProviderEntry[] = [];
+  for (const item of list) {
+    const parsed = parseProviderEntry(item);
+    if (parsed) entries.push(parsed);
+  }
+  return entries;
+}
+
+export function parseWatchProviderOutput(
+  output: unknown,
+): WatchProviderData | null {
+  if (!isRecord(output)) return null;
+  if (typeof output.id !== "number") return null;
+  if (output.mediaType !== "movie" && output.mediaType !== "tv") return null;
+  if (typeof output.region !== "string") return null;
+
+  if (output.providers === null || output.providers === undefined) {
+    return {
+      id: output.id,
+      mediaType: output.mediaType,
+      region: output.region,
+      providers: null,
+    };
+  }
+
+  if (!isRecord(output.providers)) return null;
+
+  return {
+    id: output.id,
+    mediaType: output.mediaType,
+    region: output.region,
+    providers: {
+      link:
+        typeof output.providers.link === "string"
+          ? output.providers.link
+          : null,
+      flatrate: parseProviderList(output.providers.flatrate),
+      rent: parseProviderList(output.providers.rent),
+      buy: parseProviderList(output.providers.buy),
+      ads: parseProviderList(output.providers.ads),
+      free: parseProviderList(output.providers.free),
+    },
+  };
+}
+
+const LOGO_SIZE = 36;
+
+function ProviderLogo({ provider }: { provider: ProviderEntry }) {
+  const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
+
+  const baseUrl =
+    config.images?.secure_base_url ?? config.images?.base_url ?? "";
+  const logoSizes = config.images?.logo_sizes ?? [];
+
+  if (!baseUrl || !provider.logoPath) return null;
+
+  const { src, srcSet } = buildSrcSet(baseUrl, logoSizes, provider.logoPath);
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      css={styles.logo}
+      src={src}
+      srcSet={srcSet}
+      sizes={`${LOGO_SIZE}px`}
+      alt={provider.name}
+      title={provider.name}
+      width={LOGO_SIZE}
+      height={LOGO_SIZE}
+      loading="lazy"
+    />
+  );
+}
+
+function ProviderSection({
+  label,
+  providers,
+}: {
+  label: string;
+  providers: ReadonlyArray<ProviderEntry>;
+}) {
+  if (providers.length === 0) return null;
+  return (
+    <div css={styles.section}>
+      <div css={styles.sectionLabel}>{label}</div>
+      <div css={[flex.wrap, styles.logoRow]}>
+        {providers.map((p) => (
+          <ProviderLogo key={p.id} provider={p} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function getCategoryLabel(key: ProviderCategory): string {
+  switch (key) {
+    case "flatrate":
+      return t({ en: "Stream", zh: "订阅" });
+    case "free":
+      return t({ en: "Free", zh: "免费" });
+    case "ads":
+      return t({ en: "Ads", zh: "含广告" });
+    case "rent":
+      return t({ en: "Rent", zh: "租借" });
+    case "buy":
+      return t({ en: "Buy", zh: "购买" });
+  }
+}
+
+interface ToolWatchProvidersProps {
+  data: WatchProviderData;
+}
+
+export function ToolWatchProviders({ data }: ToolWatchProvidersProps) {
+  const { region, providers } = data;
+
+  return (
+    <div css={styles.card}>
+      <div css={[flex.between, styles.header]}>
+        <span css={styles.title}>
+          {t({ en: "Where to Watch", zh: "在哪里看" })}
+        </span>
+        <span css={styles.regionBadge}>{region}</span>
+      </div>
+
+      {providers === null ? (
+        <p css={styles.emptyText}>
+          {t({ en: "Not available in ", zh: "在" })}
+          {region}
+          {t({ en: "", zh: "不可用" })}
+        </p>
+      ) : (
+        <>
+          {CATEGORY_KEYS.map((key) => (
+            <CategorySection
+              key={key}
+              categoryKey={key}
+              providers={providers[key]}
+            />
+          ))}
+        </>
+      )}
+
+      <div css={styles.attribution}>
+        {providers?.link ? (
+          <a
+            href={providers.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            css={styles.attributionLink}
+          >
+            {t({
+              en: "Data provided by JustWatch",
+              zh: "数据由 JustWatch 提供",
+            })}
+          </a>
+        ) : (
+          <span>
+            {t({
+              en: "Data provided by JustWatch",
+              zh: "数据由 JustWatch 提供",
+            })}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CategorySection({
+  categoryKey,
+  providers,
+}: {
+  categoryKey: ProviderCategory;
+  providers: ReadonlyArray<ProviderEntry>;
+}) {
+  const label = getCategoryLabel(categoryKey);
+  return <ProviderSection label={label} providers={providers} />;
+}
+
+const styles = stylex.create({
+  card: {
+    backgroundColor: color.backgroundHover,
+    borderRadius: border.radius_2,
+    padding: space._3,
+    marginTop: space._2,
+  },
+  header: {
+    marginBottom: space._2,
+  },
+  title: {
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_6,
+  },
+  regionBadge: {
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_5,
+    color: color.textMuted,
+    backgroundColor: color.backgroundRaised,
+    borderRadius: border.radius_1,
+    paddingInline: space._1,
+    paddingBlock: space._00,
+  },
+  section: {
+    marginBottom: space._2,
+  },
+  sectionLabel: {
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    marginBottom: space._1,
+  },
+  logoRow: {
+    gap: space._1,
+  },
+  logo: {
+    width: `${LOGO_SIZE}px`,
+    height: `${LOGO_SIZE}px`,
+    borderRadius: border.radius_1,
+    objectFit: "cover",
+  },
+  emptyText: {
+    margin: 0,
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    fontStyle: "italic",
+    paddingBlock: space._1,
+  },
+  attribution: {
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    marginTop: space._1,
+    paddingTop: space._1,
+    borderTopWidth: border.size_1,
+    borderTopStyle: "solid",
+    borderTopColor: color.border,
+  },
+  attributionLink: {
+    color: color.textMuted,
+    textDecoration: {
+      default: "none",
+      ":hover": "underline",
+    },
+  },
+});

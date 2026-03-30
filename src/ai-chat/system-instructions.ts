@@ -18,10 +18,14 @@ function getTemplate(): string {
   return template;
 }
 
-export function getChatSystemInstructions(locale: SupportedLocale): string {
+export function getChatSystemInstructions(
+  locale: SupportedLocale,
+  countryCode?: string,
+): string {
   const currentDate = new Date().toISOString().split("T")[0];
 
   return getTemplate()
     .replaceAll("{currentDate}", currentDate)
-    .replaceAll("{locale}", locale);
+    .replaceAll("{locale}", locale)
+    .replaceAll("{countryCode}", countryCode ?? "unknown");
 }

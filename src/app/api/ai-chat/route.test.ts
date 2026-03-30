@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPresentMediaTool } from "#src/ai-chat/tools/present-media.ts";
 import { createSemanticSearchTool } from "#src/ai-chat/tools/semantic-search.ts";
 import { createTmdbSearchTool } from "#src/ai-chat/tools/tmdb-search.ts";
+import { createWatchProvidersTool } from "#src/ai-chat/tools/watch-providers.ts";
 
 vi.mock("#src/ai-chat/chat.ts", () => ({
   chat: vi.fn(),
@@ -64,6 +65,7 @@ function mockStreamResult() {
       semantic_search: createSemanticSearchTool("en"),
       tmdb_search: createTmdbSearchTool("en"),
       present_media: createPresentMediaTool(),
+      watch_providers: createWatchProvidersTool(),
     },
     stopWhen: stepCountIs(5),
   });

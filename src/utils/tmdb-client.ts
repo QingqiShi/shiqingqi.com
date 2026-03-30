@@ -21,15 +21,26 @@ export type PathParams<T extends string> =
     ? { [K in Param]: string } & PathParams<Rest>
     : Record<string, string>;
 
-/** Extract query parameters for a given path and method */
+/** Value types that TMDB query parameters can carry */
+type SearchParamValue = string | number | boolean | undefined | null;
+
+/**
+ * Extract query parameters for a given path and method.
+ *
+ * When the OpenAPI spec declares no query parameters the fallback is
+ * `Record<string, SearchParamValue>` instead of `Record<string, never>`.
+ * `Record<string, never>` creates an impossible type when intersected with
+ * path-parameter objects (e.g. `{ movie_id: string } & Record<string, never>`),
+ * whereas `Record<string, SearchParamValue>` stays compatible.
+ */
 export type QueryParams<
   TPath extends keyof paths,
   TMethod extends keyof paths[TPath],
 > = paths[TPath][TMethod] extends { parameters: { query?: infer Q } }
   ? Q extends Record<string, unknown>
     ? Q
-    : Record<string, never>
-  : Record<string, never>;
+    : Record<string, SearchParamValue>
+  : Record<string, SearchParamValue>;
 
 /** Extract response type for a given path and method */
 export type ResponseType<
