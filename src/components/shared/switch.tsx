@@ -153,6 +153,7 @@ export function Switch({
         initialRendered && styles.animate,
         isDragging && styles.dragging(position),
       ]}
+      role="switch"
       type="checkbox"
       onPointerDown={handleDragStart}
       onPointerUp={handleDragEnd}

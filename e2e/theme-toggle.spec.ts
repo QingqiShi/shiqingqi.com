@@ -20,7 +20,7 @@ test.describe("Theme Toggle", () => {
 
     // Verify theme toggle shows light state
     await expect(
-      page.getByRole("checkbox", { name: /switch to dark theme/i }),
+      page.getByRole("switch", { name: /switch to dark theme/i }),
     ).not.toBeChecked();
 
     // Change system preference to dark
@@ -34,14 +34,14 @@ test.describe("Theme Toggle", () => {
 
     // Verify theme toggle shows dark state
     await expect(
-      page.getByRole("checkbox", { name: /switch to light theme/i }),
+      page.getByRole("switch", { name: /switch to light theme/i }),
     ).toBeChecked();
   });
 
   test("should handle manual toggle and maintain state consistency", async ({
     page,
   }) => {
-    const themeToggle = page.getByRole("checkbox", {
+    const themeToggle = page.getByRole("switch", {
       name: /switch to (light|dark) theme/i,
     });
 
@@ -82,7 +82,7 @@ test.describe("Theme Toggle", () => {
     context,
   }) => {
     // Set manual theme to dark (system is light)
-    const themeToggle = page.getByRole("checkbox", {
+    const themeToggle = page.getByRole("switch", {
       name: /switch to (light|dark) theme/i,
     });
     await themeToggle.click();
@@ -104,14 +104,14 @@ test.describe("Theme Toggle", () => {
 
     // Verify toggle shows dark state
     await expect(
-      newPage.getByRole("checkbox", { name: /switch to light theme/i }),
+      newPage.getByRole("switch", { name: /switch to light theme/i }),
     ).toBeChecked();
 
     await newPage.close();
   });
 
   test("should handle reset to system preference", async ({ page }) => {
-    const themeToggle = page.getByRole("checkbox", {
+    const themeToggle = page.getByRole("switch", {
       name: /switch to (light|dark) theme/i,
     });
 
