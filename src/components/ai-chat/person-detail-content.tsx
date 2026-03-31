@@ -9,6 +9,7 @@ import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { t } from "#src/i18n.ts";
 import { scrollX } from "#src/primitives/layout.stylex.ts";
 import { border, color, font, layer, space } from "#src/tokens.stylex.ts";
+import { calculateAge } from "#src/utils/calculate-age.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
@@ -17,17 +18,6 @@ import { CompactMediaCard } from "./compact-media-card";
 import { useMediaDetail, type FocusedPerson } from "./media-detail-context";
 
 const MAX_CREDITS = 20;
-
-function calculateAge(birthday: string, deathday: string | null): number {
-  const birth = new Date(birthday);
-  const end = deathday ? new Date(deathday) : new Date();
-  let age = end.getFullYear() - birth.getFullYear();
-  const monthDiff = end.getMonth() - birth.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && end.getDate() < birth.getDate())) {
-    age--;
-  }
-  return age;
-}
 
 export function PersonDetailContent({
   id,
