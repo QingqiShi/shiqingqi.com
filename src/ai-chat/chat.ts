@@ -14,8 +14,6 @@ import { createSemanticSearchTool } from "./tools/semantic-search";
 import { createTmdbSearchTool } from "./tools/tmdb-search";
 import { createWatchProvidersTool } from "./tools/watch-providers";
 
-export type { ChatInput } from "./schema";
-
 interface ChatOptions extends ChatInput {
   model?: LanguageModel;
 }
