@@ -80,7 +80,7 @@ export const discoverMovieSchema = z.object({
   requestBody: z.never().nullable().optional(),
   responses: z.object({
     200: z.object({
-      headers: z.record(z.unknown()),
+      headers: z.record(z.string(), z.unknown()),
       content: z.object({
         "application/json": z.unknown(),
       }),
@@ -152,7 +152,7 @@ export const discoverTvSchema = z.object({
   requestBody: z.never().nullable().optional(),
   responses: z.object({
     200: z.object({
-      headers: z.record(z.unknown()),
+      headers: z.record(z.string(), z.unknown()),
       content: z.object({
         "application/json": z.unknown(),
       }),
@@ -179,7 +179,7 @@ export const searchMovieSchema = z.object({
   requestBody: z.never().nullable().optional(),
   responses: z.object({
     200: z.object({
-      headers: z.record(z.unknown()),
+      headers: z.record(z.string(), z.unknown()),
       content: z.object({
         "application/json": z.unknown(),
       }),
@@ -203,7 +203,7 @@ export const searchPersonSchema = z.object({
   requestBody: z.never().nullable().optional(),
   responses: z.object({
     200: z.object({
-      headers: z.record(z.unknown()),
+      headers: z.record(z.string(), z.unknown()),
       content: z.object({
         "application/json": z.unknown(),
       }),
@@ -229,7 +229,7 @@ export const searchTvSchema = z.object({
   requestBody: z.never().nullable().optional(),
   responses: z.object({
     200: z.object({
-      headers: z.record(z.unknown()),
+      headers: z.record(z.string(), z.unknown()),
       content: z.object({
         "application/json": z.unknown(),
       }),
