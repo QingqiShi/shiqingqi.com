@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, Ref } from "react";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { border, color } from "#src/tokens.stylex.ts";
 import { skeletonTokens } from "./skeleton.stylex";
 
@@ -46,7 +47,10 @@ const pulse = stylex.keyframes({
 
 const styles = stylex.create({
   skeleton: {
-    animationName: pulse,
+    animationName: {
+      default: pulse,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
     animationDuration: "2s",
     animationTimingFunction: "cubic-bezier(.4,0,.6,1)",
     animationFillMode: "both",
