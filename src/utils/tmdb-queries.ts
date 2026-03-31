@@ -293,7 +293,7 @@ export const personDetail = (params: PersonDetailParams) =>
         profilePath: data.profile_path ?? null,
         biography: data.biography ?? null,
         birthday: data.birthday ?? null,
-        deathday: (data.deathday as string | null | undefined) ?? null,
+        deathday: typeof data.deathday === "string" ? data.deathday : null,
         knownForDepartment: data.known_for_department ?? null,
       };
     },
