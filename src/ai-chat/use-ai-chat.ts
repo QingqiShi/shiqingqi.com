@@ -3,7 +3,7 @@
 import { Chat, useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
 import type { SupportedLocale } from "#src/types.ts";
@@ -137,10 +137,19 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
   const chat = getOrCreateChat(locale);
   const chatResult = useChat({ chat });
 
-  const [previousSessionId, setPreviousSessionId] = useState(() => {
-    if (chat.messages.length > 0) return null;
-    return getStoredSessionId(locale);
-  });
+  const [previousSessionId, setPreviousSessionId] = useState<string | null>(
+    null,
+  );
+
+  // Deferred to useEffect so the initial render matches the server (null),
+  // avoiding a hydration mismatch — localStorage is not available during SSR.
+  useEffect(() => {
+    if (chat.messages.length > 0) return;
+    const stored = getStoredSessionId(locale);
+    if (stored) {
+      setPreviousSessionId(stored);
+    }
+  }, [chat, locale]);
 
   // Dismiss banner when user starts a new conversation
   if (previousSessionId && chatResult.messages.length > 0) {
