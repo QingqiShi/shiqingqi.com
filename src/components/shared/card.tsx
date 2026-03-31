@@ -3,6 +3,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import {
   border,
   color,
@@ -40,8 +41,12 @@ const styles = stylex.create({
     textAlign: "left",
     padding: space._3,
     overflow: "hidden",
-    transition:
-      "box-shadow 0.2s, transform 0.2s, background-color 0.2s, fill 0.2s",
+    transition: {
+      default:
+        "box-shadow 0.2s, transform 0.2s, background-color 0.2s, fill 0.2s",
+      [motionConstants.REDUCED_MOTION]:
+        "box-shadow 0.2s, background-color 0.2s, fill 0.2s",
+    },
     cursor: "pointer",
     position: "relative",
     color: color.textMain,
@@ -113,7 +118,10 @@ const styles = stylex.create({
     right: space._1,
     top: space._1,
     transform: cardTokens.detailsIndicatorTransform,
-    transition: "opacity 0.2s, transform 0.2s",
+    transition: {
+      default: "opacity 0.2s, transform 0.2s",
+      [motionConstants.REDUCED_MOTION]: "opacity 0.2s",
+    },
     zIndex: layer.content,
   },
   detailsText: {
