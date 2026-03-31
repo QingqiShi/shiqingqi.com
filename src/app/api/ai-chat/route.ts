@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
 
     return createUIMessageStreamResponse({ stream });
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof z.ZodError || error instanceof SyntaxError) {
       return Response.json(
         { success: false, error: "Invalid request body" },
         { status: 400 },

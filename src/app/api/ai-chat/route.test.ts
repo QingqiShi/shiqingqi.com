@@ -386,6 +386,22 @@ describe("POST /api/ai-chat", () => {
     });
   });
 
+  it("returns 400 for malformed JSON body", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "not valid json{{{",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      success: false,
+      error: "Invalid request body",
+    });
+  });
+
   it("includes sessionId in stream metadata", async () => {
     const { chat } = await import("#src/ai-chat/chat.ts");
     vi.mocked(chat).mockResolvedValueOnce(mockStreamResult());
