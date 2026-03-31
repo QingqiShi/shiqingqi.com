@@ -40,7 +40,7 @@
     "verify:vector": "tsx tooling/vector-ingest/verify.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.58",
+    "@ai-sdk/anthropic": "^3.0.64",
     "@ai-sdk/react": "^3.0.135",
     "@mui/utils": "^7.3.9",
     "@phosphor-icons/react": "^2.1.10",
