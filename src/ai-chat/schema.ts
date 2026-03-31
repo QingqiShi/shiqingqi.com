@@ -1,11 +1,8 @@
 import type { UIMessage } from "ai";
-import { z } from "zod";
-import { isUIMessage } from "./is-ui-message";
+import type { SupportedLocale } from "#src/types.ts";
 
-export const chatInputSchema = z.object({
-  messages: z.array(z.custom<UIMessage>(isUIMessage)).min(1),
-  locale: z.enum(["en", "zh"]).default("en"),
-  countryCode: z.string().length(2).optional(),
-});
-
-export type ChatInput = z.infer<typeof chatInputSchema>;
+export interface ChatInput {
+  messages: UIMessage[];
+  locale: SupportedLocale;
+  countryCode?: string;
+}
