@@ -15,7 +15,8 @@ const TOOL_DESCRIPTION =
   "Use this when the user asks who stars in, acts in, or directed a specific title. " +
   "After receiving results, use present_person to display the cast visually.";
 
-const MAX_RESULTS = 20;
+const MAX_CAST = 20;
+const MAX_CREW = 20;
 
 export function createMediaCreditsTool() {
   return tool({
@@ -28,7 +29,7 @@ export function createMediaCreditsTool() {
           ? await getTvShowCredits({ series_id: idString })
           : await getMovieCredits({ movie_id: idString });
 
-      const cast = (credits.cast ?? []).slice(0, MAX_RESULTS).map((entry) => ({
+      const cast = (credits.cast ?? []).slice(0, MAX_CAST).map((entry) => ({
         id: entry.id,
         name: entry.name,
         profile_path: entry.profile_path,
@@ -37,7 +38,16 @@ export function createMediaCreditsTool() {
         order: entry.order,
       }));
 
-      return cast;
+      const crew = (credits.crew ?? []).slice(0, MAX_CREW).map((entry) => ({
+        id: entry.id,
+        name: entry.name,
+        profile_path: entry.profile_path,
+        known_for_department: entry.known_for_department,
+        department: entry.department,
+        job: entry.job,
+      }));
+
+      return { cast, crew };
     },
   });
 }

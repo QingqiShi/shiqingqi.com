@@ -168,13 +168,11 @@ function mapTmdbSearchPersonOutput(
   return items;
 }
 
-function mapMediaCreditsPersonOutput(
-  output: unknown,
-): ReadonlyArray<PersonListItem> {
-  if (!Array.isArray(output)) return [];
+function extractPersonEntries(arr: unknown): PersonListItem[] {
+  if (!Array.isArray(arr)) return [];
 
   const items: PersonListItem[] = [];
-  for (const entry of output) {
+  for (const entry of arr) {
     if (!isRecord(entry)) continue;
     if (typeof entry.id !== "number") continue;
 
@@ -190,6 +188,28 @@ function mapMediaCreditsPersonOutput(
     });
   }
   return items;
+}
+
+function mapMediaCreditsPersonOutput(
+  output: unknown,
+): ReadonlyArray<PersonListItem> {
+  // New format: { cast: [...], crew: [...] }
+  if (isRecord(output)) {
+    const castItems = extractPersonEntries(output.cast);
+    const crewItems = extractPersonEntries(output.crew);
+    const seen = new Set<number>();
+    const items: PersonListItem[] = [];
+
+    for (const item of [...castItems, ...crewItems]) {
+      if (seen.has(item.id)) continue;
+      seen.add(item.id);
+      items.push(item);
+    }
+    return items;
+  }
+
+  // Legacy format: flat array (backwards-compatible with cached data)
+  return extractPersonEntries(output);
 }
 
 export function buildPersonResultsMap(
