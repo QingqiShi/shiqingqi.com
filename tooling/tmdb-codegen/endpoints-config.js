@@ -71,6 +71,24 @@ export const endpoints = [
     functionName: "getTvShowRecommendations",
   },
 
+  // Movie & TV Credits (cast/crew)
+  {
+    path: "/3/movie/{movie_id}/credits",
+    functionName: "getMovieCredits",
+  },
+  { path: "/3/tv/{series_id}/credits", functionName: "getTvShowCredits" },
+
+  // Person Details
+  { path: "/3/person/{person_id}", functionName: "getPersonDetails" },
+  {
+    path: "/3/person/{person_id}/images",
+    functionName: "getPersonImages",
+  },
+  {
+    path: "/3/person/{person_id}/combined_credits",
+    functionName: "getPersonCombinedCredits",
+  },
+
   // Search Functions
   {
     path: "/3/search/movie",
@@ -116,4 +134,12 @@ export const apiRoutes = [
   { functionName: "getTvShowDetails", routePath: "get-tv-show-details" },
   { functionName: "getMovieVideos", routePath: "get-movie-videos" },
   { functionName: "getTvShowVideos", routePath: "get-tv-show-videos" },
+  { functionName: "getMovieCredits", routePath: "get-movie-credits" },
+  { functionName: "getTvShowCredits", routePath: "get-tv-show-credits" },
+  { functionName: "getPersonDetails", routePath: "get-person-details" },
+  { functionName: "getPersonImages", routePath: "get-person-images" },
+  {
+    functionName: "getPersonCombinedCredits",
+    routePath: "get-person-combined-credits",
+  },
 ];

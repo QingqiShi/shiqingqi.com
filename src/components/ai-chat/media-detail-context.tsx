@@ -9,18 +9,36 @@ export interface FocusedMedia {
   posterPath?: string | null;
 }
 
+export interface FocusedPerson {
+  id: number;
+  name?: string | null;
+  profilePath?: string | null;
+}
+
 interface MediaDetailState {
   focusedMedia: FocusedMedia | null;
   setFocusedMedia: (media: FocusedMedia | null) => void;
+  focusedPerson: FocusedPerson | null;
+  setFocusedPerson: (person: FocusedPerson | null) => void;
 }
 
 const MediaDetailContext = createContext<MediaDetailState | null>(null);
 
 export function MediaDetailProvider({ children }: PropsWithChildren) {
   const [focusedMedia, setFocusedMedia] = useState<FocusedMedia | null>(null);
+  const [focusedPerson, setFocusedPerson] = useState<FocusedPerson | null>(
+    null,
+  );
 
   return (
-    <MediaDetailContext value={{ focusedMedia, setFocusedMedia }}>
+    <MediaDetailContext
+      value={{
+        focusedMedia,
+        setFocusedMedia,
+        focusedPerson,
+        setFocusedPerson,
+      }}
+    >
       {children}
     </MediaDetailContext>
   );

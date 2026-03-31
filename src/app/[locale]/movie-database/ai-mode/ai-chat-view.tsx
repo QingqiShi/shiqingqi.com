@@ -11,6 +11,7 @@ import { ChatInputBar } from "#src/components/ai-chat/chat-input-bar.tsx";
 import { ChatMessageList } from "#src/components/ai-chat/chat-message-list.tsx";
 import { MediaDetailProvider } from "#src/components/ai-chat/media-detail-context.tsx";
 import { MediaDetailOverlay } from "#src/components/ai-chat/media-detail-overlay.tsx";
+import { PersonDetailOverlay } from "#src/components/ai-chat/person-detail-overlay.tsx";
 import { SessionRestoreBanner } from "#src/components/ai-chat/session-restore-banner.tsx";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
@@ -97,6 +98,7 @@ export function AIChatView({
           />
         </div>
         <MediaDetailOverlay />
+        <PersonDetailOverlay />
       </ChatActionsContext>
     </MediaDetailProvider>
   );

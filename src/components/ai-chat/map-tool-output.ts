@@ -1,5 +1,6 @@
 import { presentMediaInputSchema } from "#src/ai-chat/tools/present-media.ts";
-import type { MediaListItem } from "#src/utils/types.ts";
+import { presentPersonInputSchema } from "#src/ai-chat/tools/present-person.ts";
+import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -65,6 +66,30 @@ function mapSemanticSearchOutput(
   return items;
 }
 
+function mapPersonCreditsOutput(output: unknown): ReadonlyArray<MediaListItem> {
+  if (!Array.isArray(output)) return [];
+
+  const items: MediaListItem[] = [];
+  for (const entry of output) {
+    if (!isRecord(entry)) continue;
+    if (typeof entry.id !== "number") continue;
+
+    items.push({
+      id: entry.id,
+      title: typeof entry.title === "string" ? entry.title : undefined,
+      posterPath:
+        typeof entry.poster_path === "string" ? entry.poster_path : null,
+      rating:
+        typeof entry.vote_average === "number" ? entry.vote_average : null,
+      mediaType:
+        entry.media_type === "movie" || entry.media_type === "tv"
+          ? entry.media_type
+          : null,
+    });
+  }
+  return items;
+}
+
 export function mapToolOutputToMediaItems(
   toolName: string,
   output: unknown,
@@ -74,6 +99,8 @@ export function mapToolOutputToMediaItems(
       return mapTmdbSearchOutput(output);
     case "semantic_search":
       return mapSemanticSearchOutput(output);
+    case "person_credits":
+      return mapPersonCreditsOutput(output);
     default:
       return [];
   }
@@ -111,6 +138,92 @@ export function resolveMediaItems(
         id: entry.id,
         mediaType: entry.media_type,
       });
+    }
+  }
+  return items;
+}
+
+function mapTmdbSearchPersonOutput(
+  output: unknown,
+): ReadonlyArray<PersonListItem> {
+  if (!Array.isArray(output)) return [];
+
+  const items: PersonListItem[] = [];
+  for (const entry of output) {
+    if (!isRecord(entry)) continue;
+    if (typeof entry.id !== "number") continue;
+    if (entry.media_type !== "person") continue;
+
+    items.push({
+      id: entry.id,
+      name: typeof entry.name === "string" ? entry.name : null,
+      profilePath:
+        typeof entry.profile_path === "string" ? entry.profile_path : null,
+      knownForDepartment:
+        typeof entry.known_for_department === "string"
+          ? entry.known_for_department
+          : null,
+    });
+  }
+  return items;
+}
+
+function mapMediaCreditsPersonOutput(
+  output: unknown,
+): ReadonlyArray<PersonListItem> {
+  if (!Array.isArray(output)) return [];
+
+  const items: PersonListItem[] = [];
+  for (const entry of output) {
+    if (!isRecord(entry)) continue;
+    if (typeof entry.id !== "number") continue;
+
+    items.push({
+      id: entry.id,
+      name: typeof entry.name === "string" ? entry.name : null,
+      profilePath:
+        typeof entry.profile_path === "string" ? entry.profile_path : null,
+      knownForDepartment:
+        typeof entry.known_for_department === "string"
+          ? entry.known_for_department
+          : null,
+    });
+  }
+  return items;
+}
+
+export function buildPersonResultsMap(
+  toolName: string,
+  output: unknown,
+): ReadonlyMap<number, PersonListItem> {
+  let items: ReadonlyArray<PersonListItem>;
+  switch (toolName) {
+    case "tmdb_search":
+      items = mapTmdbSearchPersonOutput(output);
+      break;
+    case "media_credits":
+      items = mapMediaCreditsPersonOutput(output);
+      break;
+    default:
+      return new Map();
+  }
+  return new Map(items.map((item) => [item.id, item]));
+}
+
+export function resolvePersonItems(
+  input: unknown,
+  personResults: ReadonlyMap<number, PersonListItem>,
+): ReadonlyArray<PersonListItem> {
+  const parsed = presentPersonInputSchema.safeParse(input);
+  if (!parsed.success) return [];
+
+  const items: PersonListItem[] = [];
+  for (const entry of parsed.data.people) {
+    const found = personResults.get(entry.id);
+    if (found) {
+      items.push(found);
+    } else {
+      items.push({ id: entry.id });
     }
   }
   return items;

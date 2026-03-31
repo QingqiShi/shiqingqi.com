@@ -10,9 +10,12 @@ import {
   type UIMessage,
 } from "ai";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import { CompactionNotice } from "./compaction-notice";
-import { buildSearchResultsMap } from "./map-tool-output";
+import {
+  buildPersonResultsMap,
+  buildSearchResultsMap,
+} from "./map-tool-output";
 import { MarkdownContent } from "./markdown-content";
 import { ToolActivityGroup } from "./tool-activity-group";
 import { ToolVisualOutput } from "./tool-visual-output";
@@ -30,6 +33,7 @@ export function ChatMessage({
 
   const {
     searchResultsMap,
+    personResultsMap,
     toolParts,
     hasVisibleContent,
     firstToolIndex,
@@ -78,7 +82,9 @@ export function ChatMessage({
           const toolName = getToolName(part);
           const isFirstTool = index === firstToolIndex;
           const hasVisualOutput =
-            toolName === "present_media" || toolName === "watch_providers";
+            toolName === "present_media" ||
+            toolName === "watch_providers" ||
+            toolName === "present_person";
 
           if (!isFirstTool && !hasVisualOutput) return null;
 
@@ -99,6 +105,7 @@ export function ChatMessage({
                   input={toolInput}
                   output={toolOutput}
                   searchResultsMap={searchResultsMap}
+                  personResultsMap={personResultsMap}
                 />
               )}
             </div>
@@ -118,6 +125,7 @@ function isCompactionPart(part: TextUIPart): boolean {
 
 function deriveMessageData(parts: UIMessage["parts"]) {
   const searchResultsMap = new Map<string, MediaListItem>();
+  const personResultsMap = new Map<number, PersonListItem>();
   const toolParts: Array<{
     toolCallId: string;
     toolName: string;
@@ -156,11 +164,24 @@ function deriveMessageData(parts: UIMessage["parts"]) {
       if (
         "output" in part &&
         part.state === "output-available" &&
-        (name === "tmdb_search" || name === "semantic_search")
+        (name === "tmdb_search" ||
+          name === "semantic_search" ||
+          name === "person_credits")
       ) {
         const partMap = buildSearchResultsMap(name, part.output);
         for (const [key, value] of partMap) {
           searchResultsMap.set(key, value);
+        }
+      }
+
+      if (
+        "output" in part &&
+        part.state === "output-available" &&
+        (name === "tmdb_search" || name === "media_credits")
+      ) {
+        const partPersonMap = buildPersonResultsMap(name, part.output);
+        for (const [key, value] of partPersonMap) {
+          personResultsMap.set(key, value);
         }
       }
     } else if (!hasVisibleContent) {
@@ -171,6 +192,7 @@ function deriveMessageData(parts: UIMessage["parts"]) {
 
   return {
     searchResultsMap,
+    personResultsMap,
     toolParts,
     hasVisibleContent,
     firstToolIndex,

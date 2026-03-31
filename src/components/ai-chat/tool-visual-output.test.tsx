@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import { MediaDetailProvider } from "./media-detail-context";
 import { ToolVisualOutput } from "./tool-visual-output";
 
@@ -28,6 +28,7 @@ const searchResultsMap = new Map<string, MediaListItem>([
 ]);
 
 const emptyMap = new Map<string, MediaListItem>();
+const emptyPersonMap = new Map<number, PersonListItem>();
 
 describe("ToolVisualOutput", () => {
   describe("present_media", () => {
@@ -39,6 +40,7 @@ describe("ToolVisualOutput", () => {
             state="input-streaming"
             input={undefined}
             searchResultsMap={searchResultsMap}
+            personResultsMap={emptyPersonMap}
           />
         </MediaDetailProvider>,
       );
@@ -54,6 +56,7 @@ describe("ToolVisualOutput", () => {
             state="input-available"
             input={{ media: [{ id: 1, media_type: "movie" }] }}
             searchResultsMap={searchResultsMap}
+            personResultsMap={emptyPersonMap}
           />
         </MediaDetailProvider>,
       );
@@ -75,6 +78,7 @@ describe("ToolVisualOutput", () => {
               ],
             }}
             searchResultsMap={searchResultsMap}
+            personResultsMap={emptyPersonMap}
           />
         </MediaDetailProvider>,
       );
@@ -91,6 +95,7 @@ describe("ToolVisualOutput", () => {
             state="output-available"
             input={{ media: [{ id: 999, media_type: "movie" }] }}
             searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
           />
         </MediaDetailProvider>,
       );
@@ -106,6 +111,7 @@ describe("ToolVisualOutput", () => {
             state="output-error"
             input={undefined}
             searchResultsMap={searchResultsMap}
+            personResultsMap={emptyPersonMap}
           />
         </MediaDetailProvider>,
       );
@@ -122,6 +128,7 @@ describe("ToolVisualOutput", () => {
           state="input-streaming"
           input={{ id: 550, media_type: "movie", region: "US" }}
           searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
         />,
       );
 
@@ -148,6 +155,7 @@ describe("ToolVisualOutput", () => {
             },
           }}
           searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
         />,
       );
 
@@ -162,6 +170,7 @@ describe("ToolVisualOutput", () => {
           state="output-error"
           input={{ id: 550, media_type: "movie", region: "US" }}
           searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
         />,
       );
 
@@ -177,6 +186,7 @@ describe("ToolVisualOutput", () => {
           state="output-available"
           input={{ query: "test" }}
           searchResultsMap={searchResultsMap}
+          personResultsMap={emptyPersonMap}
         />,
       );
 
@@ -190,6 +200,7 @@ describe("ToolVisualOutput", () => {
           state="output-available"
           input={{ query: "test" }}
           searchResultsMap={searchResultsMap}
+          personResultsMap={emptyPersonMap}
         />,
       );
 
@@ -203,6 +214,7 @@ describe("ToolVisualOutput", () => {
           state="output-available"
           input={{}}
           searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
         />,
       );
 

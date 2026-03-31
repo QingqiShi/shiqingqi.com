@@ -5,3 +5,10 @@ export type MediaListItem = {
   rating?: number | null;
   mediaType?: "movie" | "tv" | null;
 };
+
+export type PersonListItem = {
+  id: number;
+  name?: string | null;
+  profilePath?: string | null;
+  knownForDepartment?: string | null;
+};
