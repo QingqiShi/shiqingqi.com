@@ -178,6 +178,130 @@ describe("ToolVisualOutput", () => {
     });
   });
 
+  describe("present_person", () => {
+    const personResultsMap = new Map<number, PersonListItem>([
+      [
+        42,
+        {
+          id: 42,
+          name: "Leonardo DiCaprio",
+          profilePath: "/leo.jpg",
+          knownForDepartment: "Acting",
+        },
+      ],
+      [
+        99,
+        {
+          id: 99,
+          name: "Christopher Nolan",
+          profilePath: "/nolan.jpg",
+          knownForDepartment: "Directing",
+        },
+      ],
+    ]);
+
+    it("renders skeleton for input-streaming", () => {
+      const { container } = render(
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_person"
+            state="input-streaming"
+            input={undefined}
+            searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
+          />
+        </MediaDetailProvider>,
+      );
+
+      expect(container.innerHTML).not.toBe("");
+    });
+
+    it("renders person cards for input-available", () => {
+      render(
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_person"
+            state="input-available"
+            input={{ people: [{ id: 42 }] }}
+            searchResultsMap={emptyMap}
+            personResultsMap={personResultsMap}
+          />
+        </MediaDetailProvider>,
+      );
+
+      expect(
+        screen.getByRole("button", { name: "Leonardo DiCaprio" }),
+      ).toBeInTheDocument();
+    });
+
+    it("renders person cards for output-available", () => {
+      render(
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_person"
+            state="output-available"
+            input={{
+              people: [{ id: 42 }, { id: 99 }],
+            }}
+            searchResultsMap={emptyMap}
+            personResultsMap={personResultsMap}
+          />
+        </MediaDetailProvider>,
+      );
+
+      const buttons = screen.getAllByRole("button");
+      expect(buttons).toHaveLength(2);
+    });
+
+    it("renders fallback card when person ID not in results map", () => {
+      render(
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_person"
+            state="output-available"
+            input={{ people: [{ id: 777 }] }}
+            searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
+          />
+        </MediaDetailProvider>,
+      );
+
+      expect(screen.getByRole("button")).toBeInTheDocument();
+    });
+
+    it("shows error for output-error state", () => {
+      render(
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_person"
+            state="output-error"
+            input={undefined}
+            searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
+          />
+        </MediaDetailProvider>,
+      );
+
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+
+    it("returns null for empty people array", () => {
+      const { container } = render(
+        <MediaDetailProvider>
+          <ToolVisualOutput
+            toolName="present_person"
+            state="output-available"
+            input={{ people: [] }}
+            searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
+          />
+        </MediaDetailProvider>,
+      );
+
+      expect(container.innerHTML).toBe("");
+    });
+  });
+
   describe("non-present_media tools", () => {
     it("returns null for tmdb_search", () => {
       const { container } = render(
