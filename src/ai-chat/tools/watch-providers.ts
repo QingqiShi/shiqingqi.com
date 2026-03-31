@@ -106,19 +106,16 @@ function extractRegionData(
   const match = Object.entries(results).find(([code]) => code === countryCode);
   if (!match) return null;
 
-  const data = match[1];
-  if (!data) return null;
+  const data: unknown = match[1];
+  if (!isRecord(data)) return null;
 
-  // data is a union of 200+ country types with varying optional fields.
-  // Use Record access to avoid union narrowing issues.
-  const record = data as Record<string, unknown>;
   return {
-    link: typeof record.link === "string" ? record.link : null,
-    flatrate: mapProviders(record.flatrate),
-    rent: mapProviders(record.rent),
-    buy: mapProviders(record.buy),
-    ads: mapProviders(record.ads),
-    free: mapProviders(record.free),
+    link: typeof data.link === "string" ? data.link : null,
+    flatrate: mapProviders(data.flatrate),
+    rent: mapProviders(data.rent),
+    buy: mapProviders(data.buy),
+    ads: mapProviders(data.ads),
+    free: mapProviders(data.free),
   };
 }
 
@@ -149,13 +146,13 @@ function searchProviderAcrossRegions(
 
   const regions: ProviderSearchResult["regions"] = [];
 
-  for (const [code, data] of Object.entries(results)) {
-    if (!data) continue;
-    const record = data as Record<string, unknown>;
+  for (const [code, rawData] of Object.entries(results)) {
+    const data: unknown = rawData;
+    if (!isRecord(data)) continue;
     const types: AvailabilityType[] = [];
 
     for (const availType of AVAILABILITY_TYPES) {
-      if (hasProviderName(record[availType], providerName)) {
+      if (hasProviderName(data[availType], providerName)) {
         types.push(availType);
       }
     }
