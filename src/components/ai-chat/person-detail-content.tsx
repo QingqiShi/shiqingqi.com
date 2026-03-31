@@ -224,30 +224,33 @@ function FilmographyScroller({
         aria-label={t({ en: "Filmography", zh: "作品列表" })}
         tabIndex={0}
       >
-        {items.map((item) => (
-          <div
-            key={`${item.mediaType}-${item.id}`}
-            css={filmStyles.cardWrapper}
-            role="listitem"
-          >
-            <CompactMediaCard
-              media={item}
-              onClick={
-                item.mediaType
-                  ? () => {
-                      setFocusedPerson(null);
-                      setFocusedMedia({
-                        id: item.id,
-                        mediaType: item.mediaType!,
-                        title: item.title,
-                        posterPath: item.posterPath,
-                      });
-                    }
-                  : undefined
-              }
-            />
-          </div>
-        ))}
+        {items.map((item) => {
+          const { mediaType } = item;
+          return (
+            <div
+              key={`${mediaType}-${item.id}`}
+              css={filmStyles.cardWrapper}
+              role="listitem"
+            >
+              <CompactMediaCard
+                media={item}
+                onClick={
+                  mediaType
+                    ? () => {
+                        setFocusedPerson(null);
+                        setFocusedMedia({
+                          id: item.id,
+                          mediaType,
+                          title: item.title,
+                          posterPath: item.posterPath,
+                        });
+                      }
+                    : undefined
+                }
+              />
+            </div>
+          );
+        })}
       </div>
       <div
         css={[filmStyles.fadeEdge, filmStyles.fadeLeft]}
