@@ -7,6 +7,10 @@ import type {
   getMovieGenres,
   getMovieRecommendations,
   getMovieVideos,
+  getMovieCredits,
+  getPersonCombinedCredits,
+  getPersonDetails,
+  getTvShowCredits,
   getTvShowDetails,
   getTvShowGenres,
   getTvShowRecommendations,
@@ -258,6 +262,72 @@ export const mediaDetail = (params: MediaDetailParams) =>
         voteAverage: data.vote_average,
         voteCount: data.vote_count,
       };
+    },
+  });
+
+type PersonDetailParams = {
+  id: string;
+  language?: string;
+};
+
+export interface NormalizedPersonDetail {
+  name: string;
+  profilePath: string | null;
+  biography: string | null;
+  birthday: string | null;
+  deathday: string | null;
+  knownForDepartment: string | null;
+}
+
+export const personDetail = (params: PersonDetailParams) =>
+  queryOptions({
+    queryKey: [{ query: "personDetail", ...tmdbScope, ...params }],
+    queryFn: async (): Promise<NormalizedPersonDetail> => {
+      const { id, ...queryParams } = params;
+      const data = await apiRequestWrapper<typeof getPersonDetails>(
+        "/api/tmdb/get-person-details",
+        { ...queryParams, person_id: id },
+      );
+      return {
+        name: data.name ?? "",
+        profilePath: data.profile_path ?? null,
+        biography: data.biography ?? null,
+        birthday: data.birthday ?? null,
+        deathday: (data.deathday as string | null | undefined) ?? null,
+        knownForDepartment: data.known_for_department ?? null,
+      };
+    },
+  });
+
+export const personCombinedCredits = (params: PersonDetailParams) =>
+  queryOptions({
+    queryKey: [{ query: "personCombinedCredits", ...tmdbScope, ...params }],
+    queryFn: async () => {
+      const { id, ...queryParams } = params;
+      return apiRequestWrapper<typeof getPersonCombinedCredits>(
+        "/api/tmdb/get-person-combined-credits",
+        { ...queryParams, person_id: id },
+      );
+    },
+  });
+
+export const mediaCredits = (params: MediaDetailParams) =>
+  queryOptions({
+    queryKey: [{ query: "mediaCredits", ...tmdbScope, ...params }],
+    queryFn: async () => {
+      if (params.type === "tv") {
+        const { type, id, ...queryParams } = params;
+        return apiRequestWrapper<typeof getTvShowCredits>(
+          "/api/tmdb/get-tv-show-credits",
+          { ...queryParams, series_id: id },
+        );
+      } else {
+        const { type, id, ...queryParams } = params;
+        return apiRequestWrapper<typeof getMovieCredits>(
+          "/api/tmdb/get-movie-credits",
+          { ...queryParams, movie_id: id },
+        );
+      }
     },
   });
 

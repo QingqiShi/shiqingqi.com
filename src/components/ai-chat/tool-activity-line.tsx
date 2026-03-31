@@ -32,8 +32,20 @@ function getQuerySummary(input: unknown): string | null {
 
 function getMediaCount(input: unknown): number | null {
   if (!isRecord(input)) return null;
-  if (Array.isArray(input.media)) {
-    return input.media.length;
+  if (Array.isArray(input.media)) return input.media.length;
+  return null;
+}
+
+function getPersonCount(input: unknown): number | null {
+  if (!isRecord(input)) return null;
+  if (Array.isArray(input.people)) return input.people.length;
+  return null;
+}
+
+function getPersonIdSummary(input: unknown): string | null {
+  if (!isRecord(input)) return null;
+  if (typeof input.person_id === "number") {
+    return `ID ${input.person_id}`;
   }
   return null;
 }
@@ -67,6 +79,15 @@ export function ToolActivityLine({
     case "watch_providers":
       label = t({ en: "Watch Providers", zh: "观看渠道" });
       break;
+    case "media_credits":
+      label = t({ en: "Cast & Crew", zh: "演职人员" });
+      break;
+    case "person_credits":
+      label = t({ en: "Person Credits", zh: "人物作品" });
+      break;
+    case "present_person":
+      label = t({ en: "Presenting People", zh: "展示人物" });
+      break;
     default:
       label = toolName;
   }
@@ -83,6 +104,17 @@ export function ToolActivityLine({
     }
   } else if (toolName === "present_media") {
     const count = getMediaCount(input);
+    if (count !== null) {
+      summary =
+        count.toString() + " " + (count === 1 ? itemSingular : itemPlural);
+    }
+  } else if (toolName === "media_credits") {
+    // No good summary available — media_credits input only has ID + type
+    summary = null;
+  } else if (toolName === "person_credits") {
+    summary = getPersonIdSummary(input);
+  } else if (toolName === "present_person") {
+    const count = getPersonCount(input);
     if (count !== null) {
       summary =
         count.toString() + " " + (count === 1 ? itemSingular : itemPlural);

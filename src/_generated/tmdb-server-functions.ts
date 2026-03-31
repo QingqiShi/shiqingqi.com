@@ -49,6 +49,16 @@ export async function getConfigurationLanguages(
   return tmdbGet("/3/configuration/languages", params);
 }
 
+export async function getMovieCredits(
+  params: { movie_id: string } & QueryParams<
+    "/3/movie/{movie_id}/credits",
+    "get"
+  >,
+) {
+  const { movie_id, ...queryParams } = params;
+  return tmdbGet("/3/movie/{movie_id}/credits", queryParams, { movie_id });
+}
+
 export async function getMovieDetails(
   params: { movie_id: string } & QueryParams<"/3/movie/{movie_id}", "get">,
 ) {
@@ -96,6 +106,35 @@ export async function getMovieWatchProviders(
   });
 }
 
+export async function getPersonCombinedCredits(
+  params: { person_id: string } & QueryParams<
+    "/3/person/{person_id}/combined_credits",
+    "get"
+  >,
+) {
+  const { person_id, ...queryParams } = params;
+  return tmdbGet("/3/person/{person_id}/combined_credits", queryParams, {
+    person_id,
+  });
+}
+
+export async function getPersonDetails(
+  params: { person_id: string } & QueryParams<"/3/person/{person_id}", "get">,
+) {
+  const { person_id, ...queryParams } = params;
+  return tmdbGet("/3/person/{person_id}", queryParams, { person_id });
+}
+
+export async function getPersonImages(
+  params: { person_id: string } & QueryParams<
+    "/3/person/{person_id}/images",
+    "get"
+  >,
+) {
+  const { person_id, ...queryParams } = params;
+  return tmdbGet("/3/person/{person_id}/images", queryParams, { person_id });
+}
+
 export async function getTrendingMovies(
   params: { time_window: string } & QueryParams<
     "/3/trending/movie/{time_window}",
@@ -116,6 +155,16 @@ export async function getTrendingTvShows(
 ) {
   const { time_window, ...queryParams } = params;
   return tmdbGet("/3/trending/tv/{time_window}", queryParams, { time_window });
+}
+
+export async function getTvShowCredits(
+  params: { series_id: string } & QueryParams<
+    "/3/tv/{series_id}/credits",
+    "get"
+  >,
+) {
+  const { series_id, ...queryParams } = params;
+  return tmdbGet("/3/tv/{series_id}/credits", queryParams, { series_id });
 }
 
 export async function getTvShowDetails(

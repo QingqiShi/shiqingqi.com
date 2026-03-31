@@ -6,7 +6,10 @@ import { getAnthropicModel } from "./client";
 import { contextManagementProviderOptions } from "./context-management";
 import type { ChatInput } from "./schema";
 import { getChatSystemInstructions } from "./system-instructions";
+import { createMediaCreditsTool } from "./tools/media-credits";
+import { createPersonCreditsTool } from "./tools/person-credits";
 import { createPresentMediaTool } from "./tools/present-media";
+import { createPresentPersonTool } from "./tools/present-person";
 import { createSemanticSearchTool } from "./tools/semantic-search";
 import { createTmdbSearchTool } from "./tools/tmdb-search";
 import { createWatchProvidersTool } from "./tools/watch-providers";
@@ -35,6 +38,9 @@ export async function chat({
       tmdb_search: createTmdbSearchTool(locale),
       present_media: createPresentMediaTool(),
       watch_providers: createWatchProvidersTool(),
+      media_credits: createMediaCreditsTool(),
+      person_credits: createPersonCreditsTool(),
+      present_person: createPresentPersonTool(),
     },
     providerOptions: contextManagementProviderOptions,
     stopWhen: stepCountIs(5),
