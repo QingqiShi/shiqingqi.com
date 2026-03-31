@@ -72,6 +72,19 @@ describe("POST /api/ai-chat/session", () => {
     expect(response.status).toBe(400);
   });
 
+  it("returns 400 for malformed JSON body", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/ai-chat/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "not valid json{{{",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "Invalid request body" });
+  });
+
   it("returns 500 when Redis read fails", async () => {
     const { getSessionMessages } =
       await import("#src/session-store/session-store.ts");

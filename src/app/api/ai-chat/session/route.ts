@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
 
     return Response.json({ messages, sessionId: parsed.data.sessionId });
   } catch (error) {
+    if (error instanceof SyntaxError) {
+      return Response.json({ error: "Invalid request body" }, { status: 400 });
+    }
     console.error("AI Chat session POST error:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
