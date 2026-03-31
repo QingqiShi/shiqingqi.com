@@ -42,7 +42,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.58",
     "@ai-sdk/react": "^3.0.135",
-    "@mui/utils": "^7.3.7",
+    "@mui/utils": "^7.3.9",
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "^9.5.7",
     "@stylexjs/stylex": "^0.18.2",
