@@ -55,7 +55,11 @@ export async function POST(request: NextRequest) {
     // Pre-stream checkpoint: save user messages while LLM initializes
     const [, result] = await Promise.all([
       saveSessionMessages(sessionId, messages),
-      chat({ messages, locale: input.locale }),
+      chat({
+        messages,
+        locale: input.locale,
+        countryCode: request.headers.get("x-vercel-ip-country") ?? undefined,
+      }),
     ]);
 
     let finishedMessages: UIMessage[] | undefined;

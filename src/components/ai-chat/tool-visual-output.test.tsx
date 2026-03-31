@@ -114,6 +114,61 @@ describe("ToolVisualOutput", () => {
     });
   });
 
+  describe("watch_providers", () => {
+    it("renders skeleton for input-streaming", () => {
+      const { container } = render(
+        <ToolVisualOutput
+          toolName="watch_providers"
+          state="input-streaming"
+          input={{ id: 550, media_type: "movie", region: "US" }}
+          searchResultsMap={emptyMap}
+        />,
+      );
+
+      expect(container.innerHTML).not.toBe("");
+    });
+
+    it("renders card for output-available", () => {
+      render(
+        <ToolVisualOutput
+          toolName="watch_providers"
+          state="output-available"
+          input={{ id: 550, media_type: "movie", region: "US" }}
+          output={{
+            id: 550,
+            mediaType: "movie",
+            region: "US",
+            providers: {
+              link: "https://example.com",
+              flatrate: [{ id: 8, name: "Netflix", logoPath: "/netflix.jpg" }],
+              rent: [],
+              buy: [],
+              ads: [],
+              free: [],
+            },
+          }}
+          searchResultsMap={emptyMap}
+        />,
+      );
+
+      expect(screen.getByText("Where to Watch")).toBeInTheDocument();
+      expect(screen.getByAltText("Netflix")).toBeInTheDocument();
+    });
+
+    it("shows error for output-error", () => {
+      render(
+        <ToolVisualOutput
+          toolName="watch_providers"
+          state="output-error"
+          input={{ id: 550, media_type: "movie", region: "US" }}
+          searchResultsMap={emptyMap}
+        />,
+      );
+
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+  });
+
   describe("non-present_media tools", () => {
     it("returns null for tmdb_search", () => {
       const { container } = render(

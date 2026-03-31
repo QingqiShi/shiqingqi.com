@@ -171,6 +171,69 @@ describe("ChatMessage", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders watch_providers visual card with provider data", () => {
+    render(
+      <MediaDetailProvider>
+        <ChatMessage
+          message={createMessage({
+            role: "assistant",
+            parts: [
+              { type: "text", text: "Here's where you can watch it:" },
+              {
+                type: "dynamic-tool",
+                toolName: "tmdb_search",
+                toolCallId: "search-call",
+                state: "output-available",
+                input: { query: "Fight Club" },
+                output: [
+                  {
+                    id: 550,
+                    media_type: "movie",
+                    title: "Fight Club",
+                    poster_path: "/fightclub.jpg",
+                    vote_average: 8.4,
+                  },
+                ],
+              },
+              {
+                type: "dynamic-tool",
+                toolName: "watch_providers",
+                toolCallId: "wp-call",
+                state: "output-available",
+                input: { id: 550, media_type: "movie", region: "US" },
+                output: {
+                  id: 550,
+                  mediaType: "movie",
+                  region: "US",
+                  providers: {
+                    link: "https://www.themoviedb.org/movie/550/watch?locale=US",
+                    flatrate: [
+                      {
+                        id: 8,
+                        name: "Netflix",
+                        logoPath: "/netflix.jpg",
+                      },
+                    ],
+                    rent: [],
+                    buy: [],
+                    ads: [],
+                    free: [],
+                  },
+                },
+              },
+            ],
+          })}
+        />
+      </MediaDetailProvider>,
+    );
+
+    expect(
+      screen.getByText("Here's where you can watch it:"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Where to Watch")).toBeInTheDocument();
+    expect(screen.getByAltText("Netflix")).toBeInTheDocument();
+  });
+
   it("does not render cards for search tool parts but shows activity", () => {
     render(
       <ChatMessage

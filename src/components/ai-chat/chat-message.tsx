@@ -77,11 +77,13 @@ export function ChatMessage({
         if (isToolUIPart(part)) {
           const toolName = getToolName(part);
           const isFirstTool = index === firstToolIndex;
-          const hasPresentMedia = toolName === "present_media";
+          const hasVisualOutput =
+            toolName === "present_media" || toolName === "watch_providers";
 
-          if (!isFirstTool && !hasPresentMedia) return null;
+          if (!isFirstTool && !hasVisualOutput) return null;
 
           const toolInput = "input" in part ? part.input : undefined;
+          const toolOutput = "output" in part ? part.output : undefined;
           return (
             <div key={key}>
               {isFirstTool && (
@@ -90,11 +92,12 @@ export function ChatMessage({
                   isStreaming={isStreaming}
                 />
               )}
-              {hasPresentMedia && (
+              {hasVisualOutput && (
                 <ToolVisualOutput
                   toolName={toolName}
                   state={part.state}
                   input={toolInput}
+                  output={toolOutput}
                   searchResultsMap={searchResultsMap}
                 />
               )}

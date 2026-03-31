@@ -9,6 +9,7 @@ import { getChatSystemInstructions } from "./system-instructions";
 import { createPresentMediaTool } from "./tools/present-media";
 import { createSemanticSearchTool } from "./tools/semantic-search";
 import { createTmdbSearchTool } from "./tools/tmdb-search";
+import { createWatchProvidersTool } from "./tools/watch-providers";
 
 export type { ChatInput } from "./schema";
 
@@ -16,8 +17,13 @@ interface ChatOptions extends ChatInput {
   model?: LanguageModel;
 }
 
-export async function chat({ messages, locale, model }: ChatOptions) {
-  const system = getChatSystemInstructions(locale);
+export async function chat({
+  messages,
+  locale,
+  countryCode,
+  model,
+}: ChatOptions) {
+  const system = getChatSystemInstructions(locale, countryCode);
   const modelMessages = await convertToModelMessages(messages);
 
   return streamText({
@@ -28,6 +34,7 @@ export async function chat({ messages, locale, model }: ChatOptions) {
       semantic_search: createSemanticSearchTool(locale),
       tmdb_search: createTmdbSearchTool(locale),
       present_media: createPresentMediaTool(),
+      watch_providers: createWatchProvidersTool(),
     },
     providerOptions: contextManagementProviderOptions,
     stopWhen: stepCountIs(5),
