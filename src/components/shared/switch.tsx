@@ -3,6 +3,7 @@
 import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import {
   border,
@@ -220,7 +221,10 @@ const styles = stylex.create({
   },
   animate: {
     "::before": {
-      transition: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
+      transition: {
+        default: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
+        [motionConstants.REDUCED_MOTION]: "box-shadow 0.4s ease",
+      },
     },
   },
   dragging: (position) => ({
