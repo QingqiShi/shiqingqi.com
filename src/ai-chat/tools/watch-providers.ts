@@ -5,6 +5,7 @@ import {
   getTvShowWatchProviders,
 } from "#src/_generated/tmdb-server-functions.ts";
 import type { ResponseType } from "#src/utils/tmdb-client.ts";
+import { isRecord } from "#src/utils/type-guards.ts";
 
 export const watchProvidersInputSchema = z.object({
   id: z.number().describe("The TMDB ID of the movie or TV show."),
@@ -72,10 +73,6 @@ interface ProviderSearchResult {
     country: string;
     types: AvailabilityType[];
   }>;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function mapProviders(items: unknown): ProviderEntry[] {

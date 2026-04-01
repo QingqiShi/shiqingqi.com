@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { getPersonCombinedCredits } from "#src/_generated/tmdb-server-functions.ts";
+import { isRecord } from "#src/utils/type-guards.ts";
 
 export const personCreditsInputSchema = z.object({
   person_id: z.number().describe("The TMDB person ID from search results."),
@@ -14,10 +15,6 @@ const TOOL_DESCRIPTION =
 // The TMDB OpenAPI spec flattens the combined credits union type, omitting
 // fields that only appear for TV entries. The API returns these at runtime.
 // Use runtime field access (via Record) instead of type assertions.
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 function getString(
   obj: Record<string, unknown>,
