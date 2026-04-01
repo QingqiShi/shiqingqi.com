@@ -15,6 +15,42 @@ function formatTokenValue(token: Token, errorLabel: string): string {
   return Number.isNaN(token.value) ? errorLabel : String(token.value);
 }
 
+function updateFontSize(
+  container: HTMLElement,
+  text: HTMLElement,
+  setIsScrollable: (scrollable: boolean) => void,
+) {
+  const { height } = container.getBoundingClientRect();
+  // Use height as the basis for font size - max is 80% of height, min is 35%
+  const maxSize = height * 0.8;
+  const minSize = height * 0.35;
+  // Account for padding when measuring available width
+  const paddingX =
+    parseFloat(getComputedStyle(container).paddingLeft) +
+    parseFloat(getComputedStyle(container).paddingRight);
+  const availableWidth = container.clientWidth - paddingX;
+
+  // Measure text width at max size to calculate scaling factor
+  text.style.fontSize = `${maxSize}px`;
+  const textWidthAtMax = text.scrollWidth;
+
+  let finalSize: number;
+  if (textWidthAtMax <= availableWidth) {
+    // Text fits at max size
+    finalSize = maxSize;
+  } else {
+    // Calculate the font size needed to fit, clamped to min
+    const scaleFactor = availableWidth / textWidthAtMax;
+    finalSize = Math.max(maxSize * scaleFactor, minSize);
+  }
+
+  text.style.fontSize = `${finalSize}px`;
+
+  // Content is scrollable when at minimum font size and still overflowing
+  const textOverflows = text.scrollWidth > availableWidth;
+  setIsScrollable(finalSize <= minSize && textOverflows);
+}
+
 export function CalculatorDisplay({
   tokens,
   currentToken,
@@ -29,48 +65,27 @@ export function CalculatorDisplay({
   const [isScrollable, setIsScrollable] = useState(false);
   const { showLeftFade, showRightFade } = useScrollFades(containerRef);
 
+  // Observe container resizes (e.g. viewport changes) — created once.
   useLayoutEffect(() => {
     const container = containerRef.current;
     const text = textRef.current;
     if (!container || !text) return;
 
-    const updateFontSize = () => {
-      const { height } = container.getBoundingClientRect();
-      // Use height as the basis for font size - max is 80% of height, min is 35%
-      const maxSize = height * 0.8;
-      const minSize = height * 0.35;
-      // Account for padding when measuring available width
-      const paddingX =
-        parseFloat(getComputedStyle(container).paddingLeft) +
-        parseFloat(getComputedStyle(container).paddingRight);
-      const availableWidth = container.clientWidth - paddingX;
-
-      // Measure text width at max size to calculate scaling factor
-      text.style.fontSize = `${maxSize}px`;
-      const textWidthAtMax = text.scrollWidth;
-
-      let finalSize: number;
-      if (textWidthAtMax <= availableWidth) {
-        // Text fits at max size
-        finalSize = maxSize;
-      } else {
-        // Calculate the font size needed to fit, clamped to min
-        const scaleFactor = availableWidth / textWidthAtMax;
-        finalSize = Math.max(maxSize * scaleFactor, minSize);
-      }
-
-      text.style.fontSize = `${finalSize}px`;
-
-      // Content is scrollable when at minimum font size and still overflowing
-      const textOverflows = text.scrollWidth > availableWidth;
-      setIsScrollable(finalSize <= minSize && textOverflows);
-    };
-
-    const observer = new ResizeObserver(updateFontSize);
+    const observer = new ResizeObserver(() => {
+      updateFontSize(container, text, setIsScrollable);
+    });
     observer.observe(container);
-    updateFontSize();
 
     return () => observer.disconnect();
+  }, []);
+
+  // Recalculate font size when the display text changes.
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) return;
+
+    updateFontSize(container, text, setIsScrollable);
   }, [displayText]);
 
   useEffect(() => {
