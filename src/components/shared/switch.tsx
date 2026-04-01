@@ -1,8 +1,8 @@
 "use client";
 
-import useControlled from "@mui/utils/useControlled";
 import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
+import { useControlled } from "#src/hooks/use-controlled.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import {
@@ -38,8 +38,7 @@ export function Switch({
   // Optionally controlled state
   const [value, setValue] = useControlled({
     controlled: valueProp,
-    default: "off",
-    name: "Switch",
+    defaultValue: "off",
   });
 
   function setControlledValue(newValue: SwitchState) {
