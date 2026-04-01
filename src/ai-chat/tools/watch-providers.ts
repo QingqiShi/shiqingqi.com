@@ -103,10 +103,13 @@ function extractRegionData(
 ): RegionProviders | null {
   if (!results) return null;
 
-  const match = Object.entries(results).find(([code]) => code === countryCode);
-  if (!match) return null;
+  // Direct O(1) property lookup instead of O(n) Object.entries().find().
+  // Widen to `unknown` first so isRecord narrows to Record<string, unknown>,
+  // enabling dynamic key access without type assertions.
+  const resultsRecord: unknown = results;
+  if (!isRecord(resultsRecord)) return null;
 
-  const data: unknown = match[1];
+  const data: unknown = resultsRecord[countryCode];
   if (!isRecord(data)) return null;
 
   return {
