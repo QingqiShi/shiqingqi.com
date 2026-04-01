@@ -1,10 +1,9 @@
 import { presentMediaInputSchema } from "#src/ai-chat/tools/present-media.ts";
 import { presentPersonInputSchema } from "#src/ai-chat/tools/present-person.ts";
+import { isRecord } from "#src/utils/type-guards.ts";
 import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+export { isRecord };
 
 function mapTmdbSearchOutput(output: unknown): ReadonlyArray<MediaListItem> {
   if (!Array.isArray(output)) return [];
