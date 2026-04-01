@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import {
   buildPersonResultsMap,
   buildSearchResultsMap,
   mapToolOutputToMediaItems,
   resolveMediaItems,
+  resolvePersonItems,
 } from "./map-tool-output";
 
 describe("mapToolOutputToMediaItems", () => {
@@ -179,6 +180,111 @@ describe("mapToolOutputToMediaItems", () => {
     });
   });
 
+  describe("person_credits", () => {
+    it("maps person credits results", () => {
+      const output = [
+        {
+          id: 27205,
+          media_type: "movie",
+          title: "Inception",
+          poster_path: "/inception.jpg",
+          vote_average: 8.4,
+        },
+      ];
+
+      const items = mapToolOutputToMediaItems("person_credits", output);
+
+      expect(items).toEqual([
+        {
+          id: 27205,
+          title: "Inception",
+          posterPath: "/inception.jpg",
+          rating: 8.4,
+          mediaType: "movie",
+        },
+      ]);
+    });
+
+    it("maps TV results from person credits", () => {
+      const output = [
+        {
+          id: 1399,
+          media_type: "tv",
+          title: "Breaking Bad",
+          poster_path: "/bb.jpg",
+          vote_average: 9.5,
+        },
+      ];
+
+      const items = mapToolOutputToMediaItems("person_credits", output);
+
+      expect(items).toEqual([
+        {
+          id: 1399,
+          title: "Breaking Bad",
+          posterPath: "/bb.jpg",
+          rating: 9.5,
+          mediaType: "tv",
+        },
+      ]);
+    });
+
+    it("returns empty array for non-array input", () => {
+      expect(mapToolOutputToMediaItems("person_credits", null)).toEqual([]);
+      expect(mapToolOutputToMediaItems("person_credits", {})).toEqual([]);
+      expect(mapToolOutputToMediaItems("person_credits", "string")).toEqual([]);
+    });
+
+    it("skips entries without numeric id", () => {
+      const output = [
+        { id: "not-a-number", media_type: "movie", title: "Bad" },
+        { media_type: "movie", title: "No ID" },
+      ];
+
+      expect(mapToolOutputToMediaItems("person_credits", output)).toEqual([]);
+    });
+
+    it("handles missing optional fields", () => {
+      const output = [{ id: 5 }];
+
+      const items = mapToolOutputToMediaItems("person_credits", output);
+
+      expect(items).toEqual([
+        {
+          id: 5,
+          title: undefined,
+          posterPath: null,
+          rating: null,
+          mediaType: null,
+        },
+      ]);
+    });
+
+    it("handles entries with unknown media_type", () => {
+      const output = [
+        {
+          id: 1,
+          media_type: "unknown",
+          title: "Test",
+          poster_path: "/test.jpg",
+          vote_average: 7.0,
+        },
+      ];
+
+      const items = mapToolOutputToMediaItems("person_credits", output);
+
+      expect(items).toEqual([
+        {
+          id: 1,
+          title: "Test",
+          posterPath: "/test.jpg",
+          rating: 7.0,
+          mediaType: null,
+        },
+      ]);
+    });
+  });
+
   describe("unknown tool", () => {
     it("returns empty array for unknown tool names", () => {
       expect(mapToolOutputToMediaItems("unknown_tool", [{ id: 1 }])).toEqual(
@@ -311,6 +417,84 @@ describe("resolveMediaItems", () => {
         searchResults,
       ),
     ).toEqual([]);
+  });
+});
+
+describe("resolvePersonItems", () => {
+  const personResults = new Map<number, PersonListItem>([
+    [
+      1,
+      {
+        id: 1,
+        name: "Brad Pitt",
+        profilePath: "/brad.jpg",
+        knownForDepartment: "Acting",
+      },
+    ],
+    [
+      2,
+      {
+        id: 2,
+        name: "David Fincher",
+        profilePath: "/fincher.jpg",
+        knownForDepartment: "Directing",
+      },
+    ],
+  ]);
+
+  it("resolves items in specified order", () => {
+    const input = {
+      people: [{ id: 2 }, { id: 1 }],
+    };
+
+    const items = resolvePersonItems(input, personResults);
+
+    expect(items).toHaveLength(2);
+    expect(items[0]?.name).toBe("David Fincher");
+    expect(items[1]?.name).toBe("Brad Pitt");
+  });
+
+  it("creates fallback for missing IDs", () => {
+    const input = { people: [{ id: 999 }] };
+
+    const items = resolvePersonItems(input, personResults);
+
+    expect(items).toEqual([{ id: 999 }]);
+  });
+
+  it("handles mixed found and missing items", () => {
+    const input = {
+      people: [{ id: 1 }, { id: 999 }],
+    };
+
+    const items = resolvePersonItems(input, personResults);
+
+    expect(items).toHaveLength(2);
+    expect(items[0]?.name).toBe("Brad Pitt");
+    expect(items[1]).toEqual({ id: 999 });
+  });
+
+  it("returns empty for invalid input", () => {
+    expect(resolvePersonItems(null, personResults)).toEqual([]);
+    expect(resolvePersonItems("string", personResults)).toEqual([]);
+    expect(resolvePersonItems({}, personResults)).toEqual([]);
+    expect(resolvePersonItems({ people: "not-array" }, personResults)).toEqual(
+      [],
+    );
+  });
+
+  it("rejects entire input when any entry has invalid schema", () => {
+    expect(
+      resolvePersonItems({ people: [{ id: "abc" }] }, personResults),
+    ).toEqual([]);
+  });
+
+  it("returns empty array for empty people list", () => {
+    const input = { people: [] };
+
+    const items = resolvePersonItems(input, personResults);
+
+    expect(items).toEqual([]);
   });
 });
 
