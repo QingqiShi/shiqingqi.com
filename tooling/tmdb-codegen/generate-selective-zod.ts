@@ -133,7 +133,7 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
     if (indexInfos.length > 0) {
       const indexInfo = indexInfos[0];
       const valueType = convertTypeToZod(indexInfo.type, typeChecker);
-      return `z.record(${valueType})`;
+      return `z.record(z.string(), ${valueType})`;
     }
 
     // Handle regular object properties
@@ -527,7 +527,7 @@ function parseOperationFromTsProgram(
   requestBody: z.never().nullable().optional(),
   responses: z.object({
     200: z.object({
-      headers: z.record(z.unknown()),
+      headers: z.record(z.string(), z.unknown()),
       content: z.object({
         "application/json": z.unknown(),
       }),

@@ -296,7 +296,9 @@ describe("generateSchemasFromSource", () => {
     );
     expect(result.fileContent).toContain("responses: z.object({");
     expect(result.fileContent).toContain("200: z.object({");
-    expect(result.fileContent).toContain("headers: z.record(z.unknown()),");
+    expect(result.fileContent).toContain(
+      "headers: z.record(z.string(), z.unknown()),",
+    );
     expect(result.fileContent).toContain('"application/json": z.unknown(),');
   });
 });
@@ -387,13 +389,13 @@ describe("generateSchemasFromSource - Edge Cases", () => {
     const result = generateSchemasFromSource(mockTypeScript, ["test-records"]);
 
     expect(result.fileContent).toContain(
-      '"string_record": z.record(z.string()).nullable().optional()',
+      '"string_record": z.record(z.string(), z.string()).nullable().optional()',
     );
     expect(result.fileContent).toContain(
-      '"number_record": z.record(z.number()).nullable().optional()',
+      '"number_record": z.record(z.string(), z.number()).nullable().optional()',
     );
     expect(result.fileContent).toContain(
-      '"unknown_record": z.record(z.unknown()).nullable().optional()',
+      '"unknown_record": z.record(z.string(), z.unknown()).nullable().optional()',
     );
   });
 
