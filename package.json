@@ -46,7 +46,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "^9.5.7",
     "@stylexjs/stylex": "^0.18.2",
-    "@tanstack/react-query": "5.96.0",
+    "@tanstack/react-query": "5.96.1",
     "@upstash/redis": "^1.37.0",
     "@upstash/vector": "^1.2.3",
     "@vercel/analytics": "^2.0.1",
