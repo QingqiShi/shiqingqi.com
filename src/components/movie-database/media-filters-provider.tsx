@@ -2,6 +2,7 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, type PropsWithChildren } from "react";
+import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 import type {
   GenreFilterType,
   MediaType,
@@ -171,7 +172,7 @@ export function MediaFiltersProvider({
     }
 
     window.history.replaceState({}, "", url);
-    window.scrollTo({ behavior: "smooth", top: 0 });
+    window.scrollTo({ behavior: getScrollBehavior(), top: 0 });
   }, [mediaFilters]);
 
   return (

@@ -11,6 +11,7 @@ import type { ChatMessageMetadata } from "#src/ai-chat/use-ai-chat.ts";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
+import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 import { ChatMessage } from "./chat-message";
 import { ScrollToBottomButton } from "./scroll-to-bottom-button";
 import { TypingIndicator } from "./typing-indicator";
@@ -56,7 +57,7 @@ export function ChatMessageList({
   const scrollToBottom = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
-      behavior: "smooth",
+      behavior: getScrollBehavior(),
     });
     setIsAtBottom(true);
   };
