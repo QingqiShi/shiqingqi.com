@@ -19,7 +19,7 @@ function getApiToken(): string {
 export type PathParams<T extends string> =
   T extends `${string}{${infer Param}}${infer Rest}`
     ? { [K in Param]: string } & PathParams<Rest>
-    : Record<string, string>;
+    : Record<never, never>;
 
 /** Value types that TMDB query parameters can carry */
 type SearchParamValue = string | number | boolean | undefined | null;
@@ -89,7 +89,7 @@ export async function tmdbGet<TPath extends keyof paths>(
 ) {
   return cache(async () => {
     // Replace path parameters with sanitized values
-    let resolvedPath = path as string;
+    let resolvedPath = `${path}`;
     if (pathParams) {
       for (const [key, value] of Object.entries(pathParams)) {
         const sanitizedValue = sanitizePathParam(value);
