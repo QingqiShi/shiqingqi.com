@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
+  isBinaryOperator,
+  isUnaryOperator,
   roundResult,
   computeBinaryOperation,
+  infixToRPN,
+  evaluateRPN,
   evaluateExpression,
 } from "./calculator-logic";
 import type { Token } from "./types";
@@ -125,5 +129,238 @@ describe("evaluateExpression", () => {
       { type: "number", value: 0.3, raw: "0.3" },
     ];
     expect(evaluateExpression(tokens)).toBe(0.6);
+  });
+
+  it("respects multiplication precedence over addition", () => {
+    // 2 + 3 × 4 = 14 (not 20)
+    const tokens: Token[] = [
+      { type: "number", value: 2, raw: "2" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "×" },
+      { type: "number", value: 4, raw: "4" },
+    ];
+    expect(evaluateExpression(tokens)).toBe(14);
+  });
+
+  it("respects division precedence over subtraction", () => {
+    // 10 − 6 ÷ 2 = 7 (not 2)
+    const tokens: Token[] = [
+      { type: "number", value: 10, raw: "10" },
+      { type: "binaryOperator", value: "−" },
+      { type: "number", value: 6, raw: "6" },
+      { type: "binaryOperator", value: "÷" },
+      { type: "number", value: 2, raw: "2" },
+    ];
+    expect(evaluateExpression(tokens)).toBe(7);
+  });
+
+  it("handles mixed precedence: 1 + 2 × 3 + 4", () => {
+    // 1 + 2 × 3 + 4 = 1 + 6 + 4 = 11
+    const tokens: Token[] = [
+      { type: "number", value: 1, raw: "1" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 2, raw: "2" },
+      { type: "binaryOperator", value: "×" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 4, raw: "4" },
+    ];
+    expect(evaluateExpression(tokens)).toBe(11);
+  });
+
+  it("evaluates a single number", () => {
+    const tokens: Token[] = [{ type: "number", value: 42, raw: "42" }];
+    expect(evaluateExpression(tokens)).toBe(42);
+  });
+
+  it("handles division by zero", () => {
+    const tokens: Token[] = [
+      { type: "number", value: 5, raw: "5" },
+      { type: "binaryOperator", value: "÷" },
+      { type: "number", value: 0, raw: "0" },
+    ];
+    expect(evaluateExpression(tokens)).toBeNaN();
+  });
+
+  it("handles same-precedence operators left to right", () => {
+    // 10 − 3 + 2 = 9 (left-to-right: (10 − 3) + 2)
+    const tokens: Token[] = [
+      { type: "number", value: 10, raw: "10" },
+      { type: "binaryOperator", value: "−" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 2, raw: "2" },
+    ];
+    expect(evaluateExpression(tokens)).toBe(9);
+  });
+
+  it("handles same-precedence multiplicative operators left to right", () => {
+    // 12 ÷ 3 × 2 = 8 (left-to-right: (12 ÷ 3) × 2)
+    const tokens: Token[] = [
+      { type: "number", value: 12, raw: "12" },
+      { type: "binaryOperator", value: "÷" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "×" },
+      { type: "number", value: 2, raw: "2" },
+    ];
+    expect(evaluateExpression(tokens)).toBe(8);
+  });
+});
+
+describe("isBinaryOperator", () => {
+  it("returns true for valid binary operators", () => {
+    expect(isBinaryOperator("+")).toBe(true);
+    expect(isBinaryOperator("−")).toBe(true);
+    expect(isBinaryOperator("×")).toBe(true);
+    expect(isBinaryOperator("÷")).toBe(true);
+  });
+
+  it("returns false for non-operator strings", () => {
+    expect(isBinaryOperator("a")).toBe(false);
+    expect(isBinaryOperator("1")).toBe(false);
+    expect(isBinaryOperator("")).toBe(false);
+    expect(isBinaryOperator("=")).toBe(false);
+  });
+
+  it("returns false for unary operators", () => {
+    expect(isBinaryOperator("±")).toBe(false);
+    expect(isBinaryOperator("%")).toBe(false);
+  });
+});
+
+describe("isUnaryOperator", () => {
+  it("returns true for valid unary operators", () => {
+    expect(isUnaryOperator("±")).toBe(true);
+    expect(isUnaryOperator("%")).toBe(true);
+  });
+
+  it("returns false for non-operator strings", () => {
+    expect(isUnaryOperator("a")).toBe(false);
+    expect(isUnaryOperator("1")).toBe(false);
+    expect(isUnaryOperator("")).toBe(false);
+  });
+
+  it("returns false for binary operators", () => {
+    expect(isUnaryOperator("+")).toBe(false);
+    expect(isUnaryOperator("−")).toBe(false);
+    expect(isUnaryOperator("×")).toBe(false);
+    expect(isUnaryOperator("÷")).toBe(false);
+  });
+});
+
+describe("infixToRPN", () => {
+  it("converts a simple addition", () => {
+    const tokens: Token[] = [
+      { type: "number", value: 2, raw: "2" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 3, raw: "3" },
+    ];
+    const rpn = infixToRPN(tokens);
+    expect(rpn.map((t) => t.value)).toEqual([2, 3, "+"]);
+  });
+
+  it("handles multiplication precedence over addition", () => {
+    // 2 + 3 × 4 → 2 3 4 × +
+    const tokens: Token[] = [
+      { type: "number", value: 2, raw: "2" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "×" },
+      { type: "number", value: 4, raw: "4" },
+    ];
+    const rpn = infixToRPN(tokens);
+    expect(rpn.map((t) => t.value)).toEqual([2, 3, 4, "×", "+"]);
+  });
+
+  it("handles left-to-right for equal precedence", () => {
+    // 5 − 3 + 1 → 5 3 − 1 +
+    const tokens: Token[] = [
+      { type: "number", value: 5, raw: "5" },
+      { type: "binaryOperator", value: "−" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 1, raw: "1" },
+    ];
+    const rpn = infixToRPN(tokens);
+    expect(rpn.map((t) => t.value)).toEqual([5, 3, "−", 1, "+"]);
+  });
+
+  it("returns a single number unchanged", () => {
+    const tokens: Token[] = [{ type: "number", value: 7, raw: "7" }];
+    const rpn = infixToRPN(tokens);
+    expect(rpn.map((t) => t.value)).toEqual([7]);
+  });
+
+  it("returns empty array for empty input", () => {
+    expect(infixToRPN([])).toEqual([]);
+  });
+
+  it("handles complex mixed precedence", () => {
+    // 1 + 2 × 3 − 4 ÷ 2 → 1 2 3 × + 4 2 ÷ −
+    const tokens: Token[] = [
+      { type: "number", value: 1, raw: "1" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 2, raw: "2" },
+      { type: "binaryOperator", value: "×" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "−" },
+      { type: "number", value: 4, raw: "4" },
+      { type: "binaryOperator", value: "÷" },
+      { type: "number", value: 2, raw: "2" },
+    ];
+    const rpn = infixToRPN(tokens);
+    expect(rpn.map((t) => t.value)).toEqual([
+      1,
+      2,
+      3,
+      "×",
+      "+",
+      4,
+      2,
+      "÷",
+      "−",
+    ]);
+  });
+});
+
+describe("evaluateRPN", () => {
+  it("evaluates a simple addition in RPN", () => {
+    const tokens: Token[] = [
+      { type: "number", value: 2, raw: "2" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "+" },
+    ];
+    expect(evaluateRPN(tokens)).toBe(5);
+  });
+
+  it("evaluates a single number", () => {
+    const tokens: Token[] = [{ type: "number", value: 42, raw: "42" }];
+    expect(evaluateRPN(tokens)).toBe(42);
+  });
+
+  it("returns NaN for empty token array", () => {
+    expect(evaluateRPN([])).toBeNaN();
+  });
+
+  it("returns NaN for invalid RPN (operator without enough operands)", () => {
+    const tokens: Token[] = [
+      { type: "number", value: 5, raw: "5" },
+      { type: "binaryOperator", value: "+" },
+      { type: "binaryOperator", value: "×" },
+    ];
+    expect(evaluateRPN(tokens)).toBeNaN();
+  });
+
+  it("evaluates chained operations in RPN", () => {
+    // 2 3 + 4 × = (2 + 3) × 4 = 20
+    const tokens: Token[] = [
+      { type: "number", value: 2, raw: "2" },
+      { type: "number", value: 3, raw: "3" },
+      { type: "binaryOperator", value: "+" },
+      { type: "number", value: 4, raw: "4" },
+      { type: "binaryOperator", value: "×" },
+    ];
+    expect(evaluateRPN(tokens)).toBe(20);
   });
 });
