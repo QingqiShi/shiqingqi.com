@@ -37,18 +37,6 @@ export async function getConfiguration(
   return tmdbGet("/3/configuration", params);
 }
 
-export async function getConfigurationCountries(
-  params?: QueryParams<"/3/configuration/countries", "get">,
-) {
-  return tmdbGet("/3/configuration/countries", params);
-}
-
-export async function getConfigurationLanguages(
-  params?: QueryParams<"/3/configuration/languages", "get">,
-) {
-  return tmdbGet("/3/configuration/languages", params);
-}
-
 export async function getMovieCredits(
   params: { movie_id: string } & QueryParams<
     "/3/movie/{movie_id}/credits",
@@ -123,16 +111,6 @@ export async function getPersonDetails(
 ) {
   const { person_id, ...queryParams } = params;
   return tmdbGet("/3/person/{person_id}", queryParams, { person_id });
-}
-
-export async function getPersonImages(
-  params: { person_id: string } & QueryParams<
-    "/3/person/{person_id}/images",
-    "get"
-  >,
-) {
-  const { person_id, ...queryParams } = params;
-  return tmdbGet("/3/person/{person_id}/images", queryParams, { person_id });
 }
 
 export async function getTrendingMovies(
@@ -214,26 +192,8 @@ export async function getTvShowWatchProviders(
   });
 }
 
-export async function searchMovies(
-  params: QueryParams<"/3/search/movie", "get">,
-) {
-  return tmdbGet("/3/search/movie", params);
-}
-
 export async function searchMulti(
   params: QueryParams<"/3/search/multi", "get">,
 ) {
   return tmdbGet("/3/search/multi", params);
-}
-
-export async function searchPerson(
-  params: QueryParams<"/3/search/person", "get">,
-) {
-  return tmdbGet("/3/search/person", params);
-}
-
-export async function searchTvShows(
-  params: QueryParams<"/3/search/tv", "get">,
-) {
-  return tmdbGet("/3/search/tv", params);
 }

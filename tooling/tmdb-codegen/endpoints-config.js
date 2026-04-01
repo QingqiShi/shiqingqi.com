@@ -6,14 +6,6 @@
 export const endpoints = [
   // Configuration
   { path: "/3/configuration", functionName: "getConfiguration" },
-  {
-    path: "/3/configuration/countries",
-    functionName: "getConfigurationCountries",
-  },
-  {
-    path: "/3/configuration/languages",
-    functionName: "getConfigurationLanguages",
-  },
 
   // Genres
   { path: "/3/genre/movie/list", functionName: "getMovieGenres" },
@@ -81,33 +73,11 @@ export const endpoints = [
   // Person Details
   { path: "/3/person/{person_id}", functionName: "getPersonDetails" },
   {
-    path: "/3/person/{person_id}/images",
-    functionName: "getPersonImages",
-  },
-  {
     path: "/3/person/{person_id}/combined_credits",
     functionName: "getPersonCombinedCredits",
   },
 
   // Search Functions
-  {
-    path: "/3/search/movie",
-    functionName: "searchMovies",
-    requiredParams: true,
-    needsZodSchema: true, // Required for AI tools
-  },
-  {
-    path: "/3/search/tv",
-    functionName: "searchTvShows",
-    requiredParams: true,
-    needsZodSchema: true, // Required for AI tools
-  },
-  {
-    path: "/3/search/person",
-    functionName: "searchPerson",
-    requiredParams: true,
-    needsZodSchema: true, // Required for AI tools
-  },
   {
     path: "/3/search/multi",
     functionName: "searchMulti",
@@ -137,7 +107,6 @@ export const apiRoutes = [
   { functionName: "getMovieCredits", routePath: "get-movie-credits" },
   { functionName: "getTvShowCredits", routePath: "get-tv-show-credits" },
   { functionName: "getPersonDetails", routePath: "get-person-details" },
-  { functionName: "getPersonImages", routePath: "get-person-images" },
   {
     functionName: "getPersonCombinedCredits",
     routePath: "get-person-combined-credits",
