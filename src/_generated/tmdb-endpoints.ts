@@ -5,8 +5,6 @@
 
 export type TMDBEndpointPaths =
   | "/3/configuration"
-  | "/3/configuration/countries"
-  | "/3/configuration/languages"
   | "/3/discover/movie"
   | "/3/discover/tv"
   | "/3/genre/movie/list"
@@ -18,11 +16,7 @@ export type TMDBEndpointPaths =
   | "/3/movie/{movie_id}/watch/providers"
   | "/3/person/{person_id}"
   | "/3/person/{person_id}/combined_credits"
-  | "/3/person/{person_id}/images"
-  | "/3/search/movie"
   | "/3/search/multi"
-  | "/3/search/person"
-  | "/3/search/tv"
   | "/3/trending/movie/{time_window}"
   | "/3/trending/tv/{time_window}"
   | "/3/tv/{series_id}"
@@ -33,8 +27,6 @@ export type TMDBEndpointPaths =
 
 export const TMDB_ENDPOINTS = [
   "/3/configuration",
-  "/3/configuration/countries",
-  "/3/configuration/languages",
   "/3/discover/movie",
   "/3/discover/tv",
   "/3/genre/movie/list",
@@ -46,11 +38,7 @@ export const TMDB_ENDPOINTS = [
   "/3/movie/{movie_id}/watch/providers",
   "/3/person/{person_id}",
   "/3/person/{person_id}/combined_credits",
-  "/3/person/{person_id}/images",
-  "/3/search/movie",
   "/3/search/multi",
-  "/3/search/person",
-  "/3/search/tv",
   "/3/trending/movie/{time_window}",
   "/3/trending/tv/{time_window}",
   "/3/tv/{series_id}",
