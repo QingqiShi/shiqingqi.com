@@ -57,6 +57,25 @@ export function AnimateToTarget({
       return;
 
     prevStateRef.current = animateToTarget;
+
+    // Skip transform/scale animation when the user prefers reduced motion.
+    // Only a simple cross-fade is played instead.
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion) {
+      const fadeAnimation = containerEl.animate(
+        animateToTarget
+          ? [{ opacity: 1 }, { opacity: 0 }]
+          : [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 150, fill: "none", easing: "ease-in-out" },
+      );
+      return () => {
+        fadeAnimation.cancel();
+      };
+    }
+
     const target = document.getElementById(targetId);
     if (!target) return;
 
