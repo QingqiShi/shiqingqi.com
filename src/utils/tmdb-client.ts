@@ -52,27 +52,38 @@ export type ResponseType<
   ? R
   : unknown;
 
-/** Shared TMDB API fetch utility */
-async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      Authorization: `Bearer ${getApiToken()}`,
-    },
-    cache: "force-cache",
-    next: { revalidate: 86400 },
-    signal: cacheSignal(),
-  });
+/**
+ * Shared TMDB API fetch utility, wrapped in React.cache so that
+ * duplicate calls with the same URL within a single server render
+ * are deduplicated.
+ *
+ * The previous implementation called `cache()` inside `tmdbGet` with a
+ * new arrow function each time, which created a fresh cache wrapper per
+ * invocation and never actually hit the cache. Moving the `cache` call
+ * to module level with the URL as the cache key fixes this.
+ */
+const cachedFetch = cache(
+  async (url: string, errorMessage: string): Promise<unknown> => {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${getApiToken()}`,
+      },
+      cache: "force-cache",
+      next: { revalidate: 86400 },
+      signal: cacheSignal(),
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      `${errorMessage} (${response.status}:${response.statusText})`,
-    );
-  }
+    if (!response.ok) {
+      throw new Error(
+        `${errorMessage} (${response.status}:${response.statusText})`,
+      );
+    }
 
-  return (await response.json()) as T;
-}
+    return response.json();
+  },
+);
 
 /** Sanitize path parameter values to prevent SSRF attacks */
 function sanitizePathParam(value: string): string {
@@ -86,31 +97,32 @@ export async function tmdbGet<TPath extends keyof paths>(
   path: TPath,
   params?: QueryParams<TPath, "get">,
   pathParams?: PathParams<TPath>,
-) {
-  return cache(async () => {
-    // Replace path parameters with sanitized values
-    let resolvedPath = path as string;
-    if (pathParams) {
-      for (const [key, value] of Object.entries(pathParams)) {
-        const sanitizedValue = sanitizePathParam(value);
-        resolvedPath = resolvedPath.replace(`{${key}}`, sanitizedValue);
-      }
+): Promise<ResponseType<TPath, "get">> {
+  // Replace path parameters with sanitized values
+  let resolvedPath: string = path;
+  if (pathParams) {
+    for (const [key, value] of Object.entries(pathParams)) {
+      const sanitizedValue = sanitizePathParam(value);
+      resolvedPath = resolvedPath.replace(`{${key}}`, sanitizedValue);
     }
+  }
 
-    const url = buildTmdbUrl({
-      baseUrl: `${BASE_URL}${resolvedPath}`,
-      params,
-    });
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}${resolvedPath}`,
+    params,
+  });
 
-    // Additional security check: ensure the URL is still pointing to TMDB
-    const urlObj = new URL(url);
-    if (urlObj.hostname !== "api.themoviedb.org") {
-      throw new Error("Invalid URL: must be a TMDB API endpoint");
-    }
+  // Additional security check: ensure the URL is still pointing to TMDB
+  const urlObj = new URL(url);
+  if (urlObj.hostname !== "api.themoviedb.org") {
+    throw new Error("Invalid URL: must be a TMDB API endpoint");
+  }
 
-    const errorMessage = `Failed to fetch ${path}`;
-    return tmdbFetch<ResponseType<TPath, "get">>(url, errorMessage);
-  })();
+  const errorMessage = `Failed to fetch ${path}`;
+  // The `as` assertion bridges React.cache's erased return type (`unknown`)
+  // back to the generic response type. This is unavoidable because
+  // React.cache does not support generic type parameters.
+  return cachedFetch(url, errorMessage) as Promise<ResponseType<TPath, "get">>;
 }
 
 // Usage examples:
