@@ -45,7 +45,7 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Cleanup old service worker at /serwist/sw.js - can be removed after migration */}
-        {/* eslint-disable @eslint-react/dom/no-dangerously-set-innerhtml -- Intentional inline scripts for service worker cleanup and theme initialization */}
+        {/* eslint-disable @eslint-react/dom-no-dangerously-set-innerhtml -- Intentional inline scripts for service worker cleanup and theme initialization */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -62,7 +62,7 @@ export default async function RootLayout({
             `,
           }}
         />
-        {/* eslint-enable @eslint-react/dom/no-dangerously-set-innerhtml */}
+        {/* eslint-enable @eslint-react/dom-no-dangerously-set-innerhtml */}
         {process.env.NODE_ENV === "development" && (
           // eslint-disable-next-line @next/next/no-sync-scripts
           <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
@@ -83,7 +83,7 @@ export default async function RootLayout({
             swUrl="/sw.js"
             disable={process.env.NODE_ENV === "development"}
           >
-            {/* eslint-disable-next-line @eslint-react/dom/no-dangerously-set-innerhtml -- Intentional inline script for theme initialization before hydration */}
+            {/* eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- Intentional inline script for theme initialization before hydration */}
             <script dangerouslySetInnerHTML={{ __html: themeHack }} />
             <ViewTransition>
               <PortalTargetProvider>
