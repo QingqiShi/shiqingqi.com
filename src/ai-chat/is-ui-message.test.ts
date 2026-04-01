@@ -134,6 +134,84 @@ describe("isUIMessage", () => {
     ).toBe(false);
   });
 
+  it("rejects a text part missing the text field", () => {
+    expect(
+      isUIMessage({ id: "msg-1", role: "user", parts: [{ type: "text" }] }),
+    ).toBe(false);
+  });
+
+  it("rejects a text part with a non-string text field", () => {
+    expect(
+      isUIMessage({
+        id: "msg-1",
+        role: "user",
+        parts: [{ type: "text", text: 42 }],
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects a reasoning part missing the text field", () => {
+    expect(
+      isUIMessage({
+        id: "msg-1",
+        role: "assistant",
+        parts: [{ type: "reasoning" }],
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects a reasoning part with a non-string text field", () => {
+    expect(
+      isUIMessage({
+        id: "msg-1",
+        role: "assistant",
+        parts: [{ type: "reasoning", text: null }],
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects a file part missing required fields", () => {
+    expect(
+      isUIMessage({
+        id: "msg-1",
+        role: "user",
+        parts: [{ type: "file" }],
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects a file part with missing url", () => {
+    expect(
+      isUIMessage({
+        id: "msg-1",
+        role: "user",
+        parts: [{ type: "file", mediaType: "image/png" }],
+      }),
+    ).toBe(false);
+  });
+
+  it("accepts a valid file part", () => {
+    expect(
+      isUIMessage({
+        id: "msg-1",
+        role: "user",
+        parts: [
+          { type: "file", mediaType: "image/png", url: "data:image/png;..." },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it("accepts a step-start part without extra fields", () => {
+    expect(
+      isUIMessage({
+        id: "msg-1",
+        role: "assistant",
+        parts: [{ type: "step-start" }],
+      }),
+    ).toBe(true);
+  });
+
   it("preserves extra fields without rejecting", () => {
     expect(
       isUIMessage({
