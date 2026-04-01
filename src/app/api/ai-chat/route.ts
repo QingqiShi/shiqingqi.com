@@ -87,9 +87,10 @@ export async function POST(request: NextRequest) {
             writer.write(value);
           }
         } catch (error) {
+          console.error("AI Chat inner stream error:", error);
           writer.write({
             type: "error",
-            errorText: error instanceof Error ? error.message : "Stream error",
+            errorText: "Stream error",
           });
           return;
         }
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
       },
       onError: (error) => {
         console.error("AI Chat stream error:", error);
-        return error instanceof Error ? error.message : "Internal server error";
+        return "Internal server error";
       },
     });
 
