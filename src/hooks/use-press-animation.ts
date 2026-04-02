@@ -211,7 +211,9 @@ export function usePressAnimation<T extends HTMLElement>({
     };
   }, []);
 
-  // Release press state when window loses focus (e.g., Alt-Tab)
+  // Release press state when window loses focus (e.g., Alt-Tab).
+  // Empty dependency array: handleRelease only reads from refs and calls
+  // stable state setters, so there is no need to re-subscribe on every render.
   useEffect(() => {
     const handleWindowBlur = () => {
       if (isPressedRef.current) {
@@ -220,7 +222,7 @@ export function usePressAnimation<T extends HTMLElement>({
     };
     window.addEventListener("blur", handleWindowBlur);
     return () => window.removeEventListener("blur", handleWindowBlur);
-  });
+  }, []);
 
   return {
     isPressed,
