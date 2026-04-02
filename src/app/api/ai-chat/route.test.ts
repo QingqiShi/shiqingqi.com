@@ -7,6 +7,8 @@ import { createMediaCreditsTool } from "#src/ai-chat/tools/media-credits.ts";
 import { createPersonCreditsTool } from "#src/ai-chat/tools/person-credits.ts";
 import { createPresentMediaTool } from "#src/ai-chat/tools/present-media.ts";
 import { createPresentPersonTool } from "#src/ai-chat/tools/present-person.ts";
+import { createPresentProviderRegionsTool } from "#src/ai-chat/tools/present-provider-regions.ts";
+import { createPresentWatchProvidersTool } from "#src/ai-chat/tools/present-watch-providers.ts";
 import { createReviewSummaryTool } from "#src/ai-chat/tools/review-summary.ts";
 import { createSemanticSearchTool } from "#src/ai-chat/tools/semantic-search.ts";
 import { createTmdbSearchTool } from "#src/ai-chat/tools/tmdb-search.ts";
@@ -70,6 +72,8 @@ function mockStreamResult() {
       tmdb_search: createTmdbSearchTool("en"),
       present_media: createPresentMediaTool(),
       watch_providers: createWatchProvidersTool(),
+      present_watch_providers: createPresentWatchProvidersTool(),
+      present_provider_regions: createPresentProviderRegionsTool(),
       media_credits: createMediaCreditsTool(),
       person_credits: createPersonCreditsTool(),
       present_person: createPresentPersonTool(),
