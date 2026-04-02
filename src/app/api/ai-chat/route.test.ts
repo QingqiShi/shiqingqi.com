@@ -7,6 +7,7 @@ import { createMediaCreditsTool } from "#src/ai-chat/tools/media-credits.ts";
 import { createPersonCreditsTool } from "#src/ai-chat/tools/person-credits.ts";
 import { createPresentMediaTool } from "#src/ai-chat/tools/present-media.ts";
 import { createPresentPersonTool } from "#src/ai-chat/tools/present-person.ts";
+import { createReviewSummaryTool } from "#src/ai-chat/tools/review-summary.ts";
 import { createSemanticSearchTool } from "#src/ai-chat/tools/semantic-search.ts";
 import { createTmdbSearchTool } from "#src/ai-chat/tools/tmdb-search.ts";
 import { createWatchProvidersTool } from "#src/ai-chat/tools/watch-providers.ts";
@@ -72,6 +73,7 @@ function mockStreamResult() {
       media_credits: createMediaCreditsTool(),
       person_credits: createPersonCreditsTool(),
       present_person: createPresentPersonTool(),
+      review_summary: createReviewSummaryTool("en"),
     },
     stopWhen: stepCountIs(5),
   });

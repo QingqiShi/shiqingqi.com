@@ -12,6 +12,7 @@ export type TMDBEndpointPaths =
   | "/3/movie/{movie_id}"
   | "/3/movie/{movie_id}/credits"
   | "/3/movie/{movie_id}/recommendations"
+  | "/3/movie/{movie_id}/reviews"
   | "/3/movie/{movie_id}/videos"
   | "/3/movie/{movie_id}/watch/providers"
   | "/3/person/{person_id}"
@@ -22,6 +23,7 @@ export type TMDBEndpointPaths =
   | "/3/tv/{series_id}"
   | "/3/tv/{series_id}/credits"
   | "/3/tv/{series_id}/recommendations"
+  | "/3/tv/{series_id}/reviews"
   | "/3/tv/{series_id}/videos"
   | "/3/tv/{series_id}/watch/providers";
 
@@ -34,6 +36,7 @@ export const TMDB_ENDPOINTS = [
   "/3/movie/{movie_id}",
   "/3/movie/{movie_id}/credits",
   "/3/movie/{movie_id}/recommendations",
+  "/3/movie/{movie_id}/reviews",
   "/3/movie/{movie_id}/videos",
   "/3/movie/{movie_id}/watch/providers",
   "/3/person/{person_id}",
@@ -44,6 +47,7 @@ export const TMDB_ENDPOINTS = [
   "/3/tv/{series_id}",
   "/3/tv/{series_id}/credits",
   "/3/tv/{series_id}/recommendations",
+  "/3/tv/{series_id}/reviews",
   "/3/tv/{series_id}/videos",
   "/3/tv/{series_id}/watch/providers",
 ] as const;

@@ -7355,58 +7355,71 @@ export interface operations {
         content: {
           "application/json": {
             /**
-             * @default true
+             * @default false
              * @example false
              */
             adult: boolean;
-            /** @example /hZkgoQYus5vegHoetLkCJzb17zJ.jpg */
+            /** @example /2w4xG178RpB4MDAIfTkqAuSJzec.jpg */
             backdrop_path?: string;
-            belongs_to_collection?: unknown;
+            belongs_to_collection?: {
+              /**
+               * @default 0
+               * @example 10
+               */
+              id: number;
+              /** @example Star Wars Collection */
+              name?: string;
+              /** @example /pWVLFh4OuejTpUaDQbB1C4zoS2p.jpg */
+              poster_path?: string;
+              /** @example /iY2ujEY2m68OTTlPFTiHub9joHS.jpg */
+              backdrop_path?: string;
+            };
             /**
              * @default 0
-             * @example 63000000
+             * @example 11000000
              */
             budget: number;
             genres?: {
               /**
                * @default 0
-               * @example 18
+               * @example 12
                */
               id: number;
-              /** @example Drama */
+              /** @example Adventure */
               name?: string;
             }[];
-            /** @example http://www.foxmovies.com/movies/fight-club */
+            /** @example http://www.starwars.com/films/star-wars-episode-iv-a-new-hope */
             homepage?: string;
             /**
              * @default 0
-             * @example 550
+             * @example 11
              */
             id: number;
-            /** @example tt0137523 */
+            /** @example tt0076759 */
             imdb_id?: string;
+            origin_country?: string[];
             /** @example en */
             original_language?: string;
-            /** @example Fight Club */
+            /** @example Star Wars */
             original_title?: string;
-            /** @example A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground "fight clubs" forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion. */
+            /** @example Princess Leia is captured and held hostage by the evil Imperial forces in their effort to take over the galactic Empire. Venturesome Luke Skywalker and dashing captain Han Solo team together with the loveable robot duo R2-D2 and C-3PO to rescue the beautiful princess and restore peace and justice in the Empire. */
             overview?: string;
             /**
              * @default 0
-             * @example 61.416
+             * @example 20.6912
              */
             popularity: number;
-            /** @example /pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg */
+            /** @example /6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg */
             poster_path?: string;
             production_companies?: {
               /**
                * @default 0
-               * @example 508
+               * @example 1
                */
               id: number;
-              /** @example /7cxRWzi4LsVm4Utfpr1hfARNurT.png */
+              /** @example /tlVSws0RvvtPBwViUyOFAO0vcQS.png */
               logo_path?: string;
-              /** @example Regency Enterprises */
+              /** @example Lucasfilm Ltd. */
               name?: string;
               /** @example US */
               origin_country?: string;
@@ -7417,16 +7430,16 @@ export interface operations {
               /** @example United States of America */
               name?: string;
             }[];
-            /** @example 1999-10-15 */
+            /** @example 1977-05-25 */
             release_date?: string;
             /**
              * @default 0
-             * @example 100853753
+             * @example 775398007
              */
             revenue: number;
             /**
              * @default 0
-             * @example 139
+             * @example 121
              */
             runtime: number;
             spoken_languages?: {
@@ -7439,23 +7452,23 @@ export interface operations {
             }[];
             /** @example Released */
             status?: string;
-            /** @example Mischief. Mayhem. Soap. */
+            /** @example A long time ago in a galaxy far, far away... */
             tagline?: string;
-            /** @example Fight Club */
+            /** @example Star Wars */
             title?: string;
             /**
-             * @default true
+             * @default false
              * @example false
              */
             video: boolean;
             /**
              * @default 0
-             * @example 8.433
+             * @example 8.2
              */
             vote_average: number;
             /**
              * @default 0
-             * @example 26280
+             * @example 22061
              */
             vote_count: number;
           };

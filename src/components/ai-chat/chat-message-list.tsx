@@ -74,6 +74,9 @@ export function ChatMessageList({
 
   const lastMessageRole =
     messages.length > 0 ? messages[messages.length - 1]?.role : undefined;
+  const lastAssistantIndex = messages.findLastIndex(
+    (m) => m.role === "assistant",
+  );
 
   useEffect(() => {
     if (messages.length === 0) return;
@@ -105,6 +108,9 @@ export function ChatMessageList({
                 status === "streaming" &&
                 message.role === "assistant" &&
                 index === messages.length - 1
+              }
+              isLastAssistantMessage={
+                message.role === "assistant" && index === lastAssistantIndex
               }
             />
           ))}

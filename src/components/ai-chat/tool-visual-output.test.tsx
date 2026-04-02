@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
+import { ChatActionsContext } from "./chat-actions-context";
 import { MediaDetailProvider } from "./media-detail-context";
 import { ToolVisualOutput } from "./tool-visual-output";
 import type { WatchProviderOutput } from "./tool-watch-providers";
@@ -420,6 +421,129 @@ describe("ToolVisualOutput", () => {
             watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
+      );
+
+      expect(container.innerHTML).toBe("");
+    });
+  });
+
+  describe("review_summary", () => {
+    const mockActions = {
+      sendMessage: () => {},
+      attachedMedia: null,
+      setAttachedMedia: () => {},
+    };
+
+    it("renders skeleton for input-streaming", () => {
+      const { container } = render(
+        <ChatActionsContext value={mockActions}>
+          <ToolVisualOutput
+            toolName="review_summary"
+            state="input-streaming"
+            input={undefined}
+            searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
+          />
+        </ChatActionsContext>,
+      );
+
+      expect(container.innerHTML).not.toBe("");
+    });
+
+    it("renders skeleton for input-available", () => {
+      const { container } = render(
+        <ChatActionsContext value={mockActions}>
+          <ToolVisualOutput
+            toolName="review_summary"
+            state="input-available"
+            input={{
+              id: 550,
+              media_type: "movie",
+              title: "Fight Club",
+              spiciness: 3,
+            }}
+            searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
+          />
+        </ChatActionsContext>,
+      );
+
+      expect(container.innerHTML).not.toBe("");
+    });
+
+    it("renders card for output-available", () => {
+      render(
+        <ChatActionsContext value={mockActions}>
+          <ToolVisualOutput
+            toolName="review_summary"
+            state="output-available"
+            input={{
+              id: 550,
+              media_type: "movie",
+              title: "Fight Club",
+              spiciness: 3,
+            }}
+            output={{
+              id: 550,
+              mediaType: "movie",
+              title: "Fight Club",
+              spiciness: 3,
+              summary: "A mind-bending thriller.",
+              reviewCount: 10,
+              averageRating: 8.5,
+            }}
+            searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
+            isLastAssistantMessage
+          />
+        </ChatActionsContext>,
+      );
+
+      expect(screen.getByText("Review Summary")).toBeInTheDocument();
+      expect(screen.getByText("A mind-bending thriller.")).toBeInTheDocument();
+    });
+
+    it("shows error for output-error", () => {
+      render(
+        <ToolVisualOutput
+          toolName="review_summary"
+          state="output-error"
+          input={{
+            id: 550,
+            media_type: "movie",
+            title: "Fight Club",
+            spiciness: 3,
+          }}
+          searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
+        />,
+      );
+
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+
+    it("returns null for invalid output", () => {
+      const { container } = render(
+        <ChatActionsContext value={mockActions}>
+          <ToolVisualOutput
+            toolName="review_summary"
+            state="output-available"
+            input={{
+              id: 550,
+              media_type: "movie",
+              title: "Fight Club",
+              spiciness: 3,
+            }}
+            output={{ invalid: true }}
+            searchResultsMap={emptyMap}
+            personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
+          />
+        </ChatActionsContext>,
       );
 
       expect(container.innerHTML).toBe("");

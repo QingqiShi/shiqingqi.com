@@ -25,11 +25,13 @@ import type { WatchProviderOutput } from "./tool-watch-providers";
 interface ChatMessageProps {
   message: UIMessage;
   isStreaming?: boolean;
+  isLastAssistantMessage?: boolean;
 }
 
 export function ChatMessage({
   message,
   isStreaming = false,
+  isLastAssistantMessage = false,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
 
@@ -88,7 +90,8 @@ export function ChatMessage({
             toolName === "present_media" ||
             toolName === "present_watch_providers" ||
             toolName === "present_provider_regions" ||
-            toolName === "present_person";
+            toolName === "present_person" ||
+            toolName === "review_summary";
 
           if (!isFirstTool && !hasVisualOutput) return null;
 
@@ -111,6 +114,7 @@ export function ChatMessage({
                   searchResultsMap={searchResultsMap}
                   personResultsMap={personResultsMap}
                   watchProvidersMap={watchProvidersMap}
+                  isLastAssistantMessage={isLastAssistantMessage}
                 />
               )}
             </div>
