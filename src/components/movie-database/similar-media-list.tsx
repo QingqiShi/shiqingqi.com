@@ -2,9 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useLayoutEffect, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "#src/components/movie-database/grid.tsx";
+import { useViewportHeight } from "#src/hooks/use-viewport-height.ts";
 import { color, ratio, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
@@ -40,15 +40,8 @@ export function SimilarMediaList({
     isFetching,
   } = useSuspenseInfiniteQuery(queryOptions);
 
-  // Get viewport height, used for infinite scroll padding
-  const [height, setHeight] = useState(() =>
-    typeof window !== "undefined" ? window.innerHeight : 0,
-  );
-  useLayoutEffect(() => {
-    const onResize = () => setHeight(window.innerHeight);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+  // Viewport height used for infinite scroll pre-fetch padding
+  const height = useViewportHeight();
 
   if (!media.length) {
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
