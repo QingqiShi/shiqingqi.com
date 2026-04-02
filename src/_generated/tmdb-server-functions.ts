@@ -72,6 +72,16 @@ export async function getMovieRecommendations(
   });
 }
 
+export async function getMovieReviews(
+  params: { movie_id: string } & QueryParams<
+    "/3/movie/{movie_id}/reviews",
+    "get"
+  >,
+) {
+  const { movie_id, ...queryParams } = params;
+  return tmdbGet("/3/movie/{movie_id}/reviews", queryParams, { movie_id });
+}
+
 export async function getMovieVideos(
   params: { movie_id: string } & QueryParams<
     "/3/movie/{movie_id}/videos",
@@ -168,6 +178,16 @@ export async function getTvShowRecommendations(
   return tmdbGet("/3/tv/{series_id}/recommendations", queryParams, {
     series_id,
   });
+}
+
+export async function getTvShowReviews(
+  params: { series_id: string } & QueryParams<
+    "/3/tv/{series_id}/reviews",
+    "get"
+  >,
+) {
+  const { series_id, ...queryParams } = params;
+  return tmdbGet("/3/tv/{series_id}/reviews", queryParams, { series_id });
 }
 
 export async function getTvShowVideos(

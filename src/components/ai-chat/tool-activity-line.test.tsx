@@ -48,6 +48,22 @@ describe("ToolActivityLine", () => {
       expect(screen.getByText("Watch Providers")).toBeInTheDocument();
     });
 
+    it("maps review_summary to Review Summary", () => {
+      render(
+        <ToolActivityLine
+          toolName="review_summary"
+          state="output-available"
+          input={{
+            id: 550,
+            media_type: "movie",
+            title: "Fight Club",
+            spiciness: 3,
+          }}
+        />,
+      );
+      expect(screen.getByText("Review Summary")).toBeInTheDocument();
+    });
+
     it("shows raw name for unknown tools", () => {
       render(
         <ToolActivityLine
@@ -161,6 +177,22 @@ describe("ToolActivityLine", () => {
         />,
       );
       expect(screen.getByText("GB")).toBeInTheDocument();
+    });
+
+    it("shows title for review_summary", () => {
+      render(
+        <ToolActivityLine
+          toolName="review_summary"
+          state="output-available"
+          input={{
+            id: 550,
+            media_type: "movie",
+            title: "Fight Club",
+            spiciness: 3,
+          }}
+        />,
+      );
+      expect(screen.getByText("Fight Club")).toBeInTheDocument();
     });
 
     it("omits summary for unknown tools", () => {

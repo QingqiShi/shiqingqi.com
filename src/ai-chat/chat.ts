@@ -12,6 +12,7 @@ import { createPresentMediaTool } from "./tools/present-media";
 import { createPresentPersonTool } from "./tools/present-person";
 import { createPresentProviderRegionsTool } from "./tools/present-provider-regions";
 import { createPresentWatchProvidersTool } from "./tools/present-watch-providers";
+import { createReviewSummaryTool } from "./tools/review-summary";
 import { createSemanticSearchTool } from "./tools/semantic-search";
 import { createTmdbSearchTool } from "./tools/tmdb-search";
 import { createWatchProvidersTool } from "./tools/watch-providers";
@@ -43,6 +44,7 @@ export async function chat({
       media_credits: createMediaCreditsTool(),
       person_credits: createPersonCreditsTool(),
       present_person: createPresentPersonTool(),
+      review_summary: createReviewSummaryTool(locale),
     },
     providerOptions: contextManagementProviderOptions,
     stopWhen: stepCountIs(5),

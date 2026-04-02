@@ -94,6 +94,9 @@ export function ToolActivityLine({
     case "present_provider_regions":
       label = t({ en: "Presenting Regions", zh: "展示地区" });
       break;
+    case "review_summary":
+      label = t({ en: "Review Summary", zh: "评论摘要" });
+      break;
     default:
       label = toolName;
   }
@@ -132,6 +135,13 @@ export function ToolActivityLine({
   } else if (toolName === "present_provider_regions") {
     if (isRecord(input) && typeof input.provider_name === "string") {
       summary = input.provider_name;
+    }
+  } else if (toolName === "review_summary") {
+    if (isRecord(input) && typeof input.title === "string") {
+      summary =
+        input.title.length > MAX_SUMMARY_LENGTH
+          ? `${input.title.slice(0, MAX_SUMMARY_LENGTH)}…`
+          : input.title;
     }
   }
 

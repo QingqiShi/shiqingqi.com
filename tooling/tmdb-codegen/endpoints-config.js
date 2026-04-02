@@ -39,6 +39,7 @@ export const endpoints = [
 
   // Movie Details & Media
   { path: "/3/movie/{movie_id}", functionName: "getMovieDetails" },
+  { path: "/3/movie/{movie_id}/reviews", functionName: "getMovieReviews" },
   { path: "/3/movie/{movie_id}/videos", functionName: "getMovieVideos" },
   {
     path: "/3/movie/{movie_id}/recommendations",
@@ -57,6 +58,7 @@ export const endpoints = [
 
   // TV Details & Media
   { path: "/3/tv/{series_id}", functionName: "getTvShowDetails" },
+  { path: "/3/tv/{series_id}/reviews", functionName: "getTvShowReviews" },
   { path: "/3/tv/{series_id}/videos", functionName: "getTvShowVideos" },
   {
     path: "/3/tv/{series_id}/recommendations",
