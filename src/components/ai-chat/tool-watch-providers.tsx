@@ -9,7 +9,7 @@ import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import { isRecord } from "./map-tool-output";
+import { isRecord } from "#src/utils/type-guards.ts";
 
 interface ProviderEntry {
   id: number;

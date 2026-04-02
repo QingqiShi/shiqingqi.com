@@ -7,8 +7,6 @@ import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import type { WatchProviderOutput } from "./tool-watch-providers";
 import { parseWatchProviderOutput } from "./tool-watch-providers";
 
-export { isRecord };
-
 function mapTmdbSearchOutput(output: unknown): ReadonlyArray<MediaListItem> {
   if (!Array.isArray(output)) return [];
 

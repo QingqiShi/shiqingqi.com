@@ -8,7 +8,7 @@ import { flex } from "#src/primitives/flex.stylex.ts";
 import { truncate } from "#src/primitives/layout.stylex.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
-import { isRecord } from "./map-tool-output";
+import { isRecord } from "#src/utils/type-guards.ts";
 
 export const TERMINAL_STATES = new Set([
   "output-available",
