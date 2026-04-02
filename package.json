@@ -62,8 +62,7 @@
     "serwist": "^9.5.7",
     "sharp": "^0.34.5",
     "twgl.js": "^7.0.0",
-    "zod": "4",
-    "zod-to-json-schema": "^3.25.2"
+    "zod": "4"
   },
   "devDependencies": {
     "@babel/core": "7.29.0",
