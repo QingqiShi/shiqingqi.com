@@ -49,6 +49,16 @@ export async function runSingleTurnEval(evalCase: EvalCase) {
     ).toBe(true);
   }
 
+  if (evalCase.forbidToolCall) {
+    const called = response.toolCalls.some(
+      (tc) => tc.toolName === evalCase.forbidToolCall,
+    );
+    expect(
+      called,
+      `Expected tool "${evalCase.forbidToolCall}" to NOT be called`,
+    ).toBe(false);
+  }
+
   if (evalCase.deterministic) {
     for (const check of evalCase.deterministic) {
       const result = runDeterministicCheck(response.text, check);
@@ -82,6 +92,17 @@ export async function runMultiTurnEval(evalCase: MultiTurnEvalCase) {
       called,
       `Expected tool "${evalCase.requireToolCall}" to be called`,
     ).toBe(true);
+  }
+
+  if (evalCase.forbidToolCall) {
+    const allCalls = turnResults.flatMap((r) => r.toolCalls);
+    const called = allCalls.some(
+      (tc) => tc.toolName === evalCase.forbidToolCall,
+    );
+    expect(
+      called,
+      `Expected tool "${evalCase.forbidToolCall}" to NOT be called`,
+    ).toBe(false);
   }
 
   if (evalCase.deterministic) {

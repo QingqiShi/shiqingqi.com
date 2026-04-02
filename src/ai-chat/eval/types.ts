@@ -16,6 +16,7 @@ export interface EvalCase {
   deterministic?: DeterministicCheck[];
   includeToolCalls?: boolean;
   requireToolCall?: string;
+  forbidToolCall?: string;
 }
 
 export interface MultiTurnEvalCase {
@@ -27,6 +28,7 @@ export interface MultiTurnEvalCase {
   deterministic?: DeterministicCheck[];
   includeToolCalls?: boolean;
   requireToolCall?: string;
+  forbidToolCall?: string;
 }
 
 export interface ToolCallSummary {
