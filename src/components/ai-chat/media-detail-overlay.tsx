@@ -2,11 +2,12 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
+import { useDialogFocus } from "#src/hooks/use-dialog-focus.ts";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { fixedFill } from "#src/primitives/layout.stylex.ts";
@@ -15,9 +16,6 @@ import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { MediaDetailContent } from "./media-detail-content";
 import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
-
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 function getDialogLabel(media: FocusedMedia): string {
   if (media.title) return media.title;
@@ -30,51 +28,16 @@ export function MediaDetailOverlay() {
   const { focusedMedia, setFocusedMedia } = useMediaDetail();
   const portalTarget = usePortalTarget();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!focusedMedia) return;
+  const handleClose = () => setFocusedMedia(null);
 
-    triggerRef.current =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    // Allow the portal to render before focusing
-    requestAnimationFrame(() => {
-      closeButtonRef.current?.focus();
-    });
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setFocusedMedia(null);
-        return;
-      }
-
-      // Trap focus within the dialog
-      if (event.key === "Tab" && dialogRef.current) {
-        const focusableElements =
-          dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-        if (focusableElements.length === 0) return;
-
-        const first = focusableElements[0];
-        const last = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      triggerRef.current?.focus();
-    };
-  }, [focusedMedia, setFocusedMedia]);
+  useDialogFocus({
+    isOpen: focusedMedia != null,
+    dialogRef,
+    onClose: handleClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   if (!focusedMedia || !portalTarget) {
     return null;

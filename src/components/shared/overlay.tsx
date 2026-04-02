@@ -3,7 +3,6 @@
 import { XIcon } from "@phosphor-icons/react/X";
 import * as stylex from "@stylexjs/stylex";
 import {
-  useEffect,
   useDeferredValue,
   useRef,
   ViewTransition,
@@ -13,12 +12,10 @@ import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
+import { useDialogFocus } from "#src/hooks/use-dialog-focus.ts";
 import { t } from "#src/i18n.ts";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { Button } from "./button";
-
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
 
 interface OverlayProps {
   isOpen: boolean;
@@ -35,56 +32,12 @@ export function Overlay({
   const portalTarget = usePortalTarget();
   const deferredIsOpen = useDeferredValue(isOpen);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
-    if (!deferredIsOpen) return;
-
-    // Remember the element that had focus before the overlay opened
-    triggerRef.current =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-
-    // Move focus into the dialog once the portal renders
-    requestAnimationFrame(() => {
-      const firstFocusable =
-        dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
-      firstFocusable?.focus();
-    });
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-        return;
-      }
-
-      // Trap focus within the dialog
-      if (event.key === "Tab" && dialogRef.current) {
-        const focusableElements =
-          dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-        if (focusableElements.length === 0) return;
-
-        const first = focusableElements[0];
-        const last = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      // Restore focus to the element that opened the overlay
-      triggerRef.current?.focus();
-    };
-  }, [deferredIsOpen, onClose]);
+  useDialogFocus({
+    isOpen: deferredIsOpen,
+    dialogRef,
+    onClose,
+  });
 
   if (!deferredIsOpen || !portalTarget) {
     return null;
