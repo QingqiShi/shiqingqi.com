@@ -2,11 +2,12 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
+import { useDialogFocus } from "#src/hooks/use-dialog-focus.ts";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { fixedFill } from "#src/primitives/layout.stylex.ts";
@@ -16,9 +17,6 @@ import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { useMediaDetail, type FocusedPerson } from "./media-detail-context";
 import { PersonDetailContent } from "./person-detail-content";
 
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
 function getDialogLabel(person: FocusedPerson): string {
   return person.name ?? t({ en: "Person details", zh: "人物详情" });
 }
@@ -27,49 +25,16 @@ export function PersonDetailOverlay() {
   const { focusedPerson, setFocusedPerson } = useMediaDetail();
   const portalTarget = usePortalTarget();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!focusedPerson) return;
+  const handleClose = () => setFocusedPerson(null);
 
-    triggerRef.current =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    requestAnimationFrame(() => {
-      closeButtonRef.current?.focus();
-    });
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setFocusedPerson(null);
-        return;
-      }
-
-      if (event.key === "Tab" && dialogRef.current) {
-        const focusableElements =
-          dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-        if (focusableElements.length === 0) return;
-
-        const first = focusableElements[0];
-        const last = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      triggerRef.current?.focus();
-    };
-  }, [focusedPerson, setFocusedPerson]);
+  useDialogFocus({
+    isOpen: focusedPerson != null,
+    dialogRef,
+    onClose: handleClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   if (!focusedPerson || !portalTarget) {
     return null;
