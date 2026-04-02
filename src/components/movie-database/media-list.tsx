@@ -2,11 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useDeferredValue, useLayoutEffect, useState } from "react";
+import { useDeferredValue, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
+import { useViewportHeight } from "#src/hooks/use-viewport-height.ts";
 import { t } from "#src/i18n.ts";
 import { color, ratio, space } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
@@ -45,15 +46,8 @@ export function MediaList({ initialPage }: MediaListProps) {
     isFetching,
   } = useSuspenseInfiniteQuery(tmdbQueryOptions);
 
-  // Get viewport height, used for infinite scroll padding
-  const [height, setHeight] = useState(() =>
-    typeof window !== "undefined" ? window.innerHeight : 0,
-  );
-  useLayoutEffect(() => {
-    const onResize = () => setHeight(window.innerHeight);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+  // Viewport height used for infinite scroll pre-fetch padding
+  const height = useViewportHeight();
 
   const [initialCount] = useState(items.length);
 
