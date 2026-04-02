@@ -108,8 +108,12 @@ export function ToolActivityLine({
   if (toolName === "tmdb_search" || toolName === "semantic_search") {
     summary = getQuerySummary(input);
   } else if (toolName === "watch_providers") {
-    if (isRecord(input) && typeof input.region === "string") {
-      summary = input.region;
+    if (isRecord(input)) {
+      if (typeof input.provider_name === "string") {
+        summary = input.provider_name;
+      } else if (typeof input.region === "string") {
+        summary = input.region;
+      }
     }
   } else if (toolName === "present_media") {
     const count = getMediaCount(input);

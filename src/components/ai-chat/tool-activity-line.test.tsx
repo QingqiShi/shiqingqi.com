@@ -179,6 +179,37 @@ describe("ToolActivityLine", () => {
       expect(screen.getByText("GB")).toBeInTheDocument();
     });
 
+    it("shows provider name for watch_providers in provider search mode", () => {
+      render(
+        <ToolActivityLine
+          toolName="watch_providers"
+          state="output-available"
+          input={{
+            id: 550,
+            media_type: "movie",
+            provider_name: "Netflix",
+          }}
+        />,
+      );
+      expect(screen.getByText("Netflix")).toBeInTheDocument();
+    });
+
+    it("prefers provider_name over region for watch_providers summary", () => {
+      render(
+        <ToolActivityLine
+          toolName="watch_providers"
+          state="output-available"
+          input={{
+            id: 550,
+            media_type: "movie",
+            provider_name: "Disney Plus",
+            region: "US",
+          }}
+        />,
+      );
+      expect(screen.getByText("Disney Plus")).toBeInTheDocument();
+    });
+
     it("shows title for review_summary", () => {
       render(
         <ToolActivityLine
