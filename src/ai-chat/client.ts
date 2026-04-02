@@ -4,17 +4,22 @@ import "server-only";
 
 const MODEL_ID = "claude-sonnet-4-6";
 
+let provider: ReturnType<typeof createAnthropic> | null = null;
 let model: LanguageModel | null = null;
 
-export function getAnthropicModel(): LanguageModel {
-  if (!model) {
+export function getAnthropicProvider() {
+  if (!provider) {
     if (!process.env.ANTHROPIC_API_KEY) {
       throw new Error("ANTHROPIC_API_KEY is not set");
     }
-    const anthropic = createAnthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-    model = anthropic.chat(MODEL_ID);
+    provider = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
+  return provider;
+}
+
+export function getAnthropicModel(): LanguageModel {
+  if (!model) {
+    model = getAnthropicProvider().chat(MODEL_ID);
   }
   return model;
 }

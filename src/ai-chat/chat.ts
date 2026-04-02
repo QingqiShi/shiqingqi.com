@@ -2,7 +2,7 @@ import type { LanguageModel } from "ai";
 import { convertToModelMessages, stepCountIs, streamText } from "ai";
 import "server-only";
 import { addCacheControlToMessages } from "./addCacheControlToMessages";
-import { getAnthropicModel } from "./client";
+import { getAnthropicModel, getAnthropicProvider } from "./client";
 import { contextManagementProviderOptions } from "./context-management";
 import type { ChatInput } from "./schema";
 import { getChatSystemInstructions } from "./system-instructions";
@@ -29,6 +29,7 @@ export async function chat({
 }: ChatOptions) {
   const system = getChatSystemInstructions(locale, countryCode);
   const modelMessages = await convertToModelMessages(messages);
+  const anthropic = getAnthropicProvider();
 
   return streamText({
     model: model ?? getAnthropicModel(),
@@ -45,6 +46,17 @@ export async function chat({
       person_credits: createPersonCreditsTool(),
       present_person: createPresentPersonTool(),
       review_summary: createReviewSummaryTool(locale),
+      web_search: anthropic.tools.webSearch_20250305(
+        countryCode && countryCode !== "unknown"
+          ? {
+              maxUses: 3,
+              userLocation: {
+                type: "approximate",
+                country: countryCode,
+              },
+            }
+          : { maxUses: 3 },
+      ),
     },
     providerOptions: contextManagementProviderOptions,
     stopWhen: stepCountIs(5),
