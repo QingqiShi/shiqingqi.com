@@ -12,8 +12,8 @@ importers:
         specifier: ^3.0.64
         version: 3.0.64(zod@4.3.6)
       '@ai-sdk/react':
-        specifier: ^3.0.144
-        version: 3.0.144(react@19.3.0-canary-52684925-20251110)(zod@4.3.6)
+        specifier: ^3.0.145
+        version: 3.0.145(react@19.3.0-canary-52684925-20251110)(zod@4.3.6)
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)
@@ -274,8 +274,8 @@ packages:
     resolution: {integrity: sha512-oGMAgGoQdBXbZqNG0Ze56CHjDZ1IDYOwGYxYjO5KLSlz5HiNQ9udIXsPZ61VWaHGZ5XW/jyjmr6t2xz2jGVwbQ==}
     engines: {node: '>=18'}
 
-  '@ai-sdk/react@3.0.144':
-    resolution: {integrity: sha512-8Y7OX1BhEwEWr4c9sy9UoX/bpBw6TvCvO5XXiqYpM8l5QjzIJlKDs+7QJEJmo9oobbx+Z2Ops3OjT+4r7JJUzw==}
+  '@ai-sdk/react@3.0.145':
+    resolution: {integrity: sha512-7EoGTTregQt+wDKC4cmWNnsm5DvfJfWA9+9wigFMGASxujverJICVHDpvCsWK7KBHn7WeohFrk7LziOuuhwCEQ==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
@@ -5974,10 +5974,10 @@ snapshots:
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@3.0.144(react@19.3.0-canary-52684925-20251110)(zod@4.3.6)':
+  '@ai-sdk/react@3.0.145(react@19.3.0-canary-52684925-20251110)(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider-utils': 4.0.21(zod@4.3.6)
-      ai: 6.0.142(zod@4.3.6)
+      ai: 6.0.143(zod@4.3.6)
       react: 19.3.0-canary-52684925-20251110
       swr: 2.4.1(react@19.3.0-canary-52684925-20251110)
       throttleit: 2.1.0
