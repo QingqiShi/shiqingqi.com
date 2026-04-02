@@ -10,6 +10,8 @@ import { createMediaCreditsTool } from "./tools/media-credits";
 import { createPersonCreditsTool } from "./tools/person-credits";
 import { createPresentMediaTool } from "./tools/present-media";
 import { createPresentPersonTool } from "./tools/present-person";
+import { createPresentProviderRegionsTool } from "./tools/present-provider-regions";
+import { createPresentWatchProvidersTool } from "./tools/present-watch-providers";
 import { createSemanticSearchTool } from "./tools/semantic-search";
 import { createTmdbSearchTool } from "./tools/tmdb-search";
 import { createWatchProvidersTool } from "./tools/watch-providers";
@@ -36,6 +38,8 @@ export async function chat({
       tmdb_search: createTmdbSearchTool(locale),
       present_media: createPresentMediaTool(),
       watch_providers: createWatchProvidersTool(),
+      present_watch_providers: createPresentWatchProvidersTool(),
+      present_provider_regions: createPresentProviderRegionsTool(),
       media_credits: createMediaCreditsTool(),
       person_credits: createPersonCreditsTool(),
       present_person: createPresentPersonTool(),

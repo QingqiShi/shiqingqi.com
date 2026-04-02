@@ -15,10 +15,12 @@ import { CompactionNotice } from "./compaction-notice";
 import {
   buildPersonResultsMap,
   buildSearchResultsMap,
+  buildWatchProvidersMap,
 } from "./map-tool-output";
 import { MarkdownContent } from "./markdown-content";
 import { ToolActivityGroup } from "./tool-activity-group";
 import { ToolVisualOutput } from "./tool-visual-output";
+import type { WatchProviderOutput } from "./tool-watch-providers";
 
 interface ChatMessageProps {
   message: UIMessage;
@@ -34,6 +36,7 @@ export function ChatMessage({
   const {
     searchResultsMap,
     personResultsMap,
+    watchProvidersMap,
     toolParts,
     hasVisibleContent,
     firstToolIndex,
@@ -83,7 +86,8 @@ export function ChatMessage({
           const isFirstTool = index === firstToolIndex;
           const hasVisualOutput =
             toolName === "present_media" ||
-            toolName === "watch_providers" ||
+            toolName === "present_watch_providers" ||
+            toolName === "present_provider_regions" ||
             toolName === "present_person";
 
           if (!isFirstTool && !hasVisualOutput) return null;
@@ -106,6 +110,7 @@ export function ChatMessage({
                   output={toolOutput}
                   searchResultsMap={searchResultsMap}
                   personResultsMap={personResultsMap}
+                  watchProvidersMap={watchProvidersMap}
                 />
               )}
             </div>
@@ -126,6 +131,7 @@ function isCompactionPart(part: TextUIPart): boolean {
 function deriveMessageData(parts: UIMessage["parts"]) {
   const searchResultsMap = new Map<string, MediaListItem>();
   const personResultsMap = new Map<number, PersonListItem>();
+  const watchProvidersMap = new Map<string, WatchProviderOutput>();
   const toolParts: Array<{
     toolCallId: string;
     toolName: string;
@@ -184,6 +190,17 @@ function deriveMessageData(parts: UIMessage["parts"]) {
           personResultsMap.set(key, value);
         }
       }
+
+      if (
+        "output" in part &&
+        part.state === "output-available" &&
+        name === "watch_providers"
+      ) {
+        const partWpMap = buildWatchProvidersMap(part.output);
+        for (const [key, value] of partWpMap) {
+          watchProvidersMap.set(key, value);
+        }
+      }
     } else if (!hasVisibleContent) {
       if (isTextUIPart(part) && part.text.length > 0) hasVisibleContent = true;
       else if (isReasoningUIPart(part)) hasVisibleContent = true;
@@ -193,6 +210,7 @@ function deriveMessageData(parts: UIMessage["parts"]) {
   return {
     searchResultsMap,
     personResultsMap,
+    watchProvidersMap,
     toolParts,
     hasVisibleContent,
     firstToolIndex,

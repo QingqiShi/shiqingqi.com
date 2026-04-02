@@ -69,6 +69,7 @@ interface ProviderSearchResult {
   id: number;
   mediaType: "movie" | "tv";
   providerName: string;
+  providerLogoPath: string | null;
   regions: Array<{
     country: string;
     types: AvailabilityType[];
@@ -124,24 +125,35 @@ const AVAILABILITY_TYPES: AvailabilityType[] = [
   "free",
 ];
 
-function hasProviderName(items: unknown, name: string): boolean {
-  if (!Array.isArray(items)) return false;
+function findProvider(
+  items: unknown,
+  name: string,
+): { found: boolean; logoPath: string | null } {
+  if (!Array.isArray(items)) return { found: false, logoPath: null };
   const lower = name.toLowerCase();
-  return items.some(
-    (item) =>
+  for (const item of items) {
+    if (
       isRecord(item) &&
       typeof item.provider_name === "string" &&
-      item.provider_name.toLowerCase().includes(lower),
-  );
+      item.provider_name.toLowerCase().includes(lower)
+    ) {
+      return {
+        found: true,
+        logoPath: typeof item.logo_path === "string" ? item.logo_path : null,
+      };
+    }
+  }
+  return { found: false, logoPath: null };
 }
 
 function searchProviderAcrossRegions(
   results: MovieWatchResponse["results"] | TvWatchResponse["results"],
   providerName: string,
-): ProviderSearchResult["regions"] {
-  if (!results) return [];
+): { regions: ProviderSearchResult["regions"]; logoPath: string | null } {
+  if (!results) return { regions: [], logoPath: null };
 
   const regions: ProviderSearchResult["regions"] = [];
+  let logoPath: string | null = null;
 
   for (const [code, rawData] of Object.entries(results)) {
     const data: unknown = rawData;
@@ -149,8 +161,12 @@ function searchProviderAcrossRegions(
     const types: AvailabilityType[] = [];
 
     for (const availType of AVAILABILITY_TYPES) {
-      if (hasProviderName(data[availType], providerName)) {
+      const match = findProvider(data[availType], providerName);
+      if (match.found) {
         types.push(availType);
+        if (!logoPath && match.logoPath) {
+          logoPath = match.logoPath;
+        }
       }
     }
 
@@ -159,7 +175,10 @@ function searchProviderAcrossRegions(
     }
   }
 
-  return regions.sort((a, b) => a.country.localeCompare(b.country));
+  return {
+    regions: regions.sort((a, b) => a.country.localeCompare(b.country)),
+    logoPath,
+  };
 }
 
 async function fetchWatchProviders(id: number, mediaType: "movie" | "tv") {
@@ -181,11 +200,16 @@ export function createWatchProvidersTool() {
       const response = await fetchWatchProviders(id, media_type);
 
       if (provider_name) {
+        const { regions, logoPath } = searchProviderAcrossRegions(
+          response.results,
+          provider_name,
+        );
         return {
           id,
           mediaType: media_type,
           providerName: provider_name,
-          regions: searchProviderAcrossRegions(response.results, provider_name),
+          providerLogoPath: logoPath,
+          regions,
         };
       }
 

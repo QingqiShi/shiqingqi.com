@@ -171,7 +171,7 @@ describe("ChatMessage", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders watch_providers visual card with provider data", () => {
+  it("renders present_watch_providers card from watch_providers map", () => {
     render(
       <MediaDetailProvider>
         <ChatMessage
@@ -179,22 +179,6 @@ describe("ChatMessage", () => {
             role: "assistant",
             parts: [
               { type: "text", text: "Here's where you can watch it:" },
-              {
-                type: "dynamic-tool",
-                toolName: "tmdb_search",
-                toolCallId: "search-call",
-                state: "output-available",
-                input: { query: "Fight Club" },
-                output: [
-                  {
-                    id: 550,
-                    media_type: "movie",
-                    title: "Fight Club",
-                    poster_path: "/fightclub.jpg",
-                    vote_average: 8.4,
-                  },
-                ],
-              },
               {
                 type: "dynamic-tool",
                 toolName: "watch_providers",
@@ -220,6 +204,14 @@ describe("ChatMessage", () => {
                     free: [],
                   },
                 },
+              },
+              {
+                type: "dynamic-tool",
+                toolName: "present_watch_providers",
+                toolCallId: "present-wp-call",
+                state: "output-available",
+                input: { id: 550, media_type: "movie", region: "US" },
+                output: { id: 550, media_type: "movie", region: "US" },
               },
             ],
           })}

@@ -1,7 +1,11 @@
 import { presentMediaInputSchema } from "#src/ai-chat/tools/present-media.ts";
 import { presentPersonInputSchema } from "#src/ai-chat/tools/present-person.ts";
+import { presentProviderRegionsInputSchema } from "#src/ai-chat/tools/present-provider-regions.ts";
+import { presentWatchProvidersInputSchema } from "#src/ai-chat/tools/present-watch-providers.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
 import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
+import type { WatchProviderOutput } from "./tool-watch-providers";
+import { parseWatchProviderOutput } from "./tool-watch-providers";
 
 export { isRecord };
 
@@ -246,4 +250,42 @@ export function resolvePersonItems(
     }
   }
   return items;
+}
+
+function watchProvidersKey(data: WatchProviderOutput): string {
+  if (data.type === "region") {
+    return `wp:region:${data.id}:${data.mediaType}:${data.region}`;
+  }
+  return `wp:provider:${data.id}:${data.mediaType}:${data.providerName.toLowerCase()}`;
+}
+
+export function buildWatchProvidersMap(
+  output: unknown,
+): ReadonlyMap<string, WatchProviderOutput> {
+  const map = new Map<string, WatchProviderOutput>();
+  const parsed = parseWatchProviderOutput(output);
+  if (parsed) {
+    map.set(watchProvidersKey(parsed), parsed);
+  }
+  return map;
+}
+
+export function resolveWatchProviders(
+  input: unknown,
+  watchProviders: ReadonlyMap<string, WatchProviderOutput>,
+): WatchProviderOutput | null {
+  const parsed = presentWatchProvidersInputSchema.safeParse(input);
+  if (!parsed.success) return null;
+  const key = `wp:region:${parsed.data.id}:${parsed.data.media_type}:${parsed.data.region.toUpperCase()}`;
+  return watchProviders.get(key) ?? null;
+}
+
+export function resolveProviderRegions(
+  input: unknown,
+  watchProviders: ReadonlyMap<string, WatchProviderOutput>,
+): WatchProviderOutput | null {
+  const parsed = presentProviderRegionsInputSchema.safeParse(input);
+  if (!parsed.success) return null;
+  const key = `wp:provider:${parsed.data.id}:${parsed.data.media_type}:${parsed.data.provider_name.toLowerCase()}`;
+  return watchProviders.get(key) ?? null;
 }
