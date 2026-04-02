@@ -88,6 +88,12 @@ export function ToolActivityLine({
     case "present_person":
       label = t({ en: "Presenting People", zh: "展示人物" });
       break;
+    case "present_watch_providers":
+      label = t({ en: "Presenting Providers", zh: "展示观看渠道" });
+      break;
+    case "present_provider_regions":
+      label = t({ en: "Presenting Regions", zh: "展示地区" });
+      break;
     default:
       label = toolName;
   }
@@ -118,6 +124,14 @@ export function ToolActivityLine({
     if (count !== null) {
       summary =
         count.toString() + " " + (count === 1 ? itemSingular : itemPlural);
+    }
+  } else if (toolName === "present_watch_providers") {
+    if (isRecord(input) && typeof input.region === "string") {
+      summary = input.region;
+    }
+  } else if (toolName === "present_provider_regions") {
+    if (isRecord(input) && typeof input.provider_name === "string") {
+      summary = input.provider_name;
     }
   }
 

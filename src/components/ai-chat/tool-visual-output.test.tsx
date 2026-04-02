@@ -3,6 +3,7 @@ import { render, screen } from "#src/test-utils.tsx";
 import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import { MediaDetailProvider } from "./media-detail-context";
 import { ToolVisualOutput } from "./tool-visual-output";
+import type { WatchProviderOutput } from "./tool-watch-providers";
 
 const searchResultsMap = new Map<string, MediaListItem>([
   [
@@ -29,6 +30,7 @@ const searchResultsMap = new Map<string, MediaListItem>([
 
 const emptyMap = new Map<string, MediaListItem>();
 const emptyPersonMap = new Map<number, PersonListItem>();
+const emptyWpMap = new Map<string, WatchProviderOutput>();
 
 describe("ToolVisualOutput", () => {
   describe("present_media", () => {
@@ -41,6 +43,7 @@ describe("ToolVisualOutput", () => {
             input={undefined}
             searchResultsMap={searchResultsMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -57,6 +60,7 @@ describe("ToolVisualOutput", () => {
             input={{ media: [{ id: 1, media_type: "movie" }] }}
             searchResultsMap={searchResultsMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -79,6 +83,7 @@ describe("ToolVisualOutput", () => {
             }}
             searchResultsMap={searchResultsMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -96,6 +101,7 @@ describe("ToolVisualOutput", () => {
             input={{ media: [{ id: 999, media_type: "movie" }] }}
             searchResultsMap={emptyMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -112,6 +118,7 @@ describe("ToolVisualOutput", () => {
             input={undefined}
             searchResultsMap={searchResultsMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -120,42 +127,51 @@ describe("ToolVisualOutput", () => {
     });
   });
 
-  describe("watch_providers", () => {
+  describe("present_watch_providers", () => {
+    const watchProvidersMap = new Map<string, WatchProviderOutput>([
+      [
+        "wp:region:550:movie:US",
+        {
+          type: "region",
+          id: 550,
+          mediaType: "movie",
+          region: "US",
+          providers: {
+            link: "https://example.com",
+            flatrate: [{ id: 8, name: "Netflix", logoPath: "/netflix.jpg" }],
+            rent: [],
+            buy: [],
+            ads: [],
+            free: [],
+          },
+        },
+      ],
+    ]);
+
     it("renders skeleton for input-streaming", () => {
       const { container } = render(
         <ToolVisualOutput
-          toolName="watch_providers"
+          toolName="present_watch_providers"
           state="input-streaming"
-          input={{ id: 550, media_type: "movie", region: "US" }}
+          input={undefined}
           searchResultsMap={emptyMap}
           personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
         />,
       );
 
       expect(container.innerHTML).not.toBe("");
     });
 
-    it("renders card for output-available", () => {
+    it("renders card for input-available from map", () => {
       render(
         <ToolVisualOutput
-          toolName="watch_providers"
-          state="output-available"
+          toolName="present_watch_providers"
+          state="input-available"
           input={{ id: 550, media_type: "movie", region: "US" }}
-          output={{
-            id: 550,
-            mediaType: "movie",
-            region: "US",
-            providers: {
-              link: "https://example.com",
-              flatrate: [{ id: 8, name: "Netflix", logoPath: "/netflix.jpg" }],
-              rent: [],
-              buy: [],
-              ads: [],
-              free: [],
-            },
-          }}
           searchResultsMap={emptyMap}
           personResultsMap={emptyPersonMap}
+          watchProvidersMap={watchProvidersMap}
         />,
       );
 
@@ -163,14 +179,116 @@ describe("ToolVisualOutput", () => {
       expect(screen.getByAltText("Netflix")).toBeInTheDocument();
     });
 
+    it("returns null when not found in map", () => {
+      const { container } = render(
+        <ToolVisualOutput
+          toolName="present_watch_providers"
+          state="input-available"
+          input={{ id: 999, media_type: "movie", region: "GB" }}
+          searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
+        />,
+      );
+
+      expect(container.innerHTML).toBe("");
+    });
+
     it("shows error for output-error", () => {
       render(
         <ToolVisualOutput
-          toolName="watch_providers"
+          toolName="present_watch_providers"
           state="output-error"
           input={{ id: 550, media_type: "movie", region: "US" }}
           searchResultsMap={emptyMap}
           personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
+        />,
+      );
+
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+  });
+
+  describe("present_provider_regions", () => {
+    const watchProvidersMap = new Map<string, WatchProviderOutput>([
+      [
+        "wp:provider:550:movie:netflix",
+        {
+          type: "providerSearch",
+          id: 550,
+          mediaType: "movie",
+          providerName: "Netflix",
+          providerLogoPath: "/netflix.jpg",
+          regions: [
+            { country: "US", types: ["flatrate"] },
+            { country: "GB", types: ["flatrate", "ads"] },
+          ],
+        },
+      ],
+    ]);
+
+    it("renders skeleton for input-streaming", () => {
+      const { container } = render(
+        <ToolVisualOutput
+          toolName="present_provider_regions"
+          state="input-streaming"
+          input={undefined}
+          searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
+        />,
+      );
+
+      expect(container.innerHTML).not.toBe("");
+    });
+
+    it("renders provider search card from map", () => {
+      render(
+        <ToolVisualOutput
+          toolName="present_provider_regions"
+          state="input-available"
+          input={{ id: 550, media_type: "movie", provider_name: "Netflix" }}
+          searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
+          watchProvidersMap={watchProvidersMap}
+        />,
+      );
+
+      expect(screen.getByText("Netflix")).toBeInTheDocument();
+      expect(screen.getByText("2 regions")).toBeInTheDocument();
+      expect(screen.getByText("United States")).toBeInTheDocument();
+      expect(screen.getAllByText("United Kingdom")).toHaveLength(2);
+    });
+
+    it("returns null when not found in map", () => {
+      const { container } = render(
+        <ToolVisualOutput
+          toolName="present_provider_regions"
+          state="input-available"
+          input={{
+            id: 999,
+            media_type: "movie",
+            provider_name: "Disney Plus",
+          }}
+          searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
+        />,
+      );
+
+      expect(container.innerHTML).toBe("");
+    });
+
+    it("shows error for output-error", () => {
+      render(
+        <ToolVisualOutput
+          toolName="present_provider_regions"
+          state="output-error"
+          input={{ id: 550, media_type: "movie", provider_name: "Netflix" }}
+          searchResultsMap={emptyMap}
+          personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
         />,
       );
 
@@ -209,6 +327,7 @@ describe("ToolVisualOutput", () => {
             input={undefined}
             searchResultsMap={emptyMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -225,6 +344,7 @@ describe("ToolVisualOutput", () => {
             input={{ people: [{ id: 42 }] }}
             searchResultsMap={emptyMap}
             personResultsMap={personResultsMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -245,6 +365,7 @@ describe("ToolVisualOutput", () => {
             }}
             searchResultsMap={emptyMap}
             personResultsMap={personResultsMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -262,6 +383,7 @@ describe("ToolVisualOutput", () => {
             input={{ people: [{ id: 777 }] }}
             searchResultsMap={emptyMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -278,6 +400,7 @@ describe("ToolVisualOutput", () => {
             input={undefined}
             searchResultsMap={emptyMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -294,6 +417,7 @@ describe("ToolVisualOutput", () => {
             input={{ people: [] }}
             searchResultsMap={emptyMap}
             personResultsMap={emptyPersonMap}
+            watchProvidersMap={emptyWpMap}
           />
         </MediaDetailProvider>,
       );
@@ -302,7 +426,7 @@ describe("ToolVisualOutput", () => {
     });
   });
 
-  describe("non-present_media tools", () => {
+  describe("non-visual tools", () => {
     it("returns null for tmdb_search", () => {
       const { container } = render(
         <ToolVisualOutput
@@ -311,6 +435,7 @@ describe("ToolVisualOutput", () => {
           input={{ query: "test" }}
           searchResultsMap={searchResultsMap}
           personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
         />,
       );
 
@@ -325,6 +450,7 @@ describe("ToolVisualOutput", () => {
           input={{ query: "test" }}
           searchResultsMap={searchResultsMap}
           personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
         />,
       );
 
@@ -339,6 +465,7 @@ describe("ToolVisualOutput", () => {
           input={{}}
           searchResultsMap={emptyMap}
           personResultsMap={emptyPersonMap}
+          watchProvidersMap={emptyWpMap}
         />,
       );
 

@@ -54,6 +54,7 @@ interface ProviderSearchResultType {
   id: number;
   mediaType: string;
   providerName: string;
+  providerLogoPath: string | null;
   regions: Array<{ country: string; types: string[] }>;
 }
 
@@ -460,6 +461,7 @@ describe("watch providers provider search", () => {
     );
 
     expect(result.providerName).toBe("Netflix");
+    expect(result.providerLogoPath).toBe("/logo-8.jpg");
     expect(result.regions).toHaveLength(2);
     expect(result.regions).toEqual(
       expect.arrayContaining([
@@ -498,6 +500,7 @@ describe("watch providers provider search", () => {
     );
 
     expect(result.regions).toEqual([]);
+    expect(result.providerLogoPath).toBeNull();
   });
 
   it("matches provider name case-insensitively", async () => {
