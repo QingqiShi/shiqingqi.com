@@ -3,6 +3,11 @@ export type Clock = {
   sleep: (ms: number) => Promise<void>;
 };
 
+export type TokenThrottle = {
+  record: (tokens: number) => void;
+  waitIfNeeded: () => Promise<void>;
+};
+
 const defaultClock: Clock = {
   now: () => Date.now(),
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
@@ -12,44 +17,37 @@ const WINDOW_MS = 60_000;
 const TOKEN_LIMIT = 30_000;
 const BUFFER = 5_000;
 
-export class TokenThrottle {
-  private entries: Array<{ tokens: number; timestamp: number }> = [];
-  private clock: Clock;
+export function createThrottle(clock: Clock = defaultClock): TokenThrottle {
+  let entries: Array<{ tokens: number; timestamp: number }> = [];
 
-  constructor(clock?: Clock) {
-    this.clock = clock ?? defaultClock;
+  function pruneWindow(): number {
+    const cutoff = clock.now() - WINDOW_MS;
+    entries = entries.filter((e) => e.timestamp > cutoff);
+    return entries.reduce((sum, e) => sum + e.tokens, 0);
   }
 
-  private pruneWindow(): number {
-    const cutoff = this.clock.now() - WINDOW_MS;
-    this.entries = this.entries.filter((e) => e.timestamp > cutoff);
-    return this.entries.reduce((sum, e) => sum + e.tokens, 0);
+  function record(tokens: number): void {
+    entries.push({ tokens, timestamp: clock.now() });
   }
 
-  record(tokens: number): void {
-    this.entries.push({ tokens, timestamp: this.clock.now() });
-  }
-
-  async waitIfNeeded(): Promise<void> {
+  async function waitIfNeeded(): Promise<void> {
     const threshold = TOKEN_LIMIT - BUFFER;
-    let total = this.pruneWindow();
+    let total = pruneWindow();
 
     while (total >= threshold) {
-      const oldest = this.entries[0];
+      const oldest = entries[0];
       if (!oldest) break;
 
       const ageOutAt = oldest.timestamp + WINDOW_MS;
-      const sleepMs = ageOutAt - this.clock.now();
+      const sleepMs = ageOutAt - clock.now();
       if (sleepMs > 0) {
-        await this.clock.sleep(sleepMs);
+        await clock.sleep(sleepMs);
       }
-      total = this.pruneWindow();
+      total = pruneWindow();
     }
   }
+
+  return { record, waitIfNeeded };
 }
 
-export function createThrottle(clock?: Clock) {
-  return new TokenThrottle(clock);
-}
-
-export const throttle = new TokenThrottle();
+export const throttle = createThrottle();
