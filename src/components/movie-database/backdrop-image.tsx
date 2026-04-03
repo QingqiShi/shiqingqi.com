@@ -40,6 +40,7 @@ export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
         srcSet={srcSet}
         sizes="100vw"
         fetchPriority="high"
+        decoding="async"
       />
 
       <div role="presentation" css={[absoluteFill.all, styles.mask1]} />

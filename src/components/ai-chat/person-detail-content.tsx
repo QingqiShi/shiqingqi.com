@@ -125,7 +125,14 @@ function ProfileImage({
   const { src, srcSet } = buildSrcSet(baseUrl, sizes, path);
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img css={styles.photo} alt={alt} src={src} srcSet={srcSet} sizes="90px" />
+    <img
+      css={styles.photo}
+      alt={alt}
+      src={src}
+      srcSet={srcSet}
+      sizes="90px"
+      decoding="async"
+    />
   );
 }
 

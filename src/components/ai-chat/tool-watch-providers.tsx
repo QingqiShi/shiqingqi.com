@@ -218,6 +218,7 @@ function ProviderLogo({
       width={size}
       height={size}
       loading="lazy"
+      decoding="async"
     />
   );
 }

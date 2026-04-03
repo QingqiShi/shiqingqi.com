@@ -239,6 +239,7 @@ function PosterImage({
       src={src}
       srcSet={srcSet}
       sizes="90px"
+      decoding="async"
     />
   );
 }
@@ -265,6 +266,7 @@ function BackdropImage({
         src={src}
         srcSet={srcSet}
         sizes="600px"
+        decoding="async"
       />
       <div role="presentation" css={styles.backdropGradient} />
     </div>
