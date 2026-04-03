@@ -56,7 +56,7 @@ function ProfilePhoto({
         onLoad={() => setLoaded(true)}
         onError={() => setErrored(true)}
         ref={(el) => {
-          if (el?.complete) setLoaded(true);
+          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
         }}
       />
     </>
