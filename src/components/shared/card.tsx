@@ -24,7 +24,7 @@ export function Card({ children, className, style, ...rest }: CardProps) {
       <div css={styles.detailsBackdrop} />
       <div css={styles.detailsIndicator}>
         <span css={styles.detailsText}>{t({ en: "Details", zh: "详情" })}</span>
-        <ArrowRightIcon />
+        <ArrowRightIcon aria-hidden="true" />
       </div>
     </Anchor>
   );
