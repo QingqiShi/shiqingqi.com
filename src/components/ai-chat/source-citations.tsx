@@ -30,9 +30,7 @@ export function SourceCitations({ sources }: SourceCitationsProps) {
 
   return (
     <div css={styles.container}>
-      <p css={styles.heading}>
-        {t({ en: "Sources", zh: "来源" })}
-      </p>
+      <p css={styles.heading}>{t({ en: "Sources", zh: "来源" })}</p>
       <ul css={styles.list}>
         {sources.map((source) => (
           <li key={source.sourceId}>
