@@ -79,13 +79,15 @@ function generateHashedIcons() {
       type: "image/png",
     });
 
-    // For 512x512, also add maskable version
+    // For 512x512, also add a maskable entry.
+    // These must be separate entries — the combined "any maskable" value
+    // is deprecated since Chrome 120 and triggers a console warning.
     if (size === "512x512") {
       icons.push({
         src: hashedFileName,
         sizes: size,
         type: "image/png",
-        purpose: "any maskable",
+        purpose: "maskable",
       });
     }
   }
