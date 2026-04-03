@@ -64,6 +64,17 @@ describe("ToolActivityLine", () => {
       expect(screen.getByText("Review Summary")).toBeInTheDocument();
     });
 
+    it("maps web_search to Web Search", () => {
+      render(
+        <ToolActivityLine
+          toolName="web_search"
+          state="output-available"
+          input={{ query: "oscars best picture 2026" }}
+        />,
+      );
+      expect(screen.getByText("Web Search")).toBeInTheDocument();
+    });
+
     it("shows raw name for unknown tools", () => {
       render(
         <ToolActivityLine
@@ -193,6 +204,17 @@ describe("ToolActivityLine", () => {
         />,
       );
       expect(screen.getByText("Fight Club")).toBeInTheDocument();
+    });
+
+    it("shows query text for web_search", () => {
+      render(
+        <ToolActivityLine
+          toolName="web_search"
+          state="output-available"
+          input={{ query: "Oscars 2026 winners" }}
+        />,
+      );
+      expect(screen.getByText('"Oscars 2026 winners"')).toBeInTheDocument();
     });
 
     it("omits summary for unknown tools", () => {
