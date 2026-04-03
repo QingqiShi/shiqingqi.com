@@ -66,7 +66,7 @@ export function DetailOverlay({
               onClick={onClose}
               aria-label={t({ en: "Close", zh: "关闭" })}
             >
-              <XIcon size={20} />
+              <XIcon size={20} aria-hidden="true" />
             </button>
             {children}
           </div>

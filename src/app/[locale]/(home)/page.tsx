@@ -47,7 +47,9 @@ export default async function Home(props: PageProps) {
         <h2 css={styles.sectionTitle}>{t({ en: "Projects", zh: "项目" })}</h2>
         <div css={styles.cardList}>
           <ProjectCard
-            icon={<GraduationCapIcon size={64} weight="fill" />}
+            icon={
+              <GraduationCapIcon size={64} weight="fill" aria-hidden="true" />
+            }
             href="https://studentloanstudy.uk/"
             target="_blank"
             css={[styles.card, styles.studentLoan]}
@@ -58,7 +60,7 @@ export default async function Home(props: PageProps) {
             })}
           />
           <ProjectCard
-            icon={<FilmSlateIcon size={64} weight="fill" />}
+            icon={<FilmSlateIcon size={64} weight="fill" aria-hidden="true" />}
             href={getLocalePath("/movie-database", locale)}
             css={[styles.card, styles.movieDatabase]}
             name={t({ en: "Movie Database", zh: "电影数据库" })}
@@ -69,7 +71,7 @@ export default async function Home(props: PageProps) {
             scroll
           />
           <ProjectCard
-            icon={<CalculatorIcon size={64} weight="fill" />}
+            icon={<CalculatorIcon size={64} weight="fill" aria-hidden="true" />}
             href={getLocalePath("/calculator", locale)}
             css={[styles.card, styles.calculator]}
             name={t({ en: "Calculator", zh: "计算器" })}
@@ -80,7 +82,7 @@ export default async function Home(props: PageProps) {
             scroll
           />
           <ProjectCard
-            icon={<PackageIcon size={64} weight="fill" />}
+            icon={<PackageIcon size={64} weight="fill" aria-hidden="true" />}
             href={getLocalePath("/component-library", locale)}
             css={[styles.card, styles.componentLibrary]}
             name={t({ en: "Component Library", zh: "组件库" })}

@@ -31,7 +31,7 @@ export function ResetFilter({ bright, hideLabel }: ResetFilterProps) {
           e.preventDefault();
           reset();
         }}
-        icon={<FunnelXIcon />}
+        icon={<FunnelXIcon aria-hidden="true" />}
         bright={bright}
       >
         {t({ en: "Reset", zh: "重置" })}

@@ -98,7 +98,7 @@ export function ChatInputBar({
                 styles.attachmentDismiss,
               ]}
             >
-              <XIcon size={12} />
+              <XIcon size={12} aria-hidden="true" />
             </button>
           </span>
         </div>
