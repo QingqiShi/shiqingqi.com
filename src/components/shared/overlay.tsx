@@ -1,6 +1,6 @@
 "use client";
 
-import { XIcon } from "@phosphor-icons/react/X";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import {
   useDeferredValue,
