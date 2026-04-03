@@ -1,6 +1,6 @@
 "use client";
 
-import { TranslateIcon } from "@phosphor-icons/react/Translate";
+import { TranslateIcon } from "@phosphor-icons/react/dist/ssr/Translate";
 import * as stylex from "@stylexjs/stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { LOCALE_COOKIE_NAME } from "#src/constants.ts";

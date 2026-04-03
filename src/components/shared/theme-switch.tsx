@@ -1,7 +1,7 @@
 "use client";
 
-import { MoonIcon } from "@phosphor-icons/react/Moon";
-import { SunIcon } from "@phosphor-icons/react/Sun";
+import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
+import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import * as stylex from "@stylexjs/stylex";
 import { useLayoutEffect, useRef, useState } from "react";
 import { getDocumentClassName } from "#src/app/global-styles.ts";

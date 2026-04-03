@@ -1,6 +1,6 @@
 "use client";
 
-import { PlayIcon } from "@phosphor-icons/react/Play";
+import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
