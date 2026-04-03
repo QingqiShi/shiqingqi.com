@@ -53,6 +53,7 @@ function ProfilePhoto({
         srcSet={srcSet}
         sizes="80px"
         loading="lazy"
+        decoding="async"
         onLoad={() => setLoaded(true)}
         onError={() => setErrored(true)}
         ref={(el) => {
