@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import { TERMINAL_STATES, ToolActivityLine } from "./tool-activity-line";
@@ -99,7 +100,10 @@ const styles = stylex.create({
   },
   caret: {
     flexShrink: 0,
-    transition: "transform 0.15s ease",
+    transition: {
+      default: "transform 0.15s ease",
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
   },
   caretOpen: {
     transform: "rotate(90deg)",
