@@ -55,6 +55,10 @@ updates:
           - "@vitest*"
           - "@vitejs/plugin-react"
           - "vite-plugin-babel"
+      ai-sdk:
+        patterns:
+          - "ai"
+          - "@ai-sdk*"
       postcss:
         patterns:
           - "postcss-*"
