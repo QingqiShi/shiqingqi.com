@@ -16,9 +16,9 @@
   font-family: "Inter-fallback";
   size-adjust: 107%;
   ascent-override: 90%;
-  src: local(
-    "system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'"
-  );
+  src:
+    local("Segoe UI"), local("Roboto"), local("Helvetica Neue"),
+    local("Helvetica"), local("Arial");
   unicode-range:
     U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
     U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
