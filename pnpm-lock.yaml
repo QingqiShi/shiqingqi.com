@@ -202,8 +202,8 @@ importers:
         specifier: ^2.12.14
         version: 2.12.14(@types/node@25.5.2)(typescript@5.9.3)
       next-i18n-router:
-        specifier: ^5.5.6
-        version: 5.5.6(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))
+        specifier: ^5.5.7
+        version: 5.5.7(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110))
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -4551,8 +4551,8 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  next-i18n-router@5.5.6:
-    resolution: {integrity: sha512-6AUAdhTf4hAt4X8k7HnOaVGQka6Nhim+NPu9Ne5jOgibAA7p2vPQTQi7rrvU9Uounb/Z0oc5Lrv0VPmDAtHSnw==}
+  next-i18n-router@5.5.7:
+    resolution: {integrity: sha512-LG/mqNJhvCpxH+sZjvzqoDnwsGUOcF425q38TNsk0zNRPQ2qabYRL5AhtEDELr6I2WRwIKaB421tgo2DYJS2YA==}
     peerDependencies:
       next: ^13 || ^14 || ^15 || ^16
 
@@ -10662,7 +10662,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-i18n-router@5.5.6(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)):
+  next-i18n-router@5.5.7(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-52684925-20251110(react@19.3.0-canary-52684925-20251110))(react@19.3.0-canary-52684925-20251110)):
     dependencies:
       '@formatjs/intl-localematcher': 0.6.2
       negotiator: 1.0.0
