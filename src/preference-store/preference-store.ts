@@ -50,6 +50,8 @@ export async function getAllPreferences(): Promise<StoredPreference[]> {
     request.onsuccess = () => resolve(request.result as StoredPreference[]);
     request.onerror = () =>
       reject(request.error ?? new Error("Failed to read preferences"));
+    tx.oncomplete = () => db.close();
+    tx.onerror = () => db.close();
   });
 }
 
@@ -77,9 +79,14 @@ export async function mergePreferences(
   }
 
   return new Promise((resolve, reject) => {
-    tx.oncomplete = () => resolve();
-    tx.onerror = () =>
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    tx.onerror = () => {
+      db.close();
       reject(tx.error ?? new Error("Failed to merge preferences"));
+    };
   });
 }
 
@@ -90,9 +97,14 @@ export async function clearPreferences(): Promise<void> {
   store.clear();
 
   return new Promise((resolve, reject) => {
-    tx.oncomplete = () => resolve();
-    tx.onerror = () =>
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    tx.onerror = () => {
+      db.close();
       reject(tx.error ?? new Error("Failed to clear preferences"));
+    };
   });
 }
 
