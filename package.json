@@ -98,7 +98,7 @@
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "dotenv": "^17.4.0",
-    "esbuild-wasm": "^0.27.5",
+    "esbuild-wasm": "^0.28.0",
     "eslint": "^10.1.0",
     "eslint-config-next": "^16.2.2",
     "eslint-plugin-import-x": "^4.16.2",
