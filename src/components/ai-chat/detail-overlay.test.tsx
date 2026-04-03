@@ -90,8 +90,8 @@ describe("DetailOverlay", () => {
     );
 
     // The backdrop is the element with aria-hidden="true"
-    const backdrop = screen.getByRole("dialog").parentElement
-      ?.previousElementSibling;
+    const backdrop =
+      screen.getByRole("dialog").parentElement?.previousElementSibling;
     expect(backdrop).toBeTruthy();
     if (backdrop instanceof HTMLElement) {
       await user.click(backdrop);
