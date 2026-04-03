@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { cache, cacheSignal } from "react";
+import { cacheSignal } from "react";
 import type { paths } from "#src/_generated/tmdbV3.d.ts";
 import { buildTmdbUrl } from "./build-tmdb-url";
 
@@ -87,30 +87,28 @@ export async function tmdbGet<TPath extends keyof paths>(
   params?: QueryParams<TPath, "get">,
   pathParams?: PathParams<TPath>,
 ) {
-  return cache(async () => {
-    // Replace path parameters with sanitized values
-    let resolvedPath = `${path}`;
-    if (pathParams) {
-      for (const [key, value] of Object.entries(pathParams)) {
-        const sanitizedValue = sanitizePathParam(value);
-        resolvedPath = resolvedPath.replace(`{${key}}`, sanitizedValue);
-      }
+  // Replace path parameters with sanitized values
+  let resolvedPath = `${path}`;
+  if (pathParams) {
+    for (const [key, value] of Object.entries(pathParams)) {
+      const sanitizedValue = sanitizePathParam(value);
+      resolvedPath = resolvedPath.replace(`{${key}}`, sanitizedValue);
     }
+  }
 
-    const url = buildTmdbUrl({
-      baseUrl: `${BASE_URL}${resolvedPath}`,
-      params,
-    });
+  const url = buildTmdbUrl({
+    baseUrl: `${BASE_URL}${resolvedPath}`,
+    params,
+  });
 
-    // Additional security check: ensure the URL is still pointing to TMDB
-    const urlObj = new URL(url);
-    if (urlObj.hostname !== "api.themoviedb.org") {
-      throw new Error("Invalid URL: must be a TMDB API endpoint");
-    }
+  // Additional security check: ensure the URL is still pointing to TMDB
+  const urlObj = new URL(url);
+  if (urlObj.hostname !== "api.themoviedb.org") {
+    throw new Error("Invalid URL: must be a TMDB API endpoint");
+  }
 
-    const errorMessage = `Failed to fetch ${path}`;
-    return tmdbFetch<ResponseType<TPath, "get">>(url, errorMessage);
-  })();
+  const errorMessage = `Failed to fetch ${path}`;
+  return tmdbFetch<ResponseType<TPath, "get">>(url, errorMessage);
 }
 
 // Usage examples:
