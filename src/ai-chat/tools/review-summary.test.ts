@@ -78,7 +78,8 @@ async function executeTool(input: {
   spiciness?: number;
 }) {
   const tool = createReviewSummaryTool("en");
-  const result = await tool.execute!(input, executeContext);
+  const parsed = reviewSummaryInputSchema.parse(input);
+  const result = await tool.execute!(parsed, executeContext);
   return JSON.parse(JSON.stringify(result)) as ReviewSummaryResult;
 }
 
