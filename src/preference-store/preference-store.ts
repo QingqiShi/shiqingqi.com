@@ -90,6 +90,24 @@ export async function mergePreferences(
   });
 }
 
+export async function deletePreference(id: string): Promise<void> {
+  const db = await openDB();
+  const tx = db.transaction(STORE_NAME, "readwrite");
+  const store = tx.objectStore(STORE_NAME);
+  store.delete(id);
+
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error ?? new Error("Failed to delete preference"));
+    };
+  });
+}
+
 export async function clearPreferences(): Promise<void> {
   const db = await openDB();
   const tx = db.transaction(STORE_NAME, "readwrite");

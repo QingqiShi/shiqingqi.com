@@ -12,6 +12,7 @@ import { ChatMessageList } from "#src/components/ai-chat/chat-message-list.tsx";
 import { MediaDetailProvider } from "#src/components/ai-chat/media-detail-context.tsx";
 import { MediaDetailOverlay } from "#src/components/ai-chat/media-detail-overlay.tsx";
 import { PersonDetailOverlay } from "#src/components/ai-chat/person-detail-overlay.tsx";
+import { PreferenceManager } from "#src/components/ai-chat/preference-panel.tsx";
 import { SessionRestoreBanner } from "#src/components/ai-chat/session-restore-banner.tsx";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
@@ -53,7 +54,6 @@ export function AIChatView({
   const [attachedMedia, setAttachedMedia] = useState<AttachedMedia | null>(
     null,
   );
-
   const handleSend = (text: string) => {
     const message = attachedMedia
       ? `[About: ${attachedMedia.title} (${attachedMedia.mediaType})] ${text}`
@@ -85,6 +85,7 @@ export function AIChatView({
           errorLabel={errorLabel}
         />
         <div css={styles.inputArea}>
+          <PreferenceManager />
           <ChatInputBar
             placeholder={placeholder}
             sendLabel={sendLabel}
