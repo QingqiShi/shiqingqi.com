@@ -97,6 +97,9 @@ export function ToolActivityLine({
     case "review_summary":
       label = t({ en: "Review Summary", zh: "评论摘要" });
       break;
+    case "web_search":
+      label = t({ en: "Web Search", zh: "网络搜索" });
+      break;
     default:
       label = toolName;
   }
@@ -105,11 +108,19 @@ export function ToolActivityLine({
   const itemPlural = t({ en: "items", zh: "个项目" });
 
   let summary: string | null = null;
-  if (toolName === "tmdb_search" || toolName === "semantic_search") {
+  if (
+    toolName === "tmdb_search" ||
+    toolName === "semantic_search" ||
+    toolName === "web_search"
+  ) {
     summary = getQuerySummary(input);
   } else if (toolName === "watch_providers") {
-    if (isRecord(input) && typeof input.region === "string") {
-      summary = input.region;
+    if (isRecord(input)) {
+      if (typeof input.provider_name === "string") {
+        summary = input.provider_name;
+      } else if (typeof input.region === "string") {
+        summary = input.region;
+      }
     }
   } else if (toolName === "present_media") {
     const count = getMediaCount(input);

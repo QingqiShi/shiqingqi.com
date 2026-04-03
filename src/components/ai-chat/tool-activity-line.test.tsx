@@ -64,6 +64,17 @@ describe("ToolActivityLine", () => {
       expect(screen.getByText("Review Summary")).toBeInTheDocument();
     });
 
+    it("maps web_search to Web Search", () => {
+      render(
+        <ToolActivityLine
+          toolName="web_search"
+          state="output-available"
+          input={{ query: "oscars best picture 2026" }}
+        />,
+      );
+      expect(screen.getByText("Web Search")).toBeInTheDocument();
+    });
+
     it("shows raw name for unknown tools", () => {
       render(
         <ToolActivityLine
@@ -179,6 +190,37 @@ describe("ToolActivityLine", () => {
       expect(screen.getByText("GB")).toBeInTheDocument();
     });
 
+    it("shows provider name for watch_providers in provider search mode", () => {
+      render(
+        <ToolActivityLine
+          toolName="watch_providers"
+          state="output-available"
+          input={{
+            id: 550,
+            media_type: "movie",
+            provider_name: "Netflix",
+          }}
+        />,
+      );
+      expect(screen.getByText("Netflix")).toBeInTheDocument();
+    });
+
+    it("prefers provider_name over region for watch_providers summary", () => {
+      render(
+        <ToolActivityLine
+          toolName="watch_providers"
+          state="output-available"
+          input={{
+            id: 550,
+            media_type: "movie",
+            provider_name: "Disney Plus",
+            region: "US",
+          }}
+        />,
+      );
+      expect(screen.getByText("Disney Plus")).toBeInTheDocument();
+    });
+
     it("shows title for review_summary", () => {
       render(
         <ToolActivityLine
@@ -193,6 +235,17 @@ describe("ToolActivityLine", () => {
         />,
       );
       expect(screen.getByText("Fight Club")).toBeInTheDocument();
+    });
+
+    it("shows query text for web_search", () => {
+      render(
+        <ToolActivityLine
+          toolName="web_search"
+          state="output-available"
+          input={{ query: "Oscars 2026 winners" }}
+        />,
+      );
+      expect(screen.getByText('"Oscars 2026 winners"')).toBeInTheDocument();
     });
 
     it("omits summary for unknown tools", () => {
