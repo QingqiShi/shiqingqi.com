@@ -43,10 +43,11 @@ export function Header({ locale }: HeaderProps) {
 const styles = stylex.create({
   container: {
     position: "fixed",
-    top: "env(safe-area-inset-top)",
+    top: 0,
     right: 0,
     left: 0,
-    height: space._10,
+    height: `calc(${space._10} + env(safe-area-inset-top))`,
+    paddingTop: "env(safe-area-inset-top)",
     zIndex: layer.header,
     pointerEvents: "none",
     paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
