@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";
 import { useTheme } from "#src/hooks/use-theme.ts";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { color, layer } from "#src/tokens.stylex.ts";
 import { init, start } from "./loop";
 import fs from "./shaders/fs.glsl";
@@ -11,7 +12,15 @@ import vs from "./shaders/vs.glsl";
 export function FlowGradient() {
   const [theme] = useTheme();
   const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+    false,
+  );
   const isDark = theme === "system" ? preferDark : theme === "dark";
+
+  if (prefersReducedMotion) {
+    return <div css={[styles.canvas, styles.staticGradient]} />;
+  }
 
   return (
     <canvas
@@ -44,7 +53,14 @@ const styles = stylex.create({
     width: "100%",
     height: "100%",
     backgroundColor: color.backgroundMain,
-    willChange: "transform",
+    willChange: {
+      default: "transform",
+      [motionConstants.REDUCED_MOTION]: null,
+    },
     zIndex: layer.base,
+  },
+  staticGradient: {
+    backgroundImage: `radial-gradient(ellipse at 30% 20%, ${color.controlActive}, transparent 60%), radial-gradient(ellipse at 70% 80%, ${color.controlActive}, transparent 60%)`,
+    opacity: 0.15,
   },
 });
