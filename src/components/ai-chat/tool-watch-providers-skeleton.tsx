@@ -4,7 +4,11 @@ import * as stylex from "@stylexjs/stylex";
 import { border, color, space } from "#src/tokens.stylex.ts";
 import { Skeleton } from "../shared/skeleton";
 
-const ROW_COUNTS = [3, 2];
+const ROWS = [
+  { key: "stream", logoCount: 3 },
+  { key: "rent", logoCount: 2 },
+];
+
 const STAGGER_DELAY = 80;
 
 export function ToolWatchProvidersSkeleton() {
@@ -19,17 +23,17 @@ export function ToolWatchProvidersSkeleton() {
         />
         <Skeleton width={24} height={18} delay={delayIndex++ * STAGGER_DELAY} />
       </div>
-      {ROW_COUNTS.map((count, rowIndex) => (
-        <div key={rowIndex} css={styles.section}>
+      {ROWS.map((row) => (
+        <div key={row.key} css={styles.section}>
           <Skeleton
             width={50}
             height={12}
             delay={delayIndex++ * STAGGER_DELAY}
           />
           <div css={styles.logoRow}>
-            {Array.from({ length: count }, (_, i) => (
+            {Array.from({ length: row.logoCount }, (_, i) => (
               <Skeleton
-                key={i}
+                key={`${row.key}-${i}`}
                 width={36}
                 height={36}
                 delay={delayIndex++ * STAGGER_DELAY}
