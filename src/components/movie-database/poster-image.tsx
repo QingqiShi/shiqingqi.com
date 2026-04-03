@@ -59,7 +59,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
         onLoad={() => setImgLoaded(true)}
         onError={() => setImgErrored(true)}
         ref={(el) => {
-          if (el && el.complete) {
+          if (el && el.complete && el.naturalWidth > 0) {
             setImgLoaded(true);
           }
         }}
