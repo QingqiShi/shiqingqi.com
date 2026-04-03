@@ -13,6 +13,7 @@ import { createPresentPersonTool } from "./tools/present-person";
 import { createPresentProviderRegionsTool } from "./tools/present-provider-regions";
 import { createPresentWatchProvidersTool } from "./tools/present-watch-providers";
 import { createReviewSummaryTool } from "./tools/review-summary";
+import { createSavePreferenceTool } from "./tools/save-preference";
 import { createSemanticSearchTool } from "./tools/semantic-search";
 import { createTmdbSearchTool } from "./tools/tmdb-search";
 import { createWatchProvidersTool } from "./tools/watch-providers";
@@ -46,6 +47,7 @@ export async function chat({
       person_credits: createPersonCreditsTool(),
       present_person: createPresentPersonTool(),
       review_summary: createReviewSummaryTool(locale),
+      save_preference: createSavePreferenceTool(),
       web_search: anthropic.tools.webSearch_20250305(
         countryCode && countryCode !== "unknown"
           ? {

@@ -6,6 +6,10 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
+import {
+  getCachedPreferencesContext,
+  loadPreferencesContext,
+} from "#src/preference-store/preference-store.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
 export interface ChatMessageMetadata {
@@ -94,6 +98,24 @@ function getOrCreateChat(locale: SupportedLocale): Chat<ChatUIMessage> {
         return { body: { sessionId, locale, trigger } };
       }
       const lastMessage = messages[messages.length - 1];
+
+      // Inject stored preferences into the first message of a new session
+      if (!sessionId && lastMessage) {
+        const prefsCtx = getCachedPreferencesContext();
+        if (prefsCtx) {
+          const enrichedMessage = {
+            ...lastMessage,
+            parts: [
+              { type: "text" as const, text: prefsCtx },
+              ...lastMessage.parts,
+            ],
+          };
+          return {
+            body: { sessionId, message: enrichedMessage, locale, trigger },
+          };
+        }
+      }
+
       return { body: { sessionId, message: lastMessage, locale, trigger } };
     },
   });
@@ -140,6 +162,12 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
   const [previousSessionId, setPreviousSessionId] = useState<string | null>(
     null,
   );
+
+  // Warm the preferences cache from IndexedDB on mount so it's available
+  // for the transport to inject into the first message of a new session.
+  useEffect(() => {
+    loadPreferencesContext().catch(() => {});
+  }, []);
 
   // Deferred to useEffect so the initial render matches the server (null),
   // avoiding a hydration mismatch — localStorage is not available during SSR.

@@ -100,6 +100,9 @@ export function ToolActivityLine({
     case "web_search":
       label = t({ en: "Web Search", zh: "网络搜索" });
       break;
+    case "save_preference":
+      label = t({ en: "Saving Preferences", zh: "保存偏好" });
+      break;
     default:
       label = toolName;
   }
@@ -153,6 +156,12 @@ export function ToolActivityLine({
         input.title.length > MAX_SUMMARY_LENGTH
           ? `${input.title.slice(0, MAX_SUMMARY_LENGTH)}…`
           : input.title;
+    }
+  } else if (toolName === "save_preference") {
+    if (isRecord(input) && Array.isArray(input.preferences)) {
+      const count = input.preferences.length;
+      summary =
+        count.toString() + " " + (count === 1 ? itemSingular : itemPlural);
     }
   }
 
