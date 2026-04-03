@@ -210,4 +210,11 @@ describe("ChatInputBar accessibility", () => {
     const textarea = screen.getByPlaceholderText("Ask about movies...");
     expect(textarea).toHaveAttribute("aria-label", "Ask about movies...");
   });
+
+  it("sets enterKeyHint to send for mobile keyboard UX", () => {
+    renderInputBar();
+
+    const textarea = screen.getByPlaceholderText("Ask about movies...");
+    expect(textarea).toHaveAttribute("enterKeyHint", "send");
+  });
 });

@@ -114,6 +114,7 @@ export function ChatInputBar({
         disabled={isLoading}
         css={styles.textarea}
         autoComplete="off"
+        enterKeyHint="send"
       />
       {isLoading ? (
         <button
