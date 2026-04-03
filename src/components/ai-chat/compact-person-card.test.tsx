@@ -184,8 +184,6 @@ describe("CompactPersonCard", () => {
       />,
     );
 
-    expect(
-      screen.getByRole("button", { name: "Person" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Person" })).toBeInTheDocument();
   });
 });
