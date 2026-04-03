@@ -289,4 +289,87 @@ describe("ChatMessage", () => {
 
     expect(screen.getByText("2 tool calls")).toBeInTheDocument();
   });
+
+  it("renders source citations from source-url parts", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "assistant",
+          parts: [
+            {
+              type: "text",
+              text: "According to recent reports, here is the info.",
+            },
+            {
+              type: "source-url",
+              sourceId: "src-1",
+              url: "https://www.nytimes.com/article",
+              title: "NYT Article",
+            },
+            {
+              type: "source-url",
+              sourceId: "src-2",
+              url: "https://variety.com/review",
+              title: "Variety Review",
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Sources")).toBeInTheDocument();
+    expect(screen.getByText("NYT Article")).toBeInTheDocument();
+    expect(screen.getByText("Variety Review")).toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(2);
+  });
+
+  it("deduplicates source citations by sourceId", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "assistant",
+          parts: [
+            { type: "text", text: "Some text" },
+            {
+              type: "source-url",
+              sourceId: "src-1",
+              url: "https://example.com/a",
+              title: "Same Source",
+            },
+            {
+              type: "source-url",
+              sourceId: "src-1",
+              url: "https://example.com/a",
+              title: "Same Source",
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  it("does not render source citations for user messages", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "user",
+          parts: [
+            { type: "text", text: "Hello" },
+            {
+              type: "source-url",
+              sourceId: "src-1",
+              url: "https://example.com",
+              title: "Should Not Render",
+            },
+          ],
+        })}
+      />,
+    );
+
+    // Source citations should not appear in user messages
+    expect(screen.queryByText("Sources")).not.toBeInTheDocument();
+    expect(screen.queryByText("Should Not Render")).not.toBeInTheDocument();
+  });
 });

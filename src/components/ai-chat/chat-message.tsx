@@ -18,6 +18,8 @@ import {
   buildWatchProvidersMap,
 } from "./map-tool-output";
 import { MarkdownContent } from "./markdown-content";
+import type { SourceCitation } from "./source-citations";
+import { SourceCitations } from "./source-citations";
 import { ToolActivityGroup } from "./tool-activity-group";
 import { ToolVisualOutput } from "./tool-visual-output";
 import type { WatchProviderOutput } from "./tool-watch-providers";
@@ -43,6 +45,7 @@ export function ChatMessage({
     hasVisibleContent,
     firstToolIndex,
     partKeys,
+    sourceCitations,
   } = deriveMessageData(message.parts);
 
   if (!hasVisibleContent) return null;
@@ -121,15 +124,27 @@ export function ChatMessage({
           );
         }
 
-        // step-start, source-url, source-document, file, data — intentionally invisible
+        // step-start, source-document, file, data — intentionally invisible
         return null;
       })}
+      {!isUser && sourceCitations.length > 0 && (
+        <SourceCitations sources={sourceCitations} />
+      )}
     </div>
   );
 }
 
 function isCompactionPart(part: TextUIPart): boolean {
   return part.providerMetadata?.anthropic?.type === "compaction";
+}
+
+function isSourceUrlPart(part: UIMessage["parts"][number]): part is {
+  type: "source-url";
+  sourceId: string;
+  url: string;
+  title?: string;
+} {
+  return part.type === "source-url";
 }
 
 function deriveMessageData(parts: UIMessage["parts"]) {
@@ -142,6 +157,8 @@ function deriveMessageData(parts: UIMessage["parts"]) {
     state: string;
     input: unknown;
   }> = [];
+  const sourceCitations: SourceCitation[] = [];
+  const seenSourceIds = new Set<string>();
   let hasVisibleContent = false;
   let firstToolIndex = -1;
   const partKeys: string[] = [];
@@ -205,6 +222,15 @@ function deriveMessageData(parts: UIMessage["parts"]) {
           watchProvidersMap.set(key, value);
         }
       }
+    } else if (isSourceUrlPart(part)) {
+      if (!seenSourceIds.has(part.sourceId)) {
+        seenSourceIds.add(part.sourceId);
+        sourceCitations.push({
+          sourceId: part.sourceId,
+          url: part.url,
+          title: part.title,
+        });
+      }
     } else if (!hasVisibleContent) {
       if (isTextUIPart(part) && part.text.length > 0) hasVisibleContent = true;
       else if (isReasoningUIPart(part)) hasVisibleContent = true;
@@ -219,6 +245,7 @@ function deriveMessageData(parts: UIMessage["parts"]) {
     hasVisibleContent,
     firstToolIndex,
     partKeys,
+    sourceCitations,
   };
 }
 
