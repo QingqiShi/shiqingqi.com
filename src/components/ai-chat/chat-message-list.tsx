@@ -9,6 +9,7 @@ import {
 } from "#src/ai-chat/context-management-shared.ts";
 import type { ChatMessageMetadata } from "#src/ai-chat/use-ai-chat.ts";
 import { t } from "#src/i18n.ts";
+import { usePreferencePersistence } from "#src/preference-store/use-preference-persistence.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import { ChatMessage } from "./chat-message";
@@ -51,6 +52,8 @@ export function ChatMessageList({
   scrollToBottomLabel,
   errorLabel,
 }: ChatMessageListProps) {
+  usePreferencePersistence(messages);
+
   const [isAtBottom, setIsAtBottom] = useState(true);
 
   const scrollToBottom = () => {
