@@ -1,3 +1,4 @@
+import { createAnthropic } from "@ai-sdk/anthropic";
 import type { UIMessage } from "ai";
 import { simulateReadableStream, stepCountIs, streamText } from "ai";
 import { MockLanguageModelV3 } from "ai/test";
@@ -10,9 +11,12 @@ import { createPresentPersonTool } from "#src/ai-chat/tools/present-person.ts";
 import { createPresentProviderRegionsTool } from "#src/ai-chat/tools/present-provider-regions.ts";
 import { createPresentWatchProvidersTool } from "#src/ai-chat/tools/present-watch-providers.ts";
 import { createReviewSummaryTool } from "#src/ai-chat/tools/review-summary.ts";
+import { createSavePreferenceTool } from "#src/ai-chat/tools/save-preference.ts";
 import { createSemanticSearchTool } from "#src/ai-chat/tools/semantic-search.ts";
 import { createTmdbSearchTool } from "#src/ai-chat/tools/tmdb-search.ts";
 import { createWatchProvidersTool } from "#src/ai-chat/tools/watch-providers.ts";
+
+const anthropic = createAnthropic({ apiKey: "test-key" });
 
 vi.mock("#src/ai-chat/chat.ts", () => ({
   chat: vi.fn(),
@@ -78,6 +82,8 @@ function mockStreamResult() {
       person_credits: createPersonCreditsTool(),
       present_person: createPresentPersonTool(),
       review_summary: createReviewSummaryTool("en"),
+      save_preference: createSavePreferenceTool(),
+      web_search: anthropic.tools.webSearch_20250305({ maxUses: 3 }),
     },
     stopWhen: stepCountIs(5),
   });
