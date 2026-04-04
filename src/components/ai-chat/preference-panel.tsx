@@ -132,8 +132,11 @@ function PreferencePanel({
   }
 
   const handleClearAll = async () => {
-    await onClearAll();
-    setConfirmingClear(false);
+    try {
+      await onClearAll();
+    } finally {
+      setConfirmingClear(false);
+    }
   };
 
   return createPortal(

@@ -32,13 +32,25 @@ export function usePreferences() {
   }, []);
 
   async function remove(id: string) {
-    await deletePreference(id);
-    await Promise.all([loadPreferencesContext(), reload()]);
+    try {
+      await deletePreference(id);
+      await Promise.all([loadPreferencesContext(), reload()]);
+    } catch {
+      // IndexedDB may be unavailable (private browsing, quota exceeded).
+      // Reload to keep the UI consistent with what is actually stored.
+      await reload();
+    }
   }
 
   async function clearAll() {
-    await clearPreferences();
-    await Promise.all([loadPreferencesContext(), reload()]);
+    try {
+      await clearPreferences();
+      await Promise.all([loadPreferencesContext(), reload()]);
+    } catch {
+      // IndexedDB may be unavailable (private browsing, quota exceeded).
+      // Reload to keep the UI consistent with what is actually stored.
+      await reload();
+    }
   }
 
   return { preferences, reload, remove, clearAll } as const;
