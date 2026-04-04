@@ -9,6 +9,7 @@ import {
   type TextUIPart,
   type UIMessage,
 } from "ai";
+import { useState } from "react";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import { CompactionNotice } from "./compaction-notice";
@@ -17,7 +18,7 @@ import {
   buildSearchResultsMap,
   buildWatchProvidersMap,
 } from "./map-tool-output";
-import { MarkdownContent } from "./markdown-content";
+import { SmoothedMarkdownContent } from "./smoothed-markdown-content";
 import { ToolActivityGroup } from "./tool-activity-group";
 import { ToolVisualOutput } from "./tool-visual-output";
 import type { WatchProviderOutput } from "./tool-watch-providers";
@@ -34,6 +35,7 @@ export function ChatMessage({
   isLastAssistantMessage = false,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
+  const [releasedTextParts, setReleasedTextParts] = useState(1);
 
   const {
     searchResultsMap,
@@ -43,9 +45,13 @@ export function ChatMessage({
     hasVisibleContent,
     firstToolIndex,
     partKeys,
+    textPartCount,
+    textPartTrailingBuffers,
   } = deriveMessageData(message.parts);
 
   if (!hasVisibleContent) return null;
+
+  let textPartIndex = 0;
 
   return (
     <div
@@ -54,6 +60,7 @@ export function ChatMessage({
       {message.parts.map((part, index) => {
         const key = partKeys[index];
         if (isTextUIPart(part)) {
+          const currentTextIndex = textPartIndex++;
           if (isUser) {
             return (
               <p key={key} css={[styles.partBase, styles.text]}>
@@ -61,6 +68,11 @@ export function ChatMessage({
               </p>
             );
           }
+
+          // During streaming, queue text parts so each waits for the
+          // previous one's animation to finish before appearing.
+          if (isStreaming && currentTextIndex >= releasedTextParts) return null;
+
           if (isCompactionPart(part)) {
             return (
               <div key={key} css={styles.partBase}>
@@ -68,9 +80,28 @@ export function ChatMessage({
               </div>
             );
           }
+
+          const isActiveTextPart =
+            isStreaming && currentTextIndex === releasedTextParts - 1;
+          // Won't receive more content — safe to fire onCaughtUp
+          const isSealed = !isStreaming || currentTextIndex < textPartCount - 1;
           return (
             <div key={key} css={styles.partBase}>
-              <MarkdownContent content={part.text} />
+              <SmoothedMarkdownContent
+                content={part.text}
+                onCaughtUp={
+                  isActiveTextPart
+                    ? () => setReleasedTextParts((prev) => prev + 1)
+                    : undefined
+                }
+                sealed={isSealed}
+                startRevealed={!isStreaming}
+                trailingBufferHint={
+                  isStreaming
+                    ? textPartTrailingBuffers[currentTextIndex]
+                    : undefined
+                }
+              />
             </div>
           );
         }
@@ -144,6 +175,8 @@ function deriveMessageData(parts: UIMessage["parts"]) {
   }> = [];
   let hasVisibleContent = false;
   let firstToolIndex = -1;
+  let textPartCount = 0;
+  const textPartLengths: number[] = [];
   const partKeys: string[] = [];
   const typeCounts = new Map<string, number>();
 
@@ -205,10 +238,23 @@ function deriveMessageData(parts: UIMessage["parts"]) {
           watchProvidersMap.set(key, value);
         }
       }
-    } else if (!hasVisibleContent) {
-      if (isTextUIPart(part) && part.text.length > 0) hasVisibleContent = true;
-      else if (isReasoningUIPart(part)) hasVisibleContent = true;
+    } else {
+      if (isTextUIPart(part)) {
+        textPartCount++;
+        textPartLengths.push(part.text.length);
+        if (!hasVisibleContent && part.text.length > 0)
+          hasVisibleContent = true;
+      } else if (!hasVisibleContent && isReasoningUIPart(part)) {
+        hasVisibleContent = true;
+      }
     }
+  }
+
+  const textPartTrailingBuffers: number[] = [];
+  let trailingSum = 0;
+  for (let i = textPartLengths.length - 1; i >= 0; i--) {
+    textPartTrailingBuffers[i] = trailingSum;
+    trailingSum += textPartLengths[i];
   }
 
   return {
@@ -219,6 +265,8 @@ function deriveMessageData(parts: UIMessage["parts"]) {
     hasVisibleContent,
     firstToolIndex,
     partKeys,
+    textPartCount,
+    textPartTrailingBuffers,
   };
 }
 
