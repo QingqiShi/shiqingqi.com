@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { border, color } from "#src/tokens.stylex.ts";
 
 // Position + inset fills
 export const absoluteFill = stylex.create({
@@ -22,6 +23,15 @@ export const scrollX = stylex.create({
   base: {
     overflowX: "auto",
     scrollbarWidth: "none",
+  },
+  /** Visible focus ring for keyboard-navigable scroll containers (tabIndex={0}). */
+  focusRing: {
+    outline: {
+      default: "none",
+      ":focus-visible": `2px solid ${color.controlActive}`,
+    },
+    outlineOffset: { default: null, ":focus-visible": "2px" },
+    borderRadius: border.radius_2,
   },
 });
 

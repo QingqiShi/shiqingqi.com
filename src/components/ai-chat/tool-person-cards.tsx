@@ -26,7 +26,7 @@ export function ToolPersonCards({ items }: ToolPersonCardsProps) {
     <div css={styles.scrollWrapper}>
       <div
         ref={scrollRef}
-        css={[scrollX.base, styles.scrollContainer]}
+        css={[scrollX.base, scrollX.focusRing, styles.scrollContainer]}
         role="list"
         aria-label={t({ en: "People results", zh: "人物结果" })}
         tabIndex={0}

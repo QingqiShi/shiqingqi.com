@@ -26,7 +26,7 @@ export function ToolMediaCards({ items }: ToolMediaCardsProps) {
     <div css={styles.scrollWrapper}>
       <div
         ref={scrollRef}
-        css={[scrollX.base, styles.scrollContainer]}
+        css={[scrollX.base, scrollX.focusRing, styles.scrollContainer]}
         role="list"
         aria-label={t({ en: "Search results", zh: "搜索结果" })}
         tabIndex={0}

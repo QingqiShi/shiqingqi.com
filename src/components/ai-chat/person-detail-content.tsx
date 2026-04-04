@@ -216,7 +216,7 @@ function FilmographyScroller({
     <div css={filmStyles.scrollWrapper}>
       <div
         ref={scrollRef}
-        css={[scrollX.base, filmStyles.scrollContainer]}
+        css={[scrollX.base, scrollX.focusRing, filmStyles.scrollContainer]}
         role="list"
         aria-label={t({ en: "Filmography", zh: "作品列表" })}
         tabIndex={0}
