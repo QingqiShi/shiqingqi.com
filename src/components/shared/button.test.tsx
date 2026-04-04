@@ -120,3 +120,26 @@ describe("Button Interaction", () => {
     expect(labelElement).toHaveAttribute("id", "my-label");
   });
 });
+
+describe("Button type attribute", () => {
+  it('defaults to type="button" to prevent accidental form submission', () => {
+    render(<Button>Click</Button>);
+
+    const button = screen.getByRole("button");
+    expect(button).toHaveAttribute("type", "button");
+  });
+
+  it("allows overriding the type to submit", () => {
+    render(<Button type="submit">Submit</Button>);
+
+    const button = screen.getByRole("button");
+    expect(button).toHaveAttribute("type", "submit");
+  });
+
+  it("allows overriding the type to reset", () => {
+    render(<Button type="reset">Reset</Button>);
+
+    const button = screen.getByRole("button");
+    expect(button).toHaveAttribute("type", "reset");
+  });
+});

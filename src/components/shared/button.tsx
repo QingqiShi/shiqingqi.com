@@ -23,6 +23,7 @@ export function Button({
   isActive,
   labelId,
   style,
+  type = "button",
   ...restProps
 }: ButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -38,6 +39,7 @@ export function Button({
     <button
       {...restProps}
       ref={buttonRef}
+      type={type}
       className={className}
       disabled={disabled}
       style={{ ...style, ...pressedStyle }}
