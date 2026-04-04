@@ -49,19 +49,28 @@ export async function generateMetadata(props: {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary
-      fallback={
-        <div css={styles.errorContainer}>
-          <p css={styles.errorText}>
-            {t({
-              en: "Something went wrong. Please try again.",
-              zh: "出错了，请重试。",
-            })}
-          </p>
-        </div>
-      }
+      fallbackRender={({ resetErrorBoundary }) => (
+        <ErrorFallback onRetry={resetErrorBoundary} />
+      )}
     >
       <main css={styles.container}>{children}</main>
     </ErrorBoundary>
+  );
+}
+
+function ErrorFallback({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div css={styles.errorContainer} role="alert">
+      <p css={styles.errorText}>
+        {t({
+          en: "Something went wrong.",
+          zh: "出错了。",
+        })}
+      </p>
+      <button type="button" css={styles.retryButton} onClick={onRetry}>
+        {t({ en: "Try again", zh: "重试" })}
+      </button>
+    </div>
   );
 }
 
@@ -79,8 +88,10 @@ const styles = stylex.create({
   },
   errorContainer: {
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    gap: space._4,
     minHeight: "60vh",
     padding: space._6,
   },
@@ -88,5 +99,18 @@ const styles = stylex.create({
     fontSize: font.uiHeading3,
     color: color.textMuted,
     margin: 0,
+  },
+  retryButton: {
+    paddingBlock: space._2,
+    paddingInline: space._5,
+    fontSize: font.uiBody,
+    fontWeight: font.weight_5,
+    fontFamily: font.family,
+    borderWidth: 0,
+    borderStyle: "none",
+    borderRadius: "9999px",
+    backgroundColor: color.controlActive,
+    color: color.textOnActive,
+    cursor: "pointer",
   },
 });
