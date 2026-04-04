@@ -6,8 +6,8 @@ import { useTheme } from "#src/hooks/use-theme.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { color, layer } from "#src/tokens.stylex.ts";
 import { init, start } from "./loop";
-import fs from "./shaders/fs.glsl";
-import vs from "./shaders/vs.glsl";
+import fs from "./shaders/fs";
+import vs from "./shaders/vs";
 
 export function FlowGradient() {
   const [theme] = useTheme();

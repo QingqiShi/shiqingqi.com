@@ -4,14 +4,6 @@ module.exports = async () => {
     reactStrictMode: true,
     reactCompiler: true,
     serverExternalPackages: ["esbuild-wasm"],
-    turbopack: {
-      rules: {
-        "*.glsl": {
-          loaders: ["raw-loader"],
-          as: "*.js",
-        },
-      },
-    },
     async headers() {
       // https://nextjs.org/docs/app/api-reference/config/next-config-js/headers#options
       const securityHeaders = [

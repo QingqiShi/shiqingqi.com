@@ -1,4 +1,4 @@
-#version 300 es
+const vertexShader = `#version 300 es
 
 in vec2 a_position;
 
@@ -133,3 +133,6 @@ void main() {
 
   gl_Position = vec4(afterFx * vec2(1.0f, -1.0f), 0, 1);
 }
+`;
+
+export default vertexShader;

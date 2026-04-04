@@ -1,4 +1,4 @@
-#version 300 es
+const fragmentShader = `#version 300 es
 
 // fragment shaders don't have a default precision so we need
 // to pick one. highp is a good default. It means "high precision"
@@ -12,3 +12,6 @@ in vec4 v_color;
 void main() {
   outColor = v_color;
 }
+`;
+
+export default fragmentShader;

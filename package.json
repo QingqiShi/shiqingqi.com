@@ -113,7 +113,6 @@
     "postcss-import": "^16.1.1",
     "postcss-preset-env": "^11.2.0",
     "prettier": "^3.8.1",
-    "raw-loader": "^4.0.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.58.0",
