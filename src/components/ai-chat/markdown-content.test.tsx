@@ -88,6 +88,15 @@ describe("MarkdownContent", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders horizontal rules", () => {
+    const { container } = render(
+      <MarkdownContent content={"Above\n\n---\n\nBelow"} />,
+    );
+    expect(container.querySelector("hr")).toBeInTheDocument();
+    expect(screen.getByText("Above")).toBeInTheDocument();
+    expect(screen.getByText("Below")).toBeInTheDocument();
+  });
+
   it("renders multiple paragraphs", () => {
     render(<MarkdownContent content={"First paragraph\n\nSecond paragraph"} />);
     expect(screen.getByText("First paragraph")).toBeInTheDocument();
