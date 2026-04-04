@@ -11,11 +11,12 @@ function validateReferer(request: NextRequest): NextResponse | null {
 
   try {
     const refererUrl = new URL(referer);
-    if (
-      !ALLOWED_REFERER.some((allowedReferer) =>
-        refererUrl.origin.endsWith(allowedReferer),
-      )
-    ) {
+    const isLocalhost =
+      refererUrl.hostname === "localhost" && refererUrl.protocol === "http:";
+    const isAllowedReferer = ALLOWED_REFERER.some((allowedReferer) =>
+      refererUrl.origin.endsWith(allowedReferer),
+    );
+    if (!isLocalhost && !isAllowedReferer) {
       throw new Error("Unauthorized");
     }
   } catch {

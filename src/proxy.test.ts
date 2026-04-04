@@ -25,6 +25,14 @@ describe("proxy referer validation for API routes", () => {
     expect(response.status).toBe(200);
   });
 
+  it("allows requests with localhost on any port", () => {
+    const response = proxy(
+      apiRequest("/api/ai-chat", "http://localhost:5173/search"),
+    );
+
+    expect(response.status).toBe(200);
+  });
+
   it("rejects requests with no referer", async () => {
     const response = proxy(apiRequest("/api/ai-chat"));
 
