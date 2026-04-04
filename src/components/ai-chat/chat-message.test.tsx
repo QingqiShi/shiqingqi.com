@@ -260,6 +260,47 @@ describe("ChatMessage", () => {
     expect(screen.getByText("1 tool call")).toBeInTheDocument();
   });
 
+  it("renders present_media cards using cumulative search results from prior messages", () => {
+    const priorSearchResults = new Map([
+      [
+        "movie:1",
+        {
+          id: 1,
+          title: "Inception",
+          posterPath: "/inception.jpg",
+          rating: 8.4,
+          mediaType: "movie" as const,
+        },
+      ],
+    ]);
+
+    render(
+      <MediaDetailProvider>
+        <ChatMessage
+          message={createMessage({
+            role: "assistant",
+            parts: [
+              {
+                type: "dynamic-tool",
+                toolName: "present_media",
+                toolCallId: "present-call-2",
+                state: "output-available",
+                input: { media: [{ id: 1, media_type: "movie" }] },
+                output: { media: [{ id: 1, media_type: "movie" }] },
+              },
+              { type: "text", text: "Here it is again!" },
+            ],
+          })}
+          cumulativeSearchResults={priorSearchResults}
+        />
+      </MediaDetailProvider>,
+    );
+
+    // The poster image should render using data from the cumulative map
+    expect(screen.getByAltText("Inception")).toBeInTheDocument();
+    expect(screen.getByText("Here it is again!")).toBeInTheDocument();
+  });
+
   it("shows tool activity group for tool parts", () => {
     render(
       <ChatMessage
