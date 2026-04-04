@@ -32,7 +32,7 @@ export function RecommendedMediaRow({
       <div css={styles.scrollWrapper}>
         <div
           ref={scrollRef}
-          css={[scrollX.base, styles.scrollContainer]}
+          css={[scrollX.base, scrollX.focusRing, styles.scrollContainer]}
           role="region"
           aria-label={title}
           tabIndex={0}
