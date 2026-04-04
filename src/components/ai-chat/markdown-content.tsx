@@ -61,6 +61,7 @@ const styles = stylex.create({
     padding: space._2,
     marginBlock: 0,
     overflowX: "auto",
+    overscrollBehaviorX: "contain",
   },
   codeBlock: {
     fontFamily: "monospace",
@@ -76,6 +77,7 @@ const styles = stylex.create({
   },
   tableWrapper: {
     overflowX: "auto",
+    overscrollBehaviorX: "contain",
     marginBlock: 0,
   },
   table: {

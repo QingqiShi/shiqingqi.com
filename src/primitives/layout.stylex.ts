@@ -22,6 +22,7 @@ export const fixedFill = stylex.create({
 export const scrollX = stylex.create({
   base: {
     overflowX: "auto",
+    overscrollBehaviorX: "contain",
     scrollbarWidth: "none",
   },
   /** Visible focus ring for keyboard-navigable scroll containers (tabIndex={0}). */
