@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ChatStatus, UIMessage } from "ai";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect } from "react";
 import {
   COMPACTION_TRIGGER_TOKENS,
   USAGE_WARNING_RATIO,
@@ -14,21 +14,20 @@ import { flex } from "#src/primitives/flex.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import { ChatMessage, deriveMessageData } from "./chat-message";
-import { ScrollToBottomButton } from "./scroll-to-bottom-button";
 import type { WatchProviderOutput } from "./tool-watch-providers";
 import { TypingIndicator } from "./typing-indicator";
 
-const SCROLL_THRESHOLD = 50;
+export const SCROLL_THRESHOLD = 50;
 const USAGE_WARNING_THRESHOLD = COMPACTION_TRIGGER_TOKENS * USAGE_WARNING_RATIO;
 
 interface ChatMessageListProps {
   messages: ReadonlyArray<UIMessage<ChatMessageMetadata>>;
   status: ChatStatus;
   error: Error | undefined;
+  isAtBottom: boolean;
   emptyState: ReactNode;
   messagesLabel: string;
   typingIndicatorLabel: string;
-  scrollToBottomLabel: string;
   errorLabel: string;
 }
 
@@ -94,34 +93,13 @@ export function ChatMessageList({
   messages,
   status,
   error,
+  isAtBottom,
   emptyState,
   messagesLabel,
   typingIndicatorLabel,
-  scrollToBottomLabel,
   errorLabel,
 }: ChatMessageListProps) {
   usePreferencePersistence(messages);
-
-  const [isAtBottom, setIsAtBottom] = useState(true);
-
-  const scrollToBottom = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: "smooth",
-    });
-    setIsAtBottom(true);
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const { scrollHeight } = document.documentElement;
-      const atBottom =
-        scrollHeight - window.scrollY - window.innerHeight < SCROLL_THRESHOLD;
-      setIsAtBottom(atBottom);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const lastMessageRole =
     messages.length > 0 ? messages[messages.length - 1]?.role : undefined;
@@ -212,11 +190,6 @@ export function ChatMessageList({
           })}
         </p>
       )}
-      <ScrollToBottomButton
-        visible={!isAtBottom && messages.length > 0}
-        label={scrollToBottomLabel}
-        onClick={scrollToBottom}
-      />
     </div>
   );
 }
