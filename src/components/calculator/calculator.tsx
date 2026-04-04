@@ -31,8 +31,50 @@ export function Calculator() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [currentToken, setCurrentToken] = useState<Token>(createInitialToken);
 
+  const isError =
+    currentToken.type === "number" && Number.isNaN(currentToken.value);
+
+  const handleBackspace = () => {
+    if (isError) {
+      setTokens([]);
+      setCurrentToken(createInitialToken());
+      return;
+    }
+
+    if (currentToken.type === "number") {
+      const newRaw = currentToken.raw.slice(0, -1);
+      if (newRaw === "" || newRaw === "-") {
+        // Deleted the only digit (or the digit after a minus sign) — reset to 0
+        setCurrentToken(createInitialToken());
+      } else {
+        setCurrentToken({
+          ...currentToken,
+          value: Number(newRaw),
+          raw: newRaw,
+        });
+      }
+      return;
+    }
+
+    // Current token is a binary operator — remove it and restore the previous number
+    if (tokens.length > 0) {
+      const lastToken = tokens[tokens.length - 1];
+      setTokens(tokens.slice(0, -1));
+      setCurrentToken(lastToken);
+    } else {
+      setCurrentToken(createInitialToken());
+    }
+  };
+
   const handleKeyDown = (event: React.KeyboardEvent) => {
     const key = event.key;
+
+    if (key === "Backspace") {
+      event.preventDefault();
+      handleBackspace();
+      return;
+    }
+
     const keyMap: Record<string, string> = {
       "0": "0",
       "1": "1",
@@ -51,7 +93,6 @@ export function Calculator() {
       Enter: "=",
       "=": "=",
       Escape: "ac",
-      Backspace: "ac",
       ".": ".",
       "%": "%",
     };
@@ -61,9 +102,6 @@ export function Calculator() {
       handleClick(keyMap[key]);
     }
   };
-
-  const isError =
-    currentToken.type === "number" && Number.isNaN(currentToken.value);
 
   const handleClick = (label: string) => {
     if (label === BUTTON_CLEAR) {
