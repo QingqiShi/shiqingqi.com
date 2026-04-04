@@ -1,18 +1,22 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useAIChat } from "#src/ai-chat/use-ai-chat.ts";
 import {
   ChatActionsContext,
   type AttachedMedia,
 } from "#src/components/ai-chat/chat-actions-context.tsx";
 import { ChatInputBar } from "#src/components/ai-chat/chat-input-bar.tsx";
-import { ChatMessageList } from "#src/components/ai-chat/chat-message-list.tsx";
+import {
+  ChatMessageList,
+  SCROLL_THRESHOLD,
+} from "#src/components/ai-chat/chat-message-list.tsx";
 import { MediaDetailProvider } from "#src/components/ai-chat/media-detail-context.tsx";
 import { MediaDetailOverlay } from "#src/components/ai-chat/media-detail-overlay.tsx";
 import { PersonDetailOverlay } from "#src/components/ai-chat/person-detail-overlay.tsx";
 import { PreferenceManager } from "#src/components/ai-chat/preference-panel.tsx";
+import { ScrollToBottomButton } from "#src/components/ai-chat/scroll-to-bottom-button.tsx";
 import { SessionRestoreBanner } from "#src/components/ai-chat/session-restore-banner.tsx";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
@@ -54,6 +58,27 @@ export function AIChatView({
   const [attachedMedia, setAttachedMedia] = useState<AttachedMedia | null>(
     null,
   );
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const { scrollHeight } = document.documentElement;
+      const atBottom =
+        scrollHeight - window.scrollY - window.innerHeight < SCROLL_THRESHOLD;
+      setIsAtBottom(atBottom);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToBottom = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
+    setIsAtBottom(true);
+  };
+
   const handleSend = (text: string) => {
     const message = attachedMedia
       ? `[About: ${attachedMedia.title} (${attachedMedia.mediaType})] ${text}`
@@ -78,13 +103,18 @@ export function AIChatView({
           messages={messages}
           status={status}
           error={error}
+          isAtBottom={isAtBottom}
           emptyState={emptyState}
           messagesLabel={messagesLabel}
           typingIndicatorLabel={typingIndicatorLabel}
-          scrollToBottomLabel={scrollToBottomLabel}
           errorLabel={errorLabel}
         />
         <div css={styles.inputArea}>
+          <ScrollToBottomButton
+            visible={!isAtBottom && messages.length > 0}
+            label={scrollToBottomLabel}
+            onClick={scrollToBottom}
+          />
           <PreferenceManager />
           <ChatInputBar
             placeholder={placeholder}

@@ -14,9 +14,9 @@ const defaultProps = {
   emptyState: <div>Welcome to AI Mode</div>,
   messagesLabel: "Chat messages",
   typingIndicatorLabel: "AI is thinking…",
-  scrollToBottomLabel: "Scroll to bottom",
   errorLabel: "Something went wrong. Please try again.",
   error: undefined,
+  isAtBottom: true,
 };
 
 describe("ChatMessageList", () => {
@@ -94,21 +94,6 @@ describe("ChatMessageList", () => {
       <ChatMessageList messages={messages} status="ready" {...defaultProps} />,
     );
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
-  });
-
-  it("renders scroll-to-bottom button hidden when there are no messages", () => {
-    const { container } = render(
-      <ChatMessageList messages={[]} status="ready" {...defaultProps} />,
-    );
-    // The button exists in the DOM but is hidden from the accessibility tree
-    expect(
-      screen.queryByRole("button", { name: "Scroll to bottom" }),
-    ).not.toBeInTheDocument();
-    const button = container.querySelector(
-      'button[aria-label="Scroll to bottom"]',
-    );
-    expect(button).toBeInTheDocument();
-    expect(button).toHaveAttribute("aria-hidden", "true");
   });
 
   it("uses log role with accessible label on messages container", () => {
