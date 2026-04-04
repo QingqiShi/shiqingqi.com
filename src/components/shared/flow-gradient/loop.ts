@@ -201,6 +201,7 @@ export function start(
     colorAltBottom = [1, 0, 0],
     colorBackground = [0.953, 0.929, 0.929],
   }: Options,
+  { reducedMotion = false } = {},
 ) {
   const abortController = new AbortController();
 
@@ -216,7 +217,14 @@ export function start(
   observer.observe(canvas);
 
   // Ripple effect mouse tracking
-  const pointerState = setupPointerEvents(abortController.signal);
+  const pointerState = reducedMotion
+    ? ({
+        mousePosition: [0, 0],
+        rippleStrength: 1,
+        rippleStrengthTarget: 1,
+        ripplePhase: 0,
+      } satisfies PointerState)
+    : setupPointerEvents(abortController.signal);
 
   let bufferInfo: BufferInfo | undefined;
   let lastTimestamp = 0;
@@ -234,23 +242,25 @@ export function start(
       resized = false;
     }
 
-    const rippleSpeed = 5; // 1 / 0.2s = 5
-    pointerState.rippleStrength +=
-      (pointerState.rippleStrengthTarget - pointerState.rippleStrength) *
-      rippleSpeed *
-      deltaTime;
-    pointerState.rippleStrength =
-      Math.floor(pointerState.rippleStrength * 1000) / 1000;
+    if (!reducedMotion) {
+      const rippleSpeed = 5; // 1 / 0.2s = 5
+      pointerState.rippleStrength +=
+        (pointerState.rippleStrengthTarget - pointerState.rippleStrength) *
+        rippleSpeed *
+        deltaTime;
+      pointerState.rippleStrength =
+        Math.floor(pointerState.rippleStrength * 1000) / 1000;
 
-    pointerState.ripplePhase +=
-      rippleSpeed * deltaTime * pointerState.rippleStrength * 1.5;
-    pointerState.ripplePhase =
-      Math.floor(pointerState.ripplePhase * 1000) / 1000;
+      pointerState.ripplePhase +=
+        rippleSpeed * deltaTime * pointerState.rippleStrength * 1.5;
+      pointerState.ripplePhase =
+        Math.floor(pointerState.ripplePhase * 1000) / 1000;
+    }
 
     const uniforms = {
       u_resolution: [gl.canvas.width, gl.canvas.height],
       u_dpi: computeDPI(gl.canvas.width),
-      u_time: timestamp,
+      u_time: reducedMotion ? 0 : timestamp,
       u_colorTop: colorTop,
       u_colorBottom: colorBottom,
       u_colorAltTop: colorAltTop,
@@ -265,14 +275,17 @@ export function start(
     drawBufferInfo(gl, bufferInfo);
   };
 
-  const cancelAnimation = createAnimationLoop({
-    render,
-    signal: abortController.signal,
-    fps: 60,
-  });
+  let cancelAnimation: (() => void) | undefined;
+  if (!reducedMotion) {
+    cancelAnimation = createAnimationLoop({
+      render,
+      signal: abortController.signal,
+      fps: 60,
+    });
+  }
 
   return () => {
-    cancelAnimation();
+    cancelAnimation?.();
     observer.disconnect();
     abortController.abort();
   };
