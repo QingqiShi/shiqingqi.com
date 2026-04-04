@@ -18,10 +18,6 @@ export function FlowGradient() {
   );
   const isDark = theme === "system" ? preferDark : theme === "dark";
 
-  if (prefersReducedMotion) {
-    return <div css={[styles.canvas, styles.staticGradient]} />;
-  }
-
   return (
     <canvas
       ref={(el) => {
@@ -39,6 +35,7 @@ export function FlowGradient() {
                     colorAltTop: [1, 0.3, 0.3],
                     colorAltBottom: [1, 0.3, 0.3],
                   },
+              { reducedMotion: prefersReducedMotion },
             );
           }
         }
@@ -58,9 +55,5 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: null,
     },
     zIndex: layer.base,
-  },
-  staticGradient: {
-    backgroundImage: `radial-gradient(ellipse at 30% 20%, ${color.controlActive}, transparent 60%), radial-gradient(ellipse at 70% 80%, ${color.controlActive}, transparent 60%)`,
-    opacity: 0.15,
   },
 });
