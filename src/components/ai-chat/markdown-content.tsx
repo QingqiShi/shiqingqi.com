@@ -46,6 +46,14 @@ const styles = stylex.create({
   li: {
     marginBlock: space._00,
   },
+  hr: {
+    width: "100%",
+    borderStyle: "none",
+    borderBlockStartWidth: border.size_1,
+    borderBlockStartStyle: "solid",
+    borderBlockStartColor: color.controlTrack,
+    marginBlock: 0,
+  },
   blockquote: {
     borderInlineStartWidth: border.size_2,
     borderInlineStartStyle: "solid",
@@ -118,6 +126,7 @@ const components: Components = {
   ul: ({ node, ...props }) => <ul css={styles.ul} {...props} />,
   ol: ({ node, ...props }) => <ol css={styles.ol} {...props} />,
   li: ({ node, ...props }) => <li css={styles.li} {...props} />,
+  hr: ({ node, ...props }) => <hr css={styles.hr} {...props} />,
   blockquote: ({ node, ...props }) => (
     <blockquote css={styles.blockquote} {...props} />
   ),
