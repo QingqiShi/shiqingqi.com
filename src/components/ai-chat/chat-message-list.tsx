@@ -133,7 +133,8 @@ export function ChatMessageList({
     return () => cancelAnimationFrame(rafId);
   }, [status, isAtBottom]);
 
-  const showTypingIndicator = status === "submitted";
+  const showTypingIndicator = status === "submitted" || status === "streaming";
+  const isTypingIndicatorExiting = status !== "submitted";
   const showError = status === "error" && error != null;
   const latestInputTokens = getLatestInputTokens(messages);
   const showUsageWarning = latestInputTokens >= USAGE_WARNING_THRESHOLD;
@@ -173,7 +174,10 @@ export function ChatMessageList({
             />
           ))}
           {showTypingIndicator && (
-            <TypingIndicator label={typingIndicatorLabel} />
+            <TypingIndicator
+              label={typingIndicatorLabel}
+              isExiting={isTypingIndicatorExiting}
+            />
           )}
           {showError && (
             <p css={styles.errorMessage} role="alert">
