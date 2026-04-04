@@ -1,3 +1,5 @@
+import { isRecord } from "#src/utils/type-guards.ts";
+
 const DB_NAME = "ai-chat-preferences";
 const DB_VERSION = 1;
 const STORE_NAME = "preferences";
@@ -24,6 +26,36 @@ export function makeId(
   return `${category}:${value.toLowerCase()}`;
 }
 
+const validCategories: ReadonlySet<string> = new Set([
+  "genre",
+  "actor",
+  "director",
+  "content_rating",
+  "language",
+  "keyword",
+]);
+const validSentiments: ReadonlySet<string> = new Set(["like", "dislike"]);
+
+/**
+ * Runtime type guard for StoredPreference.
+ *
+ * IndexedDB returns untyped data — values could be corrupted or left over
+ * from a previous schema version. This guard filters out malformed entries
+ * so callers never see invalid shapes.
+ */
+export function isStoredPreference(value: unknown): value is StoredPreference {
+  if (!isRecord(value)) return false;
+  return (
+    typeof value.id === "string" &&
+    typeof value.category === "string" &&
+    validCategories.has(value.category) &&
+    typeof value.value === "string" &&
+    typeof value.sentiment === "string" &&
+    validSentiments.has(value.sentiment) &&
+    typeof value.updatedAt === "number"
+  );
+}
+
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -47,7 +79,10 @@ export async function getAllPreferences(): Promise<StoredPreference[]> {
     const tx = db.transaction(STORE_NAME, "readonly");
     const store = tx.objectStore(STORE_NAME);
     const request = store.getAll();
-    request.onsuccess = () => resolve(request.result as StoredPreference[]);
+    request.onsuccess = () => {
+      const raw: unknown[] = request.result;
+      resolve(raw.filter(isStoredPreference));
+    };
     request.onerror = () =>
       reject(request.error ?? new Error("Failed to read preferences"));
     tx.oncomplete = () => db.close();
