@@ -76,11 +76,7 @@ export function MediaDetailContent({
                   : t({ en: "seasons", zh: "季" })
               }`
             : ""
-          : formatRuntime(
-              detail.runtime,
-              t({ en: "h", zh: " 小时" }),
-              t({ en: "m", zh: " 分钟" }),
-            ),
+          : formatRuntime(detail.runtime, locale),
         detail.genres.join(t({ en: ", ", zh: "、" })),
       ]
         .filter(Boolean)
