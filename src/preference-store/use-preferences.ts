@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   clearPreferences,
   deletePreference,
@@ -18,31 +18,28 @@ export function usePreferences() {
     ReadonlyArray<StoredPreference>
   >([]);
 
-  const reload = useCallback(async () => {
+  async function reload() {
     try {
       const all = await getAllPreferences();
       setPreferences(all);
     } catch {
       setPreferences([]);
     }
-  }, []);
+  }
 
   useEffect(() => {
     void reload();
-  }, [reload]);
+  }, []);
 
-  const remove = useCallback(
-    async (id: string) => {
-      await deletePreference(id);
-      await Promise.all([loadPreferencesContext(), reload()]);
-    },
-    [reload],
-  );
+  async function remove(id: string) {
+    await deletePreference(id);
+    await Promise.all([loadPreferencesContext(), reload()]);
+  }
 
-  const clearAll = useCallback(async () => {
+  async function clearAll() {
     await clearPreferences();
     await Promise.all([loadPreferencesContext(), reload()]);
-  }, [reload]);
+  }
 
   return { preferences, reload, remove, clearAll } as const;
 }
