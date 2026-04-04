@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
@@ -26,6 +26,15 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
 
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgErrored, setImgErrored] = useState(false);
+
+  // Reset image loading state when the poster path changes so a new image
+  // gets a fresh load attempt instead of being stuck in a stale error/loaded state.
+  const prevPosterPathRef = useRef(posterPath);
+  if (prevPosterPathRef.current !== posterPath) {
+    prevPosterPathRef.current = posterPath;
+    setImgLoaded(false);
+    setImgErrored(false);
+  }
 
   if (!config.images?.base_url || !config.images?.poster_sizes || imgErrored) {
     return (

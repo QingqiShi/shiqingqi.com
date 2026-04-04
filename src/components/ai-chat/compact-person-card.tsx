@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
@@ -31,6 +31,15 @@ function ProfilePhoto({
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
+
+  // Reset image loading state when the profile path changes so a new image
+  // gets a fresh load attempt instead of being stuck in a stale error/loaded state.
+  const prevProfilePathRef = useRef(profilePath);
+  if (prevProfilePathRef.current !== profilePath) {
+    prevProfilePathRef.current = profilePath;
+    setLoaded(false);
+    setErrored(false);
+  }
 
   if (!config.images?.base_url || !config.images?.profile_sizes || errored) {
     return <div css={[flex.center, styles.photoFallback]}>{alt.charAt(0)}</div>;
