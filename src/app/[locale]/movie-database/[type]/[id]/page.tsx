@@ -79,11 +79,7 @@ export default async function Page({ params }: PageProps) {
             <div css={styles.meta}>
               {[
                 movie.release_date?.split("-")[0],
-                formatRuntime(
-                  movie.runtime,
-                  t({ en: "h", zh: " 小时" }),
-                  t({ en: "m", zh: " 分钟" }),
-                ),
+                formatRuntime(movie.runtime, locale),
                 movie.genres
                   ?.map((genre) => genre.name)
                   .filter(Boolean)
