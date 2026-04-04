@@ -1,9 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
-import HomeLayout from "#src/app/[locale]/(home)/layout.tsx";
 import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton.tsx";
 import { Grid } from "#src/components/movie-database/grid.tsx";
+import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
 import { controlSize, ratio, space } from "#src/tokens.stylex.ts";
@@ -25,15 +24,11 @@ export default async function Layout({
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
   return (
-    <ErrorBoundary
-      fallback={
-        <HomeLayout params={params}>
-          {t({
-            en: "Sorry, couldn't afford to buy all the movies.",
-            zh: "对不起，买不起所有的电影。",
-          })}
-        </HomeLayout>
-      }
+    <RetryableErrorBoundary
+      message={t({
+        en: "Something went wrong loading the movies.",
+        zh: "加载电影时出错了。",
+      })}
     >
       <main css={styles.container}>
         <Suspense
@@ -55,7 +50,7 @@ export default async function Layout({
           {children}
         </Suspense>
       </main>
-    </ErrorBoundary>
+    </RetryableErrorBoundary>
   );
 }
 

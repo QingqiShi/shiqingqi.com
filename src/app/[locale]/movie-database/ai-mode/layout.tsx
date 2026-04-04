@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
-import { ErrorBoundary } from "react-error-boundary";
+import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
+import { space } from "#src/tokens.stylex.ts";
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -48,20 +48,14 @@ export async function generateMetadata(props: {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <ErrorBoundary
-      fallback={
-        <div css={styles.errorContainer}>
-          <p css={styles.errorText}>
-            {t({
-              en: "Something went wrong. Please try again.",
-              zh: "出错了，请重试。",
-            })}
-          </p>
-        </div>
-      }
+    <RetryableErrorBoundary
+      message={t({
+        en: "Something went wrong.",
+        zh: "出错了。",
+      })}
     >
       <main css={styles.container}>{children}</main>
-    </ErrorBoundary>
+    </RetryableErrorBoundary>
   );
 }
 
@@ -76,17 +70,5 @@ const styles = stylex.create({
     paddingBlock: 0,
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-  },
-  errorContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "60vh",
-    padding: space._6,
-  },
-  errorText: {
-    fontSize: font.uiHeading3,
-    color: color.textMuted,
-    margin: 0,
   },
 });
