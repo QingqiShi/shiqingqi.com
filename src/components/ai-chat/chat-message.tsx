@@ -26,24 +26,45 @@ interface ChatMessageProps {
   message: UIMessage;
   isStreaming?: boolean;
   isLastAssistantMessage?: boolean;
+  cumulativeSearchResults?: ReadonlyMap<string, MediaListItem>;
+  cumulativePersonResults?: ReadonlyMap<number, PersonListItem>;
+  cumulativeWatchProviders?: ReadonlyMap<string, WatchProviderOutput>;
 }
 
 export function ChatMessage({
   message,
   isStreaming = false,
   isLastAssistantMessage = false,
+  cumulativeSearchResults,
+  cumulativePersonResults,
+  cumulativeWatchProviders,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   const {
-    searchResultsMap,
-    personResultsMap,
-    watchProvidersMap,
+    searchResultsMap: localSearchResults,
+    personResultsMap: localPersonResults,
+    watchProvidersMap: localWatchProviders,
     toolParts,
     hasVisibleContent,
     firstToolIndex,
     partKeys,
   } = deriveMessageData(message.parts);
+
+  // Merge cumulative maps from prior messages with this message's own maps.
+  // Local (per-message) entries take precedence over cumulative ones.
+  const searchResultsMap = mergeMaps(
+    cumulativeSearchResults,
+    localSearchResults,
+  );
+  const personResultsMap = mergeMaps(
+    cumulativePersonResults,
+    localPersonResults,
+  );
+  const watchProvidersMap = mergeMaps(
+    cumulativeWatchProviders,
+    localWatchProviders,
+  );
 
   if (!hasVisibleContent) return null;
 
@@ -132,7 +153,7 @@ function isCompactionPart(part: TextUIPart): boolean {
   return part.providerMetadata?.anthropic?.type === "compaction";
 }
 
-function deriveMessageData(parts: UIMessage["parts"]) {
+export function deriveMessageData(parts: UIMessage["parts"]) {
   const searchResultsMap = new Map<string, MediaListItem>();
   const personResultsMap = new Map<number, PersonListItem>();
   const watchProvidersMap = new Map<string, WatchProviderOutput>();
@@ -220,6 +241,23 @@ function deriveMessageData(parts: UIMessage["parts"]) {
     firstToolIndex,
     partKeys,
   };
+}
+
+/**
+ * Merges a cumulative map from prior messages with a local map from the current
+ * message. Local entries take precedence over cumulative ones.
+ */
+function mergeMaps<K, V>(
+  cumulative: ReadonlyMap<K, V> | undefined,
+  local: ReadonlyMap<K, V>,
+): ReadonlyMap<K, V> {
+  if (!cumulative || cumulative.size === 0) return local;
+  if (local.size === 0) return cumulative;
+  const merged = new Map(cumulative);
+  for (const [key, value] of local) {
+    merged.set(key, value);
+  }
+  return merged;
 }
 
 const styles = stylex.create({
