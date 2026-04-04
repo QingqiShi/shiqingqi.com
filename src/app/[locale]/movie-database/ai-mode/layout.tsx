@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
+import { DotGridBackground } from "#src/components/ai-chat/dot-grid-background.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
@@ -54,6 +55,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         zh: "出错了。",
       })}
     >
+      <DotGridBackground />
       <main css={styles.container}>{children}</main>
     </RetryableErrorBoundary>
   );
