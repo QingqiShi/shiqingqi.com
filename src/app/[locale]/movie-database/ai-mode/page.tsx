@@ -15,6 +15,25 @@ export default async function Page({
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
 
+  const suggestions = [
+    t({
+      en: "Find me a feel-good movie to watch tonight",
+      zh: "帮我找一部今晚看的治愈系电影",
+    }),
+    t({
+      en: "Where can I stream the latest trending shows?",
+      zh: "最近的热门剧在哪里可以看？",
+    }),
+    t({
+      en: "Show me the spicy reviews for the latest releases",
+      zh: "给我看看最近上映的片子的辛辣影评",
+    }),
+    t({
+      en: "Who starred in that space movie from last year?",
+      zh: "去年那部太空电影是谁演的？",
+    }),
+  ];
+
   return (
     <AIChatView
       locale={validatedLocale}
@@ -25,24 +44,7 @@ export default async function Page({
               en: "Suggested prompts",
               zh: "推荐提问",
             })}
-            suggestions={[
-              t({
-                en: "What should I watch tonight?",
-                zh: "今晚该看什么？",
-              }),
-              t({
-                en: "Find me a sci-fi thriller",
-                zh: "找一部科幻惊悚片",
-              }),
-              t({
-                en: "Best movies of 2025",
-                zh: "2025年最佳电影",
-              }),
-              t({
-                en: "Shows similar to Breaking Bad",
-                zh: "类似《绝命毒师》的剧",
-              }),
-            ]}
+            suggestions={suggestions}
           />
           <RecommendedMedia locale={validatedLocale} />
         </div>
