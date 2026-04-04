@@ -1,64 +1,82 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { flex } from "#src/primitives/flex.stylex.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
-
-const DOT_COUNT = 3;
-const DOT_DELAY_MS = 160;
+import { color, font } from "#src/tokens.stylex.ts";
 
 interface TypingIndicatorProps {
   label: string;
+  isExiting?: boolean;
 }
 
-export function TypingIndicator({ label }: TypingIndicatorProps) {
+export function TypingIndicator({ label, isExiting }: TypingIndicatorProps) {
   return (
-    <div role="status" aria-label={label} css={[flex.row, styles.container]}>
-      {Array.from({ length: DOT_COUNT }, (_, i) => (
-        <span
-          key={i}
-          css={styles.dot}
-          style={{ animationDelay: `${i * DOT_DELAY_MS}ms` }}
-        />
-      ))}
-      <span css={styles.label}>{label}</span>
+    <div
+      role="status"
+      aria-label={label}
+      css={[styles.container, isExiting && styles.containerExiting]}
+    >
+      <span aria-hidden="true" css={styles.shimmerText}>
+        {label}
+      </span>
+      <span css={styles.srOnly}>{label}</span>
     </div>
   );
 }
 
-const bounce = stylex.keyframes({
-  "0%, 80%, 100%": { opacity: 0.3, transform: "scale(0.8)" },
-  "40%": { opacity: 1, transform: "scale(1)" },
+const shimmer = stylex.keyframes({
+  "0%": { backgroundPosition: "200% 0" },
+  "100%": { backgroundPosition: "-200% 0" },
 });
 
-const bounceReduced = stylex.keyframes({
-  "0%, 80%, 100%": { opacity: 0.3 },
-  "40%": { opacity: 1 },
+const shimmerReduced = stylex.keyframes({
+  "0%": { opacity: 0.4 },
+  "50%": { opacity: 1 },
+  "100%": { opacity: 0.4 },
+});
+
+const exitFade = stylex.keyframes({
+  from: { opacity: 1 },
+  to: { opacity: 0 },
 });
 
 const styles = stylex.create({
   container: {
-    gap: space._1,
-    paddingBlock: space._1,
+    display: "inline-flex",
+    alignItems: "center",
   },
-  dot: {
-    width: "0.375rem",
-    height: "0.375rem",
-    borderRadius: border.radius_round,
-    backgroundColor: color.textMuted,
-    animationName: {
-      default: bounce,
-      [motionConstants.REDUCED_MOTION]: bounceReduced,
-    },
-    animationDuration: "1.4s",
-    animationTimingFunction: "ease-in-out",
-    animationIterationCount: "infinite",
-    animationFillMode: "both",
+  containerExiting: {
+    animationName: exitFade,
+    animationDuration: "200ms",
+    animationTimingFunction: "ease-in",
+    animationFillMode: "forwards",
   },
-  label: {
+  shimmerText: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
-    marginLeft: space._1,
+    backgroundImage: `linear-gradient(135deg, ${color.textMuted}, ${color.controlActive}, ${color.textMuted})`,
+    backgroundSize: "200% 100%",
+    backgroundClip: "text",
+    color: "transparent",
+    animationName: {
+      default: shimmer,
+      [motionConstants.REDUCED_MOTION]: shimmerReduced,
+    },
+    animationDuration: {
+      default: "3s",
+      [motionConstants.REDUCED_MOTION]: "2s",
+    },
+    animationTimingFunction: "linear",
+    animationIterationCount: "infinite",
+  },
+  srOnly: {
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: 0,
+    margin: "-1px",
+    overflow: "hidden",
+    clipPath: "inset(50%)",
+    whiteSpace: "nowrap",
+    borderWidth: 0,
   },
 });

@@ -77,8 +77,28 @@ describe("ChatMessageList", () => {
         {...defaultProps}
       />,
     );
+    expect(
+      screen.getByRole("status", { name: "AI is thinking…" }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps typing indicator during streaming for exit animation", () => {
+    const messages = [
+      createMessage({
+        id: "1",
+        role: "user",
+        parts: [{ type: "text", text: "Hello" }],
+      }),
+    ];
+
+    render(
+      <ChatMessageList
+        messages={messages}
+        status="streaming"
+        {...defaultProps}
+      />,
+    );
     expect(screen.getByRole("status")).toBeInTheDocument();
-    expect(screen.getByText("AI is thinking…")).toBeInTheDocument();
   });
 
   it("hides typing indicator when status is ready", () => {
