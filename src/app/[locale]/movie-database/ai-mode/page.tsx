@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { getTrendingMovies } from "#src/_generated/tmdb-server-functions.ts";
 import { RecommendedMedia } from "#src/components/ai-chat/recommended-media.tsx";
 import { SuggestionChips } from "#src/components/ai-chat/suggestion-chips.tsx";
 import { t } from "#src/i18n.ts";
@@ -15,15 +16,28 @@ export default async function Page({
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
 
+  // Reuses the same fetch that RecommendedMedia makes — deduplicated by Next.js
+  const trendingMovies = await getTrendingMovies({
+    time_window: "week",
+    language: validatedLocale,
+  }).catch(() => null);
+  const trendingTitle = trendingMovies?.results?.find((m) => m.title)?.title;
+
+  const whereCanIStream = t({ en: "Where can I stream", zh: "哪里可以看" });
+
+  const streamingSuggestion = trendingTitle
+    ? `${whereCanIStream} ${trendingTitle}`
+    : t({
+        en: "Where can I stream the top trending movie?",
+        zh: "哪里可以看最热门的电影？",
+      });
+
   const suggestions = [
     t({
       en: "Find me a feel-good movie to watch tonight",
       zh: "帮我找一部今晚看的治愈系电影",
     }),
-    t({
-      en: "Where can I stream the latest trending shows?",
-      zh: "最近的热门剧在哪里可以看？",
-    }),
+    streamingSuggestion,
     t({
       en: "Show me the spicy reviews for the latest releases",
       zh: "给我看看最近上映的片子的辛辣影评",
