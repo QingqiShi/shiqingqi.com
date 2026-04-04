@@ -88,6 +88,25 @@ export function ChatMessageList({
     }
   }, [messages.length, lastMessageRole, isAtBottom]);
 
+  useEffect(() => {
+    if (status !== "streaming") return;
+
+    let rafId: number;
+    let lastScrollHeight = document.documentElement.scrollHeight;
+
+    const tick = () => {
+      const currentScrollHeight = document.documentElement.scrollHeight;
+      if (isAtBottom && currentScrollHeight !== lastScrollHeight) {
+        window.scrollTo({ top: currentScrollHeight });
+        lastScrollHeight = currentScrollHeight;
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [status, isAtBottom]);
+
   const showTypingIndicator = status === "submitted";
   const showError = status === "error" && error != null;
   const latestInputTokens = getLatestInputTokens(messages);
