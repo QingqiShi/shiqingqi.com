@@ -9,6 +9,7 @@ import { scrollX } from "#src/primitives/layout.stylex.ts";
 import { color, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
+import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";
 import { useMediaDetail } from "./media-detail-context";
 
 interface ToolMediaCardsProps {
@@ -68,6 +69,13 @@ export function ToolMediaCards({ items }: ToolMediaCardsProps) {
         style={{ opacity: showRightFade ? 1 : 0 }}
         aria-hidden="true"
       />
+      <HorizontalScrollButtons
+        scrollRef={scrollRef}
+        showLeft={showLeftFade}
+        showRight={showRightFade}
+        leftCss={styles.scrollButtonLeft}
+        rightCss={styles.scrollButtonRight}
+      />
     </div>
   );
 }
@@ -101,6 +109,12 @@ const styles = stylex.create({
   fadeRight: {
     right: 0,
     backgroundImage: `linear-gradient(to right, rgba(${color.backgroundRaisedChannels}, 0), rgba(${color.backgroundRaisedChannels}, 1))`,
+  },
+  scrollButtonLeft: {
+    left: space._3,
+  },
+  scrollButtonRight: {
+    right: space._3,
   },
   cardWrapper: {
     flexShrink: 0,
