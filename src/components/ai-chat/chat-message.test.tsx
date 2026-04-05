@@ -260,20 +260,7 @@ describe("ChatMessage", () => {
     expect(screen.getByText("1 tool call")).toBeInTheDocument();
   });
 
-  it("renders present_media cards using cumulative search results from prior messages", () => {
-    const priorSearchResults = new Map([
-      [
-        "movie:1",
-        {
-          id: 1,
-          title: "Inception",
-          posterPath: "/inception.jpg",
-          rating: 8.4,
-          mediaType: "movie" as const,
-        },
-      ],
-    ]);
-
+  it("renders present_media cards using accumulated tool outputs from prior messages", () => {
     render(
       <MediaDetailProvider>
         <ChatMessage
@@ -291,7 +278,22 @@ describe("ChatMessage", () => {
               { type: "text", text: "Here it is again!" },
             ],
           })}
-          cumulativeSearchResults={priorSearchResults}
+          toolOutputs={{
+            searchResultsMap: new Map([
+              [
+                "movie:1",
+                {
+                  id: 1,
+                  title: "Inception",
+                  posterPath: "/inception.jpg",
+                  rating: 8.4,
+                  mediaType: "movie" as const,
+                },
+              ],
+            ]),
+            personResultsMap: new Map(),
+            watchProvidersMap: new Map(),
+          }}
         />
       </MediaDetailProvider>,
     );

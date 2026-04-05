@@ -53,6 +53,7 @@ export function AIChatView({
     error,
     sendMessage,
     stop,
+    toolOutputs,
     previousSessionId,
     continueSession,
   } = useAIChat({ locale });
@@ -105,6 +106,7 @@ export function AIChatView({
           status={status}
           error={error}
           isAtBottom={isAtBottom}
+          toolOutputs={toolOutputs}
           emptyState={emptyState}
           messagesLabel={messagesLabel}
           typingIndicatorLabel={typingIndicatorLabel}

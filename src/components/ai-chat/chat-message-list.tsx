@@ -12,9 +12,8 @@ import { t } from "#src/i18n.ts";
 import { usePreferencePersistence } from "#src/preference-store/use-preference-persistence.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
-import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
-import { ChatMessage, deriveMessageData } from "./chat-message";
-import type { WatchProviderOutput } from "./tool-watch-providers";
+import { ChatMessage } from "./chat-message";
+import type { ToolOutputMaps } from "./map-tool-output";
 import { TypingIndicator } from "./typing-indicator";
 
 export const SCROLL_THRESHOLD = 50;
@@ -25,6 +24,7 @@ interface ChatMessageListProps {
   status: ChatStatus;
   error: Error | undefined;
   isAtBottom: boolean;
+  toolOutputs: ToolOutputMaps;
   emptyState: ReactNode;
   messagesLabel: string;
   typingIndicatorLabel: string;
@@ -43,57 +43,12 @@ function getLatestInputTokens(
   return 0;
 }
 
-interface CumulativeMaps {
-  searchResultsMap: ReadonlyMap<string, MediaListItem>;
-  personResultsMap: ReadonlyMap<number, PersonListItem>;
-  watchProvidersMap: ReadonlyMap<string, WatchProviderOutput>;
-}
-
-/**
- * For each message, builds a cumulative map of search results, person results,
- * and watch providers from all *prior* messages. This allows later messages
- * (e.g. a second `present_media` call) to look up items discovered by earlier
- * tool calls without re-searching.
- */
-function buildCumulativeMaps(
-  messages: ReadonlyArray<UIMessage>,
-): ReadonlyArray<CumulativeMaps> {
-  const result: CumulativeMaps[] = [];
-  const cumulativeSearch = new Map<string, MediaListItem>();
-  const cumulativePerson = new Map<number, PersonListItem>();
-  const cumulativeWp = new Map<string, WatchProviderOutput>();
-
-  for (const message of messages) {
-    // Each message gets a snapshot of the cumulative maps from *prior* messages
-    result.push({
-      searchResultsMap: new Map(cumulativeSearch),
-      personResultsMap: new Map(cumulativePerson),
-      watchProvidersMap: new Map(cumulativeWp),
-    });
-
-    // After taking the snapshot, add this message's results to the cumulative maps
-    const { searchResultsMap, personResultsMap, watchProvidersMap } =
-      deriveMessageData(message.parts);
-
-    for (const [key, value] of searchResultsMap) {
-      cumulativeSearch.set(key, value);
-    }
-    for (const [key, value] of personResultsMap) {
-      cumulativePerson.set(key, value);
-    }
-    for (const [key, value] of watchProvidersMap) {
-      cumulativeWp.set(key, value);
-    }
-  }
-
-  return result;
-}
-
 export function ChatMessageList({
   messages,
   status,
   error,
   isAtBottom,
+  toolOutputs,
   emptyState,
   messagesLabel,
   typingIndicatorLabel,
@@ -139,11 +94,6 @@ export function ChatMessageList({
   const latestInputTokens = getLatestInputTokens(messages);
   const showUsageWarning = latestInputTokens >= USAGE_WARNING_THRESHOLD;
 
-  // Build cumulative search/person/watch-provider maps so that later messages
-  // can look up media items discovered by earlier tool calls (e.g. a second
-  // present_media call can find items from a prior tmdb_search).
-  const cumulativeMaps = buildCumulativeMaps(messages);
-
   return (
     <div css={[flex.col, styles.container]}>
       {messages.length === 0 ? (
@@ -166,11 +116,7 @@ export function ChatMessageList({
               isLastAssistantMessage={
                 message.role === "assistant" && index === lastAssistantIndex
               }
-              cumulativeSearchResults={cumulativeMaps[index]?.searchResultsMap}
-              cumulativePersonResults={cumulativeMaps[index]?.personResultsMap}
-              cumulativeWatchProviders={
-                cumulativeMaps[index]?.watchProvidersMap
-              }
+              toolOutputs={toolOutputs}
             />
           ))}
           {showTypingIndicator && (

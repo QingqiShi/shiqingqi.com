@@ -1,11 +1,15 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
+import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
+import {
+  accumulateToolOutputs,
+  EMPTY_TOOL_OUTPUTS,
+} from "#src/components/ai-chat/map-tool-output.ts";
 import {
   getCachedPreferencesContext,
   loadPreferencesContext,
@@ -84,84 +88,50 @@ async function fetchSession(
   throw new Error(`Failed to fetch session: ${response.status}`);
 }
 
-const chatInstances = new Map<string, Chat<ChatUIMessage>>();
+export function useAIChat({ locale }: { locale: SupportedLocale }) {
+  const [toolOutputs, setToolOutputs] = useState(EMPTY_TOOL_OUTPUTS);
+  const [previousSessionId, setPreviousSessionId] = useState<string | null>(
+    null,
+  );
 
-function getOrCreateChat(locale: SupportedLocale): Chat<ChatUIMessage> {
-  const existing = chatInstances.get(locale);
-  if (existing) return existing;
-
-  const transport = new DefaultChatTransport<ChatUIMessage>({
-    api: "/api/ai-chat",
-    prepareSendMessagesRequest: ({ messages, trigger }) => {
-      const sessionId = findSessionIdFromMessages(messages);
-      if (trigger === "regenerate-message") {
-        return { body: { sessionId, locale, trigger } };
-      }
-      const lastMessage = messages[messages.length - 1];
-
-      // Inject stored preferences into the first message of a new session
-      if (!sessionId && lastMessage) {
-        const prefsCtx = getCachedPreferencesContext();
-        if (prefsCtx) {
-          const enrichedMessage = {
-            ...lastMessage,
-            parts: [
-              { type: "text" as const, text: prefsCtx },
-              ...lastMessage.parts,
-            ],
-          };
-          return {
-            body: { sessionId, message: enrichedMessage, locale, trigger },
-          };
+  const chatResult = useChat<ChatUIMessage>({
+    transport: new DefaultChatTransport<ChatUIMessage>({
+      api: "/api/ai-chat",
+      prepareSendMessagesRequest: ({ messages, trigger }) => {
+        const sessionId = findSessionIdFromMessages(messages);
+        if (trigger === "regenerate-message") {
+          return { body: { sessionId, locale, trigger } };
         }
-      }
+        const lastMessage = messages[messages.length - 1];
 
-      return { body: { sessionId, message: lastMessage, locale, trigger } };
-    },
-  });
+        if (!sessionId && lastMessage) {
+          const prefsCtx = getCachedPreferencesContext();
+          if (prefsCtx) {
+            const enrichedMessage = {
+              ...lastMessage,
+              parts: [
+                { type: "text" as const, text: prefsCtx },
+                ...lastMessage.parts,
+              ],
+            };
+            return {
+              body: { sessionId, message: enrichedMessage, locale, trigger },
+            };
+          }
+        }
 
-  const chat = new Chat<ChatUIMessage>({
-    transport,
+        return { body: { sessionId, message: lastMessage, locale, trigger } };
+      },
+    }),
     messageMetadataSchema,
     onFinish: ({ messages }) => {
+      setToolOutputs(accumulateToolOutputs(messages));
       const sessionId = findSessionIdFromMessages(messages);
       if (sessionId) {
         setStoredSessionId(locale, sessionId);
       }
     },
-    onError: () => {
-      const storedSessionId = getStoredSessionId(locale);
-      if (!storedSessionId) return;
-
-      const chatInstance = chatInstances.get(locale);
-      if (!chatInstance) return;
-
-      fetchSession(storedSessionId)
-        .then((result) => {
-          const ci = chatInstances.get(locale);
-          if (!ci) return;
-
-          if (result) {
-            ci.messages = result.messages;
-            ci.clearError();
-          }
-        })
-        .catch(console.error);
-    },
   });
-
-  chatInstances.set(locale, chat);
-
-  return chat;
-}
-
-export function useAIChat({ locale }: { locale: SupportedLocale }) {
-  const chat = getOrCreateChat(locale);
-  const chatResult = useChat({ chat });
-
-  const [previousSessionId, setPreviousSessionId] = useState<string | null>(
-    null,
-  );
 
   // Warm the preferences cache from IndexedDB on mount so it's available
   // for the transport to inject into the first message of a new session.
@@ -172,12 +142,11 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
   // Deferred to useEffect so the initial render matches the server (null),
   // avoiding a hydration mismatch — localStorage is not available during SSR.
   useEffect(() => {
-    if (chat.messages.length > 0) return;
     const stored = getStoredSessionId(locale);
     if (stored) {
       setPreviousSessionId(stored);
     }
-  }, [chat, locale]);
+  }, [locale]);
 
   // Dismiss banner when user starts a new conversation
   if (previousSessionId && chatResult.messages.length > 0) {
@@ -193,7 +162,8 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
           setPreviousSessionId(null);
           return;
         }
-        chat.messages = result.messages;
+        setToolOutputs(accumulateToolOutputs(result.messages));
+        chatResult.setMessages(result.messages);
         setPreviousSessionId(null);
       })
       .catch(console.error);
@@ -201,6 +171,7 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
 
   return {
     ...chatResult,
+    toolOutputs,
     previousSessionId,
     continueSession,
   };
