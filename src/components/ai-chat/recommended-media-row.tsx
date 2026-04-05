@@ -9,6 +9,7 @@ import { scrollX } from "#src/primitives/layout.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
+import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";
 import { useMediaDetail } from "./media-detail-context";
 
 interface RecommendedMediaRowProps {
@@ -70,6 +71,13 @@ export function RecommendedMediaRow({
           style={{ opacity: showRightFade ? 1 : 0 }}
           aria-hidden="true"
         />
+        <HorizontalScrollButtons
+          scrollRef={scrollRef}
+          showLeft={showLeftFade}
+          showRight={showRightFade}
+          leftCss={styles.scrollButtonLeft}
+          rightCss={styles.scrollButtonRight}
+        />
       </div>
     </section>
   );
@@ -125,6 +133,12 @@ const styles = stylex.create({
   fadeRight: {
     right: 0,
     backgroundImage: `linear-gradient(to right, rgba(${color.backgroundMainChannels}, 0), rgba(${color.backgroundMainChannels}, 1))`,
+  },
+  scrollButtonLeft: {
+    left: contentInsetLeft,
+  },
+  scrollButtonRight: {
+    right: contentInsetRight,
   },
   cardWrapper: {
     flexShrink: 0,
