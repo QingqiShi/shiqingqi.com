@@ -2,12 +2,13 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { t } from "#src/i18n.ts";
 import { scrollX } from "#src/primitives/layout.stylex.ts";
+import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, font, layer, space } from "#src/tokens.stylex.ts";
 import { calculateAge } from "#src/utils/calculate-age.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
@@ -95,7 +96,7 @@ export function PersonDetailContent({
         </div>
       </div>
       {detail?.biography ? (
-        <p css={styles.biography}>{detail.biography}</p>
+        <ExpandableBiography text={detail.biography} />
       ) : (
         detailQuery.isPending && <Skeleton height={48} />
       )}
@@ -133,6 +134,39 @@ function ProfileImage({
       sizes="90px"
       decoding="async"
     />
+  );
+}
+
+const LINE_CLAMP = 6;
+
+function ExpandableBiography({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [isClamped, setIsClamped] = useState(false);
+
+  return (
+    <div>
+      <p
+        ref={(el) => {
+          if (el) {
+            setIsClamped(el.scrollHeight > el.clientHeight);
+          }
+        }}
+        css={[styles.biography, !expanded && styles.biographyClamped]}
+      >
+        {text}
+      </p>
+      {(isClamped || expanded) && (
+        <button
+          type="button"
+          css={[buttonReset.base, styles.readMoreButton]}
+          onClick={() => setExpanded((prev) => !prev)}
+        >
+          {expanded
+            ? t({ en: "Read less", zh: "收起" })
+            : t({ en: "Read more", zh: "展开" })}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -311,10 +345,22 @@ const styles = stylex.create({
     fontSize: font.uiBody,
     margin: 0,
     lineHeight: font.lineHeight_4,
+  },
+  biographyClamped: {
     display: "-webkit-box",
-    WebkitLineClamp: 6,
+    WebkitLineClamp: LINE_CLAMP,
     WebkitBoxOrient: "vertical",
     overflow: "hidden",
+  },
+  readMoreButton: {
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    cursor: "pointer",
+    paddingTop: space._1,
+    textDecoration: {
+      default: "none",
+      ":hover": "underline",
+    },
   },
   errorText: {
     margin: 0,
