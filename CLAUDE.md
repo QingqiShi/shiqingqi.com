@@ -11,6 +11,7 @@ ALWAYS follow these rules
 - Auto-generated TMDB files are git-ignored and must be regenerated after cloning: `pnpm codegen:tmdb`.
 - NEVER assume environment variable names. ALWAYS verify environment variable names by reading source code FIRST.
 - NEVER chain bash commands with `&&` - use separate Bash tool calls instead for better error handling and visibility.
+- NEVER violate the [Rules of React](https://react.dev/reference/rules). Components and hooks MUST be pure, side effects belong in event handlers or effects, and props/state must never be mutated directly.
 
 # Available Commands
 

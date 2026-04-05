@@ -17,6 +17,7 @@ import {
   buildPersonResultsMap,
   buildSearchResultsMap,
   buildWatchProvidersMap,
+  type ToolOutputMaps,
 } from "./map-tool-output";
 import { SmoothedMarkdownContent } from "./smoothed-markdown-content";
 import { ToolActivityGroup } from "./tool-activity-group";
@@ -27,18 +28,14 @@ interface ChatMessageProps {
   message: UIMessage;
   isStreaming?: boolean;
   isLastAssistantMessage?: boolean;
-  cumulativeSearchResults?: ReadonlyMap<string, MediaListItem>;
-  cumulativePersonResults?: ReadonlyMap<number, PersonListItem>;
-  cumulativeWatchProviders?: ReadonlyMap<string, WatchProviderOutput>;
+  toolOutputs?: ToolOutputMaps;
 }
 
 export function ChatMessage({
   message,
   isStreaming = false,
   isLastAssistantMessage = false,
-  cumulativeSearchResults,
-  cumulativePersonResults,
-  cumulativeWatchProviders,
+  toolOutputs,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
   const [releasedTextParts, setReleasedTextParts] = useState(1);
@@ -55,18 +52,19 @@ export function ChatMessage({
     textPartTrailingBuffers,
   } = deriveMessageData(message.parts);
 
-  // Merge cumulative maps from prior messages with this message's own maps.
-  // Local (per-message) entries take precedence over cumulative ones.
+  // Merge accumulated tool outputs with this message's own maps. Local maps
+  // cover tool outputs that resolved in the current streaming message before
+  // the accumulated cache updated.
   const searchResultsMap = mergeMaps(
-    cumulativeSearchResults,
+    toolOutputs?.searchResultsMap,
     localSearchResults,
   );
   const personResultsMap = mergeMaps(
-    cumulativePersonResults,
+    toolOutputs?.personResultsMap,
     localPersonResults,
   );
   const watchProvidersMap = mergeMaps(
-    cumulativeWatchProviders,
+    toolOutputs?.watchProvidersMap,
     localWatchProviders,
   );
 
