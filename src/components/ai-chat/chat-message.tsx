@@ -321,7 +321,8 @@ const styles = stylex.create({
   },
   assistantBubble: {
     marginRight: "auto",
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: `rgba(${color.backgroundRaisedChannels}, 0.6)`,
+    backdropFilter: "blur(12px)",
     color: color.textMain,
     borderRadius: border.radius_3,
     borderBottomLeftRadius: border.radius_1,
