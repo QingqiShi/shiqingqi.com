@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+  <defs>
+    <filter id="soft-l"><feGaussianBlur in="SourceGraphic" stdDeviation="8"/></filter>
+    <filter id="med-l"><feGaussianBlur in="SourceGraphic" stdDeviation="4"/></filter>
+    <filter id="glow"><feGaussianBlur in="SourceGraphic" stdDeviation="14"/></filter>
+    <filter id="lamp"><feGaussianBlur in="SourceGraphic" stdDeviation="20"/></filter>
+
+    <!-- Vignette -->
+    <radialGradient id="vignette" cx="0.42" cy="0.38" r="0.58">
+      <stop offset="0%" stop-color="#151210" stop-opacity="0"/>
+      <stop offset="70%" stop-color="#151210" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#151210" stop-opacity="0.65"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ===== SURFACE — dark wood ===== -->
+  <rect width="600" height="450" fill="#3a2f24"/>
+
+  <!-- Warm light pool from overhead lamp -->
+  <ellipse cx="330" cy="210" rx="260" ry="200" fill="#5a4a38" opacity="0.35" filter="url(#lamp)"/>
+  <!-- Amber warmth in the center -->
+  <ellipse cx="330" cy="200" rx="180" ry="150" fill="#d4943a" opacity="0.06" filter="url(#lamp)"/>
+
+  <!-- Vignette -->
+  <rect width="600" height="450" fill="url(#vignette)"/>
+
+  <!-- ===== OVERHEAD LAMP SPOTS ===== -->
+  <ellipse cx="200" cy="6" rx="50" ry="22" fill="#d4943a" opacity="0.22" filter="url(#soft-l)"/>
+  <ellipse cx="340" cy="4" rx="42" ry="18" fill="#d4943a" opacity="0.18" filter="url(#soft-l)"/>
+  <ellipse cx="470" cy="6" rx="50" ry="22" fill="#d4943a" opacity="0.22" filter="url(#soft-l)"/>
+
+  <!-- ===== SHELF ===== -->
+  <rect x="105" y="52" width="480" height="24" fill="#151210" rx="2"/>
+  <!-- Shadow below -->
+  <rect x="105" y="76" width="480" height="25" fill="#151210" opacity="0.3" filter="url(#soft-l)"/>
+
+  <!-- ===== RECTANGULAR BLOCK ===== -->
+  <!-- Shadow -->
+  <path d="M 255,330 L 380,330 L 405,410 L 280,410 Z"
+        fill="#151210" opacity="0.2" filter="url(#soft-l)"/>
+
+  <!-- Top face -->
+  <rect x="165" y="278" width="178" height="42" fill="#5a4a38" rx="3"/>
+  <!-- Light on top edge -->
+  <rect x="165" y="278" width="178" height="8" fill="#8a7355" opacity="0.25" rx="2"/>
+  <!-- Front face -->
+  <rect x="165" y="320" width="178" height="14" fill="#3a2f24" opacity="0.5" rx="1"/>
+
+  <!-- ===== 壶承 SAUCER ===== -->
+  <!-- Shadow -->
+  <ellipse cx="430" cy="225" rx="108" ry="98"
+           fill="#151210" opacity="0.2" transform="translate(12,30)" filter="url(#soft-l)"/>
+
+  <!-- Saucer body — darker than the surface -->
+  <ellipse cx="420" cy="210" rx="112" ry="102" fill="#3a2f24"/>
+  <ellipse cx="420" cy="210" rx="112" ry="102" fill="#151210" opacity="0.2"/>
+  <!-- Rim catching overhead light -->
+  <ellipse cx="420" cy="210" rx="112" ry="102"
+           fill="none" stroke="#5a4a38" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- ===== TEAPOT — darker but still lighter than saucer ===== -->
+  <ellipse cx="388" cy="192" rx="82" ry="75" fill="#5a4a38"/>
+  <!-- Warm light on top portion -->
+  <ellipse cx="378" cy="178" rx="45" ry="35" fill="#8a7355" opacity="0.2" filter="url(#med-l)"/>
+  <!-- Shadow on lower portion -->
+  <ellipse cx="402" cy="215" rx="45" ry="28" fill="#151210" opacity="0.12" filter="url(#med-l)"/>
+  <!-- Subtle lid line -->
+  <ellipse cx="388" cy="192" rx="36" ry="32" fill="none"
+           stroke="#3a2f24" stroke-width="0.8" opacity="0.25"/>
+
+  <!-- ===== TEA CUP — glowing focal point ===== -->
+  <!-- Ambient glow -->
+  <circle cx="435" cy="180" r="50" fill="#d4943a" opacity="0.1" filter="url(#glow)"/>
+
+  <!-- Cup shadow -->
+  <ellipse cx="440" cy="188" rx="20" ry="16"
+           fill="#151210" opacity="0.2" transform="translate(6,6)" filter="url(#med-l)"/>
+
+  <!-- Cup exterior -->
+  <circle cx="435" cy="180" r="25" fill="#d4943a"/>
+  <!-- Shadow side -->
+  <path d="M 415,195 C 410,187 412,172 418,166 C 413,176 412,188 415,195 Z"
+        fill="#3a2f24" opacity="0.3"/>
+
+  <!-- Ceramic rim -->
+  <circle cx="435" cy="180" r="25" fill="none" stroke="#f0ebe5" stroke-width="1.5" opacity="0.3"/>
+  <!-- Bright rim catch from lamp -->
+  <path d="M 447,162 C 454,166 458,174 457,182"
+        fill="none" stroke="#f0ebe5" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+
+  <!-- Tea liquid -->
+  <circle cx="435" cy="180" r="16" fill="#d4943a"/>
+  <!-- Center -->
+  <circle cx="435" cy="180" r="2.5" fill="#3a2f24" opacity="0.5"/>
+</svg>

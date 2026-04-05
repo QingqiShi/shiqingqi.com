@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Komorebi Tea — Mood Board</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Instrument Sans", system-ui, sans-serif;
+    background: #1a1714; color: #e8e0d4;
+    padding: 48px 32px; line-height: 1.55;
+    max-width: 1200px; margin: 0 auto;
+  }
+  h1 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: clamp(2rem, 1rem + 3vw, 3.5rem);
+    font-weight: 500; letter-spacing: -0.02em; line-height: 1;
+    margin-bottom: 8px;
+  }
+  .kanji {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.125rem; color: #9a9189; font-style: italic;
+    margin-bottom: 16px;
+  }
+  .subtitle { color: #9a9189; max-width: 65ch; margin-bottom: 64px; }
+  .label {
+    font-size: 0.8125rem; letter-spacing: 0.03em;
+    text-transform: uppercase; color: #1a6b5a;
+    margin-bottom: 12px; font-weight: 500;
+  }
+  .title {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.5rem; font-weight: 500; margin-bottom: 8px;
+  }
+  .note { color: #9a9189; font-size: 0.875rem; max-width: 60ch; margin-bottom: 32px; }
+  section { margin-bottom: 80px; }
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: 1fr 1fr 1fr; }
+  .g4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .g5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
+  @media (max-width: 768px) {
+    .g2, .g3 { grid-template-columns: 1fr; }
+    .g4, .g5 { grid-template-columns: 1fr 1fr; }
+  }
+
+  .card { position: relative; border-radius: 4px; overflow: hidden; background: #221f1b; }
+  .card img { width: 100%; display: block; object-fit: cover; }
+  .cap {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 32px 16px 16px;
+    background: linear-gradient(transparent, hsla(30, 20%, 8%, 0.88));
+    font-size: 0.8125rem;
+  }
+  .cap strong { display: block; font-size: 0.875rem; margin-bottom: 4px; }
+  .cap span { color: #9a9189; }
+  .tag {
+    display: inline-block; font-size: 0.6875rem; letter-spacing: 0.04em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 2px;
+    margin-bottom: 8px; font-weight: 500;
+  }
+  .tag-day { background: hsla(38, 70%, 70%, 0.2); color: #d4a84a; }
+  .tag-night { background: hsla(28, 70%, 45%, 0.2); color: #c27a3a; }
+
+  .takeaway {
+    border-left: 2px solid #1a6b5a; padding: 16px 24px;
+    margin: 32px 0; background: hsla(160, 50%, 25%, 0.08);
+    border-radius: 0 4px 4px 0;
+  }
+  .takeaway strong { display: block; margin-bottom: 4px; color: #2a9a7a; font-size: 0.875rem; }
+  hr { border: none; border-top: 1px solid #2e2a26; margin: 48px 0; }
+
+  /* Colour palette */
+  .palette { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  .swatch {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .swatch-circle {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 2px solid hsla(30, 20%, 50%, 0.2);
+  }
+  .swatch-label { font-size: 0.6875rem; color: #9a9189; text-align: center; max-width: 80px; }
+  .swatch-hex { font-size: 0.625rem; color: #6a6460; font-family: monospace; }
+
+  /* Materials */
+  .material-strip {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
+    border-radius: 4px; overflow: hidden; margin-bottom: 24px;
+  }
+  .material-sample {
+    aspect-ratio: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+    padding: 16px; text-align: center;
+  }
+  .material-sample .mat-name {
+    font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase;
+    font-weight: 500;
+  }
+  .material-sample .mat-kanji {
+    font-family: Newsreader, Georgia, serif; font-size: 1.5rem;
+    font-style: italic; opacity: 0.6;
+  }
+  .material-sample .mat-desc {
+    font-size: 0.6875rem; color: inherit; opacity: 0.5; max-width: 16ch;
+  }
+
+  /* Shape demo */
+  .shape-demo {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 24px;
+  }
+  .shape-box {
+    background: #221f1b; border-radius: 4px; padding: 40px;
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+  }
+  .shape-visual {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; height: 120px;
+  }
+  .shape-label { font-size: 0.8125rem; color: #9a9189; text-align: center; max-width: 30ch; }
+
+  /* Space demo */
+  .space-demo {
+    background: #221f1b; border-radius: 4px; padding: 48px;
+    margin-bottom: 24px;
+  }
+  .space-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 48px; margin-bottom: 16px;
+  }
+  .space-element {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: hsla(35, 70%, 55%, 0.3); border: 1px solid hsla(35, 70%, 55%, 0.5);
+  }
+  .space-element.rect {
+    width: 80px; height: 48px; border-radius: 4px;
+    background: hsla(35, 30%, 40%, 0.2); border: 1px solid hsla(35, 30%, 40%, 0.4);
+  }
+
+  /* Contrast */
+  .contrast-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
+  .contrast-side { padding: 40px; display: flex; flex-direction: column; gap: 16px; }
+  .contrast-side.light {
+    background: #f8f5f0; color: #3a2f24;
+  }
+  .contrast-side.dark {
+    background: #151210; color: #e8e0d4;
+  }
+  .contrast-content { display: flex; align-items: center; gap: 16px; }
+  .contrast-cup {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  }
+  .contrast-text { font-size: 0.8125rem; line-height: 1.5; }
+  .contrast-label {
+    font-size: 0.6875rem; letter-spacing: 0.04em; text-transform: uppercase;
+    font-weight: 500; opacity: 0.5;
+  }
+
+  .quote {
+    font-family: Newsreader, Georgia, serif;
+    font-style: italic; font-size: 1.125rem;
+    color: #9a9189; max-width: 50ch;
+    margin: 32px 0;
+    line-height: 1.6;
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<h1>Komorebi Tea</h1>
+<p class="kanji">木漏れ日 — sunlight filtering through leaves</p>
+<p class="subtitle">
+  A gongfu cha session by a garden window, late afternoon. Every design decision
+  is an act of care toward the visitor — hospitality (待客之道) expressed through
+  attention to detail. One question governs everything: <em>does this serve the
+  tea and honour the guest, or does it distract from both?</em>
+</p>
+
+<!-- ===== 1. LIGHTING ===== -->
+<section>
+  <p class="label">Lighting</p>
+  <h2 class="title">Same Table, Different Light</h2>
+  <p class="note">
+    The same tea tray, cups, teapot, tools. The only thing that changes is the
+    light — and the light changes everything. The transition between them is not
+    a switch. It is the sun going down.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <img src="tea-ceremony-daylight.png" alt="Tea ceremony in daylight" style="aspect-ratio: 4/3;">
+      <div class="cap">
+        <span class="tag tag-day">Daylight</span>
+        <strong>Directional, dappled, with the shape of leaves in it</strong>
+        <span>Warm amber-gold from the garden side, diagonal, with clear edges. One side glows. The opposite side is cooler, quieter.</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="tea-ceremony-evening.png" alt="Tea ceremony in evening" style="aspect-ratio: 4/3;">
+      <div class="cap">
+        <span class="tag tag-night">Lamplight</span>
+        <strong>The same warmth, concentrated</strong>
+        <span>Smaller source, sharper falloff, tighter radius. The edges go genuinely dark. A subtle flicker gives the light life — it breathes.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top: 16px;">
+    <div class="card">
+      <img src="tea-tray-daylight.png" alt="Illustrated tea tray, daylight" style="aspect-ratio: 3/4;">
+      <div class="cap">
+        <span class="tag tag-day">Garden Light — Stylized</span>
+        <strong>Directional beams, not a soft gradient</strong>
+        <span>Clear diagonal light rays with edges. Beams form parallelograms where they cross the surface. Objects cast directional shadows.</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="tea-tray-evening.png" alt="Illustrated tea tray, evening" style="aspect-ratio: 3/4;">
+      <div class="cap">
+        <span class="tag tag-night">Evening — Stylized</span>
+        <strong>Side lamp casting dramatic diagonal shadows</strong>
+        <span>In lamplight the shadows lengthen and sharpen, stretching further across the surface. Tea cups glow amber — the brightest points in the scene.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Design principle</strong>
+    Light is the primary design material — the thing that establishes mood before anything else is perceived. Daylight enters from the garden side, diagonal, with clear edges. Lamplight is the same warmth concentrated from a smaller source. The transition between them is the sun going down — the palette shifts but the light fades slowly, the way a room settles from afternoon into evening.
+  </div>
+</section>
+
+<!-- ===== 2. SHADOW ===== -->
+<section>
+  <p class="label">Shadow</p>
+  <h2 class="title">Earned by Light, Not Applied</h2>
+  <p class="note">
+    Directional light creates directional shadows. Everything casts in the same
+    direction — consistent, never random. Shadows anchor things. They give depth
+    and weight without artifice.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <img src="tea-tray-daylight.png" alt="Daylight shadows" style="aspect-ratio: 4/3; object-position: center bottom;">
+      <div class="cap">
+        <span class="tag tag-day">Daylight Shadows</span>
+        <strong>Soft, wide — beams form parallelograms</strong>
+        <span>The light creates the geometry. Shadows fall in the same direction across every object on the surface.</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="tea-tray-evening.png" alt="Lamplight shadows" style="aspect-ratio: 4/3; object-position: center bottom;">
+      <div class="cap">
+        <span class="tag tag-night">Lamplight Shadows</span>
+        <strong>Concentrated light, dark surface</strong>
+        <span>In lamplight the darkness absorbs. Depth comes from the light — glows, highlights, bright edges — not from shadow.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top: 16px;">
+    <div class="card">
+      <img src="shadow-daylight.svg" alt="Daylight shadows — palette study" style="aspect-ratio: 4/3;">
+      <div class="cap">
+        <span class="tag tag-day">Palette Study</span>
+        <strong>SVG using only the defined colour palette</strong>
+        <span>Xuan paper surface, tea-amber beams, bronze/warm brown trays, warm stone box. Shadows via opacity blending.</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="shadow-lamplight.svg" alt="Lamplight shadows — palette study" style="aspect-ratio: 4/3;">
+      <div class="cap">
+        <span class="tag tag-night">Palette Study</span>
+        <strong>SVG using only the defined colour palette</strong>
+        <span>Dark wood surface, lacquer accents, tea-amber cup glow. Mid-dark values achieved via opacity blending — possible palette gap.</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="quote">Shadow is earned by light, not applied as decoration.</p>
+</section>
+
+<!-- ===== 3. MATERIAL & COLOUR ===== -->
+<section>
+  <p class="label">Material & Colour</p>
+  <h2 class="title">The Palette Is the Table</h2>
+  <p class="note">
+    Each colour is a surface from the tea session. Linen catches the light in two
+    values — bright and shadowed. Tea is the single saturated accent. Clay absorbs.
+    Wood grounds. The same materials under different light, not different materials.
+  </p>
+
+  <p style="font-size: 0.6875rem; letter-spacing: 0.03em; text-transform: uppercase; color: #1a6b5a; font-weight: 500; margin-bottom: 8px;">Light Mode — Afternoon</p>
+  <div class="material-strip">
+    <div class="material-sample" style="background: #FEECD0; color: #AD562F;">
+      <span class="mat-kanji">麻</span>
+      <span class="mat-name">Light Linen</span>
+      <span class="mat-desc">Catches the light. Cream, soft, unbleached.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#FEECD0</span>
+    </div>
+    <div class="material-sample" style="background: #FDCB9C; color: #AD562F;">
+      <span class="mat-kanji">麻</span>
+      <span class="mat-name">Dark Linen</span>
+      <span class="mat-desc">The same cloth, where the light doesn't reach.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#FDCB9C</span>
+    </div>
+    <div class="material-sample" style="background: #F8B039; color: #AD562F;">
+      <span class="mat-kanji">茶</span>
+      <span class="mat-name">Tea</span>
+      <span class="mat-desc">The single saturated colour — amber, bright, rare.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#F8B039</span>
+    </div>
+    <div class="material-sample" style="background: #D68A53; color: #FEECD0;">
+      <span class="mat-kanji">陶</span>
+      <span class="mat-name">Clay</span>
+      <span class="mat-desc">Has memory. Unglazed, hand-shaped.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#D68A53</span>
+    </div>
+    <div class="material-sample" style="background: #AD562F; color: #FEECD0;">
+      <span class="mat-kanji">木</span>
+      <span class="mat-name">Wood</span>
+      <span class="mat-desc">The ground. Everything rests on it.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#AD562F</span>
+    </div>
+    <div class="material-sample" style="background: #FBF0EC; color: #6B8A5A;">
+      <span class="mat-kanji">花</span>
+      <span class="mat-name">Petal</span>
+      <span class="mat-desc">White with a faint blush. The garden peeks in.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#FBF0EC</span>
+    </div>
+    <div class="material-sample" style="background: #6B8A5A; color: #FBF0EC;">
+      <span class="mat-kanji">茎</span>
+      <span class="mat-name">Stem</span>
+      <span class="mat-desc">Muted sage. The only colour outside warmth.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#6B8A5A</span>
+    </div>
+  </div>
+
+  <p style="font-size: 0.6875rem; letter-spacing: 0.03em; text-transform: uppercase; color: #1a6b5a; font-weight: 500; margin-bottom: 8px; margin-top: 24px;">Dark Mode — Evening</p>
+  <div class="material-strip">
+    <div class="material-sample" style="background: #CC7539; color: #320E04;">
+      <span class="mat-kanji">麻</span>
+      <span class="mat-name">Light Linen</span>
+      <span class="mat-desc">Cream shifts to gold by lamplight.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#CC7539</span>
+    </div>
+    <div class="material-sample" style="background: #A44C18; color: #CC7539;">
+      <span class="mat-kanji">麻</span>
+      <span class="mat-name">Dark Linen</span>
+      <span class="mat-desc">The cloth darkens where lamps don't reach.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#A44C18</span>
+    </div>
+    <div class="material-sample" style="background: #FAA20C; color: #320E04;">
+      <span class="mat-kanji">茶</span>
+      <span class="mat-name">Tea</span>
+      <span class="mat-desc">Hotter against the dark. The brightest thing left.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#FAA20C</span>
+    </div>
+    <div class="material-sample" style="background: #7C3307; color: #CC7539;">
+      <span class="mat-kanji">陶</span>
+      <span class="mat-name">Clay</span>
+      <span class="mat-desc">Absorbs what warmth remains.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#7C3307</span>
+    </div>
+    <div class="material-sample" style="background: #320E04; color: #CC7539;">
+      <span class="mat-kanji">木</span>
+      <span class="mat-name">Wood</span>
+      <span class="mat-desc">Near-black. The darkness is the atmosphere.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#320E04</span>
+    </div>
+    <div class="material-sample" style="background: #D4B8A8; color: #3D5A2E;">
+      <span class="mat-kanji">花</span>
+      <span class="mat-name">Petal</span>
+      <span class="mat-desc">White turns warm gold under lamplight.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#D4B8A8</span>
+    </div>
+    <div class="material-sample" style="background: #3D5A2E; color: #D4B8A8;">
+      <span class="mat-kanji">茎</span>
+      <span class="mat-name">Stem</span>
+      <span class="mat-desc">Green recedes into the dark.</span>
+      <span class="swatch-hex" style="font-size: 0.5625rem; font-family: monospace; opacity: 0.5; margin-top: 4px;">#3D5A2E</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===== 5. SHAPE ===== -->
+<section>
+  <p class="label">Shape</p>
+  <h2 class="title">Two Families, Physical</h2>
+  <p class="note">
+    Rectangles are structural — they ground, create regions, define edges.
+    Circles are focal — they sit within the rectangular structure and draw the eye.
+    Every shape has thickness. Thickness earns shadow. More presence, more depth.
+  </p>
+
+  <!-- Thickness demo: rectangles at varying depths — split light/dark -->
+  <p style="font-size: 0.6875rem; letter-spacing: 0.03em; text-transform: uppercase; color: #1a6b5a; font-weight: 500; margin-bottom: 12px;">Rectangles — thickness scales with importance</p>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: 4px; overflow: hidden;">
+    <!-- Light mode rectangles -->
+    <div style="background: #FEECD0; padding: 48px; display: flex; align-items: end; gap: 40px; justify-content: center;">
+
+      <!-- Thin rectangle (secondary) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 100px; height: 60px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 7px; left: 5px; width: 100px; height: 60px; background: #D68A53; opacity: 0.15; border-radius: 3px; filter: blur(3px);"></div>
+          <!-- Side face (thin) -->
+          <div style="position: absolute; top: 3px; left: 0; width: 100px; height: 60px; background: #D68A53; border-radius: 3px;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 100px; height: 60px; background: #FDCB9C; border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Thin — secondary</span>
+      </div>
+
+      <!-- Medium rectangle (content) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 120px; height: 72px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 14px; left: 8px; width: 120px; height: 72px; background: #D68A53; opacity: 0.18; border-radius: 3px; filter: blur(5px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 8px; left: 0; width: 120px; height: 72px; background: #D68A53; border-radius: 3px;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 120px; height: 72px; background: #FDCB9C; border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Medium — content</span>
+      </div>
+
+      <!-- Thick rectangle (primary) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 140px; height: 84px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 22px; left: 12px; width: 140px; height: 84px; background: #AD562F; opacity: 0.18; border-radius: 3px; filter: blur(8px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 14px; left: 0; width: 140px; height: 84px; background: #D68A53; border-radius: 3px;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 140px; height: 84px; background: #FDCB9C; border-radius: 3px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Thick — primary</span>
+      </div>
+    </div>
+    <!-- Dark mode rectangles -->
+    <div style="background: #320E04; padding: 48px; display: flex; align-items: end; gap: 40px; justify-content: center;">
+
+      <!-- Thin rectangle (secondary, dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 100px; height: 60px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 7px; left: 5px; width: 100px; height: 60px; background: #000; opacity: 0.15; border-radius: 3px; filter: blur(3px);"></div>
+          <!-- Side face (thin) -->
+          <div style="position: absolute; top: 3px; left: 0; width: 100px; height: 60px; background: #7C3307; border-radius: 3px;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 100px; height: 60px; background: #A44C18; border-radius: 3px;"></div>
+          <!-- Light edge catch -->
+          <div style="position: absolute; top: 0; left: 0; width: 100px; height: 2px; background: #CC7539; border-radius: 3px 3px 0 0; opacity: 0.5;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Thin — secondary</span>
+      </div>
+
+      <!-- Medium rectangle (content, dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 120px; height: 72px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 14px; left: 8px; width: 120px; height: 72px; background: #000; opacity: 0.18; border-radius: 3px; filter: blur(5px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 8px; left: 0; width: 120px; height: 72px; background: #7C3307; border-radius: 3px;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 120px; height: 72px; background: #A44C18; border-radius: 3px;"></div>
+          <!-- Light edge catch -->
+          <div style="position: absolute; top: 0; left: 0; width: 120px; height: 2px; background: #CC7539; border-radius: 3px 3px 0 0; opacity: 0.5;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Medium — content</span>
+      </div>
+
+      <!-- Thick rectangle (primary, dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 140px; height: 84px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 22px; left: 12px; width: 140px; height: 84px; background: #000; opacity: 0.18; border-radius: 3px; filter: blur(8px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 14px; left: 0; width: 140px; height: 84px; background: #7C3307; border-radius: 3px;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 140px; height: 84px; background: #A44C18; border-radius: 3px;"></div>
+          <!-- Light edge catch -->
+          <div style="position: absolute; top: 0; left: 0; width: 140px; height: 2px; background: #CC7539; border-radius: 3px 3px 0 0; opacity: 0.5;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Thick — primary</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thickness demo: circles at varying depths — split light/dark -->
+  <p style="font-size: 0.6875rem; letter-spacing: 0.03em; text-transform: uppercase; color: #1a6b5a; font-weight: 500; margin-bottom: 12px; margin-top: 32px;">Circles — focal weight through depth</p>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: 4px; overflow: hidden;">
+    <!-- Light mode circles -->
+    <div style="background: #FEECD0; padding: 48px; display: flex; align-items: end; gap: 48px; justify-content: center;">
+
+      <!-- Thin circle -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 56px; height: 62px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 7px; left: 4px; width: 56px; height: 56px; background: #D68A53; opacity: 0.15; border-radius: 50%; filter: blur(3px);"></div>
+          <!-- Side face (thin crescent at bottom) -->
+          <div style="position: absolute; top: 3px; left: 0; width: 56px; height: 56px; background: #D68A53; border-radius: 50%;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 56px; height: 56px; background: #F8B039; border-radius: 50%;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Thin</span>
+      </div>
+
+      <!-- Medium circle -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 72px; height: 82px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 14px; left: 7px; width: 72px; height: 72px; background: #D68A53; opacity: 0.18; border-radius: 50%; filter: blur(5px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 8px; left: 0; width: 72px; height: 72px; background: #AD562F; border-radius: 50%;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 72px; height: 72px; background: #F8B039; border-radius: 50%;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Medium</span>
+      </div>
+
+      <!-- Thick circle -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 88px; height: 104px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 22px; left: 10px; width: 88px; height: 88px; background: #AD562F; opacity: 0.2; border-radius: 50%; filter: blur(8px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 14px; left: 0; width: 88px; height: 88px; background: #AD562F; border-radius: 50%;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 88px; height: 88px; background: #F8B039; border-radius: 50%;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Thick</span>
+      </div>
+    </div>
+    <!-- Dark mode circles -->
+    <div style="background: #320E04; padding: 48px; display: flex; align-items: end; gap: 48px; justify-content: center;">
+
+      <!-- Thin circle (dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 56px; height: 62px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 7px; left: 4px; width: 56px; height: 56px; background: #000; opacity: 0.15; border-radius: 50%; filter: blur(3px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 3px; left: 0; width: 56px; height: 56px; background: #7C3307; border-radius: 50%;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 56px; height: 56px; background: #FAA20C; border-radius: 50%;"></div>
+          <!-- Glow -->
+          <div style="position: absolute; top: -4px; left: -4px; width: 64px; height: 64px; background: #FAA20C; border-radius: 50%; opacity: 0.08; filter: blur(8px);"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Thin</span>
+      </div>
+
+      <!-- Medium circle (dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 72px; height: 82px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 14px; left: 7px; width: 72px; height: 72px; background: #000; opacity: 0.18; border-radius: 50%; filter: blur(5px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 8px; left: 0; width: 72px; height: 72px; background: #7C3307; border-radius: 50%;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 72px; height: 72px; background: #FAA20C; border-radius: 50%;"></div>
+          <!-- Glow -->
+          <div style="position: absolute; top: -4px; left: -4px; width: 80px; height: 80px; background: #FAA20C; border-radius: 50%; opacity: 0.08; filter: blur(8px);"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Medium</span>
+      </div>
+
+      <!-- Thick circle (dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 88px; height: 104px;">
+          <!-- Shadow -->
+          <div style="position: absolute; top: 22px; left: 10px; width: 88px; height: 88px; background: #000; opacity: 0.2; border-radius: 50%; filter: blur(8px);"></div>
+          <!-- Side face -->
+          <div style="position: absolute; top: 14px; left: 0; width: 88px; height: 88px; background: #7C3307; border-radius: 50%;"></div>
+          <!-- Top face -->
+          <div style="position: absolute; top: 0; left: 0; width: 88px; height: 88px; background: #FAA20C; border-radius: 50%;"></div>
+          <!-- Glow -->
+          <div style="position: absolute; top: -4px; left: -4px; width: 96px; height: 96px; background: #FAA20C; border-radius: 50%; opacity: 0.08; filter: blur(8px);"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Thick</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Composition: mixed depths — split light/dark -->
+  <p style="font-size: 0.6875rem; letter-spacing: 0.03em; text-transform: uppercase; color: #1a6b5a; font-weight: 500; margin-bottom: 12px; margin-top: 32px;">Composition — circles within rectangles, varying depth</p>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: 4px; overflow: hidden;">
+    <!-- Light mode composition -->
+    <div style="background: #FEECD0; padding: 48px; display: flex; align-items: center; justify-content: center;">
+      <div style="display: flex; gap: 32px; align-items: end;">
+
+        <!-- Thin card with thin circle -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <div style="position: relative; width: 100px; height: 130px;">
+            <!-- Card shadow -->
+            <div style="position: absolute; top: 6px; left: 4px; width: 100px; height: 130px; background: #D68A53; opacity: 0.12; border-radius: 3px; filter: blur(3px);"></div>
+            <!-- Card side -->
+            <div style="position: absolute; top: 3px; left: 0; width: 100px; height: 130px; background: #D68A53; border-radius: 3px;"></div>
+            <!-- Card top -->
+            <div style="position: absolute; top: 0; left: 0; width: 100px; height: 130px; background: #FDCB9C; border-radius: 3px; display: flex; align-items: center; justify-content: center;">
+              <!-- Circle inside -->
+              <div style="position: relative; width: 40px; height: 43px;">
+                <div style="position: absolute; top: 2px; left: 0; width: 40px; height: 40px; background: #D68A53; border-radius: 50%;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 40px; height: 40px; background: #F8B039; border-radius: 50%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medium card with medium circle -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <div style="position: relative; width: 120px; height: 156px;">
+            <!-- Card shadow -->
+            <div style="position: absolute; top: 12px; left: 7px; width: 120px; height: 156px; background: #D68A53; opacity: 0.16; border-radius: 3px; filter: blur(5px);"></div>
+            <!-- Card side -->
+            <div style="position: absolute; top: 7px; left: 0; width: 120px; height: 156px; background: #D68A53; border-radius: 3px;"></div>
+            <!-- Card top -->
+            <div style="position: absolute; top: 0; left: 0; width: 120px; height: 156px; background: #FDCB9C; border-radius: 3px; display: flex; align-items: center; justify-content: center;">
+              <!-- Circle inside -->
+              <div style="position: relative; width: 56px; height: 62px;">
+                <div style="position: absolute; top: 5px; left: 0; width: 56px; height: 56px; background: #AD562F; border-radius: 50%;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 56px; height: 56px; background: #F8B039; border-radius: 50%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thick card with thick circle -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <div style="position: relative; width: 140px; height: 182px;">
+            <!-- Card shadow -->
+            <div style="position: absolute; top: 20px; left: 10px; width: 140px; height: 182px; background: #AD562F; opacity: 0.18; border-radius: 3px; filter: blur(8px);"></div>
+            <!-- Card side -->
+            <div style="position: absolute; top: 12px; left: 0; width: 140px; height: 182px; background: #D68A53; border-radius: 3px;"></div>
+            <!-- Card top -->
+            <div style="position: absolute; top: 0; left: 0; width: 140px; height: 182px; background: #FDCB9C; border-radius: 3px; display: flex; align-items: center; justify-content: center;">
+              <!-- Circle inside -->
+              <div style="position: relative; width: 72px; height: 82px;">
+                <div style="position: absolute; top: 8px; left: 0; width: 72px; height: 72px; background: #AD562F; border-radius: 50%;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 72px; height: 72px; background: #F8B039; border-radius: 50%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- Dark mode composition -->
+    <div style="background: #320E04; padding: 48px; display: flex; align-items: center; justify-content: center;">
+      <div style="display: flex; gap: 32px; align-items: end;">
+
+        <!-- Thin card with thin circle (dark) -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <div style="position: relative; width: 100px; height: 130px;">
+            <!-- Card shadow -->
+            <div style="position: absolute; top: 6px; left: 4px; width: 100px; height: 130px; background: #000; opacity: 0.12; border-radius: 3px; filter: blur(3px);"></div>
+            <!-- Card side -->
+            <div style="position: absolute; top: 3px; left: 0; width: 100px; height: 130px; background: #7C3307; border-radius: 3px;"></div>
+            <!-- Card top -->
+            <div style="position: absolute; top: 0; left: 0; width: 100px; height: 130px; background: #A44C18; border-radius: 3px; display: flex; align-items: center; justify-content: center;">
+              <!-- Light edge catch -->
+              <div style="position: absolute; top: 0; left: 0; width: 100px; height: 2px; background: #CC7539; border-radius: 3px 3px 0 0; opacity: 0.5;"></div>
+              <!-- Circle inside -->
+              <div style="position: relative; width: 40px; height: 43px;">
+                <div style="position: absolute; top: 2px; left: 0; width: 40px; height: 40px; background: #7C3307; border-radius: 50%;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 40px; height: 40px; background: #FAA20C; border-radius: 50%;"></div>
+                <!-- Glow -->
+                <div style="position: absolute; top: -4px; left: -4px; width: 48px; height: 48px; background: #FAA20C; border-radius: 50%; opacity: 0.08; filter: blur(8px);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medium card with medium circle (dark) -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <div style="position: relative; width: 120px; height: 156px;">
+            <!-- Card shadow -->
+            <div style="position: absolute; top: 12px; left: 7px; width: 120px; height: 156px; background: #000; opacity: 0.16; border-radius: 3px; filter: blur(5px);"></div>
+            <!-- Card side -->
+            <div style="position: absolute; top: 7px; left: 0; width: 120px; height: 156px; background: #7C3307; border-radius: 3px;"></div>
+            <!-- Card top -->
+            <div style="position: absolute; top: 0; left: 0; width: 120px; height: 156px; background: #A44C18; border-radius: 3px; display: flex; align-items: center; justify-content: center;">
+              <!-- Light edge catch -->
+              <div style="position: absolute; top: 0; left: 0; width: 120px; height: 2px; background: #CC7539; border-radius: 3px 3px 0 0; opacity: 0.5;"></div>
+              <!-- Circle inside -->
+              <div style="position: relative; width: 56px; height: 62px;">
+                <div style="position: absolute; top: 5px; left: 0; width: 56px; height: 56px; background: #7C3307; border-radius: 50%;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 56px; height: 56px; background: #FAA20C; border-radius: 50%;"></div>
+                <!-- Glow -->
+                <div style="position: absolute; top: -4px; left: -4px; width: 64px; height: 64px; background: #FAA20C; border-radius: 50%; opacity: 0.08; filter: blur(8px);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thick card with thick circle (dark) -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <div style="position: relative; width: 140px; height: 182px;">
+            <!-- Card shadow -->
+            <div style="position: absolute; top: 20px; left: 10px; width: 140px; height: 182px; background: #000; opacity: 0.18; border-radius: 3px; filter: blur(8px);"></div>
+            <!-- Card side -->
+            <div style="position: absolute; top: 12px; left: 0; width: 140px; height: 182px; background: #7C3307; border-radius: 3px;"></div>
+            <!-- Card top -->
+            <div style="position: absolute; top: 0; left: 0; width: 140px; height: 182px; background: #A44C18; border-radius: 3px; display: flex; align-items: center; justify-content: center;">
+              <!-- Light edge catch -->
+              <div style="position: absolute; top: 0; left: 0; width: 140px; height: 2px; background: #CC7539; border-radius: 3px 3px 0 0; opacity: 0.5;"></div>
+              <!-- Circle inside -->
+              <div style="position: relative; width: 72px; height: 82px;">
+                <div style="position: absolute; top: 8px; left: 0; width: 72px; height: 72px; background: #7C3307; border-radius: 50%;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 72px; height: 72px; background: #FAA20C; border-radius: 50%;"></div>
+                <!-- Glow -->
+                <div style="position: absolute; top: -4px; left: -4px; width: 80px; height: 80px; background: #FAA20C; border-radius: 50%; opacity: 0.08; filter: blur(8px);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <p style="font-size: 0.75rem; color: #6a6460; margin-top: 8px; text-align: center;">主次分明 — more thickness, more presence, more shadow</p>
+
+  <!-- Linen cloth: soft rectangle, folded fabric thickness — split light/dark -->
+  <p style="font-size: 0.6875rem; letter-spacing: 0.03em; text-transform: uppercase; color: #1a6b5a; font-weight: 500; margin-bottom: 12px; margin-top: 32px;">Linen — soft thickness, folded cloth</p>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: 4px; overflow: hidden;">
+    <!-- Light mode linen -->
+    <div style="background: #FEECD0; padding: 48px; display: flex; align-items: end; gap: 40px; justify-content: center;">
+
+      <!-- Thin fold (single layer) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 120px; height: 64px;">
+          <!-- Soft shadow (more diffused than hard rectangle) -->
+          <div style="position: absolute; top: 8px; left: 6px; width: 118px; height: 62px; background: #D68A53; opacity: 0.1; border-radius: 10px; filter: blur(6px);"></div>
+          <!-- Fold edge (soft, rounded, slightly uneven) -->
+          <div style="position: absolute; top: 4px; left: 0; width: 120px; height: 64px; background: #FDCB9C; border-radius: 10px 10px 12px 10px; opacity: 0.7;"></div>
+          <!-- Top surface -->
+          <div style="position: absolute; top: 0; left: 0; width: 120px; height: 64px; background: #FEECD0; border-radius: 10px 10px 12px 10px;"></div>
+          <!-- Subtle fold line across the surface -->
+          <div style="position: absolute; top: 28px; left: 8px; width: 104px; height: 1px; background: #D68A53; opacity: 0.08; border-radius: 1px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Thin — single fold</span>
+      </div>
+
+      <!-- Medium fold (doubled over) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 130px; height: 72px;">
+          <!-- Soft shadow -->
+          <div style="position: absolute; top: 14px; left: 8px; width: 126px; height: 68px; background: #D68A53; opacity: 0.13; border-radius: 12px; filter: blur(8px);"></div>
+          <!-- Fold edge (thicker, softer) -->
+          <div style="position: absolute; top: 8px; left: 0; width: 130px; height: 72px; background: #FDCB9C; border-radius: 12px 11px 14px 12px; opacity: 0.8;"></div>
+          <!-- Slight second fold layer peeking out -->
+          <div style="position: absolute; top: 5px; left: 2px; width: 126px; height: 70px; background: #FDCB9C; border-radius: 11px 10px 13px 11px; opacity: 0.5;"></div>
+          <!-- Top surface -->
+          <div style="position: absolute; top: 0; left: 0; width: 130px; height: 72px; background: #FEECD0; border-radius: 12px 11px 14px 12px;"></div>
+          <!-- Fold lines -->
+          <div style="position: absolute; top: 24px; left: 10px; width: 110px; height: 1px; background: #D68A53; opacity: 0.07; border-radius: 1px;"></div>
+          <div style="position: absolute; top: 46px; left: 12px; width: 100px; height: 1px; background: #D68A53; opacity: 0.06; border-radius: 1px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Medium — doubled</span>
+      </div>
+
+      <!-- Thick fold (stacked, bundled) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 140px; height: 80px;">
+          <!-- Soft shadow (very diffused) -->
+          <div style="position: absolute; top: 20px; left: 10px; width: 134px; height: 76px; background: #D68A53; opacity: 0.15; border-radius: 14px; filter: blur(10px);"></div>
+          <!-- Deepest fold layer -->
+          <div style="position: absolute; top: 14px; left: 1px; width: 136px; height: 74px; background: #FDCB9C; border-radius: 13px 12px 15px 13px; opacity: 0.5;"></div>
+          <!-- Middle fold layer -->
+          <div style="position: absolute; top: 8px; left: 0; width: 138px; height: 76px; background: #FDCB9C; border-radius: 13px 12px 16px 13px; opacity: 0.7;"></div>
+          <!-- Top surface -->
+          <div style="position: absolute; top: 0; left: 0; width: 140px; height: 80px; background: #FEECD0; border-radius: 14px 12px 16px 14px;"></div>
+          <!-- Fold lines (more visible on thicker cloth) -->
+          <div style="position: absolute; top: 22px; left: 12px; width: 116px; height: 1px; background: #D68A53; opacity: 0.08; border-radius: 1px;"></div>
+          <div style="position: absolute; top: 40px; left: 14px; width: 108px; height: 1px; background: #D68A53; opacity: 0.06; border-radius: 1px;"></div>
+          <div style="position: absolute; top: 56px; left: 10px; width: 118px; height: 1px; background: #D68A53; opacity: 0.07; border-radius: 1px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Thick — bundled</span>
+      </div>
+
+    </div>
+    <!-- Dark mode linen -->
+    <div style="background: #320E04; padding: 48px; display: flex; align-items: end; gap: 40px; justify-content: center;">
+
+      <!-- Thin fold (single layer, dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 120px; height: 64px;">
+          <!-- Soft shadow -->
+          <div style="position: absolute; top: 8px; left: 6px; width: 118px; height: 62px; background: #000; opacity: 0.1; border-radius: 10px; filter: blur(6px);"></div>
+          <!-- Fold edge -->
+          <div style="position: absolute; top: 4px; left: 0; width: 120px; height: 64px; background: #A44C18; border-radius: 10px 10px 12px 10px; opacity: 0.7;"></div>
+          <!-- Top surface -->
+          <div style="position: absolute; top: 0; left: 0; width: 120px; height: 64px; background: #CC7539; border-radius: 10px 10px 12px 10px;"></div>
+          <!-- Subtle fold line -->
+          <div style="position: absolute; top: 28px; left: 8px; width: 104px; height: 1px; background: #7C3307; opacity: 0.12; border-radius: 1px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Thin — single fold</span>
+      </div>
+
+      <!-- Medium fold (doubled over, dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 130px; height: 72px;">
+          <!-- Soft shadow -->
+          <div style="position: absolute; top: 14px; left: 8px; width: 126px; height: 68px; background: #000; opacity: 0.13; border-radius: 12px; filter: blur(8px);"></div>
+          <!-- Fold edge -->
+          <div style="position: absolute; top: 8px; left: 0; width: 130px; height: 72px; background: #A44C18; border-radius: 12px 11px 14px 12px; opacity: 0.6;"></div>
+          <!-- Second fold layer -->
+          <div style="position: absolute; top: 5px; left: 2px; width: 126px; height: 70px; background: #A44C18; border-radius: 11px 10px 13px 11px; opacity: 0.4;"></div>
+          <!-- Top surface -->
+          <div style="position: absolute; top: 0; left: 0; width: 130px; height: 72px; background: #CC7539; border-radius: 12px 11px 14px 12px;"></div>
+          <!-- Fold lines -->
+          <div style="position: absolute; top: 24px; left: 10px; width: 110px; height: 1px; background: #7C3307; opacity: 0.12; border-radius: 1px;"></div>
+          <div style="position: absolute; top: 46px; left: 12px; width: 100px; height: 1px; background: #7C3307; opacity: 0.1; border-radius: 1px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Medium — doubled</span>
+      </div>
+
+      <!-- Thick fold (stacked, bundled, dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+        <div style="position: relative; width: 140px; height: 80px;">
+          <!-- Soft shadow -->
+          <div style="position: absolute; top: 20px; left: 10px; width: 134px; height: 76px; background: #000; opacity: 0.15; border-radius: 14px; filter: blur(10px);"></div>
+          <!-- Deepest fold layer -->
+          <div style="position: absolute; top: 14px; left: 1px; width: 136px; height: 74px; background: #A44C18; border-radius: 13px 12px 15px 13px; opacity: 0.5;"></div>
+          <!-- Middle fold layer -->
+          <div style="position: absolute; top: 8px; left: 0; width: 138px; height: 76px; background: #A44C18; border-radius: 13px 12px 16px 13px; opacity: 0.7;"></div>
+          <!-- Top surface -->
+          <div style="position: absolute; top: 0; left: 0; width: 140px; height: 80px; background: #CC7539; border-radius: 14px 12px 16px 14px;"></div>
+          <!-- Fold lines -->
+          <div style="position: absolute; top: 22px; left: 12px; width: 116px; height: 1px; background: #7C3307; opacity: 0.12; border-radius: 1px;"></div>
+          <div style="position: absolute; top: 40px; left: 14px; width: 108px; height: 1px; background: #7C3307; opacity: 0.1; border-radius: 1px;"></div>
+          <div style="position: absolute; top: 56px; left: 10px; width: 118px; height: 1px; background: #7C3307; opacity: 0.12; border-radius: 1px;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Thick — bundled</span>
+      </div>
+
+    </div>
+  </div>
+  <p style="font-size: 0.75rem; color: #6a6460; margin-top: 8px; text-align: center;">Soft edges, diffused shadows, visible fold layers — cloth, not geometry</p>
+
+  <!-- Cup shape: viewed from slight angle — split light/dark -->
+  <p style="font-size: 0.6875rem; letter-spacing: 0.03em; text-transform: uppercase; color: #1a6b5a; font-weight: 500; margin-bottom: 12px; margin-top: 32px;">Cups — you pour content in</p>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: 4px; overflow: hidden;">
+    <!-- Light mode cups -->
+    <div style="background: #FEECD0; padding: 56px 48px; display: flex; align-items: end; gap: 56px; justify-content: center;">
+
+      <!-- Shallow cup -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div style="position: relative; width: 88px; height: 56px;">
+          <!-- Shadow on surface -->
+          <div style="position: absolute; bottom: -6px; left: 6px; width: 82px; height: 24px; background: #D68A53; opacity: 0.15; border-radius: 50%; filter: blur(4px);"></div>
+          <!-- Exterior wall — tapered, clay-colored -->
+          <div style="position: absolute; bottom: 0; left: 6px; width: 76px; height: 36px; background: #D68A53; border-radius: 0 0 38px 38px / 0 0 20px 20px;"></div>
+          <!-- Exterior wall light side (right, catching light) -->
+          <div style="position: absolute; bottom: 0; right: 6px; width: 38px; height: 36px; background: linear-gradient(to left, #FDCB9C 0%, transparent 60%); border-radius: 0 0 38px 0 / 0 0 20px 0; opacity: 0.25;"></div>
+          <!-- Rim — elliptical, bright edge -->
+          <div style="position: absolute; top: 10px; left: 0; width: 88px; height: 28px; background: #FDCB9C; border-radius: 50%;"></div>
+          <!-- Interior — tea surface visible inside the rim -->
+          <div style="position: absolute; top: 13px; left: 4px; width: 80px; height: 22px; background: #F8B039; border-radius: 50%;"></div>
+          <!-- Rim highlight (far side catches light) -->
+          <div style="position: absolute; top: 10px; left: 0; width: 88px; height: 28px; border-radius: 50%; border: 1.5px solid transparent; border-bottom-color: #F8B039; opacity: 0.4;"></div>
+          <!-- Inner shadow on tea (near rim casts into the cup) -->
+          <div style="position: absolute; top: 13px; left: 4px; width: 80px; height: 11px; background: linear-gradient(to bottom, #AD562F 0%, transparent 100%); border-radius: 40px 40px 0 0; opacity: 0.12;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Shallow</span>
+      </div>
+
+      <!-- Medium cup -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div style="position: relative; width: 92px; height: 72px;">
+          <!-- Shadow on surface -->
+          <div style="position: absolute; bottom: -8px; left: 8px; width: 84px; height: 28px; background: #D68A53; opacity: 0.18; border-radius: 50%; filter: blur(5px);"></div>
+          <!-- Exterior wall -->
+          <div style="position: absolute; bottom: 0; left: 8px; width: 76px; height: 52px; background: #D68A53; border-radius: 0 0 34px 34px / 0 0 22px 22px;"></div>
+          <!-- Exterior wall light side -->
+          <div style="position: absolute; bottom: 0; right: 8px; width: 38px; height: 52px; background: linear-gradient(to left, #FDCB9C 0%, transparent 60%); border-radius: 0 0 34px 0 / 0 0 22px 0; opacity: 0.25;"></div>
+          <!-- Exterior wall shadow side -->
+          <div style="position: absolute; bottom: 0; left: 8px; width: 38px; height: 52px; background: linear-gradient(to right, #AD562F 0%, transparent 60%); border-radius: 0 0 0 34px / 0 0 0 22px; opacity: 0.15;"></div>
+          <!-- Rim -->
+          <div style="position: absolute; top: 8px; left: 0; width: 92px; height: 28px; background: #FDCB9C; border-radius: 50%;"></div>
+          <!-- Interior tea -->
+          <div style="position: absolute; top: 12px; left: 5px; width: 82px; height: 20px; background: #F8B039; border-radius: 50%;"></div>
+          <!-- Rim highlight -->
+          <div style="position: absolute; top: 8px; left: 0; width: 92px; height: 28px; border-radius: 50%; border: 2px solid transparent; border-bottom-color: #F8B039; opacity: 0.4;"></div>
+          <!-- Inner shadow on tea -->
+          <div style="position: absolute; top: 12px; left: 5px; width: 82px; height: 10px; background: linear-gradient(to bottom, #AD562F 0%, transparent 100%); border-radius: 41px 41px 0 0; opacity: 0.15;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Medium</span>
+      </div>
+
+      <!-- Deep cup (bowl) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div style="position: relative; width: 100px; height: 88px;">
+          <!-- Shadow on surface -->
+          <div style="position: absolute; bottom: -10px; left: 8px; width: 90px; height: 32px; background: #AD562F; opacity: 0.18; border-radius: 50%; filter: blur(6px);"></div>
+          <!-- Exterior wall -->
+          <div style="position: absolute; bottom: 0; left: 8px; width: 84px; height: 68px; background: #D68A53; border-radius: 0 0 38px 38px / 0 0 28px 28px;"></div>
+          <!-- Exterior wall light side -->
+          <div style="position: absolute; bottom: 0; right: 8px; width: 42px; height: 68px; background: linear-gradient(to left, #FDCB9C 0%, transparent 60%); border-radius: 0 0 38px 0 / 0 0 28px 0; opacity: 0.25;"></div>
+          <!-- Exterior wall shadow side -->
+          <div style="position: absolute; bottom: 0; left: 8px; width: 42px; height: 68px; background: linear-gradient(to right, #AD562F 0%, transparent 60%); border-radius: 0 0 0 38px / 0 0 0 28px; opacity: 0.2;"></div>
+          <!-- Rim -->
+          <div style="position: absolute; top: 6px; left: 0; width: 100px; height: 30px; background: #FDCB9C; border-radius: 50%;"></div>
+          <!-- Interior tea -->
+          <div style="position: absolute; top: 10px; left: 6px; width: 88px; height: 22px; background: #F8B039; border-radius: 50%;"></div>
+          <!-- Rim highlight -->
+          <div style="position: absolute; top: 6px; left: 0; width: 100px; height: 30px; border-radius: 50%; border: 2.5px solid transparent; border-bottom-color: #F8B039; opacity: 0.45;"></div>
+          <!-- Inner shadow on tea -->
+          <div style="position: absolute; top: 10px; left: 6px; width: 88px; height: 12px; background: linear-gradient(to bottom, #AD562F 0%, transparent 100%); border-radius: 44px 44px 0 0; opacity: 0.18;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #AD562F; opacity: 0.6;">Deep</span>
+      </div>
+
+    </div>
+    <!-- Dark mode cups -->
+    <div style="background: #320E04; padding: 56px 48px; display: flex; align-items: end; gap: 56px; justify-content: center;">
+
+      <!-- Shallow cup (dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div style="position: relative; width: 88px; height: 56px;">
+          <!-- Shadow on surface -->
+          <div style="position: absolute; bottom: -6px; left: 6px; width: 82px; height: 24px; background: #000; opacity: 0.15; border-radius: 50%; filter: blur(4px);"></div>
+          <!-- Exterior wall -->
+          <div style="position: absolute; bottom: 0; left: 6px; width: 76px; height: 36px; background: #7C3307; border-radius: 0 0 38px 38px / 0 0 20px 20px;"></div>
+          <!-- Exterior wall light side -->
+          <div style="position: absolute; bottom: 0; right: 6px; width: 38px; height: 36px; background: linear-gradient(to left, #A44C18 0%, transparent 60%); border-radius: 0 0 38px 0 / 0 0 20px 0; opacity: 0.3;"></div>
+          <!-- Rim -->
+          <div style="position: absolute; top: 10px; left: 0; width: 88px; height: 28px; background: #A44C18; border-radius: 50%;"></div>
+          <!-- Interior tea -->
+          <div style="position: absolute; top: 13px; left: 4px; width: 80px; height: 22px; background: #FAA20C; border-radius: 50%;"></div>
+          <!-- Glow from tea -->
+          <div style="position: absolute; top: 7px; left: -2px; width: 92px; height: 34px; background: #FAA20C; border-radius: 50%; opacity: 0.06; filter: blur(6px);"></div>
+          <!-- Rim highlight -->
+          <div style="position: absolute; top: 10px; left: 0; width: 88px; height: 28px; border-radius: 50%; border: 1.5px solid transparent; border-bottom-color: #CC7539; opacity: 0.35;"></div>
+          <!-- Inner shadow on tea -->
+          <div style="position: absolute; top: 13px; left: 4px; width: 80px; height: 11px; background: linear-gradient(to bottom, #7C3307 0%, transparent 100%); border-radius: 40px 40px 0 0; opacity: 0.15;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Shallow</span>
+      </div>
+
+      <!-- Medium cup (dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div style="position: relative; width: 92px; height: 72px;">
+          <!-- Shadow on surface -->
+          <div style="position: absolute; bottom: -8px; left: 8px; width: 84px; height: 28px; background: #000; opacity: 0.18; border-radius: 50%; filter: blur(5px);"></div>
+          <!-- Exterior wall -->
+          <div style="position: absolute; bottom: 0; left: 8px; width: 76px; height: 52px; background: #7C3307; border-radius: 0 0 34px 34px / 0 0 22px 22px;"></div>
+          <!-- Exterior wall light side -->
+          <div style="position: absolute; bottom: 0; right: 8px; width: 38px; height: 52px; background: linear-gradient(to left, #A44C18 0%, transparent 60%); border-radius: 0 0 34px 0 / 0 0 22px 0; opacity: 0.3;"></div>
+          <!-- Rim -->
+          <div style="position: absolute; top: 8px; left: 0; width: 92px; height: 28px; background: #A44C18; border-radius: 50%;"></div>
+          <!-- Interior tea -->
+          <div style="position: absolute; top: 12px; left: 5px; width: 82px; height: 20px; background: #FAA20C; border-radius: 50%;"></div>
+          <!-- Glow from tea -->
+          <div style="position: absolute; top: 6px; left: -2px; width: 96px; height: 34px; background: #FAA20C; border-radius: 50%; opacity: 0.06; filter: blur(6px);"></div>
+          <!-- Rim highlight -->
+          <div style="position: absolute; top: 8px; left: 0; width: 92px; height: 28px; border-radius: 50%; border: 2px solid transparent; border-bottom-color: #CC7539; opacity: 0.35;"></div>
+          <!-- Inner shadow on tea -->
+          <div style="position: absolute; top: 12px; left: 5px; width: 82px; height: 10px; background: linear-gradient(to bottom, #7C3307 0%, transparent 100%); border-radius: 41px 41px 0 0; opacity: 0.2;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Medium</span>
+      </div>
+
+      <!-- Deep cup (dark) -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div style="position: relative; width: 100px; height: 88px;">
+          <!-- Shadow on surface -->
+          <div style="position: absolute; bottom: -10px; left: 8px; width: 90px; height: 32px; background: #000; opacity: 0.18; border-radius: 50%; filter: blur(6px);"></div>
+          <!-- Exterior wall -->
+          <div style="position: absolute; bottom: 0; left: 8px; width: 84px; height: 68px; background: #7C3307; border-radius: 0 0 38px 38px / 0 0 28px 28px;"></div>
+          <!-- Exterior wall light side -->
+          <div style="position: absolute; bottom: 0; right: 8px; width: 42px; height: 68px; background: linear-gradient(to left, #A44C18 0%, transparent 60%); border-radius: 0 0 38px 0 / 0 0 28px 0; opacity: 0.3;"></div>
+          <!-- Exterior wall shadow side -->
+          <div style="position: absolute; bottom: 0; left: 8px; width: 42px; height: 68px; background: linear-gradient(to right, #320E04 0%, transparent 60%); border-radius: 0 0 0 38px / 0 0 0 28px; opacity: 0.2;"></div>
+          <!-- Rim -->
+          <div style="position: absolute; top: 6px; left: 0; width: 100px; height: 30px; background: #A44C18; border-radius: 50%;"></div>
+          <!-- Interior tea -->
+          <div style="position: absolute; top: 10px; left: 6px; width: 88px; height: 22px; background: #FAA20C; border-radius: 50%;"></div>
+          <!-- Glow from tea -->
+          <div style="position: absolute; top: 4px; left: -2px; width: 104px; height: 36px; background: #FAA20C; border-radius: 50%; opacity: 0.06; filter: blur(6px);"></div>
+          <!-- Rim highlight -->
+          <div style="position: absolute; top: 6px; left: 0; width: 100px; height: 30px; border-radius: 50%; border: 2.5px solid transparent; border-bottom-color: #CC7539; opacity: 0.4;"></div>
+          <!-- Inner shadow on tea -->
+          <div style="position: absolute; top: 10px; left: 6px; width: 88px; height: 12px; background: linear-gradient(to bottom, #7C3307 0%, transparent 100%); border-radius: 44px 44px 0 0; opacity: 0.2;"></div>
+        </div>
+        <span style="font-size: 0.6875rem; color: #CC7539; opacity: 0.6;">Deep</span>
+      </div>
+
+    </div>
+  </div>
+  <p style="font-size: 0.75rem; color: #6a6460; margin-top: 8px; text-align: center;">Exterior wall, rim, tea inside — the deeper the cup, the more content it holds.</p>
+
+  <div class="takeaway">
+    <strong>Four shape families</strong>
+    <strong>Rectangles</strong> rise with hard edges — structural, they organise. <strong>Circles</strong> rise as focal points — they draw the eye. <strong>Linen</strong> rises with soft edges — cloth, not geometry, for content that breathes. <strong>Cups</strong> recess into the surface — they hold content you pour in. All have thickness. All cast or receive shadow. Depth scales with importance. In dark mode, shadow merges with the ground — depth reads through light catches and glow instead.
+  </div>
+</section>
+
+<!-- ===== 6. SPACE (留白) ===== -->
+<section>
+  <p class="label">Space</p>
+  <h2 class="title">留白 — Deliberately Kept</h2>
+  <p class="note">
+    Space that has been deliberately kept, not space left over. Every element has
+    territory around it. Nothing crowds its neighbour. More room means more
+    breathing space, not more content.
+  </p>
+
+  <div class="space-demo">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 64px; padding: 32px 0;">
+      <div style="width: 48px; height: 48px; border-radius: 50%; background: hsla(35, 70%, 55%, 0.3); border: 1px solid hsla(35, 70%, 55%, 0.5);"></div>
+      <div style="width: 80px; height: 48px; border-radius: 4px; background: hsla(35, 30%, 40%, 0.2); border: 1px solid hsla(35, 30%, 40%, 0.4);"></div>
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: hsla(35, 70%, 55%, 0.2); border: 1px solid hsla(35, 70%, 55%, 0.4);"></div>
+    </div>
+    <p style="text-align: center; font-size: 0.75rem; color: #6a6460;">Three elements. The space between them speaks as clearly as the objects themselves.</p>
+  </div>
+
+  <div class="takeaway">
+    <strong>主次分明 — Clear primary and secondary</strong>
+    One element per section holds primary attention. Hierarchy comes from the content's own qualities — scale, weight, presence — not from containers drawn around it.
+  </div>
+</section>
+
+<!-- ===== 7. THE TEA ROOM ===== -->
+<section>
+  <p class="label">The Space</p>
+  <h2 class="title">The Tea Room (茶室)</h2>
+  <p class="note">
+    The room where gongfu cha happens. Natural materials. A garden visible through
+    the window — the garden is the light source.
+  </p>
+
+  <div class="grid g2">
+    <div class="card">
+      <img src="tea-floor-cushions.jpg" alt="Tea room with garden doors and paper lantern" style="aspect-ratio: 16/10;">
+      <div class="cap">
+        <strong>Both modes in one room</strong>
+        <span>Garden light through sliding doors. Paper lantern overhead. Day and evening coexist in this space.</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="asian-tea-room.jpg" alt="Tea room onto garden" style="aspect-ratio: 16/10;">
+      <div class="cap">
+        <strong>The garden IS the window</strong>
+        <span>Floor-to-ceiling opening. Natural light floods in from green foliage. Cherry blossom at the edge of the frame.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top: 16px;">
+    <div class="card">
+      <img src="minimalist-tea-room.jpg" alt="Minimalist tea room" style="aspect-ratio: 16/10;">
+      <div class="cap">
+        <strong>留白 in architecture</strong>
+        <span>Massive window, minimal objects. The space breathes. Light from one direction.</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="andon-lantern.webp" alt="Andon lantern" style="aspect-ratio: 16/10;">
+      <div class="cap">
+        <strong>Andon lantern</strong>
+        <span>Golden glow on tatami. Sharp falloff into shadow. The darkness is the atmosphere.</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="warm-lamp.webp" alt="Paper shade lamp" style="aspect-ratio: 16/10;">
+      <div class="cap">
+        <strong>Paper shade</strong>
+        <span>Warm light through washi. Texture modulates the glow. The lamp punctuates the darkness.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top: 32px;">
+    <div class="card">
+      <img src="tea-table.jpg" alt="Wood and ceramic tea table" style="aspect-ratio: 16/10;">
+      <div class="cap">
+        <strong>Linen, clay, wood in daylight</strong>
+        <span>Natural-edge wood is the ground. Tea catches your eye — the brightest thing in a field of warm tones.</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="tea-room-modern.jpg" alt="Materials in a tea room" style="aspect-ratio: 16/10;">
+      <div class="cap">
+        <strong>The same materials by lamplight</strong>
+        <span>Materials absorb light. The wood darkens. Linen shifts from cream to gold. The material is constant — the light reveals it differently.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Tea 茶 — the saturated accent</strong>
+    The tea catching the light. The brightest, warmest point in every scene. In daylight it's #F8B039; by lamplight, #FAA20C — hotter against the dark. It earns its intensity by being rare.
+  </div>
+</section>
+
+<!-- ===== 8. CONTRAST ===== -->
+<section>
+  <p class="label">Contrast</p>
+  <h2 class="title">The Same Room at Different Hours</h2>
+  <p class="note">
+    The two modes are not inversions of each other. Light mode is high-key —
+    linen and daylight. Dark mode is low-key — wood and lamplight. Amber glows
+    hotter against the dark.
+  </p>
+
+  <div class="contrast-pair">
+    <div class="contrast-side light" style="background: #FEECD0; color: #AD562F;">
+      <span class="contrast-label">Light — Afternoon</span>
+      <div class="contrast-content">
+        <div class="contrast-cup" style="background: hsla(37, 93%, 60%, 0.5); border: 2px solid hsla(37, 93%, 60%, 0.7);"></div>
+        <div>
+          <div class="contrast-text"><strong>High-key.</strong> Papaya whip and daylight. Warm surface, rusty spice accents, honey bronze tea. The contrast is gentle — nothing stark, nothing cold.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #FEECD0; border: 1px solid #FDCB9C;"></div>
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #FDCB9C;"></div>
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #D68A53;"></div>
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #AD562F;"></div>
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #F8B039;"></div>
+      </div>
+    </div>
+    <div class="contrast-side dark" style="background: #320E04; color: #CC7539;">
+      <span class="contrast-label">Dark — Evening</span>
+      <div class="contrast-content">
+        <div class="contrast-cup" style="background: hsla(37, 96%, 52%, 0.7); border: 2px solid hsla(37, 96%, 52%, 0.9); box-shadow: 0 0 16px hsla(37, 96%, 52%, 0.3);"></div>
+        <div>
+          <div class="contrast-text"><strong>Low-key.</strong> Mahogany and lamplight. The background absorbs; the light concentrates on what matters. Fewer things visible, each one more vivid.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #320E04; border: 1px solid #7C3307;"></div>
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #7C3307;"></div>
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #A44C18;"></div>
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #CC7539;"></div>
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: #FAA20C; box-shadow: 0 0 8px hsla(37, 96%, 52%, 0.3);"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="quote">The contrast sharpens — fewer things visible, each one more vivid.</p>
+</section>
+
+<!-- ===== 9. RHYTHM ===== -->
+<section>
+  <p class="label">Rhythm</p>
+  <h2 class="title">The Arrangement Breathes</h2>
+  <p class="note">
+    Something dense, then generous space, then a cluster of detail, then openness
+    again. The pace varies — sometimes expansive, sometimes pointed, never monotonous.
+  </p>
+
+  <div class="takeaway">
+    <strong>Design principle</strong>
+    Movement is slow and continuous, like the gestures of gongfu cha. The light drifts or flickers. Nothing is sudden. Nothing bounces. Nothing demands attention it hasn't earned.
+  </div>
+</section>
+
+</body>
+</html>
