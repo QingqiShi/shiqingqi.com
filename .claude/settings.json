@@ -3,9 +3,6 @@
     "defaultMode": "bypassPermissions",
     "deny": ["Read(./.env)", "Read(./.env.*)"]
   },
-  "worktree": {
-    "symlinkDirectories": ["node_modules"]
-  },
   "showClearContextOnPlanAccept": true,
   "hooks": {
     "PreToolUse": [
