@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
@@ -142,15 +142,27 @@ const LINE_CLAMP = 6;
 function ExpandableBiography({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
   const [isClamped, setIsClamped] = useState(false);
+  const paragraphRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = paragraphRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      setIsClamped(el.scrollHeight > el.clientHeight);
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [expanded]);
 
   return (
     <div>
       <p
-        ref={(el) => {
-          if (el) {
-            setIsClamped(el.scrollHeight > el.clientHeight);
-          }
-        }}
+        ref={paragraphRef}
         css={[styles.biography, !expanded && styles.biographyClamped]}
       >
         {text}
