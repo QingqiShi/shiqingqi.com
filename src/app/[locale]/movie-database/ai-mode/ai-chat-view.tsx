@@ -20,6 +20,7 @@ import { ScrollToBottomButton } from "#src/components/ai-chat/scroll-to-bottom-b
 import { SessionRestoreBanner } from "#src/components/ai-chat/session-restore-banner.tsx";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
+import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 
 interface AIChatViewProps {
   locale: SupportedLocale;
@@ -74,7 +75,7 @@ export function AIChatView({
   const scrollToBottom = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
-      behavior: "smooth",
+      behavior: getScrollBehavior(),
     });
     setIsAtBottom(true);
   };
