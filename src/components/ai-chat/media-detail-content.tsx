@@ -4,6 +4,7 @@ import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
+import { useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { imageCover } from "#src/primitives/layout.stylex.ts";
@@ -226,17 +227,34 @@ function PosterImage({
   alt: string;
 }) {
   const { src, srcSet } = buildSrcSet(baseUrl, sizes, path);
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+
+  if (errored) {
+    return (
+      <div css={[imageCover.base, styles.imageFallback]}>{alt.charAt(0)}</div>
+    );
+  }
+
   return (
-    // TMDB images are already optimized by the provider — no need for next/image
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      css={imageCover.base}
-      alt={alt}
-      src={src}
-      srcSet={srcSet}
-      sizes="90px"
-      decoding="async"
-    />
+    <>
+      {!loaded && <Skeleton css={skeletonStyles.poster} />}
+      {/* TMDB images are already optimized by the provider — no need for next/image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        css={imageCover.base}
+        alt={alt}
+        src={src}
+        srcSet={srcSet}
+        sizes="90px"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => setErrored(true)}
+        ref={(el) => {
+          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+        }}
+      />
+    </>
   );
 }
 
@@ -252,8 +270,14 @@ function BackdropImage({
   alt: string;
 }) {
   const { src, srcSet } = buildSrcSet(baseUrl, sizes, path);
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+
+  if (errored) return null;
+
   return (
     <div css={styles.backdropContainer}>
+      {!loaded && <Skeleton css={skeletonStyles.backdropOverlay} />}
       {/* TMDB images are already optimized by the provider — no need for next/image */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -263,6 +287,11 @@ function BackdropImage({
         srcSet={srcSet}
         sizes="600px"
         decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => setErrored(true)}
+        ref={(el) => {
+          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+        }}
       />
       <div role="presentation" css={styles.backdropGradient} />
     </div>
@@ -305,6 +334,7 @@ const styles = stylex.create({
     alignItems: "flex-end",
   },
   posterWrapper: {
+    position: "relative",
     flexShrink: 0,
     width: "90px",
     aspectRatio: ratio.poster,
@@ -389,6 +419,15 @@ const styles = stylex.create({
     transition:
       "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
   },
+  imageFallback: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: color.backgroundRaised,
+    color: color.textMuted,
+    fontSize: font.uiHeading1,
+    fontWeight: font.weight_7,
+  },
 });
 
 const skeletonStyles = stylex.create({
@@ -397,9 +436,14 @@ const skeletonStyles = stylex.create({
     aspectRatio: ratio.wide,
     borderRadius: 0,
   },
+  backdropOverlay: {
+    position: "absolute",
+    inset: 0,
+    borderRadius: 0,
+  },
   poster: {
-    width: "100%",
-    height: "100%",
+    position: "absolute",
+    inset: 0,
     borderRadius: 0,
   },
 });
