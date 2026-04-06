@@ -62,14 +62,20 @@ If a check fails due to the upgrade, attempt a fix. If the fix isn't clear, skip
 
 **Skip for dev dependencies** — passing checks already confirm compatibility.
 
-**For production dependencies**, use `playwright-cli` to verify affected pages still work:
+**For production dependencies**, use `playwright-cli` to verify the upgraded package's code paths actually execute:
 
-1. Search the codebase for imports of the package to identify affected pages
+1. Search the codebase for imports of the package to identify affected features and pages
 2. Start `pnpm dev` in the background
-3. Visit affected pages, interact with relevant UI, check for console errors, take screenshots
-4. Stop the dev server
+3. Visit affected pages AND exercise the specific functionality that invokes the upgraded package. Loading a page is not enough — you must trigger the code path that imports and runs the package. For example:
+   - **ai-sdk / @ai-sdk/***: Send a message in the AI chat and verify a streamed response appears
+   - **react / react-dom**: Interact with stateful components (click buttons, toggle UI, submit forms)
+   - **@tanstack/react-query**: Navigate to a page that fetches data and verify the data loads
+   - For other packages: grep for imports, understand what the code does, and interact with that feature
+4. Check for console errors after exercising the functionality
+5. Take screenshots as evidence
+6. Stop the dev server
 
-Skip the PR if anything looks broken.
+Skip the PR if the package's functionality cannot be exercised (e.g., requires credentials not available locally) or if anything looks broken.
 
 ### Step 5 — Push, wait for CI, merge
 
