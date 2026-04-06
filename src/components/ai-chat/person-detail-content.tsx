@@ -16,6 +16,7 @@ import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { Skeleton } from "../shared/skeleton";
 import { CompactMediaCard } from "./compact-media-card";
+import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";
 import { useMediaDetail, type FocusedPerson } from "./media-detail-context";
 
 const MAX_CREDITS = 20;
@@ -305,6 +306,13 @@ function FilmographyScroller({
         style={{ opacity: showRightFade ? 1 : 0 }}
         aria-hidden="true"
       />
+      <HorizontalScrollButtons
+        scrollRef={scrollRef}
+        showLeft={showLeftFade}
+        showRight={showRightFade}
+        leftCss={filmStyles.scrollButtonLeft}
+        rightCss={filmStyles.scrollButtonRight}
+      />
     </div>
   );
 }
@@ -423,6 +431,12 @@ const filmStyles = stylex.create({
   fadeRight: {
     right: 0,
     backgroundImage: `linear-gradient(to right, rgba(${color.backgroundRaisedChannels}, 0), rgba(${color.backgroundRaisedChannels}, 1))`,
+  },
+  scrollButtonLeft: {
+    left: space._4,
+  },
+  scrollButtonRight: {
+    right: space._4,
   },
   cardWrapper: {
     flexShrink: 0,
