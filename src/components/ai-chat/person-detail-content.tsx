@@ -125,16 +125,31 @@ function ProfileImage({
   alt: string;
 }) {
   const { src, srcSet } = buildSrcSet(baseUrl, sizes, path);
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+
+  if (errored) {
+    return <div css={styles.profileFallback}>{alt.charAt(0)}</div>;
+  }
+
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      css={styles.photo}
-      alt={alt}
-      src={src}
-      srcSet={srcSet}
-      sizes="90px"
-      decoding="async"
-    />
+    <>
+      {!loaded && <Skeleton css={skeletonStyles.photo} />}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        css={styles.photo}
+        alt={alt}
+        src={src}
+        srcSet={srcSet}
+        sizes="90px"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => setErrored(true)}
+        ref={(el) => {
+          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+        }}
+      />
+    </>
   );
 }
 
@@ -331,6 +346,7 @@ const styles = stylex.create({
     alignItems: "flex-start",
   },
   photoWrapper: {
+    position: "relative",
     flexShrink: 0,
     width: "90px",
     aspectRatio: "1",
@@ -381,6 +397,17 @@ const styles = stylex.create({
       default: "none",
       ":hover": "underline",
     },
+  },
+  profileFallback: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: color.backgroundHover,
+    color: color.textMuted,
+    fontSize: font.uiHeading1,
+    fontWeight: font.weight_7,
   },
   errorText: {
     margin: 0,
@@ -453,8 +480,8 @@ const filmStyles = stylex.create({
 
 const skeletonStyles = stylex.create({
   photo: {
-    width: "100%",
-    height: "100%",
+    position: "absolute",
+    inset: 0,
     borderRadius: 0,
   },
 });
