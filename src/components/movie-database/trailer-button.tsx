@@ -40,7 +40,7 @@ export function TrailerButton({
           css={styles.video}
           width="720"
           height="405"
-          src={`https://www.youtube.com/embed/${trailerId}?hl=${locale}`}
+          src={`https://www.youtube.com/embed/${trailerId}?autoplay=1&hl=${locale}`}
           title={iframeTitle}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
