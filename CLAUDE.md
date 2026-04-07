@@ -32,3 +32,8 @@ pnpm eval <filter>      # Run a subset of evals matching the filter, e.g. `pnpm 
 ```
 
 - **Evals are expensive** (they hit real LLM APIs). When working on a specific eval, use `pnpm eval <name>` to run only that file (e.g. `pnpm eval tmdb-search`). Only run `pnpm eval` without a filter when a full eval suite run is needed.
+
+# Visual Verification
+
+- If you need to verify changes visually (e.g. with Playwright CLI) and the dev server is unresponsive or a preview deployment is inaccessible, do NOT fall back to code-review-only verification. Stop and ask the user to help resolve access.
+- If the user started the dev server, ask before killing and restarting it.
