@@ -8,9 +8,8 @@ import { GenreFilterButton } from "./genre-filter-button";
 import { MediaTypeToggle } from "./media-type-toggle";
 import { MobileFiltersButton } from "./mobile-filters-button";
 import { ResetFilter } from "./reset-filter";
-import { SearchButton } from "./search-button";
 import { SortFilter } from "./sort-filter";
-import { TmdbCredit } from "./tmdb-credit";
+import { TmdbCredit, TmdbCreditInline } from "./tmdb-credit";
 
 interface FiltersProps {
   mobileButtonLabel: string;
@@ -29,32 +28,24 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
             <SortFilter hideLabel />
             <ResetFilter hideLabel />
           </FixedContainerContent>
-          <FixedContainerContent>
-            <SearchButton />
-          </FixedContainerContent>
           <TmdbCredit position="topLeft" />
         </>
       }
       mobileChildren={
         <>
-          <MediaTypeToggle mobile />
-          <div css={styles.content}>
-            <FixedContainerContent>
-              <SearchButton />
-            </FixedContainerContent>
-            <TmdbCredit position="viewportWidth" />
-            <MobileFiltersButton
-              menuContent={
-                <div css={[flex.wrap, styles.mobileMenuContent]}>
-                  <SortFilter bright />
-                  <GenreFilter />
-                  <ResetFilter bright />
-                </div>
-              }
-            >
-              {mobileButtonLabel}
-            </MobileFiltersButton>
-          </div>
+          <MediaTypeToggle shortLabels />
+          <MobileFiltersButton
+            menuContent={
+              <div css={[flex.wrap, styles.mobileMenuContent]}>
+                <SortFilter bright />
+                <GenreFilter />
+                <ResetFilter bright />
+                <TmdbCreditInline />
+              </div>
+            }
+          >
+            {mobileButtonLabel}
+          </MobileFiltersButton>
         </>
       }
     />

@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useState, type ReactNode } from "react";
-import { useAIChat } from "#src/ai-chat/use-ai-chat.ts";
+import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
 import {
   ChatActionsContext,
   type AttachedMedia,
@@ -19,11 +19,9 @@ import { PreferenceManager } from "#src/components/ai-chat/preference-panel.tsx"
 import { ScrollToBottomButton } from "#src/components/ai-chat/scroll-to-bottom-button.tsx";
 import { SessionRestoreBanner } from "#src/components/ai-chat/session-restore-banner.tsx";
 import { border, color, layer, space } from "#src/tokens.stylex.ts";
-import type { SupportedLocale } from "#src/types.ts";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 
 interface AIChatViewProps {
-  locale: SupportedLocale;
   emptyState: ReactNode;
   messagesLabel: string;
   typingIndicatorLabel: string;
@@ -36,7 +34,6 @@ interface AIChatViewProps {
 }
 
 export function AIChatView({
-  locale,
   emptyState,
   messagesLabel,
   typingIndicatorLabel,
@@ -56,7 +53,7 @@ export function AIChatView({
     toolOutputs,
     previousSessionId,
     continueSession,
-  } = useAIChat({ locale });
+  } = useAIChatContext();
   const [attachedMedia, setAttachedMedia] = useState<AttachedMedia | null>(
     null,
   );

@@ -1,10 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
+import { AIChatProvider } from "#src/ai-chat/ai-chat-context.tsx";
 import { Providers } from "#src/components/shared/providers.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
 import { space } from "#src/tokens.stylex.ts";
-import type { PageProps } from "#src/types.ts";
+import type { PageProps, SupportedLocale } from "#src/types.ts";
+import { validateLocale } from "#src/utils/validate-locale.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
@@ -54,15 +56,20 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   } satisfies Metadata;
 }
 
-export default function Layout({
+export default async function Layout({
   children,
+  params,
 }: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+  const validatedLocale: SupportedLocale = validateLocale(locale);
   return (
     <Providers>
-      <div css={styles.container}>{children}</div>
+      <AIChatProvider locale={validatedLocale}>
+        <div css={styles.container}>{children}</div>
+      </AIChatProvider>
     </Providers>
   );
 }

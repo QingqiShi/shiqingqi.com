@@ -1,20 +1,17 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useSearchParams } from "next/navigation";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
-import { layer, space } from "#src/tokens.stylex.ts";
 import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { FixedContainerContent } from "../shared/fixed-container-content";
 
 interface MediaTypeToggleProps {
-  mobile?: boolean;
+  shortLabels?: boolean;
 }
 
-export function MediaTypeToggle({ mobile }: MediaTypeToggleProps) {
+export function MediaTypeToggle({ shortLabels }: MediaTypeToggleProps) {
   const searchParams = useSearchParams();
   const { setMediaType, setMediaTypeUrl } = useMediaFilters();
 
@@ -32,7 +29,7 @@ export function MediaTypeToggle({ mobile }: MediaTypeToggleProps) {
     setMediaType("tv");
   };
 
-  const content = (
+  return (
     <FixedContainerContent>
       <AnchorButtonGroup>
         <AnchorButton
@@ -47,35 +44,11 @@ export function MediaTypeToggle({ mobile }: MediaTypeToggleProps) {
           isActive={isTv}
           onClick={handleTvClick}
         >
-          {mobile
+          {shortLabels
             ? t({ en: "TV", zh: "电视" })
             : t({ en: "TV Shows", zh: "电视剧" })}
         </AnchorButton>
       </AnchorButtonGroup>
     </FixedContainerContent>
   );
-
-  if (mobile) {
-    return (
-      <div css={[styles.mobileContainer, styles.mobileVisible]}>{content}</div>
-    );
-  }
-
-  return content;
 }
-
-const styles = stylex.create({
-  mobileVisible: {
-    display: { default: "flex", [breakpoints.md]: "none" },
-  },
-  mobileContainer: {
-    position: "fixed",
-    bottom: `calc(${space._2} + env(safe-area-inset-bottom))`,
-    left: `calc(50% - var(--removed-body-scroll-bar-size, 0px) / 2)`,
-    transform: "translateX(-50%)",
-    zIndex: layer.overlay,
-    pointerEvents: "all",
-    whiteSpace: "nowrap",
-    willChange: "transform",
-  },
-});

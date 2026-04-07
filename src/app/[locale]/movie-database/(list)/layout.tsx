@@ -1,11 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { Suspense } from "react";
+import { DotGridBackground } from "#src/components/ai-chat/dot-grid-background.tsx";
 import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton.tsx";
 import { Grid } from "#src/components/movie-database/grid.tsx";
+import { HeroSection } from "#src/components/movie-database/hero-section.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
-import { controlSize, ratio, space } from "#src/tokens.stylex.ts";
+import { ratio } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
@@ -30,7 +32,9 @@ export default async function Layout({
         zh: "加载电影时出错了。",
       })}
     >
-      <main css={styles.container}>
+      <DotGridBackground />
+      <main>
+        <HeroSection />
         <Suspense
           fallback={
             <>
@@ -55,11 +59,6 @@ export default async function Layout({
 }
 
 const styles = stylex.create({
-  container: {
-    paddingTop: {
-      default: `calc(${controlSize._9} + ${space._3})`,
-    },
-  },
   skeleton: {
     aspectRatio: ratio.poster,
     width: "100%",

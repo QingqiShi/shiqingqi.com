@@ -36,7 +36,6 @@ export default async function Page({
 
   return (
     <AIChatView
-      locale={validatedLocale}
       emptyState={
         <div css={styles.welcomeContainer}>
           <SuggestionChips
