@@ -33,21 +33,19 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
       }
       mobileChildren={
         <>
-          <MediaTypeToggle />
-          <div css={styles.content}>
-            <TmdbCredit position="viewportWidth" />
-            <MobileFiltersButton
-              menuContent={
-                <div css={[flex.wrap, styles.mobileMenuContent]}>
-                  <SortFilter bright />
-                  <GenreFilter />
-                  <ResetFilter bright />
-                </div>
-              }
-            >
-              {mobileButtonLabel}
-            </MobileFiltersButton>
-          </div>
+          <MediaTypeToggle shortLabels />
+          <MobileFiltersButton
+            menuContent={
+              <div css={[flex.wrap, styles.mobileMenuContent]}>
+                <SortFilter bright />
+                <GenreFilter />
+                <ResetFilter bright />
+                <TmdbCredit position="viewportWidth" />
+              </div>
+            }
+          >
+            {mobileButtonLabel}
+          </MobileFiltersButton>
         </>
       }
     />

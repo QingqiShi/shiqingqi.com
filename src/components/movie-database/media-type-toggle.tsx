@@ -7,7 +7,11 @@ import { AnchorButton } from "../shared/anchor-button";
 import { AnchorButtonGroup } from "../shared/anchor-button-group";
 import { FixedContainerContent } from "../shared/fixed-container-content";
 
-export function MediaTypeToggle() {
+interface MediaTypeToggleProps {
+  shortLabels?: boolean;
+}
+
+export function MediaTypeToggle({ shortLabels }: MediaTypeToggleProps) {
   const searchParams = useSearchParams();
   const { setMediaType, setMediaTypeUrl } = useMediaFilters();
 
@@ -40,7 +44,9 @@ export function MediaTypeToggle() {
           isActive={isTv}
           onClick={handleTvClick}
         >
-          {t({ en: "TV Shows", zh: "电视剧" })}
+          {shortLabels
+            ? t({ en: "TV", zh: "电视" })
+            : t({ en: "TV Shows", zh: "电视剧" })}
         </AnchorButton>
       </AnchorButtonGroup>
     </FixedContainerContent>

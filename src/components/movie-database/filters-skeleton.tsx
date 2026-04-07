@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { controlSize, space } from "#src/tokens.stylex.ts";
+import { controlSize } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { Skeleton } from "../shared/skeleton";
 import { skeletonTokens } from "../shared/skeleton.stylex";
@@ -25,10 +25,7 @@ export function FiltersSkeleton({ locale }: FiltersSkeletonProps) {
       mobileChildren={
         <>
           <Skeleton css={styles.control} width={widths.mobileMediaType} />
-          <div css={styles.content}>
-            <Skeleton css={styles.control} width={widths.mobileInfo} />
-            <Skeleton css={styles.control} width={widths.mobileFilters} />
-          </div>
+          <Skeleton css={styles.control} width={widths.mobileFilters} />
         </>
       }
     />
@@ -42,7 +39,6 @@ const controlWidths = {
     desktopSort: 205,
     desktopInfo: 40,
     mobileMediaType: 165,
-    mobileInfo: 48,
     mobileFilters: 110,
   },
   zh: {
@@ -51,7 +47,6 @@ const controlWidths = {
     desktopSort: 142,
     desktopInfo: 40,
     mobileMediaType: 149,
-    mobileInfo: 48,
     mobileFilters: 91,
   },
 };
@@ -59,9 +54,5 @@ const controlWidths = {
 const styles = stylex.create({
   control: {
     [skeletonTokens.height]: controlSize._9,
-  },
-  content: {
-    display: "flex",
-    gap: space._1,
   },
 });
