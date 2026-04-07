@@ -50,6 +50,27 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
   );
 }
 
+export function TmdbCreditInline() {
+  return (
+    <div css={[flex.row, styles.inlineContainer]}>
+      <div css={styles.imageContainer}>
+        <Image
+          src="/tmdb.svg"
+          alt={t({ en: "TMDB Logo", zh: "TMDB Logo" })}
+          width={100}
+          height={50}
+        />
+      </div>
+      <span>
+        {t({
+          en: "This product uses the TMDB API but is not endorsed or certified by TMDB.",
+          zh: "本产品使用了 TMDB 提供的 API，但并未获得 TMDB 的官方认可或认证。",
+        })}
+      </span>
+    </div>
+  );
+}
+
 const styles = stylex.create({
   container: {
     padding: space._2,
@@ -61,6 +82,12 @@ const styles = stylex.create({
   viewportContainer: {
     width: null,
     maxInlineSize: null,
+  },
+  inlineContainer: {
+    gap: space._2,
+    fontSize: font.uiBodySmall,
+    width: "100%",
+    alignItems: "center",
   },
   imageContainer: {
     backgroundColor: "#0d253f",

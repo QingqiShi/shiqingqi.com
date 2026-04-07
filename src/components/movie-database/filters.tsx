@@ -9,7 +9,7 @@ import { MediaTypeToggle } from "./media-type-toggle";
 import { MobileFiltersButton } from "./mobile-filters-button";
 import { ResetFilter } from "./reset-filter";
 import { SortFilter } from "./sort-filter";
-import { TmdbCredit } from "./tmdb-credit";
+import { TmdbCredit, TmdbCreditInline } from "./tmdb-credit";
 
 interface FiltersProps {
   mobileButtonLabel: string;
@@ -40,7 +40,7 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
                 <SortFilter bright />
                 <GenreFilter />
                 <ResetFilter bright />
-                <TmdbCredit position="viewportWidth" />
+                <TmdbCreditInline />
               </div>
             }
           >
