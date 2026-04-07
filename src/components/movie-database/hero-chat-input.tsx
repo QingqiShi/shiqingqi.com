@@ -27,10 +27,12 @@ export function HeroChatInput({
 }: HeroChatInputProps) {
   const [text, setText] = useState("");
   const router = useRouter();
-  const { sendMessage } = useAIChatContext();
+  const { sendMessage, status } = useAIChatContext();
   const trimmed = text.trim();
+  const isLoading = status === "submitted" || status === "streaming";
 
   function send(message: string) {
+    if (isLoading) return;
     void sendMessage({ text: message });
     router.push(aiModeHref);
   }
@@ -69,7 +71,7 @@ export function HeroChatInput({
         <button
           type="submit"
           aria-label={sendLabel}
-          disabled={!trimmed}
+          disabled={!trimmed || isLoading}
           css={[
             flex.inlineCenter,
             buttonReset.base,
