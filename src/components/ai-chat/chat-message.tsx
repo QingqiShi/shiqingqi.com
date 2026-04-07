@@ -10,7 +10,14 @@ import {
   type UIMessage,
 } from "ai";
 import { useState } from "react";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
+import {
+  border,
+  color,
+  constants,
+  font,
+  shadow,
+  space,
+} from "#src/tokens.stylex.ts";
 import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import { CompactionNotice } from "./compaction-notice";
 import {
@@ -321,8 +328,15 @@ const styles = stylex.create({
   },
   assistantBubble: {
     marginRight: "auto",
-    backgroundColor: `rgba(${color.backgroundRaisedChannels}, 0.6)`,
+    backgroundColor: {
+      default: color.backgroundRaised,
+      [constants.DARK]: `rgba(${color.backgroundRaisedChannels}, 0.6)`,
+    },
     backdropFilter: "blur(12px)",
+    boxShadow: {
+      default: shadow._1,
+      [constants.DARK]: "none",
+    },
     color: color.textMain,
     borderRadius: border.radius_3,
     borderBottomLeftRadius: border.radius_1,
