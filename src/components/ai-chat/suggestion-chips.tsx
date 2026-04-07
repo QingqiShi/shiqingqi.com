@@ -1,20 +1,24 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { use } from "react";
 import { flex, justify } from "#src/primitives/flex.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
-import { useChatActions } from "./chat-actions-context";
+import { ChatActionsContext } from "./chat-actions-context";
 
 interface SuggestionChipsProps {
   suggestions: ReadonlyArray<string>;
   groupLabel: string;
+  onSelect?: (text: string) => void;
 }
 
 export function SuggestionChips({
   suggestions,
   groupLabel,
+  onSelect,
 }: SuggestionChipsProps) {
-  const { sendMessage } = useChatActions();
+  const chatActions = use(ChatActionsContext);
+  const handleSelect = onSelect ?? chatActions?.sendMessage;
 
   return (
     <div
@@ -27,7 +31,7 @@ export function SuggestionChips({
           key={text}
           type="button"
           css={styles.chip}
-          onClick={() => sendMessage(text)}
+          onClick={() => handleSelect?.(text)}
         >
           {text}
         </button>

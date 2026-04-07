@@ -29,20 +29,18 @@ export function FiltersContainer({
 
 const styles = stylex.create({
   desktopVisible: {
-    display: { default: "none", [breakpoints.md]: "inline-flex" },
+    display: { default: "none", [breakpoints.md]: "flex" },
   },
   mobileVisible: {
-    display: { default: "inline-flex", [breakpoints.md]: "none" },
+    display: { default: "flex", [breakpoints.md]: "none" },
   },
 
   desktopContainer: {
-    position: "fixed",
+    position: "sticky",
     top: `calc(${space._10} + env(safe-area-inset-top))`,
-    right: 0,
-    left: 0,
     zIndex: layer.overlay,
-    pointerEvents: "none",
     paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
+    marginBottom: space._3,
   },
   desktopInnerContainer: {
     inlineSize: "100%",
@@ -50,18 +48,19 @@ const styles = stylex.create({
     marginInline: "auto",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    pointerEvents: "none",
     display: "flex",
   },
   desktopContent: {
-    pointerEvents: "all",
     gap: space._1,
   },
 
   mobileContainer: {
-    position: "fixed",
-    right: `calc(${space._3} + var(--removed-body-scroll-bar-size, 0px))`,
+    position: "sticky",
     top: `calc(${space._10} + env(safe-area-inset-top))`,
     zIndex: layer.overlay,
+    justifyContent: "space-between",
+    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
+    paddingRight: `calc(${space._3} + var(--removed-body-scroll-bar-size, 0px))`,
+    marginBottom: space._3,
   },
 });

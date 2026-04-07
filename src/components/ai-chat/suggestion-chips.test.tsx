@@ -55,4 +55,24 @@ describe("SuggestionChips", () => {
 
     expect(screen.queryAllByRole("button")).toHaveLength(0);
   });
+
+  it("calls onSelect prop when provided instead of ChatActionsContext", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+
+    render(
+      <SuggestionChips
+        suggestions={["Recommend a thriller"]}
+        groupLabel="Suggested prompts"
+        onSelect={onSelect}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Recommend a thriller" }),
+    );
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith("Recommend a thriller");
+  });
 });
