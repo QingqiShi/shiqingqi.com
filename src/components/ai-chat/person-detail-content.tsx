@@ -5,9 +5,7 @@ import { useQueries } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useLocale } from "#src/hooks/use-locale.ts";
-import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { t } from "#src/i18n.ts";
-import { scrollX } from "#src/primitives/layout.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, font, layer, space } from "#src/tokens.stylex.ts";
 import { calculateAge } from "#src/utils/calculate-age.ts";
@@ -16,7 +14,7 @@ import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { Skeleton } from "../shared/skeleton";
 import { CompactMediaCard } from "./compact-media-card";
-import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";
+import { HorizontalScrollRow } from "./horizontal-scroll-row";
 import { useMediaDetail, type FocusedPerson } from "./media-detail-context";
 
 const MAX_CREDITS = 20;
@@ -270,65 +268,44 @@ function FilmographyScroller({
 }: {
   items: ReadonlyArray<MediaListItem>;
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const { showLeftFade, showRightFade } = useScrollFades(scrollRef);
   const { setFocusedPerson, setFocusedMedia } = useMediaDetail();
 
   return (
-    <div css={filmStyles.scrollWrapper}>
-      <div
-        ref={scrollRef}
-        css={[scrollX.base, scrollX.focusRing, filmStyles.scrollContainer]}
-        role="list"
-        aria-label={t({ en: "Filmography", zh: "作品列表" })}
-        tabIndex={0}
-      >
-        {items.map((item) => {
-          const { mediaType } = item;
-          return (
-            <div
-              key={`${mediaType}-${item.id}`}
-              css={filmStyles.cardWrapper}
-              role="listitem"
-            >
-              <CompactMediaCard
-                media={item}
-                onClick={
-                  mediaType
-                    ? () => {
-                        setFocusedPerson(null);
-                        setFocusedMedia({
-                          id: item.id,
-                          mediaType,
-                          title: item.title,
-                          posterPath: item.posterPath,
-                        });
-                      }
-                    : undefined
-                }
-              />
-            </div>
-          );
-        })}
-      </div>
-      <div
-        css={[filmStyles.fadeEdge, filmStyles.fadeLeft]}
-        style={{ opacity: showLeftFade ? 1 : 0 }}
-        aria-hidden="true"
-      />
-      <div
-        css={[filmStyles.fadeEdge, filmStyles.fadeRight]}
-        style={{ opacity: showRightFade ? 1 : 0 }}
-        aria-hidden="true"
-      />
-      <HorizontalScrollButtons
-        scrollRef={scrollRef}
-        showLeft={showLeftFade}
-        showRight={showRightFade}
-        leftCss={filmStyles.scrollButtonLeft}
-        rightCss={filmStyles.scrollButtonRight}
-      />
-    </div>
+    <HorizontalScrollRow
+      ariaLabel={t({ en: "Filmography", zh: "作品列表" })}
+      wrapperCss={filmStyles.scrollWrapper}
+      containerCss={filmStyles.scrollContainer}
+      scrollButtonLeftCss={filmStyles.scrollButtonLeft}
+      scrollButtonRightCss={filmStyles.scrollButtonRight}
+    >
+      {items.map((item) => {
+        const { mediaType } = item;
+        return (
+          <div
+            key={`${mediaType}-${item.id}`}
+            css={filmStyles.cardWrapper}
+            role="listitem"
+          >
+            <CompactMediaCard
+              media={item}
+              onClick={
+                mediaType
+                  ? () => {
+                      setFocusedPerson(null);
+                      setFocusedMedia({
+                        id: item.id,
+                        mediaType,
+                        title: item.title,
+                        posterPath: item.posterPath,
+                      });
+                    }
+                  : undefined
+              }
+            />
+          </div>
+        );
+      })}
+    </HorizontalScrollRow>
   );
 }
 
@@ -429,35 +406,16 @@ const styles = stylex.create({
 
 const filmStyles = stylex.create({
   scrollWrapper: {
-    position: "relative",
     marginLeft: `calc(-1 * ${space._4})`,
     marginRight: `calc(-1 * ${space._4})`,
   },
   scrollContainer: {
-    display: "flex",
-    gap: space._2,
-    scrollSnapType: "x mandatory",
+    paddingTop: 0,
+    paddingBottom: space._1,
     paddingLeft: space._4,
     paddingRight: space._4,
-    paddingBottom: space._1,
     scrollPaddingLeft: space._4,
     scrollPaddingRight: space._4,
-  },
-  fadeEdge: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: space._8,
-    pointerEvents: "none",
-    transition: "opacity 0.2s ease",
-  },
-  fadeLeft: {
-    left: 0,
-    backgroundImage: `linear-gradient(to left, rgba(${color.backgroundRaisedChannels}, 0), rgba(${color.backgroundRaisedChannels}, 1))`,
-  },
-  fadeRight: {
-    right: 0,
-    backgroundImage: `linear-gradient(to right, rgba(${color.backgroundRaisedChannels}, 0), rgba(${color.backgroundRaisedChannels}, 1))`,
   },
   scrollButtonLeft: {
     left: space._4,
