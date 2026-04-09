@@ -1,15 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useRef } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
-import { scrollX } from "#src/primitives/layout.stylex.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
-import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";
+import { HorizontalScrollRow } from "./horizontal-scroll-row";
 import { useMediaDetail } from "./media-detail-context";
 
 interface RecommendedMediaRowProps {
@@ -21,8 +18,6 @@ export function RecommendedMediaRow({
   title,
   items,
 }: RecommendedMediaRowProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const { showLeftFade, showRightFade } = useScrollFades(scrollRef);
   const { setFocusedMedia } = useMediaDetail();
 
   if (items.length === 0) return null;
@@ -30,55 +25,39 @@ export function RecommendedMediaRow({
   return (
     <section css={[flex.col, styles.section]}>
       <h2 css={styles.title}>{title}</h2>
-      <div css={styles.scrollWrapper}>
-        <div
-          ref={scrollRef}
-          css={[scrollX.base, scrollX.focusRing, styles.scrollContainer]}
-          role="region"
-          aria-label={title}
-          tabIndex={0}
-        >
-          {items.map((item) => {
-            const { mediaType } = item;
-            return (
-              <div key={item.id} css={styles.cardWrapper}>
-                <CompactMediaCard
-                  media={item}
-                  onClick={
-                    mediaType
-                      ? () => {
-                          setFocusedMedia({
-                            id: item.id,
-                            mediaType,
-                            title: item.title,
-                            posterPath: item.posterPath,
-                          });
-                        }
-                      : undefined
-                  }
-                />
-              </div>
-            );
-          })}
-        </div>
-        <div
-          css={[styles.fadeEdge, styles.fadeLeft]}
-          style={{ opacity: showLeftFade ? 1 : 0 }}
-          aria-hidden="true"
-        />
-        <div
-          css={[styles.fadeEdge, styles.fadeRight]}
-          style={{ opacity: showRightFade ? 1 : 0 }}
-          aria-hidden="true"
-        />
-        <HorizontalScrollButtons
-          scrollRef={scrollRef}
-          showLeft={showLeftFade}
-          showRight={showRightFade}
-          leftCss={styles.scrollButtonLeft}
-          rightCss={styles.scrollButtonRight}
-        />
-      </div>
+      <HorizontalScrollRow
+        ariaLabel={title}
+        role="region"
+        wrapperCss={styles.scrollWrapper}
+        containerCss={styles.scrollContainer}
+        fadeLeftCss={styles.fadeLeft}
+        fadeRightCss={styles.fadeRight}
+        scrollButtonLeftCss={styles.scrollButtonLeft}
+        scrollButtonRightCss={styles.scrollButtonRight}
+      >
+        {items.map((item) => {
+          const { mediaType } = item;
+          return (
+            <div key={item.id} css={styles.cardWrapper}>
+              <CompactMediaCard
+                media={item}
+                onClick={
+                  mediaType
+                    ? () => {
+                        setFocusedMedia({
+                          id: item.id,
+                          mediaType,
+                          title: item.title,
+                          posterPath: item.posterPath,
+                        });
+                      }
+                    : undefined
+                }
+              />
+            </div>
+          );
+        })}
+      </HorizontalScrollRow>
     </section>
   );
 }
@@ -104,34 +83,21 @@ const styles = stylex.create({
     margin: 0,
   },
   scrollWrapper: {
-    position: "relative",
     marginLeft: `calc(-1 * ${contentInsetLeft})`,
     marginRight: `calc(-1 * ${contentInsetRight})`,
   },
   scrollContainer: {
-    display: "flex",
-    gap: space._2,
-    scrollSnapType: "x mandatory",
+    paddingTop: 0,
     paddingBottom: space._1,
     paddingLeft: contentInsetLeft,
     paddingRight: contentInsetRight,
     scrollPaddingLeft: contentInsetLeft,
     scrollPaddingRight: contentInsetRight,
   },
-  fadeEdge: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: space._8,
-    pointerEvents: "none",
-    transition: "opacity 0.2s ease",
-  },
   fadeLeft: {
-    left: 0,
     backgroundImage: `linear-gradient(to left, rgba(${color.backgroundMainChannels}, 0), rgba(${color.backgroundMainChannels}, 1))`,
   },
   fadeRight: {
-    right: 0,
     backgroundImage: `linear-gradient(to right, rgba(${color.backgroundMainChannels}, 0), rgba(${color.backgroundMainChannels}, 1))`,
   },
   scrollButtonLeft: {
