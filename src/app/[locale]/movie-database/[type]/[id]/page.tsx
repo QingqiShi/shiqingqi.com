@@ -12,7 +12,6 @@ import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { BackdropImage } from "#src/components/movie-database/backdrop-image.tsx";
 import { SimilarMedia } from "#src/components/movie-database/similar-media.tsx";
 import { Trailer } from "#src/components/movie-database/trailer.tsx";
-import { TvShowTrailer } from "#src/components/movie-database/tv-show-trailer.tsx";
 import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
@@ -96,7 +95,7 @@ export default async function Page({ params }: PageProps) {
                 <Skeleton css={styles.trailerButtonSkeleton} width={120} />
               }
             >
-              <Trailer movieId={id} locale={locale} />
+              <Trailer mediaType="movie" id={id} locale={locale} />
             </Suspense>
           </div>
         </div>
@@ -178,7 +177,7 @@ export default async function Page({ params }: PageProps) {
                 <Skeleton css={styles.trailerButtonSkeleton} width={120} />
               }
             >
-              <TvShowTrailer tvShowId={id} locale={locale} />
+              <Trailer mediaType="tv" id={id} locale={locale} />
             </Suspense>
           </div>
         </div>
