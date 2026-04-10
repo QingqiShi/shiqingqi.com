@@ -2,14 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { imageCover } from "#src/primitives/layout.stylex.ts";
 import { color, font, layer } from "#src/tokens.stylex.ts";
-import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { TmdbImage } from "./tmdb-image.tsx";
 
 interface PosterImageProps {
   posterPath: string;
@@ -24,10 +22,7 @@ interface PosterImageProps {
 export function PosterImage({ posterPath, alt }: PosterImageProps) {
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
 
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [imgErrored, setImgErrored] = useState(false);
-
-  if (!config.images?.base_url || !config.images?.poster_sizes || imgErrored) {
+  if (!config.images?.base_url || !config.images?.poster_sizes) {
     return (
       <div css={[imageCover.base, flex.center, styles.errored]}>
         <div>{alt}</div>
@@ -36,35 +31,26 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
     );
   }
 
-  const { src, srcSet } = buildSrcSet(
-    config.images.secure_base_url ?? config.images.base_url,
-    config.images.poster_sizes,
-    posterPath,
-  );
-
   return (
-    <>
-      {!imgLoaded && <Skeleton fill css={[flex.center, styles.errored]} />}
-      {/* Disabling no-img-element rule as the images here are from a third party provider and is already
-      optimized */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        css={imageCover.base}
-        alt={alt}
-        src={src}
-        srcSet={srcSet}
-        sizes="auto,(max-width: 326px) 100vw,(max-width: 485px) 50vw,(max-width: 644px) 33.3vw,(max-width: 767px) 25vw,(max-width: 969px) 33.3vw,(max-width: 1079px) 25vw,(max-width: 1259px) 33.3vw,(max-width: 1571px) 25vw,362px"
-        loading="lazy"
-        decoding="async"
-        onLoad={() => setImgLoaded(true)}
-        onError={() => setImgErrored(true)}
-        ref={(el) => {
-          if (el && el.complete && el.naturalWidth > 0) {
-            setImgLoaded(true);
-          }
-        }}
-      />
-    </>
+    <TmdbImage
+      baseUrl={config.images.secure_base_url ?? config.images.base_url}
+      sizeConfig={config.images.poster_sizes}
+      path={posterPath}
+      alt={alt}
+      sizes="auto,(max-width: 326px) 100vw,(max-width: 485px) 50vw,(max-width: 644px) 33.3vw,(max-width: 767px) 25vw,(max-width: 969px) 33.3vw,(max-width: 1079px) 25vw,(max-width: 1259px) 33.3vw,(max-width: 1571px) 25vw,362px"
+      imgCss={imageCover.base}
+      skeletonFill
+      skeletonCss={[flex.center, styles.errored]}
+      errorFallback={
+        <div css={[imageCover.base, flex.center, styles.errored]}>
+          <div>{alt}</div>
+          <div css={styles.errorText}>
+            {t({ en: "No Poster", zh: "无海报" })}
+          </div>
+        </div>
+      }
+      loading="lazy"
+    />
   );
 }
 

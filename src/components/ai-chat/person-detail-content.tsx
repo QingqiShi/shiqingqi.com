@@ -9,9 +9,9 @@ import { t } from "#src/i18n.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, font, layer, space } from "#src/tokens.stylex.ts";
 import { calculateAge } from "#src/utils/calculate-age.ts";
-import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
+import { TmdbImage } from "../movie-database/tmdb-image";
 import { Skeleton } from "../shared/skeleton";
 import { CompactMediaCard } from "./compact-media-card";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";
@@ -122,32 +122,17 @@ function ProfileImage({
   path: string;
   alt: string;
 }) {
-  const { src, srcSet } = buildSrcSet(baseUrl, sizes, path);
-  const [loaded, setLoaded] = useState(false);
-  const [errored, setErrored] = useState(false);
-
-  if (errored) {
-    return <div css={styles.profileFallback}>{alt.charAt(0)}</div>;
-  }
-
   return (
-    <>
-      {!loaded && <Skeleton css={skeletonStyles.photo} />}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        css={styles.photo}
-        alt={alt}
-        src={src}
-        srcSet={srcSet}
-        sizes="90px"
-        decoding="async"
-        onLoad={() => setLoaded(true)}
-        onError={() => setErrored(true)}
-        ref={(el) => {
-          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
-        }}
-      />
-    </>
+    <TmdbImage
+      baseUrl={baseUrl}
+      sizeConfig={sizes}
+      path={path}
+      alt={alt}
+      sizes="90px"
+      imgCss={styles.photo}
+      skeletonCss={skeletonStyles.photo}
+      errorFallback={<div css={styles.profileFallback}>{alt.charAt(0)}</div>}
+    />
   );
 }
 
