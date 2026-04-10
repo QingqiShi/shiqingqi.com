@@ -1,6 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import {
   getConfiguration,
   getMovieDetails,
@@ -8,14 +6,10 @@ import {
   getTvShowDetails,
   getTvShowVideos,
 } from "#src/_generated/tmdb-server-functions.ts";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { BackdropImage } from "#src/components/movie-database/backdrop-image.tsx";
+import { MediaDetailHero } from "#src/components/movie-database/media-detail-hero.tsx";
 import { SimilarMedia } from "#src/components/movie-database/similar-media.tsx";
 import { Trailer } from "#src/components/movie-database/trailer.tsx";
-import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
-import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
-import { border, color, controlSize, font, space } from "#src/tokens.stylex.ts";
 import { formatRuntime } from "#src/utils/format-runtime.ts";
 import type { PageProps } from "./types";
 
@@ -30,8 +24,6 @@ export default async function Page({ params }: PageProps) {
   // Pre-fetch configuration
   void getConfiguration();
 
-  const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
-
   if (type === "movie") {
     // Start the most important fetch before pre-fetch requests
     const movieDetailsPromise = getMovieDetails({
@@ -44,61 +36,32 @@ export default async function Page({ params }: PageProps) {
 
     const movie = await movieDetailsPromise;
 
+    const title =
+      movie.title ?? movie.original_title ?? t({ en: "Untitled", zh: "佚名" });
+
+    const meta = [
+      movie.release_date?.split("-")[0],
+      formatRuntime(movie.runtime, locale),
+      movie.genres
+        ?.map((genre) => genre.name)
+        .filter(Boolean)
+        .join(t({ en: ", ", zh: "、" })),
+    ]
+      .filter(Boolean)
+      .join(" • ");
+
     return (
       <>
-        <div css={styles.container}>
-          {movie.backdrop_path && (
-            <BackdropImage
-              backdropPath={movie.backdrop_path}
-              alt={
-                movie.title ??
-                movie.original_title ??
-                t({ en: "Untitled", zh: "佚名" })
-              }
-            />
-          )}
-          <div css={styles.hero}>
-            <div
-              css={styles.ratingContainer}
-              role="img"
-              aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(movie.vote_average)}${t({ en: " out of 10", zh: "/10" })}, ${t({ en: "based on", zh: "基于" })} ${movie.vote_count.toLocaleString(locale)} ${t({ en: "votes", zh: "票" })}`}
-            >
-              <div css={styles.rating} aria-hidden="true">
-                {formatter.format(movie.vote_average)}
-              </div>
-              <div css={styles.count} aria-hidden="true">
-                {formatter.format(movie.vote_count)}
-              </div>
-            </div>
-            <h1 css={styles.h1}>
-              {movie.title ??
-                movie.original_title ??
-                t({ en: "Untitled", zh: "佚名" })}
-            </h1>
-            <div css={styles.meta}>
-              {[
-                movie.release_date?.split("-")[0],
-                formatRuntime(movie.runtime, locale),
-                movie.genres
-                  ?.map((genre) => genre.name)
-                  .filter(Boolean)
-                  .join(t({ en: ", ", zh: "、" })),
-              ]
-                .filter(Boolean)
-                .join(" • ")}
-            </div>
-            {(movie.overview || movie.tagline) && (
-              <p css={styles.description}>{movie.overview ?? movie.tagline}</p>
-            )}
-            <Suspense
-              fallback={
-                <Skeleton css={styles.trailerButtonSkeleton} width={120} />
-              }
-            >
-              <Trailer mediaType="movie" id={id} locale={locale} />
-            </Suspense>
-          </div>
-        </div>
+        <MediaDetailHero
+          title={title}
+          backdropPath={movie.backdrop_path}
+          voteAverage={movie.vote_average}
+          voteCount={movie.vote_count}
+          meta={meta}
+          description={movie.overview ?? movie.tagline}
+          locale={locale}
+          trailer={<Trailer mediaType="movie" id={id} locale={locale} />}
+        />
         <SimilarMedia mediaId={id} mediaType="movie" locale={locale} />
       </>
     );
@@ -114,6 +77,9 @@ export default async function Page({ params }: PageProps) {
 
     const tvShow = await tvShowDetailsPromise;
 
+    const title =
+      tvShow.name ?? tvShow.original_name ?? t({ en: "Untitled", zh: "佚名" });
+
     const pluralRules = new Intl.PluralRules(locale);
     const seasonLabel =
       pluralRules.select(tvShow.number_of_seasons) === "one"
@@ -124,126 +90,31 @@ export default async function Page({ params }: PageProps) {
         ? t({ en: "episode", zh: "集" })
         : t({ en: "episodes", zh: "集" });
 
+    const meta = [
+      tvShow.first_air_date?.split("-")[0],
+      `${tvShow.number_of_seasons} ${seasonLabel} • ${tvShow.number_of_episodes} ${episodeLabel}`,
+      tvShow.genres
+        ?.map((genre) => genre.name)
+        .filter(Boolean)
+        .join(t({ en: ", ", zh: "、" })),
+    ]
+      .filter(Boolean)
+      .join(" • ");
+
     return (
       <>
-        <div css={styles.container}>
-          {tvShow.backdrop_path && (
-            <BackdropImage
-              backdropPath={tvShow.backdrop_path}
-              alt={
-                tvShow.name ??
-                tvShow.original_name ??
-                t({ en: "Untitled", zh: "佚名" })
-              }
-            />
-          )}
-          <div css={styles.hero}>
-            <div
-              css={styles.ratingContainer}
-              role="img"
-              aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(tvShow.vote_average)}${t({ en: " out of 10", zh: "/10" })}, ${t({ en: "based on", zh: "基于" })} ${tvShow.vote_count.toLocaleString(locale)} ${t({ en: "votes", zh: "票" })}`}
-            >
-              <div css={styles.rating} aria-hidden="true">
-                {formatter.format(tvShow.vote_average)}
-              </div>
-              <div css={styles.count} aria-hidden="true">
-                {formatter.format(tvShow.vote_count)}
-              </div>
-            </div>
-            <h1 css={styles.h1}>
-              {tvShow.name ??
-                tvShow.original_name ??
-                t({ en: "Untitled", zh: "佚名" })}
-            </h1>
-            <div css={styles.meta}>
-              {[
-                tvShow.first_air_date?.split("-")[0],
-                `${tvShow.number_of_seasons} ${seasonLabel} • ${tvShow.number_of_episodes} ${episodeLabel}`,
-                tvShow.genres
-                  ?.map((genre) => genre.name)
-                  .filter(Boolean)
-                  .join(t({ en: ", ", zh: "、" })),
-              ]
-                .filter(Boolean)
-                .join(" • ")}
-            </div>
-            {(tvShow.overview || tvShow.tagline) && (
-              <p css={styles.description}>
-                {tvShow.overview ?? tvShow.tagline}
-              </p>
-            )}
-            <Suspense
-              fallback={
-                <Skeleton css={styles.trailerButtonSkeleton} width={120} />
-              }
-            >
-              <Trailer mediaType="tv" id={id} locale={locale} />
-            </Suspense>
-          </div>
-        </div>
+        <MediaDetailHero
+          title={title}
+          backdropPath={tvShow.backdrop_path}
+          voteAverage={tvShow.vote_average}
+          voteCount={tvShow.vote_count}
+          meta={meta}
+          description={tvShow.overview ?? tvShow.tagline}
+          locale={locale}
+          trailer={<Trailer mediaType="tv" id={id} locale={locale} />}
+        />
         <SimilarMedia mediaId={id} mediaType="tv" locale={locale} />
       </>
     );
   }
 }
-
-const styles = stylex.create({
-  container: {
-    maxInlineSize: "1140px",
-    marginBlock: 0,
-    marginInline: "auto",
-    marginBottom: space._10,
-    paddingBlock: 0,
-    paddingLeft: `env(safe-area-inset-left)`,
-    paddingRight: `env(safe-area-inset-right)`,
-  },
-  hero: {
-    paddingTop: {
-      default: space._12,
-      [breakpoints.md]: `clamp(${space._10}, 20dvw, 30dvh)`,
-      [breakpoints.xl]: `min(${space._13}, 30dvh)`,
-    },
-    paddingInline: space._3,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "flex-end",
-    gap: space._3,
-  },
-  h1: {
-    fontSize: font.vpHeading1,
-    margin: 0,
-  },
-  meta: {
-    fontSize: font.uiBodySmall,
-    color: color.textMuted,
-    margin: 0,
-  },
-  description: {
-    fontSize: font.uiBody,
-    margin: 0,
-  },
-  ratingContainer: {
-    width: space._10,
-    height: space._10,
-    borderRadius: border.radius_round,
-    backgroundColor: color.backgroundRaised,
-    borderWidth: space._0,
-    borderColor: color.textMuted,
-    borderStyle: "solid",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  rating: {
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_8,
-  },
-  count: {
-    fontSize: font.uiBodySmall,
-    color: color.textMuted,
-  },
-  trailerButtonSkeleton: {
-    [skeletonTokens.height]: controlSize._9,
-  },
-});
