@@ -4,7 +4,6 @@ import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
-import { useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { imageCover } from "#src/primitives/layout.stylex.ts";
@@ -18,8 +17,8 @@ import {
   space,
 } from "#src/tokens.stylex.ts";
 import { formatRuntime } from "#src/utils/format-runtime.ts";
-import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { TmdbImage } from "../movie-database/tmdb-image";
 import { Button } from "../shared/button";
 import { Skeleton } from "../shared/skeleton";
 import { useChatActions } from "./chat-actions-context";
@@ -226,35 +225,19 @@ function PosterImage({
   path: string;
   alt: string;
 }) {
-  const { src, srcSet } = buildSrcSet(baseUrl, sizes, path);
-  const [loaded, setLoaded] = useState(false);
-  const [errored, setErrored] = useState(false);
-
-  if (errored) {
-    return (
-      <div css={[imageCover.base, styles.imageFallback]}>{alt.charAt(0)}</div>
-    );
-  }
-
   return (
-    <>
-      {!loaded && <Skeleton css={skeletonStyles.poster} />}
-      {/* TMDB images are already optimized by the provider — no need for next/image */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        css={imageCover.base}
-        alt={alt}
-        src={src}
-        srcSet={srcSet}
-        sizes="90px"
-        decoding="async"
-        onLoad={() => setLoaded(true)}
-        onError={() => setErrored(true)}
-        ref={(el) => {
-          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
-        }}
-      />
-    </>
+    <TmdbImage
+      baseUrl={baseUrl}
+      sizeConfig={sizes}
+      path={path}
+      alt={alt}
+      sizes="90px"
+      imgCss={imageCover.base}
+      skeletonCss={skeletonStyles.poster}
+      errorFallback={
+        <div css={[imageCover.base, styles.imageFallback]}>{alt.charAt(0)}</div>
+      }
+    />
   );
 }
 
@@ -269,29 +252,16 @@ function BackdropImage({
   path: string;
   alt: string;
 }) {
-  const { src, srcSet } = buildSrcSet(baseUrl, sizes, path);
-  const [loaded, setLoaded] = useState(false);
-  const [errored, setErrored] = useState(false);
-
-  if (errored) return null;
-
   return (
     <div css={styles.backdropContainer}>
-      {!loaded && <Skeleton css={skeletonStyles.backdropOverlay} />}
-      {/* TMDB images are already optimized by the provider — no need for next/image */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        css={styles.backdropImage}
+      <TmdbImage
+        baseUrl={baseUrl}
+        sizeConfig={sizes}
+        path={path}
         alt={alt}
-        src={src}
-        srcSet={srcSet}
         sizes="600px"
-        decoding="async"
-        onLoad={() => setLoaded(true)}
-        onError={() => setErrored(true)}
-        ref={(el) => {
-          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
-        }}
+        imgCss={styles.backdropImage}
+        skeletonCss={skeletonStyles.backdropOverlay}
       />
       <div role="presentation" css={styles.backdropGradient} />
     </div>

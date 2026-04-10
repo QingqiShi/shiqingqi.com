@@ -2,15 +2,13 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
-import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { PersonListItem } from "#src/utils/types.ts";
-import { Skeleton } from "../shared/skeleton";
+import { TmdbImage } from "../movie-database/tmdb-image";
 
 interface CompactPersonCardProps {
   person: PersonListItem;
@@ -29,38 +27,25 @@ function ProfilePhoto({
   alt: string;
 }) {
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
-  const [loaded, setLoaded] = useState(false);
-  const [errored, setErrored] = useState(false);
 
-  if (!config.images?.base_url || !config.images?.profile_sizes || errored) {
+  if (!config.images?.base_url || !config.images?.profile_sizes) {
     return <div css={[flex.center, styles.photoFallback]}>{alt.charAt(0)}</div>;
   }
 
-  const { src, srcSet } = buildSrcSet(
-    config.images.secure_base_url ?? config.images.base_url,
-    config.images.profile_sizes,
-    profilePath,
-  );
-
   return (
-    <>
-      {!loaded && <Skeleton css={styles.photoSkeleton} />}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        css={styles.photo}
-        alt={alt}
-        src={src}
-        srcSet={srcSet}
-        sizes="80px"
-        loading="lazy"
-        decoding="async"
-        onLoad={() => setLoaded(true)}
-        onError={() => setErrored(true)}
-        ref={(el) => {
-          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
-        }}
-      />
-    </>
+    <TmdbImage
+      baseUrl={config.images.secure_base_url ?? config.images.base_url}
+      sizeConfig={config.images.profile_sizes}
+      path={profilePath}
+      alt={alt}
+      sizes="80px"
+      imgCss={styles.photo}
+      skeletonCss={styles.photoSkeleton}
+      errorFallback={
+        <div css={[flex.center, styles.photoFallback]}>{alt.charAt(0)}</div>
+      }
+      loading="lazy"
+    />
   );
 }
 
