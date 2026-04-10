@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState, type PropsWithChildren } from "react";
+import { useEffect, useRef, useState, type PropsWithChildren } from "react";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 import type {
   GenreFilterType,
@@ -47,6 +47,12 @@ export function MediaFiltersProvider({
     mediaType: initialMediaType,
   }));
 
+  const initialMountRef = useRef(true);
+
+  const scrollToTop = () => {
+    window.scrollTo({ behavior: getScrollBehavior(), top: 0 });
+  };
+
   const toggleGenre = (genreId: string) => {
     setMediaFilters((prev) => {
       const newGenres = new Set(prev.genres);
@@ -57,6 +63,7 @@ export function MediaFiltersProvider({
       }
       return { ...prev, genres: newGenres };
     });
+    scrollToTop();
   };
 
   const toggleGenreUrl = (genreId: string) => {
@@ -75,6 +82,7 @@ export function MediaFiltersProvider({
     setMediaFilters((prev) => {
       return { ...prev, genreFilterType: type };
     });
+    scrollToTop();
   };
 
   const setGenreFilterTypeUrl = (type: GenreFilterType) => {
@@ -89,6 +97,7 @@ export function MediaFiltersProvider({
 
   const setSort = (sort: Sort) => {
     setMediaFilters((prev) => ({ ...prev, sort }));
+    scrollToTop();
   };
 
   const setSortUrl = (sort: Sort) => {
@@ -113,6 +122,7 @@ export function MediaFiltersProvider({
       sort: "popularity.desc",
       mediaType: type,
     });
+    scrollToTop();
   };
 
   const reset = () => {
@@ -122,6 +132,7 @@ export function MediaFiltersProvider({
       sort: "popularity.desc",
       mediaType: prev.mediaType,
     }));
+    scrollToTop();
   };
 
   const resetUrl = () => {
@@ -144,6 +155,11 @@ export function MediaFiltersProvider({
   };
 
   useEffect(() => {
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      return;
+    }
+
     const url = new URL(window.location.href);
     // Clear any existing params
     url.searchParams.delete("genre");
@@ -172,7 +188,6 @@ export function MediaFiltersProvider({
     }
 
     window.history.replaceState({}, "", url);
-    window.scrollTo({ behavior: getScrollBehavior(), top: 0 });
   }, [mediaFilters]);
 
   return (
