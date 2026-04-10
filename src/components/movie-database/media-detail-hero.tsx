@@ -5,13 +5,7 @@ import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  space,
-} from "#src/tokens.stylex.ts";
+import { border, color, controlSize, font, space } from "#src/tokens.stylex.ts";
 import { BackdropImage } from "./backdrop-image.tsx";
 
 interface MediaDetailHeroProps {
@@ -39,7 +33,9 @@ export function MediaDetailHero({
 
   return (
     <div css={styles.container}>
-      {backdropPath && <BackdropImage backdropPath={backdropPath} alt={title} />}
+      {backdropPath && (
+        <BackdropImage backdropPath={backdropPath} alt={title} />
+      )}
       <div css={styles.hero}>
         <div
           css={styles.ratingContainer}
@@ -57,9 +53,7 @@ export function MediaDetailHero({
         <div css={styles.meta}>{meta}</div>
         {description && <p css={styles.description}>{description}</p>}
         <Suspense
-          fallback={
-            <Skeleton css={styles.trailerButtonSkeleton} width={120} />
-          }
+          fallback={<Skeleton css={styles.trailerButtonSkeleton} width={120} />}
         >
           {trailer}
         </Suspense>
