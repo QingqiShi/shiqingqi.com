@@ -2,7 +2,8 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import type { PropsWithChildren } from "react";
+import type { StaticStyles } from "@stylexjs/stylex/lib/types/StyleXTypes";
+import type { PropsWithChildren, RefObject } from "react";
 import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
@@ -20,12 +21,24 @@ interface DetailOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   "aria-label": string;
+  /** Override styles on the backdrop element. */
+  backdropCss?: StaticStyles;
+  /** Override styles on the card/panel element. */
+  cardCss?: StaticStyles;
+  /** Hide the default floating close button (e.g. when providing a custom one). */
+  hideCloseButton?: boolean;
+  /** Ref for the initial focus target when `hideCloseButton` is true. */
+  initialFocusRef?: RefObject<HTMLElement | null>;
 }
 
 export function DetailOverlay({
   isOpen,
   onClose,
   "aria-label": ariaLabel,
+  backdropCss,
+  cardCss,
+  hideCloseButton,
+  initialFocusRef,
   children,
 }: PropsWithChildren<DetailOverlayProps>) {
   const portalTarget = usePortalTarget();
@@ -36,7 +49,7 @@ export function DetailOverlay({
     isOpen,
     dialogRef,
     onClose,
-    initialFocusRef: closeButtonRef,
+    initialFocusRef: hideCloseButton ? initialFocusRef : closeButtonRef,
   });
 
   if (!isOpen || !portalTarget) {
@@ -46,7 +59,7 @@ export function DetailOverlay({
   return createPortal(
     <>
       <div
-        css={[fixedFill.all, styles.backdrop]}
+        css={[fixedFill.all, styles.backdrop, backdropCss]}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -54,20 +67,22 @@ export function DetailOverlay({
         <div css={[fixedFill.all, styles.cardContainer]}>
           <div
             ref={dialogRef}
-            css={styles.card}
+            css={[styles.card, cardCss]}
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel}
           >
-            <button
-              ref={closeButtonRef}
-              type="button"
-              css={[buttonReset.base, flex.inlineCenter, styles.closeButton]}
-              onClick={onClose}
-              aria-label={t({ en: "Close", zh: "关闭" })}
-            >
-              <XIcon size={20} aria-hidden="true" />
-            </button>
+            {!hideCloseButton && (
+              <button
+                ref={closeButtonRef}
+                type="button"
+                css={[buttonReset.base, flex.inlineCenter, styles.closeButton]}
+                onClick={onClose}
+                aria-label={t({ en: "Close", zh: "关闭" })}
+              >
+                <XIcon size={20} aria-hidden="true" />
+              </button>
+            )}
             {children}
           </div>
         </div>

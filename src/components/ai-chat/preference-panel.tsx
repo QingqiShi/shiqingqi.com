@@ -8,19 +8,14 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { usePortalTarget } from "#src/contexts/portal-context.tsx";
-import { useDialogFocus } from "#src/hooks/use-dialog-focus.ts";
 import { t } from "#src/i18n.ts";
 import type { StoredPreference } from "#src/preference-store/preference-store.ts";
 import { usePreferences } from "#src/preference-store/use-preferences.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
-import { fixedFill } from "#src/primitives/layout.stylex.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, font, layer, space } from "#src/tokens.stylex.ts";
+import { border, color, font, space } from "#src/tokens.stylex.ts";
+import { DetailOverlay } from "./detail-overlay";
 
 const CATEGORY_ORDER: ReadonlyArray<StoredPreference["category"]> = [
   "genre",
@@ -105,21 +100,8 @@ function PreferencePanel({
   onRemove,
   onClearAll,
 }: PreferencePanelProps) {
-  const portalTarget = usePortalTarget();
-  const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [confirmingClear, setConfirmingClear] = useState(false);
-
-  useDialogFocus({
-    isOpen,
-    dialogRef,
-    onClose,
-    initialFocusRef: closeButtonRef,
-  });
-
-  if (!isOpen || !portalTarget) {
-    return null;
-  }
 
   const grouped = new Map<StoredPreference["category"], StoredPreference[]>();
   for (const pref of preferences) {
@@ -139,116 +121,104 @@ function PreferencePanel({
     }
   };
 
-  return createPortal(
-    <>
-      <div
-        css={[fixedFill.all, styles.backdrop]}
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <RemoveScroll allowPinchZoom forwardProps>
-        <div css={[fixedFill.all, styles.panelContainer]}>
-          <div
-            ref={dialogRef}
-            css={styles.panel}
-            role="dialog"
-            aria-modal="true"
-            aria-label={t({ en: "Your preferences", zh: "你的偏好" })}
-          >
-            <div css={[flex.between, styles.header]}>
-              <h2 css={styles.title}>
-                {t({ en: "Your Preferences", zh: "你的偏好" })}
-              </h2>
-              <button
-                ref={closeButtonRef}
-                type="button"
-                css={[buttonReset.base, flex.inlineCenter, styles.closeButton]}
-                onClick={onClose}
-                aria-label={t({ en: "Close", zh: "关闭" })}
-              >
-                <XIcon size={18} />
-              </button>
-            </div>
+  return (
+    <DetailOverlay
+      isOpen={isOpen}
+      onClose={onClose}
+      aria-label={t({ en: "Your preferences", zh: "你的偏好" })}
+      backdropCss={styles.backdrop}
+      cardCss={styles.panel}
+      hideCloseButton
+      initialFocusRef={closeButtonRef}
+    >
+      <div css={[flex.between, styles.header]}>
+        <h2 css={styles.title}>
+          {t({ en: "Your Preferences", zh: "你的偏好" })}
+        </h2>
+        <button
+          ref={closeButtonRef}
+          type="button"
+          css={[buttonReset.base, flex.inlineCenter, styles.closeButton]}
+          onClick={onClose}
+          aria-label={t({ en: "Close", zh: "关闭" })}
+        >
+          <XIcon size={18} />
+        </button>
+      </div>
 
-            <div css={[flex.row, styles.infoBanner]}>
-              <InfoIcon size={16} css={styles.infoIcon} role="presentation" />
-              <p css={styles.infoText}>
+      <div css={[flex.row, styles.infoBanner]}>
+        <InfoIcon size={16} css={styles.infoIcon} role="presentation" />
+        <p css={styles.infoText}>
+          {t({
+            en: "Preferences are stored locally on your device. They help the AI personalise recommendations. Nothing is sent to a server.",
+            zh: "偏好仅存储在你的设备上，用于帮助 AI 个性化推荐，不会发送至服务器。",
+          })}
+        </p>
+      </div>
+
+      <div css={styles.body}>
+        {preferences.length === 0 ? (
+          <div css={[flex.center, styles.emptyState]}>
+            <p css={styles.emptyText}>
+              {t({
+                en: "No preferences yet. Chat with the AI and it will learn what you like.",
+                zh: "还没有偏好记录。和 AI 聊天，它会了解你的喜好。",
+              })}
+            </p>
+          </div>
+        ) : (
+          CATEGORY_ORDER.filter((cat) => grouped.has(cat)).map((category) => (
+            <CategorySection
+              key={category}
+              category={category}
+              preferences={grouped.get(category) ?? []}
+              onRemove={onRemove}
+            />
+          ))
+        )}
+      </div>
+
+      {preferences.length > 0 && (
+        <div css={styles.footer}>
+          {confirmingClear ? (
+            <div css={[flex.row, styles.confirmRow]}>
+              <p css={styles.confirmText}>
                 {t({
-                  en: "Preferences are stored locally on your device. They help the AI personalise recommendations. Nothing is sent to a server.",
-                  zh: "偏好仅存储在你的设备上，用于帮助 AI 个性化推荐，不会发送至服务器。",
+                  en: "Clear all preferences?",
+                  zh: "清除所有偏好？",
                 })}
               </p>
+              <button
+                type="button"
+                css={[buttonReset.base, styles.confirmButton]}
+                onClick={() => void handleClearAll()}
+              >
+                {t({ en: "Yes, clear", zh: "确认清除" })}
+              </button>
+              <button
+                type="button"
+                css={[buttonReset.base, styles.cancelButton]}
+                onClick={() => setConfirmingClear(false)}
+              >
+                {t({ en: "Cancel", zh: "取消" })}
+              </button>
             </div>
-
-            <div css={styles.body}>
-              {preferences.length === 0 ? (
-                <div css={[flex.center, styles.emptyState]}>
-                  <p css={styles.emptyText}>
-                    {t({
-                      en: "No preferences yet. Chat with the AI and it will learn what you like.",
-                      zh: "还没有偏好记录。和 AI 聊天，它会了解你的喜好。",
-                    })}
-                  </p>
-                </div>
-              ) : (
-                CATEGORY_ORDER.filter((cat) => grouped.has(cat)).map(
-                  (category) => (
-                    <CategorySection
-                      key={category}
-                      category={category}
-                      preferences={grouped.get(category) ?? []}
-                      onRemove={onRemove}
-                    />
-                  ),
-                )
-              )}
-            </div>
-
-            {preferences.length > 0 && (
-              <div css={styles.footer}>
-                {confirmingClear ? (
-                  <div css={[flex.row, styles.confirmRow]}>
-                    <p css={styles.confirmText}>
-                      {t({
-                        en: "Clear all preferences?",
-                        zh: "清除所有偏好？",
-                      })}
-                    </p>
-                    <button
-                      type="button"
-                      css={[buttonReset.base, styles.confirmButton]}
-                      onClick={() => void handleClearAll()}
-                    >
-                      {t({ en: "Yes, clear", zh: "确认清除" })}
-                    </button>
-                    <button
-                      type="button"
-                      css={[buttonReset.base, styles.cancelButton]}
-                      onClick={() => setConfirmingClear(false)}
-                    >
-                      {t({ en: "Cancel", zh: "取消" })}
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    css={[buttonReset.base, flex.row, styles.clearButton]}
-                    onClick={() => setConfirmingClear(true)}
-                  >
-                    <TrashIcon size={14} role="presentation" />
-                    {t({
-                      en: "Clear all preferences",
-                      zh: "清除所有偏好",
-                    })}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          ) : (
+            <button
+              type="button"
+              css={[buttonReset.base, flex.row, styles.clearButton]}
+              onClick={() => setConfirmingClear(true)}
+            >
+              <TrashIcon size={14} role="presentation" />
+              {t({
+                en: "Clear all preferences",
+                zh: "清除所有偏好",
+              })}
+            </button>
+          )}
         </div>
-      </RemoveScroll>
-    </>,
-    portalTarget,
+      )}
+    </DetailOverlay>
   );
 }
 
@@ -316,56 +286,17 @@ function PreferenceChip({
   );
 }
 
-const fadeIn = stylex.keyframes({
-  from: { opacity: 0 },
-});
-
-const slideUp = stylex.keyframes({
-  from: { transform: "translateY(100%)" },
-});
-
-const panelEasing = "cubic-bezier(0.32, 0.72, 0, 1)";
-
 const styles = stylex.create({
   backdrop: {
     backgroundColor: "rgba(0, 0, 0, 0.6)",
-    zIndex: layer.overlay,
-    pointerEvents: "all",
-    animationName: fadeIn,
-    animationDuration: "200ms",
-    animationTimingFunction: panelEasing,
-    animationFillMode: "backwards",
-  },
-  panelContainer: {
-    zIndex: layer.tooltip,
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    padding: space._2,
-    paddingTop: space._8,
-    [breakpoints.md]: {
-      alignItems: "center",
-      padding: space._5,
-    },
   },
   panel: {
-    position: "relative",
     display: "flex",
     flexDirection: "column",
     width: { default: "100%", [breakpoints.md]: "min(480px, 90vw)" },
     maxHeight: { default: "80vh", [breakpoints.md]: "70vh" },
-    backgroundColor: color.backgroundRaised,
-    borderRadius: border.radius_4,
     overflow: "hidden",
-    pointerEvents: "all",
-    animationName: {
-      default: slideUp,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
-    animationDuration: "300ms",
-    animationTimingFunction: panelEasing,
-    animationFillMode: "backwards",
+    overflowY: "hidden",
   },
   header: {
     paddingTop: space._4,
