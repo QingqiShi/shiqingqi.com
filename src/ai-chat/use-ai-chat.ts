@@ -9,7 +9,7 @@ import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
 import { accumulateToolOutputs } from "#src/components/ai-chat/map-tool-output.ts";
 import {
   getCachedPreferencesContext,
-  loadPreferencesContext,
+  getPreferencesContextReady,
 } from "#src/preference-store/preference-store.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
@@ -130,9 +130,23 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
 
   // Warm the preferences cache from IndexedDB on mount so it's available
   // for the transport to inject into the first message of a new session.
+  // Uses the shared ready-promise so the sendMessage wrapper below reuses
+  // this in-flight load instead of kicking off a duplicate IDB read.
   useEffect(() => {
-    loadPreferencesContext().catch(() => {});
+    getPreferencesContextReady().catch(() => {});
   }, []);
+
+  // Wrap sendMessage so the first send always waits for the preferences
+  // cache to be populated. Without this, a user who hits Enter before the
+  // mount-time IDB load resolves would silently lose saved preferences for
+  // the entire session — the transport only injects preferences on the
+  // first message, so a missed first send can never be recovered.
+  async function sendMessage(
+    ...args: Parameters<typeof chatResult.sendMessage>
+  ) {
+    await getPreferencesContextReady().catch(() => null);
+    return chatResult.sendMessage(...args);
+  }
 
   // Deferred to useEffect so the initial render matches the server (null),
   // avoiding a hydration mismatch — localStorage is not available during SSR.
@@ -165,6 +179,7 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
 
   return {
     ...chatResult,
+    sendMessage,
     toolOutputs: accumulateToolOutputs(chatResult.messages),
     previousSessionId,
     continueSession,
