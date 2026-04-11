@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { AnchorButton } from "../shared/anchor-button";
@@ -12,11 +11,14 @@ interface MediaTypeToggleProps {
 }
 
 export function MediaTypeToggle({ shortLabels }: MediaTypeToggleProps) {
-  const searchParams = useSearchParams();
-  const { setMediaType, setMediaTypeUrl } = useMediaFilters();
+  // Read `mediaType` from the filters context rather than `useSearchParams()`.
+  // The provider commits filter changes via `window.history.replaceState`,
+  // which Next's `SearchParamsContext` does not observe — so reading from
+  // `useSearchParams()` here would leave the active highlight stuck on the
+  // previous choice until the next real navigation.
+  const { mediaType, setMediaType, setMediaTypeUrl } = useMediaFilters();
 
-  const currentType = searchParams.get("type");
-  const isTv = currentType === "tv";
+  const isTv = mediaType === "tv";
   const isMovies = !isTv;
 
   const handleMovieClick = (e: React.MouseEvent) => {
