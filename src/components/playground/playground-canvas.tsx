@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";
 import { useTheme } from "#src/hooks/use-theme.ts";
 import type { DebugMode, DebugOptions, FrameStats, LoopControls } from "./loop";
@@ -161,7 +161,42 @@ export function PlaygroundCanvas() {
   const isDark = theme === "system" ? preferDark : theme === "dark";
   const [stats, setStats] = useState<FrameStats | null>(null);
   const [debug, setDebug] = useState<DebugOptions>(DEFAULT_DEBUG);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const controlsRef = useRef<LoopControls | null>(null);
+
+  // Captures the initial state values the mount effect should seed the
+  // loop with. Using refs keeps the mount effect's dep array empty so it
+  // doesn't tear down and rebuild the WebGL pipeline — and wipe the
+  // progressive-sample accumulation — every time `debug` or `isDark`
+  // changes. Subsequent updates are pushed into the running loop via
+  // `controls.setDebug` / `controls.setIsDark` below.
+  const initialDebugRef = useRef(debug);
+  const initialIsDarkRef = useRef(isDark);
+
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const context = init(el, vs, pathtracerFs, displayFs);
+    if (!context) return;
+    const controls = start(
+      context,
+      { isDark: initialIsDarkRef.current },
+      initialDebugRef.current,
+      setStats,
+    );
+    controlsRef.current = controls;
+    return () => {
+      controls.cleanup();
+      controlsRef.current = null;
+    };
+  }, []);
+
+  // Push theme changes into the running loop imperatively so the dark-mode
+  // toggle updates the `u_dark` uniform on the next frame without tearing
+  // down the accumulated samples.
+  useEffect(() => {
+    controlsRef.current?.setIsDark(isDark);
+  }, [isDark]);
 
   const handleDebugChange = (next: DebugOptions) => {
     setDebug(next);
@@ -170,19 +205,7 @@ export function PlaygroundCanvas() {
 
   return (
     <>
-      <canvas
-        ref={(el) => {
-          if (el) {
-            const context = init(el, vs, pathtracerFs, displayFs);
-            if (context) {
-              const controls = start(context, { isDark }, debug, setStats);
-              controlsRef.current = controls;
-              return controls.cleanup;
-            }
-          }
-        }}
-        css={styles.canvas}
-      />
+      <canvas ref={canvasRef} css={styles.canvas} />
       {stats && (
         <StatsOverlay
           stats={stats}

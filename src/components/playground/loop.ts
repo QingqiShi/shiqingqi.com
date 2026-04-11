@@ -148,11 +148,12 @@ function createPingPongFBOs(gl: WebGL2RenderingContext, w: number, h: number) {
 export interface LoopControls {
   cleanup: () => void;
   setDebug: (options: DebugOptions) => void;
+  setIsDark: (next: boolean) => void;
 }
 
 export function start(
   { gl, pathtraceProgram, displayProgram, canvas, bufferInfo }: Context,
-  { isDark }: { isDark: boolean },
+  { isDark: initialIsDark }: { isDark: boolean },
   initialDebug: DebugOptions,
   onStats?: (stats: FrameStats) => void,
 ): LoopControls {
@@ -160,6 +161,7 @@ export function start(
 
   let debug = initialDebug;
   let prevDebugKey = JSON.stringify(debug);
+  let isDark = initialIsDark;
 
   const dpr = window.devicePixelRatio;
 
@@ -351,6 +353,9 @@ export function start(
     },
     setDebug: (options: DebugOptions) => {
       debug = options;
+    },
+    setIsDark: (next: boolean) => {
+      isDark = next;
     },
   };
 }
