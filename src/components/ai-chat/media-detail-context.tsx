@@ -15,27 +15,43 @@ export interface FocusedPerson {
   profilePath?: string | null;
 }
 
+type FocusedDetail =
+  | { kind: "media"; media: FocusedMedia }
+  | { kind: "person"; person: FocusedPerson };
+
 interface MediaDetailState {
   focusedMedia: FocusedMedia | null;
-  setFocusedMedia: (media: FocusedMedia | null) => void;
   focusedPerson: FocusedPerson | null;
+  setFocusedMedia: (media: FocusedMedia | null) => void;
   setFocusedPerson: (person: FocusedPerson | null) => void;
 }
 
 const MediaDetailContext = createContext<MediaDetailState | null>(null);
 
 export function MediaDetailProvider({ children }: PropsWithChildren) {
-  const [focusedMedia, setFocusedMedia] = useState<FocusedMedia | null>(null);
-  const [focusedPerson, setFocusedPerson] = useState<FocusedPerson | null>(
+  const [focusedDetail, setFocusedDetail] = useState<FocusedDetail | null>(
     null,
   );
+
+  const setFocusedMedia = (media: FocusedMedia | null) => {
+    setFocusedDetail(media ? { kind: "media", media } : null);
+  };
+
+  const setFocusedPerson = (person: FocusedPerson | null) => {
+    setFocusedDetail(person ? { kind: "person", person } : null);
+  };
+
+  const focusedMedia =
+    focusedDetail?.kind === "media" ? focusedDetail.media : null;
+  const focusedPerson =
+    focusedDetail?.kind === "person" ? focusedDetail.person : null;
 
   return (
     <MediaDetailContext
       value={{
         focusedMedia,
-        setFocusedMedia,
         focusedPerson,
+        setFocusedMedia,
         setFocusedPerson,
       }}
     >

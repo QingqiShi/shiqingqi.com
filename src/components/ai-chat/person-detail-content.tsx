@@ -253,7 +253,7 @@ function FilmographyScroller({
 }: {
   items: ReadonlyArray<MediaListItem>;
 }) {
-  const { setFocusedPerson, setFocusedMedia } = useMediaDetail();
+  const { setFocusedMedia } = useMediaDetail();
 
   return (
     <HorizontalScrollRow
@@ -276,7 +276,6 @@ function FilmographyScroller({
               onClick={
                 mediaType
                   ? () => {
-                      setFocusedPerson(null);
                       setFocusedMedia({
                         id: item.id,
                         mediaType,
