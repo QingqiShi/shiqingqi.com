@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { ChatUIMessage } from "#src/ai-chat/use-ai-chat.ts";
 import { render, screen } from "#src/test-utils.tsx";
 import { ChatMessageList } from "./chat-message-list";
-import { EMPTY_TOOL_OUTPUTS } from "./map-tool-output";
+import { accumulateToolOutputs } from "./map-tool-output";
 
 function createMessage(
   overrides: Partial<ChatUIMessage> &
@@ -18,7 +18,7 @@ const defaultProps = {
   errorLabel: "Something went wrong. Please try again.",
   error: undefined,
   isAtBottom: true,
-  toolOutputs: EMPTY_TOOL_OUTPUTS,
+  toolOutputs: accumulateToolOutputs([]),
 };
 
 describe("ChatMessageList", () => {

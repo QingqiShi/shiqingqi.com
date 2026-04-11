@@ -6,10 +6,7 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
-import {
-  accumulateToolOutputs,
-  EMPTY_TOOL_OUTPUTS,
-} from "#src/components/ai-chat/map-tool-output.ts";
+import { accumulateToolOutputs } from "#src/components/ai-chat/map-tool-output.ts";
 import {
   getCachedPreferencesContext,
   loadPreferencesContext,
@@ -89,7 +86,6 @@ async function fetchSession(
 }
 
 export function useAIChat({ locale }: { locale: SupportedLocale }) {
-  const [toolOutputs, setToolOutputs] = useState(EMPTY_TOOL_OUTPUTS);
   const [previousSessionId, setPreviousSessionId] = useState<string | null>(
     null,
   );
@@ -125,7 +121,6 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
     }),
     messageMetadataSchema,
     onFinish: ({ messages }) => {
-      setToolOutputs(accumulateToolOutputs(messages));
       const sessionId = findSessionIdFromMessages(messages);
       if (sessionId) {
         setStoredSessionId(locale, sessionId);
@@ -162,7 +157,6 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
           setPreviousSessionId(null);
           return;
         }
-        setToolOutputs(accumulateToolOutputs(result.messages));
         chatResult.setMessages(result.messages);
         setPreviousSessionId(null);
       })
@@ -171,7 +165,7 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
 
   return {
     ...chatResult,
-    toolOutputs,
+    toolOutputs: accumulateToolOutputs(chatResult.messages),
     previousSessionId,
     continueSession,
   };

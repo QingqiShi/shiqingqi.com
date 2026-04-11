@@ -18,24 +18,17 @@ import {
   shadow,
   space,
 } from "#src/tokens.stylex.ts";
-import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import { CompactionNotice } from "./compaction-notice";
-import {
-  buildPersonResultsMap,
-  buildSearchResultsMap,
-  buildWatchProvidersMap,
-  type ToolOutputMaps,
-} from "./map-tool-output";
+import type { ToolOutputMaps } from "./map-tool-output";
 import { SmoothedMarkdownContent } from "./smoothed-markdown-content";
 import { ToolActivityGroup } from "./tool-activity-group";
 import { ToolVisualOutput } from "./tool-visual-output";
-import type { WatchProviderOutput } from "./tool-watch-providers";
 
 interface ChatMessageProps {
   message: UIMessage;
   isStreaming?: boolean;
   isLastAssistantMessage?: boolean;
-  toolOutputs?: ToolOutputMaps;
+  toolOutputs: ToolOutputMaps;
 }
 
 export function ChatMessage({
@@ -48,9 +41,6 @@ export function ChatMessage({
   const [releasedTextParts, setReleasedTextParts] = useState(1);
 
   const {
-    searchResultsMap: localSearchResults,
-    personResultsMap: localPersonResults,
-    watchProvidersMap: localWatchProviders,
     toolParts,
     hasVisibleContent,
     firstToolIndex,
@@ -58,22 +48,6 @@ export function ChatMessage({
     textPartCount,
     textPartTrailingBuffers,
   } = deriveMessageData(message.parts);
-
-  // Merge accumulated tool outputs with this message's own maps. Local maps
-  // cover tool outputs that resolved in the current streaming message before
-  // the accumulated cache updated.
-  const searchResultsMap = mergeMaps(
-    toolOutputs?.searchResultsMap,
-    localSearchResults,
-  );
-  const personResultsMap = mergeMaps(
-    toolOutputs?.personResultsMap,
-    localPersonResults,
-  );
-  const watchProvidersMap = mergeMaps(
-    toolOutputs?.watchProvidersMap,
-    localWatchProviders,
-  );
 
   if (!hasVisibleContent) return null;
 
@@ -168,9 +142,9 @@ export function ChatMessage({
                   state={part.state}
                   input={toolInput}
                   output={toolOutput}
-                  searchResultsMap={searchResultsMap}
-                  personResultsMap={personResultsMap}
-                  watchProvidersMap={watchProvidersMap}
+                  searchResultsMap={toolOutputs.searchResultsMap}
+                  personResultsMap={toolOutputs.personResultsMap}
+                  watchProvidersMap={toolOutputs.watchProvidersMap}
                   isLastAssistantMessage={isLastAssistantMessage}
                 />
               )}
@@ -190,9 +164,6 @@ function isCompactionPart(part: TextUIPart): boolean {
 }
 
 export function deriveMessageData(parts: UIMessage["parts"]) {
-  const searchResultsMap = new Map<string, MediaListItem>();
-  const personResultsMap = new Map<number, PersonListItem>();
-  const watchProvidersMap = new Map<string, WatchProviderOutput>();
   const toolParts: Array<{
     toolCallId: string;
     toolName: string;
@@ -229,41 +200,6 @@ export function deriveMessageData(parts: UIMessage["parts"]) {
         input: "input" in part ? part.input : undefined,
       });
       hasVisibleContent = true;
-
-      if (
-        "output" in part &&
-        part.state === "output-available" &&
-        (name === "tmdb_search" ||
-          name === "semantic_search" ||
-          name === "person_credits")
-      ) {
-        const partMap = buildSearchResultsMap(name, part.output);
-        for (const [key, value] of partMap) {
-          searchResultsMap.set(key, value);
-        }
-      }
-
-      if (
-        "output" in part &&
-        part.state === "output-available" &&
-        (name === "tmdb_search" || name === "media_credits")
-      ) {
-        const partPersonMap = buildPersonResultsMap(name, part.output);
-        for (const [key, value] of partPersonMap) {
-          personResultsMap.set(key, value);
-        }
-      }
-
-      if (
-        "output" in part &&
-        part.state === "output-available" &&
-        name === "watch_providers"
-      ) {
-        const partWpMap = buildWatchProvidersMap(part.output);
-        for (const [key, value] of partWpMap) {
-          watchProvidersMap.set(key, value);
-        }
-      }
     } else {
       if (isTextUIPart(part)) {
         textPartCount++;
@@ -284,9 +220,6 @@ export function deriveMessageData(parts: UIMessage["parts"]) {
   }
 
   return {
-    searchResultsMap,
-    personResultsMap,
-    watchProvidersMap,
     toolParts,
     hasVisibleContent,
     firstToolIndex,
@@ -294,23 +227,6 @@ export function deriveMessageData(parts: UIMessage["parts"]) {
     textPartCount,
     textPartTrailingBuffers,
   };
-}
-
-/**
- * Merges a cumulative map from prior messages with a local map from the current
- * message. Local entries take precedence over cumulative ones.
- */
-function mergeMaps<K, V>(
-  cumulative: ReadonlyMap<K, V> | undefined,
-  local: ReadonlyMap<K, V>,
-): ReadonlyMap<K, V> {
-  if (!cumulative || cumulative.size === 0) return local;
-  if (local.size === 0) return cumulative;
-  const merged = new Map(cumulative);
-  for (const [key, value] of local) {
-    merged.set(key, value);
-  }
-  return merged;
 }
 
 const styles = stylex.create({
