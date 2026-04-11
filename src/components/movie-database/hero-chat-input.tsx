@@ -45,6 +45,7 @@ export function HeroChatInput({
           suggestions={suggestions}
           groupLabel={suggestionsGroupLabel}
           onSelect={send}
+          disabled={isLoading}
         />
       </div>
     </>

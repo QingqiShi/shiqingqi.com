@@ -10,12 +10,20 @@ interface SuggestionChipsProps {
   suggestions: ReadonlyArray<string>;
   groupLabel: string;
   onSelect?: (text: string) => void;
+  /**
+   * When true, all chips are rendered in a disabled state. Mirrors the
+   * ChatTextarea `disabled` behavior so callers can signal "chat is busy —
+   * don't queue another send" consistently across both inputs instead of
+   * letting clicks silently no-op.
+   */
+  disabled?: boolean;
 }
 
 export function SuggestionChips({
   suggestions,
   groupLabel,
   onSelect,
+  disabled,
 }: SuggestionChipsProps) {
   const chatActions = use(ChatActionsContext);
   const handleSelect = onSelect ?? chatActions?.sendMessage;
@@ -32,6 +40,7 @@ export function SuggestionChips({
           type="button"
           css={styles.chip}
           onClick={() => handleSelect?.(text)}
+          disabled={disabled}
         >
           {text}
         </button>
@@ -51,23 +60,33 @@ const styles = stylex.create({
     borderColor: {
       default: color.controlTrack,
       ":hover": color.controlActive,
+      ":disabled": color.controlTrack,
     },
     borderRadius: border.radius_round,
     backgroundColor: {
       default: "transparent",
       ":hover": color.controlActive,
+      ":disabled": "transparent",
     },
     color: {
       default: color.textMuted,
       ":hover": color.textOnActive,
+      ":disabled": color.textMuted,
     },
     fontFamily: font.family,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_3,
     paddingBlock: space._1,
     paddingInline: space._3,
-    cursor: "pointer",
+    cursor: {
+      default: "pointer",
+      ":disabled": "not-allowed",
+    },
+    opacity: {
+      default: 1,
+      ":disabled": 0.5,
+    },
     transition:
-      "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
+      "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease",
   },
 });
