@@ -53,6 +53,8 @@ export function AIChatView({
     toolOutputs,
     previousSessionId,
     continueSession,
+    continueSessionStatus,
+    dismissPreviousSession,
   } = useAIChatContext();
   const [attachedMedia, setAttachedMedia] = useState<AttachedMedia | null>(
     null,
@@ -96,7 +98,12 @@ export function AIChatView({
         }}
       >
         {previousSessionId && messages.length === 0 && (
-          <SessionRestoreBanner onContinue={continueSession} />
+          <SessionRestoreBanner
+            onContinue={continueSession}
+            onDismiss={dismissPreviousSession}
+            isPending={continueSessionStatus === "pending"}
+            hasError={continueSessionStatus === "error"}
+          />
         )}
         <ChatMessageList
           messages={messages}
