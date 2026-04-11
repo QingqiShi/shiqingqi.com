@@ -35,11 +35,13 @@ interface DetailOverlayProps {
    */
   hideCloseButton?: boolean;
   /**
-   * When true, the card becomes a flex column with `overflow: hidden`. The
-   * consumer is responsible for making a child scrollable (e.g. a body with
-   * `flex: 1; overflow-y: auto`). Defaults to false: the entire card scrolls.
+   * Controls how the card handles overflow.
+   * - `"scroll"` (default): the entire card scrolls vertically.
+   * - `"flex-column"`: the card becomes a flex column with `overflow: hidden`.
+   *   The consumer is responsible for making a child scrollable (e.g. a body
+   *   with `flex: 1; overflow-y: auto`).
    */
-  flexColumn?: boolean;
+  layout?: "scroll" | "flex-column";
   /**
    * Ref of the element to focus when the dialog opens. Defaults to the
    * built-in close button (or the first focusable child when
@@ -55,7 +57,7 @@ export function DetailOverlay({
   width = "default",
   height = "default",
   hideCloseButton = false,
-  flexColumn = false,
+  layout = "scroll",
   initialFocusRef,
   children,
 }: PropsWithChildren<DetailOverlayProps>) {
@@ -92,7 +94,9 @@ export function DetailOverlay({
               height === "compact"
                 ? styles.cardCompact
                 : styles.cardTallDefault,
-              flexColumn ? styles.cardFlexColumn : styles.cardScrollable,
+              layout === "flex-column"
+                ? styles.cardFlexColumn
+                : styles.cardScrollable,
             ]}
             role="dialog"
             aria-modal="true"

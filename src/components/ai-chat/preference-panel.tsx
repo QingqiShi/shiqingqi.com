@@ -127,7 +127,7 @@ function PreferencePanel({
       aria-label={t({ en: "Your preferences", zh: "你的偏好" })}
       width="narrow"
       height="compact"
-      flexColumn
+      layout="flex-column"
       hideCloseButton
       initialFocusRef={closeButtonRef}
     >
