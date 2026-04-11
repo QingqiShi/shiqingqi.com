@@ -163,6 +163,7 @@ export async function clearPreferences(): Promise<void> {
 
 let cachedContext: string | null = null;
 let cacheLoaded = false;
+let inFlightLoad: Promise<string | null> | null = null;
 
 export function formatPreferencesContext(
   prefs: ReadonlyArray<StoredPreference>,
@@ -193,16 +194,36 @@ export function formatPreferencesContext(
 /**
  * Load preferences from IndexedDB and update the in-memory cache.
  * Returns the formatted context string, or null if no preferences are stored.
+ * The in-flight promise is tracked module-side so concurrent callers can
+ * coordinate on a single load via `getPreferencesContextReady`.
  */
-export async function loadPreferencesContext(): Promise<string | null> {
-  try {
-    const prefs = await getAllPreferences();
-    cachedContext = formatPreferencesContext(prefs);
-  } catch {
-    cachedContext = null;
-  }
-  cacheLoaded = true;
-  return cachedContext;
+export function loadPreferencesContext(): Promise<string | null> {
+  const p = (async () => {
+    try {
+      const prefs = await getAllPreferences();
+      cachedContext = formatPreferencesContext(prefs);
+    } catch {
+      cachedContext = null;
+    }
+    cacheLoaded = true;
+    return cachedContext;
+  })();
+  inFlightLoad = p;
+  return p;
+}
+
+/**
+ * Returns a promise that resolves once the preference cache is populated
+ * (or a load has settled). If no load has been started yet, one is kicked
+ * off here. Safe to await before reading `getCachedPreferencesContext()`.
+ *
+ * This is the race-safe coordination point: concurrent callers share the
+ * same in-flight load so the first chat message can reliably wait for
+ * preferences without triggering duplicate IndexedDB reads.
+ */
+export function getPreferencesContextReady(): Promise<string | null> {
+  if (inFlightLoad) return inFlightLoad;
+  return loadPreferencesContext();
 }
 
 /**
