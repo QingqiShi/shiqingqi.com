@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ChatStatus, UIMessage } from "ai";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useLayoutEffect, useRef } from "react";
 import {
   COMPACTION_TRIGGER_TOKENS,
   USAGE_WARNING_RATIO,
@@ -62,31 +62,36 @@ export function ChatMessageList({
     (m) => m.role === "assistant",
   );
 
+  const messagesListRef = useRef<HTMLDivElement | null>(null);
+  const isAtBottomRef = useRef(isAtBottom);
+  // Sync ref before paint so both the message-length effect and the streaming
+  // ResizeObserver callback always read the latest isAtBottom without needing
+  // it in their dep arrays.
+  useLayoutEffect(() => {
+    isAtBottomRef.current = isAtBottom;
+  }, [isAtBottom]);
+
   useEffect(() => {
     if (messages.length === 0) return;
-    if (isAtBottom || lastMessageRole === "user") {
+    if (isAtBottomRef.current || lastMessageRole === "user") {
       window.scrollTo({ top: document.documentElement.scrollHeight });
     }
-  }, [messages.length, lastMessageRole, isAtBottom]);
+  }, [messages.length, lastMessageRole]);
 
   useEffect(() => {
     if (status !== "streaming") return;
+    if (typeof ResizeObserver === "undefined") return;
+    const el = messagesListRef.current;
+    if (!el) return;
 
-    let rafId: number;
-    let lastScrollHeight = document.documentElement.scrollHeight;
-
-    const tick = () => {
-      const currentScrollHeight = document.documentElement.scrollHeight;
-      if (isAtBottom && currentScrollHeight !== lastScrollHeight) {
-        window.scrollTo({ top: currentScrollHeight });
-        lastScrollHeight = currentScrollHeight;
+    const observer = new ResizeObserver(() => {
+      if (isAtBottomRef.current) {
+        window.scrollTo({ top: document.documentElement.scrollHeight });
       }
-      rafId = requestAnimationFrame(tick);
-    };
-
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [status, isAtBottom]);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [status]);
 
   const showTypingIndicator = status === "submitted" || status === "streaming";
   const isTypingIndicatorExiting = status !== "submitted";
@@ -100,6 +105,7 @@ export function ChatMessageList({
         <div css={styles.emptyStateWrapper}>{emptyState}</div>
       ) : (
         <div
+          ref={messagesListRef}
           role="log"
           aria-label={messagesLabel}
           css={[flex.col, styles.messagesList]}
