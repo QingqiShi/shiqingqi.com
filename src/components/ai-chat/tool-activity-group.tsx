@@ -15,6 +15,7 @@ interface ToolPartData {
   toolName: string;
   state: string;
   input: unknown;
+  output?: unknown;
 }
 
 interface ToolActivityGroupProps {
@@ -42,6 +43,7 @@ export function ToolActivityGroup({
             toolName={part.toolName}
             state={part.state}
             input={part.input}
+            output={part.output}
           />
         ))}
       </div>

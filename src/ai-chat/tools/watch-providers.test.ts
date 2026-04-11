@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
+import { isToolError } from "./tool-error";
 import {
   createWatchProvidersTool,
   watchProvidersInputSchema,
@@ -408,6 +409,30 @@ describe("watch providers execute", () => {
     const firstProvider = result.providers!.flatrate[0];
     expect(firstProvider).toBeDefined();
     expect(Object.keys(firstProvider)).toEqual(["id", "name", "logoPath"]);
+  });
+});
+
+describe("watch providers error handling", () => {
+  it("returns a structured tool error when TMDB fails", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
+        HttpResponse.json(
+          { status_message: "Service unavailable" },
+          { status: 503 },
+        ),
+      ),
+    );
+
+    const tool = createWatchProvidersTool();
+    const result = await tool.execute!(
+      { id: 550, media_type: "movie", region: "US" },
+      executeContext,
+    );
+
+    expect(isToolError(result)).toBe(true);
+    if (isToolError(result)) {
+      expect(result.reason).toBe("tmdb_unavailable");
+    }
   });
 });
 

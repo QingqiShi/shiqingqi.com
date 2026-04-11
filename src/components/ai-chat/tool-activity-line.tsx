@@ -3,6 +3,7 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import * as stylex from "@stylexjs/stylex";
+import { isToolError } from "#src/ai-chat/tools/tool-error.ts";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { truncate } from "#src/primitives/layout.stylex.ts";
@@ -54,15 +55,19 @@ interface ToolActivityLineProps {
   toolName: string;
   state: string;
   input: unknown;
+  output?: unknown;
 }
 
 export function ToolActivityLine({
   toolName,
   state,
   input,
+  output,
 }: ToolActivityLineProps) {
-  const isComplete = state === "output-available";
-  const isError = state === "output-error" || state === "output-denied";
+  const hasStructuredError = isToolError(output);
+  const isComplete = state === "output-available" && !hasStructuredError;
+  const isError =
+    state === "output-error" || state === "output-denied" || hasStructuredError;
   const isInProgress = !TERMINAL_STATES.has(state);
 
   let label: string;

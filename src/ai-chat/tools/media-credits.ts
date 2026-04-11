@@ -4,6 +4,7 @@ import {
   getMovieCredits,
   getTvShowCredits,
 } from "#src/_generated/tmdb-server-functions.ts";
+import { toolError } from "./tool-error";
 
 export const mediaCreditsInputSchema = z.object({
   media_id: z.number().describe("The TMDB ID of the movie or TV show."),
@@ -24,10 +25,19 @@ export function createMediaCreditsTool() {
     inputSchema: mediaCreditsInputSchema,
     execute: async ({ media_id, media_type }) => {
       const idString = media_id.toString();
-      const credits =
-        media_type === "tv"
-          ? await getTvShowCredits({ series_id: idString })
-          : await getMovieCredits({ movie_id: idString });
+      let credits;
+      try {
+        credits =
+          media_type === "tv"
+            ? await getTvShowCredits({ series_id: idString })
+            : await getMovieCredits({ movie_id: idString });
+      } catch (error) {
+        console.error("media_credits failed", error);
+        return toolError(
+          "tmdb_unavailable",
+          "TMDB cast and crew lookup is temporarily unavailable. Tell the user and suggest trying again shortly.",
+        );
+      }
 
       const cast = (credits.cast ?? []).slice(0, MAX_CAST).map((entry) => ({
         id: entry.id,

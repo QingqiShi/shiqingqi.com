@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
 import { createTmdbSearchTool, tmdbSearchInputSchema } from "./tmdb-search";
+import { isToolError } from "./tool-error";
 
 beforeAll(() => {
   process.env.TMDB_API_TOKEN = "test-token";
@@ -286,6 +287,33 @@ describe("tmdb search execute", () => {
     expect(keys).toContain("media_type");
     expect(keys).toContain("title");
     expect(keys).toContain("overview");
+  });
+
+  it("returns a structured tool error when TMDB fails", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/search/multi`, () =>
+        HttpResponse.json(
+          { status_code: 25, status_message: "Rate limit exceeded" },
+          { status: 429 },
+        ),
+      ),
+    );
+
+    const tool = createTmdbSearchTool("en");
+    const result = await tool.execute!(
+      { query: "Dune" },
+      {
+        toolCallId: "test",
+        messages: [],
+        abortSignal: AbortSignal.timeout(5000),
+      },
+    );
+
+    expect(isToolError(result)).toBe(true);
+    if (isToolError(result)) {
+      expect(result.reason).toBe("tmdb_unavailable");
+      expect(result.message.length).toBeGreaterThan(0);
+    }
   });
 
   it("includes first_air_date for TV results", async () => {

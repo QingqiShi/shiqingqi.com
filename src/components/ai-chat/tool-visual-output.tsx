@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { isToolError } from "#src/ai-chat/tools/tool-error.ts";
 import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
@@ -120,7 +121,7 @@ export function ToolVisualOutput({
   }
 
   if (toolName === "review_summary") {
-    if (state === "output-error") {
+    if (state === "output-error" || isToolError(output)) {
       return (
         <p css={styles.error} role="alert">
           {t({

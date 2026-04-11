@@ -5,6 +5,7 @@ import {
   createReviewSummaryTool,
   reviewSummaryInputSchema,
 } from "./review-summary";
+import { isToolError } from "./tool-error";
 
 beforeAll(() => {
   process.env.TMDB_API_TOKEN = "test-token";
@@ -330,5 +331,62 @@ describe("review summary execute", () => {
     });
 
     expect(result.spiciness).toBe(5);
+  });
+});
+
+describe("review summary error handling", () => {
+  it("returns a tmdb_unavailable error when TMDB reviews fetch fails", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/reviews`, () =>
+        HttpResponse.json({ status_message: "Rate limited" }, { status: 429 }),
+      ),
+    );
+
+    const tool = createReviewSummaryTool("en");
+    const parsed = reviewSummaryInputSchema.parse({
+      id: 550,
+      media_type: "movie",
+      title: "Fight Club",
+    });
+    const result = await tool.execute!(parsed, executeContext);
+
+    expect(isToolError(result)).toBe(true);
+    if (isToolError(result)) {
+      expect(result.reason).toBe("tmdb_unavailable");
+    }
+  });
+
+  it("returns a summary_generation_failed error when the LLM call fails", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/reviews`, () =>
+        HttpResponse.json(
+          reviewsResponse(550, [
+            { author: "R1", content: "Great movie!", rating: 9 },
+          ]),
+        ),
+      ),
+      http.post(`${ANTHROPIC_BASE}/v1/messages`, () =>
+        HttpResponse.json(
+          {
+            type: "error",
+            error: { type: "invalid_request_error", message: "bad request" },
+          },
+          { status: 400 },
+        ),
+      ),
+    );
+
+    const tool = createReviewSummaryTool("en");
+    const parsed = reviewSummaryInputSchema.parse({
+      id: 550,
+      media_type: "movie",
+      title: "Fight Club",
+    });
+    const result = await tool.execute!(parsed, executeContext);
+
+    expect(isToolError(result)).toBe(true);
+    if (isToolError(result)) {
+      expect(result.reason).toBe("summary_generation_failed");
+    }
   });
 });

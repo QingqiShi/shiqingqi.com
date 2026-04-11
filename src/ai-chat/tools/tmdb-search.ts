@@ -3,6 +3,7 @@ import { z } from "zod";
 import { searchMulti } from "#src/_generated/tmdb-server-functions.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import type { ResponseType } from "#src/utils/tmdb-client.ts";
+import { toolError } from "./tool-error";
 
 // The TMDB OpenAPI spec flattens the multi-search union type, omitting fields
 // that only appear for specific media_type values. The API returns these fields
@@ -63,8 +64,16 @@ export function createTmdbSearchTool(locale: SupportedLocale) {
     description: TOOL_DESCRIPTION,
     inputSchema: tmdbSearchInputSchema,
     execute: async ({ query }) => {
-      const response = await searchMulti({ query, language: locale });
-      return response.results?.slice(0, MAX_RESULTS).map(mapResult) ?? [];
+      try {
+        const response = await searchMulti({ query, language: locale });
+        return response.results?.slice(0, MAX_RESULTS).map(mapResult) ?? [];
+      } catch (error) {
+        console.error("tmdb_search failed", error);
+        return toolError(
+          "tmdb_unavailable",
+          "TMDB search is temporarily unavailable. Tell the user and offer an alternative such as semantic_search or a different query.",
+        );
+      }
     },
   });
 }
