@@ -55,6 +55,7 @@ export function MenuButton({
 }: PropsWithChildren<MenuButtonProps>) {
   const [isMenuShown, setIsMenuShown] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   const outsideClickedRef = useRef(false);
   useEffect(() => {
@@ -62,6 +63,19 @@ export function MenuButton({
       outsideClickedRef.current = false;
     }
   }, [isMenuShown]);
+
+  // When a menu opens, move focus into it per WAI-ARIA Authoring Practices.
+  // Prefer the item flagged with `data-menu-autofocus="true"` (e.g. "start
+  // on the choice I'd switch to"), otherwise the first menu item.
+  useEffect(() => {
+    if (!isMenuShown || popupRole !== "menu") return;
+    const popup = popupRef.current;
+    if (!popup) return;
+    const target =
+      popup.querySelector<HTMLElement>('[data-menu-autofocus="true"]') ??
+      popup.querySelector<HTMLElement>('[role="menuitem"]');
+    target?.focus();
+  }, [isMenuShown, popupRole]);
 
   const targetId = useId();
 
@@ -87,6 +101,50 @@ export function MenuButton({
             e.stopPropagation();
             setIsMenuShown(false);
             document.getElementById(targetId)?.focus();
+            return;
+          }
+
+          // Arrow / Home / End navigation only applies to the menu pattern.
+          if (popupRole !== "menu" || !isMenuShown) return;
+          if (
+            e.key !== "ArrowDown" &&
+            e.key !== "ArrowUp" &&
+            e.key !== "Home" &&
+            e.key !== "End"
+          ) {
+            return;
+          }
+
+          const popup = popupRef.current;
+          if (!popup) return;
+          const items = Array.from(
+            popup.querySelectorAll<HTMLElement>('[role="menuitem"]'),
+          );
+          if (items.length === 0) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          const currentIndex = items.findIndex(
+            (item) => item === document.activeElement,
+          );
+
+          if (e.key === "ArrowDown") {
+            const next =
+              currentIndex === -1
+                ? items[0]
+                : items[(currentIndex + 1) % items.length];
+            next?.focus();
+          } else if (e.key === "ArrowUp") {
+            const prev =
+              currentIndex === -1
+                ? items[items.length - 1]
+                : items[(currentIndex - 1 + items.length) % items.length];
+            prev?.focus();
+          } else if (e.key === "Home") {
+            items[0]?.focus();
+          } else if (e.key === "End") {
+            items[items.length - 1]?.focus();
           }
         }}
         onBlur={(e) => {
@@ -125,6 +183,7 @@ export function MenuButton({
             targetId={targetId}
           >
             <div
+              ref={popupRef}
               role={popupRole}
               aria-labelledby={popupRole ? `${targetId}-label` : undefined}
             >
