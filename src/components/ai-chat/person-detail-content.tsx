@@ -143,6 +143,11 @@ function ExpandableBiography({ text }: { text: string }) {
   const [isClamped, setIsClamped] = useState(false);
   const paragraphRef = useRef<HTMLParagraphElement>(null);
 
+  // Observe layout changes on the paragraph itself. `measure` reads live
+  // DOM (scrollHeight vs clientHeight) rather than closing over `expanded`,
+  // so the observer never needs to be torn down and rebuilt on toggle —
+  // the natural ResizeObserver fire from the clamp class flipping already
+  // delivers the measurement. Empty deps: set up once per mount.
   useEffect(() => {
     const el = paragraphRef.current;
     if (!el) return;
@@ -156,7 +161,7 @@ function ExpandableBiography({ text }: { text: string }) {
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [expanded]);
+  }, []);
 
   return (
     <div>
