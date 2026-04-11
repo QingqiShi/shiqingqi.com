@@ -85,10 +85,14 @@ async function fetchSession(
   throw new Error(`Failed to fetch session: ${response.status}`);
 }
 
+type ContinueSessionStatus = "idle" | "pending" | "error";
+
 export function useAIChat({ locale }: { locale: SupportedLocale }) {
   const [previousSessionId, setPreviousSessionId] = useState<string | null>(
     null,
   );
+  const [continueSessionStatus, setContinueSessionStatus] =
+    useState<ContinueSessionStatus>("idle");
 
   const chatResult = useChat<ChatUIMessage>({
     transport: new DefaultChatTransport<ChatUIMessage>({
@@ -150,17 +154,35 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
 
   const continueSession = () => {
     if (!previousSessionId) return;
+    // De-dupe rapid clicks — the previous in-flight fetch will resolve the
+    // banner one way or another.
+    if (continueSessionStatus === "pending") return;
+    setContinueSessionStatus("pending");
     fetchSession(previousSessionId)
       .then((result) => {
         if (!result) {
+          // 404: session gone server-side. Forget it and start fresh.
           clearStoredSessionId(locale);
           setPreviousSessionId(null);
+          setContinueSessionStatus("idle");
           return;
         }
         chatResult.setMessages(result.messages);
         setPreviousSessionId(null);
+        setContinueSessionStatus("idle");
       })
-      .catch(console.error);
+      .catch((error) => {
+        // Network / 5xx: surface to the user instead of silently freezing
+        // the banner. The user can retry or dismiss.
+        console.error("Failed to restore session", error);
+        setContinueSessionStatus("error");
+      });
+  };
+
+  const dismissPreviousSession = () => {
+    clearStoredSessionId(locale);
+    setPreviousSessionId(null);
+    setContinueSessionStatus("idle");
   };
 
   return {
@@ -168,5 +190,7 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
     toolOutputs: accumulateToolOutputs(chatResult.messages),
     previousSessionId,
     continueSession,
+    continueSessionStatus,
+    dismissPreviousSession,
   };
 }
