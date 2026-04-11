@@ -53,6 +53,11 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
     );
   }, [theme, preferDark]);
 
+  // `hasFocus` tracks keyboard focus only. The mouse-hover reveal is handled
+  // by pure CSS `:hover` on the container — don't tie it to JS state, and
+  // in particular don't clear `hasFocus` on `mouseleave`, which would clobber
+  // the keyboard reveal whenever the cursor happens to drift off the control
+  // while focus is still inside.
   const [hasFocus, setHasFocus] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -71,9 +76,6 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         if (!containerRef.current?.contains(e.relatedTarget)) {
           setHasFocus(false);
         }
-      }}
-      onMouseLeave={() => {
-        setHasFocus(false);
       }}
     >
       <div css={styles.systemButton}>
