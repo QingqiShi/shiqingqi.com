@@ -23,6 +23,15 @@ interface OverlayProps {
   "aria-label"?: string;
 }
 
+/**
+ * Full-screen, ViewTransition-driven overlay used for immersive content such
+ * as embedded video trailers. This is intentionally distinct from
+ * `DetailOverlay` (ai-chat/detail-overlay.tsx), which is a centred bottom-sheet
+ * dialog with CSS keyframe animations, a focus-trapping close button, and a
+ * bounded card. Prefer `DetailOverlay` for panel/detail content; use `Overlay`
+ * only when the content should occupy the full viewport with React
+ * ViewTransition-based enter/exit.
+ */
 export function Overlay({
   children,
   isOpen,
