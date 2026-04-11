@@ -3,6 +3,7 @@ import {
   createSemanticSearchTool,
   semanticSearchInputSchema,
 } from "./semantic-search";
+import { isToolError } from "./tool-error";
 
 describe("semanticSearchInputSchema", () => {
   it("accepts a valid query-only input", () => {
@@ -108,5 +109,27 @@ describe("createSemanticSearchTool", () => {
     const enTool = createSemanticSearchTool("en");
     const zhTool = createSemanticSearchTool("zh");
     expect(enTool).not.toBe(zhTool);
+  });
+});
+
+describe("semantic search error handling", () => {
+  it("returns a structured tool error when the vector index is unavailable", async () => {
+    // UPSTASH_VECTOR_REST_URL is not set in the test environment, so
+    // getVectorIndex() throws. The tool should convert that into a
+    // structured error rather than propagating the exception.
+    const tool = createSemanticSearchTool("en");
+    const result = await tool.execute!(
+      { query: "mind-bending sci-fi" },
+      {
+        toolCallId: "test",
+        messages: [],
+        abortSignal: AbortSignal.timeout(5000),
+      },
+    );
+
+    expect(isToolError(result)).toBe(true);
+    if (isToolError(result)) {
+      expect(result.reason).toBe("vector_search_unavailable");
+    }
   });
 });

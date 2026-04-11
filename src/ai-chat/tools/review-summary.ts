@@ -7,6 +7,7 @@ import {
 import type { SupportedLocale } from "#src/types.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
 import { getAnthropicModel } from "../client";
+import { toolError } from "./tool-error";
 
 export const reviewSummaryInputSchema = z.object({
   id: z.number().describe("The TMDB ID of the movie or TV show."),
@@ -129,29 +130,25 @@ function buildSummarizationPrompt(
   ].join("\n");
 }
 
-interface ReviewSummaryResult {
-  id: number;
-  mediaType: "movie" | "tv";
-  title: string;
-  spiciness: number;
-  summary: string;
-  reviewCount: number;
-  averageRating: number | null;
-}
-
 export function createReviewSummaryTool(locale: SupportedLocale) {
   return tool({
     description: TOOL_DESCRIPTION,
     inputSchema: reviewSummaryInputSchema,
-    execute: async (
-      { id, media_type, title, spiciness },
-      { abortSignal },
-    ): Promise<ReviewSummaryResult> => {
+    execute: async ({ id, media_type, title, spiciness }, { abortSignal }) => {
       const idString = id.toString();
-      const response =
-        media_type === "tv"
-          ? await getTvShowReviews({ series_id: idString })
-          : await getMovieReviews({ movie_id: idString });
+      let response;
+      try {
+        response =
+          media_type === "tv"
+            ? await getTvShowReviews({ series_id: idString })
+            : await getMovieReviews({ movie_id: idString });
+      } catch (error) {
+        console.error("review_summary TMDB fetch failed", error);
+        return toolError(
+          "tmdb_unavailable",
+          "TMDB reviews are temporarily unavailable for this title. Tell the user and suggest trying again shortly.",
+        );
+      }
 
       const reviews = extractReviews(response.results);
 
@@ -179,18 +176,28 @@ export function createReviewSummaryTool(locale: SupportedLocale) {
         locale,
       );
 
-      const { text } = await generateText({
-        model: getAnthropicModel(),
-        prompt,
-        abortSignal,
-      });
+      let summaryText;
+      try {
+        const generation = await generateText({
+          model: getAnthropicModel(),
+          prompt,
+          abortSignal,
+        });
+        summaryText = generation.text;
+      } catch (error) {
+        console.error("review_summary generation failed", error);
+        return toolError(
+          "summary_generation_failed",
+          "Review summary generation is temporarily unavailable. Tell the user the reviews were fetched but the summary could not be generated — offer to try again.",
+        );
+      }
 
       return {
         id,
         mediaType: media_type,
         title,
         spiciness,
-        summary: text,
+        summary: summaryText,
         reviewCount: reviews.length,
         averageRating,
       };

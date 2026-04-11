@@ -6,6 +6,7 @@ import {
 } from "#src/_generated/tmdb-server-functions.ts";
 import type { ResponseType } from "#src/utils/tmdb-client.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
+import { toolError } from "./tool-error";
 
 export const watchProvidersInputSchema = z.object({
   id: z.number().describe("The TMDB ID of the movie or TV show."),
@@ -54,13 +55,6 @@ interface RegionProviders {
   buy: ProviderEntry[];
   ads: ProviderEntry[];
   free: ProviderEntry[];
-}
-
-interface WatchProvidersResult {
-  id: number;
-  mediaType: "movie" | "tv";
-  region: string;
-  providers: RegionProviders | null;
 }
 
 type AvailabilityType = "flatrate" | "rent" | "buy" | "ads" | "free";
@@ -191,13 +185,17 @@ export function createWatchProvidersTool() {
   return tool({
     description: TOOL_DESCRIPTION,
     inputSchema: watchProvidersInputSchema,
-    execute: async ({
-      id,
-      media_type,
-      region,
-      provider_name,
-    }): Promise<WatchProvidersResult | ProviderSearchResult> => {
-      const response = await fetchWatchProviders(id, media_type);
+    execute: async ({ id, media_type, region, provider_name }) => {
+      let response;
+      try {
+        response = await fetchWatchProviders(id, media_type);
+      } catch (error) {
+        console.error("watch_providers failed", error);
+        return toolError(
+          "tmdb_unavailable",
+          "TMDB watch provider lookup is temporarily unavailable. Tell the user and suggest trying again shortly or falling back to web_search for current streaming availability.",
+        );
+      }
 
       if (provider_name) {
         const { regions, logoPath } = searchProviderAcrossRegions(

@@ -169,6 +169,7 @@ export function deriveMessageData(parts: UIMessage["parts"]) {
     toolName: string;
     state: string;
     input: unknown;
+    output: unknown;
   }> = [];
   let hasVisibleContent = false;
   let firstToolIndex = -1;
@@ -198,6 +199,7 @@ export function deriveMessageData(parts: UIMessage["parts"]) {
         toolName: name,
         state: part.state,
         input: "input" in part ? part.input : undefined,
+        output: "output" in part ? part.output : undefined,
       });
       hasVisibleContent = true;
     } else {

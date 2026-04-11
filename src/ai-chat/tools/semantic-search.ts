@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SupportedLocale } from "#src/types.ts";
 import { searchSimilar } from "#src/vector-db/search.ts";
 import { vectorSearchFiltersSchema } from "#src/vector-db/types.ts";
+import { toolError } from "./tool-error";
 
 export const semanticSearchInputSchema = z.object({
   query: z
@@ -51,7 +52,16 @@ export function createSemanticSearchTool(locale: SupportedLocale) {
   return tool({
     description: TOOL_DESCRIPTION,
     inputSchema: semanticSearchInputSchema,
-    execute: async ({ query, filters, topK }) =>
-      searchSimilar(query, locale, { filters, topK }),
+    execute: async ({ query, filters, topK }) => {
+      try {
+        return await searchSimilar(query, locale, { filters, topK });
+      } catch (error) {
+        console.error("semantic_search failed", error);
+        return toolError(
+          "vector_search_unavailable",
+          "Semantic search is temporarily unavailable. Tell the user and suggest falling back to tmdb_search with specific titles.",
+        );
+      }
+    },
   });
 }

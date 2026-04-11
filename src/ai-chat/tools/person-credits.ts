@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import { getPersonCombinedCredits } from "#src/_generated/tmdb-server-functions.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
+import { toolError } from "./tool-error";
 
 export const personCreditsInputSchema = z.object({
   person_id: z.number().describe("The TMDB person ID from search results."),
@@ -61,9 +62,18 @@ export function createPersonCreditsTool() {
     description: TOOL_DESCRIPTION,
     inputSchema: personCreditsInputSchema,
     execute: async ({ person_id }) => {
-      const credits = await getPersonCombinedCredits({
-        person_id: person_id.toString(),
-      });
+      let credits;
+      try {
+        credits = await getPersonCombinedCredits({
+          person_id: person_id.toString(),
+        });
+      } catch (error) {
+        console.error("person_credits failed", error);
+        return toolError(
+          "tmdb_unavailable",
+          "TMDB filmography lookup is temporarily unavailable. Tell the user and suggest trying again shortly.",
+        );
+      }
 
       const seen = new Set<string>();
       const results: CreditResult[] = [];
