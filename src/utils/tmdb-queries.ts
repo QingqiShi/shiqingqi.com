@@ -39,6 +39,38 @@ function isMovieListResult(result: MediaResult): result is MovieResult {
   return "title" in result;
 }
 
+interface PaginatedMediaData {
+  pages: ReadonlyArray<{
+    results?: ReadonlyArray<MediaResult>;
+  }>;
+}
+
+function selectMediaListItems(
+  data: PaginatedMediaData,
+  mediaType: "movie" | "tv",
+): MediaListItem[] {
+  const items = data.pages
+    .flatMap<MediaResult>((page) => page.results ?? [])
+    .map<MediaListItem>((media) =>
+      isMovieListResult(media)
+        ? {
+            id: media.id,
+            title: media.title,
+            posterPath: media.poster_path,
+            rating: media.vote_average,
+            mediaType,
+          }
+        : {
+            id: media.id,
+            title: media.name,
+            posterPath: media.poster_path,
+            rating: media.vote_average,
+            mediaType,
+          },
+    );
+  return Array.from(new Map(items.map((media) => [media.id, media])).values());
+}
+
 export const mediaList = (params: MovieListParams | TvShowListParams) => {
   return infiniteQueryOptions({
     queryKey: [{ query: "mediaList", ...tmdbScope, ...params }],
@@ -62,31 +94,7 @@ export const mediaList = (params: MovieListParams | TvShowListParams) => {
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    select: (data) => {
-      const mediaList = data.pages
-        .flatMap<MediaResult>((page) => page.results ?? [])
-        .map<MediaListItem>((media) =>
-          isMovieListResult(media)
-            ? {
-                id: media.id,
-                title: media.title,
-                posterPath: media.poster_path,
-                rating: media.vote_average,
-                mediaType: params.type,
-              }
-            : {
-                id: media.id,
-                title: media.name,
-                posterPath: media.poster_path,
-                rating: media.vote_average,
-                mediaType: params.type,
-              },
-        );
-      // Removes duplicates
-      return Array.from(
-        new Map(mediaList.map((media) => [media.id, media])).values(),
-      );
-    },
+    select: (data) => selectMediaListItems(data, params.type),
   });
 };
 
@@ -128,31 +136,7 @@ export const similarMedia = (params: SimilarMediaParams) => {
       firstPage.page > 1 ? firstPage.page - 1 : undefined,
     getNextPageParam: (lastPage) =>
       lastPage.total_pages > lastPage.page ? lastPage.page + 1 : undefined,
-    select: (data) => {
-      const mediaList = data.pages
-        .flatMap<MediaResult>((page) => page.results ?? [])
-        .map<MediaListItem>((media) =>
-          isMovieListResult(media)
-            ? {
-                id: media.id,
-                title: media.title,
-                posterPath: media.poster_path,
-                rating: media.vote_average,
-                mediaType: params.type,
-              }
-            : {
-                id: media.id,
-                title: media.name,
-                posterPath: media.poster_path,
-                rating: media.vote_average,
-                mediaType: params.type,
-              },
-        );
-      // Removes duplicates
-      return Array.from(
-        new Map(mediaList.map((media) => [media.id, media])).values(),
-      );
-    },
+    select: (data) => selectMediaListItems(data, params.type),
   });
 };
 
