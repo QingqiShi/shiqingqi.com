@@ -14,12 +14,6 @@ export interface ToolOutputMaps {
   watchProvidersMap: ReadonlyMap<string, WatchProviderOutput>;
 }
 
-export const EMPTY_TOOL_OUTPUTS: ToolOutputMaps = {
-  searchResultsMap: new Map(),
-  personResultsMap: new Map(),
-  watchProvidersMap: new Map(),
-};
-
 export function accumulateToolOutputs(
   messages: ReadonlyArray<UIMessage>,
 ): ToolOutputMaps {

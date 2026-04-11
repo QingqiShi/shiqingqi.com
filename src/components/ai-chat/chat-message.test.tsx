@@ -2,6 +2,7 @@ import type { UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { ChatMessage } from "./chat-message";
+import { accumulateToolOutputs } from "./map-tool-output";
 import { MediaDetailProvider } from "./media-detail-context";
 
 function createMessage(
@@ -13,6 +14,8 @@ function createMessage(
   };
 }
 
+const emptyToolOutputs = accumulateToolOutputs([]);
+
 describe("ChatMessage", () => {
   it("renders user message text", () => {
     render(
@@ -21,6 +24,7 @@ describe("ChatMessage", () => {
           role: "user",
           parts: [{ type: "text", text: "Hello there" }],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
     expect(screen.getByText("Hello there")).toBeInTheDocument();
@@ -33,6 +37,7 @@ describe("ChatMessage", () => {
           role: "assistant",
           parts: [{ type: "text", text: "Hi! How can I help?" }],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
     expect(screen.getByText("Hi! How can I help?")).toBeInTheDocument();
@@ -48,6 +53,7 @@ describe("ChatMessage", () => {
             { type: "text", text: "Second paragraph" },
           ],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
     expect(screen.getByText("First paragraph")).toBeInTheDocument();
@@ -61,6 +67,7 @@ describe("ChatMessage", () => {
           role: "assistant",
           parts: [{ type: "reasoning", text: "Thinking about this..." }],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
     expect(screen.getByText("Thinking about this...")).toBeInTheDocument();
@@ -73,6 +80,7 @@ describe("ChatMessage", () => {
           role: "assistant",
           parts: [{ type: "text", text: "This is **bold** and *italic*" }],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
     expect(screen.getByText("bold").tagName).toBe("STRONG");
@@ -86,6 +94,7 @@ describe("ChatMessage", () => {
           role: "user",
           parts: [{ type: "text", text: "This is **not bold**" }],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
     expect(screen.getByText("This is **not bold**")).toBeInTheDocument();
@@ -98,6 +107,7 @@ describe("ChatMessage", () => {
           role: "assistant",
           parts: [{ type: "step-start" }, { type: "text", text: "After step" }],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
     expect(screen.getByText("After step")).toBeInTheDocument();
@@ -110,53 +120,56 @@ describe("ChatMessage", () => {
           role: "assistant",
           parts: [{ type: "step-start" }],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
     expect(container.innerHTML).toBe("");
   });
 
   it("renders present_media cards from search results lookup", () => {
+    const message = createMessage({
+      role: "assistant",
+      parts: [
+        { type: "text", text: "Here are some results:" },
+        {
+          type: "dynamic-tool",
+          toolName: "tmdb_search",
+          toolCallId: "search-call",
+          state: "output-available",
+          input: { query: "Inception" },
+          output: [
+            {
+              id: 1,
+              media_type: "movie",
+              title: "Inception",
+              poster_path: "/inception.jpg",
+              vote_average: 8.4,
+            },
+            {
+              id: 2,
+              media_type: "movie",
+              title: "Other Movie",
+              poster_path: "/other.jpg",
+              vote_average: 5.0,
+            },
+          ],
+        },
+        {
+          type: "dynamic-tool",
+          toolName: "present_media",
+          toolCallId: "present-call",
+          state: "output-available",
+          input: { media: [{ id: 1, media_type: "movie" }] },
+          output: { media: [{ id: 1, media_type: "movie" }] },
+        },
+        { type: "text", text: "Hope that helps!" },
+      ],
+    });
     render(
       <MediaDetailProvider>
         <ChatMessage
-          message={createMessage({
-            role: "assistant",
-            parts: [
-              { type: "text", text: "Here are some results:" },
-              {
-                type: "dynamic-tool",
-                toolName: "tmdb_search",
-                toolCallId: "search-call",
-                state: "output-available",
-                input: { query: "Inception" },
-                output: [
-                  {
-                    id: 1,
-                    media_type: "movie",
-                    title: "Inception",
-                    poster_path: "/inception.jpg",
-                    vote_average: 8.4,
-                  },
-                  {
-                    id: 2,
-                    media_type: "movie",
-                    title: "Other Movie",
-                    poster_path: "/other.jpg",
-                    vote_average: 5.0,
-                  },
-                ],
-              },
-              {
-                type: "dynamic-tool",
-                toolName: "present_media",
-                toolCallId: "present-call",
-                state: "output-available",
-                input: { media: [{ id: 1, media_type: "movie" }] },
-                output: { media: [{ id: 1, media_type: "movie" }] },
-              },
-              { type: "text", text: "Hope that helps!" },
-            ],
-          })}
+          message={message}
+          toolOutputs={accumulateToolOutputs([message])}
         />
       </MediaDetailProvider>,
     );
@@ -172,49 +185,51 @@ describe("ChatMessage", () => {
   });
 
   it("renders present_watch_providers card from watch_providers map", () => {
+    const message = createMessage({
+      role: "assistant",
+      parts: [
+        { type: "text", text: "Here's where you can watch it:" },
+        {
+          type: "dynamic-tool",
+          toolName: "watch_providers",
+          toolCallId: "wp-call",
+          state: "output-available",
+          input: { id: 550, media_type: "movie", region: "US" },
+          output: {
+            id: 550,
+            mediaType: "movie",
+            region: "US",
+            providers: {
+              link: "https://www.themoviedb.org/movie/550/watch?locale=US",
+              flatrate: [
+                {
+                  id: 8,
+                  name: "Netflix",
+                  logoPath: "/netflix.jpg",
+                },
+              ],
+              rent: [],
+              buy: [],
+              ads: [],
+              free: [],
+            },
+          },
+        },
+        {
+          type: "dynamic-tool",
+          toolName: "present_watch_providers",
+          toolCallId: "present-wp-call",
+          state: "output-available",
+          input: { id: 550, media_type: "movie", region: "US" },
+          output: { id: 550, media_type: "movie", region: "US" },
+        },
+      ],
+    });
     render(
       <MediaDetailProvider>
         <ChatMessage
-          message={createMessage({
-            role: "assistant",
-            parts: [
-              { type: "text", text: "Here's where you can watch it:" },
-              {
-                type: "dynamic-tool",
-                toolName: "watch_providers",
-                toolCallId: "wp-call",
-                state: "output-available",
-                input: { id: 550, media_type: "movie", region: "US" },
-                output: {
-                  id: 550,
-                  mediaType: "movie",
-                  region: "US",
-                  providers: {
-                    link: "https://www.themoviedb.org/movie/550/watch?locale=US",
-                    flatrate: [
-                      {
-                        id: 8,
-                        name: "Netflix",
-                        logoPath: "/netflix.jpg",
-                      },
-                    ],
-                    rent: [],
-                    buy: [],
-                    ads: [],
-                    free: [],
-                  },
-                },
-              },
-              {
-                type: "dynamic-tool",
-                toolName: "present_watch_providers",
-                toolCallId: "present-wp-call",
-                state: "output-available",
-                input: { id: 550, media_type: "movie", region: "US" },
-                output: { id: 550, media_type: "movie", region: "US" },
-              },
-            ],
-          })}
+          message={message}
+          toolOutputs={accumulateToolOutputs([message])}
         />
       </MediaDetailProvider>,
     );
@@ -250,6 +265,7 @@ describe("ChatMessage", () => {
             },
           ],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
 
@@ -327,6 +343,7 @@ describe("ChatMessage", () => {
             },
           ],
         })}
+        toolOutputs={emptyToolOutputs}
       />,
     );
 
