@@ -32,9 +32,7 @@ export function MenuItem({
       aria-label={ariaLabel}
       role="menuitem"
       css={[flex.between, styles.item, isActive && styles.itemActive]}
-      ref={(el) => {
-        if (autoFocus) el?.focus();
-      }}
+      data-menu-autofocus={autoFocus ? "true" : undefined}
       tabIndex={isActive ? -1 : 0}
       onClick={(e) => {
         e.preventDefault();
