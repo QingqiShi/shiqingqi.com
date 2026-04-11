@@ -13,6 +13,7 @@ import {
 import { ToolMediaCards } from "./tool-media-cards";
 import { ToolMediaCardsSkeleton } from "./tool-media-cards-skeleton";
 import { ToolPersonCards } from "./tool-person-cards";
+import { ToolPersonCardsSkeleton } from "./tool-person-cards-skeleton";
 import {
   parseReviewSummaryOutput,
   ToolReviewSummary,
@@ -75,7 +76,7 @@ export function ToolVisualOutput({
     }
 
     if (state === "input-streaming") {
-      return <ToolMediaCardsSkeleton />;
+      return <ToolPersonCardsSkeleton />;
     }
 
     if (state === "input-available" || state === "output-available") {
