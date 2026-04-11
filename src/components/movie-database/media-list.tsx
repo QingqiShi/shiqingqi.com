@@ -1,19 +1,12 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useDeferredValue, useState } from "react";
-import { VirtuosoGrid } from "react-virtuoso";
-import { Grid } from "#src/components/movie-database/grid.tsx";
+import { useDeferredValue } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
-import { useViewportHeight } from "#src/hooks/use-viewport-height.ts";
 import { t } from "#src/i18n.ts";
-import { color, ratio, space } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import type { MediaListItem } from "#src/utils/types.ts";
-import { Skeleton } from "../shared/skeleton";
-import { MediaCard } from "./media-card";
+import { MediaVirtuosoGrid } from "./media-virtuoso-grid";
 
 interface MediaListProps {
   initialPage: number;
@@ -39,85 +32,24 @@ export function MediaList({ initialPage }: MediaListProps) {
     sort_by: deferredSort !== "popularity.desc" ? deferredSort : undefined,
   });
 
-  const {
-    data: items,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-  } = useSuspenseInfiniteQuery(tmdbQueryOptions);
+  const queryResult = useSuspenseInfiniteQuery(tmdbQueryOptions);
 
-  // Viewport height used for infinite scroll pre-fetch padding
-  const height = useViewportHeight();
-
-  const [initialCount] = useState(items.length);
-
-  if (!items.length) {
-    const notFoundLabel =
-      mediaType === "tv"
-        ? t({
-            en: "No TV shows found that match the criteria, please update the filters",
-            zh: "没有找到符合条件的电视剧，请更新筛选条件",
-          })
-        : t({
-            en: "No movies found that match the criteria, please update the filters",
-            zh: "没有找到符合条件的电影，请更新筛选条件",
-          });
-    return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
-  }
+  const notFoundLabel =
+    mediaType === "tv"
+      ? t({
+          en: "No TV shows found that match the criteria, please update the filters",
+          zh: "没有找到符合条件的电视剧，请更新筛选条件",
+        })
+      : t({
+          en: "No movies found that match the criteria, please update the filters",
+          zh: "没有找到符合条件的电影，请更新筛选条件",
+        });
 
   return (
-    <VirtuosoGrid
-      key={JSON.stringify(tmdbQueryOptions)}
-      data={items}
-      components={gridComponents}
-      itemContent={(index) => <ItemContent index={index} items={items} />}
-      endReached={() => {
-        if (hasNextPage && !isFetching) {
-          void fetchNextPage();
-        }
-      }}
-      increaseViewportBy={height}
-      initialItemCount={initialCount}
-      useWindowScroll
+    <MediaVirtuosoGrid
+      queryResult={queryResult}
+      virtuosoKey={JSON.stringify(tmdbQueryOptions.queryKey)}
+      notFoundLabel={notFoundLabel}
     />
   );
 }
-
-function ItemContent({
-  index,
-  items,
-}: {
-  index: number;
-  items: MediaListItem[];
-}) {
-  const item = items[index];
-
-  if (!item) {
-    return <Skeleton css={styles.skeleton} delay={index * 100} />;
-  }
-
-  const allowFollow = index < 20;
-
-  return <MediaCard media={item} allowFollow={allowFollow} />;
-}
-
-const gridComponents = {
-  List: Grid,
-};
-
-const styles = stylex.create({
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
-    overflow: "hidden",
-  },
-  notFound: {
-    maxInlineSize: "1140px",
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    color: color.textMuted,
-    textAlign: "center",
-  },
-});
