@@ -35,6 +35,8 @@ Force-push is safe — these are bot-owned branches. If the force-push fails wit
 
 If the rebase has lockfile conflicts: delete `pnpm-lock.yaml`, run `pnpm install`, stage and continue. For non-lockfile conflicts that aren't straightforward, skip the PR.
 
+A clean-looking rebase can still produce a subtly-broken `pnpm-lock.yaml` (e.g., a duplicate YAML mapping key) when both sides added overlapping entries — git won't flag a conflict but `pnpm install` in Step 3 will warn `Ignoring broken lockfile ... duplicated mapping key`. If that happens, delete `pnpm-lock.yaml`, re-run `pnpm install`, commit the regenerated lockfile, and push.
+
 ### Step 2 — Understand the change
 
 PR titles can be stale. Always check `gh pr diff <number>` for the real `from`/`to` versions and whether the package is in `dependencies` (prod) or `devDependencies` (dev).
