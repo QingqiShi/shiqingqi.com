@@ -56,7 +56,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       })}
     >
       <DotGridBackground />
-      <main css={styles.container}>{children}</main>
+      <main id="main-content" css={styles.container}>
+        {children}
+      </main>
     </RetryableErrorBoundary>
   );
 }
