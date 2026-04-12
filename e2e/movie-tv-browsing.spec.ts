@@ -66,10 +66,7 @@ test.describe("Movie and TV Show Browsing", () => {
       page.getByRole("button", { name: /genre.*\(1\)/i }),
     ).toBeVisible();
 
-    // Open genre menu again and click "Adventure" for multiple genres
-    await page
-      .getByRole("button", { name: /genre.*\(1\)/i })
-      .click({ force: true });
+    // The menu stays open for multi-select, click "Adventure" directly
     await page.getByRole("link", { name: /^adventure$/i }).click();
 
     // Verify genre count shows 2 genres selected
@@ -77,10 +74,7 @@ test.describe("Movie and TV Show Browsing", () => {
       page.getByRole("button", { name: /genre.*\(2\)/i }),
     ).toBeVisible();
 
-    // Open genre menu and verify "Any selected" option appears (ALL/ANY toggle)
-    await page
-      .getByRole("button", { name: /genre.*\(2\)/i })
-      .click({ force: true });
+    // Menu is still open, verify "Any selected" option appears (ALL/ANY toggle)
     const anyButton = page.getByRole("link", { name: /any selected/i });
     await expect(anyButton).toBeVisible();
   });

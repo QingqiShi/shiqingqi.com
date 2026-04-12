@@ -162,7 +162,7 @@ export function MenuButton({
             {...buttonProps}
             aria-expanded={isMenuShown}
             aria-haspopup={popupRole === "menu" ? "menu" : "true"}
-            onClick={() => setIsMenuShown(true)}
+            onClick={() => setIsMenuShown((prev) => !prev)}
             disabled={disabled}
             id={targetId}
             labelId={`${targetId}-label`}
