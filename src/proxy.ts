@@ -31,7 +31,35 @@ export function proxy(request: NextRequest) {
     return validateReferer(request) ?? NextResponse.next();
   }
 
-  return i18nRouter(request, i18nConfig);
+  const i18nResponse = i18nRouter(request, i18nConfig);
+
+  // Redirects (e.g. stripping default locale prefix) — return as-is
+  if (i18nResponse.headers.has("location")) {
+    return i18nResponse;
+  }
+
+  // For non-redirect responses, forward the detected locale as a request
+  // header so that server components (including the root not-found page)
+  // can read it via headers().
+  const pathname = request.nextUrl.pathname;
+  const locale =
+    i18nConfig.locales.find(
+      (l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`,
+    ) ?? i18nConfig.defaultLocale;
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-locale", locale);
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+
+  // Preserve cookies set by i18nRouter (e.g. NEXT_LOCALE)
+  for (const cookie of i18nResponse.cookies.getAll()) {
+    response.cookies.set(cookie);
+  }
+
+  return response;
 }
 
 export const config = {

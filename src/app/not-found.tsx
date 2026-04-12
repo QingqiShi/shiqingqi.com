@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { validateLocale } from "#src/utils/validate-locale.ts";
 import Layout from "./[locale]/(home)/layout";
 import RootLayout from "./[locale]/layout";
 
@@ -7,12 +9,19 @@ export const metadata: Metadata = {
   description: "You're looking for a page about Qingqi Shi that doesn't exist.",
 };
 
-export default function NotFound() {
+const translations = {
+  en: "Page not found 😢",
+  zh: "页面未找到 😢",
+};
+
+export default async function NotFound() {
+  const locale = validateLocale((await headers()).get("x-locale") ?? "");
+
   return (
-    <RootLayout params={Promise.resolve({ locale: "en" })}>
-      <Layout params={Promise.resolve({ locale: "en" })}>
+    <RootLayout params={Promise.resolve({ locale })}>
+      <Layout params={Promise.resolve({ locale })}>
         <h1>404</h1>
-        <p>Page not found 😢</p>
+        <p>{translations[locale]}</p>
       </Layout>
     </RootLayout>
   );
