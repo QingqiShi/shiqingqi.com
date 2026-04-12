@@ -75,13 +75,6 @@ export function Calculator() {
       return;
     }
 
-    // Enter on a focused CalculatorButton must fire the button's own click,
-    // not the container's "=" shortcut — otherwise tabbing to "5" and pressing
-    // Enter evaluates the expression instead of appending "5".
-    if (key === "Enter" && event.target !== event.currentTarget) {
-      return;
-    }
-
     const keyMap: Record<string, string> = {
       "0": "0",
       "1": "1",

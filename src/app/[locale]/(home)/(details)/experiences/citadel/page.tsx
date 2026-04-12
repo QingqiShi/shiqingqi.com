@@ -18,12 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
       zh: "了解石清琪在 Citadel 担任软件工程师的经历，他使用 React、TypeScript 和 AG Grid 为金融行业开发仪表盘 Web 应用。",
     }),
     alternates: {
-      canonical: new URL(
-        params.locale === "zh"
-          ? "/zh/experiences/citadel"
-          : "/experiences/citadel",
-        BASE_URL,
-      ).toString(),
+      canonical: new URL("/experiences/citadel", BASE_URL).toString(),
       languages: {
         en: new URL("/experiences/citadel", BASE_URL).toString(),
         zh: new URL("/zh/experiences/citadel", BASE_URL).toString(),

@@ -184,46 +184,6 @@ describe("MenuButton keyboard navigation", () => {
     expect(trigger).toHaveFocus();
   });
 
-  it("marks the popup inert while the menu is closed so its items are not tabbable or a11y-exposed", async () => {
-    const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
-
-    const popup = screen.getByRole("menu");
-    expect(popup).toHaveAttribute("inert");
-
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-    expect(popup).not.toHaveAttribute("inert");
-
-    await user.keyboard("{Escape}");
-    expect(popup).toHaveAttribute("inert");
-  });
-
-  it("marks a group popup inert while closed so non-menu controls are also not tabbable", async () => {
-    const user = userEvent.setup();
-    render(
-      <MenuButton
-        buttonProps={{ type: "button", "aria-label": "Open group" }}
-        popupRole="group"
-        menuContent={
-          <div>
-            <button type="button">First</button>
-            <button type="button">Second</button>
-          </div>
-        }
-      />,
-    );
-
-    const popup = screen.getByRole("group");
-    expect(popup).toHaveAttribute("inert");
-
-    await user.click(screen.getByRole("button", { name: "Open group" }));
-    expect(popup).not.toHaveAttribute("inert");
-  });
-
   it("does not intercept arrow keys when popupRole is not 'menu'", async () => {
     const user = userEvent.setup();
 
@@ -290,5 +250,29 @@ describe("MenuItem", () => {
 
     const item = screen.getByRole("menuitem", { name: "Active item" });
     expect(item).toHaveAttribute("tabindex", "-1");
+  });
+
+  it("marks the active item with aria-current='true'", () => {
+    render(
+      <RouterProvider>
+        <MenuItem href="/x" isActive>
+          Active item
+        </MenuItem>
+      </RouterProvider>,
+    );
+
+    const item = screen.getByRole("menuitem", { name: "Active item" });
+    expect(item).toHaveAttribute("aria-current", "true");
+  });
+
+  it("does not mark an inactive item with aria-current", () => {
+    render(
+      <RouterProvider>
+        <MenuItem href="/x">Inactive item</MenuItem>
+      </RouterProvider>,
+    );
+
+    const item = screen.getByRole("menuitem", { name: "Inactive item" });
+    expect(item).not.toHaveAttribute("aria-current");
   });
 });

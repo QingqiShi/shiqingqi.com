@@ -37,7 +37,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     description,
     applicationName: t({ en: "Qingqi Shi", zh: "石清琪" }),
     alternates: {
-      canonical: url,
+      canonical: new URL("/", BASE_URL).toString(),
       languages: {
         en: new URL("/", BASE_URL).toString(),
         zh: new URL("/zh", BASE_URL).toString(),

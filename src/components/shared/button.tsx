@@ -10,6 +10,11 @@ interface ButtonProps extends ComponentProps<"button"> {
   hideLabelOnMobile?: boolean;
   icon?: React.ReactNode;
   isActive?: boolean;
+  /**
+   * Visual variant. `"primary"` applies the same active highlight style but
+   * does NOT emit `aria-pressed` — use it for one-shot CTAs, not toggles.
+   */
+  variant?: "primary";
   labelId?: string;
 }
 
@@ -24,6 +29,7 @@ export function Button({
   labelId,
   style,
   type = "button",
+  variant,
   ...restProps
 }: ButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -37,6 +43,7 @@ export function Button({
 
   return (
     <button
+      aria-pressed={isActive}
       {...restProps}
       ref={buttonRef}
       type={type}
@@ -52,7 +59,7 @@ export function Button({
             ? sharedStyles.hasIconHideLabel
             : sharedStyles.hasIcon),
         bright && sharedStyles.bright,
-        isActive && sharedStyles.active,
+        (isActive || variant === "primary") && sharedStyles.active,
         isPressed && !disabled && sharedStyles.pressed,
         isPressed && !disabled && bright && sharedStyles.pressedBright,
         releasedOutside && sharedStyles.releasedOutside,

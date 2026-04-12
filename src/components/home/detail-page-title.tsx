@@ -18,10 +18,10 @@ export function DetailPageTitle({ date, role, title, type }: PageTitleProps) {
 
   return (
     <header css={[flex.col, styles.container]}>
-      <h1 css={styles.subtitle}>
+      <h2 css={styles.subtitle}>
         {typeLabel} - {title}
-      </h1>
-      <h2 css={styles.title}>{role}</h2>
+      </h2>
+      <h1 css={styles.title}>{role}</h1>
       <time css={styles.date}>{date}</time>
     </header>
   );

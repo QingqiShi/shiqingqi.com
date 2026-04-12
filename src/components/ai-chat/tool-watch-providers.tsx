@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
@@ -341,9 +341,6 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
   const [expanded, setExpanded] = useState(false);
   const locale = useLocale();
   const displayNames = getRegionDisplayNames(locale);
-  // First newly-revealed country, given -1 tabindex so we can land focus
-  // there after expansion — the "+N more" button unmounts on click.
-  const firstRevealedRef = useRef<HTMLSpanElement>(null);
 
   const needsTruncation = countries.length > INITIAL_VISIBLE_COUNT;
   const visible =
@@ -352,31 +349,12 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
       : countries.slice(0, INITIAL_VISIBLE_COUNT);
   const remaining = countries.length - INITIAL_VISIBLE_COUNT;
 
-  useEffect(() => {
-    if (expanded) {
-      firstRevealedRef.current?.focus();
-    }
-  }, [expanded]);
-
-  const expandAriaLabel =
-    remaining === 1
-      ? t({ en: "Show 1 more region", zh: "显示另外 1 个地区" })
-      : `${t({ en: "Show", zh: "显示另外" })} ${remaining} ${t({
-          en: "more regions",
-          zh: "个地区",
-        })}`;
-
   return (
     <p css={styles.countryList}>
       {visible.map((code, i) => (
         <Fragment key={code}>
           {i > 0 && " · "}
-          <span
-            ref={i === INITIAL_VISIBLE_COUNT ? firstRevealedRef : undefined}
-            tabIndex={i === INITIAL_VISIBLE_COUNT ? -1 : undefined}
-          >
-            {displayNames?.of(code) ?? code}
-          </span>
+          <span>{displayNames?.of(code) ?? code}</span>
         </Fragment>
       ))}
       {!expanded && needsTruncation && (
@@ -386,7 +364,6 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
             type="button"
             onClick={() => setExpanded(true)}
             css={styles.showMoreButton}
-            aria-label={expandAriaLabel}
           >
             {`+${remaining} `}
             {t({ en: "more", zh: "更多" })}

@@ -30,6 +30,7 @@ export function MenuItem({
     <a
       href={href}
       aria-label={ariaLabel}
+      aria-current={isActive ? "true" : undefined}
       role="menuitem"
       css={[flex.between, styles.item, isActive && styles.itemActive]}
       data-menu-autofocus={autoFocus ? "true" : undefined}
