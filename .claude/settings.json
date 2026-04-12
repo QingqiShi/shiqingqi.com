@@ -3,7 +3,6 @@
     "defaultMode": "bypassPermissions",
     "deny": ["Read(./.env)", "Read(./.env.*)"]
   },
-  "showClearContextOnPlanAccept": true,
   "hooks": {
     "PreToolUse": [
       {
