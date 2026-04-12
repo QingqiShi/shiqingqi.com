@@ -57,7 +57,7 @@ export async function generateMetadata({
       title,
       description,
       alternates: {
-        canonical: new URL(`/movie-database/movie/${id}`, BASE_URL).toString(),
+        canonical: url,
         languages: {
           en: new URL(`/movie-database/movie/${id}`, BASE_URL).toString(),
           zh: new URL(`/zh/movie-database/movie/${id}`, BASE_URL).toString(),
@@ -100,7 +100,7 @@ export async function generateMetadata({
       title,
       description,
       alternates: {
-        canonical: new URL(`/movie-database/tv/${id}`, BASE_URL).toString(),
+        canonical: url,
         languages: {
           en: new URL(`/movie-database/tv/${id}`, BASE_URL).toString(),
           zh: new URL(`/zh/movie-database/tv/${id}`, BASE_URL).toString(),

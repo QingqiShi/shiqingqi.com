@@ -25,7 +25,7 @@ export async function generateMetadata(props: {
     title,
     description,
     alternates: {
-      canonical: new URL("/movie-database/ai-mode", BASE_URL).toString(),
+      canonical: url,
       languages: {
         en: new URL("/movie-database/ai-mode", BASE_URL).toString(),
         zh: new URL("/zh/movie-database/ai-mode", BASE_URL).toString(),

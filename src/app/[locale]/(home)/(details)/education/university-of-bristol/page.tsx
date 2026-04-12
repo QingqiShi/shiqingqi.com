@@ -20,7 +20,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     }),
     alternates: {
       canonical: new URL(
-        "/education/university-of-bristol",
+        params.locale === "zh"
+          ? "/zh/education/university-of-bristol"
+          : "/education/university-of-bristol",
         BASE_URL,
       ).toString(),
       languages: {

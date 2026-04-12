@@ -18,7 +18,12 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
       zh: "了解石清琪在 Spotify 担任软件工程师 II 的经验，他构建了一个广告活动管理平台，并为公司范围内的一些项目做出了贡献。",
     }),
     alternates: {
-      canonical: new URL("/experiences/spotify", BASE_URL).toString(),
+      canonical: new URL(
+        params.locale === "zh"
+          ? "/zh/experiences/spotify"
+          : "/experiences/spotify",
+        BASE_URL,
+      ).toString(),
       languages: {
         en: new URL("/experiences/spotify", BASE_URL).toString(),
         zh: new URL("/zh/experiences/spotify", BASE_URL).toString(),
