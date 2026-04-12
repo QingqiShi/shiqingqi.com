@@ -186,6 +186,7 @@ export function MenuButton({
               ref={popupRef}
               role={popupRole}
               aria-labelledby={popupRole ? `${targetId}-label` : undefined}
+              inert={!isMenuShown}
             >
               {children && <div css={styles.menuTitle}>{children}</div>}
               {menuContent}
