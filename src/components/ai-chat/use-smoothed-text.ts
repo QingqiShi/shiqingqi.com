@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 
 /** Target reveal rate scales with buffer size (chars per 16.67ms at 60fps baseline) */
 const RATE_FACTOR = 0.08;
@@ -339,33 +339,21 @@ export function useSmoothedText(
     startRevealed ? targetText : "",
   );
   const displayedLengthRef = useRef(startRevealed ? targetText.length : 0);
-  const targetRef = useRef(targetText);
   const rafRef = useRef(0);
   const rateRef = useRef(0);
   const accumulatorRef = useRef(0);
   const lastTimestampRef = useRef(0);
-  const onCaughtUpRef = useRef(options?.onCaughtUp);
-  const sealedRef = useRef(sealed);
-  const trailingBufferHintRef = useRef(trailingBufferHint);
   const trackerRef = useRef(createMarkerTracker());
 
-  // Sync refs before paint so the rAF loop always reads the latest values.
-  // useLayoutEffect runs after commit but before rAF callbacks.
-  useLayoutEffect(() => {
-    targetRef.current = targetText;
-  }, [targetText]);
+  // Stable reference to onCaughtUp that always calls the latest callback
+  // without needing it in the effect's dependency array.
+  const onCaughtUp = useEffectEvent(() => {
+    options?.onCaughtUp?.();
+  });
 
-  useLayoutEffect(() => {
-    onCaughtUpRef.current = options?.onCaughtUp;
-  }, [options?.onCaughtUp]);
-
-  useLayoutEffect(() => {
-    sealedRef.current = sealed;
-  }, [sealed]);
-
-  useLayoutEffect(() => {
-    trailingBufferHintRef.current = trailingBufferHint;
-  }, [trailingBufferHint]);
+  // Stable getter for trailingBufferHint — read every rAF frame but
+  // should not restart the animation loop when it changes.
+  const getTrailingBufferHint = useEffectEvent(() => trailingBufferHint);
 
   useEffect(() => {
     if (
@@ -376,7 +364,7 @@ export function useSmoothedText(
       cancelAnimationFrame(rafRef.current);
       displayedLengthRef.current = targetText.length;
       setDisplayedText(targetText);
-      onCaughtUpRef.current?.();
+      onCaughtUp();
       return;
     }
 
@@ -393,8 +381,8 @@ export function useSmoothedText(
       setDisplayedText(
         trackerRef.current.closeAt(targetText, targetText.length),
       );
-      if (sealedRef.current) {
-        onCaughtUpRef.current?.();
+      if (sealed) {
+        onCaughtUp();
       }
       return;
     }
@@ -407,11 +395,11 @@ export function useSmoothedText(
       lastTimestampRef.current = timestamp;
       const normalizedDelta = deltaMs / FRAME_MS;
 
-      const target = targetRef.current;
+      const target = targetText;
       const current = displayedLengthRef.current;
       const remaining = target.length - current;
 
-      const totalBuffer = remaining + trailingBufferHintRef.current;
+      const totalBuffer = remaining + getTrailingBufferHint();
       const targetRate =
         totalBuffer > 0 ? Math.max(MIN_RATE, totalBuffer * RATE_FACTOR) : 0;
 
@@ -442,8 +430,8 @@ export function useSmoothedText(
           setDisplayedText(trackerRef.current.closeAt(target, newLength));
         }
         rafRef.current = requestAnimationFrame(animate);
-      } else if (sealedRef.current) {
-        onCaughtUpRef.current?.();
+      } else if (sealed) {
+        onCaughtUp();
       }
     };
 
