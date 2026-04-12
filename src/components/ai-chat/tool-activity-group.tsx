@@ -18,6 +18,21 @@ interface ToolPartData {
   output?: unknown;
 }
 
+// Shared renderer so the in-progress and disclosure-open views can't drift
+// on which props they forward to ToolActivityLine (e.g. dropping `output`
+// would silently flip structured tool errors back to success icons).
+function renderToolLine(part: ToolPartData) {
+  return (
+    <ToolActivityLine
+      key={part.toolCallId}
+      toolName={part.toolName}
+      state={part.state}
+      input={part.input}
+      output={part.output}
+    />
+  );
+}
+
 interface ToolActivityGroupProps {
   toolParts: ReadonlyArray<ToolPartData>;
   isStreaming?: boolean;
@@ -35,19 +50,7 @@ export function ToolActivityGroup({
     !isStreaming && toolParts.every((p) => TERMINAL_STATES.has(p.state));
 
   if (!allComplete) {
-    return (
-      <div css={styles.container}>
-        {toolParts.map((part) => (
-          <ToolActivityLine
-            key={part.toolCallId}
-            toolName={part.toolName}
-            state={part.state}
-            input={part.input}
-            output={part.output}
-          />
-        ))}
-      </div>
-    );
+    return <div css={styles.container}>{toolParts.map(renderToolLine)}</div>;
   }
 
   const count = toolParts.length;
@@ -73,16 +76,7 @@ export function ToolActivityGroup({
         <span>{summaryText}</span>
       </button>
       {isOpen && (
-        <div css={styles.expandedContent}>
-          {toolParts.map((part) => (
-            <ToolActivityLine
-              key={part.toolCallId}
-              toolName={part.toolName}
-              state={part.state}
-              input={part.input}
-            />
-          ))}
-        </div>
+        <div css={styles.expandedContent}>{toolParts.map(renderToolLine)}</div>
       )}
     </div>
   );

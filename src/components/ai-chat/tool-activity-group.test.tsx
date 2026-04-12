@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, userEvent } from "#src/test-utils.tsx";
+import { toolError } from "#src/ai-chat/tools/tool-error.ts";
+import { render, screen, userEvent, within } from "#src/test-utils.tsx";
 import { ToolActivityGroup } from "./tool-activity-group";
+import { ToolActivityLine } from "./tool-activity-line";
+
+function getIconPath(root: HTMLElement | Element | null): string | null {
+  return root?.querySelector("svg path")?.getAttribute("d") ?? null;
+}
 
 const completeParts = [
   {
@@ -106,5 +112,96 @@ describe("ToolActivityGroup", () => {
     expect(screen.getByText("TMDB Search")).toBeInTheDocument();
     expect(screen.getByText("Semantic Search")).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("forwards structured error output to lines in the expanded disclosure view", async () => {
+    const errorOutput = toolError("tmdb_unavailable", "TMDB went down");
+    const errorParts = [
+      {
+        toolCallId: "call-err",
+        toolName: "tmdb_search",
+        state: "output-available",
+        input: { query: "broken" },
+        output: errorOutput,
+      },
+    ] as const;
+
+    // Reference lines rendered standalone so we know what the error vs.
+    // success icon path looks like without depending on a brittle class name.
+    const { container: errorRef } = render(
+      <ToolActivityLine
+        toolName="tmdb_search"
+        state="output-available"
+        input={{ query: "broken" }}
+        output={errorOutput}
+      />,
+    );
+    const { container: okRef } = render(
+      <ToolActivityLine
+        toolName="tmdb_search"
+        state="output-available"
+        input={{ query: "broken" }}
+      />,
+    );
+    const errorIconPath = getIconPath(errorRef);
+    const okIconPath = getIconPath(okRef);
+    expect(errorIconPath).toBeTruthy();
+    expect(okIconPath).toBeTruthy();
+    expect(errorIconPath).not.toBe(okIconPath);
+
+    // Render the group, expand it, and verify the line inside the expanded
+    // view renders the error icon — i.e. `output` was forwarded. Scope all
+    // queries to the group's container so the standalone reference lines
+    // rendered above don't leak into the assertions.
+    const user = userEvent.setup();
+    const { container: groupContainer } = render(
+      <ToolActivityGroup toolParts={errorParts} />,
+    );
+    const group = within(groupContainer);
+    await user.click(group.getByRole("button"));
+
+    const expandedIconPath = getIconPath(
+      group.getByText("TMDB Search").closest("div"),
+    );
+    expect(expandedIconPath).toBe(errorIconPath);
+  });
+
+  it("forwards structured error output while tools are still in progress", () => {
+    const errorOutput = toolError("vector_search_unavailable", "index down");
+    const mixedParts = [
+      {
+        toolCallId: "call-err",
+        toolName: "semantic_search",
+        state: "output-available",
+        input: { query: "broken" },
+        output: errorOutput,
+      },
+      {
+        toolCallId: "call-progress",
+        toolName: "tmdb_search",
+        state: "input-streaming",
+        input: undefined,
+      },
+    ] as const;
+
+    const { container: errorRef } = render(
+      <ToolActivityLine
+        toolName="semantic_search"
+        state="output-available"
+        input={{ query: "broken" }}
+        output={errorOutput}
+      />,
+    );
+    const errorIconPath = getIconPath(errorRef);
+    expect(errorIconPath).toBeTruthy();
+
+    const { container: groupContainer } = render(
+      <ToolActivityGroup toolParts={mixedParts} />,
+    );
+    const group = within(groupContainer);
+    const groupIconPath = getIconPath(
+      group.getByText("Semantic Search").closest("div"),
+    );
+    expect(groupIconPath).toBe(errorIconPath);
   });
 });
