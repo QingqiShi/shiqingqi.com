@@ -1,7 +1,7 @@
 "use client";
 
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { savePreferenceInputSchema } from "#src/ai-chat/tools/save-preference.ts";
 import { loadPreferencesContext, mergePreferences } from "./preference-store";
 
@@ -9,11 +9,15 @@ import { loadPreferencesContext, mergePreferences } from "./preference-store";
  * Observes chat messages for `save_preference` tool calls and persists
  * detected preferences to IndexedDB. Each tool call ID is processed at most
  * once.
+ *
+ * Returns `true` if any IndexedDB write failed during this session, signaling
+ * that the user should be warned their preferences may not have been saved.
  */
 export function usePreferencePersistence(
   messages: ReadonlyArray<UIMessage>,
-): void {
+): boolean {
   const processedRef = useRef(new Set<string>());
+  const [hasPersistenceError, setHasPersistenceError] = useState(false);
 
   useEffect(() => {
     const processed = processedRef.current;
@@ -33,11 +37,16 @@ export function usePreferencePersistence(
         if (!parsed.success) continue;
 
         mergePreferences(parsed.data.preferences)
-          .then(() => loadPreferencesContext())
+          .then(() => {
+            setHasPersistenceError(false);
+            return loadPreferencesContext();
+          })
           .catch(() => {
-            // IndexedDB write failed — preference is lost but non-critical
+            setHasPersistenceError(true);
           });
       }
     }
   }, [messages]);
+
+  return hasPersistenceError;
 }

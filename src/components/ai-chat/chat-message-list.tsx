@@ -54,7 +54,7 @@ export function ChatMessageList({
   typingIndicatorLabel,
   errorLabel,
 }: ChatMessageListProps) {
-  usePreferencePersistence(messages);
+  const hasPersistenceError = usePreferencePersistence(messages);
 
   const lastMessageRole =
     messages.length > 0 ? messages[messages.length - 1]?.role : undefined;
@@ -145,6 +145,14 @@ export function ChatMessageList({
           {t({
             en: "The conversation is getting lengthy",
             zh: "对话越来越长",
+          })}
+        </p>
+      )}
+      {hasPersistenceError && (
+        <p css={styles.usageWarning} role="status">
+          {t({
+            en: "Your preferences couldn't be saved to this browser. They'll apply for this conversation only.",
+            zh: "你的偏好无法保存到此浏览器。它们仅在本次对话中生效。",
           })}
         </p>
       )}

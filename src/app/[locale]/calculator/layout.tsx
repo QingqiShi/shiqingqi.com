@@ -52,7 +52,11 @@ export default function Layout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  return <main css={styles.container}>{children}</main>;
+  return (
+    <main id="main-content" css={styles.container}>
+      {children}
+    </main>
+  );
 }
 
 const styles = stylex.create({

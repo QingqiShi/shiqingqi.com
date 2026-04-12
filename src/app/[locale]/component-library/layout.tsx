@@ -58,7 +58,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div css={styles.container}>
-      <main css={styles.main}>{children}</main>
+      <main id="main-content" css={styles.main}>
+        {children}
+      </main>
     </div>
   );
 }

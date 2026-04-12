@@ -33,7 +33,7 @@ export default async function Layout({
       })}
     >
       <DotGridBackground />
-      <main>
+      <main id="main-content">
         <HeroSection />
         <Suspense
           fallback={
