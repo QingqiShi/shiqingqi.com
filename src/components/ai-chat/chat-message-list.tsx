@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ChatStatus, UIMessage } from "ai";
-import { type ReactNode, useEffect, useLayoutEffect, useRef } from "react";
+import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
 import {
   COMPACTION_TRIGGER_TOKENS,
   USAGE_WARNING_RATIO,
@@ -63,18 +63,22 @@ export function ChatMessageList({
   );
 
   const messagesListRef = useRef<HTMLDivElement | null>(null);
-  const isAtBottomRef = useRef(isAtBottom);
-  // Sync ref before paint so both the message-length effect and the streaming
-  // ResizeObserver callback always read the latest isAtBottom without needing
-  // it in their dep arrays.
-  useLayoutEffect(() => {
-    isAtBottomRef.current = isAtBottom;
-  }, [isAtBottom]);
+
+  // Reads the latest isAtBottom without needing it in effect dep arrays —
+  // changing scroll position should not restart the ResizeObserver or
+  // re-trigger the message-length scroll effect.
+  const scrollToBottomIfNeeded = useEffectEvent(() => {
+    if (isAtBottom) {
+      window.scrollTo({ top: document.documentElement.scrollHeight });
+    }
+  });
 
   useEffect(() => {
     if (messages.length === 0) return;
-    if (isAtBottomRef.current || lastMessageRole === "user") {
+    if (lastMessageRole === "user") {
       window.scrollTo({ top: document.documentElement.scrollHeight });
+    } else {
+      scrollToBottomIfNeeded();
     }
   }, [messages.length, lastMessageRole]);
 
@@ -85,9 +89,7 @@ export function ChatMessageList({
     if (!el) return;
 
     const observer = new ResizeObserver(() => {
-      if (isAtBottomRef.current) {
-        window.scrollTo({ top: document.documentElement.scrollHeight });
-      }
+      scrollToBottomIfNeeded();
     });
     observer.observe(el);
     return () => observer.disconnect();
