@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { isToolError } from "#src/ai-chat/tools/tool-error.ts";
 import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
@@ -61,7 +63,13 @@ export function ToolVisualOutput({
     if (state === "input-available" || state === "output-available") {
       const items = resolveMediaItems(input, searchResultsMap);
       if (items.length === 0) return null;
-      return <ToolMediaCards items={items} />;
+      return (
+        <ErrorBoundary fallback={<ErrorText />}>
+          <Suspense fallback={<ToolMediaCardsSkeleton />}>
+            <ToolMediaCards items={items} />
+          </Suspense>
+        </ErrorBoundary>
+      );
     }
 
     return null;
@@ -83,7 +91,13 @@ export function ToolVisualOutput({
     if (state === "input-available" || state === "output-available") {
       const items = resolvePersonItems(input, personResultsMap);
       if (items.length === 0) return null;
-      return <ToolPersonCards items={items} />;
+      return (
+        <ErrorBoundary fallback={<ErrorText />}>
+          <Suspense fallback={<ToolPersonCardsSkeleton />}>
+            <ToolPersonCards items={items} />
+          </Suspense>
+        </ErrorBoundary>
+      );
     }
 
     return null;
@@ -114,7 +128,13 @@ export function ToolVisualOutput({
           ? resolveWatchProviders(input, watchProvidersMap)
           : resolveProviderRegions(input, watchProvidersMap);
       if (!data) return null;
-      return <ToolWatchProviders data={data} />;
+      return (
+        <ErrorBoundary fallback={<ErrorText />}>
+          <Suspense fallback={<ToolWatchProvidersSkeleton />}>
+            <ToolWatchProviders data={data} />
+          </Suspense>
+        </ErrorBoundary>
+      );
     }
 
     return null;
@@ -148,6 +168,14 @@ export function ToolVisualOutput({
   }
 
   return null;
+}
+
+function ErrorText() {
+  return (
+    <p css={styles.error} role="alert">
+      {t({ en: "Failed to load results", zh: "加载结果失败" })}
+    </p>
+  );
 }
 
 const styles = stylex.create({

@@ -138,7 +138,7 @@ export default async function Layout({
   const validatedLocale: SupportedLocale = validateLocale(locale);
   return (
     <>
-      <main>{children}</main>
+      <main id="main-content">{children}</main>
       <div css={styles.container}>
         <div css={styles.wrapperInner}>
           <Footer locale={validatedLocale} />

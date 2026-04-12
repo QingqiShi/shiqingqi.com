@@ -86,7 +86,9 @@ export default async function Layout({
       <div css={styles.container}>
         <div css={styles.wrapperInner}>
           <BackgroundLines />
-          <main css={styles.main}>{children}</main>
+          <main id="main-content" css={styles.main}>
+            {children}
+          </main>
           <Footer locale={validatedLocale} />
         </div>
       </div>
