@@ -278,7 +278,7 @@ function PreferenceChip({
         type="button"
         css={[buttonReset.base, flex.inlineCenter, styles.chipRemove]}
         onClick={onRemove}
-        aria-label={t({ en: "Remove", zh: "移除" })}
+        aria-label={`${t({ en: "Remove", zh: "移除" })} ${preference.value}`}
       >
         <XIcon size={10} />
       </button>
