@@ -4,7 +4,8 @@ import RootLayout from "./[locale]/layout";
 
 export const metadata: Metadata = {
   title: "404 | Qingqi Shi",
-  description: "You're looking for a page about Qingqi Shi that doesn't exist.",
+  description:
+    "You're looking for a page about Qingqi Shi that doesn't exist. 您正在寻找的石清琪的页面不存在。",
 };
 
 export default function NotFound() {
