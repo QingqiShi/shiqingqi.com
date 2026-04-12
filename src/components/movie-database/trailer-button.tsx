@@ -26,7 +26,7 @@ export function TrailerButton({
     <>
       <Button
         icon={<PlayIcon weight="fill" role="presentation" />}
-        isActive
+        variant="primary"
         onClick={() => setIsOpen(true)}
       >
         {children}

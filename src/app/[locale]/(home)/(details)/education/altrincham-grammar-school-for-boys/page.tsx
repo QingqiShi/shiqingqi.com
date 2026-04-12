@@ -19,9 +19,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     }),
     alternates: {
       canonical: new URL(
-        params.locale === "zh"
-          ? "/zh/education/altrincham-grammar-school-for-boys"
-          : "/education/altrincham-grammar-school-for-boys",
+        "/education/altrincham-grammar-school-for-boys",
         BASE_URL,
       ).toString(),
       languages: {

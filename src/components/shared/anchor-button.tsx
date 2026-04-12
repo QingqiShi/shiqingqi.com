@@ -36,6 +36,7 @@ export function AnchorButton({
 
   return (
     <Anchor
+      aria-current={isActive ? "true" : undefined}
       {...restProps}
       ref={anchorRef}
       className={className}

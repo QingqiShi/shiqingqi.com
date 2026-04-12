@@ -101,9 +101,9 @@ test.describe("Homepage Portfolio", () => {
     }) => {
       // Click Citadel experience card
       await page.getByRole("link", { name: /citadel/i }).click();
-      // Verify detail page content (h1 with company name)
+      // Verify detail page content (h2 with company name)
       await expect(
-        page.getByRole("heading", { level: 1, name: /citadel/i }),
+        page.getByRole("heading", { level: 2, name: /citadel/i }),
       ).toBeVisible({ timeout: 15000 });
 
       // Go back to homepage
@@ -113,7 +113,7 @@ test.describe("Homepage Portfolio", () => {
       // Click Spotify card
       await page.getByRole("link", { name: /spotify/i }).click();
       await expect(
-        page.getByRole("heading", { level: 1, name: /spotify/i }),
+        page.getByRole("heading", { level: 2, name: /spotify/i }),
       ).toBeVisible({ timeout: 15000 });
 
       // Go back to homepage
@@ -126,7 +126,7 @@ test.describe("Homepage Portfolio", () => {
         .click();
       await expect(
         page.getByRole("heading", {
-          level: 1,
+          level: 2,
           name: /wunderman thompson commerce/i,
         }),
       ).toBeVisible({ timeout: 15000 });
@@ -167,7 +167,7 @@ test.describe("Homepage Portfolio", () => {
       // Click University of Bristol card
       await page.getByRole("link", { name: /university of bristol/i }).click();
       await expect(
-        page.getByRole("heading", { level: 1, name: /bristol/i }),
+        page.getByRole("heading", { level: 2, name: /bristol/i }),
       ).toBeVisible({ timeout: 15000 });
 
       // Go back to homepage
@@ -179,7 +179,7 @@ test.describe("Homepage Portfolio", () => {
         .getByRole("link", { name: /university of nottingham/i })
         .click();
       await expect(
-        page.getByRole("heading", { level: 1, name: /nottingham/i }),
+        page.getByRole("heading", { level: 2, name: /nottingham/i }),
       ).toBeVisible({ timeout: 15000 });
 
       // Go back to homepage
@@ -191,7 +191,7 @@ test.describe("Homepage Portfolio", () => {
         .getByRole("link", { name: /altrincham grammar school/i })
         .click();
       await expect(
-        page.getByRole("heading", { level: 1, name: /altrincham/i }),
+        page.getByRole("heading", { level: 2, name: /altrincham/i }),
       ).toBeVisible({ timeout: 15000 });
     });
   });
@@ -249,7 +249,7 @@ test.describe("Homepage Portfolio", () => {
 
       // Verify detail page is in Chinese (工作 = work/experience)
       await expect(
-        page.getByRole("heading", { level: 1, name: /工作.*citadel/i }),
+        page.getByRole("heading", { level: 2, name: /工作.*citadel/i }),
       ).toBeVisible({ timeout: 15000 });
     });
   });

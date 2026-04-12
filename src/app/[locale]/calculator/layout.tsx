@@ -24,7 +24,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: url,
+      canonical: new URL("/calculator", BASE_URL).toString(),
       languages: {
         en: new URL("/calculator", BASE_URL).toString(),
         zh: new URL("/zh/calculator", BASE_URL).toString(),

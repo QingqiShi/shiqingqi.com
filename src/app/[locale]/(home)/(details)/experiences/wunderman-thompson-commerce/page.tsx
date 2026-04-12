@@ -19,9 +19,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     }),
     alternates: {
       canonical: new URL(
-        params.locale === "zh"
-          ? "/zh/experiences/wunderman-thompson-commerce"
-          : "/experiences/wunderman-thompson-commerce",
+        "/experiences/wunderman-thompson-commerce",
         BASE_URL,
       ).toString(),
       languages: {

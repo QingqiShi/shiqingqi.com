@@ -121,6 +121,54 @@ describe("Button Interaction", () => {
   });
 });
 
+describe("Button aria-pressed from isActive", () => {
+  it("emits aria-pressed='true' when isActive is true", () => {
+    render(<Button isActive>Active</Button>);
+    expect(screen.getByRole("button")).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("emits aria-pressed='false' when isActive is false", () => {
+    render(<Button isActive={false}>Inactive</Button>);
+    expect(screen.getByRole("button")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("omits aria-pressed when isActive is not supplied", () => {
+    render(<Button>Plain</Button>);
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-pressed");
+  });
+
+  it("lets the caller override aria-pressed explicitly", () => {
+    render(
+      <Button isActive aria-pressed={false}>
+        Overridden
+      </Button>,
+    );
+    expect(screen.getByRole("button")).toHaveAttribute("aria-pressed", "false");
+  });
+});
+
+describe("Button variant='primary' visual-only prop", () => {
+  it("omits aria-pressed when variant is primary (not a toggle)", () => {
+    render(<Button variant="primary">Play trailer</Button>);
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-pressed");
+  });
+
+  it("applies the same active highlight class as isActive", () => {
+    const { container: activeContainer } = render(
+      <Button isActive>Active</Button>,
+    );
+    const { container: primaryContainer } = render(
+      <Button variant="primary">Primary</Button>,
+    );
+
+    const activeButton = activeContainer.querySelector("button");
+    const primaryButton = primaryContainer.querySelector("button");
+
+    expect(activeButton?.className).toContain("active");
+    expect(primaryButton?.className).toContain("active");
+  });
+});
+
 describe("Button type attribute", () => {
   it('defaults to type="button" to prevent accidental form submission', () => {
     render(<Button>Click</Button>);

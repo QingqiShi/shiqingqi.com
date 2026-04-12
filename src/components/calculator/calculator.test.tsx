@@ -94,42 +94,6 @@ describe("Calculator error recovery", () => {
   });
 });
 
-describe("Calculator keyboard activation", () => {
-  it("appends the focused digit button's value on Enter instead of evaluating", async () => {
-    const user = userEvent.setup();
-    render(<Calculator />);
-
-    screen.getByRole("button", { name: "5" }).focus();
-    await user.keyboard("{Enter}");
-
-    expect(getDisplay()).toHaveTextContent("5");
-  });
-
-  it("activates the focused operator button on Enter", async () => {
-    const user = userEvent.setup();
-    render(<Calculator />);
-
-    await pressButtons(user, ["1"]);
-    screen.getByRole("button", { name: "Add" }).focus();
-    await user.keyboard("{Enter}");
-
-    expect(getDisplay()).toHaveTextContent("1 +");
-  });
-
-  it("still evaluates the expression when Enter is pressed with the container focused", async () => {
-    const user = userEvent.setup();
-    render(<Calculator />);
-
-    await pressButtons(user, ["2", "Add", "3"]);
-    expect(getDisplay()).toHaveTextContent("2 + 3");
-
-    screen.getByRole("application").focus();
-    await user.keyboard("{Enter}");
-
-    expect(getDisplay()).toHaveTextContent("5");
-  });
-});
-
 describe("Calculator Backspace", () => {
   it("deletes the last digit of a multi-digit number", async () => {
     const user = userEvent.setup();

@@ -5,11 +5,12 @@ import { flex, justify } from "#src/primitives/flex.stylex.ts";
 import { font, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { Anchor } from "../shared/anchor";
-import { CurrentYear } from "./current-year";
 
 interface FooterProps {
   locale: SupportedLocale;
 }
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 export function Footer({ locale }: FooterProps) {
   return (
@@ -39,9 +40,7 @@ export function Footer({ locale }: FooterProps) {
       <div css={[styles.section, styles.copyrightSection]}>
         <small>
           <span css={styles.name}>{t({ en: "Qingqi Shi", zh: "石清琪" })}</span>
-          <span css={styles.copyright}>
-            © <CurrentYear />
-          </span>
+          <span css={styles.copyright}>© {CURRENT_YEAR}</span>
         </small>
       </div>
     </footer>
