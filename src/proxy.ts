@@ -14,7 +14,7 @@ function validateReferer(request: NextRequest): NextResponse | null {
     const isLocalhost =
       refererUrl.hostname === "localhost" && refererUrl.protocol === "http:";
     const vercelUrls = [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL]
-      .filter(Boolean)
+      .filter((url): url is string => Boolean(url))
       .map((url) => `https://${url}`);
     const allowedOrigins = [...ALLOWED_REFERER, ...vercelUrls];
     const isAllowedReferer = allowedOrigins.some(
