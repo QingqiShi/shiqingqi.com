@@ -49,14 +49,28 @@ function StatsOverlay({
   onDebugChange: (next: DebugOptions) => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const gpuLabel =
     stats.frameGpu !== null ? `${stats.frameGpu.toFixed(2)} ms` : "n/a";
 
   const handleCopy = () => {
     void navigator.clipboard.writeText(formatStats(stats)).then(() => {
       setCopied(true);
-      setTimeout(() => {
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = setTimeout(() => {
         setCopied(false);
+        copyTimeoutRef.current = null;
       }, 1500);
     });
   };
