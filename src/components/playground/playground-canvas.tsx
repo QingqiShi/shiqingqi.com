@@ -14,12 +14,12 @@ function formatStats(stats: FrameStats) {
   const gpu =
     stats.frameGpu !== null ? `${stats.frameGpu.toFixed(2)} ms` : "n/a";
   return [
-    `FPS: ${stats.fps}`,
+    `FPS: ${String(stats.fps)}`,
     `CPU: ${stats.frameCpu.toFixed(2)} ms`,
     `GPU: ${gpu}`,
-    `Samples/px: ${stats.samplesPerPixel}`,
-    `Draw calls: ${stats.drawCalls}`,
-    `Resolution: ${stats.resolution[0]}×${stats.resolution[1]}`,
+    `Samples/px: ${String(stats.samplesPerPixel)}`,
+    `Draw calls: ${String(stats.drawCalls)}`,
+    `Resolution: ${String(stats.resolution[0])}×${String(stats.resolution[1])}`,
   ].join("\n");
 }
 
@@ -55,7 +55,9 @@ function StatsOverlay({
   const handleCopy = () => {
     void navigator.clipboard.writeText(formatStats(stats)).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setTimeout(() => {
+        setCopied(false);
+      }, 1500);
     });
   };
 
@@ -63,14 +65,14 @@ function StatsOverlay({
     <div css={styles.overlay}>
       <table css={styles.table}>
         <tbody>
-          <Row label="FPS" value={`${stats.fps}`} />
+          <Row label="FPS" value={String(stats.fps)} />
           <Row label="CPU" value={`${stats.frameCpu.toFixed(2)} ms`} />
           <Row label="GPU" value={gpuLabel} />
-          <Row label="Samples/px" value={`${stats.samplesPerPixel}`} />
-          <Row label="Draw calls" value={`${stats.drawCalls}`} />
+          <Row label="Samples/px" value={String(stats.samplesPerPixel)} />
+          <Row label="Draw calls" value={String(stats.drawCalls)} />
           <Row
             label="Resolution"
-            value={`${stats.resolution[0]}×${stats.resolution[1]}`}
+            value={`${String(stats.resolution[0])}×${String(stats.resolution[1])}`}
           />
         </tbody>
       </table>
@@ -85,7 +87,9 @@ function StatsOverlay({
               key={key}
               label={label}
               active={debug[key]}
-              onToggle={() => onDebugChange({ ...debug, [key]: !debug[key] })}
+              onToggle={() => {
+                onDebugChange({ ...debug, [key]: !debug[key] });
+              }}
             />
           ))}
         </div>
@@ -100,7 +104,9 @@ function StatsOverlay({
             <button
               key={value}
               type="button"
-              onClick={() => onDebugChange({ ...debug, mode: value })}
+              onClick={() => {
+                onDebugChange({ ...debug, mode: value });
+              }}
               css={[
                 styles.modeButton,
                 debug.mode === value && styles.modeButtonActive,

@@ -2,7 +2,9 @@ import { useSyncExternalStore } from "react";
 
 function subscribe(onChange: () => void) {
   window.addEventListener("resize", onChange);
-  return () => window.removeEventListener("resize", onChange);
+  return () => {
+    window.removeEventListener("resize", onChange);
+  };
 }
 
 function getSnapshot() {

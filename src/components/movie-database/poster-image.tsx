@@ -22,7 +22,7 @@ interface PosterImageProps {
 export function PosterImage({ posterPath, alt }: PosterImageProps) {
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
 
-  if (!config.images?.base_url || !config.images?.poster_sizes) {
+  if (!config.images?.base_url || !config.images.poster_sizes) {
     return (
       <div css={[imageCover.base, flex.center, styles.errored]}>
         <div>{alt}</div>

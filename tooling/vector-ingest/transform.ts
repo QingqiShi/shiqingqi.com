@@ -25,13 +25,13 @@ export function transformMovie(detail: TmdbMovieDetail): VectorRecord {
   const directors = extractDirectors(detail.credits.crew ?? [], "movie");
   const cast = extractCast(detail.credits.cast ?? []);
   const platforms = extractStreamingPlatforms(
-    detail["watch/providers"]?.results,
+    detail["watch/providers"].results,
   );
   const keywords = extractKeywordsFromMovie(detail);
   const genres = (detail.genres ?? []).flatMap((g) => (g.name ? [g.name] : []));
 
   return {
-    id: `movie-${detail.id}`,
+    id: `movie-${String(detail.id)}`,
     data: composeEmbeddingText({
       title: detail.title ?? "",
       originalTitle: detail.original_title ?? "",
@@ -65,13 +65,13 @@ export function transformTv(detail: TmdbTvDetail): VectorRecord {
   const directors = extractDirectors(detail.credits.crew ?? [], "tv");
   const cast = extractCast(detail.credits.cast ?? []);
   const platforms = extractStreamingPlatforms(
-    detail["watch/providers"]?.results,
+    detail["watch/providers"].results,
   );
   const keywords = extractKeywordsFromTv(detail);
   const genres = (detail.genres ?? []).flatMap((g) => (g.name ? [g.name] : []));
 
   return {
-    id: `tv-${detail.id}`,
+    id: `tv-${String(detail.id)}`,
     data: composeEmbeddingText({
       title: detail.name ?? "",
       originalTitle: detail.original_name ?? "",

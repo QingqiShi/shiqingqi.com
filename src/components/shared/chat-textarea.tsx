@@ -2,14 +2,26 @@
 
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
-import { useRef, useState, type ReactNode } from "react";
+import { createContext, use, useRef, useState, type ReactNode } from "react";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 
-interface ActionButtonContext {
+interface ChatTextareaContextValue {
   trimmedText: string;
   focusTextarea: () => void;
+}
+
+const ChatTextareaContext = createContext<ChatTextareaContextValue | null>(
+  null,
+);
+
+export function useChatTextarea() {
+  const ctx = use(ChatTextareaContext);
+  if (!ctx) {
+    throw new Error("useChatTextarea must be used within a ChatTextarea");
+  }
+  return ctx;
 }
 
 interface ChatTextareaProps {
@@ -20,11 +32,8 @@ interface ChatTextareaProps {
   autoGrow?: boolean;
   /** Content rendered before the textarea (e.g. attachment row). */
   beforeTextarea?: ReactNode;
-  /**
-   * Override the default send button. Receives context with the current trimmed
-   * text and a function to focus the textarea.
-   */
-  actionButton?: (context: ActionButtonContext) => ReactNode;
+  /** Override the default send button. Use `useChatTextarea()` inside children to access context. */
+  children?: ReactNode;
 }
 
 export function ChatTextarea({
@@ -34,10 +43,10 @@ export function ChatTextarea({
   disabled = false,
   autoGrow = false,
   beforeTextarea,
-  actionButton,
+  children,
 }: ChatTextareaProps) {
   const [text, setText] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const trimmed = text.trim();
 
   function resetHeight() {
@@ -63,11 +72,11 @@ export function ChatTextarea({
     if (autoGrow) {
       const textarea = event.target;
       textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
+      textarea.style.height = `${String(textarea.scrollHeight)}px`;
     }
   }
 
-  function handleSubmit(event: React.FormEvent) {
+  function handleSubmit(event: React.SubmitEvent) {
     event.preventDefault();
     submit();
   }
@@ -84,39 +93,39 @@ export function ChatTextarea({
   }
 
   return (
-    <form onSubmit={handleSubmit} css={[flex.wrap, styles.container]}>
-      {beforeTextarea}
-      <textarea
-        ref={textareaRef}
-        value={text}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        aria-label={placeholder}
-        rows={1}
-        disabled={disabled}
-        css={[styles.textarea, autoGrow && styles.textareaAutoGrow]}
-        autoComplete="off"
-        enterKeyHint="send"
-      />
-      {actionButton ? (
-        actionButton({ trimmedText: trimmed, focusTextarea })
-      ) : (
-        <button
-          type="submit"
-          aria-label={sendLabel}
-          disabled={!trimmed || disabled}
-          css={[
-            flex.inlineCenter,
-            buttonReset.base,
-            styles.iconButton,
-            !!trimmed && styles.iconButtonActive,
-          ]}
-        >
-          <ArrowUpIcon weight="bold" role="presentation" />
-        </button>
-      )}
-    </form>
+    <ChatTextareaContext value={{ trimmedText: trimmed, focusTextarea }}>
+      <form onSubmit={handleSubmit} css={[flex.wrap, styles.container]}>
+        {beforeTextarea}
+        <textarea
+          ref={textareaRef}
+          value={text}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          aria-label={placeholder}
+          rows={1}
+          disabled={disabled}
+          css={[styles.textarea, autoGrow && styles.textareaAutoGrow]}
+          autoComplete="off"
+          enterKeyHint="send"
+        />
+        {children ?? (
+          <button
+            type="submit"
+            aria-label={sendLabel}
+            disabled={!trimmed || disabled}
+            css={[
+              flex.inlineCenter,
+              buttonReset.base,
+              styles.iconButton,
+              !!trimmed && styles.iconButtonActive,
+            ]}
+          >
+            <ArrowUpIcon weight="bold" role="presentation" />
+          </button>
+        )}
+      </form>
+    </ChatTextareaContext>
   );
 }
 

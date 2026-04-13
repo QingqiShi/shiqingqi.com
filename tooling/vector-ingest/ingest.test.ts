@@ -54,7 +54,9 @@ function makeFakeIndex() {
       if (!namespaces.has(locale)) {
         namespaces.set(locale, makeFakeNamespace());
       }
-      return namespaces.get(locale)!;
+      const ns = namespaces.get(locale);
+      if (!ns) throw new Error(`expected namespace for locale ${locale}`);
+      return ns;
     },
     namespaces,
   };

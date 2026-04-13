@@ -43,7 +43,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
 
     metaTag.setAttribute(
       "content",
-      !theme || theme === "system"
+      theme === "system"
         ? preferDark
           ? "#000000"
           : "#ffffff"
@@ -82,9 +82,11 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         <Button
           role="radio"
           aria-label={labels[2]}
-          aria-checked={!theme || theme === "system"}
-          onClick={() => setTheme("system")}
-          disabled={!theme || theme === "system"}
+          aria-checked={theme === "system"}
+          onClick={() => {
+            setTheme("system");
+          }}
+          disabled={theme === "system"}
           title={labels[2]}
         >
           <div css={styles.systemIcon}>
@@ -101,20 +103,16 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         id="theme-switch"
         css={styles.switch}
         value={
-          !theme || theme === "system"
+          theme === "system"
             ? themeMap[preferDark ? "dark" : "light"]
             : themeMap[theme]
         }
-        onChange={(state) => setTheme(state === "on" ? "dark" : "light")}
+        onChange={(state) => {
+          setTheme(state === "on" ? "dark" : "light");
+        }}
         aria-label={
           labels[
-            !theme || theme === "system"
-              ? preferDark
-                ? 0
-                : 1
-              : theme === "dark"
-                ? 0
-                : 1
+            theme === "system" ? (preferDark ? 0 : 1) : theme === "dark" ? 0 : 1
           ]
         }
       />

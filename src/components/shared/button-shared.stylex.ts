@@ -18,7 +18,7 @@ export const sharedStyles = stylex.create({
     borderRadius: buttonTokens.borderRadius,
     boxShadow: buttonTokens.boxShadow,
     transition: {
-      default: `background 0.2s ease, transform ${PRESS_ANIMATION_DURATION}ms ease-out, filter ${PRESS_ANIMATION_DURATION}ms ease-out`,
+      default: `background 0.2s ease, transform ${String(PRESS_ANIMATION_DURATION)}ms ease-out, filter ${String(PRESS_ANIMATION_DURATION)}ms ease-out`,
       [motionConstants.REDUCED_MOTION]: "background 0.2s ease",
     },
     backgroundColor: {
@@ -91,7 +91,7 @@ export const sharedStyles = stylex.create({
   },
   releasedOutside: {
     transition: {
-      default: `background 0.2s ease, transform ${RELEASE_OUTSIDE_ANIMATION_DURATION}ms ease-out, filter ${RELEASE_OUTSIDE_ANIMATION_DURATION}ms ease-out`,
+      default: `background 0.2s ease, transform ${String(RELEASE_OUTSIDE_ANIMATION_DURATION)}ms ease-out, filter ${String(RELEASE_OUTSIDE_ANIMATION_DURATION)}ms ease-out`,
       [motionConstants.REDUCED_MOTION]: "background 0.2s ease",
     },
   },

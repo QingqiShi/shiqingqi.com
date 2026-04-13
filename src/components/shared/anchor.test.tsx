@@ -48,7 +48,8 @@ describe("Anchor", () => {
     );
 
     const link = screen.getByRole("link", { name: "External" });
-    const rel = link.getAttribute("rel")!;
+    const rel = link.getAttribute("rel");
+    if (!rel) throw new Error("expected rel attribute");
     const tokens = rel.split(/\s+/);
     expect(tokens.filter((t) => t === "noopener")).toHaveLength(1);
     expect(tokens.filter((t) => t === "noreferrer")).toHaveLength(1);

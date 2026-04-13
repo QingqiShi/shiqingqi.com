@@ -92,7 +92,7 @@ export default async function Page({ params }: PageProps) {
 
     const meta = [
       tvShow.first_air_date?.split("-")[0],
-      `${tvShow.number_of_seasons} ${seasonLabel} • ${tvShow.number_of_episodes} ${episodeLabel}`,
+      `${String(tvShow.number_of_seasons)} ${seasonLabel} • ${String(tvShow.number_of_episodes)} ${episodeLabel}`,
       tvShow.genres
         ?.map((genre) => genre.name)
         .filter(Boolean)

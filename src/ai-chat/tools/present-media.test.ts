@@ -56,7 +56,8 @@ describe("createPresentMediaTool", () => {
         { id: 2, media_type: "tv" as const },
       ],
     };
-    const result = await tool.execute!(input, {
+    if (!tool.execute) throw new Error("expected execute");
+    const result = await tool.execute(input, {
       toolCallId: "test",
       messages: [],
       abortSignal: AbortSignal.timeout(5000),

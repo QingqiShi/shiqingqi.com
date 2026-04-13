@@ -91,7 +91,9 @@ export function ChatMessage({
                 content={part.text}
                 onCaughtUp={
                   isActiveTextPart
-                    ? () => setReleasedTextParts((prev) => prev + 1)
+                    ? () => {
+                        setReleasedTextParts((prev) => prev + 1);
+                      }
                     : undefined
                 }
                 sealed={isSealed}
@@ -160,7 +162,7 @@ export function ChatMessage({
 }
 
 function isCompactionPart(part: TextUIPart): boolean {
-  return part.providerMetadata?.anthropic?.type === "compaction";
+  return part.providerMetadata?.anthropic.type === "compaction";
 }
 
 export function deriveMessageData(parts: UIMessage["parts"]) {
@@ -188,7 +190,7 @@ export function deriveMessageData(parts: UIMessage["parts"]) {
       const typeKey = part.type;
       const count = typeCounts.get(typeKey) ?? 0;
       typeCounts.set(typeKey, count + 1);
-      partKeys.push(`${typeKey}-${count}`);
+      partKeys.push(`${typeKey}-${String(count)}`);
     }
 
     if (isToolUIPart(part)) {

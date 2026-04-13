@@ -108,7 +108,9 @@ test("should prevent body scroll when trailer overlay is open", async ({
   await page.goto(`/en/movie-database/movie/${FIGHT_CLUB_ID}`);
 
   // Scroll down a bit to have some scroll position
-  await page.evaluate(() => window.scrollTo(0, 200));
+  await page.evaluate(() => {
+    window.scrollTo(0, 200);
+  });
   await page.waitForFunction(() => window.scrollY === 200);
 
   const scrollYBeforeOverlay = await page.evaluate(() => window.scrollY);

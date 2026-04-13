@@ -149,7 +149,9 @@ test.describe("Movie and TV Show Browsing", () => {
     const lastCardBeforeScroll = await cards.last().getAttribute("aria-label");
 
     // Scroll to bottom
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.evaluate(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    });
 
     // Wait for the last card to change (new content loaded)
     await expect(async () => {

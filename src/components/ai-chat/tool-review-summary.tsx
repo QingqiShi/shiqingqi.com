@@ -106,8 +106,8 @@ export function ToolReviewSummary({
       setSelectedLevel(null);
       const message =
         locale === "zh"
-          ? `用辣度 ${level} 重新总结"${data.title}"的评论`
-          : `Summarize reviews for "${data.title}" with spiciness level ${level}`;
+          ? `用辣度 ${String(level)} 重新总结"${data.title}"的评论`
+          : `Summarize reviews for "${data.title}" with spiciness level ${String(level)}`;
       sendMessage(message);
     } else {
       setSelectedLevel(level);
@@ -130,7 +130,7 @@ export function ToolReviewSummary({
           <span css={styles.countBadge}>
             {data.reviewCount === 1
               ? t({ en: "1 review", zh: "1 条评论" })
-              : `${data.reviewCount} ${t({ en: "reviews", zh: "条评论" })}`}
+              : `${String(data.reviewCount)} ${t({ en: "reviews", zh: "条评论" })}`}
           </span>
         </div>
       </div>
@@ -153,7 +153,9 @@ export function ToolReviewSummary({
                     isCurrent && styles.levelButtonCurrent,
                     isSelected && styles.levelButtonSelected,
                   ]}
-                  onClick={() => handleTap(level)}
+                  onClick={() => {
+                    handleTap(level);
+                  }}
                   aria-label={
                     isSelected ? confirmLabels[level] : spicinessLabels[level]
                   }

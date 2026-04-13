@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 /**
  * Hook for optionally controlled state. When `controlled` is provided,
@@ -18,17 +18,17 @@ export function useControlled<T>({
   controlled: T | undefined;
   defaultValue: T;
 }): [T, (next: T) => void] {
-  const isControlledRef = useRef(controlled !== undefined);
+  // Captured once on mount — the controlled/uncontrolled decision is
+  // fixed for the component's lifetime (same semantics as the old ref).
+  const [isControlled] = useState(() => controlled !== undefined);
   const [internalValue, setInternalValue] = useState(defaultValue);
 
   // When controlled, use the provided value (falling back to
   // defaultValue for the impossible case where controlled becomes
   // undefined after initialisation).
-  const value = isControlledRef.current
-    ? (controlled ?? defaultValue)
-    : internalValue;
+  const value = isControlled ? (controlled ?? defaultValue) : internalValue;
 
-  const setter = isControlledRef.current ? noop : setInternalValue;
+  const setter = isControlled ? noop : setInternalValue;
 
   return [value, setter];
 }

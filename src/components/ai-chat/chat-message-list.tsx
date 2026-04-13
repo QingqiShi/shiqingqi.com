@@ -36,7 +36,7 @@ function getLatestInputTokens(
 ): number {
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
-    if (msg?.role === "assistant" && msg.metadata?.inputTokens != null) {
+    if (msg.role === "assistant" && msg.metadata?.inputTokens != null) {
       return msg.metadata.inputTokens;
     }
   }
@@ -92,7 +92,9 @@ export function ChatMessageList({
       scrollToBottomIfNeeded();
     });
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [status]);
 
   const showTypingIndicator = status === "submitted" || status === "streaming";

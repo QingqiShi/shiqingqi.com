@@ -8,7 +8,11 @@ import { flex } from "#src/primitives/flex.stylex.ts";
 import { truncate } from "#src/primitives/layout.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
-import { ChatTextarea, chatTextareaStyles } from "../shared/chat-textarea";
+import {
+  ChatTextarea,
+  chatTextareaStyles,
+  useChatTextarea,
+} from "../shared/chat-textarea";
 import type { AttachedMedia } from "./chat-actions-context";
 
 interface ChatInputBarProps {
@@ -64,41 +68,65 @@ export function ChatInputBar({
           </div>
         )
       }
-      actionButton={({ trimmedText, focusTextarea }) =>
-        isLoading ? (
-          <button
-            type="button"
-            aria-label={stopLabel}
-            onClick={() => {
-              onStop();
-              focusTextarea();
-            }}
-            css={[
-              flex.inlineCenter,
-              buttonReset.base,
-              chatTextareaStyles.iconButton,
-              chatTextareaStyles.iconButtonActive,
-            ]}
-          >
-            <StopIcon weight="fill" role="presentation" />
-          </button>
-        ) : (
-          <button
-            type="submit"
-            aria-label={sendLabel}
-            disabled={!trimmedText}
-            css={[
-              flex.inlineCenter,
-              buttonReset.base,
-              chatTextareaStyles.iconButton,
-              !!trimmedText && chatTextareaStyles.iconButtonActive,
-            ]}
-          >
-            <ArrowUpIcon weight="bold" role="presentation" />
-          </button>
-        )
-      }
-    />
+    >
+      <ChatInputBarActions
+        isLoading={isLoading}
+        sendLabel={sendLabel}
+        stopLabel={stopLabel}
+        onStop={onStop}
+      />
+    </ChatTextarea>
+  );
+}
+
+function ChatInputBarActions({
+  isLoading,
+  sendLabel,
+  stopLabel,
+  onStop,
+}: {
+  isLoading: boolean;
+  sendLabel: string;
+  stopLabel: string;
+  onStop: () => void;
+}) {
+  const { trimmedText, focusTextarea } = useChatTextarea();
+
+  if (isLoading) {
+    return (
+      <button
+        type="button"
+        aria-label={stopLabel}
+        onClick={() => {
+          onStop();
+          focusTextarea();
+        }}
+        css={[
+          flex.inlineCenter,
+          buttonReset.base,
+          chatTextareaStyles.iconButton,
+          chatTextareaStyles.iconButtonActive,
+        ]}
+      >
+        <StopIcon weight="fill" role="presentation" />
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="submit"
+      aria-label={sendLabel}
+      disabled={!trimmedText}
+      css={[
+        flex.inlineCenter,
+        buttonReset.base,
+        chatTextareaStyles.iconButton,
+        !!trimmedText && chatTextareaStyles.iconButtonActive,
+      ]}
+    >
+      <ArrowUpIcon weight="bold" role="presentation" />
+    </button>
   );
 }
 

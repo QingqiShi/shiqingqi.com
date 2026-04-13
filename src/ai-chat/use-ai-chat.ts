@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
 import { accumulateToolOutputs } from "#src/components/ai-chat/map-tool-output.ts";
@@ -82,15 +82,36 @@ async function fetchSession(
   if (response.status === 404) {
     return null;
   }
-  throw new Error(`Failed to fetch session: ${response.status}`);
+  throw new Error(`Failed to fetch session: ${String(response.status)}`);
 }
+
+// localStorage doesn't fire storage events for same-tab changes and we only
+// need the value at mount time, so subscribe is a no-op. Module-level constant
+// ensures referential stability for useSyncExternalStore.
+const noopSubscribe = () => () => {};
 
 type ContinueSessionStatus = "idle" | "pending" | "error";
 
 export function useAIChat({ locale }: { locale: SupportedLocale }) {
-  const [previousSessionId, setPreviousSessionId] = useState<string | null>(
-    null,
+  // Read the stored session ID from localStorage via useSyncExternalStore.
+  // This avoids the hydration mismatch (getServerSnapshot returns null for SSR)
+  // without needing a useEffect + setState workaround.
+  const storedSessionId = useSyncExternalStore(
+    noopSubscribe,
+    () => getStoredSessionId(locale),
+    () => null,
   );
+
+  // Track whether the banner has been dismissed (user started chatting,
+  // continued, or explicitly dismissed). Resets when locale changes so a
+  // stored session for the new locale can surface.
+  const [dismissed, setDismissed] = useState(false);
+  const [dismissedForLocale, setDismissedForLocale] = useState(locale);
+  if (dismissedForLocale !== locale) {
+    setDismissedForLocale(locale);
+    setDismissed(false);
+  }
+
   const [continueSessionStatus, setContinueSessionStatus] =
     useState<ContinueSessionStatus>("idle");
 
@@ -104,7 +125,7 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
         }
         const lastMessage = messages[messages.length - 1];
 
-        if (!sessionId && lastMessage) {
+        if (!sessionId && messages.length > 0) {
           const prefsCtx = getCachedPreferencesContext();
           if (prefsCtx) {
             const enrichedMessage = {
@@ -152,40 +173,31 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
     return chatResult.sendMessage(...args);
   }
 
-  // Deferred to useEffect so the initial render matches the server (null),
-  // avoiding a hydration mismatch — localStorage is not available during SSR.
-  useEffect(() => {
-    const stored = getStoredSessionId(locale);
-    if (stored) {
-      setPreviousSessionId(stored);
-    }
-  }, [locale]);
-
-  // Dismiss banner when user starts a new conversation
-  if (previousSessionId && chatResult.messages.length > 0) {
-    setPreviousSessionId(null);
-  }
+  // Derive previousSessionId: show the stored session only when the user
+  // hasn't dismissed the banner and hasn't started a new conversation.
+  const previousSessionId =
+    dismissed || chatResult.messages.length > 0 ? null : storedSessionId;
 
   const continueSession = () => {
-    if (!previousSessionId) return;
+    if (!storedSessionId) return;
     // De-dupe rapid clicks — the previous in-flight fetch will resolve the
     // banner one way or another.
     if (continueSessionStatus === "pending") return;
     setContinueSessionStatus("pending");
-    fetchSession(previousSessionId)
+    fetchSession(storedSessionId)
       .then((result) => {
         if (!result) {
           // 404: session gone server-side. Forget it and start fresh.
           clearStoredSessionId(locale);
-          setPreviousSessionId(null);
+          setDismissed(true);
           setContinueSessionStatus("idle");
           return;
         }
         chatResult.setMessages(result.messages);
-        setPreviousSessionId(null);
+        setDismissed(true);
         setContinueSessionStatus("idle");
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         // Network / 5xx: surface to the user instead of silently freezing
         // the banner. The user can retry or dismiss.
         console.error("Failed to restore session", error);
@@ -195,7 +207,7 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
 
   const dismissPreviousSession = () => {
     clearStoredSessionId(locale);
-    setPreviousSessionId(null);
+    setDismissed(true);
     setContinueSessionStatus("idle");
   };
 

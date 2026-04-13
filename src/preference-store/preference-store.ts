@@ -67,9 +67,12 @@ function openDB(): Promise<IDBDatabase> {
       }
     };
 
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () =>
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+    request.onerror = () => {
       reject(request.error ?? new Error("Failed to open IndexedDB"));
+    };
   });
 }
 
@@ -83,10 +86,15 @@ export async function getAllPreferences(): Promise<StoredPreference[]> {
       const raw: unknown[] = request.result;
       resolve(raw.filter(isStoredPreference));
     };
-    request.onerror = () =>
+    request.onerror = () => {
       reject(request.error ?? new Error("Failed to read preferences"));
-    tx.oncomplete = () => db.close();
-    tx.onerror = () => db.close();
+    };
+    tx.oncomplete = () => {
+      db.close();
+    };
+    tx.onerror = () => {
+      db.close();
+    };
   });
 }
 

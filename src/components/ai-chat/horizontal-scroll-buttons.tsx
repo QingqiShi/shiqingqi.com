@@ -42,7 +42,9 @@ export function HorizontalScrollButtons({
         aria-label={t({ en: "Scroll left", zh: "向左滚动" })}
         aria-hidden={!showLeft}
         tabIndex={showLeft ? 0 : -1}
-        onClick={() => scroll(-1)}
+        onClick={() => {
+          scroll(-1);
+        }}
         css={[
           buttonReset.base,
           styles.button,
@@ -57,7 +59,9 @@ export function HorizontalScrollButtons({
         aria-label={t({ en: "Scroll right", zh: "向右滚动" })}
         aria-hidden={!showRight}
         tabIndex={showRight ? 0 : -1}
-        onClick={() => scroll(1)}
+        onClick={() => {
+          scroll(1);
+        }}
         css={[
           buttonReset.base,
           styles.button,

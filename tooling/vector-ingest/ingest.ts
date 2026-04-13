@@ -80,16 +80,16 @@ async function main() {
     strict: true,
   });
 
-  const dryRun = values["dry-run"] ?? false;
-  const incremental = values.incremental ?? false;
-  const days = parseInt(values.days ?? "1", 10);
+  const dryRun = values["dry-run"];
+  const incremental = values.incremental;
+  const days = parseInt(values.days, 10);
   const limit = values.limit ? parseInt(values.limit, 10) : undefined;
 
   if (Number.isNaN(days) || days < 1) {
     throw new Error(`Invalid --days value: ${values.days}`);
   }
   if (limit !== undefined && (Number.isNaN(limit) || limit < 1)) {
-    throw new Error(`Invalid --limit value: ${values.limit}`);
+    throw new Error(`Invalid --limit value: ${String(values.limit)}`);
   }
 
   const apiToken = getRequiredEnv("TMDB_API_TOKEN");
@@ -155,12 +155,14 @@ export async function runFull(
 
   console.log(`\nExport stats:`);
   console.log(
-    `  Movies: ${movieEntries.length} total, ${filteredMovies.length} after popularity >= ${MIN_POPULARITY_MOVIE} filter`,
+    `  Movies: ${String(movieEntries.length)} total, ${String(filteredMovies.length)} after popularity >= ${String(MIN_POPULARITY_MOVIE)} filter`,
   );
   console.log(
-    `  TV: ${tvEntries.length} total, ${filteredTv.length} after popularity >= ${MIN_POPULARITY_TV} filter`,
+    `  TV: ${String(tvEntries.length)} total, ${String(filteredTv.length)} after popularity >= ${String(MIN_POPULARITY_TV)} filter`,
   );
-  console.log(`  Total to fetch: ${filteredMovies.length + filteredTv.length}`);
+  console.log(
+    `  Total to fetch: ${String(filteredMovies.length + filteredTv.length)}`,
+  );
 
   if (dryRun) {
     console.log("\n[DRY RUN] Stopping before API calls and upserts.");
@@ -173,7 +175,7 @@ export async function runFull(
   let tvIds = filteredTv.map((e) => e.id);
 
   if (limit !== undefined) {
-    console.log(`\n  Limiting to ${limit} per media type`);
+    console.log(`\n  Limiting to ${String(limit)} per media type`);
     movieIds = movieIds.slice(0, limit);
     tvIds = tvIds.slice(0, limit);
   }
@@ -202,7 +204,9 @@ export async function runIncremental(
   dryRun: boolean,
   limit?: number,
 ): Promise<IngestStats[]> {
-  console.log(`Starting incremental ingestion (last ${days} day(s))...`);
+  console.log(
+    `Starting incremental ingestion (last ${String(days)} day(s))...`,
+  );
 
   const endDate = new Date();
   const startDate = new Date(endDate);
@@ -227,10 +231,10 @@ export async function runIncremental(
   const changesOnlyTvIds = changedTvIds.filter((id) => !trendingTvSet.has(id));
 
   console.log(
-    `Changes: ${changedMovieIds.length} movies, ${changedTvIds.length} TV shows`,
+    `Changes: ${String(changedMovieIds.length)} movies, ${String(changedTvIds.length)} TV shows`,
   );
   console.log(
-    `Trending: ${trendingMovieIds.length} movies, ${trendingTvIds.length} TV shows`,
+    `Trending: ${String(trendingMovieIds.length)} movies, ${String(trendingTvIds.length)} TV shows`,
   );
 
   if (dryRun) {
@@ -268,7 +272,7 @@ export async function runIncremental(
   ];
 
   if (limit !== undefined) {
-    console.log(`  Limiting to ${limit} per media type`);
+    console.log(`  Limiting to ${String(limit)} per media type`);
     for (const batch of batches) {
       batch.ids = batch.ids.slice(0, limit);
     }
@@ -285,7 +289,7 @@ export async function runIncremental(
       if (batch.ids.length > 0) {
         const label = batch.mediaType === "tv" ? "TV shows" : "movies";
         console.log(
-          `  Fetching and upserting ${batch.ids.length} ${batch.label} ${label}...`,
+          `  Fetching and upserting ${String(batch.ids.length)} ${batch.label} ${label}...`,
         );
         allStats.push(
           await fetchAndUpsert(
@@ -320,7 +324,7 @@ async function upsertWithRetry(
       return records.length;
     } catch (retryError) {
       console.error(
-        `    Upsert retry failed, skipping batch of ${records.length}: ${String(retryError)}`,
+        `    Upsert retry failed, skipping batch of ${String(records.length)}: ${String(retryError)}`,
       );
       return 0;
     }
@@ -368,7 +372,7 @@ export async function fetchAndUpsert(
           result.reason.statusCode === 404
         ) {
           notFoundErrors++;
-          toDelete.push(`${mediaType}-${id}`);
+          toDelete.push(`${mediaType}-${String(id)}`);
         } else {
           otherErrors++;
           if (otherErrors <= 10) {
@@ -401,7 +405,7 @@ export async function fetchAndUpsert(
     // Progress logging
     if (processed % 500 === 0 || processed === ids.length) {
       console.log(
-        `    Progress: ${processed}/${ids.length} processed, ${upserted + batch.length} upserted, ${notFoundErrors} deleted, ${skippedVoteCount} skipped (low votes), ${otherErrors} errors`,
+        `    Progress: ${String(processed)}/${String(ids.length)} processed, ${String(upserted + batch.length)} upserted, ${String(notFoundErrors)} deleted, ${String(skippedVoteCount)} skipped (low votes), ${String(otherErrors)} errors`,
       );
     }
   }
@@ -420,7 +424,7 @@ export async function fetchAndUpsert(
   }
 
   console.log(
-    `    Done: ${upserted} upserted, ${notFoundErrors} deleted, ${skippedVoteCount} skipped, ${otherErrors} errors`,
+    `    Done: ${String(upserted)} upserted, ${String(notFoundErrors)} deleted, ${String(skippedVoteCount)} skipped, ${String(otherErrors)} errors`,
   );
 
   return {
@@ -457,16 +461,16 @@ export function writeSummary(allStats: IngestStats[]) {
     );
     if (s.deleted > 0) {
       console.log(
-        `::notice::${s.locale}/${s.mediaType}: deleted ${s.deleted} stale vectors (TMDB 404)`,
+        `::notice::${s.locale}/${s.mediaType}: deleted ${String(s.deleted)} stale vectors (TMDB 404)`,
       );
     }
     if (s.otherErrors > 0) {
       console.log(
-        `::warning::${s.locale}/${s.mediaType}: ${s.otherErrors} unexpected errors`,
+        `::warning::${s.locale}/${s.mediaType}: ${String(s.otherErrors)} unexpected errors`,
       );
     }
     mdLines?.push(
-      `| ${s.locale} | ${s.mediaType} | ${s.total} | ${s.upserted} | ${s.deleted} | ${s.skippedVoteCount} | ${s.otherErrors} |`,
+      `| ${s.locale} | ${s.mediaType} | ${String(s.total)} | ${String(s.upserted)} | ${String(s.deleted)} | ${String(s.skippedVoteCount)} | ${String(s.otherErrors)} |`,
     );
   }
 

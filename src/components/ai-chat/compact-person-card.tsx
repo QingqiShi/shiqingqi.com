@@ -28,7 +28,7 @@ function ProfilePhoto({
 }) {
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
 
-  if (!config.images?.base_url || !config.images?.profile_sizes) {
+  if (!config.images?.base_url || !config.images.profile_sizes) {
     return <div css={[flex.center, styles.photoFallback]}>{alt.charAt(0)}</div>;
   }
 

@@ -69,7 +69,9 @@ export function AIChatView({
       setIsAtBottom(atBottom);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const scrollToBottom = () => {
@@ -131,8 +133,12 @@ export function AIChatView({
             status={status}
             attachedMedia={attachedMedia}
             onSend={handleSend}
-            onStop={stop}
-            onClearAttachment={() => setAttachedMedia(null)}
+            onStop={() => {
+              void stop();
+            }}
+            onClearAttachment={() => {
+              setAttachedMedia(null);
+            }}
           />
         </div>
         <MediaDetailOverlay />

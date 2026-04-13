@@ -1,6 +1,6 @@
 import {
   defaultShouldDehydrateQuery,
-  isServer,
+  environmentManager,
   QueryClient,
 } from "@tanstack/react-query";
 
@@ -25,7 +25,7 @@ function makeQueryClient() {
 let browserQueryClient: QueryClient | undefined = undefined;
 
 export function getQueryClient() {
-  if (isServer) {
+  if (environmentManager.isServer()) {
     // Server: always make a new query client
     return makeQueryClient();
   } else {

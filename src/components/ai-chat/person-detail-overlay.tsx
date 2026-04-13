@@ -12,7 +12,9 @@ function getDialogLabel(person: FocusedPerson): string {
 export function PersonDetailOverlay() {
   const { focusedPerson, setFocusedPerson } = useMediaDetail();
 
-  const handleClose = () => setFocusedPerson(null);
+  const handleClose = () => {
+    setFocusedPerson(null);
+  };
 
   return (
     <DetailOverlay

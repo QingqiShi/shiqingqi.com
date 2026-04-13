@@ -17,18 +17,16 @@ beforeAll(() => {
     onfinish: null,
     oncancel: null,
   });
-  if (!window.matchMedia) {
-    window.matchMedia = vi.fn().mockReturnValue({
-      matches: false,
-      media: "",
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    });
-  }
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches: false,
+    media: "",
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  });
 });
 
 // MenuItem calls useRouter() at render time, which requires the Next.js

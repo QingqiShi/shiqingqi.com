@@ -39,7 +39,9 @@ export function PreferenceManager() {
       <button
         type="button"
         css={[buttonReset.base, flex.inlineCenter, triggerStyles.button]}
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+        }}
         aria-label={t({ en: "Preferences", zh: "偏好设置" })}
       >
         <SlidersHorizontalIcon size={16} role="presentation" />
@@ -49,7 +51,9 @@ export function PreferenceManager() {
       </button>
       <PreferencePanel
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setIsOpen(false);
+        }}
         preferences={preferences}
         onRemove={(id) => void remove(id)}
         onClearAll={clearAll}
@@ -198,7 +202,9 @@ function PreferencePanel({
               <button
                 type="button"
                 css={[buttonReset.base, styles.cancelButton]}
-                onClick={() => setConfirmingClear(false)}
+                onClick={() => {
+                  setConfirmingClear(false);
+                }}
               >
                 {t({ en: "Cancel", zh: "取消" })}
               </button>
@@ -207,7 +213,9 @@ function PreferencePanel({
             <button
               type="button"
               css={[buttonReset.base, flex.row, styles.clearButton]}
-              onClick={() => setConfirmingClear(true)}
+              onClick={() => {
+                setConfirmingClear(true);
+              }}
             >
               <TrashIcon size={14} role="presentation" />
               {t({
@@ -248,7 +256,9 @@ function CategorySection({
           <PreferenceChip
             key={pref.id}
             preference={pref}
-            onRemove={() => onRemove(pref.id)}
+            onRemove={() => {
+              onRemove(pref.id);
+            }}
           />
         ))}
       </div>

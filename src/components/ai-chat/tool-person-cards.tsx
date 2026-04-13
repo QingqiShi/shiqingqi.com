@@ -23,7 +23,7 @@ export function ToolPersonCards({ items }: ToolPersonCardsProps) {
     >
       {items.map((person) => (
         <div
-          key={`person-${person.id}`}
+          key={`person-${String(person.id)}`}
           css={styles.cardWrapper}
           role="listitem"
         >

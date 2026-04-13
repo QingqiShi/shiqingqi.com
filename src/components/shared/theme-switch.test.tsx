@@ -13,18 +13,16 @@ const LABELS: [string, string, string] = [
 beforeAll(() => {
   HTMLElement.prototype.setPointerCapture = vi.fn();
   HTMLElement.prototype.releasePointerCapture = vi.fn();
-  if (!window.matchMedia) {
-    window.matchMedia = vi.fn().mockReturnValue({
-      matches: false,
-      media: "",
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    });
-  }
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches: false,
+    media: "",
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  });
 });
 
 beforeEach(() => {

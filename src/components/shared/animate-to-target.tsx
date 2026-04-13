@@ -112,7 +112,7 @@ export function AnimateToTarget({
         const currentScaleY =
           startScaleY + (endScaleY - startScaleY) * progress;
         return {
-          transform: `translate3d(${currentTranslateX}px, ${currentTranslateY}px, 0px) scale(${currentScaleX}, ${currentScaleY})`,
+          transform: `translate3d(${String(currentTranslateX)}px, ${String(currentTranslateY)}px, 0px) scale(${String(currentScaleX)}, ${String(currentScaleY)})`,
           opacity: animateToTarget
             ? progress > 0.7
               ? 1 - (progress - 0.7) / 0.3
@@ -132,7 +132,7 @@ export function AnimateToTarget({
         const currentScaleY =
           startScaleY + (endScaleY - startScaleY) * progress;
         return {
-          transform: `scale(${1 / currentScaleX}, ${1 / currentScaleY})`,
+          transform: `scale(${String(1 / currentScaleX)}, ${String(1 / currentScaleY)})`,
         };
       }),
       animationOptions,

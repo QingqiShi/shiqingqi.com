@@ -68,10 +68,9 @@ export function MediaDetailContent({
         detail.releaseDate?.split("-")[0],
         mediaType === "tv"
           ? detail.numberOfSeasons
-            ? `${detail.numberOfSeasons} ${
-                new Intl.PluralRules(locale ?? "en").select(
-                  detail.numberOfSeasons,
-                ) === "one"
+            ? `${String(detail.numberOfSeasons)} ${
+                new Intl.PluralRules(locale).select(detail.numberOfSeasons) ===
+                "one"
                   ? t({ en: "season", zh: "季" })
                   : t({ en: "seasons", zh: "季" })
               }`

@@ -18,7 +18,7 @@ interface BackdropImageProps {
 export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
   const config = await getConfiguration();
 
-  if (!config.images?.base_url || !config.images?.backdrop_sizes) {
+  if (!config.images?.base_url || !config.images.backdrop_sizes) {
     return null;
   }
 

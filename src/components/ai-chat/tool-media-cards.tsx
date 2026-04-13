@@ -25,7 +25,7 @@ export function ToolMediaCards({ items }: ToolMediaCardsProps) {
         const { mediaType } = item;
         return (
           <div
-            key={`${item.mediaType ?? "unknown"}-${item.id}`}
+            key={`${item.mediaType ?? "unknown"}-${String(item.id)}`}
             css={styles.cardWrapper}
             role="listitem"
           >

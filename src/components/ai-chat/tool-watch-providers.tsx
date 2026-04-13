@@ -212,7 +212,7 @@ function ProviderLogo({
       css={styles.logo}
       src={src}
       srcSet={srcSet}
-      sizes={`${size}px`}
+      sizes={`${String(size)}px`}
       alt={name}
       title={name}
       width={size}
@@ -362,10 +362,12 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
           {" "}
           <button
             type="button"
-            onClick={() => setExpanded(true)}
+            onClick={() => {
+              setExpanded(true);
+            }}
             css={styles.showMoreButton}
           >
-            {`+${remaining} `}
+            {`+${String(remaining)} `}
             {t({ en: "more", zh: "更多" })}
           </button>
         </>
@@ -394,7 +396,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
         <span css={styles.regionBadge}>
           {regions.length === 1
             ? t({ en: "1 region", zh: "1 个地区" })
-            : `${regions.length} ${t({ en: "regions", zh: "个地区" })}`}
+            : `${String(regions.length)} ${t({ en: "regions", zh: "个地区" })}`}
         </span>
       </div>
 

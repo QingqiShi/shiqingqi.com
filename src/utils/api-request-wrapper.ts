@@ -16,14 +16,14 @@ export async function apiRequestWrapper<
 
     if (Array.isArray(value)) {
       for (const item of value) {
-        url.searchParams.append(key, `${item}`);
+        url.searchParams.append(key, String(item));
       }
     } else if (
       typeof value === "string" ||
       typeof value === "number" ||
       typeof value === "boolean"
     ) {
-      url.searchParams.set(key, `${value}`);
+      url.searchParams.set(key, String(value));
     }
   }
   const response = await fetch(url.toString(), {

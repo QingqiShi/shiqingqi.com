@@ -164,8 +164,12 @@ export function Switch({
           setControlledValue(value === "on" ? "off" : "on");
         }
       }}
-      onChange={(e) => e.preventDefault()}
-      onClick={(e) => e.preventDefault()}
+      onChange={(e) => {
+        e.preventDefault();
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+      }}
     />
   );
 }
@@ -226,8 +230,8 @@ const styles = stylex.create({
       },
     },
   },
-  dragging: (position) => ({
-    [switchTokens.thumbPosition]: `${position}px`,
+  dragging: (position: number | null) => ({
+    [switchTokens.thumbPosition]: `${String(position)}px`,
     "::before": {
       transition: null,
     },

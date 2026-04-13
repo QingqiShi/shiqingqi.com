@@ -153,7 +153,7 @@ export function buildSearchResultsMap(
   const map = new Map<string, MediaListItem>();
   for (const item of items) {
     if (item.mediaType) {
-      map.set(`${item.mediaType}:${item.id}`, item);
+      map.set(`${item.mediaType}:${String(item.id)}`, item);
     }
   }
   return map;
@@ -168,7 +168,7 @@ export function resolveMediaItems(
 
   const items: MediaListItem[] = [];
   for (const entry of parsed.data.media) {
-    const key = `${entry.media_type}:${entry.id}`;
+    const key = `${entry.media_type}:${String(entry.id)}`;
     const found = searchResults.get(key);
     if (found) {
       items.push(found);
@@ -290,9 +290,9 @@ export function resolvePersonItems(
 
 function watchProvidersKey(data: WatchProviderOutput): string {
   if (data.type === "region") {
-    return `wp:region:${data.id}:${data.mediaType}:${data.region}`;
+    return `wp:region:${String(data.id)}:${data.mediaType}:${data.region}`;
   }
-  return `wp:provider:${data.id}:${data.mediaType}:${data.providerName.toLowerCase()}`;
+  return `wp:provider:${String(data.id)}:${data.mediaType}:${data.providerName.toLowerCase()}`;
 }
 
 export function buildWatchProvidersMap(
@@ -312,7 +312,7 @@ export function resolveWatchProviders(
 ): WatchProviderOutput | null {
   const parsed = presentWatchProvidersInputSchema.safeParse(input);
   if (!parsed.success) return null;
-  const key = `wp:region:${parsed.data.id}:${parsed.data.media_type}:${parsed.data.region.toUpperCase()}`;
+  const key = `wp:region:${String(parsed.data.id)}:${parsed.data.media_type}:${parsed.data.region.toUpperCase()}`;
   return watchProviders.get(key) ?? null;
 }
 
@@ -322,6 +322,6 @@ export function resolveProviderRegions(
 ): WatchProviderOutput | null {
   const parsed = presentProviderRegionsInputSchema.safeParse(input);
   if (!parsed.success) return null;
-  const key = `wp:provider:${parsed.data.id}:${parsed.data.media_type}:${parsed.data.provider_name.toLowerCase()}`;
+  const key = `wp:provider:${String(parsed.data.id)}:${parsed.data.media_type}:${parsed.data.provider_name.toLowerCase()}`;
   return watchProviders.get(key) ?? null;
 }

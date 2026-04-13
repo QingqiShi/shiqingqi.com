@@ -6,9 +6,8 @@ import { useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { useViewportHeight } from "#src/hooks/use-viewport-height.ts";
-import { color, layout, ratio, space } from "#src/tokens.stylex.ts";
+import { color, layout, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
-import { Skeleton } from "../shared/skeleton";
 import { MediaCard } from "./media-card";
 
 interface MediaVirtuosoGridProps {
@@ -35,13 +34,9 @@ export function MediaVirtuosoGrid({
       key={virtuosoKey}
       data={items}
       components={gridComponents}
-      itemContent={(index) => {
-        const item = items[index];
-        if (!item) {
-          return <Skeleton css={styles.skeleton} delay={index * 100} />;
-        }
-        return <MediaCard media={item} allowFollow={index < 20} />;
-      }}
+      itemContent={(index) => (
+        <MediaCard media={items[index]} allowFollow={index < 20} />
+      )}
       endReached={() => {
         if (hasNextPage && !isFetching) {
           void fetchNextPage();
@@ -59,11 +54,6 @@ const gridComponents = {
 };
 
 const styles = stylex.create({
-  skeleton: {
-    aspectRatio: ratio.poster,
-    width: "100%",
-    overflow: "hidden",
-  },
   notFound: {
     maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,

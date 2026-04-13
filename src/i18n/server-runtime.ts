@@ -14,17 +14,17 @@ const bundles: Record<SupportedLocale, Record<string, string>> = {
 };
 
 export function __i18n_lookup(key: string): string {
-  const value = bundles[getLocale()][key];
-  if (process.env.NODE_ENV !== "production" && value === undefined) {
+  const bundle = bundles[getLocale()];
+  if (process.env.NODE_ENV !== "production" && !(key in bundle)) {
     throw new Error(`[i18n] Missing translation key: ${key}`);
   }
-  return value;
+  return bundle[key];
 }
 
 export function __i18n_lookupParse(key: string): ReactNode {
-  const value = bundles[getLocale()][key];
-  if (process.env.NODE_ENV !== "production" && value === undefined) {
+  const bundle = bundles[getLocale()];
+  if (process.env.NODE_ENV !== "production" && !(key in bundle)) {
     throw new Error(`[i18n] Missing translation key: ${key}`);
   }
-  return parseMessage(value);
+  return parseMessage(bundle[key]);
 }

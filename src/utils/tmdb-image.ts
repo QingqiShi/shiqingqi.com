@@ -17,8 +17,10 @@ export function buildSrcSet(
     return { src: `${baseUrl}original${path}`, srcSet: "" };
   }
 
-  const src = `${baseUrl}w${widths[widths.length - 1]}${path}`;
-  const srcSet = widths.map((w) => `${baseUrl}w${w}${path} ${w}w`).join(", ");
+  const src = `${baseUrl}w${String(widths[widths.length - 1])}${path}`;
+  const srcSet = widths
+    .map((w) => `${baseUrl}w${String(w)}${path} ${String(w)}w`)
+    .join(", ");
 
   return { src, srcSet };
 }

@@ -91,7 +91,8 @@ describe("createSavePreferenceTool", () => {
         },
       ],
     };
-    const result = await tool.execute!(input, {
+    if (!tool.execute) throw new Error("expected execute");
+    const result = await tool.execute(input, {
       toolCallId: "test",
       messages: [],
       abortSignal: AbortSignal.timeout(5000),

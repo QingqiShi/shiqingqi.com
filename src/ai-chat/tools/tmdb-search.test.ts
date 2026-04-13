@@ -111,7 +111,8 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    const results = await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    const results = await tool.execute(
       { query: "Dune" },
       {
         toolCallId: "test",
@@ -144,7 +145,7 @@ describe("tmdb search execute", () => {
 
   it("caps results at 10", async () => {
     const results = Array.from({ length: 15 }, (_, i) =>
-      movieResult({ id: i + 1, title: `Movie ${i + 1}` }),
+      movieResult({ id: i + 1, title: `Movie ${String(i + 1)}` }),
     );
 
     server.use(
@@ -159,7 +160,8 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    const items = await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    const items = await tool.execute(
       { query: "Movie" },
       {
         toolCallId: "test",
@@ -184,7 +186,8 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    const results = await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    const results = await tool.execute(
       { query: "xyznonexistent" },
       {
         toolCallId: "test",
@@ -213,7 +216,8 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("zh");
-    await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    await tool.execute(
       { query: "Parasite" },
       {
         toolCallId: "test",
@@ -242,7 +246,8 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    await tool.execute(
       { query: "Breaking Bad" },
       {
         toolCallId: "test",
@@ -267,7 +272,8 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    const results = await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    const results = await tool.execute(
       { query: "Inception" },
       {
         toolCallId: "test",
@@ -300,7 +306,8 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    const result = await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    const result = await tool.execute(
       { query: "Dune" },
       {
         toolCallId: "test",
@@ -329,7 +336,8 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    const results = await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    const results = await tool.execute(
       { query: "Breaking Bad" },
       {
         toolCallId: "test",

@@ -55,8 +55,12 @@ export function TmdbImage({
         sizes={sizes}
         loading={loading}
         decoding="async"
-        onLoad={() => setLoaded(true)}
-        onError={() => setErrored(true)}
+        onLoad={() => {
+          setLoaded(true);
+        }}
+        onError={() => {
+          setErrored(true);
+        }}
         ref={(el) => {
           if (el?.complete && el.naturalWidth > 0) setLoaded(true);
         }}

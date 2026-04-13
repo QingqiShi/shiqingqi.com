@@ -113,7 +113,7 @@ function getImportSources(ast: BabelFile): string[] {
       node.exportKind !== "type"
     ) {
       sources.push(node.source.value);
-    } else if (node.type === "ExportAllDeclaration" && node.source) {
+    } else if (node.type === "ExportAllDeclaration") {
       sources.push(node.source.value);
     }
   }

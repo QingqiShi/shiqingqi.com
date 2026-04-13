@@ -20,7 +20,8 @@ function provider(overrides: {
   logo_path?: string;
 }) {
   return {
-    logo_path: overrides.logo_path ?? `/logo-${overrides.provider_id}.jpg`,
+    logo_path:
+      overrides.logo_path ?? `/logo-${String(overrides.provider_id)}.jpg`,
     provider_id: overrides.provider_id,
     provider_name: overrides.provider_name,
     display_priority: overrides.display_priority,
@@ -71,7 +72,8 @@ async function executeTool(input: {
   provider_name?: string;
 }) {
   const tool = createWatchProvidersTool();
-  const result = await tool.execute!(input, executeContext);
+  if (!tool.execute) throw new Error("expected execute");
+  const result = await tool.execute(input, executeContext);
   return JSON.parse(JSON.stringify(result)) as
     | RegionResult
     | ProviderSearchResultType;
@@ -374,8 +376,8 @@ describe("watch providers execute", () => {
       await executeTool({ id: 550, media_type: "movie", region: "US" }),
     );
 
-    expect(result.providers).not.toBeNull();
-    const names = result.providers!.flatrate.map((p) => p.name);
+    if (!result.providers) throw new Error("expected providers");
+    const names = result.providers.flatrate.map((p) => p.name);
     expect(names).toEqual(["Netflix", "Disney+", "Amazon Prime"]);
   });
 
@@ -405,8 +407,8 @@ describe("watch providers execute", () => {
       await executeTool({ id: 550, media_type: "movie", region: "US" }),
     );
 
-    expect(result.providers).not.toBeNull();
-    const firstProvider = result.providers!.flatrate[0];
+    if (!result.providers) throw new Error("expected providers");
+    const firstProvider = result.providers.flatrate[0];
     expect(firstProvider).toBeDefined();
     expect(Object.keys(firstProvider)).toEqual(["id", "name", "logoPath"]);
   });
@@ -424,7 +426,8 @@ describe("watch providers error handling", () => {
     );
 
     const tool = createWatchProvidersTool();
-    const result = await tool.execute!(
+    if (!tool.execute) throw new Error("expected execute");
+    const result = await tool.execute(
       { id: 550, media_type: "movie", region: "US" },
       executeContext,
     );

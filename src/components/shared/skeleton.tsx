@@ -68,12 +68,12 @@ const styles = stylex.create({
     [skeletonTokens.height]: "100%",
   },
   width: (width: number) => ({
-    [skeletonTokens.width]: `${width}px`,
+    [skeletonTokens.width]: `${String(width)}px`,
   }),
   height: (height: number) => ({
-    [skeletonTokens.height]: `${height}px`,
+    [skeletonTokens.height]: `${String(height)}px`,
   }),
   delay: (delay: number) => ({
-    [skeletonTokens.delay]: `${delay}ms`,
+    [skeletonTokens.delay]: `${String(delay)}ms`,
   }),
 });

@@ -28,7 +28,7 @@ export function GenreFilterButton() {
       popupRole="group"
     >
       {t({ en: "Genre", zh: "类型" })}
-      {genres.size ? ` (${genres.size})` : null}
+      {genres.size ? ` (${String(genres.size)})` : null}
     </MenuButton>
   );
 }

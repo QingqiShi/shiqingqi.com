@@ -31,7 +31,7 @@ function updateFontSize(
   const availableWidth = container.clientWidth - paddingX;
 
   // Measure text width at max size to calculate scaling factor
-  text.style.fontSize = `${maxSize}px`;
+  text.style.fontSize = `${String(maxSize)}px`;
   const textWidthAtMax = text.scrollWidth;
 
   let finalSize: number;
@@ -44,7 +44,7 @@ function updateFontSize(
     finalSize = Math.max(maxSize * scaleFactor, minSize);
   }
 
-  text.style.fontSize = `${finalSize}px`;
+  text.style.fontSize = `${String(finalSize)}px`;
 
   // Content is scrollable when at minimum font size and still overflowing
   const textOverflows = text.scrollWidth > availableWidth;
@@ -76,7 +76,9 @@ export function CalculatorDisplay({
     });
     observer.observe(container);
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   // Recalculate font size when the display text changes.
