@@ -4,7 +4,7 @@ import { DotGridBackground } from "#src/components/ai-chat/dot-grid-background.t
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
-import { space } from "#src/tokens.stylex.ts";
+import { layout, space } from "#src/tokens.stylex.ts";
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -66,7 +66,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     minHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top))`,
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

@@ -10,7 +10,7 @@ import { FlowGradient } from "#src/components/shared/flow-gradient/flow-gradient
 import { BASE_URL } from "#src/constants.ts";
 import { i18nConfig } from "#src/i18n-config.ts";
 import { t } from "#src/i18n.ts";
-import { color, layer, space } from "#src/tokens.stylex.ts";
+import { color, layer, layout, space } from "#src/tokens.stylex.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import { glowTokens } from "./layout.stylex";
@@ -96,7 +96,7 @@ export default async function Layout({
 
 const styles = stylex.create({
   container: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

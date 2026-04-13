@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "#src/primitives/flex.stylex.ts";
-import { controlSize, layer, space } from "#src/tokens.stylex.ts";
+import { controlSize, layer, layout, space } from "#src/tokens.stylex.ts";
 import { Skeleton } from "./skeleton";
 import { skeletonTokens } from "./skeleton.stylex";
 
@@ -30,7 +30,7 @@ const styles = stylex.create({
     paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
   },
   nav: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

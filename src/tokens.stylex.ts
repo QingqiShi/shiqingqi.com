@@ -85,6 +85,10 @@ export const constants = stylex.defineConsts({
   DARK: "@media (prefers-color-scheme: dark)",
 });
 
+export const layout = stylex.defineConsts({
+  maxInlineSize: "1140px",
+});
+
 export const color = stylex.defineVars({
   colorScheme: {
     default: light.colorScheme,

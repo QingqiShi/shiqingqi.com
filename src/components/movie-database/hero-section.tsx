@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
+import { color, font, layout, space } from "#src/tokens.stylex.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 import { HeroChatInput } from "./hero-chat-input";
 
@@ -54,7 +54,7 @@ export function HeroSection() {
 
 const styles = stylex.create({
   section: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginInline: "auto",
     paddingBlockStart: { default: space._9, [breakpoints.md]: space._10 },
     paddingBlockEnd: { default: space._5, [breakpoints.md]: space._8 },
