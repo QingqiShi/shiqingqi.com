@@ -92,6 +92,14 @@ export function ToolReviewSummary({
     5: t({ en: "Fire", zh: "火辣" }),
   };
 
+  const confirmLabels: Record<number, string> = {
+    1: t({ en: "Confirm Mild", zh: "确认温和" }),
+    2: t({ en: "Confirm Chill", zh: "确认平淡" }),
+    3: t({ en: "Confirm Balanced", zh: "确认适中" }),
+    4: t({ en: "Confirm Spicy", zh: "确认辛辣" }),
+    5: t({ en: "Confirm Fire", zh: "确认火辣" }),
+  };
+
   function handleTap(level: number) {
     if (!isInteractive || level === data.spiciness) return;
     if (selectedLevel === level) {
@@ -146,7 +154,9 @@ export function ToolReviewSummary({
                     isSelected && styles.levelButtonSelected,
                   ]}
                   onClick={() => handleTap(level)}
-                  aria-label={spicinessLabels[level]}
+                  aria-label={
+                    isSelected ? confirmLabels[level] : spicinessLabels[level]
+                  }
                   aria-pressed={isCurrent}
                 >
                   {isSelected ? (
@@ -167,7 +177,9 @@ export function ToolReviewSummary({
             })}
           </div>
           {selectedLevel !== null && (
-            <p css={styles.selectedLabel}>{spicinessLabels[selectedLevel]}</p>
+            <p css={styles.selectedLabel} role="status">
+              {spicinessLabels[selectedLevel]}
+            </p>
           )}
         </div>
       )}
