@@ -178,29 +178,17 @@ function createAnimationLoop({
   };
 }
 
-interface Options {
+export interface ColorOptions {
   colorTop?: [number, number, number];
   colorBottom?: [number, number, number];
   colorAltTop?: [number, number, number];
   colorAltBottom?: [number, number, number];
   colorBackground?: [number, number, number];
-  amplitudes?: {
-    mobile: number;
-    tablet: number;
-    laptop: number;
-    desktop: number;
-  };
 }
 
 export function start(
   { gl, programInfo, canvas }: Context,
-  {
-    colorTop = [0, 0, 0.2],
-    colorBottom = [0, 0, 0.8],
-    colorAltTop = [1, 0, 0],
-    colorAltBottom = [1, 0, 0],
-    colorBackground = [0.953, 0.929, 0.929],
-  }: Options,
+  colorsRef: { current: ColorOptions },
   { reducedMotion = false } = {},
 ) {
   const abortController = new AbortController();
@@ -256,6 +244,14 @@ export function start(
       pointerState.ripplePhase =
         Math.floor(pointerState.ripplePhase * 1000) / 1000;
     }
+
+    const {
+      colorTop = [0, 0, 0.2],
+      colorBottom = [0, 0, 0.8],
+      colorAltTop = [1, 0, 0],
+      colorAltBottom = [1, 0, 0],
+      colorBackground = [0.953, 0.929, 0.929],
+    } = colorsRef.current;
 
     const uniforms = {
       u_resolution: [gl.canvas.width, gl.canvas.height],
