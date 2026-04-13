@@ -2,8 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, ratio } from "#src/tokens.stylex.ts";
+import { border, color, ratio, shadow } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { MediaPoster } from "../movie-database/media-poster";
 
@@ -26,7 +27,7 @@ export function CompactMediaCard({ media, onClick }: CompactMediaCardProps) {
     return (
       <button
         type="button"
-        css={[buttonReset.base, styles.compactCard]}
+        css={[buttonReset.base, styles.compactCard, styles.interactive]}
         onClick={onClick}
         aria-label={getMediaLabel(media)}
       >
@@ -47,5 +48,25 @@ const styles = stylex.create({
     overflow: "hidden",
     display: "block",
     color: "inherit",
+  },
+  interactive: {
+    transition: {
+      default: "transform 0.15s ease, box-shadow 0.15s ease",
+      [motionConstants.REDUCED_MOTION]: "box-shadow 0.15s ease",
+    },
+    transform: {
+      default: null,
+      ":hover": "scale(1.03)",
+      ":active": "scale(0.98)",
+    },
+    boxShadow: {
+      default: "none",
+      ":hover": shadow._3,
+    },
+    outline: {
+      default: "none",
+      ":focus-visible": `2px solid ${color.controlActive}`,
+    },
+    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
 });

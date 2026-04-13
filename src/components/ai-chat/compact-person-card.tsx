@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
+import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
@@ -72,7 +73,7 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
     return (
       <button
         type="button"
-        css={[buttonReset.base, styles.card]}
+        css={[buttonReset.base, styles.card, styles.interactive]}
         onClick={onClick}
         aria-label={label}
       >
@@ -93,6 +94,28 @@ const styles = stylex.create({
     width: "100%",
     color: "inherit",
     textAlign: "center",
+    borderRadius: border.radius_2,
+    padding: space._1,
+  },
+  interactive: {
+    transition: {
+      default: "transform 0.15s ease, background-color 0.15s ease",
+      [motionConstants.REDUCED_MOTION]: "background-color 0.15s ease",
+    },
+    backgroundColor: {
+      default: "transparent",
+      ":hover": color.backgroundHover,
+    },
+    transform: {
+      default: null,
+      ":hover": "scale(1.03)",
+      ":active": "scale(0.98)",
+    },
+    outline: {
+      default: "none",
+      ":focus-visible": `2px solid ${color.controlActive}`,
+    },
+    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
   photoWrapper: {
     position: "relative",
