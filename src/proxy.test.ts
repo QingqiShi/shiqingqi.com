@@ -54,20 +54,27 @@ describe("proxy referer validation for API routes", () => {
     expect(await response.json()).toEqual({ error: "Unauthorized" });
   });
 
-  it("allows requests from Vercel preview deployments", () => {
+  it("allows requests from the current Vercel deployment", () => {
+    process.env.VERCEL_URL = "my-app-abc123.vercel.app";
     const response = proxy(
       apiRequest("/api/ai-chat", "https://my-app-abc123.vercel.app/search"),
     );
 
     expect(response.status).toBe(200);
+    delete process.env.VERCEL_URL;
   });
 
-  it("rejects requests from domains ending in vercel.app that are not subdomains", async () => {
+  it("rejects requests from other Vercel deployments", async () => {
+    process.env.VERCEL_URL = "my-app-abc123.vercel.app";
     const response = proxy(
-      apiRequest("/api/ai-chat", "https://evilvercel.app/search"),
+      apiRequest(
+        "/api/ai-chat",
+        "https://attacker-project-xyz789.vercel.app/search",
+      ),
     );
 
     expect(response.status).toBe(403);
     expect(await response.json()).toEqual({ error: "Unauthorized" });
+    delete process.env.VERCEL_URL;
   });
 });
