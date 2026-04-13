@@ -162,6 +162,7 @@ export function start(
   let debug = initialDebug;
   let prevDebugKey = JSON.stringify(debug);
   let isDark = initialIsDark;
+  let prevIsDark = initialIsDark;
 
   const dpr = window.devicePixelRatio;
 
@@ -271,12 +272,14 @@ export function start(
     if (
       curMouseX !== lastPointerX ||
       curMouseY !== lastPointerY ||
-      debugKey !== prevDebugKey
+      debugKey !== prevDebugKey ||
+      isDark !== prevIsDark
     ) {
       frameIndex = 0;
       lastPointerX = curMouseX;
       lastPointerY = curMouseY;
       prevDebugKey = debugKey;
+      prevIsDark = isDark;
     }
 
     gpuTimer?.begin();
