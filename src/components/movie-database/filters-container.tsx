@@ -60,7 +60,7 @@ const styles = stylex.create({
     zIndex: layer.overlay,
     justifyContent: "space-between",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + var(--removed-body-scroll-bar-size, 0px))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right, 0px) + var(--removed-body-scroll-bar-size, 0px))`,
     marginBottom: space._3,
   },
 });
