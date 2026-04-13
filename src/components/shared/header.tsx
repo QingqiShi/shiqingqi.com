@@ -5,7 +5,7 @@ import { LocaleSelector } from "#src/components/shared/locale-selector.tsx";
 import { ThemeSwitch } from "#src/components/shared/theme-switch.tsx";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
-import { layer, space } from "#src/tokens.stylex.ts";
+import { layer, layout, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
 interface HeaderProps {
@@ -53,7 +53,7 @@ const styles = stylex.create({
     paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
   },
   nav: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

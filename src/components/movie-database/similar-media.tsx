@@ -7,7 +7,7 @@ import {
   getTvShowRecommendations,
 } from "#src/_generated/tmdb-server-functions.ts";
 import { t } from "#src/i18n.ts";
-import { ratio, space } from "#src/tokens.stylex.ts";
+import { layout, ratio, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
@@ -99,7 +99,7 @@ export function SimilarMedia({
 
 const styles = stylex.create({
   container: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

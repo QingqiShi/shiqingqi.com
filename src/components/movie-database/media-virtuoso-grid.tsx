@@ -6,7 +6,7 @@ import { useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { useViewportHeight } from "#src/hooks/use-viewport-height.ts";
-import { color, ratio, space } from "#src/tokens.stylex.ts";
+import { color, layout, ratio, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { Skeleton } from "../shared/skeleton";
 import { MediaCard } from "./media-card";
@@ -65,7 +65,7 @@ const styles = stylex.create({
     overflow: "hidden",
   },
   notFound: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,

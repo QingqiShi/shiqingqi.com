@@ -5,7 +5,14 @@ import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
-import { border, color, controlSize, font, space } from "#src/tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  layout,
+  space,
+} from "#src/tokens.stylex.ts";
 import { BackdropImage } from "./backdrop-image.tsx";
 
 interface MediaDetailHeroProps {
@@ -64,7 +71,7 @@ export function MediaDetailHero({
 
 const styles = stylex.create({
   container: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     marginBottom: space._10,

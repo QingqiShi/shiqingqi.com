@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
-import { controlSize, space } from "#src/tokens.stylex.ts";
+import { controlSize, layout, space } from "#src/tokens.stylex.ts";
 import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
@@ -65,7 +65,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
 const styles = stylex.create({
   container: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

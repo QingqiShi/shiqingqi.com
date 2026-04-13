@@ -8,7 +8,7 @@ import {
 import { Footer } from "#src/components/home/footer.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
-import { space } from "#src/tokens.stylex.ts";
+import { layout, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import type { PageProps } from "./types";
@@ -150,7 +150,7 @@ export default async function Layout({
 
 const styles = stylex.create({
   container: {
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
     paddingBlock: 0,

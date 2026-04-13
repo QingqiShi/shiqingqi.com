@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
-import { layer, space } from "#src/tokens.stylex.ts";
+import { layer, layout, space } from "#src/tokens.stylex.ts";
 
 interface FiltersContainerProps {
   desktopChildren?: ReactNode;
@@ -44,7 +44,7 @@ const styles = stylex.create({
   },
   desktopInnerContainer: {
     inlineSize: "100%",
-    maxInlineSize: "1140px",
+    maxInlineSize: layout.maxInlineSize,
     marginInline: "auto",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
