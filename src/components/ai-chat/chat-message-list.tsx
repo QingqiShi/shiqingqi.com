@@ -109,6 +109,7 @@ export function ChatMessageList({
         <div
           ref={messagesListRef}
           role="log"
+          aria-live={status === "streaming" ? "off" : "polite"}
           aria-label={messagesLabel}
           css={[flex.col, styles.messagesList]}
         >
