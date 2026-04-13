@@ -13,8 +13,14 @@ function validateReferer(request: NextRequest): NextResponse | null {
     const refererUrl = new URL(referer);
     const isLocalhost =
       refererUrl.hostname === "localhost" && refererUrl.protocol === "http:";
-    const isAllowedReferer = ALLOWED_REFERER.some((allowedReferer) =>
-      refererUrl.origin.endsWith(allowedReferer),
+    const vercelUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : null;
+    const allowedOrigins = vercelUrl
+      ? [...ALLOWED_REFERER, vercelUrl]
+      : ALLOWED_REFERER;
+    const isAllowedReferer = allowedOrigins.some(
+      (allowed) => refererUrl.origin === allowed,
     );
     if (!isLocalhost && !isAllowedReferer) {
       throw new Error("Unauthorized");
