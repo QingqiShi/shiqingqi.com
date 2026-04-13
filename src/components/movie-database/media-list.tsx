@@ -35,7 +35,7 @@ export function MediaList({ initialPage }: MediaListProps) {
   const queryResult = useSuspenseInfiniteQuery(tmdbQueryOptions);
 
   const notFoundLabel =
-    mediaType === "tv"
+    deferredMediaType === "tv"
       ? t({
           en: "No TV shows found that match the criteria, please update the filters",
           zh: "没有找到符合条件的电视剧，请更新筛选条件",
