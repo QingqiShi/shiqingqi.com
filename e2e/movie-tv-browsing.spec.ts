@@ -70,7 +70,9 @@ test.describe("Movie and TV Show Browsing", () => {
     await page
       .getByRole("button", { name: /genre.*\(1\)/i })
       .click({ force: true });
-    await page.getByRole("link", { name: /^adventure$/i }).click();
+    const adventureLink = page.getByRole("link", { name: /^adventure$/i });
+    await expect(adventureLink).toBeVisible();
+    await adventureLink.click({ force: true });
 
     // Verify genre count shows 2 genres selected
     await expect(
