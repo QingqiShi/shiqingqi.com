@@ -81,10 +81,10 @@ export async function POST(request: NextRequest) {
 
         const reader = innerStream.getReader();
         try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            writer.write(value);
+          let chunk = await reader.read();
+          while (!chunk.done) {
+            writer.write(chunk.value);
+            chunk = await reader.read();
           }
         } catch (error) {
           console.error("AI Chat inner stream error:", error);

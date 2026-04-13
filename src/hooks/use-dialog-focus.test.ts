@@ -39,7 +39,9 @@ describe("useDialogFocus", () => {
     const dialogRef = { current: dialog };
     const onClose = vi.fn();
 
-    renderHook(() => useDialogFocus({ isOpen: true, dialogRef, onClose }));
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
 
     expect(button1).toHaveFocus();
   });
@@ -50,14 +52,14 @@ describe("useDialogFocus", () => {
     const initialFocusRef = { current: button2 };
     const onClose = vi.fn();
 
-    renderHook(() =>
+    renderHook(() => {
       useDialogFocus({
         isOpen: true,
         dialogRef,
         onClose,
         initialFocusRef,
-      }),
-    );
+      });
+    });
 
     expect(button2).toHaveFocus();
   });
@@ -67,7 +69,9 @@ describe("useDialogFocus", () => {
     const dialogRef = { current: dialog };
     const onClose = vi.fn();
 
-    renderHook(() => useDialogFocus({ isOpen: false, dialogRef, onClose }));
+    renderHook(() => {
+      useDialogFocus({ isOpen: false, dialogRef, onClose });
+    });
 
     expect(button1).not.toHaveFocus();
   });
@@ -77,7 +81,9 @@ describe("useDialogFocus", () => {
     const dialogRef = { current: dialog };
     const onClose = vi.fn();
 
-    renderHook(() => useDialogFocus({ isOpen: true, dialogRef, onClose }));
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
 
     fireEvent.keyDown(document, { key: "Escape" });
 
@@ -89,7 +95,9 @@ describe("useDialogFocus", () => {
     const dialogRef = { current: dialog };
     const onClose = vi.fn();
 
-    renderHook(() => useDialogFocus({ isOpen: false, dialogRef, onClose }));
+    renderHook(() => {
+      useDialogFocus({ isOpen: false, dialogRef, onClose });
+    });
 
     fireEvent.keyDown(document, { key: "Escape" });
 
@@ -101,7 +109,9 @@ describe("useDialogFocus", () => {
     const dialogRef = { current: dialog };
     const onClose = vi.fn();
 
-    renderHook(() => useDialogFocus({ isOpen: true, dialogRef, onClose }));
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
 
     button3.focus();
     expect(button3).toHaveFocus();
@@ -116,7 +126,9 @@ describe("useDialogFocus", () => {
     const dialogRef = { current: dialog };
     const onClose = vi.fn();
 
-    renderHook(() => useDialogFocus({ isOpen: true, dialogRef, onClose }));
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
 
     button1.focus();
     expect(button1).toHaveFocus();
@@ -131,7 +143,9 @@ describe("useDialogFocus", () => {
     const dialogRef = { current: dialog };
     const onClose = vi.fn();
 
-    renderHook(() => useDialogFocus({ isOpen: true, dialogRef, onClose }));
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
 
     button2.focus();
     expect(button2).toHaveFocus();
@@ -157,9 +171,9 @@ describe("useDialogFocus", () => {
     const dialogRef = { current: dialog };
     const onClose = vi.fn();
 
-    const { unmount } = renderHook(() =>
-      useDialogFocus({ isOpen: true, dialogRef, onClose }),
-    );
+    const { unmount } = renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
 
     // Focus moved into dialog
     expect(trigger).not.toHaveFocus();

@@ -46,7 +46,7 @@ function getPersonCount(input: unknown): number | null {
 function getPersonIdSummary(input: unknown): string | null {
   if (!isRecord(input)) return null;
   if (typeof input.person_id === "number") {
-    return `ID ${input.person_id}`;
+    return `ID ${String(input.person_id)}`;
   }
   return null;
 }

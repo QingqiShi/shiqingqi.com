@@ -561,7 +561,7 @@ describe("generateSchemasFromSource - Robustness & Performance", () => {
     // Generate a large interface with 50 fields
     const largeQueryFields = Array.from(
       { length: 50 },
-      (_, i) => `"field_${i}": string${i % 3 === 0 ? "?" : ""};`,
+      (_, i) => `"field_${String(i)}": string${i % 3 === 0 ? "?" : ""};`,
     ).join("\n              ");
 
     const largeTypeScript = `

@@ -62,7 +62,9 @@ export function ToolActivityGroup({
         type="button"
         css={[buttonReset.base, flex.row, styles.disclosureButton]}
         aria-expanded={isOpen}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          setIsOpen((prev) => !prev);
+        }}
       >
         <CaretRightIcon
           size={14}

@@ -10,11 +10,27 @@ function ThreeStateTestComponent() {
   return (
     <>
       <Switch value={state} onChange={setState} />
-      <button onClick={() => setState("on")}>Set On</button>
-      <button onClick={() => setState("indeterminate")}>
+      <button
+        onClick={() => {
+          setState("on");
+        }}
+      >
+        Set On
+      </button>
+      <button
+        onClick={() => {
+          setState("indeterminate");
+        }}
+      >
         Set Indeterminate
       </button>
-      <button onClick={() => setState("off")}>Set Off</button>
+      <button
+        onClick={() => {
+          setState("off");
+        }}
+      >
+        Set Off
+      </button>
     </>
   );
 }

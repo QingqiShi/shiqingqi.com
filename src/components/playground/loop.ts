@@ -98,7 +98,6 @@ function setupGpuTimer(gl: WebGL2RenderingContext): GpuTimer | null {
       activeThisFrame = false;
       if (pendingQuery) return;
       const query = gl.createQuery();
-      if (!query) return;
       gl.beginQuery(TIME_ELAPSED_EXT, query);
       pendingQuery = query;
       activeThisFrame = true;

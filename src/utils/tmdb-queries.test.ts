@@ -94,7 +94,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "movie", id: "550" });
-      const result = await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      const result = await options.queryFn({} as never);
 
       expect(result).toEqual({
         title: "Fight Club",
@@ -121,7 +122,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "movie", id: "550" });
-      const result = await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      const result = await options.queryFn({} as never);
 
       expect(result.title).toBe("FC");
     });
@@ -134,7 +136,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "movie", id: "550" });
-      const result = await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      const result = await options.queryFn({} as never);
 
       expect(result.runtime).toBe(0);
     });
@@ -154,7 +157,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "movie", id: "550" });
-      const result = await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      const result = await options.queryFn({} as never);
 
       expect(result.genres).toEqual(["Drama", "Thriller"]);
     });
@@ -173,7 +177,8 @@ describe("mediaDetail", () => {
         id: "550",
         language: "zh",
       });
-      await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      await options.queryFn({} as never);
 
       const url = new URL(requestUrl);
       expect(url.searchParams.get("movie_id")).toBe("550");
@@ -190,7 +195,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399" });
-      const result = await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      const result = await options.queryFn({} as never);
 
       expect(result).toEqual({
         title: "Game of Thrones",
@@ -217,7 +223,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399" });
-      const result = await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      const result = await options.queryFn({} as never);
 
       expect(result.title).toBe("GoT");
     });
@@ -230,7 +237,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399" });
-      const result = await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      const result = await options.queryFn({} as never);
 
       expect(result.numberOfSeasons).toBe(0);
     });
@@ -250,7 +258,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399" });
-      const result = await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      const result = await options.queryFn({} as never);
 
       expect(result.genres).toEqual(["科幻", "剧情"]);
     });
@@ -265,7 +274,8 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399", language: "en" });
-      await options.queryFn!({} as never);
+      if (!options.queryFn) throw new Error("expected queryFn");
+      await options.queryFn({} as never);
 
       const url = new URL(requestUrl);
       expect(url.searchParams.get("series_id")).toBe("1399");
@@ -291,7 +301,8 @@ describe("mediaVideos", () => {
       id: "550",
       language: "en",
     });
-    const result = await options.queryFn!({} as never);
+    if (!options.queryFn) throw new Error("expected queryFn");
+    const result = await options.queryFn({} as never);
 
     const url = new URL(requestUrl);
     expect(url.searchParams.get("movie_id")).toBe("550");
@@ -309,7 +320,8 @@ describe("mediaVideos", () => {
     );
 
     const options = mediaVideos({ type: "tv", id: "1399", language: "en" });
-    const result = await options.queryFn!({} as never);
+    if (!options.queryFn) throw new Error("expected queryFn");
+    const result = await options.queryFn({} as never);
 
     const url = new URL(requestUrl);
     expect(url.searchParams.get("series_id")).toBe("1399");
@@ -355,7 +367,8 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    const result = await options.queryFn!({} as never);
+    if (!options.queryFn) throw new Error("expected queryFn");
+    const result = await options.queryFn({} as never);
 
     expect(result).toEqual({
       name: "Tom Hanks",
@@ -375,7 +388,8 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    const result = await options.queryFn!({} as never);
+    if (!options.queryFn) throw new Error("expected queryFn");
+    const result = await options.queryFn({} as never);
 
     expect(result.deathday).toBe("2014-08-11");
   });
@@ -388,7 +402,8 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    const result = await options.queryFn!({} as never);
+    if (!options.queryFn) throw new Error("expected queryFn");
+    const result = await options.queryFn({} as never);
 
     expect(result.deathday).toBeNull();
   });
@@ -401,7 +416,8 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    const result = await options.queryFn!({} as never);
+    if (!options.queryFn) throw new Error("expected queryFn");
+    const result = await options.queryFn({} as never);
 
     expect(result.name).toBe("");
   });
@@ -421,7 +437,8 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    const result = await options.queryFn!({} as never);
+    if (!options.queryFn) throw new Error("expected queryFn");
+    const result = await options.queryFn({} as never);
 
     expect(result.profilePath).toBeNull();
     expect(result.biography).toBeNull();
@@ -439,7 +456,8 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31", language: "zh" });
-    await options.queryFn!({} as never);
+    if (!options.queryFn) throw new Error("expected queryFn");
+    await options.queryFn({} as never);
 
     const url = new URL(requestUrl);
     expect(url.searchParams.get("person_id")).toBe("31");

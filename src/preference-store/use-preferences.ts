@@ -28,7 +28,14 @@ export function usePreferences() {
   }
 
   useEffect(() => {
-    void reload();
+    void (async () => {
+      try {
+        const all = await getAllPreferences();
+        setPreferences(all);
+      } catch {
+        setPreferences([]);
+      }
+    })();
   }, []);
 
   async function remove(id: string) {

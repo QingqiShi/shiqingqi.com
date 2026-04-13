@@ -14,14 +14,14 @@ function msg(
   parts: UIMessage["parts"],
   role: "user" | "assistant" = "assistant",
 ): UIMessage {
-  return { id: `msg-${Math.random()}`, role, parts };
+  return { id: `msg-${String(Math.random())}`, role, parts };
 }
 
 function toolPart(toolName: string, output: unknown) {
   return {
     type: "dynamic-tool" as const,
     toolName,
-    toolCallId: `call-${Math.random()}`,
+    toolCallId: `call-${String(Math.random())}`,
     state: "output-available" as const,
     input: {},
     output,

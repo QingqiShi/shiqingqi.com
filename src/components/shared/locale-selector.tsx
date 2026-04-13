@@ -75,7 +75,7 @@ function setLocaleCookie(locale: SupportedLocale) {
   // set cookie for next-i18n-router
   const maxAge = 31536000; // 1 year in seconds
   const secure = window.location.protocol === "https:" ? ";Secure" : "";
-  document.cookie = `${LOCALE_COOKIE_NAME}=${locale};max-age=${maxAge};path=/;SameSite=Lax${secure}`;
+  document.cookie = `${LOCALE_COOKIE_NAME}=${locale};max-age=${String(maxAge)};path=/;SameSite=Lax${secure}`;
 }
 
 const styles = stylex.create({

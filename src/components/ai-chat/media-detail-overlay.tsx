@@ -15,7 +15,9 @@ function getDialogLabel(media: FocusedMedia): string {
 export function MediaDetailOverlay() {
   const { focusedMedia, setFocusedMedia } = useMediaDetail();
 
-  const handleClose = () => setFocusedMedia(null);
+  const handleClose = () => {
+    setFocusedMedia(null);
+  };
 
   return (
     <DetailOverlay

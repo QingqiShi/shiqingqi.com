@@ -203,8 +203,8 @@ describe("parseMessage", () => {
       expect(container.querySelectorAll("p")).toHaveLength(2);
       expect(container.querySelector("p strong")).toBeTruthy();
       const paragraphs = container.querySelectorAll("p");
-      expect(paragraphs[0]?.textContent).toBe("First paragraph with bold");
-      expect(paragraphs[1]?.textContent).toBe("Second paragraph with emphasis");
+      expect(paragraphs[0].textContent).toBe("First paragraph with bold");
+      expect(paragraphs[1].textContent).toBe("Second paragraph with emphasis");
     });
   });
 });

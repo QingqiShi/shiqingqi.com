@@ -99,8 +99,8 @@ export function usePressHandlers<T extends HTMLElement>({
   const pressedStyle =
     isPressed && !disabled
       ? {
-          "--button-nudge-x": `${nudgeOffset.x}px`,
-          "--button-nudge-y": `${nudgeOffset.y}px`,
+          "--button-nudge-x": `${String(nudgeOffset.x)}px`,
+          "--button-nudge-y": `${String(nudgeOffset.y)}px`,
         }
       : undefined;
 

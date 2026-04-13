@@ -35,9 +35,8 @@ export function createThrottle(clock: Clock = defaultClock): TokenThrottle {
     let total = pruneWindow();
 
     while (total >= threshold) {
+      // total >= threshold guarantees entries is non-empty after pruneWindow
       const oldest = entries[0];
-      if (!oldest) break;
-
       const ageOutAt = oldest.timestamp + WINDOW_MS;
       const sleepMs = ageOutAt - clock.now();
       if (sleepMs > 0) {

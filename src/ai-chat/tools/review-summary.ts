@@ -108,7 +108,7 @@ function buildSummarizationPrompt(
 ): string {
   const reviewBlock = reviews
     .map((r) => {
-      const ratingStr = r.rating !== null ? ` [${r.rating}/10]` : "";
+      const ratingStr = r.rating !== null ? ` [${String(r.rating)}/10]` : "";
       return `- ${r.author}${ratingStr}: ${r.content}`;
     })
     .join("\n");

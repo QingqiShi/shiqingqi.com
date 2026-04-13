@@ -16,7 +16,7 @@ import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";
 
 const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
-  key: `skeleton-${i}`,
+  key: `skeleton-${String(i)}`,
   delay: i * 100,
 }));
 

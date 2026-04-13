@@ -221,7 +221,9 @@ export function usePressAnimation<T extends HTMLElement>({
       }
     };
     window.addEventListener("blur", handleWindowBlur);
-    return () => window.removeEventListener("blur", handleWindowBlur);
+    return () => {
+      window.removeEventListener("blur", handleWindowBlur);
+    };
   }, []);
 
   return {

@@ -50,7 +50,7 @@ export function PersonDetailContent({
     ? [
         detail.knownForDepartment,
         detail.birthday
-          ? `${detail.birthday.split("-")[0]}${detail.deathday ? ` – ${detail.deathday.split("-")[0]}` : ""} (${t({ en: "age", zh: "年龄" })} ${calculateAge(detail.birthday, detail.deathday)})`
+          ? `${detail.birthday.split("-")[0]}${detail.deathday ? ` – ${detail.deathday.split("-")[0]}` : ""} (${t({ en: "age", zh: "年龄" })} ${String(calculateAge(detail.birthday, detail.deathday))})`
           : null,
       ]
         .filter(Boolean)
@@ -160,7 +160,9 @@ function ExpandableBiography({ text }: { text: string }) {
 
     const observer = new ResizeObserver(measure);
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return (
@@ -175,7 +177,9 @@ function ExpandableBiography({ text }: { text: string }) {
         <button
           type="button"
           css={[buttonReset.base, styles.readMoreButton]}
-          onClick={() => setExpanded((prev) => !prev)}
+          onClick={() => {
+            setExpanded((prev) => !prev);
+          }}
         >
           {expanded
             ? t({ en: "Read less", zh: "收起" })
@@ -226,7 +230,7 @@ function buildFilmography(
         ? entry.media_type
         : null;
     if (!mediaType) return;
-    const key = `${mediaType}:${entry.id}`;
+    const key = `${mediaType}:${String(entry.id)}`;
     if (seen.has(key)) return;
     seen.add(key);
     entries.push({
@@ -272,7 +276,7 @@ function FilmographyScroller({
         const { mediaType } = item;
         return (
           <div
-            key={`${mediaType}-${item.id}`}
+            key={`${String(mediaType)}-${String(item.id)}`}
             css={filmStyles.cardWrapper}
             role="listitem"
           >

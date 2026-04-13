@@ -32,7 +32,7 @@ export function MobileFiltersButton({
       popupRole="group"
     >
       {children}
-      {genres.size ? ` (${genres.size})` : null}
+      {genres.size ? ` (${String(genres.size)})` : null}
     </MenuButton>
   );
 }

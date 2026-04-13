@@ -64,7 +64,7 @@ export function infixToRPN(tokens: Token[]): Token[] {
   for (const token of tokens) {
     if (token.type === "number") {
       output.push(token);
-    } else if (token.type === "binaryOperator") {
+    } else {
       while (operatorStack.length > 0) {
         const topOperator = operatorStack[operatorStack.length - 1];
         if (
@@ -99,7 +99,7 @@ export function evaluateRPN(tokens: Token[]): number {
   for (const token of tokens) {
     if (token.type === "number") {
       stack.push(token.value);
-    } else if (token.type === "binaryOperator") {
+    } else {
       const rhs = stack.pop();
       const lhs = stack.pop();
       if (rhs === undefined || lhs === undefined) {

@@ -50,7 +50,7 @@ async function TrendingMoviesRow({
   const response = await getTrendingMovies({
     time_window: "week",
     language: locale,
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     console.error("Failed to fetch trending movies:", error);
     return null;
   });
@@ -87,7 +87,7 @@ async function TrendingTvShowsRow({
   const response = await getTrendingTvShows({
     time_window: "week",
     language: locale,
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     console.error("Failed to fetch trending TV shows:", error);
     return null;
   });

@@ -38,7 +38,7 @@ function reviewsResponse(
       },
       content: r.content,
       created_at: "2024-01-01T00:00:00.000Z",
-      id: `review-${i}`,
+      id: `review-${String(i)}`,
       updated_at: "2024-01-01T00:00:00.000Z",
     })),
   };
@@ -80,7 +80,8 @@ async function executeTool(input: {
 }) {
   const tool = createReviewSummaryTool("en");
   const parsed = reviewSummaryInputSchema.parse(input);
-  const result = await tool.execute!(parsed, executeContext);
+  if (!tool.execute) throw new Error("expected execute");
+  const result = await tool.execute(parsed, executeContext);
   return JSON.parse(JSON.stringify(result)) as ReviewSummaryResult;
 }
 
@@ -348,7 +349,8 @@ describe("review summary error handling", () => {
       media_type: "movie",
       title: "Fight Club",
     });
-    const result = await tool.execute!(parsed, executeContext);
+    if (!tool.execute) throw new Error("expected execute");
+    const result = await tool.execute(parsed, executeContext);
 
     expect(isToolError(result)).toBe(true);
     if (isToolError(result)) {
@@ -382,7 +384,8 @@ describe("review summary error handling", () => {
       media_type: "movie",
       title: "Fight Club",
     });
-    const result = await tool.execute!(parsed, executeContext);
+    if (!tool.execute) throw new Error("expected execute");
+    const result = await tool.execute(parsed, executeContext);
 
     expect(isToolError(result)).toBe(true);
     if (isToolError(result)) {

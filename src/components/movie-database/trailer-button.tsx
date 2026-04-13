@@ -27,13 +27,17 @@ export function TrailerButton({
       <Button
         icon={<PlayIcon weight="fill" role="presentation" />}
         variant="primary"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+        }}
       >
         {children}
       </Button>
       <Overlay
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setIsOpen(false);
+        }}
         aria-label={iframeTitle}
       >
         <iframe

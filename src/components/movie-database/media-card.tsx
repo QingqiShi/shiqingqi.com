@@ -26,7 +26,7 @@ export function MediaCard({ media, allowFollow }: MediaCardProps) {
   const locale = useLocale();
 
   const href = getLocalePath(
-    `/movie-database/${media.mediaType}/${media.id.toString()}`,
+    `/movie-database/${String(media.mediaType)}/${media.id.toString()}`,
     locale,
   );
 

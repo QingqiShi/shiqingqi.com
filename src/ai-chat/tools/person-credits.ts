@@ -82,7 +82,7 @@ export function createPersonCreditsTool() {
         if (!isRecord(raw)) continue;
         if (typeof raw.id !== "number") continue;
         const mediaType = getMediaType(raw);
-        const key = `${mediaType}:${raw.id}`;
+        const key = `${String(mediaType)}:${String(raw.id)}`;
         if (seen.has(key)) continue;
         seen.add(key);
         results.push({
@@ -101,7 +101,7 @@ export function createPersonCreditsTool() {
         if (!isRecord(raw)) continue;
         if (typeof raw.id !== "number") continue;
         const mediaType = getMediaType(raw);
-        const key = `${mediaType}:${raw.id}`;
+        const key = `${String(mediaType)}:${String(raw.id)}`;
         if (seen.has(key)) continue;
         seen.add(key);
         results.push({

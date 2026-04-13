@@ -18,7 +18,7 @@ export class TmdbApiError extends Error {
   readonly statusCode: number;
 
   constructor(statusCode: number, path: string, statusText: string) {
-    super(`TMDB API error: ${statusCode} ${statusText} (${path})`);
+    super(`TMDB API error: ${String(statusCode)} ${statusText} (${path})`);
     this.statusCode = statusCode;
   }
 }
@@ -44,7 +44,7 @@ export class TmdbClient {
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     const year = date.getFullYear();
-    const dateStr = `${month}_${day}_${year}`;
+    const dateStr = `${month}_${day}_${String(year)}`;
 
     const exportType = type === "movie" ? "movie_ids" : "tv_series_ids";
     const url = `${TMDB_EXPORT_BASE}/${exportType}_${dateStr}.json.gz`;
@@ -52,7 +52,7 @@ export class TmdbClient {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(
-        `Failed to download daily export: ${response.status} ${response.statusText} (${url})`,
+        `Failed to download daily export: ${String(response.status)} ${response.statusText} (${url})`,
       );
     }
 
@@ -82,14 +82,14 @@ export class TmdbClient {
   ): Promise<TmdbMovieDetail> {
     await this.rateLimiter.acquire();
     return this.apiFetch<TmdbMovieDetail>(
-      `/3/movie/${movieId}?append_to_response=credits,keywords,watch/providers&language=${language}`,
+      `/3/movie/${String(movieId)}?append_to_response=credits,keywords,watch/providers&language=${language}`,
     );
   }
 
   async fetchTvDetail(tvId: number, language: string): Promise<TmdbTvDetail> {
     await this.rateLimiter.acquire();
     return this.apiFetch<TmdbTvDetail>(
-      `/3/tv/${tvId}?append_to_response=credits,keywords,watch/providers&language=${language}`,
+      `/3/tv/${String(tvId)}?append_to_response=credits,keywords,watch/providers&language=${language}`,
     );
   }
 
@@ -109,7 +109,7 @@ export class TmdbClient {
     while (page <= totalPages) {
       await this.rateLimiter.acquire();
       const response = await this.apiFetch<TmdbChangesResponse>(
-        `/3/${type}/changes?start_date=${startDate}&end_date=${endDate}&page=${page}`,
+        `/3/${type}/changes?start_date=${startDate}&end_date=${endDate}&page=${String(page)}`,
       );
       for (const result of response.results ?? []) {
         ids.add(result.id);
@@ -133,7 +133,7 @@ export class TmdbClient {
     while (ids.length < limit) {
       await this.rateLimiter.acquire();
       const response = await this.apiFetch<TmdbTrendingResponse>(
-        `/3/trending/${path}/day?page=${page}`,
+        `/3/trending/${path}/day?page=${String(page)}`,
       );
       for (const result of response.results ?? []) {
         ids.push(result.id);
@@ -162,7 +162,7 @@ export class TmdbClient {
     if (response.status === 429) {
       if (retries >= MAX_RETRIES) {
         throw new Error(
-          `TMDB rate limit exceeded after ${MAX_RETRIES} retries (${path})`,
+          `TMDB rate limit exceeded after ${String(MAX_RETRIES)} retries (${path})`,
         );
       }
       this.rateLimiter.onRateLimited();

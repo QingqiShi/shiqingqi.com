@@ -9,10 +9,18 @@ function TestHarness() {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <PortalTargetProvider>
-      <button onClick={() => setIsOpen(true)}>Open</button>
+      <button
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
+        Open
+      </button>
       <DetailOverlay
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setIsOpen(false);
+        }}
         aria-label="Test dialog"
       >
         <p>Dialog content</p>

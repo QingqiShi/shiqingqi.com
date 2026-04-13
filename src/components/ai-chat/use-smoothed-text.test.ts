@@ -170,6 +170,8 @@ describe("useSmoothedText", () => {
       });
     window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     } as MediaQueryList);
   });
 
@@ -254,6 +256,8 @@ describe("useSmoothedText", () => {
   it("returns target text immediately when reduced motion is preferred", () => {
     window.matchMedia = vi.fn().mockReturnValue({
       matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     } as MediaQueryList);
 
     const { result } = renderHook(() => useSmoothedText("Instant text"));
@@ -376,6 +380,8 @@ describe("useSmoothedText", () => {
   it("calls onCaughtUp with reduced motion", () => {
     window.matchMedia = vi.fn().mockReturnValue({
       matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     } as MediaQueryList);
 
     const onCaughtUp = vi.fn();

@@ -1,8 +1,9 @@
 import eslintReact from "@eslint-react/eslint-plugin";
 import js from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
 import stylexjs from "@stylexjs/eslint-plugin";
-import nextConfig from "eslint-config-next";
 import importPlugin from "eslint-plugin-import-x";
+import reactHooks from "eslint-plugin-react-hooks";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import { defineConfig } from "eslint/config";
 import { createRequire } from "node:module";
@@ -26,14 +27,13 @@ export default defineConfig([
       "playwright-report/**/*",
     ],
   },
-  ...nextConfig,
+  reactHooks.configs.flat["recommended-latest"],
   js.configs.recommended,
-  ...tsEslint.configs.recommendedTypeChecked,
+  ...tsEslint.configs.strictTypeChecked,
   eslintReact.configs["recommended-typescript"],
-  eslintReact.configs["disable-conflict-eslint-plugin-react"],
-  eslintReact.configs["disable-conflict-eslint-plugin-react-hooks"],
   {
     plugins: {
+      "@next/next": nextPlugin,
       "import-x": importPlugin,
       "@stylexjs": stylexjs,
       unicorn: eslintPluginUnicorn,
@@ -48,38 +48,11 @@ export default defineConfig([
       },
     },
     rules: {
-      // --- eslint-plugin-react → @eslint-react/eslint-plugin ---
-      // eslint-plugin-react (via eslint-config-next) crashes on ESLint 10.
-      "react/display-name": "off",
-      "react/jsx-key": "off",
-      "react/jsx-no-comment-textnodes": "off",
-      "react/jsx-no-duplicate-props": "off",
-      "react/jsx-no-undef": "off",
-      "react/jsx-uses-react": "off",
-      "react/jsx-uses-vars": "off",
-      "react/no-children-prop": "off",
-      "react/no-danger-with-children": "off",
-      "react/no-deprecated": "off",
-      "react/no-direct-mutation-state": "off",
-      "react/no-find-dom-node": "off",
-      "react/no-is-mounted": "off",
-      "react/no-render-return-value": "off",
-      "react/no-string-refs": "off",
-      "react/no-unescaped-entities": "off",
-      "react/require-render-return": "off",
-      // --- end eslint-plugin-react → @eslint-react/eslint-plugin ---
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
-      "@typescript-eslint/no-misused-promises": [
-        "error",
-        {
-          checksVoidReturn: {
-            arguments: false,
-            attributes: false,
-          },
-        },
-      ],
       "import-x/order": [
         "error",
         {
@@ -126,6 +99,7 @@ export default defineConfig([
   // type-checked rules and configure for Node.js/CommonJS.
   {
     files: ["tooling/**/*.js"],
+    ignores: ["tooling/tmdb-codegen/generator.js"],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {
       sourceType: "commonjs",
@@ -144,12 +118,16 @@ export default defineConfig([
       "@typescript-eslint/no-require-imports": "off",
     },
   },
-  // Tooling MJS files (ESM) — disable type-checked rules only.
+  // Tooling ESM files — disable type-checked rules and add Node globals.
   {
-    files: ["tooling/**/*.mjs"],
+    files: ["tooling/**/*.mjs", "tooling/tmdb-codegen/generator.js"],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {
       parserOptions: { projectService: false },
+      globals: {
+        console: "readonly",
+        process: "readonly",
+      },
     },
   },
 ]);

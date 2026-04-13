@@ -50,7 +50,7 @@ async function main() {
         const meta = result.metadata;
         if (!meta) continue;
         console.log(
-          `  [${result.score.toFixed(3)}] ${meta.title} (${meta.releaseYear}) - ${meta.mediaType}`,
+          `  [${result.score.toFixed(3)}] ${meta.title} (${String(meta.releaseYear)}) - ${meta.mediaType}`,
         );
       }
     }

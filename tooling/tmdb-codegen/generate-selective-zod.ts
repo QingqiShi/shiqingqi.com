@@ -101,8 +101,9 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
     return `z.union([${uniqueSchemas.join(", ")}])`;
   }
 
-  // Handle arrays - check symbol name first, then use isArrayType
-  if (type.symbol && type.symbol.name === "Array") {
+  // Handle arrays - guard against missing symbol (runtime possibility for
+  // primitives/void/never despite TS types claiming it's always present).
+  if ("symbol" in type && type.symbol.name === "Array") {
     const typeReference = type as ts.TypeReference;
     if (typeReference.typeArguments && typeReference.typeArguments.length > 0) {
       const elementType = typeReference.typeArguments[0];
@@ -113,7 +114,7 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
   }
 
   // Handle arrays using TypeChecker method
-  if (typeChecker.isArrayType && typeChecker.isArrayType(type)) {
+  if (typeChecker.isArrayType(type)) {
     // For newer TypeScript versions, use getTypeArguments
     const typeReference = type as ts.TypeReference;
     if (typeReference.typeArguments && typeReference.typeArguments.length > 0) {
@@ -142,9 +143,12 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
       const propertySchemas: string[] = [];
 
       for (const prop of properties) {
+        if (!prop.declarations || prop.declarations.length === 0) {
+          continue;
+        }
         const propType = typeChecker.getTypeOfSymbolAtLocation(
           prop,
-          prop.declarations![0],
+          prop.declarations[0],
         );
         const propName = prop.name;
         const isPropOptional = (prop.flags & ts.SymbolFlags.Optional) !== 0;
@@ -164,7 +168,9 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
   }
 
   // Fallback for unknown types
-  console.warn(`   ⚠️  Unknown type flags: ${type.flags}, using z.unknown()`);
+  console.warn(
+    `   ⚠️  Unknown type flags: ${String(type.flags)}, using z.unknown()`,
+  );
   return "z.unknown()";
 }
 
@@ -197,7 +203,7 @@ function extractOperationType(
   typeChecker: ts.TypeChecker,
 ): ts.Type | null {
   for (const member of operationsInterface.members) {
-    if (ts.isPropertySignature(member) && member.name) {
+    if (ts.isPropertySignature(member)) {
       // Handle both identifier and string literal property names
       let memberName = "";
       if (ts.isIdentifier(member.name)) {
@@ -315,10 +321,10 @@ ${operationsZodEntries}});
 
   console.log("✅ Selective Zod schema generation completed!");
   console.log(
-    `   📄 Generated ${generatedCount}/${REQUIRED_OPERATIONS.length} operation schemas`,
+    `   📄 Generated ${String(generatedCount)}/${String(REQUIRED_OPERATIONS.length)} operation schemas`,
   );
   console.log(`   📦 File size: ${(stats.size / 1024).toFixed(1)}KB`);
-  console.log(`   📝 Line count: ${lineCount} lines`);
+  console.log(`   📝 Line count: ${String(lineCount)} lines`);
   console.log(`   💾 Saved to: ${outputPath}`);
 }
 
@@ -460,38 +466,41 @@ function parseOperationFromTsProgram(
   }
 
   // Navigate to parameters.query
-  const operationSymbol = operationType.symbol;
-  if (!operationSymbol) {
-    return null;
-  }
-
   // Get parameters property
-  const parametersProperty = operationSymbol.members?.get(
+  const parametersProperty = operationType.symbol.members?.get(
     "parameters" as ts.__String,
   );
   if (!parametersProperty) {
     return null;
   }
 
-  const parametersType = typeChecker.getTypeOfSymbolAtLocation(
-    parametersProperty,
-    parametersProperty.declarations![0],
-  );
-
-  // Get query property from parameters
-  const parametersSymbol = parametersType.symbol;
-  if (!parametersSymbol) {
+  if (
+    !parametersProperty.declarations ||
+    parametersProperty.declarations.length === 0
+  ) {
     return null;
   }
 
-  const queryProperty = parametersSymbol.members?.get("query" as ts.__String);
+  const parametersType = typeChecker.getTypeOfSymbolAtLocation(
+    parametersProperty,
+    parametersProperty.declarations[0],
+  );
+
+  // Get query property from parameters
+  const queryProperty = parametersType.symbol.members?.get(
+    "query" as ts.__String,
+  );
   if (!queryProperty) {
+    return null;
+  }
+
+  if (!queryProperty.declarations || queryProperty.declarations.length === 0) {
     return null;
   }
 
   const queryType = typeChecker.getTypeOfSymbolAtLocation(
     queryProperty,
-    queryProperty.declarations![0],
+    queryProperty.declarations[0],
   );
 
   // Check if query is optional

@@ -33,7 +33,7 @@ export function ToolWatchProvidersSkeleton() {
           <div css={styles.logoRow}>
             {Array.from({ length: row.logoCount }, (_, i) => (
               <Skeleton
-                key={`${row.key}-${i}`}
+                key={`${row.key}-${String(i)}`}
                 width={36}
                 height={36}
                 delay={delayIndex++ * STAGGER_DELAY}

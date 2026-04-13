@@ -22,20 +22,20 @@ export function buildFilterString(
 
   if (filters.genreIds) {
     for (const id of filters.genreIds) {
-      conditions.push(`genreIds CONTAINS ${id}`);
+      conditions.push(`genreIds CONTAINS ${String(id)}`);
     }
   }
 
   if (filters.releaseYearMin !== undefined) {
-    conditions.push(`releaseYear >= ${filters.releaseYearMin}`);
+    conditions.push(`releaseYear >= ${String(filters.releaseYearMin)}`);
   }
 
   if (filters.releaseYearMax !== undefined) {
-    conditions.push(`releaseYear <= ${filters.releaseYearMax}`);
+    conditions.push(`releaseYear <= ${String(filters.releaseYearMax)}`);
   }
 
   if (filters.voteAverageMin !== undefined) {
-    conditions.push(`voteAverage >= ${filters.voteAverageMin}`);
+    conditions.push(`voteAverage >= ${String(filters.voteAverageMin)}`);
   }
 
   if (filters.originalLanguage) {
@@ -46,13 +46,13 @@ export function buildFilterString(
 
   if (filters.directorIds) {
     for (const id of filters.directorIds) {
-      conditions.push(`directorIds CONTAINS ${id}`);
+      conditions.push(`directorIds CONTAINS ${String(id)}`);
     }
   }
 
   if (filters.castIds) {
     for (const id of filters.castIds) {
-      conditions.push(`castIds CONTAINS ${id}`);
+      conditions.push(`castIds CONTAINS ${String(id)}`);
     }
   }
 

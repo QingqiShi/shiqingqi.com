@@ -212,7 +212,9 @@ export function Calculator() {
                 label={label}
                 isZero={label === BUTTON_ZERO}
                 isRowEnd={label === row[row.length - 1]}
-                onClick={() => handleClick(label)}
+                onClick={() => {
+                  handleClick(label);
+                }}
               />
             ))}
           </Fragment>

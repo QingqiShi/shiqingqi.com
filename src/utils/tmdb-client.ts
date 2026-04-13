@@ -67,7 +67,7 @@ async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
 
   if (!response.ok) {
     throw new Error(
-      `${errorMessage} (${response.status}:${response.statusText})`,
+      `${errorMessage} (${String(response.status)}:${response.statusText})`,
     );
   }
 
@@ -88,7 +88,7 @@ export async function tmdbGet<TPath extends keyof paths>(
   pathParams?: PathParams<TPath>,
 ) {
   // Replace path parameters with sanitized values
-  let resolvedPath = `${path}`;
+  let resolvedPath: string = path;
   if (pathParams) {
     for (const [key, value] of Object.entries(pathParams)) {
       const sanitizedValue = sanitizePathParam(value);

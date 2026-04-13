@@ -86,10 +86,8 @@ export function MenuButton({
           css={styles.backdrop}
           aria-hidden="true"
           onClick={() => {
-            if (isMenuShown) {
-              setIsMenuShown(false);
-              outsideClickedRef.current = true;
-            }
+            setIsMenuShown(false);
+            outsideClickedRef.current = true;
           }}
         />
       )}
@@ -134,17 +132,17 @@ export function MenuButton({
               currentIndex === -1
                 ? items[0]
                 : items[(currentIndex + 1) % items.length];
-            next?.focus();
+            next.focus();
           } else if (e.key === "ArrowUp") {
             const prev =
               currentIndex === -1
                 ? items[items.length - 1]
                 : items[(currentIndex - 1 + items.length) % items.length];
-            prev?.focus();
+            prev.focus();
           } else if (e.key === "Home") {
-            items[0]?.focus();
-          } else if (e.key === "End") {
-            items[items.length - 1]?.focus();
+            items[0].focus();
+          } else {
+            items[items.length - 1].focus();
           }
         }}
         onBlur={(e) => {
@@ -162,7 +160,9 @@ export function MenuButton({
             {...buttonProps}
             aria-expanded={isMenuShown}
             aria-haspopup={popupRole === "menu" ? "menu" : "true"}
-            onClick={() => setIsMenuShown(true)}
+            onClick={() => {
+              setIsMenuShown(true);
+            }}
             disabled={disabled}
             id={targetId}
             labelId={`${targetId}-label`}
@@ -185,7 +185,7 @@ export function MenuButton({
             <div
               ref={popupRef}
               role={popupRole}
-              aria-labelledby={popupRole ? `${targetId}-label` : undefined}
+              aria-labelledby={`${targetId}-label`}
             >
               {children && <div css={styles.menuTitle}>{children}</div>}
               {menuContent}

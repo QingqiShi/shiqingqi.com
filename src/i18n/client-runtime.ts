@@ -9,18 +9,16 @@ import { parseMessage } from "#src/utils/parse-message.tsx";
 // within component render, so the rules-of-hooks are satisfied.
 export function useI18nLookup(key: string): string {
   const { translations } = use(I18nContext);
-  const value = translations[key];
-  if (process.env.NODE_ENV !== "production" && value === undefined) {
+  if (process.env.NODE_ENV !== "production" && !(key in translations)) {
     throw new Error(`[i18n] Missing translation key: ${key}`);
   }
-  return value;
+  return translations[key];
 }
 
 export function useI18nLookupParse(key: string): ReactNode {
   const { translations } = use(I18nContext);
-  const value = translations[key];
-  if (process.env.NODE_ENV !== "production" && value === undefined) {
+  if (process.env.NODE_ENV !== "production" && !(key in translations)) {
     throw new Error(`[i18n] Missing translation key: ${key}`);
   }
-  return parseMessage(value);
+  return parseMessage(translations[key]);
 }

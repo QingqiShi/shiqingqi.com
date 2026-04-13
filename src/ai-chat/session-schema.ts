@@ -6,13 +6,13 @@ const localeField = { locale: z.enum(["en", "zh"]).default("en") };
 
 export const sessionChatInputSchema = z.discriminatedUnion("trigger", [
   z.object({
-    sessionId: z.string().uuid().optional(),
+    sessionId: z.uuid().optional(),
     ...localeField,
     trigger: z.literal("submit-message"),
     message: z.custom<UIMessage>(isUIMessage),
   }),
   z.object({
-    sessionId: z.string().uuid(),
+    sessionId: z.uuid(),
     ...localeField,
     trigger: z.literal("regenerate-message"),
   }),
@@ -20,4 +20,4 @@ export const sessionChatInputSchema = z.discriminatedUnion("trigger", [
 
 export type SessionChatInput = z.infer<typeof sessionChatInputSchema>;
 
-export const sessionIdSchema = z.string().uuid();
+export const sessionIdSchema = z.uuid();
