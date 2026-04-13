@@ -80,6 +80,7 @@ export function ToolActivityGroup({
               toolName={part.toolName}
               state={part.state}
               input={part.input}
+              output={part.output}
             />
           ))}
         </div>
