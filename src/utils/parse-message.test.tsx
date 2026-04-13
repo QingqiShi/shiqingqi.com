@@ -73,6 +73,18 @@ describe("parseMessage", () => {
       expect(container.textContent).toBe("Bold with emphasis");
     });
 
+    it("preserves text after inner closing tag within outer element", () => {
+      const result = parseMessage(
+        "<strong>bold <em>italic</em> still bold</strong>",
+      );
+      const { container } = render(<>{result}</>);
+      expect(container.querySelector("strong")).toBeTruthy();
+      expect(container.querySelector("strong em")).toBeTruthy();
+      expect(container.querySelector("strong")?.textContent).toBe(
+        "bold italic still bold",
+      );
+    });
+
     it("parses deeply nested tags", () => {
       const result = parseMessage(
         "<p>Paragraph with <strong>bold and <em>italic and <b>more bold</b></em></strong></p>",
