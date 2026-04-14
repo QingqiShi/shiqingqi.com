@@ -117,8 +117,8 @@ export function ChatTextarea({
             css={[
               flex.inlineCenter,
               buttonReset.base,
-              styles.iconButton,
-              !!trimmed && styles.iconButtonActive,
+              chatTextareaStyles.iconButton,
+              !!trimmed && chatTextareaStyles.iconButtonActive,
             ]}
           >
             <ArrowUpIcon weight="bold" role="presentation" />
@@ -177,20 +177,5 @@ const styles = stylex.create({
   textareaAutoGrow: {
     maxHeight: "200px",
     overflowY: "auto",
-  },
-  iconButton: {
-    flexShrink: 0,
-    width: "1.75rem",
-    height: "1.75rem",
-    borderRadius: border.radius_round,
-    cursor: { default: "pointer", ":disabled": "default" },
-    backgroundColor: color.controlTrack,
-    color: color.textMuted,
-    opacity: { default: null, ":disabled": 0.5 },
-    transition: "background-color 0.15s ease, color 0.15s ease",
-  },
-  iconButtonActive: {
-    backgroundColor: color.controlActive,
-    color: color.textOnActive,
   },
 });
