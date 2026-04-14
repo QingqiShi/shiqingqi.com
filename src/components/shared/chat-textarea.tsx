@@ -30,6 +30,8 @@ interface ChatTextareaProps {
   onSubmit: (text: string) => void;
   disabled?: boolean;
   autoGrow?: boolean;
+  /** Reduced vertical padding for use inside sticky toolbars. */
+  compact?: boolean;
   /** Content rendered before the textarea (e.g. attachment row). */
   beforeTextarea?: ReactNode;
   /** Override the default send button. Use `useChatTextarea()` inside children to access context. */
@@ -42,6 +44,7 @@ export function ChatTextarea({
   onSubmit,
   disabled = false,
   autoGrow = false,
+  compact = false,
   beforeTextarea,
   children,
 }: ChatTextareaProps) {
@@ -94,7 +97,10 @@ export function ChatTextarea({
 
   return (
     <ChatTextareaContext value={{ trimmedText: trimmed, focusTextarea }}>
-      <form onSubmit={handleSubmit} css={[flex.wrap, styles.container]}>
+      <form
+        onSubmit={handleSubmit}
+        css={[flex.wrap, styles.container, compact && styles.containerCompact]}
+      >
         {beforeTextarea}
         <textarea
           ref={textareaRef}
@@ -157,6 +163,10 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingLeft: space._3,
     paddingRight: space._2,
+  },
+  containerCompact: {
+    paddingBlock: space._1,
+    paddingLeft: space._2,
   },
   textarea: {
     flexGrow: 1,

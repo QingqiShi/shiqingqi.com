@@ -1,7 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { controlSize, space } from "#src/tokens.stylex.ts";
 import { FixedContainerContent } from "../shared/fixed-container-content";
+import { CollapsedChatButton } from "./collapsed-chat-button";
+import { CollapsedChatInput } from "./collapsed-chat-input";
 import { FiltersContainer } from "./filters-container";
 import { GenreFilter } from "./genre-filter";
 import { GenreFilterButton } from "./genre-filter-button";
@@ -13,11 +16,32 @@ import { TmdbCredit, TmdbCreditInline } from "./tmdb-credit";
 
 interface FiltersProps {
   mobileButtonLabel: string;
+  aiModeHref: string;
 }
 
-export function Filters({ mobileButtonLabel }: FiltersProps) {
+export function Filters({ mobileButtonLabel, aiModeHref }: FiltersProps) {
   return (
     <FiltersContainer
+      trailingContent={
+        <>
+          <CollapsedChatInput
+            aiModeHref={aiModeHref}
+            placeholder={t({
+              en: "Ask about movies and TV shows...",
+              zh: "询问关于电影和电视剧的问题...",
+            })}
+            sendLabel={t({ en: "Send message", zh: "发送消息" })}
+          />
+          <CollapsedChatButton
+            aiModeHref={aiModeHref}
+            label={t({ en: "AI", zh: "AI" })}
+            ariaLabel={t({
+              en: "Ask AI about movies and TV shows",
+              zh: "向AI询问电影和电视剧",
+            })}
+          />
+        </>
+      }
       desktopChildren={
         <>
           <FixedContainerContent>
