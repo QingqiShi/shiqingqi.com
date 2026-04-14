@@ -1,7 +1,20 @@
 import { useEffect, useRef, type RefObject } from "react";
 
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE_SELECTOR = [
+  'a[href]:not([tabindex="-1"])',
+  'button:not([disabled]):not([tabindex="-1"])',
+  'textarea:not([disabled]):not([tabindex="-1"])',
+  'input:not([disabled]):not([tabindex="-1"])',
+  'select:not([disabled]):not([tabindex="-1"])',
+  'iframe:not([tabindex="-1"])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(", ");
+
+function getFocusableElements(container: HTMLElement) {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+  ).filter((element) => !element.closest("[inert]"));
+}
 
 /**
  * Manages focus lifecycle for modal dialogs:
@@ -43,10 +56,9 @@ export function useDialogFocus({
     requestAnimationFrame(() => {
       if (initialFocusRef?.current) {
         initialFocusRef.current.focus();
-      } else {
-        const firstFocusable =
-          dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
-        firstFocusable?.focus();
+      } else if (dialogRef.current) {
+        const focusable = getFocusableElements(dialogRef.current);
+        if (focusable.length > 0) focusable[0].focus();
       }
     });
 
@@ -58,8 +70,7 @@ export function useDialogFocus({
 
       // Trap focus within the dialog
       if (event.key === "Tab" && dialogRef.current) {
-        const focusableElements =
-          dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+        const focusableElements = getFocusableElements(dialogRef.current);
         if (focusableElements.length === 0) return;
 
         const first = focusableElements[0];
