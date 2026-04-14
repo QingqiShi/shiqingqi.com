@@ -74,7 +74,9 @@ describe("MarkdownContent", () => {
 
   it("renders links with correct attributes", () => {
     render(<MarkdownContent content="Visit [Example](https://example.com)" />);
-    const link = screen.getByRole("link", { name: "Example" });
+    const link = screen.getByRole("link", {
+      name: "Example(opens in new tab)",
+    });
     expect(link).toHaveAttribute("href", "https://example.com");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
