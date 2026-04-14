@@ -27,7 +27,6 @@ export function RecommendedMediaRow({
       <h2 css={styles.title}>{title}</h2>
       <HorizontalScrollRow
         ariaLabel={title}
-        role="region"
         wrapperCss={styles.scrollWrapper}
         containerCss={styles.scrollContainer}
         fadeLeftCss={styles.fadeLeft}
@@ -38,7 +37,7 @@ export function RecommendedMediaRow({
         {items.map((item) => {
           const { mediaType } = item;
           return (
-            <div key={item.id} css={styles.cardWrapper}>
+            <div key={item.id} role="listitem" css={styles.cardWrapper}>
               <CompactMediaCard
                 media={item}
                 onClick={
