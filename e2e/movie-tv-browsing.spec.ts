@@ -66,23 +66,27 @@ test.describe("Movie and TV Show Browsing", () => {
       page.getByRole("button", { name: /genre.*\(1\)/i }),
     ).toBeVisible();
 
+    // Dismiss menu before reopening to let the layout settle after scroll
+    await page.keyboard.press("Escape");
+
     // Open genre menu again and click "Adventure" for multiple genres
-    await page
-      .getByRole("button", { name: /genre.*\(1\)/i })
-      .click({ force: true });
+    const genreButton1 = page.getByRole("button", { name: /genre.*\(1\)/i });
+    await genreButton1.click();
     const adventureLink = page.getByRole("link", { name: /^adventure$/i });
     await expect(adventureLink).toBeVisible();
-    await adventureLink.click({ force: true });
+    await adventureLink.click();
 
     // Verify genre count shows 2 genres selected
     await expect(
       page.getByRole("button", { name: /genre.*\(2\)/i }),
     ).toBeVisible();
 
+    // Dismiss menu before reopening
+    await page.keyboard.press("Escape");
+
     // Open genre menu and verify "Any selected" option appears (ALL/ANY toggle)
-    await page
-      .getByRole("button", { name: /genre.*\(2\)/i })
-      .click({ force: true });
+    const genreButton2 = page.getByRole("button", { name: /genre.*\(2\)/i });
+    await genreButton2.click();
     const anyButton = page.getByRole("link", { name: /any selected/i });
     await expect(anyButton).toBeVisible();
   });
