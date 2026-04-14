@@ -7,21 +7,29 @@ import { layer, layout, space } from "#src/tokens.stylex.ts";
 interface FiltersContainerProps {
   desktopChildren?: ReactNode;
   mobileChildren?: ReactNode;
+  trailingContent?: ReactNode;
 }
 
 export function FiltersContainer({
   desktopChildren,
   mobileChildren,
+  trailingContent,
 }: FiltersContainerProps) {
   return (
     <>
       <div css={[styles.desktopContainer, styles.desktopVisible]}>
         <div css={styles.desktopInnerContainer}>
-          <div css={[flex.row, styles.desktopContent]}>{desktopChildren}</div>
+          <div css={[flex.row, styles.desktopContent]}>
+            {desktopChildren}
+            {trailingContent && (
+              <div css={styles.trailingContent}>{trailingContent}</div>
+            )}
+          </div>
         </div>
       </div>
       <div css={[styles.mobileContainer, styles.mobileVisible]}>
         {mobileChildren}
+        {trailingContent}
       </div>
     </>
   );
@@ -51,6 +59,7 @@ const styles = stylex.create({
     display: "flex",
   },
   desktopContent: {
+    flexGrow: 1,
     gap: space._1,
   },
 
@@ -58,9 +67,14 @@ const styles = stylex.create({
     position: "sticky",
     top: `calc(${space._10} + env(safe-area-inset-top))`,
     zIndex: layer.overlay,
-    justifyContent: "space-between",
+    alignItems: "center",
+    gap: space._1,
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right, 0px) + var(--removed-body-scroll-bar-size, 0px))`,
     marginBottom: space._3,
+  },
+
+  trailingContent: {
+    marginInlineStart: "auto",
   },
 });

@@ -4,6 +4,7 @@ import { DotGridBackground } from "#src/components/ai-chat/dot-grid-background.t
 import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton.tsx";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { HeroSection } from "#src/components/movie-database/hero-section.tsx";
+import { HeroVisibilityProvider } from "#src/components/movie-database/hero-visibility-provider.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
@@ -33,27 +34,29 @@ export default async function Layout({
       })}
     >
       <DotGridBackground />
-      <main>
-        <HeroSection />
-        <Suspense
-          fallback={
-            <>
-              <FiltersSkeleton locale={validatedLocale} />
-              <Grid>
-                {SKELETON_ITEMS.map((item) => (
-                  <Skeleton
-                    key={item.key}
-                    css={styles.skeleton}
-                    delay={item.delay}
-                  />
-                ))}
-              </Grid>
-            </>
-          }
-        >
-          {children}
-        </Suspense>
-      </main>
+      <HeroVisibilityProvider>
+        <main>
+          <HeroSection />
+          <Suspense
+            fallback={
+              <>
+                <FiltersSkeleton locale={validatedLocale} />
+                <Grid>
+                  {SKELETON_ITEMS.map((item) => (
+                    <Skeleton
+                      key={item.key}
+                      css={styles.skeleton}
+                      delay={item.delay}
+                    />
+                  ))}
+                </Grid>
+              </>
+            }
+          >
+            {children}
+          </Suspense>
+        </main>
+      </HeroVisibilityProvider>
     </RetryableErrorBoundary>
   );
 }
