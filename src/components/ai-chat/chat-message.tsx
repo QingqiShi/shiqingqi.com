@@ -64,7 +64,7 @@ export function ChatMessage({
           if (isUser) {
             return (
               <p key={key} css={[styles.partBase, styles.text]}>
-                {part.text}
+                {stripAttachedMediaPrefix(part.text)}
               </p>
             );
           }
@@ -159,6 +159,12 @@ export function ChatMessage({
       })}
     </div>
   );
+}
+
+const ATTACHED_MEDIA_PREFIX = /^\[About: .+ \((?:movie|tv)\)] /;
+
+function stripAttachedMediaPrefix(text: string): string {
+  return text.replace(ATTACHED_MEDIA_PREFIX, "");
 }
 
 function isCompactionPart(part: TextUIPart): boolean {
