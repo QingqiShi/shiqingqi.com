@@ -170,9 +170,15 @@ export function ToolActivityLine({
     }
   }
 
+  const statusText = isComplete
+    ? t({ en: "Complete", zh: "完成" })
+    : isError
+      ? t({ en: "Error", zh: "错误" })
+      : t({ en: "In progress", zh: "进行中" });
+
   return (
     <div css={[flex.row, styles.line]}>
-      <span css={[flex.center, styles.icon]}>
+      <span css={[flex.center, styles.icon]} role="status">
         {isInProgress && <span css={styles.pulsingDot} />}
         {isComplete && (
           <CheckIcon size={ICON_SIZE} weight="bold" aria-hidden="true" />
@@ -184,6 +190,7 @@ export function ToolActivityLine({
             aria-hidden="true"
           />
         )}
+        <span css={styles.srOnly}>{statusText}</span>
       </span>
       <span css={styles.label}>{label}</span>
       {summary != null && (
@@ -240,5 +247,16 @@ const styles = stylex.create({
   },
   separator: {
     opacity: 0.5,
+  },
+  srOnly: {
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: 0,
+    margin: "-1px",
+    overflow: "hidden",
+    clipPath: "inset(50%)",
+    whiteSpace: "nowrap",
+    borderWidth: 0,
   },
 });
