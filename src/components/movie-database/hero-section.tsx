@@ -27,12 +27,12 @@ export function HeroSection() {
 
   return (
     <section css={styles.section}>
-      <h2 css={styles.heading}>
+      <h1 css={styles.heading}>
         {t({
           en: "What do you want to watch?",
           zh: "你想看什么？",
         })}
-      </h2>
+      </h1>
       <div css={styles.inputWrapper}>
         <HeroChatInput
           placeholder={t({
