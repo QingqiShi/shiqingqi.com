@@ -182,6 +182,24 @@ describe("MenuButton keyboard navigation", () => {
     expect(trigger).toHaveFocus();
   });
 
+  it("marks the popup as inert when the menu is closed", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <RouterProvider>
+        <TestMenu />
+      </RouterProvider>,
+    );
+
+    // Before opening, the popup container should be inert so keyboard
+    // users cannot tab into invisible menu items.
+    const inertEl = container.querySelector("[inert]");
+    expect(inertEl).not.toBeNull();
+
+    // After opening, the popup should no longer be inert.
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    expect(container.querySelector("[inert]")).toBeNull();
+  });
+
   it("does not intercept arrow keys when popupRole is not 'menu'", async () => {
     const user = userEvent.setup();
 

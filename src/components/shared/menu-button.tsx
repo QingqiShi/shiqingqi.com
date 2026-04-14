@@ -176,6 +176,7 @@ export function MenuButton({
             !isMenuShown && styles.hidden,
             styles[position],
           ]}
+          inert={!isMenuShown}
         >
           <AnimateToTarget
             css={[styles.menu]}
