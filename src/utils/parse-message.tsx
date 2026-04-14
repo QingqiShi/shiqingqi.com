@@ -49,12 +49,14 @@ function parseTokens(tokens: string[], componentMap: typeof defaultComponents) {
       }
 
       let endIndex = i + 1;
-      while (
-        endIndex < tokens.length &&
-        !isTagEnd(tokens[endIndex]) &&
-        !getTagEndName(tokens[endIndex])
-      ) {
-        endIndex++;
+      let depth = 1;
+      while (endIndex < tokens.length && depth > 0) {
+        if (getTagBeginName(tokens[endIndex]) === tagName) {
+          depth++;
+        } else if (getTagEndName(tokens[endIndex]) === tagName) {
+          depth--;
+        }
+        if (depth > 0) endIndex++;
       }
 
       const children = tokens.slice(i + 1, endIndex);
