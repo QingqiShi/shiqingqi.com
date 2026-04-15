@@ -27,6 +27,24 @@ function createInitialToken(): Token {
   return { type: "number", value: 0, raw: "0" };
 }
 
+function negateRaw(raw: string): string {
+  if (Number(raw) === 0) return raw;
+  return raw.startsWith("-") ? raw.slice(1) : `-${raw}`;
+}
+
+function percentRaw(raw: string): string {
+  if (!raw.includes(".")) {
+    return String(Number(raw) / 100);
+  }
+  const sign = raw.startsWith("-") ? "-" : "";
+  const abs = sign ? raw.slice(1) : raw;
+  const [intPart, fracPart = ""] = abs.split(".");
+  const padded = intPart.padStart(2, "0");
+  const shiftedInt = padded.slice(0, -2).replace(/^0+(?=\d)/, "") || "0";
+  const shiftedFrac = padded.slice(-2) + fracPart;
+  return `${sign}${shiftedInt}.${shiftedFrac}`;
+}
+
 export function Calculator() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [currentToken, setCurrentToken] = useState<Token>(createInitialToken);
@@ -166,18 +184,18 @@ export function Calculator() {
 
     if (isUnaryOperator(label)) {
       if (label === BUTTON_NEGATE && currentToken.type === "number") {
-        const newValue = -currentToken.value;
+        const newRaw = negateRaw(currentToken.raw);
         setCurrentToken({
           ...currentToken,
-          value: newValue,
-          raw: String(newValue),
+          value: Number(newRaw),
+          raw: newRaw,
         });
       } else if (label === BUTTON_PERCENT && currentToken.type === "number") {
-        const newValue = currentToken.value / 100;
+        const newRaw = percentRaw(currentToken.raw);
         setCurrentToken({
           ...currentToken,
-          value: newValue,
-          raw: String(newValue),
+          value: Number(newRaw),
+          raw: newRaw,
         });
       }
       return;

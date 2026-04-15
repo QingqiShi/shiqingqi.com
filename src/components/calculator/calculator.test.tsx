@@ -179,3 +179,86 @@ describe("Calculator Backspace", () => {
     expect(getDisplay()).toHaveTextContent("15");
   });
 });
+
+describe("Calculator unary operators preserve raw input", () => {
+  it("negates a number and still lets the user continue typing after a trailing decimal", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    // Type "5.", then ±, then "0" — should read -5.0, not -50
+    await pressButtons(user, ["5", "Decimal point", "Toggle sign"]);
+
+    await pressButtons(user, ["0"]);
+    await pressButtons(user, ["Equals"]);
+    expect(getDisplay()).toHaveTextContent("-5");
+  });
+
+  it("negates a number and preserves digits typed after a decimal point", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    await pressButtons(user, [
+      "5",
+      "Decimal point",
+      "2",
+      "Toggle sign",
+      "Equals",
+    ]);
+    expect(getDisplay()).toHaveTextContent("-5.2");
+  });
+
+  it("negates again to restore the original sign", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    await pressButtons(user, ["7", "Toggle sign", "Toggle sign", "Equals"]);
+    expect(getDisplay()).toHaveTextContent("7");
+  });
+
+  it("keeps zero as zero when negate is pressed (does not produce -0)", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    await pressButtons(user, ["Toggle sign"]);
+    expect(getDisplay()).toHaveTextContent("0");
+
+    // After typing another digit, sign should still not be negative
+    await pressButtons(user, ["3", "Equals"]);
+    expect(getDisplay()).toHaveTextContent("3");
+  });
+
+  it("applies percent and continues to accept a following operator", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    // 5 % → 0.05, then × 4 = 0.2
+    await pressButtons(user, ["5", "Percent", "Multiply", "4", "Equals"]);
+    expect(getDisplay()).toHaveTextContent("0.2");
+  });
+
+  it("applies percent to a number with a trailing decimal without swallowing it numerically", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    // 7. % → 0.07
+    await pressButtons(user, ["7", "Decimal point", "Percent", "Equals"]);
+    expect(getDisplay()).toHaveTextContent("0.07");
+  });
+
+  it("applies percent to a number with trailing zeros and preserves numeric value", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    // 12.30 % → 0.123 numerically
+    await pressButtons(user, [
+      "1",
+      "2",
+      "Decimal point",
+      "3",
+      "0",
+      "Percent",
+      "Equals",
+    ]);
+    expect(getDisplay()).toHaveTextContent("0.123");
+  });
+});
