@@ -62,7 +62,16 @@ export function TmdbImage({
           setErrored(true);
         }}
         ref={(el) => {
-          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+          if (!el?.complete) return;
+          // Browsers short-circuit cached responses without firing onLoad/onError,
+          // so probe the element directly. naturalWidth > 0 means a decoded image
+          // is in memory; naturalWidth === 0 on a complete image means the fetch
+          // failed (404, network error, etc.) and the response was cached.
+          if (el.naturalWidth > 0) {
+            setLoaded(true);
+          } else {
+            setErrored(true);
+          }
         }}
       />
     </>
