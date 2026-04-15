@@ -30,6 +30,13 @@ export const sharedStyles = stylex.create({
     filter: "brightness(1)",
     // Touch action to prevent browser gestures from interfering
     touchAction: "manipulation",
+    // Focus ring for keyboard users (WCAG 2.4.7). Replaces the browser
+    // default so the indicator stays consistent across browsers.
+    outline: {
+      default: "none",
+      ":focus-visible": `2px solid ${color.controlActive}`,
+    },
+    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
   hasIcon: {
     paddingLeft: controlSize._2,

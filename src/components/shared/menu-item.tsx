@@ -62,6 +62,11 @@ const styles = stylex.create({
     padding: controlSize._3,
     textDecoration: "none",
     transition: "background-color 0.2s",
+    outline: {
+      default: "none",
+      ":focus-visible": `2px solid ${color.controlActive}`,
+    },
+    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
   itemActive: {
     color: color.textOnActive,

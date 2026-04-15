@@ -61,6 +61,12 @@ const styles = stylex.create({
       ":hover": "scale(1.05) translate3d(0, -0.2rem, 0)",
     },
     backdropFilter: { default: null, ":hover": "blur(2rem)" },
+    outline: {
+      default: "none",
+      ":focus-visible": `2px solid ${color.controlActive}`,
+    },
+    // Draw the ring inside the box so `overflow: hidden` doesn't clip it.
+    outlineOffset: { default: null, ":focus-visible": "-2px" },
 
     [cardTokens.detailsIndicatorOpacity]: {
       default: 0,

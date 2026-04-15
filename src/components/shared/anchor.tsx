@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import Link from "next/link";
 import { useState } from "react";
-import { border } from "#src/tokens.stylex.ts";
+import { border, color } from "#src/tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex";
 
 export function Anchor({
@@ -57,5 +57,10 @@ const styles = stylex.create({
     color: anchorTokens.color,
     fontWeight: anchorTokens.fontWeight,
     textDecorationThickness: { default: null, ":hover": border.size_2 },
+    outline: {
+      default: "none",
+      ":focus-visible": `2px solid ${color.controlActive}`,
+    },
+    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
 });
