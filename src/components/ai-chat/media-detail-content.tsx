@@ -88,6 +88,8 @@ export function MediaDetailContent({
     (video) => video.type === "Trailer" && video.official,
   );
 
+  const hasBackdrop = Boolean(detail?.backdropPath && imageBaseUrl);
+
   if (detailQuery.isError) {
     return (
       <div css={styles.body}>
@@ -117,7 +119,7 @@ export function MediaDetailContent({
       ) : (
         detailQuery.isPending && <Skeleton css={skeletonStyles.backdrop} />
       )}
-      <div css={styles.body}>
+      <div css={[styles.body, hasBackdrop && styles.bodyWithBackdrop]}>
         <div css={styles.header}>
           {posterPath && imageBaseUrl ? (
             <div css={styles.posterWrapper}>
@@ -295,6 +297,8 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._3,
     padding: space._4,
+  },
+  bodyWithBackdrop: {
     marginTop: `calc(-1 * ${space._10})`,
   },
   header: {
