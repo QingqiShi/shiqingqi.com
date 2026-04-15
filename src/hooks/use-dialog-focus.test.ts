@@ -160,6 +160,121 @@ describe("useDialogFocus", () => {
     expect(prevented).toBe(false);
   });
 
+  it("skips buttons with tabindex=-1 when finding initial focus", () => {
+    const dialog = document.createElement("div");
+    const hiddenButton = document.createElement("button");
+    hiddenButton.textContent = "Hidden";
+    hiddenButton.tabIndex = -1;
+    const visibleButton = document.createElement("button");
+    visibleButton.textContent = "Visible";
+    dialog.append(hiddenButton, visibleButton);
+    document.body.append(dialog);
+
+    const dialogRef = { current: dialog };
+    const onClose = vi.fn();
+
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
+
+    expect(visibleButton).toHaveFocus();
+    expect(hiddenButton).not.toHaveFocus();
+  });
+
+  it("skips tabindex=-1 elements when wrapping focus on Tab", () => {
+    const dialog = document.createElement("div");
+    const first = document.createElement("button");
+    first.textContent = "First";
+    const middleHidden = document.createElement("button");
+    middleHidden.textContent = "Hidden";
+    middleHidden.tabIndex = -1;
+    const last = document.createElement("button");
+    last.textContent = "Last";
+    dialog.append(first, middleHidden, last);
+    document.body.append(dialog);
+
+    const dialogRef = { current: dialog };
+    const onClose = vi.fn();
+
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
+
+    last.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+
+    // Wraps to first (not to the tabindex=-1 element)
+    expect(first).toHaveFocus();
+  });
+
+  it("skips tabindex=-1 elements when wrapping focus on Shift+Tab", () => {
+    const dialog = document.createElement("div");
+    const first = document.createElement("button");
+    first.textContent = "First";
+    const lastHidden = document.createElement("button");
+    lastHidden.textContent = "Hidden";
+    lastHidden.tabIndex = -1;
+    const last = document.createElement("button");
+    last.textContent = "Last";
+    dialog.append(first, lastHidden, last);
+    document.body.append(dialog);
+
+    const dialogRef = { current: dialog };
+    const onClose = vi.fn();
+
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
+
+    first.focus();
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+
+    // Wraps to the last real focusable, not the tabindex=-1 element
+    expect(last).toHaveFocus();
+  });
+
+  it("includes elements with tabindex=0 on non-standard tags", () => {
+    const dialog = document.createElement("div");
+    const customFocusable = document.createElement("div");
+    customFocusable.setAttribute("role", "application");
+    customFocusable.tabIndex = 0;
+    const button = document.createElement("button");
+    button.textContent = "Button";
+    dialog.append(customFocusable, button);
+    document.body.append(dialog);
+
+    const dialogRef = { current: dialog };
+    const onClose = vi.fn();
+
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
+
+    expect(customFocusable).toHaveFocus();
+  });
+
+  it("skips elements inside an inert subtree", () => {
+    const dialog = document.createElement("div");
+    const inertSection = document.createElement("div");
+    inertSection.setAttribute("inert", "");
+    const inertButton = document.createElement("button");
+    inertButton.textContent = "Inert";
+    inertSection.append(inertButton);
+    const activeButton = document.createElement("button");
+    activeButton.textContent = "Active";
+    dialog.append(inertSection, activeButton);
+    document.body.append(dialog);
+
+    const dialogRef = { current: dialog };
+    const onClose = vi.fn();
+
+    renderHook(() => {
+      useDialogFocus({ isOpen: true, dialogRef, onClose });
+    });
+
+    expect(activeButton).toHaveFocus();
+  });
+
   it("saves and restores trigger focus on cleanup", () => {
     const trigger = document.createElement("button");
     trigger.textContent = "Trigger";
