@@ -13,16 +13,18 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <html suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body css={[globalStyles.body, styles.body]}>
         {/* eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- Theme initialization before hydration */}
         <script dangerouslySetInnerHTML={{ __html: themeHack }} />
         <div css={styles.container}>
           <h1 css={styles.heading}>404</h1>
           <p css={styles.description}>Page not found</p>
-          <p css={styles.description}>页面未找到</p>
+          <p css={styles.description} lang="zh">
+            页面未找到
+          </p>
           <Link href="/" css={styles.link}>
-            Go home / 返回首页
+            <span>Go home</span> / <span lang="zh">返回首页</span>
           </Link>
         </div>
       </body>
