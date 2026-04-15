@@ -8,15 +8,21 @@ import { validateLocale } from "#src/utils/validate-locale.ts";
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   validateLocale(params.locale);
+  const title = t({
+    en: "Education at University of Nottingham",
+    zh: "诺丁汉大学 教育",
+  });
+  const description = t({
+    en: "Qingqi graduated from the University of Nottingham with a First-class Honours degree in BSc Computer Science.",
+    zh: "石清琪毕业于诺丁汉大学，取得了《计算机科学》荣誉理学学士。",
+  });
+  const url =
+    params.locale === "zh"
+      ? new URL("/zh/education/university-of-nottingham", BASE_URL).toString()
+      : new URL("/education/university-of-nottingham", BASE_URL).toString();
   return {
-    title: t({
-      en: "Education at University of Nottingham",
-      zh: "诺丁汉大学 教育",
-    }),
-    description: t({
-      en: "Qingqi graduated from the University of Nottingham with a First-class Honours degree in BSc Computer Science.",
-      zh: "石清琪毕业于诺丁汉大学，取得了《计算机科学》荣誉理学学士。",
-    }),
+    title,
+    description,
     alternates: {
       canonical: new URL(
         "/education/university-of-nottingham",
@@ -29,6 +35,19 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
           BASE_URL,
         ).toString(),
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      locale: params.locale === "zh" ? "zh_CN" : "en_US",
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   } satisfies Metadata;
 }

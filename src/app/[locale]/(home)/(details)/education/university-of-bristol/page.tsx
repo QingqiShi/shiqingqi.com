@@ -9,15 +9,21 @@ import { validateLocale } from "#src/utils/validate-locale.ts";
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   validateLocale(params.locale);
+  const title = t({
+    en: "Education at University of Bristol",
+    zh: "布里斯托大学 教育",
+  });
+  const description = t({
+    en: "Qingqi graduated from the University of Bristol with a Merit in MSc Advanced Computing - Creative Technology.",
+    zh: "石清琪毕业于布里斯托大学，取得了《高级计算机 创新技术》理学硕士。",
+  });
+  const url =
+    params.locale === "zh"
+      ? new URL("/zh/education/university-of-bristol", BASE_URL).toString()
+      : new URL("/education/university-of-bristol", BASE_URL).toString();
   return {
-    title: t({
-      en: "Education at University of Bristol",
-      zh: "布里斯托大学 教育",
-    }),
-    description: t({
-      en: "Qingqi graduated from the University of Bristol with a Merit in MSc Advanced Computing - Creative Technology.",
-      zh: "石清琪毕业于布里斯托大学，取得了《高级计算机 创新技术》理学硕士。",
-    }),
+    title,
+    description,
     alternates: {
       canonical: new URL(
         "/education/university-of-bristol",
@@ -27,6 +33,19 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
         en: new URL("/education/university-of-bristol", BASE_URL).toString(),
         zh: new URL("/zh/education/university-of-bristol", BASE_URL).toString(),
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      locale: params.locale === "zh" ? "zh_CN" : "en_US",
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   } satisfies Metadata;
 }
