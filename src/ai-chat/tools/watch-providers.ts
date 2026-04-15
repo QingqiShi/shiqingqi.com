@@ -142,7 +142,7 @@ function findProvider(
     if (
       isRecord(item) &&
       typeof item.provider_name === "string" &&
-      normaliseProviderName(item.provider_name) === target
+      normaliseProviderName(item.provider_name).includes(target)
     ) {
       return {
         found: true,

@@ -596,7 +596,7 @@ describe("watch providers provider search", () => {
     expect(result.providerLogoPath).toBe("/logo-337.jpg");
   });
 
-  it('does not match "Disney+" against the unrelated "Disney+ Hotstar" service', async () => {
+  it('matches "Disney+" against "Disney+ Hotstar" via normalised substring', async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
         HttpResponse.json(
@@ -624,11 +624,11 @@ describe("watch providers provider search", () => {
       }),
     );
 
-    expect(result.regions).toEqual([]);
-    expect(result.providerLogoPath).toBeNull();
+    expect(result.regions).toHaveLength(1);
+    expect(result.regions[0].country).toBe("IN");
   });
 
-  it('does not match "HBO" against the unrelated "Amazon Channel - HBO" addon', async () => {
+  it('matches "HBO" against "Amazon Channel - HBO" via normalised substring', async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
         HttpResponse.json(
@@ -656,10 +656,11 @@ describe("watch providers provider search", () => {
       }),
     );
 
-    expect(result.regions).toEqual([]);
+    expect(result.regions).toHaveLength(1);
+    expect(result.regions[0].country).toBe("US");
   });
 
-  it('does not match "Apple" against unrelated Apple-branded services', async () => {
+  it('matches "Apple" against Apple-branded services via normalised substring', async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
         HttpResponse.json(
@@ -694,7 +695,9 @@ describe("watch providers provider search", () => {
       }),
     );
 
-    expect(result.regions).toEqual([]);
+    expect(result.regions).toHaveLength(1);
+    expect(result.regions[0].country).toBe("US");
+    expect(result.regions[0].types).toEqual(["flatrate", "rent"]);
   });
 
   it('matches "Apple TV+" exactly without picking up "Apple TV Channel"', async () => {
@@ -736,7 +739,7 @@ describe("watch providers provider search", () => {
     expect(result.providerLogoPath).toBe("/logo-350.jpg");
   });
 
-  it('does not match "Prime" against "Amazon Prime Video" or addon channels', async () => {
+  it('matches "Prime" against "Amazon Prime Video" via normalised substring', async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
         HttpResponse.json(
@@ -769,6 +772,7 @@ describe("watch providers provider search", () => {
       }),
     );
 
-    expect(result.regions).toEqual([]);
+    expect(result.regions).toHaveLength(1);
+    expect(result.regions[0].country).toBe("US");
   });
 });
