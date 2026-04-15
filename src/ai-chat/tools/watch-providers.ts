@@ -119,17 +119,30 @@ const AVAILABILITY_TYPES: AvailabilityType[] = [
   "free",
 ];
 
+/**
+ * Normalise a provider name for matching: lowercase, treat "+" as "plus",
+ * and strip everything else that isn't a letter or digit. So "Disney+",
+ * "disney plus", and "DISNEY+" all collapse to "disneyplus".
+ */
+function normaliseProviderName(name: string): string {
+  return name
+    .toLowerCase()
+    .replaceAll("+", "plus")
+    .replace(/[^a-z0-9]/g, "");
+}
+
 function findProvider(
   items: unknown,
   name: string,
 ): { found: boolean; logoPath: string | null } {
   if (!Array.isArray(items)) return { found: false, logoPath: null };
-  const lower = name.toLowerCase();
+  const target = normaliseProviderName(name);
+  if (target === "") return { found: false, logoPath: null };
   for (const item of items) {
     if (
       isRecord(item) &&
       typeof item.provider_name === "string" &&
-      item.provider_name.toLowerCase().includes(lower)
+      normaliseProviderName(item.provider_name) === target
     ) {
       return {
         found: true,

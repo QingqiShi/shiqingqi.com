@@ -562,4 +562,213 @@ describe("watch providers provider search", () => {
     expect(result.regions).toHaveLength(1);
     expect(result.regions[0].country).toBe("US");
   });
+
+  it('matches "Disney Plus" against the canonical "Disney+" name', async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
+        HttpResponse.json(
+          watchProvidersResponse(550, {
+            US: {
+              link: "https://example.com/US",
+              flatrate: [
+                provider({
+                  provider_id: 337,
+                  provider_name: "Disney+",
+                  display_priority: 1,
+                }),
+              ],
+            },
+          }),
+        ),
+      ),
+    );
+
+    const result = asSearchResult(
+      await executeTool({
+        id: 550,
+        media_type: "movie",
+        provider_name: "Disney Plus",
+      }),
+    );
+
+    expect(result.regions).toHaveLength(1);
+    expect(result.regions[0].country).toBe("US");
+    expect(result.providerLogoPath).toBe("/logo-337.jpg");
+  });
+
+  it('does not match "Disney+" against the unrelated "Disney+ Hotstar" service', async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
+        HttpResponse.json(
+          watchProvidersResponse(550, {
+            IN: {
+              link: "https://example.com/IN",
+              flatrate: [
+                provider({
+                  provider_id: 122,
+                  provider_name: "Disney+ Hotstar",
+                  display_priority: 1,
+                }),
+              ],
+            },
+          }),
+        ),
+      ),
+    );
+
+    const result = asSearchResult(
+      await executeTool({
+        id: 550,
+        media_type: "movie",
+        provider_name: "Disney+",
+      }),
+    );
+
+    expect(result.regions).toEqual([]);
+    expect(result.providerLogoPath).toBeNull();
+  });
+
+  it('does not match "HBO" against the unrelated "Amazon Channel - HBO" addon', async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
+        HttpResponse.json(
+          watchProvidersResponse(550, {
+            US: {
+              link: "https://example.com/US",
+              flatrate: [
+                provider({
+                  provider_id: 999,
+                  provider_name: "Amazon Channel - HBO",
+                  display_priority: 1,
+                }),
+              ],
+            },
+          }),
+        ),
+      ),
+    );
+
+    const result = asSearchResult(
+      await executeTool({
+        id: 550,
+        media_type: "movie",
+        provider_name: "HBO",
+      }),
+    );
+
+    expect(result.regions).toEqual([]);
+  });
+
+  it('does not match "Apple" against unrelated Apple-branded services', async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
+        HttpResponse.json(
+          watchProvidersResponse(550, {
+            US: {
+              link: "https://example.com/US",
+              flatrate: [
+                provider({
+                  provider_id: 350,
+                  provider_name: "Apple TV+",
+                  display_priority: 1,
+                }),
+              ],
+              rent: [
+                provider({
+                  provider_id: 2,
+                  provider_name: "Apple TV Channel",
+                  display_priority: 2,
+                }),
+              ],
+            },
+          }),
+        ),
+      ),
+    );
+
+    const result = asSearchResult(
+      await executeTool({
+        id: 550,
+        media_type: "movie",
+        provider_name: "Apple",
+      }),
+    );
+
+    expect(result.regions).toEqual([]);
+  });
+
+  it('matches "Apple TV+" exactly without picking up "Apple TV Channel"', async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
+        HttpResponse.json(
+          watchProvidersResponse(550, {
+            US: {
+              link: "https://example.com/US",
+              flatrate: [
+                provider({
+                  provider_id: 350,
+                  provider_name: "Apple TV+",
+                  display_priority: 1,
+                }),
+              ],
+              rent: [
+                provider({
+                  provider_id: 2,
+                  provider_name: "Apple TV Channel",
+                  display_priority: 2,
+                }),
+              ],
+            },
+          }),
+        ),
+      ),
+    );
+
+    const result = asSearchResult(
+      await executeTool({
+        id: 550,
+        media_type: "movie",
+        provider_name: "Apple TV+",
+      }),
+    );
+
+    expect(result.regions).toEqual([{ country: "US", types: ["flatrate"] }]);
+    expect(result.providerLogoPath).toBe("/logo-350.jpg");
+  });
+
+  it('does not match "Prime" against "Amazon Prime Video" or addon channels', async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
+        HttpResponse.json(
+          watchProvidersResponse(550, {
+            US: {
+              link: "https://example.com/US",
+              flatrate: [
+                provider({
+                  provider_id: 9,
+                  provider_name: "Amazon Prime Video",
+                  display_priority: 1,
+                }),
+                provider({
+                  provider_id: 10,
+                  provider_name: "Amazon Prime Video with Ads",
+                  display_priority: 2,
+                }),
+              ],
+            },
+          }),
+        ),
+      ),
+    );
+
+    const result = asSearchResult(
+      await executeTool({
+        id: 550,
+        media_type: "movie",
+        provider_name: "Prime",
+      }),
+    );
+
+    expect(result.regions).toEqual([]);
+  });
 });
