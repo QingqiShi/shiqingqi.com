@@ -57,6 +57,11 @@ interface CreditResult {
   department: string | undefined;
 }
 
+// Cap aligned with the sibling media-credits tool (20 cast + 20 crew = 40)
+// and the consumer cap in person-detail-content.tsx (MAX_CREDITS = 20).
+// Trimming after sort preserves the highest-rated entries.
+const MAX_RESULTS = 30;
+
 export function createPersonCreditsTool() {
   return tool({
     description: TOOL_DESCRIPTION,
@@ -118,7 +123,7 @@ export function createPersonCreditsTool() {
 
       results.sort((a, b) => b.vote_average - a.vote_average);
 
-      return results;
+      return results.slice(0, MAX_RESULTS);
     },
   });
 }
