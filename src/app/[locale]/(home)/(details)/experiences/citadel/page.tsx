@@ -8,21 +8,40 @@ import { validateLocale } from "#src/utils/validate-locale.ts";
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   validateLocale(params.locale);
+  const title = t({
+    en: "Software Engineer at Citadel - Crafting Dashboard Web Apps for the Financial Sector",
+    zh: "Citadel 的软件工程师 - 为金融行业打造仪表盘Web应用",
+  });
+  const description = t({
+    en: "Discover how Qingqi Shi, a software engineer at Citadel, develops dashboard web applications for the financial sector using React, TypeScript, and AG Grid.",
+    zh: "了解石清琪在 Citadel 担任软件工程师的经历，他使用 React、TypeScript 和 AG Grid 为金融行业开发仪表盘 Web 应用。",
+  });
+  const url =
+    params.locale === "zh"
+      ? new URL("/zh/experiences/citadel", BASE_URL).toString()
+      : new URL("/experiences/citadel", BASE_URL).toString();
   return {
-    title: t({
-      en: "Software Engineer at Citadel - Crafting Dashboard Web Apps for the Financial Sector",
-      zh: "Citadel 的软件工程师 - 为金融行业打造仪表盘Web应用",
-    }),
-    description: t({
-      en: "Discover how Qingqi Shi, a software engineer at Citadel, develops dashboard web applications for the financial sector using React, TypeScript, and AG Grid.",
-      zh: "了解石清琪在 Citadel 担任软件工程师的经历，他使用 React、TypeScript 和 AG Grid 为金融行业开发仪表盘 Web 应用。",
-    }),
+    title,
+    description,
     alternates: {
       canonical: new URL("/experiences/citadel", BASE_URL).toString(),
       languages: {
         en: new URL("/experiences/citadel", BASE_URL).toString(),
         zh: new URL("/zh/experiences/citadel", BASE_URL).toString(),
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      locale: params.locale === "zh" ? "zh_CN" : "en_US",
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   } satisfies Metadata;
 }
