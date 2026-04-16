@@ -26,8 +26,12 @@ test.describe("Movie and TV Show Browsing", () => {
     await expect(page.getByRole("button", { name: /^genre/i })).toBeVisible();
 
     // Verify sort links (Popularity and Rating)
-    await expect(page.getByRole("link", { name: /popularity/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /rating/i })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /sort by popularity/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /sort by rating/i }),
+    ).toBeVisible();
   });
 
   test("should toggle between movies and TV shows", async ({ page }) => {
@@ -93,17 +97,19 @@ test.describe("Movie and TV Show Browsing", () => {
 
   test("should toggle between popularity and rating sort", async ({ page }) => {
     // Click the Rating sort link
-    await page.getByRole("link", { name: /^rating/i }).click();
+    await page.getByRole("link", { name: /sort by rating/i }).click();
 
-    // Verify rating link is now active
-    await expect(page.getByRole("link", { name: /rating.*↓/i })).toBeVisible();
+    // Verify rating link is now active (descending)
+    await expect(
+      page.getByRole("link", { name: /sort by rating, descending/i }),
+    ).toBeVisible();
 
     // Click popularity to switch back
-    await page.getByRole("link", { name: /^popularity/i }).click();
+    await page.getByRole("link", { name: /sort by popularity/i }).click();
 
-    // Verify popularity is now active
+    // Verify popularity is now active (descending)
     await expect(
-      page.getByRole("link", { name: /popularity.*↓/i }),
+      page.getByRole("link", { name: /sort by popularity, descending/i }),
     ).toBeVisible();
   });
 
@@ -123,10 +129,12 @@ test.describe("Movie and TV Show Browsing", () => {
     await page.locator("main").click({ position: { x: 10, y: 10 } });
 
     // Change sort to rating
-    await page.getByRole("link", { name: /^rating/i }).click();
+    await page.getByRole("link", { name: /sort by rating/i }).click();
 
-    // Verify rating is active
-    await expect(page.getByRole("link", { name: /rating.*↓/i })).toBeVisible();
+    // Verify rating is active (descending)
+    await expect(
+      page.getByRole("link", { name: /sort by rating, descending/i }),
+    ).toBeVisible();
 
     // Verify reset button is visible
     await expect(page.getByRole("link", { name: /reset/i })).toBeVisible();
@@ -137,7 +145,7 @@ test.describe("Movie and TV Show Browsing", () => {
     // Verify filters are cleared (genre button back to no count, popularity active)
     await expect(page.getByRole("button", { name: /^genre$/i })).toBeVisible();
     await expect(
-      page.getByRole("link", { name: /popularity.*↓/i }),
+      page.getByRole("link", { name: /sort by popularity, descending/i }),
     ).toBeVisible();
   });
 
@@ -185,13 +193,15 @@ test.describe("Movie and TV Show Browsing", () => {
     await page.locator("main").click({ position: { x: 10, y: 10 } });
 
     // Change sort
-    await page.getByRole("link", { name: /^rating/i }).click();
+    await page.getByRole("link", { name: /sort by rating/i }).click();
 
     // Verify both filters are visible in UI (persisted)
     await expect(
       page.getByRole("button", { name: /genre.*\(1\)/i }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: /rating.*↓/i })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /sort by rating, descending/i }),
+    ).toBeVisible();
 
     // Reload page to test persistence
     await page.reload();
@@ -200,7 +210,9 @@ test.describe("Movie and TV Show Browsing", () => {
     await expect(
       page.getByRole("button", { name: /genre.*\(1\)/i }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: /rating.*↓/i })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /sort by rating, descending/i }),
+    ).toBeVisible();
   });
 
   test("should load page with filters from URL parameters", async ({
@@ -217,7 +229,9 @@ test.describe("Movie and TV Show Browsing", () => {
     await expect(
       page.getByRole("button", { name: /genre.*\(1\)/i }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: /rating.*↓/i })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /sort by rating, descending/i }),
+    ).toBeVisible();
   });
 
   test("should navigate to movie and TV show detail pages from cards", async ({
