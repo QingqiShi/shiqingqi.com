@@ -84,6 +84,14 @@ export function ToolReviewSummary({
   const locale = useLocale();
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
 
+  const ratingFormatter = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 1,
+  });
+  const formattedRating =
+    data.averageRating !== null
+      ? ratingFormatter.format(data.averageRating)
+      : null;
+
   const spicinessLabels: Record<number, string> = {
     1: t({ en: "Mild", zh: "温和" }),
     2: t({ en: "Chill", zh: "平淡" }),
@@ -121,10 +129,13 @@ export function ToolReviewSummary({
           {t({ en: "Review Summary", zh: "评论摘要" })}
         </span>
         <div css={[flex.row, styles.badges]}>
-          {data.averageRating !== null && (
-            <span css={styles.ratingBadge}>
-              {"★ "}
-              {data.averageRating}
+          {formattedRating !== null && (
+            <span
+              css={styles.ratingBadge}
+              role="img"
+              aria-label={`${t({ en: "Average rating", zh: "平均评分" })}: ${formattedRating}${t({ en: " out of 10", zh: "/10" })}`}
+            >
+              <span aria-hidden="true">{`★ ${formattedRating}`}</span>
             </span>
           )}
           <span css={styles.countBadge}>

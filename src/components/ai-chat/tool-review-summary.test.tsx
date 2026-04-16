@@ -74,6 +74,31 @@ describe("ToolReviewSummary", () => {
     expect(screen.getByText(/8\.2/)).toBeInTheDocument();
   });
 
+  it("rounds fractional ratings to one decimal", () => {
+    renderWithActions(
+      <ToolReviewSummary
+        data={makeReviewData({ averageRating: 7.4234 })}
+        isInteractive
+      />,
+    );
+
+    expect(screen.getByText("★ 7.4")).toBeInTheDocument();
+    expect(screen.queryByText(/7\.4234/)).not.toBeInTheDocument();
+  });
+
+  it("exposes an accessible rating label", () => {
+    renderWithActions(
+      <ToolReviewSummary
+        data={makeReviewData({ averageRating: 7.4234 })}
+        isInteractive
+      />,
+    );
+
+    expect(
+      screen.getByRole("img", { name: "Average rating: 7.4 out of 10" }),
+    ).toBeInTheDocument();
+  });
+
   it("omits average rating when null", () => {
     renderWithActions(
       <ToolReviewSummary
