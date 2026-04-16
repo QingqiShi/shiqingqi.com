@@ -6,12 +6,14 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
-import { accumulateToolOutputs } from "#src/components/ai-chat/map-tool-output.ts";
+import { createToolOutputAccumulator } from "#src/components/ai-chat/map-tool-output.ts";
 import {
   getCachedPreferencesContext,
   getPreferencesContextReady,
 } from "#src/preference-store/preference-store.ts";
 import type { SupportedLocale } from "#src/types.ts";
+
+const accumulateToolOutputs = createToolOutputAccumulator();
 
 export interface ChatMessageMetadata {
   inputTokens?: number;

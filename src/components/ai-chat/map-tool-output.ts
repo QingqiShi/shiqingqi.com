@@ -14,35 +14,68 @@ export interface ToolOutputMaps {
   watchProvidersMap: ReadonlyMap<string, WatchProviderOutput>;
 }
 
-export function accumulateToolOutputs(
+export function createToolOutputAccumulator(): (
   messages: ReadonlyArray<UIMessage>,
-): ToolOutputMaps {
-  const searchResultsMap = new Map<string, MediaListItem>();
-  const personResultsMap = new Map<number, PersonListItem>();
-  const watchProvidersMap = new Map<string, WatchProviderOutput>();
+) => ToolOutputMaps {
+  let cachedResult: ToolOutputMaps | null = null;
+  let cachedOutputCount = -1;
 
-  for (const message of messages) {
-    for (const part of message.parts) {
-      if (!isToolUIPart(part)) continue;
-      if (part.state !== "output-available" || !("output" in part)) continue;
-
-      const name = getToolName(part);
-
-      for (const [k, v] of buildSearchResultsMap(name, part.output)) {
-        searchResultsMap.set(k, v);
-      }
-      for (const [k, v] of buildPersonResultsMap(name, part.output)) {
-        personResultsMap.set(k, v);
-      }
-      if (name === "watch_providers") {
-        for (const [k, v] of buildWatchProvidersMap(part.output)) {
-          watchProvidersMap.set(k, v);
+  return (messages) => {
+    let outputCount = 0;
+    for (const message of messages) {
+      for (const part of message.parts) {
+        if (isToolUIPart(part) && part.state === "output-available") {
+          outputCount++;
         }
       }
     }
-  }
 
-  return { searchResultsMap, personResultsMap, watchProvidersMap };
+    if (cachedResult && outputCount === cachedOutputCount) {
+      return cachedResult;
+    }
+
+    return recompute(messages, outputCount);
+  };
+
+  function recompute(
+    messages: ReadonlyArray<UIMessage>,
+    outputCount: number,
+  ): ToolOutputMaps {
+    const searchResultsMap = new Map<string, MediaListItem>();
+    const personResultsMap = new Map<number, PersonListItem>();
+    const watchProvidersMap = new Map<string, WatchProviderOutput>();
+
+    for (const message of messages) {
+      for (const part of message.parts) {
+        if (!isToolUIPart(part)) continue;
+        if (part.state !== "output-available" || !("output" in part)) continue;
+
+        const name = getToolName(part);
+
+        for (const [k, v] of buildSearchResultsMap(name, part.output)) {
+          searchResultsMap.set(k, v);
+        }
+        for (const [k, v] of buildPersonResultsMap(name, part.output)) {
+          personResultsMap.set(k, v);
+        }
+        if (name === "watch_providers") {
+          for (const [k, v] of buildWatchProvidersMap(part.output)) {
+            watchProvidersMap.set(k, v);
+          }
+        }
+      }
+    }
+
+    cachedOutputCount = outputCount;
+    cachedResult = { searchResultsMap, personResultsMap, watchProvidersMap };
+    return cachedResult;
+  }
+}
+
+export function accumulateToolOutputs(
+  messages: ReadonlyArray<UIMessage>,
+): ToolOutputMaps {
+  return createToolOutputAccumulator()(messages);
 }
 
 function mapTmdbSearchOutput(output: unknown): ReadonlyArray<MediaListItem> {
