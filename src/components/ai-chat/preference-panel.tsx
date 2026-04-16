@@ -8,6 +8,7 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, useState } from "react";
+import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import type { StoredPreference } from "#src/preference-store/preference-store.ts";
 import { usePreferences } from "#src/preference-store/use-preferences.ts";
@@ -36,19 +37,12 @@ export function PreferenceManager() {
 
   return (
     <>
-      <button
-        type="button"
-        css={[buttonReset.base, flex.inlineCenter, triggerStyles.button]}
-        onClick={() => {
+      <PreferenceTrigger
+        count={preferences.length}
+        onOpen={() => {
           setIsOpen(true);
         }}
-        aria-label={t({ en: "Preferences", zh: "偏好设置" })}
-      >
-        <SlidersHorizontalIcon size={16} role="presentation" />
-        {preferences.length > 0 && (
-          <span css={triggerStyles.dot} aria-hidden="true" />
-        )}
-      </button>
+      />
       <PreferencePanel
         isOpen={isOpen}
         onClose={() => {
@@ -59,6 +53,32 @@ export function PreferenceManager() {
         onClearAll={clearAll}
       />
     </>
+  );
+}
+
+export function PreferenceTrigger({
+  count,
+  onOpen,
+}: {
+  count: number;
+  onOpen: () => void;
+}) {
+  const locale = useLocale();
+  const label =
+    count > 0
+      ? `${t({ en: "Preferences,", zh: "偏好设置，" })} ${count.toLocaleString(locale)} ${t({ en: "saved", zh: "项已保存" })}`
+      : t({ en: "Preferences", zh: "偏好设置" });
+
+  return (
+    <button
+      type="button"
+      css={[buttonReset.base, flex.inlineCenter, triggerStyles.button]}
+      onClick={onOpen}
+      aria-label={label}
+    >
+      <SlidersHorizontalIcon size={16} role="presentation" />
+      {count > 0 && <span css={triggerStyles.dot} aria-hidden="true" />}
+    </button>
   );
 }
 
