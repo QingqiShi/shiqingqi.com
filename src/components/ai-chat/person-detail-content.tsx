@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -140,10 +140,11 @@ function ProfileImage({
 
 const LINE_CLAMP = 6;
 
-function ExpandableBiography({ text }: { text: string }) {
+export function ExpandableBiography({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
   const [isClamped, setIsClamped] = useState(false);
   const paragraphRef = useRef<HTMLParagraphElement>(null);
+  const biographyId = useId();
 
   // Observe layout changes on the paragraph itself. `measure` reads live
   // DOM (scrollHeight vs clientHeight) rather than closing over `expanded`,
@@ -170,6 +171,7 @@ function ExpandableBiography({ text }: { text: string }) {
   return (
     <div>
       <p
+        id={biographyId}
         ref={paragraphRef}
         css={[styles.biography, !expanded && styles.biographyClamped]}
       >
@@ -179,6 +181,8 @@ function ExpandableBiography({ text }: { text: string }) {
         <button
           type="button"
           css={[buttonReset.base, styles.readMoreButton]}
+          aria-expanded={expanded}
+          aria-controls={biographyId}
           onClick={() => {
             setExpanded((prev) => !prev);
           }}
