@@ -56,8 +56,12 @@ export function isStoredPreference(value: unknown): value is StoredPreference {
   );
 }
 
-function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
+let dbPromise: Promise<IDBDatabase> | null = null;
+
+function getDB(): Promise<IDBDatabase> {
+  if (dbPromise) return dbPromise;
+
+  dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onupgradeneeded = () => {
@@ -68,16 +72,24 @@ function openDB(): Promise<IDBDatabase> {
     };
 
     request.onsuccess = () => {
-      resolve(request.result);
+      const db = request.result;
+      db.onversionchange = () => {
+        db.close();
+        dbPromise = null;
+      };
+      resolve(db);
     };
     request.onerror = () => {
+      dbPromise = null;
       reject(request.error ?? new Error("Failed to open IndexedDB"));
     };
   });
+
+  return dbPromise;
 }
 
 export async function getAllPreferences(): Promise<StoredPreference[]> {
-  const db = await openDB();
+  const db = await getDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readonly");
     const store = tx.objectStore(STORE_NAME);
@@ -89,12 +101,6 @@ export async function getAllPreferences(): Promise<StoredPreference[]> {
     request.onerror = () => {
       reject(request.error ?? new Error("Failed to read preferences"));
     };
-    tx.oncomplete = () => {
-      db.close();
-    };
-    tx.onerror = () => {
-      db.close();
-    };
   });
 }
 
@@ -105,7 +111,7 @@ export async function mergePreferences(
     sentiment: StoredPreference["sentiment"];
   }>,
 ): Promise<void> {
-  const db = await openDB();
+  const db = await getDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
   const now = Date.now();
@@ -123,47 +129,41 @@ export async function mergePreferences(
 
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => {
-      db.close();
       resolve();
     };
     tx.onerror = () => {
-      db.close();
       reject(tx.error ?? new Error("Failed to merge preferences"));
     };
   });
 }
 
 export async function deletePreference(id: string): Promise<void> {
-  const db = await openDB();
+  const db = await getDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
   store.delete(id);
 
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => {
-      db.close();
       resolve();
     };
     tx.onerror = () => {
-      db.close();
       reject(tx.error ?? new Error("Failed to delete preference"));
     };
   });
 }
 
 export async function clearPreferences(): Promise<void> {
-  const db = await openDB();
+  const db = await getDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
   store.clear();
 
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => {
-      db.close();
       resolve();
     };
     tx.onerror = () => {
-      db.close();
       reject(tx.error ?? new Error("Failed to clear preferences"));
     };
   });
