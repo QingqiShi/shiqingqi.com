@@ -10,6 +10,7 @@ import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
 import { layout, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
+import { getLocalePath } from "#src/utils/pathname.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import type { PageProps } from "./types";
 
@@ -33,98 +34,73 @@ export async function generateMetadata({
   const { locale, type, id } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
 
-  // Validate type
   if (type !== "movie" && type !== "tv") {
     notFound();
   }
 
+  let title: string;
+  let description: string | null | undefined;
+  let backdropPath: string | null | undefined;
+
   if (type === "movie") {
-    const movieDetails = await getMovieDetails({
+    const details = await getMovieDetails({
       movie_id: id,
       language: validatedLocale,
     });
-    const title =
-      movieDetails.title ??
-      movieDetails.original_title ??
+    title =
+      details.title ??
+      details.original_title ??
       t({ en: "Untitled", zh: "佚名" });
-    const description = movieDetails.overview || movieDetails.tagline;
-    const url =
-      locale === "zh"
-        ? new URL(`/zh/movie-database/movie/${id}`, BASE_URL).toString()
-        : new URL(`/movie-database/movie/${id}`, BASE_URL).toString();
-
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: new URL(`/movie-database/movie/${id}`, BASE_URL).toString(),
-        languages: {
-          en: new URL(`/movie-database/movie/${id}`, BASE_URL).toString(),
-          zh: new URL(`/zh/movie-database/movie/${id}`, BASE_URL).toString(),
-        },
-      },
-      openGraph: {
-        title,
-        description: description ?? undefined,
-        url,
-        siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
-        locale: locale === "zh" ? "zh_CN" : "en_US",
-        type: "website",
-        images: buildOgImages(movieDetails.backdrop_path, title),
-      },
-      twitter: {
-        card: movieDetails.backdrop_path ? "summary_large_image" : "summary",
-        title,
-        description: description ?? undefined,
-        images: movieDetails.backdrop_path
-          ? [`${TMDB_IMAGE_BASE}w1280${movieDetails.backdrop_path}`]
-          : undefined,
-      },
-    } satisfies Metadata;
+    description = details.overview || details.tagline;
+    backdropPath = details.backdrop_path;
   } else {
-    const tvShowDetails = await getTvShowDetails({
+    const details = await getTvShowDetails({
       series_id: id,
       language: validatedLocale,
     });
-    const title =
-      tvShowDetails.name ??
-      tvShowDetails.original_name ??
+    title =
+      details.name ??
+      details.original_name ??
       t({ en: "Untitled", zh: "佚名" });
-    const description = tvShowDetails.overview || tvShowDetails.tagline;
-    const url =
-      locale === "zh"
-        ? new URL(`/zh/movie-database/tv/${id}`, BASE_URL).toString()
-        : new URL(`/movie-database/tv/${id}`, BASE_URL).toString();
-
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: new URL(`/movie-database/tv/${id}`, BASE_URL).toString(),
-        languages: {
-          en: new URL(`/movie-database/tv/${id}`, BASE_URL).toString(),
-          zh: new URL(`/zh/movie-database/tv/${id}`, BASE_URL).toString(),
-        },
-      },
-      openGraph: {
-        title,
-        description: description ?? undefined,
-        url,
-        siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
-        locale: locale === "zh" ? "zh_CN" : "en_US",
-        type: "website",
-        images: buildOgImages(tvShowDetails.backdrop_path, title),
-      },
-      twitter: {
-        card: tvShowDetails.backdrop_path ? "summary_large_image" : "summary",
-        title,
-        description: description ?? undefined,
-        images: tvShowDetails.backdrop_path
-          ? [`${TMDB_IMAGE_BASE}w1280${tvShowDetails.backdrop_path}`]
-          : undefined,
-      },
-    } satisfies Metadata;
+    description = details.overview || details.tagline;
+    backdropPath = details.backdrop_path;
   }
+
+  const basePath = `/movie-database/${type}/${id}`;
+  const canonicalPath = new URL(basePath, BASE_URL).toString();
+  const url = new URL(
+    getLocalePath(basePath, validatedLocale),
+    BASE_URL,
+  ).toString();
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+      languages: {
+        en: canonicalPath,
+        zh: new URL(getLocalePath(basePath, "zh"), BASE_URL).toString(),
+      },
+    },
+    openGraph: {
+      title,
+      description: description ?? undefined,
+      url,
+      siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
+      locale: validatedLocale === "zh" ? "zh_CN" : "en_US",
+      type: "website",
+      images: buildOgImages(backdropPath, title),
+    },
+    twitter: {
+      card: backdropPath ? "summary_large_image" : "summary",
+      title,
+      description: description ?? undefined,
+      images: backdropPath
+        ? [`${TMDB_IMAGE_BASE}w1280${backdropPath}`]
+        : undefined,
+    },
+  } satisfies Metadata;
 }
 
 export default async function Layout({
