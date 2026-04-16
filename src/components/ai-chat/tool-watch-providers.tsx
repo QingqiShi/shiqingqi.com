@@ -262,6 +262,9 @@ function ProviderSection({
 
 function RegionWatchProviders({ data }: { data: WatchProviderData }) {
   const { region, providers } = data;
+  const locale = useLocale();
+  const displayNames = getRegionDisplayNames(locale);
+  const regionDisplay = displayNames?.of(region) ?? region;
 
   return (
     <div css={styles.card}>
@@ -269,13 +272,13 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
         <span css={styles.title}>
           {t({ en: "Where to Watch", zh: "在哪里看" })}
         </span>
-        <span css={styles.regionBadge}>{region}</span>
+        <span css={styles.regionBadge}>{regionDisplay}</span>
       </div>
 
       {providers === null ? (
         <p css={styles.emptyText}>
           {t({ en: "Not available in ", zh: "在" })}
-          {region}
+          {regionDisplay}
           {t({ en: "", zh: "不可用" })}
         </p>
       ) : (

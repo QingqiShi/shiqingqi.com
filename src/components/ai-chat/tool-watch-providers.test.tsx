@@ -88,7 +88,9 @@ describe("ToolWatchProviders", () => {
     const data = makeRegionProviderData({ providers: null });
     render(<ToolWatchProviders data={data} />);
 
-    expect(screen.getByText("Not available in US")).toBeInTheDocument();
+    expect(
+      screen.getByText("Not available in United States"),
+    ).toBeInTheDocument();
   });
 
   it("shows JustWatch attribution text", () => {
@@ -102,7 +104,7 @@ describe("ToolWatchProviders", () => {
       <ToolWatchProviders data={makeRegionProviderData({ region: "GB" })} />,
     );
 
-    expect(screen.getByText("GB")).toBeInTheDocument();
+    expect(screen.getByText("United Kingdom")).toBeInTheDocument();
     expect(screen.getByText("Where to Watch")).toBeInTheDocument();
   });
 
