@@ -226,6 +226,10 @@ export function PlaygroundCanvas() {
   return (
     <>
       <canvas ref={canvasRef} css={styles.canvas} />
+      {/* Spacer gives the page a real scroll range. The shader reads
+          window.scrollY to pan the camera, so this also defines the total
+          travel distance along the desk. */}
+      <div aria-hidden css={styles.scrollSpacer} />
       {stats && (
         <StatsOverlay
           stats={stats}
@@ -243,7 +247,12 @@ const styles = stylex.create({
     inset: 0,
     width: "100%",
     height: "100%",
-    touchAction: "none",
+    pointerEvents: "none",
+  },
+  scrollSpacer: {
+    width: "1px",
+    height: "4000px",
+    pointerEvents: "none",
   },
   overlay: {
     position: "fixed",
