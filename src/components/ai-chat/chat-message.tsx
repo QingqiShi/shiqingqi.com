@@ -161,7 +161,7 @@ export function ChatMessage({
   );
 }
 
-const ATTACHED_MEDIA_PREFIX = /^\[About: .+ \((?:movie|tv)\)] /;
+const ATTACHED_MEDIA_PREFIX = /^\[About: .+ \((?:movie|tv)(?:, id:\d+)?\)] /;
 
 function stripAttachedMediaPrefix(text: string): string {
   return text.replace(ATTACHED_MEDIA_PREFIX, "");

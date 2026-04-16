@@ -84,7 +84,7 @@ export function AIChatView({
 
   const handleSend = (text: string) => {
     const message = attachedMedia
-      ? `[About: ${attachedMedia.title} (${attachedMedia.mediaType})] ${text}`
+      ? `[About: ${attachedMedia.title} (${attachedMedia.mediaType}, id:${String(attachedMedia.id)})] ${text}`
       : text;
     setAttachedMedia(null);
     void sendMessage({ text: message });
