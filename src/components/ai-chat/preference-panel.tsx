@@ -7,7 +7,7 @@ import { ThumbsUpIcon } from "@phosphor-icons/react/dist/ssr/ThumbsUp";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import type { StoredPreference } from "#src/preference-store/preference-store.ts";
 import { usePreferences } from "#src/preference-store/use-preferences.ts";
@@ -96,7 +96,7 @@ interface PreferencePanelProps {
   onClearAll: () => Promise<void>;
 }
 
-function PreferencePanel({
+export function PreferencePanel({
   isOpen,
   onClose,
   preferences,
@@ -104,7 +104,27 @@ function PreferencePanel({
   onClearAll,
 }: PreferencePanelProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const clearTriggerRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const didMountRef = useRef(false);
+
+  // When the confirmation row appears, move focus to Cancel (safer default for
+  // a destructive confirm). When it's dismissed by the user, return focus to
+  // the Clear trigger — but only if it's still in the DOM, which it isn't when
+  // the clear succeeded and the last preference was removed. Skip the initial
+  // render so we don't steal focus from DetailOverlay's initialFocusRef.
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    if (confirmingClear) {
+      cancelButtonRef.current?.focus();
+    } else {
+      clearTriggerRef.current?.focus();
+    }
+  }, [confirmingClear]);
 
   const grouped = new Map<StoredPreference["category"], StoredPreference[]>();
   for (const pref of preferences) {
@@ -200,6 +220,7 @@ function PreferencePanel({
                 {t({ en: "Yes, clear", zh: "确认清除" })}
               </button>
               <button
+                ref={cancelButtonRef}
                 type="button"
                 css={[buttonReset.base, styles.cancelButton]}
                 onClick={() => {
@@ -211,6 +232,7 @@ function PreferencePanel({
             </div>
           ) : (
             <button
+              ref={clearTriggerRef}
               type="button"
               css={[buttonReset.base, flex.row, styles.clearButton]}
               onClick={() => {
@@ -224,6 +246,17 @@ function PreferencePanel({
               })}
             </button>
           )}
+          {/* Stable live region: mounted whenever the footer is, populated
+              only while confirming, so AT reliably detects the content
+              change and announces the prompt. */}
+          <div role="status" aria-live="polite" css={styles.srOnly}>
+            {confirmingClear
+              ? t({
+                  en: "Clear all preferences? Confirm or cancel.",
+                  zh: "清除所有偏好？请确认或取消。",
+                })
+              : ""}
+          </div>
         </div>
       )}
     </DetailOverlay>
@@ -478,5 +511,16 @@ const styles = stylex.create({
     color: color.textMuted,
     cursor: "pointer",
     transition: "background-color 0.15s ease",
+  },
+  srOnly: {
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: 0,
+    margin: "-1px",
+    overflow: "hidden",
+    clipPath: "inset(50%)",
+    whiteSpace: "nowrap",
+    borderWidth: 0,
   },
 });
