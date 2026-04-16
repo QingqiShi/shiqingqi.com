@@ -17,7 +17,9 @@ describe("Anchor", () => {
       </Anchor>,
     );
 
-    const link = screen.getByRole("link", { name: "External" });
+    const link = screen.getByRole("link", {
+      name: "External(opens in new tab)",
+    });
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
@@ -28,7 +30,9 @@ describe("Anchor", () => {
       </Anchor>,
     );
 
-    const link = screen.getByRole("link", { name: "External" });
+    const link = screen.getByRole("link", {
+      name: "External(opens in new tab)",
+    });
     const rel = link.getAttribute("rel");
     expect(rel).toContain("nofollow");
     expect(rel).toContain("me");
@@ -47,12 +51,14 @@ describe("Anchor", () => {
       </Anchor>,
     );
 
-    const link = screen.getByRole("link", { name: "External" });
+    const link = screen.getByRole("link", {
+      name: "External(opens in new tab)",
+    });
     const rel = link.getAttribute("rel");
     if (!rel) throw new Error("expected rel attribute");
     const tokens = rel.split(/\s+/);
-    expect(tokens.filter((t) => t === "noopener")).toHaveLength(1);
-    expect(tokens.filter((t) => t === "noreferrer")).toHaveLength(1);
+    expect(tokens.filter((token) => token === "noopener")).toHaveLength(1);
+    expect(tokens.filter((token) => token === "noreferrer")).toHaveLength(1);
   });
 
   it("does not add rel when target is not _blank", () => {
@@ -60,5 +66,39 @@ describe("Anchor", () => {
 
     const link = screen.getByRole("link", { name: "Local" });
     expect(link).not.toHaveAttribute("rel");
+  });
+
+  it("announces 'opens in new tab' for _blank links", () => {
+    render(
+      <Anchor href="https://example.com" target="_blank">
+        External
+      </Anchor>,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "External(opens in new tab)" }),
+    ).toBeInTheDocument();
+  });
+
+  it("does not render the external indicator for internal links", () => {
+    render(<Anchor href="/local">Local</Anchor>);
+
+    const link = screen.getByRole("link", { name: "Local" });
+    expect(link).toHaveAccessibleName("Local");
+  });
+
+  it("suppresses the external indicator when indicateExternal is false", () => {
+    render(
+      <Anchor
+        href="https://example.com"
+        target="_blank"
+        indicateExternal={false}
+      >
+        External
+      </Anchor>,
+    );
+
+    const link = screen.getByRole("link", { name: "External" });
+    expect(link).toHaveAccessibleName("External");
   });
 });
