@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "deny": ["Read(./.env)", "Read(./.env.*)"]
   },
   "hooks": {
