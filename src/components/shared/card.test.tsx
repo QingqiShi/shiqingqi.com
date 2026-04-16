@@ -13,6 +13,8 @@ function hashKey(en: string, zh: string) {
 
 const translations = {
   [hashKey("Details", "详情")]: "Details",
+  [hashKey("Visit", "访问")]: "Visit",
+  [hashKey("(opens in new tab)", "(在新标签页中打开)")]: "(opens in new tab)",
 };
 
 function renderCard(ui: React.ReactElement) {
@@ -60,5 +62,20 @@ describe("Card", () => {
 
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("aria-label", "Custom Card");
+  });
+
+  it("shows a Visit affordance and announces external links", () => {
+    renderCard(
+      <Card href="https://example.com/" target="_blank">
+        <div>External Content</div>
+      </Card>,
+    );
+
+    expect(screen.queryByText("Details")).not.toBeInTheDocument();
+    expect(screen.getByText("Visit")).toBeInTheDocument();
+    expect(screen.getByText("(opens in new tab)")).toBeInTheDocument();
+    const link = screen.getByRole("link");
+    expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    expect(link).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
   });
 });

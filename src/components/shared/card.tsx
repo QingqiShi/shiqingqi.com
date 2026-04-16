@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
@@ -18,6 +19,7 @@ import { cardTokens } from "./card.stylex";
 type CardProps = React.ComponentProps<typeof Anchor>;
 
 export function Card({ children, className, style, ...rest }: CardProps) {
+  const isExternal = rest.target === "_blank";
   return (
     <Anchor
       {...rest}
@@ -29,8 +31,24 @@ export function Card({ children, className, style, ...rest }: CardProps) {
       {children}
       <div css={styles.detailsBackdrop} />
       <div css={styles.detailsIndicator}>
-        <span css={styles.detailsText}>{t({ en: "Details", zh: "详情" })}</span>
-        <ArrowRightIcon aria-hidden="true" />
+        <span css={styles.detailsText}>
+          {isExternal
+            ? t({ en: "Visit", zh: "访问" })
+            : t({ en: "Details", zh: "详情" })}
+        </span>
+        {isExternal ? (
+          <ArrowSquareOutIcon aria-hidden="true" />
+        ) : (
+          <ArrowRightIcon aria-hidden="true" />
+        )}
+        {isExternal && (
+          <span css={styles.srOnly}>
+            {t({
+              en: "(opens in new tab)",
+              zh: "(在新标签页中打开)",
+            })}
+          </span>
+        )}
       </div>
     </Anchor>
   );
@@ -138,5 +156,16 @@ const styles = stylex.create({
   },
   detailsText: {
     fontWeight: font.weight_6,
+  },
+  srOnly: {
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: 0,
+    margin: "-1px",
+    overflow: "hidden",
+    clipPath: "inset(50%)",
+    whiteSpace: "nowrap",
+    borderWidth: 0,
   },
 });
