@@ -150,6 +150,30 @@ export interface LoopControls {
   setIsDark: (next: boolean) => void;
 }
 
+type Vec3 = [number, number, number];
+
+interface CameraBasis {
+  camPos: Vec3;
+  fwd: Vec3;
+  right: Vec3;
+  up: Vec3;
+}
+
+// Camera basis must match the ray construction in pathtracer-fs.glsl exactly —
+// the shader does `rd = normalize(fwd + px*right + py*up)` using these vectors,
+// and reprojection assumes the same basis for the previous frame.
+// Pure top-down: fwd is straight down, so cross(fwd, worldUp) is degenerate.
+// The basis is hard-coded with world +z mapped to up-on-screen so scrolling
+// still pans along the z axis naturally.
+function computeCameraBasis(scrollOffset: number): CameraBasis {
+  return {
+    camPos: [0, 7, scrollOffset],
+    fwd: [0, -1, 0],
+    right: [-1, 0, 0],
+    up: [0, 0, 1],
+  };
+}
+
 export function start(
   { gl, pathtraceProgram, displayProgram, canvas, bufferInfo }: Context,
   { isDark: initialIsDark }: { isDark: boolean },
@@ -172,73 +196,44 @@ export function start(
   let readFBO = fbos.a;
   let writeFBO = fbos.b;
 
-  // Frame counter for accumulation
+  // RNG seed counter — monotonically increments so each frame gets a fresh
+  // random sequence. Never reset; temporal stability is tracked separately.
   let frameIndex = 0;
 
-  // Resize handling — recreate FBOs and reset accumulation
+  // Scroll offset — tied to window.scrollY so touch scroll on mobile and
+  // mouse wheel on desktop both drive the camera through the browser's
+  // native scroll. Scrolling down (scrollY increases) shifts the camera
+  // toward -z, revealing content below the visible area on screen.
+  const SCROLL_FACTOR = 0.005;
+  let scrollOffset = -window.scrollY * SCROLL_FACTOR;
+  let lastScrollOffset = scrollOffset;
+
+  // Stable-frame counter: frames since the camera last moved. Drives the
+  // accumulation weight so static images keep converging while scrolling
+  // falls back to an EMA floor.
+  let stableFrames = 0;
+
+  // Previous camera basis used for temporal reprojection. `hasPrevFrame`
+  // gates the first frame where there is nothing to reproject from.
+  let prevCam: CameraBasis = computeCameraBasis(scrollOffset);
+  let hasPrevFrame = false;
+
+  // Resize handling — recreate FBOs and cold-start accumulation.
   const observer = new ResizeObserver(() => {
     resizeCanvasToDisplaySize(canvas, dpr);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     const att = fbos.attachments;
     resizeFramebufferInfo(gl, fbos.a, att, gl.canvas.width, gl.canvas.height);
     resizeFramebufferInfo(gl, fbos.b, att, gl.canvas.width, gl.canvas.height);
-    frameIndex = 0;
+    hasPrevFrame = false;
+    stableFrames = 0;
   });
   observer.observe(canvas);
 
-  // Pointer tracking — drag-to-orbit camera with cumulative offset
-  // cameraOffset accumulates across drag gestures (in CSS pixels)
-  const cameraOffset: [number, number] = [0, 0];
-  let dragStart: [number, number] | null = null;
-  let dragStartOffset: [number, number] = [0, 0];
-
-  // Virtual pointer position sent to the shader — derived from cameraOffset
-  const pointerPosition: [number, number] = [0, 0];
-  let lastPointerX = 0;
-  let lastPointerY = 0;
-
-  function updatePointerPosition() {
-    // Shader does: mouse = u_mouse / u_resolution - 0.5
-    // So canvas center → mouse = [0, 0] → default camera
-    pointerPosition[0] = gl.canvas.width * 0.5 + cameraOffset[0] * dpr;
-    pointerPosition[1] = gl.canvas.height * 0.5 + cameraOffset[1] * dpr;
-  }
-
-  document.addEventListener(
-    "pointerdown",
-    (e) => {
-      if (e.pointerType === "mouse" && e.button !== 0) return;
-      dragStart = [e.clientX, e.clientY];
-      dragStartOffset = [cameraOffset[0], cameraOffset[1]];
-    },
-    { signal: abortController.signal, passive: true },
-  );
-
-  document.addEventListener(
-    "pointermove",
-    (e) => {
-      if (!dragStart) return;
-      const dx = e.clientX - dragStart[0];
-      const dy = e.clientY - dragStart[1];
-      cameraOffset[0] = dragStartOffset[0] + dx;
-      cameraOffset[1] = dragStartOffset[1] - dy; // flip y: drag up = camera up
-      updatePointerPosition();
-    },
-    { signal: abortController.signal, passive: true },
-  );
-
-  document.addEventListener(
-    "pointerup",
+  window.addEventListener(
+    "scroll",
     () => {
-      dragStart = null;
-    },
-    { signal: abortController.signal, passive: true },
-  );
-
-  document.addEventListener(
-    "pointercancel",
-    () => {
-      dragStart = null;
+      scrollOffset = -window.scrollY * SCROLL_FACTOR;
     },
     { signal: abortController.signal, passive: true },
   );
@@ -264,22 +259,25 @@ export function start(
       if (gpuResult !== null) lastGpuTime = gpuResult;
     }
 
-    // Reset accumulation on mouse move or debug option change
-    const curMouseX = Math.round(pointerPosition[0]);
-    const curMouseY = Math.round(pointerPosition[1]);
+    // Feature/theme changes invalidate shaded color entirely — drop history.
+    // Scroll changes preserve history (reprojection handles the camera move)
+    // but reset the stable-frame counter so blend weight re-floors at the
+    // EMA rate.
     const debugKey = JSON.stringify(debug);
-    if (
-      curMouseX !== lastPointerX ||
-      curMouseY !== lastPointerY ||
-      debugKey !== prevDebugKey ||
-      isDark !== prevIsDark
-    ) {
-      frameIndex = 0;
-      lastPointerX = curMouseX;
-      lastPointerY = curMouseY;
+    const featuresChanged = debugKey !== prevDebugKey || isDark !== prevIsDark;
+    if (featuresChanged) {
+      hasPrevFrame = false;
+      stableFrames = 0;
       prevDebugKey = debugKey;
       prevIsDark = isDark;
+    } else if (scrollOffset !== lastScrollOffset) {
+      stableFrames = 0;
+      lastScrollOffset = scrollOffset;
+    } else {
+      stableFrames++;
     }
+
+    const curCam = computeCameraBasis(scrollOffset);
 
     gpuTimer?.begin();
 
@@ -290,7 +288,16 @@ export function start(
 
     setUniforms(pathtraceProgram, {
       u_resolution: [gl.canvas.width, gl.canvas.height],
-      u_mouse: pointerPosition,
+      u_camPos: curCam.camPos,
+      u_camFwd: curCam.fwd,
+      u_camRight: curCam.right,
+      u_camUp: curCam.up,
+      u_prevCamPos: prevCam.camPos,
+      u_prevCamFwd: prevCam.fwd,
+      u_prevCamRight: prevCam.right,
+      u_prevCamUp: prevCam.up,
+      u_hasPrevFrame: hasPrevFrame ? 1 : 0,
+      u_stableFrames: stableFrames,
       u_dark: isDark ? 1.0 : 0.0,
       u_debugMode: DEBUG_MODE_MAP[debug.mode],
       u_enableShadows: debug.shadows ? 1 : 0,
@@ -322,6 +329,10 @@ export function start(
     writeFBO = temp;
     frameIndex++;
 
+    // Current camera becomes next frame's reprojection reference.
+    prevCam = curCam;
+    hasPrevFrame = true;
+
     lastCpuTime = performance.now() - cpuStart;
     fpsFrameCount++;
 
@@ -336,7 +347,7 @@ export function start(
         drawCalls: 2,
         resolution: [gl.canvas.width, gl.canvas.height],
         triangles: 2,
-        samplesPerPixel: frameIndex,
+        samplesPerPixel: stableFrames + 1,
       });
       fpsFrameCount = 0;
       lastStatsTime = now;

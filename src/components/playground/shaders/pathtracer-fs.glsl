@@ -3,7 +3,16 @@ precision highp float;
 precision highp int;
 
 uniform vec2 u_resolution;
-uniform vec2 u_mouse;
+uniform vec3 u_camPos;
+uniform vec3 u_camFwd;
+uniform vec3 u_camRight;
+uniform vec3 u_camUp;
+uniform vec3 u_prevCamPos;
+uniform vec3 u_prevCamFwd;
+uniform vec3 u_prevCamRight;
+uniform vec3 u_prevCamUp;
+uniform int u_hasPrevFrame;
+uniform float u_stableFrames;
 uniform float u_dark;
 uniform int u_debugMode;     // 0=normal, 1=noisy(single sample), 2=normals, 3=albedo
 uniform int u_enableShadows; // bounced indirect light
@@ -54,6 +63,36 @@ vec3 cosineDir(vec3 n) {
   return normalize(u * cos(phi) * sinTheta + v * sin(phi) * sinTheta + n * cosTheta);
 }
 
+// ---- Procedural noise (deterministic, used for concrete texturing) ----
+
+float hash21(vec2 p) {
+  p = fract(p * vec2(234.34f, 435.345f));
+  p += dot(p, p + 34.23f);
+  return fract(p.x * p.y);
+}
+
+float valueNoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0f - 2.0f * f);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0f, 0.0f));
+  float c = hash21(i + vec2(0.0f, 1.0f));
+  float d = hash21(i + vec2(1.0f, 1.0f));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float fbm(vec2 p) {
+  float v = 0.0f;
+  float amp = 0.5f;
+  for (int i = 0; i < 5; i++) {
+    v += amp * valueNoise(p);
+    p *= 2.0f;
+    amp *= 0.5f;
+  }
+  return v;
+}
+
 // ---- Ray-primitive intersections ----
 
 struct Hit {
@@ -91,16 +130,40 @@ bool traceScene(vec3 ro, vec3 rd, inout Hit hit) {
   float t;
   vec3 n;
 
-  // Ground plane
+  // Concrete floor
   if (u_enableAO == 1 && abs(rd.y) > 0.0001f) {
     float tPlane = -ro.y / rd.y;
     if (tPlane > 0.001f && tPlane < closest) {
       closest = tPlane;
       hit.t = tPlane;
-      hit.normal = vec3(0.0f, 1.0f, 0.0f);
       vec3 p = ro + rd * tPlane;
-      float check = mod(floor(p.x) + floor(p.z), 2.0f);
-      hit.albedo = mix(vec3(0.4f), vec3(0.8f), check);
+      vec2 q = p.xz;
+
+      // Height field — drives both large-scale tonal variation and a
+      // micro-relief normal so the surface catches light irregularly.
+      float eps = 0.04f;
+      float h = fbm(q * 0.8f);
+      float hx = fbm((q + vec2(eps, 0.0f)) * 0.8f);
+      float hz = fbm((q + vec2(0.0f, eps)) * 0.8f);
+      float bumpScale = 0.25f;
+      hit.normal = normalize(vec3(
+        (h - hx) / eps * bumpScale,
+        1.0f,
+        (h - hz) / eps * bumpScale
+      ));
+
+      // Albedo — warm neutral grey with layered noise and sparse aggregate.
+      float medium = valueNoise(q * 4.0f);
+      float specks = valueNoise(q * 45.0f);
+      vec3 baseColor = vec3(0.54f, 0.52f, 0.5f);
+      baseColor *= 0.72f + h * 0.56f;       // large weathering patches
+      baseColor *= 0.9f + medium * 0.2f;    // mid-scale grain
+      float dark = smoothstep(0.78f, 0.84f, specks);
+      baseColor = mix(baseColor, vec3(0.18f, 0.17f, 0.15f), dark * 0.55f);
+      float bright = smoothstep(0.94f, 0.97f, specks);
+      baseColor = mix(baseColor, vec3(0.85f, 0.83f, 0.8f), bright * 0.65f);
+
+      hit.albedo = baseColor;
       hit.metallic = 0.0f;
       hit.emission = vec3(0.0f);
       didHit = true;
@@ -182,10 +245,11 @@ vec3 skyColor(vec3 dir) {
 
 // ---- Path tracing ----
 
-vec3 pathTrace(vec3 ro, vec3 rd) {
+vec3 pathTrace(vec3 ro, vec3 rd, out float firstHitT) {
   vec3 throughput = vec3(1.0f);
   vec3 color = vec3(0.0f);
   int maxBounces = u_enableShadows == 1 ? 5 : 1;
+  firstHitT = -1.0f;
 
   for (int i = 0; i < 8; i++) {
     if (i >= maxBounces) break;
@@ -195,6 +259,8 @@ vec3 pathTrace(vec3 ro, vec3 rd) {
       color += throughput * skyColor(rd);
       break;
     }
+
+    if (i == 0) firstHitT = hit.t;
 
     color += throughput * hit.emission;
 
@@ -225,34 +291,22 @@ vec3 pathTrace(vec3 ro, vec3 rd) {
 void main() {
   rngSeed(uvec2(gl_FragCoord.xy), uint(u_frameIndex));
 
-  vec2 uv = gl_FragCoord.xy / u_resolution;
+  float minDim = min(u_resolution.x, u_resolution.y);
 
   // Jittered sub-pixel position for anti-aliasing
   vec2 jitter = vec2(rand(), rand()) - 0.5f;
-  vec2 pixelPos = (gl_FragCoord.xy + jitter - 0.5f * u_resolution) / min(u_resolution.x, u_resolution.y);
+  vec2 pixelPos = (gl_FragCoord.xy + jitter - 0.5f * u_resolution) / minDim;
 
-  // Camera — mouse-controlled, no auto-rotation (accumulation needs stable camera)
-  vec2 mouse = u_mouse / u_resolution - 0.5f;
-  if (u_mouse.x <= 0.0f && u_mouse.y <= 0.0f) {
-    mouse = vec2(0.0f);
-  }
-
-  float camAngle = mouse.x * 2.0f;
-  float camHeight = 2.5f + mouse.y * 2.0f;
-  vec3 ro = vec3(6.0f * cos(camAngle), camHeight, 6.0f * sin(camAngle));
-  vec3 target = vec3(0.0f, 0.8f, 0.0f);
-  vec3 fwd = normalize(target - ro);
-  vec3 right = normalize(cross(fwd, vec3(0.0f, 1.0f, 0.0f)));
-  vec3 up = cross(right, fwd);
-  vec3 rd = normalize(fwd + pixelPos.x * right + pixelPos.y * up);
+  vec3 ro = u_camPos;
+  vec3 rd = normalize(u_camFwd + pixelPos.x * u_camRight + pixelPos.y * u_camUp);
 
   // Debug: normals
   if (u_debugMode == 2) {
     Hit hit;
     if (traceScene(ro, rd, hit)) {
-      outColor = vec4(hit.normal * 0.5f + 0.5f, 1.0f);
+      outColor = vec4(hit.normal * 0.5f + 0.5f, hit.t);
     } else {
-      outColor = vec4(0.0f);
+      outColor = vec4(0.0f, 0.0f, 0.0f, -1.0f);
     }
     return;
   }
@@ -261,27 +315,78 @@ void main() {
   if (u_debugMode == 3) {
     Hit hit;
     if (traceScene(ro, rd, hit)) {
-      outColor = vec4(hit.albedo, 1.0f);
+      outColor = vec4(hit.albedo, hit.t);
     } else {
-      outColor = vec4(skyColor(rd), 1.0f);
+      outColor = vec4(skyColor(rd), -1.0f);
     }
     return;
   }
 
-  vec3 sampleColor = pathTrace(ro, rd);
+  float firstHitT;
+  vec3 sampleColor = pathTrace(ro, rd, firstHitT);
   sampleColor = min(sampleColor, vec3(10.0f)); // clamp fireflies
 
   // Debug: raw single noisy sample
   if (u_debugMode == 1) {
     vec3 col = sampleColor / (sampleColor + 1.0f);
-    outColor = vec4(pow(col, vec3(0.4545f)), 1.0f);
+    outColor = vec4(pow(col, vec3(0.4545f)), firstHitT);
     return;
   }
 
-  // Accumulate with previous frame in linear HDR space
-  vec3 prev = texture(u_prevFrame, uv).rgb;
-  float weight = 1.0f / (u_frameIndex + 1.0f);
-  vec3 accumulated = mix(prev, sampleColor, weight);
+  // --- Temporal accumulation ---
+  // Default: no history, use the raw sample.
+  vec3 finalColor = sampleColor;
 
-  outColor = vec4(accumulated, 1.0f);
+  if (u_hasPrevFrame == 1) {
+    // Weight sequence: EMA floor of 1/8 during motion / early rest to keep
+    // noise bounded, then 1/(stable+1) arithmetic mean for clean convergence.
+    float weight = min(1.0f / (u_stableFrames + 1.0f), 0.125f);
+
+    if (u_stableFrames > 0.5f) {
+      // Camera is static — same-pixel accumulation. Reprojection-with-
+      // validation would reject silhouette pixels (jitter makes them flip
+      // between sphere and ground), leaving edges permanently noisy. When
+      // nothing is moving we can trust this pixel's history represents the
+      // same sub-pixel neighborhood, and blending the jittered samples in
+      // place converges to the correctly anti-aliased color.
+      vec3 prevRgb = texture(u_prevFrame, gl_FragCoord.xy / u_resolution).rgb;
+      finalColor = mix(prevRgb, sampleColor, weight);
+    } else if (firstHitT > 0.0f) {
+      // Camera moved — reproject this pixel's world hit through the previous
+      // camera and validate via position match to reject disoccluded history.
+      vec3 worldHit = ro + rd * firstHitT;
+      vec3 delta = worldHit - u_prevCamPos;
+      float prevF = dot(delta, u_prevCamFwd);
+      if (prevF > 0.001f) {
+        vec2 prevPixelPos = vec2(
+          dot(delta, u_prevCamRight),
+          dot(delta, u_prevCamUp)
+        ) / prevF;
+        vec2 prevUV = prevPixelPos * (minDim / u_resolution) + 0.5f;
+
+        if (prevUV.x >= 0.0f && prevUV.x <= 1.0f && prevUV.y >= 0.0f && prevUV.y <= 1.0f) {
+          vec4 prev = texture(u_prevFrame, prevUV);
+          float prevT = prev.a;
+
+          if (prevT > 0.0f) {
+            // Reconstruct the world point the previous frame actually shaded
+            // at that UV and reject if it's a different surface.
+            vec3 prevRd = normalize(u_prevCamFwd
+              + prevPixelPos.x * u_prevCamRight
+              + prevPixelPos.y * u_prevCamUp);
+            vec3 prevWorld = u_prevCamPos + prevRd * prevT;
+            float d = length(prevWorld - worldHit);
+            float camDist = length(worldHit - u_camPos);
+            if (d < 0.05f * camDist) {
+              finalColor = mix(prev.rgb, sampleColor, weight);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Encode primary hit distance in alpha for next frame's reprojection.
+  // -1 means "miss" so downstream frames don't try to reproject from sky.
+  outColor = vec4(finalColor, firstHitT > 0.0f ? firstHitT : -1.0f);
 }
