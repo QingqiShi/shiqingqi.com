@@ -33,6 +33,21 @@ describe("CompactPersonCard", () => {
     expect(screen.getByText("Acting")).toBeInTheDocument();
   });
 
+  it("falls back to raw department for unknown values", () => {
+    render(
+      <CompactPersonCard
+        person={{
+          id: 1,
+          name: "Tom Hanks",
+          profilePath: "/tom.jpg",
+          knownForDepartment: "Unknown Dept",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Unknown Dept")).toBeInTheDocument();
+  });
+
   it("omits department when knownForDepartment is null", () => {
     render(
       <CompactPersonCard

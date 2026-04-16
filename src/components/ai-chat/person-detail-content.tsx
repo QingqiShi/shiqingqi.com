@@ -14,6 +14,7 @@ import type { MediaListItem } from "#src/utils/types.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
 import { Skeleton } from "../shared/skeleton";
 import { CompactMediaCard } from "./compact-media-card";
+import { DepartmentLabel } from "./department-label";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";
 import { useMediaDetail, type FocusedPerson } from "./media-detail-context";
 
@@ -46,16 +47,11 @@ export function PersonDetailContent({
   // Build filmography from credits
   const filmography = buildFilmography(creditsQuery.data);
 
-  const metaParts = detail
-    ? [
-        detail.knownForDepartment,
-        detail.birthday
-          ? `${detail.birthday.split("-")[0]}${detail.deathday ? ` – ${detail.deathday.split("-")[0]}` : ""} (${t({ en: "age", zh: "年龄" })} ${String(calculateAge(detail.birthday, detail.deathday))})`
-          : null,
-      ]
-        .filter(Boolean)
-        .join(" · ")
+  const lifespan = detail?.birthday
+    ? `${detail.birthday.split("-")[0]}${detail.deathday ? ` – ${detail.deathday.split("-")[0]}` : ""} (${t({ en: "age", zh: "年龄" })} ${String(calculateAge(detail.birthday, detail.deathday))})`
     : null;
+  const hasDepartment = Boolean(detail?.knownForDepartment);
+  const hasMeta = detail && (hasDepartment || lifespan);
 
   if (detailQuery.isError) {
     return (
@@ -87,8 +83,14 @@ export function PersonDetailContent({
         ) : null}
         <div css={styles.headerInfo}>
           <h2 css={styles.name}>{displayName}</h2>
-          {metaParts ? (
-            <div css={styles.meta}>{metaParts}</div>
+          {hasMeta ? (
+            <div css={styles.meta}>
+              {detail.knownForDepartment && (
+                <DepartmentLabel department={detail.knownForDepartment} />
+              )}
+              {detail.knownForDepartment && lifespan ? " · " : null}
+              {lifespan}
+            </div>
           ) : (
             detailQuery.isPending && <Skeleton width={180} height={14} />
           )}
