@@ -144,7 +144,7 @@ export function ChatMessageList({
         </div>
       )}
       {showUsageWarning && (
-        <p css={styles.usageWarning}>
+        <p css={styles.usageWarning} role="status">
           {t({
             en: "The conversation is getting lengthy",
             zh: "对话越来越长",

@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import {
+  COMPACTION_TRIGGER_TOKENS,
+  USAGE_WARNING_RATIO,
+} from "#src/ai-chat/context-management-shared.ts";
 import type { ChatUIMessage } from "#src/ai-chat/use-ai-chat.ts";
 import { render, screen } from "#src/test-utils.tsx";
 import { ChatMessageList } from "./chat-message-list";
@@ -195,5 +199,54 @@ describe("ChatMessageList", () => {
       />,
     );
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("announces the usage warning via role='status' when token threshold is crossed", () => {
+    const overWarningThreshold =
+      COMPACTION_TRIGGER_TOKENS * USAGE_WARNING_RATIO + 1;
+    const messages = [
+      createMessage({
+        id: "1",
+        role: "user",
+        parts: [{ type: "text", text: "Hello" }],
+      }),
+      createMessage({
+        id: "2",
+        role: "assistant",
+        parts: [{ type: "text", text: "Lengthy response" }],
+        metadata: { inputTokens: overWarningThreshold },
+      }),
+    ];
+
+    render(
+      <ChatMessageList {...defaultProps} messages={messages} status="ready" />,
+    );
+
+    const statusEl = screen.getByRole("status");
+    expect(statusEl).toHaveTextContent("The conversation is getting lengthy");
+  });
+
+  it("omits the usage warning when token count is below threshold", () => {
+    const messages = [
+      createMessage({
+        id: "1",
+        role: "user",
+        parts: [{ type: "text", text: "Hello" }],
+      }),
+      createMessage({
+        id: "2",
+        role: "assistant",
+        parts: [{ type: "text", text: "Short response" }],
+        metadata: { inputTokens: 1000 },
+      }),
+    ];
+
+    render(
+      <ChatMessageList {...defaultProps} messages={messages} status="ready" />,
+    );
+
+    expect(
+      screen.queryByText("The conversation is getting lengthy"),
+    ).not.toBeInTheDocument();
   });
 });
