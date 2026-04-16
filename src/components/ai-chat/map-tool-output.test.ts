@@ -8,6 +8,7 @@ import {
   mapToolOutputToMediaItems,
   resolveMediaItems,
   resolvePersonItems,
+  toolOutputsFingerprint,
 } from "./map-tool-output";
 
 function msg(
@@ -752,5 +753,76 @@ describe("buildPersonResultsMap for media_credits", () => {
     const output = { cast: [], crew: [] };
     const map = buildPersonResultsMap("media_credits", output);
     expect(map.size).toBe(0);
+  });
+});
+
+describe("toolOutputsFingerprint", () => {
+  function partWithId(
+    toolCallId: string,
+    state: "output-available" | "input-streaming" | "input-available",
+  ) {
+    return {
+      type: "dynamic-tool" as const,
+      toolName: "tmdb_search",
+      toolCallId,
+      state,
+      input: {},
+      ...(state === "output-available" ? { output: [] } : {}),
+    };
+  }
+
+  it("returns empty string for no messages", () => {
+    expect(toolOutputsFingerprint([])).toBe("");
+  });
+
+  it("ignores parts that are not resolved tool outputs", () => {
+    const messages = [
+      msg([
+        { type: "text", text: "hello" },
+        partWithId("a", "input-streaming"),
+        partWithId("b", "input-available"),
+      ]),
+    ];
+    expect(toolOutputsFingerprint(messages)).toBe("");
+  });
+
+  it("stays stable when only non-tool parts change (streaming text chunks)", () => {
+    const toolParts = [partWithId("call-1", "output-available")];
+    const before = [msg([...toolParts, { type: "text", text: "partial" }])];
+    const after = [
+      msg([...toolParts, { type: "text", text: "partial growing" }]),
+    ];
+    expect(toolOutputsFingerprint(before)).toBe(toolOutputsFingerprint(after));
+  });
+
+  it("changes when a new tool output is appended", () => {
+    const first = [msg([partWithId("call-1", "output-available")])];
+    const second = [
+      msg([
+        partWithId("call-1", "output-available"),
+        partWithId("call-2", "output-available"),
+      ]),
+    ];
+    expect(toolOutputsFingerprint(first)).not.toBe(
+      toolOutputsFingerprint(second),
+    );
+  });
+
+  it("differs between two conversations with the same output count (session switch)", () => {
+    const sessionA = [
+      msg([
+        partWithId("a-1", "output-available"),
+        partWithId("a-2", "output-available"),
+      ]),
+    ];
+    const sessionB = [
+      msg([
+        partWithId("b-1", "output-available"),
+        partWithId("b-2", "output-available"),
+      ]),
+    ];
+    expect(toolOutputsFingerprint(sessionA)).not.toBe(
+      toolOutputsFingerprint(sessionB),
+    );
   });
 });
