@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.69",
-    "@ai-sdk/react": "^3.0.163",
+    "@ai-sdk/react": "^3.0.166",
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "^9.5.7",
     "@stylexjs/stylex": "^0.18.2",
@@ -50,7 +50,7 @@
     "@upstash/vector": "^1.2.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "2.0.0",
-    "ai": "^6.0.161",
+    "ai": "^6.0.164",
     "next": "16.2.3",
     "react": "19.3.0-canary-56824423-20260414",
     "react-dom": "19.3.0-canary-56824423-20260414",
