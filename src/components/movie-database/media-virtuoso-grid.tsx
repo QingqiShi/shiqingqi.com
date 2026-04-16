@@ -23,7 +23,8 @@ export function MediaVirtuosoGrid({
 }: MediaVirtuosoGridProps) {
   const { data: items, fetchNextPage, hasNextPage, isFetching } = queryResult;
   const height = useViewportHeight();
-  const [initialItemCount] = useState(items.length);
+  const [storedInitialItemCount] = useState(items.length);
+  const initialItemCount = Math.min(storedInitialItemCount, items.length);
 
   if (!items.length) {
     return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
