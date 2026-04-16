@@ -54,6 +54,7 @@ export default function Page() {
         title="Spotify"
         role={t({ en: "Software Engineer II", zh: "软件工程师 II" })}
         date={t({ en: "Jul 2019 - Aug 2021", zh: "2019年7月 - 2021年8月" })}
+        dateTime="2019-07"
       />
       <p>
         {t({

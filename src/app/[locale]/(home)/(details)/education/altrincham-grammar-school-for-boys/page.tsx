@@ -75,6 +75,7 @@ export default function Page() {
           zh: "A-Levels（普通教育高级程度证书）",
         })}
         date={t({ en: "Sep 2011 - Jul 2013", zh: "2011年9月 - 2013年7月" })}
+        dateTime="2011-09"
       />
       <p>{t({ en: "Results: A*AAB", zh: "成绩: A*AAB" })}</p>
       <p>{t({ en: "Subjects:", zh: "科目：" })}</p>
