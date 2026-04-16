@@ -10,6 +10,7 @@ import { border, color, font, space } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { PersonListItem } from "#src/utils/types.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
+import { DepartmentLabel } from "./department-label";
 
 interface CompactPersonCardProps {
   person: PersonListItem;
@@ -64,7 +65,9 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
       </div>
       <span css={styles.name}>{label}</span>
       {person.knownForDepartment && (
-        <span css={styles.department}>{person.knownForDepartment}</span>
+        <span css={styles.department}>
+          <DepartmentLabel department={person.knownForDepartment} />
+        </span>
       )}
     </>
   );
