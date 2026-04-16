@@ -63,10 +63,6 @@ export default async function RootLayout({
           }}
         />
         {/* eslint-enable @eslint-react/dom-no-dangerously-set-innerhtml */}
-        {process.env.NODE_ENV === "development" && (
-          // eslint-disable-next-line @next/next/no-sync-scripts
-          <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-        )}
         {locale === "en" && (
           <link
             rel="preload"
