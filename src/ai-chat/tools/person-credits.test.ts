@@ -30,8 +30,11 @@ interface CreditEntry {
   department: string | undefined;
 }
 
-async function executeTool(input: { person_id: number }) {
-  const tool = createPersonCreditsTool();
+async function executeTool(
+  input: { person_id: number },
+  locale: "en" | "zh" = "en",
+) {
+  const tool = createPersonCreditsTool(locale);
   if (!tool.execute) throw new Error("expected execute");
   const result = await tool.execute(input, executeContext);
   return JSON.parse(JSON.stringify(result)) as CreditEntry[];
@@ -69,7 +72,7 @@ describe("personCreditsInputSchema", () => {
 
 describe("createPersonCreditsTool", () => {
   it("returns a tool with description and inputSchema", () => {
-    const tool = createPersonCreditsTool();
+    const tool = createPersonCreditsTool("en");
     expect(tool.description).toBeDefined();
     expect(tool.description).toContain("filmography");
     expect(tool.inputSchema).toBeDefined();
@@ -166,7 +169,7 @@ describe("person credits execute", () => {
       ),
     );
 
-    const tool = createPersonCreditsTool();
+    const tool = createPersonCreditsTool("en");
     if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute({ person_id: 287 }, executeContext);
 
@@ -174,5 +177,25 @@ describe("person credits execute", () => {
     if (isToolError(result)) {
       expect(result.reason).toBe("tmdb_unavailable");
     }
+  });
+
+  it("passes locale as the language parameter to TMDB", async () => {
+    let capturedLanguage: string | null = null;
+
+    server.use(
+      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, ({ request }) => {
+        const url = new URL(request.url);
+        capturedLanguage = url.searchParams.get("language");
+        return HttpResponse.json({
+          id: 287,
+          cast: [castEntry({ id: 1, title: "绿里奇迹", vote_average: 8 })],
+          crew: [],
+        });
+      }),
+    );
+
+    await executeTool({ person_id: 287 }, "zh");
+
+    expect(capturedLanguage).toBe("zh");
   });
 });

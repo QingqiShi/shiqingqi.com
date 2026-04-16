@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { getPersonCombinedCredits } from "#src/_generated/tmdb-server-functions.ts";
+import type { SupportedLocale } from "#src/types.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
 import { toolError } from "./tool-error";
 
@@ -62,7 +63,7 @@ interface CreditResult {
 // Trimming after sort preserves the highest-rated entries.
 const MAX_RESULTS = 30;
 
-export function createPersonCreditsTool() {
+export function createPersonCreditsTool(locale: SupportedLocale) {
   return tool({
     description: TOOL_DESCRIPTION,
     inputSchema: personCreditsInputSchema,
@@ -71,6 +72,7 @@ export function createPersonCreditsTool() {
       try {
         credits = await getPersonCombinedCredits({
           person_id: person_id.toString(),
+          language: locale,
         });
       } catch (error) {
         console.error("person_credits failed", error);
