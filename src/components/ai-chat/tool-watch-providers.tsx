@@ -10,6 +10,7 @@ import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
+import { ExternalLinkIndicator } from "../shared/external-link-indicator";
 
 interface ProviderEntry {
   id: number;
@@ -301,6 +302,7 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
               en: "Data provided by JustWatch",
               zh: "数据由 JustWatch 提供",
             })}
+            <ExternalLinkIndicator />
           </a>
         ) : (
           <span>

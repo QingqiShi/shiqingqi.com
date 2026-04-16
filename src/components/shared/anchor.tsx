@@ -5,6 +5,17 @@ import Link from "next/link";
 import { useState } from "react";
 import { border, color } from "#src/tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex";
+import { ExternalLinkIndicator } from "./external-link-indicator";
+
+interface AnchorExtraProps {
+  /**
+   * Show the external-link icon and screen-reader "opens in new tab" label
+   * when `target="_blank"`. Defaults to true. Opt out for wrappers that
+   * already render their own external-link affordance (e.g. `Card`, or
+   * icon-slot-driven buttons).
+   */
+  indicateExternal?: boolean;
+}
 
 export function Anchor({
   className,
@@ -14,13 +25,17 @@ export function Anchor({
   rel,
   target,
   ref,
+  children,
+  indicateExternal = true,
   ...props
-}: React.ComponentProps<typeof Link>) {
+}: React.ComponentProps<typeof Link> & AnchorExtraProps) {
   const [hovered, setHovered] = useState(false);
 
   // Automatically ensure noopener and noreferrer are present for _blank links
   const resolvedRel =
     target === "_blank" ? mergeRel(rel, "noopener noreferrer") : rel;
+
+  const showIndicator = indicateExternal && target === "_blank";
 
   return (
     <Link
@@ -36,7 +51,10 @@ export function Anchor({
       className={className}
       style={style}
       css={styles.a}
-    />
+    >
+      {children}
+      {showIndicator && <ExternalLinkIndicator />}
+    </Link>
   );
 }
 

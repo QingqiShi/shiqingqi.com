@@ -20,6 +20,7 @@ import { formatRuntime } from "#src/utils/format-runtime.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
 import { Button } from "../shared/button";
+import { ExternalLinkIndicator } from "../shared/external-link-indicator";
 import { Skeleton } from "../shared/skeleton";
 import { useChatActions } from "./chat-actions-context";
 import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
@@ -174,12 +175,13 @@ export function MediaDetailContent({
               rel="noopener noreferrer"
               aria-label={
                 locale === "zh"
-                  ? `观看${displayTitle}的预告`
-                  : `Watch trailer for ${displayTitle}`
+                  ? `观看${displayTitle}的预告 (在新标签页中打开)`
+                  : `Watch trailer for ${displayTitle} (opens in new tab)`
               }
             >
               <PlayIcon weight="fill" size={14} aria-hidden="true" />
               {t({ en: "Trailer", zh: "预告" })}
+              <ExternalLinkIndicator />
             </a>
           )}
           <AddToChatButton id={id} mediaType={mediaType} title={displayTitle} />

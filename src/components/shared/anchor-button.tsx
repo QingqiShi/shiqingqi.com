@@ -38,6 +38,7 @@ export function AnchorButton({
     <Anchor
       aria-current={isActive ? "true" : undefined}
       {...restProps}
+      indicateExternal={false}
       ref={anchorRef}
       className={className}
       style={{ ...style, ...pressedStyle }}

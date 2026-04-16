@@ -1,13 +1,12 @@
 "use client";
 
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
+import { ExternalLinkIndicator } from "../shared/external-link-indicator";
 
 const styles = stylex.create({
   h1: {
@@ -34,24 +33,6 @@ const styles = stylex.create({
   a: {
     color: color.controlActive,
     textDecoration: "underline",
-  },
-  externalIcon: {
-    verticalAlign: "baseline",
-    position: "relative",
-    top: "0.1em",
-    marginInlineStart: "0.1em",
-    opacity: 0.7,
-  },
-  srOnly: {
-    position: "absolute",
-    width: "1px",
-    height: "1px",
-    padding: 0,
-    margin: "-1px",
-    overflow: "hidden",
-    clipPath: "inset(50%)",
-    whiteSpace: "nowrap",
-    borderWidth: 0,
   },
   ul: {
     paddingLeft: space._4,
@@ -134,21 +115,6 @@ const styles = stylex.create({
     gap: space._2,
   },
 });
-
-function ExternalLinkIndicator() {
-  return (
-    <>
-      <ArrowSquareOutIcon
-        size="0.85em"
-        css={styles.externalIcon}
-        aria-hidden="true"
-      />
-      <span css={styles.srOnly}>
-        {t({ en: "(opens in new tab)", zh: "(在新标签页中打开)" })}
-      </span>
-    </>
-  );
-}
 
 const components: Components = {
   h1: ({ node, ...props }) => <h1 css={styles.h1} {...props} />,

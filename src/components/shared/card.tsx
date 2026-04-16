@@ -19,7 +19,13 @@ type CardProps = React.ComponentProps<typeof Anchor>;
 
 export function Card({ children, className, style, ...rest }: CardProps) {
   return (
-    <Anchor {...rest} className={className} style={style} css={styles.card}>
+    <Anchor
+      {...rest}
+      indicateExternal={false}
+      className={className}
+      style={style}
+      css={styles.card}
+    >
       {children}
       <div css={styles.detailsBackdrop} />
       <div css={styles.detailsIndicator}>
