@@ -14,68 +14,54 @@ export interface ToolOutputMaps {
   watchProvidersMap: ReadonlyMap<string, WatchProviderOutput>;
 }
 
-export function createToolOutputAccumulator(): (
-  messages: ReadonlyArray<UIMessage>,
-) => ToolOutputMaps {
-  let cachedResult: ToolOutputMaps | null = null;
-  let cachedOutputCount = -1;
-
-  return (messages) => {
-    let outputCount = 0;
-    for (const message of messages) {
-      for (const part of message.parts) {
-        if (isToolUIPart(part) && part.state === "output-available") {
-          outputCount++;
-        }
-      }
-    }
-
-    if (cachedResult && outputCount === cachedOutputCount) {
-      return cachedResult;
-    }
-
-    return recompute(messages, outputCount);
-  };
-
-  function recompute(
-    messages: ReadonlyArray<UIMessage>,
-    outputCount: number,
-  ): ToolOutputMaps {
-    const searchResultsMap = new Map<string, MediaListItem>();
-    const personResultsMap = new Map<number, PersonListItem>();
-    const watchProvidersMap = new Map<string, WatchProviderOutput>();
-
-    for (const message of messages) {
-      for (const part of message.parts) {
-        if (!isToolUIPart(part)) continue;
-        if (part.state !== "output-available" || !("output" in part)) continue;
-
-        const name = getToolName(part);
-
-        for (const [k, v] of buildSearchResultsMap(name, part.output)) {
-          searchResultsMap.set(k, v);
-        }
-        for (const [k, v] of buildPersonResultsMap(name, part.output)) {
-          personResultsMap.set(k, v);
-        }
-        if (name === "watch_providers") {
-          for (const [k, v] of buildWatchProvidersMap(part.output)) {
-            watchProvidersMap.set(k, v);
-          }
-        }
-      }
-    }
-
-    cachedOutputCount = outputCount;
-    cachedResult = { searchResultsMap, personResultsMap, watchProvidersMap };
-    return cachedResult;
-  }
-}
-
 export function accumulateToolOutputs(
   messages: ReadonlyArray<UIMessage>,
 ): ToolOutputMaps {
-  return createToolOutputAccumulator()(messages);
+  const searchResultsMap = new Map<string, MediaListItem>();
+  const personResultsMap = new Map<number, PersonListItem>();
+  const watchProvidersMap = new Map<string, WatchProviderOutput>();
+
+  for (const message of messages) {
+    for (const part of message.parts) {
+      if (!isToolUIPart(part)) continue;
+      if (part.state !== "output-available" || !("output" in part)) continue;
+
+      const name = getToolName(part);
+
+      for (const [k, v] of buildSearchResultsMap(name, part.output)) {
+        searchResultsMap.set(k, v);
+      }
+      for (const [k, v] of buildPersonResultsMap(name, part.output)) {
+        personResultsMap.set(k, v);
+      }
+      if (name === "watch_providers") {
+        for (const [k, v] of buildWatchProvidersMap(part.output)) {
+          watchProvidersMap.set(k, v);
+        }
+      }
+    }
+  }
+
+  return { searchResultsMap, personResultsMap, watchProvidersMap };
+}
+
+// Fingerprint identifying the set of resolved tool outputs across a conversation.
+// Stable across text-streaming chunks (new message/array refs don't change it),
+// but changes when a tool output is added OR when messages are replaced with a
+// different set (e.g. continueSession / regenerate). Used to key a memoization
+// cache without deep-comparing tool outputs.
+export function toolOutputsFingerprint(
+  messages: ReadonlyArray<UIMessage>,
+): string {
+  let fingerprint = "";
+  for (const message of messages) {
+    for (const part of message.parts) {
+      if (!isToolUIPart(part)) continue;
+      if (part.state !== "output-available") continue;
+      fingerprint += `${part.toolCallId}|`;
+    }
+  }
+  return fingerprint;
 }
 
 function mapTmdbSearchOutput(output: unknown): ReadonlyArray<MediaListItem> {

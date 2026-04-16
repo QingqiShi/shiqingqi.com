@@ -6,14 +6,15 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
-import { createToolOutputAccumulator } from "#src/components/ai-chat/map-tool-output.ts";
+import {
+  accumulateToolOutputs,
+  toolOutputsFingerprint,
+} from "#src/components/ai-chat/map-tool-output.ts";
 import {
   getCachedPreferencesContext,
   getPreferencesContextReady,
 } from "#src/preference-store/preference-store.ts";
 import type { SupportedLocale } from "#src/types.ts";
-
-const accumulateToolOutputs = createToolOutputAccumulator();
 
 export interface ChatMessageMetadata {
   inputTokens?: number;
@@ -213,10 +214,29 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
     setContinueSessionStatus("idle");
   };
 
+  // `chatResult.messages` changes reference on every streaming chunk, but the
+  // set of resolved tool outputs only changes when a tool call completes. Cache
+  // the derived maps keyed on a fingerprint of tool call IDs, using React's
+  // "store info from previous renders" pattern, so downstream components
+  // receive stable map references during text streaming. React Compiler cannot
+  // memoize this automatically — `messages` is a new array every chunk, so it
+  // has no referential equality signal to cache on.
+  const fingerprint = toolOutputsFingerprint(chatResult.messages);
+  const [cachedToolOutputs, setCachedToolOutputs] = useState(() => ({
+    fingerprint,
+    maps: accumulateToolOutputs(chatResult.messages),
+  }));
+  if (cachedToolOutputs.fingerprint !== fingerprint) {
+    setCachedToolOutputs({
+      fingerprint,
+      maps: accumulateToolOutputs(chatResult.messages),
+    });
+  }
+
   return {
     ...chatResult,
     sendMessage,
-    toolOutputs: accumulateToolOutputs(chatResult.messages),
+    toolOutputs: cachedToolOutputs.maps,
     previousSessionId,
     continueSession,
     continueSessionStatus,
