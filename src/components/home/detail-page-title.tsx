@@ -8,9 +8,17 @@ interface PageTitleProps {
   title: string;
   role: string;
   date: string;
+  /** ISO start date for the `<time dateTime>` attribute (e.g. "2021-08"). */
+  dateTime: string;
 }
 
-export function DetailPageTitle({ date, role, title, type }: PageTitleProps) {
+export function DetailPageTitle({
+  date,
+  dateTime,
+  role,
+  title,
+  type,
+}: PageTitleProps) {
   const typeLabel =
     type === "experience"
       ? t({ en: "Experience", zh: "工作" })
@@ -22,7 +30,9 @@ export function DetailPageTitle({ date, role, title, type }: PageTitleProps) {
         {typeLabel} - {title}
       </h2>
       <h1 css={styles.title}>{role}</h1>
-      <time css={styles.date}>{date}</time>
+      <time dateTime={dateTime} css={styles.date}>
+        {date}
+      </time>
     </header>
   );
 }

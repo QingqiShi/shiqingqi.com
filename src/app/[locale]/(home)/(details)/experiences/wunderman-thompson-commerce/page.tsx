@@ -69,6 +69,7 @@ export default function Page() {
         title="Wunderman Thompson Commerce"
         role={t({ en: "Front End Developer", zh: "前端开发员" })}
         date={t({ en: "Sep 2017 - Jul 2019", zh: "2017年9月 - 2019年7月" })}
+        dateTime="2017-09"
       />
       <p>
         {t({

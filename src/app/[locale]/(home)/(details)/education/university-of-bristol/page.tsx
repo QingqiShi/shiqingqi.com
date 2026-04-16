@@ -61,6 +61,7 @@ export default function Page() {
           zh: "理学硕士 - 高级计算机 创新技术",
         })}
         date={t({ en: "Sep 2016 - Jan 2018", zh: "2016年9月 - 2018年1月" })}
+        dateTime="2016-09"
       />
       <p>{t({ en: "Grade: Merit", zh: "学位等级：优等" })}</p>
       <p>{t({ en: "Core Courses:", zh: "核心科目：" })}</p>

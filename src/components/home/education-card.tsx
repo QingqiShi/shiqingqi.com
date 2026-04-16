@@ -13,6 +13,8 @@ interface EducationCardProps extends React.ComponentProps<typeof Card> {
   name: string;
   nameSubText?: string;
   dates: string;
+  /** ISO start date for the `<time dateTime>` attribute (e.g. "2016-09"). */
+  dateTime: string;
 }
 
 export function EducationCard({
@@ -20,6 +22,7 @@ export function EducationCard({
   name,
   nameSubText,
   dates,
+  dateTime,
   className,
   style,
   ...rest
@@ -44,7 +47,9 @@ export function EducationCard({
           {nameSubText && <span css={styles.subText}> {nameSubText}</span>}
         </div>
       </div>
-      <time css={styles.dates}>{dates}</time>
+      <time dateTime={dateTime} css={styles.dates}>
+        {dates}
+      </time>
     </Card>
   );
 }

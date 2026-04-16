@@ -103,6 +103,7 @@ export default async function Home(props: PageProps) {
           <ExperienceCard
             logo={<CitadelLogo />}
             dates={t({ en: "Aug 2021 - Now", zh: "2021年8月 至今" })}
+            dateTime="2021-08"
             href={getLocalePath("/experiences/citadel", locale)}
             css={styles.card}
             aria-label={t({
@@ -117,6 +118,7 @@ export default async function Home(props: PageProps) {
               en: "Jul 2019 - Aug 2021",
               zh: "2019年7月 - 2021年8月",
             })}
+            dateTime="2019-07"
             href={getLocalePath("/experiences/spotify", locale)}
             css={styles.card}
             aria-label={t({
@@ -130,6 +132,7 @@ export default async function Home(props: PageProps) {
               en: "Sep 2017 - Jul 2019",
               zh: "2017年9月 - 2019年7月",
             })}
+            dateTime="2017-09"
             href={getLocalePath(
               "/experiences/wunderman-thompson-commerce",
               locale,
@@ -156,6 +159,7 @@ export default async function Home(props: PageProps) {
               en: "Sep 2016 - Jan 2018",
               zh: "2016年9月 - 2018年1月",
             })}
+            dateTime="2016-09"
             href={getLocalePath("/education/university-of-bristol", locale)}
             css={styles.card}
           />
@@ -173,6 +177,7 @@ export default async function Home(props: PageProps) {
               en: "Sep 2013 - Jul 2016",
               zh: "2013年9月 - 2016年7月",
             })}
+            dateTime="2013-09"
             href={getLocalePath("/education/university-of-nottingham", locale)}
             css={styles.card}
           />
@@ -190,6 +195,7 @@ export default async function Home(props: PageProps) {
               en: "Sep 2011 - Jul 2013",
               zh: "2011年9月 - 2013年7月",
             })}
+            dateTime="2011-09"
             href={getLocalePath(
               "/education/altrincham-grammar-school-for-boys",
               locale,

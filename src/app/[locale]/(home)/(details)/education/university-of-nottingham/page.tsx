@@ -63,6 +63,7 @@ export default function Page() {
           zh: "荣誉理学学士 - 计算机科学",
         })}
         date={t({ en: "Sep 2013 - Jul 2016", zh: "2013年9月 - 2016年7月" })}
+        dateTime="2013-09"
       />
       <p>
         {t({ en: "Grade: First-class Honours", zh: "学位等级：一等荣誉学位" })}

@@ -8,11 +8,14 @@ import { color, font, ratio, space } from "#src/tokens.stylex.ts";
 interface ExperienceCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode;
   dates: string;
+  /** ISO start date for the `<time dateTime>` attribute (e.g. "2021-08"). */
+  dateTime: string;
 }
 
 export function ExperienceCard({
   logo,
   dates,
+  dateTime,
   className,
   style,
   ...rest
@@ -22,7 +25,9 @@ export function ExperienceCard({
       <Suspense fallback={<Skeleton />}>
         <div css={styles.logo}>{logo}</div>
       </Suspense>
-      <time css={styles.dates}>{dates}</time>
+      <time dateTime={dateTime} css={styles.dates}>
+        {dates}
+      </time>
     </Card>
   );
 }

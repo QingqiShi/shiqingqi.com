@@ -54,6 +54,7 @@ export default function Page() {
         title="Citadel"
         role={t({ en: "Software Engineer", zh: "软件工程师" })}
         date={t({ en: "Aug 2021 - Now", zh: "2021年8月 至今" })}
+        dateTime="2021-08"
       />
       <p>
         {t({
