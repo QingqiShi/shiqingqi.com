@@ -2,7 +2,7 @@
 
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
@@ -28,6 +28,7 @@ export function ToolActivityGroup({
   isStreaming = false,
 }: ToolActivityGroupProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const expandedId = useId();
 
   if (toolParts.length === 0) return null;
 
@@ -62,6 +63,7 @@ export function ToolActivityGroup({
         type="button"
         css={[buttonReset.base, flex.row, styles.disclosureButton]}
         aria-expanded={isOpen}
+        aria-controls={expandedId}
         onClick={() => {
           setIsOpen((prev) => !prev);
         }}
@@ -74,19 +76,17 @@ export function ToolActivityGroup({
         />
         <span>{summaryText}</span>
       </button>
-      {isOpen && (
-        <div css={styles.expandedContent}>
-          {toolParts.map((part) => (
-            <ToolActivityLine
-              key={part.toolCallId}
-              toolName={part.toolName}
-              state={part.state}
-              input={part.input}
-              output={part.output}
-            />
-          ))}
-        </div>
-      )}
+      <div id={expandedId} css={styles.expandedContent} hidden={!isOpen}>
+        {toolParts.map((part) => (
+          <ToolActivityLine
+            key={part.toolCallId}
+            toolName={part.toolName}
+            state={part.state}
+            input={part.input}
+            output={part.output}
+          />
+        ))}
+      </div>
     </div>
   );
 }

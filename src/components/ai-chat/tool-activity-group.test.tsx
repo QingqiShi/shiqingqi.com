@@ -57,10 +57,31 @@ describe("ToolActivityGroup", () => {
     expect(screen.getByText("3 tool calls")).toBeInTheDocument();
   });
 
+  it("ties the disclosure button to the expanded region via aria-controls", async () => {
+    const user = userEvent.setup();
+    render(<ToolActivityGroup toolParts={completeParts} />);
+
+    const button = screen.getByRole("button");
+    const controlsId = button.getAttribute("aria-controls") ?? "";
+    expect(controlsId).not.toBe("");
+
+    // Target element must exist in the DOM in both the collapsed and
+    // expanded states so assistive tech can resolve aria-controls.
+    const collapsedTarget = document.getElementById(controlsId);
+    expect(collapsedTarget).not.toBeNull();
+    expect(collapsedTarget).toHaveAttribute("hidden");
+
+    await user.click(button);
+
+    const expandedTarget = document.getElementById(controlsId);
+    expect(expandedTarget).not.toBeNull();
+    expect(expandedTarget).not.toHaveAttribute("hidden");
+  });
+
   it("hides activity lines by default when all complete", () => {
     render(<ToolActivityGroup toolParts={completeParts} />);
 
-    expect(screen.queryByText("TMDB Search")).not.toBeInTheDocument();
+    expect(screen.getByText("TMDB Search")).not.toBeVisible();
   });
 
   it("toggles expanded state on click", async () => {
@@ -71,13 +92,13 @@ describe("ToolActivityGroup", () => {
     await user.click(button);
 
     expect(button).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText("TMDB Search")).toBeInTheDocument();
-    expect(screen.getByText("Semantic Search")).toBeInTheDocument();
-    expect(screen.getByText("Presenting Results")).toBeInTheDocument();
+    expect(screen.getByText("TMDB Search")).toBeVisible();
+    expect(screen.getByText("Semantic Search")).toBeVisible();
+    expect(screen.getByText("Presenting Results")).toBeVisible();
 
     await user.click(button);
     expect(button).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByText("TMDB Search")).not.toBeInTheDocument();
+    expect(screen.getByText("TMDB Search")).not.toBeVisible();
   });
 
   it("shows correct count in summary", () => {
