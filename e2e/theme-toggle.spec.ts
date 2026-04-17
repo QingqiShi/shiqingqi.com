@@ -124,7 +124,7 @@ test.describe("Theme Toggle", () => {
 
     // Hover/focus to show reset button
     await themeToggle.hover();
-    const resetButton = page.getByRole("radio", {
+    const resetButton = page.getByRole("button", {
       name: /switch to system theme/i,
     });
     await expect(resetButton).toBeVisible();

@@ -103,7 +103,7 @@ describe("ThemeSwitch keyboard reveal", () => {
     const root = renderThemeSwitch();
 
     const switchControl = screen.getByRole("switch");
-    const systemButton = screen.getByRole("radio", {
+    const systemButton = screen.getByRole("button", {
       name: "Use system theme",
     });
 
@@ -114,5 +114,38 @@ describe("ThemeSwitch keyboard reveal", () => {
     // relatedTarget is still inside the container, so the blur should be a
     // no-op for `hasFocus`.
     expect(root.className).toContain("showSystemButton");
+  });
+});
+
+describe("ThemeSwitch system-button semantics", () => {
+  it("exposes the system control as a toggle button with aria-pressed", () => {
+    // Explicit light theme so "system" is the non-active state.
+    localStorage.setItem("theme", "light");
+    renderThemeSwitch();
+
+    const systemButton = screen.getByRole("button", {
+      name: "Use system theme",
+    });
+
+    // It's a plain <button>, not a stranded `role="radio"` with no
+    // radiogroup. `aria-pressed` — supplied by the shared `Button`
+    // primitive when `isActive` is set — is the correct toggle semantic.
+    expect(systemButton).toHaveAttribute("aria-pressed", "false");
+    expect(systemButton).not.toHaveAttribute("role", "radio");
+    expect(systemButton).not.toHaveAttribute("aria-checked");
+    // Active toggles stay interactive; `disabled` would misrepresent
+    // "this is the current choice" as "this choice is unavailable".
+    expect(systemButton).not.toBeDisabled();
+  });
+
+  it("reflects active state via aria-pressed when system is the current theme", () => {
+    // Default theme (no seeded value) resolves to "system".
+    renderThemeSwitch();
+
+    const systemButton = screen.getByRole("button", {
+      name: "Use system theme",
+    });
+    expect(systemButton).toHaveAttribute("aria-pressed", "true");
+    expect(systemButton).not.toBeDisabled();
   });
 });
