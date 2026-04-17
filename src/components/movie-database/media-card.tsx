@@ -39,7 +39,7 @@ export function MediaCard({ media, allowFollow }: MediaCardProps) {
       rel={allowFollow ? undefined : "nofollow"}
     >
       <div css={[absoluteFill.all, styles.posterContainer]}>
-        <MediaPoster media={media} />
+        <MediaPoster media={media} decorative />
       </div>
     </Card>
   );

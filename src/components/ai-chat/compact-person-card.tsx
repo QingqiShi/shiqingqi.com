@@ -24,14 +24,18 @@ function getPersonLabel(person: PersonListItem): string {
 function ProfilePhoto({
   profilePath,
   alt,
+  fallbackInitial,
 }: {
   profilePath: string;
   alt: string;
+  fallbackInitial: string;
 }) {
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
 
   if (!config.images?.base_url || !config.images.profile_sizes) {
-    return <div css={[flex.center, styles.photoFallback]}>{alt.charAt(0)}</div>;
+    return (
+      <div css={[flex.center, styles.photoFallback]}>{fallbackInitial}</div>
+    );
   }
 
   return (
@@ -44,7 +48,7 @@ function ProfilePhoto({
       imgCss={styles.photo}
       skeletonCss={styles.photoSkeleton}
       errorFallback={
-        <div css={[flex.center, styles.photoFallback]}>{alt.charAt(0)}</div>
+        <div css={[flex.center, styles.photoFallback]}>{fallbackInitial}</div>
       }
       loading="lazy"
     />
@@ -53,12 +57,21 @@ function ProfilePhoto({
 
 export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
   const label = getPersonLabel(person);
+  // When wrapped in the labelled button below, the name is already announced
+  // via both the button's `aria-label` and the visible `<span>` below the
+  // photo, so the photo's `alt` is decorative. In the non-interactive `<div>`
+  // branch the image alt is the only name, so keep the label.
+  const photoAlt = onClick ? "" : label;
 
   const content = (
     <>
       <div css={styles.photoWrapper}>
         {person.profilePath ? (
-          <ProfilePhoto profilePath={person.profilePath} alt={label} />
+          <ProfilePhoto
+            profilePath={person.profilePath}
+            alt={photoAlt}
+            fallbackInitial={label.charAt(0)}
+          />
         ) : (
           <div css={[flex.center, styles.photoFallback]}>{label.charAt(0)}</div>
         )}

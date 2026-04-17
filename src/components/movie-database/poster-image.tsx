@@ -12,6 +12,11 @@ import { TmdbImage } from "./tmdb-image.tsx";
 interface PosterImageProps {
   posterPath: string;
   alt: string;
+  // Visible text rendered inside the fallback/error UI. Separate from `alt`
+  // so callers can use `alt=""` for decorative images (e.g. inside a labelled
+  // card) while still showing the media title to sighted users when the
+  // poster is unavailable.
+  fallbackLabel?: string;
 }
 
 /**
@@ -19,13 +24,18 @@ interface PosterImageProps {
  * If the required configuration is unavailable or the image fails to load, a fallback UI is displayed.
  * The component supports lazy loading and generates `srcSet` for responsive image handling.
  */
-export function PosterImage({ posterPath, alt }: PosterImageProps) {
+export function PosterImage({
+  posterPath,
+  alt,
+  fallbackLabel,
+}: PosterImageProps) {
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
+  const visibleLabel = fallbackLabel ?? alt;
 
   if (!config.images?.base_url || !config.images.poster_sizes) {
     return (
       <div css={[imageCover.base, flex.center, styles.errored]}>
-        <div>{alt}</div>
+        <div>{visibleLabel}</div>
         <div css={styles.errorText}>{t({ en: "No Poster", zh: "无海报" })}</div>
       </div>
     );
@@ -43,7 +53,7 @@ export function PosterImage({ posterPath, alt }: PosterImageProps) {
       skeletonCss={[flex.center, styles.errored]}
       errorFallback={
         <div css={[imageCover.base, flex.center, styles.errored]}>
-          <div>{alt}</div>
+          <div>{visibleLabel}</div>
           <div css={styles.errorText}>
             {t({ en: "No Poster", zh: "无海报" })}
           </div>

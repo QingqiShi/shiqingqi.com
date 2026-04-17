@@ -40,9 +40,7 @@ export function MediaDetailHero({
 
   return (
     <div css={styles.container}>
-      {backdropPath && (
-        <BackdropImage backdropPath={backdropPath} alt={title} />
-      )}
+      {backdropPath && <BackdropImage backdropPath={backdropPath} />}
       <div css={styles.hero}>
         <div
           css={styles.ratingContainer}

@@ -44,15 +44,23 @@ describe("ToolMediaCards", () => {
     expect(buttons).toHaveLength(2);
   });
 
-  it("renders poster images", () => {
+  it("renders poster images with empty alt so the button's label is not duplicated", () => {
     render(
       <MediaDetailProvider>
         <ToolMediaCards items={mockItems} />
       </MediaDetailProvider>,
     );
 
-    expect(screen.getByAltText("Inception")).toBeInTheDocument();
-    expect(screen.getByAltText("Breaking Bad")).toBeInTheDocument();
+    const inceptionButton = screen.getByRole("button", { name: "Inception" });
+    const inceptionImg = inceptionButton.querySelector("img");
+    expect(inceptionImg).not.toBeNull();
+    expect(inceptionImg?.getAttribute("src")).toContain("/inception.jpg");
+    expect(inceptionImg).toHaveAttribute("alt", "");
+
+    const bbButton = screen.getByRole("button", { name: "Breaking Bad" });
+    const bbImg = bbButton.querySelector("img");
+    expect(bbImg).not.toBeNull();
+    expect(bbImg).toHaveAttribute("alt", "");
   });
 
   it("returns null when items array is empty", () => {

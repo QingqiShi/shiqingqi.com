@@ -4,7 +4,7 @@ import { render, screen } from "#src/test-utils.tsx";
 import { CompactMediaCard } from "./compact-media-card";
 
 describe("CompactMediaCard", () => {
-  it("renders poster image when posterPath is provided", () => {
+  it("renders the poster image when posterPath is provided (non-interactive: alt names the image)", () => {
     render(
       <CompactMediaCard
         media={{
@@ -17,7 +17,31 @@ describe("CompactMediaCard", () => {
       />,
     );
 
+    // Without onClick the card is an unlabelled <div>, so the img's alt is
+    // still the title — it's the only accessible name for the image.
     expect(screen.getByAltText("Inception")).toBeInTheDocument();
+  });
+
+  it("renders the poster image with empty alt when wrapped in a labelled button", () => {
+    render(
+      <CompactMediaCard
+        media={{
+          id: 1,
+          title: "Inception",
+          posterPath: "/inception.jpg",
+          rating: 8.4,
+          mediaType: "movie",
+        }}
+        onClick={vi.fn()}
+      />,
+    );
+
+    // Title is already on the button's aria-label; repeating it via the img
+    // alt would cause duplicate announcements.
+    const img = screen.getByRole("button").querySelector("img");
+    expect(img).not.toBeNull();
+    expect(img).toHaveAttribute("alt", "");
+    expect(screen.queryByAltText("Inception")).not.toBeInTheDocument();
   });
 
   it("renders no-poster fallback when posterPath is null", () => {

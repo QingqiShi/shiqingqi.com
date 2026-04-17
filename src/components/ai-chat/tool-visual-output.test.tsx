@@ -66,8 +66,11 @@ describe("ToolVisualOutput", () => {
         </MediaDetailProvider>,
       );
 
-      expect(screen.getByAltText("Inception")).toBeInTheDocument();
-      expect(screen.getByRole("button")).toBeInTheDocument();
+      // Button carries the title via aria-label; the img inside has empty
+      // alt to avoid duplicate announcements.
+      const button = screen.getByRole("button", { name: "Inception" });
+      expect(button).toBeInTheDocument();
+      expect(button.querySelector("img")).toHaveAttribute("alt", "");
     });
 
     it("renders cards for output-available", () => {
