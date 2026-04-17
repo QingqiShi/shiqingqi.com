@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
 
 const FOCUSABLE_SELECTOR = [
   'a[href]:not([tabindex="-1"])',
@@ -43,6 +43,25 @@ export function useDialogFocus({
 }) {
   const triggerRef = useRef<HTMLElement | null>(null);
 
+  // Read the latest `onClose` / `initialFocusRef` without putting them in
+  // the effect dep array. Parent re-renders (e.g. per AI-chat streaming
+  // chunk) hand us fresh inline closures and freshly-derived refs; without
+  // this indirection the effect tears down and restarts on every render,
+  // which silently yanks focus back to the initial target, overwrites
+  // `triggerRef` with a dialog-internal element, and re-binds the keydown
+  // handler. See cycle 5 brief.
+  const handleEscape = useEffectEvent(() => {
+    onClose();
+  });
+  const resolveInitialFocus = useEffectEvent(() => {
+    if (initialFocusRef?.current) return initialFocusRef.current;
+    if (dialogRef.current) {
+      const focusable = getFocusableElements(dialogRef.current);
+      if (focusable.length > 0) return focusable[0];
+    }
+    return null;
+  });
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -54,17 +73,12 @@ export function useDialogFocus({
 
     // Move focus into the dialog once the portal renders
     requestAnimationFrame(() => {
-      if (initialFocusRef?.current) {
-        initialFocusRef.current.focus();
-      } else if (dialogRef.current) {
-        const focusable = getFocusableElements(dialogRef.current);
-        if (focusable.length > 0) focusable[0].focus();
-      }
+      resolveInitialFocus()?.focus();
     });
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        onClose();
+        handleEscape();
         return;
       }
 
@@ -92,5 +106,5 @@ export function useDialogFocus({
       // Restore focus to the element that opened the dialog
       triggerRef.current?.focus();
     };
-  }, [isOpen, onClose, dialogRef, initialFocusRef]);
+  }, [isOpen, dialogRef]);
 }
