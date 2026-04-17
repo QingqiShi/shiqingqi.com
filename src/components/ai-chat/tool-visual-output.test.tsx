@@ -67,7 +67,9 @@ describe("ToolVisualOutput", () => {
       );
 
       expect(screen.getByAltText("Inception")).toBeInTheDocument();
-      expect(screen.getByRole("button")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Inception" }),
+      ).toBeInTheDocument();
     });
 
     it("renders cards for output-available", () => {
@@ -89,8 +91,11 @@ describe("ToolVisualOutput", () => {
         </MediaDetailProvider>,
       );
 
-      const buttons = screen.getAllByRole("button");
-      expect(buttons).toHaveLength(2);
+      // One button per media card, labelled with the title.
+      expect(screen.getByRole("button", { name: "Dark" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Inception" }),
+      ).toBeInTheDocument();
     });
 
     it("renders fallback card when ID not in search results", () => {
@@ -107,7 +112,9 @@ describe("ToolVisualOutput", () => {
         </MediaDetailProvider>,
       );
 
-      expect(screen.getByRole("button")).toBeInTheDocument();
+      // Fallback card still renders as an interactive button — it uses a
+      // generic "Movie" label since no title is available for id 999.
+      expect(screen.getByRole("button", { name: "Movie" })).toBeInTheDocument();
     });
 
     it("shows error for output-error state", () => {
@@ -371,8 +378,13 @@ describe("ToolVisualOutput", () => {
         </MediaDetailProvider>,
       );
 
-      const buttons = screen.getAllByRole("button");
-      expect(buttons).toHaveLength(2);
+      // One button per person, labelled with the name.
+      expect(
+        screen.getByRole("button", { name: "Leonardo DiCaprio" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Christopher Nolan" }),
+      ).toBeInTheDocument();
     });
 
     it("renders fallback card when person ID not in results map", () => {
@@ -389,7 +401,11 @@ describe("ToolVisualOutput", () => {
         </MediaDetailProvider>,
       );
 
-      expect(screen.getByRole("button")).toBeInTheDocument();
+      // Fallback card still renders as an interactive button; generic
+      // "Person" label since no name is available for id 777.
+      expect(
+        screen.getByRole("button", { name: "Person" }),
+      ).toBeInTheDocument();
     });
 
     it("shows error for output-error state", () => {

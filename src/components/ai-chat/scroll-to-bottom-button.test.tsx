@@ -33,22 +33,7 @@ describe("ScrollToBottomButton", () => {
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it("is hidden from accessibility tree when not visible", () => {
-    render(
-      <ScrollToBottomButton
-        visible={false}
-        label="Scroll to bottom"
-        onClick={() => {}}
-      />,
-    );
-
-    // aria-hidden removes it from the accessible role query
-    expect(
-      screen.queryByRole("button", { name: "Scroll to bottom" }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("is removed from tab order when not visible", () => {
+  it("is inert (hidden from AT, removed from tab order, non-clickable) when not visible", () => {
     const { container } = render(
       <ScrollToBottomButton
         visible={false}
@@ -58,10 +43,18 @@ describe("ScrollToBottomButton", () => {
     );
 
     const button = container.querySelector("button");
-    expect(button).toHaveAttribute("tabindex", "-1");
+    // The native `inert` attribute is the single declarative switch that
+    // covers all three concerns: removes the button from the a11y tree,
+    // skips it in the tab order, and blocks pointer events.
+    expect(button).toHaveAttribute("inert");
+    // And we no longer stack aria-hidden/tabIndex on top of inert — those
+    // would be redundant, and the aria-hidden + focusable combo is a WCAG
+    // 4.1.2 anti-pattern.
+    expect(button).not.toHaveAttribute("aria-hidden");
+    expect(button).not.toHaveAttribute("tabindex");
   });
 
-  it("is in the tab order when visible", () => {
+  it("is a regular interactive control when visible", () => {
     const { container } = render(
       <ScrollToBottomButton
         visible={true}
@@ -71,7 +64,12 @@ describe("ScrollToBottomButton", () => {
     );
 
     const button = container.querySelector("button");
-    expect(button).toHaveAttribute("tabindex", "0");
-    expect(button).toHaveAttribute("aria-hidden", "false");
+    expect(button).not.toHaveAttribute("inert");
+    expect(button).not.toHaveAttribute("aria-hidden");
+    expect(button).not.toHaveAttribute("tabindex");
+    // Reachable via role query.
+    expect(
+      screen.getByRole("button", { name: "Scroll to bottom" }),
+    ).toBeInTheDocument();
   });
 });
