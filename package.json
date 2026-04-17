@@ -105,7 +105,7 @@
     "eslint-plugin-unicorn": "^64.0.0",
     "jsdom": "^29.0.2",
     "modern-normalize": "^3.0.1",
-    "msw": "^2.13.3",
+    "msw": "^2.13.4",
     "next-i18n-router": "^5.5.7",
     "npm-run-all2": "^8.0.4",
     "openapi-typescript": "^7.13.0",
