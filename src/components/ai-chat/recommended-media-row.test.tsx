@@ -67,7 +67,13 @@ describe("RecommendedMediaRow", () => {
         <RecommendedMediaRow title="Trending Movies" items={mockItems} />
       </MediaDetailProvider>,
     );
-    expect(screen.queryAllByRole("button")).toHaveLength(2);
+    // One button per card, labelled with the media title.
+    expect(
+      screen.getByRole("button", { name: "Movie One" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Movie Two" }),
+    ).toBeInTheDocument();
   });
 
   it("renders no-poster fallback when posterPath is null", () => {

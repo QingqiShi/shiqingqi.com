@@ -40,8 +40,8 @@
     "verify:vector": "tsx tooling/vector-ingest/verify.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.69",
-    "@ai-sdk/react": "^3.0.166",
+    "@ai-sdk/anthropic": "^3.0.71",
+    "@ai-sdk/react": "^3.0.170",
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "^9.5.7",
     "@stylexjs/stylex": "^0.18.2",
@@ -50,7 +50,7 @@
     "@upstash/vector": "^1.2.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "2.0.0",
-    "ai": "^6.0.164",
+    "ai": "^6.0.168",
     "next": "16.2.4",
     "react": "19.3.0-canary-56824423-20260414",
     "react-dom": "19.3.0-canary-56824423-20260414",
@@ -105,7 +105,7 @@
     "eslint-plugin-unicorn": "^64.0.0",
     "jsdom": "^29.0.2",
     "modern-normalize": "^3.0.1",
-    "msw": "^2.13.3",
+    "msw": "^2.13.4",
     "next-i18n-router": "^5.5.7",
     "npm-run-all2": "^8.0.4",
     "openapi-typescript": "^7.13.0",

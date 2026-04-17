@@ -298,4 +298,64 @@ describe("useDialogFocus", () => {
     // Focus restored to trigger
     expect(trigger).toHaveFocus();
   });
+
+  it("does not steal focus or overwrite triggerRef when the caller re-renders with a new onClose identity", () => {
+    const trigger = document.createElement("button");
+    trigger.textContent = "Trigger";
+    document.body.append(trigger);
+    trigger.focus();
+
+    const { dialog, button1, button2 } = createFocusableDialog();
+    const dialogRef = { current: dialog };
+
+    const { rerender, unmount } = renderHook(
+      ({ onClose }: { onClose: () => void }) => {
+        useDialogFocus({ isOpen: true, dialogRef, onClose });
+      },
+      { initialProps: { onClose: vi.fn() } },
+    );
+
+    // Hook moved focus to first focusable on mount.
+    expect(button1).toHaveFocus();
+
+    // Simulate the user tabbing within the dialog.
+    button2.focus();
+    expect(button2).toHaveFocus();
+
+    // Parent re-renders and passes a brand-new inline onClose — this is
+    // what happens on every AI-chat streaming chunk. The dialog stays open.
+    rerender({ onClose: vi.fn() });
+
+    // Focus must stay where the user put it, not snap back to button1.
+    expect(button2).toHaveFocus();
+
+    // And on unmount, the trigger saved on the original open should still
+    // be restored — proving triggerRef wasn't overwritten with a dialog-
+    // internal element during the re-render.
+    unmount();
+    expect(trigger).toHaveFocus();
+  });
+
+  it("invokes the latest onClose after the caller re-renders with a new identity", () => {
+    const { dialog } = createFocusableDialog();
+    const dialogRef = { current: dialog };
+    const firstOnClose = vi.fn();
+    const secondOnClose = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ onClose }: { onClose: () => void }) => {
+        useDialogFocus({ isOpen: true, dialogRef, onClose });
+      },
+      { initialProps: { onClose: firstOnClose } },
+    );
+
+    rerender({ onClose: secondOnClose });
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    // The Escape handler reads the latest onClose, not the one captured
+    // when the effect first ran.
+    expect(firstOnClose).not.toHaveBeenCalled();
+    expect(secondOnClose).toHaveBeenCalledOnce();
+  });
 });

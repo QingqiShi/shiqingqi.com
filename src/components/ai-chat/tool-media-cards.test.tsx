@@ -40,8 +40,13 @@ describe("ToolMediaCards", () => {
       </MediaDetailProvider>,
     );
 
-    const buttons = screen.getAllByRole("button");
-    expect(buttons).toHaveLength(2);
+    // One button per card, labelled with the media title.
+    expect(
+      screen.getByRole("button", { name: "Inception" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Breaking Bad" }),
+    ).toBeInTheDocument();
   });
 
   it("renders poster images with empty alt so the button's label is not duplicated", () => {
@@ -97,8 +102,12 @@ describe("ToolMediaCards", () => {
       </MediaDetailProvider>,
     );
 
-    const buttons = screen.getAllByRole("button");
-    expect(buttons).toHaveLength(2);
+    expect(
+      screen.getByRole("button", { name: "Same ID Movie" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Same ID TV Show" }),
+    ).toBeInTheDocument();
   });
 
   it("renders cards without buttons when mediaType is null", () => {
@@ -118,7 +127,12 @@ describe("ToolMediaCards", () => {
       </MediaDetailProvider>,
     );
 
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    // No media-card button for typeless items — the only buttons present
+    // are the horizontal scroll chevrons (inert when the row doesn't
+    // overflow, which is the jsdom case here).
+    expect(
+      screen.queryByRole("button", { name: "Unknown Type" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByAltText("Unknown Type")).toBeInTheDocument();
   });
 });

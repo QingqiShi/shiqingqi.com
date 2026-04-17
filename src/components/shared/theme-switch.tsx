@@ -80,13 +80,12 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
     >
       <div css={styles.systemButton}>
         <Button
-          role="radio"
           aria-label={labels[2]}
-          aria-checked={theme === "system"}
+          isActive={theme === "system"}
           onClick={() => {
+            if (theme === "system") return;
             setTheme("system");
           }}
-          disabled={theme === "system"}
           title={labels[2]}
         >
           <div css={styles.systemIcon}>

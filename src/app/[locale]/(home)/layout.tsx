@@ -73,8 +73,16 @@ export default async function Layout({
     notFound();
   }
 
+  const jsonLd = buildHomeJsonLd(validatedLocale);
+
   return (
     <>
+      {/* eslint-disable @eslint-react/dom-no-dangerously-set-innerhtml -- JSON-LD must be emitted inline; the payload is escaped in buildHomeJsonLd */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
+      {/* eslint-enable @eslint-react/dom-no-dangerously-set-innerhtml */}
       <div css={styles.flowGradient} role="presentation">
         <Suspense fallback={null}>
           <ErrorBoundary fallback={null}>
@@ -92,6 +100,50 @@ export default async function Layout({
       </div>
     </>
   );
+}
+
+/**
+ * Build the schema.org JSON-LD block for the portfolio home. Returns a
+ * `@graph` with a single `Person` identity (anchored by a stable `@id` so
+ * the EN and ZH pages reference the same entity) and a `WebSite` node that
+ * points back to that Person as its `author`. The string is escaped so a
+ * `</script>` substring in any future field value cannot break out of the
+ * inline script.
+ */
+function buildHomeJsonLd(locale: SupportedLocale) {
+  const personId = `${BASE_URL}/#person`;
+  const websiteId = `${BASE_URL}/#website`;
+  const primaryName = locale === "zh" ? "石清琪" : "Qingqi Shi";
+  const alternateName = locale === "zh" ? "Qingqi Shi" : "石清琪";
+  const linkedInUrl =
+    locale === "zh"
+      ? "https://www.linkedin.com/in/qingqi-shi/?locale=zh_CN"
+      : "https://www.linkedin.com/in/qingqi-shi/";
+
+  const graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": personId,
+        name: primaryName,
+        alternateName,
+        url: BASE_URL,
+        jobTitle: locale === "zh" ? "软件工程师" : "Software Engineer",
+        sameAs: ["https://github.com/QingqiShi", linkedInUrl],
+      },
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        url: BASE_URL,
+        name: primaryName,
+        inLanguage: locale === "zh" ? "zh-CN" : "en",
+        author: { "@id": personId },
+      },
+    ],
+  };
+
+  return JSON.stringify(graph).replace(/</g, "\\u003c");
 }
 
 const styles = stylex.create({
