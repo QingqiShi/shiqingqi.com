@@ -21,8 +21,6 @@ function getMediaLabel(media: MediaListItem): string {
 }
 
 export function CompactMediaCard({ media, onClick }: CompactMediaCardProps) {
-  const content = <MediaPoster media={media} compact />;
-
   if (onClick) {
     return (
       <button
@@ -31,12 +29,16 @@ export function CompactMediaCard({ media, onClick }: CompactMediaCardProps) {
         onClick={onClick}
         aria-label={getMediaLabel(media)}
       >
-        {content}
+        <MediaPoster media={media} compact decorative />
       </button>
     );
   }
 
-  return <div css={styles.compactCard}>{content}</div>;
+  return (
+    <div css={styles.compactCard}>
+      <MediaPoster media={media} compact />
+    </div>
+  );
 }
 
 const styles = stylex.create({

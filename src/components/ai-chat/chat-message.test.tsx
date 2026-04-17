@@ -176,12 +176,16 @@ describe("ChatMessage", () => {
 
     expect(screen.getByText("Here are some results:")).toBeInTheDocument();
     expect(screen.getByText("Hope that helps!")).toBeInTheDocument();
-    // Only the presented item renders as a card, not all search results
-    expect(screen.getByAltText("Inception")).toBeInTheDocument();
+    // Only the presented item renders as a card, not all search results.
+    // The button carries the title via aria-label; the img inside has
+    // empty alt to avoid duplicate announcements.
+    const inceptionButton = screen.getByRole("button", { name: "Inception" });
+    expect(inceptionButton).toBeInTheDocument();
+    expect(inceptionButton.querySelector("img")).toHaveAttribute("alt", "");
     expect(screen.queryByAltText("Other Movie")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Inception" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Other Movie" }),
+    ).not.toBeInTheDocument();
   });
 
   it("renders present_watch_providers card from watch_providers map", () => {
@@ -314,8 +318,10 @@ describe("ChatMessage", () => {
       </MediaDetailProvider>,
     );
 
-    // The poster image should render using data from the cumulative map
-    expect(screen.getByAltText("Inception")).toBeInTheDocument();
+    // The poster image should render using data from the cumulative map.
+    // Button label carries the title; img has empty alt (decorative).
+    const inceptionButton = screen.getByRole("button", { name: "Inception" });
+    expect(inceptionButton.querySelector("img")).toHaveAttribute("alt", "");
     expect(screen.getByText("Here it is again!")).toBeInTheDocument();
   });
 

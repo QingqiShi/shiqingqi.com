@@ -33,14 +33,22 @@ describe("RecommendedMediaRow", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders poster images for each item", () => {
+  it("renders poster images for each item with empty alt (title is on the button label)", () => {
     render(
       <MediaDetailProvider>
         <RecommendedMediaRow title="Trending Movies" items={mockItems} />
       </MediaDetailProvider>,
     );
-    expect(screen.getByAltText("Movie One")).toBeInTheDocument();
-    expect(screen.getByAltText("Movie Two")).toBeInTheDocument();
+    const oneImg = screen
+      .getByRole("button", { name: "Movie One" })
+      .querySelector("img");
+    const twoImg = screen
+      .getByRole("button", { name: "Movie Two" })
+      .querySelector("img");
+    expect(oneImg).not.toBeNull();
+    expect(oneImg).toHaveAttribute("alt", "");
+    expect(twoImg).not.toBeNull();
+    expect(twoImg).toHaveAttribute("alt", "");
   });
 
   it("renders rating badges", () => {

@@ -63,7 +63,7 @@ describe("CompactPersonCard", () => {
     expect(screen.queryByText("Acting")).not.toBeInTheDocument();
   });
 
-  it("renders profile photo when profilePath is provided", () => {
+  it("renders profile photo when profilePath is provided (non-interactive: alt names the image)", () => {
     render(
       <CompactPersonCard
         person={{
@@ -79,6 +79,27 @@ describe("CompactPersonCard", () => {
     expect(img).toBeInTheDocument();
     expect(img.getAttribute("src")).toContain("/tom.jpg");
     expect(img.getAttribute("srcset")).toBeTruthy();
+  });
+
+  it("renders profile photo with empty alt when wrapped in a labelled button", () => {
+    render(
+      <CompactPersonCard
+        person={{
+          id: 1,
+          name: "Tom Hanks",
+          profilePath: "/tom.jpg",
+          knownForDepartment: "Acting",
+        }}
+        onClick={vi.fn()}
+      />,
+    );
+
+    // Name is already on the button's aria-label and in the visible <span>;
+    // repeating it via the img alt would cause duplicate announcements.
+    const img = screen.getByRole("button").querySelector("img");
+    expect(img).not.toBeNull();
+    expect(img).toHaveAttribute("alt", "");
+    expect(screen.queryByAltText("Tom Hanks")).not.toBeInTheDocument();
   });
 
   it("renders initial fallback when profilePath is null", () => {

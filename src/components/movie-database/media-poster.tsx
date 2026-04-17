@@ -11,6 +11,11 @@ import { PosterImage } from "./poster-image";
 interface MediaPosterProps {
   media: MediaListItem;
   compact?: boolean;
+  // When the poster is rendered inside a container that already carries the
+  // media title as its accessible name (e.g. `MediaCard`'s `aria-label`),
+  // set `decorative` so the `<img>` gets `alt=""` and screen readers stop
+  // announcing the title twice. The visible fallback still shows the title.
+  decorative?: boolean;
 }
 
 function getPosterAlt(media: MediaListItem): string {
@@ -22,14 +27,20 @@ function getPosterAlt(media: MediaListItem): string {
   return t({ en: "Media poster", zh: "媒体海报" });
 }
 
-export function MediaPoster({ media, compact }: MediaPosterProps) {
+export function MediaPoster({ media, compact, decorative }: MediaPosterProps) {
   const locale = useLocale();
   const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const alt = decorative ? "" : getPosterAlt(media);
+  const fallbackLabel = getPosterAlt(media);
 
   return (
     <>
       {media.posterPath ? (
-        <PosterImage posterPath={media.posterPath} alt={getPosterAlt(media)} />
+        <PosterImage
+          posterPath={media.posterPath}
+          alt={alt}
+          fallbackLabel={fallbackLabel}
+        />
       ) : (
         <div
           css={[

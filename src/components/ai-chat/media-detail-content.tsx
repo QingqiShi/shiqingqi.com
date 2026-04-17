@@ -115,7 +115,6 @@ export function MediaDetailContent({
           baseUrl={imageBaseUrl}
           sizes={config.images?.backdrop_sizes ?? []}
           path={detail.backdropPath}
-          alt={displayTitle}
         />
       ) : (
         detailQuery.isPending && <Skeleton css={skeletonStyles.backdrop} />
@@ -128,7 +127,7 @@ export function MediaDetailContent({
                 baseUrl={imageBaseUrl}
                 sizes={config.images?.poster_sizes ?? []}
                 path={posterPath}
-                alt={displayTitle}
+                fallbackInitial={displayTitle.charAt(0)}
               />
             </div>
           ) : posterPath ? (
@@ -221,24 +220,28 @@ function PosterImage({
   baseUrl,
   sizes,
   path,
-  alt,
+  fallbackInitial,
 }: {
   baseUrl: string;
   sizes: ReadonlyArray<string>;
   path: string;
-  alt: string;
+  fallbackInitial: string;
 }) {
+  // The surrounding overlay renders the media title in an adjacent <h2>,
+  // so the poster is decorative (WAI-ARIA 1.2 decorative-image pattern).
   return (
     <TmdbImage
       baseUrl={baseUrl}
       sizeConfig={sizes}
       path={path}
-      alt={alt}
+      alt=""
       sizes="90px"
       imgCss={imageCover.base}
       skeletonCss={skeletonStyles.poster}
       errorFallback={
-        <div css={[imageCover.base, styles.imageFallback]}>{alt.charAt(0)}</div>
+        <div css={[imageCover.base, styles.imageFallback]}>
+          {fallbackInitial}
+        </div>
       }
     />
   );
@@ -248,20 +251,20 @@ function BackdropImage({
   baseUrl,
   sizes,
   path,
-  alt,
 }: {
   baseUrl: string;
   sizes: ReadonlyArray<string>;
   path: string;
-  alt: string;
 }) {
+  // The surrounding overlay renders the media title in an adjacent <h2>,
+  // so the backdrop is decorative (WAI-ARIA 1.2 decorative-image pattern).
   return (
     <div css={styles.backdropContainer}>
       <TmdbImage
         baseUrl={baseUrl}
         sizeConfig={sizes}
         path={path}
-        alt={alt}
+        alt=""
         sizes="600px"
         imgCss={styles.backdropImage}
         skeletonCss={skeletonStyles.backdropOverlay}

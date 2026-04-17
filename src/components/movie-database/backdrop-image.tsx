@@ -7,15 +7,17 @@ import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 
 interface BackdropImageProps {
   backdropPath: string;
-  alt: string;
 }
 
 /**
  * A component that renders a backdrop image with responsive sizing.
  * If the required configuration is unavailable, nothing is rendered.
  * The component generates `srcSet` for responsive image handling.
+ *
+ * The backdrop is purely decorative reinforcement of the adjacent heading,
+ * so the `<img>` carries `alt=""` (WAI-ARIA 1.2 decorative-image pattern).
  */
-export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
+export async function BackdropImage({ backdropPath }: BackdropImageProps) {
   const config = await getConfiguration();
 
   if (!config.images?.base_url || !config.images.backdrop_sizes) {
@@ -35,7 +37,7 @@ export async function BackdropImage({ backdropPath, alt }: BackdropImageProps) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         css={styles.image}
-        alt={alt}
+        alt=""
         src={src}
         srcSet={srcSet}
         sizes="100vw"
