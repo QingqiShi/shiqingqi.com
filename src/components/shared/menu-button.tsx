@@ -78,6 +78,7 @@ export function MenuButton({
   }, [isMenuShown, popupRole]);
 
   const targetId = useId();
+  const popupId = `${targetId}-popup`;
 
   return (
     <>
@@ -160,6 +161,7 @@ export function MenuButton({
             {...buttonProps}
             aria-expanded={isMenuShown}
             aria-haspopup={popupRole === "menu" ? "menu" : "true"}
+            aria-controls={popupId}
             onClick={() => {
               setIsMenuShown(true);
             }}
@@ -184,6 +186,7 @@ export function MenuButton({
             targetId={targetId}
           >
             <div
+              id={popupId}
               ref={popupRef}
               role={popupRole}
               aria-labelledby={`${targetId}-label`}

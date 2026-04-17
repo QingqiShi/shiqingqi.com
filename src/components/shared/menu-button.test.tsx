@@ -200,6 +200,71 @@ describe("MenuButton keyboard navigation", () => {
     expect(container.querySelector("[inert]")).toBeNull();
   });
 
+  it("ties the trigger to the popup via aria-controls while closed", () => {
+    render(
+      <RouterProvider>
+        <TestMenu />
+      </RouterProvider>,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    const controlsId = trigger.getAttribute("aria-controls") ?? "";
+    expect(controlsId).not.toBe("");
+
+    // Popup is always mounted (hidden via inert), so the referenced element
+    // must exist in the DOM even before the menu is opened.
+    const popup = document.getElementById(controlsId);
+    expect(popup).not.toBeNull();
+    expect(popup).toHaveAttribute("role", "menu");
+  });
+
+  it("keeps aria-controls pointing at the popup after opening", async () => {
+    const user = userEvent.setup();
+    render(
+      <RouterProvider>
+        <TestMenu />
+      </RouterProvider>,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    const controlsIdBefore = trigger.getAttribute("aria-controls") ?? "";
+
+    await user.click(trigger);
+
+    // Same relationship holds open — same id, same popup element.
+    const controlsIdAfter = trigger.getAttribute("aria-controls") ?? "";
+    expect(controlsIdAfter).toBe(controlsIdBefore);
+
+    const popup = document.getElementById(controlsIdAfter);
+    expect(popup).not.toBeNull();
+    // Popup is the element carrying role=menu and the menu items.
+    expect(popup).toHaveAttribute("role", "menu");
+    expect(popup?.querySelectorAll('[role="menuitem"]')).toHaveLength(3);
+  });
+
+  it("ties the trigger to the popup via aria-controls for non-menu popups too", () => {
+    render(
+      <MenuButton
+        buttonProps={{ type: "button", "aria-label": "Open filters" }}
+        popupRole="group"
+        menuContent={
+          <div>
+            <button type="button">Filter A</button>
+            <button type="button">Filter B</button>
+          </div>
+        }
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open filters" });
+    const controlsId = trigger.getAttribute("aria-controls") ?? "";
+    expect(controlsId).not.toBe("");
+
+    const popup = document.getElementById(controlsId);
+    expect(popup).not.toBeNull();
+    expect(popup).toHaveAttribute("role", "group");
+  });
+
   it("does not intercept arrow keys when popupRole is not 'menu'", async () => {
     const user = userEvent.setup();
 
