@@ -32,6 +32,8 @@ export function HeroChatInput({
       <div
         ref={heroInputRef}
         css={isHeroInputVisible ? styles.visible : styles.hidden}
+        aria-hidden={!isHeroInputVisible || undefined}
+        inert={!isHeroInputVisible || undefined}
       >
         <ChatTextarea
           placeholder={placeholder}
@@ -60,9 +62,11 @@ export function HeroChatInput({
 const styles = stylex.create({
   visible: {
     opacity: 1,
+    pointerEvents: "auto",
   },
   hidden: {
     opacity: 0,
+    pointerEvents: "none",
   },
   icon: {
     color: color.controlActive,
