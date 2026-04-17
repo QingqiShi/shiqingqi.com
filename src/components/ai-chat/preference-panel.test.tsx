@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
 import type { StoredPreference } from "#src/preference-store/preference-store.ts";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
-import { PreferencePanel } from "./preference-panel";
+import { PreferencePanel, PreferenceTrigger } from "./preference-panel";
 
 const samplePreferences: ReadonlyArray<StoredPreference> = [
   {
@@ -85,5 +85,33 @@ describe("PreferencePanel clear-all confirmation", () => {
     await vi.waitFor(() => {
       expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
     });
+  });
+});
+
+describe("PreferenceTrigger accessible name", () => {
+  it("uses the bare 'Preferences' label when no preferences are saved", () => {
+    render(<PreferenceTrigger count={0} onOpen={vi.fn()} />);
+
+    expect(
+      screen.getByRole("button", { name: "Preferences" }),
+    ).toBeInTheDocument();
+  });
+
+  it("includes the count in the accessible name when preferences are saved", () => {
+    render(<PreferenceTrigger count={5} onOpen={vi.fn()} />);
+
+    expect(
+      screen.getByRole("button", { name: "Preferences, 5 saved" }),
+    ).toBeInTheDocument();
+  });
+
+  it("invokes onOpen when the trigger is clicked", async () => {
+    const user = userEvent.setup();
+    const onOpen = vi.fn();
+    render(<PreferenceTrigger count={2} onOpen={onOpen} />);
+
+    await user.click(screen.getByRole("button"));
+
+    expect(onOpen).toHaveBeenCalledTimes(1);
   });
 });
