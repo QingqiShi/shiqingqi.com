@@ -164,4 +164,42 @@ describe("useScrollFades", () => {
 
     expect(removeSpy).toHaveBeenCalledWith("scroll", expect.any(Function));
   });
+
+  it("remeasures when children change content width without container resize", async () => {
+    class StubResizeObserver implements ResizeObserver {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    }
+    const originalRO = window.ResizeObserver;
+    window.ResizeObserver = StubResizeObserver;
+
+    try {
+      // Start with content that fits — no fades.
+      const el = makeScrollable({
+        scrollLeft: 0,
+        scrollWidth: 200,
+        clientWidth: 200,
+      });
+      const ref = { current: el };
+      const { result } = renderHook(() => useScrollFades(ref));
+
+      expect(result.current.showLeftFade).toBe(false);
+      expect(result.current.showRightFade).toBe(false);
+
+      // Simulate a child being added: scrollWidth grows past clientWidth,
+      // but the container's own box size is unchanged.
+      redefineScroll(el, { scrollWidth: 500 });
+      const child = document.createElement("div");
+      await act(async () => {
+        el.appendChild(child);
+        // MutationObserver callbacks are microtasks; flush them.
+        await Promise.resolve();
+      });
+
+      expect(result.current.showRightFade).toBe(true);
+    } finally {
+      window.ResizeObserver = originalRO;
+    }
+  });
 });
