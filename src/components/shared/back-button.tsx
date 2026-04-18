@@ -6,6 +6,8 @@ import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { AnchorButton } from "#src/components/shared/anchor-button.tsx";
+import { Button } from "#src/components/shared/button.tsx";
+import { useBackOverride } from "#src/contexts/back-override-context.tsx";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath, normalizePath } from "#src/utils/pathname.ts";
 
@@ -19,6 +21,24 @@ interface BackButtonProps {
 export function BackButton({ locale, label }: BackButtonProps) {
   const pathname = usePathname();
   const normalizedPath = normalizePath(pathname);
+  const { hasBackOverride, triggerBack } = useBackOverride();
+
+  if (hasBackOverride) {
+    return (
+      <Button
+        icon={<CaretLeftIcon weight="bold" role="presentation" />}
+        onClick={triggerBack}
+        aria-label={label}
+      >
+        <span css={styles.desktopVisible}>{label}</span>
+        <HouseIcon
+          weight="bold"
+          role="presentation"
+          css={styles.mobileVisible}
+        />
+      </Button>
+    );
+  }
 
   if (normalizedPath === "/") {
     return null;

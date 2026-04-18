@@ -8,6 +8,7 @@ import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
 import { HeaderSkeleton } from "#src/components/shared/header-skeleton.tsx";
 import { Header } from "#src/components/shared/header.tsx";
+import { BackOverrideProvider } from "#src/contexts/back-override-context.tsx";
 import { I18nProvider } from "#src/i18n/i18n-provider.tsx";
 import { setLocale } from "#src/i18n/server-locale.ts";
 import { themeHack } from "#src/utils/theme-hack.ts";
@@ -89,10 +90,12 @@ export default async function RootLayout({
             <script dangerouslySetInnerHTML={{ __html: themeHack }} />
             <ViewTransition>
               <PortalTargetProvider>
-                <Suspense fallback={<HeaderSkeleton />}>
-                  <Header locale={locale} />
-                </Suspense>
-                <Suspense fallback={null}>{children}</Suspense>
+                <BackOverrideProvider>
+                  <Suspense fallback={<HeaderSkeleton />}>
+                    <Header locale={locale} />
+                  </Suspense>
+                  <Suspense fallback={null}>{children}</Suspense>
+                </BackOverrideProvider>
               </PortalTargetProvider>
             </ViewTransition>
             <Analytics />

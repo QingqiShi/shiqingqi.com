@@ -16,16 +16,14 @@ import { TmdbCredit, TmdbCreditInline } from "./tmdb-credit";
 
 interface FiltersProps {
   mobileButtonLabel: string;
-  aiModeHref: string;
 }
 
-export function Filters({ mobileButtonLabel, aiModeHref }: FiltersProps) {
+export function Filters({ mobileButtonLabel }: FiltersProps) {
   return (
     <FiltersContainer
       trailingContent={
         <>
           <CollapsedChatInput
-            aiModeHref={aiModeHref}
             placeholder={t({
               en: "Ask about movies and TV shows...",
               zh: "询问关于电影和电视剧的问题...",
@@ -33,7 +31,6 @@ export function Filters({ mobileButtonLabel, aiModeHref }: FiltersProps) {
             sendLabel={t({ en: "Send message", zh: "发送消息" })}
           />
           <CollapsedChatButton
-            aiModeHref={aiModeHref}
             label={t({ en: "AI", zh: "AI" })}
             ariaLabel={t({
               en: "Ask AI about movies and TV shows",

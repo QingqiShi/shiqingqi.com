@@ -1,48 +1,78 @@
-import { describe, expect, it } from "vitest";
+import { userEvent } from "@testing-library/user-event";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { CollapsedChatButton } from "./collapsed-chat-button";
 import { HeroVisibilityContext } from "./hero-visibility-context";
+import { InlineChatContext } from "./inline-chat-context";
 
-function renderButton({ isHeroInputVisible }: { isHeroInputVisible: boolean }) {
+beforeAll(() => {
+  HTMLElement.prototype.setPointerCapture = vi.fn();
+  HTMLElement.prototype.releasePointerCapture = vi.fn();
+});
+
+function renderButton({
+  isHeroInputVisible,
+  openChat = vi.fn(),
+}: {
+  isHeroInputVisible: boolean;
+  openChat?: () => void;
+}) {
   return render(
-    <HeroVisibilityContext
+    <InlineChatContext
       value={{
-        isHeroInputVisible,
-        heroInputRef: { current: null },
+        isChatActive: false,
+        openChat,
+        openChatWithSession: vi.fn(),
+        closeChat: vi.fn(),
       }}
     >
-      <CollapsedChatButton
-        aiModeHref="/en/movie-database/ai-mode"
-        label="AI"
-        ariaLabel="Ask AI about movies and TV shows"
-      />
-    </HeroVisibilityContext>,
+      <HeroVisibilityContext
+        value={{
+          isHeroInputVisible,
+          heroInputRef: () => {},
+        }}
+      >
+        <CollapsedChatButton
+          label="AI"
+          ariaLabel="Ask AI about movies and TV shows"
+        />
+      </HeroVisibilityContext>
+    </InlineChatContext>,
   );
 }
 
 describe("CollapsedChatButton", () => {
-  it("renders the link as aria-hidden and inert when hero input is visible", () => {
+  it("renders the button as aria-hidden and not tabbable when hero input is visible", () => {
     renderButton({ isHeroInputVisible: true });
-    const link = screen.getByRole("link", {
+    const button = screen.getByRole("button", {
       name: "Ask AI about movies and TV shows",
       hidden: true,
     });
-    expect(link).toHaveAttribute("tabindex", "-1");
-    expect(link.closest("[aria-hidden='true']")).not.toBeNull();
+    expect(button).toHaveAttribute("tabindex", "-1");
+    expect(button.closest("[aria-hidden='true']")).not.toBeNull();
   });
 
-  it("renders a reachable link when hero input is not visible", () => {
+  it("renders a reachable button when hero input is not visible", () => {
     renderButton({ isHeroInputVisible: false });
-    const link = screen.getByRole("link", {
+    const button = screen.getByRole("button", {
       name: "Ask AI about movies and TV shows",
     });
-    expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute("href", "/en/movie-database/ai-mode");
-    expect(link).not.toHaveAttribute("tabindex", "-1");
+    expect(button).toBeInTheDocument();
+    expect(button).not.toHaveAttribute("tabindex", "-1");
   });
 
   it("shows the label text", () => {
     renderButton({ isHeroInputVisible: false });
     expect(screen.getByText("AI")).toBeInTheDocument();
+  });
+
+  it("opens chat when clicked", async () => {
+    const user = userEvent.setup();
+    const openChat = vi.fn();
+    renderButton({ isHeroInputVisible: false, openChat });
+    await user.click(
+      screen.getByRole("button", { name: "Ask AI about movies and TV shows" }),
+    );
+    expect(openChat).toHaveBeenCalledTimes(1);
   });
 });

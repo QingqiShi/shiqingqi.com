@@ -15,15 +15,13 @@ import {
 interface CollapsedChatInputProps {
   placeholder: string;
   sendLabel: string;
-  aiModeHref: string;
 }
 
 export function CollapsedChatInput({
   placeholder,
   sendLabel,
-  aiModeHref,
 }: CollapsedChatInputProps) {
-  const { send, isLoading } = useAIChatSend(aiModeHref);
+  const { send, isLoading } = useAIChatSend();
   const { isHeroInputVisible } = useHeroVisibility();
 
   return (

@@ -1,13 +1,13 @@
-import { createContext, use, type RefObject } from "react";
+import { createContext, use, type RefCallback } from "react";
 
 interface HeroVisibilityState {
   isHeroInputVisible: boolean;
-  heroInputRef: RefObject<HTMLDivElement | null>;
+  heroInputRef: RefCallback<HTMLDivElement>;
 }
 
 export const HeroVisibilityContext = createContext<HeroVisibilityState>({
   isHeroInputVisible: true,
-  heroInputRef: { current: null },
+  heroInputRef: () => {},
 });
 
 export function useHeroVisibility() {
