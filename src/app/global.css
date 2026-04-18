@@ -84,15 +84,63 @@
   animation-fill-mode: forwards;
 }
 
+/* Subtle rise-and-fade used for the inline chat enter/exit — shorter distance
+   than slide-in so it pairs cleanly with the shared-element input morph. */
+@keyframes rise-in {
+  from {
+    transform: translateY(1.5rem);
+    opacity: 0;
+  }
+}
+
+@keyframes rise-out {
+  to {
+    transform: translateY(1.5rem);
+    opacity: 0;
+  }
+}
+
+::view-transition-new(.rise-in) {
+  animation: rise-in 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  animation-fill-mode: forwards;
+}
+
+::view-transition-old(.rise-out) {
+  animation: rise-out 220ms cubic-bezier(0.32, 0.72, 0, 1);
+  animation-fill-mode: forwards;
+}
+
+::view-transition-old(.soft-fade-out) {
+  animation: fade-out 180ms ease;
+  animation-fill-mode: forwards;
+}
+
+::view-transition-new(.soft-fade-in) {
+  animation: fade-in 220ms ease 80ms;
+  animation-fill-mode: both;
+}
+
+/* Shared-element morph tuning for the inline chat input. */
+::view-transition-group(.inline-chat-input-morph) {
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(.slide-out) {
+  ::view-transition-old(.slide-out),
+  ::view-transition-old(.rise-out) {
     animation: fade-out 150ms ease;
     animation-fill-mode: forwards;
   }
 
-  ::view-transition-new(.slide-in) {
+  ::view-transition-new(.slide-in),
+  ::view-transition-new(.rise-in) {
     animation: fade-in 150ms ease;
     animation-fill-mode: forwards;
+  }
+
+  ::view-transition-group(.inline-chat-input-morph) {
+    animation-duration: 150ms;
   }
 }
 

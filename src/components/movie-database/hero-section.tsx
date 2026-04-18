@@ -1,15 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
 import { color, font, layout, space } from "#src/tokens.stylex.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
 import { HeroChatInput } from "./hero-chat-input";
 
 export function HeroSection() {
-  const locale = getLocale();
-  const aiModeHref = getLocalePath("/movie-database/ai-mode", locale);
-
   const suggestions = [
     t({
       en: "Find me a feel-good movie to watch tonight",
@@ -40,7 +35,6 @@ export function HeroSection() {
             zh: "询问关于电影和电视剧的问题...",
           })}
           sendLabel={t({ en: "Send message", zh: "发送消息" })}
-          aiModeHref={aiModeHref}
           suggestions={suggestions}
           suggestionsGroupLabel={t({
             en: "Suggested prompts",

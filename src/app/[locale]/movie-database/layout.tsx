@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { AIChatProvider } from "#src/ai-chat/ai-chat-context.tsx";
+import { InlineChatProvider } from "#src/components/movie-database/inline-chat-context.tsx";
 import { Providers } from "#src/components/shared/providers.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
@@ -68,7 +69,9 @@ export default async function Layout({
   return (
     <Providers>
       <AIChatProvider locale={validatedLocale}>
-        <div css={styles.container}>{children}</div>
+        <InlineChatProvider>
+          <div css={styles.container}>{children}</div>
+        </InlineChatProvider>
       </AIChatProvider>
     </Providers>
   );

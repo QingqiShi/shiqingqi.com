@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useState, type ReactNode } from "react";
+import { ViewTransition, useEffect, useState, type ReactNode } from "react";
 import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
 import {
   ChatActionsContext,
@@ -18,10 +18,10 @@ import { PersonDetailOverlay } from "#src/components/ai-chat/person-detail-overl
 import { PreferenceManager } from "#src/components/ai-chat/preference-panel.tsx";
 import { ScrollToBottomButton } from "#src/components/ai-chat/scroll-to-bottom-button.tsx";
 import { SessionRestoreBanner } from "#src/components/ai-chat/session-restore-banner.tsx";
-import { border, color, layer, space } from "#src/tokens.stylex.ts";
+import { border, color, layer, layout, space } from "#src/tokens.stylex.ts";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 
-interface AIChatViewProps {
+interface InlineChatViewProps {
   emptyState: ReactNode;
   messagesLabel: string;
   typingIndicatorLabel: string;
@@ -33,7 +33,7 @@ interface AIChatViewProps {
   removeAttachmentLabel: string;
 }
 
-export function AIChatView({
+export function InlineChatView({
   emptyState,
   messagesLabel,
   typingIndicatorLabel,
@@ -43,7 +43,7 @@ export function AIChatView({
   sendLabel,
   stopLabel,
   removeAttachmentLabel,
-}: AIChatViewProps) {
+}: InlineChatViewProps) {
   const {
     messages,
     status,
@@ -99,47 +99,58 @@ export function AIChatView({
           setAttachedMedia,
         }}
       >
-        {previousSessionId && messages.length === 0 && (
-          <SessionRestoreBanner
-            onContinue={continueSession}
-            onDismiss={dismissPreviousSession}
-            isPending={continueSessionStatus === "pending"}
-            hasError={continueSessionStatus === "error"}
-          />
-        )}
-        <ChatMessageList
-          messages={messages}
-          status={status}
-          error={error}
-          isAtBottom={isAtBottom}
-          toolOutputs={toolOutputs}
-          emptyState={emptyState}
-          messagesLabel={messagesLabel}
-          typingIndicatorLabel={typingIndicatorLabel}
-          errorLabel={errorLabel}
-        />
-        <div css={styles.inputArea}>
-          <ScrollToBottomButton
-            visible={!isAtBottom && messages.length > 0}
-            label={scrollToBottomLabel}
-            onClick={scrollToBottom}
-          />
-          <PreferenceManager />
-          <ChatInputBar
-            placeholder={placeholder}
-            sendLabel={sendLabel}
-            stopLabel={stopLabel}
-            removeAttachmentLabel={removeAttachmentLabel}
+        <div css={styles.container}>
+          {previousSessionId && messages.length === 0 && (
+            <SessionRestoreBanner
+              onContinue={continueSession}
+              onDismiss={dismissPreviousSession}
+              isPending={continueSessionStatus === "pending"}
+              hasError={continueSessionStatus === "error"}
+            />
+          )}
+          <ChatMessageList
+            messages={messages}
             status={status}
-            attachedMedia={attachedMedia}
-            onSend={handleSend}
-            onStop={() => {
-              void stop();
-            }}
-            onClearAttachment={() => {
-              setAttachedMedia(null);
-            }}
+            error={error}
+            isAtBottom={isAtBottom}
+            toolOutputs={toolOutputs}
+            emptyState={emptyState}
+            messagesLabel={messagesLabel}
+            typingIndicatorLabel={typingIndicatorLabel}
+            errorLabel={errorLabel}
           />
+          <div css={styles.inputArea}>
+            <ScrollToBottomButton
+              visible={!isAtBottom && messages.length > 0}
+              label={scrollToBottomLabel}
+              onClick={scrollToBottom}
+            />
+            <div css={styles.inputMeta}>
+              <PreferenceManager />
+            </div>
+            <ViewTransition
+              name="inline-chat-input"
+              share="inline-chat-input-morph"
+            >
+              <div css={styles.inputShell}>
+                <ChatInputBar
+                  placeholder={placeholder}
+                  sendLabel={sendLabel}
+                  stopLabel={stopLabel}
+                  removeAttachmentLabel={removeAttachmentLabel}
+                  status={status}
+                  attachedMedia={attachedMedia}
+                  onSend={handleSend}
+                  onStop={() => {
+                    void stop();
+                  }}
+                  onClearAttachment={() => {
+                    setAttachedMedia(null);
+                  }}
+                />
+              </div>
+            </ViewTransition>
+          </div>
         </div>
         <MediaDetailOverlay />
         <PersonDetailOverlay />
@@ -148,15 +159,29 @@ export function AIChatView({
   );
 }
 
-/**
- * Horizontal inset from viewport edge to content.
- * Padding chain: layout (space._3 + safe-area).
- * See also: recommended-media-row.tsx which uses the same offsets.
- */
 const contentInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`;
 const contentInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
 
 const styles = stylex.create({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    minHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top))`,
+    maxInlineSize: layout.maxInlineSize,
+    marginBlock: 0,
+    marginInline: "auto",
+    paddingBlock: 0,
+    paddingLeft: contentInsetLeft,
+    paddingRight: contentInsetRight,
+  },
+  inputMeta: {
+    display: "flex",
+    justifyContent: "flex-end",
+    paddingBottom: space._1,
+  },
+  inputShell: {
+    display: "block",
+  },
   inputArea: {
     position: "sticky",
     bottom: 0,

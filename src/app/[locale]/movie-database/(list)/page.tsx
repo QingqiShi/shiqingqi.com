@@ -16,7 +16,6 @@ import { t } from "#src/i18n.ts";
 import type { PageProps } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
 import { isGenreFilterType, isSort } from "#src/utils/media-filter-types.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 
 export default async function Page(
@@ -105,10 +104,7 @@ export default async function Page(
         }}
       >
         <Suspense fallback={<FiltersSkeleton locale={params.locale} />}>
-          <Filters
-            mobileButtonLabel={t({ en: "Refine", zh: "筛选" })}
-            aiModeHref={getLocalePath("/movie-database/ai-mode", params.locale)}
-          />
+          <Filters mobileButtonLabel={t({ en: "Refine", zh: "筛选" })} />
         </Suspense>
         <MediaList initialPage={1} />
       </MediaFiltersProvider>

@@ -5,24 +5,24 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { flex } from "#src/primitives/flex.stylex.ts";
 import { color, space } from "#src/tokens.stylex.ts";
-import { AnchorButton } from "../shared/anchor-button";
+import { Button } from "../shared/button";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   useHeroVisibility,
 } from "./hero-visibility-context";
+import { useInlineChat } from "./inline-chat-context";
 
 interface CollapsedChatButtonProps {
-  aiModeHref: string;
   label: string;
   ariaLabel: string;
 }
 
 export function CollapsedChatButton({
-  aiModeHref,
   label,
   ariaLabel,
 }: CollapsedChatButtonProps) {
   const { isHeroInputVisible } = useHeroVisibility();
+  const { openChat } = useInlineChat();
 
   return (
     <div
@@ -33,8 +33,8 @@ export function CollapsedChatButton({
       aria-hidden={isHeroInputVisible || undefined}
       {...{ [DATA_HERO_COLLAPSED_BUTTON]: "" }}
     >
-      <AnchorButton
-        href={aiModeHref}
+      <Button
+        onClick={openChat}
         aria-label={ariaLabel}
         tabIndex={isHeroInputVisible ? -1 : undefined}
         icon={
@@ -44,7 +44,7 @@ export function CollapsedChatButton({
         }
       >
         {label}
-      </AnchorButton>
+      </Button>
     </div>
   );
 }

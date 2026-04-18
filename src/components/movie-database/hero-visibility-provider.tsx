@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useCallback, useLayoutEffect, useRef, type ReactNode } from "react";
 import { useIsElementVisible } from "#src/hooks/use-is-element-visible.ts";
 import { easing } from "#src/primitives/motion.stylex.ts";
 import {
@@ -24,8 +24,16 @@ function findVisibleElement(selector: string) {
 }
 
 export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
-  const heroInputRef = useRef<HTMLDivElement>(null);
-  const isHeroInputVisible = useIsElementVisible(heroInputRef);
+  const heroElementRef = useRef<HTMLDivElement | null>(null);
+  const { isVisible: isHeroInputVisible, setRef: setVisibilityRef } =
+    useIsElementVisible();
+  const heroInputRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      heroElementRef.current = el;
+      setVisibilityRef(el);
+    },
+    [setVisibilityRef],
+  );
   const isFirstRenderRef = useRef(true);
   const morphAnimationsRef = useRef<Animation[]>([]);
   const refineAnimationRef = useRef<Animation | null>(null);
@@ -68,7 +76,7 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const hero = heroInputRef.current;
+    const hero = heroElementRef.current;
     if (!hero) return;
 
     const collapsedFound = findVisibleElement(
