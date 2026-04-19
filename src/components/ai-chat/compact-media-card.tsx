@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Anchor } from "#src/components/shared/anchor.tsx";
 import { t } from "#src/i18n.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { buttonReset } from "#src/primitives/reset.stylex.ts";
@@ -11,6 +12,7 @@ import { MediaPoster } from "../movie-database/media-poster";
 interface CompactMediaCardProps {
   media: MediaListItem;
   onClick?: () => void;
+  href?: string;
 }
 
 function getMediaLabel(media: MediaListItem): string {
@@ -20,7 +22,24 @@ function getMediaLabel(media: MediaListItem): string {
   return t({ en: "Media", zh: "媒体" });
 }
 
-export function CompactMediaCard({ media, onClick }: CompactMediaCardProps) {
+export function CompactMediaCard({
+  media,
+  onClick,
+  href,
+}: CompactMediaCardProps) {
+  if (href) {
+    return (
+      <Anchor
+        href={href}
+        indicateExternal={false}
+        css={[styles.compactCard, styles.interactive, styles.linkReset]}
+        aria-label={getMediaLabel(media)}
+      >
+        <MediaPoster media={media} compact decorative />
+      </Anchor>
+    );
+  }
+
   if (onClick) {
     return (
       <button
@@ -70,5 +89,9 @@ const styles = stylex.create({
       ":focus-visible": `2px solid ${color.controlActive}`,
     },
     outlineOffset: { default: null, ":focus-visible": "2px" },
+  },
+  linkReset: {
+    textDecoration: "none",
+    color: "inherit",
   },
 });

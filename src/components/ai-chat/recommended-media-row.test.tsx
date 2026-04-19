@@ -106,4 +106,41 @@ describe("RecommendedMediaRow", () => {
     );
     expect(container.querySelector("section")).toBeNull();
   });
+
+  it("renders cards as links when items carry an href", () => {
+    const itemsWithHref = mockItems.map((item) => ({
+      ...item,
+      href: `/movie-database/${String(item.mediaType)}/${item.id.toString()}`,
+    }));
+    render(
+      <RecommendedMediaRow title="Trending Movies" items={itemsWithHref} />,
+    );
+    const linkOne = screen.getByRole("link", { name: "Movie One" });
+    const linkTwo = screen.getByRole("link", { name: "Movie Two" });
+    expect(linkOne).toHaveAttribute("href", "/movie-database/movie/1");
+    expect(linkTwo).toHaveAttribute("href", "/movie-database/movie/2");
+    // Cards themselves must not be buttons — the only <button>s rendered are
+    // the horizontal scroll nav buttons inside HorizontalScrollRow.
+    expect(
+      screen.queryByRole("button", { name: "Movie One" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Movie Two" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders as links without a MediaDetailProvider when items carry an href", () => {
+    const itemsWithHref = mockItems.map((item) => ({
+      ...item,
+      href: "/movie-database/movie/1",
+    }));
+    render(
+      <RecommendedMediaRow
+        title="Trending Movies"
+        items={itemsWithHref}
+        inset="standalone"
+      />,
+    );
+    expect(screen.getByRole("link", { name: "Movie One" })).toBeInTheDocument();
+  });
 });

@@ -199,6 +199,45 @@ describe("CompactMediaCard", () => {
     expect(screen.getByRole("button", { name: "TV show" })).toBeInTheDocument();
   });
 
+  it("renders as a link when href is provided", () => {
+    render(
+      <CompactMediaCard
+        media={{
+          id: 1,
+          title: "Inception",
+          posterPath: "/inception.jpg",
+          rating: 8.4,
+          mediaType: "movie",
+        }}
+        href="/movie-database/movie/1"
+      />,
+    );
+
+    const link = screen.getByRole("link", { name: "Inception" });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "/movie-database/movie/1");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("prefers href over onClick when both are provided", () => {
+    render(
+      <CompactMediaCard
+        media={{
+          id: 1,
+          title: "Inception",
+          posterPath: "/inception.jpg",
+          rating: 8.4,
+          mediaType: "movie",
+        }}
+        href="/movie-database/movie/1"
+        onClick={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Inception" })).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
   it("falls back to 'Media' aria-label when title and mediaType are missing", () => {
     render(
       <CompactMediaCard
