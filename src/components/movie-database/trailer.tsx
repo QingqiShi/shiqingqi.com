@@ -28,8 +28,11 @@ export async function Trailer({ mediaType, id, locale }: TrailerProps) {
           language: "en",
         });
 
+  // The trailer UI embeds a YouTube iframe, so skip videos on other sites
+  // (e.g. Vimeo) rather than constructing a broken YouTube embed URL.
   const trailer = trailers.results?.find(
-    (video) => video.type === "Trailer" && video.official,
+    (video) =>
+      video.type === "Trailer" && video.official && video.site === "YouTube",
   );
   if (!trailer || !trailer.key) return null;
 
