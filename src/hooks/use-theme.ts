@@ -12,7 +12,13 @@ function subscribe(onStoreChange: () => void) {
 let themeSingleton: string | null = null;
 function setTheme(newTheme: SupportedTheme) {
   themeSingleton = newTheme;
-  localStorage.setItem(STORAGE_KEY, newTheme);
+  try {
+    localStorage.setItem(STORAGE_KEY, newTheme);
+  } catch {
+    // Safari private/lockdown mode and quota-exceeded throw here.
+    // Keep the in-memory singleton and still notify subscribers so the
+    // user's click is reflected in the UI for the session.
+  }
   listeners.forEach((listener) => {
     listener();
   });

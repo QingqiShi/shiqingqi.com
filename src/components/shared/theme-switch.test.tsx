@@ -149,3 +149,45 @@ describe("ThemeSwitch system-button semantics", () => {
     expect(systemButton).not.toBeDisabled();
   });
 });
+
+// Placed last because it drives the Switch's onChange, which updates
+// the module-level `themeSingleton` in `use-theme.ts`. That singleton
+// has no test-time reset hook, so running this test earlier would
+// leave subsequent tests reading the wrong default theme.
+describe("ThemeSwitch localStorage resilience", () => {
+  it("still reflects the new theme on <html> when localStorage.setItem throws", () => {
+    // Safari private mode / lockdown / quota-exceeded all surface as a
+    // throw from setItem. Before the fix, the throw short-circuited the
+    // subscriber notification inside `setTheme`, so useLayoutEffect in
+    // ThemeSwitch never re-ran and toggling produced no visible change.
+    localStorage.setItem("theme", "light");
+    const originalClassName = document.documentElement.className;
+
+    const setItemSpy = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new DOMException("QuotaExceededError");
+      });
+
+    try {
+      renderThemeSwitch();
+
+      // Space on role="switch" triggers the Switch component's onChange
+      // (wired to `setTheme("dark" | "light")`). The system button's click
+      // handler is a no-op when theme is already "system", so it can't
+      // drive this transition — Space is the reliable path.
+      fireEvent.keyDown(screen.getByRole("switch"), {
+        code: "Space",
+        key: " ",
+      });
+
+      // The class name must have changed in response to the toggle — the
+      // component subscribes via useSyncExternalStore, so this only
+      // flips if `setTheme` still fires its listeners after the throw.
+      expect(document.documentElement.className).not.toBe(originalClassName);
+      expect(setItemSpy).toHaveBeenCalledWith("theme", "dark");
+    } finally {
+      setItemSpy.mockRestore();
+    }
+  });
+});
