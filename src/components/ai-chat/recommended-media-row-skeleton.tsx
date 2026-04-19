@@ -3,7 +3,7 @@ import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { border, ratio, space } from "#src/tokens.stylex.ts";
 import { Skeleton } from "../shared/skeleton";
 
-const SKELETON_COUNT = 6;
+const SKELETON_COUNT = 14;
 
 interface RecommendedMediaRowSkeletonProps {
   inset?: "chat" | "standalone";
@@ -16,7 +16,7 @@ export function RecommendedMediaRowSkeleton({
   const cardStyle = inset === "standalone" ? styles.cardLarge : styles.card;
   return (
     <div css={styles.section}>
-      <Skeleton width={120} height={14} />
+      <Skeleton width={220} height={16} />
       <div css={rowStyle}>
         {Array.from({ length: SKELETON_COUNT }, (_, i) => (
           <div key={i} css={cardStyle}>
@@ -48,6 +48,7 @@ const styles = stylex.create({
     marginRight: `calc(-1 * ${chatInsetRight})`,
     paddingLeft: chatInsetLeft,
     paddingRight: chatInsetRight,
+    paddingBottom: space._1,
   },
   rowStandalone: {
     display: "flex",
@@ -57,6 +58,7 @@ const styles = stylex.create({
     marginRight: `calc(-1 * ${standaloneInsetRight})`,
     paddingLeft: standaloneInsetLeft,
     paddingRight: standaloneInsetRight,
+    paddingBottom: space._1,
   },
   card: {
     flexShrink: 0,
