@@ -33,7 +33,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     },
     description,
     alternates: {
-      canonical: new URL("/component-library", BASE_URL).toString(),
+      canonical: url,
       languages: {
         en: new URL("/component-library", BASE_URL).toString(),
         zh: new URL("/zh/component-library", BASE_URL).toString(),

@@ -25,10 +25,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: new URL(
-        "/education/university-of-bristol",
-        BASE_URL,
-      ).toString(),
+      canonical: url,
       languages: {
         en: new URL("/education/university-of-bristol", BASE_URL).toString(),
         zh: new URL("/zh/education/university-of-bristol", BASE_URL).toString(),
