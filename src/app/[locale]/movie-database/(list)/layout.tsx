@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { DotGridBackground } from "#src/components/ai-chat/dot-grid-background.tsx";
 import { RecommendedMedia } from "#src/components/ai-chat/recommended-media.tsx";
 import { SuggestionChips } from "#src/components/ai-chat/suggestion-chips.tsx";
+import { CuratedMediaRows } from "#src/components/movie-database/curated-media-rows.tsx";
 import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton.tsx";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { HeroSection } from "#src/components/movie-database/hero-section.tsx";
@@ -64,6 +65,7 @@ export default async function Layout({
             browseContent={
               <>
                 <HeroSection />
+                <CuratedMediaRows locale={validatedLocale} />
                 <Suspense
                   fallback={
                     <>
