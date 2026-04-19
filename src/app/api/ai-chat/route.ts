@@ -4,12 +4,12 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { chat } from "#src/ai-chat/chat.ts";
 import { sessionChatInputSchema } from "#src/ai-chat/session-schema.ts";
-import { classifyMoodInputSchema } from "#src/ai-chat/tools/classify-mood.ts";
 import {
   generateSessionId,
   getSessionMessages,
   saveSessionMessages,
 } from "#src/session-store/session-store.ts";
+import { buildChatMessageMetadata } from "./build-chat-message-metadata";
 
 export async function POST(request: NextRequest) {
   try {
@@ -69,21 +69,8 @@ export async function POST(request: NextRequest) {
       execute: async ({ writer }) => {
         const innerStream = result.toUIMessageStream({
           originalMessages: messages,
-          messageMetadata: ({ part }) => {
-            if (
-              part.type === "tool-call" &&
-              part.toolName === "classify_mood"
-            ) {
-              const parsed = classifyMoodInputSchema.safeParse(part.input);
-              if (parsed.success) {
-                return { mood: parsed.data.mood };
-              }
-            }
-            if (part.type === "finish-step") {
-              return { inputTokens: part.usage.inputTokens, sessionId };
-            }
-            return undefined;
-          },
+          messageMetadata: ({ part }) =>
+            buildChatMessageMetadata(part, sessionId),
           onFinish: ({ messages: updatedMessages }) => {
             finishedMessages = updatedMessages;
           },

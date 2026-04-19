@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
-import type { ChatMood } from "#src/ai-chat/use-ai-chat.ts";
+import type { ChatMood } from "#src/ai-chat/chat-message-metadata.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { color, layer } from "#src/tokens.stylex.ts";
 

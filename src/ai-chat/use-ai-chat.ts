@@ -5,8 +5,13 @@ import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
+import {
+  type ChatMessageMetadata,
+  type ChatMood,
+  chatMessageMetadataSchema,
+  findLatestMoodFromMessages,
+} from "#src/ai-chat/chat-message-metadata.ts";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
-import { MOOD_VALUES } from "#src/ai-chat/tools/classify-mood.ts";
 import {
   accumulateToolOutputs,
   toolOutputsFingerprint,
@@ -17,21 +22,9 @@ import {
 } from "#src/preference-store/preference-store.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
-export type ChatMood = (typeof MOOD_VALUES)[number];
-
-export interface ChatMessageMetadata {
-  inputTokens?: number;
-  sessionId?: string;
-  mood?: ChatMood;
-}
+export type { ChatMood, ChatMessageMetadata };
 
 export type ChatUIMessage = UIMessage<ChatMessageMetadata>;
-
-const messageMetadataSchema = z.object({
-  inputTokens: z.number().optional(),
-  sessionId: z.string().optional(),
-  mood: z.enum(MOOD_VALUES).optional(),
-});
 
 function findSessionIdFromMessages(
   messages: ChatUIMessage[],
@@ -40,19 +33,6 @@ function findSessionIdFromMessages(
     const metadata = messages[i].metadata;
     if (metadata?.sessionId) {
       return metadata.sessionId;
-    }
-  }
-  return undefined;
-}
-
-function findLatestMoodFromMessages(
-  messages: ChatUIMessage[],
-): ChatMood | undefined {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const message = messages[i];
-    if (message.role !== "assistant") continue;
-    if (message.metadata?.mood) {
-      return message.metadata.mood;
     }
   }
   return undefined;
@@ -165,7 +145,7 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
         return { body: { sessionId, message: lastMessage, locale, trigger } };
       },
     }),
-    messageMetadataSchema,
+    messageMetadataSchema: chatMessageMetadataSchema,
     onFinish: ({ messages }) => {
       const sessionId = findSessionIdFromMessages(messages);
       if (sessionId) {

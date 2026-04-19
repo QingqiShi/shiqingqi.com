@@ -4,6 +4,7 @@ import { simulateReadableStream, stepCountIs, streamText } from "ai";
 import { MockLanguageModelV3 } from "ai/test";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createClassifyMoodTool } from "#src/ai-chat/tools/classify-mood.ts";
 import { createMediaCreditsTool } from "#src/ai-chat/tools/media-credits.ts";
 import { createPersonCreditsTool } from "#src/ai-chat/tools/person-credits.ts";
 import { createPresentMediaTool } from "#src/ai-chat/tools/present-media.ts";
@@ -72,6 +73,7 @@ function mockStreamResult() {
     }),
     messages: [{ role: "user", content: "test" }],
     tools: {
+      classify_mood: createClassifyMoodTool(),
       semantic_search: createSemanticSearchTool("en"),
       tmdb_search: createTmdbSearchTool("en"),
       present_media: createPresentMediaTool(),
@@ -79,7 +81,7 @@ function mockStreamResult() {
       present_watch_providers: createPresentWatchProvidersTool(),
       present_provider_regions: createPresentProviderRegionsTool(),
       media_credits: createMediaCreditsTool(),
-      person_credits: createPersonCreditsTool(),
+      person_credits: createPersonCreditsTool("en"),
       present_person: createPresentPersonTool(),
       review_summary: createReviewSummaryTool("en"),
       save_preference: createSavePreferenceTool(),

@@ -1,5 +1,7 @@
 @import "modern-normalize/modern-normalize.css" layer(normalize);
 
+/* Keep initial-value in sync with MOOD_WASH_COLORS.neutral in
+   src/components/ai-chat/dot-grid-background.tsx. */
 @property --chat-mood-wash {
   syntax: "<color>";
   inherits: false;
