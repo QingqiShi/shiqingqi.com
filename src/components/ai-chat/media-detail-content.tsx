@@ -85,8 +85,11 @@ export function MediaDetailContent({
 
   const overview = detail ? detail.overview || detail.tagline : null;
 
+  // The trailer link points at youtube.com/watch, so skip videos on other
+  // sites (e.g. Vimeo) rather than building a broken YouTube URL.
   const trailer = videos?.results?.find(
-    (video) => video.type === "Trailer" && video.official,
+    (video) =>
+      video.type === "Trailer" && video.official && video.site === "YouTube",
   );
 
   const hasBackdrop = Boolean(detail?.backdropPath && imageBaseUrl);
