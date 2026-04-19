@@ -77,7 +77,7 @@ export async function generateMetadata({
     title,
     description,
     alternates: {
-      canonical: canonicalPath,
+      canonical: url,
       languages: {
         en: canonicalPath,
         zh: new URL(getLocalePath(basePath, "zh"), BASE_URL).toString(),

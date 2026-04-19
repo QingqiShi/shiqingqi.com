@@ -30,10 +30,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: new URL(
-        "/experiences/wunderman-thompson-commerce",
-        BASE_URL,
-      ).toString(),
+      canonical: url,
       languages: {
         en: new URL(
           "/experiences/wunderman-thompson-commerce",
