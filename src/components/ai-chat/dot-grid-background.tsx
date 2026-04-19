@@ -5,7 +5,6 @@ import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
 import type { ChatMood } from "#src/ai-chat/use-ai-chat.ts";
 import { motionConstants } from "#src/primitives/motion.stylex.ts";
 import { color, layer } from "#src/tokens.stylex.ts";
-import { moodTokens } from "./dot-grid-background.stylex";
 
 const MOOD_WASH_COLORS: Record<ChatMood, string> = {
   warm: "#f97316",
@@ -20,7 +19,11 @@ export function DotGridBackground() {
   const { mood } = useAIChatContext();
   const wash = MOOD_WASH_COLORS[mood ?? "neutral"];
   return (
-    <div css={[styles.background, styles.wash(wash)]} role="presentation" />
+    <div
+      css={styles.background}
+      role="presentation"
+      style={{ "--chat-mood-wash": wash }}
+    />
   );
 }
 
@@ -30,16 +33,13 @@ const styles = stylex.create({
     inset: 0,
     zIndex: layer.background,
     pointerEvents: "none",
-    backgroundImage: `radial-gradient(circle, ${color.textMuted} 1px, transparent 1px), radial-gradient(ellipse at 80% 20%, ${moodTokens.wash} 0%, transparent 70%)`,
+    backgroundImage: `radial-gradient(circle, ${color.textMuted} 1px, transparent 1px), radial-gradient(ellipse at 80% 20%, var(--chat-mood-wash) 0%, transparent 70%)`,
     backgroundSize: "24px 24px, 100% 100%",
     backgroundRepeat: "repeat, no-repeat",
     opacity: 0.12,
     transition: {
-      default: "all 700ms ease-out",
+      default: "--chat-mood-wash 700ms ease-out",
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  wash: (c: string) => ({
-    [moodTokens.wash]: c,
-  }),
 });

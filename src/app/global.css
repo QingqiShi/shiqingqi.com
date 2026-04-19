@@ -1,5 +1,11 @@
 @import "modern-normalize/modern-normalize.css" layer(normalize);
 
+@property --chat-mood-wash {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #7e10c2;
+}
+
 @font-face {
   font-family: "Inter";
   src: url("/InterVariableOptimized.woff2");
