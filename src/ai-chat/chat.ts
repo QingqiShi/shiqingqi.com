@@ -45,7 +45,7 @@ export async function chat({
       watch_providers: createWatchProvidersTool(),
       present_watch_providers: createPresentWatchProvidersTool(),
       present_provider_regions: createPresentProviderRegionsTool(),
-      media_credits: createMediaCreditsTool(),
+      media_credits: createMediaCreditsTool(locale),
       person_credits: createPersonCreditsTool(locale),
       present_person: createPresentPersonTool(),
       review_summary: createReviewSummaryTool(locale),

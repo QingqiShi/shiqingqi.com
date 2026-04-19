@@ -80,7 +80,7 @@ function mockStreamResult() {
       watch_providers: createWatchProvidersTool(),
       present_watch_providers: createPresentWatchProvidersTool(),
       present_provider_regions: createPresentProviderRegionsTool(),
-      media_credits: createMediaCreditsTool(),
+      media_credits: createMediaCreditsTool("en"),
       person_credits: createPersonCreditsTool("en"),
       present_person: createPresentPersonTool(),
       review_summary: createReviewSummaryTool("en"),

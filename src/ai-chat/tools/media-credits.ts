@@ -4,6 +4,7 @@ import {
   getMovieCredits,
   getTvShowCredits,
 } from "#src/_generated/tmdb-server-functions.ts";
+import type { SupportedLocale } from "#src/types.ts";
 import { toolError } from "./tool-error";
 
 export const mediaCreditsInputSchema = z.object({
@@ -19,7 +20,7 @@ const TOOL_DESCRIPTION =
 const MAX_CAST = 20;
 const MAX_CREW = 20;
 
-export function createMediaCreditsTool() {
+export function createMediaCreditsTool(locale: SupportedLocale) {
   return tool({
     description: TOOL_DESCRIPTION,
     inputSchema: mediaCreditsInputSchema,
@@ -29,8 +30,8 @@ export function createMediaCreditsTool() {
       try {
         credits =
           media_type === "tv"
-            ? await getTvShowCredits({ series_id: idString })
-            : await getMovieCredits({ movie_id: idString });
+            ? await getTvShowCredits({ series_id: idString, language: locale })
+            : await getMovieCredits({ movie_id: idString, language: locale });
       } catch (error) {
         console.error("media_credits failed", error);
         return toolError(
