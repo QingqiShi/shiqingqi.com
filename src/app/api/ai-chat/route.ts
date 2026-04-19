@@ -9,6 +9,7 @@ import {
   getSessionMessages,
   saveSessionMessages,
 } from "#src/session-store/session-store.ts";
+import { buildChatMessageMetadata } from "./build-chat-message-metadata";
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,12 +69,8 @@ export async function POST(request: NextRequest) {
       execute: async ({ writer }) => {
         const innerStream = result.toUIMessageStream({
           originalMessages: messages,
-          messageMetadata: ({ part }) => {
-            if (part.type === "finish-step") {
-              return { inputTokens: part.usage.inputTokens, sessionId };
-            }
-            return undefined;
-          },
+          messageMetadata: ({ part }) =>
+            buildChatMessageMetadata(part, sessionId),
           onFinish: ({ messages: updatedMessages }) => {
             finishedMessages = updatedMessages;
           },

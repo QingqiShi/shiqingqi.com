@@ -6,6 +6,7 @@ import { getAnthropicModel, getAnthropicProvider } from "./client";
 import { contextManagementProviderOptions } from "./context-management";
 import type { ChatInput } from "./schema";
 import { getChatSystemInstructions } from "./system-instructions";
+import { createClassifyMoodTool } from "./tools/classify-mood";
 import { createMediaCreditsTool } from "./tools/media-credits";
 import { createPersonCreditsTool } from "./tools/person-credits";
 import { createPresentMediaTool } from "./tools/present-media";
@@ -37,6 +38,7 @@ export async function chat({
     system,
     messages: modelMessages,
     tools: {
+      classify_mood: createClassifyMoodTool(),
       semantic_search: createSemanticSearchTool(locale),
       tmdb_search: createTmdbSearchTool(locale),
       present_media: createPresentMediaTool(),
