@@ -6,6 +6,7 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
+import { MOOD_VALUES } from "#src/ai-chat/tools/classify-mood.ts";
 import {
   accumulateToolOutputs,
   toolOutputsFingerprint,
@@ -16,9 +17,12 @@ import {
 } from "#src/preference-store/preference-store.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
+export type ChatMood = (typeof MOOD_VALUES)[number];
+
 export interface ChatMessageMetadata {
   inputTokens?: number;
   sessionId?: string;
+  mood?: ChatMood;
 }
 
 export type ChatUIMessage = UIMessage<ChatMessageMetadata>;
@@ -26,6 +30,7 @@ export type ChatUIMessage = UIMessage<ChatMessageMetadata>;
 const messageMetadataSchema = z.object({
   inputTokens: z.number().optional(),
   sessionId: z.string().optional(),
+  mood: z.enum(MOOD_VALUES).optional(),
 });
 
 function findSessionIdFromMessages(
@@ -35,6 +40,19 @@ function findSessionIdFromMessages(
     const metadata = messages[i].metadata;
     if (metadata?.sessionId) {
       return metadata.sessionId;
+    }
+  }
+  return undefined;
+}
+
+function findLatestMoodFromMessages(
+  messages: ChatUIMessage[],
+): ChatMood | undefined {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (message.role !== "assistant") continue;
+    if (message.metadata?.mood) {
+      return message.metadata.mood;
     }
   }
   return undefined;
@@ -233,6 +251,8 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
     });
   }
 
+  const mood = findLatestMoodFromMessages(chatResult.messages);
+
   return {
     ...chatResult,
     sendMessage,
@@ -241,5 +261,6 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
     continueSession,
     continueSessionStatus,
     dismissPreviousSession,
+    mood,
   };
 }
