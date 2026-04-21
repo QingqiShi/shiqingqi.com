@@ -202,8 +202,8 @@ importers:
         specifier: ^2.13.4
         version: 2.13.4(@types/node@25.6.0)(typescript@5.9.3)
       next-i18n-router:
-        specifier: ^5.5.7
-        version: 5.5.7(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414))
+        specifier: ^5.5.8
+        version: 5.5.8(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414))
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -4597,8 +4597,8 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  next-i18n-router@5.5.7:
-    resolution: {integrity: sha512-LG/mqNJhvCpxH+sZjvzqoDnwsGUOcF425q38TNsk0zNRPQ2qabYRL5AhtEDELr6I2WRwIKaB421tgo2DYJS2YA==}
+  next-i18n-router@5.5.8:
+    resolution: {integrity: sha512-m6wFayccaeUBjvTmaWoBovinHchqgmzqnTJHVdmfvwBjKiS8oPQDogGZyNmZBhFeFtWSjI9UOEoxL9lzodw3lg==}
     peerDependencies:
       next: ^13 || ^14 || ^15 || ^16
 
@@ -5504,8 +5504,8 @@ packages:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
 
-  tapable@2.3.2:
-    resolution: {integrity: sha512-1MOpMXuhGzGL5TTCZFItxCc0AARf1EZFQkGqMm7ERKj8+Hgr5oLvJOVFcC+lRmR8hCe2S3jC4T5D7Vg/d7/fhA==}
+  tapable@2.3.3:
+    resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
   terser-webpack-plugin@5.4.0:
@@ -9064,7 +9064,7 @@ snapshots:
   enhanced-resolve@5.20.1:
     dependencies:
       graceful-fs: 4.2.11
-      tapable: 2.3.2
+      tapable: 2.3.3
 
   entities@6.0.1: {}
 
@@ -10779,7 +10779,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-i18n-router@5.5.7(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)):
+  next-i18n-router@5.5.8(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)):
     dependencies:
       '@formatjs/intl-localematcher': 0.6.2
       negotiator: 1.0.0
@@ -11873,7 +11873,7 @@ snapshots:
 
   tagged-tag@1.0.0: {}
 
-  tapable@2.3.2: {}
+  tapable@2.3.3: {}
 
   terser-webpack-plugin@5.4.0(esbuild@0.27.2)(webpack@5.97.1(esbuild@0.27.2)):
     dependencies:
@@ -12246,7 +12246,7 @@ snapshots:
       mime-types: 2.1.35
       neo-async: 2.6.2
       schema-utils: 3.3.0
-      tapable: 2.3.2
+      tapable: 2.3.3
       terser-webpack-plugin: 5.4.0(esbuild@0.27.2)(webpack@5.97.1(esbuild@0.27.2))
       watchpack: 2.5.1
       webpack-sources: 3.3.4
