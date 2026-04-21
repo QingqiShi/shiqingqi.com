@@ -93,8 +93,8 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/coverage-v8": "^4.1.4",
-    "@vitest/ui": "^4.1.4",
+    "@vitest/coverage-v8": "^4.1.5",
+    "@vitest/ui": "^4.1.5",
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "dotenv": "^17.4.2",
@@ -118,6 +118,6 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.8",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.5"
   }
 }
