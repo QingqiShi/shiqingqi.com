@@ -172,7 +172,7 @@ describe("useSmoothedText", () => {
       matches: false,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    } as MediaQueryList);
+    });
   });
 
   afterEach(() => {
@@ -258,7 +258,7 @@ describe("useSmoothedText", () => {
       matches: true,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    } as MediaQueryList);
+    });
 
     const { result } = renderHook(() => useSmoothedText("Instant text"));
     act(() => {});
@@ -382,7 +382,7 @@ describe("useSmoothedText", () => {
       matches: true,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    } as MediaQueryList);
+    });
 
     const onCaughtUp = vi.fn();
     renderHook(() => useSmoothedText("Instant text", { onCaughtUp }));
