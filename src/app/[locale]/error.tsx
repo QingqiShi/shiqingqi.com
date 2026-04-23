@@ -33,7 +33,7 @@ export default function LocaleError({
           zh: "发生了意外错误，请重试。",
         })}
       </p>
-      <button css={styles.button} onClick={unstable_retry}>
+      <button type="button" css={styles.button} onClick={unstable_retry}>
         {t({ en: "Try again", zh: "重试" })}
       </button>
     </div>
