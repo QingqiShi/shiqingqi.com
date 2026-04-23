@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   title: "404 | Qingqi Shi",
   description:
     "You're looking for a page about Qingqi Shi that doesn't exist. 您正在寻找的石清琪的页面不存在。",
+  // Belt-and-braces with the 404 status code — compliant crawlers already
+  // drop the URL on status, but non-compliant AI scrapers and social-preview
+  // unfurlers read metadata regardless. `noindex, nofollow` keeps the
+  // title/description out of those pipelines. Mirrors PR #2190's playground.
+  robots: { index: false, follow: false },
 };
 
 export default function NotFound() {
