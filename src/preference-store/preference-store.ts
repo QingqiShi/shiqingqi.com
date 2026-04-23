@@ -127,7 +127,7 @@ export async function mergePreferences(
     store.put(record);
   }
 
-  return new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     tx.oncomplete = () => {
       resolve();
     };
@@ -135,6 +135,7 @@ export async function mergePreferences(
       reject(tx.error ?? new Error("Failed to merge preferences"));
     };
   });
+  await refreshPreferencesCache();
 }
 
 export async function deletePreference(id: string): Promise<void> {
@@ -143,7 +144,7 @@ export async function deletePreference(id: string): Promise<void> {
   const store = tx.objectStore(STORE_NAME);
   store.delete(id);
 
-  return new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     tx.oncomplete = () => {
       resolve();
     };
@@ -151,6 +152,7 @@ export async function deletePreference(id: string): Promise<void> {
       reject(tx.error ?? new Error("Failed to delete preference"));
     };
   });
+  await refreshPreferencesCache();
 }
 
 export async function clearPreferences(): Promise<void> {
@@ -159,7 +161,7 @@ export async function clearPreferences(): Promise<void> {
   const store = tx.objectStore(STORE_NAME);
   store.clear();
 
-  return new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     tx.oncomplete = () => {
       resolve();
     };
@@ -167,11 +169,63 @@ export async function clearPreferences(): Promise<void> {
       reject(tx.error ?? new Error("Failed to clear preferences"));
     };
   });
+  await refreshPreferencesCache();
 }
 
 let cachedContext: string | null = null;
 let cacheLoaded = false;
 let inFlightLoad: Promise<string | null> | null = null;
+
+// Stable empty reference so `useSyncExternalStore` sees reference equality
+// when the cache is unloaded or resolves to an empty list — otherwise React
+// treats every snapshot as a change and loops infinitely.
+const EMPTY_PREFERENCES: ReadonlyArray<StoredPreference> = [];
+let cachedPreferences: ReadonlyArray<StoredPreference> = EMPTY_PREFERENCES;
+let preferencesCacheLoaded = false;
+const preferenceListeners: Set<() => void> = new Set();
+
+function notifyPreferenceListeners() {
+  preferenceListeners.forEach((listener) => {
+    listener();
+  });
+}
+
+/**
+ * Refreshes both the preferences array cache (for the UI) and the chat
+ * context cache (for `getCachedPreferencesContext`) from IndexedDB, then
+ * notifies subscribers. Called after every successful write so readers
+ * see the new state without remounting.
+ */
+async function refreshPreferencesCache(): Promise<void> {
+  await loadPreferencesContext();
+}
+
+/**
+ * Subscribes to preference store changes. Intended for use with
+ * `useSyncExternalStore`. Returns an unsubscribe function.
+ *
+ * Triggers a lazy initial load on the first subscriber so the snapshot
+ * reflects persisted data without requiring callers to separately await
+ * `getPreferencesContextReady`.
+ */
+export function subscribePreferences(listener: () => void): () => void {
+  preferenceListeners.add(listener);
+  if (!preferencesCacheLoaded && !inFlightLoad) {
+    void loadPreferencesContext();
+  }
+  return () => {
+    preferenceListeners.delete(listener);
+  };
+}
+
+/**
+ * Synchronous snapshot for `useSyncExternalStore`. Returns a stable empty
+ * array reference until the first load resolves — React requires reference
+ * equality between renders when nothing changed.
+ */
+export function getPreferencesSnapshot(): ReadonlyArray<StoredPreference> {
+  return cachedPreferences;
+}
 
 export function formatPreferencesContext(
   prefs: ReadonlyArray<StoredPreference>,
@@ -207,13 +261,17 @@ export function formatPreferencesContext(
  */
 export function loadPreferencesContext(): Promise<string | null> {
   const p = (async () => {
+    let prefs: ReadonlyArray<StoredPreference>;
     try {
-      const prefs = await getAllPreferences();
-      cachedContext = formatPreferencesContext(prefs);
+      prefs = await getAllPreferences();
     } catch {
-      cachedContext = null;
+      prefs = EMPTY_PREFERENCES;
     }
+    cachedPreferences = prefs;
+    preferencesCacheLoaded = true;
+    cachedContext = formatPreferencesContext(prefs);
     cacheLoaded = true;
+    notifyPreferenceListeners();
     return cachedContext;
   })();
   inFlightLoad = p;

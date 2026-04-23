@@ -3,7 +3,7 @@
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
 import { useEffect, useRef } from "react";
 import { savePreferenceInputSchema } from "#src/ai-chat/tools/save-preference.ts";
-import { loadPreferencesContext, mergePreferences } from "./preference-store";
+import { mergePreferences } from "./preference-store";
 
 /**
  * Observes chat messages for `save_preference` tool calls and persists
@@ -32,11 +32,12 @@ export function usePreferencePersistence(
         const parsed = savePreferenceInputSchema.safeParse(part.input);
         if (!parsed.success) continue;
 
-        mergePreferences(parsed.data.preferences)
-          .then(() => loadPreferencesContext())
-          .catch(() => {
-            // IndexedDB write failed — preference is lost but non-critical
-          });
+        // `mergePreferences` refreshes the shared store cache and notifies
+        // `usePreferences` subscribers once the transaction completes, so
+        // `PreferenceTrigger` / `PreferencePanel` update in place.
+        mergePreferences(parsed.data.preferences).catch(() => {
+          // IndexedDB write failed — preference is lost but non-critical
+        });
       }
     }
   }, [messages]);
