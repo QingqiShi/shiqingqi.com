@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "#src/test-utils.tsx";
+import { act, fireEvent, render, screen } from "#src/test-utils.tsx";
 import { ThemeSwitch } from "./theme-switch";
 
 const LABELS: [string, string, string] = [
@@ -147,6 +147,77 @@ describe("ThemeSwitch system-button semantics", () => {
     });
     expect(systemButton).toHaveAttribute("aria-pressed", "true");
     expect(systemButton).not.toBeDisabled();
+  });
+});
+
+// Placed near the end because the dispatched `storage` event mutates the
+// module-level `themeSingleton` in `use-theme.ts`. The final assertion
+// leaves it set to "light" so the resilience block below can still start
+// from a light theme.
+describe("ThemeSwitch cross-tab sync", () => {
+  it("re-renders with the theme written by another tab via a storage event", () => {
+    localStorage.setItem("theme", "light");
+    renderThemeSwitch();
+
+    const switchControl = screen.getByRole("switch");
+    expect(switchControl).toHaveAttribute("aria-label", "Switch to dark");
+
+    // Simulate another tab writing "dark" to the same localStorage key.
+    // jsdom doesn't fire `storage` on same-tab writes, which mirrors real
+    // browser behaviour — we have to dispatch the event explicitly.
+    act(() => {
+      localStorage.setItem("theme", "dark");
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "theme",
+          newValue: "dark",
+          oldValue: "light",
+          storageArea: localStorage,
+        }),
+      );
+    });
+
+    // The aria-label flips to "Switch to light" only if `useTheme` re-emitted,
+    // which only happens if the storage listener updated the singleton and
+    // notified subscribers.
+    expect(switchControl).toHaveAttribute("aria-label", "Switch to light");
+    expect(document.documentElement.className).toContain("dark");
+
+    // Reset to "light" (both storage and singleton) so the resilience test
+    // below starts from the theme it expects.
+    act(() => {
+      localStorage.setItem("theme", "light");
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "theme",
+          newValue: "light",
+          oldValue: "dark",
+          storageArea: localStorage,
+        }),
+      );
+    });
+  });
+
+  it("ignores storage events for unrelated keys", () => {
+    localStorage.setItem("theme", "light");
+    renderThemeSwitch();
+
+    const switchControl = screen.getByRole("switch");
+    expect(switchControl).toHaveAttribute("aria-label", "Switch to dark");
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "some-other-key",
+          newValue: "dark",
+          oldValue: null,
+          storageArea: localStorage,
+        }),
+      );
+    });
+
+    // Unrelated keys must not thrash subscribers.
+    expect(switchControl).toHaveAttribute("aria-label", "Switch to dark");
   });
 });
 
