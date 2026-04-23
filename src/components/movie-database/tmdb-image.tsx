@@ -38,6 +38,21 @@ export function TmdbImage({
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
 
+  // Reset on `path` change so a prior success/error verdict doesn't poison
+  // the next image. This matters when the same component instance is reused
+  // with a new path — e.g. `react-virtuoso`'s default viewport-slot keying
+  // in `MediaVirtuosoGrid` cycles posters through a fixed set of slots, so
+  // without this reset a single 404 would stick the slot on the error
+  // fallback for the rest of the session. Canonical React pattern from the
+  // "Resetting state when a prop changes" docs — don't swap for useEffect,
+  // that would add an extra render + paint.
+  const [prevPath, setPrevPath] = useState(path);
+  if (prevPath !== path) {
+    setPrevPath(path);
+    setLoaded(false);
+    setErrored(false);
+  }
+
   if (errored) {
     return <>{errorFallback}</>;
   }

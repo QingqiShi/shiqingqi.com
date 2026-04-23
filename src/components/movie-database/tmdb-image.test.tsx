@@ -1,6 +1,6 @@
 import { fireEvent } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { render, screen } from "#src/test-utils.tsx";
+import { act, render, screen } from "#src/test-utils.tsx";
 import { TmdbImage } from "./tmdb-image";
 
 const COMMON_PROPS = {
@@ -110,5 +110,58 @@ describe("TmdbImage", () => {
 
     expect(screen.getByText("fallback ui")).toBeInTheDocument();
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
+
+  it("resets the error state when the path prop changes", () => {
+    // Reproduces the virtuoso-slot reuse bug: the same component instance
+    // receives path "/a.jpg", errors, then is reused with "/b.jpg". Before
+    // the fix the prior errored=true stuck and the slot rendered the
+    // fallback forever. After the fix the new path restores the <img>.
+    restore = stubImageElement({ complete: false, naturalWidth: 0 });
+    const { rerender } = render(
+      <TmdbImage
+        {...COMMON_PROPS}
+        path="/a.jpg"
+        errorFallback={<span>fallback ui</span>}
+      />,
+    );
+
+    act(() => {
+      fireEvent.error(screen.getByRole("img"));
+    });
+
+    expect(screen.getByText("fallback ui")).toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+
+    rerender(
+      <TmdbImage
+        {...COMMON_PROPS}
+        path="/b.jpg"
+        errorFallback={<span>fallback ui</span>}
+      />,
+    );
+
+    expect(screen.getByRole("img")).toBeInTheDocument();
+    expect(screen.queryByText("fallback ui")).not.toBeInTheDocument();
+  });
+
+  it("resets the loaded state when the path prop changes so the skeleton re-appears", () => {
+    // The twin failure mode: loaded=true from the previous path would
+    // suppress the skeleton while the new src is still decoding,
+    // briefly revealing stale pixels or a blank frame.
+    restore = stubImageElement({ complete: false, naturalWidth: 0 });
+    const { container, rerender } = render(
+      <TmdbImage {...COMMON_PROPS} path="/a.jpg" />,
+    );
+
+    fireEvent.load(screen.getByRole("img"));
+
+    // Skeleton gone after load settles for path A.
+    expect(container.querySelectorAll("div, img")).toHaveLength(1);
+
+    rerender(<TmdbImage {...COMMON_PROPS} path="/b.jpg" />);
+
+    // Skeleton back while path B loads.
+    expect(container.querySelectorAll("div, img")).toHaveLength(2);
   });
 });
