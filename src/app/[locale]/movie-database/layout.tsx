@@ -17,8 +17,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     zh: "影视数据库 | 石清琪",
   });
   const description = t({
-    en: "Qingqi's Movie Database (QMDB) is a tool to help you find ratings and reviews for the newest movie and TV shows.",
-    zh: "石清琪的影视数据库 (QMDB) 是一个帮助您查找最新电影和电视剧评分与影评的工具。",
+    en: "Qingqi's Movie Database (QMDB) pairs AI-powered recommendations with browsable ratings and reviews for the latest movies and TV shows.",
+    zh: "石清琪的影视数据库 (QMDB) 将 AI 推荐与最新电影和电视剧的评分影评浏览融为一体。",
   });
   const url =
     params.locale === "zh"
