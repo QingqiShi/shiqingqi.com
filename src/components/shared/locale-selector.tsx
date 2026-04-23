@@ -42,6 +42,7 @@ export function LocaleSelector({
             href={`${getLocalePath(pathname, "en")}${searchString}`}
             isActive={locale === "en"}
             autoFocus={locale !== "en"}
+            lang="en"
             onBeforeNavigation={() => {
               // next-i18n-router respects the locale cookie, so we must keep
               // it in sync to avoid reverting locale on reload or root navigation.
@@ -56,6 +57,7 @@ export function LocaleSelector({
             href={`${getLocalePath(pathname, "zh")}${searchString}`}
             isActive={locale === "zh"}
             autoFocus={locale === "en"}
+            lang="zh"
             onBeforeNavigation={() => {
               setLocaleCookie("zh");
             }}

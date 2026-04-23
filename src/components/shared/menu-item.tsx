@@ -10,6 +10,13 @@ interface ItemProps {
   autoFocus?: boolean;
   href: string;
   isActive?: boolean;
+  /**
+   * BCP-47 language tag for the item content. Forwarded to the underlying
+   * `<a>` so the accessible name and visible text are pronounced with the
+   * correct language's phonology — required by WCAG 3.1.2 (Language of
+   * Parts) when the item is in a different language from the page.
+   */
+  lang?: string;
   onBeforeNavigation?: () => void;
   onAfterNavigation?: () => void;
 }
@@ -20,6 +27,7 @@ export function MenuItem({
   href,
   isActive,
   autoFocus,
+  lang,
   onBeforeNavigation,
   onAfterNavigation,
 }: PropsWithChildren<ItemProps>) {
@@ -31,6 +39,7 @@ export function MenuItem({
       href={href}
       aria-label={ariaLabel}
       aria-current={isActive ? "true" : undefined}
+      lang={lang}
       role="menuitem"
       css={[flex.between, styles.item, isActive && styles.itemActive]}
       data-menu-autofocus={autoFocus ? "true" : undefined}

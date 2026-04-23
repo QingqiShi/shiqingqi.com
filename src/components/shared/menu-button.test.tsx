@@ -356,4 +356,36 @@ describe("MenuItem", () => {
     const item = screen.getByRole("menuitem", { name: "Inactive item" });
     expect(item).not.toHaveAttribute("aria-current");
   });
+
+  it("forwards the lang attribute to the underlying anchor", () => {
+    // WCAG 3.1.2 (Language of Parts): when the item's visible text and
+    // aria-label are in a different language from the surrounding page,
+    // the `lang` attribute must appear on an ancestor of the text (here,
+    // the anchor itself) so screen readers switch pronunciation rules.
+    // This is the load-bearing fix for the locale-switcher menu — see
+    // `LocaleSelector`.
+    render(
+      <RouterProvider>
+        <MenuItem href="/zh" lang="zh" ariaLabel="切换至中文">
+          中文
+        </MenuItem>
+      </RouterProvider>,
+    );
+
+    const item = screen.getByRole("menuitem", { name: "切换至中文" });
+    expect(item).toHaveAttribute("lang", "zh");
+  });
+
+  it("omits the lang attribute when none is provided", () => {
+    render(
+      <RouterProvider>
+        <MenuItem href="/x">Default-language item</MenuItem>
+      </RouterProvider>,
+    );
+
+    const item = screen.getByRole("menuitem", {
+      name: "Default-language item",
+    });
+    expect(item).not.toHaveAttribute("lang");
+  });
 });
