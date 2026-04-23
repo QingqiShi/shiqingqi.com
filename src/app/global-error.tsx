@@ -41,6 +41,7 @@ export default function GlobalError({
           Something went wrong. Please try again.
         </p>
         <button
+          type="button"
           onClick={unstable_retry}
           style={{
             marginTop: "1rem",
