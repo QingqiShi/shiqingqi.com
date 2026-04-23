@@ -1,64 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import {
   clearPreferences,
   deletePreference,
-  getAllPreferences,
+  getPreferencesSnapshot,
   loadPreferencesContext,
-  type StoredPreference,
+  subscribePreferences,
 } from "./preference-store";
 
+const EMPTY: ReadonlyArray<never> = [];
+function getServerSnapshot() {
+  return EMPTY;
+}
+
 /**
- * Loads all stored preferences from IndexedDB and provides mutators
- * for deleting individual items or clearing everything.
+ * Reads the current preferences from the shared store and exposes mutators
+ * for deleting individual items or clearing everything. Every write — whether
+ * it originates from this hook, from `usePreferencePersistence` (when the AI
+ * saves a preference), or from any future caller of the store's write
+ * functions — propagates to every subscriber through `useSyncExternalStore`,
+ * so the `PreferenceTrigger` count, the `PreferencePanel` list, and any other
+ * consumer stay in sync without remounting.
  */
 export function usePreferences() {
-  const [preferences, setPreferences] = useState<
-    ReadonlyArray<StoredPreference>
-  >([]);
-
-  async function reload() {
-    try {
-      const all = await getAllPreferences();
-      setPreferences(all);
-    } catch {
-      setPreferences([]);
-    }
-  }
-
-  useEffect(() => {
-    void (async () => {
-      try {
-        const all = await getAllPreferences();
-        setPreferences(all);
-      } catch {
-        setPreferences([]);
-      }
-    })();
-  }, []);
+  const preferences = useSyncExternalStore(
+    subscribePreferences,
+    getPreferencesSnapshot,
+    getServerSnapshot,
+  );
 
   async function remove(id: string) {
     try {
       await deletePreference(id);
-      await Promise.all([loadPreferencesContext(), reload()]);
     } catch {
       // IndexedDB may be unavailable (private browsing, quota exceeded).
-      // Reload to keep the UI consistent with what is actually stored.
-      await reload();
+      // Reload so the snapshot reflects the actual persisted state.
+      await loadPreferencesContext();
     }
   }
 
   async function clearAll() {
     try {
       await clearPreferences();
-      await Promise.all([loadPreferencesContext(), reload()]);
     } catch {
-      // IndexedDB may be unavailable (private browsing, quota exceeded).
-      // Reload to keep the UI consistent with what is actually stored.
-      await reload();
+      await loadPreferencesContext();
     }
   }
 
-  return { preferences, reload, remove, clearAll } as const;
+  return { preferences, remove, clearAll } as const;
 }
