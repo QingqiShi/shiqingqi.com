@@ -30,13 +30,12 @@ export function CollapsedChatButton({
         styles.container,
         isHeroInputVisible ? styles.hidden : styles.visible,
       ]}
-      aria-hidden={isHeroInputVisible || undefined}
+      inert={isHeroInputVisible || undefined}
       {...{ [DATA_HERO_COLLAPSED_BUTTON]: "" }}
     >
       <Button
         onClick={openChat}
         aria-label={ariaLabel}
-        tabIndex={isHeroInputVisible ? -1 : undefined}
         icon={
           <span css={[flex.inlineCenter, styles.icon]}>
             <SparkleIcon weight="fill" role="presentation" />

@@ -42,14 +42,24 @@ function renderButton({
 }
 
 describe("CollapsedChatButton", () => {
-  it("renders the button as aria-hidden and not tabbable when hero input is visible", () => {
+  it("is inert (hidden from AT, removed from tab order, non-clickable) when hero input is visible", () => {
     renderButton({ isHeroInputVisible: true });
+    // `hidden: true` is the RTL escape hatch for elements that are inert —
+    // they're still in the DOM, just excluded from the accessibility tree.
     const button = screen.getByRole("button", {
       name: "Ask AI about movies and TV shows",
       hidden: true,
     });
-    expect(button).toHaveAttribute("tabindex", "-1");
-    expect(button.closest("[aria-hidden='true']")).not.toBeNull();
+    // The native `inert` attribute on the wrapper is the single declarative
+    // switch that covers all three concerns — no need to stack aria-hidden
+    // and tabIndex=-1 on top, and the aria-hidden + focusable combo is a
+    // WCAG 4.1.2 anti-pattern (see PR #2165).
+    const wrapper = button.parentElement;
+    expect(wrapper).not.toBeNull();
+    expect(wrapper).toHaveAttribute("inert");
+    expect(wrapper).not.toHaveAttribute("aria-hidden");
+    expect(button).not.toHaveAttribute("aria-hidden");
+    expect(button).not.toHaveAttribute("tabindex");
   });
 
   it("renders a reachable button when hero input is not visible", () => {
@@ -58,7 +68,9 @@ describe("CollapsedChatButton", () => {
       name: "Ask AI about movies and TV shows",
     });
     expect(button).toBeInTheDocument();
-    expect(button).not.toHaveAttribute("tabindex", "-1");
+    expect(button).not.toHaveAttribute("tabindex");
+    expect(button).not.toHaveAttribute("aria-hidden");
+    expect(button.parentElement).not.toHaveAttribute("inert");
   });
 
   it("shows the label text", () => {
