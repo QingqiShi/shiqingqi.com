@@ -42,18 +42,24 @@ export function MediaDetailHero({
     <div css={styles.container}>
       {backdropPath && <BackdropImage backdropPath={backdropPath} />}
       <div css={styles.hero}>
-        <div
-          css={styles.ratingContainer}
-          role="img"
-          aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(voteAverage)}${t({ en: " out of 10", zh: "/10" })}, ${t({ en: "based on", zh: "基于" })} ${voteCount.toLocaleString(locale)} ${t({ en: "votes", zh: "票" })}`}
-        >
-          <div css={styles.rating} aria-hidden="true">
-            {formatter.format(voteAverage)}
+        {voteCount > 0 && (
+          // TMDB returns voteAverage=0 + voteCount=0 for titles nobody has
+          // rated yet — that's "not yet rated", not an actual zero score.
+          // Hide the badge entirely (matches the MediaPoster precedent)
+          // rather than render a misleading "0 out of 10".
+          <div
+            css={styles.ratingContainer}
+            role="img"
+            aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(voteAverage)}${t({ en: " out of 10", zh: "/10" })}, ${t({ en: "based on", zh: "基于" })} ${voteCount.toLocaleString(locale)} ${t({ en: "votes", zh: "票" })}`}
+          >
+            <div css={styles.rating} aria-hidden="true">
+              {formatter.format(voteAverage)}
+            </div>
+            <div css={styles.count} aria-hidden="true">
+              {formatter.format(voteCount)}
+            </div>
           </div>
-          <div css={styles.count} aria-hidden="true">
-            {formatter.format(voteCount)}
-          </div>
-        </div>
+        )}
         <h1 css={styles.h1}>{title}</h1>
         <div css={styles.meta}>{meta}</div>
         {description && <p css={styles.description}>{description}</p>}
