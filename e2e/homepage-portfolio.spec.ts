@@ -47,9 +47,7 @@ test.describe("Homepage Portfolio", () => {
       await expect(projectCard.getByText("Movie Database")).toBeVisible();
 
       // Verify description text is visible
-      await expect(
-        projectCard.getByText(/chat with ai/i),
-      ).toBeVisible();
+      await expect(projectCard.getByText(/chat with ai/i)).toBeVisible();
     });
 
     test("should navigate to movie database when project card is clicked", async ({
