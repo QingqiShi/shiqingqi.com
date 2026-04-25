@@ -65,8 +65,8 @@ export default async function Home(props: PageProps) {
             css={[styles.card, styles.movieDatabase]}
             name={t({ en: "Movie Database", zh: "电影数据库" })}
             description={t({
-              en: "Find your next blockbuster, one filter at a time.",
-              zh: "你的下一个大片，只差一次筛选!",
+              en: "Chat with AI to find your next watch, or browse what's trending.",
+              zh: "让 AI 帮你找下一部佳片，或浏览当下热门。",
             })}
             scroll
           />

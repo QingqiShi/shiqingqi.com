@@ -39,7 +39,7 @@ test.describe("Homepage Portfolio", () => {
     }) => {
       // Find the project card link - the card contains movie database name and description
       const projectCard = page.getByRole("link", {
-        name: /movie database.*find your next blockbuster/i,
+        name: /movie database.*chat with ai/i,
       });
       await expect(projectCard).toBeVisible();
 
@@ -47,9 +47,7 @@ test.describe("Homepage Portfolio", () => {
       await expect(projectCard.getByText("Movie Database")).toBeVisible();
 
       // Verify description text is visible
-      await expect(
-        projectCard.getByText(/find your next blockbuster/i),
-      ).toBeVisible();
+      await expect(projectCard.getByText(/chat with ai/i)).toBeVisible();
     });
 
     test("should navigate to movie database when project card is clicked", async ({
@@ -57,7 +55,7 @@ test.describe("Homepage Portfolio", () => {
     }) => {
       // Click on Movie Database project card
       const projectCard = page.getByRole("link", {
-        name: /movie database.*find your next blockbuster/i,
+        name: /movie database.*chat with ai/i,
       });
       await projectCard.click();
 
@@ -218,7 +216,7 @@ test.describe("Homepage Portfolio", () => {
       await expect(
         page.getByRole("heading", { level: 2, name: "Education" }),
       ).toBeVisible();
-      await expect(page.getByText(/find your next blockbuster/i)).toBeVisible();
+      await expect(page.getByText(/chat with ai/i)).toBeVisible();
 
       // Verify Chinese content
       await page.goto("/zh");
@@ -234,7 +232,7 @@ test.describe("Homepage Portfolio", () => {
       await expect(
         page.getByRole("heading", { level: 2, name: "教育" }),
       ).toBeVisible();
-      await expect(page.getByText(/你的下一个大片/)).toBeVisible();
+      await expect(page.getByText(/AI 帮你找下一部佳片/)).toBeVisible();
     });
 
     test("should maintain language when navigating from cards", async ({
