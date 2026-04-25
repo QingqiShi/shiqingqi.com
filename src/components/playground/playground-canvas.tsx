@@ -243,10 +243,17 @@ export function PlaygroundCanvas() {
 
 const styles = stylex.create({
   canvas: {
+    // Lock to the large viewport (`100lvh`) so iOS Safari's URL-bar
+    // collapse on scroll doesn't resize the canvas — a resize would fire
+    // the ResizeObserver, recreate the FBOs, and flash the page white
+    // between the buffer clear and the next render. `100lvh` also
+    // extends behind the Dynamic Island and home indicator when paired
+    // with `viewport-fit=cover`, eliminating the safe-area white bars.
     position: "fixed",
-    inset: 0,
-    width: "100%",
-    height: "100%",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100lvh",
     pointerEvents: "none",
   },
   scrollSpacer: {
@@ -256,8 +263,8 @@ const styles = stylex.create({
   },
   overlay: {
     position: "fixed",
-    top: "12px",
-    left: "12px",
+    bottom: "calc(12px + env(safe-area-inset-bottom))",
+    left: "calc(12px + env(safe-area-inset-left))",
     padding: "10px 14px",
     borderRadius: "8px",
     backgroundColor: "rgba(0, 0, 0, 0.75)",
