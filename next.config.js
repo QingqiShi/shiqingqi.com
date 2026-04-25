@@ -12,20 +12,6 @@ module.exports = async () => {
         },
       },
     },
-    async redirects() {
-      return [
-        {
-          source: "/ai-mode",
-          destination: "/movie-database",
-          permanent: true,
-        },
-        {
-          source: "/zh/ai-mode",
-          destination: "/zh/movie-database",
-          permanent: true,
-        },
-      ];
-    },
     async headers() {
       // https://nextjs.org/docs/app/api-reference/config/next-config-js/headers#options
       const securityHeaders = [
