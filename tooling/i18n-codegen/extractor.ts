@@ -21,7 +21,13 @@ export interface TranslationEntry {
   key: string;
   en: string;
   zh: string;
-  file: string;
+  /**
+   * All source files that contain this translation. After extraction this is a
+   * single-element array; after `mergeResults` it lists every file whose t()
+   * call shares the same key+content.
+   */
+  files: string[];
+  /** Line of the first occurrence (best-effort, used for diagnostics). */
   line: number;
 }
 
@@ -156,7 +162,7 @@ export function extractFromSource(
         key: hashKey,
         en: enValue,
         zh: zhValue,
-        file: filePath,
+        files: [filePath],
         line: firstArg.loc?.start.line ?? 0,
       });
     },
@@ -167,24 +173,30 @@ export function extractFromSource(
 
 /**
  * Merge extraction results from multiple files, detecting conflicts.
+ *
+ * When the same translation appears in multiple files, the merged entry
+ * lists every source file in `files` so per-page bundle generation can
+ * find the key for every page that uses it.
  */
 export function mergeResults(results: ExtractionResult[]): ExtractionResult {
   const mergedEntries: TranslationEntry[] = [];
   const mergedWarnings: ExtractionWarning[] = [];
-  const seenKeys = new Map<
-    string,
-    { en: string; zh: string; file: string; line: number }
-  >();
+  const entriesByKey = new Map<string, TranslationEntry>();
 
   for (const result of results) {
     mergedWarnings.push(...result.warnings);
 
     for (const entry of result.entries) {
-      const existing = seenKeys.get(entry.key);
+      const existing = entriesByKey.get(entry.key);
 
       if (existing) {
-        // Same key, same content = exact duplicate across files → deduplicate
+        // Same key, same content = duplicate across files → record every file
         if (existing.en === entry.en && existing.zh === entry.zh) {
+          for (const file of entry.files) {
+            if (!existing.files.includes(file)) {
+              existing.files.push(file);
+            }
+          }
           continue;
         }
 
@@ -195,19 +207,21 @@ export function mergeResults(results: ExtractionResult[]): ExtractionResult {
             `Hash collision: key "${entry.key}" maps to both ` +
             `("${existing.en}", "${existing.zh}") and ("${entry.en}", "${entry.zh}"). ` +
             `One translation will be lost. Change one of the strings slightly to resolve.`,
-          file: entry.file,
+          file: entry.files[0],
           line: entry.line,
         });
         continue;
       }
 
-      seenKeys.set(entry.key, {
+      const merged: TranslationEntry = {
+        key: entry.key,
         en: entry.en,
         zh: entry.zh,
-        file: entry.file,
+        files: [...entry.files],
         line: entry.line,
-      });
-      mergedEntries.push(entry);
+      };
+      entriesByKey.set(entry.key, merged);
+      mergedEntries.push(merged);
     }
   }
 

@@ -126,14 +126,17 @@ function generatePerPageBundles(allEntries: TranslationEntry[]): void {
   const localeDir = path.join(srcDir, "app", "[locale]");
   const entryPoints = collectPageEntryPoints(localeDir);
 
-  // Build a map from relative file path → entries
+  // Build a map from relative file path → entries. Each merged entry can list
+  // multiple source files, so register the entry under every file it appears in.
   const entriesByFile = new Map<string, TranslationEntry[]>();
   for (const entry of allEntries) {
-    const existing = entriesByFile.get(entry.file);
-    if (existing) {
-      existing.push(entry);
-    } else {
-      entriesByFile.set(entry.file, [entry]);
+    for (const file of entry.files) {
+      const existing = entriesByFile.get(file);
+      if (existing) {
+        existing.push(entry);
+      } else {
+        entriesByFile.set(file, [entry]);
+      }
     }
   }
 
@@ -284,13 +287,8 @@ function main(): void {
   console.log(`  ${enPath}`);
   console.log(`  ${zhPath}`);
 
-  // Generate per-page client bundles, loaders, and manifest.
-  // Pass raw (pre-merge) entries so that each file retains all its t() keys.
-  // mergeResults deduplicates by key and keeps only one file reference, which
-  // would cause keys shared across files to be missing from some page bundles.
   console.log("\nGenerating per-page client bundles...");
-  const allFileEntries = results.flatMap((r) => r.entries);
-  generatePerPageBundles(allFileEntries);
+  generatePerPageBundles(merged.entries);
 }
 
 main();
