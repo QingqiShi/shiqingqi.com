@@ -39,7 +39,7 @@ describe("extractFromSource", () => {
     expect(result.entries[0].en).toBe("Hello");
     expect(result.entries[0].zh).toBe("你好");
     expect(result.entries[0].key).toBe(generateKey("Hello", "你好"));
-    expect(result.entries[0].file).toBe("test.tsx");
+    expect(result.entries[0].files).toEqual(["test.tsx"]);
   });
 
   it("extracts t() calls imported from #src/i18n.ts", () => {
@@ -197,7 +197,7 @@ describe("mergeResults", () => {
     expect(merged.entries).toHaveLength(2);
   });
 
-  it("deduplicates identical translations across files", () => {
+  it("deduplicates identical translations across files but tracks every source file", () => {
     const result1 = extractFromSource(
       `
       import { t } from "#src/i18n";
@@ -216,7 +216,23 @@ describe("mergeResults", () => {
 
     const merged = mergeResults([result1, result2]);
     expect(merged.entries).toHaveLength(1);
+    expect(merged.entries[0].files).toEqual(["file1.tsx", "file2.tsx"]);
     expect(merged.warnings).toHaveLength(0);
+  });
+
+  it("does not register the same file twice when a translation appears multiple times in one file", () => {
+    const result = extractFromSource(
+      `
+      import { t } from "#src/i18n";
+      t({ en: "Hello", zh: "你好" });
+      t({ en: "Hello", zh: "你好" });
+    `,
+      "file1.tsx",
+    );
+
+    const merged = mergeResults([result]);
+    expect(merged.entries).toHaveLength(1);
+    expect(merged.entries[0].files).toEqual(["file1.tsx"]);
   });
 
   it("keeps both entries when same English has different Chinese translations", () => {
