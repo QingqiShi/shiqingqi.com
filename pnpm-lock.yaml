@@ -283,6 +283,9 @@ importers:
         specifier: '4'
         version: 4.3.6
     devDependencies:
+      '@types/babel__traverse':
+        specifier: ^7.28.0
+        version: 7.28.0
       eslint:
         specifier: ^10.2.1
         version: 10.2.1(jiti@2.6.1)

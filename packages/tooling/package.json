@@ -24,6 +24,7 @@
     "zod": "4"
   },
   "devDependencies": {
+    "@types/babel__traverse": "^7.28.0",
     "eslint": "^10.2.1",
     "vitest": "^4.1.5"
   }
