@@ -10,21 +10,22 @@ import { createRequire } from "node:module";
 import tsEslint from "typescript-eslint";
 
 const require = createRequire(import.meta.url);
-const i18nPlugin = require("./tooling/eslint-plugin-i18n/index.js");
+const i18nPlugin = require("@qi/tooling/eslint-plugin-i18n");
 
 export default defineConfig([
   {
     ignores: [
-      ".babelrc.js",
+      "apps/site/.babelrc.js",
       "eslint.config.mjs",
-      "next.config.js",
-      "postcss.config.js",
-      "src/_generated/**/*",
+      "apps/site/next.config.js",
+      "apps/site/postcss.config.js",
+      "apps/site/src/_generated/**/*",
       ".claude/**/*",
-      ".next/**/*",
-      "next-env.d.ts",
-      "public/sw.js",
-      "playwright-report/**/*",
+      "**/.next/**/*",
+      "apps/site/next-env.d.ts",
+      "apps/site/public/sw.js",
+      "**/playwright-report/**/*",
+      "**/node_modules/**/*",
     ],
   },
   reactHooks.configs.flat["recommended-latest"],
@@ -98,8 +99,8 @@ export default defineConfig([
   // Tooling JS files are CJS and not covered by tsconfig, so disable
   // type-checked rules and configure for Node.js/CommonJS.
   {
-    files: ["tooling/**/*.js"],
-    ignores: ["tooling/tmdb-codegen/generator.js"],
+    files: ["packages/tooling/**/*.js"],
+    ignores: ["packages/tooling/tmdb-codegen/generator.js"],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {
       sourceType: "commonjs",
@@ -120,7 +121,10 @@ export default defineConfig([
   },
   // Tooling ESM files — disable type-checked rules and add Node globals.
   {
-    files: ["tooling/**/*.mjs", "tooling/tmdb-codegen/generator.js"],
+    files: [
+      "packages/tooling/**/*.mjs",
+      "packages/tooling/tmdb-codegen/generator.js",
+    ],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {
       parserOptions: { projectService: false },
