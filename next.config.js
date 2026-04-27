@@ -12,6 +12,24 @@ module.exports = async () => {
         },
       },
     },
+    async redirects() {
+      // https://nextjs.org/docs/app/api-reference/config/next-config-js/redirects
+      // The /component-library route was renamed to /design-system. Keep
+      // permanent redirects so existing bookmarks and shared links continue
+      // to work for both the default (en, no prefix) and zh locales.
+      return [
+        {
+          source: "/component-library",
+          destination: "/design-system",
+          permanent: true,
+        },
+        {
+          source: "/zh/component-library",
+          destination: "/zh/design-system",
+          permanent: true,
+        },
+      ];
+    },
     async headers() {
       // https://nextjs.org/docs/app/api-reference/config/next-config-js/headers#options
       const securityHeaders = [

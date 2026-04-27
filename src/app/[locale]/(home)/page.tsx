@@ -83,12 +83,12 @@ export default async function Home(props: PageProps) {
           />
           <ProjectCard
             icon={<PackageIcon size={64} weight="fill" aria-hidden="true" />}
-            href={getLocalePath("/component-library", locale)}
-            css={[styles.card, styles.componentLibrary]}
-            name={t({ en: "Component Library", zh: "组件库" })}
+            href={getLocalePath("/design-system", locale)}
+            css={[styles.card, styles.designSystem]}
+            name={t({ en: "Design System", zh: "设计系统" })}
             description={t({
-              en: "Beautiful components, crafted with care.",
-              zh: "精心打造的精美组件。",
+              en: "A refined visual language, crafted with care.",
+              zh: "精心打造的精致视觉语言。",
             })}
             scroll
           />
@@ -246,7 +246,7 @@ const styles = stylex.create({
   movieDatabase: {
     [svgTokens.fill]: color.brandTmdb,
   },
-  componentLibrary: {
+  designSystem: {
     [svgTokens.fill]: color.controlActive,
   },
   calculator: {

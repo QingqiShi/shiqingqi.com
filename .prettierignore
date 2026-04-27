@@ -11,6 +11,9 @@ dist/
 public/sw.js
 public/sw.js.map
 
+# Vendored third-party code (preserve upstream formatting)
+src/vendor/
+
 # Lock files
 pnpm-lock.yaml
 
