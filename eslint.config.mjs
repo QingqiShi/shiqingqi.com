@@ -20,6 +20,7 @@ export default defineConfig([
       "next.config.js",
       "postcss.config.js",
       "src/_generated/**/*",
+      "src/vendor/**/*",
       ".claude/**/*",
       ".next/**/*",
       "next-env.d.ts",

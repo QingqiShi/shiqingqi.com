@@ -11,32 +11,32 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale(params.locale);
 
   const title = t({
-    en: "Component Library | Qingqi Shi",
-    zh: "组件库 | 石清琪",
+    en: "Design System | Qingqi Shi",
+    zh: "设计系统 | 石清琪",
   });
   const description = t({
-    en: "Explore Qingqi Shi's component library - a collection of beautiful, reusable components crafted with care for modern web applications.",
-    zh: "探索石清琪的组件库 - 为现代网页应用精心打造的精美、可重用组件集合。",
+    en: "Explore Qingqi Shi's design system - tokens, primitives, and components that power a refined visual language across modern web applications.",
+    zh: "探索石清琪的设计系统 — 为现代网页应用提供精致视觉语言的设计令牌、原语与组件。",
   });
   const url =
     params.locale === "zh"
-      ? new URL("/zh/component-library", BASE_URL).toString()
-      : new URL("/component-library", BASE_URL).toString();
+      ? new URL("/zh/design-system", BASE_URL).toString()
+      : new URL("/design-system", BASE_URL).toString();
 
   return {
     title: {
       default: title,
       template: t({
-        en: "%s | Component Library | Qingqi Shi",
-        zh: "%s | 组件库 | 石清琪",
+        en: "%s | Design System | Qingqi Shi",
+        zh: "%s | 设计系统 | 石清琪",
       }),
     },
     description,
     alternates: {
       canonical: url,
       languages: {
-        en: new URL("/component-library", BASE_URL).toString(),
-        zh: new URL("/zh/component-library", BASE_URL).toString(),
+        en: new URL("/design-system", BASE_URL).toString(),
+        zh: new URL("/zh/design-system", BASE_URL).toString(),
       },
     },
     openGraph: {
