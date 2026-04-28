@@ -2,9 +2,17 @@
 
 import crypto from "crypto";
 import fs from "fs";
+import { parseArgs } from "node:util";
 import path from "path";
 
-const projectRoot = process.cwd();
+const { values } = parseArgs({
+  options: { root: { type: "string" } },
+  strict: false,
+});
+
+const projectRoot = values.root
+  ? path.resolve(values.root)
+  : path.resolve(import.meta.dirname, "../../apps/web");
 
 const ICON_SIZES = ["192x192", "512x512"];
 const ASSETS_DIR = path.join(projectRoot, "src", "assets");

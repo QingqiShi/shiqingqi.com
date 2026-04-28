@@ -1,10 +1,18 @@
 #!/usr/bin/env node
 
 import fs from "fs";
+import { parseArgs } from "node:util";
 import path from "path";
 import { endpoints, apiRoutes } from "./endpoints-config.js";
 
-const projectRoot = process.cwd();
+const { values } = parseArgs({
+  options: { root: { type: "string" } },
+  strict: false,
+});
+
+const projectRoot = values.root
+  ? path.resolve(values.root)
+  : path.resolve(import.meta.dirname, "../../apps/web");
 
 /**
  * Generate TMDB server functions and API routes from configuration

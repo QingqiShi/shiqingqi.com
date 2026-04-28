@@ -3,8 +3,8 @@
  * Only DailyExportEntry is hand-written (daily export files aren't an API endpoint).
  */
 
+import type { operations } from "@repo/tmdb-types/openapi";
 import { z } from "zod";
-import type { operations } from "../../apps/web/src/_generated/tmdbV3.d.ts";
 
 /** Extract the JSON response type from a TMDB API operation. */
 type OperationResponse<T extends keyof operations> = operations[T] extends {

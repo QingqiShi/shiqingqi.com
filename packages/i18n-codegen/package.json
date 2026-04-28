@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "main": "generator.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
   "dependencies": {
     "@babel/parser": "^7.29.2",
     "@babel/traverse": "^7.29.0",

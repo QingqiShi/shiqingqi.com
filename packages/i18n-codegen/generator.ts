@@ -2,11 +2,19 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { parseArgs } from "node:util";
 import type { TranslationEntry } from "./extractor.ts";
 import { extractFromSource, mergeResults } from "./extractor.ts";
 import { traceClientFiles } from "./import-graph.ts";
 
-const projectRoot = process.cwd();
+const { values } = parseArgs({
+  options: { root: { type: "string" } },
+  strict: false,
+});
+
+const projectRoot = values.root
+  ? path.resolve(values.root)
+  : path.resolve(import.meta.dirname, "../../apps/web");
 const srcDir = path.join(projectRoot, "src");
 const outputDir = path.join(srcDir, "_generated", "i18n");
 
