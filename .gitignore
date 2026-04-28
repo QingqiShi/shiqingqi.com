@@ -1,15 +1,15 @@
 # dependencies
-/node_modules
+node_modules
 
 # testing
-/coverage
+coverage
 
 # next.js
-/.next/
-/out/
+**/.next/
+out
 
 # production
-/build
+build
 
 # misc
 .DS_Store
@@ -17,32 +17,35 @@
 *.pem
 
 # local env files
-.env*.local
+**/.env*.local
 
 # vercel
 .vercel
 
+# turbo
+.turbo
+
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+**/next-env.d.ts
 
 # Serwist (service worker)
-public/sw*
-public/swe-worker*
+apps/site/public/sw*
+apps/site/public/swe-worker*
 
 # Generated PWA icons and manifest
-public/pwa-*.png
-src/app/manifest.json
+apps/site/public/pwa-*.png
+apps/site/src/app/manifest.json
 
 # Generated i18n bundles
-src/_generated/i18n/
+apps/site/src/_generated/i18n/
 
 # Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/playwright/.cache/
+**/playwright/.auth/
 .playwright-cli
 
 # Evalite

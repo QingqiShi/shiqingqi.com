@@ -1,0 +1,31 @@
+{
+  "name": "@qi/tooling",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./i18n-babel-plugin": "./i18n-babel-plugin/index.js",
+    "./stylex-css-prop": "./stylex-css-prop/index.js",
+    "./stylex-breakpoints": "./stylex-breakpoints/index.js",
+    "./eslint-plugin-i18n": "./eslint-plugin-i18n/index.js"
+  },
+  "scripts": {
+    "test": "vitest",
+    "build:tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@babel/core": "7.29.0",
+    "@babel/parser": "^7.29.2",
+    "@babel/traverse": "^7.29.0",
+    "@babel/types": "^7.29.0",
+    "@upstash/vector": "^1.2.3",
+    "dotenv": "^17.4.2",
+    "typescript": "^5.9.3",
+    "zod": "4"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.28.0",
+    "eslint": "^10.2.1",
+    "vitest": "^4.1.5"
+  }
+}

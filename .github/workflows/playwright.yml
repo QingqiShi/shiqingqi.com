@@ -27,17 +27,16 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
     - name: Run Playwright tests
-      run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+      run: pnpm --filter @qi/site exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       env:
         TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     - name: Upload blob report to GitHub Actions Artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v7
       with:
         name: blob-report-${{ matrix.shardIndex }}
-        path: blob-report
+        path: apps/site/blob-report
         retention-days: 1
 
   merge-reports:
@@ -58,14 +57,14 @@ jobs:
     - name: Download blob reports from GitHub Actions Artifacts
       uses: actions/download-artifact@v8
       with:
-        path: all-blob-reports
+        path: apps/site/all-blob-reports
         pattern: blob-report-*
         merge-multiple: true
     - name: Merge into HTML Report
-      run: pnpm exec playwright merge-reports --reporter html ./all-blob-reports
+      run: pnpm --filter @qi/site exec playwright merge-reports --reporter html ./all-blob-reports
     - name: Upload HTML report
       uses: actions/upload-artifact@v7
       with:
         name: playwright-report
-        path: playwright-report
+        path: apps/site/playwright-report
         retention-days: 30
