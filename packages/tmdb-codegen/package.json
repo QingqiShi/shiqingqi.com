@@ -7,6 +7,10 @@
   "bin": {
     "tmdb-codegen": "./generator.js"
   },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
   "dependencies": {
     "typescript": "^5.9.3"
   },

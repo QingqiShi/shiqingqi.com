@@ -1,8 +1,8 @@
 "use server";
 
 import "server-only";
+import type { paths } from "@repo/tmdb-types/openapi";
 import { cacheSignal } from "react";
-import type { paths } from "#src/_generated/tmdbV3.d.ts";
 import { buildTmdbUrl } from "./build-tmdb-url";
 
 const BASE_URL = "https://api.themoviedb.org";

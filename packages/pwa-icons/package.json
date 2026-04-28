@@ -6,5 +6,8 @@
   "main": "hash-icons.mjs",
   "bin": {
     "pwa-icons": "./hash-icons.mjs"
+  },
+  "scripts": {
+    "lint": "eslint ."
   }
 }

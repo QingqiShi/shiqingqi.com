@@ -26,9 +26,9 @@ module.exports = {
         },
       },
     ],
-    "module:@repo/stylex-css-prop",
+    "@repo/babel-plugin-stylex-css-prop",
     [
-      "module:@repo/stylex-breakpoints",
+      "@repo/babel-plugin-stylex-breakpoints",
       {
         rootDir: __dirname,
       },

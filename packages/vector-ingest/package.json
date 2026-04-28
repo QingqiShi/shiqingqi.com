@@ -4,7 +4,12 @@
   "private": true,
   "type": "module",
   "main": "ingest.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
   "dependencies": {
+    "@repo/tmdb-types": "workspace:*",
     "@upstash/vector": "^1.2.3",
     "dotenv": "^17.4.2",
     "zod": "4"

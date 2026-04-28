@@ -1,0 +1,20 @@
+{
+  "name": "@repo/tmdb-types",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./openapi": "./openapi.d.ts",
+    "./vector-db": "./vector-db.ts"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "zod": "4"
+  },
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*",
+    "typescript": "^5.9.3"
+  }
+}

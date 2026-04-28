@@ -1,8 +1,8 @@
 import { appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";
+import type { MediaMetadata } from "@repo/tmdb-types/vector-db";
 import { Index } from "@upstash/vector";
 import { config } from "dotenv";
-import type { MediaMetadata } from "../../apps/web/src/vector-db/types.ts";
 import { LOCALES, getRequiredEnv } from "./constants.ts";
 import { RateLimiter } from "./rate-limiter.ts";
 import { TmdbApiError, TmdbClient } from "./tmdb-client.ts";

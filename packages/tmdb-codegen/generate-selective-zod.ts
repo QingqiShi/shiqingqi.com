@@ -14,6 +14,7 @@
  */
 
 import fs from "fs";
+import { parseArgs } from "node:util";
 import path from "path";
 import * as ts from "typescript";
 
@@ -21,9 +22,19 @@ import * as ts from "typescript";
 import { endpoints } from "./endpoints-config.js";
 
 // Paths
-const projectRoot = process.cwd();
+const { values } = parseArgs({
+  options: { root: { type: "string" } },
+  strict: false,
+});
+
+const projectRoot = values.root
+  ? path.resolve(values.root)
+  : path.resolve(import.meta.dirname, "../../apps/web");
 const outputPath = path.join(projectRoot, "src/_generated/tmdb-zod.ts");
-const tmdbTypesPath = path.join(projectRoot, "src/_generated/tmdbV3.d.ts");
+const tmdbTypesPath = path.resolve(
+  import.meta.dirname,
+  "../tmdb-types/openapi.d.ts",
+);
 
 // Extract operations that need Zod schemas from config
 const REQUIRED_OPERATIONS = endpoints

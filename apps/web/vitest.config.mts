@@ -36,9 +36,9 @@ export default defineConfig({
             },
           },
         ],
-        "module:@repo/stylex-css-prop",
+        "@repo/babel-plugin-stylex-css-prop",
         [
-          "module:@repo/stylex-breakpoints",
+          "@repo/babel-plugin-stylex-breakpoints",
           {
             rootDir: __dirname,
           },
@@ -69,10 +69,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test-setup.ts"],
-    include: [
-      "src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-      "../../packages/*/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-    ],
+    include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     exclude: [
       "src/ai-chat/eval/**/*.eval.ts",
       "**/node_modules/**",

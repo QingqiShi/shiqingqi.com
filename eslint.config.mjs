@@ -34,7 +34,6 @@ export default defineConfig([
   eslintReact.configs["recommended-typescript"],
   {
     plugins: {
-      "@next/next": nextPlugin,
       "import-x": importPlugin,
       "@stylexjs": stylexjs,
       unicorn: eslintPluginUnicorn,
@@ -49,8 +48,6 @@ export default defineConfig([
       },
     },
     rules: {
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs["core-web-vitals"].rules,
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
@@ -87,6 +84,17 @@ export default defineConfig([
           ignoreRestSiblings: true,
         },
       ],
+    },
+  },
+  // Next.js rules apply only to the Next.js app.
+  {
+    files: ["apps/web/**/*.{js,jsx,ts,tsx}"],
+    plugins: {
+      "@next/next": nextPlugin,
+    },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
     },
   },
   // Test files may call t() outside render scope for unit testing purposes.

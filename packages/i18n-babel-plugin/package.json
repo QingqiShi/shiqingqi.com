@@ -4,11 +4,14 @@
   "private": true,
   "type": "commonjs",
   "main": "index.js",
-  "peerDependencies": {
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
     "@babel/core": "7.29.0"
   },
   "devDependencies": {
-    "@babel/core": "7.29.0",
     "vitest": "^4.1.5"
   }
 }

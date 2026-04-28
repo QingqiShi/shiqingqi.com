@@ -1,10 +1,13 @@
 {
-  "name": "@repo/stylex-css-prop",
+  "name": "@repo/babel-plugin-stylex-css-prop",
   "version": "0.0.0",
   "private": true,
   "type": "commonjs",
   "main": "index.js",
-  "peerDependencies": {
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
     "@babel/core": "7.29.0"
   }
 }

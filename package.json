@@ -12,7 +12,7 @@
     "build": "turbo build",
     "build:tsc": "turbo build:tsc",
     "codegen": "turbo codegen",
-    "lint": "eslint .",
+    "lint": "turbo lint",
     "lint:changed": "(git diff --name-only --diff-filter=d HEAD; git ls-files --others --exclude-standard) | grep -E '\\.(js|jsx|ts|tsx)$' | sort -u | xargs -r eslint --fix",
     "format:write": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,md,mjs}' --ignore-path .gitignore",
     "format:check": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,md,mjs}' --ignore-path .gitignore",
