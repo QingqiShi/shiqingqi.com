@@ -96,19 +96,20 @@ export async function tmdbGet<TPath extends keyof paths>(
     }
   }
 
-  const url = buildTmdbUrl({
-    baseUrl: `${BASE_URL}${resolvedPath}`,
-    params,
-  });
+  const url = new URL(
+    buildTmdbUrl({
+      baseUrl: `${BASE_URL}${resolvedPath}`,
+      params,
+    }),
+  );
 
   // Additional security check: ensure the URL is still pointing to TMDB
-  const urlObj = new URL(url);
-  if (urlObj.hostname !== "api.themoviedb.org") {
+  if (url.hostname !== "api.themoviedb.org") {
     throw new Error("Invalid URL: must be a TMDB API endpoint");
   }
 
   const errorMessage = `Failed to fetch ${path}`;
-  return tmdbFetch<ResponseType<TPath, "get">>(url, errorMessage);
+  return tmdbFetch<ResponseType<TPath, "get">>(url.toString(), errorMessage);
 }
 
 // Usage examples:
