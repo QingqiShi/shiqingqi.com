@@ -53,7 +53,11 @@ export type ResponseType<
   : unknown;
 
 /** Shared TMDB API fetch utility */
-async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
+async function tmdbFetch<T>(url: URL, errorMessage: string): Promise<T> {
+  if (url.hostname !== "api.themoviedb.org") {
+    throw new Error("Invalid URL: must be a TMDB API endpoint");
+  }
+
   const response = await fetch(url, {
     method: "GET",
     headers: {
@@ -103,13 +107,8 @@ export async function tmdbGet<TPath extends keyof paths>(
     }),
   );
 
-  // Additional security check: ensure the URL is still pointing to TMDB
-  if (url.hostname !== "api.themoviedb.org") {
-    throw new Error("Invalid URL: must be a TMDB API endpoint");
-  }
-
   const errorMessage = `Failed to fetch ${path}`;
-  return tmdbFetch<ResponseType<TPath, "get">>(url.toString(), errorMessage);
+  return tmdbFetch<ResponseType<TPath, "get">>(url, errorMessage);
 }
 
 // Usage examples:
