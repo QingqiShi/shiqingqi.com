@@ -1,0 +1,33 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "codegen": {
+      "outputs": ["src/_generated/**", "public/sw.js", "src/app/manifest.json"],
+      "inputs": ["src/**/*.{ts,tsx,js,mjs,json}", "$TURBO_DEFAULT$"]
+    },
+    "build": {
+      "dependsOn": ["^build", "codegen"],
+      "outputs": [".next/**", "!.next/cache/**", "public/sw.js"]
+    },
+    "build:tsc": {
+      "dependsOn": ["^build", "codegen"],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["codegen"],
+      "outputs": []
+    },
+    "test:e2e": {
+      "dependsOn": ["^build"],
+      "outputs": ["playwright-report/**", "test-results/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

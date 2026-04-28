@@ -1,0 +1,14 @@
+{
+  "name": "@repo/stylex-breakpoints",
+  "version": "0.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "dependencies": {
+    "@babel/parser": "^7.29.2",
+    "@babel/traverse": "^7.29.0"
+  },
+  "peerDependencies": {
+    "@babel/core": "7.29.0"
+  }
+}

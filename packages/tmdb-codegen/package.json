@@ -1,0 +1,19 @@
+{
+  "name": "@repo/tmdb-codegen",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "generator.js",
+  "bin": {
+    "tmdb-codegen": "./generator.js"
+  },
+  "dependencies": {
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*",
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.5"
+  }
+}
