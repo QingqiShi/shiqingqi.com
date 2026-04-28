@@ -1,0 +1,10 @@
+{
+  "name": "@repo/stylex-css-prop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "peerDependencies": {
+    "@babel/core": "7.29.0"
+  }
+}
