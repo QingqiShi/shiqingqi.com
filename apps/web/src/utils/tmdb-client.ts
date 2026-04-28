@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import type { paths } from "@repo/tmdb-types/openapi";
+import type { paths } from "@tuja/tmdb-types/openapi";
 import { cacheSignal } from "react";
 import { buildTmdbUrl } from "./build-tmdb-url";
 

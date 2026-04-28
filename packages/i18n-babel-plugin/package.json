@@ -1,5 +1,5 @@
 {
-  "name": "@repo/i18n-babel-plugin",
+  "name": "@tuja/i18n-babel-plugin",
   "version": "0.0.0",
   "private": true,
   "type": "commonjs",

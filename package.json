@@ -30,7 +30,7 @@
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "16.2.4",
-    "@repo/eslint-plugin-i18n": "workspace:*",
+    "@tuja/eslint-plugin-i18n": "workspace:*",
     "@stylexjs/eslint-plugin": "^0.18.3",
     "eslint": "^10.2.1",
     "eslint-config-next": "^16.2.4",

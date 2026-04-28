@@ -10,7 +10,7 @@ import { createRequire } from "node:module";
 import tsEslint from "typescript-eslint";
 
 const require = createRequire(import.meta.url);
-const i18nPlugin = require("@repo/eslint-plugin-i18n");
+const i18nPlugin = require("@tuja/eslint-plugin-i18n");
 
 export default defineConfig([
   {

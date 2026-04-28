@@ -1,4 +1,4 @@
-import type { MediaMetadata } from "@repo/tmdb-types/vector-db";
+import type { MediaMetadata } from "@tuja/tmdb-types/vector-db";
 import { Index } from "@upstash/vector";
 import { config } from "dotenv";
 import { LOCALES, getRequiredEnv } from "./constants.ts";

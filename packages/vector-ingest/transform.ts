@@ -1,4 +1,4 @@
-import type { MediaMetadata } from "@repo/tmdb-types/vector-db";
+import type { MediaMetadata } from "@tuja/tmdb-types/vector-db";
 import {
   composeEmbeddingText,
   extractCast,

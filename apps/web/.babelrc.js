@@ -17,7 +17,7 @@ module.exports = {
     ],
   ],
   plugins: [
-    "@repo/i18n-babel-plugin",
+    "@tuja/i18n-babel-plugin",
     [
       "module-resolver",
       {
@@ -26,9 +26,9 @@ module.exports = {
         },
       },
     ],
-    "@repo/babel-plugin-stylex-css-prop",
+    "@tuja/babel-plugin-stylex-css-prop",
     [
-      "@repo/babel-plugin-stylex-breakpoints",
+      "@tuja/babel-plugin-stylex-breakpoints",
       {
         rootDir: __dirname,
       },

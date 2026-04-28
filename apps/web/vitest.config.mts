@@ -27,7 +27,7 @@ export default defineConfig({
         "@babel/preset-typescript",
       ],
       plugins: [
-        "@repo/i18n-babel-plugin",
+        "@tuja/i18n-babel-plugin",
         [
           "module-resolver",
           {
@@ -36,9 +36,9 @@ export default defineConfig({
             },
           },
         ],
-        "@repo/babel-plugin-stylex-css-prop",
+        "@tuja/babel-plugin-stylex-css-prop",
         [
-          "@repo/babel-plugin-stylex-breakpoints",
+          "@tuja/babel-plugin-stylex-breakpoints",
           {
             rootDir: __dirname,
           },

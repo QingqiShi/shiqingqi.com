@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/tsconfig/nextjs.json",
+  "extends": "@tuja/tsconfig/nextjs.json",
   "include": [
     "next-env.d.ts",
     "**/*.ts",
