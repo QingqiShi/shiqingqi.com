@@ -1,0 +1,15 @@
+{
+  "extends": "@repo/tsconfig/nextjs.json",
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "src/.breakpoints.config.ts",
+    "vitest.config.mts",
+    "serwist.config.mjs"
+  ],
+  "exclude": ["node_modules", "public/*", ".next/**"]
+}

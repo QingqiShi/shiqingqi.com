@@ -1,0 +1,10 @@
+{
+  "name": "@repo/pwa-icons",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "hash-icons.mjs",
+  "bin": {
+    "pwa-icons": "./hash-icons.mjs"
+  }
+}
