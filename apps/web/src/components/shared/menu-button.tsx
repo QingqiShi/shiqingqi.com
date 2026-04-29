@@ -80,6 +80,15 @@ export function MenuButton({
   const targetId = useId();
   const popupId = `${targetId}-popup`;
 
+  // Both intentional close paths (Escape, backdrop click) restore focus to
+  // the trigger per the WAI-ARIA Menu Button pattern. The onBlur close path
+  // deliberately doesn't call this — focus has already moved to wherever
+  // the user tabbed, and snapping it back would fight their intent.
+  const closeAndRestoreFocus = () => {
+    setIsMenuShown(false);
+    document.getElementById(targetId)?.focus();
+  };
+
   return (
     <>
       {isMenuShown && (
@@ -87,8 +96,8 @@ export function MenuButton({
           css={styles.backdrop}
           aria-hidden="true"
           onClick={() => {
-            setIsMenuShown(false);
             outsideClickedRef.current = true;
+            closeAndRestoreFocus();
           }}
         />
       )}
@@ -98,8 +107,7 @@ export function MenuButton({
         onKeyDown={(e) => {
           if (e.key === "Escape" && isMenuShown) {
             e.stopPropagation();
-            setIsMenuShown(false);
-            document.getElementById(targetId)?.focus();
+            closeAndRestoreFocus();
             return;
           }
 
