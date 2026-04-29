@@ -38,7 +38,7 @@ export function CollapsedChatInput({
         placeholder={placeholder}
         sendLabel={sendLabel}
         onSubmit={send}
-        disabled={isLoading}
+        submitDisabled={isLoading}
         compact
         beforeTextarea={
           <span css={[flex.inlineCenter, styles.icon]}>

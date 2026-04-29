@@ -65,7 +65,7 @@ export function HeroChatInput({
               placeholder={placeholder}
               sendLabel={sendLabel}
               onSubmit={send}
-              disabled={isLoading}
+              submitDisabled={isLoading}
               beforeTextarea={
                 <span css={[flex.inlineCenter, styles.icon]}>
                   <SparkleIcon weight="fill" role="presentation" />

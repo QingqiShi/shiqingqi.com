@@ -164,10 +164,28 @@ describe("ChatInputBar loading state", () => {
     expect(props.onStop).toHaveBeenCalledTimes(1);
   });
 
-  it("disables textarea while loading", () => {
+  it("keeps the textarea editable while loading so users can compose a follow-up mid-stream", async () => {
+    const user = userEvent.setup();
     renderInputBar({ status: "streaming" });
 
-    expect(screen.getByPlaceholderText("Ask about movies...")).toBeDisabled();
+    const textarea = screen.getByPlaceholderText("Ask about movies...");
+    expect(textarea).toBeEnabled();
+
+    await user.type(textarea, "follow-up");
+    expect(textarea).toHaveValue("follow-up");
+  });
+
+  it("does not call onSend when Enter is pressed during streaming", async () => {
+    const user = userEvent.setup();
+    const { props } = renderInputBar({ status: "streaming" });
+
+    const textarea = screen.getByPlaceholderText("Ask about movies...");
+    await user.type(textarea, "queued message");
+    await user.keyboard("{Enter}");
+
+    expect(props.onSend).not.toHaveBeenCalled();
+    // Draft text survives the suppressed submit so the user doesn't lose it.
+    expect(textarea).toHaveValue("queued message");
   });
 });
 
