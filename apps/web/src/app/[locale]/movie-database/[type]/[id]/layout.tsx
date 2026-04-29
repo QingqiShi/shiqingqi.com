@@ -11,10 +11,19 @@ import { t } from "#src/i18n.ts";
 import { layout, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
+import { truncateMetadataDescription } from "#src/utils/truncate-metadata-description.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import type { PageProps } from "./types";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/";
+
+// Caps tuned to platform conventions: Google clips SERP snippets at
+// ~155 chars; Twitter cards hard-truncate around 200; Open Graph spec
+// recommends ≤300 but Slack/Discord/Facebook all start clipping nearer
+// to 200. Capping ourselves keeps the trailing word boundary clean
+// instead of relying on each unfurler to cut mid-sentence.
+const SERP_DESCRIPTION_CAP = 155;
+const SOCIAL_DESCRIPTION_CAP = 200;
 
 function buildOgImages(backdropPath: string | null | undefined, title: string) {
   if (!backdropPath) return undefined;
@@ -73,9 +82,20 @@ export async function generateMetadata({
     BASE_URL,
   ).toString();
 
+  const serpDescription = truncateMetadataDescription(
+    description,
+    validatedLocale,
+    SERP_DESCRIPTION_CAP,
+  );
+  const socialDescription = truncateMetadataDescription(
+    description,
+    validatedLocale,
+    SOCIAL_DESCRIPTION_CAP,
+  );
+
   return {
     title,
-    description,
+    description: serpDescription,
     alternates: {
       canonical: url,
       languages: {
@@ -85,7 +105,7 @@ export async function generateMetadata({
     },
     openGraph: {
       title,
-      description: description ?? undefined,
+      description: socialDescription,
       url,
       siteName: t({ en: "Qingqi Shi", zh: "石清琪" }),
       locale: validatedLocale === "zh" ? "zh_CN" : "en_US",
@@ -95,7 +115,7 @@ export async function generateMetadata({
     twitter: {
       card: backdropPath ? "summary_large_image" : "summary",
       title,
-      description: description ?? undefined,
+      description: socialDescription,
       images: backdropPath
         ? [`${TMDB_IMAGE_BASE}w1280${backdropPath}`]
         : undefined,
