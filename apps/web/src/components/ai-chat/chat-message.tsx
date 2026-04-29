@@ -47,7 +47,7 @@ export function ChatMessage({
     partKeys,
     textPartCount,
     textPartTrailingBuffers,
-  } = deriveMessageData(message.parts);
+  } = deriveMessageData(message.parts, message.role);
 
   if (!hasVisibleContent) return null;
 
@@ -62,9 +62,14 @@ export function ChatMessage({
         if (isTextUIPart(part)) {
           const currentTextIndex = textPartIndex++;
           if (isUser) {
+            const visibleText = stripUserScaffolding(part.text);
+            // The prefs context (`[User Preferences]…`) is sometimes
+            // pushed as a whole part on its own, so it can vanish entirely
+            // after stripping — don't render an empty bubble line.
+            if (visibleText.length === 0) return null;
             return (
               <p key={key} css={[styles.partBase, styles.text]}>
-                {stripAttachedMediaPrefix(part.text)}
+                {visibleText}
               </p>
             );
           }
@@ -162,16 +167,28 @@ export function ChatMessage({
 }
 
 const ATTACHED_MEDIA_PREFIX = /^\[About: .+ \((?:movie|tv)(?:, id:\d+)?\)] /;
+// The transport prepends `[User Preferences]\nLikes: …\nDislikes: …` to the
+// first user message of a fresh session so the assistant can personalise
+// its first reply. The block is internal scaffolding; users never typed it.
+// The trailing `\n?` covers the (currently unused) shape where the prefs
+// would sit inline with the user's text in a single part.
+const USER_PREFERENCES_PREFIX =
+  /^\[User Preferences\](?:\n(?:Likes|Dislikes): [^\n]*)+\n?/;
 
-function stripAttachedMediaPrefix(text: string): string {
-  return text.replace(ATTACHED_MEDIA_PREFIX, "");
+function stripUserScaffolding(text: string): string {
+  return text
+    .replace(USER_PREFERENCES_PREFIX, "")
+    .replace(ATTACHED_MEDIA_PREFIX, "");
 }
 
 function isCompactionPart(part: TextUIPart): boolean {
   return part.providerMetadata?.anthropic.type === "compaction";
 }
 
-export function deriveMessageData(parts: UIMessage["parts"]) {
+export function deriveMessageData(
+  parts: UIMessage["parts"],
+  role?: UIMessage["role"],
+) {
   const toolParts: Array<{
     toolCallId: string;
     toolName: string;
@@ -214,8 +231,16 @@ export function deriveMessageData(parts: UIMessage["parts"]) {
       if (isTextUIPart(part)) {
         textPartCount++;
         textPartLengths.push(part.text.length);
-        if (!hasVisibleContent && part.text.length > 0)
-          hasVisibleContent = true;
+        if (!hasVisibleContent) {
+          // For user messages, a part that is purely transport scaffolding
+          // contributes nothing visible after stripping — don't let it keep
+          // an otherwise-empty bubble alive.
+          const visibleLength =
+            role === "user"
+              ? stripUserScaffolding(part.text).length
+              : part.text.length;
+          if (visibleLength > 0) hasVisibleContent = true;
+        }
       } else if (!hasVisibleContent && isReasoningUIPart(part)) {
         hasVisibleContent = true;
       }
