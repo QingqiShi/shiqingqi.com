@@ -84,8 +84,22 @@ export function Calculator() {
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const key = event.key;
+
+    // When a calculator button has focus, let the browser dispatch its
+    // native click for Enter/Space. Without this guard, the wrapper's
+    // `preventDefault` would cancel that click and run the keyMap action
+    // instead — e.g. tabbing to "5" and pressing Enter would trigger "=".
+    // Other keys (digits, operators, Backspace, Escape) keep working so
+    // the user can keep typing into the calculator after activating a
+    // button with the mouse, which leaves focus on that button.
+    if (
+      (key === "Enter" || key === " ") &&
+      event.target instanceof HTMLButtonElement
+    ) {
+      return;
+    }
 
     if (key === "Backspace") {
       event.preventDefault();

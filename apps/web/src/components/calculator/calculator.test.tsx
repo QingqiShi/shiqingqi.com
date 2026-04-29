@@ -262,3 +262,67 @@ describe("Calculator unary operators preserve raw input", () => {
     expect(getDisplay()).toHaveTextContent("0.123");
   });
 });
+
+describe("Calculator keyboard activation of focused buttons", () => {
+  it("activates a focused digit button on Enter instead of evaluating the expression", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    const five = screen.getByRole("button", { name: "5" });
+    five.focus();
+    expect(five).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+
+    // Pressing Enter while "5" is focused should enter "5", not run "=".
+    expect(getDisplay()).toHaveTextContent("5");
+  });
+
+  it("activates a focused operator button on Enter instead of evaluating the expression", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    await pressButtons(user, ["7"]);
+    expect(getDisplay()).toHaveTextContent("7");
+
+    const plus = screen.getByRole("button", { name: "Add" });
+    plus.focus();
+    expect(plus).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+
+    // Enter should activate the focused "+" button, not the wrapper's "=" mapping.
+    expect(getDisplay()).toHaveTextContent("7 +");
+  });
+
+  it("still evaluates the expression when Enter is pressed while the wrapper has focus", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    const wrapper = screen.getByRole("application");
+    wrapper.focus();
+    expect(wrapper).toHaveFocus();
+
+    // Wrapper-level keyboard input should keep working.
+    await user.keyboard("2+3");
+    expect(getDisplay()).toHaveTextContent("2 + 3");
+
+    await user.keyboard("{Enter}");
+    expect(getDisplay()).toHaveTextContent("5");
+  });
+
+  it("activates a focused equals button on Enter", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    await pressButtons(user, ["4", "Add", "1"]);
+    expect(getDisplay()).toHaveTextContent("4 + 1");
+
+    const equals = screen.getByRole("button", { name: "Equals" });
+    equals.focus();
+    expect(equals).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+    expect(getDisplay()).toHaveTextContent("5");
+  });
+});
