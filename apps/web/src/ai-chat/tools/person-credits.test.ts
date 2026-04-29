@@ -131,17 +131,23 @@ describe("person credits execute", () => {
     expect(result.map((entry) => entry.id)).not.toContain(31);
   });
 
-  it("dedupes entries that appear in both cast and crew before applying the cap", async () => {
+  it("merges cast and crew entries for the same film into one credit carrying both character and department", async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
         HttpResponse.json({
           id: 287,
-          cast: [castEntry({ id: 100, title: "Dual Role", vote_average: 8 })],
+          cast: [
+            castEntry({
+              id: 100,
+              title: "Million Dollar Baby",
+              vote_average: 8,
+            }),
+          ],
           crew: [
             {
               id: 100,
               media_type: "movie",
-              title: "Dual Role",
+              title: "Million Dollar Baby",
               poster_path: "/p.jpg",
               vote_average: 8,
               release_date: "2020-01-01",
@@ -157,6 +163,128 @@ describe("person credits execute", () => {
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe(100);
     expect(result[0].character).toBe("Test Character");
+    expect(result[0].department).toBe("Directing");
+  });
+
+  it("merges cast and crew when the crew entry is processed first", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
+        HttpResponse.json({
+          id: 287,
+          cast: [castEntry({ id: 200, title: "Argo", vote_average: 7.7 })],
+          crew: [
+            // Standalone crew entry (no matching cast row) — should be kept.
+            {
+              id: 999,
+              media_type: "movie",
+              title: "Crew Only",
+              poster_path: "/c.jpg",
+              vote_average: 6,
+              release_date: "2018-01-01",
+              department: "Writing",
+            },
+            // Crew entry that matches a cast entry — should merge.
+            {
+              id: 200,
+              media_type: "movie",
+              title: "Argo",
+              poster_path: "/p.jpg",
+              vote_average: 7.7,
+              release_date: "2012-01-01",
+              department: "Directing",
+            },
+          ],
+        }),
+      ),
+    );
+
+    const result = await executeTool({ person_id: 287 });
+    const argo = result.find((entry) => entry.id === 200);
+    expect(argo).toBeDefined();
+    if (!argo) throw new Error("expected argo entry");
+    expect(argo.character).toBe("Test Character");
+    expect(argo.department).toBe("Directing");
+
+    const crewOnly = result.find((entry) => entry.id === 999);
+    expect(crewOnly).toBeDefined();
+    if (!crewOnly) throw new Error("expected crew-only entry");
+    expect(crewOnly.character).toBeUndefined();
+    expect(crewOnly.department).toBe("Writing");
+  });
+
+  it("keeps the highest-priority department when a film has multiple crew rows", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
+        HttpResponse.json({
+          id: 287,
+          cast: [],
+          crew: [
+            {
+              id: 300,
+              media_type: "movie",
+              title: "Triple Threat",
+              poster_path: "/t.jpg",
+              vote_average: 7,
+              release_date: "2019-01-01",
+              department: "Production",
+            },
+            {
+              id: 300,
+              media_type: "movie",
+              title: "Triple Threat",
+              poster_path: "/t.jpg",
+              vote_average: 7,
+              release_date: "2019-01-01",
+              department: "Directing",
+            },
+            {
+              id: 300,
+              media_type: "movie",
+              title: "Triple Threat",
+              poster_path: "/t.jpg",
+              vote_average: 7,
+              release_date: "2019-01-01",
+              department: "Writing",
+            },
+          ],
+        }),
+      ),
+    );
+
+    const result = await executeTool({ person_id: 287 });
+    expect(result).toHaveLength(1);
+    expect(result[0].department).toBe("Directing");
+  });
+
+  it("preserves character-only and department-only entries when there is no overlap", async () => {
+    server.use(
+      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
+        HttpResponse.json({
+          id: 287,
+          cast: [castEntry({ id: 1, title: "Acted Only", vote_average: 8 })],
+          crew: [
+            {
+              id: 2,
+              media_type: "movie",
+              title: "Directed Only",
+              poster_path: "/d.jpg",
+              vote_average: 7,
+              release_date: "2015-01-01",
+              department: "Directing",
+            },
+          ],
+        }),
+      ),
+    );
+
+    const result = await executeTool({ person_id: 287 });
+
+    const acted = result.find((entry) => entry.id === 1);
+    const directed = result.find((entry) => entry.id === 2);
+    expect(acted?.character).toBe("Test Character");
+    expect(acted?.department).toBeUndefined();
+    expect(directed?.character).toBeUndefined();
+    expect(directed?.department).toBe("Directing");
   });
 
   it("returns a structured tool error when TMDB fails", async () => {
