@@ -2,5 +2,5 @@ export type {
   MediaMetadata,
   VectorSearchFilters,
   VectorSearchResult,
-} from "@repo/tmdb-types/vector-db";
-export { vectorSearchFiltersSchema } from "@repo/tmdb-types/vector-db";
+} from "@tuja/tmdb-types/vector-db";
+export { vectorSearchFiltersSchema } from "@tuja/tmdb-types/vector-db";

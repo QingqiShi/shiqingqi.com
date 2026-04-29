@@ -23,12 +23,12 @@ importers:
       '@next/eslint-plugin-next':
         specifier: 16.2.4
         version: 16.2.4
-      '@repo/eslint-plugin-i18n':
-        specifier: workspace:*
-        version: link:packages/eslint-plugin-i18n
       '@stylexjs/eslint-plugin':
         specifier: ^0.18.3
         version: 0.18.3
+      '@tuja/eslint-plugin-i18n':
+        specifier: workspace:*
+        version: link:packages/eslint-plugin-i18n
       eslint:
         specifier: ^10.2.1
         version: 10.2.1(jiti@2.6.1)
@@ -65,9 +65,6 @@ importers:
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)
-      '@repo/tmdb-types':
-        specifier: workspace:*
-        version: link:../../packages/tmdb-types
       '@serwist/next':
         specifier: ^9.5.7
         version: 9.5.7(@serwist/cli@9.5.7(@types/node@25.6.0)(browserslist@4.28.1)(esbuild@0.27.2)(typescript@5.9.3))(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)(typescript@5.9.3)(webpack@5.97.1(esbuild@0.27.2))
@@ -77,6 +74,9 @@ importers:
       '@tanstack/react-query':
         specifier: 5.100.1
         version: 5.100.1(react@19.3.0-canary-56824423-20260414)
+      '@tuja/tmdb-types':
+        specifier: workspace:*
+        version: link:../../packages/tmdb-types
       '@upstash/redis':
         specifier: ^1.37.0
         version: 1.37.0
@@ -156,30 +156,6 @@ importers:
       '@playwright/test':
         specifier: ^1.59.1
         version: 1.59.1
-      '@repo/babel-plugin-stylex-breakpoints':
-        specifier: workspace:*
-        version: link:../../packages/babel-plugin-stylex-breakpoints
-      '@repo/babel-plugin-stylex-css-prop':
-        specifier: workspace:*
-        version: link:../../packages/babel-plugin-stylex-css-prop
-      '@repo/i18n-babel-plugin':
-        specifier: workspace:*
-        version: link:../../packages/i18n-babel-plugin
-      '@repo/i18n-codegen':
-        specifier: workspace:*
-        version: link:../../packages/i18n-codegen
-      '@repo/pwa-icons':
-        specifier: workspace:*
-        version: link:../../packages/pwa-icons
-      '@repo/tmdb-codegen':
-        specifier: workspace:*
-        version: link:../../packages/tmdb-codegen
-      '@repo/tsconfig':
-        specifier: workspace:*
-        version: link:../../packages/tsconfig
-      '@repo/vector-ingest':
-        specifier: workspace:*
-        version: link:../../packages/vector-ingest
       '@rolldown/plugin-babel':
         specifier: ^0.2.3
         version: 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.17)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
@@ -201,6 +177,30 @@ importers:
       '@testing-library/user-event':
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
+      '@tuja/babel-plugin-stylex-breakpoints':
+        specifier: workspace:*
+        version: link:../../packages/babel-plugin-stylex-breakpoints
+      '@tuja/babel-plugin-stylex-css-prop':
+        specifier: workspace:*
+        version: link:../../packages/babel-plugin-stylex-css-prop
+      '@tuja/i18n-babel-plugin':
+        specifier: workspace:*
+        version: link:../../packages/i18n-babel-plugin
+      '@tuja/i18n-codegen':
+        specifier: workspace:*
+        version: link:../../packages/i18n-codegen
+      '@tuja/pwa-icons':
+        specifier: workspace:*
+        version: link:../../packages/pwa-icons
+      '@tuja/tmdb-codegen':
+        specifier: workspace:*
+        version: link:../../packages/tmdb-codegen
+      '@tuja/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@tuja/vector-ingest':
+        specifier: workspace:*
+        version: link:../../packages/vector-ingest
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
@@ -330,7 +330,7 @@ importers:
         specifier: ^7.29.0
         version: 7.29.0
     devDependencies:
-      '@repo/tsconfig':
+      '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/babel__traverse':
@@ -354,7 +354,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
     devDependencies:
-      '@repo/tsconfig':
+      '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -373,7 +373,7 @@ importers:
         specifier: '4'
         version: 4.3.6
     devDependencies:
-      '@repo/tsconfig':
+      '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       typescript:
@@ -384,7 +384,7 @@ importers:
 
   packages/vector-ingest:
     dependencies:
-      '@repo/tmdb-types':
+      '@tuja/tmdb-types':
         specifier: workspace:*
         version: link:../tmdb-types
       '@upstash/vector':
@@ -397,7 +397,7 @@ importers:
         specifier: '4'
         version: 4.3.6
     devDependencies:
-      '@repo/tsconfig':
+      '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':

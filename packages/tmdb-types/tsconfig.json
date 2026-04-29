@@ -1,4 +1,4 @@
 {
-  "extends": "@repo/tsconfig/library.json",
+  "extends": "@tuja/tsconfig/library.json",
   "include": ["**/*.ts", "**/*.d.ts"]
 }

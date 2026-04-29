@@ -3,7 +3,7 @@
  * Only DailyExportEntry is hand-written (daily export files aren't an API endpoint).
  */
 
-import type { operations } from "@repo/tmdb-types/openapi";
+import type { operations } from "@tuja/tmdb-types/openapi";
 import { z } from "zod";
 
 /** Extract the JSON response type from a TMDB API operation. */

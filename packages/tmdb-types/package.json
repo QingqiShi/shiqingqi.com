@@ -1,5 +1,5 @@
 {
-  "name": "@repo/tmdb-types",
+  "name": "@tuja/tmdb-types",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "zod": "4"
   },
   "devDependencies": {
-    "@repo/tsconfig": "workspace:*",
+    "@tuja/tsconfig": "workspace:*",
     "typescript": "^5.9.3"
   }
 }

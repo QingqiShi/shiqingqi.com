@@ -1,5 +1,5 @@
 {
-  "name": "@repo/vector-ingest",
+  "name": "@tuja/vector-ingest",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,13 +9,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@repo/tmdb-types": "workspace:*",
+    "@tuja/tmdb-types": "workspace:*",
     "@upstash/vector": "^1.2.3",
     "dotenv": "^17.4.2",
     "zod": "4"
   },
   "devDependencies": {
-    "@repo/tsconfig": "workspace:*",
+    "@tuja/tsconfig": "workspace:*",
     "@types/node": "^25.6.0",
     "tsx": "^4.21.0",
     "vitest": "^4.1.5"

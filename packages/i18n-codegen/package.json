@@ -1,5 +1,5 @@
 {
-  "name": "@repo/i18n-codegen",
+  "name": "@tuja/i18n-codegen",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "@babel/types": "^7.29.0"
   },
   "devDependencies": {
-    "@repo/tsconfig": "workspace:*",
+    "@tuja/tsconfig": "workspace:*",
     "@types/babel__traverse": "^7.28.0",
     "@types/node": "^25.6.0",
     "tsx": "^4.21.0",

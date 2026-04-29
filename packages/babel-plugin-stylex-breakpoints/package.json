@@ -1,5 +1,5 @@
 {
-  "name": "@repo/babel-plugin-stylex-breakpoints",
+  "name": "@tuja/babel-plugin-stylex-breakpoints",
   "version": "0.0.0",
   "private": true,
   "type": "commonjs",
