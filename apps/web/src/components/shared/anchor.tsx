@@ -22,6 +22,7 @@ export function Anchor({
   style,
   prefetch,
   onMouseEnter,
+  onFocus,
   rel,
   target,
   ref,
@@ -29,7 +30,11 @@ export function Anchor({
   indicateExternal = true,
   ...props
 }: React.ComponentProps<typeof Link> & AnchorExtraProps) {
-  const [hovered, setHovered] = useState(false);
+  // Defer Next.js's hover/focus prefetching until the user signals intent,
+  // then hand control back to the framework by flipping `prefetch` to `null`.
+  // Wiring both pointer and keyboard signals keeps prefetch parity for
+  // keyboard and assistive-tech users.
+  const [intent, setIntent] = useState(false);
 
   // Automatically ensure noopener and noreferrer are present for _blank links
   const resolvedRel =
@@ -43,10 +48,14 @@ export function Anchor({
       target={target}
       rel={resolvedRel}
       ref={ref}
-      prefetch={prefetch === false ? false : hovered ? null : false}
+      prefetch={prefetch === false ? false : intent ? null : false}
       onMouseEnter={(e) => {
-        setHovered(true);
+        setIntent(true);
         onMouseEnter?.(e);
+      }}
+      onFocus={(e) => {
+        setIntent(true);
+        onFocus?.(e);
       }}
       className={className}
       style={style}
