@@ -27,7 +27,12 @@ export function MediaVirtuosoGrid({
   const initialItemCount = Math.min(storedInitialItemCount, items.length);
 
   if (!items.length) {
-    return <div css={styles.notFound}>🙉 {notFoundLabel}</div>;
+    return (
+      <div css={styles.notFound}>
+        <span aria-hidden="true">🙉 </span>
+        {notFoundLabel}
+      </div>
+    );
   }
 
   return (

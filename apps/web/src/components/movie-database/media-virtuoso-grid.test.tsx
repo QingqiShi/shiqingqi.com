@@ -1,6 +1,6 @@
 import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
-import { render } from "#src/test-utils.tsx";
+import { render, screen } from "#src/test-utils.tsx";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { MediaVirtuosoGrid } from "./media-virtuoso-grid";
 
@@ -53,6 +53,30 @@ function makeQueryResult(
 }
 
 describe("MediaVirtuosoGrid", () => {
+  it("hides the decorative emoji in the empty state from assistive tech", () => {
+    const { container } = render(
+      <MediaVirtuosoGrid
+        queryResult={makeQueryResult([])}
+        virtuosoKey="test-key"
+        notFoundLabel="No movies found that match the criteria"
+      />,
+    );
+
+    // Sighted users still see the emoji.
+    expect(container.textContent).toContain("🙉");
+
+    // The emoji lives inside an aria-hidden span so screen readers skip it
+    // and announce only the localized label.
+    const decorative = container.querySelector("[aria-hidden='true']");
+    expect(decorative?.textContent).toBe("🙉 ");
+
+    // The localized message is rendered as a sibling text node so AT users
+    // hear it directly, with no emoji prefix bleeding through.
+    expect(
+      screen.getByText(/No movies found that match the criteria/),
+    ).toBeInTheDocument();
+  });
+
   it("does not crash when data shrinks below the initial item count", () => {
     const fiveItems = makeItems(5);
     const twoItems = makeItems(2);
