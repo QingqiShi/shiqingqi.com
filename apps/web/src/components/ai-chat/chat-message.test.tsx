@@ -325,6 +325,118 @@ describe("ChatMessage", () => {
     expect(screen.getByText("Here it is again!")).toBeInTheDocument();
   });
 
+  it("hides the [User Preferences] scaffolding from user message bubbles", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: "[User Preferences]\nLikes: action (genre), Tom Hanks (actor)\nDislikes: horror (genre)",
+            },
+            { type: "text", text: "find me a feel-good movie tonight" },
+          ],
+        })}
+        toolOutputs={emptyToolOutputs}
+      />,
+    );
+
+    expect(
+      screen.getByText("find me a feel-good movie tonight"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/User Preferences/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Likes:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Dislikes:/)).not.toBeInTheDocument();
+  });
+
+  it("hides the [User Preferences] scaffolding when only likes are present", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: "[User Preferences]\nLikes: sci-fi (genre)",
+            },
+            { type: "text", text: "what should I watch" },
+          ],
+        })}
+        toolOutputs={emptyToolOutputs}
+      />,
+    );
+
+    expect(screen.getByText("what should I watch")).toBeInTheDocument();
+    expect(screen.queryByText(/User Preferences/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Likes:/)).not.toBeInTheDocument();
+  });
+
+  it("renders nothing for a user message that contains only the [User Preferences] scaffolding", () => {
+    const { container } = render(
+      <ChatMessage
+        message={createMessage({
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: "[User Preferences]\nLikes: action (genre)\nDislikes: horror (genre)",
+            },
+          ],
+        })}
+        toolOutputs={emptyToolOutputs}
+      />,
+    );
+
+    expect(container.innerHTML).toBe("");
+  });
+
+  it("strips both [User Preferences] and [About: …] scaffolding from the same user message", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: "[User Preferences]\nLikes: drama (genre)",
+            },
+            {
+              type: "text",
+              text: "[About: Inception (movie, id:27205)] tell me more",
+            },
+          ],
+        })}
+        toolOutputs={emptyToolOutputs}
+      />,
+    );
+
+    expect(screen.getByText("tell me more")).toBeInTheDocument();
+    expect(screen.queryByText(/User Preferences/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/About: Inception/)).not.toBeInTheDocument();
+  });
+
+  it("does not strip [User Preferences] mentions from assistant messages", () => {
+    render(
+      <ChatMessage
+        message={createMessage({
+          role: "assistant",
+          parts: [
+            {
+              type: "text",
+              text: "I noted [User Preferences] in your prior session.",
+            },
+          ],
+        })}
+        toolOutputs={emptyToolOutputs}
+      />,
+    );
+
+    expect(
+      screen.getByText("I noted [User Preferences] in your prior session."),
+    ).toBeInTheDocument();
+  });
+
   it("shows tool activity group for tool parts", () => {
     render(
       <ChatMessage
