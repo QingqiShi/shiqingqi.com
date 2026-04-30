@@ -326,3 +326,105 @@ describe("Calculator keyboard activation of focused buttons", () => {
     expect(getDisplay()).toHaveTextContent("5");
   });
 });
+
+describe("Calculator returns focus to the wrapper when typing", () => {
+  it("evaluates with Enter after activating a focused digit and typing more", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    const five = screen.getByRole("button", { name: "5" });
+    five.focus();
+
+    await user.keyboard("{Enter}");
+    expect(getDisplay()).toHaveTextContent("5");
+    expect(five).toHaveFocus();
+
+    await user.keyboard("+6");
+    expect(getDisplay()).toHaveTextContent("5 + 6");
+    expect(screen.getByRole("application")).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+    expect(getDisplay()).toHaveTextContent("11");
+  });
+
+  it("returns focus to the wrapper after Backspace on a focused button", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    await pressButtons(user, ["1", "2"]);
+    const two = screen.getByRole("button", { name: "2" });
+    expect(two).toHaveFocus();
+
+    await user.keyboard("{Backspace}");
+    expect(getDisplay()).toHaveTextContent("1");
+    expect(screen.getByRole("application")).toHaveFocus();
+  });
+});
+
+describe("Calculator arrow key navigation", () => {
+  it("moves focus to the button below on ArrowDown", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    screen.getByRole("button", { name: "5" }).focus();
+    await user.keyboard("{ArrowDown}");
+    expect(screen.getByRole("button", { name: "2" })).toHaveFocus();
+  });
+
+  it("moves focus to the button above on ArrowUp", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    screen.getByRole("button", { name: "5" }).focus();
+    await user.keyboard("{ArrowUp}");
+    expect(screen.getByRole("button", { name: "8" })).toHaveFocus();
+  });
+
+  it("moves focus left and right within a row", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    screen.getByRole("button", { name: "5" }).focus();
+    await user.keyboard("{ArrowRight}");
+    expect(screen.getByRole("button", { name: "6" })).toHaveFocus();
+
+    await user.keyboard("{ArrowLeft}");
+    expect(screen.getByRole("button", { name: "5" })).toHaveFocus();
+  });
+
+  it("lands on the spanning 0 from either column above it", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    screen.getByRole("button", { name: "1" }).focus();
+    await user.keyboard("{ArrowDown}");
+    expect(screen.getByRole("button", { name: "0" })).toHaveFocus();
+
+    screen.getByRole("button", { name: "2" }).focus();
+    await user.keyboard("{ArrowDown}");
+    expect(screen.getByRole("button", { name: "0" })).toHaveFocus();
+  });
+
+  it("skips over the spanning 0 when moving right", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    screen.getByRole("button", { name: "0" }).focus();
+    await user.keyboard("{ArrowRight}");
+    expect(screen.getByRole("button", { name: "Decimal point" })).toHaveFocus();
+  });
+
+  it("does nothing past the grid edges", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    const ac = screen.getByRole("button", { name: "All clear" });
+    ac.focus();
+
+    await user.keyboard("{ArrowUp}");
+    expect(ac).toHaveFocus();
+
+    await user.keyboard("{ArrowLeft}");
+    expect(ac).toHaveFocus();
+  });
+});

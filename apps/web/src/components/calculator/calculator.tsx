@@ -27,6 +27,53 @@ function createInitialToken(): Token {
   return { type: "number", value: 0, raw: "0" };
 }
 
+// Visual layout for arrow-key navigation. Mirrors the rendered grid; the "0"
+// button visually spans cols 0-1, so it appears twice here so navigating Down
+// from "1" or "2" both land on it.
+const VISUAL_GRID: readonly (readonly string[])[] = [
+  [BUTTON_CLEAR, BUTTON_NEGATE, BUTTON_PERCENT, "÷"],
+  ["7", "8", "9", "×"],
+  ["4", "5", "6", "−"],
+  ["1", "2", "3", "+"],
+  [BUTTON_ZERO, BUTTON_ZERO, BUTTON_DECIMAL, BUTTON_EQUALS],
+];
+
+function getArrowDelta(key: string): readonly [number, number] | null {
+  switch (key) {
+    case "ArrowUp":
+      return [-1, 0];
+    case "ArrowDown":
+      return [1, 0];
+    case "ArrowLeft":
+      return [0, -1];
+    case "ArrowRight":
+      return [0, 1];
+    default:
+      return null;
+  }
+}
+
+function findGridPosition(label: string): readonly [number, number] | null {
+  for (let row = 0; row < VISUAL_GRID.length; row++) {
+    const cells = VISUAL_GRID[row];
+    for (let col = 0; col < cells.length; col++) {
+      if (cells[col] === label) return [row, col];
+    }
+  }
+  return null;
+}
+
+function findButtonByLabel(
+  wrapper: HTMLElement,
+  label: string,
+): HTMLButtonElement | null {
+  const all = wrapper.querySelectorAll("button");
+  for (const button of all) {
+    if (button.textContent === label) return button;
+  }
+  return null;
+}
+
 function negateRaw(raw: string): string {
   if (Number(raw) === 0) return raw;
   return raw.startsWith("-") ? raw.slice(1) : `-${raw}`;
@@ -86,24 +133,46 @@ export function Calculator() {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const key = event.key;
+    const wrapper = event.currentTarget;
+    const buttonHasFocus = event.target instanceof HTMLButtonElement;
 
-    // When a calculator button has focus, let the browser dispatch its
-    // native click for Enter/Space. Without this guard, the wrapper's
-    // `preventDefault` would cancel that click and run the keyMap action
-    // instead — e.g. tabbing to "5" and pressing Enter would trigger "=".
-    // Other keys (digits, operators, Backspace, Escape) keep working so
-    // the user can keep typing into the calculator after activating a
-    // button with the mouse, which leaves focus on that button.
-    if (
-      (key === "Enter" || key === " ") &&
-      event.target instanceof HTMLButtonElement
-    ) {
+    // Enter/Space on a focused button: let the browser dispatch its native
+    // click. Focus stays on the button.
+    if ((key === "Enter" || key === " ") && buttonHasFocus) {
+      return;
+    }
+
+    // Arrow keys move focus between buttons, skipping across the spanning "0".
+    const arrowDelta = getArrowDelta(key);
+    if (arrowDelta && event.target instanceof HTMLButtonElement) {
+      event.preventDefault();
+      const currentLabel = event.target.textContent;
+      if (!currentLabel) return;
+      const pos = findGridPosition(currentLabel);
+      if (!pos) return;
+      let row = pos[0];
+      let col = pos[1];
+      do {
+        row += arrowDelta[0];
+        col += arrowDelta[1];
+        if (
+          row < 0 ||
+          row >= VISUAL_GRID.length ||
+          col < 0 ||
+          col >= VISUAL_GRID[row].length
+        ) {
+          return;
+        }
+      } while (VISUAL_GRID[row][col] === currentLabel);
+      const next = findButtonByLabel(wrapper, VISUAL_GRID[row][col]);
+      next?.focus();
       return;
     }
 
     if (key === "Backspace") {
       event.preventDefault();
       handleBackspace();
+      if (buttonHasFocus) wrapper.focus();
       return;
     }
 
@@ -132,6 +201,9 @@ export function Calculator() {
     if (key in keyMap) {
       event.preventDefault();
       handleClick(keyMap[key]);
+      // Once the user starts driving the calculator from the keyboard, take
+      // focus off the previously-clicked button so the next Enter is "=".
+      if (buttonHasFocus) wrapper.focus();
     }
   };
 
