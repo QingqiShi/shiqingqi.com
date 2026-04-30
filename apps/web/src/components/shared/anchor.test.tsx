@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { render, screen } from "#src/test-utils.tsx";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { Anchor } from "./anchor";
 
 describe("Anchor", () => {
@@ -100,5 +100,34 @@ describe("Anchor", () => {
 
     const link = screen.getByRole("link", { name: "External" });
     expect(link).toHaveAccessibleName("External");
+  });
+
+  it("invokes the consumer-supplied onMouseEnter handler", async () => {
+    const user = userEvent.setup();
+    const onMouseEnter = vi.fn();
+    render(
+      <Anchor href="/about" onMouseEnter={onMouseEnter}>
+        About
+      </Anchor>,
+    );
+
+    await user.hover(screen.getByRole("link", { name: "About" }));
+
+    expect(onMouseEnter).toHaveBeenCalledTimes(1);
+  });
+
+  it("invokes the consumer-supplied onFocus handler so keyboard users opt in to prefetch", async () => {
+    const user = userEvent.setup();
+    const onFocus = vi.fn();
+    render(
+      <Anchor href="/about" onFocus={onFocus}>
+        About
+      </Anchor>,
+    );
+
+    await user.tab();
+
+    expect(screen.getByRole("link", { name: "About" })).toHaveFocus();
+    expect(onFocus).toHaveBeenCalledTimes(1);
   });
 });
