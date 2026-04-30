@@ -28,7 +28,18 @@ interface ChatTextareaProps {
   placeholder: string;
   sendLabel: string;
   onSubmit: (text: string) => void;
+  /**
+   * Full lockout: textarea is uneditable AND submit is blocked. Use only
+   * when typing genuinely shouldn't happen.
+   */
   disabled?: boolean;
+  /**
+   * Narrower lockout: textarea stays editable so the user can compose the
+   * next message, but submit is blocked. Used while the assistant is
+   * streaming a response — the user expects to be able to draft a follow-up
+   * mid-stream the same way they can in every other modern chat UI.
+   */
+  submitDisabled?: boolean;
   autoGrow?: boolean;
   /** Reduced vertical padding for use inside sticky toolbars. */
   compact?: boolean;
@@ -43,6 +54,7 @@ export function ChatTextarea({
   sendLabel,
   onSubmit,
   disabled = false,
+  submitDisabled = false,
   autoGrow = false,
   compact = false,
   beforeTextarea,
@@ -51,6 +63,7 @@ export function ChatTextarea({
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const trimmed = text.trim();
+  const sendBlocked = disabled || submitDisabled;
 
   function resetHeight() {
     if (autoGrow && textareaRef.current) {
@@ -63,7 +76,7 @@ export function ChatTextarea({
   }
 
   function submit() {
-    if (!trimmed || disabled) return;
+    if (!trimmed || sendBlocked) return;
     onSubmit(trimmed);
     setText("");
     resetHeight();
@@ -119,7 +132,7 @@ export function ChatTextarea({
           <button
             type="submit"
             aria-label={sendLabel}
-            disabled={!trimmed || disabled}
+            disabled={!trimmed || sendBlocked}
             css={[
               flex.inlineCenter,
               buttonReset.base,

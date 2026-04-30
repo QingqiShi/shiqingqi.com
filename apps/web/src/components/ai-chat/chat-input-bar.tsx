@@ -45,7 +45,11 @@ export function ChatInputBar({
       placeholder={placeholder}
       sendLabel={sendLabel}
       onSubmit={onSend}
-      disabled={isLoading}
+      // Keep the textarea editable while the assistant streams so users can
+      // compose follow-ups mid-stream. Submit is still gated via
+      // `submitDisabled`, and the visible send/stop swap below makes the
+      // current state obvious.
+      submitDisabled={isLoading}
       autoGrow
       beforeTextarea={
         attachedMedia && (
