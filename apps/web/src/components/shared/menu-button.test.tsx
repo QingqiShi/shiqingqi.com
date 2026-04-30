@@ -1,3 +1,4 @@
+import { fireEvent } from "@testing-library/react";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type { ReactNode } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
@@ -179,6 +180,30 @@ describe("MenuButton keyboard navigation", () => {
     expect(getMenuItems()[0]).toHaveFocus();
 
     await user.keyboard("{Escape}");
+    expect(trigger).toHaveFocus();
+  });
+
+  it("returns focus to the trigger when the backdrop is clicked", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <RouterProvider>
+        <TestMenu />
+      </RouterProvider>,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+    expect(getMenuItems()[0]).toHaveFocus();
+
+    // The backdrop is a non-focusable overlay rendered alongside the
+    // container while the menu is open. Use fireEvent so the click lands
+    // exactly on the backdrop without userEvent's focus-shifting heuristics
+    // kicking in (jsdom can't model native pointer focus the same way as a
+    // real browser).
+    const backdrop = container.querySelector('[aria-hidden="true"]');
+    if (!backdrop) throw new Error("expected backdrop");
+    fireEvent.click(backdrop);
+
     expect(trigger).toHaveFocus();
   });
 
