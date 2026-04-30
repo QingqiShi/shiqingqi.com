@@ -97,7 +97,17 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
   // Handle union types
   if (type.flags & ts.TypeFlags.Union) {
     const unionType = type as ts.UnionType;
-    const unionSchemas = unionType.types.map((t) =>
+    // Strip Undefined and Null members; nullability/optionality is applied at
+    // the property level via .nullable().optional(), so including them here
+    // would produce redundant z.union([z.unknown(), ...]) members under strict
+    // mode where optional properties carry undefined in their type.
+    const meaningfulMembers = unionType.types.filter(
+      (t) => !(t.flags & (ts.TypeFlags.Undefined | ts.TypeFlags.Null)),
+    );
+    if (meaningfulMembers.length === 0) {
+      return "z.unknown()";
+    }
+    const unionSchemas = meaningfulMembers.map((t) =>
       convertTypeToZod(t, typeChecker),
     );
     const uniqueSchemas = [...new Set(unionSchemas)];
@@ -272,6 +282,7 @@ function generateSelectiveZodFile() {
     allowJs: true,
     skipLibCheck: true,
     noEmit: true,
+    strict: true,
   });
 
   console.log("✅ Created TypeScript program for AST parsing");
@@ -389,6 +400,7 @@ export function generateSchemasFromSource(
       allowJs: true,
       skipLibCheck: true,
       noEmit: true,
+      strict: true,
     },
     compilerHost,
   );
@@ -506,19 +518,28 @@ function parseOperationFromTsProgram(
     return null;
   }
 
+  const queryDeclaration = queryProperty.declarations[0];
   const queryType = typeChecker.getTypeOfSymbolAtLocation(
     queryProperty,
-    queryProperty.declarations[0],
+    queryDeclaration,
   );
 
   // Check if query is optional
   const isQueryOptional = (queryProperty.flags & ts.SymbolFlags.Optional) !== 0;
 
+  // Inspect the annotation directly. Under strict mode, an optional property
+  // typed as `never` resolves to `never | undefined`, which TypeScript collapses
+  // to just `undefined` — losing the never-ness. The annotation preserves it.
+  const queryAnnotation =
+    ts.isPropertySignature(queryDeclaration) && queryDeclaration.type
+      ? typeChecker.getTypeFromTypeNode(queryDeclaration.type)
+      : queryType;
+
   // Convert query type to Zod
   let querySchema = convertTypeToZod(queryType, typeChecker);
 
   // Handle never type (means no query parameters)
-  if (queryType.flags & ts.TypeFlags.Never) {
+  if (queryAnnotation.flags & ts.TypeFlags.Never) {
     querySchema = "z.never().nullable().optional()";
   } else if (isQueryOptional) {
     querySchema += ".nullable().optional()";
