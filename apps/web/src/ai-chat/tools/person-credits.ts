@@ -63,6 +63,32 @@ interface CreditResult {
 // Trimming after sort preserves the highest-rated entries.
 const MAX_RESULTS = 30;
 
+// When a single film has multiple crew rows for the same person (Director +
+// Producer + Writer is common), keep the most query-relevant department.
+// Surfacing "Directing" for an actor-director answers the most common
+// "what has X directed?" question; "Acting" is implicit in `character` and
+// has no value here.
+const DEPARTMENT_PRIORITY: ReadonlyArray<string> = [
+  "Directing",
+  "Writing",
+  "Production",
+];
+
+function pickHigherPriorityDepartment(
+  current: string | undefined,
+  next: string | undefined,
+): string | undefined {
+  if (!current) return next;
+  if (!next) return current;
+  if (current === next) return current;
+  const currentRank = DEPARTMENT_PRIORITY.indexOf(current);
+  const nextRank = DEPARTMENT_PRIORITY.indexOf(next);
+  // Lower index = higher priority. Departments not in the list rank last.
+  const currentScore = currentRank === -1 ? Infinity : currentRank;
+  const nextScore = nextRank === -1 ? Infinity : nextRank;
+  return nextScore < currentScore ? next : current;
+}
+
 export function createPersonCreditsTool(locale: SupportedLocale) {
   return tool({
     description: TOOL_DESCRIPTION,
@@ -82,17 +108,24 @@ export function createPersonCreditsTool(locale: SupportedLocale) {
         );
       }
 
-      const seen = new Set<string>();
-      const results: CreditResult[] = [];
+      // Merge cast + crew by `${mediaType}:${id}` so an actor-director's
+      // single film carries both `character` and `department`. The previous
+      // first-wins dedup silently dropped the crew row whenever the cast
+      // row was processed first — losing every "Directed by" signal for
+      // hybrids like Eastwood, Affleck, Gibson, etc.
+      const merged = new Map<string, CreditResult>();
 
       for (const raw of credits.cast ?? []) {
         if (!isRecord(raw)) continue;
         if (typeof raw.id !== "number") continue;
         const mediaType = getMediaType(raw);
         const key = `${String(mediaType)}:${String(raw.id)}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        results.push({
+        const existing = merged.get(key);
+        if (existing) {
+          existing.character ??= getString(raw, "character");
+          continue;
+        }
+        merged.set(key, {
           id: raw.id,
           media_type: mediaType,
           title: getTitle(raw),
@@ -109,9 +142,16 @@ export function createPersonCreditsTool(locale: SupportedLocale) {
         if (typeof raw.id !== "number") continue;
         const mediaType = getMediaType(raw);
         const key = `${String(mediaType)}:${String(raw.id)}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        results.push({
+        const department = getString(raw, "department");
+        const existing = merged.get(key);
+        if (existing) {
+          existing.department = pickHigherPriorityDepartment(
+            existing.department,
+            department,
+          );
+          continue;
+        }
+        merged.set(key, {
           id: raw.id,
           media_type: mediaType,
           title: getTitle(raw),
@@ -119,10 +159,11 @@ export function createPersonCreditsTool(locale: SupportedLocale) {
           vote_average: getNumber(raw, "vote_average"),
           release_date: getReleaseDate(raw),
           character: undefined,
-          department: getString(raw, "department"),
+          department,
         });
       }
 
+      const results = [...merged.values()];
       results.sort((a, b) => b.vote_average - a.vote_average);
 
       return results.slice(0, MAX_RESULTS);
