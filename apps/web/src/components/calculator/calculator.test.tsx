@@ -299,7 +299,7 @@ describe("Calculator keyboard activation of focused buttons", () => {
     const user = userEvent.setup();
     render(<Calculator />);
 
-    const wrapper = screen.getByRole("application");
+    const wrapper = screen.getByRole("group", { name: "Calculator" });
     wrapper.focus();
     expect(wrapper).toHaveFocus();
 
@@ -341,7 +341,7 @@ describe("Calculator returns focus to the wrapper when typing", () => {
 
     await user.keyboard("+6");
     expect(getDisplay()).toHaveTextContent("5 + 6");
-    expect(screen.getByRole("application")).toHaveFocus();
+    expect(screen.getByRole("group", { name: "Calculator" })).toHaveFocus();
 
     await user.keyboard("{Enter}");
     expect(getDisplay()).toHaveTextContent("11");
@@ -357,7 +357,7 @@ describe("Calculator returns focus to the wrapper when typing", () => {
 
     await user.keyboard("{Backspace}");
     expect(getDisplay()).toHaveTextContent("1");
-    expect(screen.getByRole("application")).toHaveFocus();
+    expect(screen.getByRole("group", { name: "Calculator" })).toHaveFocus();
   });
 });
 
@@ -426,5 +426,28 @@ describe("Calculator arrow key navigation", () => {
 
     await user.keyboard("{ArrowLeft}");
     expect(ac).toHaveFocus();
+  });
+});
+
+describe("Calculator wrapper accessibility", () => {
+  it("exposes the wrapper as a labelled group, not an application region", () => {
+    render(<Calculator />);
+
+    expect(
+      screen.getByRole("group", { name: "Calculator" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("application")).not.toBeInTheDocument();
+  });
+
+  it("keeps the wrapper focusable so keyboard users can tab to it and type", async () => {
+    const user = userEvent.setup();
+    render(<Calculator />);
+
+    const wrapper = screen.getByRole("group", { name: "Calculator" });
+    wrapper.focus();
+    expect(wrapper).toHaveFocus();
+
+    await user.keyboard("2+3{Enter}");
+    expect(getDisplay()).toHaveTextContent("5");
   });
 });

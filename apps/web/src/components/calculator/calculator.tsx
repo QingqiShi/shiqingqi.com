@@ -303,7 +303,7 @@ export function Calculator() {
       css={[flex.col, styles.container]}
       onKeyDown={handleKeyDown}
       tabIndex={0}
-      role="application"
+      role="group"
       aria-label={t({ en: "Calculator", zh: "计算器" })}
     >
       <CalculatorDisplay tokens={tokens} currentToken={currentToken} />
