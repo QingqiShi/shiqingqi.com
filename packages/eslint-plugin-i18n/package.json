@@ -9,7 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "eslint": "^10.2.1"
+    "eslint": "^10.3.0"
   },
   "devDependencies": {
     "vitest": "^4.1.5"
