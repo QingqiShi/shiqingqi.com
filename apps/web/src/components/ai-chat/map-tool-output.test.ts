@@ -757,9 +757,19 @@ describe("buildPersonResultsMap for media_credits", () => {
 });
 
 describe("toolOutputsFingerprint", () => {
-  function partWithId(
+  function outputPart(toolCallId: string) {
+    return {
+      type: "dynamic-tool" as const,
+      toolName: "tmdb_search",
+      toolCallId,
+      state: "output-available" as const,
+      input: {},
+      output: [],
+    };
+  }
+  function pendingPart<S extends "input-streaming" | "input-available">(
     toolCallId: string,
-    state: "output-available" | "input-streaming" | "input-available",
+    state: S,
   ) {
     return {
       type: "dynamic-tool" as const,
@@ -767,7 +777,6 @@ describe("toolOutputsFingerprint", () => {
       toolCallId,
       state,
       input: {},
-      ...(state === "output-available" ? { output: [] } : {}),
     };
   }
 
@@ -779,15 +788,15 @@ describe("toolOutputsFingerprint", () => {
     const messages = [
       msg([
         { type: "text", text: "hello" },
-        partWithId("a", "input-streaming"),
-        partWithId("b", "input-available"),
+        pendingPart("a", "input-streaming"),
+        pendingPart("b", "input-available"),
       ]),
     ];
     expect(toolOutputsFingerprint(messages)).toBe("");
   });
 
   it("stays stable when only non-tool parts change (streaming text chunks)", () => {
-    const toolParts = [partWithId("call-1", "output-available")];
+    const toolParts = [outputPart("call-1")];
     const before = [msg([...toolParts, { type: "text", text: "partial" }])];
     const after = [
       msg([...toolParts, { type: "text", text: "partial growing" }]),
@@ -796,31 +805,16 @@ describe("toolOutputsFingerprint", () => {
   });
 
   it("changes when a new tool output is appended", () => {
-    const first = [msg([partWithId("call-1", "output-available")])];
-    const second = [
-      msg([
-        partWithId("call-1", "output-available"),
-        partWithId("call-2", "output-available"),
-      ]),
-    ];
+    const first = [msg([outputPart("call-1")])];
+    const second = [msg([outputPart("call-1"), outputPart("call-2")])];
     expect(toolOutputsFingerprint(first)).not.toBe(
       toolOutputsFingerprint(second),
     );
   });
 
   it("differs between two conversations with the same output count (session switch)", () => {
-    const sessionA = [
-      msg([
-        partWithId("a-1", "output-available"),
-        partWithId("a-2", "output-available"),
-      ]),
-    ];
-    const sessionB = [
-      msg([
-        partWithId("b-1", "output-available"),
-        partWithId("b-2", "output-available"),
-      ]),
-    ];
+    const sessionA = [msg([outputPart("a-1"), outputPart("a-2")])];
+    const sessionB = [msg([outputPart("b-1"), outputPart("b-2")])];
     expect(toolOutputsFingerprint(sessionA)).not.toBe(
       toolOutputsFingerprint(sessionB),
     );
