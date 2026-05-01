@@ -30,8 +30,8 @@
     "verify:vector": "tsx ../../packages/vector-ingest/verify.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.73",
-    "@ai-sdk/react": "^3.0.174",
+    "@ai-sdk/anthropic": "^3.0.74",
+    "@ai-sdk/react": "^3.0.176",
     "@phosphor-icons/react": "^2.1.10",
     "@tuja/tmdb-types": "workspace:*",
     "@serwist/next": "^9.5.10",
@@ -41,7 +41,7 @@
     "@upstash/vector": "^1.2.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "2.0.0",
-    "ai": "^6.0.172",
+    "ai": "^6.0.174",
     "next": "16.2.4",
     "react": "19.3.0-canary-56824423-20260414",
     "react-dom": "19.3.0-canary-56824423-20260414",
