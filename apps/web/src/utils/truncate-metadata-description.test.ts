@@ -57,20 +57,40 @@ describe("truncateMetadataDescription", () => {
     expect(result.endsWith("…")).toBe(true);
   });
 
-  it("truncates by character count for zh since there are no whitespace word boundaries", () => {
-    // 100 zh characters of free-form description.
+  it("truncates at a word boundary in zh using Intl.Segmenter", () => {
     const text =
       "柯布是一名技术高超的盗贼，盗窃的不是物品而是潜入睡梦中人的潜意识深处提取最有价值的秘密信息，他独自工作，正在被提供一个可以彻底抹去他犯罪历史的最后机会，但他必须先完成一项看似不可能的任务";
     const result = truncateMetadataDescription(text, "zh", 50);
     if (!result) throw new Error("expected truncated string");
     expect(result.length).toBeLessThanOrEqual(50);
     expect(result.endsWith("…")).toBe(true);
-    // Word-boundary regex would never match — confirm we still got a result.
-    expect(result.length).toBeGreaterThan(1);
+    // Must not end with a CJK comma — segmenter marks it non-word-like
+    // so we should drop it before the ellipsis.
+    expect(result.endsWith("，…")).toBe(false);
+    // The truncated prefix must be a substring of the original (i.e.
+    // we didn't mangle any characters along the way).
+    expect(text.startsWith(result.slice(0, -1))).toBe(true);
   });
 
-  it("falls back to a character cut for en when the input has no whitespace", () => {
-    // Edge case: a single very long token with no spaces.
+  it("does not split a surrogate pair when the cap lands inside an emoji", () => {
+    // "🎬" is U+1F3AC (length 2 as UTF-16). Pad with ASCII so the cap
+    // would otherwise land between the high and low surrogate.
+    const text = `${"a".repeat(98)}🎬 the rest of the description`;
+    const result = truncateMetadataDescription(text, "en", 100);
+    if (!result) throw new Error("expected truncated string");
+    expect(result.length).toBeLessThanOrEqual(100);
+    expect(result.endsWith("…")).toBe(true);
+    // The character immediately before the ellipsis must be a complete
+    // code point, not a lone high surrogate.
+    const beforeEllipsis = result.slice(0, -1);
+    const lastCharCode = beforeEllipsis.charCodeAt(beforeEllipsis.length - 1);
+    const isHighSurrogate = lastCharCode >= 0xd800 && lastCharCode <= 0xdbff;
+    expect(isHighSurrogate).toBe(false);
+  });
+
+  it("falls back to a grapheme cut when the input has no word boundary within the cap", () => {
+    // Edge case: a single very long token with no spaces. The word
+    // segmenter can't find a boundary, so we fall back to graphemes.
     const text = "a".repeat(300);
     const result = truncateMetadataDescription(text, "en", 100);
     if (!result) throw new Error("expected truncated string");
