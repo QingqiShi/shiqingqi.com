@@ -39,6 +39,7 @@ const light = {
   brandNottingham: "#005480",
   brandSpotify: "#1ecc5a",
   brandStudentLoan: "#10b981",
+  brandPixelCreatureCreator: "#a855f7",
 };
 
 const dark: { [key in keyof typeof light]: string } = {
@@ -79,6 +80,7 @@ const dark: { [key in keyof typeof light]: string } = {
   brandNottingham: "#0098e7",
   brandSpotify: "#1ecc5a",
   brandStudentLoan: "#34d399",
+  brandPixelCreatureCreator: "#c084fc",
 };
 
 export const constants = stylex.defineConsts({
@@ -204,6 +206,10 @@ export const color = stylex.defineVars({
   brandStudentLoan: {
     default: light.brandStudentLoan,
     [constants.DARK]: dark.brandStudentLoan,
+  },
+  brandPixelCreatureCreator: {
+    default: light.brandPixelCreatureCreator,
+    [constants.DARK]: dark.brandPixelCreatureCreator,
   },
 });
 

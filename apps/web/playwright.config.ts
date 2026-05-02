@@ -13,6 +13,11 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./e2e",
+  /* Pixel-art screenshots are deterministic across OSes; drop the
+   * default `-{platform}` suffix so one set of baselines covers both
+   * macOS dev and the Linux Playwright container in CI. */
+  snapshotPathTemplate:
+    "{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{ext}",
   /* Increase timeout for slow navigation */
   timeout: 60000,
   /* Run tests in files in parallel */
