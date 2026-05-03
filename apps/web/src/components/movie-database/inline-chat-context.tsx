@@ -23,8 +23,7 @@ export const InlineChatContext = createContext<InlineChatState | null>(null);
 
 export function InlineChatProvider({ children }: { children: ReactNode }) {
   const [isChatActive, setIsChatActive] = useState(false);
-  const { setMessages, stop, continueSession, dismissPreviousSession } =
-    useAIChatContext();
+  const { setMessages, stop, continueSession } = useAIChatContext();
   const { setBackOverride } = useBackOverride();
 
   // When chat exits, drop any in-flight stream and clear messages so the next
@@ -53,8 +52,12 @@ export function InlineChatProvider({ children }: { children: ReactNode }) {
     openChat();
   };
 
+  // Closing chat must NOT erase the saved session id. The user might have
+  // just streamed a conversation that `useAIChat`'s onFinish persisted to
+  // localStorage; they should be able to reopen and continue via the
+  // restore banner. Only the banner's explicit Dismiss button should fire
+  // `dismissPreviousSession` (which clears the storage key).
   const closeChat = () => {
-    dismissPreviousSession();
     if (!isChatActive) return;
     startTransition(() => {
       setIsChatActive(false);
@@ -62,14 +65,12 @@ export function InlineChatProvider({ children }: { children: ReactNode }) {
   };
 
   // Register an override on the global Back button while chat is open so the
-  // header's Back returns to browse instead of navigating home. Inlined here
-  // (rather than `closeChat`) to keep the effect deps stable — `dismissPreviousSession`
-  // is the only value from `useChat` that's closed over, and its identity is
-  // stable across renders.
+  // header's Back returns to browse instead of navigating home. Same
+  // rationale as `closeChat`: just flip the active flag, don't touch the
+  // stored session id.
   useEffect(() => {
     if (!isChatActive) return undefined;
     setBackOverride(() => {
-      dismissPreviousSession();
       startTransition(() => {
         setIsChatActive(false);
       });
@@ -77,7 +78,7 @@ export function InlineChatProvider({ children }: { children: ReactNode }) {
     return () => {
       setBackOverride(null);
     };
-  }, [isChatActive, setBackOverride, dismissPreviousSession]);
+  }, [isChatActive, setBackOverride]);
 
   return (
     <InlineChatContext
