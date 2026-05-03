@@ -51,8 +51,7 @@ export function useRadioGroup<TValue extends string>({
       // If the current value isn't in the list (shouldn't happen but be
       // defensive), fall back to the first option.
       const baseIndex = currentIndex === -1 ? 0 : currentIndex;
-      const nextIndex =
-        (baseIndex + delta + values.length) % values.length;
+      const nextIndex = (baseIndex + delta + values.length) % values.length;
       const nextValue = values[nextIndex];
       onChange(nextValue);
       focusValue(nextValue);
