@@ -34,7 +34,8 @@
     "test": {
       "dependsOn": ["codegen"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": []
+      "outputs": [],
+      "env": ["UPSTASH_REDIS_REST_URL"]
     },
     "test:e2e": {
       "dependsOn": ["^build"],

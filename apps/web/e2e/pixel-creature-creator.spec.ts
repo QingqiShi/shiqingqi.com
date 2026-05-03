@@ -28,9 +28,17 @@ test.describe("Sprite render smoke", () => {
       await page.goto("/en/playground/pixel-gallery?paused=1");
       const locator = page.getByTestId("canonical-feline-leaf-idle");
       await expect(locator).toBeVisible();
+      // Tolerance absorbs sub-pixel rendering drift between the macOS dev
+      // baseline and the Linux Playwright container — even with
+      // `image-rendering: pixelated` the type-tinted hue-rotate filter
+      // and container edges round differently per OS. 200 / (252×274 ≈
+      // 69k) is ~0.3 %, generous enough to swallow that noise but tiny
+      // compared to any catastrophic pipeline regression (wrong sprite,
+      // wrong scale, broken composition) which would diff orders of
+      // magnitude more pixels.
       await expect(locator).toHaveScreenshot(
         `canonical-feline-leaf-idle-${colorScheme}.png`,
-        { animations: "disabled" },
+        { animations: "disabled", maxDiffPixels: 200 },
       );
     });
   }
