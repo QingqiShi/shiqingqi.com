@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import type { Metadata } from "next";
 import { WizardShell } from "#src/components/pixel-creature-creator/wizard/wizard-shell.tsx";
 import { BASE_URL } from "#src/constants.ts";
@@ -47,5 +48,26 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <WizardShell />;
+  return (
+    <>
+      <h1 css={styles.srOnly}>
+        {t({ en: "Create your creature", zh: "创建你的生物" })}
+      </h1>
+      <WizardShell />
+    </>
+  );
 }
+
+const styles = stylex.create({
+  srOnly: {
+    position: "absolute",
+    width: "1px",
+    height: "1px",
+    padding: 0,
+    margin: "-1px",
+    overflow: "hidden",
+    clipPath: "inset(50%)",
+    whiteSpace: "nowrap",
+    borderWidth: 0,
+  },
+});
