@@ -1,6 +1,18 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
+  "globalEnv": ["NODE_ENV"],
+  "globalPassThroughEnv": [
+    "GITHUB_STEP_SUMMARY",
+    "CI",
+    "BASE_URL",
+    "ANTHROPIC_API_KEY",
+    "TMDB_API_TOKEN",
+    "UPSTASH_VECTOR_REST_URL",
+    "UPSTASH_VECTOR_REST_TOKEN",
+    "VERCEL_URL",
+    "VERCEL_BRANCH_URL"
+  ],
   "tasks": {
     "codegen": {
       "outputs": ["src/_generated/**", "public/sw.js", "src/app/manifest.json"],
@@ -8,10 +20,12 @@
     },
     "build": {
       "dependsOn": ["^build", "codegen"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "public/sw.js"]
     },
     "build:tsc": {
       "dependsOn": ["^build", "codegen"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": []
     },
     "lint": {
@@ -19,10 +33,12 @@
     },
     "test": {
       "dependsOn": ["codegen"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": []
     },
     "test:e2e": {
       "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["playwright-report/**", "test-results/**"]
     },
     "dev": {

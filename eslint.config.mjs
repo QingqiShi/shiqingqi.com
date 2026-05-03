@@ -2,6 +2,7 @@ import eslintReact from "@eslint-react/eslint-plugin";
 import js from "@eslint/js";
 import nextPlugin from "@next/eslint-plugin-next";
 import stylexjs from "@stylexjs/eslint-plugin";
+import turboConfig from "eslint-config-turbo/flat";
 import importPlugin from "eslint-plugin-import-x";
 import reactHooks from "eslint-plugin-react-hooks";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
@@ -32,6 +33,7 @@ export default defineConfig([
   js.configs.recommended,
   ...tsEslint.configs.strictTypeChecked,
   eslintReact.configs["recommended-typescript"],
+  ...turboConfig,
   {
     plugins: {
       "import-x": importPlugin,
