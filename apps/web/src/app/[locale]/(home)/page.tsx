@@ -2,6 +2,7 @@ import { CalculatorIcon } from "@phosphor-icons/react/dist/ssr/Calculator";
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import { GhostIcon } from "@phosphor-icons/react/dist/ssr/Ghost";
 import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap";
+import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "#src/breakpoints.stylex.ts";
@@ -79,6 +80,17 @@ export default async function Home(props: PageProps) {
             description={t({
               en: "Build a tiny pixel creature, name it, and conjure its lore.",
               zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
+            })}
+            scroll
+          />
+          <ProjectCard
+            icon={<GridFourIcon size={64} weight="fill" aria-hidden="true" />}
+            href={getLocalePath("/sprite-editor", locale)}
+            css={[styles.card, styles.spriteEditor]}
+            name={t({ en: "Sprite Editor", zh: "像素编辑器" })}
+            description={t({
+              en: "Slice sprite sheets, clean up pixels, and assemble animation frames.",
+              zh: "切分精灵表、清理像素并组装动画帧。",
             })}
             scroll
           />
@@ -268,6 +280,9 @@ const styles = stylex.create({
     [svgTokens.fill]: color.brandStudentLoan,
   },
   pixelCreatureCreator: {
+    [svgTokens.fill]: color.brandPixelCreatureCreator,
+  },
+  spriteEditor: {
     [svgTokens.fill]: color.brandPixelCreatureCreator,
   },
 });
