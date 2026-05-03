@@ -1,5 +1,6 @@
 import { CalculatorIcon } from "@phosphor-icons/react/dist/ssr/Calculator";
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
+import { GhostIcon } from "@phosphor-icons/react/dist/ssr/Ghost";
 import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
@@ -67,6 +68,17 @@ export default async function Home(props: PageProps) {
             description={t({
               en: "Chat with AI to find your next watch, or browse what's trending.",
               zh: "让 AI 帮你找下一部佳片，或浏览当下热门。",
+            })}
+            scroll
+          />
+          <ProjectCard
+            icon={<GhostIcon size={64} weight="fill" aria-hidden="true" />}
+            href={getLocalePath("/pixel-creature-creator", locale)}
+            css={[styles.card, styles.pixelCreatureCreator]}
+            name={t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
+            description={t({
+              en: "Build a tiny pixel creature, name it, and conjure its lore.",
+              zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
             })}
             scroll
           />
@@ -254,5 +266,8 @@ const styles = stylex.create({
   },
   studentLoan: {
     [svgTokens.fill]: color.brandStudentLoan,
+  },
+  pixelCreatureCreator: {
+    [svgTokens.fill]: color.brandPixelCreatureCreator,
   },
 });
