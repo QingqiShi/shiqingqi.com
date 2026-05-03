@@ -2,10 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
+import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import { species } from "../sprite/species";
 import type { CreatureDef } from "../state/creature-schema";
+import { useRadioGroup } from "./use-radio-group";
 
 interface StepSpeciesProps {
   def: CreatureDef;
@@ -37,9 +39,23 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
     amorphous: t({ en: "Amorphous", zh: "不定形" }),
   };
 
+  const entries = useMemo(
+    () => Object.values(species).filter((entry) => entry !== undefined),
+    [],
+  );
+  const speciesIds = useMemo(() => entries.map((entry) => entry.id), [entries]);
+  const { getOptionProps } = useRadioGroup({
+    values: speciesIds,
+    value: def.species,
+    onChange: (next) => {
+      onChange({ ...def, species: next });
+    },
+  });
+  const headingId = useId();
+
   return (
     <section css={styles.root} data-testid="wizard-step-species">
-      <h3 css={styles.heading}>
+      <h3 css={styles.heading} id={headingId}>
         {t({ en: "Pick a species", zh: "选择物种" })}
       </h3>
       <p css={styles.hint}>
@@ -48,18 +64,14 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
           zh: "16 种手绘造型。每一种都自带独特的眼神与轮廓。",
         })}
       </p>
-      <div css={styles.grid}>
-        {Object.values(species).map((entry) => {
-          if (entry === undefined) return null;
+      <div css={styles.grid} role="radiogroup" aria-labelledby={headingId}>
+        {entries.map((entry) => {
           const selected = def.species === entry.id;
           return (
             <button
               key={entry.id}
               type="button"
-              aria-pressed={selected}
-              onClick={() => {
-                onChange({ ...def, species: entry.id });
-              }}
+              {...getOptionProps(entry.id)}
               data-testid={`species-option-${entry.id}`}
               css={[styles.option, selected && styles.optionSelected]}
             >

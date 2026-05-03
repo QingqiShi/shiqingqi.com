@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import { EMOTIONS, type Emotion } from "../state/creature-schema";
+import { useRadioGroup } from "../wizard/use-radio-group";
 
 interface EmotionToggleProps {
   active: Emotion;
@@ -32,9 +33,15 @@ export function EmotionToggle({ active, onChange }: EmotionToggleProps) {
     curious: t({ en: "Curious", zh: "好奇" }),
   };
 
+  const { getOptionProps } = useRadioGroup({
+    values: EMOTIONS,
+    value: active,
+    onChange,
+  });
+
   return (
     <div
-      role="group"
+      role="radiogroup"
       aria-label={t({ en: "Choose emotion", zh: "选择情绪" })}
       css={styles.root}
       data-testid="emotion-toggle"
@@ -45,10 +52,7 @@ export function EmotionToggle({ active, onChange }: EmotionToggleProps) {
           <button
             key={emotion}
             type="button"
-            aria-pressed={isActive}
-            onClick={() => {
-              onChange(emotion);
-            }}
+            {...getOptionProps(emotion)}
             data-testid={`emotion-button-${emotion}`}
             css={[styles.button, isActive && styles.buttonActive]}
           >
