@@ -13,11 +13,14 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./e2e",
-  /* Pixel-art screenshots are deterministic across OSes; drop the
-   * default `-{platform}` suffix so one set of baselines covers both
-   * macOS dev and the Linux Playwright container in CI. */
+  /* Drop the default `-{platform}` suffix — pixel-art screenshots are
+   * deterministic enough that one baseline covers macOS dev and the
+   * Linux CI container. `{snapshotDir}` must stay as the prefix:
+   * `{testFileDir}` is empty for specs sitting directly under
+   * `testDir`, so dropping it would leave a leading `/` that Playwright
+   * resolves against the filesystem root. */
   snapshotPathTemplate:
-    "{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{ext}",
+    "{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{ext}",
   /* Increase timeout for slow navigation */
   timeout: 60000,
   /* Run tests in files in parallel */
