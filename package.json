@@ -25,7 +25,7 @@
     "verify:vector": "pnpm --filter web verify:vector"
   },
   "devDependencies": {
-    "@eslint-react/eslint-plugin": "^5.6.6",
+    "@eslint-react/eslint-plugin": "^5.7.2",
     "@eslint/compat": "^2.0.5",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
@@ -40,6 +40,6 @@
     "eslint-plugin-unicorn": "^64.0.0",
     "prettier": "^3.8.3",
     "turbo": "^2.9.7",
-    "typescript-eslint": "^8.59.1"
+    "typescript-eslint": "^8.59.2"
   }
 }
