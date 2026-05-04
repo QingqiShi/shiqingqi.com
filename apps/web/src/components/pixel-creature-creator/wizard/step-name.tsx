@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useId } from "react";
 import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import { type CreatureDef, NAME_MAX_LENGTH } from "../state/creature-schema";
@@ -13,12 +14,21 @@ interface StepNameProps {
 export function StepName({ def, onChange }: StepNameProps) {
   // Trim happens at submit time (the wizard "Finish" handler) so the user
   // can still type whitespace mid-edit; the input shows the raw value.
+  // Keep this empty-name rule in lockstep with `wizard-shell.tsx`'s
+  // `nameTooShort` — both gate Finish on the trimmed length.
+  const isEmpty = def.name.trim().length === 0;
+  const hintId = useId();
+  const errorId = useId();
+  // Always include hintId so the constraint announces alongside the field;
+  // append errorId only when the empty-state error message is rendered.
+  const describedBy = isEmpty ? `${hintId} ${errorId}` : hintId;
+
   return (
     <section css={styles.root} data-testid="wizard-step-name">
       <h3 css={styles.heading}>
         {t({ en: "Name your creature", zh: "为生物命名" })}
       </h3>
-      <p css={styles.hint}>
+      <p id={hintId} css={styles.hint}>
         {t({
           en: "1–20 characters. We will auto-trim leading and trailing spaces when you finish.",
           zh: "1–20 个字符。完成时会自动去除首尾空格。",
@@ -36,11 +46,34 @@ export function StepName({ def, onChange }: StepNameProps) {
             onChange({ ...def, name: next });
           }}
           maxLength={NAME_MAX_LENGTH}
+          aria-required="true"
+          aria-invalid={isEmpty}
+          aria-describedby={describedBy}
           placeholder={t({ en: "e.g. Mochi", zh: "例如:团子" })}
           data-testid="creature-name-input"
           css={styles.input}
         />
       </label>
+      {/*
+        Empty-name error is the *reason* the Finish button is disabled, so
+        announce it alongside the input via aria-describedby + an
+        aria-live="polite" region. `aria-live` makes the message also
+        announce the moment the user backspaces the last character without
+        having to re-focus the field.
+      */}
+      <p
+        id={errorId}
+        aria-live="polite"
+        css={styles.error}
+        data-testid="creature-name-error"
+      >
+        {isEmpty
+          ? t({
+              en: "Name is required to finish.",
+              zh: "需要填写名字才能完成。",
+            })
+          : ""}
+      </p>
       <div css={styles.lorePanel} data-testid="lore-placeholder">
         <h4 css={styles.loreTitle}>
           {t({ en: "Lore coming next", zh: "下一步:背景故事" })}
@@ -95,6 +128,14 @@ const styles = stylex.create({
     outlineWidth: 0,
     transitionProperty: "border-color",
     transitionDuration: "120ms",
+  },
+  // Always reserve a line of vertical space so the input doesn't jump as
+  // the message appears/disappears.
+  error: {
+    margin: 0,
+    minHeight: "1.2em",
+    fontSize: font.uiBodySmall,
+    color: color.brandBristol,
   },
   lorePanel: {
     marginTop: space._2,
