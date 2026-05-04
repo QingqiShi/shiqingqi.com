@@ -64,7 +64,7 @@ test.describe("Review screen", () => {
       await page.getByTestId(`emotion-button-${emotion}`).click();
       await expect(
         page.getByTestId(`emotion-button-${emotion}`),
-      ).toHaveAttribute("aria-pressed", "true");
+      ).toHaveAttribute("aria-checked", "true");
       // The card stays visible — the sprite swap should not crash the tree.
       await expect(page.getByTestId("creature-card")).toBeVisible();
     }

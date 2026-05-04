@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
 import { color, font, space } from "#src/tokens.stylex.ts";
 import { types } from "../sprite/sprites";
@@ -10,6 +11,7 @@ import {
   type Emotion,
 } from "../state/creature-schema";
 import { OptionGrid } from "./option-grid";
+import { useRadioGroup } from "./use-radio-group";
 
 interface StepVibeProps {
   def: CreatureDef;
@@ -37,10 +39,34 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
     void: t({ en: "Void", zh: "虚空系" }),
   };
 
+  const moodHeadingId = useId();
+  const elementHeadingId = useId();
+
+  const moodGroup = useRadioGroup({
+    values: EMOTIONS,
+    value: def.defaultEmotion,
+    onChange: (next) => {
+      onChange({ ...def, defaultEmotion: next });
+    },
+  });
+
+  const typeEntries = useMemo(
+    () => Object.values(types).filter((tp) => tp !== undefined),
+    [],
+  );
+  const typeIds = useMemo(() => typeEntries.map((tp) => tp.id), [typeEntries]);
+  const typeGroup = useRadioGroup({
+    values: typeIds,
+    value: def.type,
+    onChange: (next) => {
+      onChange({ ...def, type: next });
+    },
+  });
+
   return (
     <section css={styles.root} data-testid="wizard-step-vibe">
       <div css={styles.subsection}>
-        <h3 css={styles.heading}>
+        <h3 css={styles.heading} id={moodHeadingId}>
           {t({ en: "Pick a default mood", zh: "选择默认情绪" })}
         </h3>
         <p css={styles.hint}>
@@ -49,15 +75,12 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
             zh: "预览会立即反映你的选择。",
           })}
         </p>
-        <OptionGrid>
+        <OptionGrid role="radiogroup" aria-labelledby={moodHeadingId}>
           {EMOTIONS.map((emotion) => (
             <button
               key={emotion}
               type="button"
-              aria-pressed={def.defaultEmotion === emotion}
-              onClick={() => {
-                onChange({ ...def, defaultEmotion: emotion });
-              }}
+              {...moodGroup.getOptionProps(emotion)}
               data-testid={`vibe-option-${emotion}`}
               css={[
                 styles.pill,
@@ -71,7 +94,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
       </div>
 
       <div css={styles.subsection}>
-        <h3 css={styles.heading}>
+        <h3 css={styles.heading} id={elementHeadingId}>
           {t({ en: "Pick an element", zh: "选择元素" })}
         </h3>
         <p css={styles.hint}>
@@ -80,33 +103,26 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
             zh: "为精灵染色并影响生物的属性。",
           })}
         </p>
-        <OptionGrid>
-          {Object.values(types).map((tp) =>
-            tp === undefined ? null : (
-              <button
-                key={tp.id}
-                type="button"
-                aria-pressed={def.type === tp.id}
-                onClick={() => {
-                  onChange({ ...def, type: tp.id });
-                }}
-                data-testid={`type-option-${tp.id}`}
-                css={[
-                  styles.typeOption,
-                  def.type === tp.id && styles.typeOptionSelected,
-                ]}
-              >
-                <span
-                  style={{ backgroundColor: tp.accentColor }}
-                  css={styles.typeAccent}
-                  title={tp.accentColor}
-                />
-                <span css={styles.optionLabel}>
-                  {typeLabels[tp.id] ?? tp.id}
-                </span>
-              </button>
-            ),
-          )}
+        <OptionGrid role="radiogroup" aria-labelledby={elementHeadingId}>
+          {typeEntries.map((tp) => (
+            <button
+              key={tp.id}
+              type="button"
+              {...typeGroup.getOptionProps(tp.id)}
+              data-testid={`type-option-${tp.id}`}
+              css={[
+                styles.typeOption,
+                def.type === tp.id && styles.typeOptionSelected,
+              ]}
+            >
+              <span
+                style={{ backgroundColor: tp.accentColor }}
+                css={styles.typeAccent}
+                title={tp.accentColor}
+              />
+              <span css={styles.optionLabel}>{typeLabels[tp.id] ?? tp.id}</span>
+            </button>
+          ))}
         </OptionGrid>
       </div>
     </section>
