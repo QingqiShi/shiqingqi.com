@@ -126,8 +126,17 @@ export function PixelEditor({
     cloneCell(savedEdit ?? baseCell),
   );
   const history = useHistory<CellPixels>(initial);
-  const { present, presentRef, push, undo, redo, canUndo, canRedo, reset } =
-    history;
+  const {
+    present,
+    presentRef,
+    push,
+    replace,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    reset,
+  } = history;
 
   const isFirstSyncRef = useRef(true);
   const skipNextSyncRef = useRef(false);
@@ -546,15 +555,21 @@ export function PixelEditor({
       const rgba = parseHex(activeColor);
       const transparent = [0, 0, 0, 0] as const;
 
+      // Pencil/eraser drags coalesce into a single undo step: pointer-down
+      // pushes one entry, every subsequent pointer-move replaces present
+      // in-place. Ctrl+Z then restores the cell to its pre-stroke state in
+      // one go instead of one pixel at a time.
+      const commit = isDrag ? replace : push;
+
       if (tool === "pencil") {
         setPixel(next, px, py, rgba);
-        push(next);
+        commit(next);
         if (!isDrag) remember(activeColor);
         return;
       }
       if (tool === "eraser") {
         setPixel(next, px, py, transparent);
-        push(next);
+        commit(next);
         return;
       }
       if (tool === "eyedropper") {
@@ -576,7 +591,7 @@ export function PixelEditor({
       floodFill(next, px, py, transparent, tolerance);
       push(next);
     },
-    [activeColor, presentRef, push, remember, tool, tolerance],
+    [activeColor, presentRef, push, replace, remember, tool, tolerance],
   );
 
   // Pointer handling --------------------------------------------------------

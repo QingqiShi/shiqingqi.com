@@ -10,11 +10,14 @@ interface HistoryState<T> {
 
 /**
  * Generic linear undo/redo history. Pass an initial value; the hook returns
- * `[present, push, undo, redo, canUndo, canRedo, reset]`.
+ * `[present, push, replace, undo, redo, canUndo, canRedo, reset]`.
  *
  * `push` appends a new entry, discarding the redo stack — standard editor
- * behavior. `reset` replaces the entire history (e.g. when the user opens a
- * different cell to edit).
+ * behavior. `replace` updates `present` in-place without growing `past`,
+ * which lets a continuous user gesture (e.g. a pencil drag) coalesce into a
+ * single undo step: call `push` for the gesture's first frame, then
+ * `replace` for every subsequent frame. `reset` replaces the entire history
+ * (e.g. when the user opens a different cell to edit).
  */
 export function useHistory<T>(initial: T) {
   const [state, setState] = useState<HistoryState<T>>({
@@ -32,6 +35,14 @@ export function useHistory<T>(initial: T) {
   const push = useCallback((next: T) => {
     setState((prev) => ({
       past: [...prev.past, prev.present],
+      present: next,
+      future: [],
+    }));
+  }, []);
+
+  const replace = useCallback((next: T) => {
+    setState((prev) => ({
+      past: prev.past,
       present: next,
       future: [],
     }));
@@ -69,6 +80,7 @@ export function useHistory<T>(initial: T) {
     present: state.present,
     presentRef,
     push,
+    replace,
     undo,
     redo,
     canUndo: state.past.length > 0,
