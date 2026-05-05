@@ -26,6 +26,7 @@ import type { CellPixels } from "./types";
 import { useHistory } from "./use-history";
 import type { GuideOptions } from "./utils/guides";
 import { computeGuideFractions } from "./utils/guides";
+import { isEditableTarget } from "./utils/is-editable-target";
 import type { Rect } from "./utils/pixel-ops";
 import {
   cloneCell,
@@ -870,6 +871,16 @@ export function PixelEditor({
   // Keyboard shortcuts.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      // Don't hijack keys when the user is typing in a form field or
+      // contenteditable — Ctrl+Z would clobber native input undo, Backspace /
+      // Delete / Enter / Escape would steal keystrokes from inputs like the
+      // grid-controls sidebar or the in-editor color/tolerance pickers.
+      if (
+        isEditableTarget(event.target) ||
+        isEditableTarget(document.activeElement)
+      ) {
+        return;
+      }
       const meta = event.metaKey || event.ctrlKey;
       if (meta) {
         const key = event.key.toLowerCase();
