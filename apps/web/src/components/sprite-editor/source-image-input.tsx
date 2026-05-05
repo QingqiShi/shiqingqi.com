@@ -105,7 +105,11 @@ export function SourceImageInput({
             })
           : `${source.name} — ${String(source.width)}×${String(source.height)}`}
       </p>
-      {error !== null ? <p css={styles.error}>{error}</p> : null}
+      {error !== null ? (
+        <p role="alert" css={styles.error}>
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
