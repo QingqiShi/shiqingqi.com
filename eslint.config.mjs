@@ -21,6 +21,7 @@ export default defineConfig([
       "apps/web/next.config.js",
       "apps/web/postcss.config.js",
       "apps/web/src/_generated/**/*",
+      "apps/web/src/vendor/**/*",
       "apps/web/.next/**/*",
       "apps/web/next-env.d.ts",
       "apps/web/public/sw.js",

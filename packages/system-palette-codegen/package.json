@@ -1,0 +1,17 @@
+{
+  "name": "@tuja/system-palette-codegen",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "generator.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.5"
+  }
+}
