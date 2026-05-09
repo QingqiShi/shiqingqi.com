@@ -46,6 +46,11 @@ function NumberField({
         step={step}
         css={styles.input}
         onChange={(event) => {
+          // Skip mid-edit blank state — `Number("")` is 0, which would
+          // commit a destructive 0 (or 1, after the callsite's clamp) and
+          // overwrite the digit the user is about to type. The browser
+          // keeps the field visually empty until the user blurs or types.
+          if (event.target.value === "") return;
           const next = Number(event.target.value);
           if (Number.isNaN(next)) return;
           onChange(next);
