@@ -94,4 +94,57 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/calculator" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/calculator" />
   </url>
+
+  <url>
+    <loc>https://qingqi.dev/pixel-creature-creator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/pixel-creature-creator" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/pixel-creature-creator" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/pixel-creature-creator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/pixel-creature-creator" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/pixel-creature-creator" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/pixel-creature-creator/create</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/pixel-creature-creator/create" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/pixel-creature-creator/create" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/pixel-creature-creator/create</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/pixel-creature-creator/create" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/pixel-creature-creator/create" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/pixel-creature-creator/c</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/pixel-creature-creator/c" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/pixel-creature-creator/c" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/pixel-creature-creator/c</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/pixel-creature-creator/c" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/pixel-creature-creator/c" />
+  </url>
+
+  <url>
+    <loc>https://qingqi.dev/sprite-editor</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/sprite-editor" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/sprite-editor" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/sprite-editor</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/sprite-editor" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/sprite-editor" />
+  </url>
+
+  <url>
+    <loc>https://qingqi.dev/design-system</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system" />
+  </url>
 </urlset>
