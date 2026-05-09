@@ -285,6 +285,12 @@ export function AnimationMode({
                       step={10}
                       value={frame.duration}
                       onChange={(event) => {
+                        // Skip mid-edit blank state — `Number("")` is 0,
+                        // and `setFrameDuration` clamps to 1ms, which
+                        // would silently persist a frame that's invisible
+                        // during playback. Match the grid-controls
+                        // NumberField pattern (PR #2281).
+                        if (event.target.value === "") return;
                         setFrameDuration(index, Number(event.target.value));
                       }}
                       css={styles.frameDuration}
