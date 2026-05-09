@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * Tracks whether an element is visible in the viewport using
@@ -13,17 +13,20 @@ import { useCallback, useEffect, useState } from "react";
 export function useIsElementVisible() {
   const [isVisible, setIsVisible] = useState(true);
   const [el, setEl] = useState<HTMLElement | null>(null);
+  // Mirror of the latest observed element so `setRef` can compare against the
+  // previous node without reading state inside a setState updater (which would
+  // violate the Rules of React — updaters must be pure).
+  const prevElRef = useRef<HTMLElement | null>(null);
 
-  // Reset optimistically to the default when the observed target changes —
-  // the observer fires asynchronously, so without this the previous target's
-  // final value would briefly persist and flash the wrong style on remount.
   const setRef = useCallback((node: HTMLElement | null) => {
-    setEl((previous) => {
-      if (previous !== node) {
-        setIsVisible(true);
-      }
-      return node;
-    });
+    if (prevElRef.current === node) return;
+    prevElRef.current = node;
+    // Reset optimistically to the default when the observed target changes —
+    // the observer fires asynchronously, so without this the previous
+    // target's final value would briefly persist and flash the wrong style
+    // on remount.
+    setIsVisible(true);
+    setEl(node);
   }, []);
 
   useEffect(() => {
