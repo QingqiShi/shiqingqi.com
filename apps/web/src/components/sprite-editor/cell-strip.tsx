@@ -1,7 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useRadioGroup } from "#src/components/pixel-creature-creator/wizard/use-radio-group.ts";
 import { t } from "#src/i18n.ts";
 import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { CellPixels } from "./types";
@@ -14,37 +15,60 @@ interface CellStripProps {
 
 export function CellStrip({ cells, selectedCell, onSelect }: CellStripProps) {
   const cellLabel = t({ en: "Cell", zh: "单元格" });
+  const headingId = useId();
+  // The radio-group hook is generic over `string`, so convert at the
+  // boundary. Stringified indices are stable identifiers since cells are
+  // positional.
+  const values = useMemo(() => cells.map((_, index) => String(index)), [cells]);
+  // When nothing is selected yet, point `value` at the first cell so the
+  // group still has exactly one tab stop (canonical radiogroup-with-no-
+  // default pattern). We override `aria-checked` below to stay honest about
+  // selection state.
+  const value = selectedCell === null ? "0" : String(selectedCell);
+  const { getOptionProps } = useRadioGroup({
+    values,
+    value,
+    onChange: (next) => {
+      onSelect(Number(next));
+    },
+  });
+
   return (
     <div css={styles.root}>
-      <h2 css={styles.heading}>
+      <h2 css={styles.heading} id={headingId}>
         {t({ en: "Cells", zh: "单元格" })}{" "}
         <span css={styles.count}>({cells.length})</span>
       </h2>
-      <ol css={styles.list}>
-        {cells.map((cell, index) => (
-          <li
-            // eslint-disable-next-line @eslint-react/no-array-index-key -- cells are positional; index IS the identity
-            key={index}
-            css={styles.item}
-          >
-            <button
-              type="button"
-              css={[
-                styles.thumbButton,
-                selectedCell === index && styles.thumbButtonActive,
-              ]}
-              onClick={() => {
-                onSelect(index);
-              }}
-              data-testid={`cell-thumb-${String(index)}`}
-              aria-label={`${cellLabel} ${String(index + 1)}`}
-              aria-pressed={selectedCell === index}
+      <ol css={styles.list} role="radiogroup" aria-labelledby={headingId}>
+        {cells.map((cell, index) => {
+          const isSelected = selectedCell === index;
+          return (
+            <li
+              // eslint-disable-next-line @eslint-react/no-array-index-key -- cells are positional; index IS the identity
+              key={index}
+              css={styles.item}
             >
-              <CellThumbnail cell={cell} />
-              <span css={styles.thumbIndex}>{index + 1}</span>
-            </button>
-          </li>
-        ))}
+              <button
+                type="button"
+                {...getOptionProps(String(index))}
+                // Override `aria-checked` from the hook: when nothing is
+                // selected the hook would mark cell 0 as checked because
+                // `value` is "0" to seed the tab stop. We need it to read
+                // as unchecked until the user actually picks a cell.
+                aria-checked={isSelected}
+                css={[
+                  styles.thumbButton,
+                  isSelected && styles.thumbButtonActive,
+                ]}
+                data-testid={`cell-thumb-${String(index)}`}
+                aria-label={`${cellLabel} ${String(index + 1)}`}
+              >
+                <CellThumbnail cell={cell} />
+                <span css={styles.thumbIndex}>{index + 1}</span>
+              </button>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );
