@@ -36,8 +36,8 @@ importers:
         specifier: ^16.2.4
         version: 16.2.4(@typescript-eslint/parser@8.59.2(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3))(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.59.2(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3))(eslint-import-resolver-node@0.3.10)(eslint@10.3.0(jiti@2.6.1)))(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3)
       eslint-config-turbo:
-        specifier: ^2.9.9
-        version: 2.9.9(eslint@10.3.0(jiti@2.6.1))(turbo@2.9.9)
+        specifier: ^2.9.12
+        version: 2.9.12(eslint@10.3.0(jiti@2.6.1))(turbo@2.9.9)
       eslint-plugin-import-x:
         specifier: ^4.16.2
         version: 4.16.2(@typescript-eslint/utils@8.59.2(eslint@10.3.0(jiti@2.6.1))(typescript@6.0.3))(eslint-import-resolver-node@0.3.10)(eslint@10.3.0(jiti@2.6.1))
@@ -70,7 +70,7 @@ importers:
         version: 2.1.10(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)
       '@serwist/next':
         specifier: ^9.5.11
-        version: 9.5.11(@serwist/cli@9.5.11(@types/node@25.6.0)(browserslist@4.28.2)(esbuild@0.27.2)(typescript@6.0.3))(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)(typescript@6.0.3)(webpack@5.97.1(esbuild@0.27.2))
+        version: 9.5.11(@serwist/cli@9.5.11(@types/node@25.6.0)(browserslist@4.28.2)(esbuild@0.27.2)(typescript@6.0.3))(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)(typescript@6.0.3)(webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10))
       '@stylexjs/stylex':
         specifier: ^0.18.3
         version: 0.18.3
@@ -272,7 +272,7 @@ importers:
         version: 11.2.1(postcss@8.5.10)
       raw-loader:
         specifier: ^4.0.2
-        version: 4.0.2(webpack@5.97.1(esbuild@0.27.2))
+        version: 4.0.2(webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10))
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -3566,8 +3566,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-config-turbo@2.9.9:
-    resolution: {integrity: sha512-KhO8N8ot1s9wXbkNDVgMwvkpbfO+YgEbteikFu406aQoJgenzNh5ErI985CeFKV3e33ZGLZX5YAJ1pgnhOXCZA==}
+  eslint-config-turbo@2.9.12:
+    resolution: {integrity: sha512-QnAiTMzCz2mP2EGGVLx1j6mDsKRhMaY424IqJql3z1AQ06OSlXYl3aSIQEwQJEH5RgW/fHx9VK213BF3ZwO8Sw==}
     peerDependencies:
       eslint: '>6.6.0'
       turbo: '>2.0.0'
@@ -3701,8 +3701,8 @@ packages:
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
 
-  eslint-plugin-turbo@2.9.9:
-    resolution: {integrity: sha512-CHjV79PUXv5D+eCcnk3IMfu15X+EnwDSOWcVM72gQ3Ib8J+pF6zrY7A0kOgdS2HexdaGDoqzSLiXYRyu42TaGQ==}
+  eslint-plugin-turbo@2.9.12:
+    resolution: {integrity: sha512-Ilv1DTYyghdIdTUsW/VbjVTYKt1Hfs7X2C+rq/i4u7ZVofzcHZwk/3QwrV5UyOGADmxmWNyD+xcRS7+ZE5arQg==}
     peerDependencies:
       eslint: '>6.6.0'
       turbo: '>2.0.0'
@@ -5669,18 +5669,45 @@ packages:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
-  terser-webpack-plugin@5.5.0:
-    resolution: {integrity: sha512-UYhptBwhWvfIjKd/UuFo6D8uq9xpGLDK+z8EDsj/zWhrTaH34cKEbrkMKfV5YWqGBvAYA3tlzZbs2R+qYrbQJA==}
+  terser-webpack-plugin@5.6.0:
+    resolution: {integrity: sha512-Eum+5ajkaOhf5KbM26osvv21kLD7BaGqQ1UA4Ami4arYwylmGUQTgHFpHDdmJod1q4QXa66p0to/FBKID+J1vA==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
+      '@minify-html/node': '*'
       '@swc/core': '*'
+      '@swc/css': '*'
+      '@swc/html': '*'
+      clean-css: '*'
+      cssnano: '*'
+      csso: '*'
       esbuild: '*'
+      html-minifier-terser: '*'
+      lightningcss: '*'
+      postcss: '*'
       uglify-js: '*'
       webpack: ^5.1.0
     peerDependenciesMeta:
+      '@minify-html/node':
+        optional: true
       '@swc/core':
         optional: true
+      '@swc/css':
+        optional: true
+      '@swc/html':
+        optional: true
+      clean-css:
+        optional: true
+      cssnano:
+        optional: true
+      csso:
+        optional: true
       esbuild:
+        optional: true
+      html-minifier-terser:
+        optional: true
+      lightningcss:
+        optional: true
+      postcss:
         optional: true
       uglify-js:
         optional: true
@@ -8119,11 +8146,11 @@ snapshots:
       - browserslist
       - typescript
 
-  '@serwist/next@9.5.11(@serwist/cli@9.5.11(@types/node@25.6.0)(browserslist@4.28.2)(esbuild@0.27.2)(typescript@6.0.3))(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)(typescript@6.0.3)(webpack@5.97.1(esbuild@0.27.2))':
+  '@serwist/next@9.5.11(@serwist/cli@9.5.11(@types/node@25.6.0)(browserslist@4.28.2)(esbuild@0.27.2)(typescript@6.0.3))(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)(typescript@6.0.3)(webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10))':
     dependencies:
       '@serwist/build': 9.5.11(browserslist@4.28.2)(typescript@6.0.3)
       '@serwist/utils': 9.5.11(browserslist@4.28.2)
-      '@serwist/webpack-plugin': 9.5.11(browserslist@4.28.2)(typescript@6.0.3)(webpack@5.97.1(esbuild@0.27.2))
+      '@serwist/webpack-plugin': 9.5.11(browserslist@4.28.2)(typescript@6.0.3)(webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10))
       '@serwist/window': 9.5.11(browserslist@4.28.2)(typescript@6.0.3)
       browserslist: 4.28.2
       glob: 13.0.6
@@ -8143,7 +8170,7 @@ snapshots:
     optionalDependencies:
       browserslist: 4.28.2
 
-  '@serwist/webpack-plugin@9.5.11(browserslist@4.28.2)(typescript@6.0.3)(webpack@5.97.1(esbuild@0.27.2))':
+  '@serwist/webpack-plugin@9.5.11(browserslist@4.28.2)(typescript@6.0.3)(webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10))':
     dependencies:
       '@serwist/build': 9.5.11(browserslist@4.28.2)(typescript@6.0.3)
       '@serwist/utils': 9.5.11(browserslist@4.28.2)
@@ -8151,7 +8178,7 @@ snapshots:
       zod: 4.4.1
     optionalDependencies:
       typescript: 6.0.3
-      webpack: 5.97.1(esbuild@0.27.2)
+      webpack: 5.97.1(esbuild@0.27.2)(postcss@8.5.10)
     transitivePeerDependencies:
       - browserslist
 
@@ -9429,10 +9456,10 @@ snapshots:
       - eslint-plugin-import-x
       - supports-color
 
-  eslint-config-turbo@2.9.9(eslint@10.3.0(jiti@2.6.1))(turbo@2.9.9):
+  eslint-config-turbo@2.9.12(eslint@10.3.0(jiti@2.6.1))(turbo@2.9.9):
     dependencies:
       eslint: 10.3.0(jiti@2.6.1)
-      eslint-plugin-turbo: 2.9.9(eslint@10.3.0(jiti@2.6.1))(turbo@2.9.9)
+      eslint-plugin-turbo: 2.9.12(eslint@10.3.0(jiti@2.6.1))(turbo@2.9.9)
       turbo: 2.9.9
 
   eslint-import-context@0.1.9(unrs-resolver@1.11.1):
@@ -9671,7 +9698,7 @@ snapshots:
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
 
-  eslint-plugin-turbo@2.9.9(eslint@10.3.0(jiti@2.6.1))(turbo@2.9.9):
+  eslint-plugin-turbo@2.9.12(eslint@10.3.0(jiti@2.6.1))(turbo@2.9.9):
     dependencies:
       dotenv: 16.0.3
       eslint: 10.3.0(jiti@2.6.1)
@@ -11467,11 +11494,11 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  raw-loader@4.0.2(webpack@5.97.1(esbuild@0.27.2)):
+  raw-loader@4.0.2(webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10)):
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.97.1(esbuild@0.27.2)
+      webpack: 5.97.1(esbuild@0.27.2)(postcss@8.5.10)
 
   rc@1.2.8:
     dependencies:
@@ -12048,15 +12075,16 @@ snapshots:
 
   tapable@2.3.3: {}
 
-  terser-webpack-plugin@5.5.0(esbuild@0.27.2)(webpack@5.97.1(esbuild@0.27.2)):
+  terser-webpack-plugin@5.6.0(esbuild@0.27.2)(postcss@8.5.10)(webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.47.1
-      webpack: 5.97.1(esbuild@0.27.2)
+      webpack: 5.97.1(esbuild@0.27.2)(postcss@8.5.10)
     optionalDependencies:
       esbuild: 0.27.2
+      postcss: 8.5.10
 
   terser@5.47.1:
     dependencies:
@@ -12447,7 +12475,7 @@ snapshots:
 
   webpack-sources@3.4.1: {}
 
-  webpack@5.97.1(esbuild@0.27.2):
+  webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.9
@@ -12469,12 +12497,21 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.3.3
-      terser-webpack-plugin: 5.5.0(esbuild@0.27.2)(webpack@5.97.1(esbuild@0.27.2))
+      terser-webpack-plugin: 5.6.0(esbuild@0.27.2)(postcss@8.5.10)(webpack@5.97.1(esbuild@0.27.2)(postcss@8.5.10))
       watchpack: 2.5.1
       webpack-sources: 3.4.1
     transitivePeerDependencies:
+      - '@minify-html/node'
       - '@swc/core'
+      - '@swc/css'
+      - '@swc/html'
+      - clean-css
+      - cssnano
+      - csso
       - esbuild
+      - html-minifier-terser
+      - lightningcss
+      - postcss
       - uglify-js
 
   whatwg-mimetype@5.0.0: {}
