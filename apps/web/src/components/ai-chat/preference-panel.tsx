@@ -194,8 +194,8 @@ export function PreferencePanel({
         <InfoIcon size={16} css={styles.infoIcon} role="presentation" />
         <p css={styles.infoText}>
           {t({
-            en: "Preferences are stored locally on your device. They help the AI personalise recommendations. Nothing is sent to a server.",
-            zh: "偏好仅存储在你的设备上，用于帮助 AI 个性化推荐，不会发送至服务器。",
+            en: "Preferences are stored locally in your browser. When you chat with the AI, they're included as context to personalise its replies.",
+            zh: "偏好仅存储在你的浏览器中。当你与 AI 对话时，它们会作为上下文一起发送，以便个性化回复。",
           })}
         </p>
       </div>
