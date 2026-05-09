@@ -83,7 +83,7 @@
     "@tuja/vector-ingest": "workspace:*",
     "@types/babel__core": "^7.20.5",
     "@types/babel__traverse": "^7.28.0",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.6.2",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
