@@ -5,9 +5,9 @@ import { transition } from "#src/primitives/motion.stylex.ts";
 import {
   border,
   color,
-  controlSize,
   font,
   layer,
+  shadow,
   space,
 } from "#src/tokens.stylex.ts";
 
@@ -41,19 +41,18 @@ export function SectionNav({ sections }: SectionNavProps) {
 const styles = stylex.create({
   nav: {
     position: "sticky",
-    top: `calc(env(safe-area-inset-top) + ${space._10} + ${controlSize._9})`,
+    top: `calc(env(safe-area-inset-top) + ${space._10} + ${space._1})`,
     zIndex: layer.content,
-    marginInline: `calc(${space._3} * -1)`,
-    paddingInline: space._3,
-    paddingBlock: space._2,
-    backgroundColor: `rgba(${color.backgroundMainChannels}, 0.7)`,
-    backdropFilter: "saturate(180%) blur(20px)",
-    borderBottomWidth: "1px",
-    borderBottomStyle: "solid",
-    borderBottomColor: color.borderSubtle,
+    alignSelf: "flex-start",
+    maxInlineSize: "100%",
+    paddingBlock: space._1,
+    paddingInline: space._1,
+    backgroundColor: color.backgroundRaised,
+    borderRadius: border.radius_round,
+    boxShadow: shadow._2,
   },
   list: {
-    gap: space._3,
+    gap: space._1,
   },
   link: {
     paddingBlock: space._1,
@@ -64,7 +63,7 @@ const styles = stylex.create({
     color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.surfaceAccentSubtle,
+      ":hover": color.backgroundHover,
     },
     textDecoration: "none",
     whiteSpace: "nowrap",
