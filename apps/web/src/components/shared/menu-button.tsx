@@ -1,6 +1,14 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import {
+  border,
+  color,
+  controlSize,
+  layer,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren } from "react";
 import {
   useEffect,
@@ -10,14 +18,6 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import {
-  border,
-  color,
-  controlSize,
-  layer,
-  shadow,
-  space,
-} from "#src/tokens.stylex.ts";
 import { AnimateToTarget } from "./animate-to-target";
 import { Button } from "./button";
 import { FixedContainerContent } from "./fixed-container-content";

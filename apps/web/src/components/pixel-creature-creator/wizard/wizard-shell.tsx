@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useMemo, useReducer, useRef } from "react";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 import { PixelSprite } from "../sprite/pixel-sprite";
 import { type CreatureDef, DEFAULT_CREATURE } from "../state/creature-schema";
 import { decodeCreature, encodeCreature } from "../state/encode-decode";

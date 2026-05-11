@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { color, font, border, controlSize } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import type { PropsWithChildren } from "react";
 import { useTransition } from "react";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { color, font, border, controlSize } from "#src/tokens.stylex.ts";
 
 interface ItemProps {
   ariaLabel?: string;

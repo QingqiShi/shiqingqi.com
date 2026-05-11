@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
-import { space } from "#src/tokens.stylex.ts";
 import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 

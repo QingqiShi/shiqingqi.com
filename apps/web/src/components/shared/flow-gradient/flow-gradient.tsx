@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";
 import { useTheme } from "#src/hooks/use-theme.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { color, layer } from "#src/tokens.stylex.ts";
 import { init, start, type ColorOptions } from "./loop";
 import fs from "./shaders/fs.glsl";
 import vs from "./shaders/vs.glsl";

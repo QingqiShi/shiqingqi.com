@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { border, color, space } from "#src/tokens.stylex.ts";
+import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { Skeleton } from "../shared/skeleton";
 
 const ROWS = [

@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { fixedFill } from "@tuja/ui/primitives/layout.stylex";
+import { layer } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 import { PORTAL_TARGET_ID } from "#src/constants/portal.ts";
 import { PortalContext } from "#src/contexts/portal-context.tsx";
-import { fixedFill } from "#src/primitives/layout.stylex.ts";
-import { layer } from "#src/tokens.stylex.ts";
 
 /**
  * A provider component that renders a fixed portal target element and makes it

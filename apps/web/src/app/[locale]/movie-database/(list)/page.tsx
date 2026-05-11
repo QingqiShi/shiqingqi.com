@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { ratio, space } from "@tuja/ui/tokens.stylex";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import {
@@ -25,7 +26,6 @@ import { MediaList } from "#src/components/movie-database/media-list.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
-import { ratio, space } from "#src/tokens.stylex.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
 import { isGenreFilterType, isSort } from "#src/utils/media-filter-types.ts";

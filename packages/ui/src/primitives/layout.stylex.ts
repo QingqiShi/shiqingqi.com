@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color } from "#src/tokens.stylex.ts";
+import { border, color } from "../tokens.stylex.ts";
 
 // Position + inset fills
 export const absoluteFill = stylex.create({

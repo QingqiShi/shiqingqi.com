@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRadioGroup } from "#src/components/pixel-creature-creator/wizard/use-radio-group.ts";
 import { t } from "#src/i18n.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { CellPixels } from "./types";
 
 interface CellStripProps {

@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { border, color } from "@tuja/ui/tokens.stylex";
 import type { CSSProperties, Ref } from "react";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { border, color } from "#src/tokens.stylex.ts";
 import { skeletonTokens } from "./skeleton.stylex";
 
 interface SkeletonProps {

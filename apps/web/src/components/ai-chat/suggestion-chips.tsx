@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { flex, justify } from "@tuja/ui/primitives/flex.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { use } from "react";
-import { flex, justify } from "#src/primitives/flex.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { ChatActionsContext } from "./chat-actions-context";
 
 interface SuggestionChipsProps {

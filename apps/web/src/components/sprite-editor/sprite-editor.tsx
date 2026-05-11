@@ -5,11 +5,11 @@ import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimpl
 import { FilmStripIcon } from "@phosphor-icons/react/dist/ssr/FilmStrip";
 import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useMemo, useState } from "react";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { Button } from "#src/components/shared/button.tsx";
 import { t } from "#src/i18n.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { AnimationFrame } from "./animation-mode";
 import { AnimationMode } from "./animation-mode";
 import { CellStrip } from "./cell-strip";

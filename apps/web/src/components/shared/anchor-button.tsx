@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { controlSize } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
 import { usePressHandlers } from "#src/hooks/use-press-handlers.ts";
-import { controlSize } from "#src/tokens.stylex.ts";
 import { Anchor } from "./anchor";
 import { anchorTokens } from "./anchor.stylex";
 import { sharedStyles } from "./button-shared.stylex";

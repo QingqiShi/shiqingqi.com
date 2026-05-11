@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { border, color, layer, layout, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition, useEffect, useState, type ReactNode } from "react";
 import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
 import {
@@ -18,7 +19,6 @@ import { PersonDetailOverlay } from "#src/components/ai-chat/person-detail-overl
 import { PreferenceManager } from "#src/components/ai-chat/preference-panel.tsx";
 import { ScrollToBottomButton } from "#src/components/ai-chat/scroll-to-bottom-button.tsx";
 import { SessionRestoreBanner } from "#src/components/ai-chat/session-restore-banner.tsx";
-import { border, color, layer, layout, space } from "#src/tokens.stylex.ts";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 
 interface InlineChatViewProps {

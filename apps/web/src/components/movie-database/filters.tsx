@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { controlSize, space } from "#src/tokens.stylex.ts";
 import { FixedContainerContent } from "../shared/fixed-container-content";
 import { CollapsedChatButton } from "./collapsed-chat-button";
 import { CollapsedChatInput } from "./collapsed-chat-input";

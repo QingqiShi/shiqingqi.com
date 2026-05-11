@@ -5,6 +5,7 @@ module.exports = async () => {
   const nextConfig = {
     reactStrictMode: true,
     reactCompiler: true,
+    transpilePackages: ["@tuja/ui"],
     serverExternalPackages: ["esbuild-wasm"],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
     turbopack: {

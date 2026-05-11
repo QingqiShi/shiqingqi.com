@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { AIChatProvider } from "#src/ai-chat/ai-chat-context.tsx";
 import { InlineChatProvider } from "#src/components/movie-database/inline-chat-context.tsx";
 import { Providers } from "#src/components/shared/providers.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
-import { space } from "#src/tokens.stylex.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 

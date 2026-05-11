@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { controlSize, font } from "@tuja/ui/tokens.stylex";
 import { useRef, type ComponentProps } from "react";
 import { usePressHandlers } from "#src/hooks/use-press-handlers.ts";
-import { controlSize, font } from "#src/tokens.stylex.ts";
 import { sharedStyles } from "./button-shared.stylex";
 import { buttonTokens } from "./button.stylex";
 

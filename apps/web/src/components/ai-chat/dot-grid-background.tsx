@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
 import type { ChatMood } from "#src/ai-chat/chat-message-metadata.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { color, layer } from "#src/tokens.stylex.ts";
 
 const MOOD_WASH_COLORS: Record<ChatMood, string> = {
   warm: "#f97316",

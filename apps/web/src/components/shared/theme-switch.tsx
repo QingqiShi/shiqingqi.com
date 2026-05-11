@@ -3,14 +3,14 @@
 import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
 import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { color, controlSize, font, ratio, space } from "@tuja/ui/tokens.stylex";
 import { useLayoutEffect, useRef, useState } from "react";
 import { getDocumentClassName } from "#src/app/global-styles.ts";
 import { Button } from "#src/components/shared/button.tsx";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";
 import { useTheme } from "#src/hooks/use-theme.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { color, controlSize, font, ratio, space } from "#src/tokens.stylex.ts";
 import type { SwitchState } from "./switch";
 import { Switch } from "./switch";
 import { themeSwitchTokens } from "./theme-switch.stylex";

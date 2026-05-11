@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { border, color } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
-import { border, color } from "#src/tokens.stylex.ts";
 import type { GridConfig, SourceImage } from "./types";
 
 interface SourceCanvasProps {

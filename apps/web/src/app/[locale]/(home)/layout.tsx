@@ -1,16 +1,16 @@
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color, layer, layout, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { BackgroundLines } from "#src/components/home/background-lines.tsx";
 import { Footer } from "#src/components/home/footer.tsx";
 import { FlowGradient } from "#src/components/shared/flow-gradient/flow-gradient.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { i18nConfig } from "#src/i18n-config.ts";
 import { t } from "#src/i18n.ts";
-import { color, layer, layout, space } from "#src/tokens.stylex.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 import { glowTokens } from "./layout.stylex";

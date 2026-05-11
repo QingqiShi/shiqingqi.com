@@ -2,10 +2,10 @@
 
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import { useAIChatSend } from "#src/ai-chat/use-ai-chat-send.ts";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { color } from "#src/tokens.stylex.ts";
 import { ChatTextarea } from "../shared/chat-textarea";
 import {
   DATA_HERO_COLLAPSED_BUTTON,

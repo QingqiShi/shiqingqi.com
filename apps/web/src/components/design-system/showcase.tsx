@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 
 interface ShowcaseProps {
   label?: string;

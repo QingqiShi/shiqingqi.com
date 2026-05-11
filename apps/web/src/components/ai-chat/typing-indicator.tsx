@@ -1,8 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { color, font } from "#src/tokens.stylex.ts";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 
 interface TypingIndicatorProps {
   label: string;

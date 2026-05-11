@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { lightTheme, darkTheme, color, font } from "#src/tokens.stylex.ts";
+import { lightTheme, darkTheme, color, font } from "@tuja/ui/tokens.stylex";
 
 export const globalStyles = stylex.create({
   global: {

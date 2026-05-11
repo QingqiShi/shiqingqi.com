@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { scrollX } from "#src/primitives/layout.stylex.ts";
-import { transition } from "#src/primitives/motion.stylex.ts";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { scrollX } from "@tuja/ui/primitives/layout.stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
 import {
   border,
   color,
@@ -9,7 +9,7 @@ import {
   layer,
   shadow,
   space,
-} from "#src/tokens.stylex.ts";
+} from "@tuja/ui/tokens.stylex";
 
 interface SectionNavItem {
   id: string;

@@ -2,9 +2,9 @@
 
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { color, space } from "#src/tokens.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { Button } from "../shared/button";
 import {
   DATA_HERO_COLLAPSED_BUTTON,

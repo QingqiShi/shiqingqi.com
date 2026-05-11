@@ -1,17 +1,17 @@
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import {
   getTrendingMovies,
   getTrendingTvShows,
 } from "#src/_generated/tmdb-server-functions.ts";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { RecommendedMediaRowSkeleton } from "#src/components/ai-chat/recommended-media-row-skeleton.tsx";
 import {
   RecommendedMediaRow,
   type RecommendedMediaRowItem,
 } from "#src/components/ai-chat/recommended-media-row.tsx";
 import { t } from "#src/i18n.ts";
-import { space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 

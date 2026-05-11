@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { border, color, font, shadow, space } from "#src/tokens.stylex.ts";
 import { PixelSprite } from "../sprite/pixel-sprite";
 import { types } from "../sprite/sprites";
 import type { CreatureDef, Emotion } from "../state/creature-schema";

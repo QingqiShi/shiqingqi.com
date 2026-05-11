@@ -4,10 +4,10 @@ import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { truncate } from "#src/primitives/layout.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { truncate } from "@tuja/ui/primitives/layout.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import {
   ChatTextarea,
   chatTextareaStyles,

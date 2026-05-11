@@ -5,7 +5,8 @@ import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap"
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { EducationCard } from "#src/components/home/education-card.tsx";
 import { ExperienceCard } from "#src/components/home/experience-card.tsx";
 import { ProjectCard } from "#src/components/home/project-card.tsx";
@@ -17,7 +18,6 @@ import NottinghamLogo from "#src/logos/nottingham-logo.tsx";
 import SpotifyLogo from "#src/logos/spotify-logo.tsx";
 import { svgTokens } from "#src/logos/svg.stylex.ts";
 import WtcLogo from "#src/logos/wtc-logo.tsx";
-import { color, font, space } from "#src/tokens.stylex.ts";
 import type { PageProps } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 

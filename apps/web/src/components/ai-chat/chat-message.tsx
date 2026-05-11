@@ -2,6 +2,14 @@
 
 import * as stylex from "@stylexjs/stylex";
 import {
+  border,
+  color,
+  constants,
+  font,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
+import {
   getToolName,
   isReasoningUIPart,
   isTextUIPart,
@@ -10,14 +18,6 @@ import {
   type UIMessage,
 } from "ai";
 import { useState } from "react";
-import {
-  border,
-  color,
-  constants,
-  font,
-  shadow,
-  space,
-} from "#src/tokens.stylex.ts";
 import { CompactionNotice } from "./compaction-notice";
 import type { ToolOutputMaps } from "./map-tool-output";
 import { SmoothedMarkdownContent } from "./smoothed-markdown-content";

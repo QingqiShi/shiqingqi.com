@@ -2,6 +2,8 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { border, color, layer, space } from "@tuja/ui/tokens.stylex";
 import {
   useDeferredValue,
   useRef,
@@ -10,11 +12,9 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
 import { useDialogFocus } from "#src/hooks/use-dialog-focus.ts";
 import { t } from "#src/i18n.ts";
-import { border, color, layer, space } from "#src/tokens.stylex.ts";
 import { Button } from "./button";
 
 interface OverlayProps {

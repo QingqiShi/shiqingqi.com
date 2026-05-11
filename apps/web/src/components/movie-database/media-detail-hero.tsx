@@ -1,10 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode } from "react";
-import { Suspense } from "react";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
-import { Skeleton } from "#src/components/shared/skeleton.tsx";
-import { t } from "#src/i18n.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import {
   border,
   color,
@@ -12,7 +7,12 @@ import {
   font,
   layout,
   space,
-} from "#src/tokens.stylex.ts";
+} from "@tuja/ui/tokens.stylex";
+import type { ReactNode } from "react";
+import { Suspense } from "react";
+import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
+import { Skeleton } from "#src/components/shared/skeleton.tsx";
+import { t } from "#src/i18n.ts";
 import { BackdropImage } from "./backdrop-image.tsx";
 
 interface MediaDetailHeroProps {

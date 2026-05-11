@@ -1,9 +1,9 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { t } from "#src/i18n.ts";
-import { color, space } from "#src/tokens.stylex.ts";
 import type { Token } from "./types.ts";
 
 interface CalculatorDisplayProps {

@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { border, color } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useState } from "react";
-import { border, color } from "#src/tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex";
 import { ExternalLinkIndicator } from "./external-link-indicator";
 

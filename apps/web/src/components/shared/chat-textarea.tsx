@@ -2,10 +2,10 @@
 
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { createContext, use, useRef, useState, type ReactNode } from "react";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 
 interface ChatTextareaContextValue {
   trimmedText: string;

@@ -2,19 +2,19 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { fixedFill } from "@tuja/ui/primitives/layout.stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, layer, space } from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren, RefObject } from "react";
 import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
 import { useDialogFocus } from "#src/hooks/use-dialog-focus.ts";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { fixedFill } from "#src/primitives/layout.stylex.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, layer, space } from "#src/tokens.stylex.ts";
 
 interface DetailOverlayProps {
   isOpen: boolean;

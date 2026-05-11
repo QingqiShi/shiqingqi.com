@@ -2,12 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, font, layer, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, font, layer, space } from "#src/tokens.stylex.ts";
 import { calculateAge } from "#src/utils/calculate-age.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { MediaListItem } from "#src/utils/types.ts";

@@ -1,3 +1,8 @@
+const path = require("node:path");
+
+const workspaceRoot = path.resolve(__dirname, "../..");
+const uiPackageRoot = path.resolve(__dirname, "../../packages/ui");
+
 module.exports = {
   presets: [
     [
@@ -30,7 +35,7 @@ module.exports = {
     [
       "@tuja/babel-plugin-stylex-breakpoints",
       {
-        rootDir: __dirname,
+        rootDir: uiPackageRoot,
       },
     ],
     [
@@ -45,7 +50,7 @@ module.exports = {
         enableMediaQueryOrder: true,
         unstable_moduleResolution: {
           type: "commonJS",
-          rootDir: __dirname,
+          rootDir: workspaceRoot,
         },
       },
     ],

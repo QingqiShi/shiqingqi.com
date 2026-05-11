@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { color, controlSize } from "#src/tokens.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { color, controlSize } from "@tuja/ui/tokens.stylex";
 import { anchorTokens } from "./anchor.stylex";
 import { buttonTokens } from "./button.stylex";
 

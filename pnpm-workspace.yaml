@@ -1,3 +1,8 @@
 packages:
   - "apps/*"
   - "packages/*"
+catalog:
+  react: 19.3.0-canary-56824423-20260414
+  react-dom: 19.3.0-canary-56824423-20260414
+  "@types/react": 19.2.14
+  "@types/react-dom": 19.2.3

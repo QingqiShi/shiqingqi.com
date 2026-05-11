@@ -2,11 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { isRecord } from "#src/utils/type-guards.ts";

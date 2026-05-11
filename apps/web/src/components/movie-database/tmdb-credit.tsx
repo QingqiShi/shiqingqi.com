@@ -2,11 +2,11 @@
 
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { border, font, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { border, font, space } from "#src/tokens.stylex.ts";
 import { MenuButton } from "../shared/menu-button";
 
 interface TmdbCreditProps {

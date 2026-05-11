@@ -4,9 +4,7 @@ import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
-import { useLocale } from "#src/hooks/use-locale.ts";
-import { t } from "#src/i18n.ts";
-import { imageCover } from "#src/primitives/layout.stylex.ts";
+import { imageCover } from "@tuja/ui/primitives/layout.stylex";
 import {
   border,
   color,
@@ -15,7 +13,9 @@ import {
   ratio,
   shadow,
   space,
-} from "#src/tokens.stylex.ts";
+} from "@tuja/ui/tokens.stylex";
+import { useLocale } from "#src/hooks/use-locale.ts";
+import { t } from "#src/i18n.ts";
 import { formatRuntime } from "#src/utils/format-runtime.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";

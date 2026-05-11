@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { controlSize, layer, layout, space } from "#src/tokens.stylex.ts";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { controlSize, layer, layout, space } from "@tuja/ui/tokens.stylex";
 import { Skeleton } from "./skeleton";
 import { skeletonTokens } from "./skeleton.stylex";
 

@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { scrollX } from "@tuja/ui/primitives/layout.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
 import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
-import { scrollX } from "#src/primitives/layout.stylex.ts";
-import { color, space } from "#src/tokens.stylex.ts";
 import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";
 
 interface HorizontalScrollRowProps {

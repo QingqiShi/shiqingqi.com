@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { flex, justify } from "@tuja/ui/primitives/flex.stylex";
+import { font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { flex, justify } from "#src/primitives/flex.stylex.ts";
-import { font, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { Anchor } from "../shared/anchor";
 import { CurrentYear } from "./current-year";
