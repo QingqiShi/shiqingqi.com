@@ -62,22 +62,43 @@ export function AnimationMode({
     }
   }
 
+  // Carry-over time across the boundary into the next frame. Lives in a ref
+  // so the value survives effect re-runs (e.g. when `frames` or `speed`
+  // change mid-playback) — earlier the cleanup discarded the leftover and
+  // every frame ran one rAF tick (~16ms) longer than configured.
+  const playbackRef = useRef<{ elapsed: number }>({ elapsed: 0 });
+  // Mirror of `activeFrame` so the rAF tick reads the current value without
+  // needing it in the effect's dep array (which would re-run the effect on
+  // every frame transition, again losing carry-over).
+  const activeFrameRef = useRef(activeFrame);
+  useEffect(() => {
+    activeFrameRef.current = activeFrame;
+  }, [activeFrame]);
+
+  // Drop any leftover carry-over when the user starts (or stops) a play
+  // session — re-entering Play mid-frame should not inherit progress from
+  // the previous run. Carry-over within a session (across `speed`/`frames`
+  // edits) is preserved by the ref.
+  useEffect(() => {
+    playbackRef.current.elapsed = 0;
+  }, [isPlaying]);
+
   // Playback loop. Uses real time + frame durations, scaled by `speed`, so
   // setting `speed = 2` halves each duration and `speed = 0.5` doubles it.
   useEffect(() => {
     if (!isPlaying || frames.length === 0) return;
     let raf = 0;
     let lastTime = performance.now();
-    let elapsed = 0;
     const tick = (now: number) => {
-      elapsed += (now - lastTime) * speed;
+      playbackRef.current.elapsed += (now - lastTime) * speed;
       lastTime = now;
-      let idx = activeFrame;
-      while (elapsed >= frames[idx].duration) {
-        elapsed -= frames[idx].duration;
+      let idx = activeFrameRef.current;
+      while (playbackRef.current.elapsed >= frames[idx].duration) {
+        playbackRef.current.elapsed -= frames[idx].duration;
         idx = (idx + 1) % frames.length;
       }
-      if (idx !== activeFrame) {
+      if (idx !== activeFrameRef.current) {
+        activeFrameRef.current = idx;
         setActiveFrame(idx);
       }
       raf = requestAnimationFrame(tick);
@@ -86,7 +107,7 @@ export function AnimationMode({
     return () => {
       cancelAnimationFrame(raf);
     };
-  }, [isPlaying, speed, frames, activeFrame]);
+  }, [isPlaying, speed, frames]);
 
   // Render the current frame to the preview canvas at integer scale, centered.
   useEffect(() => {
