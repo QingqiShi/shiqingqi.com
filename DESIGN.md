@@ -1,83 +1,65 @@
-# Komorebi Tea
+# Design System Principles
 
-木漏れ日 — sunlight filtering through leaves. A gongfu cha (功夫茶) session by a garden window, late afternoon. The light falls diagonal across the table — not diffused, not even, but raking and warm with visible edges. It catches the tea in the cups and turns it to amber. The wood glows where the light touches it. Everything else is quiet, receding, unhurried.
+Principles for evolving the design system, drawn from Spotify Engineering's writing on [customization vs configuration](https://engineering.atspotify.com/2021/4/customization-vs-configuration-in-evolving-design-systems) and [multiple layers of abstraction](https://engineering.atspotify.com/2023/05/multiple-layers-of-abstraction-in-design-systems).
 
-Evening. Same session. The warmth concentrates. The linen darkens from cream to gold. The wood absorbs what light remains. The darkness at the edges is not emptiness — it is the atmosphere now. The tea still glows. It is the brightest thing left in the room.
+## Customization vs Configuration
 
-Every design decision is an act of care toward the visitor — hospitality (待客之道) expressed through attention to detail.
+Two ways to vary a component:
 
-One question governs everything: _does this serve the tea and honour the guest, or does it distract from both?_
+- **Customization** — external styles or markup that override the component. Low abstraction. Lives in the consumer.
+- **Configuration** — props, variants, and tokens exposed by the component itself. High abstraction. Lives in the system.
 
-## Lighting
+Neither is universally better. The choice is a trade between autonomy and cohesion.
 
-Light is the primary design material — the thing that establishes mood before anything else is perceived.
+### When to customize
 
-**Daylight** is directional. It enters from the garden side, diagonal, with clear edges — filtered through foliage, dappled, with the shape of leaves in it. Warm amber-gold, bold enough to define the entire atmosphere. One side glows. The opposite side is cooler, quieter. The light drifts slowly, the way leaves shift overhead.
+- The feature is experimental and the design has not settled.
+- A deadline rules out negotiating a system change.
+- The use case is genuinely one-off.
 
-**Lamplight** is the same warmth, concentrated. Smaller source, sharper falloff, tighter radius. The edges go genuinely dark. A subtle flicker gives the light life — it breathes. The darkness is the atmosphere; the lamp punctuates it.
+Customization buys speed and independence at the cost of duplication, drift, and harder upgrades.
 
-**The transition** between them is not a switch. It is the sun going down — the palette shifts but the light fades slowly, the way a room settles from afternoon into evening.
+### When to configure
 
-## Shadow
+- A pattern has appeared in two or more places.
+- Consistency across surfaces matters more than local freedom.
+- The component is being upgraded or maintained centrally.
 
-Directional light creates directional shadows. Everything casts in the same direction — consistent, never random. In lamplight the shadows lengthen and sharpen, stretching further across the surface.
+Configuration buys consistency and easier upgrades at the cost of slower iteration and tighter coupling to system owners.
 
-Shadows anchor things. They give depth and weight without artifice. The light creates the geometry — beams form parallelograms where they cross the surface.
+### Default bias
 
-Shadow is earned by light, not applied as decoration.
+Favour customization while a feature is finding its shape; promote to configuration once a pattern is real. Don't pre-emptively configure for hypothetical reuse — three similar callsites is the earliest a shared abstraction should appear.
 
-## Material
+## Layers of Abstraction
 
-**Wood** is the ground. Warm brown in daylight, near-black by lamplight — the same material seen under different light, not a different material. Everything rests on it.
+Treat abstraction as a spectrum, not a binary. A component should offer multiple entry points so the consumer can pick the level that matches their need.
 
-**Linen** catches the light. Cream, soft, unbleached — it glows warm where the beams touch it. Not white, not cool. The colour of cloth that has been used and lived with.
+### Config layer (props only)
 
-**Clay** has memory. Unglazed, hand-shaped, it absorbs warmth with each session. Textured, matte, quiet.
+The default. The consumer passes data; the component decides structure and style. Best for standard cases — covers most callsites with the least code at the callsite.
 
-**Ceramic** reflects. Smooth glaze, light inside against the warmth around it — the surface that catches your eye because it is the brightest thing in a field of warm tones.
+### Slot layer (subcomponents as props)
 
-**Metal** is accent. Bronze-toned, warm, functional. It darkens with use. Never decorative, always in service.
+The consumer replaces a specific subcomponent (icon, header, action) while the parent still owns layout, accessibility, and state. Best for small, targeted deviations that don't justify a new variant prop or a full rebuild.
 
-## Colour
+### Custom layer (base primitives)
 
-The palette is narrow and warm. Dark brown, cream, deeper brown, bronze. All neutral-warm, close in temperature, varying only in value.
+The system provides primitives — tokens, hooks, headless behaviour, accessible base elements — and the consumer composes the rest. Best for complex, distinctive cases. Maximum freedom, minimum free lunch.
 
-**Tea-amber (茶色)** is the single saturated colour — the tea catching the light. The brightest, warmest point in every scene. It earns its intensity by being rare.
+A consumer should be able to start at the config layer and drop down only as far as they need. Each layer below should reuse the guarantees (accessibility, state, tokens) of the one above.
 
-**White ceramic** is the counterpoint — cool against the warmth, never cold. It makes the amber visible the way silence makes a note audible.
+## Working Principles
 
-**Cherry blossom** at the edge of the frame — white petals, green stems. Not a colour to use. A reminder that the room opens onto a garden.
+- **Defaults do the heavy lifting.** Accessibility, keyboard behaviour, focus management, and tokens ship in the base — not bolted on per use.
+- **Slots over flag soup.** When a variant prop list starts growing booleans, expose a slot instead. Targeted composition beats accumulating configuration in the parent.
+- **Watch the overrides.** Repeated customizations of the same property are evidence that the default is wrong or a variant is missing. Promote what people are already doing.
+- **Local code should show what's different.** If a consumer's component reads as mostly setup and only a little distinctive work, the abstractions are pulling their weight. If it reads as mostly fighting the system, drop a layer.
+- **Don't trap consumers.** Every layer should have an escape hatch to the one below. A consumer who needs custom layout should not have to fork the component.
 
-No other colours. If something needs colour to earn attention, it doesn't belong.
+## Applying This Here
 
-## Shape
-
-Two geometric families in conversation.
-
-**Rectangles** are structural — they ground, create regions, define edges. The horizontal and vertical lines that organise the space.
-
-**Circles** are focal — they sit within the rectangular structure and draw the eye. Moments of attention within the grid.
-
-The interplay between them is the visual rhythm. Neither dominates. The tension keeps the composition alive.
-
-## Space
-
-留白 — space that has been deliberately kept, not space left over. Every element has territory around it. Nothing crowds its neighbour.
-
-More room means more breathing space, not more content. The space grows. The content does not.
-
-One element per section holds primary attention (主次分明). Hierarchy comes from the content's own qualities — scale, weight, presence — not from containers drawn around it.
-
-## Contrast
-
-Light mode is high-key. Linen and daylight. Warm surface, dark wood, amber accents. The contrast is gentle — nothing stark, nothing cold.
-
-Dark mode is low-key. Wood and lamplight. The background absorbs; the light concentrates on what matters. Amber glows hotter against the dark. The contrast sharpens — fewer things visible, each one more vivid.
-
-The two modes are not inversions of each other. They are the same room at different hours.
-
-## Rhythm
-
-The arrangement breathes. Something dense, then generous space, then a cluster of detail, then openness again. The pace varies — sometimes expansive, sometimes pointed, never monotonous.
-
-Movement is slow and continuous, like the gestures of gongfu cha. The light drifts or flickers. Nothing is sudden. Nothing bounces. Nothing demands attention it hasn't earned.
+- New shared components default to the config layer. Add slots when a second consumer needs to vary the same internal piece.
+- Reach for the custom layer (raw primitives, tokens, headless hooks) when a page is doing something genuinely distinctive — bespoke marketing surfaces, one-off transitions, experimental layouts.
+- Before adding a prop, check whether a slot would express the variation more clearly. Before adding a slot, check whether the variation belongs in a token.
+- Treat the design system as evolving. Patterns earn promotion from customization → slot → config by showing up repeatedly, not by being predicted.
