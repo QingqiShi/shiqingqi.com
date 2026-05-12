@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";
@@ -6,7 +7,6 @@ import { cardTokens } from "#src/components/shared/card.stylex.ts";
 import { Card } from "#src/components/shared/card.tsx";
 import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { svgTokens } from "#src/logos/svg.stylex.ts";
-import { color, font, ratio, space } from "#src/tokens.stylex.ts";
 
 interface EducationCardProps extends React.ComponentProps<typeof Card> {
   logo: React.ReactNode | { src: StaticImageData; alt: string };

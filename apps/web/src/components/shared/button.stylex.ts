@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, controlSize, shadow } from "#src/tokens.stylex.ts";
+import { border, color, controlSize, shadow } from "@tuja/ui/tokens.stylex";
 
 export const buttonTokens = stylex.defineVars({
   backgroundColor: color.backgroundRaised,

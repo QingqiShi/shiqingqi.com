@@ -2,10 +2,10 @@
 
 import { TranslateIcon } from "@phosphor-icons/react/dist/ssr/Translate";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { LOCALE_COOKIE_NAME } from "#src/constants.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { controlSize } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 import { MenuButton } from "./menu-button";

@@ -1,10 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import React, { useLayoutEffect, useRef, useState } from "react";
-import { useControlled } from "#src/hooks/use-controlled.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import {
   border,
   color,
@@ -12,7 +10,9 @@ import {
   layer,
   ratio,
   shadow,
-} from "#src/tokens.stylex.ts";
+} from "@tuja/ui/tokens.stylex";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import { useControlled } from "#src/hooks/use-controlled.ts";
 import { switchTokens } from "./switch.stylex";
 
 export type SwitchState = "off" | "on" | "indeterminate";

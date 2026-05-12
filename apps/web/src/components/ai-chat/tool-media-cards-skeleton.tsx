@@ -1,8 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { ratio, space } from "#src/tokens.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { ratio, space } from "@tuja/ui/tokens.stylex";
 import { Skeleton } from "../shared/skeleton";
 
 const SKELETON_COUNT = 5;

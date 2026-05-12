@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color, font, layout, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { color, font, layout, space } from "#src/tokens.stylex.ts";
 import { HeroChatInput } from "./hero-chat-input";
 
 export function HeroSection() {

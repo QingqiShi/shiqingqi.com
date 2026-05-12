@@ -1,8 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 
 export function CompactionNotice() {
   return (

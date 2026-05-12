@@ -16,7 +16,7 @@ const i18nPlugin = require("@tuja/eslint-plugin-i18n");
 export default defineConfig([
   {
     ignores: [
-      "apps/web/.babelrc.js",
+      "apps/web/babel.config.js",
       "eslint.config.mjs",
       "apps/web/next.config.js",
       "apps/web/postcss.config.js",

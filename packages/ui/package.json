@@ -1,0 +1,29 @@
+{
+  "name": "@tuja/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tokens.stylex": "./src/tokens.stylex.ts",
+    "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
+    "./primitives/flex.stylex": "./src/primitives/flex.stylex.ts",
+    "./primitives/layout.stylex": "./src/primitives/layout.stylex.ts",
+    "./primitives/motion.stylex": "./src/primitives/motion.stylex.ts",
+    "./primitives/reset.stylex": "./src/primitives/reset.stylex.ts",
+    "./components/badge": "./src/components/badge.tsx",
+    "./components/divider": "./src/components/divider.tsx",
+    "./components/heading": "./src/components/heading.tsx",
+    "./components/text": "./src/components/text.tsx"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "@stylexjs/stylex": "*",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/react": "catalog:"
+  }
+}

@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { absoluteFill } from "@tuja/ui/primitives/layout.stylex";
+import { color, layer, ratio, space } from "@tuja/ui/tokens.stylex";
 import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { absoluteFill } from "#src/primitives/layout.stylex.ts";
-import { color, layer, ratio, space } from "#src/tokens.stylex.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 
 interface BackdropImageProps {

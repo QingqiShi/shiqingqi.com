@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import type { HTMLAttributes, PropsWithChildren, Ref } from "react";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 
 export function Grid({
   children,

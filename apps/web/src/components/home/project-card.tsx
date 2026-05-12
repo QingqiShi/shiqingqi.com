@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition, type ReactNode } from "react";
 import { Card } from "#src/components/shared/card.tsx";
 import { svgTokens } from "#src/logos/svg.stylex.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 
 interface ProjectCardProps extends React.ComponentProps<typeof Card> {
   icon: ReactNode;

@@ -3,10 +3,10 @@
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, shadow } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, shadow } from "#src/tokens.stylex.ts";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 
 const HOVER_NONE = "@media (hover: none)";

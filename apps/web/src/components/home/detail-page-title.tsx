@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 
 interface PageTitleProps {
   type: "experience" | "education";

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { layout, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -8,7 +9,6 @@ import {
 import { Footer } from "#src/components/home/footer.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
-import { layout, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 import { truncateMetadataDescription } from "#src/utils/truncate-metadata-description.ts";

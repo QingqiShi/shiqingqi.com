@@ -2,24 +2,11 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import { ViewTransition } from "react";
-import {
-  SYSTEM_PALETTE_TONES,
-  systemPalette,
-} from "#src/_generated/system-palette.ts";
-import { Badge } from "#src/components/design-system/badge.tsx";
-import { Divider } from "#src/components/design-system/divider.tsx";
-import { Heading } from "#src/components/design-system/heading.tsx";
-import { SectionNav } from "#src/components/design-system/section-nav.tsx";
-import { Section } from "#src/components/design-system/section.tsx";
-import {
-  Showcase,
-  ShowcaseGrid,
-  ShowcaseItem,
-} from "#src/components/design-system/showcase.tsx";
-import { Text } from "#src/components/design-system/text.tsx";
-import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
+import { Badge } from "@tuja/ui/components/badge";
+import { Divider } from "@tuja/ui/components/divider";
+import { Heading } from "@tuja/ui/components/heading";
+import { Text } from "@tuja/ui/components/text";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import {
   border,
   color,
@@ -28,7 +15,20 @@ import {
   gradient,
   shadow,
   space,
-} from "#src/tokens.stylex.ts";
+} from "@tuja/ui/tokens.stylex";
+import { ViewTransition } from "react";
+import {
+  SYSTEM_PALETTE_TONES,
+  systemPalette,
+} from "#src/_generated/system-palette.ts";
+import { SectionNav } from "#src/components/design-system/section-nav.tsx";
+import { Section } from "#src/components/design-system/section.tsx";
+import {
+  Showcase,
+  ShowcaseGrid,
+  ShowcaseItem,
+} from "#src/components/design-system/showcase.tsx";
+import { t } from "#src/i18n.ts";
 
 export default function DesignSystem() {
   const heading = t({ en: "Design System", zh: "设计系统" });

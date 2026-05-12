@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { globalStyles } from "#src/app/global-styles.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 import { themeHack } from "#src/utils/theme-hack.ts";
 
 export const metadata: Metadata = {

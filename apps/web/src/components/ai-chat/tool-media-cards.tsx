@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { t } from "#src/i18n.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";

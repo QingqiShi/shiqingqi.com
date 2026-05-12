@@ -5,11 +5,13 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const workspaceRoot = path.resolve(__dirname, "../..");
+const uiPackageRoot = path.resolve(__dirname, "../../packages/ui");
 
 export default defineConfig({
   plugins: [
     babel({
-      include: /src\/.*\.(tsx?|jsx?)$/,
+      include: /(?:apps\/web\/src|packages\/ui\/src)\/.*\.(tsx?|jsx?)$/,
       presets: [
         [
           "@babel/preset-env",
@@ -40,7 +42,7 @@ export default defineConfig({
         [
           "@tuja/babel-plugin-stylex-breakpoints",
           {
-            rootDir: __dirname,
+            rootDir: uiPackageRoot,
           },
         ],
         [
@@ -55,7 +57,7 @@ export default defineConfig({
             enableMediaQueryOrder: true,
             unstable_moduleResolution: {
               type: "commonJS",
-              rootDir: __dirname,
+              rootDir: workspaceRoot,
             },
           },
         ],

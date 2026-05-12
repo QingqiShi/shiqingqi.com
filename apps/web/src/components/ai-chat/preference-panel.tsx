@@ -7,14 +7,14 @@ import { ThumbsUpIcon } from "@phosphor-icons/react/dist/ssr/ThumbsUp";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import type { StoredPreference } from "#src/preference-store/preference-store.ts";
 import { usePreferences } from "#src/preference-store/use-preferences.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { DetailOverlay } from "./detail-overlay";
 
 const CATEGORY_ORDER: ReadonlyArray<StoredPreference["category"]> = [

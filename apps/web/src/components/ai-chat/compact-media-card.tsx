@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, ratio, shadow } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "#src/components/shared/anchor.tsx";
 import { t } from "#src/i18n.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, ratio, shadow } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { MediaPoster } from "../movie-database/media-poster";
 

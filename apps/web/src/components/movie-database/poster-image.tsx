@@ -2,10 +2,10 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { imageCover } from "@tuja/ui/primitives/layout.stylex";
+import { color, font, layer } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { imageCover } from "#src/primitives/layout.stylex.ts";
-import { color, font, layer } from "#src/tokens.stylex.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { TmdbImage } from "./tmdb-image.tsx";
 

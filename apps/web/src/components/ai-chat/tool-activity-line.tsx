@@ -3,12 +3,12 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { truncate } from "@tuja/ui/primitives/layout.stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { isToolError } from "#src/ai-chat/tools/tool-error.ts";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { truncate } from "#src/primitives/layout.stylex.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
 
 export const TERMINAL_STATES = new Set([

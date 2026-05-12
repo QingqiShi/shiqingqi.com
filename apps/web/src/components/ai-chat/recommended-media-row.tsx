@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";

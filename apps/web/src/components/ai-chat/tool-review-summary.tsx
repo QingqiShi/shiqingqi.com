@@ -7,13 +7,13 @@ import { PepperIcon } from "@phosphor-icons/react/dist/ssr/Pepper";
 import { ScalesIcon } from "@phosphor-icons/react/dist/ssr/Scales";
 import { SmileyWinkIcon } from "@phosphor-icons/react/dist/ssr/SmileyWink";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ComponentType } from "react";
 import { useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
 import { useChatActions } from "./chat-actions-context";
 

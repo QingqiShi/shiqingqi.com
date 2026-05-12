@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { controlSize } from "#src/tokens.stylex.ts";
+import { controlSize } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/types.ts";
 import { Skeleton } from "../shared/skeleton";
 import { skeletonTokens } from "../shared/skeleton.stylex";

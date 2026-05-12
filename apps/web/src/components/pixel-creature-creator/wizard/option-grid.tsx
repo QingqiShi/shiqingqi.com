@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { space } from "#src/tokens.stylex.ts";
+import { space } from "@tuja/ui/tokens.stylex";
 
 interface OptionGridProps {
   children: React.ReactNode;

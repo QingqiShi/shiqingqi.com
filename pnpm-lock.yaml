@@ -4,6 +4,21 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@types/react':
+      specifier: 19.2.14
+      version: 19.2.14
+    '@types/react-dom':
+      specifier: 19.2.3
+      version: 19.2.3
+    react:
+      specifier: 19.3.0-canary-56824423-20260414
+      version: 19.3.0-canary-56824423-20260414
+    react-dom:
+      specifier: 19.3.0-canary-56824423-20260414
+      version: 19.3.0-canary-56824423-20260414
+
 importers:
 
   .:
@@ -80,6 +95,9 @@ importers:
       '@tuja/tmdb-types':
         specifier: workspace:*
         version: link:../../packages/tmdb-types
+      '@tuja/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@upstash/ratelimit':
         specifier: ^2.0.8
         version: 2.0.8(@upstash/redis@1.38.0)
@@ -102,10 +120,10 @@ importers:
         specifier: 16.2.6
         version: 16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(react-dom@19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414))(react@19.3.0-canary-56824423-20260414)
       react:
-        specifier: 19.3.0-canary-56824423-20260414
+        specifier: 'catalog:'
         version: 19.3.0-canary-56824423-20260414
       react-dom:
-        specifier: 19.3.0-canary-56824423-20260414
+        specifier: 'catalog:'
         version: 19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414)
       react-error-boundary:
         specifier: ^6.1.1
@@ -217,10 +235,10 @@ importers:
         specifier: ^25.6.2
         version: 25.6.2
       '@types/react':
-        specifier: 19.2.14
+        specifier: 'catalog:'
         version: 19.2.14
       '@types/react-dom':
-        specifier: 19.2.3
+        specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: ^6.0.1
@@ -402,6 +420,22 @@ importers:
         version: 6.0.3
 
   packages/tsconfig: {}
+
+  packages/ui:
+    dependencies:
+      '@stylexjs/stylex':
+        specifier: '*'
+        version: 0.18.3
+      react:
+        specifier: 'catalog:'
+        version: 19.3.0-canary-56824423-20260414
+    devDependencies:
+      '@tuja/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
 
   packages/vector-ingest:
     dependencies:

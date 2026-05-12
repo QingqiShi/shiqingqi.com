@@ -1,8 +1,8 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
+import { flex } from "../primitives/flex.stylex.ts";
+import { border, color, font, space } from "../tokens.stylex.ts";
 
 type BadgeVariant =
   | "default"

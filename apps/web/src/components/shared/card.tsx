@@ -3,8 +3,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
-import { t } from "#src/i18n.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import {
   border,
   color,
@@ -12,7 +11,8 @@ import {
   layer,
   shadow,
   space,
-} from "#src/tokens.stylex.ts";
+} from "@tuja/ui/tokens.stylex";
+import { t } from "#src/i18n.ts";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
 

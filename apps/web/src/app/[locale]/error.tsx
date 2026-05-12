@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect } from "react";
 import { t } from "#src/i18n.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 
 /**
  * Error boundary for pages within the [locale] layout.

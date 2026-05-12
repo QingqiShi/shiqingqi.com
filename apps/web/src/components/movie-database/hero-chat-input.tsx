@@ -3,14 +3,14 @@
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockCounterClockwise";
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
 import { useAIChatSend } from "#src/ai-chat/use-ai-chat-send.ts";
 import { PreferenceManager } from "#src/components/ai-chat/preference-panel.tsx";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import { SuggestionChips } from "../ai-chat/suggestion-chips";
 import { ChatTextarea } from "../shared/chat-textarea";
 import { useHeroVisibility } from "./hero-visibility-context";

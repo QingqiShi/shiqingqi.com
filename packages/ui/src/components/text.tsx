@@ -1,7 +1,7 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { color, font } from "#src/tokens.stylex.ts";
+import { color, font } from "../tokens.stylex.ts";
 
 type TextElement = "p" | "span" | "div";
 type TextVariant = "body" | "bodySmall" | "caption" | "overline";

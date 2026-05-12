@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 import { species } from "../sprite/species";
 import type { CreatureDef } from "../state/creature-schema";
 import { useRadioGroup } from "./use-radio-group";

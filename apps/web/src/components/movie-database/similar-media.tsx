@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { layout, ratio, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import {
   getConfiguration,
@@ -7,7 +8,6 @@ import {
   getTvShowRecommendations,
 } from "#src/_generated/tmdb-server-functions.ts";
 import { t } from "#src/i18n.ts";
-import { layout, ratio, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";

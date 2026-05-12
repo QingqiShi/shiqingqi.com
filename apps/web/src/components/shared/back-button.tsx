@@ -3,8 +3,8 @@
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { usePathname } from "next/navigation";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
 import { AnchorButton } from "#src/components/shared/anchor-button.tsx";
 import { Button } from "#src/components/shared/button.tsx";
 import { useBackOverride } from "#src/contexts/back-override-context.tsx";

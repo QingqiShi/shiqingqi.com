@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { FEATURED_CREATURES } from "../featured-creatures";
 import { PixelSprite } from "../sprite/pixel-sprite";

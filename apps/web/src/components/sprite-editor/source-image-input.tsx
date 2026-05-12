@@ -2,10 +2,10 @@
 
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/ssr/UploadSimple";
 import * as stylex from "@stylexjs/stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
 import { Button } from "#src/components/shared/button.tsx";
 import { t } from "#src/i18n.ts";
-import { border, color, font, space } from "#src/tokens.stylex.ts";
 import type { SourceImage } from "./types";
 
 interface SourceImageInputProps {

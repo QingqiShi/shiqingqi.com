@@ -2,12 +2,12 @@
 
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { t } from "#src/i18n.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { motionConstants } from "#src/primitives/motion.stylex.ts";
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 import { TERMINAL_STATES, ToolActivityLine } from "./tool-activity-line";
 
 interface ToolPartData {

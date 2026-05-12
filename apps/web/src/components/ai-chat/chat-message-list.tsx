@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
 import {
@@ -10,8 +12,6 @@ import {
 import type { ChatMessageMetadata } from "#src/ai-chat/use-ai-chat.ts";
 import { t } from "#src/i18n.ts";
 import { usePreferencePersistence } from "#src/preference-store/use-preference-persistence.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { color, font, space } from "#src/tokens.stylex.ts";
 import { ChatMessage } from "./chat-message";
 import type { ToolOutputMaps } from "./map-tool-output";
 import { TypingIndicator } from "./typing-indicator";

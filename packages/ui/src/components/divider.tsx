@@ -1,6 +1,6 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import { color, gradient } from "#src/tokens.stylex.ts";
+import { color, gradient } from "../tokens.stylex.ts";
 
 type DividerOrientation = "horizontal" | "vertical";
 type DividerVariant = "subtle" | "bold" | "decorative";

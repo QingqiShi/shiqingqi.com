@@ -2,11 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
+import { color, layout, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { useViewportHeight } from "#src/hooks/use-viewport-height.ts";
-import { color, layout, space } from "#src/tokens.stylex.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { MediaCard } from "./media-card";
 

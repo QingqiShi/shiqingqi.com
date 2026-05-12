@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { layer, layout, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { breakpoints } from "#src/breakpoints.stylex.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
-import { layer, layout, space } from "#src/tokens.stylex.ts";
 
 interface FiltersContainerProps {
   desktopChildren?: ReactNode;

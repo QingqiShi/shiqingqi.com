@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { space } from "#src/tokens.stylex.ts";
+import { space } from "@tuja/ui/tokens.stylex";
 
 export default function Layout({
   children,

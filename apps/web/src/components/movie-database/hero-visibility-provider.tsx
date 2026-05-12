@@ -1,8 +1,8 @@
 "use client";
 
+import { easing } from "@tuja/ui/primitives/motion.stylex";
 import { useCallback, useLayoutEffect, useRef, type ReactNode } from "react";
 import { useIsElementVisible } from "#src/hooks/use-is-element-visible.ts";
-import { easing } from "#src/primitives/motion.stylex.ts";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   DATA_HERO_REFINE_BUTTON,
