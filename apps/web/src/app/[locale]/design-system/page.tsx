@@ -11,8 +11,10 @@ import {
   border,
   color,
   controlSize,
+  darkTheme,
   font,
   gradient,
+  lightTheme,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -62,59 +64,61 @@ export default function DesignSystem() {
         })}
       >
         <Showcase label={t({ en: "Surfaces", zh: "表面" })}>
+          <DuotoneLegend />
           <ShowcaseGrid>
             <ShowcaseItem label="color.backgroundMain">
-              <div css={[styles.swatch, styles.bgMain]} />
+              <DuotoneSwatch fillStyle={styles.bgMain} />
             </ShowcaseItem>
             <ShowcaseItem label="color.backgroundRaised">
-              <div css={[styles.swatch, styles.bgRaised]} />
+              <DuotoneSwatch fillStyle={styles.bgRaised} />
             </ShowcaseItem>
             <ShowcaseItem label="color.backgroundElevated">
-              <div css={[styles.swatch, styles.bgElevated]} />
+              <DuotoneSwatch fillStyle={styles.bgElevated} />
             </ShowcaseItem>
             <ShowcaseItem label="color.backgroundSunken">
-              <div css={[styles.swatch, styles.bgSunken]} />
+              <DuotoneSwatch fillStyle={styles.bgSunken} />
             </ShowcaseItem>
             <ShowcaseItem label="color.controlActive">
-              <div css={[styles.swatch, styles.controlActive]} />
+              <DuotoneSwatch fillStyle={styles.controlActive} />
             </ShowcaseItem>
             <ShowcaseItem label="color.controlActiveHover">
-              <div css={[styles.swatch, styles.controlActiveHover]} />
+              <DuotoneSwatch fillStyle={styles.controlActiveHover} />
             </ShowcaseItem>
             <ShowcaseItem label="color.info">
-              <div css={[styles.swatch, styles.info]} />
+              <DuotoneSwatch fillStyle={styles.info} />
             </ShowcaseItem>
             <ShowcaseItem label="color.success">
-              <div css={[styles.swatch, styles.success]} />
+              <DuotoneSwatch fillStyle={styles.success} />
             </ShowcaseItem>
             <ShowcaseItem label="color.warning">
-              <div css={[styles.swatch, styles.warning]} />
+              <DuotoneSwatch fillStyle={styles.warning} />
             </ShowcaseItem>
             <ShowcaseItem label="color.danger">
-              <div css={[styles.swatch, styles.danger]} />
+              <DuotoneSwatch fillStyle={styles.danger} />
             </ShowcaseItem>
           </ShowcaseGrid>
         </Showcase>
 
         <Showcase label={t({ en: "Surface tints", zh: "表面色调" })}>
+          <DuotoneLegend />
           <ShowcaseGrid>
             <ShowcaseItem label="color.surfaceAccentSubtle">
-              <div css={[styles.swatch, styles.surfaceAccentSubtle]} />
+              <DuotoneSwatch fillStyle={styles.surfaceAccentSubtle} />
             </ShowcaseItem>
             <ShowcaseItem label="color.surfaceAccentMuted">
-              <div css={[styles.swatch, styles.surfaceAccentMuted]} />
+              <DuotoneSwatch fillStyle={styles.surfaceAccentMuted} />
             </ShowcaseItem>
             <ShowcaseItem label="color.surfaceInfoSubtle">
-              <div css={[styles.swatch, styles.surfaceInfoSubtle]} />
+              <DuotoneSwatch fillStyle={styles.surfaceInfoSubtle} />
             </ShowcaseItem>
             <ShowcaseItem label="color.surfaceSuccessSubtle">
-              <div css={[styles.swatch, styles.surfaceSuccessSubtle]} />
+              <DuotoneSwatch fillStyle={styles.surfaceSuccessSubtle} />
             </ShowcaseItem>
             <ShowcaseItem label="color.surfaceWarningSubtle">
-              <div css={[styles.swatch, styles.surfaceWarningSubtle]} />
+              <DuotoneSwatch fillStyle={styles.surfaceWarningSubtle} />
             </ShowcaseItem>
             <ShowcaseItem label="color.surfaceDangerSubtle">
-              <div css={[styles.swatch, styles.surfaceDangerSubtle]} />
+              <DuotoneSwatch fillStyle={styles.surfaceDangerSubtle} />
             </ShowcaseItem>
           </ShowcaseGrid>
         </Showcase>
@@ -633,6 +637,34 @@ function TypeSample({ label, sizeStyle, children }: TypeSampleProps) {
   );
 }
 
+interface DuotoneSwatchProps {
+  fillStyle: StyleXStyles;
+}
+
+function DuotoneSwatch({ fillStyle }: DuotoneSwatchProps) {
+  return (
+    <div css={styles.duotoneSwatch}>
+      <div css={[styles.duotoneHalf, styles.duotoneLight, lightTheme]}>
+        <div css={[styles.duotoneFill, fillStyle]} />
+      </div>
+      <div css={[styles.duotoneHalf, styles.duotoneDark, darkTheme]}>
+        <div css={[styles.duotoneFill, fillStyle]} />
+      </div>
+    </div>
+  );
+}
+
+function DuotoneLegend() {
+  return (
+    <span css={styles.duotoneLegend}>
+      {t({
+        en: "↖ light  ·  ↘ dark",
+        zh: "↖ 浅色  ·  ↘ 深色",
+      })}
+    </span>
+  );
+}
+
 const styles = stylex.create({
   container: {
     display: "flex",
@@ -660,6 +692,35 @@ const styles = stylex.create({
     blockSize: "64px",
     borderRadius: border.radius_2,
     border: `1px solid ${color.borderSubtle}`,
+  },
+  duotoneSwatch: {
+    position: "relative",
+    inlineSize: "80px",
+    blockSize: "80px",
+    borderRadius: border.radius_2,
+    overflow: "hidden",
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+  },
+  duotoneHalf: {
+    position: "absolute",
+    inset: 0,
+    backgroundColor: color.backgroundMain,
+  },
+  duotoneFill: {
+    position: "absolute",
+    inset: 0,
+  },
+  duotoneLight: {
+    clipPath: "polygon(0 0, 100% 0, 0 100%)",
+  },
+  duotoneDark: {
+    clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+  },
+  duotoneLegend: {
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
+    fontFamily: font.familyMono,
+    letterSpacing: font.trackingSnug,
   },
   bgMain: { backgroundColor: color.backgroundMain },
   bgRaised: { backgroundColor: color.backgroundRaised },
