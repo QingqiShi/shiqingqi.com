@@ -257,19 +257,7 @@ function NoteCard({ note, open, onToggle }: NoteCardProps) {
         aria-expanded={open}
         aria-controls={panelId}
       >
-        <span css={styles.cardHeaderText}>
-          <span css={styles.cardTitle}>{note.title}</span>
-          <span css={styles.cardBlurb}>{note.blurb}</span>
-          {note.tags && note.tags.length > 0 ? (
-            <span css={[flex.wrap, styles.tagRow]}>
-              {note.tags.map((tag) => (
-                <span key={tag} css={styles.tag}>
-                  {tag}
-                </span>
-              ))}
-            </span>
-          ) : null}
-        </span>
+        <span css={styles.cardTitle}>{note.title}</span>
         <span css={[styles.caret, open && styles.caretOpen]} aria-hidden="true">
           <CaretDownIcon weight="bold" />
         </span>
@@ -277,9 +265,11 @@ function NoteCard({ note, open, onToggle }: NoteCardProps) {
 
       {open ? (
         <div id={panelId} css={styles.panel}>
-          {note.complexity ? (
-            <div css={[flex.wrap, styles.complexity]}>
-              {note.complexity.time ? (
+          <p css={styles.cardBlurb}>{note.blurb}</p>
+
+          {note.complexity || (note.tags && note.tags.length > 0) ? (
+            <div css={[flex.wrap, styles.metaChips]}>
+              {note.complexity?.time ? (
                 <span css={styles.complexityItem}>
                   <span css={styles.complexityKey}>time</span>
                   <span css={styles.complexityValue}>
@@ -287,7 +277,7 @@ function NoteCard({ note, open, onToggle }: NoteCardProps) {
                   </span>
                 </span>
               ) : null}
-              {note.complexity.space ? (
+              {note.complexity?.space ? (
                 <span css={styles.complexityItem}>
                   <span css={styles.complexityKey}>space</span>
                   <span css={styles.complexityValue}>
@@ -295,7 +285,23 @@ function NoteCard({ note, open, onToggle }: NoteCardProps) {
                   </span>
                 </span>
               ) : null}
+              {note.tags?.map((tag) => (
+                <span key={tag} css={styles.tag}>
+                  {tag}
+                </span>
+              ))}
             </div>
+          ) : null}
+
+          {note.hints && note.hints.length > 0 ? (
+            <dl css={styles.hintList}>
+              {note.hints.map((hint) => (
+                <div key={hint.trigger} css={styles.hintRow}>
+                  <dt css={styles.hintTrigger}>{hint.trigger}</dt>
+                  <dd css={styles.hintApproach}>{hint.approach}</dd>
+                </div>
+              ))}
+            </dl>
           ) : null}
 
           {note.notes && note.notes.length > 0 ? (
@@ -485,10 +491,10 @@ const styles = stylex.create({
   },
   cardHeader: {
     display: "flex",
-    alignItems: "flex-start",
-    gap: space._3,
+    alignItems: "center",
+    gap: space._2,
     width: "100%",
-    paddingBlock: space._3,
+    paddingBlock: space._2,
     paddingInline: space._3,
     textAlign: "start",
     color: color.textMain,
@@ -499,27 +505,19 @@ const styles = stylex.create({
     },
     borderRadius: border.radius_2,
   },
-  cardHeaderText: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
+  cardTitle: {
     flex: 1,
     minInlineSize: 0,
-  },
-  cardTitle: {
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
     color: color.textMain,
     lineHeight: font.lineHeight_2,
   },
   cardBlurb: {
+    margin: 0,
     fontSize: font.uiBodySmall,
     color: color.textMuted,
     lineHeight: font.lineHeight_4,
-  },
-  tagRow: {
-    gap: space._1,
-    marginBlockStart: space._1,
   },
   tag: {
     paddingBlock: space._0,
@@ -552,8 +550,8 @@ const styles = stylex.create({
     paddingInline: space._3,
     paddingBlockStart: 0,
   },
-  complexity: {
-    gap: space._2,
+  metaChips: {
+    gap: space._1,
   },
   complexityItem: {
     display: "inline-flex",
@@ -574,6 +572,34 @@ const styles = stylex.create({
   },
   complexityValue: {
     fontWeight: font.weight_6,
+  },
+  hintList: {
+    margin: 0,
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.2fr)",
+    columnGap: space._3,
+    rowGap: space._1,
+    paddingBlock: space._2,
+    paddingInline: space._3,
+    borderRadius: border.radius_2,
+    backgroundColor: color.backgroundSunken,
+    border: `1px solid ${color.borderSubtle}`,
+  },
+  hintRow: {
+    display: "contents",
+  },
+  hintTrigger: {
+    margin: 0,
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    lineHeight: font.lineHeight_3,
+  },
+  hintApproach: {
+    margin: 0,
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_6,
+    color: color.textMain,
+    lineHeight: font.lineHeight_3,
   },
   notesList: {
     margin: 0,
