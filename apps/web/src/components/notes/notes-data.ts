@@ -33,22 +33,49 @@ export const noteGroups: NoteGroup[] = [
         tags: ["cheatsheet"],
         hints: [
           { trigger: "Tree / graph", approach: "DFS or BFS" },
-          { trigger: "Subarray / substring output", approach: "Sliding window" },
+          {
+            trigger: "Subarray / substring output",
+            approach: "Sliding window",
+          },
           { trigger: "In-place on a sequence", approach: "Two pointers" },
           { trigger: "Dependencies / ordering", approach: "Topological sort" },
           { trigger: "Shortest path, unweighted", approach: "BFS" },
-          { trigger: "Shortest path, weighted (non-negative)", approach: "Dijkstra" },
+          {
+            trigger: "Shortest path, weighted (non-negative)",
+            approach: "Dijkstra",
+          },
           { trigger: "Self-referential structure", approach: "Recursion" },
           { trigger: "Sorted input", approach: "Binary search" },
-          { trigger: "Monotone feasibility on a range", approach: "Binary search on the answer" },
-          { trigger: "Connectivity / cycle in undirected graph", approach: "Union-Find" },
+          {
+            trigger: "Monotone feasibility on a range",
+            approach: "Binary search on the answer",
+          },
+          {
+            trigger: "Connectivity / cycle in undirected graph",
+            approach: "Union-Find",
+          },
           { trigger: "Prefix queries on strings", approach: "Trie" },
           { trigger: "Bottleneck is sorting / top-k", approach: "Heap" },
-          { trigger: "Range sum / range update", approach: "Prefix sum / difference array" },
-          { trigger: "Next greater / smaller element", approach: "Monotonic stack" },
-          { trigger: "All combinations / permutations", approach: "Backtracking" },
-          { trigger: "Greedy doesn't work / overlapping subproblems", approach: "Backtracking + memo / DP" },
-          { trigger: "Recent-access lookup", approach: "LRU (Map insertion order)" },
+          {
+            trigger: "Range sum / range update",
+            approach: "Prefix sum / difference array",
+          },
+          {
+            trigger: "Next greater / smaller element",
+            approach: "Monotonic stack",
+          },
+          {
+            trigger: "All combinations / permutations",
+            approach: "Backtracking",
+          },
+          {
+            trigger: "Greedy doesn't work / overlapping subproblems",
+            approach: "Backtracking + memo / DP",
+          },
+          {
+            trigger: "Recent-access lookup",
+            approach: "LRU (Map insertion order)",
+          },
         ],
       },
       {
