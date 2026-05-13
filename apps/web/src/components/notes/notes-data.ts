@@ -1,3 +1,8 @@
+export interface Hint {
+  trigger: string;
+  approach: string;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -6,6 +11,7 @@ export interface Note {
   complexity?: { time?: string; space?: string };
   code?: string;
   notes?: string[];
+  hints?: Hint[];
 }
 
 export interface NoteGroup {
@@ -20,81 +26,102 @@ export const noteGroups: NoteGroup[] = [
     label: "Core patterns",
     notes: [
       {
+        id: "pattern-hints",
+        title: "Pattern hints — what to reach for",
+        blurb:
+          "Map the prompt's shape to the technique. Use as a first-pass filter when the interviewer hands you the problem.",
+        tags: ["cheatsheet"],
+        hints: [
+          { trigger: "Tree / graph", approach: "DFS or BFS" },
+          { trigger: "Subarray / substring output", approach: "Sliding window" },
+          { trigger: "In-place on a sequence", approach: "Two pointers" },
+          { trigger: "Dependencies / ordering", approach: "Topological sort" },
+          { trigger: "Shortest path, unweighted", approach: "BFS" },
+          { trigger: "Shortest path, weighted (non-negative)", approach: "Dijkstra" },
+          { trigger: "Self-referential structure", approach: "Recursion" },
+          { trigger: "Sorted input", approach: "Binary search" },
+          { trigger: "Monotone feasibility on a range", approach: "Binary search on the answer" },
+          { trigger: "Connectivity / cycle in undirected graph", approach: "Union-Find" },
+          { trigger: "Prefix queries on strings", approach: "Trie" },
+          { trigger: "Bottleneck is sorting / top-k", approach: "Heap" },
+          { trigger: "Range sum / range update", approach: "Prefix sum / difference array" },
+          { trigger: "Next greater / smaller element", approach: "Monotonic stack" },
+          { trigger: "All combinations / permutations", approach: "Backtracking" },
+          { trigger: "Greedy doesn't work / overlapping subproblems", approach: "Backtracking + memo / DP" },
+          { trigger: "Recent-access lookup", approach: "LRU (Map insertion order)" },
+        ],
+      },
+      {
         id: "binary-search",
         title: "Binary search",
         blurb:
-          "Find target in a sorted array. Use lo + Math.floor((hi - lo) / 2) to avoid overflow. Always frame the invariant first.",
+          "Maintain an exclusive window between a known-before index l and known-after index r. Shrink until they're adjacent — r is the answer.",
         complexity: { time: "O(log n)", space: "O(1)" },
         tags: ["array", "search"],
         notes: [
-          "Half-open [lo, hi): exit when lo === hi.",
-          "For lower_bound (first index where predicate is true), return lo.",
-          "If you need a sorted predicate (e.g. 'first true' on a monotone array), binary search on the predicate, not the value.",
+          "Define isBefore(i) as the monotone predicate. The answer is the first i where isBefore(i) is false.",
+          "Exclusive bounds: l = -1 (everything before is 'before'), r = n (everything after is 'after').",
+          "Loop while there's still a gap (r - l > 1). Each step halves the gap.",
+          "Edge cases: empty input → r = 0; all isBefore → r = n; none isBefore → r = 0.",
+          "Generalises directly: lowerBound on a sorted array → isBefore = arr[i] < target. Exact match → check arr[r] === target afterwards.",
         ],
-        code: `// Classic exact match
-function binarySearch(arr: readonly number[], target: number): number {
-  let lo = 0;
-  let hi = arr.length - 1;
-  while (lo <= hi) {
-    const mid = lo + Math.floor((hi - lo) / 2);
-    if (arr[mid] === target) return mid;
-    if (arr[mid] < target) lo = mid + 1;
-    else hi = mid - 1;
-  }
-  return -1;
-}
+        code: `BinarySearch(n, isBefore)
+  // isBefore(i): monotone predicate (true … true | false … false)
+  // Returns first index r where !isBefore(r), or n if no such index.
 
-// Lower-bound: first index i where predicate(i) is true (monotone false → true)
-function lowerBound(
-  length: number,
-  predicate: (i: number) => boolean,
-): number {
-  let lo = 0;
-  let hi = length; // half-open
-  while (lo < hi) {
-    const mid = lo + Math.floor((hi - lo) / 2);
-    if (predicate(mid)) hi = mid;
-    else lo = mid + 1;
-  }
-  return lo; // == length if never true
-}`,
+  define isBefore(i)            // user-supplied; e.g. arr[i] < target
+
+  l = -1                        // last known "before"  (exclusive)
+  r = n                         // first known "after"  (exclusive)
+
+  // edge cases — handled implicitly by the loop:
+  //   empty:           n == 0   →  r = 0
+  //   all before:      isBefore(n - 1) true   →  r = n
+  //   none before:     !isBefore(0)           →  r = 0
+
+  while r - l > 1:
+    mid = floor((l + r) / 2)    // strictly between l and r
+    if isBefore(mid):
+      l = mid                   // mid is "before" → l moves up
+    else:
+      r = mid                   // mid is "after"  → r moves down
+
+  return r                      // first index where !isBefore
+
+// Exact match: isBefore = arr[i] < target, then return arr[r] === target ? r : -1.`,
       },
       {
         id: "binary-search-answer",
         title: "Binary search on the answer",
         blurb:
-          "When the answer is bounded and feasibility is monotone in the answer (small enough capacity is infeasible, large enough is feasible).",
+          "When feasibility is monotone in the answer (small enough capacity is infeasible, large enough is feasible). Binary search the predicate, not the value.",
         complexity: { time: "O(n · log(range))" },
         tags: ["array", "search", "greedy"],
         notes: [
-          "Identify: minimise X such that feasible(X) is true (or maximise).",
-          "Write feasible(X) first — it's usually a linear pass.",
+          "Identify the answer space [lo, hi] and a monotone feasible(x).",
+          "Write feasible(x) first — it's usually a linear sweep.",
+          "Reuse the same exclusive-bounds template: isBefore(x) = !feasible(x).",
         ],
-        code: `// Ship packages within D days — min capacity
-function minCapacity(weights: readonly number[], days: number): number {
-  const feasible = (cap: number): boolean => {
-    let needed = 1;
-    let load = 0;
-    for (const w of weights) {
-      if (w > cap) return false;
-      if (load + w > cap) {
-        needed++;
-        load = 0;
-      }
-      load += w;
-    }
-    return needed <= days;
-  };
+        code: `BinarySearchAnswer(lo, hi, feasible)
+  // feasible(x): monotone — false … false | true … true as x grows.
+  // Returns the smallest x in [lo, hi] where feasible(x) is true.
 
-  let lo = Math.max(...weights);
-  let hi = weights.reduce((a, b) => a + b, 0);
-  while (lo < hi) {
-    const mid = lo + Math.floor((hi - lo) / 2);
-    if (feasible(mid)) hi = mid;
-    else lo = mid + 1;
-  }
-  return lo;
-}`,
+  define feasible(x)            // e.g. "can ship in D days with capacity x"
+
+  l = lo - 1                    // exclusive: last known-infeasible
+  r = hi                        // exclusive: first known-feasible (assume hi works)
+
+  while r - l > 1:
+    mid = floor((l + r) / 2)
+    if feasible(mid):
+      r = mid                   // can do better; shrink right
+    else:
+      l = mid                   // not enough; raise left
+
+  return r
+
+// Ship-within-D-days: lo = max(weights), hi = sum(weights),
+//   feasible(cap) = packing weights left-to-right uses ≤ D batches.`,
       },
       {
         id: "two-pointers",
@@ -778,372 +805,6 @@ function largestRectangle(heights: readonly number[]): number {
     ],
   },
   {
-    id: "ts-utils",
-    label: "JS/TS utilities",
-    notes: [
-      {
-        id: "debounce",
-        title: "Debounce",
-        blurb:
-          "Delay running fn until wait ms have passed since the last call. Use for search-as-you-type and resize handlers.",
-        complexity: { time: "O(1) per call" },
-        tags: ["async", "frontend"],
-        code: `function debounce<A extends unknown[]>(
-  fn: (...args: A) => void,
-  wait: number,
-): {
-  (...args: A): void;
-  cancel: () => void;
-  flush: (...args: A) => void;
-} {
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  let lastArgs: A | null = null;
-
-  const debounced = (...args: A): void => {
-    lastArgs = args;
-    if (timer !== null) clearTimeout(timer);
-    timer = setTimeout(() => {
-      timer = null;
-      fn(...args);
-    }, wait);
-  };
-
-  debounced.cancel = (): void => {
-    if (timer !== null) clearTimeout(timer);
-    timer = null;
-    lastArgs = null;
-  };
-
-  debounced.flush = (...args: A): void => {
-    if (timer !== null) clearTimeout(timer);
-    timer = null;
-    fn(...(args.length > 0 ? args : (lastArgs as A)));
-  };
-
-  return debounced;
-}`,
-      },
-      {
-        id: "throttle",
-        title: "Throttle",
-        blurb:
-          "Run fn at most once per wait ms. Leading-edge variant fires immediately; trailing-edge fires at the end of the window.",
-        complexity: { time: "O(1) per call" },
-        tags: ["async", "frontend"],
-        code: `function throttle<A extends unknown[]>(
-  fn: (...args: A) => void,
-  wait: number,
-): (...args: A) => void {
-  let last = 0;
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  let lastArgs: A | null = null;
-
-  return (...args: A): void => {
-    const now = Date.now();
-    const remaining = wait - (now - last);
-    lastArgs = args;
-    if (remaining <= 0) {
-      if (timer !== null) {
-        clearTimeout(timer);
-        timer = null;
-      }
-      last = now;
-      fn(...args);
-    } else if (timer === null) {
-      timer = setTimeout(() => {
-        last = Date.now();
-        timer = null;
-        if (lastArgs) fn(...lastArgs);
-      }, remaining);
-    }
-  };
-}`,
-      },
-      {
-        id: "memoize",
-        title: "Memoize",
-        blurb:
-          "Cache results keyed on arguments. The trade-off is the key function — JSON.stringify is safe but slow; identity-based maps are fast but only for primitives.",
-        complexity: { time: "O(1) per cached call" },
-        tags: ["functional"],
-        code: `function memoize<A extends unknown[], R>(
-  fn: (...args: A) => R,
-  keyFn: (...args: A) => string = (...args) => JSON.stringify(args),
-): (...args: A) => R {
-  const cache = new Map<string, R>();
-  return (...args: A): R => {
-    const key = keyFn(...args);
-    if (cache.has(key)) return cache.get(key)!;
-    const value = fn(...args);
-    cache.set(key, value);
-    return value;
-  };
-}
-
-// Single-arg fast path with WeakMap for object keys
-function memoizeWeak<T extends WeakKey, R>(fn: (arg: T) => R): (arg: T) => R {
-  const cache = new WeakMap<T, R>();
-  return (arg: T): R => {
-    const hit = cache.get(arg);
-    if (hit !== undefined) return hit;
-    const value = fn(arg);
-    cache.set(arg, value);
-    return value;
-  };
-}`,
-      },
-      {
-        id: "deep-clone",
-        title: "Deep clone",
-        blurb:
-          "structuredClone is the right answer in modern runtimes. Hand-rolled clone needs cycle handling and explicit type coverage (Date, Map, Set, TypedArray).",
-        complexity: { time: "O(n)" },
-        tags: ["functional"],
-        code: `function deepClone<T>(value: T, seen = new WeakMap<object, unknown>()): T {
-  if (value === null || typeof value !== "object") return value;
-  const cached = seen.get(value);
-  if (cached) return cached as T;
-
-  if (value instanceof Date) return new Date(value.getTime()) as T;
-  if (value instanceof RegExp) return new RegExp(value.source, value.flags) as T;
-
-  if (Array.isArray(value)) {
-    const out: unknown[] = [];
-    seen.set(value, out);
-    for (const item of value) out.push(deepClone(item, seen));
-    return out as T;
-  }
-
-  if (value instanceof Map) {
-    const out = new Map<unknown, unknown>();
-    seen.set(value, out);
-    for (const [k, v] of value) out.set(deepClone(k, seen), deepClone(v, seen));
-    return out as T;
-  }
-
-  if (value instanceof Set) {
-    const out = new Set<unknown>();
-    seen.set(value, out);
-    for (const v of value) out.add(deepClone(v, seen));
-    return out as T;
-  }
-
-  const out: Record<string, unknown> = {};
-  seen.set(value, out);
-  for (const [k, v] of Object.entries(value)) out[k] = deepClone(v, seen);
-  return out as T;
-}`,
-      },
-      {
-        id: "event-emitter",
-        title: "Typed EventEmitter",
-        blurb:
-          "Map of event → listener[]. The type param wires payload types to event names so emit/on stay in sync.",
-        complexity: { time: "O(1) emit per listener" },
-        tags: ["async"],
-        code: `type EventMap = Record<string, unknown>;
-
-class TypedEmitter<E extends EventMap> {
-  private readonly listeners = new Map<keyof E, Set<(payload: never) => void>>();
-
-  on<K extends keyof E>(event: K, handler: (payload: E[K]) => void): () => void {
-    let set = this.listeners.get(event);
-    if (!set) {
-      set = new Set();
-      this.listeners.set(event, set);
-    }
-    set.add(handler as (payload: never) => void);
-    return () => {
-      set!.delete(handler as (payload: never) => void);
-    };
-  }
-
-  once<K extends keyof E>(event: K, handler: (payload: E[K]) => void): () => void {
-    const off = this.on(event, (payload) => {
-      off();
-      handler(payload);
-    });
-    return off;
-  }
-
-  emit<K extends keyof E>(event: K, payload: E[K]): void {
-    const set = this.listeners.get(event);
-    if (!set) return;
-    for (const handler of [...set]) (handler as (p: E[K]) => void)(payload);
-  }
-}`,
-      },
-      {
-        id: "promise-pool",
-        title: "Concurrency pool",
-        blurb:
-          "Run up to N async tasks at once. Useful for HTTP fan-out where unbounded parallelism would saturate the server or hit rate limits.",
-        complexity: { time: "O(total task time / N)" },
-        tags: ["async"],
-        code: `async function pool<T>(
-  tasks: ReadonlyArray<() => Promise<T>>,
-  concurrency: number,
-): Promise<T[]> {
-  const results = new Array<T>(tasks.length);
-  let next = 0;
-
-  const worker = async (): Promise<void> => {
-    while (true) {
-      const i = next++;
-      if (i >= tasks.length) return;
-      results[i] = await tasks[i]();
-    }
-  };
-
-  const workers = Array.from(
-    { length: Math.min(concurrency, tasks.length) },
-    () => worker(),
-  );
-  await Promise.all(workers);
-  return results;
-}`,
-      },
-      {
-        id: "retry",
-        title: "Retry with exponential backoff + jitter",
-        blurb:
-          "Retry on transient failure. Exponential delay doubles the wait each attempt; jitter randomises it to avoid thundering herd.",
-        complexity: { time: "O(retries · max delay)" },
-        tags: ["async"],
-        code: `async function retry<T>(
-  fn: () => Promise<T>,
-  opts: { retries: number; baseMs: number; maxMs?: number } = {
-    retries: 3,
-    baseMs: 100,
-  },
-): Promise<T> {
-  const { retries, baseMs, maxMs = 10_000 } = opts;
-  let attempt = 0;
-  while (true) {
-    try {
-      return await fn();
-    } catch (error) {
-      if (attempt >= retries) throw error;
-      const exp = Math.min(maxMs, baseMs * 2 ** attempt);
-      const jitter = Math.random() * exp;
-      await new Promise((resolve) => setTimeout(resolve, jitter));
-      attempt++;
-    }
-  }
-}`,
-      },
-      {
-        id: "curry-compose",
-        title: "Curry & compose",
-        blurb:
-          "Curry: turn f(a, b, c) into f(a)(b)(c). Compose: right-to-left function composition; pipe is left-to-right.",
-        tags: ["functional"],
-        code: `// Variadic curry that resolves once the arg count matches
-function curry<A extends unknown[], R>(
-  fn: (...args: A) => R,
-): (...args: unknown[]) => unknown {
-  return function curried(...args: unknown[]): unknown {
-    if (args.length >= fn.length) return fn(...(args as A));
-    return (...more: unknown[]): unknown => curried(...args, ...more);
-  };
-}
-
-// Compose right-to-left: compose(f, g, h)(x) === f(g(h(x)))
-function compose<T>(...fns: ((value: T) => T)[]): (value: T) => T {
-  return (value: T): T => fns.reduceRight((acc, fn) => fn(acc), value);
-}
-
-// Pipe left-to-right: pipe(f, g, h)(x) === h(g(f(x)))
-function pipe<T>(...fns: ((value: T) => T)[]): (value: T) => T {
-  return (value: T): T => fns.reduce((acc, fn) => fn(acc), value);
-}`,
-      },
-      {
-        id: "promise-all",
-        title: "Promise.all (polyfill)",
-        blurb:
-          "Resolve with array of values when all settle, reject as soon as any rejects. Common follow-up: now write allSettled.",
-        tags: ["async"],
-        code: `function promiseAll<T>(promises: ReadonlyArray<PromiseLike<T>>): Promise<T[]> {
-  return new Promise<T[]>((resolve, reject) => {
-    if (promises.length === 0) {
-      resolve([]);
-      return;
-    }
-    const results = new Array<T>(promises.length);
-    let remaining = promises.length;
-    promises.forEach((p, i) => {
-      Promise.resolve(p).then(
-        (value) => {
-          results[i] = value;
-          if (--remaining === 0) resolve(results);
-        },
-        (error: unknown) => {
-          reject(error as Error);
-        },
-      );
-    });
-  });
-}
-
-// Compare: allSettled never rejects
-function promiseAllSettled<T>(
-  promises: ReadonlyArray<PromiseLike<T>>,
-): Promise<PromiseSettledResult<T>[]> {
-  return Promise.all(
-    promises.map((p) =>
-      Promise.resolve(p).then(
-        (value): PromiseSettledResult<T> => ({ status: "fulfilled", value }),
-        (reason: unknown): PromiseSettledResult<T> => ({
-          status: "rejected",
-          reason,
-        }),
-      ),
-    ),
-  );
-}`,
-      },
-      {
-        id: "cancellable",
-        title: "Cancellable async (AbortController)",
-        blurb:
-          "AbortSignal is the standard cancellation token. Pass it through every async step that should cancel together.",
-        tags: ["async", "frontend"],
-        code: `function withTimeout<T>(
-  promise: Promise<T>,
-  ms: number,
-  signal?: AbortSignal,
-): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const onAbort = (): void => {
-      reject(new DOMException("Aborted", "AbortError"));
-    };
-    if (signal?.aborted) {
-      onAbort();
-      return;
-    }
-    signal?.addEventListener("abort", onAbort, { once: true });
-    const timer = setTimeout(() => {
-      reject(new DOMException("Timeout", "TimeoutError"));
-    }, ms);
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        signal?.removeEventListener("abort", onAbort);
-        resolve(value);
-      },
-      (error: unknown) => {
-        clearTimeout(timer);
-        signal?.removeEventListener("abort", onAbort);
-        reject(error as Error);
-      },
-    );
-  });
-}`,
-      },
-    ],
-  },
-  {
     id: "system",
     label: "System-style asks",
     notes: [
@@ -1480,261 +1141,6 @@ class Observable<T> {
     );
   }
 }`,
-      },
-    ],
-  },
-  {
-    id: "frontend",
-    label: "Frontend specifics",
-    notes: [
-      {
-        id: "event-delegation",
-        title: "Event delegation",
-        blurb:
-          "Attach one listener at a common ancestor; use event.target + closest() to route. Crucial for dynamic lists.",
-        tags: ["frontend"],
-        code: `function delegate<E extends Event>(
-  root: HTMLElement,
-  eventType: string,
-  selector: string,
-  handler: (event: E, match: HTMLElement) => void,
-): () => void {
-  const listener = (event: Event): void => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-    const match = target.closest(selector);
-    if (!match || !root.contains(match)) return;
-    handler(event as E, match as HTMLElement);
-  };
-  root.addEventListener(eventType, listener);
-  return () => {
-    root.removeEventListener(eventType, listener);
-  };
-}`,
-      },
-      {
-        id: "intersection",
-        title: "Lazy load with IntersectionObserver",
-        blurb:
-          "Cheap visibility detection. Default to a small rootMargin so content has time to fetch before it scrolls into view.",
-        tags: ["frontend"],
-        code: `function onceVisible(
-  element: Element,
-  onVisible: () => void,
-  rootMargin: string = "200px",
-): () => void {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          onVisible();
-          observer.disconnect();
-        }
-      }
-    },
-    { rootMargin },
-  );
-  observer.observe(element);
-  return () => {
-    observer.disconnect();
-  };
-}`,
-      },
-      {
-        id: "virtual-list",
-        title: "Virtual list (windowing)",
-        blurb:
-          "Render only the rows visible plus a small overscan buffer. Fixed-height case is trivial: index = floor(scrollTop / rowHeight).",
-        tags: ["frontend"],
-        code: `interface Window {
-  startIndex: number;
-  endIndex: number;
-  offsetY: number;
-}
-
-function computeWindow(
-  scrollTop: number,
-  viewportHeight: number,
-  rowHeight: number,
-  total: number,
-  overscan: number = 4,
-): Window {
-  const first = Math.floor(scrollTop / rowHeight);
-  const visible = Math.ceil(viewportHeight / rowHeight);
-  const startIndex = Math.max(0, first - overscan);
-  const endIndex = Math.min(total, first + visible + overscan);
-  return {
-    startIndex,
-    endIndex,
-    offsetY: startIndex * rowHeight,
-  };
-}`,
-      },
-      {
-        id: "deep-equal",
-        title: "Deep equal",
-        blurb:
-          "Structural equality. Tricky cases: NaN, +0 vs -0, prototypes, cycles. For React deps, prefer Object.is for shallow.",
-        tags: ["functional", "frontend"],
-        code: `function deepEqual(a: unknown, b: unknown): boolean {
-  if (Object.is(a, b)) return true;
-  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) {
-    return false;
-  }
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (!deepEqual(a[i], b[i])) return false;
-    }
-    return true;
-  }
-
-  const ka = Object.keys(a as object);
-  const kb = Object.keys(b as object);
-  if (ka.length !== kb.length) return false;
-  for (const key of ka) {
-    if (!Object.prototype.hasOwnProperty.call(b, key)) return false;
-    if (
-      !deepEqual(
-        (a as Record<string, unknown>)[key],
-        (b as Record<string, unknown>)[key],
-      )
-    ) {
-      return false;
-    }
-  }
-  return true;
-}`,
-      },
-    ],
-  },
-  {
-    id: "behavioural",
-    label: "Behavioural prompts",
-    notes: [
-      {
-        id: "tell-me-about-yourself",
-        title: "Tell me about yourself",
-        blurb:
-          "60–90 seconds. Anchor → arc → why now. Skip biography; lead with the through-line that explains why you're sitting in this seat.",
-        tags: ["behavioural"],
-        notes: [
-          "Anchor: one sentence that frames you (years, focus, the kind of problems you solve).",
-          "Arc: 2–3 inflection points that show range — what changed and why.",
-          "Why now: a forward-looking sentence that hands the interviewer their first follow-up.",
-          "Don't recite the resume; the resume is already in front of them.",
-        ],
-      },
-      {
-        id: "proud-project",
-        title: "Project you're most proud of",
-        blurb:
-          "Pick one with a hard technical core, real users, and a measurable outcome. Use STAR: situation, task, action, result.",
-        tags: ["behavioural"],
-        notes: [
-          "Situation: 1 sentence on the constraint that made it hard (latency, scale, ambiguity).",
-          "Task: what specifically was on you, not the team.",
-          "Action: the technical decision — and the one you'd make differently now.",
-          "Result: number, ratio, or shipped artifact. Bonus: what you learned.",
-        ],
-      },
-      {
-        id: "toughest-bug",
-        title: "Toughest bug you've shipped a fix for",
-        blurb:
-          "They want to see how you debug under uncertainty. Walk through the hypothesis ladder, not just the punchline.",
-        tags: ["behavioural"],
-        notes: [
-          "Set the symptom (what was reported) vs. the actual fault (what you found).",
-          "Show the gap: what you initially suspected, why that was wrong, how you narrowed it.",
-          "Name the tool that broke it open (profiler, sourcemap, log diff, git bisect).",
-          "Close with the systemic change so it can't happen again.",
-        ],
-      },
-      {
-        id: "disagreement",
-        title: "Disagreement with a colleague",
-        blurb:
-          "Pick a real one with a healthy outcome. Show you can hold a position, then update it when given a better argument.",
-        tags: ["behavioural"],
-        notes: [
-          "Frame the technical substance, not personalities.",
-          "What was your prior, what was theirs, what evidence changed someone's mind.",
-          "End with the joint decision and how the partnership came out the other side.",
-        ],
-      },
-      {
-        id: "ambiguity",
-        title: "Handling ambiguity",
-        blurb:
-          "Show a method: clarify what you know, name the variables, ship the smallest reversible thing, then iterate.",
-        tags: ["behavioural"],
-        notes: [
-          "Distinguish 'genuinely undecided' from 'I haven't asked yet' — the second is solvable in one Slack.",
-          "Talk about writing down assumptions so they can be reviewed.",
-          "Anchor the answer in a real example where ambiguity was the actual blocker.",
-        ],
-      },
-      {
-        id: "learn-quickly",
-        title: "Learned something hard quickly",
-        blurb:
-          "Demonstrates trajectory. Pick a topic outside your comfort zone, a deadline, and the strategy that worked.",
-        tags: ["behavioural"],
-        notes: [
-          "Skip 'read the docs'. Talk about how you built mental models — a tiny experiment, a teardown, a side-by-side with someone who knows the area.",
-          "Name what you still don't know — calibrated humility lands well.",
-        ],
-      },
-      {
-        id: "why-this-firm",
-        title: "Why this firm",
-        blurb:
-          "Three legs: the problem space, the people, the practice. Be specific — generic answers signal you didn't research.",
-        tags: ["behavioural"],
-        notes: [
-          "Problem space: name the kind of problems you find energising and tie them to what they ship.",
-          "People: cite something concrete — a talk, a paper, an open-source repo, a blog post you actually read.",
-          "Practice: how they work — tooling, code review culture, internal mobility — and why it matches how you do your best work.",
-        ],
-      },
-      {
-        id: "why-typescript",
-        title: "Why TypeScript / typed frontends",
-        blurb:
-          "Frame the trade-off, not the marketing. Types are a tool for refactor confidence and API design — not magic correctness.",
-        tags: ["behavioural"],
-        notes: [
-          "Pre-merge feedback loop beats post-deploy. Discriminated unions encode state machines you'd otherwise leave implicit.",
-          "Honest limits: nominal vs structural, escape hatches (`any`, `as`), the gymnastics around generic inference.",
-          "Mention runtime validation (Zod, io-ts) as the bridge between compile-time types and the wild network.",
-        ],
-      },
-      {
-        id: "weakness",
-        title: "A real weakness",
-        blurb:
-          "Pick a true one you're actively working on. The structure: pattern → cost → fix in flight → evidence it's improving.",
-        tags: ["behavioural"],
-        notes: [
-          "Don't pick a humblebrag ('I care too much'). Pick something specific enough to be falsifiable.",
-          "Show metacognition — how you noticed the pattern, what you changed.",
-        ],
-      },
-      {
-        id: "questions-to-ask",
-        title: "Questions to ask them",
-        blurb:
-          "Three categories: the role, the team, the firm. Don't ask things their job page already answers.",
-        tags: ["behavioural"],
-        notes: [
-          "Role: 'What would the first 90 days look like? What does someone here do well that someone elsewhere wouldn't?'",
-          "Team: 'How are technical disagreements resolved? Walk me through a recent design review.'",
-          "Firm: 'What changed in the last year that wouldn't show up in the public messaging?'",
-          "Closer: 'Is there anything in my background you'd like me to clarify before we wrap?'",
-        ],
       },
     ],
   },
