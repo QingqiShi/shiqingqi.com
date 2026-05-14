@@ -151,7 +151,7 @@ const styles = stylex.create({
     },
   },
   switch: {
-    [color.controlActive]: { default: color.background1 },
+    [color.controlActive]: { default: color.background2 },
   },
   icon: {
     aspectRatio: ratio.square,
