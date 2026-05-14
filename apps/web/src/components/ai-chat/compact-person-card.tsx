@@ -120,7 +120,7 @@ const styles = stylex.create({
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.backgroundHover,
+      ":hover": color.background2,
     },
     transform: {
       default: null,
@@ -154,7 +154,7 @@ const styles = stylex.create({
   photoFallback: {
     width: "100%",
     height: "100%",
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: color.border,

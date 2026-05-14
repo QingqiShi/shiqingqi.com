@@ -202,7 +202,7 @@ export function ToolReviewSummary({
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.backgroundHover,
+    backgroundColor: color.background2,
     borderRadius: border.radius_2,
     padding: space._3,
     marginTop: space._2,
@@ -226,7 +226,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: color.textMuted,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     borderRadius: border.radius_1,
     paddingInline: space._1,
     paddingBlock: space._00,
@@ -273,7 +273,7 @@ const styles = stylex.create({
   levelButtonSelected: {
     borderColor: color.controlActive,
     color: color.controlActive,
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
   },
   selectedLabel: {
     margin: 0,

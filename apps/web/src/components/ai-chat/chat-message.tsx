@@ -280,8 +280,8 @@ const styles = stylex.create({
   assistantBubble: {
     marginRight: "auto",
     backgroundColor: {
-      default: color.backgroundRaised,
-      [constants.DARK]: `rgba(${color.backgroundRaisedChannels}, 0.6)`,
+      default: color.background1,
+      [constants.DARK]: `rgba(${color.background1Channels}, 0.6)`,
     },
     backdropFilter: "blur(12px)",
     boxShadow: {

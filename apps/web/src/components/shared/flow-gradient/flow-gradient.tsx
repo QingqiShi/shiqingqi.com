@@ -63,7 +63,7 @@ const styles = stylex.create({
   canvas: {
     width: "100%",
     height: "100%",
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
     willChange: {
       default: "transform",
       [motionConstants.REDUCED_MOTION]: null,

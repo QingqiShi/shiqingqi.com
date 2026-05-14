@@ -192,7 +192,7 @@ const styles = stylex.create({
   card: {
     display: "flex",
     flexDirection: "column",
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
     borderRadius: border.radius_3,
     borderWidth: border.size_1,
     borderStyle: "solid",
@@ -239,7 +239,7 @@ const styles = stylex.create({
     padding: space._3,
     minHeight: "260px",
     borderRadius: border.radius_3,
-    backgroundColor: `color-mix(in srgb, var(--pcc-accent, #888888) 14%, ${color.backgroundRaised})`,
+    backgroundColor: `color-mix(in srgb, var(--pcc-accent, #888888) 14%, ${color.background1})`,
     boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.12)",
   },
   statsPanel: {
@@ -300,7 +300,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "dashed",
     borderColor: color.border,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     display: "flex",
     flexDirection: "column",
     gap: space._1,

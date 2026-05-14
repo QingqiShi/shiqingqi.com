@@ -94,11 +94,11 @@ const styles = stylex.create({
   },
   fadeLeft: {
     left: 0,
-    backgroundImage: `linear-gradient(to left, rgba(${color.backgroundRaisedChannels}, 0), rgba(${color.backgroundRaisedChannels}, 1))`,
+    backgroundImage: `linear-gradient(to left, rgba(${color.background1Channels}, 0), rgba(${color.background1Channels}, 1))`,
   },
   fadeRight: {
     right: 0,
-    backgroundImage: `linear-gradient(to right, rgba(${color.backgroundRaisedChannels}, 0), rgba(${color.backgroundRaisedChannels}, 1))`,
+    backgroundImage: `linear-gradient(to right, rgba(${color.background1Channels}, 0), rgba(${color.background1Channels}, 1))`,
   },
   scrollButtonLeft: {
     left: space._3,

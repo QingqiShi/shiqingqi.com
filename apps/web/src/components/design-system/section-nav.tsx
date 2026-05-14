@@ -47,7 +47,7 @@ const styles = stylex.create({
     maxInlineSize: "100%",
     paddingBlock: space._1,
     paddingInline: space._1,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     borderRadius: border.radius_round,
     boxShadow: shadow._2,
   },
@@ -63,7 +63,7 @@ const styles = stylex.create({
     color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.backgroundHover,
+      ":hover": color.background2,
     },
     textDecoration: "none",
     whiteSpace: "nowrap",

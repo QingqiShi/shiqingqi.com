@@ -130,8 +130,8 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._2,
     backgroundColor: {
-      default: color.backgroundRaised,
-      ":hover": color.backgroundHover,
+      default: color.background1,
+      ":hover": color.background2,
     },
     borderRadius: "12px",
     borderWidth: "2px",
@@ -144,7 +144,7 @@ const styles = stylex.create({
   },
   optionSelected: {
     borderColor: color.controlActive,
-    backgroundColor: color.backgroundHover,
+    backgroundColor: color.background2,
   },
   thumb: {
     display: "flex",

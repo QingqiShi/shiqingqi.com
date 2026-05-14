@@ -66,17 +66,26 @@ export default function DesignSystem() {
         <Showcase label={t({ en: "Surfaces", zh: "表面" })}>
           <DuotoneLegend />
           <ShowcaseGrid>
-            <ShowcaseItem label="color.backgroundMain">
-              <DuotoneSwatch fillStyle={styles.bgMain} />
+            <ShowcaseItem label="color.background">
+              <DuotoneSwatch fillStyle={styles.bg} />
             </ShowcaseItem>
-            <ShowcaseItem label="color.backgroundRaised">
-              <DuotoneSwatch fillStyle={styles.bgRaised} />
+            <ShowcaseItem label="color.backgroundDim">
+              <DuotoneSwatch fillStyle={styles.bgDim} />
             </ShowcaseItem>
-            <ShowcaseItem label="color.backgroundElevated">
-              <DuotoneSwatch fillStyle={styles.bgElevated} />
+            <ShowcaseItem label="color.background1">
+              <DuotoneSwatch fillStyle={styles.bg1} />
             </ShowcaseItem>
-            <ShowcaseItem label="color.backgroundSunken">
-              <DuotoneSwatch fillStyle={styles.bgSunken} />
+            <ShowcaseItem label="color.background2">
+              <DuotoneSwatch fillStyle={styles.bg2} />
+            </ShowcaseItem>
+            <ShowcaseItem label="color.background3">
+              <DuotoneSwatch fillStyle={styles.bg3} />
+            </ShowcaseItem>
+            <ShowcaseItem label="color.background4">
+              <DuotoneSwatch fillStyle={styles.bg4} />
+            </ShowcaseItem>
+            <ShowcaseItem label="color.background5">
+              <DuotoneSwatch fillStyle={styles.bg5} />
             </ShowcaseItem>
             <ShowcaseItem label="color.controlActive">
               <DuotoneSwatch fillStyle={styles.controlActive} />
@@ -159,9 +168,6 @@ export default function DesignSystem() {
             </ShowcaseItem>
             <ShowcaseItem label="gradient.spotlight">
               <div css={[styles.swatch, styles.gradientSpotlight]} />
-            </ShowcaseItem>
-            <ShowcaseItem label="gradient.surfaceSubtle">
-              <div css={[styles.swatch, styles.gradientSurfaceSubtle]} />
             </ShowcaseItem>
           </ShowcaseGrid>
         </Showcase>
@@ -704,7 +710,7 @@ const styles = stylex.create({
   duotoneHalf: {
     position: "absolute",
     inset: 0,
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
   },
   duotoneFill: {
     position: "absolute",
@@ -722,10 +728,13 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     letterSpacing: font.trackingSnug,
   },
-  bgMain: { backgroundColor: color.backgroundMain },
-  bgRaised: { backgroundColor: color.backgroundRaised },
-  bgElevated: { backgroundColor: color.backgroundElevated },
-  bgSunken: { backgroundColor: color.backgroundSunken },
+  bg: { backgroundColor: color.background },
+  bgDim: { backgroundColor: color.backgroundDim },
+  bg1: { backgroundColor: color.background1 },
+  bg2: { backgroundColor: color.background2 },
+  bg3: { backgroundColor: color.background3 },
+  bg4: { backgroundColor: color.background4 },
+  bg5: { backgroundColor: color.background5 },
   controlActive: {
     backgroundColor: color.controlActive,
     borderColor: "transparent",
@@ -750,7 +759,7 @@ const styles = stylex.create({
     inlineSize: "80px",
     blockSize: "80px",
     borderRadius: border.radius_2,
-    backgroundColor: color.backgroundElevated,
+    backgroundColor: color.background1,
     border: `1px solid ${color.borderSubtle}`,
   },
   shadow1: { boxShadow: shadow._1 },
@@ -771,10 +780,7 @@ const styles = stylex.create({
   },
   gradientSpotlight: {
     backgroundImage: gradient.spotlight,
-    backgroundColor: color.backgroundElevated,
-  },
-  gradientSurfaceSubtle: {
-    backgroundImage: gradient.surfaceSubtle,
+    backgroundColor: color.background1,
   },
 
   typeStack: {

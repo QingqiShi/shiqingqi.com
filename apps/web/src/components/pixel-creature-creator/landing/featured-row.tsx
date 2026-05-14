@@ -106,9 +106,9 @@ const styles = stylex.create({
     color: color.textMain,
     textDecoration: "none",
     backgroundColor: {
-      default: color.backgroundRaised,
-      ":hover": color.backgroundHover,
-      ":focus-visible": color.backgroundHover,
+      default: color.background1,
+      ":hover": color.background2,
+      ":focus-visible": color.background2,
     },
     borderWidth: "1px",
     borderStyle: "solid",

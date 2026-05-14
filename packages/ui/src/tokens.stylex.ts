@@ -11,17 +11,15 @@ const light = {
   textOnControlThumb: "#292929",
   textAccent: "#6b0fa7",
 
-  backgroundMain: "#ffffff",
-  backgroundRaised: "#f5f5f5",
-  backgroundElevated: "#fafafa",
-  backgroundSunken: "#ebebeb",
-  backgroundHover: "#f0f0f0",
-  backgroundTranslucent: "rgba(0, 0, 0, 0.01)",
-  backgroundInverse: "#161616",
-  backgroundMainChannels: "255,255,255",
-  backgroundRaisedChannels: "245,245,245",
-  backgroundCalculatorButton: "#e0e0e0",
-  backgroundCalculatorButtonHover: "#ffffff",
+  background: "#fafafa",
+  backgroundDim: "#f7f7f7",
+  background1: "#ffffff",
+  background2: "#ffffff",
+  background3: "#ffffff",
+  background4: "#ffffff",
+  background5: "#ffffff",
+  backgroundChannels: "250,250,250",
+  background1Channels: "255,255,255",
 
   surfaceAccentSubtle: "rgba(126, 16, 194, 0.08)",
   surfaceAccentMuted: "rgba(126, 16, 194, 0.16)",
@@ -83,17 +81,15 @@ const dark: { [key in keyof typeof light]: string } = {
   textOnControlThumb: "#000000",
   textAccent: "#c794ec",
 
-  backgroundMain: "#000000",
-  backgroundRaised: "#1a1a1a",
-  backgroundElevated: "#242424",
-  backgroundSunken: "#0a0a0a",
-  backgroundHover: "#2a2a2a",
-  backgroundTranslucent: "rgba(255, 255, 255, 0.1)",
-  backgroundInverse: "#f5f5f5",
-  backgroundMainChannels: "0,0,0",
-  backgroundRaisedChannels: "26,26,26",
-  backgroundCalculatorButton: "#444850",
-  backgroundCalculatorButtonHover: "#5e6065",
+  background: "#000000",
+  backgroundDim: "#050505",
+  background1: "#0d0d0d",
+  background2: "#171717",
+  background3: "#1c1c1c",
+  background4: "#222222",
+  background5: "#292929",
+  backgroundChannels: "0,0,0",
+  background1Channels: "13,13,13",
 
   surfaceAccentSubtle: "rgba(199, 148, 236, 0.12)",
   surfaceAccentMuted: "rgba(199, 148, 236, 0.2)",
@@ -177,49 +173,41 @@ export const color = stylex.defineVars({
     [constants.DARK]: dark.textAccent,
   },
 
-  backgroundMain: {
-    default: light.backgroundMain,
-    [constants.DARK]: dark.backgroundMain,
+  background: {
+    default: light.background,
+    [constants.DARK]: dark.background,
   },
-  backgroundRaised: {
-    default: light.backgroundRaised,
-    [constants.DARK]: dark.backgroundRaised,
+  backgroundDim: {
+    default: light.backgroundDim,
+    [constants.DARK]: dark.backgroundDim,
   },
-  backgroundElevated: {
-    default: light.backgroundElevated,
-    [constants.DARK]: dark.backgroundElevated,
+  background1: {
+    default: light.background1,
+    [constants.DARK]: dark.background1,
   },
-  backgroundSunken: {
-    default: light.backgroundSunken,
-    [constants.DARK]: dark.backgroundSunken,
+  background2: {
+    default: light.background2,
+    [constants.DARK]: dark.background2,
   },
-  backgroundHover: {
-    default: light.backgroundHover,
-    [constants.DARK]: dark.backgroundHover,
+  background3: {
+    default: light.background3,
+    [constants.DARK]: dark.background3,
   },
-  backgroundTranslucent: {
-    default: light.backgroundTranslucent,
-    [constants.DARK]: dark.backgroundTranslucent,
+  background4: {
+    default: light.background4,
+    [constants.DARK]: dark.background4,
   },
-  backgroundInverse: {
-    default: light.backgroundInverse,
-    [constants.DARK]: dark.backgroundInverse,
+  background5: {
+    default: light.background5,
+    [constants.DARK]: dark.background5,
   },
-  backgroundMainChannels: {
-    default: light.backgroundMainChannels,
-    [constants.DARK]: dark.backgroundMainChannels,
+  backgroundChannels: {
+    default: light.backgroundChannels,
+    [constants.DARK]: dark.backgroundChannels,
   },
-  backgroundRaisedChannels: {
-    default: light.backgroundRaisedChannels,
-    [constants.DARK]: dark.backgroundRaisedChannels,
-  },
-  backgroundCalculatorButton: {
-    default: light.backgroundCalculatorButton,
-    [constants.DARK]: dark.backgroundCalculatorButton,
-  },
-  backgroundCalculatorButtonHover: {
-    default: light.backgroundCalculatorButtonHover,
-    [constants.DARK]: dark.backgroundCalculatorButtonHover,
+  background1Channels: {
+    default: light.background1Channels,
+    [constants.DARK]: dark.background1Channels,
   },
 
   surfaceAccentSubtle: {
@@ -532,10 +520,6 @@ export const shadow = stylex.defineVars({
 });
 
 export const gradient = stylex.defineVars({
-  // Surface gradients — subtle vertical sheens for raised surfaces
-  surfaceSubtle: `linear-gradient(180deg, ${color.backgroundElevated} 0%, ${color.backgroundRaised} 100%)`,
-  surfaceRaised: `linear-gradient(180deg, ${color.backgroundRaised} 0%, ${color.backgroundMain} 100%)`,
-
   // Accent gradients — directional purple-to-magenta sweeps
   accent: `linear-gradient(135deg, ${color.controlActive} 0%, ${color.controlActiveHover} 100%)`,
   accentSoft: `linear-gradient(135deg, ${color.surfaceAccentSubtle} 0%, ${color.surfaceAccentMuted} 100%)`,

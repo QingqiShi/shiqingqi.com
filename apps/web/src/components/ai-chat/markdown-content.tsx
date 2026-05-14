@@ -65,7 +65,7 @@ const styles = stylex.create({
     color: color.textMuted,
   },
   pre: {
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
     borderRadius: border.radius_2,
     padding: space._2,
     marginBlock: 0,
@@ -79,7 +79,7 @@ const styles = stylex.create({
   codeInline: {
     fontFamily: "monospace",
     fontSize: font.uiBodySmall,
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
     borderRadius: border.radius_1,
     paddingInline: space._00,
     paddingBlock: space._00,

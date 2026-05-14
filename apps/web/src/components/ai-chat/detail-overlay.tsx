@@ -158,7 +158,7 @@ const styles = stylex.create({
   card: {
     position: "relative",
     width: "100%",
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     borderRadius: border.radius_4,
     pointerEvents: "all",
     animationName: {

@@ -103,7 +103,7 @@ const styles = stylex.create({
     left: 0,
     width: "calc(100% - var(--removed-body-scroll-bar-size, 0px))",
     height: `calc(100% - ${space._8})`,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     zIndex: layer.tooltip,
     borderRadius: border.radius_4,
     overflow: "hidden",

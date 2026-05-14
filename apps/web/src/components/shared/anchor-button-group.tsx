@@ -20,7 +20,7 @@ const styles = stylex.create({
   container: {
     display: "inline-flex",
     gap: controlSize._1,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     padding: controlSize._1,
     borderRadius: border.radius_2,
     boxShadow: shadow._2,
