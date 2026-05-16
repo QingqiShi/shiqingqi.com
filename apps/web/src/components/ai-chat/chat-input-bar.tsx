@@ -144,7 +144,7 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: space._1,
-    backgroundColor: color.backgroundHover,
+    backgroundColor: color.background2,
     borderRadius: border.radius_round,
     paddingBlock: space._0,
     paddingLeft: space._2,

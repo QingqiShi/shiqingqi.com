@@ -380,7 +380,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: color.backgroundHover,
+    backgroundColor: color.background2,
     color: color.textMuted,
     fontSize: font.uiHeading1,
     fontWeight: font.weight_7,

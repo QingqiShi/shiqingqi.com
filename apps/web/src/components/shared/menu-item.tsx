@@ -63,7 +63,7 @@ const styles = stylex.create({
   item: {
     color: { default: color.textMain, ":hover": color.textMuted },
     fontWeight: font.weight_6,
-    backgroundColor: { default: null, ":hover": color.backgroundHover },
+    backgroundColor: { default: null, ":hover": color.background2 },
     borderRadius: border.radius_1,
     fontSize: controlSize._4,
     gap: controlSize._5,

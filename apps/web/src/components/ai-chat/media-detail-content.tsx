@@ -303,7 +303,7 @@ const styles = stylex.create({
     width: "100%",
     height: "50%",
     zIndex: layer.base,
-    backgroundImage: `linear-gradient(to bottom, transparent, ${color.backgroundRaised})`,
+    backgroundImage: `linear-gradient(to bottom, transparent, ${color.background1})`,
   },
   body: {
     position: "relative",
@@ -410,7 +410,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     color: color.textMuted,
     fontSize: font.uiHeading1,
     fontWeight: font.weight_7,

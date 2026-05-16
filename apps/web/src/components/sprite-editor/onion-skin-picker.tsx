@@ -70,14 +70,14 @@ const styles = stylex.create({
     paddingInline: space._2,
     border: `1px solid ${color.border}`,
     borderRadius: border.radius_2,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     fontSize: font.uiBodySmall,
   },
   label: {
     color: color.textMuted,
   },
   select: {
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
     color: color.textMain,
     border: `1px solid ${color.border}`,
     borderRadius: border.radius_2,

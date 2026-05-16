@@ -436,7 +436,7 @@ const styles = stylex.create({
     fontSize: font.uiBody,
     border: `1px dashed ${color.border}`,
     borderRadius: border.radius_3,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
   },
   actions: {
     display: "flex",

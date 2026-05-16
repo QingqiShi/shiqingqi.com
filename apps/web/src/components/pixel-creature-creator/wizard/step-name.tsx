@@ -123,7 +123,7 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: { default: color.border, ":focus": color.controlActive },
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
     color: color.textMain,
     outlineWidth: 0,
     transitionProperty: "border-color",
@@ -144,7 +144,7 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "dashed",
     borderColor: color.border,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
   },
   loreTitle: {
     fontSize: font.uiBodySmall,

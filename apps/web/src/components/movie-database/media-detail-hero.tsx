@@ -112,7 +112,7 @@ const styles = stylex.create({
     width: space._10,
     height: space._10,
     borderRadius: border.radius_round,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     borderWidth: space._0,
     borderColor: color.textMuted,
     borderStyle: "solid",

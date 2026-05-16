@@ -215,7 +215,7 @@ const styles = stylex.create({
     padding: space._3,
     border: `1px solid ${color.border}`,
     borderRadius: border.radius_3,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
     margin: 0,
   },
   legend: {
@@ -239,7 +239,7 @@ const styles = stylex.create({
     width: "100%",
     paddingBlock: space._1,
     paddingInline: space._2,
-    backgroundColor: color.backgroundMain,
+    backgroundColor: color.background,
     color: color.textMain,
     border: `1px solid ${color.border}`,
     borderRadius: border.radius_2,

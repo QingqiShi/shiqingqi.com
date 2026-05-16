@@ -122,11 +122,11 @@ const styles = stylex.create({
     padding: space._3,
     border: `1px dashed ${color.border}`,
     borderRadius: border.radius_3,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.background1,
   },
   rootActive: {
     borderColor: color.brandPixelCreatureCreator,
-    backgroundColor: color.backgroundHover,
+    backgroundColor: color.background2,
   },
   input: {
     position: "absolute",
