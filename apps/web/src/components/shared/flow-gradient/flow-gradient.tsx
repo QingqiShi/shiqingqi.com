@@ -10,12 +10,13 @@ import { init, start, type ColorOptions } from "./loop";
 import fs from "./shaders/fs.glsl";
 import vs from "./shaders/vs.glsl";
 
+// Mirrors color.background — keep in sync if the token value changes.
 const DARK_COLORS = {
   colorBackground: [0, 0, 0],
 } satisfies ColorOptions;
 
 const LIGHT_COLORS = {
-  colorBackground: [1, 1, 1],
+  colorBackground: [0xfa / 0xff, 0xfa / 0xff, 0xfa / 0xff],
   colorTop: [0.6, 0.5, 0.7],
   colorBottom: [0.4, 0.4, 1],
   colorAltTop: [1, 0.3, 0.3],
