@@ -172,10 +172,10 @@ const styles = stylex.create({
     paddingInline: space._4,
     borderRadius: "10px",
     backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
+      default: color.accent,
+      ":hover": color.accentHover,
     },
-    color: color.textOnActive,
+    color: color.accentOn,
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
     textDecoration: "none",

@@ -306,9 +306,9 @@ const styles = stylex.create({
     transitionDuration: "120ms",
   },
   pillActive: {
-    backgroundColor: color.controlActive,
-    color: color.textOnActive,
-    borderColor: color.controlActive,
+    backgroundColor: color.accent,
+    color: color.accentOn,
+    borderColor: color.accent,
   },
   pillLocked: {
     // The disabled visuals come from the pseudo on `pill`; this class
@@ -391,10 +391,10 @@ const styles = stylex.create({
   },
   footerBtnPrimary: {
     backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
+      default: color.accent,
+      ":hover": color.accentHover,
     },
-    color: color.textOnActive,
-    borderColor: color.controlActive,
+    color: color.accentOn,
+    borderColor: color.accent,
   },
 });

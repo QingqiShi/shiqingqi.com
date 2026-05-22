@@ -133,7 +133,7 @@ const styles = stylex.create({
     transitionDuration: "120ms",
   },
   optionSelected: {
-    borderColor: color.controlActive,
+    borderColor: color.accent,
     backgroundColor: color.background2,
   },
   optionDisabled: {

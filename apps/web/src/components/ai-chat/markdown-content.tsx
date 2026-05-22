@@ -31,7 +31,7 @@ const styles = stylex.create({
     marginBlock: 0,
   },
   a: {
-    color: color.controlActive,
+    color: color.accent,
     textDecoration: "underline",
   },
   ul: {
@@ -58,7 +58,7 @@ const styles = stylex.create({
   blockquote: {
     borderInlineStartWidth: border.size_2,
     borderInlineStartStyle: "solid",
-    borderInlineStartColor: color.controlActive,
+    borderInlineStartColor: color.accent,
     paddingLeft: space._3,
     marginInline: 0,
     marginBlock: 0,

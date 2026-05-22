@@ -170,7 +170,7 @@ const styles = stylex.create({
     transitionDuration: "120ms",
   },
   pillSelected: {
-    borderColor: color.controlActive,
+    borderColor: color.accent,
     backgroundColor: color.background2,
   },
   typeOption: {
@@ -194,7 +194,7 @@ const styles = stylex.create({
     minWidth: "120px",
   },
   typeOptionSelected: {
-    borderColor: color.controlActive,
+    borderColor: color.accent,
     backgroundColor: color.background2,
   },
   typeAccent: {

@@ -112,11 +112,11 @@ const styles = stylex.create({
     paddingInline: space._3,
     borderRadius: border.radius_round,
     backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
-      ":disabled": color.controlActive,
+      default: color.accent,
+      ":hover": color.accentHover,
+      ":disabled": color.accent,
     },
-    color: color.textOnActive,
+    color: color.accentOn,
     cursor: {
       default: "pointer",
       ":disabled": "not-allowed",

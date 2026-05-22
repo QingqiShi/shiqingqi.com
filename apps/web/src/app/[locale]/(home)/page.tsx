@@ -271,7 +271,7 @@ const styles = stylex.create({
     [svgTokens.fill]: color.brandTmdb,
   },
   designSystem: {
-    [svgTokens.fill]: color.controlActive,
+    [svgTokens.fill]: color.accent,
   },
   calculator: {
     [svgTokens.fill]: color.brandCalculator,

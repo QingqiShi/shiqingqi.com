@@ -162,8 +162,8 @@ export const chatTextareaStyles = stylex.create({
     transition: "background-color 0.15s ease, color 0.15s ease",
   },
   iconButtonActive: {
-    backgroundColor: color.controlActive,
-    color: color.textOnActive,
+    backgroundColor: color.accent,
+    color: color.accentOn,
   },
 });
 

@@ -59,18 +59,18 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: {
       default: color.controlTrack,
-      ":hover": color.controlActive,
+      ":hover": color.accent,
       ":disabled": color.controlTrack,
     },
     borderRadius: border.radius_round,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.controlActive,
+      ":hover": color.accent,
       ":disabled": "transparent",
     },
     color: {
       default: color.textMuted,
-      ":hover": color.textOnActive,
+      ":hover": color.accentOn,
       ":disabled": color.textMuted,
     },
     fontFamily: font.family,

@@ -13,7 +13,7 @@ interface EmotionToggleProps {
 
 /**
  * Horizontal row of 7 emotion buttons. The active button is highlighted with
- * `controlActive`. The row scrolls horizontally on narrow viewports
+ * `accent`. The row scrolls horizontally on narrow viewports
  * (<375px) so all 7 emotions stay reachable without truncation.
  *
  * The toggle owns no state of its own — the parent threads `active` and
@@ -99,11 +99,11 @@ const styles = stylex.create({
   },
   buttonActive: {
     backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
-      ":focus-visible": color.controlActiveHover,
+      default: color.accent,
+      ":hover": color.accentHover,
+      ":focus-visible": color.accentHover,
     },
-    color: color.textOnActive,
-    borderColor: color.controlActive,
+    color: color.accentOn,
+    borderColor: color.accent,
   },
 });

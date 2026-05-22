@@ -34,7 +34,7 @@ export const sharedStyles = stylex.create({
     // default so the indicator stays consistent across browsers.
     outline: {
       default: "none",
-      ":focus-visible": `2px solid ${color.controlActive}`,
+      ":focus-visible": `2px solid ${color.accent}`,
     },
     outlineOffset: { default: null, ":focus-visible": "2px" },
   },
@@ -57,17 +57,17 @@ export const sharedStyles = stylex.create({
   },
   active: {
     [buttonTokens.color]: {
-      default: color.textOnActive,
-      ":hover": color.textOnActive,
+      default: color.accentOn,
+      ":hover": color.accentOn,
     },
     [anchorTokens.color]: {
-      default: color.textOnActive,
-      ":hover": color.textOnActive,
+      default: color.accentOn,
+      ":hover": color.accentOn,
     },
     backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
-      ":disabled:hover": color.controlActive,
+      default: color.accent,
+      ":hover": color.accentHover,
+      ":disabled:hover": color.accent,
     },
   },
   bright: {

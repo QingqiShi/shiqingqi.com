@@ -104,7 +104,7 @@ const triggerStyles = stylex.create({
     width: "6px",
     height: "6px",
     borderRadius: border.radius_round,
-    backgroundColor: color.controlActive,
+    backgroundColor: color.accent,
   },
 });
 
@@ -443,10 +443,10 @@ const styles = stylex.create({
     transition: "background-color 0.15s ease, border-color 0.15s ease",
   },
   chipLike: {
-    borderColor: `color-mix(in srgb, ${color.controlActive} 30%, transparent)`,
+    borderColor: `color-mix(in srgb, ${color.accent} 30%, transparent)`,
     backgroundColor: {
-      default: `color-mix(in srgb, ${color.controlActive} 8%, transparent)`,
-      ":hover": `color-mix(in srgb, ${color.controlActive} 14%, transparent)`,
+      default: `color-mix(in srgb, ${color.accent} 8%, transparent)`,
+      ":hover": `color-mix(in srgb, ${color.accent} 14%, transparent)`,
     },
     color: color.textMain,
   },
@@ -511,10 +511,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     borderRadius: border.radius_round,
     backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
+      default: color.accent,
+      ":hover": color.accentHover,
     },
-    color: color.textOnActive,
+    color: color.accentOn,
     cursor: "pointer",
     transition: "background-color 0.15s ease",
   },

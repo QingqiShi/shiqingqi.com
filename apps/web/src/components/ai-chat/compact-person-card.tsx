@@ -129,7 +129,7 @@ const styles = stylex.create({
     },
     outline: {
       default: "none",
-      ":focus-visible": `2px solid ${color.controlActive}`,
+      ":focus-visible": `2px solid ${color.accent}`,
     },
     outlineOffset: { default: null, ":focus-visible": "2px" },
   },

@@ -117,7 +117,7 @@ const styles = stylex.create({
     display: "block",
   },
   icon: {
-    color: color.controlActive,
+    color: color.accent,
     fontSize: "1.25em",
   },
   meta: {
@@ -133,7 +133,7 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_3,
     color: {
       default: color.textMuted,
-      ":hover": color.controlActive,
+      ":hover": color.accent,
       ":disabled": color.textMuted,
     },
     textDecorationLine: {

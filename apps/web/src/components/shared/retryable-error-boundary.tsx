@@ -72,8 +72,8 @@ const styles = stylex.create({
     borderWidth: 0,
     borderStyle: "none",
     borderRadius: "9999px",
-    backgroundColor: color.controlActive,
-    color: color.textOnActive,
+    backgroundColor: color.accent,
+    color: color.accentOn,
     cursor: "pointer",
   },
 });

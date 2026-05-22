@@ -53,7 +53,7 @@ const styles = stylex.create({
   },
   shimmerText: {
     fontSize: font.uiBodySmall,
-    backgroundImage: `linear-gradient(135deg, ${color.textMuted}, ${color.controlActive}, ${color.textMuted})`,
+    backgroundImage: `linear-gradient(135deg, ${color.textMuted}, ${color.accent}, ${color.textMuted})`,
     backgroundSize: "200% 100%",
     backgroundClip: "text",
     color: "transparent",

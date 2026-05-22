@@ -122,7 +122,7 @@ const styles = stylex.create({
     borderRadius: "10px",
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: { default: color.border, ":focus": color.controlActive },
+    borderColor: { default: color.border, ":focus": color.accent },
     backgroundColor: color.background,
     color: color.textMain,
     outlineWidth: 0,

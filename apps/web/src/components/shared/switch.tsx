@@ -190,7 +190,7 @@ const styles = stylex.create({
     transition: `background-color 0.2s ease`,
     backgroundColor: {
       default: color.controlTrack,
-      ":checked": color.controlActive,
+      ":checked": color.accent,
     },
     boxShadow: {
       default: shadow._2,

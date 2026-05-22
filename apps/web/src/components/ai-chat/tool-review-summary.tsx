@@ -266,13 +266,13 @@ const styles = stylex.create({
       "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
   },
   levelButtonCurrent: {
-    backgroundColor: color.controlActive,
-    color: color.textOnActive,
-    borderColor: color.controlActive,
+    backgroundColor: color.accent,
+    color: color.accentOn,
+    borderColor: color.accent,
   },
   levelButtonSelected: {
-    borderColor: color.controlActive,
-    color: color.controlActive,
+    borderColor: color.accent,
+    color: color.accent,
     backgroundColor: color.background,
   },
   selectedLabel: {

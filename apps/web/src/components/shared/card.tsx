@@ -87,7 +87,7 @@ const styles = stylex.create({
     backdropFilter: { default: null, ":hover": "blur(2rem)" },
     outline: {
       default: "none",
-      ":focus-visible": `2px solid ${color.controlActive}`,
+      ":focus-visible": `2px solid ${color.accent}`,
     },
     // Draw the ring inside the box so `overflow: hidden` doesn't clip it.
     outlineOffset: { default: null, ":focus-visible": "-2px" },

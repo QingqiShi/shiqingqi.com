@@ -272,8 +272,8 @@ const styles = stylex.create({
   },
   userBubble: {
     marginLeft: "auto",
-    backgroundColor: color.controlActive,
-    color: color.textOnActive,
+    backgroundColor: color.accent,
+    color: color.accentOn,
     borderRadius: border.radius_3,
     borderBottomRightRadius: border.radius_1,
   },
