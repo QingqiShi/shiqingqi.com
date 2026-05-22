@@ -107,7 +107,7 @@
     "postcss-import": "^16.1.1",
     "postcss-preset-env": "^11.3.0",
     "raw-loader": "^4.0.2",
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "vite": "^8.0.14",
     "vitest": "^4.1.7"
