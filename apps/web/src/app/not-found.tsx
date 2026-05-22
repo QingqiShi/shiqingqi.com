@@ -62,7 +62,7 @@ const styles = stylex.create({
   },
   link: {
     fontSize: font.uiBody,
-    color: color.controlActive,
+    color: color.accent,
     textDecoration: {
       default: "none",
       ":hover": "underline",

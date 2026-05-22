@@ -29,7 +29,7 @@ export const scrollX = stylex.create({
   focusRing: {
     outline: {
       default: "none",
-      ":focus-visible": `2px solid ${color.controlActive}`,
+      ":focus-visible": `2px solid ${color.accent}`,
     },
     outlineOffset: { default: null, ":focus-visible": "2px" },
     borderRadius: border.radius_2,

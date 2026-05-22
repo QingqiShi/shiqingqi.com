@@ -63,7 +63,7 @@ const horizontalVariantStyles = stylex.create({
   },
   decorative: {
     blockSize: "1px",
-    backgroundImage: gradient.borderAccent,
+    backgroundImage: gradient.accentBorder,
   },
 });
 
@@ -78,6 +78,6 @@ const verticalVariantStyles = stylex.create({
   },
   decorative: {
     inlineSize: "1px",
-    backgroundImage: `linear-gradient(180deg, ${color.controlActive} 0%, ${color.info} 100%)`,
+    backgroundImage: `linear-gradient(180deg, ${color.accent} 0%, ${color.info} 100%)`,
   },
 });

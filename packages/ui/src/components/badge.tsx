@@ -111,6 +111,6 @@ const variantStyles = stylex.create({
   },
   accent: {
     backgroundColor: color.surfaceAccentSubtle,
-    color: color.textAccent,
+    color: color.accentText,
   },
 });

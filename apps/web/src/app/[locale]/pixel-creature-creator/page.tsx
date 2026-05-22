@@ -121,10 +121,10 @@ const styles = stylex.create({
     paddingInline: space._6,
     backgroundColor: {
       default: color.brandPixelCreatureCreator,
-      ":hover": color.controlActive,
-      ":focus-visible": color.controlActive,
+      ":hover": color.accent,
+      ":focus-visible": color.accent,
     },
-    color: color.textOnActive,
+    color: color.accentOn,
     borderRadius: "999px",
     fontSize: font.uiBody,
     fontWeight: font.weight_7,

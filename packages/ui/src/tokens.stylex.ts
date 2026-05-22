@@ -7,9 +7,9 @@ const light = {
   textMain: "#292929",
   textMuted: "#505050",
   textSubtle: "#737373",
-  textOnActive: "#ffffff",
+  accentOn: "#ffffff",
   textOnControlThumb: "#292929",
-  textAccent: "#6b0fa7",
+  accentText: "#6b0fa7",
 
   background: "#fafafa",
   backgroundDim: "#f7f7f7",
@@ -30,32 +30,36 @@ const light = {
 
   controlTrack: "#e0e0e0",
   controlThumb: "#ffffff",
-  controlActive: "#7e10c2",
-  controlActiveHover: "#9e2de3",
+  accent: "#7e10c2",
+  accentHover: "#9e2de3",
   controlActiveSubtle: "rgba(126, 16, 194, 0.12)",
 
   border: "#e0e0e0",
   borderSubtle: "#ededed",
   borderStrong: "#cccccc",
-  borderAccent: "rgba(126, 16, 194, 0.4)",
+  accentBorder: "rgba(126, 16, 194, 0.4)",
 
   opacityActive: "0.1",
 
   shadowColor: "220 3% 15%",
   shadowStrength: "1%",
-  shadowAccent: "rgba(126, 16, 194, 0.25)",
+  accentShadow: "rgba(126, 16, 194, 0.25)",
 
-  // Semantic colors — bold (foreground), subtle (background tint), text (on subtle), on (on bold)
+  // Semantic colors — bold (foreground), hover (interactive lift), subtle (background tint), text (on subtle), on (on bold)
   info: "#0284c7",
+  infoHover: "#0ea5e9",
   infoText: "#075985",
   infoOn: "#ffffff",
   success: "#16a34a",
+  successHover: "#22c55e",
   successText: "#14532d",
   successOn: "#ffffff",
   warning: "#d97706",
+  warningHover: "#f59e0b",
   warningText: "#78350f",
   warningOn: "#ffffff",
   danger: "#dc2626",
+  dangerHover: "#ef4444",
   dangerText: "#7f1d1d",
   dangerOn: "#ffffff",
 
@@ -77,9 +81,9 @@ const dark: { [key in keyof typeof light]: string } = {
   textMain: "#f3eded",
   textMuted: "#bbbbbb",
   textSubtle: "#8a8a8a",
-  textOnActive: "#ffffff",
+  accentOn: "#ffffff",
   textOnControlThumb: "#000000",
-  textAccent: "#c794ec",
+  accentText: "#c794ec",
 
   background: "#000000",
   backgroundDim: "#050505",
@@ -100,31 +104,35 @@ const dark: { [key in keyof typeof light]: string } = {
 
   controlTrack: "#1a1a1a",
   controlThumb: "#bbbbbb",
-  controlActive: "#933bc9",
-  controlActiveHover: "#a751db",
+  accent: "#933bc9",
+  accentHover: "#a751db",
   controlActiveSubtle: "rgba(199, 148, 236, 0.18)",
 
   border: "#333333",
   borderSubtle: "#262626",
   borderStrong: "#4a4a4a",
-  borderAccent: "rgba(199, 148, 236, 0.4)",
+  accentBorder: "rgba(199, 148, 236, 0.4)",
 
   opacityActive: "0.2",
 
   shadowColor: "220 40% 2%",
   shadowStrength: "25%",
-  shadowAccent: "rgba(147, 59, 201, 0.45)",
+  accentShadow: "rgba(147, 59, 201, 0.45)",
 
   info: "#38bdf8",
+  infoHover: "#7dd3fc",
   infoText: "#bae6fd",
   infoOn: "#082f49",
   success: "#4ade80",
+  successHover: "#86efac",
   successText: "#bbf7d0",
   successOn: "#052e16",
   warning: "#fbbf24",
+  warningHover: "#fcd34d",
   warningText: "#fde68a",
   warningOn: "#451a03",
   danger: "#f87171",
+  dangerHover: "#fca5a5",
   dangerText: "#fecaca",
   dangerOn: "#450a0a",
 
@@ -160,17 +168,17 @@ export const color = stylex.defineVars({
     default: light.textSubtle,
     [constants.DARK]: dark.textSubtle,
   },
-  textOnActive: {
-    default: light.textOnActive,
-    [constants.DARK]: dark.textOnActive,
+  accentOn: {
+    default: light.accentOn,
+    [constants.DARK]: dark.accentOn,
   },
   textOnControlThumb: {
     default: light.textOnControlThumb,
     [constants.DARK]: dark.textOnControlThumb,
   },
-  textAccent: {
-    default: light.textAccent,
-    [constants.DARK]: dark.textAccent,
+  accentText: {
+    default: light.accentText,
+    [constants.DARK]: dark.accentText,
   },
 
   background: {
@@ -243,13 +251,13 @@ export const color = stylex.defineVars({
     default: light.controlThumb,
     [constants.DARK]: dark.controlThumb,
   },
-  controlActive: {
-    default: light.controlActive,
-    [constants.DARK]: dark.controlActive,
+  accent: {
+    default: light.accent,
+    [constants.DARK]: dark.accent,
   },
-  controlActiveHover: {
-    default: light.controlActiveHover,
-    [constants.DARK]: dark.controlActiveHover,
+  accentHover: {
+    default: light.accentHover,
+    [constants.DARK]: dark.accentHover,
   },
   controlActiveSubtle: {
     default: light.controlActiveSubtle,
@@ -265,9 +273,9 @@ export const color = stylex.defineVars({
     default: light.borderStrong,
     [constants.DARK]: dark.borderStrong,
   },
-  borderAccent: {
-    default: light.borderAccent,
-    [constants.DARK]: dark.borderAccent,
+  accentBorder: {
+    default: light.accentBorder,
+    [constants.DARK]: dark.accentBorder,
   },
 
   opacityActive: {
@@ -283,27 +291,40 @@ export const color = stylex.defineVars({
     default: light.shadowStrength,
     [constants.DARK]: dark.shadowStrength,
   },
-  shadowAccent: {
-    default: light.shadowAccent,
-    [constants.DARK]: dark.shadowAccent,
+  accentShadow: {
+    default: light.accentShadow,
+    [constants.DARK]: dark.accentShadow,
   },
 
   info: { default: light.info, [constants.DARK]: dark.info },
+  infoHover: { default: light.infoHover, [constants.DARK]: dark.infoHover },
   infoText: { default: light.infoText, [constants.DARK]: dark.infoText },
   infoOn: { default: light.infoOn, [constants.DARK]: dark.infoOn },
   success: { default: light.success, [constants.DARK]: dark.success },
+  successHover: {
+    default: light.successHover,
+    [constants.DARK]: dark.successHover,
+  },
   successText: {
     default: light.successText,
     [constants.DARK]: dark.successText,
   },
   successOn: { default: light.successOn, [constants.DARK]: dark.successOn },
   warning: { default: light.warning, [constants.DARK]: dark.warning },
+  warningHover: {
+    default: light.warningHover,
+    [constants.DARK]: dark.warningHover,
+  },
   warningText: {
     default: light.warningText,
     [constants.DARK]: dark.warningText,
   },
   warningOn: { default: light.warningOn, [constants.DARK]: dark.warningOn },
   danger: { default: light.danger, [constants.DARK]: dark.danger },
+  dangerHover: {
+    default: light.dangerHover,
+    [constants.DARK]: dark.dangerHover,
+  },
   dangerText: {
     default: light.dangerText,
     [constants.DARK]: dark.dangerText,
@@ -511,9 +532,9 @@ export const shadow = stylex.defineVars({
   _6: `0 -1px 2px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 3px 2px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 7px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 12px 10px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 22px 18px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 41px 33px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%)), 0 100px 80px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 7%))`,
 
   // Accent-tinted glow shadows for highlighted or interactive surfaces
-  glowAccentSoft: `0 4px 16px -2px ${color.shadowAccent}`,
-  glowAccent: `0 0 0 1px ${color.borderAccent}, 0 8px 28px -4px ${color.shadowAccent}`,
-  glowAccentStrong: `0 0 0 1px ${color.borderAccent}, 0 4px 12px -2px ${color.shadowAccent}, 0 16px 40px -4px ${color.shadowAccent}`,
+  glowAccentSoft: `0 4px 16px -2px ${color.accentShadow}`,
+  glowAccent: `0 0 0 1px ${color.accentBorder}, 0 8px 28px -4px ${color.accentShadow}`,
+  glowAccentStrong: `0 0 0 1px ${color.accentBorder}, 0 4px 12px -2px ${color.accentShadow}, 0 16px 40px -4px ${color.accentShadow}`,
 
   // Inset shadow for sunken/inset surfaces
   inset: `inset 0 1px 2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%))`,
@@ -521,17 +542,17 @@ export const shadow = stylex.defineVars({
 
 export const gradient = stylex.defineVars({
   // Accent gradients — directional purple-to-magenta sweeps
-  accent: `linear-gradient(135deg, ${color.controlActive} 0%, ${color.controlActiveHover} 100%)`,
+  accent: `linear-gradient(135deg, ${color.accent} 0%, ${color.accentHover} 100%)`,
   accentSoft: `linear-gradient(135deg, ${color.surfaceAccentSubtle} 0%, ${color.surfaceAccentMuted} 100%)`,
-  accentRadial: `radial-gradient(circle at 30% 0%, ${color.controlActive} 0%, transparent 60%)`,
+  accentRadial: `radial-gradient(circle at 30% 0%, ${color.accent} 0%, transparent 60%)`,
 
   // Aurora — multi-stop decorative gradient for hero/feature sections
-  aurora: `linear-gradient(135deg, ${color.controlActive} 0%, ${color.info} 50%, ${color.controlActiveHover} 100%)`,
+  aurora: `linear-gradient(135deg, ${color.accent} 0%, ${color.info} 50%, ${color.accentHover} 100%)`,
   auroraSoft: `linear-gradient(135deg, ${color.surfaceAccentSubtle} 0%, ${color.surfaceInfoSubtle} 50%, ${color.surfaceAccentMuted} 100%)`,
 
   // Spotlight — radial highlight for emphasized cards
   spotlight: `radial-gradient(ellipse at top, ${color.surfaceAccentSubtle} 0%, transparent 70%)`,
 
   // Border gradients — for borders that need a directional color
-  borderAccent: `linear-gradient(135deg, ${color.controlActive} 0%, ${color.info} 100%)`,
+  accentBorder: `linear-gradient(135deg, ${color.accent} 0%, ${color.info} 100%)`,
 });

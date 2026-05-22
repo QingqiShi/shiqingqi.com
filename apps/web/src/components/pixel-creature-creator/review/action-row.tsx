@@ -589,17 +589,17 @@ const styles = stylex.create({
   },
   buttonPrimary: {
     backgroundColor: {
-      default: color.controlActive,
-      ":hover": color.controlActiveHover,
-      ":focus-visible": color.controlActiveHover,
+      default: color.accent,
+      ":hover": color.accentHover,
+      ":focus-visible": color.accentHover,
     },
-    color: color.textOnActive,
-    borderColor: color.controlActive,
+    color: color.accentOn,
+    borderColor: color.accent,
   },
   buttonSaved: {
-    backgroundColor: color.controlActive,
-    color: color.textOnActive,
-    borderColor: color.controlActive,
+    backgroundColor: color.accent,
+    color: color.accentOn,
+    borderColor: color.accent,
   },
   downloadWrap: {
     position: "relative",

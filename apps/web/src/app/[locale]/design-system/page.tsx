@@ -2,6 +2,7 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Divider } from "@tuja/ui/components/divider";
 import { Heading } from "@tuja/ui/components/heading";
@@ -11,10 +12,8 @@ import {
   border,
   color,
   controlSize,
-  darkTheme,
   font,
   gradient,
-  lightTheme,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -31,6 +30,8 @@ import {
   ShowcaseItem,
 } from "#src/components/design-system/showcase.tsx";
 import { t } from "#src/i18n.ts";
+
+const FEATURED_TONES: ReadonlySet<number> = new Set([40, 80]);
 
 export default function DesignSystem() {
   const heading = t({ en: "Design System", zh: "设计系统" });
@@ -63,73 +64,311 @@ export default function DesignSystem() {
           zh: "原子级构筑模块——颜色、排版、间距、阴影与渐变，构成上层一切设计。",
         })}
       >
-        <Showcase label={t({ en: "Surfaces", zh: "表面" })}>
-          <DuotoneLegend />
-          <ShowcaseGrid>
-            <ShowcaseItem label="color.background">
-              <DuotoneSwatch fillStyle={styles.bg} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.backgroundDim">
-              <DuotoneSwatch fillStyle={styles.bgDim} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.background1">
-              <DuotoneSwatch fillStyle={styles.bg1} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.background2">
-              <DuotoneSwatch fillStyle={styles.bg2} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.background3">
-              <DuotoneSwatch fillStyle={styles.bg3} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.background4">
-              <DuotoneSwatch fillStyle={styles.bg4} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.background5">
-              <DuotoneSwatch fillStyle={styles.bg5} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.controlActive">
-              <DuotoneSwatch fillStyle={styles.controlActive} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.controlActiveHover">
-              <DuotoneSwatch fillStyle={styles.controlActiveHover} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.info">
-              <DuotoneSwatch fillStyle={styles.info} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.success">
-              <DuotoneSwatch fillStyle={styles.success} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.warning">
-              <DuotoneSwatch fillStyle={styles.warning} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.danger">
-              <DuotoneSwatch fillStyle={styles.danger} />
-            </ShowcaseItem>
-          </ShowcaseGrid>
+        <Showcase label={t({ en: "Roles", zh: "角色" })}>
+          <div css={styles.rolesGrid}>
+            <RoleColumn
+              name={t({ en: "Accent", zh: "强调" })}
+              cells={[
+                {
+                  size: "large",
+                  bg: styles.fillAccent,
+                  fg: styles.accentOn,
+                  label: t({ en: "Accent", zh: "强调" }),
+                  token: "color.accent",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillAccentHover,
+                  fg: styles.accentOn,
+                  label: t({ en: "Accent Hover", zh: "强调悬停" }),
+                  token: "color.accentHover",
+                },
+                {
+                  size: "medium",
+                  bg: styles.fillSurfaceAccentSubtle,
+                  fg: styles.accentText,
+                  label: t({ en: "Accent Surface", zh: "强调表面" }),
+                  token: "color.surfaceAccentSubtle",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillAccentText,
+                  fg: styles.accentOn,
+                  label: t({ en: "Accent Text", zh: "强调文字" }),
+                  token: "color.accentText",
+                },
+              ]}
+            />
+            <RoleColumn
+              name={t({ en: "Info", zh: "信息" })}
+              cells={[
+                {
+                  size: "large",
+                  bg: styles.fillInfo,
+                  fg: styles.textInfoOn,
+                  label: t({ en: "Info", zh: "信息" }),
+                  token: "color.info",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillInfoHover,
+                  fg: styles.textInfoOn,
+                  label: t({ en: "Info Hover", zh: "信息悬停" }),
+                  token: "color.infoHover",
+                },
+                {
+                  size: "medium",
+                  bg: styles.fillSurfaceInfoSubtle,
+                  fg: styles.textInfoText,
+                  label: t({ en: "Info Surface", zh: "信息表面" }),
+                  token: "color.surfaceInfoSubtle",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillInfoText,
+                  fg: styles.textInfoOn,
+                  label: t({ en: "Info Text", zh: "信息文字" }),
+                  token: "color.infoText",
+                },
+              ]}
+            />
+            <RoleColumn
+              name={t({ en: "Success", zh: "成功" })}
+              cells={[
+                {
+                  size: "large",
+                  bg: styles.fillSuccess,
+                  fg: styles.textSuccessOn,
+                  label: t({ en: "Success", zh: "成功" }),
+                  token: "color.success",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillSuccessHover,
+                  fg: styles.textSuccessOn,
+                  label: t({ en: "Success Hover", zh: "成功悬停" }),
+                  token: "color.successHover",
+                },
+                {
+                  size: "medium",
+                  bg: styles.fillSurfaceSuccessSubtle,
+                  fg: styles.textSuccessText,
+                  label: t({ en: "Success Surface", zh: "成功表面" }),
+                  token: "color.surfaceSuccessSubtle",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillSuccessText,
+                  fg: styles.textSuccessOn,
+                  label: t({ en: "Success Text", zh: "成功文字" }),
+                  token: "color.successText",
+                },
+              ]}
+            />
+            <RoleColumn
+              name={t({ en: "Warning", zh: "警告" })}
+              cells={[
+                {
+                  size: "large",
+                  bg: styles.fillWarning,
+                  fg: styles.textWarningOn,
+                  label: t({ en: "Warning", zh: "警告" }),
+                  token: "color.warning",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillWarningHover,
+                  fg: styles.textWarningOn,
+                  label: t({ en: "Warning Hover", zh: "警告悬停" }),
+                  token: "color.warningHover",
+                },
+                {
+                  size: "medium",
+                  bg: styles.fillSurfaceWarningSubtle,
+                  fg: styles.textWarningText,
+                  label: t({ en: "Warning Surface", zh: "警告表面" }),
+                  token: "color.surfaceWarningSubtle",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillWarningText,
+                  fg: styles.textWarningOn,
+                  label: t({ en: "Warning Text", zh: "警告文字" }),
+                  token: "color.warningText",
+                },
+              ]}
+            />
+            <RoleColumn
+              name={t({ en: "Danger", zh: "危险" })}
+              cells={[
+                {
+                  size: "large",
+                  bg: styles.fillDanger,
+                  fg: styles.textDangerOn,
+                  label: t({ en: "Danger", zh: "危险" }),
+                  token: "color.danger",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillDangerHover,
+                  fg: styles.textDangerOn,
+                  label: t({ en: "Danger Hover", zh: "危险悬停" }),
+                  token: "color.dangerHover",
+                },
+                {
+                  size: "medium",
+                  bg: styles.fillSurfaceDangerSubtle,
+                  fg: styles.textDangerText,
+                  label: t({ en: "Danger Surface", zh: "危险表面" }),
+                  token: "color.surfaceDangerSubtle",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillDangerText,
+                  fg: styles.textDangerOn,
+                  label: t({ en: "Danger Text", zh: "危险文字" }),
+                  token: "color.dangerText",
+                },
+              ]}
+            />
+          </div>
         </Showcase>
 
-        <Showcase label={t({ en: "Surface tints", zh: "表面色调" })}>
-          <DuotoneLegend />
-          <ShowcaseGrid>
-            <ShowcaseItem label="color.surfaceAccentSubtle">
-              <DuotoneSwatch fillStyle={styles.surfaceAccentSubtle} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.surfaceAccentMuted">
-              <DuotoneSwatch fillStyle={styles.surfaceAccentMuted} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.surfaceInfoSubtle">
-              <DuotoneSwatch fillStyle={styles.surfaceInfoSubtle} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.surfaceSuccessSubtle">
-              <DuotoneSwatch fillStyle={styles.surfaceSuccessSubtle} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.surfaceWarningSubtle">
-              <DuotoneSwatch fillStyle={styles.surfaceWarningSubtle} />
-            </ShowcaseItem>
-            <ShowcaseItem label="color.surfaceDangerSubtle">
-              <DuotoneSwatch fillStyle={styles.surfaceDangerSubtle} />
-            </ShowcaseItem>
-          </ShowcaseGrid>
+        <Showcase label={t({ en: "Surfaces", zh: "表面" })}>
+          <p css={styles.surfacesHelper}>
+            {t({
+              en: "A numbered ramp from the base background up — light mode collapses background1–5 to the same white, dark mode steps each tier darker for layering.",
+              zh: "由基础背景向上的编号阶梯——浅色模式下 background1–5 同为白色，深色模式下逐级加深以呈现层次。",
+            })}
+          </p>
+          <div css={styles.surfacesRamp}>
+            <RampCell
+              bg={styles.fillBg}
+              fg={styles.textOnBg}
+              label={t({ en: "Background", zh: "背景" })}
+              token="color.background"
+              span={styles.rampCellSpanBg}
+            />
+            <RampCell
+              bg={styles.fillBgDim}
+              fg={styles.textOnBg}
+              label={t({ en: "Dim", zh: "暗淡" })}
+              token="color.backgroundDim"
+              span={styles.rampCellSpanDim}
+            />
+            <RampCell
+              bg={styles.fillBg1}
+              fg={styles.textOnBg}
+              label="1"
+              token="color.background1"
+              numbered
+            />
+            <RampCell
+              bg={styles.fillBg2}
+              fg={styles.textOnBg}
+              label="2"
+              token="color.background2"
+              numbered
+            />
+            <RampCell
+              bg={styles.fillBg3}
+              fg={styles.textOnBg}
+              label="3"
+              token="color.background3"
+              numbered
+            />
+            <RampCell
+              bg={styles.fillBg4}
+              fg={styles.textOnBg}
+              label="4"
+              token="color.background4"
+              numbered
+            />
+            <RampCell
+              bg={styles.fillBg5}
+              fg={styles.textOnBg}
+              label="5"
+              token="color.background5"
+              numbered
+            />
+          </div>
+        </Showcase>
+
+        <Showcase
+          label={t({ en: "Text, borders & controls", zh: "文字、边框与控件" })}
+        >
+          <div css={styles.chipsLayout}>
+            <div css={styles.chipsGroup}>
+              <span css={styles.chipsGroupLabel}>
+                {t({ en: "Text", zh: "文字" })}
+              </span>
+              <div css={styles.chipsRow}>
+                <TextChip
+                  fg={styles.textOnBg}
+                  label="Aa"
+                  token="color.textMain"
+                />
+                <TextChip
+                  fg={styles.textMutedStandalone}
+                  label="Aa"
+                  token="color.textMuted"
+                />
+                <TextChip
+                  fg={styles.textSubtleStandalone}
+                  label="Aa"
+                  token="color.textSubtle"
+                />
+                <TextChip
+                  fg={styles.accentText}
+                  label="Aa"
+                  token="color.accentText"
+                />
+              </div>
+            </div>
+            <div css={styles.chipsGroup}>
+              <span css={styles.chipsGroupLabel}>
+                {t({ en: "Border", zh: "边框" })}
+              </span>
+              <div css={styles.chipsRow}>
+                <BorderChip
+                  rule={styles.ruleBorderSubtle}
+                  token="color.borderSubtle"
+                />
+                <BorderChip
+                  rule={styles.ruleBorderStrong}
+                  token="color.borderStrong"
+                />
+                <BorderChip
+                  rule={styles.ruleAccentBorder}
+                  token="color.accentBorder"
+                />
+              </div>
+            </div>
+            <div css={styles.chipsGroup}>
+              <span css={styles.chipsGroupLabel}>
+                {t({ en: "Control", zh: "控件" })}
+              </span>
+              <div css={styles.chipsRow}>
+                <div css={[styles.controlChip, styles.fillControlTrack]}>
+                  <div
+                    css={[styles.controlThumbDot, styles.fillControlThumb]}
+                  />
+                  <div css={styles.chipFooter}>
+                    <span css={styles.cellToken}>color.controlTrack</span>
+                    <span css={styles.cellToken}>+ thumb</span>
+                  </div>
+                </div>
+                <div css={[styles.controlChip, styles.fillControlActiveSubtle]}>
+                  <span css={[styles.cellLabel, styles.accentText]}>
+                    {t({ en: "Subtle", zh: "微弱" })}
+                  </span>
+                  <span css={[styles.cellToken, styles.accentText]}>
+                    color.controlActiveSubtle
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </Showcase>
 
         <Showcase label={t({ en: "Shadows", zh: "阴影" })}>
@@ -223,35 +462,48 @@ export default function DesignSystem() {
         })}
       >
         <Showcase label={t({ en: "Tonal palettes", zh: "色调阶梯" })}>
-          <div css={styles.toneTable} role="table">
+          <p css={styles.toneHelper}>
+            {t({
+              en: "Tones 40 and 80 are featured as key stops — the typical pairing for solid roles and their soft surfaces.",
+              zh: "40 与 80 为关键色阶——通常用作实色角色与对应柔和表面。",
+            })}
+          </p>
+          <div css={styles.palettesStack}>
             {systemPalette.map((palette) => (
               <div
                 key={palette.name}
-                css={[styles.toneRow, styles.toneRowGrid]}
-                role="row"
+                css={styles.paletteCard}
+                role="group"
+                aria-label={palette.name}
               >
-                <span css={styles.toneName} role="cell">
-                  {palette.name}
-                </span>
-                {SYSTEM_PALETTE_TONES.map((tone) => {
-                  const swatch = palette.tones[tone];
-                  return (
-                    <div
-                      key={tone}
-                      css={styles.toneSwatch}
-                      style={{
-                        backgroundColor: swatch.bg,
-                        color: swatch.fg,
-                      }}
-                      role="cell"
-                      aria-label={`${palette.name} ${String(tone)}`}
-                    >
-                      <span css={styles.toneNumber}>
-                        {palette.name} {tone}
-                      </span>
-                    </div>
-                  );
-                })}
+                <div css={styles.paletteHeader}>
+                  <span css={styles.paletteName}>{palette.name}</span>
+                  <span css={styles.paletteSource}>{palette.source}</span>
+                </div>
+                <div css={styles.paletteTones}>
+                  {SYSTEM_PALETTE_TONES.map((tone) => {
+                    const swatch = palette.tones[tone];
+                    const featured = FEATURED_TONES.has(tone);
+                    return (
+                      <div
+                        key={tone}
+                        css={[
+                          styles.paletteTone,
+                          featured
+                            ? styles.paletteToneFeatured
+                            : styles.paletteToneRegular,
+                        ]}
+                        style={{
+                          backgroundColor: swatch.bg,
+                          color: swatch.fg,
+                        }}
+                        aria-label={`${palette.name} ${String(tone)}`}
+                      >
+                        <span css={styles.paletteToneNumber}>{tone}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
@@ -643,31 +895,90 @@ function TypeSample({ label, sizeStyle, children }: TypeSampleProps) {
   );
 }
 
-interface DuotoneSwatchProps {
-  fillStyle: StyleXStyles;
+type RoleCellSize = "large" | "medium" | "thin";
+
+interface RoleCell {
+  size: RoleCellSize;
+  bg: StyleXStyles;
+  fg: StyleXStyles;
+  label: string;
+  token: string;
 }
 
-function DuotoneSwatch({ fillStyle }: DuotoneSwatchProps) {
+interface RoleColumnProps {
+  name: string;
+  cells: readonly RoleCell[];
+}
+
+function RoleColumn({ name, cells }: RoleColumnProps) {
   return (
-    <div css={styles.duotoneSwatch}>
-      <div css={[styles.duotoneHalf, styles.duotoneLight, lightTheme]}>
-        <div css={[styles.duotoneFill, fillStyle]} />
-      </div>
-      <div css={[styles.duotoneHalf, styles.duotoneDark, darkTheme]}>
-        <div css={[styles.duotoneFill, fillStyle]} />
-      </div>
+    <div css={styles.roleColumn} aria-label={name}>
+      {cells.map((cell) => {
+        const sizeStyle =
+          cell.size === "large"
+            ? styles.roleCellLarge
+            : cell.size === "medium"
+              ? styles.roleCellMedium
+              : styles.roleCellThin;
+        return (
+          <div key={cell.token} css={[styles.roleCell, sizeStyle, cell.bg]}>
+            <span css={[styles.cellLabel, cell.fg]}>{cell.label}</span>
+            <span css={[styles.cellToken, cell.fg]}>{cell.token}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-function DuotoneLegend() {
+interface RampCellProps {
+  bg: StyleXStyles;
+  fg: StyleXStyles;
+  label: string;
+  token: string;
+  span?: StyleXStyles;
+  numbered?: boolean;
+}
+
+function RampCell({ bg, fg, label, token, span, numbered }: RampCellProps) {
   return (
-    <span css={styles.duotoneLegend}>
-      {t({
-        en: "↖ light  ·  ↘ dark",
-        zh: "↖ 浅色  ·  ↘ 深色",
-      })}
-    </span>
+    <div css={[styles.rampCell, bg, span]}>
+      <span css={[styles.cellLabel, fg, numbered && styles.rampLabelNumbered]}>
+        {label}
+      </span>
+      <span css={[styles.cellToken, fg, numbered && styles.rampTokenNumbered]}>
+        {token}
+      </span>
+    </div>
+  );
+}
+
+interface TextChipProps {
+  fg: StyleXStyles;
+  label: string;
+  token: string;
+}
+
+function TextChip({ fg, label, token }: TextChipProps) {
+  return (
+    <div css={styles.textChip}>
+      <span css={[styles.textChipSample, fg]}>{label}</span>
+      <span css={styles.cellToken}>{token}</span>
+    </div>
+  );
+}
+
+interface BorderChipProps {
+  rule: StyleXStyles;
+  token: string;
+}
+
+function BorderChip({ rule, token }: BorderChipProps) {
+  return (
+    <div css={styles.borderChip}>
+      <div css={[styles.borderChipRule, rule]} />
+      <span css={styles.cellToken}>{token}</span>
+    </div>
   );
 }
 
@@ -699,67 +1010,281 @@ const styles = stylex.create({
     borderRadius: border.radius_2,
     border: `1px solid ${color.borderSubtle}`,
   },
-  duotoneSwatch: {
-    position: "relative",
-    inlineSize: "80px",
-    blockSize: "80px",
+
+  // ─── Roles bento ────────────────────────────────────────────────
+  rolesGrid: {
+    display: "grid",
+    // 5 roles divide cleanly as 1×5, 3+2, or 5×1 — those breakpoints avoid orphans.
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "repeat(3, minmax(0, 1fr))",
+      [breakpoints.lg]: "repeat(5, minmax(0, 1fr))",
+    },
+    gap: space._2,
+  },
+  roleColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._00,
     borderRadius: border.radius_2,
     overflow: "hidden",
     boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
   },
-  duotoneHalf: {
-    position: "absolute",
-    inset: 0,
-    backgroundColor: color.background,
+  roleCell: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    paddingBlock: space._2,
+    paddingInline: space._3,
+    gap: space._0,
   },
-  duotoneFill: {
-    position: "absolute",
-    inset: 0,
+  roleCellLarge: {
+    minBlockSize: "108px",
   },
-  duotoneLight: {
-    clipPath: "polygon(0 0, 100% 0, 0 100%)",
+  roleCellMedium: {
+    minBlockSize: "72px",
   },
-  duotoneDark: {
-    clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+  roleCellThin: {
+    minBlockSize: "44px",
+    paddingBlock: space._1,
   },
-  duotoneLegend: {
+  cellLabel: {
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_6,
+    letterSpacing: font.trackingSnug,
+    lineHeight: font.lineHeight_2,
+  },
+  cellToken: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiCaption,
+    opacity: 0.85,
+    lineHeight: font.lineHeight_2,
+    overflowWrap: "anywhere",
+  },
+
+  // ─── Surfaces ramp + aside ──────────────────────────────────────
+  surfacesHelper: {
+    margin: 0,
     fontSize: font.uiCaption,
     color: color.textSubtle,
-    fontFamily: font.familyMono,
-    letterSpacing: font.trackingSnug,
+    lineHeight: font.lineHeight_4,
   },
-  bg: { backgroundColor: color.background },
-  bgDim: { backgroundColor: color.backgroundDim },
-  bg1: { backgroundColor: color.background1 },
-  bg2: { backgroundColor: color.background2 },
-  bg3: { backgroundColor: color.background3 },
-  bg4: { backgroundColor: color.background4 },
-  bg5: { backgroundColor: color.background5 },
-  controlActive: {
-    backgroundColor: color.controlActive,
-    borderColor: "transparent",
+  surfacesRamp: {
+    display: "grid",
+    // default-sm: stack; md: featured bg + dim atop 5 numbered cells; lg: full 7-cell bento.
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "repeat(5, minmax(0, 1fr))",
+      [breakpoints.lg]: "2.5fr 1.5fr 1fr 1fr 1fr 1fr 1fr",
+    },
+    gap: space._00,
+    borderRadius: border.radius_2,
+    overflow: "hidden",
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
   },
-  controlActiveHover: {
-    backgroundColor: color.controlActiveHover,
-    borderColor: "transparent",
+  rampCell: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    paddingBlock: space._3,
+    paddingInline: space._3,
+    gap: space._0,
+    minInlineSize: 0,
+    minBlockSize: {
+      default: "72px",
+      [breakpoints.md]: "140px",
+    },
+    overflow: "hidden",
   },
-  info: { backgroundColor: color.info, borderColor: "transparent" },
-  success: { backgroundColor: color.success, borderColor: "transparent" },
-  warning: { backgroundColor: color.warning, borderColor: "transparent" },
-  danger: { backgroundColor: color.danger, borderColor: "transparent" },
+  rampCellSpanBg: {
+    gridColumn: {
+      default: "auto",
+      [breakpoints.md]: "span 3",
+      [breakpoints.lg]: "auto",
+    },
+  },
+  rampCellSpanDim: {
+    gridColumn: {
+      default: "auto",
+      [breakpoints.md]: "span 2",
+      [breakpoints.lg]: "auto",
+    },
+  },
+  // Numbered cells (1–5) get narrow as soon as they sit in a row — the bg/dim
+  // cells already establish the "color.backgroundN" pattern, so hide redundant
+  // token text and feature the number itself.
+  rampTokenNumbered: {
+    display: {
+      default: "block",
+      [breakpoints.md]: "none",
+    },
+  },
+  rampLabelNumbered: {
+    fontSize: {
+      default: font.uiBodySmall,
+      [breakpoints.md]: font.uiHeading2,
+    },
+  },
 
-  surfaceAccentSubtle: { backgroundColor: color.surfaceAccentSubtle },
-  surfaceAccentMuted: { backgroundColor: color.surfaceAccentMuted },
-  surfaceInfoSubtle: { backgroundColor: color.surfaceInfoSubtle },
-  surfaceSuccessSubtle: { backgroundColor: color.surfaceSuccessSubtle },
-  surfaceWarningSubtle: { backgroundColor: color.surfaceWarningSubtle },
-  surfaceDangerSubtle: { backgroundColor: color.surfaceDangerSubtle },
+  // ─── Text / Border / Control chips ──────────────────────────────
+  chipsLayout: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: space._4,
+  },
+  chipsGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._2,
+  },
+  chipsGroupLabel: {
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
+    letterSpacing: font.trackingWider,
+    textTransform: "uppercase",
+    fontWeight: font.weight_6,
+  },
+  chipsRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: space._2,
+  },
+  textChip: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space._1,
+    paddingBlock: space._2,
+    paddingInline: space._3,
+    minInlineSize: "72px",
+    borderRadius: border.radius_2,
+    backgroundColor: color.background2,
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+  },
+  textChipSample: {
+    fontSize: font.uiHeading2,
+    fontWeight: font.weight_7,
+    lineHeight: font.lineHeight_1,
+  },
+  borderChip: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+    justifyContent: "center",
+    gap: space._2,
+    paddingBlock: space._2,
+    paddingInline: space._3,
+    minInlineSize: "120px",
+    borderRadius: border.radius_2,
+    backgroundColor: color.background2,
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+  },
+  borderChipRule: {
+    blockSize: 0,
+    inlineSize: "100%",
+  },
+  ruleBorderSubtle: {
+    borderBlockEndWidth: "1px",
+    borderBlockEndStyle: "solid",
+    borderBlockEndColor: color.borderSubtle,
+  },
+  ruleBorderStrong: {
+    borderBlockEndWidth: "1px",
+    borderBlockEndStyle: "solid",
+    borderBlockEndColor: color.borderStrong,
+  },
+  ruleAccentBorder: {
+    borderBlockEndWidth: "2px",
+    borderBlockEndStyle: "solid",
+    borderBlockEndColor: color.accentBorder,
+  },
+  controlChip: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: space._2,
+    paddingBlock: space._2,
+    paddingInline: space._3,
+    minInlineSize: "140px",
+    minBlockSize: "64px",
+    borderRadius: border.radius_2,
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+  },
+  controlThumbDot: {
+    inlineSize: "20px",
+    blockSize: "20px",
+    borderRadius: border.radius_round,
+    boxShadow: `0 1px 2px rgba(0,0,0,0.18)`,
+  },
+  chipFooter: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: space._2,
+  },
 
+  // ─── Fill helpers ───────────────────────────────────────────────
+  fillBg: { backgroundColor: color.background },
+  fillBgDim: { backgroundColor: color.backgroundDim },
+  fillBg1: { backgroundColor: color.background1 },
+  fillBg2: { backgroundColor: color.background2 },
+  fillBg3: { backgroundColor: color.background3 },
+  fillBg4: { backgroundColor: color.background4 },
+  fillBg5: { backgroundColor: color.background5 },
+
+  fillAccent: { backgroundColor: color.accent },
+  fillAccentHover: { backgroundColor: color.accentHover },
+  fillControlActiveSubtle: { backgroundColor: color.controlActiveSubtle },
+  fillControlTrack: { backgroundColor: color.controlTrack },
+  fillControlThumb: { backgroundColor: color.controlThumb },
+
+  fillSurfaceAccentSubtle: { backgroundColor: color.surfaceAccentSubtle },
+  fillSurfaceInfoSubtle: { backgroundColor: color.surfaceInfoSubtle },
+  fillSurfaceSuccessSubtle: { backgroundColor: color.surfaceSuccessSubtle },
+  fillSurfaceWarningSubtle: { backgroundColor: color.surfaceWarningSubtle },
+  fillSurfaceDangerSubtle: { backgroundColor: color.surfaceDangerSubtle },
+
+  fillInfo: { backgroundColor: color.info },
+  fillSuccess: { backgroundColor: color.success },
+  fillWarning: { backgroundColor: color.warning },
+  fillDanger: { backgroundColor: color.danger },
+
+  fillInfoHover: { backgroundColor: color.infoHover },
+  fillSuccessHover: { backgroundColor: color.successHover },
+  fillWarningHover: { backgroundColor: color.warningHover },
+  fillDangerHover: { backgroundColor: color.dangerHover },
+
+  fillAccentText: { backgroundColor: color.accentText },
+  fillInfoText: { backgroundColor: color.infoText },
+  fillSuccessText: { backgroundColor: color.successText },
+  fillWarningText: { backgroundColor: color.warningText },
+  fillDangerText: { backgroundColor: color.dangerText },
+
+  // ─── Text-color helpers ─────────────────────────────────────────
+  accentOn: { color: color.accentOn },
+  textOnBg: { color: color.textMain },
+  textMutedStandalone: { color: color.textMuted },
+  textSubtleStandalone: { color: color.textSubtle },
+  accentText: { color: color.accentText },
+
+  textInfoOn: { color: color.infoOn },
+  textInfoText: { color: color.infoText },
+
+  textSuccessOn: { color: color.successOn },
+  textSuccessText: { color: color.successText },
+
+  textWarningOn: { color: color.warningOn },
+  textWarningText: { color: color.warningText },
+
+  textDangerOn: { color: color.dangerOn },
+  textDangerText: { color: color.dangerText },
+
+  // ─── Shadows / Gradients (unchanged) ────────────────────────────
   shadowBlock: {
     inlineSize: "80px",
     blockSize: "80px",
     borderRadius: border.radius_2,
-    backgroundColor: color.background1,
+    backgroundColor: color.background3,
     border: `1px solid ${color.borderSubtle}`,
   },
   shadow1: { boxShadow: shadow._1 },
@@ -780,7 +1305,7 @@ const styles = stylex.create({
   },
   gradientSpotlight: {
     backgroundImage: gradient.spotlight,
-    backgroundColor: color.background1,
+    backgroundColor: color.background3,
   },
 
   typeStack: {
@@ -850,59 +1375,80 @@ const styles = stylex.create({
     borderRadius: "2px",
   },
 
-  toneTable: {
+  // ─── Tonal palettes ─────────────────────────────────────────────
+  toneHelper: {
+    margin: 0,
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
+    lineHeight: font.lineHeight_4,
+  },
+  palettesStack: {
     display: "flex",
     flexDirection: "column",
-    overflowX: "auto",
+    gap: space._3,
   },
-  toneRowGrid: {
-    display: "grid",
-    gridTemplateColumns: "minmax(110px, 1fr) repeat(11, minmax(28px, 1fr))",
-    alignItems: "stretch",
-    minInlineSize: "fit-content",
-  },
-  toneRow: {
-    alignItems: "stretch",
-  },
-  toneName: {
+  paletteCard: {
     display: "flex",
-    alignItems: "center",
+    flexDirection: "column",
     gap: space._2,
-    paddingInlineStart: space._2,
-    paddingInlineEnd: space._3,
+  },
+  paletteHeader: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    gap: space._3,
+  },
+  paletteName: {
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
     color: color.textMain,
     letterSpacing: font.trackingSnug,
   },
-  toneSwatch: {
-    blockSize: "44px",
-    position: "relative",
-    zIndex: { default: 0, ":hover": 1 },
-    borderRadius: { default: 0, ":hover": border.radius_2 },
-    transform: { default: "scale(1)", ":hover": "scale(1.12)" },
-    boxShadow: {
-      default: "0 0 0 0 rgba(0, 0, 0, 0)",
-      ":hover": shadow._3,
-    },
-    transition:
-      "transform 180ms cubic-bezier(0.2, 0, 0, 1), box-shadow 180ms ease, border-radius 180ms ease",
+  paletteSource: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
   },
-  toneNumber: {
-    position: "absolute",
-    inset: 0,
+  paletteTones: {
+    display: "grid",
+    // Equal columns at narrow widths so every tone number stays legible;
+    // weighted bento ratios kick in only at lg where there's room for them.
+    gridTemplateColumns: {
+      default: "repeat(11, minmax(0, 1fr))",
+      [breakpoints.lg]:
+        "0.5fr 0.7fr 1fr 1.2fr 3fr 1.2fr 1.5fr 2fr 3fr 1.2fr 0.5fr",
+    },
+    minBlockSize: "80px",
+    borderRadius: border.radius_2,
+    overflow: "hidden",
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+  },
+  paletteTone: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    transition:
+      "transform 180ms cubic-bezier(0.2, 0, 0, 1), box-shadow 180ms ease",
+    position: "relative",
+    zIndex: { default: 0, ":hover": 1 },
+    transform: { default: "scale(1)", ":hover": "scale(1.06)" },
+    boxShadow: { default: "none", ":hover": shadow._3 },
+  },
+  paletteToneRegular: {
+    minBlockSize: "44px",
+  },
+  paletteToneFeatured: {
+    minBlockSize: "80px",
+  },
+  paletteToneNumber: {
+    // 11 tones at very narrow widths leave no room for labels — hide until md.
+    display: {
+      default: "none",
+      [breakpoints.md]: "block",
+    },
     fontSize: font.uiCaption,
     fontFamily: font.familyMono,
-    fontWeight: font.weight_5,
-    whiteSpace: "nowrap",
-    opacity: { default: 0, ":hover": 1 },
-    transform: {
-      default: "translateY(2px)",
-      ":hover": "translateY(0)",
-    },
-    transition: "opacity 160ms ease 40ms, transform 200ms ease 40ms",
+    fontWeight: font.weight_6,
+    letterSpacing: font.trackingSnug,
   },
 });

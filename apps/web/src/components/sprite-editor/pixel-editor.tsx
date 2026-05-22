@@ -1266,7 +1266,7 @@ const styles = stylex.create({
   },
   toolButtonActive: {
     backgroundColor: color.brandPixelCreatureCreator,
-    color: color.textOnActive,
+    color: color.accentOn,
     borderColor: color.brandPixelCreatureCreator,
   },
   colorRow: {
@@ -1382,9 +1382,9 @@ const styles = stylex.create({
   selectionButtonPrimary: {
     backgroundColor: {
       default: color.brandPixelCreatureCreator,
-      ":hover": color.controlActive,
+      ":hover": color.accent,
     },
-    color: color.textOnActive,
+    color: color.accentOn,
   },
   selectionIcon: {
     display: "inline-flex",

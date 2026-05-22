@@ -73,13 +73,13 @@ const styles = stylex.create({
     transition: "background-color 0.2s",
     outline: {
       default: "none",
-      ":focus-visible": `2px solid ${color.controlActive}`,
+      ":focus-visible": `2px solid ${color.accent}`,
     },
     outlineOffset: { default: null, ":focus-visible": "2px" },
   },
   itemActive: {
-    color: color.textOnActive,
-    backgroundColor: color.controlActive,
+    color: color.accentOn,
+    backgroundColor: color.accent,
     pointerEvents: "none",
   },
 });

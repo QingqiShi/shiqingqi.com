@@ -65,7 +65,7 @@ const styles = stylex.create({
     pointerEvents: "none",
   },
   icon: {
-    color: color.controlActive,
+    color: color.accent,
     fontSize: "1.125em",
   },
 });

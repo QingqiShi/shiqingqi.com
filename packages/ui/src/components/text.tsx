@@ -81,7 +81,7 @@ const toneStyles = stylex.create({
   default: { color: color.textMain },
   muted: { color: color.textMuted },
   subtle: { color: color.textSubtle },
-  accent: { color: color.textAccent },
+  accent: { color: color.accentText },
 });
 
 const weightStyles = stylex.create({
