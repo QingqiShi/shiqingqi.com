@@ -16,7 +16,7 @@ const DARK_COLORS = {
 } satisfies ColorOptions;
 
 const LIGHT_COLORS = {
-  colorBackground: [0xfa / 0xff, 0xfa / 0xff, 0xfa / 0xff],
+  colorBackground: [0xed / 0xff, 0xec / 0xff, 0xe8 / 0xff],
   colorTop: [0.6, 0.5, 0.7],
   colorBottom: [0.4, 0.4, 1],
   colorAltTop: [1, 0.3, 0.3],
