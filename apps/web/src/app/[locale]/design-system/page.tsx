@@ -237,24 +237,24 @@ export default function DesignSystem() {
         <Showcase label={t({ en: "Surfaces", zh: "表面" })}>
           <p css={styles.surfacesHelper}>
             {t({
-              en: "A numbered ramp from the base background up — light mode collapses background1–5 to the same white, dark mode steps each tier darker for layering.",
-              zh: "由基础背景向上的编号阶梯——浅色模式下 background1–5 同为白色，深色模式下逐级加深以呈现层次。",
+              en: "A numbered ramp from the base background up — each tier lifts toward white in light mode and toward higher lightness in dark mode, giving layered surfaces a perceptible step.",
+              zh: "由基础背景向上的编号阶梯——浅色模式下各级逐步趋近纯白，深色模式下逐级提亮，使叠加表面层次可辨。",
             })}
           </p>
           <div css={styles.surfacesRamp}>
-            <RampCell
-              bg={styles.fillBg}
-              fg={styles.textOnBg}
-              label={t({ en: "Background", zh: "背景" })}
-              token="color.background"
-              span={styles.rampCellSpanBg}
-            />
             <RampCell
               bg={styles.fillBgDim}
               fg={styles.textOnBg}
               label={t({ en: "Dim", zh: "暗淡" })}
               token="color.backgroundDim"
               span={styles.rampCellSpanDim}
+            />
+            <RampCell
+              bg={styles.fillBg}
+              fg={styles.textOnBg}
+              label={t({ en: "Background", zh: "背景" })}
+              token="color.background"
+              span={styles.rampCellSpanBg}
             />
             <RampCell
               bg={styles.fillBg1}
@@ -1075,7 +1075,7 @@ const styles = stylex.create({
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
       [breakpoints.md]: "repeat(5, minmax(0, 1fr))",
-      [breakpoints.lg]: "2.5fr 1.5fr 1fr 1fr 1fr 1fr 1fr",
+      [breakpoints.lg]: "1.5fr 2.5fr 1fr 1fr 1fr 1fr 1fr",
     },
     gap: space._00,
     borderRadius: border.radius_2,
