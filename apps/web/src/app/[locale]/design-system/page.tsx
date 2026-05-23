@@ -64,6 +64,91 @@ export default function DesignSystem() {
           zh: "原子级构筑模块——颜色、排版、间距、阴影与渐变，构成上层一切设计。",
         })}
       >
+        <Showcase label={t({ en: "Surfaces", zh: "表面" })}>
+          <p css={styles.surfacesHelper}>
+            {t({
+              en: "Seven surface tiers and three foreground tones. Surfaces lift toward white in light mode and toward higher lightness in dark mode; the foreground stays legible across every step.",
+              zh: "七个表面层级与三种前景色调。表面在浅色模式下趋近纯白，在深色模式下逐级提亮；前景在每一层级皆保持可读。",
+            })}
+          </p>
+          <div css={styles.surfacesBento}>
+            <div css={styles.surfacesRamp}>
+              <RampCell
+                bg={styles.fillBgDim}
+                fg={styles.textOnBg}
+                label={t({ en: "Dim", zh: "暗淡" })}
+                token="color.backgroundDim"
+                span={styles.rampCellSpanDim}
+              />
+              <RampCell
+                bg={styles.fillBg}
+                fg={styles.textOnBg}
+                label={t({ en: "Background", zh: "背景" })}
+                token="color.background"
+                span={styles.rampCellSpanBg}
+              />
+              <RampCell
+                bg={styles.fillBg1}
+                fg={styles.textOnBg}
+                label="1"
+                token="color.background1"
+                numbered
+              />
+              <RampCell
+                bg={styles.fillBg2}
+                fg={styles.textOnBg}
+                label="2"
+                token="color.background2"
+                numbered
+              />
+              <RampCell
+                bg={styles.fillBg3}
+                fg={styles.textOnBg}
+                label="3"
+                token="color.background3"
+                numbered
+              />
+              <RampCell
+                bg={styles.fillBg4}
+                fg={styles.textOnBg}
+                label="4"
+                token="color.background4"
+                numbered
+              />
+              <RampCell
+                bg={styles.fillBg5}
+                fg={styles.textOnBg}
+                label="5"
+                token="color.background5"
+                numbered
+              />
+            </div>
+            <div css={styles.foregroundRamp}>
+              <RampCell
+                bg={styles.fillTextMain}
+                fg={styles.textOnForeground}
+                label={t({ en: "Main Text", zh: "主要文字" })}
+                token="color.textMain"
+                compact
+              />
+              <RampCell
+                bg={styles.fillTextMuted}
+                fg={styles.textOnForeground}
+                label={t({ en: "Muted Text", zh: "弱化文字" })}
+                token="color.textMuted"
+                compact
+              />
+              <RampCell
+                bg={styles.fillTextSubtle}
+                fg={styles.textOnForeground}
+                label={t({ en: "Subtle Text", zh: "微弱文字" })}
+                token="color.textSubtle"
+                compact
+              />
+            </div>
+          </div>
+        </Showcase>
+
         <Showcase label={t({ en: "Roles", zh: "角色" })}>
           <div css={styles.rolesGrid}>
             <RoleColumn
@@ -234,97 +319,8 @@ export default function DesignSystem() {
           </div>
         </Showcase>
 
-        <Showcase label={t({ en: "Surfaces", zh: "表面" })}>
-          <p css={styles.surfacesHelper}>
-            {t({
-              en: "A numbered ramp from the base background up — each tier lifts toward white in light mode and toward higher lightness in dark mode, giving layered surfaces a perceptible step.",
-              zh: "由基础背景向上的编号阶梯——浅色模式下各级逐步趋近纯白，深色模式下逐级提亮，使叠加表面层次可辨。",
-            })}
-          </p>
-          <div css={styles.surfacesRamp}>
-            <RampCell
-              bg={styles.fillBgDim}
-              fg={styles.textOnBg}
-              label={t({ en: "Dim", zh: "暗淡" })}
-              token="color.backgroundDim"
-              span={styles.rampCellSpanDim}
-            />
-            <RampCell
-              bg={styles.fillBg}
-              fg={styles.textOnBg}
-              label={t({ en: "Background", zh: "背景" })}
-              token="color.background"
-              span={styles.rampCellSpanBg}
-            />
-            <RampCell
-              bg={styles.fillBg1}
-              fg={styles.textOnBg}
-              label="1"
-              token="color.background1"
-              numbered
-            />
-            <RampCell
-              bg={styles.fillBg2}
-              fg={styles.textOnBg}
-              label="2"
-              token="color.background2"
-              numbered
-            />
-            <RampCell
-              bg={styles.fillBg3}
-              fg={styles.textOnBg}
-              label="3"
-              token="color.background3"
-              numbered
-            />
-            <RampCell
-              bg={styles.fillBg4}
-              fg={styles.textOnBg}
-              label="4"
-              token="color.background4"
-              numbered
-            />
-            <RampCell
-              bg={styles.fillBg5}
-              fg={styles.textOnBg}
-              label="5"
-              token="color.background5"
-              numbered
-            />
-          </div>
-        </Showcase>
-
-        <Showcase
-          label={t({ en: "Text, borders & controls", zh: "文字、边框与控件" })}
-        >
+        <Showcase label={t({ en: "Borders & controls", zh: "边框与控件" })}>
           <div css={styles.chipsLayout}>
-            <div css={styles.chipsGroup}>
-              <span css={styles.chipsGroupLabel}>
-                {t({ en: "Text", zh: "文字" })}
-              </span>
-              <div css={styles.chipsRow}>
-                <TextChip
-                  fg={styles.textOnBg}
-                  label="Aa"
-                  token="color.textMain"
-                />
-                <TextChip
-                  fg={styles.textMutedStandalone}
-                  label="Aa"
-                  token="color.textMuted"
-                />
-                <TextChip
-                  fg={styles.textSubtleStandalone}
-                  label="Aa"
-                  token="color.textSubtle"
-                />
-                <TextChip
-                  fg={styles.accentText}
-                  label="Aa"
-                  token="color.accentText"
-                />
-              </div>
-            </div>
             <div css={styles.chipsGroup}>
               <span css={styles.chipsGroupLabel}>
                 {t({ en: "Border", zh: "边框" })}
@@ -349,22 +345,27 @@ export default function DesignSystem() {
                 {t({ en: "Control", zh: "控件" })}
               </span>
               <div css={styles.chipsRow}>
-                <div css={[styles.controlChip, styles.fillControlTrack]}>
-                  <div
-                    css={[styles.controlThumbDot, styles.fillControlThumb]}
-                  />
-                  <div css={styles.chipFooter}>
-                    <span css={styles.cellToken}>color.controlTrack</span>
-                    <span css={styles.cellToken}>+ thumb</span>
+                <div css={styles.previewChip}>
+                  <div css={styles.previewChipSample}>
+                    <div css={[styles.toggleTrack, styles.fillControlTrack]}>
+                      <div
+                        css={[styles.toggleThumb, styles.fillControlThumb]}
+                      />
+                    </div>
                   </div>
+                  <span css={styles.cellToken}>color.controlTrack + thumb</span>
                 </div>
-                <div css={[styles.controlChip, styles.fillControlActiveSubtle]}>
-                  <span css={[styles.cellLabel, styles.accentText]}>
-                    {t({ en: "Subtle", zh: "微弱" })}
-                  </span>
-                  <span css={[styles.cellToken, styles.accentText]}>
-                    color.controlActiveSubtle
-                  </span>
+                <div css={styles.previewChip}>
+                  <div css={styles.previewChipSample}>
+                    <div
+                      css={[styles.activePill, styles.fillControlActiveSubtle]}
+                    >
+                      <span css={[styles.activePillLabel, styles.accentText]}>
+                        {t({ en: "Active", zh: "激活" })}
+                      </span>
+                    </div>
+                  </div>
+                  <span css={styles.cellToken}>color.controlActiveSubtle</span>
                 </div>
               </div>
             </div>
@@ -938,32 +939,26 @@ interface RampCellProps {
   token: string;
   span?: StyleXStyles;
   numbered?: boolean;
+  compact?: boolean;
 }
 
-function RampCell({ bg, fg, label, token, span, numbered }: RampCellProps) {
+function RampCell({
+  bg,
+  fg,
+  label,
+  token,
+  span,
+  numbered,
+  compact,
+}: RampCellProps) {
   return (
-    <div css={[styles.rampCell, bg, span]}>
+    <div css={[styles.rampCell, bg, span, compact && styles.rampCellCompact]}>
       <span css={[styles.cellLabel, fg, numbered && styles.rampLabelNumbered]}>
         {label}
       </span>
       <span css={[styles.cellToken, fg, numbered && styles.rampTokenNumbered]}>
         {token}
       </span>
-    </div>
-  );
-}
-
-interface TextChipProps {
-  fg: StyleXStyles;
-  label: string;
-  token: string;
-}
-
-function TextChip({ fg, label, token }: TextChipProps) {
-  return (
-    <div css={styles.textChip}>
-      <span css={[styles.textChipSample, fg]}>{label}</span>
-      <span css={styles.cellToken}>{token}</span>
     </div>
   );
 }
@@ -975,8 +970,10 @@ interface BorderChipProps {
 
 function BorderChip({ rule, token }: BorderChipProps) {
   return (
-    <div css={styles.borderChip}>
-      <div css={[styles.borderChipRule, rule]} />
+    <div css={styles.previewChip}>
+      <div css={styles.previewChipSample}>
+        <div css={[styles.borderRule, rule]} />
+      </div>
       <span css={styles.cellToken}>{token}</span>
     </div>
   );
@@ -1069,6 +1066,14 @@ const styles = stylex.create({
     color: color.textSubtle,
     lineHeight: font.lineHeight_4,
   },
+  surfacesBento: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._00,
+    borderRadius: border.radius_2,
+    overflow: "hidden",
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+  },
   surfacesRamp: {
     display: "grid",
     // default-sm: stack; md: featured bg + dim atop 5 numbered cells; lg: full 7-cell bento.
@@ -1078,9 +1083,14 @@ const styles = stylex.create({
       [breakpoints.lg]: "1.5fr 2.5fr 1fr 1fr 1fr 1fr 1fr",
     },
     gap: space._00,
-    borderRadius: border.radius_2,
-    overflow: "hidden",
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+  },
+  foregroundRamp: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "repeat(3, minmax(0, 1fr))",
+    },
+    gap: space._00,
   },
   rampCell: {
     display: "flex",
@@ -1095,6 +1105,13 @@ const styles = stylex.create({
       [breakpoints.md]: "140px",
     },
     overflow: "hidden",
+  },
+  rampCellCompact: {
+    paddingBlock: space._2,
+    minBlockSize: {
+      default: "56px",
+      [breakpoints.md]: "72px",
+    },
   },
   rampCellSpanBg: {
     gridColumn: {
@@ -1126,7 +1143,7 @@ const styles = stylex.create({
     },
   },
 
-  // ─── Text / Border / Control chips ──────────────────────────────
+  // ─── Border / Control chips ─────────────────────────────────────
   chipsLayout: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
@@ -1149,38 +1166,26 @@ const styles = stylex.create({
     flexWrap: "wrap",
     gap: space._2,
   },
-  textChip: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: space._1,
-    paddingBlock: space._2,
-    paddingInline: space._3,
-    minInlineSize: "72px",
-    borderRadius: border.radius_2,
-    backgroundColor: color.background2,
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
-  },
-  textChipSample: {
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_1,
-  },
-  borderChip: {
+  previewChip: {
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    justifyContent: "center",
     gap: space._2,
-    paddingBlock: space._2,
+    paddingBlock: space._3,
     paddingInline: space._3,
-    minInlineSize: "120px",
+    minInlineSize: "128px",
+    minBlockSize: "104px",
     borderRadius: border.radius_2,
     backgroundColor: color.background2,
     boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
   },
-  borderChipRule: {
+  previewChipSample: {
+    display: "flex",
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  borderRule: {
     blockSize: 0,
     inlineSize: "100%",
   },
@@ -1199,28 +1204,31 @@ const styles = stylex.create({
     borderBlockEndStyle: "solid",
     borderBlockEndColor: color.accentBorder,
   },
-  controlChip: {
+  toggleTrack: {
     display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    gap: space._2,
-    paddingBlock: space._2,
-    paddingInline: space._3,
-    minInlineSize: "140px",
-    minBlockSize: "64px",
-    borderRadius: border.radius_2,
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
-  },
-  controlThumbDot: {
-    inlineSize: "20px",
-    blockSize: "20px",
+    alignItems: "center",
+    inlineSize: "56px",
+    blockSize: "28px",
+    paddingInline: "3px",
     borderRadius: border.radius_round,
-    boxShadow: `0 1px 2px rgba(0,0,0,0.18)`,
   },
-  chipFooter: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: space._2,
+  toggleThumb: {
+    inlineSize: "22px",
+    blockSize: "22px",
+    borderRadius: border.radius_round,
+    boxShadow: "0 1px 2px rgba(0,0,0,0.18)",
+  },
+  activePill: {
+    display: "inline-flex",
+    alignItems: "center",
+    paddingBlock: space._1,
+    paddingInline: space._3,
+    borderRadius: border.radius_round,
+  },
+  activePillLabel: {
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_6,
+    lineHeight: font.lineHeight_1,
   },
 
   // ─── Fill helpers ───────────────────────────────────────────────
@@ -1255,6 +1263,9 @@ const styles = stylex.create({
   fillDangerHover: { backgroundColor: color.dangerHover },
 
   fillAccentText: { backgroundColor: color.accentText },
+  fillTextMain: { backgroundColor: color.textMain },
+  fillTextMuted: { backgroundColor: color.textMuted },
+  fillTextSubtle: { backgroundColor: color.textSubtle },
   fillInfoText: { backgroundColor: color.infoText },
   fillSuccessText: { backgroundColor: color.successText },
   fillWarningText: { backgroundColor: color.warningText },
@@ -1263,6 +1274,7 @@ const styles = stylex.create({
   // ─── Text-color helpers ─────────────────────────────────────────
   accentOn: { color: color.accentOn },
   textOnBg: { color: color.textMain },
+  textOnForeground: { color: color.background },
   textMutedStandalone: { color: color.textMuted },
   textSubtleStandalone: { color: color.textSubtle },
   accentText: { color: color.accentText },
