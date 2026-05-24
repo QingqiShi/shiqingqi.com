@@ -412,24 +412,111 @@ export default function DesignSystem() {
           </ShowcaseGrid>
         </Showcase>
 
+        <Showcase label={t({ en: "Families", zh: "字体族" })}>
+          <div css={styles.familiesGrid}>
+            <div css={styles.familyCard}>
+              <header css={styles.familyHeader}>
+                <span css={styles.familyToken}>font.family</span>
+                <span css={styles.familyValue}>Inter, sans-serif</span>
+              </header>
+              <div css={[styles.familySpecimen, styles.familySans]}>Aa</div>
+              <div css={[styles.familyCharset, styles.familySans]}>
+                <p css={styles.familyCharsetLine}>ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+                <p css={styles.familyCharsetLine}>abcdefghijklmnopqrstuvwxyz</p>
+                <p css={styles.familyCharsetLine}>0123456789 — &amp; ?!“”</p>
+              </div>
+            </div>
+            <div css={styles.familyCard}>
+              <header css={styles.familyHeader}>
+                <span css={styles.familyToken}>font.familyMono</span>
+                <span css={styles.familyValue}>
+                  ui-monospace, SF Mono, Menlo
+                </span>
+              </header>
+              <div css={[styles.familySpecimen, styles.familyMono]}>Aa</div>
+              <div css={[styles.familyCharset, styles.familyMono]}>
+                <p css={styles.familyCharsetLine}>ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+                <p css={styles.familyCharsetLine}>abcdefghijklmnopqrstuvwxyz</p>
+                <p css={styles.familyCharsetLine}>{"0123456789 — & ?! {}"}</p>
+              </div>
+            </div>
+          </div>
+        </Showcase>
+
+        <Showcase label={t({ en: "Weights", zh: "字重" })}>
+          <div css={styles.weightsGrid}>
+            <SpecCard token="font.weight_1" meta="100">
+              <span css={[styles.weightSpecimen, styles.weight1]}>Ag</span>
+            </SpecCard>
+            <SpecCard token="font.weight_2" meta="200">
+              <span css={[styles.weightSpecimen, styles.weight2]}>Ag</span>
+            </SpecCard>
+            <SpecCard token="font.weight_3" meta="300">
+              <span css={[styles.weightSpecimen, styles.weight3]}>Ag</span>
+            </SpecCard>
+            <SpecCard token="font.weight_4" meta="400">
+              <span css={[styles.weightSpecimen, styles.weight4]}>Ag</span>
+            </SpecCard>
+            <SpecCard token="font.weight_5" meta="500">
+              <span css={[styles.weightSpecimen, styles.weight5]}>Ag</span>
+            </SpecCard>
+            <SpecCard token="font.weight_6" meta="600">
+              <span css={[styles.weightSpecimen, styles.weight6]}>Ag</span>
+            </SpecCard>
+            <SpecCard token="font.weight_7" meta="700">
+              <span css={[styles.weightSpecimen, styles.weight7]}>Ag</span>
+            </SpecCard>
+            <SpecCard token="font.weight_8" meta="800">
+              <span css={[styles.weightSpecimen, styles.weight8]}>Ag</span>
+            </SpecCard>
+            <SpecCard token="font.weight_9" meta="900">
+              <span css={[styles.weightSpecimen, styles.weight9]}>Ag</span>
+            </SpecCard>
+          </div>
+        </Showcase>
+
         <Showcase label={t({ en: "Type scale", zh: "字号" })}>
           <div css={[flex.col, styles.typeStack]}>
-            <TypeSample label="font.uiDisplay" sizeStyle={styles.typeDisplay}>
+            <TypeSample
+              label="font.uiDisplay"
+              meta="3rem"
+              sizeStyle={styles.typeDisplay}
+            >
               {t({ en: "Display", zh: "展示" })}
             </TypeSample>
-            <TypeSample label="font.uiHeading0" sizeStyle={styles.typeHeading0}>
+            <TypeSample
+              label="font.uiHeading0"
+              meta="2rem"
+              sizeStyle={styles.typeHeading0}
+            >
               {t({ en: "Heading 0", zh: "标题 0" })}
             </TypeSample>
-            <TypeSample label="font.uiHeading1" sizeStyle={styles.typeHeading1}>
+            <TypeSample
+              label="font.uiHeading1"
+              meta="1.5rem"
+              sizeStyle={styles.typeHeading1}
+            >
               {t({ en: "Heading 1", zh: "标题 1" })}
             </TypeSample>
-            <TypeSample label="font.uiHeading2" sizeStyle={styles.typeHeading2}>
+            <TypeSample
+              label="font.uiHeading2"
+              meta="1.25rem"
+              sizeStyle={styles.typeHeading2}
+            >
               {t({ en: "Heading 2", zh: "标题 2" })}
             </TypeSample>
-            <TypeSample label="font.uiHeading3" sizeStyle={styles.typeHeading3}>
+            <TypeSample
+              label="font.uiHeading3"
+              meta="1.1rem"
+              sizeStyle={styles.typeHeading3}
+            >
               {t({ en: "Heading 3", zh: "标题 3" })}
             </TypeSample>
-            <TypeSample label="font.uiBody" sizeStyle={styles.typeBody}>
+            <TypeSample
+              label="font.uiBody"
+              meta="1rem"
+              sizeStyle={styles.typeBody}
+            >
               {t({
                 en: "The quick brown fox jumps over the lazy dog.",
                 zh: "敏捷的棕色狐狸跃过懒惰的狗。",
@@ -437,6 +524,7 @@ export default function DesignSystem() {
             </TypeSample>
             <TypeSample
               label="font.uiBodySmall"
+              meta="0.85rem"
               sizeStyle={styles.typeBodySmall}
             >
               {t({
@@ -444,12 +532,188 @@ export default function DesignSystem() {
                 zh: "敏捷的棕色狐狸跃过懒惰的狗。",
               })}
             </TypeSample>
-            <TypeSample label="font.uiCaption" sizeStyle={styles.typeCaption}>
+            <TypeSample
+              label="font.uiCaption"
+              meta="0.75rem"
+              sizeStyle={styles.typeCaption}
+            >
               {t({ en: "Caption text", zh: "说明文字" })}
             </TypeSample>
-            <TypeSample label="font.uiOverline" sizeStyle={styles.typeOverline}>
+            <TypeSample
+              label="font.uiOverline"
+              meta="0.7rem"
+              sizeStyle={styles.typeOverline}
+            >
               {t({ en: "Overline label", zh: "上线标签" })}
             </TypeSample>
+          </div>
+        </Showcase>
+
+        <Showcase label={t({ en: "Responsive sizes", zh: "响应式字号" })}>
+          <p css={styles.cqHelper}>
+            {t({
+              en: "Viewport-responsive sizes (vp*) step at the sm/md/lg breakpoints — use them on landing pages where headlines need to grow with the canvas. The page heading above uses font.vpDisplay.",
+              zh: "视口响应字号（vp*）在 sm/md/lg 断点处分级——适用于落地页中需要随画布扩展的标题。本页主标题即采用 font.vpDisplay。",
+            })}
+          </p>
+          <div css={[flex.col, styles.typeStack]}>
+            <TypeSample
+              label="font.vpDisplay"
+              meta="2 · 2.8 · 3.75 · 5.25rem"
+              sizeStyle={styles.typeVpDisplay}
+            >
+              {t({ en: "Display", zh: "展示" })}
+            </TypeSample>
+            <TypeSample
+              label="font.vpSubDisplay"
+              meta="1 · 1.1 · 1.3 · 1.6rem"
+              sizeStyle={styles.typeVpSubDisplay}
+            >
+              {t({ en: "Sub-display", zh: "副展示" })}
+            </TypeSample>
+            <TypeSample
+              label="font.vpHeading1"
+              meta="1.3 · 1.4 · 1.6 · 2rem"
+              sizeStyle={styles.typeVpHeading1}
+            >
+              {t({ en: "Heading 1", zh: "标题 1" })}
+            </TypeSample>
+            <TypeSample
+              label="font.vpHeading2"
+              meta="1.2 · 1.3 · 1.5 · 1.8rem"
+              sizeStyle={styles.typeVpHeading2}
+            >
+              {t({ en: "Heading 2", zh: "标题 2" })}
+            </TypeSample>
+            <TypeSample
+              label="font.vpHeading3"
+              meta="1 · 1.1 · 1.2 · 1.3rem"
+              sizeStyle={styles.typeVpHeading3}
+            >
+              {t({ en: "Heading 3", zh: "标题 3" })}
+            </TypeSample>
+          </div>
+          <p css={styles.cqHelper}>
+            {t({
+              en: "Container-responsive sizes (cq*) track their parent's inline size — use them inside responsive grids where the type should scale with item width, not viewport. font.cqTitle clamps between 1.1rem and 1.4rem; the two containers below render the same token at different widths.",
+              zh: "容器响应字号（cq*）随父级行内尺寸变化——适用于希望字号追踪容器宽度的响应式网格。font.cqTitle 在 1.1rem 与 1.4rem 之间夹值；下方两个容器以不同宽度呈现同一令牌。",
+            })}
+          </p>
+          <div css={styles.cqDemo}>
+            <div css={styles.cqContainer}>
+              <span css={styles.cqContainerLabel}>font.cqTitle · narrow</span>
+              <p css={styles.typeCqTitle}>
+                {t({ en: "Container title", zh: "容器标题" })}
+              </p>
+            </div>
+            <div css={styles.cqContainer}>
+              <span css={styles.cqContainerLabel}>font.cqTitle · wide</span>
+              <p css={styles.typeCqTitle}>
+                {t({ en: "Container title", zh: "容器标题" })}
+              </p>
+            </div>
+          </div>
+        </Showcase>
+
+        <Showcase label={t({ en: "Line heights", zh: "行高" })}>
+          <p css={styles.cqHelper}>
+            {t({
+              en: "Same passage at every line-height — rhythm tightens at the bottom of the scale and opens up toward the top.",
+              zh: "同一段文字以不同行高呈现——下端紧凑、上端舒缓。",
+            })}
+          </p>
+          <div css={styles.lineHeightsGrid}>
+            <SpecCard token="font.lineHeight_00" meta="0.95">
+              <p css={[styles.lineHeightSample, styles.lh00]}>
+                {t({
+                  en: "Choose line height to match the reading pace — tighter for headlines, looser for body.",
+                  zh: "行高随节奏而定——标题宜紧凑，正文宜舒缓。",
+                })}
+              </p>
+            </SpecCard>
+            <SpecCard token="font.lineHeight_0" meta="1">
+              <p css={[styles.lineHeightSample, styles.lh0]}>
+                {t({
+                  en: "Choose line height to match the reading pace — tighter for headlines, looser for body.",
+                  zh: "行高随节奏而定——标题宜紧凑，正文宜舒缓。",
+                })}
+              </p>
+            </SpecCard>
+            <SpecCard token="font.lineHeight_1" meta="1.1">
+              <p css={[styles.lineHeightSample, styles.lh1]}>
+                {t({
+                  en: "Choose line height to match the reading pace — tighter for headlines, looser for body.",
+                  zh: "行高随节奏而定——标题宜紧凑，正文宜舒缓。",
+                })}
+              </p>
+            </SpecCard>
+            <SpecCard token="font.lineHeight_2" meta="1.2">
+              <p css={[styles.lineHeightSample, styles.lh2]}>
+                {t({
+                  en: "Choose line height to match the reading pace — tighter for headlines, looser for body.",
+                  zh: "行高随节奏而定——标题宜紧凑，正文宜舒缓。",
+                })}
+              </p>
+            </SpecCard>
+            <SpecCard token="font.lineHeight_3" meta="1.3">
+              <p css={[styles.lineHeightSample, styles.lh3]}>
+                {t({
+                  en: "Choose line height to match the reading pace — tighter for headlines, looser for body.",
+                  zh: "行高随节奏而定——标题宜紧凑，正文宜舒缓。",
+                })}
+              </p>
+            </SpecCard>
+            <SpecCard token="font.lineHeight_4" meta="1.5">
+              <p css={[styles.lineHeightSample, styles.lh4]}>
+                {t({
+                  en: "Choose line height to match the reading pace — tighter for headlines, looser for body.",
+                  zh: "行高随节奏而定——标题宜紧凑，正文宜舒缓。",
+                })}
+              </p>
+            </SpecCard>
+            <SpecCard token="font.lineHeight_5" meta="2">
+              <p css={[styles.lineHeightSample, styles.lh5]}>
+                {t({
+                  en: "Choose line height to match the reading pace — tighter for headlines, looser for body.",
+                  zh: "行高随节奏而定——标题宜紧凑，正文宜舒缓。",
+                })}
+              </p>
+            </SpecCard>
+          </div>
+        </Showcase>
+
+        <Showcase label={t({ en: "Letter spacing", zh: "字距" })}>
+          <div css={styles.trackingGrid}>
+            <SpecCard token="font.trackingTight" meta="-0.025em">
+              <span css={[styles.trackingSample, styles.trackTight]}>
+                {t({ en: "Refined display", zh: "精致展示" })}
+              </span>
+            </SpecCard>
+            <SpecCard token="font.trackingSnug" meta="-0.01em">
+              <span css={[styles.trackingSample, styles.trackSnug]}>
+                {t({ en: "Refined display", zh: "精致展示" })}
+              </span>
+            </SpecCard>
+            <SpecCard token="font.trackingNormal" meta="0">
+              <span css={[styles.trackingSample, styles.trackNormal]}>
+                {t({ en: "Refined display", zh: "精致展示" })}
+              </span>
+            </SpecCard>
+            <SpecCard token="font.trackingWide" meta="0.025em">
+              <span css={[styles.trackingSample, styles.trackWide]}>
+                {t({ en: "Refined display", zh: "精致展示" })}
+              </span>
+            </SpecCard>
+            <SpecCard token="font.trackingWider" meta="0.05em">
+              <span css={[styles.trackingSample, styles.trackWider]}>
+                {t({ en: "Overline label", zh: "上线标签" })}
+              </span>
+            </SpecCard>
+            <SpecCard token="font.trackingWidest" meta="0.12em">
+              <span css={[styles.trackingSample, styles.trackWidest]}>
+                {t({ en: "Eyebrow heading", zh: "眉题标签" })}
+              </span>
+            </SpecCard>
           </div>
         </Showcase>
       </Section>
@@ -883,15 +1147,37 @@ export default function DesignSystem() {
 
 interface TypeSampleProps {
   label: string;
+  meta?: string;
   sizeStyle: StyleXStyles;
   children: React.ReactNode;
 }
 
-function TypeSample({ label, sizeStyle, children }: TypeSampleProps) {
+function TypeSample({ label, meta, sizeStyle, children }: TypeSampleProps) {
   return (
     <div css={styles.typeRow}>
-      <span css={styles.typeLabel}>{label}</span>
+      <div css={styles.typeLabelRow}>
+        <span css={styles.typeLabel}>{label}</span>
+        {meta ? <span css={styles.typeMeta}>{meta}</span> : null}
+      </div>
       <span css={[styles.typeSample, sizeStyle]}>{children}</span>
+    </div>
+  );
+}
+
+interface SpecCardProps {
+  token: string;
+  meta: string;
+  children: React.ReactNode;
+}
+
+function SpecCard({ token, meta, children }: SpecCardProps) {
+  return (
+    <div css={styles.specCard}>
+      <div css={styles.specCardHeader}>
+        <span css={styles.specCardToken}>{token}</span>
+        <span css={styles.specCardMeta}>{meta}</span>
+      </div>
+      {children}
     </div>
   );
 }
@@ -1350,6 +1636,249 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     textTransform: "uppercase",
     letterSpacing: font.trackingWidest,
+  },
+  typeLabelRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    columnGap: space._2,
+    rowGap: space._00,
+  },
+  typeMeta: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
+  },
+
+  typeVpDisplay: {
+    fontSize: font.vpDisplay,
+    fontWeight: font.weight_8,
+    lineHeight: font.lineHeight_1,
+    letterSpacing: font.trackingTight,
+  },
+  typeVpSubDisplay: {
+    fontSize: font.vpSubDisplay,
+    fontWeight: font.weight_5,
+  },
+  typeVpHeading1: {
+    fontSize: font.vpHeading1,
+    fontWeight: font.weight_7,
+  },
+  typeVpHeading2: {
+    fontSize: font.vpHeading2,
+    fontWeight: font.weight_7,
+  },
+  typeVpHeading3: {
+    fontSize: font.vpHeading3,
+    fontWeight: font.weight_6,
+  },
+  typeCqTitle: {
+    margin: 0,
+    fontSize: font.cqTitle,
+    fontWeight: font.weight_7,
+    lineHeight: font.lineHeight_2,
+  },
+  cqHelper: {
+    margin: 0,
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
+    lineHeight: font.lineHeight_4,
+  },
+  cqDemo: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "1fr 2.5fr",
+    },
+    gap: space._3,
+  },
+  cqContainer: {
+    containerType: "inline-size",
+    paddingBlock: space._3,
+    paddingInline: space._3,
+    borderRadius: border.radius_2,
+    backgroundColor: color.background2,
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+  },
+  cqContainerLabel: {
+    display: "block",
+    fontFamily: font.familyMono,
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
+    marginBlockEnd: space._1,
+  },
+
+  specCard: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._2,
+    paddingBlock: space._3,
+    paddingInline: space._3,
+    borderRadius: border.radius_2,
+    backgroundColor: color.background2,
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+    minInlineSize: 0,
+  },
+  specCardHeader: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._00,
+    minInlineSize: 0,
+  },
+  specCardToken: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    minInlineSize: 0,
+    maxInlineSize: "100%",
+  },
+  specCardMeta: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiCaption,
+    color: color.textMuted,
+  },
+
+  familiesGrid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
+    },
+    gap: space._3,
+  },
+  familyCard: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._3,
+    paddingBlock: space._4,
+    paddingInline: space._4,
+    borderRadius: border.radius_2,
+    backgroundColor: color.background2,
+    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+    minInlineSize: 0,
+  },
+  familyHeader: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._00,
+  },
+  familyToken: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiCaption,
+    color: color.textSubtle,
+  },
+  familyValue: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    overflowWrap: "anywhere",
+  },
+  familySpecimen: {
+    fontSize: {
+      default: "5rem",
+      [breakpoints.md]: "6rem",
+    },
+    fontWeight: font.weight_5,
+    lineHeight: font.lineHeight_0,
+    letterSpacing: font.trackingTight,
+    color: color.textMain,
+    marginBlock: space._1,
+  },
+  familyCharset: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._00,
+    fontSize: font.uiBodySmall,
+    color: color.textMuted,
+    lineHeight: font.lineHeight_3,
+    overflowWrap: "anywhere",
+  },
+  familyCharsetLine: {
+    margin: 0,
+  },
+  familySans: { fontFamily: font.family },
+  familyMono: { fontFamily: font.familyMono },
+
+  weightsGrid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "repeat(2, minmax(0, 1fr))",
+      [breakpoints.sm]: "repeat(3, minmax(0, 1fr))",
+      [breakpoints.md]: "repeat(5, minmax(0, 1fr))",
+      [breakpoints.lg]: "repeat(9, minmax(0, 1fr))",
+    },
+    gap: space._2,
+  },
+  weightSpecimen: {
+    fontSize: font.uiHeading0,
+    lineHeight: font.lineHeight_1,
+    letterSpacing: font.trackingTight,
+    color: color.textMain,
+    paddingBlock: space._1,
+  },
+  weight1: { fontWeight: font.weight_1 },
+  weight2: { fontWeight: font.weight_2 },
+  weight3: { fontWeight: font.weight_3 },
+  weight4: { fontWeight: font.weight_4 },
+  weight5: { fontWeight: font.weight_5 },
+  weight6: { fontWeight: font.weight_6 },
+  weight7: { fontWeight: font.weight_7 },
+  weight8: { fontWeight: font.weight_8 },
+  weight9: { fontWeight: font.weight_9 },
+
+  lineHeightsGrid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.sm]: "repeat(2, minmax(0, 1fr))",
+      [breakpoints.md]: "repeat(3, minmax(0, 1fr))",
+      [breakpoints.lg]: "repeat(4, minmax(0, 1fr))",
+    },
+    gap: space._2,
+    alignItems: "start",
+  },
+  lineHeightSample: {
+    margin: 0,
+    fontSize: font.uiBodySmall,
+    color: color.textMain,
+  },
+  lh00: { lineHeight: font.lineHeight_00 },
+  lh0: { lineHeight: font.lineHeight_0 },
+  lh1: { lineHeight: font.lineHeight_1 },
+  lh2: { lineHeight: font.lineHeight_2 },
+  lh3: { lineHeight: font.lineHeight_3 },
+  lh4: { lineHeight: font.lineHeight_4 },
+  lh5: { lineHeight: font.lineHeight_5 },
+
+  trackingGrid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.sm]: "repeat(2, minmax(0, 1fr))",
+      [breakpoints.lg]: "repeat(3, minmax(0, 1fr))",
+    },
+    gap: space._2,
+  },
+  trackingSample: {
+    fontSize: font.uiHeading3,
+    fontWeight: font.weight_5,
+    color: color.textMain,
+    paddingBlock: space._1,
+  },
+  trackTight: { letterSpacing: font.trackingTight },
+  trackSnug: { letterSpacing: font.trackingSnug },
+  trackNormal: { letterSpacing: font.trackingNormal },
+  trackWide: { letterSpacing: font.trackingWide },
+  trackWider: {
+    letterSpacing: font.trackingWider,
+    textTransform: "uppercase",
+  },
+  trackWidest: {
+    letterSpacing: font.trackingWidest,
+    textTransform: "uppercase",
   },
 
   typographyStack: {
