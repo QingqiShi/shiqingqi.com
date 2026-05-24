@@ -49,7 +49,6 @@ const light = {
 
   shadowColor: "220 3% 15%",
   shadowStrength: "1%",
-  accentShadow: "rgba(126, 16, 194, 0.25)",
 
   // Semantic colors — bold (foreground), hover (interactive lift), subtle (background tint), text (on subtle), on (on bold)
   info: "#0284c7",
@@ -129,7 +128,6 @@ const dark: { [key in keyof typeof light]: string } = {
 
   shadowColor: "220 40% 2%",
   shadowStrength: "25%",
-  accentShadow: "rgba(147, 59, 201, 0.45)",
 
   info: "#38bdf8",
   infoHover: "#7dd3fc",
@@ -323,10 +321,6 @@ export const color = stylex.defineVars({
   shadowStrength: {
     default: light.shadowStrength,
     [constants.DARK]: dark.shadowStrength,
-  },
-  accentShadow: {
-    default: light.accentShadow,
-    [constants.DARK]: dark.accentShadow,
   },
 
   info: { default: light.info, [constants.DARK]: dark.info },
@@ -563,11 +557,6 @@ export const shadow = stylex.defineVars({
   _4: `0 -2px 5px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 1px 1px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 2px 2px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 5px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 9px 9px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 16px 16px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%))`,
   _5: `0 -1px 2px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 2px 1px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 5px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 10px 10px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 20px 20px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 40px 40px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 7%))`,
   _6: `0 -1px 2px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 3px 2px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 7px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 12px 10px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 22px 18px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 41px 33px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%)), 0 100px 80px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 7%))`,
-
-  // Accent-tinted glow shadows for highlighted or interactive surfaces
-  glowAccentSoft: `0 4px 16px -2px ${color.accentShadow}`,
-  glowAccent: `0 0 0 1px ${color.accentBorder}, 0 8px 28px -4px ${color.accentShadow}`,
-  glowAccentStrong: `0 0 0 1px ${color.accentBorder}, 0 4px 12px -2px ${color.accentShadow}, 0 16px 40px -4px ${color.accentShadow}`,
 
   // Inset shadow for sunken/inset surfaces
   inset: `inset 0 1px 2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%))`,
