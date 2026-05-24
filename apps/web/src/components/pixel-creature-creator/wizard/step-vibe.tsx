@@ -203,7 +203,7 @@ const styles = stylex.create({
     borderRadius: "6px",
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: color.border,
+    borderColor: color.neutralBorder,
   },
   optionLabel: {
     fontSize: font.uiBodySmall,

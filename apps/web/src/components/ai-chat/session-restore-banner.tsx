@@ -69,7 +69,7 @@ const styles = stylex.create({
     paddingInline: space._4,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.controlTrack,
+    borderColor: color.neutralBorder,
     borderRadius: border.radius_3,
     backgroundColor: color.background1,
   },

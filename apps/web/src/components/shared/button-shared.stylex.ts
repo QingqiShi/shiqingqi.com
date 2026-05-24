@@ -71,9 +71,9 @@ export const sharedStyles = stylex.create({
     },
   },
   bright: {
-    backgroundColor: color.controlThumb,
-    [buttonTokens.color]: color.textOnControlThumb,
-    [anchorTokens.color]: color.textOnControlThumb,
+    backgroundColor: color.surfaceBright,
+    [buttonTokens.color]: color.textOnBright,
+    [anchorTokens.color]: color.textOnBright,
     filter: {
       default: "brightness(1)",
       ":hover": "brightness(1.1)",

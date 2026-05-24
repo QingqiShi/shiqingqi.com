@@ -91,7 +91,7 @@ const variantStyles = stylex.create({
   default: {
     backgroundColor: color.background1,
     color: color.textMuted,
-    borderColor: color.borderSubtle,
+    borderColor: color.neutralBorder,
   },
   info: {
     backgroundColor: color.surfaceInfoSubtle,

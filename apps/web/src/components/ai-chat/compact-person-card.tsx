@@ -157,7 +157,7 @@ const styles = stylex.create({
     backgroundColor: color.background1,
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: color.border,
+    borderColor: color.neutralBorder,
     borderRadius: border.radius_round,
     fontSize: font.uiHeading1,
     color: color.textMuted,

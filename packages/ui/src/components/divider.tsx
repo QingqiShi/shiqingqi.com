@@ -55,11 +55,11 @@ const styles = stylex.create({
 const horizontalVariantStyles = stylex.create({
   subtle: {
     blockSize: "1px",
-    backgroundColor: color.borderSubtle,
+    backgroundColor: color.neutralBorder,
   },
   bold: {
     blockSize: "2px",
-    backgroundColor: color.border,
+    backgroundColor: color.neutralBorder,
   },
   decorative: {
     blockSize: "1px",
@@ -70,11 +70,11 @@ const horizontalVariantStyles = stylex.create({
 const verticalVariantStyles = stylex.create({
   subtle: {
     inlineSize: "1px",
-    backgroundColor: color.borderSubtle,
+    backgroundColor: color.neutralBorder,
   },
   bold: {
     inlineSize: "2px",
-    backgroundColor: color.border,
+    backgroundColor: color.neutralBorder,
   },
   decorative: {
     inlineSize: "1px",

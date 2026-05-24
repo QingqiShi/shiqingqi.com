@@ -326,11 +326,11 @@ const styles = stylex.create({
     height: "100%",
     minHeight: "320px",
     backgroundColor: color.background,
-    backgroundImage: `linear-gradient(45deg, ${color.border} 25%, transparent 25%), linear-gradient(-45deg, ${color.border} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.border} 75%), linear-gradient(-45deg, transparent 75%, ${color.border} 75%)`,
+    backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
     borderRadius: border.radius_3,
-    border: `1px solid ${color.border}`,
+    border: `1px solid ${color.neutralBorder}`,
     overflow: "hidden",
   },
   canvas: {

@@ -537,7 +537,7 @@ const styles = stylex.create({
     paddingTop: space._1,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
-    borderTopColor: color.border,
+    borderTopColor: color.neutralBorder,
   },
   attributionLink: {
     color: color.textMuted,
