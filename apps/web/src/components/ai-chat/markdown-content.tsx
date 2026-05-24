@@ -52,7 +52,7 @@ const styles = stylex.create({
     borderStyle: "none",
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.controlTrack,
+    borderBlockStartColor: color.neutralBorder,
     marginBlock: 0,
   },
   blockquote: {
@@ -101,7 +101,7 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderBottomWidth: border.size_2,
     borderBottomStyle: "solid",
-    borderBottomColor: color.controlTrack,
+    borderBottomColor: color.neutralBorder,
     whiteSpace: "nowrap",
   },
   td: {
@@ -109,7 +109,7 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderBottomWidth: border.size_1,
     borderBottomStyle: "solid",
-    borderBottomColor: color.controlTrack,
+    borderBottomColor: color.neutralBorder,
   },
   wrapper: {
     gap: space._2,

@@ -31,6 +31,6 @@ const styles = stylex.create({
     [buttonTokens.height]: controlSize._8,
   },
   bright: {
-    backgroundColor: color.controlThumb,
+    backgroundColor: color.surfaceBright,
   },
 });

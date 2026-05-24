@@ -189,7 +189,7 @@ const styles = stylex.create({
     position: "relative",
     transition: `background-color 0.2s ease`,
     backgroundColor: {
-      default: color.controlTrack,
+      default: color.surfaceNeutralSubtle,
       ":checked": color.accent,
     },
     boxShadow: {
@@ -210,7 +210,7 @@ const styles = stylex.create({
 
     // Pseudo elements
     "::before": {
-      backgroundColor: color.controlThumb,
+      backgroundColor: color.surfaceBright,
       borderRadius: border.radius_round,
       boxShadow: switchTokens.thumbShadow,
       content: "",

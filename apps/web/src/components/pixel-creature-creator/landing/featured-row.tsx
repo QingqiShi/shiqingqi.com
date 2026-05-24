@@ -112,7 +112,7 @@ const styles = stylex.create({
     },
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: color.border,
+    borderColor: color.neutralBorder,
     borderRadius: "16px",
     transitionProperty: "background-color, transform",
     transitionDuration: "160ms",

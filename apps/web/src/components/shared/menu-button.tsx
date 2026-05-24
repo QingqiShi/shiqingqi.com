@@ -223,7 +223,7 @@ const styles = stylex.create({
     pointerEvents: "none",
   },
   menu: {
-    backgroundColor: color.controlTrack,
+    backgroundColor: color.surfaceNeutralSubtle,
     boxShadow: shadow._5,
     borderRadius: border.radius_2,
     overflow: "hidden",

@@ -122,7 +122,10 @@ const styles = stylex.create({
     borderRadius: "10px",
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: { default: color.border, ":focus": color.accent },
+    borderColor: {
+      default: color.surfaceNeutralSubtle,
+      ":focus": color.accent,
+    },
     backgroundColor: color.background,
     color: color.textMain,
     outlineWidth: 0,
@@ -143,7 +146,7 @@ const styles = stylex.create({
     borderRadius: "12px",
     borderWidth: "1px",
     borderStyle: "dashed",
-    borderColor: color.border,
+    borderColor: color.neutralBorder,
     backgroundColor: color.background1,
   },
   loreTitle: {

@@ -195,7 +195,7 @@ const styles = stylex.create({
     marginRight: `calc(-1 * ${contentInsetRight})`,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
-    borderTopColor: color.controlTrack,
+    borderTopColor: color.neutralBorder,
     backgroundColor: color.background,
   },
 });

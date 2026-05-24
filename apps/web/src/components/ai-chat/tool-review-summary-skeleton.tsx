@@ -58,6 +58,6 @@ const styles = stylex.create({
     paddingTop: space._2,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
-    borderTopColor: color.border,
+    borderTopColor: color.neutralBorder,
   },
 });

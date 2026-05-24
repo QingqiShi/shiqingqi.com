@@ -273,7 +273,7 @@ const styles = stylex.create({
     color: color.textMain,
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: color.border,
+    borderColor: color.neutralBorder,
     borderRadius: "999px",
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
@@ -366,7 +366,7 @@ const styles = stylex.create({
     paddingTop: space._2,
     borderTopWidth: "1px",
     borderTopStyle: "solid",
-    borderTopColor: color.border,
+    borderTopColor: color.neutralBorder,
   },
   footerBtn: {
     paddingBlock: space._2,
@@ -387,7 +387,7 @@ const styles = stylex.create({
       ":hover": color.background2,
     },
     color: color.textMain,
-    borderColor: color.border,
+    borderColor: color.neutralBorder,
   },
   footerBtnPrimary: {
     backgroundColor: {

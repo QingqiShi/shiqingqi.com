@@ -472,7 +472,7 @@ const styles = stylex.create({
     color: color.textMuted,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.controlTrack,
+      ":hover": color.surfaceNeutralSubtle,
     },
     opacity: 0.5,
     transition: "opacity 0.15s ease, background-color 0.15s ease",
@@ -483,7 +483,7 @@ const styles = stylex.create({
     paddingInline: space._5,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
-    borderTopColor: color.controlTrack,
+    borderTopColor: color.neutralBorder,
   },
   clearButton: {
     gap: space._1,

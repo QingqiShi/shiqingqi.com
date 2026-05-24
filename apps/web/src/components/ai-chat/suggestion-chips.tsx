@@ -58,9 +58,9 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: {
-      default: color.controlTrack,
+      default: color.surfaceNeutralSubtle,
       ":hover": color.accent,
-      ":disabled": color.controlTrack,
+      ":disabled": color.surfaceNeutralSubtle,
     },
     borderRadius: border.radius_round,
     backgroundColor: {

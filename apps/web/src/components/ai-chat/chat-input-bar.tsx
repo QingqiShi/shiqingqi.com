@@ -160,7 +160,7 @@ const styles = stylex.create({
     borderRadius: border.radius_round,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.controlTrack,
+      ":hover": color.surfaceNeutralSubtle,
     },
     color: color.textMuted,
     transition: "background-color 0.15s ease",

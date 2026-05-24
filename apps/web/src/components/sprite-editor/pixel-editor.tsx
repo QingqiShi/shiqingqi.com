@@ -1242,7 +1242,7 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._2,
     backgroundColor: color.background1,
-    border: `1px solid ${color.border}`,
+    border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
   },
   spacer: {
@@ -1254,7 +1254,7 @@ const styles = stylex.create({
     justifyContent: "center",
     width: "32px",
     height: "32px",
-    border: `1px solid ${color.border}`,
+    border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     backgroundColor: {
       default: color.background,
@@ -1276,7 +1276,7 @@ const styles = stylex.create({
     gap: space._2,
     padding: space._2,
     backgroundColor: color.background1,
-    border: `1px solid ${color.border}`,
+    border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
   },
   colorLabel: {
@@ -1290,7 +1290,7 @@ const styles = stylex.create({
     width: "32px",
     height: "32px",
     padding: 0,
-    border: `1px solid ${color.border}`,
+    border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     backgroundColor: "transparent",
     cursor: "pointer",
@@ -1302,7 +1302,7 @@ const styles = stylex.create({
   swatch: {
     width: "24px",
     height: "24px",
-    border: `1px solid ${color.border}`,
+    border: `1px solid ${color.neutralBorder}`,
     borderRadius: "4px",
     cursor: "pointer",
     padding: 0,
@@ -1321,7 +1321,7 @@ const styles = stylex.create({
   canvasArea: {
     position: "relative",
     backgroundColor: color.background1,
-    border: `1px solid ${color.border}`,
+    border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
     flex: "1",
     minHeight: 0,
@@ -1334,7 +1334,7 @@ const styles = stylex.create({
     touchAction: "none",
     imageRendering: "pixelated",
     backgroundColor: color.background,
-    backgroundImage: `linear-gradient(45deg, ${color.border} 25%, transparent 25%), linear-gradient(-45deg, ${color.border} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.border} 75%), linear-gradient(-45deg, transparent 75%, ${color.border} 75%)`,
+    backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
   },
@@ -1354,7 +1354,7 @@ const styles = stylex.create({
     gap: "2px",
     padding: "4px",
     backgroundColor: color.background,
-    border: `1px solid ${color.border}`,
+    border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
     flexWrap: "wrap",
@@ -1392,7 +1392,7 @@ const styles = stylex.create({
   selectionDivider: {
     width: "1px",
     height: "18px",
-    backgroundColor: color.border,
+    backgroundColor: color.neutralBorder,
     marginInline: "2px",
   },
 });

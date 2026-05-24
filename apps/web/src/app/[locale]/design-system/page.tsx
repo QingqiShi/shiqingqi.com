@@ -152,6 +152,46 @@ export default function DesignSystem() {
         <Showcase label={t({ en: "Roles", zh: "角色" })}>
           <div css={styles.rolesGrid}>
             <RoleColumn
+              name={t({ en: "Neutral", zh: "中性" })}
+              cells={[
+                {
+                  size: "large",
+                  bg: styles.fillNeutral,
+                  fg: styles.textOnNeutral,
+                  label: t({ en: "Neutral", zh: "中性" }),
+                  token: "color.neutral",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillNeutralHover,
+                  fg: styles.textOnNeutral,
+                  label: t({ en: "Neutral Hover", zh: "中性悬停" }),
+                  token: "color.neutralHover",
+                },
+                {
+                  size: "medium",
+                  bg: styles.fillSurfaceNeutralSubtle,
+                  fg: styles.textOnBg,
+                  label: t({ en: "Neutral Surface", zh: "中性表面" }),
+                  token: "color.surfaceNeutralSubtle",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillNeutralBorder,
+                  fg: styles.textOnBg,
+                  label: t({ en: "Neutral Border", zh: "中性边框" }),
+                  token: "color.neutralBorder",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillNeutralText,
+                  fg: styles.textOnNeutralText,
+                  label: t({ en: "Neutral Text", zh: "中性文字" }),
+                  token: "color.neutralText",
+                },
+              ]}
+            />
+            <RoleColumn
               name={t({ en: "Accent", zh: "强调" })}
               cells={[
                 {
@@ -174,6 +214,13 @@ export default function DesignSystem() {
                   fg: styles.accentText,
                   label: t({ en: "Accent Surface", zh: "强调表面" }),
                   token: "color.surfaceAccentSubtle",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillAccentBorder,
+                  fg: styles.accentText,
+                  label: t({ en: "Accent Border", zh: "强调边框" }),
+                  token: "color.accentBorder",
                 },
                 {
                   size: "thin",
@@ -210,6 +257,13 @@ export default function DesignSystem() {
                 },
                 {
                   size: "thin",
+                  bg: styles.fillInfoBorder,
+                  fg: styles.textInfoText,
+                  label: t({ en: "Info Border", zh: "信息边框" }),
+                  token: "color.infoBorder",
+                },
+                {
+                  size: "thin",
                   bg: styles.fillInfoText,
                   fg: styles.textInfoOn,
                   label: t({ en: "Info Text", zh: "信息文字" }),
@@ -240,6 +294,13 @@ export default function DesignSystem() {
                   fg: styles.textSuccessText,
                   label: t({ en: "Success Surface", zh: "成功表面" }),
                   token: "color.surfaceSuccessSubtle",
+                },
+                {
+                  size: "thin",
+                  bg: styles.fillSuccessBorder,
+                  fg: styles.textSuccessText,
+                  label: t({ en: "Success Border", zh: "成功边框" }),
+                  token: "color.successBorder",
                 },
                 {
                   size: "thin",
@@ -276,6 +337,13 @@ export default function DesignSystem() {
                 },
                 {
                   size: "thin",
+                  bg: styles.fillWarningBorder,
+                  fg: styles.textWarningText,
+                  label: t({ en: "Warning Border", zh: "警告边框" }),
+                  token: "color.warningBorder",
+                },
+                {
+                  size: "thin",
                   bg: styles.fillWarningText,
                   fg: styles.textWarningOn,
                   label: t({ en: "Warning Text", zh: "警告文字" }),
@@ -309,6 +377,13 @@ export default function DesignSystem() {
                 },
                 {
                   size: "thin",
+                  bg: styles.fillDangerBorder,
+                  fg: styles.textDangerText,
+                  label: t({ en: "Danger Border", zh: "危险边框" }),
+                  token: "color.dangerBorder",
+                },
+                {
+                  size: "thin",
                   bg: styles.fillDangerText,
                   fg: styles.textDangerOn,
                   label: t({ en: "Danger Text", zh: "危险文字" }),
@@ -316,59 +391,6 @@ export default function DesignSystem() {
                 },
               ]}
             />
-          </div>
-        </Showcase>
-
-        <Showcase label={t({ en: "Borders & controls", zh: "边框与控件" })}>
-          <div css={styles.chipsLayout}>
-            <div css={styles.chipsGroup}>
-              <span css={styles.chipsGroupLabel}>
-                {t({ en: "Border", zh: "边框" })}
-              </span>
-              <div css={styles.chipsRow}>
-                <BorderChip
-                  rule={styles.ruleBorderSubtle}
-                  token="color.borderSubtle"
-                />
-                <BorderChip
-                  rule={styles.ruleBorderStrong}
-                  token="color.borderStrong"
-                />
-                <BorderChip
-                  rule={styles.ruleAccentBorder}
-                  token="color.accentBorder"
-                />
-              </div>
-            </div>
-            <div css={styles.chipsGroup}>
-              <span css={styles.chipsGroupLabel}>
-                {t({ en: "Control", zh: "控件" })}
-              </span>
-              <div css={styles.chipsRow}>
-                <div css={styles.previewChip}>
-                  <div css={styles.previewChipSample}>
-                    <div css={[styles.toggleTrack, styles.fillControlTrack]}>
-                      <div
-                        css={[styles.toggleThumb, styles.fillControlThumb]}
-                      />
-                    </div>
-                  </div>
-                  <span css={styles.cellToken}>color.controlTrack + thumb</span>
-                </div>
-                <div css={styles.previewChip}>
-                  <div css={styles.previewChipSample}>
-                    <div
-                      css={[styles.activePill, styles.fillControlActiveSubtle]}
-                    >
-                      <span css={[styles.activePillLabel, styles.accentText]}>
-                        {t({ en: "Active", zh: "激活" })}
-                      </span>
-                    </div>
-                  </div>
-                  <span css={styles.cellToken}>color.controlActiveSubtle</span>
-                </div>
-              </div>
-            </div>
           </div>
         </Showcase>
 
@@ -1249,22 +1271,6 @@ function RampCell({
   );
 }
 
-interface BorderChipProps {
-  rule: StyleXStyles;
-  token: string;
-}
-
-function BorderChip({ rule, token }: BorderChipProps) {
-  return (
-    <div css={styles.previewChip}>
-      <div css={styles.previewChipSample}>
-        <div css={[styles.borderRule, rule]} />
-      </div>
-      <span css={styles.cellToken}>{token}</span>
-    </div>
-  );
-}
-
 const styles = stylex.create({
   container: {
     display: "flex",
@@ -1291,27 +1297,33 @@ const styles = stylex.create({
     inlineSize: "64px",
     blockSize: "64px",
     borderRadius: border.radius_2,
-    border: `1px solid ${color.borderSubtle}`,
+    border: `1px solid ${color.neutralBorder}`,
   },
 
   // ─── Roles bento ────────────────────────────────────────────────
   rolesGrid: {
     display: "grid",
-    // 5 roles divide cleanly as 1×5, 3+2, or 5×1 — those breakpoints avoid orphans.
+    // 6 roles divide cleanly as 1×6, 2×3, or 6×1 — those breakpoints avoid orphans.
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
       [breakpoints.md]: "repeat(3, minmax(0, 1fr))",
-      [breakpoints.lg]: "repeat(5, minmax(0, 1fr))",
+      [breakpoints.lg]: "repeat(6, minmax(0, 1fr))",
     },
+    // Auto-sized rows so the subgrid children share a row track per cell index.
+    gridAutoRows: "auto",
     gap: space._2,
   },
   roleColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
+    // Subgrid inherits the parent's row tracks so every cell at row N shares its
+    // height across all six columns — keeps the bento aligned even when token
+    // names wrap differently per column.
+    display: "grid",
+    gridTemplateRows: "subgrid",
+    gridRow: "span 5",
+    rowGap: space._00,
     borderRadius: border.radius_2,
     overflow: "hidden",
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   roleCell: {
     display: "flex",
@@ -1339,7 +1351,7 @@ const styles = stylex.create({
   },
   cellToken: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
+    fontSize: font.uiOverline,
     opacity: 0.85,
     lineHeight: font.lineHeight_2,
     overflowWrap: "anywhere",
@@ -1358,7 +1370,7 @@ const styles = stylex.create({
     gap: space._00,
     borderRadius: border.radius_2,
     overflow: "hidden",
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   surfacesRamp: {
     display: "grid",
@@ -1429,94 +1441,6 @@ const styles = stylex.create({
     },
   },
 
-  // ─── Border / Control chips ─────────────────────────────────────
-  chipsLayout: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: space._4,
-  },
-  chipsGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
-  chipsGroupLabel: {
-    fontSize: font.uiCaption,
-    color: color.textSubtle,
-    letterSpacing: font.trackingWider,
-    textTransform: "uppercase",
-    fontWeight: font.weight_6,
-  },
-  chipsRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._2,
-  },
-  previewChip: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
-    gap: space._2,
-    paddingBlock: space._3,
-    paddingInline: space._3,
-    minInlineSize: "128px",
-    minBlockSize: "104px",
-    borderRadius: border.radius_2,
-    backgroundColor: color.background2,
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
-  },
-  previewChipSample: {
-    display: "flex",
-    flexGrow: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  borderRule: {
-    blockSize: 0,
-    inlineSize: "100%",
-  },
-  ruleBorderSubtle: {
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.borderSubtle,
-  },
-  ruleBorderStrong: {
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.borderStrong,
-  },
-  ruleAccentBorder: {
-    borderBlockEndWidth: "2px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.accentBorder,
-  },
-  toggleTrack: {
-    display: "flex",
-    alignItems: "center",
-    inlineSize: "56px",
-    blockSize: "28px",
-    paddingInline: "3px",
-    borderRadius: border.radius_round,
-  },
-  toggleThumb: {
-    inlineSize: "22px",
-    blockSize: "22px",
-    borderRadius: border.radius_round,
-    boxShadow: "0 1px 2px rgba(0,0,0,0.18)",
-  },
-  activePill: {
-    display: "inline-flex",
-    alignItems: "center",
-    paddingBlock: space._1,
-    paddingInline: space._3,
-    borderRadius: border.radius_round,
-  },
-  activePillLabel: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
-    lineHeight: font.lineHeight_1,
-  },
-
   // ─── Fill helpers ───────────────────────────────────────────────
   fillBg: { backgroundColor: color.background },
   fillBgDim: { backgroundColor: color.backgroundDim },
@@ -1528,9 +1452,18 @@ const styles = stylex.create({
 
   fillAccent: { backgroundColor: color.accent },
   fillAccentHover: { backgroundColor: color.accentHover },
-  fillControlActiveSubtle: { backgroundColor: color.controlActiveSubtle },
-  fillControlTrack: { backgroundColor: color.controlTrack },
-  fillControlThumb: { backgroundColor: color.controlThumb },
+  fillAccentBorder: { backgroundColor: color.accentBorder },
+
+  fillNeutral: { backgroundColor: color.neutral },
+  fillNeutralHover: { backgroundColor: color.neutralHover },
+  fillSurfaceNeutralSubtle: { backgroundColor: color.surfaceNeutralSubtle },
+  fillNeutralBorder: { backgroundColor: color.neutralBorder },
+  fillNeutralText: { backgroundColor: color.neutralText },
+
+  fillInfoBorder: { backgroundColor: color.infoBorder },
+  fillSuccessBorder: { backgroundColor: color.successBorder },
+  fillWarningBorder: { backgroundColor: color.warningBorder },
+  fillDangerBorder: { backgroundColor: color.dangerBorder },
 
   fillSurfaceAccentSubtle: { backgroundColor: color.surfaceAccentSubtle },
   fillSurfaceInfoSubtle: { backgroundColor: color.surfaceInfoSubtle },
@@ -1561,6 +1494,8 @@ const styles = stylex.create({
   accentOn: { color: color.accentOn },
   textOnBg: { color: color.textMain },
   textOnForeground: { color: color.background },
+  textOnNeutral: { color: color.neutralOn },
+  textOnNeutralText: { color: color.background },
   textMutedStandalone: { color: color.textMuted },
   textSubtleStandalone: { color: color.textSubtle },
   accentText: { color: color.accentText },
@@ -1583,7 +1518,7 @@ const styles = stylex.create({
     blockSize: "80px",
     borderRadius: border.radius_2,
     backgroundColor: color.background3,
-    border: `1px solid ${color.borderSubtle}`,
+    border: `1px solid ${color.neutralBorder}`,
   },
   shadow1: { boxShadow: shadow._1 },
   shadow2: { boxShadow: shadow._2 },
@@ -1698,7 +1633,7 @@ const styles = stylex.create({
     paddingInline: space._3,
     borderRadius: border.radius_2,
     backgroundColor: color.background2,
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   cqContainerLabel: {
     display: "block",
@@ -1716,7 +1651,7 @@ const styles = stylex.create({
     paddingInline: space._3,
     borderRadius: border.radius_2,
     backgroundColor: color.background2,
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,
   },
   specCardHeader: {
@@ -1757,7 +1692,7 @@ const styles = stylex.create({
     paddingInline: space._4,
     borderRadius: border.radius_2,
     backgroundColor: color.background2,
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,
   },
   familyHeader: {
@@ -1962,7 +1897,7 @@ const styles = stylex.create({
     minBlockSize: "80px",
     borderRadius: border.radius_2,
     overflow: "hidden",
-    boxShadow: `inset 0 0 0 1px ${color.borderSubtle}`,
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   paletteTone: {
     display: "flex",

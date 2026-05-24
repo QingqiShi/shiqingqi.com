@@ -8,7 +8,7 @@ const light = {
   textMuted: "#505050",
   textSubtle: "#737373",
   accentOn: "#ffffff",
-  textOnControlThumb: "#292929",
+  textOnBright: "#292929",
   accentText: "#6b0fa7",
 
   background: "#edece8",
@@ -28,16 +28,22 @@ const light = {
   surfaceWarningSubtle: "rgba(217, 119, 6, 0.12)",
   surfaceDangerSubtle: "rgba(220, 38, 38, 0.1)",
 
-  controlTrack: "#e0e0e0",
-  controlThumb: "#ffffff",
+  surfaceBright: "#ffffff",
   accent: "#7e10c2",
   accentHover: "#9e2de3",
-  controlActiveSubtle: "rgba(126, 16, 194, 0.12)",
 
-  border: "#e0e0e0",
-  borderSubtle: "#ededed",
-  borderStrong: "#cccccc",
+  neutral: "#cccccc",
+  neutralHover: "#b3b3b3",
+  surfaceNeutralSubtle: "#e0e0e0",
+  neutralText: "#505050",
+  neutralOn: "#292929",
+
   accentBorder: "rgba(126, 16, 194, 0.4)",
+  infoBorder: "rgba(2, 132, 199, 0.4)",
+  successBorder: "rgba(22, 163, 74, 0.4)",
+  warningBorder: "rgba(217, 119, 6, 0.4)",
+  dangerBorder: "rgba(220, 38, 38, 0.4)",
+  neutralBorder: "#e0e0e0",
 
   opacityActive: "0.1",
 
@@ -82,7 +88,7 @@ const dark: { [key in keyof typeof light]: string } = {
   textMuted: "#bbbbbb",
   textSubtle: "#8a8a8a",
   accentOn: "#ffffff",
-  textOnControlThumb: "#000000",
+  textOnBright: "#000000",
   accentText: "#c794ec",
 
   background: "#000000",
@@ -102,16 +108,22 @@ const dark: { [key in keyof typeof light]: string } = {
   surfaceWarningSubtle: "rgba(251, 191, 36, 0.16)",
   surfaceDangerSubtle: "rgba(248, 113, 113, 0.14)",
 
-  controlTrack: "#1a1a1a",
-  controlThumb: "#bbbbbb",
+  surfaceBright: "#bbbbbb",
   accent: "#933bc9",
   accentHover: "#a751db",
-  controlActiveSubtle: "rgba(199, 148, 236, 0.18)",
 
-  border: "#333333",
-  borderSubtle: "#262626",
-  borderStrong: "#4a4a4a",
+  neutral: "#4a4a4a",
+  neutralHover: "#5a5a5a",
+  surfaceNeutralSubtle: "#1c1c1c",
+  neutralText: "#bbbbbb",
+  neutralOn: "#f3eded",
+
   accentBorder: "rgba(199, 148, 236, 0.4)",
+  infoBorder: "rgba(56, 189, 248, 0.4)",
+  successBorder: "rgba(74, 222, 128, 0.4)",
+  warningBorder: "rgba(251, 191, 36, 0.4)",
+  dangerBorder: "rgba(248, 113, 113, 0.4)",
+  neutralBorder: "#333333",
 
   opacityActive: "0.2",
 
@@ -172,9 +184,9 @@ export const color = stylex.defineVars({
     default: light.accentOn,
     [constants.DARK]: dark.accentOn,
   },
-  textOnControlThumb: {
-    default: light.textOnControlThumb,
-    [constants.DARK]: dark.textOnControlThumb,
+  textOnBright: {
+    default: light.textOnBright,
+    [constants.DARK]: dark.textOnBright,
   },
   accentText: {
     default: light.accentText,
@@ -243,13 +255,9 @@ export const color = stylex.defineVars({
     [constants.DARK]: dark.surfaceDangerSubtle,
   },
 
-  controlTrack: {
-    default: light.controlTrack,
-    [constants.DARK]: dark.controlTrack,
-  },
-  controlThumb: {
-    default: light.controlThumb,
-    [constants.DARK]: dark.controlThumb,
+  surfaceBright: {
+    default: light.surfaceBright,
+    [constants.DARK]: dark.surfaceBright,
   },
   accent: {
     default: light.accent,
@@ -259,23 +267,48 @@ export const color = stylex.defineVars({
     default: light.accentHover,
     [constants.DARK]: dark.accentHover,
   },
-  controlActiveSubtle: {
-    default: light.controlActiveSubtle,
-    [constants.DARK]: dark.controlActiveSubtle,
+
+  neutral: { default: light.neutral, [constants.DARK]: dark.neutral },
+  neutralHover: {
+    default: light.neutralHover,
+    [constants.DARK]: dark.neutralHover,
+  },
+  surfaceNeutralSubtle: {
+    default: light.surfaceNeutralSubtle,
+    [constants.DARK]: dark.surfaceNeutralSubtle,
+  },
+  neutralText: {
+    default: light.neutralText,
+    [constants.DARK]: dark.neutralText,
+  },
+  neutralOn: {
+    default: light.neutralOn,
+    [constants.DARK]: dark.neutralOn,
   },
 
-  border: { default: light.border, [constants.DARK]: dark.border },
-  borderSubtle: {
-    default: light.borderSubtle,
-    [constants.DARK]: dark.borderSubtle,
-  },
-  borderStrong: {
-    default: light.borderStrong,
-    [constants.DARK]: dark.borderStrong,
-  },
   accentBorder: {
     default: light.accentBorder,
     [constants.DARK]: dark.accentBorder,
+  },
+  infoBorder: {
+    default: light.infoBorder,
+    [constants.DARK]: dark.infoBorder,
+  },
+  successBorder: {
+    default: light.successBorder,
+    [constants.DARK]: dark.successBorder,
+  },
+  warningBorder: {
+    default: light.warningBorder,
+    [constants.DARK]: dark.warningBorder,
+  },
+  dangerBorder: {
+    default: light.dangerBorder,
+    [constants.DARK]: dark.dangerBorder,
+  },
+  neutralBorder: {
+    default: light.neutralBorder,
+    [constants.DARK]: dark.neutralBorder,
   },
 
   opacityActive: {

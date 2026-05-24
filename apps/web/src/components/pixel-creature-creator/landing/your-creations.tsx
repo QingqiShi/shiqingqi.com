@@ -164,7 +164,7 @@ const styles = stylex.create({
     borderRadius: "12px",
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: color.border,
+    borderColor: color.neutralBorder,
   },
   thumbLink: {
     display: "flex",
@@ -211,7 +211,7 @@ const styles = stylex.create({
     color: color.textMuted,
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: color.border,
+    borderColor: color.neutralBorder,
     borderRadius: "999px",
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,

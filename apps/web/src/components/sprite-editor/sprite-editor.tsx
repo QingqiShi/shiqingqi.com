@@ -434,7 +434,7 @@ const styles = stylex.create({
     height: "100%",
     color: color.textMuted,
     fontSize: font.uiBody,
-    border: `1px dashed ${color.border}`,
+    border: `1px dashed ${color.neutralBorder}`,
     borderRadius: border.radius_3,
     backgroundColor: color.background1,
   },
