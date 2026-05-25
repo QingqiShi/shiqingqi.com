@@ -561,20 +561,3 @@ export const shadow = stylex.defineVars({
   // Inset shadow for sunken/inset surfaces
   inset: `inset 0 1px 2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%))`,
 });
-
-export const gradient = stylex.defineVars({
-  // Accent gradients — directional purple-to-magenta sweeps
-  accent: `linear-gradient(135deg, ${color.accent} 0%, ${color.accentHover} 100%)`,
-  accentSoft: `linear-gradient(135deg, ${color.surfaceAccentSubtle} 0%, ${color.surfaceAccentMuted} 100%)`,
-  accentRadial: `radial-gradient(circle at 30% 0%, ${color.accent} 0%, transparent 60%)`,
-
-  // Aurora — multi-stop decorative gradient for hero/feature sections
-  aurora: `linear-gradient(135deg, ${color.accent} 0%, ${color.info} 50%, ${color.accentHover} 100%)`,
-  auroraSoft: `linear-gradient(135deg, ${color.surfaceAccentSubtle} 0%, ${color.surfaceInfoSubtle} 50%, ${color.surfaceAccentMuted} 100%)`,
-
-  // Spotlight — radial highlight for emphasized cards
-  spotlight: `radial-gradient(ellipse at top, ${color.surfaceAccentSubtle} 0%, transparent 70%)`,
-
-  // Border gradients — for borders that need a directional color
-  accentBorder: `linear-gradient(135deg, ${color.accent} 0%, ${color.info} 100%)`,
-});
