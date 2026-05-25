@@ -1,6 +1,6 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import { color, gradient } from "../tokens.stylex.ts";
+import { color } from "../tokens.stylex.ts";
 
 type DividerOrientation = "horizontal" | "vertical";
 type DividerVariant = "subtle" | "bold" | "decorative";
@@ -63,7 +63,7 @@ const horizontalVariantStyles = stylex.create({
   },
   decorative: {
     blockSize: "1px",
-    backgroundImage: gradient.accentBorder,
+    backgroundImage: `linear-gradient(135deg, ${color.accent} 0%, ${color.info} 100%)`,
   },
 });
 
