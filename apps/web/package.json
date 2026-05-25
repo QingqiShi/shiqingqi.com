@@ -50,7 +50,7 @@
     "next": "16.2.6",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-error-boundary": "^6.1.1",
+    "react-error-boundary": "^6.1.2",
     "react-markdown": "^10.1.0",
     "react-remove-scroll": "^2.7.2",
     "react-virtuoso": "^4.18.7",
