@@ -38,7 +38,7 @@ export interface SystemHueDefinition {
 export const SYSTEM_HUES: readonly SystemHueDefinition[] = [
   { name: "Red", source: "#FF3B30", curve: [0, 0, 5, 5, 0] },
   { name: "Orange", source: "#FF9500", curve: [0, 0, 12, 13, 0] },
-  { name: "Yellow", source: "#FFCC00", curve: [0, 2, 15, 18, 1] },
+  { name: "Yellow", source: "#FFCC00", curve: [0, 2, 13, 18, 1] },
   { name: "Green", source: "#34C759", curve: [0, 0, 13, 18, 2] },
   { name: "Mint", source: "#00C7BE", curve: [0, 0, 8, 10, 0] },
   { name: "Teal", source: "#30B0C7", curve: [0, 0, 5, 3, 0] },
@@ -46,8 +46,8 @@ export const SYSTEM_HUES: readonly SystemHueDefinition[] = [
   { name: "Blue", source: "#007AFF", curve: [0, -2, 3, 0, 0] },
   { name: "Indigo", source: "#5856D6", curve: [0, -7, 4, 0, 0] },
   { name: "Purple", source: "#AF52DE", curve: [0, -3, 3, 0, 0] },
-  { name: "Pink", source: "#FF2D55", curve: [0, 14, 11, 2, 0] },
-  { name: "Brown", source: "#A2845E", curve: [0, 11, 8, 8, 3] },
+  { name: "Pink", source: "#FF2D55", curve: [0, 14, 5, 2, 0] },
+  { name: "Brown", source: "#A2845E", curve: [0, 11, 7, 8, 3] },
   // Gray source picked so HCT tones land on the tuned warm-cream background
   // ramp (tone 90 ≈ #e6e5e1, tone 92 ≈ #edece8, tone 100 = #ffffff). Chroma is
   // ~2.4 — barely perceptible warmth, vanishes at extreme lightness. This

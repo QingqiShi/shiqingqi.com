@@ -130,7 +130,10 @@ function renderTableFile(hues: readonly ResolvedHue[]): string {
   // plain string literals — they don't belong in a `.stylex.ts` file (the
   // StyleX rule forbids non-stylex exports there) and the showcase needs them
   // at runtime anyway.
-  const imports = hues
+  // Sort imports alphabetically to satisfy the project's import-x/order
+  // lint rule; functional order doesn't matter (each import is independent).
+  const imports = [...hues]
+    .sort((a, b) => a.slug.localeCompare(b.slug))
     .map((h) => `import { ${h.slug} } from "./${h.slug}.stylex.ts";`)
     .join("\n");
 
