@@ -6,6 +6,8 @@
   "exports": {
     "./tokens.stylex": "./src/tokens.stylex.ts",
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
+    "./palette/*": "./src/_generated/palette/*.stylex.ts",
+    "./palette-table": "./src/_generated/palette/table.ts",
     "./primitives/flex.stylex": "./src/primitives/flex.stylex.ts",
     "./primitives/layout.stylex": "./src/primitives/layout.stylex.ts",
     "./primitives/motion.stylex": "./src/primitives/motion.stylex.ts",

@@ -5,7 +5,7 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, shadow } from "@tuja/ui/tokens.stylex";
+import { border, color, layer, shadow } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 
@@ -78,7 +78,7 @@ const styles = stylex.create({
     position: "absolute",
     top: "50%",
     transform: "translateY(-50%)",
-    zIndex: 1,
+    zIndex: layer.content,
     display: {
       default: "inline-flex",
       [HOVER_NONE]: "none",

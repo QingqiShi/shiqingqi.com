@@ -451,10 +451,10 @@ const styles = stylex.create({
     color: color.textMain,
   },
   chipDislike: {
-    borderColor: "color-mix(in srgb, #e05050 25%, transparent)",
+    borderColor: `color-mix(in srgb, ${color.danger} 25%, transparent)`,
     backgroundColor: {
-      default: "color-mix(in srgb, #e05050 6%, transparent)",
-      ":hover": "color-mix(in srgb, #e05050 12%, transparent)",
+      default: `color-mix(in srgb, ${color.danger} 6%, transparent)`,
+      ":hover": `color-mix(in srgb, ${color.danger} 12%, transparent)`,
     },
     color: color.textMain,
   },

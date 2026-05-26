@@ -1,10 +1,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import { SYSTEM_PALETTE_TONES, systemPalette } from "@tuja/ui/palette-table";
 import {
-  SYSTEM_PALETTE_TONES,
-  systemPalette,
-} from "#src/_generated/system-palette.ts";
+  border,
+  color,
+  font,
+  layer,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { Section } from "../section.tsx";
 import { ShowcaseHelper } from "../showcase-helper.tsx";
@@ -120,7 +124,7 @@ const styles = stylex.create({
     transition:
       "transform 180ms cubic-bezier(0.2, 0, 0, 1), box-shadow 180ms ease",
     position: "relative",
-    zIndex: { default: 0, ":hover": 1 },
+    zIndex: { default: layer.base, ":hover": layer.content },
     transform: { default: "scale(1)", ":hover": "scale(1.06)" },
     boxShadow: { default: "none", ":hover": shadow._3 },
   },

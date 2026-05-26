@@ -7,11 +7,24 @@
  * effect — yellows/greens read dim at high tones, indigo reads bright at low
  * tones, etc. Curve anchors are L* offsets at tone {0, 25, 50, 75, 100}.
  *
- * To regenerate apps/web/src/_generated/system-palette.ts: pnpm codegen:palette
+ * The tone scale is denser at the extremes than the conventional Material 3
+ * grid: extra stops at 2/5/7/9/11/13 (dark surfaces) and 92/95/97/98/99 (light
+ * surfaces) let surface ramps live inside the palette rather than as a
+ * separately-tuned token set. Mid-tones (20–80) stay on the familiar 10-point
+ * grid for chromatic UI roles.
+ *
+ * Gray is a near-zero-chroma warm neutral whose source is tuned so its high
+ * tones reproduce the tuned warm-cream background ramp (e.g. tone 92 ≈
+ * #edece8). It is the source of every neutral token — backgrounds, text,
+ * borders, dividers — so the whole neutral family shares one slight warmth.
+ *
+ * To regenerate the per-hue palette files and table.ts:
+ *   pnpm codegen:palette
  */
 
 export const SYSTEM_PALETTE_TONES = [
-  0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+  0, 2, 5, 7, 9, 11, 13, 20, 30, 40, 50, 60, 70, 80, 90, 92, 95, 97, 98, 99,
+  100,
 ] as const;
 
 export const ANCHOR_POSITIONS = [0, 25, 50, 75, 100] as const;
@@ -35,7 +48,12 @@ export const SYSTEM_HUES: readonly SystemHueDefinition[] = [
   { name: "Purple", source: "#AF52DE", curve: [0, -3, 3, 0, 0] },
   { name: "Pink", source: "#FF2D55", curve: [0, 14, 11, 2, 0] },
   { name: "Brown", source: "#A2845E", curve: [0, 11, 8, 8, 3] },
-  { name: "Gray", source: "#8E8E93", curve: [0, 4, 2, 4, 0] },
+  // Gray source picked so HCT tones land on the tuned warm-cream background
+  // ramp (tone 90 ≈ #e6e5e1, tone 92 ≈ #edece8, tone 100 = #ffffff). Chroma is
+  // ~2.4 — barely perceptible warmth, vanishes at extreme lightness. This
+  // replaces Apple HIG's cool `#8E8E93` because the design system uses a single
+  // warm-neutral family across surfaces, text, and borders.
+  { name: "Gray", source: "#777774", curve: [0, 0, 0, 0, 0] },
 ];
 
 export function evaluateCurve(t: number, anchors: readonly number[]): number {

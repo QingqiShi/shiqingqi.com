@@ -1,50 +1,66 @@
 import { describe, expect, it } from "vitest";
 import {
-  SYSTEM_PALETTE_TONES,
-  systemPalette,
-} from "../../apps/web/src/_generated/system-palette.ts";
-import { contrastRatio } from "./contrast.ts";
+  argbFromHex,
+  hexFromArgb,
+} from "../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
+import { TonalPalette } from "../../apps/web/src/vendor/material-color-utilities/tonal_palette.ts";
+import { contrastRatio, pickForeground } from "./contrast.ts";
+import { evaluateCurve, SYSTEM_HUES, SYSTEM_PALETTE_TONES } from "./source.ts";
+
+// Re-derive each swatch the same way the generator does. The generated
+// `*.stylex.ts` files can't be imported into this vitest harness (no StyleX
+// babel plugin here — they'd hit a runtime guard on `stylex.defineConsts`),
+// so we compute the same outputs from the source config and validate those.
+function computeSwatch(
+  source: string,
+  curve: readonly number[],
+  tone: number,
+): { bg: string; fg: string } {
+  const palette = TonalPalette.fromInt(argbFromHex(source));
+  const shift = evaluateCurve(tone, curve);
+  const adjusted = Math.max(0, Math.min(100, tone + shift));
+  const bg = hexFromArgb(palette.tone(adjusted)).toUpperCase();
+  const fg = pickForeground(bg);
+  return { bg, fg };
+}
+
+const EXPECTED_SWATCH_COUNT = SYSTEM_HUES.length * SYSTEM_PALETTE_TONES.length;
 
 describe("generated systemPalette", () => {
-  it("emits a swatch for every hue x tone (143 total)", () => {
-    expect(systemPalette).toHaveLength(13);
+  it(`emits a swatch for every hue x tone (${String(EXPECTED_SWATCH_COUNT)} total)`, () => {
     let count = 0;
-    for (const palette of systemPalette) {
+    for (const hue of SYSTEM_HUES) {
       for (const tone of SYSTEM_PALETTE_TONES) {
-        const swatch = palette.tones[tone];
-        expect(swatch).toBeDefined();
+        const swatch = computeSwatch(hue.source, hue.curve, tone);
         expect(swatch.bg).toMatch(/^#[0-9A-F]{6}$/);
         expect(swatch.fg).toMatch(/^#[0-9A-F]{6}$/);
         count += 1;
       }
     }
-    expect(count).toBe(143);
+    expect(count).toBe(EXPECTED_SWATCH_COUNT);
   });
 
   it("foreground reaches at least 4.5:1 contrast (WCAG AA) against the swatch background", () => {
-    // The previous tone>=60 heuristic produced ~2.7:1 mid-tone labels
-    // (Yellow 50, Green 50, etc.). Every swatch in the current palette can
-    // hit AA (4.5:1) with either pure black or pure white as foreground —
-    // the generator picks whichever maximises contrast. If a future palette
-    // change introduces a swatch that cannot reach 4.5:1, relax this floor
-    // to 3:1 (the WCAG minimum for non-text UI / large text) and document
-    // the affected swatches.
-    for (const palette of systemPalette) {
+    // The generator picks whichever of pure black / pure white maximises
+    // contrast. If a future palette change introduces a swatch that cannot
+    // reach 4.5:1, relax this floor to 3:1 (the WCAG minimum for non-text UI
+    // / large text) and document the affected swatches.
+    for (const hue of SYSTEM_HUES) {
       for (const tone of SYSTEM_PALETTE_TONES) {
-        const { bg, fg } = palette.tones[tone];
+        const { bg, fg } = computeSwatch(hue.source, hue.curve, tone);
         const ratio = contrastRatio(bg, fg);
         expect(
           ratio,
-          `${palette.name} ${String(tone)} (${bg} on ${fg}) only reaches ${ratio.toFixed(2)}:1`,
+          `${hue.name} ${String(tone)} (${bg} on ${fg}) only reaches ${ratio.toFixed(2)}:1`,
         ).toBeGreaterThanOrEqual(4.5);
       }
     }
   });
 
   it("foreground picks whichever of black/white has higher contrast", () => {
-    for (const palette of systemPalette) {
+    for (const hue of SYSTEM_HUES) {
       for (const tone of SYSTEM_PALETTE_TONES) {
-        const { bg, fg } = palette.tones[tone];
+        const { bg, fg } = computeSwatch(hue.source, hue.curve, tone);
         const blackRatio = contrastRatio(bg, "#000000");
         const whiteRatio = contrastRatio(bg, "#FFFFFF");
         const expected = blackRatio >= whiteRatio ? "#000000" : "#FFFFFF";

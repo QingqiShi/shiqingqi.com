@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";
 import { useTheme } from "#src/hooks/use-theme.ts";
@@ -277,7 +278,7 @@ const styles = stylex.create({
     fontFamily: "monospace",
     fontSize: "12px",
     lineHeight: 1.6,
-    zIndex: 1000,
+    zIndex: layer.tooltip,
   },
   table: {
     borderSpacing: 0,

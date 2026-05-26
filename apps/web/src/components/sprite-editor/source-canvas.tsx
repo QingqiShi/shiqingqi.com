@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { yellow } from "@tuja/ui/palette/yellow";
 import { border, color } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -165,7 +166,7 @@ export function SourceCanvas({
       const w = grid.cellWidth * transform.scale;
       const h = grid.cellHeight * transform.scale;
       ctx.lineWidth = 2;
-      ctx.strokeStyle = "#fbbf24";
+      ctx.strokeStyle = yellow._60;
       ctx.strokeRect(Math.round(x0) - 1, Math.round(y0) - 1, w + 2, h + 2);
     }
 
