@@ -196,6 +196,6 @@ const styles = stylex.create({
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.neutralBorder,
-    backgroundColor: color.background,
+    backgroundColor: color.bgCanvas,
   },
 });

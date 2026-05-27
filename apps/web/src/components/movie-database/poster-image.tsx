@@ -68,7 +68,7 @@ const styles = stylex.create({
   errored: {
     position: "absolute",
     flexDirection: "column",
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     zIndex: layer.background,
   },
   errorText: {

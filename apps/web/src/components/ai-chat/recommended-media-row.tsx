@@ -124,10 +124,10 @@ const chatStyles = stylex.create({
     scrollPaddingRight: chatInsetRight,
   },
   fadeLeft: {
-    backgroundImage: `linear-gradient(to left, rgba(${color.backgroundChannels}, 0), rgba(${color.backgroundChannels}, 1))`,
+    backgroundImage: `linear-gradient(to left, rgba(${color.bgCanvasChannels}, 0), rgba(${color.bgCanvasChannels}, 1))`,
   },
   fadeRight: {
-    backgroundImage: `linear-gradient(to right, rgba(${color.backgroundChannels}, 0), rgba(${color.backgroundChannels}, 1))`,
+    backgroundImage: `linear-gradient(to right, rgba(${color.bgCanvasChannels}, 0), rgba(${color.bgCanvasChannels}, 1))`,
   },
   scrollButtonLeft: {
     left: chatInsetLeft,
@@ -151,10 +151,10 @@ const standaloneStyles = stylex.create({
     scrollPaddingRight: standaloneInsetRight,
   },
   fadeLeft: {
-    backgroundImage: `linear-gradient(to left, rgba(${color.backgroundChannels}, 0), rgba(${color.backgroundChannels}, 1))`,
+    backgroundImage: `linear-gradient(to left, rgba(${color.bgCanvasChannels}, 0), rgba(${color.bgCanvasChannels}, 1))`,
   },
   fadeRight: {
-    backgroundImage: `linear-gradient(to right, rgba(${color.backgroundChannels}, 0), rgba(${color.backgroundChannels}, 1))`,
+    backgroundImage: `linear-gradient(to right, rgba(${color.bgCanvasChannels}, 0), rgba(${color.bgCanvasChannels}, 1))`,
   },
   scrollButtonLeft: {
     left: standaloneInsetLeft,

@@ -126,7 +126,7 @@ const styles = stylex.create({
       default: color.surfaceNeutralSubtle,
       ":focus": color.accent,
     },
-    backgroundColor: color.background,
+    backgroundColor: color.bgSurfaceSunken,
     color: color.textMain,
     outlineWidth: 0,
     transitionProperty: "border-color",
@@ -147,7 +147,7 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "dashed",
     borderColor: color.neutralBorder,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
   },
   loreTitle: {
     fontSize: font.uiBodySmall,

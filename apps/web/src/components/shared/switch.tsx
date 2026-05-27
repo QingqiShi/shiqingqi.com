@@ -210,7 +210,7 @@ const styles = stylex.create({
 
     // Pseudo elements
     "::before": {
-      backgroundColor: color.surfaceBright,
+      backgroundColor: color.bgSurfaceBright,
       borderRadius: border.radius_round,
       boxShadow: switchTokens.thumbShadow,
       content: "",

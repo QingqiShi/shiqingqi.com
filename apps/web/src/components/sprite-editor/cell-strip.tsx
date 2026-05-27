@@ -151,7 +151,7 @@ const styles = stylex.create({
     padding: space._3,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
   },
   heading: {
     margin: 0,
@@ -182,7 +182,7 @@ const styles = stylex.create({
     width: "100%",
     aspectRatio: "1 / 1",
     padding: 0,
-    backgroundColor: color.background,
+    backgroundColor: color.bgCanvas,
     border: `2px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     cursor: "pointer",
@@ -197,7 +197,7 @@ const styles = stylex.create({
     inset: 0,
     display: "grid",
     placeItems: "center",
-    backgroundColor: color.background,
+    backgroundColor: color.bgCanvas,
     backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
     backgroundSize: "8px 8px",
     backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
@@ -211,7 +211,9 @@ const styles = stylex.create({
     insetBlockEnd: "2px",
     insetInlineEnd: "4px",
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    // Translucent dark badge over arbitrary thumbnail content — needs a
+    // foreground that stays light in both themes, so use a non-flipping token.
+    color: color.accentOn,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
     paddingInline: "4px",
     borderRadius: "4px",

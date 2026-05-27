@@ -81,9 +81,9 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: {
-      default: color.background1,
-      ":hover": color.background2,
-      ":focus-visible": color.background2,
+      default: color.bgSurface,
+      ":hover": color.bgInteractiveHover,
+      ":focus-visible": color.bgInteractiveHover,
     },
     color: color.textMain,
     borderWidth: "1px",

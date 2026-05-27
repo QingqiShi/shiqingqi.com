@@ -134,7 +134,7 @@ const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
 
 const styles = stylex.create({
   backdrop: {
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: color.bgScrim,
     zIndex: layer.overlay,
     pointerEvents: "all",
     animationName: fadeIn,
@@ -158,7 +158,7 @@ const styles = stylex.create({
   card: {
     position: "relative",
     width: "100%",
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     borderRadius: border.radius_4,
     pointerEvents: "all",
     animationName: {

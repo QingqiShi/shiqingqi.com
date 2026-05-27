@@ -122,7 +122,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._3,
     borderRadius: border.radius_2,
-    backgroundColor: color.background2,
+    backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   cqContainerLabel: {

@@ -73,8 +73,8 @@ const styles = stylex.create({
     borderWidth: 0,
     appearance: "unset",
     textTransform: "uppercase",
-    [buttonTokens.backgroundColor]: color.background5,
-    [buttonTokens.backgroundColorHover]: color.background5,
+    [buttonTokens.backgroundColor]: color.bgInteractiveRest,
+    [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
     filter: { ":hover": "brightness(1.1)" },
     outline: {
       ":focus-visible": `2px solid ${color.brandCalculator}`,

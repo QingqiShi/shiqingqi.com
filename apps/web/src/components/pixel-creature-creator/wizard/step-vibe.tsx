@@ -155,8 +155,8 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._4,
     backgroundColor: {
-      default: color.background1,
-      ":hover": color.background2,
+      default: color.bgSurface,
+      ":hover": color.bgInteractiveHover,
     },
     borderRadius: "999px",
     borderWidth: "2px",
@@ -171,7 +171,7 @@ const styles = stylex.create({
   },
   pillSelected: {
     borderColor: color.accent,
-    backgroundColor: color.background2,
+    backgroundColor: color.bgSurfaceRaised,
   },
   typeOption: {
     display: "flex",
@@ -180,8 +180,8 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._2,
     backgroundColor: {
-      default: color.background1,
-      ":hover": color.background2,
+      default: color.bgSurface,
+      ":hover": color.bgInteractiveHover,
     },
     borderRadius: "12px",
     borderWidth: "2px",
@@ -195,7 +195,7 @@ const styles = stylex.create({
   },
   typeOptionSelected: {
     borderColor: color.accent,
-    backgroundColor: color.background2,
+    backgroundColor: color.bgSurfaceRaised,
   },
   typeAccent: {
     width: "112px",

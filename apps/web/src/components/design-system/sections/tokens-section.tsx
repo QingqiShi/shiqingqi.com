@@ -1,12 +1,12 @@
 import { t } from "#src/i18n.ts";
 import { Section } from "../section.tsx";
+import { BackgroundsShowcase } from "./tokens/backgrounds-showcase.tsx";
 import { FamiliesShowcase } from "./tokens/families-showcase.tsx";
 import { LetterSpacingShowcase } from "./tokens/letter-spacing-showcase.tsx";
 import { LineHeightsShowcase } from "./tokens/line-heights-showcase.tsx";
 import { ResponsiveSizesShowcase } from "./tokens/responsive-sizes-showcase.tsx";
 import { RolesShowcase } from "./tokens/roles-showcase.tsx";
 import { ShadowsShowcase } from "./tokens/shadows-showcase.tsx";
-import { SurfacesShowcase } from "./tokens/surfaces-showcase.tsx";
 import { TypeScaleShowcase } from "./tokens/type-scale-showcase.tsx";
 import { WeightsShowcase } from "./tokens/weights-showcase.tsx";
 
@@ -20,7 +20,7 @@ export function TokensSection() {
         zh: "原子级构筑模块——颜色、排版、间距与阴影，构成上层一切设计。",
       })}
     >
-      <SurfacesShowcase />
+      <BackgroundsShowcase />
       <RolesShowcase />
       <ShadowsShowcase />
       <FamiliesShowcase />

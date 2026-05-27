@@ -75,7 +75,10 @@ const styles = stylex.create({
     gap: space._00,
     borderRadius: border.radius_2,
     overflow: "hidden",
-    backgroundColor: color.background3,
+    // Stage is the canvas ground the tiles lift off; the tiles use the raised
+    // surface so the shadow separates a real elevation step from the ground,
+    // rather than a high-contrast "bright" pop.
+    backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   cell: {
@@ -99,7 +102,7 @@ const styles = stylex.create({
     inlineSize: "56px",
     blockSize: "56px",
     borderRadius: border.radius_2,
-    backgroundColor: color.background5,
+    backgroundColor: color.bgSurfaceRaised,
   },
   lift1: { transform: "translateY(0)" },
   lift2: { transform: "translateY(-2px)" },

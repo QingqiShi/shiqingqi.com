@@ -455,7 +455,7 @@ export function ToolWatchProviders({ data }: { data: WatchProviderOutput }) {
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.background2,
+    backgroundColor: color.bgSurfaceRaised,
     borderRadius: border.radius_2,
     padding: space._3,
     marginTop: space._2,
@@ -474,7 +474,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: color.textMuted,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     borderRadius: border.radius_1,
     paddingInline: space._1,
     paddingBlock: space._00,

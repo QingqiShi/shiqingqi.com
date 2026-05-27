@@ -167,12 +167,12 @@ const styles = stylex.create({
   leftGradient: {
     left: 0,
     // Solid color for padding area, then fade
-    backgroundImage: `linear-gradient(to right, ${color.background1} ${space._3}, transparent)`,
+    backgroundImage: `linear-gradient(to right, ${color.bgSurface} ${space._3}, transparent)`,
   },
   rightGradient: {
     right: 0,
     // Solid color for padding area, then fade
-    backgroundImage: `linear-gradient(to left, ${color.background1} ${space._3}, transparent)`,
+    backgroundImage: `linear-gradient(to left, ${color.bgSurface} ${space._3}, transparent)`,
   },
   visible: {
     opacity: 1,
