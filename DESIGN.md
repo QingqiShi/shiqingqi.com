@@ -63,3 +63,7 @@ A consumer should be able to start at the config layer and drop down only as far
 - Reach for the custom layer (raw primitives, tokens, headless hooks) when a page is doing something genuinely distinctive — bespoke marketing surfaces, one-off transitions, experimental layouts.
 - Before adding a prop, check whether a slot would express the variation more clearly. Before adding a slot, check whether the variation belongs in a token.
 - Treat the design system as evolving. Patterns earn promotion from customization → slot → config by showing up repeatedly, not by being predicted.
+
+## Banned Patterns
+
+- **No vertical colored accent bar / stripe / rail on the leading edge of a card** to mark a category, hue, or status. It reads as AI slop. Communicate the same information with type, a token-themed background, or a contextual badge.

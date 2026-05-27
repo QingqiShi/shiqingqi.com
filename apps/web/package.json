@@ -11,7 +11,7 @@
     "codegen": "npm-run-all codegen:*",
     "codegen:i18n": "tsx ../../packages/i18n-codegen/generator.ts",
     "codegen:openapi": "openapi-typescript https://developer.themoviedb.org/openapi/tmdb-api.json -o ../../packages/tmdb-types/openapi.d.ts && prettier '../../packages/tmdb-types/openapi.d.ts' -w",
-    "codegen:palette": "node --experimental-strip-types --no-warnings ../../packages/system-palette-codegen/generator.ts && prettier 'src/_generated/system-palette.ts' -w",
+    "codegen:palette": "node --experimental-strip-types --no-warnings ../../packages/system-palette-codegen/generator.ts && prettier '../../packages/ui/src/_generated/palette/*.ts' -w",
     "codegen:pwa-icons": "node ../../packages/pwa-icons/hash-icons.mjs",
     "codegen:tmdb": "node ../../packages/tmdb-codegen/generator.js && prettier 'src/_generated/*.ts' -w",
     "codegen:zod": "tsx ../../packages/tmdb-codegen/generate-selective-zod.ts && prettier 'src/_generated/tmdb-zod.ts' -w",

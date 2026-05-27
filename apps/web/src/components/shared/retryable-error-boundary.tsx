@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { t } from "#src/i18n.ts";
 
@@ -71,7 +71,7 @@ const styles = stylex.create({
     fontFamily: font.family,
     borderWidth: 0,
     borderStyle: "none",
-    borderRadius: "9999px",
+    borderRadius: border.radius_round,
     backgroundColor: color.accent,
     color: color.accentOn,
     cursor: "pointer",

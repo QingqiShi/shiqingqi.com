@@ -1,18 +1,25 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { cyan } from "@tuja/ui/palette/cyan";
+import { orange } from "@tuja/ui/palette/orange";
+import { pink } from "@tuja/ui/palette/pink";
+import { purple } from "@tuja/ui/palette/purple";
+import { red } from "@tuja/ui/palette/red";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
 import type { ChatMood } from "#src/ai-chat/chat-message-metadata.ts";
 
+// Each mood lights a different palette hue so the background tint matches the
+// conversation's emotional register without ever leaving the system palette.
 const MOOD_WASH_COLORS: Record<ChatMood, string> = {
-  warm: "#f97316",
-  cool: "#0ea5e9",
-  tense: "#ef4444",
-  epic: "#8b5cf6",
-  playful: "#ec4899",
-  neutral: "#7e10c2",
+  warm: orange._60,
+  cool: cyan._60,
+  tense: red._50,
+  epic: purple._50,
+  playful: pink._50,
+  neutral: purple._30,
 };
 
 export function DotGridBackground() {

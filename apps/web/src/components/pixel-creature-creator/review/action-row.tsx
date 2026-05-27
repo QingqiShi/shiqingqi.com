@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, layer, space } from "@tuja/ui/tokens.stylex";
 import {
   useEffect,
   useId,
@@ -618,7 +618,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-    zIndex: 10,
+    zIndex: layer.overlay,
   },
   menuItem: {
     paddingBlock: space._2,

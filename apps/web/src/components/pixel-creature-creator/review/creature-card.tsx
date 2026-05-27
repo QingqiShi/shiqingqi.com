@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { gray } from "@tuja/ui/palette/gray";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
@@ -60,7 +61,7 @@ export function CreatureCard({
   // The schema validates `def.type` against the live registry so this
   // lookup should always succeed in production. Fall back to a neutral
   // accent if a future schema migration leaves a stale type behind.
-  const accentColor = type?.accentColor ?? "#888888";
+  const accentColor = type?.accentColor ?? gray._60;
   // The i18n Babel plugin only accepts string-literal values inside `t()`,
   // so we mirror the wizard's pattern (`step-palette.tsx`) and inline the
   // bilingual map here. Adding a new type means adding one more line — the
@@ -209,8 +210,8 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._3,
     paddingInline: space._4,
-    backgroundColor: "var(--pcc-accent, #888888)",
-    color: "#ffffff",
+    backgroundColor: `var(--pcc-accent, ${color.neutral})`,
+    color: color.accentOn,
     // A subtle sheen across the header makes the type colour read more
     // like a printed card and less like a flat block.
     backgroundImage:
@@ -239,7 +240,7 @@ const styles = stylex.create({
     padding: space._3,
     minHeight: "260px",
     borderRadius: border.radius_3,
-    backgroundColor: `color-mix(in srgb, var(--pcc-accent, #888888) 14%, ${color.background1})`,
+    backgroundColor: `color-mix(in srgb, var(--pcc-accent, ${color.neutral}) 14%, ${color.background1})`,
     boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.12)",
   },
   statsPanel: {
@@ -278,7 +279,7 @@ const styles = stylex.create({
     insetBlock: 0,
     insetInlineStart: 0,
     inlineSize: "var(--pcc-fill, 0%)",
-    backgroundColor: "var(--pcc-accent, #888888)",
+    backgroundColor: `var(--pcc-accent, ${color.neutral})`,
     backgroundImage:
       "linear-gradient(90deg, color-mix(in srgb, var(--pcc-accent, #888888) 70%, white) 0%, var(--pcc-accent, #888888) 100%)",
     transitionProperty: "inline-size",
