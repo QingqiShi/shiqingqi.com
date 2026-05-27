@@ -33,7 +33,7 @@
     "verify:vector": "tsx ../../packages/vector-ingest/verify.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.79",
+    "@ai-sdk/anthropic": "^3.0.80",
     "@ai-sdk/react": "^3.0.193",
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "^9.5.11",
