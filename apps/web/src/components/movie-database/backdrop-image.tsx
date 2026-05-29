@@ -62,7 +62,7 @@ const styles = stylex.create({
   },
   mask1: {
     zIndex: layer.base,
-    backgroundImage: `radial-gradient(farthest-side at 73% 21%, transparent, ${color.background})`,
+    backgroundImage: `radial-gradient(farthest-side at 73% 21%, transparent, ${color.bgCanvas})`,
   },
   mask2: {
     position: "absolute",
@@ -82,22 +82,22 @@ const styles = stylex.create({
     // https://larsenwork.com/easing-gradients/
     backgroundImage: `linear-gradient(
       to bottom,
-      rgba(${color.backgroundChannels}, 0) 0%,
-      rgba(${color.backgroundChannels}, 0.013) 8.1%,
-      rgba(${color.backgroundChannels}, 0.049) 15.5%,
-      rgba(${color.backgroundChannels}, 0.104) 22.4%,
-      rgba(${color.backgroundChannels}, 0.175) 28.9%,
-      rgba(${color.backgroundChannels}, 0.259) 35%,
-      rgba(${color.backgroundChannels}, 0.352) 41%,
-      rgba(${color.backgroundChannels}, 0.45) 46.7%,
-      rgba(${color.backgroundChannels}, 0.55) 52.5%,
-      rgba(${color.backgroundChannels}, 0.648) 58.3%,
-      rgba(${color.backgroundChannels}, 0.741) 64.3%,
-      rgba(${color.backgroundChannels}, 0.825) 70.5%,
-      rgba(${color.backgroundChannels}, 0.896) 77.1%,
-      rgba(${color.backgroundChannels}, 0.951) 84.2%,
-      rgba(${color.backgroundChannels}, 0.987) 91.8%,
-      rgb(${color.backgroundChannels}) 100%
+      rgba(${color.bgCanvasChannels}, 0) 0%,
+      rgba(${color.bgCanvasChannels}, 0.013) 8.1%,
+      rgba(${color.bgCanvasChannels}, 0.049) 15.5%,
+      rgba(${color.bgCanvasChannels}, 0.104) 22.4%,
+      rgba(${color.bgCanvasChannels}, 0.175) 28.9%,
+      rgba(${color.bgCanvasChannels}, 0.259) 35%,
+      rgba(${color.bgCanvasChannels}, 0.352) 41%,
+      rgba(${color.bgCanvasChannels}, 0.45) 46.7%,
+      rgba(${color.bgCanvasChannels}, 0.55) 52.5%,
+      rgba(${color.bgCanvasChannels}, 0.648) 58.3%,
+      rgba(${color.bgCanvasChannels}, 0.741) 64.3%,
+      rgba(${color.bgCanvasChannels}, 0.825) 70.5%,
+      rgba(${color.bgCanvasChannels}, 0.896) 77.1%,
+      rgba(${color.bgCanvasChannels}, 0.951) 84.2%,
+      rgba(${color.bgCanvasChannels}, 0.987) 91.8%,
+      rgb(${color.bgCanvasChannels}) 100%
     )`,
   },
   image: {

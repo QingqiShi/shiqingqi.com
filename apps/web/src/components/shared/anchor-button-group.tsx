@@ -20,7 +20,7 @@ const styles = stylex.create({
   container: {
     display: "inline-flex",
     gap: controlSize._1,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     padding: controlSize._1,
     borderRadius: border.radius_2,
     boxShadow: shadow._2,
@@ -31,6 +31,6 @@ const styles = stylex.create({
     [buttonTokens.height]: controlSize._8,
   },
   bright: {
-    backgroundColor: color.surfaceBright,
+    backgroundColor: color.bgSurfaceBright,
   },
 });

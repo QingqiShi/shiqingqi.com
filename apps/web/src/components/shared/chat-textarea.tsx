@@ -171,7 +171,7 @@ const styles = stylex.create({
   container: {
     width: "100%",
     gap: space._1,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     borderRadius: border.radius_3,
     paddingBlock: space._2,
     paddingLeft: space._3,

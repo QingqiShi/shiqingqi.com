@@ -91,7 +91,7 @@ const triggerStyles = stylex.create({
     color: color.textMuted,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.background2,
+      ":hover": color.bgInteractiveHover,
     },
     cursor: "pointer",
     transition: "background-color 0.15s ease, color 0.15s ease",
@@ -370,7 +370,7 @@ const styles = stylex.create({
     color: color.textMuted,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.background2,
+      ":hover": color.bgInteractiveHover,
     },
     transition: "background-color 0.15s ease",
     cursor: "pointer",
@@ -382,7 +382,7 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     borderRadius: border.radius_2,
-    backgroundColor: color.background,
+    backgroundColor: color.bgSurfaceSunken,
     alignItems: "flex-start",
   },
   infoIcon: {
@@ -526,7 +526,7 @@ const styles = stylex.create({
     borderRadius: border.radius_round,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.background2,
+      ":hover": color.bgInteractiveHover,
     },
     color: color.textMuted,
     cursor: "pointer",

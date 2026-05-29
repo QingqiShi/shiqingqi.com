@@ -89,7 +89,7 @@ const iconSizeStyles = stylex.create({
 
 const variantStyles = stylex.create({
   default: {
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     color: color.textMuted,
     borderColor: color.neutralBorder,
   },

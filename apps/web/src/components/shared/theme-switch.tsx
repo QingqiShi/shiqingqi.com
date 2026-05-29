@@ -151,7 +151,7 @@ const styles = stylex.create({
     },
   },
   switch: {
-    [color.accent]: { default: color.background2 },
+    [color.accent]: { default: color.bgSurfaceRaised },
   },
   icon: {
     aspectRatio: ratio.square,

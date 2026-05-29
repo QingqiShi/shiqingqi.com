@@ -333,7 +333,7 @@ const styles = stylex.create({
     height: "600px",
     aspectRatio: ratio.poster,
     borderRadius: border.radius_5,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     overflow: "hidden",
     boxShadow: shadow._5,
     containerType: "inline-size",

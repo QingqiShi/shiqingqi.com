@@ -88,7 +88,7 @@ const styles = stylex.create({
     width: "2rem",
     height: "2rem",
     borderRadius: border.radius_round,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     color: {
       default: color.textMuted,
       ":hover": color.textMain,

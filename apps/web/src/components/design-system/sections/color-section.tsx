@@ -135,7 +135,7 @@ const styles = stylex.create({
     display: "flex",
     paddingBlock: space._4,
     paddingInline: space._5,
-    backgroundColor: color.background2,
+    backgroundColor: color.bgSurfaceRaised,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
     overflow: "hidden",

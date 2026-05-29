@@ -71,7 +71,7 @@ export const sharedStyles = stylex.create({
     },
   },
   bright: {
-    backgroundColor: color.surfaceBright,
+    backgroundColor: color.bgSurfaceBright,
     [buttonTokens.color]: color.textOnBright,
     [anchorTokens.color]: color.textOnBright,
     filter: {

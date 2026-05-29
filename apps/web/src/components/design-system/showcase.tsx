@@ -45,7 +45,7 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._3,
     padding: space._5,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
   },

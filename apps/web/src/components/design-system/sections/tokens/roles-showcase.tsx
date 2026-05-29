@@ -305,7 +305,7 @@ const styles = stylex.create({
   accentText: { color: color.accentText },
   textOnBg: { color: color.textMain },
   textOnNeutral: { color: color.neutralOn },
-  textOnNeutralText: { color: color.background },
+  textOnNeutralText: { color: color.bgCanvas },
   textInfoOn: { color: color.infoOn },
   textInfoText: { color: color.infoText },
   textSuccessOn: { color: color.successOn },

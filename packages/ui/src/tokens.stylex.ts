@@ -10,9 +10,14 @@ import { red, red_rgb } from "./_generated/palette/red.stylex.ts";
 import { yellow, yellow_rgb } from "./_generated/palette/yellow.stylex.ts";
 import { breakpoints } from "./breakpoints.stylex.ts";
 
-// Color tokens are layered on top of the system palette via `defineConsts`
-// imports — `gray._92` etc. The StyleX plugin inlines these at compile time
-// (per the defineConsts docs) so the generated CSS holds the actual hex.
+// Background tokens are organised by role rather than tonal step:
+//
+// • Page (bgCanvas/bgCanvasSubtle)      — app shell and scaffolding
+// • Surface (bgSurface/Raised/Sunken/Bright) — cards and panels
+// • Interactive (bgInteractive*)        — buttons, list rows, menu items
+// • Intent (surfaceAccent/Info/...)     — tonal tints carrying meaning
+// • Inverse (bgInverse)                 — tooltips and snackbars
+// • Overlay (bgOverlay/bgScrim)         — popovers and modal dim layer
 //
 // Translucent surfaces compose `rgba()` strings using the `<hue>_rgb` group
 // (comma-separated channels per tone). CSS does lexical substitution, so
@@ -32,20 +37,30 @@ const light = {
   textSubtle: gray._50,
   accentOn: gray._100,
   textOnBright: gray._20,
+  textOnInverse: gray._92,
   accentText: purple._30,
 
-  // Surfaces (warm-neutral Gray ramp)
-  background: gray._92,
-  backgroundDim: gray._90,
-  background1: gray._95,
-  background2: gray._97,
-  background3: gray._98,
-  background4: gray._99,
-  background5: gray._100,
-  backgroundChannels: gray_rgb._92,
-  background1Channels: gray_rgb._95,
+  // Page — app shell, scaffolding behind everything
+  bgCanvas: gray._92,
+  bgCanvasSubtle: gray._90,
+  bgCanvasChannels: gray_rgb._92,
 
-  // Translucent surface tints — alpha is fixed, color comes from the palette.
+  // Surface — cards, panels, dialog bodies
+  bgSurface: gray._95,
+  bgSurfaceRaised: gray._97,
+  bgSurfaceSunken: gray._90,
+  bgSurfaceBright: gray._100,
+  bgSurfaceChannels: gray_rgb._95,
+
+  // Interactive — shared by buttons, list rows, menu items
+  bgInteractiveRest: gray._97,
+  bgInteractiveHover: gray._100,
+  bgInteractivePressed: gray._92,
+  bgInteractiveSelected: gray._90,
+  bgInteractiveDisabled: gray._95,
+
+  // Intent surface tints — alpha is fixed, color comes from the palette.
+  surfaceNeutralSubtle: gray._90,
   surfaceAccentSubtle: `rgba(${purple_rgb._30}, 0.08)`,
   surfaceAccentMuted: `rgba(${purple_rgb._30}, 0.16)`,
   surfaceInfoSubtle: `rgba(${cyan_rgb._50}, 0.1)`,
@@ -53,14 +68,19 @@ const light = {
   surfaceWarningSubtle: `rgba(${orange_rgb._50}, 0.12)`,
   surfaceDangerSubtle: `rgba(${red_rgb._40}, 0.1)`,
 
-  surfaceBright: gray._100,
+  // Inverse — flips theme to grab attention (tooltips, snackbars)
+  bgInverse: gray._20,
+
+  // Overlay — popover surface + scrim behind modals
+  bgOverlay: gray._90,
+  bgScrim: "rgba(0, 0, 0, 0.7)",
+
   accent: purple._30,
   accentHover: purple._40,
 
   // Mid-tone neutrals for chrome / dividers / chips
   neutral: gray._80,
   neutralHover: gray._70,
-  surfaceNeutralSubtle: gray._90,
   neutralText: gray._40,
   neutralOn: gray._20,
 
@@ -118,18 +138,26 @@ const dark: { [key in keyof typeof light]: string } = {
   textSubtle: gray._60,
   accentOn: gray._100,
   textOnBright: gray._0,
+  textOnInverse: gray._20,
   accentText: purple._70,
 
-  background: gray._0,
-  backgroundDim: gray._2,
-  background1: gray._5,
-  background2: gray._7,
-  background3: gray._9,
-  background4: gray._11,
-  background5: gray._13,
-  backgroundChannels: gray_rgb._0,
-  background1Channels: gray_rgb._5,
+  bgCanvas: gray._0,
+  bgCanvasSubtle: gray._2,
+  bgCanvasChannels: gray_rgb._0,
 
+  bgSurface: gray._5,
+  bgSurfaceRaised: gray._7,
+  bgSurfaceSunken: gray._2,
+  bgSurfaceBright: gray._80,
+  bgSurfaceChannels: gray_rgb._5,
+
+  bgInteractiveRest: gray._7,
+  bgInteractiveHover: gray._13,
+  bgInteractivePressed: gray._11,
+  bgInteractiveSelected: gray._9,
+  bgInteractiveDisabled: gray._5,
+
+  surfaceNeutralSubtle: gray._7,
   surfaceAccentSubtle: `rgba(${purple_rgb._80}, 0.12)`,
   surfaceAccentMuted: `rgba(${purple_rgb._80}, 0.2)`,
   surfaceInfoSubtle: `rgba(${cyan_rgb._70}, 0.14)`,
@@ -137,13 +165,15 @@ const dark: { [key in keyof typeof light]: string } = {
   surfaceWarningSubtle: `rgba(${yellow_rgb._60}, 0.16)`,
   surfaceDangerSubtle: `rgba(${red_rgb._70}, 0.14)`,
 
-  surfaceBright: gray._80,
+  bgInverse: gray._92,
+  bgOverlay: gray._7,
+  bgScrim: "rgba(0, 0, 0, 0.7)",
+
   accent: purple._50,
   accentHover: purple._60,
 
   neutral: gray._40,
   neutralHover: gray._50,
-  surfaceNeutralSubtle: gray._7,
   neutralText: gray._80,
   neutralOn: gray._92,
 
@@ -216,48 +246,74 @@ export const color = stylex.defineVars({
     default: light.textOnBright,
     [constants.DARK]: dark.textOnBright,
   },
+  textOnInverse: {
+    default: light.textOnInverse,
+    [constants.DARK]: dark.textOnInverse,
+  },
   accentText: {
     default: light.accentText,
     [constants.DARK]: dark.accentText,
   },
 
-  background: {
-    default: light.background,
-    [constants.DARK]: dark.background,
+  bgCanvas: {
+    default: light.bgCanvas,
+    [constants.DARK]: dark.bgCanvas,
   },
-  backgroundDim: {
-    default: light.backgroundDim,
-    [constants.DARK]: dark.backgroundDim,
+  bgCanvasSubtle: {
+    default: light.bgCanvasSubtle,
+    [constants.DARK]: dark.bgCanvasSubtle,
   },
-  background1: {
-    default: light.background1,
-    [constants.DARK]: dark.background1,
-  },
-  background2: {
-    default: light.background2,
-    [constants.DARK]: dark.background2,
-  },
-  background3: {
-    default: light.background3,
-    [constants.DARK]: dark.background3,
-  },
-  background4: {
-    default: light.background4,
-    [constants.DARK]: dark.background4,
-  },
-  background5: {
-    default: light.background5,
-    [constants.DARK]: dark.background5,
-  },
-  backgroundChannels: {
-    default: light.backgroundChannels,
-    [constants.DARK]: dark.backgroundChannels,
-  },
-  background1Channels: {
-    default: light.background1Channels,
-    [constants.DARK]: dark.background1Channels,
+  bgCanvasChannels: {
+    default: light.bgCanvasChannels,
+    [constants.DARK]: dark.bgCanvasChannels,
   },
 
+  bgSurface: {
+    default: light.bgSurface,
+    [constants.DARK]: dark.bgSurface,
+  },
+  bgSurfaceRaised: {
+    default: light.bgSurfaceRaised,
+    [constants.DARK]: dark.bgSurfaceRaised,
+  },
+  bgSurfaceSunken: {
+    default: light.bgSurfaceSunken,
+    [constants.DARK]: dark.bgSurfaceSunken,
+  },
+  bgSurfaceBright: {
+    default: light.bgSurfaceBright,
+    [constants.DARK]: dark.bgSurfaceBright,
+  },
+  bgSurfaceChannels: {
+    default: light.bgSurfaceChannels,
+    [constants.DARK]: dark.bgSurfaceChannels,
+  },
+
+  bgInteractiveRest: {
+    default: light.bgInteractiveRest,
+    [constants.DARK]: dark.bgInteractiveRest,
+  },
+  bgInteractiveHover: {
+    default: light.bgInteractiveHover,
+    [constants.DARK]: dark.bgInteractiveHover,
+  },
+  bgInteractivePressed: {
+    default: light.bgInteractivePressed,
+    [constants.DARK]: dark.bgInteractivePressed,
+  },
+  bgInteractiveSelected: {
+    default: light.bgInteractiveSelected,
+    [constants.DARK]: dark.bgInteractiveSelected,
+  },
+  bgInteractiveDisabled: {
+    default: light.bgInteractiveDisabled,
+    [constants.DARK]: dark.bgInteractiveDisabled,
+  },
+
+  surfaceNeutralSubtle: {
+    default: light.surfaceNeutralSubtle,
+    [constants.DARK]: dark.surfaceNeutralSubtle,
+  },
   surfaceAccentSubtle: {
     default: light.surfaceAccentSubtle,
     [constants.DARK]: dark.surfaceAccentSubtle,
@@ -283,10 +339,20 @@ export const color = stylex.defineVars({
     [constants.DARK]: dark.surfaceDangerSubtle,
   },
 
-  surfaceBright: {
-    default: light.surfaceBright,
-    [constants.DARK]: dark.surfaceBright,
+  bgInverse: {
+    default: light.bgInverse,
+    [constants.DARK]: dark.bgInverse,
   },
+
+  bgOverlay: {
+    default: light.bgOverlay,
+    [constants.DARK]: dark.bgOverlay,
+  },
+  bgScrim: {
+    default: light.bgScrim,
+    [constants.DARK]: dark.bgScrim,
+  },
+
   accent: {
     default: light.accent,
     [constants.DARK]: dark.accent,
@@ -300,10 +366,6 @@ export const color = stylex.defineVars({
   neutralHover: {
     default: light.neutralHover,
     [constants.DARK]: dark.neutralHover,
-  },
-  surfaceNeutralSubtle: {
-    default: light.surfaceNeutralSubtle,
-    [constants.DARK]: dark.surfaceNeutralSubtle,
   },
   neutralText: {
     default: light.neutralText,

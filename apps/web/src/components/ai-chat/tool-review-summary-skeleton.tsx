@@ -34,7 +34,7 @@ export function ToolReviewSummarySkeleton() {
 
 const styles = stylex.create({
   card: {
-    backgroundColor: color.background2,
+    backgroundColor: color.bgSurfaceRaised,
     borderRadius: border.radius_2,
     padding: space._3,
     marginTop: space._2,

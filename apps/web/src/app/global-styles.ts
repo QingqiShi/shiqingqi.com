@@ -3,7 +3,7 @@ import { lightTheme, darkTheme, color, font } from "@tuja/ui/tokens.stylex";
 
 export const globalStyles = stylex.create({
   global: {
-    backgroundColor: color.background,
+    backgroundColor: color.bgCanvas,
     colorScheme: color.colorScheme,
     fontSize: "16px",
   },

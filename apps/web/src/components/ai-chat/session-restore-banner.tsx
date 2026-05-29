@@ -71,7 +71,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     borderRadius: border.radius_3,
-    backgroundColor: color.background1,
+    backgroundColor: color.bgSurface,
   },
   text: {
     margin: 0,

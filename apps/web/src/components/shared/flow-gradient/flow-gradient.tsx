@@ -10,7 +10,7 @@ import { init, start, type ColorOptions } from "./loop";
 import fs from "./shaders/fs.glsl";
 import vs from "./shaders/vs.glsl";
 
-// Mirrors color.background — keep in sync if the token value changes.
+// Mirrors color.bgCanvas — keep in sync if the token value changes.
 const DARK_COLORS = {
   colorBackground: [0, 0, 0],
 } satisfies ColorOptions;
@@ -64,7 +64,7 @@ const styles = stylex.create({
   canvas: {
     width: "100%",
     height: "100%",
-    backgroundColor: color.background,
+    backgroundColor: color.bgCanvas,
     willChange: {
       default: "transform",
       [motionConstants.REDUCED_MOTION]: null,
