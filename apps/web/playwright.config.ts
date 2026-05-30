@@ -1,3 +1,5 @@
+import { execFileSync } from "node:child_process";
+
 import { defineConfig, devices } from "@playwright/test";
 
 /**
@@ -7,6 +9,17 @@ import { defineConfig, devices } from "@playwright/test";
 // import dotenv from 'dotenv';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+/* Per-worktree dev-server port (3000 in the main checkout). The port is
+ * resolved by the shared scripts/worktree-port.mjs helper, run as a
+ * subprocess rather than imported because Playwright's config loader
+ * cannot transpile a native ESM `.mjs` import. The relative path matches
+ * the dev:next script in package.json (Playwright runs from apps/web).
+ * `BASE_URL` still wins so CI and preview deployments are unaffected. */
+const port = execFileSync("node", ["../../scripts/worktree-port.mjs"], {
+  encoding: "utf8",
+}).trim();
+const baseURL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -36,7 +49,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    baseURL,
 
     /* Set browser locale to English to ensure consistent behavior in CI */
     locale: "en-US",
@@ -76,7 +89,8 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: "pnpm build && pnpm start",
-    url: "http://localhost:3000",
+    url: baseURL,
+    env: { PORT: port }, // next start binds this; reuses a running dev server if present
     reuseExistingServer: !process.env.CI,
     timeout: 300 * 1000, // 5 minutes for build + server to start
   },

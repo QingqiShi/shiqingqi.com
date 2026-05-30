@@ -17,7 +17,7 @@
     "codegen:zod": "tsx ../../packages/tmdb-codegen/generate-selective-zod.ts && prettier 'src/_generated/tmdb-zod.ts' -w",
     "predev": "pnpm codegen:palette",
     "dev": "run-p watch:i18n dev:next",
-    "dev:next": "next dev --turbopack",
+    "dev:next": "next dev --turbopack -p $(node ../../scripts/worktree-port.mjs)",
     "build": "next build && serwist build serwist.config.mjs",
     "build:tsc": "tsc --noEmit",
     "start": "next start",
