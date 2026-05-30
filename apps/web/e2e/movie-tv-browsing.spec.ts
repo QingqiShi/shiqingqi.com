@@ -126,30 +126,52 @@ test.describe("Movie and TV Show Browsing", () => {
   });
 
   test("should load more movies when scrolling to bottom", async ({ page }) => {
-    // Wait for initial cards (cards are links containing images with aria-labels)
-    const cards = page
-      .getByRole("link")
-      .filter({ hasText: /.+/ })
-      .filter({ has: page.getByRole("img") });
+    // Cards are links wrapping a poster image. The grid is window-virtualized
+    // (react-virtuoso with `useWindowScroll`): only a sliding window of cards is
+    // mounted at any time, so neither the mounted card count nor the "last"
+    // mounted card is a reliable signal — scrolling just remounts a different
+    // window of the *same* page. The virtualization-proof signal that another
+    // page actually loaded is the document growing taller as the new page is
+    // appended to the list.
+    const cards = page.getByRole("link").filter({ has: page.getByRole("img") });
     await expect(cards.first()).toBeVisible();
+    expect(await cards.count()).toBeGreaterThan(0);
 
-    // Get the last visible card's title before scrolling
-    const initialCount = await cards.count();
-    expect(initialCount).toBeGreaterThan(5);
-    const lastCardBeforeScroll = await cards.last().getAttribute("aria-label");
+    // Let the initial load settle so the baseline height is stable before we
+    // trigger load-more.
+    await page.waitForLoadState("networkidle");
 
-    // Scroll to bottom
-    await page.evaluate(() => {
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+    const pageHeight = () =>
+      page.evaluate(() => document.documentElement.scrollHeight);
+    const initialHeight = await pageHeight();
 
-    // Wait for the last card to change (new content loaded)
-    await expect(async () => {
-      const currentLastCard = await cards.last().getAttribute("aria-label");
-      expect(currentLastCard).not.toBe(lastCardBeforeScroll);
-    }).toPass({ timeout: 10000 });
+    // Drive virtuoso's scroll-based `endReached` with a top-to-bottom sweep in
+    // viewport-sized steps (a one-shot jump to `scrollHeight` pins the window at
+    // the rendered bottom without registering as the incremental scroll it
+    // needs). Re-sweep on each poll until the document has grown past its
+    // settled height — the virtualization-proof signal that another page loaded.
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(async () => {
+            const step = window.innerHeight;
+            const end = document.documentElement.scrollHeight;
+            for (let y = 0; y <= end; y += step) {
+              window.scrollTo(0, y);
+              await new Promise((resolve) =>
+                requestAnimationFrame(() => {
+                  resolve(null);
+                }),
+              );
+            }
+          });
+          return pageHeight();
+        },
+        { timeout: 10000 },
+      )
+      .toBeGreaterThan(initialHeight);
 
-    // Verify cards are still visible after scrolling
+    // The grid is still rendered after loading more.
     await expect(cards.first()).toBeVisible();
   });
 
