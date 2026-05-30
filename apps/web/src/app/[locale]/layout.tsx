@@ -4,6 +4,7 @@ import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense, ViewTransition } from "react";
 import { globalStyles } from "#src/app/global-styles.ts";
+import { ReactGrab } from "#src/components/react-grab.tsx";
 import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
 import { HeaderSkeleton } from "#src/components/shared/header-skeleton.tsx";
@@ -98,6 +99,7 @@ export default async function RootLayout({
                 </BackOverrideProvider>
               </PortalTargetProvider>
             </ViewTransition>
+            <ReactGrab />
             <Analytics />
             <SpeedInsights />
           </SerwistProvider>
