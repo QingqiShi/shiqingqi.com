@@ -21,7 +21,12 @@ export function MediaVirtuosoGrid({
   virtuosoKey,
   notFoundLabel,
 }: MediaVirtuosoGridProps) {
-  const { data: items, fetchNextPage, hasNextPage, isFetching } = queryResult;
+  const {
+    data: items,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = queryResult;
   const height = useViewportHeight();
   const [storedInitialItemCount] = useState(items.length);
   const initialItemCount = Math.min(storedInitialItemCount, items.length);
@@ -44,7 +49,14 @@ export function MediaVirtuosoGrid({
         <MediaCard media={items[index]} allowFollow={index < 20} />
       )}
       endReached={() => {
-        if (hasNextPage && !isFetching) {
+        // Guard on `isFetchingNextPage`, not `isFetching`. Virtuoso fires
+        // `endReached` once per end index and will not re-fire until the index
+        // grows (i.e. until more data loads). `isFetching` is true during *any*
+        // fetch — including the background refetch when `staleTime` lapses — so
+        // if that one `endReached` coincided with such a refetch, the load-more
+        // was dropped and never retried, permanently wedging pagination.
+        // `isFetchingNextPage` only blocks while a load-more is already running.
+        if (hasNextPage && !isFetchingNextPage) {
           void fetchNextPage();
         }
       }}
