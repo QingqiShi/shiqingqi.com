@@ -20,7 +20,29 @@ import { Showcase } from "../showcase.tsx";
 
 const FEATURED_TONES: ReadonlySet<number> = new Set([40, 80]);
 
+// Column counts per breakpoint — keep in sync with styles.grid.
+const GRID_COLUMNS = { md: 2, lg: 3 };
+
+// When the hue count leaves a single card alone on the final row, center it
+// rather than stranding it flush-left: full width in the 2-col grid, the middle
+// column in the 3-col grid. Gating each breakpoint on `count % cols === 1` means
+// the override disappears cleanly when the count is a multiple of that column
+// count (no stray-span collision), and it keeps working as hues are added.
+function orphanColumnVars(count: number) {
+  const center = (cols: number) =>
+    cols % 2 === 1 ? String(Math.ceil(cols / 2)) : "1 / -1";
+  return {
+    "--orphan-col-md":
+      count % GRID_COLUMNS.md === 1 ? center(GRID_COLUMNS.md) : "auto",
+    "--orphan-col-lg":
+      count % GRID_COLUMNS.lg === 1 ? center(GRID_COLUMNS.lg) : "auto",
+  };
+}
+
 export function ColorSection() {
+  const lastIndex = systemPalette.length - 1;
+  const orphanVars = orphanColumnVars(systemPalette.length);
+
   return (
     <Section
       id="color"
@@ -38,8 +60,12 @@ export function ColorSection() {
           })}
         </ShowcaseHelper>
         <div css={styles.grid}>
-          {systemPalette.map((palette) => (
-            <PaletteSpecimen key={palette.name} palette={palette} />
+          {systemPalette.map((palette, index) => (
+            <PaletteSpecimen
+              key={palette.name}
+              palette={palette}
+              orphanVars={index === lastIndex ? orphanVars : undefined}
+            />
           ))}
         </div>
       </Showcase>
@@ -47,7 +73,13 @@ export function ColorSection() {
   );
 }
 
-function PaletteSpecimen({ palette }: { palette: SystemHuePalette }) {
+function PaletteSpecimen({
+  palette,
+  orphanVars,
+}: {
+  palette: SystemHuePalette;
+  orphanVars?: ReturnType<typeof orphanColumnVars>;
+}) {
   const solid = palette.tones[40];
   const soft = palette.tones[80];
 
@@ -56,7 +88,7 @@ function PaletteSpecimen({ palette }: { palette: SystemHuePalette }) {
       css={styles.card}
       role="group"
       aria-label={palette.name}
-      style={{ "--source": palette.source }}
+      style={{ "--source": palette.source, ...orphanVars }}
     >
       <div css={styles.wash} aria-hidden />
 
@@ -104,6 +136,7 @@ function PaletteSpecimen({ palette }: { palette: SystemHuePalette }) {
                 backgroundColor: swatch.bg,
                 color: `contrast-color(${swatch.bg})`,
               }}
+              role="img"
               aria-label={`${palette.name} ${String(tone)}`}
             />
           );
@@ -127,16 +160,13 @@ const styles = stylex.create({
   },
   card: {
     position: "relative",
-    // Thirteen hues is a prime count, so the final card always strands alone on
-    // the last row. Center it (middle column on desktop, full width on tablet)
-    // rather than leaving it flush-left.
+    // A lone card on the final row reads `--orphan-col-*` (set only on that card
+    // by `orphanColumnVars`) to center itself — full width at md, middle column at
+    // lg. Every other card leaves the vars unset and falls back to `auto`.
     gridColumn: {
       default: "auto",
-      ":last-child": {
-        default: "auto",
-        [breakpoints.md]: "1 / -1",
-        [breakpoints.lg]: "2",
-      },
+      [breakpoints.md]: "var(--orphan-col-md, auto)",
+      [breakpoints.lg]: "var(--orphan-col-lg, auto)",
     },
     display: "flex",
     flexDirection: "column",
@@ -243,19 +273,14 @@ const styles = stylex.create({
   tone: {
     position: "relative",
     minBlockSize: "30px",
-    transition:
-      "transform 220ms cubic-bezier(0.2, 0, 0, 1), box-shadow 220ms ease, z-index 0ms 220ms",
+    // Hover widens the swatch over its neighbours and lifts it above them; the
+    // z-index reset is delayed so it stays on top while scaling back. A drop
+    // shadow would be clipped by the ramp's `overflow: hidden`, so there is none.
+    transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1), z-index 0ms 220ms",
     zIndex: { default: layer.base, ":hover": layer.content },
     transform: { default: "scale(1)", ":hover": "scale(1.12)" },
-    boxShadow: {
-      default: "none",
-      ":hover": `0 1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.18)`,
-    },
   },
   toneFeatured: {
-    boxShadow: {
-      default: "inset 0 0 0 1.5px currentColor",
-      ":hover": `inset 0 0 0 1.5px currentColor, 0 1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.18)`,
-    },
+    boxShadow: "inset 0 0 0 1.5px currentColor",
   },
 });
