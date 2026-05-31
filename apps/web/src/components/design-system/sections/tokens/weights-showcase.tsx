@@ -53,7 +53,7 @@ const styles = stylex.create({
     gap: space._2,
   },
   specimen: {
-    fontSize: font.uiHeading0,
+    fontSize: font.uiSubDisplay,
     lineHeight: font.lineHeight_1,
     letterSpacing: font.trackingTight,
     color: color.textMain,

@@ -4,7 +4,6 @@ import { BackgroundsShowcase } from "./tokens/backgrounds-showcase.tsx";
 import { FamiliesShowcase } from "./tokens/families-showcase.tsx";
 import { LetterSpacingShowcase } from "./tokens/letter-spacing-showcase.tsx";
 import { LineHeightsShowcase } from "./tokens/line-heights-showcase.tsx";
-import { ResponsiveSizesShowcase } from "./tokens/responsive-sizes-showcase.tsx";
 import { RolesShowcase } from "./tokens/roles-showcase.tsx";
 import { ShadowsShowcase } from "./tokens/shadows-showcase.tsx";
 import { TypeScaleShowcase } from "./tokens/type-scale-showcase.tsx";
@@ -26,7 +25,6 @@ export function TokensSection() {
       <FamiliesShowcase />
       <WeightsShowcase />
       <TypeScaleShowcase />
-      <ResponsiveSizesShowcase />
       <LineHeightsShowcase />
       <LetterSpacingShowcase />
     </Section>
