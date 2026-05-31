@@ -499,7 +499,7 @@ export const font = stylex.defineVars({
 
   // Static typography - UI elements
   uiDisplay: "3rem",
-  uiHeading0: "2rem",
+  uiSubDisplay: "2rem",
   uiHeading1: "1.5rem",
   uiHeading2: "1.25rem",
   uiHeading3: "1.1rem",
