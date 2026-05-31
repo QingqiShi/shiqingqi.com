@@ -55,3 +55,7 @@ playwright/.auth/
 .claude/worktrees/
 .claude/skills/*-workspace/
 .claude/scheduled_tasks.lock
+
+# Impeccable live-mode runtime state (keep the committed config)
+.impeccable/live/*
+!.impeccable/live/config.json

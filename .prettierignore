@@ -21,6 +21,10 @@ apps/web/src/vendor/
 .claude/skills/vercel-react-best-practices/
 .claude/skills/vercel-react-view-transitions/
 
+# Vendored agent skill installed via the `impeccable` CLI
+# (preserve upstream formatting)
+.claude/skills/impeccable/
+
 # Lock files
 pnpm-lock.yaml
 skills-lock.json
