@@ -37,7 +37,7 @@ export function ColorSection() {
             zh: "40 与 80 为关键色阶——通常用作实色角色与对应柔和表面。",
           })}
         </ShowcaseHelper>
-        <div css={styles.stack}>
+        <div css={styles.grid}>
           {systemPalette.map((palette) => (
             <PaletteSpecimen key={palette.name} palette={palette} />
           ))}
@@ -60,81 +60,89 @@ function PaletteSpecimen({ palette }: { palette: SystemHuePalette }) {
     >
       <div css={styles.wash} aria-hidden />
 
-      <div css={styles.body}>
-        <header css={styles.header}>
-          <div css={styles.identity}>
-            <h3 css={styles.name}>{palette.name}</h3>
-            <span css={styles.source}>{palette.source}</span>
-          </div>
+      <header css={styles.header}>
+        <div css={styles.identity}>
+          <h3 css={styles.name}>{palette.name}</h3>
+          <span css={styles.source}>{palette.source}</span>
+        </div>
 
-          <div css={styles.demo} aria-hidden>
+        <div css={styles.demo} aria-hidden>
+          <div
+            css={styles.demoSurface}
+            style={{
+              backgroundColor: soft.bg,
+              color: `contrast-color(${soft.bg})`,
+            }}
+          >
             <div
-              css={styles.demoSurface}
+              css={styles.demoChip}
               style={{
-                backgroundColor: soft.bg,
-                color: `contrast-color(${soft.bg})`,
+                backgroundColor: solid.bg,
+                color: `contrast-color(${solid.bg})`,
               }}
             >
-              <div
-                css={styles.demoChip}
-                style={{
-                  backgroundColor: solid.bg,
-                  color: `contrast-color(${solid.bg})`,
-                }}
-              >
-                Aa
-              </div>
-              <div css={styles.demoMeta}>
-                <span css={styles.demoMetaPrimary}>40</span>
-                <span css={styles.demoMetaDivider}>·</span>
-                <span css={styles.demoMetaSecondary}>80</span>
-              </div>
+              Aa
+            </div>
+            <div css={styles.demoMeta}>
+              <span css={styles.demoMetaPrimary}>40</span>
+              <span css={styles.demoMetaDivider}>·</span>
+              <span css={styles.demoMetaSecondary}>80</span>
             </div>
           </div>
-        </header>
-
-        <div css={styles.tones}>
-          {SYSTEM_PALETTE_TONES.map((tone) => {
-            const swatch = palette.tones[tone];
-            const featured = FEATURED_TONES.has(tone);
-            return (
-              <div
-                key={tone}
-                css={[styles.tone, featured && styles.toneFeatured]}
-                style={{
-                  backgroundColor: swatch.bg,
-                  color: `contrast-color(${swatch.bg})`,
-                }}
-                aria-label={`${palette.name} ${String(tone)}`}
-              >
-                <span
-                  css={[
-                    styles.toneNumber,
-                    featured && styles.toneNumberFeatured,
-                  ]}
-                >
-                  {tone}
-                </span>
-              </div>
-            );
-          })}
         </div>
+      </header>
+
+      <div css={styles.tones}>
+        {SYSTEM_PALETTE_TONES.map((tone) => {
+          const swatch = palette.tones[tone];
+          const featured = FEATURED_TONES.has(tone);
+          return (
+            <div
+              key={tone}
+              css={[styles.tone, featured && styles.toneFeatured]}
+              style={{
+                backgroundColor: swatch.bg,
+                color: `contrast-color(${swatch.bg})`,
+              }}
+              aria-label={`${palette.name} ${String(tone)}`}
+            />
+          );
+        })}
       </div>
     </article>
   );
 }
 
 const styles = stylex.create({
-  stack: {
-    display: "flex",
-    flexDirection: "column",
+  // Two-up field-guide layout: specimen cards flow into a responsive grid so the
+  // thirteen hues read as a compact reference sheet rather than a tall stack.
+  grid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
+      [breakpoints.lg]: "repeat(3, minmax(0, 1fr))",
+    },
     gap: space._3,
   },
   card: {
     position: "relative",
+    // Thirteen hues is a prime count, so the final card always strands alone on
+    // the last row. Center it (middle column on desktop, full width on tablet)
+    // rather than leaving it flush-left.
+    gridColumn: {
+      default: "auto",
+      ":last-child": {
+        default: "auto",
+        [breakpoints.md]: "1 / -1",
+        [breakpoints.lg]: "2",
+      },
+    },
     display: "flex",
-    paddingBlock: space._4,
-    paddingInline: space._5,
+    flexDirection: "column",
+    gap: space._2,
+    paddingBlock: space._3,
+    paddingInline: space._4,
     backgroundColor: color.bgSurfaceRaised,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
@@ -153,18 +161,12 @@ const styles = stylex.create({
     pointerEvents: "none",
     zIndex: layer.background,
   },
-  body: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
   header: {
     display: "flex",
+    flexWrap: "wrap",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: space._4,
+    gap: space._3,
   },
   identity: {
     display: "flex",
@@ -187,10 +189,7 @@ const styles = stylex.create({
   },
   demo: {
     flexShrink: 0,
-    display: {
-      default: "none",
-      [breakpoints.md]: "flex",
-    },
+    display: "flex",
   },
   demoSurface: {
     display: "flex",
@@ -233,28 +232,21 @@ const styles = stylex.create({
   },
   tones: {
     display: "grid",
-    // 21 tones factor cleanly as 7×3 or 21×1. Mobile/tablet keep a 7-column
-    // bento so every cell fits; lg+ unfurls into a single 21-cell ramp so the
-    // brightness curve reads as one gesture.
-    gridTemplateColumns: {
-      default: "repeat(7, minmax(0, 1fr))",
-      [breakpoints.lg]: "repeat(21, minmax(0, 1fr))",
-    },
-    minBlockSize: "60px",
+    // Compact mode unfurls all 21 tones into a single slim ramp at every width,
+    // so the brightness curve reads as one gesture; featured 40/80 carry rings
+    // and the Aa demo names the key stops, replacing per-cell numerals.
+    gridTemplateColumns: "repeat(21, minmax(0, 1fr))",
     borderRadius: border.radius_2,
     overflow: "hidden",
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   tone: {
     position: "relative",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minBlockSize: "44px",
+    minBlockSize: "30px",
     transition:
       "transform 220ms cubic-bezier(0.2, 0, 0, 1), box-shadow 220ms ease, z-index 0ms 220ms",
     zIndex: { default: layer.base, ":hover": layer.content },
-    transform: { default: "scale(1)", ":hover": "scale(1.08)" },
+    transform: { default: "scale(1)", ":hover": "scale(1.12)" },
     boxShadow: {
       default: "none",
       ":hover": `0 1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.18)`,
@@ -265,22 +257,5 @@ const styles = stylex.create({
       default: "inset 0 0 0 1.5px currentColor",
       ":hover": `inset 0 0 0 1.5px currentColor, 0 1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.18)`,
     },
-  },
-  toneNumber: {
-    display: {
-      default: "none",
-      [breakpoints.md]: "block",
-    },
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_6,
-    letterSpacing: font.trackingSnug,
-    opacity: 0.85,
-  },
-  toneNumberFeatured: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingTight,
-    opacity: 1,
   },
 });
