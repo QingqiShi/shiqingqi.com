@@ -20,7 +20,29 @@ import { Showcase } from "../showcase.tsx";
 
 const FEATURED_TONES: ReadonlySet<number> = new Set([40, 80]);
 
+// Column counts per breakpoint — keep in sync with styles.grid.
+const GRID_COLUMNS = { md: 2, lg: 3 };
+
+// When the hue count leaves a single card alone on the final row, center it
+// rather than stranding it flush-left: full width in the 2-col grid, the middle
+// column in the 3-col grid. Gating each breakpoint on `count % cols === 1` means
+// the override disappears cleanly when the count is a multiple of that column
+// count (no stray-span collision), and it keeps working as hues are added.
+function orphanColumnVars(count: number) {
+  const center = (cols: number) =>
+    cols % 2 === 1 ? String(Math.ceil(cols / 2)) : "1 / -1";
+  return {
+    "--orphan-col-md":
+      count % GRID_COLUMNS.md === 1 ? center(GRID_COLUMNS.md) : "auto",
+    "--orphan-col-lg":
+      count % GRID_COLUMNS.lg === 1 ? center(GRID_COLUMNS.lg) : "auto",
+  };
+}
+
 export function ColorSection() {
+  const lastIndex = systemPalette.length - 1;
+  const orphanVars = orphanColumnVars(systemPalette.length);
+
   return (
     <Section
       id="color"
@@ -37,9 +59,13 @@ export function ColorSection() {
             zh: "40 与 80 为关键色阶——通常用作实色角色与对应柔和表面。",
           })}
         </ShowcaseHelper>
-        <div css={styles.stack}>
-          {systemPalette.map((palette) => (
-            <PaletteSpecimen key={palette.name} palette={palette} />
+        <div css={styles.grid}>
+          {systemPalette.map((palette, index) => (
+            <PaletteSpecimen
+              key={palette.name}
+              palette={palette}
+              orphanVars={index === lastIndex ? orphanVars : undefined}
+            />
           ))}
         </div>
       </Showcase>
@@ -47,7 +73,13 @@ export function ColorSection() {
   );
 }
 
-function PaletteSpecimen({ palette }: { palette: SystemHuePalette }) {
+function PaletteSpecimen({
+  palette,
+  orphanVars,
+}: {
+  palette: SystemHuePalette;
+  orphanVars?: ReturnType<typeof orphanColumnVars>;
+}) {
   const solid = palette.tones[40];
   const soft = palette.tones[80];
 
@@ -56,85 +88,91 @@ function PaletteSpecimen({ palette }: { palette: SystemHuePalette }) {
       css={styles.card}
       role="group"
       aria-label={palette.name}
-      style={{ "--source": palette.source }}
+      style={{ "--source": palette.source, ...orphanVars }}
     >
       <div css={styles.wash} aria-hidden />
 
-      <div css={styles.body}>
-        <header css={styles.header}>
-          <div css={styles.identity}>
-            <h3 css={styles.name}>{palette.name}</h3>
-            <span css={styles.source}>{palette.source}</span>
-          </div>
+      <header css={styles.header}>
+        <div css={styles.identity}>
+          <h3 css={styles.name}>{palette.name}</h3>
+          <span css={styles.source}>{palette.source}</span>
+        </div>
 
-          <div css={styles.demo} aria-hidden>
+        <div css={styles.demo} aria-hidden>
+          <div
+            css={styles.demoSurface}
+            style={{
+              backgroundColor: soft.bg,
+              color: `contrast-color(${soft.bg})`,
+            }}
+          >
             <div
-              css={styles.demoSurface}
+              css={styles.demoChip}
               style={{
-                backgroundColor: soft.bg,
-                color: `contrast-color(${soft.bg})`,
+                backgroundColor: solid.bg,
+                color: `contrast-color(${solid.bg})`,
               }}
             >
-              <div
-                css={styles.demoChip}
-                style={{
-                  backgroundColor: solid.bg,
-                  color: `contrast-color(${solid.bg})`,
-                }}
-              >
-                Aa
-              </div>
-              <div css={styles.demoMeta}>
-                <span css={styles.demoMetaPrimary}>40</span>
-                <span css={styles.demoMetaDivider}>·</span>
-                <span css={styles.demoMetaSecondary}>80</span>
-              </div>
+              Aa
+            </div>
+            <div css={styles.demoMeta}>
+              <span css={styles.demoMetaPrimary}>40</span>
+              <span css={styles.demoMetaDivider}>·</span>
+              <span css={styles.demoMetaSecondary}>80</span>
             </div>
           </div>
-        </header>
-
-        <div css={styles.tones}>
-          {SYSTEM_PALETTE_TONES.map((tone) => {
-            const swatch = palette.tones[tone];
-            const featured = FEATURED_TONES.has(tone);
-            return (
-              <div
-                key={tone}
-                css={[styles.tone, featured && styles.toneFeatured]}
-                style={{
-                  backgroundColor: swatch.bg,
-                  color: `contrast-color(${swatch.bg})`,
-                }}
-                aria-label={`${palette.name} ${String(tone)}`}
-              >
-                <span
-                  css={[
-                    styles.toneNumber,
-                    featured && styles.toneNumberFeatured,
-                  ]}
-                >
-                  {tone}
-                </span>
-              </div>
-            );
-          })}
         </div>
+      </header>
+
+      <div css={styles.tones}>
+        {SYSTEM_PALETTE_TONES.map((tone) => {
+          const swatch = palette.tones[tone];
+          const featured = FEATURED_TONES.has(tone);
+          return (
+            <div
+              key={tone}
+              css={[styles.tone, featured && styles.toneFeatured]}
+              style={{
+                backgroundColor: swatch.bg,
+                color: `contrast-color(${swatch.bg})`,
+              }}
+              role="img"
+              aria-label={`${palette.name} ${String(tone)}`}
+            />
+          );
+        })}
       </div>
     </article>
   );
 }
 
 const styles = stylex.create({
-  stack: {
-    display: "flex",
-    flexDirection: "column",
+  // Two-up field-guide layout: specimen cards flow into a responsive grid so the
+  // thirteen hues read as a compact reference sheet rather than a tall stack.
+  grid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
+      [breakpoints.lg]: "repeat(3, minmax(0, 1fr))",
+    },
     gap: space._3,
   },
   card: {
     position: "relative",
+    // A lone card on the final row reads `--orphan-col-*` (set only on that card
+    // by `orphanColumnVars`) to center itself — full width at md, middle column at
+    // lg. Every other card leaves the vars unset and falls back to `auto`.
+    gridColumn: {
+      default: "auto",
+      [breakpoints.md]: "var(--orphan-col-md, auto)",
+      [breakpoints.lg]: "var(--orphan-col-lg, auto)",
+    },
     display: "flex",
-    paddingBlock: space._4,
-    paddingInline: space._5,
+    flexDirection: "column",
+    gap: space._2,
+    paddingBlock: space._3,
+    paddingInline: space._4,
     backgroundColor: color.bgSurfaceRaised,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
@@ -153,18 +191,12 @@ const styles = stylex.create({
     pointerEvents: "none",
     zIndex: layer.background,
   },
-  body: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
   header: {
     display: "flex",
+    flexWrap: "wrap",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: space._4,
+    gap: space._3,
   },
   identity: {
     display: "flex",
@@ -187,10 +219,7 @@ const styles = stylex.create({
   },
   demo: {
     flexShrink: 0,
-    display: {
-      default: "none",
-      [breakpoints.md]: "flex",
-    },
+    display: "flex",
   },
   demoSurface: {
     display: "flex",
@@ -233,54 +262,25 @@ const styles = stylex.create({
   },
   tones: {
     display: "grid",
-    // 21 tones factor cleanly as 7×3 or 21×1. Mobile/tablet keep a 7-column
-    // bento so every cell fits; lg+ unfurls into a single 21-cell ramp so the
-    // brightness curve reads as one gesture.
-    gridTemplateColumns: {
-      default: "repeat(7, minmax(0, 1fr))",
-      [breakpoints.lg]: "repeat(21, minmax(0, 1fr))",
-    },
-    minBlockSize: "60px",
+    // Compact mode unfurls all 21 tones into a single slim ramp at every width,
+    // so the brightness curve reads as one gesture; featured 40/80 carry rings
+    // and the Aa demo names the key stops, replacing per-cell numerals.
+    gridTemplateColumns: "repeat(21, minmax(0, 1fr))",
     borderRadius: border.radius_2,
     overflow: "hidden",
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   tone: {
     position: "relative",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minBlockSize: "44px",
-    transition:
-      "transform 220ms cubic-bezier(0.2, 0, 0, 1), box-shadow 220ms ease, z-index 0ms 220ms",
+    minBlockSize: "30px",
+    // Hover widens the swatch over its neighbours and lifts it above them; the
+    // z-index reset is delayed so it stays on top while scaling back. A drop
+    // shadow would be clipped by the ramp's `overflow: hidden`, so there is none.
+    transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1), z-index 0ms 220ms",
     zIndex: { default: layer.base, ":hover": layer.content },
-    transform: { default: "scale(1)", ":hover": "scale(1.08)" },
-    boxShadow: {
-      default: "none",
-      ":hover": `0 1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.18)`,
-    },
+    transform: { default: "scale(1)", ":hover": "scale(1.12)" },
   },
   toneFeatured: {
-    boxShadow: {
-      default: "inset 0 0 0 1.5px currentColor",
-      ":hover": `inset 0 0 0 1.5px currentColor, 0 1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.18)`,
-    },
-  },
-  toneNumber: {
-    display: {
-      default: "none",
-      [breakpoints.md]: "block",
-    },
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_6,
-    letterSpacing: font.trackingSnug,
-    opacity: 0.85,
-  },
-  toneNumberFeatured: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingTight,
-    opacity: 1,
+    boxShadow: "inset 0 0 0 1.5px currentColor",
   },
 });
