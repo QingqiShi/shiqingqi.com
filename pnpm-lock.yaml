@@ -292,8 +292,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2(webpack@5.97.1(esbuild@0.28.0)(postcss@8.5.15))
       react-grab:
-        specifier: ^0.1.38
-        version: 0.1.38(react@19.3.0-canary-56824423-20260414)
+        specifier: ^0.1.44
+        version: 0.1.44(react@19.3.0-canary-56824423-20260414)
       tsx:
         specifier: ^4.22.4
         version: 4.22.4
@@ -2171,8 +2171,8 @@ packages:
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
-  '@react-grab/cli@0.1.38':
-    resolution: {integrity: sha512-N2ANEe7ezP19mQYX5XFc/R6VHiawIEfUtLQlamw6xfyt2XTbpFNdNhjUgh51irxpOzYSZZ9g6D4qeQ9jOzVgiA==}
+  '@react-grab/cli@0.1.44':
+    resolution: {integrity: sha512-gMDYY2rw6OWajCcDlXSIgs2LC432YJXSb3Lm5yM187uhRgBYddoEVULi36h+IolX3r7jSb3ew7vn9FfI8NSo0A==}
     hasBin: true
 
   '@redocly/ajv@8.11.2':
@@ -3415,8 +3415,8 @@ packages:
     resolution: {integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==}
     engines: {node: '>= 4'}
 
-  enhanced-resolve@5.22.1:
-    resolution: {integrity: sha512-6QEuw3zoX1SJQc7b87aBXke/no+mG2bTBgw29gWMQonLmpEkWoCAVkl+M49e48AZlWzxiDzDZzYdp6kobcyLww==}
+  enhanced-resolve@5.22.2:
+    resolution: {integrity: sha512-0rxICaFZ7NQho/sHely2bvOPRP0Eu2B0NZ9zM54YvRvWMn7jfz3DmnOZDR9LlXDdDcqntAVc6Hfy4gr/tdH/Ag==}
     engines: {node: '>=10.13.0'}
 
   entities@8.0.0:
@@ -3848,6 +3848,10 @@ packages:
 
   get-east-asian-width@1.5.0:
     resolution: {integrity: sha512-CQ+bEO+Tva/qlmw24dCejulK5pMzVnUOFOijVogd3KQs07HnRIgp8TGipvCCRT06xeYEbpbgwaCxglFyiuIcmA==}
+    engines: {node: '>=18'}
+
+  get-east-asian-width@1.6.0:
+    resolution: {integrity: sha512-QRbvDIbx6YklUe6RxeTeleMR0yv3cYH6PsPZHcnVn7xv7zO1BHN8r0XETu8n6Ye3Q+ahtSarc3WgtNWmehIBfA==}
     engines: {node: '>=18'}
 
   get-intrinsic@1.3.0:
@@ -5196,8 +5200,8 @@ packages:
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
 
-  react-grab@0.1.38:
-    resolution: {integrity: sha512-VVk3K3sfjjhSks7gHDpWHQHrA0X/nLxAGgAjEmDiUTDjbiw3+YWVTOJeHSyQR+hxs+7tIrSDLy0pCZqIXxXpSw==}
+  react-grab@0.1.44:
+    resolution: {integrity: sha512-bDEwBdI90ljq2lhUtPqmWis/HwYB/CvfT0m5i+P9F83Pt0Ot8o9XL8v00s9jcWzdQUlsFDzmq2FO2CHUe8JY8A==}
     hasBin: true
     peerDependencies:
       react: '>=17.0.0'
@@ -5495,10 +5499,6 @@ packages:
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
-  smol-toml@1.6.1:
-    resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
-    engines: {node: '>= 18'}
-
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -5744,6 +5744,10 @@ packages:
 
   tinyexec@1.1.2:
     resolution: {integrity: sha512-dAqSqE/RabpBKI8+h26GfLq6Vb3JVXs30XYQjdMjaj/c2tS8IYYMbIzP599KtRj7c57/wYApb3QjgRgXmrCukA==}
+    engines: {node: '>=18'}
+
+  tinyexec@1.2.4:
+    resolution: {integrity: sha512-SHf/r48b7vOrjve9PxJo3MN5v5yuyjHvdUcrQffT3WXMUfnGmHDVbC4k3sHJaJTgZCwpUplIaAo5ANtMyp3YHg==}
     engines: {node: '>=18'}
 
   tinyglobby@0.2.16:
@@ -7965,18 +7969,16 @@ snapshots:
 
   '@polka/url@1.0.0-next.29': {}
 
-  '@react-grab/cli@0.1.38':
+  '@react-grab/cli@0.1.44':
     dependencies:
       agent-install: 0.0.5
       commander: 14.0.3
       ignore: 7.0.5
-      jsonc-parser: 3.3.1
       ora: 9.4.0
       package-manager-detector: 1.6.0
       picocolors: 1.1.1
       prompts: 2.4.2
-      smol-toml: 1.6.1
-      tinyexec: 1.1.2
+      tinyexec: 1.2.4
 
   '@redocly/ajv@8.11.2':
     dependencies:
@@ -9215,7 +9217,7 @@ snapshots:
 
   emojis-list@3.0.0: {}
 
-  enhanced-resolve@5.22.1:
+  enhanced-resolve@5.22.2:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.3
@@ -9861,6 +9863,8 @@ snapshots:
   get-caller-file@2.0.5: {}
 
   get-east-asian-width@1.5.0: {}
+
+  get-east-asian-width@1.6.0: {}
 
   get-intrinsic@1.3.0:
     dependencies:
@@ -11469,9 +11473,9 @@ snapshots:
     dependencies:
       react: 19.3.0-canary-56824423-20260414
 
-  react-grab@0.1.38(react@19.3.0-canary-56824423-20260414):
+  react-grab@0.1.44(react@19.3.0-canary-56824423-20260414):
     dependencies:
-      '@react-grab/cli': 0.1.38
+      '@react-grab/cli': 0.1.44
       bippy: 0.5.41(react@19.3.0-canary-56824423-20260414)
     optionalDependencies:
       react: 19.3.0-canary-56824423-20260414
@@ -11863,8 +11867,6 @@ snapshots:
 
   sisteransi@1.0.5: {}
 
-  smol-toml@1.6.1: {}
-
   source-map-js@1.2.1: {}
 
   source-map-support@0.5.21:
@@ -11915,7 +11917,7 @@ snapshots:
 
   string-width@8.2.1:
     dependencies:
-      get-east-asian-width: 1.5.0
+      get-east-asian-width: 1.6.0
       strip-ansi: 7.2.0
 
   string.prototype.includes@2.0.1:
@@ -12080,6 +12082,8 @@ snapshots:
   tinybench@2.9.0: {}
 
   tinyexec@1.1.2: {}
+
+  tinyexec@1.2.4: {}
 
   tinyglobby@0.2.16:
     dependencies:
@@ -12417,7 +12421,7 @@ snapshots:
       acorn: 8.16.0
       browserslist: 4.28.2
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.22.1
+      enhanced-resolve: 5.22.2
       es-module-lexer: 1.7.0
       eslint-scope: 5.1.1
       events: 3.3.0
