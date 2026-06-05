@@ -3,8 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
-import { useMediaQuery } from "#src/hooks/use-media-query.ts";
-import { useTheme } from "#src/hooks/use-theme.ts";
+import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import type { DebugMode, DebugOptions, FrameStats, LoopControls } from "./loop";
 import { init, start } from "./loop";
 import displayFs from "./shaders/display-fs.glsl";
@@ -177,9 +176,7 @@ const DEFAULT_DEBUG: DebugOptions = {
 };
 
 export function PlaygroundCanvas() {
-  const [theme] = useTheme();
-  const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
-  const isDark = theme === "system" ? preferDark : theme === "dark";
+  const isDark = useResolvedTheme() === "dark";
   const [stats, setStats] = useState<FrameStats | null>(null);
   const [debug, setDebug] = useState<DebugOptions>(DEFAULT_DEBUG);
   const canvasRef = useRef<HTMLCanvasElement>(null);

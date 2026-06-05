@@ -5,7 +5,7 @@ import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";
-import { useTheme } from "#src/hooks/use-theme.ts";
+import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import { init, start, type ColorOptions } from "./loop";
 import fs from "./shaders/fs.glsl";
 import vs from "./shaders/vs.glsl";
@@ -24,13 +24,11 @@ const LIGHT_COLORS = {
 } satisfies ColorOptions;
 
 export function FlowGradient() {
-  const [theme] = useTheme();
-  const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
+  const isDark = useResolvedTheme() === "dark";
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
     false,
   );
-  const isDark = theme === "system" ? preferDark : theme === "dark";
 
   const colorsRef = useRef<ColorOptions>(isDark ? DARK_COLORS : LIGHT_COLORS);
   const contextRef = useRef<ReturnType<typeof init>>(undefined);

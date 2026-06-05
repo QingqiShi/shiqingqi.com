@@ -10,7 +10,7 @@ interface SpecCardProps {
 
 export function SpecCard({ token, meta, children }: SpecCardProps) {
   return (
-    <div css={styles.card}>
+    <div css={styles.card} data-author-token={token}>
       <div css={styles.header}>
         <span css={styles.token}>{token}</span>
         <span css={styles.meta}>{meta}</span>
