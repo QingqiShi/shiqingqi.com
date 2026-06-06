@@ -45,13 +45,13 @@ export function SourceCanvas({
   const [transform, setTransform] = useState<ViewTransform | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   // Theme-aware overlay colors: grid lines stay quiet so the artwork reads,
-  // and the selection is painted in the editor's identity purple (kept in
-  // step with the `brandSpriteEditor` token: purple._40 light / ._50 dark).
+  // and the selection is painted in the accent purple (kept in step with the
+  // `accent` token: purple._30 light / purple._50 dark).
   const isDark = useResolvedTheme() === "dark";
   const gridStroke = isDark
     ? "rgba(255, 255, 255, 0.22)"
     : "rgba(0, 0, 0, 0.2)";
-  const accentStroke = isDark ? purple._50 : purple._40;
+  const accentStroke = isDark ? purple._50 : purple._30;
   const panStateRef = useRef<{
     pointerId: number;
     startCanvasX: number;

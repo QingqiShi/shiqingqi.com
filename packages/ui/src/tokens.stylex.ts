@@ -128,10 +128,6 @@ const light = {
   brandSpotify: green._60,
   brandStudentLoan: green._50,
   brandPixelCreatureCreator: purple._50,
-  // Sprite Editor owns a deeper "ink orchid" purple — kin to the playground
-  // family, deliberately distinct from the Pixel Creature Creator's lighter
-  // lavender, and dark enough that white (`accentOn`) clears contrast on it.
-  brandSpriteEditor: purple._40,
 };
 
 const dark: { [key in keyof typeof light]: string } = {
@@ -220,7 +216,6 @@ const dark: { [key in keyof typeof light]: string } = {
   brandSpotify: green._60,
   brandStudentLoan: green._60,
   brandPixelCreatureCreator: purple._70,
-  brandSpriteEditor: purple._50,
 };
 
 export const constants = stylex.defineConsts({
@@ -491,10 +486,6 @@ export const color = stylex.defineVars({
   brandPixelCreatureCreator: {
     default: light.brandPixelCreatureCreator,
     [constants.DARK]: dark.brandPixelCreatureCreator,
-  },
-  brandSpriteEditor: {
-    default: light.brandSpriteEditor,
-    [constants.DARK]: dark.brandSpriteEditor,
   },
 });
 

@@ -205,7 +205,7 @@ const styles = stylex.create({
     },
   },
   thumbButtonActive: {
-    borderColor: color.brandSpriteEditor,
+    borderColor: color.accent,
     boxShadow: `0 0 0 2px ${color.surfaceAccentMuted}`,
   },
   thumbWrapper: {

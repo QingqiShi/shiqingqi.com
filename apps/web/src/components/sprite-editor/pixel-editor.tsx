@@ -176,8 +176,8 @@ export function PixelEditor({
   const gridColor = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
   const cellBorderColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.35)";
   // The selection accent painted directly on the canvas — kept in step with
-  // the `brandSpriteEditor` token (purple._40 light / purple._50 dark).
-  const accentStroke = isDark ? purple._50 : purple._40;
+  // the `accent` token (purple._30 light / purple._50 dark).
+  const accentStroke = isDark ? purple._50 : purple._30;
 
   // Canvas size tracks the container so the cell can be panned around inside
   // the wrapper at varying zoom without having to grow the canvas itself.
@@ -1277,9 +1277,9 @@ const styles = stylex.create({
     },
   },
   toolButtonActive: {
-    backgroundColor: color.brandSpriteEditor,
+    backgroundColor: color.accent,
     color: color.accentOn,
-    borderColor: color.brandSpriteEditor,
+    borderColor: color.accent,
   },
   colorRow: {
     display: "flex",
@@ -1320,11 +1320,11 @@ const styles = stylex.create({
     padding: 0,
   },
   swatchActive: {
-    outline: `2px solid ${color.brandSpriteEditor}`,
+    outline: `2px solid ${color.accent}`,
     outlineOffset: "1px",
   },
   range: {
-    accentColor: color.brandSpriteEditor,
+    accentColor: color.accent,
     cursor: "pointer",
   },
   toleranceValue: {
@@ -1399,7 +1399,7 @@ const styles = stylex.create({
   },
   selectionButtonPrimary: {
     backgroundColor: {
-      default: color.brandSpriteEditor,
+      default: color.accent,
       ":hover": color.accentHover,
     },
     color: color.accentOn,

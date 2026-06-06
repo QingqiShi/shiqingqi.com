@@ -312,11 +312,11 @@ const styles = stylex.create({
     },
     borderColor: {
       default: color.neutralBorder,
-      ":focus": color.brandSpriteEditor,
+      ":focus": color.accent,
     },
     boxShadow: {
       default: "none",
-      ":focus": `0 0 0 1px ${color.brandSpriteEditor}`,
+      ":focus": `0 0 0 1px ${color.accent}`,
     },
   },
   inputEmphasis: {

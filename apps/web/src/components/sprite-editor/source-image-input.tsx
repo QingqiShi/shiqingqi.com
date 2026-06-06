@@ -243,7 +243,7 @@ const styles = stylex.create({
     },
   },
   heroDragging: {
-    borderColor: color.brandSpriteEditor,
+    borderColor: color.accent,
     backgroundColor: color.surfaceAccentSubtle,
   },
   heroIcon: {
@@ -252,7 +252,7 @@ const styles = stylex.create({
     width: "60px",
     height: "60px",
     borderRadius: border.radius_round,
-    color: color.brandSpriteEditor,
+    color: color.accent,
     backgroundColor: color.surfaceAccentSubtle,
   },
   heroTitle: {
@@ -296,7 +296,7 @@ const styles = stylex.create({
     color: color.textMuted,
   },
   capabilityIcon: {
-    color: color.brandSpriteEditor,
+    color: color.accent,
     flexShrink: 0,
   },
 

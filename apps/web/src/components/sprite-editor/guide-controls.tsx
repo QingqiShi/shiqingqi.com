@@ -110,7 +110,7 @@ const styles = stylex.create({
     backgroundColor: color.surfaceAccentSubtle,
   },
   checkbox: {
-    accentColor: color.brandSpriteEditor,
+    accentColor: color.accent,
     cursor: "pointer",
   },
 });

@@ -468,7 +468,7 @@ const styles = stylex.create({
     fontVariantNumeric: "tabular-nums",
   },
   range: {
-    accentColor: color.brandSpriteEditor,
+    accentColor: color.accent,
     cursor: "pointer",
   },
   timelineArea: {
@@ -528,7 +528,7 @@ const styles = stylex.create({
     },
   },
   frameItemActive: {
-    borderColor: color.brandSpriteEditor,
+    borderColor: color.accent,
     backgroundColor: color.surfaceAccentSubtle,
   },
   thumb: {
