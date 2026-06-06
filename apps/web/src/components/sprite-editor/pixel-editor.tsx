@@ -19,8 +19,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useMediaQuery } from "#src/hooks/use-media-query.ts";
-import { useTheme } from "#src/hooks/use-theme.ts";
+import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import { t } from "#src/i18n.ts";
 import type { CellPixels } from "./types";
 import { useHistory } from "./use-history";
@@ -167,9 +166,7 @@ export function PixelEditor({
   // Track effective theme (light/dark) so we can pick canvas-painted grid
   // and cell-border colors that contrast with whichever side of the theme
   // the user is on.
-  const [themePref] = useTheme();
-  const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
-  const isDark = themePref === "system" ? preferDark : themePref === "dark";
+  const isDark = useResolvedTheme() === "dark";
   const gridColor = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
   const cellBorderColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.35)";
 

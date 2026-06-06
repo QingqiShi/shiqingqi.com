@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
+import { AuthorMode } from "#src/components/design-system/author/author-mode.tsx";
 import { SectionNav } from "#src/components/design-system/section-nav.tsx";
 import { BadgeSection } from "#src/components/design-system/sections/badge-section.tsx";
 import { ColorSection } from "#src/components/design-system/sections/color-section.tsx";
@@ -20,23 +21,25 @@ export default function DesignSystem() {
   ];
 
   return (
-    <div css={styles.container}>
-      <ViewTransition name={`project-card-name-${heading}`}>
-        <h1 css={styles.heading}>{heading}</h1>
-      </ViewTransition>
-      <p css={styles.intro}>
-        {t({
-          en: "Tokens, primitives, and components that compose a refined visual language.",
-          zh: "构成精致视觉语言的设计令牌、原语与组件。",
-        })}
-      </p>
-      <SectionNav sections={sections} />
-      <TokensSection />
-      <ColorSection />
-      <TypographySection />
-      <DividerSection />
-      <BadgeSection />
-    </div>
+    <AuthorMode>
+      <div css={styles.container}>
+        <ViewTransition name={`project-card-name-${heading}`}>
+          <h1 css={styles.heading}>{heading}</h1>
+        </ViewTransition>
+        <p css={styles.intro}>
+          {t({
+            en: "Tokens, primitives, and components that compose a refined visual language.",
+            zh: "构成精致视觉语言的设计令牌、原语与组件。",
+          })}
+        </p>
+        <SectionNav sections={sections} />
+        <TokensSection />
+        <ColorSection />
+        <TypographySection />
+        <DividerSection />
+        <BadgeSection />
+      </div>
+    </AuthorMode>
   );
 }
 

@@ -154,7 +154,7 @@ interface ScaleRowProps {
 
 function ScaleRow({ index, token, meta, size, sample }: ScaleRowProps) {
   return (
-    <li css={styles.row}>
+    <li css={styles.row} data-author-token={token}>
       <span css={styles.index}>{String(index).padStart(2, "0")}</span>
       <div css={styles.meta}>
         <span css={styles.metaToken}>{token}</span>
