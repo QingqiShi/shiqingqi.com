@@ -242,110 +242,114 @@ export function SpriteEditor() {
       ? (cells[onionSourceCell] ?? null)
       : null;
 
+  if (source === null) {
+    return (
+      <div css={styles.emptyRoot}>
+        <SourceImageInput
+          variant="hero"
+          source={source}
+          onSourceChange={setSource}
+        />
+      </div>
+    );
+  }
+
   return (
     <div css={styles.root}>
-      <div css={styles.sidebar}>
-        <SourceImageInput source={source} onSourceChange={setSource} />
-        {source !== null ? (
-          <>
-            <GridControls
-              source={source}
-              grid={grid}
-              onGridChange={setGrid}
-              output={output}
-              onOutputChange={setOutput}
-            />
-            <GuideControls guides={guides} onGuidesChange={setGuides} />
-            <div css={styles.actions}>
-              <Button
-                icon={
-                  <DownloadSimpleIcon
-                    size={16}
-                    weight="bold"
-                    aria-hidden="true"
-                  />
-                }
-                onClick={() => {
-                  if (selectedCell === null) return;
-                  void handleDownloadCell(selectedCell);
-                }}
-                disabled={selectedCell === null}
-                data-testid="download-selected"
-              >
-                {t({ en: "Download selected", zh: "下载选中" })}
-              </Button>
-              <Button
-                icon={
-                  <DownloadSimpleIcon
-                    size={16}
-                    weight="bold"
-                    aria-hidden="true"
-                  />
-                }
-                onClick={() => {
-                  void handleDownloadAll();
-                }}
-                disabled={cells.length === 0}
-                data-testid="download-all"
-              >
-                {t({ en: "Download all", zh: "全部下载" })}
-              </Button>
-              <Button
-                icon={
-                  <PencilSimpleIcon
-                    size={16}
-                    weight="bold"
-                    aria-hidden="true"
-                  />
-                }
-                isActive={mode === "edit"}
-                onClick={() => {
-                  setMode((current) => (current === "edit" ? "slice" : "edit"));
-                }}
-                disabled={selectedCell === null}
-                data-testid="toggle-edit"
-              >
-                {mode === "edit"
-                  ? t({ en: "Back to slice view", zh: "返回切片视图" })
-                  : t({ en: "Edit selected cell", zh: "编辑选中" })}
-              </Button>
-              <Button
-                icon={
-                  <FilmStripIcon size={16} weight="bold" aria-hidden="true" />
-                }
-                isActive={mode === "animation"}
-                onClick={() => {
-                  setMode((current) =>
-                    current === "animation" ? "slice" : "animation",
-                  );
-                }}
-                data-testid="toggle-animation"
-              >
-                {mode === "animation"
-                  ? t({ en: "Back to slice view", zh: "返回切片视图" })
-                  : t({ en: "Animation", zh: "动画" })}
-              </Button>
-            </div>
-            <CellStrip
-              cells={cells}
-              selectedCell={selectedCell}
-              onSelect={setSelectedCell}
-            />
-          </>
-        ) : null}
-      </div>
+      <aside css={styles.sidebar}>
+        <div css={styles.panel}>
+          <SourceImageInput
+            variant="compact"
+            source={source}
+            onSourceChange={setSource}
+          />
+          <div css={styles.divider} aria-hidden="true" />
+          <GridControls
+            source={source}
+            grid={grid}
+            onGridChange={setGrid}
+            output={output}
+            onOutputChange={setOutput}
+          />
+          <div css={styles.divider} aria-hidden="true" />
+          <GuideControls guides={guides} onGuidesChange={setGuides} />
+          <div css={styles.divider} aria-hidden="true" />
+          <div css={styles.actions}>
+            <Button
+              icon={
+                <PencilSimpleIcon size={16} weight="bold" aria-hidden="true" />
+              }
+              isActive={mode === "edit"}
+              onClick={() => {
+                setMode((current) => (current === "edit" ? "slice" : "edit"));
+              }}
+              disabled={selectedCell === null}
+              data-testid="toggle-edit"
+            >
+              {mode === "edit"
+                ? t({ en: "Back to slice view", zh: "返回切片视图" })
+                : t({ en: "Edit selected cell", zh: "编辑选中" })}
+            </Button>
+            <Button
+              icon={
+                <FilmStripIcon size={16} weight="bold" aria-hidden="true" />
+              }
+              isActive={mode === "animation"}
+              onClick={() => {
+                setMode((current) =>
+                  current === "animation" ? "slice" : "animation",
+                );
+              }}
+              data-testid="toggle-animation"
+            >
+              {mode === "animation"
+                ? t({ en: "Back to slice view", zh: "返回切片视图" })
+                : t({ en: "Animation", zh: "动画" })}
+            </Button>
+            <Button
+              icon={
+                <DownloadSimpleIcon
+                  size={16}
+                  weight="bold"
+                  aria-hidden="true"
+                />
+              }
+              onClick={() => {
+                if (selectedCell === null) return;
+                void handleDownloadCell(selectedCell);
+              }}
+              disabled={selectedCell === null}
+              data-testid="download-selected"
+            >
+              {t({ en: "Download selected", zh: "下载选中" })}
+            </Button>
+            <Button
+              icon={
+                <DownloadSimpleIcon
+                  size={16}
+                  weight="bold"
+                  aria-hidden="true"
+                />
+              }
+              onClick={() => {
+                void handleDownloadAll();
+              }}
+              disabled={cells.length === 0}
+              data-testid="download-all"
+            >
+              {t({ en: "Download all", zh: "全部下载" })}
+            </Button>
+          </div>
+        </div>
+        <CellStrip
+          cells={cells}
+          selectedCell={selectedCell}
+          onSelect={setSelectedCell}
+        />
+      </aside>
 
       <div css={styles.canvasArea}>
-        {source === null ? (
-          <div css={styles.empty}>
-            <p>
-              {t({
-                en: "Choose a source image to start slicing.",
-                zh: "选择源图开始切分。",
-              })}
-            </p>
-          </div>
-        ) : mode === "animation" ? (
+        {mode === "animation" ? (
           <AnimationMode
             cells={cells}
             frames={animationFrames}
@@ -407,36 +411,53 @@ const styles = stylex.create({
   root: {
     display: "grid",
     gap: space._3,
-    gridTemplateColumns: { default: "1fr", [breakpoints.md]: "320px 1fr" },
+    gridTemplateColumns: { default: "1fr", [breakpoints.md]: "340px 1fr" },
     gridTemplateRows: { default: "auto 1fr", [breakpoints.md]: "1fr" },
     height: { default: "auto", [breakpoints.md]: "calc(100dvh - 96px)" },
     maxInlineSize: "1400px",
     width: "100%",
     marginInline: "auto",
   },
+  emptyRoot: {
+    display: "flex",
+    width: "100%",
+    maxInlineSize: "880px",
+    marginInline: "auto",
+    height: { default: "70dvh", [breakpoints.md]: "calc(100dvh - 96px)" },
+    minHeight: "360px",
+  },
   sidebar: {
     display: "flex",
     flexDirection: "column",
     gap: space._3,
+    minHeight: 0,
     overflowY: { default: "visible", [breakpoints.md]: "auto" },
     paddingInlineEnd: { default: 0, [breakpoints.md]: space._1 },
+  },
+  panel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._4,
+    padding: space._4,
+    border: `1px solid ${color.neutralBorder}`,
+    borderRadius: border.radius_3,
+    backgroundColor: color.bgSurface,
+    // Keep natural height inside the scrolling sidebar — without this the
+    // panel shrinks as a flex child and `overflow: hidden` (kept for the
+    // full-bleed dividers) would clip the lower sections.
+    flexShrink: 0,
+    overflowX: "hidden",
+  },
+  divider: {
+    height: "1px",
+    marginInline: `calc(${space._4} * -1)`,
+    backgroundColor: color.neutralBorder,
   },
   canvasArea: {
     display: "flex",
     flexDirection: "column",
     minHeight: "320px",
     height: { default: "60dvh", [breakpoints.md]: "100%" },
-  },
-  empty: {
-    display: "grid",
-    placeItems: "center",
-    width: "100%",
-    height: "100%",
-    color: color.textMuted,
-    fontSize: font.uiBody,
-    border: `1px dashed ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
-    backgroundColor: color.bgSurface,
   },
   actions: {
     display: "flex",
