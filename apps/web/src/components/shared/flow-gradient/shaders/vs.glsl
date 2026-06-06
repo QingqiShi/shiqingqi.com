@@ -128,6 +128,12 @@ void main() {
   vec3 colorAlt = u_colorAltTop + (u_colorAltBottom - u_colorAltTop) * posFactor;
   vec3 color = colorMain + (colorAlt * noiseAlt);
 
+  // Blend opaquely toward u_colorBackground at the bottom. Output stays fully
+  // opaque (alpha 1) rather than fading alpha and relying on the canvas's CSS
+  // background showing through — Safari composites a transparent WebGL canvas
+  // over white, not over the element's background-color, which would seam.
+  // u_colorBackground is fed from the color.bgCanvas token at runtime, so this
+  // bottom colour still tracks the single token the page background uses.
   float factor = posFactor * 1.1111f;
   v_color = vec4(color * clamp(1.0f - factor, 0.0f, 1.0f) + u_colorBackground * clamp(factor, 0.0f, 1.0f), 1.0f);
 

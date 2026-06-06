@@ -183,6 +183,11 @@ export interface ColorOptions {
   colorBottom?: [number, number, number];
   colorAltTop?: [number, number, number];
   colorAltBottom?: [number, number, number];
+  /**
+   * Base colour the gradient blends into at the bottom, as normalised RGB.
+   * Sourced at runtime from the `color.bgCanvas` token (see flow-gradient.tsx)
+   * so it matches the page background — never hardcode a value here.
+   */
   colorBackground?: [number, number, number];
 }
 
@@ -250,7 +255,7 @@ export function start(
       colorBottom = [0, 0, 0.8],
       colorAltTop = [1, 0, 0],
       colorAltBottom = [1, 0, 0],
-      colorBackground = [0.953, 0.929, 0.929],
+      colorBackground,
     } = colorsRef.current;
 
     const uniforms = {
@@ -261,7 +266,9 @@ export function start(
       u_colorBottom: colorBottom,
       u_colorAltTop: colorAltTop,
       u_colorAltBottom: colorAltBottom,
-      u_colorBackground: colorBackground,
+      // Set by flow-gradient.tsx from the bgCanvas token before the first
+      // frame; omitted only if that read failed, leaving the GL default.
+      ...(colorBackground ? { u_colorBackground: colorBackground } : null),
       u_mouse: pointerState.mousePosition,
       u_rippleStrength: pointerState.rippleStrength,
       u_ripplePhase: pointerState.ripplePhase,
