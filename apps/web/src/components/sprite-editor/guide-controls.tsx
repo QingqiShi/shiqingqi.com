@@ -13,33 +13,35 @@ interface GuideControlsProps {
 
 export function GuideControls({ guides, onGuidesChange }: GuideControlsProps) {
   return (
-    <fieldset css={styles.group}>
-      <legend css={styles.legend}>{t({ en: "Guides", zh: "辅助线" })}</legend>
-      <Toggle
-        label={t({ en: "Halves", zh: "对半" })}
-        checked={guides.halves}
-        onChange={(checked) => {
-          onGuidesChange({ ...guides, halves: checked });
-        }}
-        testId="guide-halves"
-      />
-      <Toggle
-        label={t({ en: "Thirds", zh: "三等分" })}
-        checked={guides.thirds}
-        onChange={(checked) => {
-          onGuidesChange({ ...guides, thirds: checked });
-        }}
-        testId="guide-thirds"
-      />
-      <Toggle
-        label={t({ en: "Baseline", zh: "基线" })}
-        checked={guides.baseline}
-        onChange={(checked) => {
-          onGuidesChange({ ...guides, baseline: checked });
-        }}
-        testId="guide-baseline"
-      />
-    </fieldset>
+    <section css={styles.group}>
+      <h3 css={styles.sectionLabel}>{t({ en: "Guides", zh: "辅助线" })}</h3>
+      <div css={styles.toggles}>
+        <Toggle
+          label={t({ en: "Halves", zh: "对半" })}
+          checked={guides.halves}
+          onChange={(checked) => {
+            onGuidesChange({ ...guides, halves: checked });
+          }}
+          testId="guide-halves"
+        />
+        <Toggle
+          label={t({ en: "Thirds", zh: "三等分" })}
+          checked={guides.thirds}
+          onChange={(checked) => {
+            onGuidesChange({ ...guides, thirds: checked });
+          }}
+          testId="guide-thirds"
+        />
+        <Toggle
+          label={t({ en: "Baseline", zh: "基线" })}
+          checked={guides.baseline}
+          onChange={(checked) => {
+            onGuidesChange({ ...guides, baseline: checked });
+          }}
+          testId="guide-baseline"
+        />
+      </div>
+    </section>
   );
 }
 
@@ -53,7 +55,7 @@ interface ToggleProps {
 function Toggle({ label, checked, onChange, testId }: ToggleProps) {
   const id = useId();
   return (
-    <label htmlFor={id} css={styles.toggle}>
+    <label htmlFor={id} css={[styles.toggle, checked && styles.toggleChecked]}>
       <input
         id={id}
         type="checkbox"
@@ -61,6 +63,7 @@ function Toggle({ label, checked, onChange, testId }: ToggleProps) {
         onChange={(event) => {
           onChange(event.target.checked);
         }}
+        css={styles.checkbox}
         data-testid={testId}
       />
       <span>{label}</span>
@@ -71,28 +74,43 @@ function Toggle({ label, checked, onChange, testId }: ToggleProps) {
 const styles = stylex.create({
   group: {
     display: "flex",
-    flexWrap: "wrap",
-    gap: space._3,
-    padding: space._3,
-    border: `1px solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
-    backgroundColor: color.bgSurface,
+    flexDirection: "column",
+    gap: space._2,
     margin: 0,
+    padding: 0,
+    border: "none",
   },
-  legend: {
-    paddingInline: space._2,
+  sectionLabel: {
+    margin: 0,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
-    color: color.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: ".05em",
+    letterSpacing: font.trackingSnug,
+    color: color.textMain,
+  },
+  toggles: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: space._1,
   },
   toggle: {
     display: "inline-flex",
     alignItems: "center",
     gap: space._1,
+    paddingBlock: space._0,
+    paddingInline: space._2,
     fontSize: font.uiBodySmall,
+    fontWeight: font.weight_5,
+    color: color.textMuted,
+    backgroundColor: color.bgSurfaceSunken,
+    borderRadius: border.radius_round,
+    cursor: "pointer",
+  },
+  toggleChecked: {
     color: color.textMain,
+    backgroundColor: color.surfaceAccentSubtle,
+  },
+  checkbox: {
+    accentColor: color.brandSpriteEditor,
     cursor: "pointer",
   },
 });

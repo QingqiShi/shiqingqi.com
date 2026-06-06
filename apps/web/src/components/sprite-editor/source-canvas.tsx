@@ -1,9 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { yellow } from "@tuja/ui/palette/yellow";
-import { border, color } from "@tuja/ui/tokens.stylex";
+import { purple } from "@tuja/ui/palette/purple";
+import { border, color, shadow } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
+import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import { t } from "#src/i18n.ts";
 import type { GridConfig, SourceImage } from "./types";
 
@@ -43,6 +44,14 @@ export function SourceCanvas({
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
   const [transform, setTransform] = useState<ViewTransform | null>(null);
   const [isPanning, setIsPanning] = useState(false);
+  // Theme-aware overlay colors: grid lines stay quiet so the artwork reads,
+  // and the selection is painted in the editor's identity purple (kept in
+  // step with the `brandSpriteEditor` token: purple._40 light / ._50 dark).
+  const isDark = useResolvedTheme() === "dark";
+  const gridStroke = isDark
+    ? "rgba(255, 255, 255, 0.22)"
+    : "rgba(0, 0, 0, 0.2)";
+  const accentStroke = isDark ? purple._50 : purple._40;
   const panStateRef = useRef<{
     pointerId: number;
     startCanvasX: number;
@@ -140,7 +149,7 @@ export function SourceCanvas({
     // Grid cell outlines — each cell drawn as its own rectangle so gaps
     // between cells are visually obvious.
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(168, 85, 247, 0.85)";
+    ctx.strokeStyle = gridStroke;
     const cellPitchX = grid.cellWidth + grid.gapX;
     const cellPitchY = grid.cellHeight + grid.gapY;
     for (let r = 0; r < grid.rows; r++) {
@@ -166,7 +175,7 @@ export function SourceCanvas({
       const w = grid.cellWidth * transform.scale;
       const h = grid.cellHeight * transform.scale;
       ctx.lineWidth = 2;
-      ctx.strokeStyle = yellow._60;
+      ctx.strokeStyle = accentStroke;
       ctx.strokeRect(Math.round(x0) - 1, Math.round(y0) - 1, w + 2, h + 2);
     }
 
@@ -181,6 +190,8 @@ export function SourceCanvas({
     grid,
     selectedCell,
     drawOverlay,
+    gridStroke,
+    accentStroke,
   ]);
 
   const canvasToImage = (
@@ -332,6 +343,7 @@ const styles = stylex.create({
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
     borderRadius: border.radius_3,
     border: `1px solid ${color.neutralBorder}`,
+    boxShadow: shadow.inset,
     overflow: "hidden",
   },
   canvas: {

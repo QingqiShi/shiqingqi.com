@@ -8,7 +8,12 @@ import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import {
+  duration as motionDuration,
+  easing,
+  motionConstants,
+} from "@tuja/ui/primitives/motion.stylex";
+import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "#src/components/shared/button.tsx";
 import { t } from "#src/i18n.ts";
@@ -241,6 +246,7 @@ export function AnimationMode({
               onChange={(event) => {
                 setSpeed(Number(event.target.value));
               }}
+              css={styles.range}
               data-testid="speed"
             />
             <span css={styles.speedValue}>{speed.toFixed(2)}×</span>
@@ -436,6 +442,7 @@ const styles = stylex.create({
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
+    boxShadow: shadow.inset,
     imageRendering: "pixelated",
     alignSelf: "center",
   },
@@ -456,8 +463,13 @@ const styles = stylex.create({
     minWidth: "3em",
     textAlign: "right",
     fontSize: font.uiBodySmall,
+    fontFamily: font.familyMono,
     color: color.textMain,
     fontVariantNumeric: "tabular-nums",
+  },
+  range: {
+    accentColor: color.brandSpriteEditor,
+    cursor: "pointer",
   },
   timelineArea: {
     display: "flex",
@@ -481,12 +493,13 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
-    color: color.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: ".05em",
+    letterSpacing: font.trackingSnug,
+    color: color.textMain,
   },
   timelineCount: {
     fontWeight: font.weight_4,
+    fontVariantNumeric: "tabular-nums",
+    color: color.textMuted,
   },
   empty: {
     margin: 0,
@@ -508,10 +521,15 @@ const styles = stylex.create({
     padding: space._2,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.bgSurfaceSunken,
+    transition: {
+      default: `border-color ${motionDuration._150} ${easing.easeOut}, background-color ${motionDuration._150} ${easing.easeOut}`,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
   },
   frameItemActive: {
-    borderColor: color.brandPixelCreatureCreator,
+    borderColor: color.brandSpriteEditor,
+    backgroundColor: color.surfaceAccentSubtle,
   },
   thumb: {
     backgroundColor: color.bgCanvas,
@@ -545,9 +563,10 @@ const styles = stylex.create({
     paddingInline: space._1,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
-    backgroundColor: color.bgSurfaceSunken,
+    backgroundColor: color.bgSurfaceRaised,
     color: color.textMain,
-    fontFamily: "inherit",
+    fontFamily: font.familyMono,
+    fontVariantNumeric: "tabular-nums",
     fontSize: font.uiBodySmall,
   },
   frameActions: {

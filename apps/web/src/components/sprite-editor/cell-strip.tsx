@@ -1,6 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRadioGroup } from "#src/components/pixel-creature-creator/wizard/use-radio-group.ts";
@@ -147,22 +152,24 @@ const styles = stylex.create({
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
-    padding: space._3,
+    gap: space._3,
+    padding: space._4,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
+    flexShrink: 0,
   },
   heading: {
     margin: 0,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
-    color: color.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: ".05em",
+    letterSpacing: font.trackingSnug,
+    color: color.textMain,
   },
   count: {
     fontWeight: font.weight_4,
+    fontVariantNumeric: "tabular-nums",
+    color: color.textMuted,
   },
   list: {
     display: "grid",
@@ -188,9 +195,18 @@ const styles = stylex.create({
     cursor: "pointer",
     overflow: "hidden",
     display: "block",
+    borderColor: {
+      default: color.neutralBorder,
+      ":hover": color.accentBorder,
+    },
+    transition: {
+      default: `border-color ${duration._150} ${easing.easeOut}, box-shadow ${duration._150} ${easing.easeOut}`,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
   },
   thumbButtonActive: {
-    borderColor: color.brandPixelCreatureCreator,
+    borderColor: color.brandSpriteEditor,
+    boxShadow: `0 0 0 2px ${color.surfaceAccentMuted}`,
   },
   thumbWrapper: {
     position: "absolute",

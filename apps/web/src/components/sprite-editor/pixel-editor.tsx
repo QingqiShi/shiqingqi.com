@@ -17,7 +17,13 @@ import { SelectionIcon } from "@phosphor-icons/react/dist/ssr/Selection";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { purple } from "@tuja/ui/palette/purple";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "@tuja/ui/primitives/motion.stylex";
+import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import { t } from "#src/i18n.ts";
@@ -169,6 +175,9 @@ export function PixelEditor({
   const isDark = useResolvedTheme() === "dark";
   const gridColor = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
   const cellBorderColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.35)";
+  // The selection accent painted directly on the canvas — kept in step with
+  // the `brandSpriteEditor` token (purple._40 light / purple._50 dark).
+  const accentStroke = isDark ? purple._50 : purple._40;
 
   // Canvas size tracks the container so the cell can be panned around inside
   // the wrapper at varying zoom without having to grow the canvas itself.
@@ -386,7 +395,7 @@ export function PixelEditor({
       const sy = panY + r.y * scale;
       const sw = r.w * scale;
       const sh = r.h * scale;
-      ctx.strokeStyle = "rgba(168, 85, 247, 0.95)";
+      ctx.strokeStyle = accentStroke;
       ctx.lineWidth = 1.5;
       ctx.setLineDash([6, 4]);
       ctx.strokeRect(Math.round(sx) + 0.5, Math.round(sy) + 0.5, sw, sh);
@@ -395,7 +404,7 @@ export function PixelEditor({
       // Resize handle at bottom-right.
       const hx = sx + sw;
       const hy = sy + sh;
-      ctx.fillStyle = "rgba(168, 85, 247, 0.95)";
+      ctx.fillStyle = accentStroke;
       ctx.fillRect(
         hx - HANDLE_SIZE / 2,
         hy - HANDLE_SIZE / 2,
@@ -421,6 +430,7 @@ export function PixelEditor({
     selection,
     gridColor,
     cellBorderColor,
+    accentStroke,
   ]);
 
   const remember = useCallback((hex: string) => {
@@ -1086,6 +1096,7 @@ export function PixelEditor({
               onChange={(event) => {
                 setTolerance(Number(event.target.value));
               }}
+              css={styles.range}
               data-testid="tolerance"
             />
             <span css={styles.toleranceValue}>{tolerance}</span>
@@ -1249,8 +1260,8 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "32px",
-    height: "32px",
+    width: "34px",
+    height: "34px",
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     backgroundColor: {
@@ -1260,11 +1271,15 @@ const styles = stylex.create({
     color: color.textMain,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": 0.4 },
+    transition: {
+      default: `background-color ${duration._150} ${easing.easeOut}, border-color ${duration._150} ${easing.easeOut}, color ${duration._150} ${easing.easeOut}`,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
   },
   toolButtonActive: {
-    backgroundColor: color.brandPixelCreatureCreator,
+    backgroundColor: color.brandSpriteEditor,
     color: color.accentOn,
-    borderColor: color.brandPixelCreatureCreator,
+    borderColor: color.brandSpriteEditor,
   },
   colorRow: {
     display: "flex",
@@ -1305,13 +1320,18 @@ const styles = stylex.create({
     padding: 0,
   },
   swatchActive: {
-    outline: `2px solid ${color.brandPixelCreatureCreator}`,
+    outline: `2px solid ${color.brandSpriteEditor}`,
     outlineOffset: "1px",
+  },
+  range: {
+    accentColor: color.brandSpriteEditor,
+    cursor: "pointer",
   },
   toleranceValue: {
     minWidth: "2.5em",
     textAlign: "right",
     fontSize: font.uiBodySmall,
+    fontFamily: font.familyMono,
     color: color.textMain,
     fontVariantNumeric: "tabular-nums",
   },
@@ -1320,6 +1340,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
     border: `1px solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
+    boxShadow: shadow.inset,
     flex: "1",
     minHeight: 0,
     overflow: "hidden",
@@ -1378,8 +1399,8 @@ const styles = stylex.create({
   },
   selectionButtonPrimary: {
     backgroundColor: {
-      default: color.brandPixelCreatureCreator,
-      ":hover": color.accent,
+      default: color.brandSpriteEditor,
+      ":hover": color.accentHover,
     },
     color: color.accentOn,
   },
