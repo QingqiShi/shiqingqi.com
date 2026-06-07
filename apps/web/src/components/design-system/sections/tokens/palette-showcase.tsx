@@ -14,9 +14,8 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { Section } from "../section.tsx";
-import { ShowcaseHelper } from "../showcase-helper.tsx";
-import { Showcase } from "../showcase.tsx";
+import { ShowcaseHelper } from "../../showcase-helper.tsx";
+import { Showcase } from "../../showcase.tsx";
 
 const FEATURED_TONES: ReadonlySet<number> = new Set([40, 80]);
 
@@ -39,37 +38,28 @@ function orphanColumnVars(count: number) {
   };
 }
 
-export function ColorSection() {
+export function PaletteShowcase() {
   const lastIndex = systemPalette.length - 1;
   const orphanVars = orphanColumnVars(systemPalette.length);
 
   return (
-    <Section
-      id="color"
-      title={t({ en: "Color", zh: "颜色" })}
-      description={t({
-        en: "Thirteen system hues expanded into tonal palettes via Material 3's HCT — CAM16 hue and chroma with CIE L* tones — so lightness steps stay perceptually even and chroma peaks where the sRGB gamut allows.",
-        zh: "十三种系统色调通过 Material 3 的 HCT（CAM16 色相与饱和度，CIE L* 明度）展开为色调阶梯——明度等级感知均匀，饱和度在 sRGB 色域允许处达到峰值。",
-      })}
-    >
-      <Showcase label={t({ en: "Tonal palettes", zh: "色调阶梯" })}>
-        <ShowcaseHelper>
-          {t({
-            en: "Tones 40 and 80 are featured as key stops — the typical pairing for solid roles and their soft surfaces.",
-            zh: "40 与 80 为关键色阶——通常用作实色角色与对应柔和表面。",
-          })}
-        </ShowcaseHelper>
-        <div css={styles.grid}>
-          {systemPalette.map((palette, index) => (
-            <PaletteSpecimen
-              key={palette.name}
-              palette={palette}
-              orphanVars={index === lastIndex ? orphanVars : undefined}
-            />
-          ))}
-        </div>
-      </Showcase>
-    </Section>
+    <Showcase label={t({ en: "Tonal palettes", zh: "色调阶梯" })}>
+      <ShowcaseHelper>
+        {t({
+          en: "Tones 40 and 80 are featured as key stops — the typical pairing for solid roles and their soft surfaces.",
+          zh: "40 与 80 为关键色阶——通常用作实色角色与对应柔和表面。",
+        })}
+      </ShowcaseHelper>
+      <div css={styles.grid}>
+        {systemPalette.map((palette, index) => (
+          <PaletteSpecimen
+            key={palette.name}
+            palette={palette}
+            orphanVars={index === lastIndex ? orphanVars : undefined}
+          />
+        ))}
+      </div>
+    </Showcase>
   );
 }
 

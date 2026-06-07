@@ -4,19 +4,11 @@ import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { Section } from "../section.tsx";
-import { Showcase } from "../showcase.tsx";
+import { Showcase } from "../../showcase.tsx";
 
-export function TypographySection() {
+export function TextStylesShowcase() {
   return (
-    <Section
-      id="typography"
-      title={t({ en: "Typography", zh: "排版" })}
-      description={t({
-        en: "Type styles built on the design tokens — headings for hierarchy, text for body content, with explicit tone and weight modifiers.",
-        zh: "基于设计令牌的字体样式——以标题构建层级，以正文承载内容，配合显式的色调与字重修饰。",
-      })}
-    >
+    <>
       <Showcase label={t({ en: "Headings", zh: "标题" })}>
         <div css={[flex.col, styles.stack]}>
           <div css={[flex.col, styles.row]}>
@@ -174,7 +166,7 @@ export function TypographySection() {
           </div>
         </div>
       </Showcase>
-    </Section>
+    </>
   );
 }
 

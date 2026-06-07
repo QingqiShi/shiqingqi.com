@@ -2,19 +2,11 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star";
 import { Badge } from "@tuja/ui/components/badge";
 import { t } from "#src/i18n.ts";
-import { Section } from "../section.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../showcase.tsx";
+import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
 
-export function BadgeSection() {
+export function BadgeShowcase() {
   return (
-    <Section
-      id="badge"
-      title={t({ en: "Badge", zh: "徽章" })}
-      description={t({
-        en: "Compact status and label indicators. Six tones for different signals — neutral, accent, and four semantic — at two sizes.",
-        zh: "紧凑的状态和标签指示器。提供六种色调以传达不同信号——中性、强调与四种语义色——并支持两种尺寸。",
-      })}
-    >
+    <>
       <Showcase label={t({ en: "Variants", zh: "风格" })}>
         <ShowcaseGrid>
           <ShowcaseItem label="default">
@@ -75,6 +67,6 @@ export function BadgeSection() {
           </ShowcaseItem>
         </ShowcaseGrid>
       </Showcase>
-    </Section>
+    </>
   );
 }

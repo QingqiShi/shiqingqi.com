@@ -1,6 +1,7 @@
-import * as stylex from "@stylexjs/stylex";
-import { controlSize, layout, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
+import { AuthorMode } from "#src/components/design-system/author/author-mode.tsx";
+import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
+import { SidebarLayout } from "#src/components/shared/sidebar-layout.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
 import type { PageProps } from "#src/types.ts";
@@ -56,25 +57,12 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  // Persistent shell for every design-system route: the rail and author chrome
+  // stay mounted across navigation while only the page content swaps. The
+  // content region is the `<main>` landmark, supplied by `SidebarLayout`.
   return (
-    <div css={styles.container}>
-      <main css={styles.main}>{children}</main>
-    </div>
+    <AuthorMode>
+      <SidebarLayout sidebar={<DesignSystemNav />}>{children}</SidebarLayout>
+    </AuthorMode>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    maxInlineSize: layout.maxInlineSize,
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-  },
-  main: {
-    paddingTop: {
-      default: `calc(${space._10} + env(safe-area-inset-top) + ${controlSize._9} + ${space._3})`,
-    },
-  },
-});
