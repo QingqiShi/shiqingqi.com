@@ -16,14 +16,14 @@ const i18nPlugin = require("@tuja/eslint-plugin-i18n");
 export default defineConfig([
   {
     ignores: [
-      "apps/web/babel.config.js",
+      "apps/*/babel.config.js",
       "eslint.config.mjs",
-      "apps/web/next.config.js",
-      "apps/web/postcss.config.js",
-      "apps/web/src/_generated/**/*",
+      "apps/*/next.config.js",
+      "apps/*/postcss.config.js",
+      "apps/*/src/_generated/**/*",
       "apps/web/src/vendor/**/*",
-      "apps/web/.next/**/*",
-      "apps/web/next-env.d.ts",
+      "apps/*/.next/**/*",
+      "apps/*/next-env.d.ts",
       "apps/web/public/sw.js",
       "apps/web/playwright-report/**/*",
       ".claude/**/*",
@@ -89,9 +89,9 @@ export default defineConfig([
       ],
     },
   },
-  // Next.js rules apply only to the Next.js app.
+  // Next.js rules apply only to the Next.js apps.
   {
-    files: ["apps/web/**/*.{js,jsx,ts,tsx}"],
+    files: ["apps/*/**/*.{js,jsx,ts,tsx}"],
     plugins: {
       "@next/next": nextPlugin,
     },
