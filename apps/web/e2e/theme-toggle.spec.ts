@@ -16,7 +16,7 @@ test.describe("Theme Toggle", () => {
     const backgroundColor = await page.evaluate(
       () => getComputedStyle(document.documentElement).backgroundColor,
     );
-    expect(backgroundColor).toBe("rgb(233, 232, 228)");
+    expect(backgroundColor).toBe("rgb(248, 246, 242)");
 
     // Verify theme toggle shows light state
     await expect(
@@ -48,7 +48,7 @@ test.describe("Theme Toggle", () => {
     // Verify initial light theme
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(233, 232, 228)",
+      "rgb(248, 246, 242)",
     );
     await expect(themeToggle).not.toBeChecked();
 
@@ -64,7 +64,7 @@ test.describe("Theme Toggle", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(233, 232, 228)",
+      "rgb(248, 246, 242)",
     );
     await expect(themeToggle).not.toBeChecked();
 
@@ -134,7 +134,7 @@ test.describe("Theme Toggle", () => {
     // System is light, so background should match the light token
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(233, 232, 228)",
+      "rgb(248, 246, 242)",
     );
 
     // Change system preference while following system
@@ -148,7 +148,7 @@ test.describe("Theme Toggle", () => {
     await page.emulateMedia({ colorScheme: "light" });
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(233, 232, 228)",
+      "rgb(248, 246, 242)",
     );
 
     // Manually override again
