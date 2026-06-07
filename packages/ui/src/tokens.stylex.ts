@@ -41,20 +41,20 @@ const light = {
   accentText: purple._30,
 
   // Page — app shell, scaffolding behind everything
-  bgCanvas: gray._92,
-  bgCanvasSubtle: gray._90,
+  bgCanvas: gray._97,
+  bgCanvasSubtle: gray._99,
   bgCanvasChannels: gray_rgb._92,
 
   // Surface — cards, panels, dialog bodies
-  bgSurface: gray._95,
-  bgSurfaceRaised: gray._97,
-  bgSurfaceSunken: gray._90,
+  bgSurface: gray._100,
+  bgSurfaceRaised: gray._100,
+  bgSurfaceSunken: gray._98,
   bgSurfaceBright: gray._100,
   bgSurfaceChannels: gray_rgb._95,
 
   // Interactive — shared by buttons, list rows, menu items
-  bgInteractiveRest: gray._97,
-  bgInteractiveHover: gray._100,
+  bgInteractiveRest: gray._100,
+  bgInteractiveHover: gray._97,
   bgInteractivePressed: gray._92,
   bgInteractiveSelected: gray._90,
   bgInteractiveDisabled: gray._95,
@@ -72,7 +72,7 @@ const light = {
   bgInverse: gray._20,
 
   // Overlay — popover surface + scrim behind modals
-  bgOverlay: gray._90,
+  bgOverlay: gray._100,
   bgScrim: "rgba(0, 0, 0, 0.7)",
 
   accent: purple._30,
