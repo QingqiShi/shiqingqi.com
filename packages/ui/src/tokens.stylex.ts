@@ -66,7 +66,7 @@ const light = {
   surfaceInfoSubtle: `rgba(${cyan_rgb._50}, 0.1)`,
   surfaceSuccessSubtle: `rgba(${green_rgb._50}, 0.1)`,
   surfaceWarningSubtle: `rgba(${orange_rgb._50}, 0.12)`,
-  surfaceDangerSubtle: `rgba(${red_rgb._40}, 0.1)`,
+  surfaceDangerSubtle: `rgba(${red_rgb._50}, 0.1)`,
 
   // Inverse — flips theme to grab attention (tooltips, snackbars)
   bgInverse: gray._20,
@@ -89,7 +89,7 @@ const light = {
   infoBorder: `rgba(${cyan_rgb._50}, 0.4)`,
   successBorder: `rgba(${green_rgb._50}, 0.4)`,
   warningBorder: `rgba(${orange_rgb._50}, 0.4)`,
-  dangerBorder: `rgba(${red_rgb._40}, 0.4)`,
+  dangerBorder: `rgba(${red_rgb._50}, 0.4)`,
   neutralBorder: gray._90,
 
   opacityActive: "0.1",
@@ -100,7 +100,7 @@ const light = {
   // Semantic colors — bold (foreground), hover (interactive lift), text, on
   info: cyan._50,
   infoHover: cyan._60,
-  infoText: cyan._40,
+  infoText: cyan._30,
   infoOn: gray._100,
   success: green._50,
   successHover: green._60,
@@ -110,8 +110,8 @@ const light = {
   warningHover: orange._60,
   warningText: orange._30,
   warningOn: gray._100,
-  danger: red._40,
-  dangerHover: red._50,
+  danger: red._50,
+  dangerHover: red._60,
   dangerText: red._20,
   dangerOn: gray._100,
 
@@ -163,7 +163,7 @@ const dark: { [key in keyof typeof light]: string } = {
   surfaceInfoSubtle: `rgba(${cyan_rgb._70}, 0.14)`,
   surfaceSuccessSubtle: `rgba(${green_rgb._70}, 0.14)`,
   surfaceWarningSubtle: `rgba(${yellow_rgb._60}, 0.16)`,
-  surfaceDangerSubtle: `rgba(${red_rgb._70}, 0.14)`,
+  surfaceDangerSubtle: `rgba(${red_rgb._80}, 0.14)`,
 
   bgInverse: gray._92,
   bgOverlay: gray._7,
@@ -181,7 +181,7 @@ const dark: { [key in keyof typeof light]: string } = {
   infoBorder: `rgba(${cyan_rgb._70}, 0.4)`,
   successBorder: `rgba(${green_rgb._70}, 0.4)`,
   warningBorder: `rgba(${yellow_rgb._60}, 0.4)`,
-  dangerBorder: `rgba(${red_rgb._70}, 0.4)`,
+  dangerBorder: `rgba(${red_rgb._60}, 0.4)`,
   neutralBorder: gray._20,
 
   opacityActive: "0.2",
@@ -203,7 +203,7 @@ const dark: { [key in keyof typeof light]: string } = {
   warningOn: orange._20,
   danger: red._60,
   dangerHover: red._70,
-  dangerText: red._80,
+  dangerText: red._70,
   dangerOn: red._7,
 
   brandTmdb: cyan._70,
