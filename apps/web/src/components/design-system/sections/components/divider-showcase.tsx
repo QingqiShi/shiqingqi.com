@@ -4,19 +4,11 @@ import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { Section } from "../section.tsx";
-import { Showcase } from "../showcase.tsx";
+import { Showcase } from "../../showcase.tsx";
 
-export function DividerSection() {
+export function DividerShowcase() {
   return (
-    <Section
-      id="divider"
-      title={t({ en: "Divider", zh: "分隔线" })}
-      description={t({
-        en: "Visual separators for content. Subtle for in-flow breaks, bold for stronger separation, decorative for accent moments.",
-        zh: "用于分隔内容的视觉元素。柔和用于自然分段，强烈用于明显分隔，装饰用于点缀重点。",
-      })}
-    >
+    <>
       <Showcase label={t({ en: "Horizontal", zh: "水平" })}>
         <div css={[flex.col, styles.horizontalStack]}>
           <div css={[flex.col, styles.horizontalRow]}>
@@ -128,7 +120,7 @@ export function DividerSection() {
           </Text>
         </div>
       </Showcase>
-    </Section>
+    </>
   );
 }
 
