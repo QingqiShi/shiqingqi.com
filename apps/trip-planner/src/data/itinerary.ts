@@ -88,8 +88,6 @@ export interface NavLeg {
   to: string;
   /** Origin search query; omit to use current location. */
   from?: string;
-  /** Intermediate stops, in order. */
-  via?: string[];
   mode?: TravelMode;
   note?: string;
 }
@@ -376,23 +374,39 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "全程：Chingford → 诺丁汉",
+        label: "Chingford 酒店 → N17 接石头",
         from: "Holiday Inn Express London Chingford",
-        via: [
-          "N17 9LX, London",
-          "Heathrow Terminal 3 Arrivals",
-          "Trumpington Park and Ride, Cambridge",
-        ],
-        to: "Crowne Plaza Nottingham",
+        to: "N17 9LX, London",
         mode: "driving",
-        note: "M4 → M25 → M11；接完 Jim 去剑桥，停 Park & Ride 转公交进城",
+        note: "一早出发，先到 N17 接石头上车",
       },
       {
-        label: "剑桥：Park & Ride → 市中心",
+        label: "N17 → Heathrow T3 接 Jim",
+        from: "N17 9LX, London",
+        to: "Heathrow Terminal 3 Arrivals",
+        mode: "driving",
+        note: "Jim 出关后再开进 Short Stay 接人",
+      },
+      {
+        label: "Heathrow → 剑桥 Park & Ride",
+        from: "Heathrow Terminal 3 Arrivals",
+        to: "Trumpington Park and Ride, Cambridge",
+        mode: "driving",
+        note: "M25 → M11 北上；市中心难停，停 P&R 转巴士",
+      },
+      {
+        label: "剑桥 P&R → 市中心 King's College",
         from: "Trumpington Park and Ride, Cambridge",
         to: "King's College, Cambridge",
         mode: "transit",
-        note: "市中心难停，P&R 巴士进城",
+        note: "P&R 巴士进城，撑篙 + 学院",
+      },
+      {
+        label: "剑桥 → 诺丁汉 Crowne Plaza",
+        from: "Trumpington Park and Ride, Cambridge",
+        to: "Crowne Plaza Nottingham",
+        mode: "driving",
+        note: "午餐后出发，约 2.5h",
       },
     ],
     timeline: [
@@ -710,16 +724,32 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "全程：诺丁汉 → 因弗内斯",
+        label: "诺丁汉 → Angel of the North",
         from: "Crowne Plaza Nottingham",
-        via: [
-          "Angel of the North car park",
-          "Queensferry High Street, South Queensferry",
-          "Pitlochry town centre",
-        ],
+        to: "Angel of the North car park",
+        mode: "driving",
+        note: "M1 → A1(M) 约 2h；免费停车拍照",
+      },
+      {
+        label: "Angel of the North → Forth Bridge",
+        from: "Angel of the North car park",
+        to: "Queensferry High Street, South Queensferry",
+        mode: "driving",
+        note: "A1(M) 北上，三桥并排 + 快速午餐",
+      },
+      {
+        label: "Forth Bridge → Pitlochry",
+        from: "Queensferry High Street, South Queensferry",
+        to: "Pitlochry town centre",
+        mode: "driving",
+        note: "M90 → A9 进入高地，歇脚 20min",
+      },
+      {
+        label: "Pitlochry → 因弗内斯",
+        from: "Pitlochry town centre",
         to: "41 Essichs Gardens, Inverness IV2 6BW",
         mode: "driving",
-        note: "M1 → A1(M) → M90 → A9；高地段 layby 随时停拍",
+        note: "A9 穿凯恩戈姆，layby 随时停拍",
       },
     ],
     timeline: [
@@ -902,12 +932,25 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "酒厂环线：Inverness → Macallan → Aberlour → 返回",
+        label: "因弗内斯 → Macallan 酒厂",
         from: "41 Essichs Gardens, Inverness IV2 6BW",
-        via: ["The Macallan Distillery", "Aberlour Distillery"],
+        to: "The Macallan Distillery",
+        mode: "driving",
+        note: "A9 → A95 约 1h15；务必提前网上预约",
+      },
+      {
+        label: "Macallan → Aberlour 酒厂",
+        from: "The Macallan Distillery",
+        to: "Aberlour Distillery",
+        mode: "driving",
+        note: "Speyside 核心，几分钟车程；改 Glenfiddich 搜 Glenfiddich Distillery Dufftown",
+      },
+      {
+        label: "Aberlour → 因弗内斯（返回）",
+        from: "Aberlour Distillery",
         to: "41 Essichs Gardens, Inverness IV2 6BW",
         mode: "driving",
-        note: "A9 → A95 约 1h15；改 Glenfiddich 搜 Glenfiddich Distillery Dufftown",
+        note: "A95 → A9 返程约 1h15",
       },
     ],
     timeline: [
@@ -1054,19 +1097,53 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "白天游览：Inverness → 天空岛环线",
+        label: "因弗内斯 → Urquhart Castle",
         from: "41 Essichs Gardens, Inverness IV2 6BW",
-        via: [
-          "Urquhart Castle car park",
-          "Eilean Donan Castle",
-          "Bayfield Car Park Portree",
-          "Old Man of Storr car park",
-          "Kilt Rock viewpoint",
-          "Quiraing car park",
-        ],
+        to: "Urquhart Castle car park",
+        mode: "driving",
+        note: "尼斯湖畔观景台，30–40min",
+      },
+      {
+        label: "Urquhart Castle → Eilean Donan",
+        from: "Urquhart Castle car park",
+        to: "Eilean Donan Castle",
+        mode: "driving",
+        note: "三湖交汇经典高地城堡",
+      },
+      {
+        label: "Eilean Donan → Portree（午餐）",
+        from: "Eilean Donan Castle",
+        to: "Bayfield Car Park Portree",
+        mode: "driving",
+        note: "过 Skye Bridge 上岛，Portree 午餐",
+      },
+      {
+        label: "Portree → Old Man of Storr",
+        from: "Bayfield Car Park Portree",
+        to: "Old Man of Storr car park",
+        mode: "driving",
+        note: "路边观景台拍摄 20min",
+      },
+      {
+        label: "Old Man of Storr → Kilt Rock",
+        from: "Old Man of Storr car park",
+        to: "Kilt Rock viewpoint",
+        mode: "driving",
+        note: "海边悬崖瀑布 15min",
+      },
+      {
+        label: "Kilt Rock → Quiraing",
+        from: "Kilt Rock viewpoint",
+        to: "Quiraing car park",
+        mode: "driving",
+        note: "壮丽山脊观景 / 短途步行",
+      },
+      {
+        label: "Quiraing → Portree 港口",
+        from: "Quiraing car park",
         to: "Portree Harbour",
         mode: "driving",
-        note: "尼斯湖 → Skye Bridge 上岛，Portree 午餐",
+        note: "彩色港口 + 咖啡 30min",
       },
       {
         label: "离岛南下：Portree → Fort William",
@@ -1262,12 +1339,18 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "全程：Fort William → 湖区",
+        label: "Fort William → 格伦科 Glencoe",
         from: "Guisachan Guest House Fort William",
-        via: ["Three Sisters viewpoint Glencoe"],
+        to: "Three Sisters viewpoint Glencoe",
+        mode: "driving",
+        note: "A82 南下仅 15min；007 取景地观景拍照",
+      },
+      {
+        label: "格伦科 → 温德米尔 湖区",
+        from: "Three Sisters viewpoint Glencoe",
         to: "Woodlands, New Road, Windermere LA23 2EE",
         mode: "driving",
-        note: "格伦科仅 15min；之后 A82 → A74(M) → M6 约 2.5h",
+        note: "A82 → A74(M) → M6 约 2.5h",
       },
     ],
     timeline: [
@@ -1419,16 +1502,25 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "全程：湖区 → 伯明翰",
+        label: "湖区住处 → Bowness 码头",
         from: "Woodlands, New Road, Windermere LA23 2EE",
-        via: [
-          "Bowness-on-Windermere pier",
-          "Ambleside town centre",
-          "Sarah Nelson Grasmere Gingerbread",
-        ],
+        to: "Bowness-on-Windermere pier",
+        mode: "driving",
+        note: "蒸汽游船 Bowness ⇄ Ambleside",
+      },
+      {
+        label: "Ambleside → Grasmere",
+        from: "Ambleside town centre",
+        to: "Sarah Nelson Grasmere Gingerbread",
+        mode: "driving",
+        note: "华兹华斯故居 + 姜饼店",
+      },
+      {
+        label: "Grasmere → 伯明翰",
+        from: "Sarah Nelson Grasmere Gingerbread",
         to: "Aloft Birmingham Eastside",
         mode: "driving",
-        note: "湖区游玩后 16:30 出发，约 2h",
+        note: "16:30 出发，约 2h",
       },
     ],
     timeline: [
@@ -1586,9 +1678,15 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "全程：伯明翰 → 送机 → Bristol",
+        label: "伯明翰 → Heathrow T3 送 Jim",
         from: "Aloft Birmingham Eastside",
-        via: ["Heathrow Terminal 3 Departures"],
+        to: "Heathrow Terminal 3 Departures",
+        mode: "driving",
+        note: "约 1.5h；Jim 航班 17:00，时间充裕",
+      },
+      {
+        label: "Heathrow → 布里斯托",
+        from: "Heathrow Terminal 3 Departures",
         to: "Hilton Garden Inn Bristol City Centre",
         mode: "driving",
         note: "送完 Jim 后 M4 西行约 1.5h",
@@ -1746,18 +1844,18 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "去巴斯：Bristol → Lansdown P&R",
+        label: "布里斯托 → 巴斯 Lansdown P&R",
         from: "Hilton Garden Inn Bristol City Centre",
         to: "Lansdown Park and Ride, Bath",
         mode: "driving",
         note: "P&R 停车 £4 全天，巴士 15min 进城",
       },
       {
-        label: "返回：Bath → Bristol → Clifton",
+        label: "巴斯 P&R → 布里斯托（返回）",
         from: "Lansdown Park and Ride, Bath",
-        via: ["Hilton Garden Inn Bristol City Centre"],
-        to: "Clifton Suspension Bridge",
+        to: "Hilton Garden Inn Bristol City Centre",
         mode: "driving",
+        note: "约 20min 返程",
       },
     ],
     timeline: [
@@ -1870,16 +1968,32 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "全程：Bristol → 科茨沃尔德 → 牛津 → 伦敦",
+        label: "布里斯托 → 水上伯顿 Bourton",
         from: "Hilton Garden Inn Bristol City Centre",
-        via: [
-          "Bourton-on-the-Water car park",
-          "Bibury Arlington Row",
-          "Oxford Westgate car park",
-        ],
+        to: "Bourton-on-the-Water car park",
+        mode: "driving",
+        note: "进入科茨沃尔德，“科茨沃尔德威尼斯”",
+      },
+      {
+        label: "Bourton → 拜伯里 Bibury",
+        from: "Bourton-on-the-Water car park",
+        to: "Bibury Arlington Row",
+        mode: "driving",
+        note: "Arlington Row 蜜色石屋排",
+      },
+      {
+        label: "Bibury → 牛津 Oxford",
+        from: "Bibury Arlington Row",
+        to: "Oxford Westgate car park",
+        mode: "driving",
+        note: "基督教会学院 + 叹息桥",
+      },
+      {
+        label: "牛津 → 伦敦 Moxy",
+        from: "Oxford Westgate car park",
         to: "Moxy London Excel",
         mode: "driving",
-        note: "Oxford → Moxy 约 1.5h（M40 → M25 → A13）",
+        note: "约 1.5h（M40 → M25 → A13）",
       },
     ],
     timeline: [
@@ -2236,12 +2350,18 @@ const days: Day[] = [
     ],
     nav: [
       {
-        label: "全程：Moxy → 加油 → Gatwick 还车",
+        label: "Moxy → Pease Pottage 加满油",
         from: "Moxy London Excel",
-        via: ["Pease Pottage Services M23"],
+        to: "Pease Pottage Services M23",
+        mode: "driving",
+        note: "⚠️ Sixt full-to-full，还车前最后加油点",
+      },
+      {
+        label: "Pease Pottage → Gatwick 还车",
+        from: "Pease Pottage Services M23",
         to: "Sixt Gatwick South Terminal",
         mode: "driving",
-        note: "⚠️ 必须先在 Pease Pottage 加满油再还车",
+        note: "距机场仅 5min，跟 Car Rental Return 标志",
       },
     ],
     timeline: [

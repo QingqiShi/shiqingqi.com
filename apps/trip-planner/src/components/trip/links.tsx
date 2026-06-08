@@ -63,14 +63,12 @@ export function MenuLink({ href }: { href: string }) {
 export function NavLink({
   to,
   from,
-  via,
   mode = "driving",
   label = "导航",
   className,
 }: {
   to: string;
   from?: string;
-  via?: string[];
   mode?: TravelMode;
   label?: string;
   className?: string;
@@ -80,7 +78,6 @@ export function NavLink({
       href={googleMapsDirectionsUrl({
         origin: from,
         destination: to,
-        waypoints: via,
         mode,
       })}
       target="_blank"
