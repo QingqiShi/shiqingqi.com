@@ -6,6 +6,7 @@ import { DailyView } from "./daily-view";
 import { Overview } from "./overview";
 import { type Day, type TripPhase, trip } from "@/data/itinerary";
 import { cn } from "@/lib/utils";
+import type { LiveWeather } from "@/lib/wmo";
 
 type View = "daily" | "overview";
 
@@ -126,10 +127,12 @@ export function TripView({
   currentDayIndex,
   phase,
   daysUntil,
+  weatherByDay,
 }: {
   currentDayIndex: number;
   phase: TripPhase;
   daysUntil: number;
+  weatherByDay: Record<number, LiveWeather>;
 }) {
   const [view, setView] = useState<View>("daily");
   const [dayIndex, setDayIndex] = useState(currentDayIndex);
@@ -166,6 +169,7 @@ export function TripView({
           <DailyView
             day={trip.days[dayIndex]}
             isToday={dayIndex === todayIndex}
+            liveWeather={weatherByDay[trip.days[dayIndex].n]}
             onOpenDay={openDay}
           />
         ) : (

@@ -78,8 +78,19 @@ export interface TimelineItem {
 }
 
 export interface Weather {
+  /** Hand-authored temperature range, the fallback when no live forecast exists. */
   temp: string;
+  /** Hand-authored condition + advice, the fallback when no live forecast exists. */
   summary: string;
+  /** Advice kept alongside the live condition (e.g. "注意倒时差"). Omit when
+   *  `summary` is purely a condition with no extra guidance worth preserving. */
+  note?: string;
+}
+
+/** A geographic point, used to fetch live weather for a day. */
+export interface Coords {
+  lat: number;
+  lon: number;
 }
 
 /** How a navigation deep-link should route. */
@@ -162,6 +173,9 @@ export interface Day {
   route: string;
   driving?: string;
   weather?: Weather;
+  /** Representative point (overnight base or the day's main locus) for fetching
+   *  the day's live weather. Omit on days with no weather slot. */
+  coords?: Coords;
   /** Fixed commitments surfaced in the at-a-glance card. */
   anchors?: Anchor[];
   /** One-tap navigation legs for the day. */
@@ -217,7 +231,8 @@ const days: Day[] = [
     weekday: "周四",
     title: "抵达伦敦 · 取车 · Omakase",
     route: "Gatwick 取车 → Mayfair → Chingford",
-    weather: { temp: "15–22°C", summary: "晴，注意倒时差" },
+    weather: { temp: "15–22°C", summary: "晴，注意倒时差", note: "注意倒时差" },
+    coords: { lat: 51.5074, lon: -0.1278 }, // 伦敦 London
     anchors: [
       {
         time: "06:30",
@@ -401,7 +416,8 @@ const days: Day[] = [
     title: "抵达英国 · 剑桥 · 诺丁汉",
     route: "希思罗接机 → 剑桥 → 诺丁汉",
     driving: "约 4 小时",
-    weather: { temp: "17–24°C", summary: "晴，热浪开局" },
+    weather: { temp: "17–24°C", summary: "晴，热浪开局", note: "热浪开局" },
+    coords: { lat: 52.9548, lon: -1.1581 }, // 诺丁汉 Nottingham
     anchors: [
       {
         time: "07:55",
@@ -623,7 +639,8 @@ const days: Day[] = [
     title: "诺丁汉大学 · 毕业十周年",
     route: "诺丁汉市内（无需驾车）",
     driving: "无需驾车",
-    weather: { temp: "15–28°C", summary: "晴，高温防晒" },
+    weather: { temp: "15–28°C", summary: "晴，高温防晒", note: "高温防晒" },
+    coords: { lat: 52.9548, lon: -1.1581 }, // 诺丁汉 Nottingham
     anchors: [
       {
         time: "09:30",
@@ -788,7 +805,8 @@ const days: Day[] = [
     title: "北上苏格兰 · 因弗内斯",
     route: "诺丁汉 → A9 → 因弗内斯",
     driving: "约 6.5 小时",
-    weather: { temp: "11–19°C", summary: "有阵雨，北上渐凉" },
+    weather: { temp: "11–19°C", summary: "有阵雨，北上渐凉", note: "北上渐凉" },
+    coords: { lat: 57.4778, lon: -4.2247 }, // 因弗内斯 Inverness
     anchors: [
       {
         time: "10:00",
@@ -1022,7 +1040,12 @@ const days: Day[] = [
     title: "Speyside 威士忌酒厂日",
     route: "因弗内斯 ↔ Speyside（往返）",
     driving: "约 2.5 小时",
-    weather: { temp: "10–17°C", summary: "高地有雨，室内品酒无碍" },
+    weather: {
+      temp: "10–17°C",
+      summary: "高地有雨，室内品酒无碍",
+      note: "室内品酒无碍",
+    },
+    coords: { lat: 57.4778, lon: -4.2247 }, // 因弗内斯 Inverness
     anchors: [
       {
         time: "10:30",
@@ -1196,7 +1219,12 @@ const days: Day[] = [
     title: "尼斯湖 · 天空岛",
     route: "因弗内斯 → 尼斯湖 → 天空岛 → Fort William",
     driving: "约 5 小时（分段）",
-    weather: { temp: "10–16°C", summary: "阵雨，防风防水外套必备" },
+    weather: {
+      temp: "10–16°C",
+      summary: "阵雨，防风防水外套必备",
+      note: "防风防水外套必备",
+    },
+    coords: { lat: 56.8198, lon: -5.1052 }, // 威廉堡 Fort William
     anchors: [
       {
         time: "08:00",
@@ -1489,6 +1517,7 @@ const days: Day[] = [
     route: "Fort William → 格伦科 → 温德米尔",
     driving: "约 3.5 小时",
     weather: { temp: "10–15°C", summary: "偏凉，可能小雨" },
+    coords: { lat: 54.3807, lon: -2.9063 }, // 温德米尔 Windermere
     anchors: [
       {
         time: "09:30",
@@ -1670,6 +1699,7 @@ const days: Day[] = [
     route: "湖区 → 伯明翰",
     driving: "约 2 小时",
     weather: { temp: "10–18°C", summary: "湖区偏凉有雨" },
+    coords: { lat: 52.4862, lon: -1.8904 }, // 伯明翰 Birmingham
     anchors: [
       {
         time: "09:30",
@@ -1868,6 +1898,7 @@ const days: Day[] = [
     route: "伯明翰 → 希思罗 → 布里斯托",
     driving: "约 3.5 小时",
     weather: { temp: "12–17°C", summary: "多云，偶有小雨" },
+    coords: { lat: 51.4545, lon: -2.5879 }, // 布里斯托 Bristol
     anchors: [
       {
         time: "10:00",
@@ -2043,7 +2074,12 @@ const days: Day[] = [
     title: "巴斯一日",
     route: "布里斯托 ↔ 巴斯",
     driving: "约 0.5 小时",
-    weather: { temp: "10–17°C", summary: "多云间晴，泡温泉舒适" },
+    weather: {
+      temp: "10–17°C",
+      summary: "多云间晴，泡温泉舒适",
+      note: "泡温泉舒适",
+    },
+    coords: { lat: 51.3811, lon: -2.359 }, // 巴斯 Bath
     anchors: [
       {
         time: "10:00",
@@ -2182,7 +2218,8 @@ const days: Day[] = [
     title: "科茨沃尔德 · 牛津 · 伦敦",
     route: "布里斯托 → 科茨沃尔德 → 牛津 → 伦敦",
     driving: "约 3 小时",
-    weather: { temp: "12–19°C", summary: "多云，伦敦回暖" },
+    weather: { temp: "12–19°C", summary: "多云，伦敦回暖", note: "伦敦回暖" },
+    coords: { lat: 51.752, lon: -1.2577 }, // 牛津 Oxford（当日主要户外行程）
     anchors: [
       {
         time: "09:00",
@@ -2374,6 +2411,7 @@ const days: Day[] = [
     route: "全天地铁出行（车停 Moxy）",
     driving: "无需驾车",
     weather: { temp: "15–19°C", summary: "多云间晴" },
+    coords: { lat: 51.5074, lon: -0.1278 }, // 伦敦 London
     anchors: [
       {
         time: "09:30",
