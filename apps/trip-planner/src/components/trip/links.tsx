@@ -1,7 +1,7 @@
-import { ExternalLink, MapPin } from "lucide-react";
+import { ExternalLink, MapPin, Navigation } from "lucide-react";
 import type { ReactNode } from "react";
-import type { MapPlace } from "@/data/itinerary";
-import { googleMapsUrl } from "@/lib/maps";
+import type { MapPlace, TravelMode } from "@/data/itinerary";
+import { googleMapsDirectionsUrl, googleMapsUrl } from "@/lib/maps";
 import { cn } from "@/lib/utils";
 
 /** A text link that opens the query in Google Maps. */
@@ -40,6 +40,58 @@ export function WebLink({ href }: { href: string }) {
     >
       <ExternalLink className="size-3" />
       官网
+    </a>
+  );
+}
+
+/** A "菜单" external link. */
+export function MenuLink({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <ExternalLink className="size-3" />
+      菜单
+    </a>
+  );
+}
+
+/** A compact "导航" chip that opens Google Maps directions to a destination. */
+export function NavLink({
+  to,
+  from,
+  via,
+  mode = "driving",
+  label = "导航",
+  className,
+}: {
+  to: string;
+  from?: string;
+  via?: string[];
+  mode?: TravelMode;
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <a
+      href={googleMapsDirectionsUrl({
+        origin: from,
+        destination: to,
+        waypoints: via,
+        mode,
+      })}
+      target="_blank"
+      rel="noreferrer noopener"
+      className={cn(
+        "inline-flex shrink-0 items-center gap-1 rounded-full border bg-card px-2.5 py-1 text-xs font-medium transition-colors hover:border-foreground/30 hover:bg-accent",
+        className,
+      )}
+    >
+      <Navigation className="size-3 shrink-0" />
+      {label}
     </a>
   );
 }

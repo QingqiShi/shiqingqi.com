@@ -1,5 +1,5 @@
 import { MapPin, Star, UtensilsCrossed } from "lucide-react";
-import { MapsLink, WebLink } from "./links";
+import { MapsLink, MenuLink, NavLink, WebLink } from "./links";
 import { Section } from "./section";
 import { Badge } from "@/components/ui/badge";
 import type { Booking, Restaurant } from "@/data/itinerary";
@@ -11,7 +11,13 @@ const michelinLabel: Record<1 | 2 | 3, string> = {
   3: "米其林三星",
 };
 
-function BookingDetails({ booking }: { booking: Booking }) {
+function BookingDetails({
+  booking,
+  query,
+}: {
+  booking: Booking;
+  query: string;
+}) {
   const lines = [
     [booking.date, booking.time].filter(Boolean).join(" "),
     booking.party,
@@ -24,9 +30,14 @@ function BookingDetails({ booking }: { booking: Booking }) {
 
   return (
     <div className="mt-3 rounded-lg bg-muted/60 px-3 py-2 text-sm">
-      {lines.length > 0 ? (
-        <p className="font-medium">{lines.join(" · ")}</p>
-      ) : null}
+      <div className="flex items-start justify-between gap-2">
+        {lines.length > 0 ? (
+          <p className="font-medium">{lines.join(" · ")}</p>
+        ) : (
+          <span />
+        )}
+        <NavLink to={query} mode="transit" label="导航前往" />
+      </div>
       {meta.length > 0 ? (
         <p className="mt-0.5 text-xs text-muted-foreground">
           {meta.join(" · ")}
@@ -86,13 +97,16 @@ function RestaurantCard({
       </p>
 
       {restaurant.booking ? (
-        <BookingDetails booking={restaurant.booking} />
+        <BookingDetails booking={restaurant.booking} query={restaurant.query} />
       ) : null}
 
-      {restaurant.price || restaurant.website ? (
+      {restaurant.price || restaurant.website || restaurant.menu ? (
         <div className="mt-3 flex items-center justify-between gap-2 pt-1 text-xs">
           <span className="text-muted-foreground">{restaurant.price}</span>
-          {restaurant.website ? <WebLink href={restaurant.website} /> : null}
+          <span className="flex items-center gap-3">
+            {restaurant.menu ? <MenuLink href={restaurant.menu} /> : null}
+            {restaurant.website ? <WebLink href={restaurant.website} /> : null}
+          </span>
         </div>
       ) : null}
     </div>

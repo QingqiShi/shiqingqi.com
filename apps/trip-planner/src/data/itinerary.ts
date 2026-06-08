@@ -32,6 +32,8 @@ export interface Restaurant {
   description: string;
   price?: string;
   website?: string;
+  /** Direct menu link, when a stable one exists. */
+  menu?: string;
   /** Michelin stars, when starred. */
   michelin?: 1 | 2 | 3;
   /** "booked" = confirmed reservation, "pick" = the planned choice. */
@@ -73,6 +75,69 @@ export interface Weather {
   summary: string;
 }
 
+/** How a navigation deep-link should route. */
+export type TravelMode = "driving" | "transit" | "walking";
+
+/**
+ * A navigable leg. Opens Google Maps *directions* with the route preloaded.
+ * `from` omitted = start from the device's current location.
+ */
+export interface NavLeg {
+  label: string;
+  /** Destination search query. */
+  to: string;
+  /** Origin search query; omit to use current location. */
+  from?: string;
+  /** Intermediate stops, in order. */
+  via?: string[];
+  mode?: TravelMode;
+  note?: string;
+}
+
+/** A tick-through checklist (e.g. 入境流程, 还车检查). State lives client-side. */
+export interface Checklist {
+  title: string;
+  items: string[];
+  note?: string;
+}
+
+/** What kind of fixed commitment an anchor is — drives its icon. */
+export type AnchorKind =
+  | "flight"
+  | "pickup"
+  | "dropoff"
+  | "checkin"
+  | "checkout"
+  | "reservation"
+  | "transit"
+  | "drive";
+
+/** One "must-be-there" moment for the day's at-a-glance summary. */
+export interface Anchor {
+  time?: string;
+  label: string;
+  kind: AnchorKind;
+  /** When set, renders a 导航 button to this destination. */
+  query?: string;
+  mode?: TravelMode;
+}
+
+/** What kind of practical heads-up a tip is — drives its icon. */
+export type TipKind =
+  | "parking"
+  | "fuel"
+  | "drive"
+  | "transit"
+  | "money"
+  | "warn"
+  | "info";
+
+/** A practical heads-up for the day (parking, fuel, driving rules…). */
+export interface Tip {
+  kind: TipKind;
+  text: string;
+}
+
 export interface Day {
   n: number;
   /** ISO date, e.g. "2026-06-19". */
@@ -83,9 +148,17 @@ export interface Day {
   route: string;
   driving?: string;
   weather?: Weather;
+  /** Fixed commitments surfaced in the at-a-glance card. */
+  anchors?: Anchor[];
+  /** One-tap navigation legs for the day. */
+  nav?: NavLeg[];
   timeline: TimelineItem[];
+  /** Tick-through checklists (入境、退房收拾、还车…). */
+  checklists?: Checklist[];
   places: MapPlace[];
   restaurants: Restaurant[];
+  /** Practical heads-ups (parking, fuel, driving rules). */
+  tips?: Tip[];
   stay: Stay;
 }
 
@@ -106,6 +179,70 @@ const days: Day[] = [
     title: "抵达伦敦 · 取车 · Omakase",
     route: "Gatwick 取车 → Mayfair → Chingford",
     weather: { temp: "15–22°C", summary: "晴，注意倒时差" },
+    anchors: [
+      {
+        time: "06:30",
+        label: "大雨 CA851 落地 Gatwick South Terminal",
+        kind: "flight",
+      },
+      {
+        time: "06:45",
+        label: "石头从 N17 去 Gatwick 接大雨（地铁约 1h15）",
+        kind: "transit",
+        query: "Gatwick Airport South Terminal",
+        mode: "transit",
+      },
+      {
+        time: "09:00",
+        label: "Sixt 取车（大雨名下 · South Terminal 到达层）",
+        kind: "pickup",
+        query: "Sixt Gatwick Airport South Terminal",
+        mode: "walking",
+      },
+      {
+        time: "17:30",
+        label: "Maru Omakase 晚餐 · Mayfair（2 人已订）",
+        kind: "reservation",
+        query: "Maru, 18 Shepherd Market, London W1J 7QH",
+        mode: "transit",
+      },
+    ],
+    nav: [
+      {
+        label: "石头去接大雨（N17 → Gatwick）",
+        from: "N17 9LX, London",
+        to: "Gatwick Airport South Terminal",
+        mode: "transit",
+        note: "地铁 / 火车约 1h15，此时还没取车",
+      },
+      {
+        label: "Gatwick → Chingford 酒店",
+        from: "Gatwick Airport South Terminal",
+        to: "Holiday Inn Express London Chingford",
+        mode: "driving",
+        note: "取车后开车，M23 → M25 约 1h15",
+      },
+      {
+        label: "酒店 → Chingford 车站",
+        from: "Holiday Inn Express London Chingford",
+        to: "Chingford Station, London",
+        mode: "walking",
+        note: "步行约 10min，车停酒店免费",
+      },
+      {
+        label: "Chingford → 市区（Liverpool Street）",
+        from: "Chingford Station, London",
+        to: "Liverpool Street Station, London",
+        mode: "transit",
+        note: "Overground 约 30min",
+      },
+      {
+        label: "前往 Maru · Mayfair",
+        to: "Maru, 18 Shepherd Market, London W1J 7QH",
+        mode: "transit",
+        note: "Green Park 站步行 5min",
+      },
+    ],
     timeline: [
       {
         time: "白天",
@@ -147,10 +284,11 @@ const days: Day[] = [
         name: "Maru Omakase",
         area: "伦敦 · Mayfair",
         query: "Maru, 18 Shepherd Market, London W1J 7QH",
-        tag: "Omakase · 18+ 道",
+        tag: "Omakase · 约 20 道",
         status: "booked",
         description:
-          "MARU London 的主厨发办江户前 omakase，18 道以上。位于 Mayfair 的 Shepherd Market。",
+          "MARU London 的主厨发办江户前 omakase，约 20 道。位于 Mayfair 的 Shepherd Market，Green Park 站步行 5min。每晚两席 17:30 / 20:30。",
+        website: "https://www.marulondon.com/",
         booking: {
           date: "6.18 周四",
           time: "17:30",
@@ -158,6 +296,37 @@ const days: Day[] = [
           by: "Qingqi Shi",
           note: "确认号 #1940 · OpenTable",
         },
+      },
+    ],
+    checklists: [
+      {
+        title: "大雨入境 · 取车",
+        items: [
+          "人工通道入境（中国护照，早高峰排队约 30–45min）",
+          "提取托运行李",
+          "找 Sixt 柜台（South Terminal 到达层）",
+          "取车：检查外观 / 油量，拍照留底",
+          "适应右舵左行，停车场先开 5–10min 找感觉",
+        ],
+        note: "大雨名下预订租车，租期 6.18–6.30 共 13 天，Gatwick 取还。",
+      },
+    ],
+    tips: [
+      {
+        kind: "parking",
+        text: "车停 HIE Chingford 免费，全天坐 Overground / 地铁进城，不用开车。",
+      },
+      {
+        kind: "drive",
+        text: "ULEZ：租来的新车 Euro 6+ 全达标，不产生费用。",
+      },
+      {
+        kind: "money",
+        text: "全程不进 Congestion Charge Zone（Chingford / Gatwick 均在区外），省 £15/天。",
+      },
+      {
+        kind: "info",
+        text: "伦敦 6 月日落约 21:15，白天很长；长途飞机后注意倒时差。",
       },
     ],
     stay: {
@@ -182,6 +351,49 @@ const days: Day[] = [
     route: "希思罗接机 → 剑桥 → 诺丁汉",
     driving: "约 4 小时",
     weather: { temp: "17–24°C", summary: "晴，热浪开局" },
+    anchors: [
+      {
+        time: "07:55",
+        label: "Heathrow T3 接 Jim（出关后再开进 Short Stay）",
+        kind: "pickup",
+        query: "Heathrow Terminal 3 Arrivals",
+        mode: "driving",
+      },
+      {
+        time: "10:00",
+        label: "剑桥 · 康河撑篙（约 2.5h）",
+        kind: "drive",
+        query: "Trumpington Park and Ride, Cambridge",
+        mode: "driving",
+      },
+      {
+        time: "15:00",
+        label: "入住 Crowne Plaza 诺丁汉",
+        kind: "checkin",
+        query: "Crowne Plaza Nottingham",
+      },
+    ],
+    nav: [
+      {
+        label: "全程：Chingford → 诺丁汉",
+        from: "Holiday Inn Express London Chingford",
+        via: [
+          "N17 9LX, London",
+          "Heathrow Terminal 3 Arrivals",
+          "Trumpington Park and Ride, Cambridge",
+        ],
+        to: "Crowne Plaza Nottingham",
+        mode: "driving",
+        note: "M4 → M25 → M11；接完 Jim 去剑桥，停 Park & Ride 转公交进城",
+      },
+      {
+        label: "剑桥：Park & Ride → 市中心",
+        from: "Trumpington Park and Ride, Cambridge",
+        to: "King's College, Cambridge",
+        mode: "transit",
+        note: "市中心难停，P&R 巴士进城",
+      },
+    ],
     timeline: [
       { time: "06:30", text: "从 Chingford 出发（Jim 的航班 06:20 落地 T3）" },
       { time: "06:55", text: "到 N17 接石头上车" },
@@ -261,6 +473,35 @@ const days: Day[] = [
         price: "~£15–22/人",
       },
     ],
+    checklists: [
+      {
+        title: "接机要点",
+        items: [
+          "出发前给 Jim、石头发实时定位",
+          "Jim（香港护照）走人工通道，预计 08:00–08:30 出关",
+          "Jim 出关发消息后再开进 Short Stay 接人",
+          "三人到齐，M4 北上",
+        ],
+      },
+    ],
+    tips: [
+      {
+        kind: "parking",
+        text: "Heathrow 接机省钱：让 Jim 出关后发消息再开进 Short Stay（£7–17 / 1–1.5h）。",
+      },
+      {
+        kind: "parking",
+        text: "剑桥用 Park & Ride（Trumpington / Madingley，£3–5），市中心停车贵且难。",
+      },
+      {
+        kind: "parking",
+        text: "Crowne Plaza 诺丁汉停车约 £10–15/晚。",
+      },
+      {
+        kind: "drive",
+        text: "热浪开局，伦敦出发可达 29°C，短袖即可；日落约 21:20。",
+      },
+    ],
     stay: {
       summary: "Crowne Plaza 诺丁汉",
       lodging: [
@@ -272,7 +513,7 @@ const days: Day[] = [
           checkIn: "6.19 周五 15:00",
           checkOut: "6.21 周日 12:00",
           room: "2 间双床房 · 连住 2 晚",
-          note: "住客：WONG JIM、Yang Muyu",
+          note: "住客：WONG JIM、大雨",
           status: "booked",
         },
       ],
@@ -287,6 +528,36 @@ const days: Day[] = [
     route: "诺丁汉市内（无需驾车）",
     driving: "无需驾车",
     weather: { temp: "15–28°C", summary: "晴，高温防晒" },
+    anchors: [
+      {
+        time: "09:30",
+        label: "诺丁汉大学 University Park · 毕业十周年打卡",
+        kind: "transit",
+        query: "University of Nottingham University Park",
+        mode: "driving",
+      },
+      {
+        time: "19:00",
+        label: "中餐馆聚餐 + 喝大酒（首选 喜得宝）",
+        kind: "reservation",
+        query: "Mandarin Restaurant, 42 Belward Street, Nottingham NG1 1JZ",
+        mode: "transit",
+      },
+    ],
+    nav: [
+      {
+        label: "酒店 → University Park 校区",
+        from: "Crowne Plaza Nottingham",
+        to: "University of Nottingham University Park",
+        mode: "driving",
+        note: "约 10min；也可打车，校园日车可停酒店",
+      },
+      {
+        label: "前往 喜得宝（聚餐）",
+        to: "Mandarin Restaurant, 42 Belward Street, Nottingham NG1 1JZ",
+        mode: "transit",
+      },
+    ],
     timeline: [
       {
         time: "09:30",
@@ -379,6 +650,20 @@ const days: Day[] = [
         description: "Rock City 楼下的小酒吧，气氛好，适合微醺聊天。",
       },
     ],
+    tips: [
+      {
+        kind: "drive",
+        text: "校园日预测高温 28°C，注意防晒补水；晚上喝酒约 15°C，带件薄外套。",
+      },
+      {
+        kind: "money",
+        text: "部分中餐馆收现金 / 可自带酒水（如 Mayfair Chinese 隔壁就是酒铺），带点现金。",
+      },
+      {
+        kind: "info",
+        text: "城内步行 / 打车为主，车停酒店即可，毕业十年好好喝一场。",
+      },
+    ],
     stay: {
       summary: "连住 · Crowne Plaza",
       lodging: [],
@@ -394,6 +679,48 @@ const days: Day[] = [
     route: "诺丁汉 → A9 → 因弗内斯",
     driving: "约 6.5 小时",
     weather: { temp: "11–19°C", summary: "有阵雨，北上渐凉" },
+    anchors: [
+      {
+        time: "10:00",
+        label: "退房出发，A1(M) 北上",
+        kind: "checkout",
+        query: "Crowne Plaza Nottingham",
+      },
+      {
+        time: "12:00",
+        label: "Angel of the North 拍照（15min）",
+        kind: "drive",
+        query: "Angel of the North car park",
+        mode: "driving",
+      },
+      {
+        time: "13:30",
+        label: "Forth Bridge 观景 + 午餐",
+        kind: "drive",
+        query: "Queensferry High Street, South Queensferry",
+        mode: "driving",
+      },
+      {
+        time: "18:30",
+        label: "入住因弗内斯独栋",
+        kind: "checkin",
+        query: "41 Essichs Gardens, Inverness IV2 6BW",
+      },
+    ],
+    nav: [
+      {
+        label: "全程：诺丁汉 → 因弗内斯",
+        from: "Crowne Plaza Nottingham",
+        via: [
+          "Angel of the North car park",
+          "Queensferry High Street, South Queensferry",
+          "Pitlochry town centre",
+        ],
+        to: "41 Essichs Gardens, Inverness IV2 6BW",
+        mode: "driving",
+        note: "M1 → A1(M) → M90 → A9；高地段 layby 随时停拍",
+      },
+    ],
     timeline: [
       { time: "10:00", text: "退房出发，M1 → A1(M) 一路北上" },
       {
@@ -495,6 +822,35 @@ const days: Day[] = [
         price: "~£15–25/人",
       },
     ],
+    checklists: [
+      {
+        title: "退房收拾",
+        items: [
+          "充电器 / 数据线 / 充电宝",
+          "浴室洗漱用品",
+          "床头柜 / 抽屉 / 衣柜检查",
+          "退房还房卡，确认无遗留",
+        ],
+      },
+    ],
+    tips: [
+      {
+        kind: "drive",
+        text: "A9 Tomatin–Moy 段限速 40mph（施工至 2028），最后半小时会慢一点。",
+      },
+      {
+        kind: "drive",
+        text: "过 Perth 后进入高地，路边 layby 随时停车拍荒野风光。",
+      },
+      {
+        kind: "fuel",
+        text: "Inverness 之后加油站渐少，出发前 / 沿途加满。",
+      },
+      {
+        kind: "info",
+        text: "高地日落约 22:15，傍晚仍亮；昨晚的酒今早应该醒了。",
+      },
+    ],
     stay: {
       summary: "因弗内斯独栋",
       lodging: [
@@ -520,6 +876,39 @@ const days: Day[] = [
     route: "因弗内斯 ↔ Speyside（往返）",
     driving: "约 2.5 小时",
     weather: { temp: "10–17°C", summary: "高地有雨，室内品酒无碍" },
+    anchors: [
+      {
+        time: "10:30",
+        label: "The Macallan 酒厂参观 + 品鉴（须提前预约）",
+        kind: "drive",
+        query: "The Macallan Distillery",
+        mode: "driving",
+      },
+      {
+        time: "14:00",
+        label: "Aberlour 酒厂 · 雪莉桶深度品鉴",
+        kind: "drive",
+        query: "Aberlour Distillery",
+        mode: "driving",
+      },
+      {
+        time: "18:30",
+        label: "Malt Room 威士忌收官",
+        kind: "reservation",
+        query: "The Malt Room, 34 Church Street, Inverness IV1 1EH",
+        mode: "walking",
+      },
+    ],
+    nav: [
+      {
+        label: "酒厂环线：Inverness → Macallan → Aberlour → 返回",
+        from: "41 Essichs Gardens, Inverness IV2 6BW",
+        via: ["The Macallan Distillery", "Aberlour Distillery"],
+        to: "41 Essichs Gardens, Inverness IV2 6BW",
+        mode: "driving",
+        note: "A9 → A95 约 1h15；改 Glenfiddich 搜 Glenfiddich Distillery Dufftown",
+      },
+    ],
     timeline: [
       {
         time: "09:00",
@@ -598,6 +987,24 @@ const days: Day[] = [
         website: "https://www.rocpoolrestaurant.com",
       },
     ],
+    tips: [
+      {
+        kind: "parking",
+        text: "所有酒厂均免费停车。",
+      },
+      {
+        kind: "drive",
+        text: "指定 1 人当司机；各酒厂提供 Driver's Dram，可打包带走当天品鉴酒。",
+      },
+      {
+        kind: "info",
+        text: "想三人都畅饮：可改报 Inverness 出发的 Speyside 一日游巴士团（约 £60–80/人，全程专职司机）。",
+      },
+      {
+        kind: "warn",
+        text: "6 月旺季，Macallan / Aberlour 等务必提前网上预约。",
+      },
+    ],
     stay: {
       summary: "连住 · 因弗内斯独栋",
       lodging: [],
@@ -616,6 +1023,58 @@ const days: Day[] = [
     route: "因弗内斯 → 尼斯湖 → 天空岛 → Fort William",
     driving: "约 5 小时（分段）",
     weather: { temp: "10–16°C", summary: "阵雨，防风防水外套必备" },
+    anchors: [
+      {
+        time: "08:00",
+        label: "出发离开因弗内斯（行程密集，早出发）",
+        kind: "checkout",
+        query: "41 Essichs Gardens, Inverness IV2 6BW",
+      },
+      {
+        time: "08:30",
+        label: "Urquhart Castle / 尼斯湖观景",
+        kind: "drive",
+        query: "Urquhart Castle car park",
+        mode: "driving",
+      },
+      {
+        time: "10:30",
+        label: "Eilean Donan Castle 拍照",
+        kind: "drive",
+        query: "Eilean Donan Castle",
+        mode: "driving",
+      },
+      {
+        time: "21:30",
+        label: "入住 Guisachan Guest House · Fort William",
+        kind: "checkin",
+        query: "Guisachan Guest House Fort William",
+      },
+    ],
+    nav: [
+      {
+        label: "白天游览：Inverness → 天空岛环线",
+        from: "41 Essichs Gardens, Inverness IV2 6BW",
+        via: [
+          "Urquhart Castle car park",
+          "Eilean Donan Castle",
+          "Bayfield Car Park Portree",
+          "Old Man of Storr car park",
+          "Kilt Rock viewpoint",
+          "Quiraing car park",
+        ],
+        to: "Portree Harbour",
+        mode: "driving",
+        note: "尼斯湖 → Skye Bridge 上岛，Portree 午餐",
+      },
+      {
+        label: "离岛南下：Portree → Fort William",
+        from: "Portree, Isle of Skye",
+        to: "Guisachan Guest House Fort William",
+        mode: "driving",
+        note: "A87 → A82 约 2h，无需渡轮；日落 22:15 天还亮",
+      },
+    ],
     timeline: [
       { time: "08:00", text: "出发离开因弗内斯（今天行程丰富，早点出发）" },
       {
@@ -717,6 +1176,45 @@ const days: Day[] = [
         website: "https://www.crannog.net",
       },
     ],
+    checklists: [
+      {
+        title: "退房收拾",
+        items: [
+          "充电器 / 数据线 / 充电宝",
+          "浴室洗漱用品",
+          "床头柜 / 抽屉 / 衣柜检查",
+          "门口密码锁箱归还钥匙",
+        ],
+      },
+      {
+        title: "高地出发前",
+        items: [
+          "油箱加满",
+          "下载离线地图（高地 / Skye 信号差）",
+          "防风防水外套 + Smidge 驱虫",
+          "墨镜（高地晴天紫外线强）",
+        ],
+        note: "今天行程密集，08:00 前出发。",
+      },
+    ],
+    tips: [
+      {
+        kind: "fuel",
+        text: "出发前加满油！Skye 岛上仅 Broadford 和 Portree 有加油站，高地油价贵约 5–10p/升。",
+      },
+      {
+        kind: "parking",
+        text: "Old Man of Storr 停车约 £5，Quiraing 免费。",
+      },
+      {
+        kind: "warn",
+        text: "带 Smidge 驱虫喷雾 — 苏格兰 6 月 midges 傍晚水边很烦。",
+      },
+      {
+        kind: "drive",
+        text: "高地单车道公路（Single Track），见 Passing Place 主动让车；信号差，提前下载离线地图。",
+      },
+    ],
     stay: {
       summary: "Guisachan Guest House · Fort William",
       lodging: [
@@ -725,7 +1223,7 @@ const days: Day[] = [
           query: "Guisachan Guest House Fort William",
           address: "Alma Road, Fort William, PH33 6HA",
           room: "3 人",
-          note: "住客：Yang Muyu。Fort William 直达无需渡轮，晚餐就在镇上（Crannog）；第二天 A82 南下 15min 即到格伦科。",
+          note: "住客：大雨。Fort William 直达无需渡轮，晚餐就在镇上（Crannog）；第二天 A82 南下 15min 即到格伦科。",
           status: "booked",
         },
       ],
@@ -740,6 +1238,37 @@ const days: Day[] = [
     route: "Fort William → 格伦科 → 温德米尔",
     driving: "约 3.5 小时",
     weather: { temp: "10–15°C", summary: "偏凉，可能小雨" },
+    anchors: [
+      {
+        time: "09:30",
+        label: "退房 · Guisachan 早餐后出发",
+        kind: "checkout",
+        query: "Guisachan Guest House Fort William",
+      },
+      {
+        time: "10:30",
+        label: "格伦科 Three Sisters 观景拍照",
+        kind: "drive",
+        query: "Three Sisters viewpoint Glencoe",
+        mode: "driving",
+      },
+      {
+        time: "14:00",
+        label: "入住 Woodlands B&B · 温德米尔",
+        kind: "checkin",
+        query: "Woodlands, New Road, Windermere LA23 2EE",
+      },
+    ],
+    nav: [
+      {
+        label: "全程：Fort William → 湖区",
+        from: "Guisachan Guest House Fort William",
+        via: ["Three Sisters viewpoint Glencoe"],
+        to: "Woodlands, New Road, Windermere LA23 2EE",
+        mode: "driving",
+        note: "格伦科仅 15min；之后 A82 → A74(M) → M6 约 2.5h",
+      },
+    ],
     timeline: [
       { time: "09:00", text: "睡到自然醒，Guisachan Guest House 享用早餐" },
       { time: "10:00", text: "A82 南下，15min 即到格伦科" },
@@ -819,6 +1348,27 @@ const days: Day[] = [
         price: "~£15–25/人",
       },
     ],
+    checklists: [
+      {
+        title: "退房收拾",
+        items: [
+          "充电器 / 数据线 / 充电宝",
+          "浴室洗漱用品",
+          "床头柜 / 抽屉 / 衣柜检查",
+          "退房还钥匙，确认无遗留",
+        ],
+      },
+    ],
+    tips: [
+      {
+        kind: "parking",
+        text: "格伦科路边免费 / NTS 停车场 £5；Woodlands B&B 免费停车。",
+      },
+      {
+        kind: "drive",
+        text: "轻松日！偏凉可能小雨，多穿一层；格伦科是 007《天幕杀机》取景地。",
+      },
+    ],
     stay: {
       summary: "Woodlands B&B",
       lodging: [
@@ -844,6 +1394,42 @@ const days: Day[] = [
     route: "湖区 → 伯明翰",
     driving: "约 2 小时",
     weather: { temp: "10–18°C", summary: "湖区偏凉有雨" },
+    anchors: [
+      {
+        time: "09:30",
+        label: "温德米尔湖蒸汽游船 Bowness → Ambleside",
+        kind: "transit",
+        query: "Bowness-on-Windermere pier",
+        mode: "driving",
+      },
+      {
+        time: "16:30",
+        label: "退房出发前往伯明翰",
+        kind: "checkout",
+        query: "Woodlands, New Road, Windermere LA23 2EE",
+      },
+      {
+        time: "19:00",
+        label: "Albatross Death Cult 晚餐（3 人已订）",
+        kind: "reservation",
+        query: "Albatross Death Cult, Newhall Square, Birmingham B3 1RU",
+        mode: "driving",
+      },
+    ],
+    nav: [
+      {
+        label: "全程：湖区 → 伯明翰",
+        from: "Woodlands, New Road, Windermere LA23 2EE",
+        via: [
+          "Bowness-on-Windermere pier",
+          "Ambleside town centre",
+          "Sarah Nelson Grasmere Gingerbread",
+        ],
+        to: "Aloft Birmingham Eastside",
+        mode: "driving",
+        note: "湖区游玩后 16:30 出发，约 2h",
+      },
+    ],
     timeline: [
       { time: "09:30", text: "温德米尔湖蒸汽游船 Bowness → Ambleside" },
       { time: "11:30", text: "彼得兔世界 或 Hill Top 农场（作者故居）" },
@@ -900,7 +1486,7 @@ const days: Day[] = [
         tag: "现代英式 fine dining",
         michelin: 1,
         description:
-          "Adam Stokes 主理，2013 年至今稳守一星，2026 年初迁入装饰艺术新址，精致现代英式、强调时令英国食材。",
+          "Adam Stokes 主理，2013 年至今稳守一星，Waterloo Street 装饰艺术空间，精致现代英式、强调时令英国食材。",
         price: "Tasting ~£109–139/人",
         website: "https://www.adamsrestaurant.co.uk",
       },
@@ -926,6 +1512,31 @@ const days: Day[] = [
         website: "https://www.lenclume.co.uk/reservations",
       },
     ],
+    checklists: [
+      {
+        title: "退房收拾",
+        items: [
+          "充电器 / 数据线 / 充电宝",
+          "浴室洗漱用品",
+          "床头柜 / 抽屉 / 衣柜检查",
+          "退房还钥匙，确认无遗留",
+        ],
+      },
+    ],
+    tips: [
+      {
+        kind: "parking",
+        text: "湖区景点停车：Bowness £5–8，Ambleside £3–5。",
+      },
+      {
+        kind: "parking",
+        text: "Aloft Birmingham 酒店停车约 £10–15。",
+      },
+      {
+        kind: "info",
+        text: "Grasmere 别错过 Sarah Nelson's 1854 年姜饼店。",
+      },
+    ],
     stay: {
       summary: "Aloft Birmingham",
       lodging: [
@@ -936,7 +1547,7 @@ const days: Day[] = [
           phone: "+44 121 820 6000",
           checkIn: "6.25 周四 15:00",
           checkOut: "6.26 周五 12:00",
-          note: "住客：Yang Muyu。",
+          note: "住客：大雨。",
           status: "booked",
         },
       ],
@@ -951,6 +1562,37 @@ const days: Day[] = [
     route: "伯明翰 → 希思罗 → 布里斯托",
     driving: "约 3.5 小时",
     weather: { temp: "12–17°C", summary: "多云，偶有小雨" },
+    anchors: [
+      {
+        time: "10:00",
+        label: "退房出发（只需 1.5h 到机场）",
+        kind: "checkout",
+        query: "Aloft Birmingham Eastside",
+      },
+      {
+        time: "11:30",
+        label: "Heathrow T3 送 Jim 值机（航班 17:00）",
+        kind: "dropoff",
+        query: "Heathrow Terminal 3 Departures",
+        mode: "driving",
+      },
+      {
+        time: "14:30",
+        label: "入住 Hilton Garden Inn Bristol",
+        kind: "checkin",
+        query: "Hilton Garden Inn Bristol City Centre",
+      },
+    ],
+    nav: [
+      {
+        label: "全程：伯明翰 → 送机 → Bristol",
+        from: "Aloft Birmingham Eastside",
+        via: ["Heathrow Terminal 3 Departures"],
+        to: "Hilton Garden Inn Bristol City Centre",
+        mode: "driving",
+        note: "送完 Jim 后 M4 西行约 1.5h",
+      },
+    ],
     timeline: [
       { time: "10:00", text: "伯明翰出发（只需 1.5h 到机场）" },
       {
@@ -1028,6 +1670,31 @@ const days: Day[] = [
         price: "~£15–25/人",
       },
     ],
+    checklists: [
+      {
+        title: "退房收拾",
+        items: [
+          "充电器 / 数据线 / 充电宝",
+          "浴室洗漱用品",
+          "床头柜 / 抽屉 / 衣柜检查",
+          "退房还房卡，确认无遗留",
+        ],
+      },
+    ],
+    tips: [
+      {
+        kind: "parking",
+        text: "送机省钱：直接在 T3 Departures 路边 Drop-off（限 5min，下车即走）= £0。",
+      },
+      {
+        kind: "parking",
+        text: "Hilton Garden Inn Bristol 停车约 £10–15/晚。",
+      },
+      {
+        kind: "info",
+        text: "Cathay 在希思罗 T3（Jim 航班 17:00，出发前再确认航站楼）。",
+      },
+    ],
     stay: {
       summary: "Hilton Bristol",
       lodging: [
@@ -1053,6 +1720,45 @@ const days: Day[] = [
     route: "布里斯托 ↔ 巴斯",
     driving: "约 0.5 小时",
     weather: { temp: "10–17°C", summary: "多云间晴，泡温泉舒适" },
+    anchors: [
+      {
+        time: "10:00",
+        label: "古罗马浴场 Roman Baths",
+        kind: "drive",
+        query: "Roman Baths, Bath",
+        mode: "driving",
+      },
+      {
+        time: "15:30",
+        label: "Clifton 悬索桥 + Clifton Village",
+        kind: "drive",
+        query: "Clifton Suspension Bridge",
+        mode: "driving",
+      },
+      {
+        time: "19:00",
+        label: "Bristol 晚餐（研究生毕业纪念）",
+        kind: "reservation",
+        query: "Wilsons, 24 Chandos Road, Bristol BS6 6PF",
+        mode: "transit",
+      },
+    ],
+    nav: [
+      {
+        label: "去巴斯：Bristol → Lansdown P&R",
+        from: "Hilton Garden Inn Bristol City Centre",
+        to: "Lansdown Park and Ride, Bath",
+        mode: "driving",
+        note: "P&R 停车 £4 全天，巴士 15min 进城",
+      },
+      {
+        label: "返回：Bath → Bristol → Clifton",
+        from: "Lansdown Park and Ride, Bath",
+        via: ["Hilton Garden Inn Bristol City Centre"],
+        to: "Clifton Suspension Bridge",
+        mode: "driving",
+      },
+    ],
     timeline: [
       { time: "09:30", text: "前往巴斯（仅 20 分钟）" },
       { time: "10:00", text: "古罗马浴场 — 2000 年温泉遗址，语音导览精彩" },
@@ -1108,6 +1814,16 @@ const days: Day[] = [
         website: "https://www.thecircusrestaurant.co.uk",
       },
     ],
+    tips: [
+      {
+        kind: "parking",
+        text: "Bath 一定用 Park & Ride（Lansdown / Odd Down，£4 全天）— 市中心停车 £3–4/h 且车位难找。",
+      },
+      {
+        kind: "info",
+        text: "休闲日，睡到自然醒；Thermae Bath Spa 屋顶温泉泳池可选，记得带泳裤。",
+      },
+    ],
     stay: {
       summary: "连住 · Hilton Bristol",
       lodging: [],
@@ -1123,6 +1839,48 @@ const days: Day[] = [
     route: "布里斯托 → 科茨沃尔德 → 牛津 → 伦敦",
     driving: "约 3 小时",
     weather: { temp: "12–19°C", summary: "多云，伦敦回暖" },
+    anchors: [
+      {
+        time: "09:00",
+        label: "退房北上，进入科茨沃尔德",
+        kind: "checkout",
+        query: "Hilton Garden Inn Bristol City Centre",
+      },
+      {
+        time: "10:00",
+        label: "水上伯顿 Bourton-on-the-Water",
+        kind: "drive",
+        query: "Bourton-on-the-Water car park",
+        mode: "driving",
+      },
+      {
+        time: "15:30",
+        label: "牛津 · 基督教会学院（哈利波特大厅）",
+        kind: "drive",
+        query: "Oxford Westgate car park",
+        mode: "driving",
+      },
+      {
+        time: "18:30",
+        label: "入住 Moxy London Excel（大雨名下）",
+        kind: "checkin",
+        query: "Moxy London Excel",
+      },
+    ],
+    nav: [
+      {
+        label: "全程：Bristol → 科茨沃尔德 → 牛津 → 伦敦",
+        from: "Hilton Garden Inn Bristol City Centre",
+        via: [
+          "Bourton-on-the-Water car park",
+          "Bibury Arlington Row",
+          "Oxford Westgate car park",
+        ],
+        to: "Moxy London Excel",
+        mode: "driving",
+        note: "Oxford → Moxy 约 1.5h（M40 → M25 → A13）",
+      },
+    ],
     timeline: [
       { time: "09:00", text: "退房北上，进入科茨沃尔德" },
       {
@@ -1175,6 +1933,32 @@ const days: Day[] = [
         website: "https://www.cherwellboathouse.co.uk",
       },
     ],
+    checklists: [
+      {
+        title: "退房收拾",
+        items: [
+          "充电器 / 数据线 / 充电宝",
+          "浴室洗漱用品",
+          "床头柜 / 抽屉 / 衣柜检查",
+          "退房还房卡，确认无遗留",
+        ],
+        note: "今晚起大雨独自住 Moxy 两晚，Jim 已离队、石头回家。",
+      },
+    ],
+    tips: [
+      {
+        kind: "parking",
+        text: "Cotswolds 村庄停车免费；Oxford 用 Westgate / Park & Ride（£3–5）。",
+      },
+      {
+        kind: "parking",
+        text: "Moxy London Excel 有停车场，伦敦 Zone 5–6 停车便宜。",
+      },
+      {
+        kind: "info",
+        text: "可选 Bicester Village 打折村（160+ 品牌），逛 2–2.5h，搜 Bicester Village car park。",
+      },
+    ],
     stay: {
       summary: "Moxy London Excel",
       lodging: [
@@ -1185,7 +1969,7 @@ const days: Day[] = [
           checkIn: "6.28 周日",
           checkOut: "6.30 周二",
           room: "独自入住 · 连住 2 晚",
-          note: "Yang Muyu 名下预订。Custom House 站步行 5min（Elizabeth Line）→ Liverpool Street 15min / West End 25min。酒店有停车场，6.29 车停这里坐地铁玩，6.30 一早开去 Gatwick 还车约 1h。",
+          note: "大雨名下预订。Custom House 站步行 5min（Elizabeth Line）→ Liverpool Street 15min / West End 25min。酒店有停车场，6.29 车停这里坐地铁玩，6.30 一早开去 Gatwick 还车约 1h。",
           status: "booked",
         },
       ],
@@ -1200,6 +1984,49 @@ const days: Day[] = [
     route: "全天地铁出行（车停 Moxy）",
     driving: "无需驾车",
     weather: { temp: "15–19°C", summary: "多云间晴" },
+    anchors: [
+      {
+        time: "09:30",
+        label: "Custom House 坐 Elizabeth Line 进城",
+        kind: "transit",
+        query: "Custom House Station, London",
+        mode: "transit",
+      },
+      {
+        time: "19:00",
+        label: "晚餐后早点回酒店收行李（明早还车）",
+        kind: "reservation",
+        query: "Dishoom Shoreditch, 7 Boundary Street, London E2 7JE",
+        mode: "transit",
+      },
+    ],
+    nav: [
+      {
+        label: "Shoreditch / Brick Lane",
+        from: "Custom House Station, London",
+        to: "Brick Lane, London",
+        mode: "transit",
+        note: "Elizabeth Line → Liverpool Street 出",
+      },
+      {
+        label: "South Bank · Borough Market",
+        to: "Borough Market, London",
+        mode: "transit",
+        note: "Tate Modern → 千禧桥 → Borough Market → Tower Bridge",
+      },
+      {
+        label: "West End（Oxford St / Covent Garden）",
+        to: "Covent Garden, London",
+        mode: "transit",
+        note: "Tottenham Court Road 下，步行 10min",
+      },
+      {
+        label: "Harrods · 骑士桥",
+        to: "Harrods, London",
+        mode: "transit",
+        note: "Food Hall 买手信好",
+      },
+    ],
     timeline: [
       {
         time: "09:30",
@@ -1339,6 +2166,32 @@ const days: Day[] = [
         price: "~£15–30/人",
       },
     ],
+    checklists: [
+      {
+        title: "今晚收行李 · 还车前",
+        items: [
+          "行李收拾打包",
+          "确认油量（如今天开过车，明天路上加油）",
+          "充电设备整理",
+          "设好闹钟，明早 07:00 起",
+        ],
+        note: "明早 07:45 出发去 Gatwick 还车，别玩太晚。",
+      },
+    ],
+    tips: [
+      {
+        kind: "transit",
+        text: "车停 Moxy，全天 Elizabeth Line：Oyster 或银行卡 contactless 直接刷，每日 £8.10 封顶（Zone 1–3）。",
+      },
+      {
+        kind: "transit",
+        text: "Custom House → Liverpool Street 15min / Tottenham Court Road 20min / Paddington 22min。",
+      },
+      {
+        kind: "warn",
+        text: "明早 07:45 就要出发去 Gatwick 还车：今晚提前收好行李、确认油量。",
+      },
+    ],
     stay: {
       summary: "连住 · Moxy London Excel",
       lodging: [],
@@ -1353,6 +2206,43 @@ const days: Day[] = [
     title: "还车 · 返程回国",
     route: "Moxy → M25 → Gatwick 还车 → CA852 回国",
     driving: "约 1 小时",
+    anchors: [
+      {
+        time: "07:45",
+        label: "退房出发，Moxy → M25 → M23 南下",
+        kind: "checkout",
+        query: "Moxy London Excel",
+      },
+      {
+        time: "08:30",
+        label: "Pease Pottage 加满油（还车前最后便宜油站）",
+        kind: "drive",
+        query: "Pease Pottage Services M23",
+        mode: "driving",
+      },
+      {
+        time: "09:00",
+        label: "Sixt 还车 · Gatwick South Terminal",
+        kind: "dropoff",
+        query: "Sixt Gatwick South Terminal",
+        mode: "driving",
+      },
+      {
+        time: "12:35",
+        label: "CA852 起飞回国",
+        kind: "flight",
+      },
+    ],
+    nav: [
+      {
+        label: "全程：Moxy → 加油 → Gatwick 还车",
+        from: "Moxy London Excel",
+        via: ["Pease Pottage Services M23"],
+        to: "Sixt Gatwick South Terminal",
+        mode: "driving",
+        note: "⚠️ 必须先在 Pease Pottage 加满油再还车",
+      },
+    ],
     timeline: [
       { time: "07:00", text: "起床退房，行李上车" },
       { time: "07:45", text: "出发，Moxy → A2 → M25 → M23 南下" },
@@ -1376,6 +2266,28 @@ const days: Day[] = [
     ],
     places: [],
     restaurants: [],
+    checklists: [
+      {
+        title: "还车 Checklist",
+        items: [
+          "Pease Pottage 加满油，保留加油小票",
+          "检查车内无个人物品（后备箱 / 杂物箱 / 座位下）",
+          "拍照记录还车时车辆外观",
+          "拿到还车确认单 / 邮件",
+          "CA 国航柜台值机托运 + 过安检",
+        ],
+      },
+    ],
+    tips: [
+      {
+        kind: "fuel",
+        text: "必须在 Pease Pottage Services（M23 J11）加满油 — Sixt full-to-full，不加满按约 £2.5/升代加（正常 £1.5），距机场仅 5min。",
+      },
+      {
+        kind: "info",
+        text: "CA852 12:35 起飞，时间充裕；过安检后约 1.5h 可逛免税店。",
+      },
+    ],
     stay: {
       summary: "夜宿 · 返程航班",
       lodging: [],
