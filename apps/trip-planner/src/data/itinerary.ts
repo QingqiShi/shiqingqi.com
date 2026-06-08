@@ -672,7 +672,7 @@ const days: Day[] = [
           query: "Guisachan Guest House Fort William",
           address: "Alma Road, Fort William, PH33 6HA",
           room: "3 人",
-          note: "Fort William 直达无需渡轮，晚餐就在镇上（Crannog）；第二天 A82 南下 15min 即到格伦科。",
+          note: "住客：Yang Muyu。Fort William 直达无需渡轮，晚餐就在镇上（Crannog）；第二天 A82 南下 15min 即到格伦科。",
           status: "booked",
         },
       ],
