@@ -7,6 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "大不列颠自驾 · 行程",
   description: "2026 年 6 月英国 10 天自驾行程：每日安排、景点、餐厅与住宿。",
+  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
