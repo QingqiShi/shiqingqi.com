@@ -721,7 +721,7 @@ const days: Day[] = [
         time: "18:30",
         label: "入住因弗内斯独栋",
         kind: "checkin",
-        query: "41 Essichs Gardens, Inverness IV2 6BW",
+        query: "41 Essich Gardens, Inverness IV2 6BW",
       },
     ],
     nav: [
@@ -749,7 +749,7 @@ const days: Day[] = [
       {
         label: "Pitlochry → 因弗内斯",
         from: "Pitlochry town centre",
-        to: "41 Essichs Gardens, Inverness IV2 6BW",
+        to: "41 Essich Gardens, Inverness IV2 6BW",
         mode: "driving",
         note: "A9 穿凯恩戈姆，layby 随时停拍",
       },
@@ -889,8 +889,8 @@ const days: Day[] = [
       lodging: [
         {
           name: "Modern 2 Bedroom Semi-detached House",
-          query: "41 Essichs Gardens Inverness IV2 6BW",
-          address: "41 Essichs Gardens, Inverness, IV2 6BW",
+          query: "41 Essich Gardens Inverness IV2 6BW",
+          address: "41 Essich Gardens, Inverness, IV2 6BW",
           checkIn: "6.21 周日 16:00",
           checkOut: "6.23 周二 10:00",
           room: "独栋 2 居室 · 连住 2 晚 · 带私人车位",
@@ -935,7 +935,7 @@ const days: Day[] = [
     nav: [
       {
         label: "因弗内斯 → Macallan 酒厂",
-        from: "41 Essichs Gardens, Inverness IV2 6BW",
+        from: "41 Essich Gardens, Inverness IV2 6BW",
         to: "The Macallan Distillery",
         mode: "driving",
         note: "A9 → A95 约 1h15；务必提前网上预约",
@@ -950,7 +950,7 @@ const days: Day[] = [
       {
         label: "Aberlour → 因弗内斯（返回）",
         from: "Aberlour Distillery",
-        to: "41 Essichs Gardens, Inverness IV2 6BW",
+        to: "41 Essich Gardens, Inverness IV2 6BW",
         mode: "driving",
         note: "A95 → A9 返程约 1h15",
       },
@@ -1074,7 +1074,7 @@ const days: Day[] = [
         time: "08:00",
         label: "出发离开因弗内斯（行程密集，早出发）",
         kind: "checkout",
-        query: "41 Essichs Gardens, Inverness IV2 6BW",
+        query: "41 Essich Gardens, Inverness IV2 6BW",
       },
       {
         time: "08:30",
@@ -1100,7 +1100,7 @@ const days: Day[] = [
     nav: [
       {
         label: "因弗内斯 → Urquhart Castle",
-        from: "41 Essichs Gardens, Inverness IV2 6BW",
+        from: "41 Essich Gardens, Inverness IV2 6BW",
         to: "Urquhart Castle car park",
         mode: "driving",
         note: "尼斯湖畔观景台，30–40min",
@@ -2116,7 +2116,11 @@ const days: Day[] = [
       },
       {
         label: "South Bank（Tate Modern / Tower Bridge）",
-        to: "Tate Modern, London",
+        // Use the Bankside area, not "Tate Modern" — the museum geocodes to a
+        // building Google can't snap as a routable waypoint, which blanks the
+        // day-overview route. The Tate Modern place-pill below still links the
+        // museum directly.
+        to: "Bankside, London",
         mode: "transit",
         note: "Tate Modern → 千禧桥 → Tower Bridge（Borough Market 周一休市）",
       },
