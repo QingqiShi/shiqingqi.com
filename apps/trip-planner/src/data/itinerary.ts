@@ -779,7 +779,7 @@ const days: Day[] = [
     restaurants: [
       {
         name: "Albatross Death Cult",
-        query: "Albatross Death Cult Birmingham",
+        query: "Albatross Death Cult, Newhall Square, Birmingham B3 1RU",
         tag: "创意料理",
         status: "booked",
         description: "暗黑风格创意餐厅，体验感满分。",
