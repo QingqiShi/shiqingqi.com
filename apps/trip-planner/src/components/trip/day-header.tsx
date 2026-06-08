@@ -1,4 +1,5 @@
 import { Car, CloudSun, Route } from "lucide-react";
+import { DayParty } from "./day-party";
 import { Badge } from "@/components/ui/badge";
 import type { Day } from "@/data/itinerary";
 
@@ -21,6 +22,8 @@ export function DayHeader({ day, isToday }: { day: Day; isToday: boolean }) {
         <Route className="size-4 shrink-0" />
         {day.route}
       </p>
+
+      <DayParty dayN={day.n} className="mt-3" />
 
       {day.driving || day.weather ? (
         <div className="mt-3 flex flex-wrap gap-2">

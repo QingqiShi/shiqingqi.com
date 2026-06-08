@@ -6,6 +6,7 @@ import {
   Users,
   Utensils,
 } from "lucide-react";
+import { DayParty } from "./day-party";
 import { Badge } from "@/components/ui/badge";
 import type { Day, Trip } from "@/data/itinerary";
 
@@ -50,6 +51,8 @@ function OverviewRow({
 
           <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         </div>
+
+        <DayParty dayN={day.n} compact className="mt-3" />
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           {day.driving ? (
