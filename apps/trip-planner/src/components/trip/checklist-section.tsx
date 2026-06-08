@@ -1,8 +1,7 @@
 "use client";
 
-import { Check, ChevronDown, ListChecks } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { useState, useSyncExternalStore } from "react";
-import { Section } from "./section";
 import type { Checklist } from "@/data/itinerary";
 import { cn } from "@/lib/utils";
 
@@ -78,119 +77,104 @@ function setChecked(id: string, value: boolean) {
   notify();
 }
 
-/** Tick-through checklists with on-device persistence. Answers "what do I have
- *  to do" — step lists you work through (入境流程, 退房收拾, 还车检查…). */
-export function ChecklistSection({
+/** A single tick-through checklist card with on-device persistence. */
+export function ChecklistCard({
   dayN,
-  checklists,
+  list,
 }: {
   dayN: number;
-  checklists: Checklist[];
+  list: Checklist;
 }) {
   const checked = useSyncExternalStore(
     subscribe,
     getSnapshot,
     getServerSnapshot,
   );
-  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [isOpen, setIsOpen] = useState(false);
 
-  const toggleOpen = (title: string) => {
-    setOpen((prev) => ({ ...prev, [title]: !prev[title] }));
-  };
+  const total = list.items.length;
+  const doneCount = list.items.filter(
+    (_, i) => checked[itemId(dayN, list.title, i)],
+  ).length;
+  const allDone = total > 0 && doneCount === total;
 
   return (
-    <Section icon={ListChecks} title="清单">
-      <div className="space-y-3">
-        {checklists.map((list) => {
-          const total = list.items.length;
-          const doneCount = list.items.filter(
-            (_, i) => checked[itemId(dayN, list.title, i)],
-          ).length;
-          const allDone = total > 0 && doneCount === total;
-          const isOpen = open[list.title] ?? false;
-          return (
-            <div key={list.title} className="rounded-xl border bg-card">
-              <button
-                type="button"
-                onClick={() => {
-                  toggleOpen(list.title);
-                }}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left"
-              >
-                <span
-                  className={cn(
-                    "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums",
-                    allDone
-                      ? "border-foreground bg-foreground text-background"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {allDone ? <Check className="size-3.5" /> : doneCount}
-                </span>
-                <span className="min-w-0 flex-1 text-sm font-medium">
-                  {list.title}
-                </span>
-                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                  {doneCount}/{total}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    "size-4 shrink-0 text-muted-foreground transition-transform",
-                    isOpen && "rotate-180",
-                  )}
-                />
-              </button>
+    <div className="rounded-xl border bg-card">
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen((value) => !value);
+        }}
+        aria-expanded={isOpen}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left"
+      >
+        <span
+          className={cn(
+            "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums",
+            allDone
+              ? "border-foreground bg-foreground text-background"
+              : "text-muted-foreground",
+          )}
+        >
+          {allDone ? <Check className="size-3.5" /> : doneCount}
+        </span>
+        <span className="min-w-0 flex-1 text-sm font-medium">{list.title}</span>
+        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+          {doneCount}/{total}
+        </span>
+        <ChevronDown
+          className={cn(
+            "size-4 shrink-0 text-muted-foreground transition-transform",
+            isOpen && "rotate-180",
+          )}
+        />
+      </button>
 
-              {isOpen ? (
-                <div className="border-t px-4 py-3">
-                  <ul className="space-y-0.5">
-                    {list.items.map((item, i) => {
-                      const id = itemId(dayN, list.title, i);
-                      const isChecked = checked[id] ?? false;
-                      return (
-                        <li key={id}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setChecked(id, !isChecked);
-                            }}
-                            className="flex w-full items-start gap-2.5 rounded-lg py-1.5 text-left"
-                          >
-                            <span
-                              className={cn(
-                                "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
-                                isChecked
-                                  ? "border-foreground bg-foreground text-background"
-                                  : "border-muted-foreground/40",
-                              )}
-                            >
-                              {isChecked ? <Check className="size-3" /> : null}
-                            </span>
-                            <span
-                              className={cn(
-                                "text-sm leading-relaxed",
-                                isChecked &&
-                                  "text-muted-foreground line-through",
-                              )}
-                            >
-                              {item}
-                            </span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  {list.note ? (
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                      {list.note}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-    </Section>
+      {isOpen ? (
+        <div className="border-t px-4 py-3">
+          <ul className="space-y-0.5">
+            {list.items.map((item, i) => {
+              const id = itemId(dayN, list.title, i);
+              const isChecked = checked[id] ?? false;
+              return (
+                <li key={id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setChecked(id, !isChecked);
+                    }}
+                    className="flex w-full items-start gap-2.5 rounded-lg py-1.5 text-left"
+                  >
+                    <span
+                      className={cn(
+                        "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
+                        isChecked
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-muted-foreground/40",
+                      )}
+                    >
+                      {isChecked ? <Check className="size-3" /> : null}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-sm leading-relaxed",
+                        isChecked && "text-muted-foreground line-through",
+                      )}
+                    >
+                      {item}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {list.note ? (
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              {list.note}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }

@@ -24,9 +24,18 @@ const anchorIcon: Record<AnchorKind, LucideIcon> = {
   drive: Car,
 };
 
-/** The at-a-glance card: the day's fixed "must-be-there" moments, each with
- *  an optional one-tap 导航 button. Answers "where do I have to be". */
-export function DayGlance({ anchors }: { anchors: Anchor[] }) {
+/** The at-a-glance card: the day's fixed "must-be-there" moments. Tapping a row
+ *  jumps to that moment in the feed below; the 导航 button opens maps. Answers
+ *  "where do I have to be". */
+export function DayGlance({
+  anchors,
+  jumpableTimes,
+  onJump,
+}: {
+  anchors: Anchor[];
+  jumpableTimes?: Set<string>;
+  onJump?: (time: string) => void;
+}) {
   return (
     <section className="rounded-2xl border bg-card p-4 shadow-sm">
       <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -36,15 +45,29 @@ export function DayGlance({ anchors }: { anchors: Anchor[] }) {
       <ul className="space-y-3">
         {anchors.map((anchor) => {
           const Icon = anchorIcon[anchor.kind];
+          const time = anchor.time;
+          const canJump = Boolean(onJump && time && jumpableTimes?.has(time));
           return (
             <li key={anchor.label} className="flex items-center gap-3">
               <span className="w-12 shrink-0 text-right text-sm tabular-nums text-muted-foreground">
                 {anchor.time}
               </span>
               <Icon className="size-4 shrink-0 text-muted-foreground" />
-              <span className="min-w-0 flex-1 text-sm font-medium text-pretty">
-                {anchor.label}
-              </span>
+              {canJump && time ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onJump?.(time);
+                  }}
+                  className="min-w-0 flex-1 text-left text-sm font-medium text-pretty underline-offset-4 transition-colors hover:text-muted-foreground hover:underline"
+                >
+                  {anchor.label}
+                </button>
+              ) : (
+                <span className="min-w-0 flex-1 text-sm font-medium text-pretty">
+                  {anchor.label}
+                </span>
+              )}
               {anchor.query ? (
                 <NavLink to={anchor.query} mode={anchor.mode} />
               ) : null}

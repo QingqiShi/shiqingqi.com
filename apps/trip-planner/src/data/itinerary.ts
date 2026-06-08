@@ -11,6 +11,9 @@ export interface MapPlace {
   name: string;
   query: string;
   note?: string;
+  /** When this place fits the day, used to weave it into the chronological
+   *  feed (e.g. the free-roam window). Omit to keep it as a day-level idea. */
+  time?: string;
 }
 
 /** A confirmed booking attached to a restaurant. */
@@ -39,6 +42,10 @@ export interface Restaurant {
   /** "booked" = confirmed reservation, "pick" = the planned choice. */
   status?: "booked" | "pick";
   booking?: Booking;
+  /** The meal slot this option belongs to (e.g. "13:00" lunch, "19:00"
+   *  dinner), used to weave dining into the chronological feed at the right
+   *  time. Omit to keep it as a day-level option. */
+  time?: string;
 }
 
 export interface Lodging {
@@ -90,6 +97,9 @@ export interface NavLeg {
   from?: string;
   mode?: TravelMode;
   note?: string;
+  /** Departure time for this hop, used to slot the leg into the day's
+   *  chronological feed at the moment you set off. */
+  time?: string;
 }
 
 /** A tick-through checklist (e.g. 入境流程, 还车检查). State lives client-side. */
@@ -97,6 +107,9 @@ export interface Checklist {
   title: string;
   items: string[];
   note?: string;
+  /** When to work through this list (e.g. arrival, checkout), used to place it
+   *  in the chronological feed. Omit to keep it day-level. */
+  time?: string;
 }
 
 /** What kind of fixed commitment an anchor is — drives its icon. */
@@ -134,6 +147,9 @@ export type TipKind =
 export interface Tip {
   kind: TipKind;
   text: string;
+  /** When this heads-up is relevant, used to weave it into the feed next to
+   *  the moment it serves. Omit for day-wide notes (shown in 今日须知). */
+  time?: string;
 }
 
 export interface Day {
@@ -237,6 +253,7 @@ const days: Day[] = [
         to: "Gatwick Airport North Terminal",
         mode: "transit",
         note: "地铁 / 火车约 1h15，到 North Terminal 接机，此时还没取车",
+        time: "06:45",
       },
       {
         label: "Gatwick → N17（取车后开回家停一天）",
@@ -244,6 +261,7 @@ const days: Day[] = [
         to: "N17 9LX, London",
         mode: "driving",
         note: "M23 → M25 约 1h15，车停 N17 附近，白天不开进市区",
+        time: "白天",
       },
       {
         label: "N17 → 市区（Tottenham Hale → Liverpool Street）",
@@ -251,6 +269,7 @@ const days: Day[] = [
         to: "Liverpool Street Station, London",
         mode: "transit",
         note: "Greater Anglia 直达约 13min，到 Liverpool St 换 Elizabeth 线去各处",
+        time: "下午",
       },
       {
         label: "前往 Maru · Mayfair（Elizabeth 线 → Bond St）",
@@ -258,6 +277,7 @@ const days: Day[] = [
         to: "Maru, 18 Shepherd Market, London W1J 7QH",
         mode: "transit",
         note: "Liverpool St 坐 Elizabeth 线到 Bond Street 约 8min，步行 10min 到 Shepherd Market",
+        time: "17:30",
       },
       {
         label: "回 Chingford 酒店过夜（N17 取车开过去）",
@@ -265,6 +285,7 @@ const days: Day[] = [
         to: "Holiday Inn Express London Chingford",
         mode: "driving",
         note: "晚饭后坐火车回 Tottenham Hale 取车，开去 Chingford 约 15min",
+        time: "晚上",
       },
     ],
     timeline: [
@@ -290,17 +311,20 @@ const days: Day[] = [
         name: "大英博物馆 British Museum",
         query: "British Museum, London",
         note: "免费",
+        time: "下午",
       },
-      { name: "海德公园 Hyde Park", query: "Hyde Park, London" },
+      { name: "海德公园 Hyde Park", query: "Hyde Park, London", time: "下午" },
       {
         name: "Tate Modern · 南岸",
         query: "Tate Modern, London",
         note: "免费",
+        time: "下午",
       },
       {
         name: "自然历史博物馆",
         query: "Natural History Museum, London",
         note: "免费",
+        time: "下午",
       },
     ],
     restaurants: [
@@ -310,6 +334,7 @@ const days: Day[] = [
         query: "Maru, 18 Shepherd Market, London W1J 7QH",
         tag: "Omakase · 约 18 道",
         status: "booked",
+        time: "17:30",
         description:
           "MARU London 的主厨发办江户前 omakase，约 18 道。位于 Mayfair 的 Shepherd Market，Green Park 站步行 5min。每晚两席 17:30 / 20:30。",
         website: "https://www.marulondon.com/",
@@ -333,12 +358,14 @@ const days: Day[] = [
           "适应右舵左行，停车场先开 5–10min 找感觉",
         ],
         note: "大雨名下预订租车，租期 6.18–6.30 共 13 天，Gatwick 取还。",
+        time: "白天",
       },
     ],
     tips: [
       {
         kind: "parking",
         text: "白天把车停在 N17：路段是 CPZ 就当天用 RingGo 买一张 Haringey 住户访客券（最省事，停家门附近）；有自家车道或路段不管制则免费。想要稳妥也可提前在 JustPark / YourParkingSpace 订车位（约 £6–8/天）。别贪 Tottenham Hale 零售公园的免费 3 小时（超时罚款很重）。晚上再开去 Chingford，酒店停车免费。",
+        time: "下午",
       },
       {
         kind: "drive",
@@ -404,6 +431,7 @@ const days: Day[] = [
         to: "N17 9LX, London",
         mode: "driving",
         note: "一早出发，先到 N17 接石头上车",
+        time: "06:30",
       },
       {
         label: "N17 → Heathrow T3 接 Jim",
@@ -411,6 +439,7 @@ const days: Day[] = [
         to: "Heathrow Terminal 3 Arrivals",
         mode: "driving",
         note: "Jim 出关后再开进 Short Stay 接人",
+        time: "06:55",
       },
       {
         label: "Heathrow → 剑桥 Park & Ride",
@@ -418,6 +447,7 @@ const days: Day[] = [
         to: "Trumpington Park and Ride, Cambridge",
         mode: "driving",
         note: "M25 → M11 北上；市中心难停，停 P&R 转巴士",
+        time: "08:30",
       },
       {
         label: "剑桥 P&R → 市中心 King's College",
@@ -425,6 +455,7 @@ const days: Day[] = [
         to: "King's College, Cambridge",
         mode: "transit",
         note: "P&R 巴士进城，撑篙 + 学院",
+        time: "10:00",
       },
       {
         label: "剑桥 → 诺丁汉 Crowne Plaza",
@@ -432,6 +463,7 @@ const days: Day[] = [
         to: "Crowne Plaza Nottingham",
         mode: "driving",
         note: "午餐后出发，约 2.5h",
+        time: "13:00",
       },
     ],
     timeline: [
@@ -446,16 +478,30 @@ const days: Day[] = [
       { time: "13:00", text: "午餐后出发前往诺丁汉" },
       { time: "15:00", text: "抵达诺丁汉，Crowne Plaza 入住" },
       { time: "16:00", text: "沃莱顿大厅 — 蝙蝠侠韦恩庄园取景地，花园散步" },
+      { time: "19:00", text: "诺丁汉市区晚餐 — 下方任选一家" },
     ],
     places: [
-      { name: "国王学院 King's College", query: "King's College, Cambridge" },
-      { name: "三一学院 Trinity College", query: "Trinity College, Cambridge" },
-      { name: "沃莱顿大厅 Wollaton Hall", query: "Wollaton Hall, Nottingham" },
+      {
+        name: "国王学院 King's College",
+        query: "King's College, Cambridge",
+        time: "10:00",
+      },
+      {
+        name: "三一学院 Trinity College",
+        query: "Trinity College, Cambridge",
+        time: "10:00",
+      },
+      {
+        name: "沃莱顿大厅 Wollaton Hall",
+        query: "Wollaton Hall, Nottingham",
+        time: "16:00",
+      },
     ],
     restaurants: [
       {
         name: "Restaurant Sat Bains",
         area: "诺丁汉",
+        time: "19:00",
         query: "Restaurant Sat Bains, Lenton Lane, Nottingham NG7 2SA",
         tag: "创意料理",
         michelin: 2,
@@ -467,6 +513,7 @@ const days: Day[] = [
       {
         name: "Alchemilla",
         area: "诺丁汉",
+        time: "19:00",
         query: "Alchemilla, 192a Derby Road, Nottingham NG7 1NF",
         tag: "现代欧洲",
         michelin: 1,
@@ -478,6 +525,7 @@ const days: Day[] = [
       {
         name: "Ye Olde Trip to Jerusalem",
         area: "诺丁汉",
+        time: "19:00",
         query:
           "Ye Olde Trip to Jerusalem, 1 Brewhouse Yard, Nottingham NG1 6AD",
         tag: "历史酒吧 · 1189",
@@ -488,6 +536,7 @@ const days: Day[] = [
       {
         name: "MemSaab",
         area: "诺丁汉",
+        time: "19:00",
         query: "MemSaab, 12-14 Maid Marian Way, Nottingham NG1 6HS",
         tag: "印度菜",
         description: "多次获奖的印度餐厅，Tandoori 和 Biryani 极佳。",
@@ -497,6 +546,7 @@ const days: Day[] = [
       {
         name: "Kushi-ya",
         area: "诺丁汉",
+        time: "19:00",
         query: "Kushi-ya, 14a Low Pavement, Nottingham NG1 7DL",
         tag: "日式居酒屋",
         description:
@@ -507,6 +557,7 @@ const days: Day[] = [
       {
         name: "Sexy Mamma Love Spaghetti",
         area: "诺丁汉",
+        time: "19:00",
         query:
           "Sexy Mamma Love Spaghetti, 3 Heathcoat Street, Nottingham NG1 3AF",
         tag: "意大利面",
@@ -523,20 +574,24 @@ const days: Day[] = [
           "Jim 出关发消息后再开进 Short Stay 接人",
           "三人到齐，M4 北上",
         ],
+        time: "07:55",
       },
     ],
     tips: [
       {
         kind: "parking",
         text: "Heathrow 接机省钱：让 Jim 出关后发消息再开进 Short Stay（£7–17 / 1–1.5h）。",
+        time: "07:55",
       },
       {
         kind: "parking",
         text: "剑桥用 Park & Ride（Trumpington / Madingley，£3–5），市中心停车贵且难。",
+        time: "10:00",
       },
       {
         kind: "parking",
         text: "Crowne Plaza 诺丁汉停车约 £10–15/晚。",
+        time: "15:00",
       },
       {
         kind: "drive",
@@ -592,11 +647,13 @@ const days: Day[] = [
         to: "University of Nottingham University Park",
         mode: "driving",
         note: "约 10min；也可打车，校园日车可停酒店",
+        time: "09:30",
       },
       {
         label: "前往 喜得宝（聚餐）",
         to: "Mandarin Restaurant, 42 Belward Street, Nottingham NG1 1JZ",
         mode: "transit",
+        time: "19:00",
       },
     ],
     timeline: [
@@ -615,21 +672,25 @@ const days: Day[] = [
       {
         name: "诺丁汉大学 University Park",
         query: "University of Nottingham University Park",
+        time: "09:30",
       },
       {
         name: "Jubilee 校区",
         query: "Jubilee Campus University of Nottingham",
+        time: "11:30",
       },
       {
         name: "老集市广场 Old Market Square",
         query: "Old Market Square, Nottingham",
+        time: "14:30",
       },
-      { name: "Hockley 区", query: "Hockley, Nottingham" },
+      { name: "Hockley 区", query: "Hockley, Nottingham", time: "14:30" },
     ],
     restaurants: [
       {
         name: "喜得宝 Mandarin Restaurant",
         area: "诺丁汉",
+        time: "19:00",
         query: "Mandarin Restaurant, 42 Belward Street, Nottingham NG1 1JZ",
         tag: "粤菜 · 点心",
         status: "pick",
@@ -641,6 +702,7 @@ const days: Day[] = [
       {
         name: "Shanghai Shanghai",
         area: "诺丁汉",
+        time: "19:00",
         query: "Shanghai Shanghai, 15 Goose Gate, Nottingham NG1 1FE",
         tag: "粤菜 · 港式",
         description:
@@ -650,6 +712,7 @@ const days: Day[] = [
       {
         name: "Mayfair Chinese Restaurant",
         area: "诺丁汉",
+        time: "19:00",
         query:
           "Mayfair Chinese Restaurant, 79 Mansfield Road, Nottingham NG1 3FN",
         tag: "粤菜 · 川菜 · 自带酒水",
@@ -660,6 +723,7 @@ const days: Day[] = [
       {
         name: "Four Seasons 火锅",
         area: "诺丁汉",
+        time: "19:00",
         query: "Four Seasons Hot Pot, 148 Mansfield Road, Nottingham NG1 3HW",
         tag: "火锅 · 烧烤 · 自助",
         description:
@@ -669,6 +733,7 @@ const days: Day[] = [
       {
         name: "Chino Latino",
         area: "诺丁汉",
+        time: "19:00",
         query: "Chino Latino, 41 Maid Marian Way, Nottingham NG1 6GD",
         tag: "泛亚洲 · 鸡尾酒",
         description:
@@ -678,6 +743,7 @@ const days: Day[] = [
       {
         name: "Rock City",
         area: "诺丁汉",
+        time: "21:30",
         query: "Rock City, 8 Talbot Street, Nottingham NG1 5GG",
         tag: "传奇夜店",
         description:
@@ -686,6 +752,7 @@ const days: Day[] = [
       {
         name: "Bodega",
         area: "诺丁汉",
+        time: "21:30",
         query: "The Bodega, 23 Pelham Street, Nottingham NG1 2ED",
         tag: "现场音乐酒吧",
         description:
@@ -700,6 +767,7 @@ const days: Day[] = [
       {
         kind: "money",
         text: "部分中餐馆收现金 / 可自带酒水（如 Mayfair Chinese 隔壁就是酒铺），带点现金。",
+        time: "19:00",
       },
       {
         kind: "info",
@@ -756,6 +824,7 @@ const days: Day[] = [
         to: "Angel of the North car park",
         mode: "driving",
         note: "M1 → A1(M) 约 2h；免费停车拍照",
+        time: "10:00",
       },
       {
         label: "Angel of the North → Forth Bridge",
@@ -763,6 +832,7 @@ const days: Day[] = [
         to: "Queensferry High Street, South Queensferry",
         mode: "driving",
         note: "A1(M) 北上，三桥并排 + 快速午餐",
+        time: "12:00",
       },
       {
         label: "Forth Bridge → Pitlochry",
@@ -770,6 +840,7 @@ const days: Day[] = [
         to: "Pitlochry town centre",
         mode: "driving",
         note: "M90 → A9 进入高地，歇脚 20min",
+        time: "14:15",
       },
       {
         label: "Pitlochry → 因弗内斯",
@@ -777,6 +848,7 @@ const days: Day[] = [
         to: "41 Essich Gardens, Inverness IV2 6BW",
         mode: "driving",
         note: "A9 穿凯恩戈姆，layby 随时停拍",
+        time: "15:30",
       },
     ],
     timeline: [
@@ -804,27 +876,36 @@ const days: Day[] = [
         name: "Angel of the North",
         query: "Angel of the North",
         note: "A1 旁 · 拍照",
+        time: "12:00",
       },
       {
         name: "Forth Bridge · South Queensferry",
         query: "Queensferry High Street, South Queensferry",
         note: "三桥并排",
+        time: "13:30",
       },
       {
         name: "Pitlochry",
         query: "Pitlochry town centre",
         note: "高地门户 · 歇脚",
+        time: "15:00",
       },
       {
         name: "凯恩戈姆国家公园 Cairngorms",
         query: "Cairngorms National Park",
+        time: "15:30",
       },
-      { name: "尼斯河畔 River Ness", query: "River Ness, Inverness" },
+      {
+        name: "尼斯河畔 River Ness",
+        query: "River Ness, Inverness",
+        time: "18:30",
+      },
     ],
     restaurants: [
       {
         name: "The Mustard Seed",
         area: "因弗内斯",
+        time: "19:30",
         query: "The Mustard Seed, 16 Fraser Street, Inverness IV1 1DW",
         tag: "尼斯河景 · 苏格兰料理",
         status: "pick",
@@ -836,6 +917,7 @@ const days: Day[] = [
       {
         name: "Castle Tavern",
         area: "因弗内斯",
+        time: "21:00",
         query: "Castle Tavern, 1-2 View Place, Inverness IV2 4SA",
         tag: "威士忌吧",
         description:
@@ -845,6 +927,7 @@ const days: Day[] = [
       {
         name: "Rocpool Restaurant",
         area: "因弗内斯",
+        time: "19:30",
         query: "Rocpool Restaurant, 1 Ness Walk, Inverness IV3 5NE",
         tag: "现代苏格兰 · fine dining",
         description:
@@ -855,6 +938,7 @@ const days: Day[] = [
       {
         name: "The Malt Room",
         area: "因弗内斯",
+        time: "21:00",
         query: "The Malt Room, 34 Church Street, Inverness IV1 1EH",
         tag: "威士忌品鉴吧",
         description:
@@ -864,6 +948,7 @@ const days: Day[] = [
       {
         name: "Hootananny",
         area: "因弗内斯",
+        time: "21:00",
         query: "Hootananny, 67 Church Street, Inverness IV1 1ES",
         tag: "现场音乐酒吧",
         description:
@@ -873,6 +958,7 @@ const days: Day[] = [
       {
         name: "Moulin Hotel",
         area: "Pitlochry · 途中午餐",
+        time: "15:00",
         query: "Moulin Hotel, Moulin, Pitlochry PH16 5EH",
         tag: "1695 高地酒馆",
         description:
@@ -889,16 +975,19 @@ const days: Day[] = [
           "床头柜 / 抽屉 / 衣柜检查",
           "退房还房卡，确认无遗留",
         ],
+        time: "10:00",
       },
     ],
     tips: [
       {
         kind: "drive",
         text: "A9 Tomatin–Moy 段限速 40mph（施工至 2028），最后半小时会慢一点。",
+        time: "15:30",
       },
       {
         kind: "drive",
         text: "过 Perth 后进入高地，路边 layby 随时停车拍荒野风光。",
+        time: "14:15",
       },
       {
         kind: "fuel",
@@ -964,6 +1053,7 @@ const days: Day[] = [
         to: "The Macallan Distillery",
         mode: "driving",
         note: "A9 → A95 约 1h15；务必提前网上预约",
+        time: "09:00",
       },
       {
         label: "Macallan → Aberlour 酒厂",
@@ -971,6 +1061,7 @@ const days: Day[] = [
         to: "Aberlour Distillery",
         mode: "driving",
         note: "Speyside 核心，几分钟车程；改 Glenfiddich 搜 Glenfiddich Distillery Dufftown",
+        time: "14:00",
       },
       {
         label: "Aberlour → 因弗内斯（返回）",
@@ -978,6 +1069,7 @@ const days: Day[] = [
         to: "41 Essich Gardens, Inverness IV2 6BW",
         mode: "driving",
         note: "A95 → A9 返程约 1h15",
+        time: "17:00",
       },
     ],
     timeline: [
@@ -1007,32 +1099,38 @@ const days: Day[] = [
         name: "The Macallan Distillery",
         query: "The Macallan Distillery",
         note: "主访 · 网红建筑",
+        time: "10:30",
       },
       {
         name: "Aberlour Distillery",
         query: "Aberlour Distillery",
         note: "主访 · 雪莉桶",
+        time: "14:00",
       },
       {
         name: "Glenfiddich Distillery",
         query: "Glenfiddich Distillery",
         note: "备选",
+        time: "16:00",
       },
       {
         name: "The Glenlivet Distillery",
         query: "The Glenlivet Distillery",
         note: "备选",
+        time: "16:00",
       },
       {
         name: "The Balvenie",
         query: "Balvenie Distillery Dufftown",
         note: "备选 · 需预约",
+        time: "16:00",
       },
     ],
     restaurants: [
       {
         name: "The Highlander Inn",
         area: "Speyside · Craigellachie",
+        time: "12:30",
         query: "The Highlander Inn, Victoria Street, Craigellachie AB38 9SR",
         tag: "威士忌旅馆 · 午餐",
         description:
@@ -1042,6 +1140,7 @@ const days: Day[] = [
       {
         name: "The Mash Tun",
         area: "Speyside · Aberlour",
+        time: "12:30",
         query: "The Mash Tun, 8 Broomfield Square, Aberlour AB38 9QP",
         tag: "酒厂镇酒吧 · 午餐",
         description: "就在 Aberlour 酒厂旁，本地人午餐点，Haggis 配一杯好。",
@@ -1050,6 +1149,7 @@ const days: Day[] = [
       {
         name: "Rocpool Restaurant",
         area: "因弗内斯",
+        time: "18:30",
         query: "Rocpool Restaurant, 1 Ness Walk, Inverness IV3 5NE",
         tag: "现代苏格兰 · 当地最佳",
         description:
@@ -1062,10 +1162,12 @@ const days: Day[] = [
       {
         kind: "parking",
         text: "所有酒厂均免费停车。",
+        time: "10:30",
       },
       {
         kind: "drive",
         text: "指定 1 人当司机；各酒厂提供 Driver's Dram，可打包带走当天品鉴酒。",
+        time: "09:00",
       },
       {
         kind: "info",
@@ -1074,6 +1176,7 @@ const days: Day[] = [
       {
         kind: "warn",
         text: "6 月旺季，Macallan / Aberlour 等务必提前网上预约。",
+        time: "10:30",
       },
     ],
     stay: {
@@ -1129,6 +1232,7 @@ const days: Day[] = [
         to: "Urquhart Castle car park",
         mode: "driving",
         note: "尼斯湖畔观景台，30–40min",
+        time: "08:00",
       },
       {
         label: "Urquhart Castle → Eilean Donan",
@@ -1136,6 +1240,7 @@ const days: Day[] = [
         to: "Eilean Donan Castle",
         mode: "driving",
         note: "三湖交汇经典高地城堡",
+        time: "10:30",
       },
       {
         label: "Eilean Donan → Portree（午餐）",
@@ -1143,6 +1248,7 @@ const days: Day[] = [
         to: "Bayfield Car Park Portree",
         mode: "driving",
         note: "过 Skye Bridge 上岛，Portree 午餐",
+        time: "12:00",
       },
       {
         label: "Portree → Old Man of Storr",
@@ -1150,6 +1256,7 @@ const days: Day[] = [
         to: "Old Man of Storr car park",
         mode: "driving",
         note: "路边观景台拍摄 20min",
+        time: "13:00",
       },
       {
         label: "Old Man of Storr → Kilt Rock",
@@ -1157,6 +1264,7 @@ const days: Day[] = [
         to: "Kilt Rock viewpoint",
         mode: "driving",
         note: "海边悬崖瀑布 15min",
+        time: "13:45",
       },
       {
         label: "Kilt Rock → Quiraing",
@@ -1164,6 +1272,7 @@ const days: Day[] = [
         to: "Quiraing car park",
         mode: "driving",
         note: "壮丽山脊观景 / 短途步行",
+        time: "14:15",
       },
       {
         label: "Quiraing → Portree 港口",
@@ -1171,6 +1280,7 @@ const days: Day[] = [
         to: "Portree Harbour",
         mode: "driving",
         note: "彩色港口 + 咖啡 30min",
+        time: "15:20",
       },
       {
         label: "离岛南下：Portree → Fort William",
@@ -1178,6 +1288,7 @@ const days: Day[] = [
         to: "Guisachan Guest House Fort William",
         mode: "driving",
         note: "A87 → A82 约 2h，无需渡轮；日落 22:15 天还亮",
+        time: "17:00",
       },
     ],
     timeline: [
@@ -1212,18 +1323,44 @@ const days: Day[] = [
       },
     ],
     places: [
-      { name: "Urquhart Castle / 尼斯湖", query: "Urquhart Castle Loch Ness" },
-      { name: "Eilean Donan Castle", query: "Eilean Donan Castle" },
-      { name: "Old Man of Storr", query: "Old Man of Storr, Isle of Skye" },
-      { name: "Kilt Rock & Mealt Falls", query: "Kilt Rock and Mealt Falls" },
-      { name: "Quiraing", query: "Quiraing, Isle of Skye" },
-      { name: "Portree 彩色港口", query: "Portree, Isle of Skye" },
-      { name: "Fairy Pools", query: "Fairy Pools, Isle of Skye", note: "可选" },
+      {
+        name: "Urquhart Castle / 尼斯湖",
+        query: "Urquhart Castle Loch Ness",
+        time: "08:30",
+      },
+      {
+        name: "Eilean Donan Castle",
+        query: "Eilean Donan Castle",
+        time: "10:30",
+      },
+      {
+        name: "Old Man of Storr",
+        query: "Old Man of Storr, Isle of Skye",
+        time: "13:00",
+      },
+      {
+        name: "Kilt Rock & Mealt Falls",
+        query: "Kilt Rock and Mealt Falls",
+        time: "13:45",
+      },
+      { name: "Quiraing", query: "Quiraing, Isle of Skye", time: "14:15" },
+      {
+        name: "Portree 彩色港口",
+        query: "Portree, Isle of Skye",
+        time: "15:20",
+      },
+      {
+        name: "Fairy Pools",
+        query: "Fairy Pools, Isle of Skye",
+        note: "可选",
+        time: "16:00",
+      },
     ],
     restaurants: [
       {
         name: "Sea Breezes",
         area: "天空岛 · Portree",
+        time: "12:00",
         query: "Sea Breezes, Quay Street, Portree IV51 9DE",
         tag: "港口海鲜 · 午餐",
         description:
@@ -1233,6 +1370,7 @@ const days: Day[] = [
       {
         name: "Loch Bay",
         area: "天空岛 · Stein",
+        time: "19:00",
         query:
           "Loch Bay Restaurant, 1-2 MacLeod's Terrace, Stein, Isle of Skye IV55 8GA",
         tag: "海鲜 · 仅 6 桌",
@@ -1245,6 +1383,7 @@ const days: Day[] = [
       {
         name: "Dulse & Brose",
         area: "天空岛 · Portree",
+        time: "12:00",
         query: "Dulse & Brose, 13 Bosville Terrace, Portree IV51 9DG",
         tag: "现代苏格兰 · 港景",
         description:
@@ -1254,6 +1393,7 @@ const days: Day[] = [
       {
         name: "Scorrybreac",
         area: "天空岛 · Portree",
+        time: "12:00",
         query: "Scorrybreac, 7 Bosville Terrace, Portree IV51 9DG",
         tag: "精致海鲜",
         description:
@@ -1264,6 +1404,7 @@ const days: Day[] = [
       {
         name: "The Old Inn",
         area: "天空岛 · Carbost",
+        time: "16:00",
         query: "The Old Inn, Carbost, Isle of Skye IV47 8SR",
         tag: "Talisker 酒厂旁酒吧",
         description:
@@ -1273,6 +1414,7 @@ const days: Day[] = [
       {
         name: "Crannog Seafood",
         area: "Fort William",
+        time: "19:00",
         query: "Crannog, 4 Cameron Square, Fort William PH33 6AJ",
         tag: "水上海鲜餐厅",
         description:
@@ -1290,6 +1432,7 @@ const days: Day[] = [
           "床头柜 / 抽屉 / 衣柜检查",
           "门口密码锁箱归还钥匙",
         ],
+        time: "08:00",
       },
       {
         title: "高地出发前",
@@ -1300,16 +1443,19 @@ const days: Day[] = [
           "墨镜（高地晴天紫外线强）",
         ],
         note: "今天行程密集，08:00 前出发。",
+        time: "08:00",
       },
     ],
     tips: [
       {
         kind: "fuel",
         text: "出发前加满油！Skye 岛上仅 Broadford 和 Portree 有加油站，高地油价贵约 5–10p/升。",
+        time: "08:00",
       },
       {
         kind: "parking",
         text: "Old Man of Storr 停车约 £5，Quiraing 免费。",
+        time: "13:00",
       },
       {
         kind: "warn",
@@ -1371,6 +1517,7 @@ const days: Day[] = [
         to: "Three Sisters viewpoint Glencoe",
         mode: "driving",
         note: "A82 南下仅 15min；007 取景地观景拍照",
+        time: "10:00",
       },
       {
         label: "格伦科 → 温德米尔 湖区",
@@ -1378,6 +1525,7 @@ const days: Day[] = [
         to: "Woodlands, New Road, Windermere LA23 2EE",
         mode: "driving",
         note: "A82 → A74(M) → M6 约 2.5h",
+        time: "12:30",
       },
     ],
     timeline: [
@@ -1391,15 +1539,25 @@ const days: Day[] = [
       { time: "12:30", text: "A82 → M6 南下前往湖区（约 2.5h）" },
       { time: "15:00", text: "抵达湖区温德米尔，下午悠闲游湖" },
       { time: "17:00", text: "Bowness-on-Windermere 湖边散步 + 下午茶" },
+      { time: "19:00", text: "温德米尔 / Ambleside 晚餐 — 下方任选" },
     ],
     places: [
-      { name: "格伦科 Three Sisters 观景点", query: "Three Sisters Glencoe" },
-      { name: "Bowness-on-Windermere", query: "Bowness-on-Windermere" },
+      {
+        name: "格伦科 Three Sisters 观景点",
+        query: "Three Sisters Glencoe",
+        time: "10:30",
+      },
+      {
+        name: "Bowness-on-Windermere",
+        query: "Bowness-on-Windermere",
+        time: "17:00",
+      },
     ],
     restaurants: [
       {
         name: "The Clachaig Inn",
         area: "格伦科 Glencoe",
+        time: "11:30",
         query: "The Clachaig Inn, Old Village Road, Glencoe PH49 4HX",
         tag: "高地经典酒吧 · 午餐",
         description:
@@ -1410,6 +1568,7 @@ const days: Day[] = [
       {
         name: "SOURCE at Gilpin",
         area: "湖区 · Windermere",
+        time: "19:00",
         query: "SOURCE at Gilpin Hotel, Crook Road, Windermere LA23 3NE",
         tag: "湖区食材 · tasting",
         michelin: 1,
@@ -1421,6 +1580,7 @@ const days: Day[] = [
       {
         name: "Old Stamp House",
         area: "湖区 · Ambleside",
+        time: "19:00",
         query: "Old Stamp House, Church Street, Ambleside LA22 0BU",
         tag: "Cumbrian · 自 2019 持星",
         michelin: 1,
@@ -1432,6 +1592,7 @@ const days: Day[] = [
       {
         name: "Forest Side",
         area: "湖区 · Grasmere",
+        time: "19:00",
         query: "The Forest Side, Keswick Road, Grasmere LA22 9RN",
         tag: "庄园 · tasting",
         michelin: 1,
@@ -1443,6 +1604,7 @@ const days: Day[] = [
       {
         name: "The Drunken Duck Inn",
         area: "湖区 · Barngates",
+        time: "19:00",
         query: "The Drunken Duck Inn, Barngates, Ambleside LA22 0NG",
         tag: "山坡美食酒吧",
         description: "隐藏在湖区山坡，自酿啤酒配精致乡村料理，景色一流。",
@@ -1452,6 +1614,7 @@ const days: Day[] = [
       {
         name: "The Angel Inn",
         area: "湖区 · Bowness",
+        time: "19:00",
         query: "The Angel Inn, Helm Road, Bowness-on-Windermere LA23 3BU",
         tag: "湖畔传统酒吧",
         description:
@@ -1468,12 +1631,14 @@ const days: Day[] = [
           "床头柜 / 抽屉 / 衣柜检查",
           "退房还钥匙，确认无遗留",
         ],
+        time: "09:00",
       },
     ],
     tips: [
       {
         kind: "parking",
         text: "格伦科路边免费 / NTS 停车场 £5；Woodlands B&B 免费停车。",
+        time: "10:30",
       },
       {
         kind: "drive",
@@ -1534,6 +1699,7 @@ const days: Day[] = [
         to: "Bowness-on-Windermere pier",
         mode: "driving",
         note: "蒸汽游船 Bowness ⇄ Ambleside",
+        time: "09:30",
       },
       {
         label: "Ambleside → Grasmere",
@@ -1541,6 +1707,7 @@ const days: Day[] = [
         to: "Sarah Nelson Grasmere Gingerbread",
         mode: "driving",
         note: "华兹华斯故居 + 姜饼店",
+        time: "14:30",
       },
       {
         label: "Grasmere → 伯明翰",
@@ -1548,6 +1715,7 @@ const days: Day[] = [
         to: "Aloft Birmingham Eastside",
         mode: "driving",
         note: "16:30 出发，约 2h",
+        time: "16:30",
       },
     ],
     timeline: [
@@ -1568,14 +1736,24 @@ const days: Day[] = [
       {
         name: "Hill Top 彼得兔故居",
         query: "Hill Top Beatrix Potter Near Sawrey",
+        time: "11:30",
       },
-      { name: "Grasmere 华兹华斯故居", query: "Dove Cottage, Grasmere" },
-      { name: "Ambleside（游船终点）", query: "Ambleside, Lake District" },
+      {
+        name: "Grasmere 华兹华斯故居",
+        query: "Dove Cottage, Grasmere",
+        time: "14:30",
+      },
+      {
+        name: "Ambleside（游船终点）",
+        query: "Ambleside, Lake District",
+        time: "09:30",
+      },
     ],
     restaurants: [
       {
         name: "Albatross Death Cult",
         area: "伯明翰",
+        time: "18:30",
         query: "Albatross Death Cult, Newhall Square, Birmingham B3 1RU",
         tag: "创意料理",
         status: "booked",
@@ -1591,6 +1769,7 @@ const days: Day[] = [
       {
         name: "Opheem",
         area: "伯明翰",
+        time: "18:30",
         query: "Opheem, 48 Summer Row, Birmingham B3 1JJ",
         tag: "现代印度料理",
         michelin: 2,
@@ -1602,6 +1781,7 @@ const days: Day[] = [
       {
         name: "Adam's",
         area: "伯明翰",
+        time: "18:30",
         query: "Adam's, 16 Waterloo Street, Birmingham B2 5UG",
         tag: "现代英式 fine dining",
         michelin: 1,
@@ -1613,6 +1793,7 @@ const days: Day[] = [
       {
         name: "Tropea",
         area: "伯明翰 · Harborne",
+        time: "18:30",
         query: "Tropea, 27 Lordswood Road, Harborne, Birmingham B17 9RP",
         tag: "意大利菜 · 必比登",
         description:
@@ -1624,6 +1805,7 @@ const days: Day[] = [
         name: "L'Enclume",
         query: "L'Enclume, Cavendish Street, Cartmel LA11 6QA",
         area: "湖区 · Cartmel",
+        time: "13:00",
         tag: "三星午餐 · 需绕路",
         michelin: 3,
         description:
@@ -1641,20 +1823,24 @@ const days: Day[] = [
           "床头柜 / 抽屉 / 衣柜检查",
           "退房还钥匙，确认无遗留",
         ],
+        time: "16:30",
       },
     ],
     tips: [
       {
         kind: "parking",
         text: "湖区景点停车：Bowness £5–8，Ambleside £3–5。",
+        time: "09:30",
       },
       {
         kind: "parking",
         text: "Aloft Birmingham 酒店停车约 £10–15。",
+        time: "18:30",
       },
       {
         kind: "info",
         text: "Grasmere 别错过 Sarah Nelson's 1854 年姜饼店。",
+        time: "14:30",
       },
     ],
     stay: {
@@ -1710,6 +1896,7 @@ const days: Day[] = [
         to: "Heathrow Terminal 3 Departures",
         mode: "driving",
         note: "约 1.5h；Jim 航班 17:00，时间充裕",
+        time: "10:00",
       },
       {
         label: "Heathrow → 布里斯托",
@@ -1717,6 +1904,7 @@ const days: Day[] = [
         to: "Hilton Garden Inn Bristol City Centre",
         mode: "driving",
         note: "送完 Jim 后 M4 西行约 1.5h",
+        time: "12:30",
       },
     ],
     timeline: [
@@ -1731,14 +1919,27 @@ const days: Day[] = [
       { time: "19:00", text: "Harbourside 晚餐" },
     ],
     places: [
-      { name: "克利夫顿悬索桥", query: "Clifton Suspension Bridge" },
-      { name: "Clifton Village", query: "Clifton Village, Bristol" },
-      { name: "Bristol Harbourside", query: "Bristol Harbourside" },
+      {
+        name: "克利夫顿悬索桥",
+        query: "Clifton Suspension Bridge",
+        time: "16:00",
+      },
+      {
+        name: "Clifton Village",
+        query: "Clifton Village, Bristol",
+        time: "16:00",
+      },
+      {
+        name: "Bristol Harbourside",
+        query: "Bristol Harbourside",
+        time: "19:00",
+      },
     ],
     restaurants: [
       {
         name: "Wilsons",
         area: "Bristol · Redland",
+        time: "19:00",
         query: "Wilsons, 24 Chandos Road, Bristol BS6 6PF",
         tag: "现代英式 · 自家菜园",
         michelin: 1,
@@ -1750,6 +1951,7 @@ const days: Day[] = [
       {
         name: "Harbour House",
         area: "Bristol · 港畔",
+        time: "19:00",
         query: "Harbour House, The Grove, Bristol BS1 4RB",
         tag: "海鲜 · 港畔露台",
         description:
@@ -1760,6 +1962,7 @@ const days: Day[] = [
       {
         name: "COR",
         area: "Bristol · Bedminster",
+        time: "19:00",
         query: "COR, 81 North Street, Bedminster, Bristol BS3 1ES",
         tag: "现代英式 · 小盘菜",
         description:
@@ -1770,6 +1973,7 @@ const days: Day[] = [
       {
         name: "The Ox",
         area: "Bristol · Corn St",
+        time: "19:00",
         query: "The Ox, 43 Corn Street, Bristol BS1 1HT",
         tag: "牛排馆 · 干式熟成",
         description:
@@ -1779,6 +1983,7 @@ const days: Day[] = [
       {
         name: "Wapping Wharf 美食街",
         area: "Bristol · 港畔",
+        time: "19:00",
         query: "Wapping Wharf, Gaol Ferry Steps, Bristol BS1 6GW",
         tag: "集装箱美食聚落",
         description: "各种风格随性逛吃，Box-E、Cargo Cantina 等。",
@@ -1794,20 +1999,24 @@ const days: Day[] = [
           "床头柜 / 抽屉 / 衣柜检查",
           "退房还房卡，确认无遗留",
         ],
+        time: "10:00",
       },
     ],
     tips: [
       {
         kind: "parking",
         text: "送机省钱：直接在 T3 Departures 路边 Drop-off（限 5min，下车即走）= £0。",
+        time: "11:30",
       },
       {
         kind: "parking",
         text: "Hilton Garden Inn Bristol 停车约 £10–15/晚。",
+        time: "14:30",
       },
       {
         kind: "info",
         text: "Cathay 在希思罗 T3（Jim 航班 17:00，出发前再确认航站楼）。",
+        time: "11:30",
       },
     ],
     stay: {
@@ -1865,6 +2074,7 @@ const days: Day[] = [
         to: "Lansdown Park and Ride, Bath",
         mode: "driving",
         note: "P&R 停车 £4 全天，巴士 15min 进城",
+        time: "09:30",
       },
       {
         label: "巴斯 P&R → 布里斯托（返回）",
@@ -1872,6 +2082,7 @@ const days: Day[] = [
         to: "Hilton Garden Inn Bristol City Centre",
         mode: "driving",
         note: "约 20min 返程",
+        time: "17:00",
       },
     ],
     timeline: [
@@ -1886,14 +2097,28 @@ const days: Day[] = [
       { time: "17:00", text: "返回布里斯托 或 继续逛巴斯" },
     ],
     places: [
-      { name: "古罗马浴场 Roman Baths", query: "Roman Baths, Bath" },
-      { name: "皇家新月楼 Royal Crescent", query: "Royal Crescent, Bath" },
-      { name: "Thermae Bath Spa", query: "Thermae Bath Spa", note: "可选" },
+      {
+        name: "古罗马浴场 Roman Baths",
+        query: "Roman Baths, Bath",
+        time: "10:00",
+      },
+      {
+        name: "皇家新月楼 Royal Crescent",
+        query: "Royal Crescent, Bath",
+        time: "12:00",
+      },
+      {
+        name: "Thermae Bath Spa",
+        query: "Thermae Bath Spa",
+        note: "可选",
+        time: "14:30",
+      },
     ],
     restaurants: [
       {
         name: "The Pump Room",
         area: "巴斯",
+        time: "13:00",
         query: "The Pump Room, Stall Street, Bath BA1 1LZ",
         tag: "18 世纪历史茶室",
         description:
@@ -1904,6 +2129,7 @@ const days: Day[] = [
       {
         name: "Menu Gordon Jones",
         area: "巴斯",
+        time: "13:00",
         query: "Menu Gordon Jones, 2 Wellsway, Bath BA2 3AQ",
         tag: "盲盒 tasting menu",
         description:
@@ -1914,6 +2140,7 @@ const days: Day[] = [
       {
         name: "Sally Lunn's",
         area: "巴斯",
+        time: "13:00",
         query: "Sally Lunn's, 4 North Parade Passage, Bath BA1 1NX",
         tag: "巴斯最古老建筑之一 · 1482",
         description: "巨型圆面包 Sally Lunn Bun 闻名，下午茶首选。",
@@ -1922,6 +2149,7 @@ const days: Day[] = [
       {
         name: "The Circus Restaurant",
         area: "巴斯",
+        time: "13:00",
         query: "The Circus Restaurant, 34 Brock Street, Bath BA1 2LN",
         tag: "圆形广场旁 · 现代英式",
         description: "Bath 本地农场食材，晚餐氛围温馨。",
@@ -1933,6 +2161,7 @@ const days: Day[] = [
       {
         kind: "parking",
         text: "Bath 一定用 Park & Ride（Lansdown / Odd Down，£4 全天）— 市中心停车 £3–4/h 且车位难找。",
+        time: "09:30",
       },
       {
         kind: "info",
@@ -1989,6 +2218,7 @@ const days: Day[] = [
         to: "Bourton-on-the-Water car park",
         mode: "driving",
         note: "进入科茨沃尔德，“科茨沃尔德威尼斯”",
+        time: "10:00",
       },
       {
         label: "Bourton → 拜伯里 Bibury",
@@ -1996,6 +2226,7 @@ const days: Day[] = [
         to: "Bibury Arlington Row",
         mode: "driving",
         note: "Arlington Row 蜜色石屋排",
+        time: "11:30",
       },
       {
         label: "Bibury → 牛津 Oxford",
@@ -2003,6 +2234,7 @@ const days: Day[] = [
         to: "Oxford Westgate car park",
         mode: "driving",
         note: "基督教会学院 + 叹息桥",
+        time: "14:30",
       },
       {
         label: "牛津 → 伦敦 Moxy",
@@ -2010,6 +2242,7 @@ const days: Day[] = [
         to: "Moxy London Excel",
         mode: "driving",
         note: "约 1.5h（M40 → M25 → A13）",
+        time: "17:30",
       },
     ],
     timeline: [
@@ -2030,16 +2263,37 @@ const days: Day[] = [
       { time: "17:30", text: "返回伦敦（约 1.5h），还车" },
     ],
     places: [
-      { name: "水上伯顿 Bourton-on-the-Water", query: "Bourton-on-the-Water" },
-      { name: "拜伯里 Arlington Row", query: "Arlington Row, Bibury" },
-      { name: "牛津 基督教会学院", query: "Christ Church, Oxford" },
-      { name: "叹息桥 Bridge of Sighs", query: "Bridge of Sighs, Oxford" },
-      { name: "Bodleian 图书馆", query: "Bodleian Library, Oxford" },
+      {
+        name: "水上伯顿 Bourton-on-the-Water",
+        query: "Bourton-on-the-Water",
+        time: "10:00",
+      },
+      {
+        name: "拜伯里 Arlington Row",
+        query: "Arlington Row, Bibury",
+        time: "11:30",
+      },
+      {
+        name: "牛津 基督教会学院",
+        query: "Christ Church, Oxford",
+        time: "14:30",
+      },
+      {
+        name: "叹息桥 Bridge of Sighs",
+        query: "Bridge of Sighs, Oxford",
+        time: "14:30",
+      },
+      {
+        name: "Bodleian 图书馆",
+        query: "Bodleian Library, Oxford",
+        time: "14:30",
+      },
     ],
     restaurants: [
       {
         name: "The Wild Rabbit",
         area: "科茨沃尔德 · Kingham",
+        time: "13:00",
         query: "The Wild Rabbit, Church Street, Kingham OX7 6YA",
         tag: "Daylesford 乡村酒吧",
         description: "科茨沃尔德最精致 gastropub，有机农场直供。",
@@ -2049,6 +2303,7 @@ const days: Day[] = [
       {
         name: "The Lamb Inn",
         area: "科茨沃尔德 · Burford",
+        time: "13:00",
         query: "The Lamb Inn, Sheep Street, Burford OX18 4LR",
         tag: "15 世纪蜜石酒吧",
         description: "低矮橡木横梁，传统烤肉和本地 ale。",
@@ -2057,6 +2312,7 @@ const days: Day[] = [
       {
         name: "Cherwell Boathouse",
         area: "牛津",
+        time: "14:30",
         query: "Cherwell Boathouse, 50 Bardwell Road, Oxford OX2 6ST",
         tag: "河畔餐厅",
         description: "查韦尔河畔，边用餐边看学生划船，悠然英伦。",
@@ -2074,16 +2330,19 @@ const days: Day[] = [
           "退房还房卡，确认无遗留",
         ],
         note: "今晚起大雨独自住 Moxy 两晚，Jim 已离队、石头回家。",
+        time: "09:00",
       },
     ],
     tips: [
       {
         kind: "parking",
         text: "Cotswolds 村庄停车免费；Oxford 用 Westgate / Park & Ride（£3–5）。",
+        time: "10:00",
       },
       {
         kind: "parking",
         text: "Moxy London Excel 有停车场，伦敦 Zone 5–6 停车便宜。",
+        time: "17:30",
       },
       {
         kind: "info",
@@ -2138,6 +2397,7 @@ const days: Day[] = [
         to: "Brick Lane, London",
         mode: "transit",
         note: "Elizabeth Line → Liverpool Street 出",
+        time: "10:00",
       },
       {
         label: "South Bank（Tate Modern / Tower Bridge）",
@@ -2148,18 +2408,21 @@ const days: Day[] = [
         to: "Bankside, London",
         mode: "transit",
         note: "Tate Modern → 千禧桥 → Tower Bridge（Borough Market 周一休市）",
+        time: "12:00",
       },
       {
         label: "West End（Oxford St / Covent Garden）",
         to: "Covent Garden, London",
         mode: "transit",
         note: "Tottenham Court Road 下，步行 10min",
+        time: "14:00",
       },
       {
         label: "Harrods · 骑士桥",
         to: "Harrods, London",
         mode: "transit",
         note: "Food Hall 买手信好",
+        time: "14:00",
       },
     ],
     timeline: [
@@ -2193,33 +2456,44 @@ const days: Day[] = [
         name: "Shoreditch · Brick Lane",
         query: "Brick Lane, London",
         note: "潮牌 / vintage",
+        time: "10:00",
       },
       {
         name: "South Bank · Tate Modern",
         query: "Tate Modern, London",
         note: "免费 · 河岸漫步（Borough Market 周一休市）",
+        time: "12:00",
       },
       {
         name: "Covent Garden · Seven Dials",
         query: "Covent Garden, London",
         note: "英伦品牌",
+        time: "14:00",
       },
       {
         name: "牛津街 Oxford Street",
         query: "Oxford Street, London",
         note: "扫货",
+        time: "14:00",
       },
       {
         name: "Harrods · 骑士桥",
         query: "Harrods, London",
         note: "顶奢 · Food Hall 手信",
+        time: "14:00",
       },
-      { name: "Camden Market", query: "Camden Market, London", note: "可选" },
+      {
+        name: "Camden Market",
+        query: "Camden Market, London",
+        note: "可选",
+        time: "17:00",
+      },
     ],
     restaurants: [
       {
         name: "Dishoom",
         area: "伦敦 · Shoreditch / King's Cross",
+        time: "19:00",
         query: "Dishoom Shoreditch, 7 Boundary Street, London E2 7JE",
         tag: "孟买风印度菜 · 排队名店",
         description:
@@ -2230,6 +2504,7 @@ const days: Day[] = [
       {
         name: "BAO Soho",
         area: "伦敦 · Soho",
+        time: "19:00",
         query: "BAO Soho, 53 Lexington Street, London W1F 9AS",
         tag: "台湾刈包 · 小吃",
         description:
@@ -2240,6 +2515,7 @@ const days: Day[] = [
       {
         name: "Flat Iron",
         area: "伦敦 · 多店",
+        time: "19:00",
         query:
           "Flat Iron Covent Garden, 17-18 Henrietta Street, London WC2E 8QH",
         tag: "牛排 · 性价比之王",
@@ -2251,6 +2527,7 @@ const days: Day[] = [
       {
         name: "Duck & Waffle",
         area: "伦敦 · Liverpool Street",
+        time: "19:00",
         query: "Duck & Waffle, 110 Bishopsgate, London EC2N 4AY",
         tag: "高空景观 · 24h 营业",
         description:
@@ -2261,6 +2538,7 @@ const days: Day[] = [
       {
         name: "Hawksmoor",
         area: "伦敦 · Seven Dials",
+        time: "19:00",
         query: "Hawksmoor Seven Dials, 11 Langley Street, London WC2H 9JG",
         tag: "英国最佳牛排馆",
         description:
@@ -2271,6 +2549,7 @@ const days: Day[] = [
       {
         name: "Gymkhana",
         area: "伦敦 · Mayfair",
+        time: "19:00",
         query: "Gymkhana, 42 Albemarle Street, London W1S 4JH",
         tag: "现代印度料理",
         michelin: 2,
@@ -2282,6 +2561,7 @@ const days: Day[] = [
       {
         name: "The Clove Club",
         area: "伦敦 · Shoreditch",
+        time: "19:00",
         query:
           "The Clove Club, Shoreditch Town Hall, 380 Old Street, London EC1V 9LT",
         tag: "现代英国 · tasting",
@@ -2294,6 +2574,7 @@ const days: Day[] = [
       {
         name: "Borough Market",
         area: "伦敦 · London Bridge",
+        time: "19:00",
         query: "Borough Market, 8 Southwark Street, London SE1 1TL",
         tag: "美食市集 · 逛吃逛吃",
         description:
@@ -2311,20 +2592,24 @@ const days: Day[] = [
           "设好闹钟，明早 07:00 起",
         ],
         note: "明早 07:45 出发去 Gatwick 还车，别玩太晚。",
+        time: "19:00",
       },
     ],
     tips: [
       {
         kind: "transit",
         text: "车停 Moxy，全天 Elizabeth Line：Oyster 或银行卡 contactless 直接刷，每日 £10.50 封顶（Zone 1–3）。",
+        time: "09:30",
       },
       {
         kind: "transit",
         text: "Custom House → Liverpool Street 15min / Tottenham Court Road 20min / Paddington 22min。",
+        time: "09:30",
       },
       {
         kind: "warn",
         text: "明早 07:45 就要出发去 Gatwick 还车：今晚提前收好行李、确认油量。",
+        time: "19:00",
       },
     ],
     stay: {
@@ -2375,6 +2660,7 @@ const days: Day[] = [
         to: "Pease Pottage Services M23",
         mode: "driving",
         note: "⚠️ Sixt full-to-full，还车前最后加油点",
+        time: "07:45",
       },
       {
         label: "Pease Pottage → Gatwick 还车",
@@ -2382,6 +2668,7 @@ const days: Day[] = [
         to: "Sixt Gatwick South Terminal",
         mode: "driving",
         note: "距机场约 8–10min（J11 在机场以南），跟 Car Rental Return 标志",
+        time: "08:45",
       },
     ],
     timeline: [
@@ -2417,16 +2704,19 @@ const days: Day[] = [
           "拿到还车确认单 / 邮件",
           "转 North Terminal，CA 国航柜台值机托运 + 过安检",
         ],
+        time: "09:00",
       },
     ],
     tips: [
       {
         kind: "fuel",
         text: "必须在 Pease Pottage Services（M23 J11）加满油 — Sixt full-to-full，不加满按约 £2.5/升代加（正常 £1.5），距机场约 8–10min（J11 在机场以南）。",
+        time: "08:30",
       },
       {
         kind: "info",
         text: "CA852 12:35 起飞，时间充裕；过安检后约 1.5h 可逛免税店。",
+        time: "09:30",
       },
     ],
     stay: {

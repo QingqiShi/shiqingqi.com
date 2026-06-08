@@ -1,6 +1,5 @@
-import { MapPin, Star, UtensilsCrossed } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import { MapsLink, MenuLink, NavLink, WebLink } from "./links";
-import { Section } from "./section";
 import { Badge } from "@/components/ui/badge";
 import type { Booking, Restaurant } from "@/data/itinerary";
 import { cn } from "@/lib/utils";
@@ -47,7 +46,7 @@ function BookingDetails({
   );
 }
 
-function RestaurantCard({
+export function RestaurantCard({
   restaurant,
   featured = false,
 }: {
@@ -113,12 +112,22 @@ function RestaurantCard({
   );
 }
 
-export function DiningSection({ restaurants }: { restaurants: Restaurant[] }) {
+/**
+ * The dining grid on its own: confirmed pick(s) featured first, the rest under
+ * an "其他选择" label. Used inline inside a feed moment and inside DiningSection.
+ */
+export function DiningList({
+  restaurants,
+  altLabel = "其他选择",
+}: {
+  restaurants: Restaurant[];
+  altLabel?: string;
+}) {
   const featured = restaurants.filter((r) => r.status);
   const alternatives = restaurants.filter((r) => !r.status);
 
   return (
-    <Section icon={UtensilsCrossed} title="餐饮">
+    <>
       {featured.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {featured.map((r) => (
@@ -130,8 +139,8 @@ export function DiningSection({ restaurants }: { restaurants: Restaurant[] }) {
       {alternatives.length > 0 ? (
         <>
           {featured.length > 0 ? (
-            <p className="mt-5 mb-3 text-xs font-medium tracking-wide text-muted-foreground">
-              其他选择
+            <p className="mt-4 mb-3 text-xs font-medium tracking-wide text-muted-foreground">
+              {altLabel}
             </p>
           ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
@@ -141,6 +150,6 @@ export function DiningSection({ restaurants }: { restaurants: Restaurant[] }) {
           </div>
         </>
       ) : null}
-    </Section>
+    </>
   );
 }
