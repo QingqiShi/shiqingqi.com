@@ -11,7 +11,17 @@ import { useBackOverride } from "#src/contexts/back-override-context.tsx";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath, normalizePath } from "#src/utils/pathname.ts";
 
-const ignoredSegments = new Set(["experiences", "education"]);
+// Intermediate route segments that have no page of their own — detail pages
+// live beneath them (e.g. `/experiences/citadel`,
+// `/design-system/foundations/typography`). Stripping the last segment to find
+// a parent would land on these non-existent routes, so we skip them entirely
+// and step up to the next real ancestor.
+const ignoredSegments = new Set([
+  "experiences",
+  "education",
+  "foundations",
+  "components",
+]);
 
 interface BackButtonProps {
   locale: SupportedLocale;
