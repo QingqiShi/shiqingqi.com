@@ -24,7 +24,6 @@ export function NavSection({ legs }: { legs: NavLeg[] }) {
                 href={googleMapsDirectionsUrl({
                   origin: leg.from,
                   destination: leg.to,
-                  waypoints: leg.via,
                   mode: leg.mode,
                 })}
                 target="_blank"
