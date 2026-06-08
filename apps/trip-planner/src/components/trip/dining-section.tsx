@@ -1,4 +1,4 @@
-import { Star, UtensilsCrossed } from "lucide-react";
+import { MapPin, Star, UtensilsCrossed } from "lucide-react";
 import { MapsLink, WebLink } from "./links";
 import { Section } from "./section";
 import { Badge } from "@/components/ui/badge";
@@ -63,6 +63,13 @@ function RestaurantCard({
           </Badge>
         ) : null}
       </div>
+
+      {restaurant.area ? (
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+          <MapPin className="size-3 shrink-0" />
+          {restaurant.area}
+        </p>
+      ) : null}
 
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
         {restaurant.michelin ? (

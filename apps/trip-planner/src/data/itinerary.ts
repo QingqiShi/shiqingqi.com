@@ -26,6 +26,8 @@ export interface Booking {
 export interface Restaurant {
   name: string;
   query: string;
+  /** Short location label, e.g. "伯明翰" or "湖区 · Cartmel". */
+  area?: string;
   tag: string;
   description: string;
   price?: string;
@@ -121,6 +123,7 @@ const days: Day[] = [
     restaurants: [
       {
         name: "Maru Omakase",
+        area: "伦敦 · Mayfair",
         query: "Maru, 18 Shepherd Market, London W1J 7QH",
         tag: "Omakase · 18+ 道",
         status: "booked",
@@ -178,6 +181,7 @@ const days: Day[] = [
     restaurants: [
       {
         name: "Restaurant Sat Bains",
+        area: "诺丁汉",
         query: "Restaurant Sat Bains, Lenton Lane, Nottingham NG7 2SA",
         tag: "创意料理",
         michelin: 3,
@@ -188,6 +192,7 @@ const days: Day[] = [
       },
       {
         name: "Alchemilla",
+        area: "诺丁汉",
         query: "Alchemilla, 192a Derby Road, Nottingham NG7 1NF",
         tag: "现代欧洲",
         description:
@@ -197,6 +202,7 @@ const days: Day[] = [
       },
       {
         name: "Ye Olde Trip to Jerusalem",
+        area: "诺丁汉",
         query:
           "Ye Olde Trip to Jerusalem, 1 Brewhouse Yard, Nottingham NG1 6AD",
         tag: "历史酒吧 · 1189",
@@ -206,6 +212,7 @@ const days: Day[] = [
       },
       {
         name: "MemSaab",
+        area: "诺丁汉",
         query: "MemSaab, 12-14 Maid Marian Way, Nottingham NG1 6HS",
         tag: "印度菜",
         description: "多次获奖的印度餐厅，Tandoori 和 Biryani 极佳。",
@@ -214,6 +221,7 @@ const days: Day[] = [
       },
       {
         name: "Kushi-ya",
+        area: "诺丁汉",
         query: "Kushi-ya, 14a Low Pavement, Nottingham NG1 7DL",
         tag: "日式居酒屋",
         description:
@@ -223,6 +231,7 @@ const days: Day[] = [
       },
       {
         name: "Sexy Mama Loves Spaghetti",
+        area: "诺丁汉",
         query:
           "Sexy Mamma Love Spaghetti, 3 Heathcoat Street, Nottingham NG1 3AF",
         tag: "意大利面",
@@ -286,6 +295,7 @@ const days: Day[] = [
     restaurants: [
       {
         name: "喜得宝 Mandarin Restaurant",
+        area: "诺丁汉",
         query: "Mandarin Restaurant, 42 Belward Street, Nottingham NG1 1JZ",
         tag: "粤菜 · 点心",
         status: "pick",
@@ -296,6 +306,7 @@ const days: Day[] = [
       },
       {
         name: "Shanghai Shanghai",
+        area: "诺丁汉",
         query: "Shanghai Shanghai, 15 Goose Gate, Nottingham NG1 1FE",
         tag: "沪菜",
         description:
@@ -304,6 +315,7 @@ const days: Day[] = [
       },
       {
         name: "Mayfair Chinese Restaurant",
+        area: "诺丁汉",
         query:
           "Mayfair Chinese Restaurant, 79 Mansfield Road, Nottingham NG1 3FN",
         tag: "粤菜 · 川菜 · 自带酒水",
@@ -313,6 +325,7 @@ const days: Day[] = [
       },
       {
         name: "Four Seasons 火锅",
+        area: "诺丁汉",
         query: "Four Seasons Hot Pot, 148 Mansfield Road, Nottingham NG1 3HW",
         tag: "火锅 · 烧烤 · 自助",
         description:
@@ -321,6 +334,7 @@ const days: Day[] = [
       },
       {
         name: "Chino Latino",
+        area: "诺丁汉",
         query: "Chino Latino, 41 Maid Marian Way, Nottingham NG1 6GD",
         tag: "泛亚洲 · 鸡尾酒",
         description:
@@ -329,6 +343,7 @@ const days: Day[] = [
       },
       {
         name: "Rock City",
+        area: "诺丁汉",
         query: "Rock City, 8 Talbot Street, Nottingham NG1 5GG",
         tag: "传奇夜店",
         description:
@@ -336,6 +351,7 @@ const days: Day[] = [
       },
       {
         name: "Bodega",
+        area: "诺丁汉",
         query: "The Bodega, 23 Pelham Street, Nottingham NG1 2ED",
         tag: "现场音乐酒吧",
         description: "Rock City 楼下的小酒吧，气氛好，适合微醺聊天。",
@@ -374,6 +390,7 @@ const days: Day[] = [
     restaurants: [
       {
         name: "The Mustard Seed",
+        area: "因弗内斯",
         query: "The Mustard Seed, 16 Fraser Street, Inverness IV1 1DW",
         tag: "尼斯河景 · 苏格兰料理",
         status: "pick",
@@ -384,6 +401,7 @@ const days: Day[] = [
       },
       {
         name: "Castle Tavern",
+        area: "因弗内斯",
         query: "Castle Tavern, 1-2 View Place, Inverness IV2 4SA",
         tag: "威士忌吧",
         description:
@@ -392,6 +410,7 @@ const days: Day[] = [
       },
       {
         name: "Rocpool Restaurant",
+        area: "因弗内斯",
         query: "Rocpool Restaurant, 1 Ness Walk, Inverness IV3 5NE",
         tag: "现代苏格兰 · fine dining",
         description:
@@ -401,6 +420,7 @@ const days: Day[] = [
       },
       {
         name: "The Malt Room",
+        area: "因弗内斯",
         query: "The Malt Room, 34 Church Street, Inverness IV1 1EH",
         tag: "威士忌品鉴吧",
         description:
@@ -409,6 +429,7 @@ const days: Day[] = [
       },
       {
         name: "Hootananny",
+        area: "因弗内斯",
         query: "Hootananny, 67 Church Street, Inverness IV1 1ES",
         tag: "现场音乐酒吧",
         description:
@@ -416,7 +437,8 @@ const days: Day[] = [
         price: "~£15–25/人",
       },
       {
-        name: "Moulin Hotel（Pitlochry 途中午餐）",
+        name: "Moulin Hotel",
+        area: "Pitlochry · 途中午餐",
         query: "Moulin Hotel, Moulin, Pitlochry PH16 5EW",
         tag: "1695 高地酒馆",
         description:
@@ -496,7 +518,8 @@ const days: Day[] = [
     ],
     restaurants: [
       {
-        name: "The Highlander Inn（Craigellachie）",
+        name: "The Highlander Inn",
+        area: "Speyside · Craigellachie",
         query: "The Highlander Inn, Victoria Street, Craigellachie AB38 9SR",
         tag: "威士忌旅馆 · 午餐",
         description:
@@ -504,14 +527,16 @@ const days: Day[] = [
         price: "午餐 ~£15–25/人",
       },
       {
-        name: "The Mash Tun（Aberlour）",
+        name: "The Mash Tun",
+        area: "Speyside · Aberlour",
         query: "The Mash Tun, 8 Broomfield Square, Aberlour AB38 9QP",
         tag: "酒厂镇酒吧 · 午餐",
         description: "就在 Aberlour 酒厂旁，本地人午餐点，Haggis 配一杯好。",
         price: "~£15–20/人",
       },
       {
-        name: "Rocpool Restaurant（因弗内斯晚餐）",
+        name: "Rocpool Restaurant",
+        area: "因弗内斯",
         query: "Rocpool Restaurant, 1 Ness Walk, Inverness IV3 5NE",
         tag: "现代苏格兰 · 当地最佳",
         description:
@@ -580,7 +605,8 @@ const days: Day[] = [
     ],
     restaurants: [
       {
-        name: "Sea Breezes（Portree 午餐）",
+        name: "Sea Breezes",
+        area: "天空岛 · Portree",
         query: "Sea Breezes, Quay Street, Portree IV51 9DE",
         tag: "港口海鲜 · 午餐",
         description:
@@ -588,7 +614,8 @@ const days: Day[] = [
         price: "~£20–30/人",
       },
       {
-        name: "Loch Bay（Stein）",
+        name: "Loch Bay",
+        area: "天空岛 · Stein",
         query:
           "Loch Bay Restaurant, 1-2 MacLeod's Terrace, Stein, Isle of Skye IV55 8GA",
         tag: "海鲜 · 仅 6 桌",
@@ -599,7 +626,8 @@ const days: Day[] = [
         website: "https://www.lochbay-restaurant.co.uk/booking/",
       },
       {
-        name: "Dulse & Brose（Portree）",
+        name: "Dulse & Brose",
+        area: "天空岛 · Portree",
         query: "Dulse & Brose, 13 Bosville Terrace, Portree IV51 9DG",
         tag: "现代苏格兰 · 港景",
         description:
@@ -607,7 +635,8 @@ const days: Day[] = [
         price: "~£35–50/人",
       },
       {
-        name: "Scorrybreac（Portree）",
+        name: "Scorrybreac",
+        area: "天空岛 · Portree",
         query: "Scorrybreac, 7 Bosville Terrace, Portree IV51 9DG",
         tag: "精致海鲜",
         description:
@@ -616,7 +645,8 @@ const days: Day[] = [
         website: "https://www.scorrybreac.com",
       },
       {
-        name: "The Old Inn（Carbost）",
+        name: "The Old Inn",
+        area: "天空岛 · Carbost",
         query: "The Old Inn, Carbost, Isle of Skye IV47 8SR",
         tag: "Talisker 酒厂旁酒吧",
         description:
@@ -624,7 +654,8 @@ const days: Day[] = [
         price: "~£20–30/人",
       },
       {
-        name: "Crannog Seafood（Fort William）",
+        name: "Crannog Seafood",
+        area: "Fort William",
         query: "Crannog, 4 Cameron Square, Fort William PH33 6AJ",
         tag: "水上海鲜餐厅",
         description:
@@ -687,7 +718,8 @@ const days: Day[] = [
     ],
     restaurants: [
       {
-        name: "The Clachaig Inn（Glencoe）",
+        name: "The Clachaig Inn",
+        area: "格伦科 Glencoe",
         query: "The Clachaig Inn, Old Village Road, Glencoe PH49 4HX",
         tag: "高地经典酒吧 · 午餐",
         description:
@@ -696,7 +728,8 @@ const days: Day[] = [
         website: "https://www.clachaig.com",
       },
       {
-        name: "SOURCE at Gilpin（Windermere）",
+        name: "SOURCE at Gilpin",
+        area: "湖区 · Windermere",
         query: "SOURCE at Gilpin Hotel, Crook Road, Windermere LA23 3NE",
         tag: "湖区食材 · tasting",
         michelin: 1,
@@ -706,7 +739,8 @@ const days: Day[] = [
         website: "https://thegilpin.co.uk/eat-and-drink/source/",
       },
       {
-        name: "Old Stamp House（Ambleside）",
+        name: "Old Stamp House",
+        area: "湖区 · Ambleside",
         query: "Old Stamp House, Church Street, Ambleside LA22 0BU",
         tag: "Cumbrian · 连续 7 年星",
         michelin: 1,
@@ -716,7 +750,8 @@ const days: Day[] = [
         website: "https://oldstamphouse.com",
       },
       {
-        name: "Forest Side（Grasmere）",
+        name: "Forest Side",
+        area: "湖区 · Grasmere",
         query: "The Forest Side, Keswick Road, Grasmere LA22 9RN",
         tag: "庄园 · tasting",
         michelin: 1,
@@ -727,6 +762,7 @@ const days: Day[] = [
       },
       {
         name: "The Drunken Duck Inn",
+        area: "湖区 · Barngates",
         query: "The Drunken Duck Inn, Barngates, Ambleside LA22 0NG",
         tag: "山坡美食酒吧",
         description: "隐藏在湖区山坡，自酿啤酒配精致乡村料理，景色一流。",
@@ -734,7 +770,8 @@ const days: Day[] = [
         website: "https://www.drunkenduckinn.co.uk",
       },
       {
-        name: "The Angel Inn（Bowness）",
+        name: "The Angel Inn",
+        area: "湖区 · Bowness",
         query: "The Angel Inn, Helm Road, Bowness-on-Windermere LA23 3BU",
         tag: "湖畔传统酒吧",
         description:
@@ -792,6 +829,7 @@ const days: Day[] = [
     restaurants: [
       {
         name: "Albatross Death Cult",
+        area: "伯明翰",
         query: "Albatross Death Cult, Newhall Square, Birmingham B3 1RU",
         tag: "创意料理",
         status: "booked",
@@ -806,6 +844,7 @@ const days: Day[] = [
       },
       {
         name: "Opheem",
+        area: "伯明翰",
         query: "Opheem, 48 Summer Row, Birmingham B3 1JJ",
         tag: "现代印度料理",
         michelin: 2,
@@ -816,6 +855,7 @@ const days: Day[] = [
       },
       {
         name: "Adam's",
+        area: "伯明翰",
         query: "Adam's, 16 Waterloo Street, Birmingham B2 5UG",
         tag: "现代英式 fine dining",
         michelin: 1,
@@ -826,12 +866,24 @@ const days: Day[] = [
       },
       {
         name: "Tropea",
+        area: "伯明翰 · Harborne",
         query: "Tropea, 27 Lordswood Road, Harborne, Birmingham B17 9RP",
         tag: "意大利菜 · 必比登",
         description:
           "Harborne 街区小馆，米其林必比登，Good Food Guide 常年推荐，手工意面和 cicchetti，最适合多人轻松聚餐。",
         price: "~£35–45/人",
         website: "https://www.tropea.uk",
+      },
+      {
+        name: "L'Enclume",
+        query: "L'Enclume, Cavendish Street, Cartmel LA11 6QA",
+        area: "湖区 · Cartmel",
+        tag: "三星午餐 · 需绕路",
+        michelin: 3,
+        description:
+          "Simon Rogan 旗舰，北英唯一米其林三星，15 道式 tasting。离开湖区南下途中绕路 30min 的告别午餐，需提前数周预订。",
+        price: "£265/人",
+        website: "https://www.lenclume.co.uk/reservations",
       },
     ],
     stay: {
@@ -878,6 +930,7 @@ const days: Day[] = [
     restaurants: [
       {
         name: "Wilsons",
+        area: "Bristol · Redland",
         query: "Wilsons, 24 Chandos Road, Bristol BS6 6PF",
         tag: "现代英式 · 自家菜园",
         michelin: 1,
@@ -888,6 +941,7 @@ const days: Day[] = [
       },
       {
         name: "Harbour House",
+        area: "Bristol · 港畔",
         query: "Harbour House, The Grove, Bristol BS1 4RB",
         tag: "海鲜 · 港畔露台",
         description:
@@ -897,6 +951,7 @@ const days: Day[] = [
       },
       {
         name: "Paco Tapas",
+        area: "Bristol",
         query:
           "Paco Tapas, 3a The General, Lower Guinea Street, Bristol BS1 6FU",
         tag: "西班牙小食",
@@ -907,6 +962,7 @@ const days: Day[] = [
       },
       {
         name: "COR",
+        area: "Bristol · Bedminster",
         query: "COR, 81 North Street, Bedminster, Bristol BS3 1ES",
         tag: "现代英式 · 小盘菜",
         description:
@@ -916,6 +972,7 @@ const days: Day[] = [
       },
       {
         name: "The Ox",
+        area: "Bristol · Corn St",
         query: "The Ox, 43 Corn Street, Bristol BS1 1HT",
         tag: "牛排馆 · 干式熟成",
         description:
@@ -924,6 +981,7 @@ const days: Day[] = [
       },
       {
         name: "Wapping Wharf 美食街",
+        area: "Bristol · 港畔",
         query: "Wapping Wharf, Gaol Ferry Steps, Bristol BS1 6GW",
         tag: "集装箱美食聚落",
         description: "各种风格随性逛吃，Box-E、Cargo Cantina 等。",
@@ -974,6 +1032,7 @@ const days: Day[] = [
     restaurants: [
       {
         name: "The Pump Room",
+        area: "巴斯",
         query: "The Pump Room, Stall Street, Bath BA1 1LZ",
         tag: "18 世纪历史茶室",
         description:
@@ -983,6 +1042,7 @@ const days: Day[] = [
       },
       {
         name: "Menu Gordon Jones",
+        area: "巴斯",
         query: "Menu Gordon Jones, 2 Wellsway, Bath BA2 3AQ",
         tag: "盲盒 tasting menu",
         description:
@@ -992,6 +1052,7 @@ const days: Day[] = [
       },
       {
         name: "Sally Lunn's",
+        area: "巴斯",
         query: "Sally Lunn's, 4 North Parade Passage, Bath BA1 1NX",
         tag: "巴斯最古老建筑 · 1482",
         description: "巨型圆面包 Sally Lunn Bun 闻名，下午茶首选。",
@@ -999,6 +1060,7 @@ const days: Day[] = [
       },
       {
         name: "The Circus Restaurant",
+        area: "巴斯",
         query: "The Circus Restaurant, 34 Brock Street, Bath BA1 2LN",
         tag: "圆形广场旁 · 现代英式",
         description: "Bath 本地农场食材，晚餐氛围温馨。",
@@ -1047,7 +1109,8 @@ const days: Day[] = [
     ],
     restaurants: [
       {
-        name: "The Wild Rabbit（Kingham）",
+        name: "The Wild Rabbit",
+        area: "科茨沃尔德 · Kingham",
         query: "The Wild Rabbit, Church Street, Kingham OX7 6YA",
         tag: "Daylesford 乡村酒吧",
         description: "科茨沃尔德最精致 gastropub，有机农场直供。",
@@ -1055,14 +1118,16 @@ const days: Day[] = [
         website: "https://www.thewildrabbit.co.uk",
       },
       {
-        name: "The Lamb Inn（Burford）",
+        name: "The Lamb Inn",
+        area: "科茨沃尔德 · Burford",
         query: "The Lamb Inn, Sheep Street, Burford OX18 4LR",
         tag: "15 世纪蜜石酒吧",
         description: "低矮橡木横梁，传统烤肉和本地 ale。",
         price: "~£25–35/人",
       },
       {
-        name: "Cherwell Boathouse（牛津）",
+        name: "Cherwell Boathouse",
+        area: "牛津",
         query: "Cherwell Boathouse, 50 Bardwell Road, Oxford OX2 6ST",
         tag: "河畔餐厅",
         description: "查韦尔河畔，边用餐边看学生划船，悠然英伦。",
