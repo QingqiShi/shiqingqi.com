@@ -28,6 +28,24 @@ pnpm dev          # runs every app; trip-planner uses web's port + 100
 pnpm --filter trip-planner dev
 ```
 
+## Maps
+
+Each day renders an at-a-glance route map plus an expandable inline map on every
+nav leg, via the [Google Maps Embed API](https://developers.google.com/maps/documentation/embed).
+The Embed API has **no usage charge**, so this stays free.
+
+To enable it locally, set `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY` in `.env.local`
+(see `.env.example`):
+
+1. Google Cloud console → enable **Maps Embed API**.
+2. Create an API key, then restrict it to your domain(s) (HTTP referrers) **and**
+   to the Maps Embed API — the key is public (it ships in the iframe `src`), so
+   the referrer restriction is what protects it.
+3. Add the same key as an env var in the Vercel project for production.
+
+Without a key the maps are hidden and navigation falls back to Google Maps
+deep-links — no embedded preview, everything else works.
+
 ## Deploy (Vercel)
 
 This app is a second Vercel project pointing at the same Git repo:

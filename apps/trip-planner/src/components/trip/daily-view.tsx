@@ -2,6 +2,7 @@ import { Clock, MapPin } from "lucide-react";
 import { ChecklistSection } from "./checklist-section";
 import { DayGlance } from "./day-glance";
 import { DayHeader } from "./day-header";
+import { DayMap } from "./day-map";
 import { DiningSection } from "./dining-section";
 import { PlacePill } from "./links";
 import { NavSection } from "./nav-section";
@@ -27,6 +28,8 @@ export function DailyView({
       {day.anchors && day.anchors.length > 0 ? (
         <DayGlance anchors={day.anchors} />
       ) : null}
+
+      <DayMap day={day} />
 
       {day.nav && day.nav.length > 0 ? <NavSection legs={day.nav} /> : null}
 
