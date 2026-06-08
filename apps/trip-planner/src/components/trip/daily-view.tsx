@@ -34,7 +34,9 @@ export function DailyView({
         </Section>
       ) : null}
 
-      <DiningSection restaurants={day.restaurants} />
+      {day.restaurants.length > 0 ? (
+        <DiningSection restaurants={day.restaurants} />
+      ) : null}
 
       <StaySection stay={day.stay} onOpenDay={onOpenDay} />
     </article>

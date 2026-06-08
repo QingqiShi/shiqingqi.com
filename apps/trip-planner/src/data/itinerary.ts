@@ -105,10 +105,15 @@ const days: Day[] = [
     weekday: "周四",
     title: "抵达伦敦 · 取车 · Omakase",
     route: "Gatwick 取车 → Mayfair → Chingford",
+    weather: { temp: "15–22°C", summary: "晴，注意倒时差" },
     timeline: [
       {
         time: "白天",
         text: "抵达伦敦，Gatwick 机场取车（租期 6.18–6.30，共 13 天）",
+      },
+      {
+        time: "下午",
+        text: "进城自由活动 — 博物馆 / 公园 / 南岸随意逛（见下方想去的地方）",
       },
       {
         time: "17:30",
@@ -119,7 +124,24 @@ const days: Day[] = [
         text: "入住 Holiday Inn Express Chingford，为明早出发休整",
       },
     ],
-    places: [],
+    places: [
+      {
+        name: "大英博物馆 British Museum",
+        query: "British Museum, London",
+        note: "免费",
+      },
+      { name: "海德公园 Hyde Park", query: "Hyde Park, London" },
+      {
+        name: "Tate Modern · 南岸",
+        query: "Tate Modern, London",
+        note: "免费",
+      },
+      {
+        name: "自然历史博物馆",
+        query: "Natural History Museum, London",
+        note: "免费",
+      },
+    ],
     restaurants: [
       {
         name: "Maru Omakase",
@@ -373,14 +395,41 @@ const days: Day[] = [
     driving: "约 6.5 小时",
     weather: { temp: "11–19°C", summary: "有阵雨，北上渐凉" },
     timeline: [
-      { time: "12:00", text: "自然醒退房出发，M1 → A1 → M90 → A9 一路北上" },
-      { time: "15:00", text: "Perth 附近服务区休息（咖啡 + 换人开）" },
-      { time: "15:30", text: "继续 A9，穿越凯恩戈姆国家公园，风景渐壮丽" },
+      { time: "10:00", text: "退房出发，M1 → A1(M) 一路北上" },
+      {
+        time: "12:00",
+        text: "Angel of the North — A1(M) J65 旁 20m 巨型天使雕塑，免费停车拍照 15min",
+      },
+      {
+        time: "13:30",
+        text: "Forth Bridge — South Queensferry 看三桥并排（红色铁路桥=世界遗产）+ 快速午餐",
+      },
+      { time: "14:15", text: "过 Forth Bridge → M90 → A9 进入苏格兰高地" },
+      {
+        time: "15:00",
+        text: "Pitlochry — 高地门户小镇，歇脚 20min（三文鱼阶梯 / 咖啡）",
+      },
+      { time: "15:30", text: "继续 A9 北上，穿越凯恩戈姆国家公园，风景渐壮丽" },
       { time: "18:30", text: "抵达因弗内斯，尼斯河畔散步" },
       { time: "19:30", text: "晚餐 The Mustard Seed（河景餐厅）" },
       { time: "21:00", text: "Castle Tavern 威士忌热身，为明天酒厂日预热" },
     ],
     places: [
+      {
+        name: "Angel of the North",
+        query: "Angel of the North",
+        note: "A1 旁 · 拍照",
+      },
+      {
+        name: "Forth Bridge · South Queensferry",
+        query: "Queensferry High Street, South Queensferry",
+        note: "三桥并排",
+      },
+      {
+        name: "Pitlochry",
+        query: "Pitlochry town centre",
+        note: "高地门户 · 歇脚",
+      },
       {
         name: "凯恩戈姆国家公园 Cairngorms",
         query: "Cairngorms National Park",
@@ -488,6 +537,10 @@ const days: Day[] = [
       { time: "16:00", text: "可选第三家：Balvenie 或 Cardhu" },
       { time: "17:00", text: "返回因弗内斯" },
       { time: "18:30", text: "晚餐 + Malt Room 威士忌品鉴收官" },
+      {
+        time: "备选",
+        text: "想三人都畅饮：可改报 Inverness 出发的 Speyside 一日游巴士团（约 £60–80/人，全程专职司机）",
+      },
     ],
     places: [
       {
@@ -1123,36 +1176,210 @@ const days: Day[] = [
       },
     ],
     stay: {
-      summary: "伦敦 · 待定",
+      summary: "Moxy London Excel",
       lodging: [
         {
-          name: "Generator London（Russell Square）",
-          query: "Generator London Russell Square",
-          note: "伦敦最潮设计青旅，有单 / 双人间，Russell Square 地铁站旁，位置极佳。单间约 £35–50/晚。",
-          status: "option",
-        },
-        {
-          name: "Wombat's City Hostel（Tower Hill）",
-          query: "Wombat's City Hostel London Tower Hill",
-          note: "塔桥附近，干净评价高，私人房约 £40–55/晚，可步行到 Borough Market。",
-          status: "option",
-        },
-        {
-          name: "Point A Hotel（多个位置）",
-          query: "Point A Hotel London",
-          note: "超紧凑日式胶囊风，King's Cross / Shoreditch / Westminster 多店，单间约 £40–55/晚。",
-          status: "option",
-        },
-        {
-          name: "Premier Inn Hub（Tower Bridge / Westminster）",
-          query: "Premier Inn Hub London Tower Bridge",
-          note: "Premier Inn 精简版，房小但设施齐全，£45–60/晚，app 控制灯光空调。",
-          status: "option",
+          name: "Moxy London Excel",
+          query: "Moxy London Excel",
+          address: "Royal Victoria Dock, London E16",
+          checkIn: "6.28 周日",
+          checkOut: "6.30 周二",
+          room: "独自入住 · 连住 2 晚",
+          note: "Custom House 站步行 5min（Elizabeth Line）→ Liverpool Street 15min / West End 25min。酒店有停车场，6.29 车停这里坐地铁玩，6.30 一早开去 Gatwick 还车约 1h。",
+          status: "booked",
         },
       ],
-      note: "自驾结束后独自在伦敦自由活动 2 天，预算 ≤£50/晚，尚未预订。",
-      bookingUrl:
-        "https://www.booking.com/searchresults.en-gb.html?ss=London%2C+United+Kingdom&checkin=2026-06-28&checkout=2026-06-30&group_adults=1&no_rooms=1&order=price&nflt=price%3DGBP-min-50-1",
+    },
+  },
+  {
+    n: 11,
+    date: "2026-06-29",
+    dateLabel: "6月29日",
+    weekday: "周一",
+    title: "伦敦 · 独自自由活动",
+    route: "全天地铁出行（车停 Moxy）",
+    driving: "无需驾车",
+    weather: { temp: "15–19°C", summary: "多云间晴" },
+    timeline: [
+      {
+        time: "09:30",
+        text: "睡到自然醒，酒店早餐，Custom House 坐 Elizabeth Line 进城",
+      },
+      {
+        time: "10:00",
+        text: "Shoreditch / Brick Lane — 街头艺术、vintage 市集、咖喱一条街",
+      },
+      {
+        time: "12:00",
+        text: "South Bank 漫步 — Tate Modern（免费）→ 千禧桥 → Borough Market 觅食 → Tower Bridge",
+      },
+      {
+        time: "14:00",
+        text: "West End — Oxford Street / Soho / Chinatown / Covent Garden 逛街扫货",
+      },
+      {
+        time: "17:00",
+        text: "可选 Camden Market（朋克 / 潮流 / street food）",
+      },
+      {
+        time: "19:00",
+        text: "晚餐（见推荐），早点回酒店收行李——明早还车",
+      },
+    ],
+    places: [
+      {
+        name: "Shoreditch · Brick Lane",
+        query: "Brick Lane, London",
+        note: "潮牌 / vintage",
+      },
+      {
+        name: "South Bank · Borough Market",
+        query: "Borough Market, London",
+        note: "免费 + 觅食",
+      },
+      {
+        name: "Covent Garden · Seven Dials",
+        query: "Covent Garden, London",
+        note: "英伦品牌",
+      },
+      {
+        name: "牛津街 Oxford Street",
+        query: "Oxford Street, London",
+        note: "扫货",
+      },
+      {
+        name: "Harrods · 骑士桥",
+        query: "Harrods, London",
+        note: "顶奢 · Food Hall 手信",
+      },
+      { name: "Camden Market", query: "Camden Market, London", note: "可选" },
+    ],
+    restaurants: [
+      {
+        name: "Dishoom",
+        area: "伦敦 · Shoreditch / King's Cross",
+        query: "Dishoom Shoreditch, 7 Boundary Street, London E2 7JE",
+        tag: "孟买风印度菜 · 排队名店",
+        description:
+          "伦敦人气第一的复古孟买 café，Black Daal、Bacon Naan Roll 必点。不接受预约，建议 11:30 前或 17:00 前到避高峰。",
+        price: "~£25–40/人",
+        website: "https://www.dishoom.com",
+      },
+      {
+        name: "BAO Soho",
+        area: "伦敦 · Soho",
+        query: "BAO Soho, 53 Lexington Street, London W1F 9AS",
+        tag: "台湾刈包 · 小吃",
+        description:
+          "台式刈包 + 小吃 + 清酒鸡尾酒，经典 Pork Bao 必点。小店排队文化，Soho 店最有氛围。",
+        price: "~£30–45/人",
+        website: "https://baolondon.com",
+      },
+      {
+        name: "Flat Iron",
+        area: "伦敦 · 多店",
+        query:
+          "Flat Iron Covent Garden, 17-18 Henrietta Street, London WC2E 8QH",
+        tag: "牛排 · 性价比之王",
+        description:
+          "只卖一种 Flat Iron 牛排，配无限沙拉和 creamed spinach，伦敦最良心牛排店，每家都排队。",
+        price: "~£20–30/人",
+        website: "https://flatironsteak.co.uk",
+      },
+      {
+        name: "Duck & Waffle",
+        area: "伦敦 · Liverpool Street",
+        query: "Duck & Waffle, 110 Bishopsgate, London EC2N 4AY",
+        tag: "高空景观 · 24h 营业",
+        description:
+          "Heron Tower 40 层无敌夜景，招牌 Duck & Waffle（鸭腿 + 华夫饼），24 小时营业，日出早餐也热门。",
+        price: "~£50–70/人",
+        website: "https://duckandwaffle.com",
+      },
+      {
+        name: "Hawksmoor",
+        area: "伦敦 · Seven Dials",
+        query: "Hawksmoor Seven Dials, 11 Langley Street, London WC2H 9JG",
+        tag: "英国最佳牛排馆",
+        description:
+          "35 天干式熟成英国本土牛肉，Bone-in Ribeye 和 T-bone 招牌，环境像高级酒窖，Sunday Roast 也绝。",
+        price: "~£60–90/人",
+        website: "https://www.thehawksmoor.com",
+      },
+      {
+        name: "Gymkhana",
+        area: "伦敦 · Mayfair",
+        query: "Gymkhana, 42 Albemarle Street, London W1S 4JH",
+        tag: "现代印度料理",
+        michelin: 1,
+        description:
+          "殖民地俱乐部风装潢，北印度精致料理，Wild Muntjac Biryani、Tandoori 鹿肉，伦敦最好的高端印度菜之一。",
+        price: "~£80–120/人",
+        website: "https://www.gymkhanalondon.com",
+      },
+      {
+        name: "The Clove Club",
+        area: "伦敦 · Shoreditch",
+        query:
+          "The Clove Club, Shoreditch Town Hall, 380 Old Street, London EC1V 9LT",
+        tag: "现代英国 · tasting",
+        michelin: 1,
+        description:
+          "Shoreditch Town Hall 里的 fine dining，创意英式 tasting menu，曾位列世界 50 最佳餐厅，轻松不端着。",
+        price: "Tasting ~£150–180/人",
+        website: "https://www.thecloveclub.com",
+      },
+      {
+        name: "Borough Market",
+        area: "伦敦 · London Bridge",
+        query: "Borough Market, 8 Southwark Street, London SE1 1TL",
+        tag: "美食市集 · 逛吃逛吃",
+        description:
+          "伦敦最著名美食集市，Raclette 芝士、Scotch Eggs、生蚝、Padella 手工意面（排队王），边走边吃。周一开但部分摊位休。",
+        price: "~£15–30/人",
+      },
+    ],
+    stay: {
+      summary: "连住 · Moxy London Excel",
+      lodging: [],
+      ref: { dayN: 10, label: "同 Day 10 · Moxy London Excel，连住第 2 晚" },
+    },
+  },
+  {
+    n: 12,
+    date: "2026-06-30",
+    dateLabel: "6月30日",
+    weekday: "周二",
+    title: "还车 · 返程回国",
+    route: "Moxy → M25 → Gatwick 还车 → CA852 回国",
+    driving: "约 1 小时",
+    timeline: [
+      { time: "07:00", text: "起床退房，行李上车" },
+      { time: "07:45", text: "出发，Moxy → A2 → M25 → M23 南下" },
+      {
+        time: "08:30",
+        text: "Pease Pottage Services（M23 J11）加满油——Sixt full-to-full，距机场仅 5min",
+      },
+      {
+        time: "08:45",
+        text: "抵达 Gatwick South Terminal，跟着 Car Rental Return 标志走",
+      },
+      {
+        time: "09:00",
+        text: "Sixt 还车（外观 / 油量 / 里程检查，拍照留底，拿还车确认单）",
+      },
+      {
+        time: "09:30",
+        text: "South Terminal 值机托运（国航 CA 柜台）+ 过安检",
+      },
+      { time: "12:35", text: "CA852 起飞，再见英国 🇬🇧 → 🇨🇳" },
+    ],
+    places: [],
+    restaurants: [],
+    stay: {
+      summary: "夜宿 · 返程航班",
+      lodging: [],
+      note: "今晚在飞机上 · CA852 12:35 自 Gatwick 起飞回国。",
     },
   },
 ];

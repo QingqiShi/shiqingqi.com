@@ -99,7 +99,7 @@ export function StaySection({
         <button
           type="button"
           onClick={() => {
-            onOpenDay(ref.dayN - 1);
+            onOpenDay(ref.dayN);
           }}
           className="flex w-full items-center justify-between gap-3 rounded-xl border border-dashed bg-muted/30 px-4 py-3 text-left text-sm transition-colors hover:bg-accent"
         >
