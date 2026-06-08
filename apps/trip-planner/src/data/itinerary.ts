@@ -180,19 +180,19 @@ const days: Day[] = [
     anchors: [
       {
         time: "06:30",
-        label: "大雨 CA851 落地 Gatwick South Terminal",
+        label: "大雨 CA851 落地 Gatwick North Terminal",
         kind: "flight",
       },
       {
         time: "06:45",
         label: "石头从 N17 去 Gatwick 接大雨（地铁约 1h15）",
         kind: "transit",
-        query: "Gatwick Airport South Terminal",
+        query: "Gatwick Airport North Terminal",
         mode: "transit",
       },
       {
         time: "09:00",
-        label: "Sixt 取车（大雨名下 · South Terminal 到达层）",
+        label: "Sixt 取车（大雨名下 · 转 South Terminal 取车）",
         kind: "pickup",
         query: "Sixt Gatwick Airport South Terminal",
         mode: "walking",
@@ -209,9 +209,9 @@ const days: Day[] = [
       {
         label: "石头去接大雨（N17 → Gatwick）",
         from: "N17 9LX, London",
-        to: "Gatwick Airport South Terminal",
+        to: "Gatwick Airport North Terminal",
         mode: "transit",
-        note: "地铁 / 火车约 1h15，此时还没取车",
+        note: "地铁 / 火车约 1h15，到 North Terminal 接机，此时还没取车",
       },
       {
         label: "Gatwick → N17（取车后开回家停一天）",
@@ -253,7 +253,7 @@ const days: Day[] = [
       },
       {
         time: "17:30",
-        text: "Maru Omakase 晚餐 — Shepherd Market, Mayfair，18+ 道江户前 omakase（2 人已预订）",
+        text: "Maru Omakase 晚餐 — Shepherd Market, Mayfair，约 18 道江户前 omakase（2 人已预订）",
       },
       {
         time: "晚上",
@@ -283,10 +283,10 @@ const days: Day[] = [
         name: "Maru Omakase",
         area: "伦敦 · Mayfair",
         query: "Maru, 18 Shepherd Market, London W1J 7QH",
-        tag: "Omakase · 约 20 道",
+        tag: "Omakase · 约 18 道",
         status: "booked",
         description:
-          "MARU London 的主厨发办江户前 omakase，约 20 道。位于 Mayfair 的 Shepherd Market，Green Park 站步行 5min。每晚两席 17:30 / 20:30。",
+          "MARU London 的主厨发办江户前 omakase，约 18 道。位于 Mayfair 的 Shepherd Market，Green Park 站步行 5min。每晚两席 17:30 / 20:30。",
         website: "https://www.marulondon.com/",
         booking: {
           date: "6.18 周四",
@@ -303,7 +303,7 @@ const days: Day[] = [
         items: [
           "人工通道入境（中国护照，早高峰排队约 30–45min）",
           "提取托运行李",
-          "找 Sixt 柜台（South Terminal 到达层）",
+          "落地 North，乘免费航站楼列车转 South Terminal 找 Sixt 柜台",
           "取车：检查外观 / 油量，拍照留底",
           "适应右舵左行，停车场先开 5–10min 找感觉",
         ],
@@ -321,11 +321,11 @@ const days: Day[] = [
       },
       {
         kind: "money",
-        text: "全程不进 Congestion Charge Zone（N17 / Chingford / Gatwick 均在区外），省 £15/天。",
+        text: "全程不进 Congestion Charge Zone（N17 / Chingford / Gatwick 均在区外），省 £18/天。",
       },
       {
         kind: "info",
-        text: "伦敦 6 月日落约 21:15，白天很长；长途飞机后注意倒时差。",
+        text: "伦敦 6 月日落约 21:20，白天很长；长途飞机后注意倒时差。",
       },
     ],
     stay: {
@@ -433,7 +433,7 @@ const days: Day[] = [
         area: "诺丁汉",
         query: "Restaurant Sat Bains, Lenton Lane, Nottingham NG7 2SA",
         tag: "创意料理",
-        michelin: 3,
+        michelin: 2,
         description:
           "英国顶级创意料理，10 道式 tasting menu，食材来自自家菜园。需提前数周预订。",
         price: "~£165/人",
@@ -444,8 +444,9 @@ const days: Day[] = [
         area: "诺丁汉",
         query: "Alchemilla, 192a Derby Road, Nottingham NG7 1NF",
         tag: "现代欧洲",
+        michelin: 1,
         description:
-          "教堂改建的餐厅，氛围绝佳。蔬菜为主的创意菜单，性价比极高。",
+          "旧马车房改建的餐厅，氛围绝佳；蔬菜为主的创意菜单，米其林一星。",
         price: "~£65–80/人",
         website: "https://www.alchemillarestaurant.uk",
       },
@@ -456,7 +457,7 @@ const days: Day[] = [
           "Ye Olde Trip to Jerusalem, 1 Brewhouse Yard, Nottingham NG1 6AD",
         tag: "历史酒吧 · 1189",
         description:
-          "全英最古老的洞穴酒吧，氛围独特，适合轻松一杯配 pub food。",
+          "号称建于 1189 年、自称全英最古老酒吧之一（说法有争议），洞穴氛围独特，适合轻松一杯配 pub food。",
         price: "~£15–25/人",
       },
       {
@@ -479,7 +480,7 @@ const days: Day[] = [
         website: "https://www.kushi-ya.co.uk",
       },
       {
-        name: "Sexy Mama Loves Spaghetti",
+        name: "Sexy Mamma Love Spaghetti",
         area: "诺丁汉",
         query:
           "Sexy Mamma Love Spaghetti, 3 Heathcoat Street, Nottingham NG1 3AF",
@@ -616,7 +617,7 @@ const days: Day[] = [
         name: "Shanghai Shanghai",
         area: "诺丁汉",
         query: "Shanghai Shanghai, 15 Goose Gate, Nottingham NG1 1FE",
-        tag: "沪菜",
+        tag: "粤菜 · 港式",
         description:
           "Hockley 区人气中餐，点菜制菜量足，适合多人聚餐点一桌配酒。",
         price: "~£25–35/人",
@@ -662,7 +663,8 @@ const days: Day[] = [
         area: "诺丁汉",
         query: "The Bodega, 23 Pelham Street, Nottingham NG1 2ED",
         tag: "现场音乐酒吧",
-        description: "Rock City 楼下的小酒吧，气氛好，适合微醺聊天。",
+        description:
+          "和 Rock City 同属 DHP 的现场音乐小酒吧（Pelham Street），气氛好，适合微醺聊天。",
       },
     ],
     tips: [
@@ -846,10 +848,10 @@ const days: Day[] = [
       {
         name: "Moulin Hotel",
         area: "Pitlochry · 途中午餐",
-        query: "Moulin Hotel, Moulin, Pitlochry PH16 5EW",
+        query: "Moulin Hotel, Moulin, Pitlochry PH16 5EH",
         tag: "1695 高地酒馆",
         description:
-          "苏格兰最古老酒馆之一，自酿 Moulin Ale，Haggis 和牛肉派，途中歇脚午餐绝佳。",
+          "苏格兰最古老酒馆之一，自酿啤酒（Old Remedial / Ale of Atholl 等），Haggis 和牛肉派，途中歇脚午餐绝佳。",
         price: "~£15–25/人",
       },
     ],
@@ -1200,7 +1202,7 @@ const days: Day[] = [
         query: "Sea Breezes, Quay Street, Portree IV51 9DE",
         tag: "港口海鲜 · 午餐",
         description:
-          "Portree 港口海鲜馆，炸鱼薯条和扇贝，不用预约 walk-in 即可，适合午餐快吃。",
+          "Portree 港口海鲜馆，炸鱼薯条和扇贝出色；座位少，旺季需提前电话预约（不接受 walk-in）。",
         price: "~£20–30/人",
       },
       {
@@ -1211,7 +1213,7 @@ const days: Day[] = [
         tag: "海鲜 · 仅 6 桌",
         michelin: 1,
         description:
-          "天空岛唯一米其林星！夫妻档经营仅 6 桌，手潜扇贝、笼捕龙虾。距 Portree 30min，仅周三–六晚餐，需预付。",
+          "天空岛唯一米其林星！夫妻档经营仅 6 桌，手潜扇贝、笼捕龙虾。距 Portree 30min，仅周二–六晚餐，需预付。",
         price: "£160/人",
         website: "https://www.lochbay-restaurant.co.uk/booking/",
       },
@@ -1249,7 +1251,7 @@ const days: Day[] = [
         query: "Crannog, 4 Cameron Square, Fort William PH33 6AJ",
         tag: "水上海鲜餐厅",
         description:
-          "建在码头栈桥上！Loch Linnhe 直供海鲜，扇贝和龙虾绝佳，当地 No.1，关门较晚。",
+          "原码头栈桥名店，现暂迁 Cameron Square（Garrison West）；Loch Linnhe 直供海鲜，扇贝和龙虾绝佳，当地 No.1。",
         price: "~£35–50/人",
         website: "https://www.crannog.net",
       },
@@ -1376,7 +1378,7 @@ const days: Day[] = [
         query: "The Clachaig Inn, Old Village Road, Glencoe PH49 4HX",
         tag: "高地经典酒吧 · 午餐",
         description:
-          "峡谷中的传奇徒步者酒吧，壁炉旁吃派喝 ale，300+ 种威士忌。",
+          "峡谷中的传奇徒步者酒吧，壁炉旁吃派喝 ale，400+ 种威士忌。",
         price: "~£15–25/人",
         website: "https://www.clachaig.com",
       },
@@ -1395,7 +1397,7 @@ const days: Day[] = [
         name: "Old Stamp House",
         area: "湖区 · Ambleside",
         query: "Old Stamp House, Church Street, Ambleside LA22 0BU",
-        tag: "Cumbrian · 连续 7 年星",
+        tag: "Cumbrian · 自 2019 持星",
         michelin: 1,
         description:
           "Ryan Blackburn 主理，纯正 Cumbrian tasting menu，Herdwick 羊肉、Windermere 鲑鱼。10min 车程。",
@@ -1409,7 +1411,7 @@ const days: Day[] = [
         tag: "庄园 · tasting",
         michelin: 1,
         description:
-          "维多利亚哥特庄园，自家厨房花园供应食材，4/8 道式 tasting menu。20min 车程。",
+          "维多利亚哥特庄园，自家厨房花园供应食材，4/8 道式 tasting menu；2026 年新获米其林绿星。20min 车程。",
         price: "~£95–115/人",
         website: "https://www.theforestside.com",
       },
@@ -1568,7 +1570,7 @@ const days: Day[] = [
         tag: "现代印度料理",
         michelin: 2,
         description:
-          "Aktar Islam 的旗舰，英国首家米其林二星印度餐厅，以高度时令、技法驱动的 tasting menu 重新诠释印度传统。",
+          "Aktar Islam 的旗舰，伯明翰首家米其林二星餐厅，以高度时令、技法驱动的 tasting menu 重新诠释印度传统。",
         price: "Tasting ~£135–175/人",
         website: "https://opheem.com",
       },
@@ -1601,7 +1603,7 @@ const days: Day[] = [
         michelin: 3,
         description:
           "Simon Rogan 旗舰，北英唯一米其林三星，15 道式 tasting。离开湖区南下途中绕路 30min 的告别午餐，需提前数周预订。",
-        price: "£265/人",
+        price: "£275/人",
         website: "https://www.lenclume.co.uk/reservations",
       },
     ],
@@ -1731,17 +1733,6 @@ const days: Day[] = [
         website: "https://hhbristol.com",
       },
       {
-        name: "Paco Tapas",
-        area: "Bristol",
-        query:
-          "Paco Tapas, 3a The General, Lower Guinea Street, Bristol BS1 6FU",
-        tag: "西班牙小食",
-        michelin: 1,
-        description: "极受欢迎的西班牙 tapas，Iberico 火腿和 croquettes 必点。",
-        price: "~£40–55/人",
-        website: "https://www.pacotapas.co.uk",
-      },
-      {
         name: "COR",
         area: "Bristol · Bedminster",
         query: "COR, 81 North Street, Bedminster, Bristol BS3 1ES",
@@ -1859,7 +1850,7 @@ const days: Day[] = [
       },
     ],
     timeline: [
-      { time: "09:30", text: "前往巴斯（仅 20 分钟）" },
+      { time: "09:30", text: "前往巴斯（约 30 分钟）" },
       { time: "10:00", text: "古罗马浴场 — 2000 年温泉遗址，语音导览精彩" },
       { time: "12:00", text: "皇家新月楼 Royal Crescent — 乔治亚建筑典范" },
       { time: "13:00", text: "午餐" },
@@ -1899,7 +1890,7 @@ const days: Day[] = [
         name: "Sally Lunn's",
         area: "巴斯",
         query: "Sally Lunn's, 4 North Parade Passage, Bath BA1 1NX",
-        tag: "巴斯最古老建筑 · 1482",
+        tag: "巴斯最古老建筑之一 · 1482",
         description: "巨型圆面包 Sally Lunn Bun 闻名，下午茶首选。",
         price: "~£15–20/人",
       },
@@ -2071,7 +2062,7 @@ const days: Day[] = [
       },
       {
         kind: "info",
-        text: "可选 Bicester Village 打折村（160+ 品牌），逛 2–2.5h，搜 Bicester Village car park。",
+        text: "可选 Bicester Village 打折村（150+ 品牌），逛 2–2.5h，搜 Bicester Village car park。",
       },
     ],
     stay: {
@@ -2084,7 +2075,7 @@ const days: Day[] = [
           checkIn: "6.28 周日",
           checkOut: "6.30 周二",
           room: "独自入住 · 连住 2 晚",
-          note: "大雨名下预订。Custom House 站步行 5min（Elizabeth Line）→ Liverpool Street 15min / West End 25min。酒店有停车场，6.29 车停这里坐地铁玩，6.30 一早开去 Gatwick 还车约 1h。",
+          note: "大雨名下预订。Custom House 站约 15min 步行 / 公交 5min（Elizabeth Line）→ Liverpool Street 15min / West End 25min。酒店有停车场，6.29 车停这里坐地铁玩，6.30 一早开去 Gatwick 还车约 1h。",
           status: "booked",
         },
       ],
@@ -2124,10 +2115,10 @@ const days: Day[] = [
         note: "Elizabeth Line → Liverpool Street 出",
       },
       {
-        label: "South Bank · Borough Market",
-        to: "Borough Market, London",
+        label: "South Bank（Tate Modern / Tower Bridge）",
+        to: "Tate Modern, London",
         mode: "transit",
-        note: "Tate Modern → 千禧桥 → Borough Market → Tower Bridge",
+        note: "Tate Modern → 千禧桥 → Tower Bridge（Borough Market 周一休市）",
       },
       {
         label: "West End（Oxford St / Covent Garden）",
@@ -2153,7 +2144,7 @@ const days: Day[] = [
       },
       {
         time: "12:00",
-        text: "South Bank 漫步 — Tate Modern（免费）→ 千禧桥 → Borough Market 觅食 → Tower Bridge",
+        text: "South Bank 漫步 — Tate Modern（免费）→ 千禧桥 → Tower Bridge（Borough Market 周一休市，午餐另选）",
       },
       {
         time: "14:00",
@@ -2175,9 +2166,9 @@ const days: Day[] = [
         note: "潮牌 / vintage",
       },
       {
-        name: "South Bank · Borough Market",
-        query: "Borough Market, London",
-        note: "免费 + 觅食",
+        name: "South Bank · Tate Modern",
+        query: "Tate Modern, London",
+        note: "免费 · 河岸漫步（Borough Market 周一休市）",
       },
       {
         name: "Covent Garden · Seven Dials",
@@ -2203,7 +2194,7 @@ const days: Day[] = [
         query: "Dishoom Shoreditch, 7 Boundary Street, London E2 7JE",
         tag: "孟买风印度菜 · 排队名店",
         description:
-          "伦敦人气第一的复古孟买 café，Black Daal、Bacon Naan Roll 必点。不接受预约，建议 11:30 前或 17:00 前到避高峰。",
+          "伦敦人气第一的复古孟买 café，Black Daal、Bacon Naan Roll 必点。以排队为主，但 6 人以上晚餐可预约；建议 11:30 前或 17:00 前到避高峰。",
         price: "~£25–40/人",
         website: "https://www.dishoom.com",
       },
@@ -2253,7 +2244,7 @@ const days: Day[] = [
         area: "伦敦 · Mayfair",
         query: "Gymkhana, 42 Albemarle Street, London W1S 4JH",
         tag: "现代印度料理",
-        michelin: 1,
+        michelin: 2,
         description:
           "殖民地俱乐部风装潢，北印度精致料理，Wild Muntjac Biryani、Tandoori 鹿肉，伦敦最好的高端印度菜之一。",
         price: "~£80–120/人",
@@ -2265,7 +2256,7 @@ const days: Day[] = [
         query:
           "The Clove Club, Shoreditch Town Hall, 380 Old Street, London EC1V 9LT",
         tag: "现代英国 · tasting",
-        michelin: 1,
+        michelin: 2,
         description:
           "Shoreditch Town Hall 里的 fine dining，创意英式 tasting menu，曾位列世界 50 最佳餐厅，轻松不端着。",
         price: "Tasting ~£150–180/人",
@@ -2277,7 +2268,7 @@ const days: Day[] = [
         query: "Borough Market, 8 Southwark Street, London SE1 1TL",
         tag: "美食市集 · 逛吃逛吃",
         description:
-          "伦敦最著名美食集市，Raclette 芝士、Scotch Eggs、生蚝、Padella 手工意面（排队王），边走边吃。周一开但部分摊位休。",
+          "伦敦最著名美食集市，Raclette 芝士、Scotch Eggs、生蚝、Padella 手工意面（排队王），边走边吃。⚠️ 周一休市（周二–周日营业）——今天是周一，午餐请另选。",
         price: "~£15–30/人",
       },
     ],
@@ -2296,7 +2287,7 @@ const days: Day[] = [
     tips: [
       {
         kind: "transit",
-        text: "车停 Moxy，全天 Elizabeth Line：Oyster 或银行卡 contactless 直接刷，每日 £8.10 封顶（Zone 1–3）。",
+        text: "车停 Moxy，全天 Elizabeth Line：Oyster 或银行卡 contactless 直接刷，每日 £10.50 封顶（Zone 1–3）。",
       },
       {
         kind: "transit",
@@ -2361,7 +2352,7 @@ const days: Day[] = [
         from: "Pease Pottage Services M23",
         to: "Sixt Gatwick South Terminal",
         mode: "driving",
-        note: "距机场仅 5min，跟 Car Rental Return 标志",
+        note: "距机场约 8–10min（J11 在机场以南），跟 Car Rental Return 标志",
       },
     ],
     timeline: [
@@ -2369,7 +2360,7 @@ const days: Day[] = [
       { time: "07:45", text: "出发，Moxy → A2 → M25 → M23 南下" },
       {
         time: "08:30",
-        text: "Pease Pottage Services（M23 J11）加满油——Sixt full-to-full，距机场仅 5min",
+        text: "Pease Pottage Services（M23 J11）加满油——Sixt full-to-full，距机场约 8–10min（J11 在机场以南）",
       },
       {
         time: "08:45",
@@ -2381,7 +2372,7 @@ const days: Day[] = [
       },
       {
         time: "09:30",
-        text: "South Terminal 值机托运（国航 CA 柜台）+ 过安检",
+        text: "转免费航站楼列车到 North Terminal 值机托运（国航 CA 柜台）+ 过安检",
       },
       { time: "12:35", text: "CA852 起飞，再见英国 🇬🇧 → 🇨🇳" },
     ],
@@ -2395,14 +2386,14 @@ const days: Day[] = [
           "检查车内无个人物品（后备箱 / 杂物箱 / 座位下）",
           "拍照记录还车时车辆外观",
           "拿到还车确认单 / 邮件",
-          "CA 国航柜台值机托运 + 过安检",
+          "转 North Terminal，CA 国航柜台值机托运 + 过安检",
         ],
       },
     ],
     tips: [
       {
         kind: "fuel",
-        text: "必须在 Pease Pottage Services（M23 J11）加满油 — Sixt full-to-full，不加满按约 £2.5/升代加（正常 £1.5），距机场仅 5min。",
+        text: "必须在 Pease Pottage Services（M23 J11）加满油 — Sixt full-to-full，不加满按约 £2.5/升代加（正常 £1.5），距机场约 8–10min（J11 在机场以南）。",
       },
       {
         kind: "info",
