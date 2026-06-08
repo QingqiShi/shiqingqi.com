@@ -216,31 +216,32 @@ const days: Day[] = [
         note: "地铁 / 火车约 1h15，此时还没取车",
       },
       {
-        label: "Gatwick → Chingford 酒店",
+        label: "Gatwick → N17（取车后开回家停一天）",
         from: "Gatwick Airport South Terminal",
-        to: "Holiday Inn Express London Chingford",
+        to: "N17 9LX, London",
         mode: "driving",
-        note: "取车后开车，M23 → M25 约 1h15",
+        note: "M23 → M25 约 1h15，车停 N17 附近，白天不开进市区",
       },
       {
-        label: "酒店 → Chingford 车站",
-        from: "Holiday Inn Express London Chingford",
-        to: "Chingford Station, London",
-        mode: "walking",
-        note: "步行约 10min，车停酒店免费",
-      },
-      {
-        label: "Chingford → 市区（Liverpool Street）",
-        from: "Chingford Station, London",
+        label: "N17 → 市区（Tottenham Hale → Liverpool Street）",
+        from: "Tottenham Hale Station, London",
         to: "Liverpool Street Station, London",
         mode: "transit",
-        note: "Overground 约 30min",
+        note: "Greater Anglia 直达约 13min，到 Liverpool St 换 Elizabeth 线去各处",
       },
       {
-        label: "前往 Maru · Mayfair",
+        label: "前往 Maru · Mayfair（Elizabeth 线 → Bond St）",
+        from: "Liverpool Street Station, London",
         to: "Maru, 18 Shepherd Market, London W1J 7QH",
         mode: "transit",
-        note: "Green Park 站步行 5min",
+        note: "Liverpool St 坐 Elizabeth 线到 Bond Street 约 8min，步行 10min 到 Shepherd Market",
+      },
+      {
+        label: "回 Chingford 酒店过夜（N17 取车开过去）",
+        from: "N17 9LX, London",
+        to: "Holiday Inn Express London Chingford",
+        mode: "driving",
+        note: "晚饭后坐火车回 Tottenham Hale 取车，开去 Chingford 约 15min",
       },
     ],
     timeline: [
@@ -250,7 +251,7 @@ const days: Day[] = [
       },
       {
         time: "下午",
-        text: "进城自由活动 — 博物馆 / 公园 / 南岸随意逛（见下方想去的地方）",
+        text: "把车停在 N17，从 Tottenham Hale 坐火车 / 地铁进城自由活动 — 博物馆 / 公园 / 南岸随意逛（见下方想去的地方）",
       },
       {
         time: "17:30",
@@ -258,7 +259,7 @@ const days: Day[] = [
       },
       {
         time: "晚上",
-        text: "入住 Holiday Inn Express Chingford，为明早出发休整",
+        text: "坐车回 Tottenham Hale 取车，开去入住 Holiday Inn Express Chingford，为明早出发休整",
       },
     ],
     places: [
@@ -314,7 +315,7 @@ const days: Day[] = [
     tips: [
       {
         kind: "parking",
-        text: "车停 HIE Chingford 免费，全天坐 Overground / 地铁进城，不用开车。",
+        text: "白天把车停在 N17：路段是 CPZ 就当天用 RingGo 买一张 Haringey 住户访客券（最省事，停家门附近）；有自家车道或路段不管制则免费。想要稳妥也可提前在 JustPark / YourParkingSpace 订车位（约 £6–8/天）。别贪 Tottenham Hale 零售公园的免费 3 小时（超时罚款很重）。晚上再开去 Chingford，酒店停车免费。",
       },
       {
         kind: "drive",
@@ -322,7 +323,7 @@ const days: Day[] = [
       },
       {
         kind: "money",
-        text: "全程不进 Congestion Charge Zone（Chingford / Gatwick 均在区外），省 £15/天。",
+        text: "全程不进 Congestion Charge Zone（N17 / Chingford / Gatwick 均在区外），省 £15/天。",
       },
       {
         kind: "info",
