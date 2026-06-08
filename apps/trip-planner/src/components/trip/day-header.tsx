@@ -81,7 +81,7 @@ export function DayHeader({
             </Badge>
           ) : null}
           {day.weather ? (
-            <Badge variant="outline">
+            <Badge variant="outline" className="whitespace-normal">
               {liveWeather ? (
                 <WeatherIcon code={liveWeather.code} />
               ) : (
@@ -90,6 +90,9 @@ export function DayHeader({
               {liveWeather
                 ? `${liveWeather.temp} · ${liveWeather.condition}${day.weather.note ? `，${day.weather.note}` : ""}`
                 : `${day.weather.temp} · ${day.weather.summary}`}
+              <span className="text-muted-foreground">
+                {liveWeather ? `· ${liveWeather.updated}` : "· 预估"}
+              </span>
             </Badge>
           ) : null}
         </div>

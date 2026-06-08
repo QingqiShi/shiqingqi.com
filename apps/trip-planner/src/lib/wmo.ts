@@ -28,6 +28,9 @@ export interface LiveWeather {
   condition: string;
   /** Raw WMO weather code, so the badge can pick a matching icon. */
   code: number;
+  /** When the forecast was last fetched, e.g. "6/9 更新" — marks the day as
+   *  live and shows its freshness. Identical across days (one fetch). */
+  updated: string;
 }
 
 /** Collapse a raw WMO code into one of the planner's coarse condition groups. */

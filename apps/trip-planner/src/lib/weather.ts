@@ -93,6 +93,7 @@ function asDailyBlock(value: unknown): DailyBlock | undefined {
 function readForecast(
   daily: DailyBlock,
   date: string,
+  updated: string,
 ): LiveWeather | undefined {
   const i = daily.time.indexOf(date);
   if (i < 0) return undefined; // date is beyond the forecast horizon
@@ -105,7 +106,18 @@ function readForecast(
     temp: `${String(Math.round(min))}–${String(Math.round(max))}°C`,
     condition: wmoCondition(code),
     code,
+    updated,
   };
+}
+
+/** "6/9 更新" — the London-local date the forecast was last fetched. */
+function fetchedLabel(now: Date): string {
+  const date = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/London",
+    month: "numeric",
+    day: "numeric",
+  }).format(now);
+  return `${date} 更新`;
 }
 
 async function fetchTripWeather(): Promise<Record<number, LiveWeather>> {
@@ -127,10 +139,13 @@ async function fetchTripWeather(): Promise<Record<number, LiveWeather>> {
     const body: unknown = await response.json();
     // One coordinate returns a single object; many return an aligned array.
     const blocks = Array.isArray(body) ? body : [body];
+    // Stamp every live day with the fetch time; `unstable_cache` freezes it
+    // until the next revalidation, so it reads as "last refreshed at".
+    const updated = fetchedLabel(new Date());
     points.forEach((point, i) => {
       const daily = asDailyBlock(blocks[i]);
       if (!daily) return;
-      const live = readForecast(daily, point.date);
+      const live = readForecast(daily, point.date, updated);
       if (live) result[point.n] = live;
     });
   } catch {
