@@ -1185,7 +1185,7 @@ const days: Day[] = [
           checkIn: "6.28 周日",
           checkOut: "6.30 周二",
           room: "独自入住 · 连住 2 晚",
-          note: "Custom House 站步行 5min（Elizabeth Line）→ Liverpool Street 15min / West End 25min。酒店有停车场，6.29 车停这里坐地铁玩，6.30 一早开去 Gatwick 还车约 1h。",
+          note: "Yang Muyu 名下预订。Custom House 站步行 5min（Elizabeth Line）→ Liverpool Street 15min / West End 25min。酒店有停车场，6.29 车停这里坐地铁玩，6.30 一早开去 Gatwick 还车约 1h。",
           status: "booked",
         },
       ],
@@ -1386,7 +1386,7 @@ const days: Day[] = [
 
 export const trip: Trip = {
   title: "大不列颠自驾",
-  subtitle: "10 天深度自驾 · 英格兰 · 苏格兰高地 · 湖区 · 西南英格兰",
+  subtitle: "13 天深度自驾 · 英格兰 · 苏格兰高地 · 湖区 · 西南英格兰",
   dateRange: "2026 年 6 月 18 – 30 日",
   party: "3 人自驾",
   days,
