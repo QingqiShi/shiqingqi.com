@@ -168,6 +168,31 @@ export interface Trip {
   days: Day[];
 }
 
+/** Who can appear in a day's "who's involved" chips. */
+export type PersonId = "shitou" | "dayu" | "jim" | "ed";
+
+/**
+ * How a person relates to a single day:
+ *  - `arrive` / `depart` — joins / leaves the group that day
+ *  - `home` — 石头 (the UK-based host) heads home rather than travelling on
+ *  - `present` — around that day, no transition
+ */
+export type PresenceKind = "arrive" | "depart" | "home" | "present";
+
+/** How a guest travels in and out — drives which arrive/depart glyph shows:
+ *  `air` flies (plane), `ground` drives or takes the train (person). */
+export type TravelVia = "air" | "ground";
+
+/** One person's involvement in a single day. */
+export interface DayPresence {
+  id: PersonId;
+  name: string;
+  /** Single glyph shown inside the avatar medallion (e.g. 石, 大, J, E). */
+  initial: string;
+  kind: PresenceKind;
+  via: TravelVia;
+}
+
 const days: Day[] = [
   {
     n: 0,
@@ -2419,6 +2444,79 @@ export const trip: Trip = {
   party: "3 人自驾",
   days,
 };
+
+interface PersonSchedule {
+  id: PersonId;
+  name: string;
+  /** Single glyph for the avatar medallion. */
+  initial: string;
+  /** First and last trip day (inclusive) the person is involved. */
+  range: [number, number];
+  /** How the person travels in and out; defaults to `air`. */
+  via?: TravelVia;
+  /** Days inside the range when the person is away (not involved). */
+  away?: number[];
+  /** Transition markers for specific days; unlisted in-range days are `present`. */
+  markers?: Partial<Record<number, "arrive" | "depart" | "home">>;
+}
+
+/**
+ * Single source of truth for who is on the trip and when. 石头 is the UK-based
+ * host; 大雨 and Jim are guests who fly in and out; Ed drives over for a weekend.
+ *   大雨 — lands Day 0 (CA851), flies home Day 12 (CA852); around the whole trip.
+ *   Jim  — lands Day 1 (Heathrow), flies home Day 8; leaves first.
+ *   Ed   — drives over from Ipswich for the weekend, Day 2 (Sat) to Day 3 (Sun).
+ *   石头 — heads home the night of Day 10, sits out the Day 11 solo day, then
+ *          returns Day 12 to see 大雨 off at Gatwick.
+ */
+const partySchedule: PersonSchedule[] = [
+  {
+    id: "shitou",
+    name: "石头",
+    initial: "石",
+    range: [0, 12],
+    away: [11],
+    markers: { 10: "home" },
+  },
+  {
+    id: "dayu",
+    name: "大雨",
+    initial: "雨",
+    range: [0, 12],
+    markers: { 0: "arrive", 12: "depart" },
+  },
+  {
+    id: "jim",
+    name: "Jim",
+    initial: "J",
+    range: [1, 8],
+    markers: { 1: "arrive", 8: "depart" },
+  },
+  {
+    id: "ed",
+    name: "Ed",
+    initial: "E",
+    range: [2, 3],
+    via: "ground",
+    markers: { 2: "arrive", 3: "depart" },
+  },
+];
+
+/** Who is involved on a given day, in stable host-then-guest order. */
+export function peopleOnDay(dayN: number): DayPresence[] {
+  return partySchedule
+    .filter(
+      (p) =>
+        dayN >= p.range[0] && dayN <= p.range[1] && !p.away?.includes(dayN),
+    )
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      initial: p.initial,
+      kind: p.markers?.[dayN] ?? "present",
+      via: p.via ?? "air",
+    }));
+}
 
 export type TripPhase = "before" | "during" | "after";
 
