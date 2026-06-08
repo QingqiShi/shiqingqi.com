@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import type { Booking, Restaurant } from "@/data/itinerary";
 import { cn } from "@/lib/utils";
 
-const michelinLabel: Record<1 | 3, string> = {
+const michelinLabel: Record<1 | 2 | 3, string> = {
   1: "米其林一星",
+  2: "米其林二星",
   3: "米其林三星",
 };
 

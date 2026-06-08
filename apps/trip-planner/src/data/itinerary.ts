@@ -31,7 +31,7 @@ export interface Restaurant {
   price?: string;
   website?: string;
   /** Michelin stars, when starred. */
-  michelin?: 1 | 3;
+  michelin?: 1 | 2 | 3;
   /** "booked" = confirmed reservation, "pick" = the planned choice. */
   status?: "booked" | "pick";
   booking?: Booking;
@@ -303,11 +303,21 @@ const days: Day[] = [
         price: "~£25–35/人",
       },
       {
-        name: "Orient Restaurant",
-        query: "Orient Chinese Restaurant Nottingham",
-        tag: "粤菜",
-        description: "诺丁汉老牌中餐厅，传统粤菜，港式点心和烧腊。",
-        price: "~£25–35/人",
+        name: "Mayfair Chinese Restaurant",
+        query:
+          "Mayfair Chinese Restaurant, 79 Mansfield Road, Nottingham NG1 3FN",
+        tag: "粤菜 · 川菜 · 自带酒水",
+        description:
+          "30 年家族老店，TripAdvisor 4.5 星。自带酒水免开瓶费（隔壁就是酒铺），能容纳 18+ 人点一桌粤川小炒，仅收现金。",
+        price: "~£15–25/人",
+      },
+      {
+        name: "Four Seasons 火锅",
+        query: "Four Seasons Hot Pot, 148 Mansfield Road, Nottingham NG1 3HW",
+        tag: "火锅 · 烧烤 · 自助",
+        description:
+          "自助火锅 + 桌上烧烤，天生适合一群人热闹聚餐，含无限软饮，和其他几家风格完全不同。",
+        price: "~£29–35/人",
       },
       {
         name: "Chino Latino",
@@ -795,21 +805,33 @@ const days: Day[] = [
         },
       },
       {
-        name: "L'Enclume（Cartmel，绕路 30min 午餐）",
-        query: "L'Enclume, Cavendish Street, Cartmel LA11 6QA",
-        tag: "tasting · 北英唯一三星",
-        michelin: 3,
+        name: "Opheem",
+        query: "Opheem, 48 Summer Row, Birmingham B3 1JJ",
+        tag: "现代印度料理",
+        michelin: 2,
         description:
-          "Simon Rogan 旗舰，2022 年获三星，15 道式 tasting menu。如愿意绕路，午餐体验无与伦比，需提前数周预订。",
-        price: "£265/人",
-        website: "https://www.lenclume.co.uk/reservations",
+          "Aktar Islam 的旗舰，英国首家米其林二星印度餐厅，以高度时令、技法驱动的 tasting menu 重新诠释印度传统。",
+        price: "Tasting ~£135–175/人",
+        website: "https://opheem.com",
       },
       {
-        name: "Fellpack（湖区午餐）",
-        query: "Fellpack, 34 Lake Road, Keswick CA12 5DQ",
-        tag: "轻松 café · 午餐",
-        description: "手工三明治和本地啤酒，氛围年轻舒适，适合简单午餐。",
-        price: "~£15–20/人",
+        name: "Adam's",
+        query: "Adam's, 16 Waterloo Street, Birmingham B2 5UG",
+        tag: "现代英式 fine dining",
+        michelin: 1,
+        description:
+          "Adam Stokes 主理，2013 年至今稳守一星，2026 年初迁入装饰艺术新址，精致现代英式、强调时令英国食材。",
+        price: "Tasting ~£109–139/人",
+        website: "https://www.adamsrestaurant.co.uk",
+      },
+      {
+        name: "Tropea",
+        query: "Tropea, 27 Lordswood Road, Harborne, Birmingham B17 9RP",
+        tag: "意大利菜 · 必比登",
+        description:
+          "Harborne 街区小馆，米其林必比登，Good Food Guide 常年推荐，手工意面和 cicchetti，最适合多人轻松聚餐。",
+        price: "~£35–45/人",
+        website: "https://www.tropea.uk",
       },
     ],
     stay: {
@@ -855,13 +877,23 @@ const days: Day[] = [
     ],
     restaurants: [
       {
-        name: "Casamia",
-        query: "Casamia Restaurant Bristol",
-        tag: "极简创意 · tasting",
+        name: "Wilsons",
+        query: "Wilsons, 24 Chandos Road, Bristol BS6 6PF",
+        tag: "现代英式 · 自家菜园",
         michelin: 1,
-        description: "Bristol 最佳，极简创意 tasting menu，食材本地有机。",
-        price: "Tasting ~£100–115/人",
-        website: "https://www.casamiarestaurant.co.uk",
+        description:
+          "主厨夫妇经营的 24 座小馆，食材几乎全来自自家两英亩菜园，同时摘得米其林一星与绿星。",
+        price: "Tasting ~£78/人",
+        website: "https://www.wilsonsbristol.co.uk",
+      },
+      {
+        name: "Harbour House",
+        query: "Harbour House, The Grove, Bristol BS1 4RB",
+        tag: "海鲜 · 港畔露台",
+        description:
+          "坐落于 Brunel 1843 年的船屋，浮动港畔有长露台正对水景，主打西南海鲜与时令料理。",
+        price: "~£35–45/人",
+        website: "https://hhbristol.com",
       },
       {
         name: "Paco Tapas",
@@ -869,15 +901,25 @@ const days: Day[] = [
           "Paco Tapas, 3a The General, Lower Guinea Street, Bristol BS1 6FU",
         tag: "西班牙小食",
         michelin: 1,
-        description: "Casamia 姊妹店，Iberico 火腿和 croquettes 必点。",
+        description: "极受欢迎的西班牙 tapas，Iberico 火腿和 croquettes 必点。",
         price: "~£40–55/人",
         website: "https://www.pacotapas.co.uk",
       },
       {
+        name: "COR",
+        query: "COR, 81 North Street, Bedminster, Bristol BS3 1ES",
+        tag: "现代英式 · 小盘菜",
+        description:
+          "夫妻档主理的街区小馆，连续四年米其林必比登，Bristol 最受欢迎的餐厅之一。",
+        price: "~£45–50/人",
+        website: "https://www.correstaurant.com",
+      },
+      {
         name: "The Ox",
         query: "The Ox, 43 Corn Street, Bristol BS1 1HT",
-        tag: "牛排馆 · 港口景",
-        description: "Harbourside 优质牛排馆，干式熟成，露台看港口夕阳。",
+        tag: "牛排馆 · 干式熟成",
+        description:
+          "Corn Street 地下的人气牛排馆，主打干式熟成牛排，氛围复古亲密。",
         price: "~£45–60/人",
       },
       {
