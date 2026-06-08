@@ -1,16 +1,23 @@
+"use client";
+
 import { Clock, MapPin } from "lucide-react";
-import { ChecklistSection } from "./checklist-section";
+import { DayFeed } from "./day-feed";
 import { DayGlance } from "./day-glance";
 import { DayHeader } from "./day-header";
 import { DayMap } from "./day-map";
-import { DiningSection } from "./dining-section";
+import { DiningList } from "./dining-section";
 import { PlacePill } from "./links";
-import { NavSection } from "./nav-section";
 import { Section } from "./section";
 import { StaySection } from "./stay-section";
-import { Timeline } from "./timeline";
 import { TipsSection } from "./tips-section";
 import type { Day } from "@/data/itinerary";
+import {
+  buildDayFeed,
+  dayWideTips,
+  momentDomId,
+  untimedDining,
+  untimedPlaces,
+} from "@/lib/schedule";
 
 export function DailyView({
   day,
@@ -21,41 +28,61 @@ export function DailyView({
   isToday: boolean;
   onOpenDay: (index: number) => void;
 }) {
+  const moments = buildDayFeed(day);
+  const jumpableTimes = new Set(moments.map((moment) => moment.time));
+  const extraDining = untimedDining(day);
+  const extraPlaces = untimedPlaces(day);
+  const generalTips = dayWideTips(day);
+
+  const jumpToMoment = (time: string) => {
+    const target = document.getElementById(momentDomId(day.n, time));
+    if (!target) return;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    target.scrollIntoView({
+      block: "start",
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  };
+
   return (
     <article className="space-y-6">
       <DayHeader day={day} isToday={isToday} />
 
       {day.anchors && day.anchors.length > 0 ? (
-        <DayGlance anchors={day.anchors} />
+        <DayGlance
+          anchors={day.anchors}
+          jumpableTimes={jumpableTimes}
+          onJump={jumpToMoment}
+        />
       ) : null}
 
       <DayMap day={day} />
 
-      {day.nav && day.nav.length > 0 ? <NavSection legs={day.nav} /> : null}
-
       <Section icon={Clock} title="行程">
-        <Timeline items={day.timeline} />
+        <DayFeed day={day} isToday={isToday} />
       </Section>
 
-      {day.checklists && day.checklists.length > 0 ? (
-        <ChecklistSection dayN={day.n} checklists={day.checklists} />
+      {extraDining.length > 0 ? (
+        <Section icon={MapPin} title="餐饮选择">
+          <DiningList restaurants={extraDining} />
+        </Section>
       ) : null}
 
-      {day.places.length > 0 ? (
+      {extraPlaces.length > 0 ? (
         <Section icon={MapPin} title="想去的地方">
           <div className="flex flex-wrap gap-2">
-            {day.places.map((place) => (
+            {extraPlaces.map((place) => (
               <PlacePill key={place.name} place={place} />
             ))}
           </div>
         </Section>
       ) : null}
 
-      {day.restaurants.length > 0 ? (
-        <DiningSection restaurants={day.restaurants} />
+      {generalTips.length > 0 ? (
+        <TipsSection tips={generalTips} title="今日须知" />
       ) : null}
-
-      {day.tips && day.tips.length > 0 ? <TipsSection tips={day.tips} /> : null}
 
       <StaySection stay={day.stay} onOpenDay={onOpenDay} />
     </article>

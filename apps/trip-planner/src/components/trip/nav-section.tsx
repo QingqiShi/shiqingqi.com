@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { useId, useState } from "react";
 import { MapEmbed } from "./map-embed";
-import { Section } from "./section";
 import type { NavLeg, TravelMode } from "@/data/itinerary";
 import {
   googleMapsDirectionsUrl,
@@ -41,7 +40,7 @@ function legEmbedSrc(leg: NavLeg) {
 }
 
 /** One nav leg: a deep-link to directions plus an optional inline map preview. */
-function NavLegRow({ leg }: { leg: NavLeg }) {
+export function NavLegRow({ leg }: { leg: NavLeg }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const Icon = modeIcon[leg.mode ?? "driving"];
@@ -98,20 +97,5 @@ function NavLegRow({ leg }: { leg: NavLeg }) {
         </div>
       ) : null}
     </li>
-  );
-}
-
-/** One-tap navigation legs for the day. Each row opens Google Maps directions
- *  with the route preloaded, and can expand an inline map. Answers "how do I
- *  get there". */
-export function NavSection({ legs }: { legs: NavLeg[] }) {
-  return (
-    <Section icon={Navigation} title="导航">
-      <ul className="space-y-2">
-        {legs.map((leg) => (
-          <NavLegRow key={leg.label} leg={leg} />
-        ))}
-      </ul>
-    </Section>
   );
 }
