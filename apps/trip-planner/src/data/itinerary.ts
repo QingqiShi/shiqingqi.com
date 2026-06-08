@@ -560,7 +560,7 @@ const days: Day[] = [
     dateLabel: "6月23日",
     weekday: "周二",
     title: "尼斯湖 · 天空岛",
-    route: "因弗内斯 → 尼斯湖 → 天空岛 → Ardgour",
+    route: "因弗内斯 → 尼斯湖 → 天空岛 → Fort William",
     driving: "约 5 小时（分段）",
     weather: { temp: "10–16°C", summary: "阵雨，防风防水外套必备" },
     timeline: [
@@ -587,11 +587,11 @@ const days: Day[] = [
       { time: "16:00", text: "可选 Fairy Pools 入口看一眼，或直接南下离岛" },
       {
         time: "17:00",
-        text: "离开天空岛 → 经 A87 / A82 前往 Fort William 方向",
+        text: "离开天空岛 → 经 A87 / A82 直达 Fort William（无需渡轮）",
       },
       {
         time: "19:00",
-        text: "抵达 Inn at Ardgour（经 Corran Ferry 5 分钟渡轮）",
+        text: "抵达 Fort William · Guisachan Guest House，Crannog 海鲜晚餐",
       },
     ],
     places: [
@@ -665,29 +665,17 @@ const days: Day[] = [
       },
     ],
     stay: {
-      summary: "Ardgour / Fort William（二选一）",
+      summary: "Guisachan Guest House · Fort William",
       lodging: [
         {
-          name: "Inn at Ardgour",
-          query: "Inn at Ardgour",
-          address: "Ardgour, Onich, PH33 7AA",
-          checkIn: "15:00–22:00",
-          checkOut: "08:00–11:00",
-          room: "Family Suite · 3 人",
-          note: "更近但需 Corran Ferry（末班 21:20），最晚 18:00 从天空岛出发。",
-          status: "option",
-        },
-        {
-          name: "Guisachan Guest House（Fort William）",
+          name: "Guisachan Guest House",
           query: "Guisachan Guest House Fort William",
           address: "Alma Road, Fort William, PH33 6HA",
           room: "3 人",
-          note: "从 Portree 2h 直达无需渡轮，可在天空岛吃完晚饭再走（20:00 出发 → 22:00 到），第二天 Glencoe 仅 15min。",
-          status: "option",
-          recommended: true,
+          note: "Fort William 直达无需渡轮，晚餐就在镇上（Crannog）；第二天 A82 南下 15min 即到格伦科。",
+          status: "booked",
         },
       ],
-      note: "两家均已预订、可免费取消，出发当天看状态再决定。",
     },
   },
   {
@@ -696,12 +684,12 @@ const days: Day[] = [
     dateLabel: "6月24日",
     weekday: "周三",
     title: "格伦科 · 湖区",
-    route: "Ardgour → 格伦科 → 温德米尔",
+    route: "Fort William → 格伦科 → 温德米尔",
     driving: "约 3.5 小时",
     weather: { temp: "10–15°C", summary: "偏凉，可能小雨" },
     timeline: [
-      { time: "09:00", text: "睡到自然醒，Inn at Ardgour 享受早餐 + 湖景" },
-      { time: "10:00", text: "Corran Ferry 渡轮过湖（5min）→ A82 南下" },
+      { time: "09:00", text: "睡到自然醒，Guisachan Guest House 享用早餐" },
+      { time: "10:00", text: "A82 南下，15min 即到格伦科" },
       {
         time: "10:30",
         text: "格伦科 Glencoe — 007《天幕杀机》取景地，Three Sisters 观景拍照",
@@ -713,7 +701,6 @@ const days: Day[] = [
     ],
     places: [
       { name: "格伦科 Three Sisters 观景点", query: "Three Sisters Glencoe" },
-      { name: "Corran Ferry 渡口", query: "Corran Ferry", note: "渡轮" },
       { name: "Bowness-on-Windermere", query: "Bowness-on-Windermere" },
     ],
     restaurants: [
