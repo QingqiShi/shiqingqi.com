@@ -18,14 +18,17 @@ import {
   untimedDining,
   untimedPlaces,
 } from "@/lib/schedule";
+import type { LiveWeather } from "@/lib/wmo";
 
 export function DailyView({
   day,
   isToday,
+  liveWeather,
   onOpenDay,
 }: {
   day: Day;
   isToday: boolean;
+  liveWeather?: LiveWeather;
   onOpenDay: (index: number) => void;
 }) {
   const moments = buildDayFeed(day);
@@ -48,7 +51,7 @@ export function DailyView({
 
   return (
     <article className="space-y-6">
-      <DayHeader day={day} isToday={isToday} />
+      <DayHeader day={day} isToday={isToday} liveWeather={liveWeather} />
 
       {day.anchors && day.anchors.length > 0 ? (
         <DayGlance
