@@ -8,13 +8,35 @@ export const config = {
 };
 
 const REALM = "trip";
+const COOKIE_NAME = "trip_gate";
+// Basic Auth credentials are dropped when the browser session ends, forcing a
+// re-prompt every new session. A persistent cookie survives that, so visitors
+// unlock once and stay unlocked for ~90 days.
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 90;
 
-export function proxy(req: NextRequest) {
+// Derive an unguessable cookie value from the password so the cookie cannot be
+// forged, without storing the password itself at rest.
+async function gateToken(password: string) {
+  const data = new TextEncoder().encode(`${REALM}:${password}`);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export async function proxy(req: NextRequest) {
   const password = process.env.SITE_PASSWORD;
 
   // Fail closed: never serve content if the gate is misconfigured.
   if (!password) {
     return new NextResponse("Auth not configured", { status: 503 });
+  }
+
+  const expected = await gateToken(password);
+
+  // Already unlocked in a previous session — skip the prompt entirely.
+  if (req.cookies.get(COOKIE_NAME)?.value === expected) {
+    return NextResponse.next();
   }
 
   const header = req.headers.get("authorization");
@@ -25,7 +47,16 @@ export function proxy(req: NextRequest) {
       const separator = decoded.indexOf(":");
       const provided = separator === -1 ? "" : decoded.slice(separator + 1);
       if (provided === password) {
-        return NextResponse.next();
+        // Remember the unlock so future browser sessions skip the prompt.
+        const res = NextResponse.next();
+        res.cookies.set(COOKIE_NAME, expected, {
+          httpOnly: true,
+          secure: req.nextUrl.protocol === "https:",
+          sameSite: "lax",
+          path: "/",
+          maxAge: COOKIE_MAX_AGE,
+        });
+        return res;
       }
     }
   }
