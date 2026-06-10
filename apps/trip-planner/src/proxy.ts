@@ -22,19 +22,19 @@ interface TripGate {
 }
 
 // One gate per trip slug in src/data/trips. Passwords are read statically so
-// Next can inline them into the middleware bundle; SITE_PASSWORD is the
-// shared fallback for any trip without its own. The "gb" realm and cookie
+// Next can inline them into the middleware bundle; a trip whose variable is
+// unset serves 503 (fail closed) until it gets one. The "gb" realm and cookie
 // keep their pre-multi-trip names so existing unlocks survive.
 const gates: Record<string, TripGate | undefined> = {
   gb: {
     realm: "trip",
     cookie: "trip_gate",
-    password: process.env.SITE_PASSWORD_GB ?? process.env.SITE_PASSWORD,
+    password: process.env.SITE_PASSWORD_GB,
   },
   tuscany: {
     realm: "trip-tuscany",
     cookie: "trip_gate_tuscany",
-    password: process.env.SITE_PASSWORD_TUSCANY ?? process.env.SITE_PASSWORD,
+    password: process.env.SITE_PASSWORD_TUSCANY,
   },
 };
 
