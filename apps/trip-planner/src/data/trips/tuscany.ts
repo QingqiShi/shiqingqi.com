@@ -547,7 +547,7 @@ const days: Day[] = [
         label: "Montepulciano → Monticchiello（Z 型丝柏弯道）",
         to: "Monticchiello",
         mode: "driving",
-        note: "约 15 分钟。上山的之字弯道两侧都是丝柏，从村口和对面公路边都能拍。",
+        note: "约 15 分钟。村子不通车——停村外免费停车场步行进去；上山之字弯从村口观景点和对面公路边拍。",
         time: "11:45",
       },
       {
@@ -561,7 +561,7 @@ const days: Day[] = [
         label: "Pienza → Vitaleta 小教堂",
         to: "Cappella della Madonna di Vitaleta",
         mode: "driving",
-        note: "SP146 旁，停车后沿白色碎石路步行约 10 分钟。",
+        note: "SP146 旁，停车后沿白色碎石路步行约 10 分钟；铁门锁车不锁人（旁边有行人缺口）。",
         time: "16:00",
       },
       {
@@ -598,7 +598,7 @@ const days: Day[] = [
       },
       {
         time: "11:45",
-        text: "Monticchiello：拍 Z 型丝柏弯道，再进小村转一圈（10 分钟就能走完，很安静）",
+        text: "Monticchiello：车停村外免费停车场步行进村（村内不通车，走一圈 10 分钟）；Z 型丝柏弯道从村口观景点拍",
       },
       {
         time: "12:30",
@@ -610,7 +610,7 @@ const days: Day[] = [
       },
       {
         time: "16:00",
-        text: "Vitaleta 小教堂：Val d'Orcia 最上镜的明信片机位，步行往返约 25 分钟",
+        text: "Vitaleta 小教堂：Val d'Orcia 最上镜的明信片机位，步行往返约 25 分钟。教堂内部常年锁门（只办仪式才开）——本来就是拍外观的",
       },
       {
         time: "16:45",
@@ -648,6 +648,12 @@ const days: Day[] = [
         name: "Z 型丝柏弯道",
         query: "Monticchiello cypress road",
         note: "上山之字弯，村口拍全景",
+        time: "11:45",
+      },
+      {
+        name: "La Foce 之字丝柏路（最经典机位）",
+        query: "La Foce winding road viewpoint",
+        note: "明信片上的之字丝柏其实是 La Foce 庄园的私家路——不能开进去，公路边观景位拍；离 Monticchiello 约 15 分钟，顺路值得绕",
         time: "11:45",
       },
       {
