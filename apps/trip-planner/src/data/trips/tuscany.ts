@@ -915,6 +915,14 @@ const days: Day[] = [
         note: "约 2 小时：A1 北上转 FI-PI-LI。快到时导航搜「benzinaio」找机场附近加油站，加满留小票再进还车场。",
         time: "09:15",
       },
+      {
+        label: "Stansted → 家（Navigation Point）",
+        to: "Navigation Point, London N17 9LX",
+        from: "London Stansted Airport",
+        mode: "transit",
+        note: "Stansted Express 直达 Tottenham Hale 约 35 分钟，出站步行到家；累了就 Uber。",
+        time: "15:00",
+      },
     ],
     timeline: [
       {
