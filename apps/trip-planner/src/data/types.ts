@@ -262,7 +262,7 @@ export interface PersonSchedule {
 
 export interface Trip {
   /** URL segment the trip lives under (`/gb`), also the password-gate scope
-   *  in `src/proxy.ts` and the checklist localStorage namespace. */
+   *  in `src/lib/trip-gate.ts` and the checklist localStorage namespace. */
   slug: string;
   title: string;
   subtitle: string;

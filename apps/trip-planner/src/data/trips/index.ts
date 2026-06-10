@@ -3,7 +3,8 @@ import { gb } from "./gb";
 import { tuscany } from "./tuscany";
 
 /** Every trip the planner knows about, soonest departure first — drives the
- *  home picker. Each slug must also have a password gate in `src/proxy.ts`. */
+ *  home picker. Each slug must also have a password gate in
+ *  `src/lib/trip-gate.ts`. */
 export const trips: Trip[] = [tuscany, gb];
 
 export function tripBySlug(slug: string): Trip | undefined {
