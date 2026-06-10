@@ -1,4 +1,4 @@
-import type { NavLeg, TravelMode } from "@/data/itinerary";
+import type { NavLeg, TravelMode } from "@/data/types";
 
 /** Build a Google Maps search URL that opens to the given place/query. */
 export function googleMapsUrl(query: string) {

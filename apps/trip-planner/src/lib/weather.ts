@@ -11,7 +11,8 @@
 
 import { unstable_cache } from "next/cache";
 import { type LiveWeather, wmoCondition } from "./wmo";
-import { trip } from "@/data/itinerary";
+import { tripBySlug } from "@/data/trips";
+import type { Day } from "@/data/types";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
@@ -29,8 +30,8 @@ interface WeatherPoint {
 }
 
 /** Days carrying both coordinates and a weather slot — the ones we can fetch. */
-function weatherPoints(): WeatherPoint[] {
-  return trip.days.flatMap((day) =>
+function weatherPoints(days: Day[]): WeatherPoint[] {
+  return days.flatMap((day) =>
     day.coords && day.weather
       ? [{ n: day.n, date: day.date, lat: day.coords.lat, lon: day.coords.lon }]
       : [],
@@ -120,8 +121,10 @@ function fetchedLabel(now: Date): string {
   return `${date} 更新`;
 }
 
-async function fetchTripWeather(): Promise<Record<number, LiveWeather>> {
-  const points = weatherPoints();
+async function fetchTripWeather(
+  slug: string,
+): Promise<Record<number, LiveWeather>> {
+  const points = weatherPoints(tripBySlug(slug)?.days ?? []);
   if (points.length === 0) return {};
 
   const params = new URLSearchParams({
@@ -157,10 +160,11 @@ async function fetchTripWeather(): Promise<Record<number, LiveWeather>> {
 /**
  * Live weather keyed by day number, cached so we hit Open-Meteo only a few
  * times a day rather than on every request. `unstable_cache` keeps its own
- * revalidation independent of the page's `force-dynamic` rendering.
+ * revalidation independent of the page's `force-dynamic` rendering, and folds
+ * the trip-slug argument into the cache key so each trip caches separately.
  */
 export const getTripWeather = unstable_cache(
   fetchTripWeather,
-  ["trip-weather-v1"],
+  ["trip-weather-v2"],
   { revalidate: REVALIDATE_SECONDS },
 );

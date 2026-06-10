@@ -1,7 +1,7 @@
 import { Map as MapIcon } from "lucide-react";
 import { MapEmbed } from "./map-embed";
 import { Section } from "./section";
-import type { Day } from "@/data/itinerary";
+import type { Day } from "@/data/types";
 import {
   dayRouteMode,
   dayRoutePoints,

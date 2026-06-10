@@ -8,14 +8,17 @@ import {
 } from "lucide-react";
 import { DayParty } from "./day-party";
 import { Badge } from "@/components/ui/badge";
-import type { Day, Trip } from "@/data/itinerary";
+import type { Day, DayPresence, Trip } from "@/data/types";
+import { peopleOnDay } from "@/lib/trip";
 
 function OverviewRow({
   day,
+  people,
   isToday,
   onOpen,
 }: {
   day: Day;
+  people: DayPresence[];
   isToday: boolean;
   onOpen: () => void;
 }) {
@@ -52,7 +55,7 @@ function OverviewRow({
           <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
         </div>
 
-        <DayParty dayN={day.n} compact className="mt-3" />
+        <DayParty people={people} compact className="mt-3" />
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           {day.driving ? (
@@ -112,6 +115,7 @@ export function Overview({
           <OverviewRow
             key={day.n}
             day={day}
+            people={peopleOnDay(trip.partySchedule, day.n)}
             isToday={i === todayIndex}
             onOpen={() => {
               onOpenDay(i);

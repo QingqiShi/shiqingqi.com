@@ -6,12 +6,7 @@ import {
   UserRoundMinus,
   UserRoundPlus,
 } from "lucide-react";
-import {
-  type DayPresence,
-  peopleOnDay,
-  type PresenceKind,
-  type TravelVia,
-} from "@/data/itinerary";
+import type { DayPresence, PresenceKind, TravelVia } from "@/data/types";
 import { cn } from "@/lib/utils";
 
 type Transition = Exclude<PresenceKind, "present">;
@@ -118,15 +113,14 @@ function PersonToken({
  *  departures pictographed as corner badges. `compact` drops names and motion
  *  for dense lists (the overview). */
 export function DayParty({
-  dayN,
+  people,
   className,
   compact = false,
 }: {
-  dayN: number;
+  people: DayPresence[];
   className?: string;
   compact?: boolean;
 }) {
-  const people = peopleOnDay(dayN);
   if (people.length === 0) return null;
 
   return (

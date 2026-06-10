@@ -11,7 +11,7 @@ import {
   Utensils,
 } from "lucide-react";
 import { NavLink } from "./links";
-import type { Anchor, AnchorKind } from "@/data/itinerary";
+import type { Anchor, AnchorKind } from "@/data/types";
 
 const anchorIcon: Record<AnchorKind, LucideIcon> = {
   flight: Plane,

@@ -1,6 +1,6 @@
 import { ExternalLink, MapPin, Navigation } from "lucide-react";
 import type { ReactNode } from "react";
-import type { MapPlace, TravelMode } from "@/data/itinerary";
+import type { MapPlace, TravelMode } from "@/data/types";
 import { googleMapsDirectionsUrl, googleMapsUrl } from "@/lib/maps";
 import { cn } from "@/lib/utils";
 

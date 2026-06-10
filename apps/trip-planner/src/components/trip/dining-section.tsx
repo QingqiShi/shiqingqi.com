@@ -1,7 +1,7 @@
 import { MapPin, Star } from "lucide-react";
 import { MapsLink, MenuLink, NavLink, WebLink } from "./links";
 import { Badge } from "@/components/ui/badge";
-import type { Booking, Restaurant } from "@/data/itinerary";
+import type { Booking, Restaurant } from "@/data/types";
 import { cn } from "@/lib/utils";
 
 const michelinLabel: Record<1 | 2 | 3, string> = {

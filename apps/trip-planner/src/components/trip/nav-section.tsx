@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useId, useState } from "react";
 import { MapEmbed } from "./map-embed";
-import type { NavLeg, TravelMode } from "@/data/itinerary";
+import type { NavLeg, TravelMode } from "@/data/types";
 import {
   googleMapsDirectionsUrl,
   googleMapsEmbedDirectionsUrl,

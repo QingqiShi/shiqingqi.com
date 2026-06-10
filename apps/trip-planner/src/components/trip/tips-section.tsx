@@ -9,7 +9,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Section } from "./section";
-import type { Tip, TipKind } from "@/data/itinerary";
+import type { Tip, TipKind } from "@/data/types";
 
 const tipIcon: Record<TipKind, LucideIcon> = {
   parking: ParkingCircle,
