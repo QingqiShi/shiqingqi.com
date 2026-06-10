@@ -507,7 +507,7 @@ const days: Day[] = [
       },
       {
         kind: "info",
-        text: "嫌一天太赶的话：San Gimignano + Arnolfo 是主轴；Siena 可压缩成傍晚一小时散步，或把 Baccoleno 挪到明天傍晚收尾（离 San Quirico 约 25 分钟）。",
+        text: "今天很满，唯一的铁律是 13:00 的 Arnolfo（已订）。来不及就把 San Gimignano 整个挪去 D3（启用 Plan B 放弃海滩日）：上午睡饱直接去 Arnolfo，下午 Siena + Baccoleno 慢慢逛。",
       },
     ],
     stay: {
@@ -722,6 +722,10 @@ const days: Day[] = [
       },
       {
         kind: "info",
+        text: "环线赶不完不用硬赶：漏掉的镇子挪去明天补（D3 启用 Plan B，放弃海滩日，和 San Gimignano 一起收尾）。",
+      },
+      {
+        kind: "info",
         text: "若昨天没去成 Baccoleno，今天从 Montalcino 收尾后绕去只要 35 分钟，正好赶日落。",
         time: "17:45",
       },
@@ -833,6 +837,10 @@ const days: Day[] = [
     ],
     restaurants: [],
     tips: [
+      {
+        kind: "warn",
+        text: "Plan B：如果 D1 / D2 有没去成的（San Gimignano 或 Val d'Orcia 漏掉的镇子），今天整天放弃海滩改去补——San Gimignano 早上先去（约 1h30 车程，周日人也多尽量早到），下午回程顺路把漏的镇子收掉，还省下海滩日 5 个半小时的来回车。",
+      },
       {
         kind: "info",
         text: "Spiagge Bianche 的「加勒比白」来自旁边 Solvay 碱厂的碳酸钙排放——拍照绝美，但污染是真的：排水口附近重金属超标，出水口 100 米内禁止游泳。要下水就往南走远一点，或只拍照、留到 Castiglione 再游。",
