@@ -2,11 +2,15 @@
 
 import { Check, ChevronDown } from "lucide-react";
 import { useState, useSyncExternalStore } from "react";
-import type { Checklist } from "@/data/itinerary";
+import type { Checklist } from "@/data/types";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "gb-trip-checklist";
 const EMPTY: Record<string, boolean> = {};
+
+/** localStorage namespace per trip; "gb" keeps its pre-multi-trip key. */
+function storageKeyFor(tripSlug: string) {
+  return `${tripSlug}-trip-checklist`;
+}
 
 function itemId(dayN: number, title: string, index: number) {
   return `D${String(dayN)}·${title}·${String(index)}`;
@@ -19,12 +23,6 @@ function isBooleanRecord(value: unknown): value is Record<string, boolean> {
   );
 }
 
-// A tiny localStorage-backed store read via useSyncExternalStore — SSR-safe
-// (server snapshot is empty) and free of setState-in-effect.
-const listeners = new Set<() => void>();
-let snapshot: Record<string, boolean> = EMPTY;
-let loaded = false;
-
 function parse(raw: string | null): Record<string, boolean> {
   if (!raw) return EMPTY;
   try {
@@ -36,58 +34,90 @@ function parse(raw: string | null): Record<string, boolean> {
   return EMPTY;
 }
 
-function notify() {
-  for (const listener of listeners) listener();
+// A tiny localStorage-backed store read via useSyncExternalStore — SSR-safe
+// (server snapshot is empty) and free of setState-in-effect. One store per
+// trip so each trip's ticks live under their own key.
+interface ChecklistStore {
+  subscribe: (listener: () => void) => () => void;
+  getSnapshot: () => Record<string, boolean>;
+  setChecked: (id: string, value: boolean) => void;
 }
 
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY) {
-      snapshot = parse(event.newValue);
-      notify();
+function createStore(storageKey: string): ChecklistStore {
+  const listeners = new Set<() => void>();
+  let snapshot: Record<string, boolean> = EMPTY;
+  let loaded = false;
+
+  const notify = () => {
+    for (const listener of listeners) listener();
+  };
+
+  const getSnapshot = () => {
+    if (!loaded && typeof window !== "undefined") {
+      snapshot = parse(window.localStorage.getItem(storageKey));
+      loaded = true;
     }
+    return snapshot;
   };
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", onStorage);
+
+  const subscribe = (listener: () => void) => {
+    listeners.add(listener);
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === storageKey) {
+        snapshot = parse(event.newValue);
+        notify();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => {
+      listeners.delete(listener);
+      window.removeEventListener("storage", onStorage);
+    };
   };
+
+  const setChecked = (id: string, value: boolean) => {
+    snapshot = { ...getSnapshot(), [id]: value };
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(snapshot));
+    } catch {
+      // Ignore write failures (private mode / quota).
+    }
+    notify();
+  };
+
+  return { subscribe, getSnapshot, setChecked };
 }
 
-function getSnapshot(): Record<string, boolean> {
-  if (!loaded && typeof window !== "undefined") {
-    snapshot = parse(window.localStorage.getItem(STORAGE_KEY));
-    loaded = true;
-  }
-  return snapshot;
+// Cached per key so subscribe/getSnapshot identities stay stable across
+// renders, as useSyncExternalStore requires.
+const stores = new Map<string, ChecklistStore>();
+
+function getStore(storageKey: string): ChecklistStore {
+  const existing = stores.get(storageKey);
+  if (existing) return existing;
+  const created = createStore(storageKey);
+  stores.set(storageKey, created);
+  return created;
 }
 
 function getServerSnapshot(): Record<string, boolean> {
   return EMPTY;
 }
 
-function setChecked(id: string, value: boolean) {
-  snapshot = { ...getSnapshot(), [id]: value };
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-  } catch {
-    // Ignore write failures (private mode / quota).
-  }
-  notify();
-}
-
 /** A single tick-through checklist card with on-device persistence. */
 export function ChecklistCard({
+  tripSlug,
   dayN,
   list,
 }: {
+  tripSlug: string;
   dayN: number;
   list: Checklist;
 }) {
+  const store = getStore(storageKeyFor(tripSlug));
   const checked = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
+    store.subscribe,
+    store.getSnapshot,
     getServerSnapshot,
   );
   const [isOpen, setIsOpen] = useState(false);
@@ -141,7 +171,7 @@ export function ChecklistCard({
                   <button
                     type="button"
                     onClick={() => {
-                      setChecked(id, !isChecked);
+                      store.setChecked(id, !isChecked);
                     }}
                     className="flex w-full items-start gap-2.5 rounded-lg py-1.5 text-left"
                   >

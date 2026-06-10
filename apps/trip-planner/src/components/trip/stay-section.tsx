@@ -10,7 +10,7 @@ import {
 import { MapsLink } from "./links";
 import { Section } from "./section";
 import { Badge } from "@/components/ui/badge";
-import type { Lodging, Stay } from "@/data/itinerary";
+import type { Lodging, Stay } from "@/data/types";
 
 function StatusBadge({ lodging }: { lodging: Lodging }) {
   if (lodging.status === "booked") return <Badge>已预订</Badge>;

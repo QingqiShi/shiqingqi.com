@@ -10,7 +10,7 @@ import { PlacePill } from "./links";
 import { Section } from "./section";
 import { StaySection } from "./stay-section";
 import { TipsSection } from "./tips-section";
-import type { Day } from "@/data/itinerary";
+import type { Day, Trip } from "@/data/types";
 import {
   buildDayFeed,
   dayWideTips,
@@ -18,14 +18,17 @@ import {
   untimedDining,
   untimedPlaces,
 } from "@/lib/schedule";
+import { peopleOnDay } from "@/lib/trip";
 import type { LiveWeather } from "@/lib/wmo";
 
 export function DailyView({
+  trip,
   day,
   isToday,
   liveWeather,
   onOpenDay,
 }: {
+  trip: Trip;
   day: Day;
   isToday: boolean;
   liveWeather?: LiveWeather;
@@ -51,7 +54,12 @@ export function DailyView({
 
   return (
     <article className="space-y-6">
-      <DayHeader day={day} isToday={isToday} liveWeather={liveWeather} />
+      <DayHeader
+        day={day}
+        people={peopleOnDay(trip.partySchedule, day.n)}
+        isToday={isToday}
+        liveWeather={liveWeather}
+      />
 
       {day.anchors && day.anchors.length > 0 ? (
         <DayGlance
@@ -61,10 +69,14 @@ export function DailyView({
         />
       ) : null}
 
+      {generalTips.length > 0 ? (
+        <TipsSection tips={generalTips} title="今日须知" />
+      ) : null}
+
       <DayMap day={day} />
 
       <Section icon={Clock} title="行程">
-        <DayFeed day={day} isToday={isToday} />
+        <DayFeed tripSlug={trip.slug} day={day} isToday={isToday} />
       </Section>
 
       {extraDining.length > 0 ? (
@@ -81,10 +93,6 @@ export function DailyView({
             ))}
           </div>
         </Section>
-      ) : null}
-
-      {generalTips.length > 0 ? (
-        <TipsSection tips={generalTips} title="今日须知" />
       ) : null}
 
       <StaySection stay={day.stay} onOpenDay={onOpenDay} />

@@ -4,9 +4,10 @@ import type {
   MapPlace,
   NavLeg,
   Restaurant,
+  SignSheet,
   TimelineItem,
   Tip,
-} from "@/data/itinerary";
+} from "@/data/types";
 
 /**
  * Coarse times-of-day, in minutes past midnight, so word-labels sort alongside
@@ -57,6 +58,7 @@ export interface DayMoment {
   dining: Restaurant[];
   places: MapPlace[];
   checklists: Checklist[];
+  signSheets: SignSheet[];
 }
 
 /**
@@ -82,6 +84,7 @@ export function buildDayFeed(day: Day): DayMoment[] {
       dining: [],
       places: [],
       checklists: [],
+      signSheets: [],
     };
     moments.set(time, created);
     return created;
@@ -96,6 +99,8 @@ export function buildDayFeed(day: Day): DayMoment[] {
     if (place.time) at(place.time).places.push(place);
   for (const list of day.checklists ?? [])
     if (list.time) at(list.time).checklists.push(list);
+  for (const sheet of day.signSheets ?? [])
+    if (sheet.time) at(sheet.time).signSheets.push(sheet);
 
   return [...moments.values()].sort((a, b) => a.minutes - b.minutes);
 }

@@ -5,8 +5,9 @@ import { ChecklistCard } from "./checklist-section";
 import { DiningList } from "./dining-section";
 import { PlacePill } from "./links";
 import { NavLegRow } from "./nav-section";
+import { SignSheetCard } from "./road-signs";
 import { TipRow } from "./tips-section";
-import type { Day } from "@/data/itinerary";
+import type { Day } from "@/data/types";
 import { type DayMoment, buildDayFeed, momentDomId } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +29,15 @@ function currentMomentIndex(moments: DayMoment[], nowMinutes: number) {
  * On phones, the initially-loaded day scrolls to the current time so "now" is
  * in view without hunting.
  */
-export function DayFeed({ day, isToday }: { day: Day; isToday: boolean }) {
+export function DayFeed({
+  tripSlug,
+  day,
+  isToday,
+}: {
+  tripSlug: string;
+  day: Day;
+  isToday: boolean;
+}) {
   const moments = buildDayFeed(day);
   const didInitialScrollRef = useRef(false);
 
@@ -53,6 +62,7 @@ export function DayFeed({ day, isToday }: { day: Day; isToday: boolean }) {
         const isLast = i === moments.length - 1;
         const hasExtras =
           moment.checklists.length > 0 ||
+          moment.signSheets.length > 0 ||
           moment.nav.length > 0 ||
           moment.dining.length > 0 ||
           moment.places.length > 0 ||
@@ -93,7 +103,16 @@ export function DayFeed({ day, isToday }: { day: Day; isToday: boolean }) {
                   )}
                 >
                   {moment.checklists.map((list) => (
-                    <ChecklistCard key={list.title} dayN={day.n} list={list} />
+                    <ChecklistCard
+                      key={list.title}
+                      tripSlug={tripSlug}
+                      dayN={day.n}
+                      list={list}
+                    />
+                  ))}
+
+                  {moment.signSheets.map((sheet) => (
+                    <SignSheetCard key={sheet.title} sheet={sheet} />
                   ))}
 
                   {moment.nav.length > 0 ? (

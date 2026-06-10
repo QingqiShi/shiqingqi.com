@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { DayParty } from "./day-party";
 import { Badge } from "@/components/ui/badge";
-import type { Day } from "@/data/itinerary";
+import type { Day, DayPresence } from "@/data/types";
 import { type LiveWeather, wmoGroup } from "@/lib/wmo";
 
 /** Pick an icon that matches the day's actual condition. */
@@ -40,10 +40,12 @@ function WeatherIcon({ code }: { code: number }) {
 
 export function DayHeader({
   day,
+  people,
   isToday,
   liveWeather,
 }: {
   day: Day;
+  people: DayPresence[];
   isToday: boolean;
   liveWeather?: LiveWeather;
 }) {
@@ -69,7 +71,7 @@ export function DayHeader({
           </p>
         </div>
 
-        <DayParty dayN={day.n} className="shrink-0" />
+        <DayParty people={people} className="shrink-0" />
       </div>
 
       {day.driving || day.weather ? (

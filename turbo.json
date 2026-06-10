@@ -19,7 +19,9 @@
     "REDIS_URL",
     "KV_REST_API_TOKEN",
     "KV_REST_API_READ_ONLY_TOKEN",
-    "SITE_PASSWORD"
+    "SITE_PASSWORD",
+    "SITE_PASSWORD_GB",
+    "SITE_PASSWORD_TUSCANY"
   ],
   "tasks": {
     "codegen": {

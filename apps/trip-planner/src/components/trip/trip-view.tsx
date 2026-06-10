@@ -4,7 +4,7 @@ import { CalendarClock } from "lucide-react";
 import { useState } from "react";
 import { DailyView } from "./daily-view";
 import { Overview } from "./overview";
-import { type Day, type TripPhase, trip } from "@/data/itinerary";
+import type { Day, Trip, TripPhase } from "@/data/types";
 import { cn } from "@/lib/utils";
 import type { LiveWeather } from "@/lib/wmo";
 
@@ -106,14 +106,16 @@ function DaySelector({
 function PhaseBanner({
   phase,
   daysUntil,
+  startLabel,
 }: {
   phase: TripPhase;
   daysUntil: number;
+  startLabel: string;
 }) {
   if (phase === "during") return null;
   const text =
     phase === "before"
-      ? `距出发还有 ${String(daysUntil)} 天 · ${trip.days[0].dateLabel}启程`
+      ? `距出发还有 ${String(daysUntil)} 天 · ${startLabel}启程`
       : "旅程已结束 · 回顾全程";
   return (
     <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 pt-4 text-sm text-muted-foreground">
@@ -124,11 +126,13 @@ function PhaseBanner({
 }
 
 export function TripView({
+  trip,
   currentDayIndex,
   phase,
   daysUntil,
   weatherByDay,
 }: {
+  trip: Trip;
   currentDayIndex: number;
   phase: TripPhase;
   daysUntil: number;
@@ -162,11 +166,16 @@ export function TripView({
         ) : null}
       </header>
 
-      <PhaseBanner phase={phase} daysUntil={daysUntil} />
+      <PhaseBanner
+        phase={phase}
+        daysUntil={daysUntil}
+        startLabel={trip.days[0].dateLabel}
+      />
 
       <main className="mx-auto max-w-3xl px-4 py-8">
         {view === "daily" ? (
           <DailyView
+            trip={trip}
             day={trip.days[dayIndex]}
             isToday={dayIndex === todayIndex}
             liveWeather={weatherByDay[trip.days[dayIndex].n]}
