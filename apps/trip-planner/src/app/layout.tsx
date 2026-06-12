@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { SerwistProvider } from "@/components/serwist-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,7 +20,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="zh" suppressHydrationWarning>
       <body className="min-h-dvh antialiased">
-        {children}
+        <SerwistProvider
+          swUrl="/sw.js"
+          disable={process.env.NODE_ENV === "development"}
+        >
+          {children}
+        </SerwistProvider>
         <Analytics />
         <SpeedInsights />
       </body>

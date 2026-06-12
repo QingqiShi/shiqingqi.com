@@ -1,7 +1,7 @@
 {
   "extends": "@tuja/tsconfig/nextjs.json",
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "@serwist/next/typings"],
     "paths": {
       "@/*": ["./src/*"]
     }
@@ -11,7 +11,8 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.mts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "serwist.config.mjs"
   ],
-  "exclude": ["node_modules", ".next/**"]
+  "exclude": ["node_modules", "public/*", ".next/**"]
 }

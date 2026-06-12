@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p $(node ../../scripts/worktree-port.mjs 100)",
-    "build": "next build",
+    "build": "next build && serwist build serwist.config.mjs",
     "build:tsc": "tsc --noEmit",
     "start": "next start",
     "lint": "eslint ."
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.5",
+    "@serwist/next": "^9.5.11",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "2.0.0",
     "class-variance-authority": "^0.7.1",
@@ -19,9 +20,11 @@
     "next": "16.2.9",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "serwist": "^9.5.11",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@serwist/cli": "^9.5.11",
     "@tailwindcss/postcss": "^4.3.0",
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "^25.9.2",
