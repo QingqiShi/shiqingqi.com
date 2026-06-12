@@ -24,7 +24,7 @@ export default defineConfig([
       "apps/web/src/vendor/**/*",
       "apps/*/.next/**/*",
       "apps/*/next-env.d.ts",
-      "apps/web/public/sw.js",
+      "apps/*/public/sw.js",
       "apps/web/playwright-report/**/*",
       ".claude/**/*",
       "**/node_modules/**/*",
