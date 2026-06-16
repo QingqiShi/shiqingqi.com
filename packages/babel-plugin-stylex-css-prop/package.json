@@ -8,6 +8,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@babel/core": "7.29.7"
+    "@babel/core": "8.0.0"
   }
 }
