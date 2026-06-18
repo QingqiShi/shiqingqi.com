@@ -1,6 +1,7 @@
 import type {
   Checklist,
   Day,
+  Flight,
   MapPlace,
   NavLeg,
   Restaurant,
@@ -59,6 +60,7 @@ export interface DayMoment {
   places: MapPlace[];
   checklists: Checklist[];
   signSheets: SignSheet[];
+  flights: Flight[];
 }
 
 /**
@@ -85,6 +87,7 @@ export function buildDayFeed(day: Day): DayMoment[] {
       places: [],
       checklists: [],
       signSheets: [],
+      flights: [],
     };
     moments.set(time, created);
     return created;
@@ -92,6 +95,8 @@ export function buildDayFeed(day: Day): DayMoment[] {
 
   // Timeline first so event-bearing moments keep priority on ties.
   for (const event of day.timeline) at(event.time).events.push(event);
+  for (const flight of day.flights ?? [])
+    if (flight.time) at(flight.time).flights.push(flight);
   for (const leg of day.nav ?? []) if (leg.time) at(leg.time).nav.push(leg);
   for (const tip of day.tips ?? []) if (tip.time) at(tip.time).tips.push(tip);
   for (const r of day.restaurants) if (r.time) at(r.time).dining.push(r);

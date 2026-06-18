@@ -205,6 +205,11 @@ const days: Day[] = [
     coords: { lat: 52.9548, lon: -1.1581 }, // 诺丁汉 Nottingham
     anchors: [
       {
+        time: "06:20",
+        label: "Jim CX255 落地 Heathrow T3（国泰，自香港）",
+        kind: "flight",
+      },
+      {
         time: "07:55",
         label: "Heathrow T3 接 Jim（出关后再开进 Short Stay）",
         kind: "pickup",
@@ -268,7 +273,10 @@ const days: Day[] = [
       },
     ],
     timeline: [
-      { time: "06:30", text: "从 Chingford 出发（Jim 的航班 06:20 落地 T3）" },
+      {
+        time: "06:30",
+        text: "从 Chingford 出发（Jim 的航班 CX255 06:20 落地 T3）",
+      },
       { time: "06:55", text: "到 N17 接石头上车" },
       { time: "07:55", text: "抵达 Heathrow T3，等 Jim 出关" },
       { time: "08:30", text: "接到 Jim，三人出发，M4 → M25 → M11 北上" },
@@ -280,6 +288,18 @@ const days: Day[] = [
       { time: "15:00", text: "抵达诺丁汉，Crowne Plaza 入住" },
       { time: "16:00", text: "沃莱顿大厅 — 蝙蝠侠韦恩庄园取景地，花园散步" },
       { time: "19:00", text: "诺丁汉市区晚餐 — 下方任选一家" },
+    ],
+    flights: [
+      {
+        number: "CX255",
+        airline: "国泰航空",
+        passenger: "Jim",
+        from: { code: "HKG", city: "香港", time: "00:05" },
+        to: { code: "LHR", city: "伦敦 希思罗", time: "06:20", terminal: "T3" },
+        track: "https://www.flightradar24.com/data/flights/cx255",
+        note: "国泰直飞，落地后看下方导航接机；点「实时追踪」查实时进度与到达口。",
+        time: "06:20",
+      },
     ],
     places: [
       {
@@ -2554,7 +2574,7 @@ const days: Day[] = [
  * Single source of truth for who is on the trip and when. 石头 is the UK-based
  * host; 大雨 and Jim are guests who fly in and out; Ed drives over for a weekend.
  *   大雨 — lands Day 0 (CA851), flies home Day 12 (CA852); around the whole trip.
- *   Jim  — lands Day 1 (Heathrow), flies home Day 8; leaves first.
+ *   Jim  — lands Day 1 (CX255, Heathrow), flies home Day 8; leaves first.
  *   Ed   — drives over from Ipswich for the weekend, Day 2 (Sat) to Day 3 (Sun).
  *   石头 — heads home the night of Day 10, sits out the Day 11 solo day, then
  *          returns Day 12 to see 大雨 off at Gatwick.

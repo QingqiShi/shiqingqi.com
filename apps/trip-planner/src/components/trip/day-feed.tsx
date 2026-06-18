@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { ChecklistCard } from "./checklist-section";
 import { DiningList } from "./dining-section";
+import { FlightCard } from "./flight-section";
 import { PlacePill } from "./links";
 import { NavLegRow } from "./nav-section";
 import { SignSheetCard } from "./road-signs";
@@ -61,6 +62,7 @@ export function DayFeed({
       {moments.map((moment, i) => {
         const isLast = i === moments.length - 1;
         const hasExtras =
+          moment.flights.length > 0 ||
           moment.checklists.length > 0 ||
           moment.signSheets.length > 0 ||
           moment.nav.length > 0 ||
@@ -102,6 +104,10 @@ export function DayFeed({
                     moment.events.length > 0 && "mt-3",
                   )}
                 >
+                  {moment.flights.map((flight) => (
+                    <FlightCard key={flight.number} flight={flight} />
+                  ))}
+
                   {moment.checklists.map((list) => (
                     <ChecklistCard
                       key={list.title}
