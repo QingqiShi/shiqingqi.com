@@ -106,6 +106,23 @@ const days: Day[] = [
         text: "坐车回 Tottenham Hale 取车，开去入住 Holiday Inn Express Chingford，为明早出发休整",
       },
     ],
+    flights: [
+      {
+        number: "CA851",
+        airline: "中国国际航空",
+        passenger: "大雨",
+        from: { code: "PEK", city: "北京 首都" },
+        to: {
+          code: "LGW",
+          city: "伦敦 盖特威克",
+          time: "06:30",
+          terminal: "North",
+        },
+        track: "https://www.flightradar24.com/data/flights/ca851",
+        note: "国航直飞北京，落地 North Terminal；石头从 N17 来接，点「实时追踪」查实时进度与到达口。",
+        time: "06:30",
+      },
+    ],
     places: [
       {
         name: "大英博物馆 British Museum",
@@ -2534,6 +2551,29 @@ const days: Day[] = [
         text: "转免费航站楼列车到 North Terminal 值机托运（国航 CA 柜台）+ 过安检",
       },
       { time: "12:35", text: "CA852 起飞，再见英国 🇬🇧 → 🇨🇳" },
+    ],
+    flights: [
+      {
+        number: "CA852",
+        airline: "中国国际航空",
+        passenger: "大雨",
+        from: {
+          code: "LGW",
+          city: "伦敦 盖特威克",
+          time: "12:35",
+          terminal: "North",
+        },
+        to: {
+          code: "PEK",
+          city: "北京 首都",
+          time: "04:52",
+          terminal: "T3",
+          dayOffset: 1,
+        },
+        track: "https://www.flightradar24.com/data/flights/ca852",
+        note: "国航回北京，North Terminal 的 CA 柜台值机；次日凌晨 04:52 抵达首都 T3，点「实时追踪」看实时状态。",
+        time: "12:35",
+      },
     ],
     places: [],
     restaurants: [],

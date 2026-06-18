@@ -202,6 +202,9 @@ export interface FlightEndpoint {
   time?: string;
   /** Terminal, e.g. "T3". */
   terminal?: string;
+  /** Calendar days past departure this end falls on — set to 1 for an overnight
+   *  arrival, rendered as a "+1" beside the time. */
+  dayOffset?: number;
 }
 
 /**

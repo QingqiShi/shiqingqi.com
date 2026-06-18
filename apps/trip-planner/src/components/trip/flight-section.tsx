@@ -22,6 +22,11 @@ function Endpoint({
       {endpoint.time || endpoint.terminal ? (
         <span className="mt-2 text-sm font-medium tabular-nums">
           {endpoint.time}
+          {endpoint.dayOffset ? (
+            <sup className="ml-0.5 text-[10px] font-normal text-muted-foreground">
+              +{endpoint.dayOffset}
+            </sup>
+          ) : null}
           {endpoint.terminal ? (
             <span className="ml-1.5 text-xs font-normal text-muted-foreground">
               {endpoint.terminal}
