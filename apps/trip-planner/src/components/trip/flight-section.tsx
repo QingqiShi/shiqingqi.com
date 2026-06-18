@@ -21,6 +21,12 @@ function Endpoint({
       </span>
       {endpoint.time || endpoint.terminal ? (
         <span className="mt-2 text-sm font-medium tabular-nums">
+          {endpoint.scheduledTime &&
+          endpoint.scheduledTime !== endpoint.time ? (
+            <span className="mr-1.5 font-normal text-muted-foreground line-through">
+              {endpoint.scheduledTime}
+            </span>
+          ) : null}
           {endpoint.time}
           {endpoint.dayOffset ? (
             <sup className="ml-0.5 text-[10px] font-normal text-muted-foreground">
@@ -56,8 +62,18 @@ export function FlightCard({ flight }: { flight: Flight }) {
             {flight.airline}
           </span>
         ) : null}
+        {flight.statusLabel ? (
+          <span className="ml-auto rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+            {flight.statusLabel}
+          </span>
+        ) : null}
         {flight.passenger ? (
-          <span className="ml-auto rounded-full bg-foreground px-2 py-0.5 text-[11px] font-medium text-background">
+          <span
+            className={cn(
+              "rounded-full bg-foreground px-2 py-0.5 text-[11px] font-medium text-background",
+              flight.statusLabel ? "ml-1.5" : "ml-auto",
+            )}
+          >
             {flight.passenger}
           </span>
         ) : null}
