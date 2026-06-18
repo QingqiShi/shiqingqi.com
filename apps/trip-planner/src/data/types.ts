@@ -198,8 +198,12 @@ export interface FlightEndpoint {
   code: string;
   /** City / airport name shown under the code, e.g. "香港". */
   city: string;
-  /** Local time at this airport, "HH:MM". */
+  /** Local time at this airport, "HH:MM". When a flight is delayed this holds
+   *  the latest expected time; the original sits in `scheduledTime`. */
   time?: string;
+  /** Original scheduled local time, kept when `time` has moved (e.g. a delay).
+   *  Rendered struck-through beside the new time. */
+  scheduledTime?: string;
   /** Terminal, e.g. "T3". */
   terminal?: string;
   /** Calendar days past departure this end falls on — set to 1 for an overnight
@@ -219,6 +223,9 @@ export interface Flight {
   airline?: string;
   /** Who is on this flight, e.g. "Jim". */
   passenger?: string;
+  /** Short live-status chip shown in the header, e.g. "延误约 2 小时". Presence
+   *  flags the flight as off-schedule (rendered in the alert tone). */
+  statusLabel?: string;
   from: FlightEndpoint;
   to: FlightEndpoint;
   /** Live flight-tracking URL (e.g. Flightradar24). Renders a 实时追踪 button. */
