@@ -192,6 +192,43 @@ export interface Tip {
   time?: string;
 }
 
+/** One end of a flight — an airport plus the local clock time there. */
+export interface FlightEndpoint {
+  /** IATA airport code, e.g. "HKG", "LHR". */
+  code: string;
+  /** City / airport name shown under the code, e.g. "香港". */
+  city: string;
+  /** Local time at this airport, "HH:MM". */
+  time?: string;
+  /** Terminal, e.g. "T3". */
+  terminal?: string;
+  /** Calendar days past departure this end falls on — set to 1 for an overnight
+   *  arrival, rendered as a "+1" beside the time. */
+  dayOffset?: number;
+}
+
+/**
+ * A flight someone on the trip is taking, rendered as a boarding-pass-style
+ * card in the day feed. Carries enough to recognise the flight at a glance and
+ * a `track` link to follow it live.
+ */
+export interface Flight {
+  /** Flight number, e.g. "CX255". */
+  number: string;
+  /** Airline name, e.g. "国泰航空". */
+  airline?: string;
+  /** Who is on this flight, e.g. "Jim". */
+  passenger?: string;
+  from: FlightEndpoint;
+  to: FlightEndpoint;
+  /** Live flight-tracking URL (e.g. Flightradar24). Renders a 实时追踪 button. */
+  track?: string;
+  note?: string;
+  /** When to slot this flight into the chronological feed (usually the relevant
+   *  landing/boarding time). Omit to keep it day-level. */
+  time?: string;
+}
+
 export interface Day {
   n: number;
   /** ISO date, e.g. "2026-06-19". */
@@ -216,6 +253,9 @@ export interface Day {
   signSheets?: SignSheet[];
   places: MapPlace[];
   restaurants: Restaurant[];
+  /** Flights taken this day (arrivals / departures), shown as boarding-pass
+   *  cards woven into the feed. */
+  flights?: Flight[];
   /** Practical heads-ups (parking, fuel, driving rules). */
   tips?: Tip[];
   stay: Stay;
