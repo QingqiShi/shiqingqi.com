@@ -1,4 +1,4 @@
-import { MapsLink, PlacePill } from "./links";
+import { MapsLink, NavLink, PlacePill } from "./links";
 import { Badge } from "@/components/ui/badge";
 import type { MapPlace, PlaceTier } from "@/data/types";
 import { cn } from "@/lib/utils";
@@ -41,6 +41,10 @@ function PlaceCard({
           {place.note}
         </p>
       ) : null}
+
+      <div className="mt-3 flex justify-end pt-1">
+        <NavLink to={place.query} label="导航前往" />
+      </div>
     </div>
   );
 }
