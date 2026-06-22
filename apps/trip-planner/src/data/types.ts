@@ -6,6 +6,11 @@
  * `query`; restaurants and lodgings add websites/booking details where known.
  */
 
+/** Where an option sits in a day's fallback ladder: `primary` = Plan A,
+ *  `backup` = Plan B, `fallback` = the safety net. Omit on ordinary place
+ *  ideas, which render as a flat pill list. */
+export type PlaceTier = "primary" | "backup" | "fallback";
+
 /** A place worth visiting on a given day. `query` opens Google Maps. */
 export interface MapPlace {
   name: string;
@@ -14,6 +19,13 @@ export interface MapPlace {
   /** When this place fits the day, used to weave it into the chronological
    *  feed (e.g. the free-roam window). Omit to keep it as a day-level idea. */
   time?: string;
+  /** Plan A/B/C tier. When any place on a day sets one, that day's place list
+   *  renders as a labelled options ladder (首选 / 备选 / 兜底) instead of flat
+   *  pills — for days whose plan hinges on something that may fall through. */
+  tier?: PlaceTier;
+  /** Short trigger for dropping to this option, e.g. "没约到就" or "不想开车".
+   *  Shown as a chip beside the option in the ladder. */
+  when?: string;
 }
 
 /** A confirmed booking attached to a restaurant. */
