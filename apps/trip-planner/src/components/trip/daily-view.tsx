@@ -6,7 +6,7 @@ import { DayGlance } from "./day-glance";
 import { DayHeader } from "./day-header";
 import { DayMap } from "./day-map";
 import { DiningList } from "./dining-section";
-import { PlacePill } from "./links";
+import { PlaceList } from "./places-section";
 import { Section } from "./section";
 import { StaySection } from "./stay-section";
 import { TipsSection } from "./tips-section";
@@ -87,11 +87,7 @@ export function DailyView({
 
       {extraPlaces.length > 0 ? (
         <Section icon={MapPin} title="想去的地方">
-          <div className="flex flex-wrap gap-2">
-            {extraPlaces.map((place) => (
-              <PlacePill key={place.name} place={place} />
-            ))}
-          </div>
+          <PlaceList places={extraPlaces} />
         </Section>
       ) : null}
 
