@@ -5,6 +5,7 @@ import {
   Car,
   ChevronDown,
   Footprints,
+  MapPin,
   Navigation,
   TrainFront,
 } from "lucide-react";
@@ -30,10 +31,15 @@ const modeIcon: Record<TravelMode, LucideIcon> = {
  * current location preview the destination as a place instead of a route.
  */
 function legEmbedSrc(leg: NavLeg) {
+  // Keep the embed preview in sync with the deep-link: both route through the
+  // leg's waypoints, so the inline map and the 导航 link open the same route.
+  // (Every waypoint must be a name the Maps geocoder resolves, or the embed
+  // route fails to render.)
   return leg.from
     ? googleMapsEmbedDirectionsUrl({
         origin: leg.from,
         destination: leg.to,
+        waypoints: leg.waypoints,
         mode: leg.mode,
       })
     : googleMapsEmbedPlaceUrl(leg.to);
@@ -55,6 +61,7 @@ export function NavLegRow({ leg }: { leg: NavLeg }) {
           href={googleMapsDirectionsUrl({
             origin: leg.from,
             destination: leg.to,
+            waypoints: leg.waypoints,
             mode: leg.mode,
           })}
           target="_blank"
@@ -68,6 +75,12 @@ export function NavLegRow({ leg }: { leg: NavLeg }) {
           {leg.note ? (
             <span className="mt-0.5 block text-xs text-muted-foreground">
               {leg.note}
+            </span>
+          ) : null}
+          {leg.waypoints && leg.waypoints.length > 0 ? (
+            <span className="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="size-3 shrink-0" />
+              {leg.waypoints.join(" · ")}
             </span>
           ) : null}
         </a>
