@@ -1645,6 +1645,12 @@ const days: Day[] = [
     coords: { lat: 52.4862, lon: -1.8904 }, // 伯明翰 Birmingham
     anchors: [
       {
+        time: "09:00",
+        label: "退房 · Woodlands（窗口 09:00–10:30）",
+        kind: "checkout",
+        query: "Woodlands, New Road, Windermere LA23 2EE",
+      },
+      {
         time: "09:30",
         label: "温德米尔湖蒸汽游船 Bowness → Ambleside",
         kind: "transit",
@@ -1652,17 +1658,17 @@ const days: Day[] = [
         mode: "driving",
       },
       {
-        time: "09:00",
-        label: "退房 · Woodlands（窗口 09:00–10:30）",
-        kind: "checkout",
-        query: "Woodlands, New Road, Windermere LA23 2EE",
-      },
-      {
-        time: "15:30",
-        label: "出发前往伯明翰（赶 19:00 晚餐）",
+        time: "14:45",
+        label: "出发前往伯明翰（先入住放行李）",
         kind: "drive",
         query: "Aloft Birmingham Eastside",
         mode: "driving",
+      },
+      {
+        time: "17:50",
+        label: "入住 Aloft · 放行李",
+        kind: "checkin",
+        query: "Aloft Birmingham Eastside",
       },
       {
         time: "19:00",
@@ -1686,30 +1692,42 @@ const days: Day[] = [
         from: "Ambleside town centre",
         to: "Sarah Nelson Grasmere Gingerbread",
         mode: "driving",
-        note: "华兹华斯故居 + 姜饼店",
-        time: "14:30",
+        note: "时间紧：姜饼店 + 华兹华斯故居快速一看",
+        time: "13:00",
       },
       {
-        label: "Grasmere → 伯明翰",
+        label: "Grasmere → 伯明翰 Aloft",
         from: "Sarah Nelson Grasmere Gingerbread",
         to: "Aloft Birmingham Eastside",
         mode: "driving",
-        note: "15:30 出发，M6 南下约 3h / 165mi（高峰约 3h20），留出余量赶 19:00 晚餐。",
-        time: "15:30",
+        note: "14:45 出发，M6 南下约 3h / 165mi（高峰约 3h20），约 17:50 到酒店先入住放行李。",
+        time: "14:45",
+      },
+      {
+        label: "Aloft → Albatross Death Cult",
+        from: "Aloft Birmingham Eastside",
+        to: "Albatross Death Cult, Newhall Square, Birmingham B3 1RU",
+        mode: "driving",
+        note: "放好行李后跨城约 10min 去吃晚饭。",
+        time: "18:30",
       },
     ],
     timeline: [
       { time: "09:30", text: "温德米尔湖蒸汽游船 Bowness → Ambleside" },
       { time: "11:30", text: "彼得兔世界 或 Hill Top 农场（作者故居）" },
-      { time: "13:00", text: "午餐" },
+      { time: "12:30", text: "午餐" },
       {
-        time: "14:30",
-        text: "Grasmere — 华兹华斯故居 + Sarah Nelson's 姜饼店",
+        time: "13:30",
+        text: "Grasmere — Sarah Nelson's 姜饼店 + 华兹华斯故居（时间有限，快速一看）",
       },
-      { time: "15:30", text: "出发前往伯明翰（M6 南下约 3h）" },
+      { time: "14:45", text: "出发前往伯明翰（M6 南下约 3h）" },
       {
-        time: "18:40",
-        text: "抵达伯明翰，晚餐（已预订 19:00 Albatross Death Cult）",
+        time: "17:50",
+        text: "抵达伯明翰，先到 Aloft 入住放行李",
+      },
+      {
+        time: "18:30",
+        text: "前往 Albatross Death Cult（跨城约 10min），19:00 晚餐（已预订）",
       },
     ],
     places: [
@@ -1721,7 +1739,7 @@ const days: Day[] = [
       {
         name: "Grasmere 华兹华斯故居",
         query: "Dove Cottage, Grasmere",
-        time: "14:30",
+        time: "13:30",
       },
       {
         name: "Ambleside（游船终点）",
@@ -1815,18 +1833,18 @@ const days: Day[] = [
       },
       {
         kind: "drive",
-        text: "Grasmere→伯明翰实测约 3h / 165mi（M6 南下，高峰约 3h20），不是 2 小时；15:30 出发留足余量赶 19:00 晚餐，途中 M6 Tebay、Charnock Richard 等服务区可按需歇脚。",
-        time: "15:30",
+        text: "Grasmere→伯明翰实测约 3h / 165mi（M6 南下，高峰约 3h20），不是 2 小时；14:45 出发，约 17:50 先到 Aloft 入住放行李，再去 19:00 晚餐，途中 M6 Tebay、Charnock Richard 等服务区可按需歇脚。",
+        time: "14:45",
       },
       {
         kind: "parking",
-        text: "Aloft Birmingham 酒店停车约 £10–15。",
-        time: "18:30",
+        text: "Aloft Birmingham 酒店停车约 £10–15；先停好、行李上楼，晚餐后车留酒店。",
+        time: "17:50",
       },
       {
         kind: "info",
         text: "Grasmere 别错过 Sarah Nelson's 1854 年姜饼店。",
-        time: "14:30",
+        time: "13:30",
       },
     ],
     stay: {
@@ -1837,7 +1855,7 @@ const days: Day[] = [
           query: "Aloft Birmingham Eastside",
           address: "4 Woodcock Street, Birmingham",
           phone: "+44 121 820 6000",
-          checkIn: "6.25 周四 15:00",
+          checkIn: "6.25 周四 15:00 起（当天约 17:50 到，先放行李再去晚餐）",
           checkOut: "6.26 周五 12:00",
           note: "住客：大雨。",
           status: "booked",
