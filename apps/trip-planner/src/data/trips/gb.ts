@@ -1437,11 +1437,10 @@ const days: Day[] = [
         to: "Tebay Services southbound, M6, Cumbria",
         waypoints: [
           "The Green Welly Stop, Tyndrum",
-          "Polmadie M74",
-          "Roadchef Annandale Water A74(M)",
+          "Abington Services, M74, Lanarkshire",
         ],
         mode: "driving",
-        note: "A82 → A74(M) → M6 一路向南约 4h，一段导航直接开到午餐点 Tebay。沿途按大约每小时一个排了休息点，全是主路 / 高速上的正经服务区、开过时自己决定停不停（不必删点）：Green Welly Tyndrum（A82）· Polmadie M74（格拉斯哥）· Roadchef Annandale Water（A74(M)）。",
+        note: "A82 → A74(M) → M6 一路向南约 4h 直达午餐点 Tebay；途中的高速服务区可顺路歇脚，开过时自己决定停不停、不用删点。",
         time: "11:00",
       },
       {
@@ -1449,7 +1448,7 @@ const days: Day[] = [
         from: "Tebay Services southbound, M6, Cumbria",
         to: "Woodlands, New Road, Windermere LA23 2EE",
         mode: "driving",
-        note: "午餐后 M6 继续南下约 30min 即到住处；格伦科→温德米尔整段实测约 4h35 / 232mi",
+        note: "午餐后 M6 继续南下约 30min 即到住处。",
         time: "15:45",
       },
       {
@@ -1474,11 +1473,11 @@ const days: Day[] = [
       },
       {
         time: "11:00",
-        text: "上路前往湖区：一段导航直接开到午餐点 Tebay（整段约 4h15 / 214mi）。沿途约每小时一个高速服务区，都在主路上、开过时自己决定停不停：Green Welly Tyndrum（约 11:45）、Polmadie M74 格拉斯哥（约 12:50）、Roadchef Annandale Water（约 14:00）",
+        text: "上路前往湖区：一段导航直达午餐点 Tebay。途中的高速服务区可顺路歇脚，开过时自己决定停不停（见导航里的途经点）",
       },
       {
         time: "15:00",
-        text: "Tebay Services 午餐 + 加油（M6 上的农场超市服务区，不是普通服务站——农场自产热食（汤、派、炖菜、烤肉卷）、熟食柜、烘焙和好咖啡，离湖区约 30min，约停 40min；光开到这就要约 4 小时，最早也约 15:00 到，前面多停就更晚）",
+        text: "Tebay Services 午餐 + 加油（约停 40min）；光开到这就约 4 小时，最早约 15:00 到，前面多停就更晚",
       },
       {
         time: "16:30",
@@ -1498,7 +1497,7 @@ const days: Day[] = [
       },
       {
         time: "18:45",
-        text: "Henrock by Simon Rogan 晚餐 — Linthwaite House，Simon Rogan 的湖区农场餐厅（3 人已订）",
+        text: "Henrock by Simon Rogan 晚餐 — Linthwaite House，Simon Rogan 的湖区农场餐厅",
       },
       {
         time: "20:45",
@@ -1565,7 +1564,6 @@ const days: Day[] = [
       {
         name: "SOURCE at Gilpin",
         area: "湖区 · Windermere",
-        time: "18:45",
         query: "SOURCE at Gilpin Hotel, Crook Road, Windermere LA23 3NE",
         tag: "湖区食材 · tasting",
         michelin: 1,
@@ -1577,7 +1575,6 @@ const days: Day[] = [
       {
         name: "The Angel Inn",
         area: "湖区 · Bowness",
-        time: "18:45",
         query: "The Angel Inn, Helm Road, Bowness-on-Windermere LA23 3BU",
         tag: "湖畔传统酒吧",
         description:
@@ -1606,7 +1603,7 @@ const days: Day[] = [
       },
       {
         kind: "drive",
-        text: "今天是长途驾驶日：格伦科→温德米尔实测约 4h35 / 232mi（Google Maps，比原计划的 2.5h 远得多），加上 Fort William→格伦科约 35min，全天净开车约 5 小时。Guisachan 早餐 9:00、退房 10:00 卫浴共用，早起轮流洗漱、10:00 准点出发；格伦科就在 A82 路边、顺路快速拍照不久留，午餐在 Tebay Services 解决，约 16:30 才到湖区——下午偏紧，先紧着 Jim 想逛的礼品店。连着 5 天长行程，今晚不安排兜风，晚餐后早点回去休息。",
+        text: "长途驾驶日，全天净开车约 5 小时；按 9:00 早餐、10:00 退房准点出发，把时间留给路上和湖区。格伦科 Three Sisters 就在 A82 路边，顺路快拍、不久留。",
       },
       {
         kind: "fuel",
@@ -1615,7 +1612,7 @@ const days: Day[] = [
       },
       {
         kind: "warn",
-        text: "A82 经罗蒙湖一段弯多、限速低、旺季易堵，4h35 是顺畅估计，留出余量；偏凉可能小雨，多穿一层。",
+        text: "A82 经罗蒙湖一段弯多、限速低、旺季易堵，4h35 是顺畅估计，留出余量。",
         time: "11:00",
       },
     ],
@@ -1624,7 +1621,7 @@ const days: Day[] = [
       lodging: [
         {
           name: "Woodlands",
-          query: "Woodlands Windermere New Road",
+          query: "Woodlands, New Road, Windermere LA23 2EE",
           address: "New Road, Windermere, LA23 2EE",
           checkIn: "6.24 周三 14:00 起（当天约 16:30 到）",
           checkOut: "6.25 周四 09:00–10:30",

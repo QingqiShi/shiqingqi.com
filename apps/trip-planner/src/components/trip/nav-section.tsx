@@ -5,6 +5,7 @@ import {
   Car,
   ChevronDown,
   Footprints,
+  MapPin,
   Navigation,
   TrainFront,
 } from "lucide-react";
@@ -72,6 +73,12 @@ export function NavLegRow({ leg }: { leg: NavLeg }) {
           {leg.note ? (
             <span className="mt-0.5 block text-xs text-muted-foreground">
               {leg.note}
+            </span>
+          ) : null}
+          {leg.waypoints && leg.waypoints.length > 0 ? (
+            <span className="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="size-3 shrink-0" />
+              {leg.waypoints.join(" · ")}
             </span>
           ) : null}
         </a>
