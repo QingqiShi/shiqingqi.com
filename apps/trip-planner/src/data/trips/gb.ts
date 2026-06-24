@@ -1390,7 +1390,7 @@ const days: Day[] = [
     weekday: "周三",
     title: "格伦科 · 湖区",
     route: "Fort William → 格伦科 → 温德米尔",
-    driving: "约 3.5 小时",
+    driving: "约 5 小时（格伦科→湖区单程 4h35 / 232mi）",
     weather: { temp: "10–15°C", summary: "偏凉，可能小雨" },
     coords: { lat: 54.3807, lon: -2.9063 }, // 温德米尔 Windermere
     anchors: [
@@ -1401,24 +1401,17 @@ const days: Day[] = [
         query: "Guisachan Guest House Fort William",
       },
       {
-        time: "10:15",
+        time: "10:35",
         label: "格伦科 Three Sisters 快速拍照（不久留）",
         kind: "drive",
         query: "Three Sisters viewpoint Glencoe",
         mode: "driving",
       },
       {
-        time: "14:00",
-        label: "入住 Woodlands B&B · 温德米尔",
+        time: "16:30",
+        label: "抵达 · 入住 Woodlands B&B · 温德米尔",
         kind: "checkin",
         query: "Woodlands, New Road, Windermere LA23 2EE",
-      },
-      {
-        time: "14:30",
-        label: "湖区就近兜风 · Kirkstone Pass 山口",
-        kind: "drive",
-        query: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
-        mode: "driving",
       },
       {
         time: "18:45",
@@ -1435,7 +1428,7 @@ const days: Day[] = [
         from: "Guisachan Guest House Fort William",
         to: "Three Sisters viewpoint Glencoe",
         mode: "driving",
-        note: "A82 南下仅 15min；007 取景地快速拍照，不久留",
+        note: "A82 南下约 35min / 21mi；007 取景地快速拍照，不久留",
         time: "10:00",
       },
       {
@@ -1443,16 +1436,8 @@ const days: Day[] = [
         from: "Three Sisters viewpoint Glencoe",
         to: "Woodlands, New Road, Windermere LA23 2EE",
         mode: "driving",
-        note: "A82 → A74(M) → M6 约 2.5h；路上不停大站，午餐到镇上再吃，尽早抵达多留时间给湖区",
-        time: "10:45",
-      },
-      {
-        label: "入住后就近兜风 · Kirkstone Pass",
-        from: "Woodlands, New Road, Windermere LA23 2EE",
-        to: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
-        mode: "driving",
-        note: "A592 经 Troutbeck 上湖区最高山口，单程约 20min；不想爬山口就环温德米尔湖一圈。把开车兜风放在到达后、就近转",
-        time: "14:30",
+        note: "A82 → A74(M) → M6，实测约 4h35 / 232mi（Google Maps）——比原以为远得多。中途在 Tebay Services（M6，离湖区约 30min）午餐 + 休息一次",
+        time: "11:00",
       },
       {
         label: "前往 Henrock · Linthwaite House",
@@ -1462,6 +1447,14 @@ const days: Day[] = [
         note: "Crook Road（B5284）旁 Linthwaite House，距住处约 10min",
         time: "18:30",
       },
+      {
+        label: "饭后就近兜风（可选）· Kirkstone Pass",
+        from: "Henrock, Linthwaite House, Crook Road, Bowness-on-Windermere LA23 3JA",
+        to: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
+        mode: "driving",
+        note: "6 月日落约 21:40，饭后天还亮：想兜风就上 A592 Kirkstone 山口或环温德米尔湖一圈（单程约 20min）。今天路上已 5 小时，累了就跳过，留到明早走前再转",
+        time: "20:45",
+      },
     ],
     timeline: [
       {
@@ -1469,31 +1462,26 @@ const days: Day[] = [
         text: "早起：Guisachan 房间小、卫浴共用，轮流洗漱、先收拾好行李",
       },
       { time: "09:00", text: "Guisachan Guest House 享用早餐（早餐 9:00）" },
-      { time: "10:00", text: "退房出发，A82 南下，15min 即到格伦科" },
+      { time: "10:00", text: "退房出发，A82 南下，约 35min 到格伦科" },
       {
-        time: "10:15",
-        text: "格伦科 Glencoe — 007《天幕杀机》取景地，Three Sisters 快速拍照（约 20–30min，不久留）",
+        time: "10:35",
+        text: "格伦科 Glencoe — 007《天幕杀机》取景地，Three Sisters 快速拍照（约 20–25min，不久留）",
       },
       {
-        time: "10:45",
-        text: "直奔湖区：A82 → M6 约 2.5h，路上不停大站，午餐留到温德米尔再吃，尽量多留时间在目的地",
+        time: "11:00",
+        text: "上路直奔湖区：格伦科 → 温德米尔实测约 4h35 / 232mi（比原以为远得多），这段路本身就长，路上别再绕路",
       },
-      {
-        time: "13:30",
-        text: "抵达温德米尔，Bowness 简单午餐（先到镇上吃，省下路上的时间）",
-      },
-      { time: "14:00", text: "入住 Woodlands B&B，放下行李" },
       {
         time: "14:30",
-        text: "入住后就近开车兜风：A592 上 Kirkstone Pass 山口，或环温德米尔湖一圈（把兜风放到达后、就近转，不在路上耗时间）",
+        text: "Tebay Services 午餐 + 加油休息（M6 著名农场超市服务区，离湖区约 30min，约停 40min）",
       },
       {
-        time: "16:00",
-        text: "Bowness 逛礼品店（Jim 最爱）+ Windermere 的 Lakeland 旗舰店，晚饭前先把礼品店逛够",
+        time: "16:30",
+        text: "抵达温德米尔，入住 Woodlands B&B、放下行李（实到比原计划晚，路途确实长）",
       },
       {
-        time: "17:30",
-        text: "湖边散步、看湖，回 B&B 稍作休整（晚上吃发办，下午茶从简）",
+        time: "16:45",
+        text: "Bowness 逛礼品店（Jim 最爱）+ Windermere 的 Lakeland 旗舰店 — 晚饭前的重点，先把礼品店逛够",
       },
       {
         time: "18:30",
@@ -1503,36 +1491,41 @@ const days: Day[] = [
         time: "18:45",
         text: "Henrock by Simon Rogan 晚餐 — Linthwaite House，Simon Rogan 的湖区农场餐厅（3 人已订）",
       },
+      {
+        time: "20:45",
+        text: "（可选）饭后天还亮（日落约 21:40）：上 Kirkstone Pass 山口 / 环湖兜风就近转转；累了就跳过，留到明早走前再转",
+      },
     ],
     places: [
       {
         name: "格伦科 Three Sisters 观景点",
         query: "Three Sisters Glencoe",
         note: "快速拍照，不久留",
-        time: "10:15",
+        time: "10:35",
       },
       {
-        name: "Kirkstone Pass 山口",
-        query: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
-        note: "就近兜风 · 湖区最高山口；不爬山口可改环温德米尔湖",
+        name: "Tebay Services（午餐 / 休息）",
+        query: "Tebay Services northbound, M6, Penrith CA10 3SB",
+        note: "M6 著名农场超市服务区，离湖区约 30min，长途中段歇脚午餐",
         time: "14:30",
       },
       {
         name: "Lakeland 旗舰店 · Windermere",
         query: "Lakeland, Alexandra Buildings, Windermere LA23 1BQ",
         note: "Lakeland 家居总店，Jim 逛礼品",
-        time: "16:00",
+        time: "16:45",
       },
       {
         name: "Bowness 湖边礼品店",
         query: "Lake Road, Bowness-on-Windermere",
         note: "纪念品 / 礼品店集中，Jim 慢慢逛",
-        time: "16:00",
+        time: "16:45",
       },
       {
-        name: "Bowness-on-Windermere",
-        query: "Bowness-on-Windermere",
-        time: "17:30",
+        name: "Kirkstone Pass 山口",
+        query: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
+        note: "可选 · 饭后天亮兜风，湖区最高山口；不爬山口可改环温德米尔湖，或留到明早",
+        time: "20:45",
       },
     ],
     restaurants: [
@@ -1640,11 +1633,21 @@ const days: Day[] = [
       {
         kind: "parking",
         text: "格伦科路边免费 / NTS 停车场 £5；Woodlands B&B 免费停车。",
-        time: "10:15",
+        time: "10:35",
       },
       {
         kind: "drive",
-        text: "轻松日，但 Guisachan 早餐 9:00、退房 10:00 且卫浴共用，早起轮流洗漱别赖床；偏凉可能小雨，多穿一层；格伦科是 007《天幕杀机》取景地。",
+        text: "今天是长途驾驶日：格伦科→温德米尔实测约 4h35 / 232mi（Google Maps，比原计划的 2.5h 远得多），加上 Fort William→格伦科约 35min，全天净开车约 5 小时。Guisachan 早餐 9:00、退房 10:00 卫浴共用，早起轮流洗漱、10:00 准点出发；格伦科只快速拍照不久留，把时间留给路程，午餐在 Tebay Services 解决，约 16:30 才到湖区——下午偏紧，先紧着 Jim 想逛的礼品店，兜风留到饭后或明早。",
+      },
+      {
+        kind: "fuel",
+        text: "出发前在 Fort William 加满油；长途 + 高地油价贵，Tebay Services 可顺便补给。",
+        time: "10:00",
+      },
+      {
+        kind: "warn",
+        text: "A82 经罗蒙湖一段弯多、限速低、旺季易堵，4h35 是顺畅估计，留出余量；偏凉可能小雨，多穿一层。",
+        time: "11:00",
       },
     ],
     stay: {
