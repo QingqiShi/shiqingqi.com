@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
 import { DayFeed } from "./day-feed";
 import { DayGlance } from "./day-glance";
 import { DayHeader } from "./day-header";
@@ -10,16 +11,22 @@ import { PlaceList } from "./places-section";
 import { Section } from "./section";
 import { StaySection } from "./stay-section";
 import { TipsSection } from "./tips-section";
+import { TodayPlanner } from "./today-planner";
+import { useTodayPlan } from "./use-today-plan";
 import type { Day, Trip } from "@/data/types";
 import {
+  applyDrops,
   buildDayFeed,
   dayWideTips,
   momentDomId,
+  optionalMoments,
   untimedDining,
   untimedPlaces,
 } from "@/lib/schedule";
 import { peopleOnDay } from "@/lib/trip";
 import type { LiveWeather } from "@/lib/wmo";
+
+const NO_DROPS: ReadonlySet<string> = new Set();
 
 export function DailyView({
   trip,
@@ -35,10 +42,45 @@ export function DailyView({
   onOpenDay: (index: number) => void;
 }) {
   const moments = buildDayFeed(day);
-  const jumpableTimes = new Set(moments.map((moment) => moment.time));
+
+  // The live clock that drives the today-only planner. Read on the client so
+  // it's the user's real "now"; null on other days and until first mount, which
+  // keeps the server and first client render in sync.
+  const [nowMinutes, setNowMinutes] = useState<number | null>(null);
+  useEffect(() => {
+    if (!isToday) return;
+    const tick = () => {
+      const now = new Date();
+      setNowMinutes(now.getHours() * 60 + now.getMinutes());
+    };
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [isToday]);
+
+  const { dropped, toggle, restoreAll } = useTodayPlan(trip.slug, day.n);
+  const plan = applyDrops(moments, isToday ? dropped : NO_DROPS);
+  const futureOptional =
+    isToday && nowMinutes !== null ? optionalMoments(moments, nowMinutes) : [];
+
+  // Only offer to jump to moments that are actually rendered — a dropped
+  // optional has no element to scroll to, so it must not look tappable.
+  const jumpableTimes = new Set(plan.rows.map((row) => row.moment.time));
   const extraDining = untimedDining(day);
   const extraPlaces = untimedPlaces(day);
   const generalTips = dayWideTips(day);
+
+  const planner =
+    futureOptional.length > 0 ? (
+      <TodayPlanner
+        optional={futureOptional}
+        dropped={dropped}
+        onToggle={toggle}
+        onRestoreAll={restoreAll}
+      />
+    ) : undefined;
 
   const jumpToMoment = (time: string) => {
     const target = document.getElementById(momentDomId(day.n, time));
@@ -76,7 +118,13 @@ export function DailyView({
       <DayMap day={day} />
 
       <Section icon={Clock} title="行程">
-        <DayFeed tripSlug={trip.slug} day={day} isToday={isToday} />
+        <DayFeed
+          tripSlug={trip.slug}
+          dayN={day.n}
+          rows={plan.rows}
+          nowMinutes={isToday ? nowMinutes : null}
+          planner={planner}
+        />
       </Section>
 
       {extraDining.length > 0 ? (

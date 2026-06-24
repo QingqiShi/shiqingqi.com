@@ -1142,6 +1142,7 @@ const days: Day[] = [
         mode: "driving",
         note: "三湖交汇经典高地城堡",
         time: "10:30",
+        optional: true,
       },
       {
         label: "Eilean Donan → Portree（午餐）",
@@ -1158,6 +1159,8 @@ const days: Day[] = [
         mode: "driving",
         note: "路边观景台拍摄 20min",
         time: "13:00",
+        optional: true,
+        durationMin: 15,
       },
       {
         label: "Old Man of Storr → Kilt Rock",
@@ -1166,6 +1169,8 @@ const days: Day[] = [
         mode: "driving",
         note: "海边悬崖瀑布 15min",
         time: "13:45",
+        optional: true,
+        durationMin: 15,
       },
       {
         label: "Kilt Rock → Quiraing",
@@ -1174,6 +1179,8 @@ const days: Day[] = [
         mode: "driving",
         note: "壮丽山脊观景 / 短途步行",
         time: "14:15",
+        optional: true,
+        durationMin: 15,
       },
       {
         label: "Quiraing → Portree 港口",
@@ -1182,6 +1189,8 @@ const days: Day[] = [
         mode: "driving",
         note: "彩色港口 + 咖啡 30min",
         time: "15:20",
+        optional: true,
+        durationMin: 20,
       },
       {
         label: "离岛南下：Portree → Fort William",
@@ -1197,23 +1206,46 @@ const days: Day[] = [
       {
         time: "08:30",
         text: "Urquhart Castle / 尼斯湖畔观景台拍照（30–40min）",
+        optional: true,
+        durationMin: 40,
       },
       {
         time: "10:30",
         text: "Eilean Donan Castle — 三湖交汇经典高地城堡（40min）",
+        optional: true,
+        durationMin: 40,
       },
       { time: "12:00", text: "过 Skye Bridge 上岛，在 Portree 午餐" },
-      { time: "13:00", text: "Old Man of Storr — 路边观景台拍摄（20min）" },
+      {
+        time: "13:00",
+        text: "Old Man of Storr — 路边观景台拍摄（20min）",
+        optional: true,
+        durationMin: 20,
+      },
       {
         time: "13:45",
         text: "Kilt Rock & Mealt Falls — 海边悬崖瀑布（15min）",
+        optional: true,
+        durationMin: 15,
       },
-      { time: "14:15", text: "Quiraing — 壮丽山脊观景 / 短途步行（30–40min）" },
+      {
+        time: "14:15",
+        text: "Quiraing — 壮丽山脊观景 / 短途步行（30–40min）",
+        optional: true,
+        durationMin: 40,
+      },
       {
         time: "15:20",
         text: "Portree 彩色港口 — 标志性彩色小屋 + 咖啡（30min）",
+        optional: true,
+        durationMin: 30,
       },
-      { time: "16:00", text: "可选 Fairy Pools 入口看一眼，或直接南下离岛" },
+      {
+        time: "16:00",
+        text: "可选 Fairy Pools 入口看一眼，或直接南下离岛",
+        optional: true,
+        durationMin: 30,
+      },
       {
         time: "17:00",
         text: "离开天空岛 → 经 A87 / A82 直达 Fort William（无需渡轮）",
@@ -1228,33 +1260,44 @@ const days: Day[] = [
         name: "Urquhart Castle / 尼斯湖",
         query: "Urquhart Castle Loch Ness",
         time: "08:30",
+        optional: true,
       },
       {
         name: "Eilean Donan Castle",
         query: "Eilean Donan Castle",
         time: "10:30",
+        optional: true,
       },
       {
         name: "Old Man of Storr",
         query: "Old Man of Storr, Isle of Skye",
         time: "13:00",
+        optional: true,
       },
       {
         name: "Kilt Rock & Mealt Falls",
         query: "Kilt Rock and Mealt Falls",
         time: "13:45",
+        optional: true,
       },
-      { name: "Quiraing", query: "Quiraing, Isle of Skye", time: "14:15" },
+      {
+        name: "Quiraing",
+        query: "Quiraing, Isle of Skye",
+        time: "14:15",
+        optional: true,
+      },
       {
         name: "Portree 彩色港口",
         query: "Portree, Isle of Skye",
         time: "15:20",
+        optional: true,
       },
       {
         name: "Fairy Pools",
         query: "Fairy Pools, Isle of Skye",
         note: "可选",
         time: "16:00",
+        optional: true,
       },
     ],
     restaurants: [
@@ -1357,6 +1400,7 @@ const days: Day[] = [
         kind: "parking",
         text: "Old Man of Storr 停车约 £5，Quiraing 免费。",
         time: "13:00",
+        optional: true,
       },
       {
         kind: "warn",
@@ -1472,6 +1516,8 @@ const days: Day[] = [
       {
         time: "10:35",
         text: "格伦科 Glencoe — 007《天幕杀机》取景地，Three Sisters 快速拍照（约 20–25min，不久留）",
+        optional: true,
+        durationMin: 25,
       },
       {
         time: "11:00",
@@ -1488,6 +1534,8 @@ const days: Day[] = [
       {
         time: "16:45",
         text: "Bowness 逛礼品店（Jim 最爱）+ Windermere 的 Lakeland 旗舰店 — 晚饭前的重点，先把礼品店逛够",
+        optional: true,
+        durationMin: 60,
       },
       {
         time: "18:00",
@@ -1511,6 +1559,7 @@ const days: Day[] = [
         name: "格伦科 Three Sisters 观景点",
         query: "Three Sisters Glencoe",
         time: "10:35",
+        optional: true,
       },
       {
         name: "Tebay Services（午餐 / 休息）",
@@ -1523,12 +1572,14 @@ const days: Day[] = [
         query: "Lakeland, Alexandra Buildings, Windermere LA23 1BQ",
         note: "Lakeland 家居总店，Jim 逛礼品",
         time: "16:45",
+        optional: true,
       },
       {
         name: "Bowness 湖边礼品店",
         query: "Lake Road, Bowness-on-Windermere",
         note: "纪念品 / 礼品店集中，Jim 慢慢逛",
         time: "16:45",
+        optional: true,
       },
     ],
     restaurants: [
@@ -1601,6 +1652,7 @@ const days: Day[] = [
         kind: "parking",
         text: "格伦科路边免费 / NTS 停车场 £5；Woodlands B&B 免费停车。",
         time: "10:35",
+        optional: true,
       },
       {
         kind: "drive",
@@ -1681,6 +1733,8 @@ const days: Day[] = [
         mode: "driving",
         note: "华兹华斯故居 + 姜饼店",
         time: "14:30",
+        optional: true,
+        durationMin: 25,
       },
       {
         label: "Grasmere → 伯明翰",
@@ -1693,11 +1747,18 @@ const days: Day[] = [
     ],
     timeline: [
       { time: "09:30", text: "温德米尔湖蒸汽游船 Bowness → Ambleside" },
-      { time: "11:30", text: "彼得兔世界 或 Hill Top 农场（作者故居）" },
+      {
+        time: "11:30",
+        text: "彼得兔世界 或 Hill Top 农场（作者故居）",
+        optional: true,
+        durationMin: 60,
+      },
       { time: "13:00", text: "午餐" },
       {
         time: "14:30",
         text: "Grasmere — 华兹华斯故居 + Sarah Nelson's 姜饼店",
+        optional: true,
+        durationMin: 60,
       },
       { time: "16:30", text: "出发前往伯明翰" },
       {
@@ -1710,11 +1771,13 @@ const days: Day[] = [
         name: "Hill Top 彼得兔故居",
         query: "Hill Top Beatrix Potter Near Sawrey",
         time: "11:30",
+        optional: true,
       },
       {
         name: "Grasmere 华兹华斯故居",
         query: "Dove Cottage, Grasmere",
         time: "14:30",
+        optional: true,
       },
       {
         name: "Ambleside（游船终点）",
@@ -1814,6 +1877,7 @@ const days: Day[] = [
         kind: "info",
         text: "Grasmere 别错过 Sarah Nelson's 1854 年姜饼店。",
         time: "14:30",
+        optional: true,
       },
     ],
     stay: {
@@ -1889,7 +1953,12 @@ const days: Day[] = [
       },
       { time: "12:30", text: "离开机场，M4 西行" },
       { time: "14:30", text: "抵达布里斯托，入住休息" },
-      { time: "16:00", text: "克利夫顿悬索桥 — Clifton Village 散步喝咖啡" },
+      {
+        time: "16:00",
+        text: "克利夫顿悬索桥 — Clifton Village 散步喝咖啡",
+        optional: true,
+        durationMin: 90,
+      },
       { time: "19:00", text: "Harbourside 晚餐" },
     ],
     places: [
@@ -1897,11 +1966,13 @@ const days: Day[] = [
         name: "克利夫顿悬索桥",
         query: "Clifton Suspension Bridge",
         time: "16:00",
+        optional: true,
       },
       {
         name: "Clifton Village",
         query: "Clifton Village, Bristol",
         time: "16:00",
+        optional: true,
       },
       {
         name: "Bristol Harbourside",
@@ -2067,11 +2138,18 @@ const days: Day[] = [
     timeline: [
       { time: "09:30", text: "前往巴斯（约 30 分钟）" },
       { time: "10:00", text: "古罗马浴场 — 2000 年温泉遗址，语音导览精彩" },
-      { time: "12:00", text: "皇家新月楼 Royal Crescent — 乔治亚建筑典范" },
+      {
+        time: "12:00",
+        text: "皇家新月楼 Royal Crescent — 乔治亚建筑典范",
+        optional: true,
+        durationMin: 45,
+      },
       { time: "13:00", text: "午餐" },
       {
         time: "14:30",
         text: "Thermae Bath Spa（可选）— 天然温泉屋顶泳池，俯瞰巴斯天际线",
+        optional: true,
+        durationMin: 90,
       },
       { time: "17:00", text: "返回布里斯托 或 继续逛巴斯" },
     ],
@@ -2085,12 +2163,14 @@ const days: Day[] = [
         name: "皇家新月楼 Royal Crescent",
         query: "Royal Crescent, Bath",
         time: "12:00",
+        optional: true,
       },
       {
         name: "Thermae Bath Spa",
         query: "Thermae Bath Spa",
         note: "可选",
         time: "14:30",
+        optional: true,
       },
     ],
     restaurants: [
@@ -2199,6 +2279,7 @@ const days: Day[] = [
         mode: "driving",
         note: "进入科茨沃尔德，“科茨沃尔德威尼斯”",
         time: "10:00",
+        optional: true,
       },
       {
         label: "Bourton → 拜伯里 Bibury",
@@ -2207,6 +2288,7 @@ const days: Day[] = [
         mode: "driving",
         note: "Arlington Row 蜜色石屋排",
         time: "11:30",
+        optional: true,
       },
       {
         label: "Bibury → 牛津 Oxford",
@@ -2230,10 +2312,14 @@ const days: Day[] = [
       {
         time: "10:00",
         text: "水上伯顿 Bourton-on-the-Water — “科茨沃尔德威尼斯”",
+        optional: true,
+        durationMin: 45,
       },
       {
         time: "11:30",
         text: "拜伯里 Bibury — Arlington Row 蜜色石屋排，最美村庄",
+        optional: true,
+        durationMin: 45,
       },
       { time: "13:00", text: "Cotswolds 村庄午餐" },
       {
@@ -2247,11 +2333,13 @@ const days: Day[] = [
         name: "水上伯顿 Bourton-on-the-Water",
         query: "Bourton-on-the-Water",
         time: "10:00",
+        optional: true,
       },
       {
         name: "拜伯里 Arlington Row",
         query: "Arlington Row, Bibury",
         time: "11:30",
+        optional: true,
       },
       {
         name: "牛津 基督教会学院",
@@ -2318,6 +2406,7 @@ const days: Day[] = [
         kind: "parking",
         text: "Cotswolds 村庄停车免费；Oxford 用 Westgate / Park & Ride（£3–5）。",
         time: "10:00",
+        optional: true,
       },
       {
         kind: "parking",
@@ -2379,6 +2468,7 @@ const days: Day[] = [
         mode: "transit",
         note: "Elizabeth Line → Liverpool Street 出",
         time: "10:00",
+        optional: true,
       },
       {
         label: "South Bank（Tate Modern / Tower Bridge）",
@@ -2390,6 +2480,7 @@ const days: Day[] = [
         mode: "transit",
         note: "Tate Modern → 千禧桥 → Tower Bridge（Borough Market 周一休市）",
         time: "12:00",
+        optional: true,
       },
       {
         label: "West End（Oxford St / Covent Garden）",
@@ -2397,6 +2488,7 @@ const days: Day[] = [
         mode: "transit",
         note: "Tottenham Court Road 下，步行 10min",
         time: "14:00",
+        optional: true,
       },
       {
         label: "Harrods · 骑士桥",
@@ -2404,6 +2496,7 @@ const days: Day[] = [
         mode: "transit",
         note: "Food Hall 买手信好",
         time: "14:00",
+        optional: true,
       },
     ],
     timeline: [
@@ -2414,18 +2507,26 @@ const days: Day[] = [
       {
         time: "10:00",
         text: "Shoreditch / Brick Lane — 街头艺术、vintage 市集、咖喱一条街",
+        optional: true,
+        durationMin: 90,
       },
       {
         time: "12:00",
         text: "South Bank 漫步 — Tate Modern（免费）→ 千禧桥 → Tower Bridge（Borough Market 周一休市，午餐另选）",
+        optional: true,
+        durationMin: 90,
       },
       {
         time: "14:00",
         text: "West End — Oxford Street / Soho / Chinatown / Covent Garden 逛街扫货",
+        optional: true,
+        durationMin: 120,
       },
       {
         time: "17:00",
         text: "可选 Camden Market（朋克 / 潮流 / street food）",
+        optional: true,
+        durationMin: 60,
       },
       {
         time: "19:00",
@@ -2438,36 +2539,42 @@ const days: Day[] = [
         query: "Brick Lane, London",
         note: "潮牌 / vintage",
         time: "10:00",
+        optional: true,
       },
       {
         name: "South Bank · Tate Modern",
         query: "Tate Modern, London",
         note: "免费 · 河岸漫步（Borough Market 周一休市）",
         time: "12:00",
+        optional: true,
       },
       {
         name: "Covent Garden · Seven Dials",
         query: "Covent Garden, London",
         note: "英伦品牌",
         time: "14:00",
+        optional: true,
       },
       {
         name: "牛津街 Oxford Street",
         query: "Oxford Street, London",
         note: "扫货",
         time: "14:00",
+        optional: true,
       },
       {
         name: "Harrods · 骑士桥",
         query: "Harrods, London",
         note: "顶奢 · Food Hall 手信",
         time: "14:00",
+        optional: true,
       },
       {
         name: "Camden Market",
         query: "Camden Market, London",
         note: "可选",
         time: "17:00",
+        optional: true,
       },
     ],
     restaurants: [
