@@ -34,6 +34,7 @@ function legEmbedSrc(leg: NavLeg) {
     ? googleMapsEmbedDirectionsUrl({
         origin: leg.from,
         destination: leg.to,
+        waypoints: leg.waypoints,
         mode: leg.mode,
       })
     : googleMapsEmbedPlaceUrl(leg.to);
@@ -55,6 +56,7 @@ export function NavLegRow({ leg }: { leg: NavLeg }) {
           href={googleMapsDirectionsUrl({
             origin: leg.from,
             destination: leg.to,
+            waypoints: leg.waypoints,
             mode: leg.mode,
           })}
           target="_blank"

@@ -1435,8 +1435,13 @@ const days: Day[] = [
         label: "格伦科 → Tebay Services（午餐）",
         from: "Three Sisters viewpoint Glencoe",
         to: "Tebay Services southbound, M6, Cumbria",
+        waypoints: [
+          "The Green Welly Stop, Tyndrum",
+          "Luss, Loch Lomond",
+          "Abington Services, M74, Lanarkshire",
+        ],
         mode: "driving",
-        note: "A82 → A74(M) → M6 一路向南约 4h，一段导航直接开到午餐点 Tebay。下面这些休息点都在路边，想停就拐进去、不用重新导航，不需要就过：Tyndrum Green Welly（约 11:45）· 罗蒙湖 Luss（约 12:45）· Abington Services M74（约 14:00）",
+        note: "A82 → A74(M) → M6 一路向南约 4h，一段导航直接开到午餐点 Tebay。已把约每小时一个休息点设成途经点带进这条路线：Tyndrum Green Welly（约 11:45）· 罗蒙湖 Luss（约 12:45）· Abington Services M74（约 14:00）。不想停就在 Google Maps 里把那个途经点删掉。",
         time: "11:00",
       },
       {
