@@ -31,13 +31,15 @@ const modeIcon: Record<TravelMode, LucideIcon> = {
  * current location preview the destination as a place instead of a route.
  */
 function legEmbedSrc(leg: NavLeg) {
-  // The deep-link carries any waypoints (rest stops); the embed preview only
-  // needs the leg's overall shape, and feeding fine-grained POI waypoints to
-  // the stricter Embed geocoder can fail the whole route (blank world map).
+  // Keep the embed preview in sync with the deep-link: both route through the
+  // leg's waypoints, so the inline map and the 导航 link open the same route.
+  // (Every waypoint must be a name the Maps geocoder resolves, or the embed
+  // route fails to render.)
   return leg.from
     ? googleMapsEmbedDirectionsUrl({
         origin: leg.from,
         destination: leg.to,
+        waypoints: leg.waypoints,
         mode: leg.mode,
       })
     : googleMapsEmbedPlaceUrl(leg.to);

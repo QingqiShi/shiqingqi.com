@@ -1428,7 +1428,7 @@ const days: Day[] = [
         from: "Guisachan Guest House Fort William",
         to: "Three Sisters viewpoint Glencoe",
         mode: "driving",
-        note: "A82 南下约 35min / 21mi；007 取景地快速拍照，不久留",
+        note: "A82 南下约 35min / 21mi。",
         time: "10:00",
       },
       {
