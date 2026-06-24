@@ -1476,8 +1476,8 @@ const days: Day[] = [
         from: "Woodlands, New Road, Windermere LA23 2EE",
         to: "Henrock, Linthwaite House, Crook Road, Bowness-on-Windermere LA23 3JA",
         mode: "driving",
-        note: "Crook Road（B5284）旁 Linthwaite House，距住处约 10min",
-        time: "18:30",
+        note: "Crook Road（B5284）旁 Linthwaite House，车程约 10min；18:45 的订位，18:25 出发留出停车 / 入座的余量",
+        time: "18:25",
       },
     ],
     timeline: [
@@ -1497,7 +1497,7 @@ const days: Day[] = [
       },
       {
         time: "15:00",
-        text: "Tebay Services 午餐 + 加油（M6 上的农场超市服务区，不是普通服务站——农场自产热食（汤、派、炖菜、烤肉卷）、熟食柜、烘焙和好咖啡，离湖区约 30min，约停 40min；视前面停了几次，约 14:30–15:30 到）",
+        text: "Tebay Services 午餐 + 加油（M6 上的农场超市服务区，不是普通服务站——农场自产热食（汤、派、炖菜、烤肉卷）、熟食柜、烘焙和好咖啡，离湖区约 30min，约停 40min；光开到这就要约 4 小时，最早也约 15:00 到，前面多停就更晚）",
       },
       {
         time: "16:30",
@@ -1508,8 +1508,12 @@ const days: Day[] = [
         text: "Bowness 逛礼品店（Jim 最爱）+ Windermere 的 Lakeland 旗舰店 — 晚饭前的重点，先把礼品店逛够",
       },
       {
-        time: "18:30",
-        text: "前往 Henrock — Linthwaite House，Crook Road（约 10min）",
+        time: "18:00",
+        text: "逛完回 Woodlands 梳洗、稍作休整",
+      },
+      {
+        time: "18:25",
+        text: "出发去 Henrock — Linthwaite House，Crook Road（车程约 10min，早几分钟出发留出停车时间）",
       },
       {
         time: "18:45",
@@ -1590,40 +1594,6 @@ const days: Day[] = [
         website: "https://thegilpin.co.uk/eat-and-drink/source/",
       },
       {
-        name: "Old Stamp House",
-        area: "湖区 · Ambleside",
-        time: "18:45",
-        query: "Old Stamp House, Church Street, Ambleside LA22 0BU",
-        tag: "Cumbrian · 自 2019 持星",
-        michelin: 1,
-        description:
-          "Ryan Blackburn 主理，纯正 Cumbrian tasting menu，Herdwick 羊肉、Windermere 鲑鱼。10min 车程。",
-        price: "~£105/人",
-        website: "https://oldstamphouse.com",
-      },
-      {
-        name: "Forest Side",
-        area: "湖区 · Grasmere",
-        time: "18:45",
-        query: "The Forest Side, Keswick Road, Grasmere LA22 9RN",
-        tag: "庄园 · tasting",
-        michelin: 1,
-        description:
-          "维多利亚哥特庄园，自家厨房花园供应食材，4/8 道式 tasting menu；2026 年新获米其林绿星。20min 车程。",
-        price: "~£95–115/人",
-        website: "https://www.theforestside.com",
-      },
-      {
-        name: "The Drunken Duck Inn",
-        area: "湖区 · Barngates",
-        time: "18:45",
-        query: "The Drunken Duck Inn, Barngates, Ambleside LA22 0NG",
-        tag: "山坡美食酒吧",
-        description: "隐藏在湖区山坡，自酿啤酒配精致乡村料理，景色一流。",
-        price: "~£35–50/人",
-        website: "https://www.drunkenduckinn.co.uk",
-      },
-      {
         name: "The Angel Inn",
         area: "湖区 · Bowness",
         time: "18:45",
@@ -1675,10 +1645,10 @@ const days: Day[] = [
           name: "Woodlands",
           query: "Woodlands Windermere New Road",
           address: "New Road, Windermere, LA23 2EE",
-          checkIn: "6.24 周三 14:00",
+          checkIn: "6.24 周三 14:00 起（当天约 16:30 到）",
           checkOut: "6.25 周四 09:00–10:30",
           room: "3 间房 · 3 人",
-          note: "Booking.com Genius ★★★★，传统英式 B&B，步行可达湖边。",
+          note: "Booking.com Genius ★★★★，传统英式 B&B，步行可达湖边。从苏格兰长途南下，预计约 16:30 到，晚于 14:00 的最早入住时间。",
           status: "booked",
         },
       ],
