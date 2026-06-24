@@ -1401,8 +1401,8 @@ const days: Day[] = [
         query: "Guisachan Guest House Fort William",
       },
       {
-        time: "10:30",
-        label: "格伦科 Three Sisters 观景拍照",
+        time: "10:15",
+        label: "格伦科 Three Sisters 快速拍照（不久留）",
         kind: "drive",
         query: "Three Sisters viewpoint Glencoe",
         mode: "driving",
@@ -1412,6 +1412,13 @@ const days: Day[] = [
         label: "入住 Woodlands B&B · 温德米尔",
         kind: "checkin",
         query: "Woodlands, New Road, Windermere LA23 2EE",
+      },
+      {
+        time: "14:30",
+        label: "湖区就近兜风 · Kirkstone Pass 山口",
+        kind: "drive",
+        query: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
+        mode: "driving",
       },
       {
         time: "18:45",
@@ -1428,7 +1435,7 @@ const days: Day[] = [
         from: "Guisachan Guest House Fort William",
         to: "Three Sisters viewpoint Glencoe",
         mode: "driving",
-        note: "A82 南下仅 15min；007 取景地观景拍照",
+        note: "A82 南下仅 15min；007 取景地快速拍照，不久留",
         time: "10:00",
       },
       {
@@ -1436,8 +1443,16 @@ const days: Day[] = [
         from: "Three Sisters viewpoint Glencoe",
         to: "Woodlands, New Road, Windermere LA23 2EE",
         mode: "driving",
-        note: "A82 → A74(M) → M6 约 2.5h",
-        time: "12:30",
+        note: "A82 → A74(M) → M6 约 2.5h；路上不停大站，午餐到镇上再吃，尽早抵达多留时间给湖区",
+        time: "10:45",
+      },
+      {
+        label: "入住后就近兜风 · Kirkstone Pass",
+        from: "Woodlands, New Road, Windermere LA23 2EE",
+        to: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
+        mode: "driving",
+        note: "A592 经 Troutbeck 上湖区最高山口，单程约 20min；不想爬山口就环温德米尔湖一圈。把开车兜风放在到达后、就近转",
+        time: "14:30",
       },
       {
         label: "前往 Henrock · Linthwaite House",
@@ -1456,18 +1471,29 @@ const days: Day[] = [
       { time: "09:00", text: "Guisachan Guest House 享用早餐（早餐 9:00）" },
       { time: "10:00", text: "退房出发，A82 南下，15min 即到格伦科" },
       {
-        time: "10:30",
-        text: "格伦科 Glencoe — 007《天幕杀机》取景地，Three Sisters 观景拍照",
-      },
-      { time: "11:30", text: "Glencoe 村庄午餐 / 咖啡" },
-      { time: "12:30", text: "A82 → M6 南下前往湖区（约 2.5h）" },
-      {
-        time: "15:00",
-        text: "抵达湖区温德米尔，先到 Woodlands 放行李、下午悠闲游湖",
+        time: "10:15",
+        text: "格伦科 Glencoe — 007《天幕杀机》取景地，Three Sisters 快速拍照（约 20–30min，不久留）",
       },
       {
-        time: "17:00",
-        text: "Bowness-on-Windermere 湖边散步、看湖（晚上吃发办，下午茶从简）",
+        time: "10:45",
+        text: "直奔湖区：A82 → M6 约 2.5h，路上不停大站，午餐留到温德米尔再吃，尽量多留时间在目的地",
+      },
+      {
+        time: "13:30",
+        text: "抵达温德米尔，Bowness 简单午餐（先到镇上吃，省下路上的时间）",
+      },
+      { time: "14:00", text: "入住 Woodlands B&B，放下行李" },
+      {
+        time: "14:30",
+        text: "入住后就近开车兜风：A592 上 Kirkstone Pass 山口，或环温德米尔湖一圈（把兜风放到达后、就近转，不在路上耗时间）",
+      },
+      {
+        time: "16:00",
+        text: "Bowness 逛礼品店（Jim 最爱）+ Windermere 的 Lakeland 旗舰店，晚饭前先把礼品店逛够",
+      },
+      {
+        time: "17:30",
+        text: "湖边散步、看湖，回 B&B 稍作休整（晚上吃发办，下午茶从简）",
       },
       {
         time: "18:30",
@@ -1482,23 +1508,41 @@ const days: Day[] = [
       {
         name: "格伦科 Three Sisters 观景点",
         query: "Three Sisters Glencoe",
-        time: "10:30",
+        note: "快速拍照，不久留",
+        time: "10:15",
+      },
+      {
+        name: "Kirkstone Pass 山口",
+        query: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
+        note: "就近兜风 · 湖区最高山口；不爬山口可改环温德米尔湖",
+        time: "14:30",
+      },
+      {
+        name: "Lakeland 旗舰店 · Windermere",
+        query: "Lakeland, Alexandra Buildings, Windermere LA23 1BQ",
+        note: "Lakeland 家居总店，Jim 逛礼品",
+        time: "16:00",
+      },
+      {
+        name: "Bowness 湖边礼品店",
+        query: "Lake Road, Bowness-on-Windermere",
+        note: "纪念品 / 礼品店集中，Jim 慢慢逛",
+        time: "16:00",
       },
       {
         name: "Bowness-on-Windermere",
         query: "Bowness-on-Windermere",
-        time: "17:00",
+        time: "17:30",
       },
     ],
     restaurants: [
       {
         name: "The Clachaig Inn",
         area: "格伦科 Glencoe",
-        time: "11:30",
         query: "The Clachaig Inn, Old Village Road, Glencoe PH49 4HX",
-        tag: "高地经典酒吧 · 午餐",
+        tag: "高地经典酒吧 · 选用",
         description:
-          "峡谷中的传奇徒步者酒吧，壁炉旁吃派喝 ale，400+ 种威士忌。",
+          "峡谷中的传奇徒步者酒吧，壁炉旁吃派喝 ale，400+ 种威士忌。今天赶路去湖区、原则上不停；只在需要歇脚或上厕所时快速停一下，正餐留到温德米尔。",
         price: "~£15–25/人",
         website: "https://www.clachaig.com",
       },
@@ -1596,7 +1640,7 @@ const days: Day[] = [
       {
         kind: "parking",
         text: "格伦科路边免费 / NTS 停车场 £5；Woodlands B&B 免费停车。",
-        time: "10:30",
+        time: "10:15",
       },
       {
         kind: "drive",
