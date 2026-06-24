@@ -20,7 +20,9 @@ export function UnlockForm({ slug }: { slug: string }) {
         placeholder="行程密码"
         aria-label="行程密码"
         aria-invalid={state.error ? true : undefined}
-        className="h-9 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20"
+        // `text-base` (16px) on mobile stops iOS Safari from auto-zooming when
+        // the field is focused; `sm:text-sm` keeps the tighter size on desktop.
+        className="h-9 w-full rounded-md border bg-background px-3 text-base shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 sm:text-sm"
       />
       {state.error ? (
         <p role="alert" className="text-sm text-destructive">

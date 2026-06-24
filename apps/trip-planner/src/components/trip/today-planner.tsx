@@ -28,14 +28,16 @@ function KeepSwitch({
       aria-label={`${checked ? "保留" : "已关闭"}：${label}`}
       onClick={onChange}
       className={cn(
-        "relative h-6 w-10 shrink-0 rounded-full border transition-colors",
-        checked ? "border-foreground bg-foreground" : "border-input bg-muted",
+        "relative inline-flex h-6 w-10 shrink-0 cursor-pointer appearance-none items-center rounded-full transition-colors",
+        checked ? "bg-foreground" : "bg-muted",
       )}
     >
+      {/* Positioned with explicit `left` (not a translated static position) so
+          the thumb can't drift off the track under native button rendering. */}
       <span
         className={cn(
-          "absolute top-0.5 size-4 rounded-full bg-background shadow-sm transition-transform",
-          checked ? "translate-x-[1.125rem]" : "translate-x-0.5",
+          "pointer-events-none absolute top-1/2 size-5 -translate-y-1/2 rounded-full bg-background shadow-sm ring-1 ring-foreground/10 transition-[left]",
+          checked ? "left-[calc(100%-1.375rem)]" : "left-0.5",
         )}
       />
     </button>
