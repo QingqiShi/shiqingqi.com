@@ -1396,7 +1396,7 @@ const days: Day[] = [
     anchors: [
       {
         time: "10:00",
-        label: "退房 · Guisachan（早餐 9:00、单卫浴早起轮流）",
+        label: "退房 · Guisachan",
         kind: "checkout",
         query: "Guisachan Guest House Fort William",
       },
@@ -1440,7 +1440,7 @@ const days: Day[] = [
           "Abington Services, M74, Lanarkshire",
         ],
         mode: "driving",
-        note: "A82 → A74(M) → M6 一路向南约 4h 直达午餐点 Tebay；途中的高速服务区可顺路歇脚，开过时自己决定停不停、不用删点。",
+        note: "A82 → A74(M) → M6 一路向南约 4h 直达午餐点 Tebay。",
         time: "11:00",
       },
       {
@@ -1448,7 +1448,7 @@ const days: Day[] = [
         from: "Tebay Services southbound, M6, Cumbria",
         to: "Woodlands, New Road, Windermere LA23 2EE",
         mode: "driving",
-        note: "午餐后 M6 继续南下约 30min 即到住处。",
+        note: "午餐后 M6 继续南下约 35min 即到住处。",
         time: "15:45",
       },
       {
@@ -1508,13 +1508,12 @@ const days: Day[] = [
       {
         name: "格伦科 Three Sisters 观景点",
         query: "Three Sisters Glencoe",
-        note: "快速拍照，不久留",
         time: "10:35",
       },
       {
         name: "Tebay Services（午餐 / 休息）",
         query: "Tebay Services southbound, M6, Cumbria",
-        note: "M6 农场超市服务区（Westmorland 家族自营）：农场热食 + 熟食 / 烘焙 / 超市，远胜普通服务站；离湖区约 30min，长途中段歇脚午餐",
+        note: "M6 农场超市服务区（Westmorland 家族自营）：农场热食 + 熟食 / 烘焙 / 超市，远胜普通服务站；离湖区约 35min，长途中段歇脚午餐",
         time: "15:00",
       },
       {
@@ -1535,7 +1534,7 @@ const days: Day[] = [
         name: "The Clachaig Inn",
         area: "格伦科 Glencoe",
         query: "The Clachaig Inn, Old Village Road, Glencoe PH49 4HX",
-        tag: "高地经典酒吧 · 选用",
+        tag: "高地经典酒吧 · 仅顺路歇脚",
         description:
           "峡谷中的传奇徒步者酒吧，壁炉旁吃派喝 ale，400+ 种威士忌。今天赶路去湖区、原则上不停；只在需要歇脚或上厕所时快速停一下，正餐留到温德米尔。",
         price: "~£15–25/人",
@@ -1568,7 +1567,7 @@ const days: Day[] = [
         tag: "湖区食材 · tasting",
         michelin: 1,
         description:
-          "原 HRiSHi 更名 SOURCE，新主厨 Ollie Bridgwater，湖区本地食材 tasting menu，距住处仅 5min。",
+          "原 HRiSHi 更名 SOURCE，新主厨 Ollie Bridgwater，湖区本地食材 tasting menu，同在 Crook Road、距住处约 10min。",
         price: "£115–140/人",
         website: "https://thegilpin.co.uk/eat-and-drink/source/",
       },
@@ -1603,7 +1602,7 @@ const days: Day[] = [
       },
       {
         kind: "drive",
-        text: "长途驾驶日，全天净开车约 5 小时；按 9:00 早餐、10:00 退房准点出发，把时间留给路上和湖区。格伦科 Three Sisters 就在 A82 路边，顺路快拍、不久留。",
+        text: "长途驾驶日，全天净开车约 5 小时；按 9:00 早餐、10:00 退房准点出发，把时间留给路上和湖区。",
       },
       {
         kind: "fuel",
