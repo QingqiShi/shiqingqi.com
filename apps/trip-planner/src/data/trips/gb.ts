@@ -1640,7 +1640,7 @@ const days: Day[] = [
     weekday: "周四",
     title: "湖区 · 前往伯明翰",
     route: "湖区 → 伯明翰",
-    driving: "约 2 小时",
+    driving: "约 3 小时（Grasmere→伯明翰单程 2h50 / 166mi）",
     weather: { temp: "10–18°C", summary: "湖区偏凉有雨" },
     coords: { lat: 52.4862, lon: -1.8904 }, // 伯明翰 Birmingham
     anchors: [
@@ -1652,10 +1652,17 @@ const days: Day[] = [
         mode: "driving",
       },
       {
-        time: "16:30",
-        label: "退房出发前往伯明翰",
+        time: "09:00",
+        label: "退房 · Woodlands（窗口 09:00–10:30）",
         kind: "checkout",
         query: "Woodlands, New Road, Windermere LA23 2EE",
+      },
+      {
+        time: "15:45",
+        label: "出发前往伯明翰（赶 19:00 晚餐）",
+        kind: "drive",
+        query: "Aloft Birmingham Eastside",
+        mode: "driving",
       },
       {
         time: "19:00",
@@ -1687,8 +1694,8 @@ const days: Day[] = [
         from: "Sarah Nelson Grasmere Gingerbread",
         to: "Aloft Birmingham Eastside",
         mode: "driving",
-        note: "16:30 出发，约 2h",
-        time: "16:30",
+        note: "15:45 出发，M6 南下约 2h50 / 166mi，留出余量赶 19:00 晚餐。",
+        time: "15:45",
       },
     ],
     timeline: [
@@ -1699,10 +1706,10 @@ const days: Day[] = [
         time: "14:30",
         text: "Grasmere — 华兹华斯故居 + Sarah Nelson's 姜饼店",
       },
-      { time: "16:30", text: "出发前往伯明翰" },
+      { time: "15:45", text: "出发前往伯明翰（M6 南下约 2h50）" },
       {
-        time: "18:30",
-        text: "抵达伯明翰，晚餐（已预订 Albatross Death Cult）",
+        time: "18:45",
+        text: "抵达伯明翰，晚餐（已预订 19:00 Albatross Death Cult）",
       },
     ],
     places: [
@@ -1796,7 +1803,8 @@ const days: Day[] = [
           "床头柜 / 抽屉 / 衣柜检查",
           "退房还钥匙，确认无遗留",
         ],
-        time: "16:30",
+        note: "Woodlands 退房窗口 09:00–10:30：早起收拾，行李先放车上，再去坐 09:30 游船。",
+        time: "08:30",
       },
     ],
     tips: [
@@ -1804,6 +1812,11 @@ const days: Day[] = [
         kind: "parking",
         text: "湖区景点停车：Bowness £5–8，Ambleside £3–5。",
         time: "09:30",
+      },
+      {
+        kind: "drive",
+        text: "Grasmere→伯明翰实测约 2h50 / 166mi（M6 南下），不是 2 小时；15:45 出发留足余量赶 19:00 晚餐，途中 M6 Tebay、Charnock Richard 等服务区可按需歇脚。",
+        time: "15:45",
       },
       {
         kind: "parking",
