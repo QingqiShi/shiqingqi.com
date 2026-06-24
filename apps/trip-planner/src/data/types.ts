@@ -120,10 +120,11 @@ export interface NavLeg {
   from?: string;
   mode?: TravelMode;
   note?: string;
-  /** Optional intermediate stops, woven into the directions link as Google
+  /** Optional intermediate stops, woven into the directions deep-link as Google
    *  Maps waypoints so one tap routes origin → … → destination in a single
-   *  navigation (each stop skippable in Maps). Also drawn on the day-overview
-   *  route. */
+   *  navigation (each stop a drive-through you decide on). Kept out of the Embed
+   *  previews — the stricter Embed geocoder can fail the whole route on a
+   *  fine-grained POI. */
   waypoints?: string[];
   /** Departure time for this hop, used to slot the leg into the day's
    *  chronological feed at the moment you set off. */

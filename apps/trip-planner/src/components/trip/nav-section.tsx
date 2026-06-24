@@ -30,11 +30,13 @@ const modeIcon: Record<TravelMode, LucideIcon> = {
  * current location preview the destination as a place instead of a route.
  */
 function legEmbedSrc(leg: NavLeg) {
+  // The deep-link carries any waypoints (rest stops); the embed preview only
+  // needs the leg's overall shape, and feeding fine-grained POI waypoints to
+  // the stricter Embed geocoder can fail the whole route (blank world map).
   return leg.from
     ? googleMapsEmbedDirectionsUrl({
         origin: leg.from,
         destination: leg.to,
-        waypoints: leg.waypoints,
         mode: leg.mode,
       })
     : googleMapsEmbedPlaceUrl(leg.to);

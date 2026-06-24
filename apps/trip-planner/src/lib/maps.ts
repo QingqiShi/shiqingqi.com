@@ -94,9 +94,6 @@ export function dayRoutePoints(legs: NavLeg[]) {
     const last = points.at(-1);
     const from = leg.from ?? last;
     if (from && from !== last) points.push(from);
-    for (const waypoint of leg.waypoints ?? []) {
-      if (waypoint !== points.at(-1)) points.push(waypoint);
-    }
     if (leg.to !== points.at(-1)) points.push(leg.to);
   }
   return points;

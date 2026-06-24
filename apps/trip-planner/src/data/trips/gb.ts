@@ -1437,8 +1437,8 @@ const days: Day[] = [
         to: "Tebay Services southbound, M6, Cumbria",
         waypoints: [
           "The Green Welly Stop, Tyndrum",
-          "Polmadie M74, Glasgow",
-          "Roadchef Annandale Water Services, A74(M)",
+          "Polmadie M74",
+          "Roadchef Annandale Water A74(M)",
         ],
         mode: "driving",
         note: "A82 → A74(M) → M6 一路向南约 4h，一段导航直接开到午餐点 Tebay。沿途按大约每小时一个排了休息点，全是主路 / 高速上的正经服务区、开过时自己决定停不停（不必删点）：Green Welly Tyndrum（A82）· Polmadie M74（格拉斯哥）· Roadchef Annandale Water（A74(M)）。",
