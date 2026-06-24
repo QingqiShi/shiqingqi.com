@@ -1479,7 +1479,7 @@ const days: Day[] = [
       },
       {
         time: "15:00",
-        text: "Tebay Services 午餐 + 加油（约停 40min）；光开到这就约 4 小时，最早约 15:00 到，前面多停就更晚",
+        text: "Tebay Services 午餐 + 加油（约停 40min）；约 15:00 才到，早饿了就在 Green Welly（Tyndrum，约 11:45）先垫一顿",
       },
       {
         time: "16:30",
@@ -1515,7 +1515,7 @@ const days: Day[] = [
       {
         name: "Tebay Services（午餐 / 休息）",
         query: "Tebay Services southbound, M6, Cumbria",
-        note: "M6 农场超市服务区（Westmorland 家族自营）：农场热食 + 熟食 / 烘焙 / 超市，远胜普通服务站；离湖区约 35min，长途中段歇脚午餐",
+        note: "M6 农场超市服务区（Westmorland 家族自营，公认全英最好的服务区之一）：农场热食 + 熟食 / 烘焙 / 超市，值得专程停；离湖区约 35min",
         time: "15:00",
       },
       {
