@@ -1374,8 +1374,10 @@ const days: Day[] = [
           name: "Guisachan Guest House",
           query: "Guisachan Guest House Fort William",
           address: "Alma Road, Fort William, PH33 6HA",
-          room: "3 人",
-          note: "住客：大雨。Fort William 直达无需渡轮，晚餐就在镇上（Crannog）；第二天 A82 南下 15min 即到格伦科。",
+          checkIn: "6.23 周二 21:30",
+          checkOut: "6.24 周三 10:00",
+          room: "3 人 · 房间小、卫浴共用",
+          note: "住客：大雨。Fort William 直达无需渡轮，晚餐就在镇上（Crannog）。早餐 9:00、退房 10:00；房间小、卫浴共用，早起轮流洗漱、先收拾好行李。第二天 A82 南下 15min 即到格伦科。",
           status: "booked",
         },
       ],
@@ -1393,8 +1395,8 @@ const days: Day[] = [
     coords: { lat: 54.3807, lon: -2.9063 }, // 温德米尔 Windermere
     anchors: [
       {
-        time: "09:30",
-        label: "退房 · Guisachan 早餐后出发",
+        time: "10:00",
+        label: "退房 · Guisachan（早餐 9:00、单卫浴早起轮流）",
         kind: "checkout",
         query: "Guisachan Guest House Fort William",
       },
@@ -1410,6 +1412,14 @@ const days: Day[] = [
         label: "入住 Woodlands B&B · 温德米尔",
         kind: "checkin",
         query: "Woodlands, New Road, Windermere LA23 2EE",
+      },
+      {
+        time: "18:45",
+        label: "Henrock by Simon Rogan 晚餐 · Linthwaite House（3 人已订）",
+        kind: "reservation",
+        query:
+          "Henrock, Linthwaite House, Crook Road, Bowness-on-Windermere LA23 3JA",
+        mode: "driving",
       },
     ],
     nav: [
@@ -1429,19 +1439,44 @@ const days: Day[] = [
         note: "A82 → A74(M) → M6 约 2.5h",
         time: "12:30",
       },
+      {
+        label: "前往 Henrock · Linthwaite House",
+        from: "Woodlands, New Road, Windermere LA23 2EE",
+        to: "Henrock, Linthwaite House, Crook Road, Bowness-on-Windermere LA23 3JA",
+        mode: "driving",
+        note: "Crook Road（B5284）旁 Linthwaite House，距住处约 10min",
+        time: "18:30",
+      },
     ],
     timeline: [
-      { time: "09:00", text: "睡到自然醒，Guisachan Guest House 享用早餐" },
-      { time: "10:00", text: "A82 南下，15min 即到格伦科" },
+      {
+        time: "08:00",
+        text: "早起：Guisachan 房间小、卫浴共用，轮流洗漱、先收拾好行李",
+      },
+      { time: "09:00", text: "Guisachan Guest House 享用早餐（早餐 9:00）" },
+      { time: "10:00", text: "退房出发，A82 南下，15min 即到格伦科" },
       {
         time: "10:30",
         text: "格伦科 Glencoe — 007《天幕杀机》取景地，Three Sisters 观景拍照",
       },
       { time: "11:30", text: "Glencoe 村庄午餐 / 咖啡" },
       { time: "12:30", text: "A82 → M6 南下前往湖区（约 2.5h）" },
-      { time: "15:00", text: "抵达湖区温德米尔，下午悠闲游湖" },
-      { time: "17:00", text: "Bowness-on-Windermere 湖边散步 + 下午茶" },
-      { time: "19:00", text: "温德米尔 / Ambleside 晚餐 — 下方任选" },
+      {
+        time: "15:00",
+        text: "抵达湖区温德米尔，先到 Woodlands 放行李、下午悠闲游湖",
+      },
+      {
+        time: "17:00",
+        text: "Bowness-on-Windermere 湖边散步、看湖（晚上吃发办，下午茶从简）",
+      },
+      {
+        time: "18:30",
+        text: "前往 Henrock — Linthwaite House，Crook Road（约 10min）",
+      },
+      {
+        time: "18:45",
+        text: "Henrock by Simon Rogan 晚餐 — Linthwaite House，Simon Rogan 的湖区农场餐厅（3 人已订）",
+      },
     ],
     places: [
       {
@@ -1468,9 +1503,29 @@ const days: Day[] = [
         website: "https://www.clachaig.com",
       },
       {
+        name: "Henrock by Simon Rogan",
+        area: "湖区 · Bowness-on-Windermere",
+        time: "18:45",
+        query:
+          "Henrock, Linthwaite House, Crook Road, Bowness-on-Windermere LA23 3JA",
+        tag: "湖区农场到餐桌 · set / tasting",
+        status: "booked",
+        description:
+          "Simon Rogan 在 Linthwaite House 的轻松版餐厅，俯瞰温德米尔湖。食材多来自他在 Cartmel 山谷的自家 Our Farm，菜式融入其香港 / 马耳他 / 普吉餐厅的风味与技法。周三–周日晚餐供应。",
+        price: "Choice £65 · Short £79 · Full £125/人",
+        website: "https://www.henrock.co.uk",
+        booking: {
+          date: "6.24 周三",
+          time: "18:45",
+          party: "3 人",
+          by: "Qingqi Shi",
+          contact: "+44 15395 87766 · info@henrock.co.uk",
+        },
+      },
+      {
         name: "SOURCE at Gilpin",
         area: "湖区 · Windermere",
-        time: "19:00",
+        time: "18:45",
         query: "SOURCE at Gilpin Hotel, Crook Road, Windermere LA23 3NE",
         tag: "湖区食材 · tasting",
         michelin: 1,
@@ -1482,7 +1537,7 @@ const days: Day[] = [
       {
         name: "Old Stamp House",
         area: "湖区 · Ambleside",
-        time: "19:00",
+        time: "18:45",
         query: "Old Stamp House, Church Street, Ambleside LA22 0BU",
         tag: "Cumbrian · 自 2019 持星",
         michelin: 1,
@@ -1494,7 +1549,7 @@ const days: Day[] = [
       {
         name: "Forest Side",
         area: "湖区 · Grasmere",
-        time: "19:00",
+        time: "18:45",
         query: "The Forest Side, Keswick Road, Grasmere LA22 9RN",
         tag: "庄园 · tasting",
         michelin: 1,
@@ -1506,7 +1561,7 @@ const days: Day[] = [
       {
         name: "The Drunken Duck Inn",
         area: "湖区 · Barngates",
-        time: "19:00",
+        time: "18:45",
         query: "The Drunken Duck Inn, Barngates, Ambleside LA22 0NG",
         tag: "山坡美食酒吧",
         description: "隐藏在湖区山坡，自酿啤酒配精致乡村料理，景色一流。",
@@ -1516,7 +1571,7 @@ const days: Day[] = [
       {
         name: "The Angel Inn",
         area: "湖区 · Bowness",
-        time: "19:00",
+        time: "18:45",
         query: "The Angel Inn, Helm Road, Bowness-on-Windermere LA23 3BU",
         tag: "湖畔传统酒吧",
         description:
@@ -1533,7 +1588,8 @@ const days: Day[] = [
           "床头柜 / 抽屉 / 衣柜检查",
           "退房还钥匙，确认无遗留",
         ],
-        time: "09:00",
+        note: "房间小、卫浴共用：早起轮流洗漱，先收拾好行李再下楼，赶 9:00 早餐、10:00 退房。",
+        time: "08:00",
       },
     ],
     tips: [
@@ -1544,7 +1600,7 @@ const days: Day[] = [
       },
       {
         kind: "drive",
-        text: "轻松日！偏凉可能小雨，多穿一层；格伦科是 007《天幕杀机》取景地。",
+        text: "轻松日，但 Guisachan 早餐 9:00、退房 10:00 且卫浴共用，早起轮流洗漱别赖床；偏凉可能小雨，多穿一层；格伦科是 007《天幕杀机》取景地。",
       },
     ],
     stay: {
