@@ -1539,7 +1539,7 @@ const days: Day[] = [
       },
       {
         time: "18:00",
-        text: "逛完回 Woodlands 梳洗、稍作休整",
+        text: "Woodlands 梳洗、稍作休整，准备去 Henrock 晚餐",
       },
       {
         time: "18:25",
