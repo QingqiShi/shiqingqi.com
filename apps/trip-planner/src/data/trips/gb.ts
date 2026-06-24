@@ -1432,12 +1432,20 @@ const days: Day[] = [
         time: "10:00",
       },
       {
-        label: "格伦科 → 温德米尔 湖区",
+        label: "格伦科 → Tebay Services（午餐）",
         from: "Three Sisters viewpoint Glencoe",
+        to: "Tebay Services southbound, M6, Cumbria",
+        mode: "driving",
+        note: "A82 → A74(M) → M6 一路向南，约 4h 到 Tebay。Tebay 就在 M6 路边、离温德米尔约 30min，是顺路的午餐 / 休息点（不是到了再折返）",
+        time: "11:00",
+      },
+      {
+        label: "Tebay Services → 温德米尔 Woodlands",
+        from: "Tebay Services southbound, M6, Cumbria",
         to: "Woodlands, New Road, Windermere LA23 2EE",
         mode: "driving",
-        note: "A82 → A74(M) → M6，实测约 4h35 / 232mi（Google Maps）——比原以为远得多。中途在 Tebay Services（M6，离湖区约 30min）午餐 + 休息一次",
-        time: "11:00",
+        note: "午餐后 M6 继续南下约 30min 即到住处；格伦科→温德米尔整段实测约 4h35 / 232mi",
+        time: "15:30",
       },
       {
         label: "前往 Henrock · Linthwaite House",
@@ -1461,7 +1469,7 @@ const days: Day[] = [
       },
       {
         time: "11:00",
-        text: "上路直奔湖区：格伦科 → 温德米尔实测约 4h35 / 232mi（比原以为远得多），这段路本身就长，路上别再绕路",
+        text: "上路前往湖区：格伦科 → 温德米尔实测约 4h35 / 232mi（比原以为远得多）。沿途只计划在 Tebay Services 停一次吃午餐（就在 M6 路边、离温德米尔约 30min，顺路不折返），其余别再加站",
       },
       {
         time: "14:30",
@@ -1497,7 +1505,7 @@ const days: Day[] = [
       },
       {
         name: "Tebay Services（午餐 / 休息）",
-        query: "Tebay Services northbound, M6, Penrith CA10 3SB",
+        query: "Tebay Services southbound, M6, Cumbria",
         note: "M6 农场超市服务区（Westmorland 家族自营）：农场热食 + 熟食 / 烘焙 / 超市，远胜普通服务站；离湖区约 30min，长途中段歇脚午餐",
         time: "14:30",
       },
