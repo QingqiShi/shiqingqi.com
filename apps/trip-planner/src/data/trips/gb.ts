@@ -1437,7 +1437,9 @@ const days: Day[] = [
         to: "Tebay Services southbound, M6, Cumbria",
         waypoints: [
           "The Green Welly Stop, Tyndrum",
-          "Abington Services, M74, Lanarkshire",
+          "Polmadie Services M74, Glasgow",
+          "Welcome Break Abington Services",
+          "Exelby Services Golden Fleece, M6 Junction 42, Carlisle",
         ],
         mode: "driving",
         note: "A82 → A74(M) → M6 一路向南约 4h 直达午餐点 Tebay。",
