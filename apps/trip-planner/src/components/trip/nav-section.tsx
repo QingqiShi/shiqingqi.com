@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Car,
   ChevronDown,
+  CornerDownRight,
   Footprints,
   MapPin,
   Navigation,
@@ -11,13 +12,14 @@ import {
 } from "lucide-react";
 import { useId, useState } from "react";
 import { MapEmbed } from "./map-embed";
-import type { NavLeg, TravelMode } from "@/data/types";
+import type { TravelMode } from "@/data/types";
 import {
   googleMapsDirectionsUrl,
   googleMapsEmbedDirectionsUrl,
   googleMapsEmbedPlaceUrl,
   mapsEmbedEnabled,
 } from "@/lib/maps";
+import type { FeedNavLeg } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 
 const modeIcon: Record<TravelMode, LucideIcon> = {
@@ -30,7 +32,7 @@ const modeIcon: Record<TravelMode, LucideIcon> = {
  * The Embed API needs a concrete origin, so legs starting from the device's
  * current location preview the destination as a place instead of a route.
  */
-function legEmbedSrc(leg: NavLeg) {
+function legEmbedSrc(leg: FeedNavLeg) {
   // Keep the embed preview in sync with the deep-link: both route through the
   // leg's waypoints, so the inline map and the 导航 link open the same route.
   // (Every waypoint must be a name the Maps geocoder resolves, or the embed
@@ -45,14 +47,24 @@ function legEmbedSrc(leg: NavLeg) {
     : googleMapsEmbedPlaceUrl(leg.to);
 }
 
-/** One nav leg: a deep-link to directions plus an optional inline map preview. */
-export function NavLegRow({ leg }: { leg: NavLeg }) {
+/** One nav leg: a deep-link to directions plus an optional inline map preview.
+ *  When the route was re-stitched because earlier optional stops were dropped,
+ *  a small note names them, and the deep-link / embed already start from where
+ *  those stops' drive began. */
+export function NavLegRow({ leg }: { leg: FeedNavLeg }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const Icon = modeIcon[leg.mode ?? "driving"];
+  const skipped = leg.skipped ?? [];
 
   return (
     <li className="overflow-hidden rounded-xl border bg-card transition-colors hover:border-foreground/30">
+      {skipped.length > 0 ? (
+        <p className="flex items-center gap-1.5 border-b bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
+          <CornerDownRight className="size-3 shrink-0" />
+          已跳过 {skipped.join("、")} · 从上一站直接前往
+        </p>
+      ) : null}
       <div className="flex items-center gap-3 p-3">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
           <Icon className="size-4 text-muted-foreground" />

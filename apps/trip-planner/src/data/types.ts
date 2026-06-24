@@ -26,6 +26,12 @@ export interface MapPlace {
   /** Short trigger for dropping to this option, e.g. "没约到就" or "不想开车".
    *  Shown as a chip beside the option in the ladder. */
   when?: string;
+  /** A "nice to have" stop the group can cut when the day runs late, rather than
+   *  protected backbone — see {@link TimelineItem.optional}. */
+  optional?: boolean;
+  /** Rough minutes spent here, the time reclaimed by skipping it — see
+   *  {@link TimelineItem.durationMin}. */
+  durationMin?: number;
 }
 
 /** A confirmed booking attached to a restaurant. */
@@ -58,6 +64,13 @@ export interface Restaurant {
    *  dinner), used to weave dining into the chronological feed at the right
    *  time. Omit to keep it as a day-level option. */
   time?: string;
+  /** A skippable meal rather than protected backbone — see
+   *  {@link TimelineItem.optional}. A `booked` restaurant is always treated as
+   *  backbone regardless of this flag. */
+  optional?: boolean;
+  /** Rough minutes at the table, the time reclaimed by skipping it — see
+   *  {@link TimelineItem.durationMin}. */
+  durationMin?: number;
 }
 
 export interface Lodging {
@@ -87,6 +100,15 @@ export interface Stay {
 export interface TimelineItem {
   time: string;
   text: string;
+  /** A "nice to have" step (a sightseeing stop, shopping, an unbooked meal)
+   *  rather than the day's protected backbone (travel, check-in/out, booked
+   *  tables). On the current day these can be toggled off near "now" to claw
+   *  back time when the day is running behind; the choice persists on-device. */
+  optional?: boolean;
+  /** Rough minutes this step needs — the time reclaimed by skipping it, summed
+   *  into the planner's "saved" estimate. Optional steps without one default to
+   *  30min. */
+  durationMin?: number;
 }
 
 export interface Weather {
@@ -130,6 +152,13 @@ export interface NavLeg {
   /** Departure time for this hop, used to slot the leg into the day's
    *  chronological feed at the moment you set off. */
   time?: string;
+  /** An optional detour — the drive to a skippable stop — rather than a
+   *  mandatory hop. When its stop is dropped, this leg drops with it and the
+   *  next kept drive re-routes from this leg's origin. See
+   *  {@link TimelineItem.optional}. */
+  optional?: boolean;
+  /** Rough driving minutes for this hop. */
+  durationMin?: number;
 }
 
 /** A tick-through checklist (e.g. 入境流程, 还车检查). State lives client-side. */
@@ -209,6 +238,9 @@ export interface Tip {
   /** When this heads-up is relevant, used to weave it into the feed next to
    *  the moment it serves. Omit for day-wide notes (shown in 今日须知). */
   time?: string;
+  /** Tie this heads-up to an optional stop so it drops away with it, rather
+   *  than keeping a moment alive on its own — see {@link TimelineItem.optional}. */
+  optional?: boolean;
 }
 
 /** One end of a flight — an airport plus the local clock time there. */
