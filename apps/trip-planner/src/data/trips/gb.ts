@@ -1437,11 +1437,11 @@ const days: Day[] = [
         to: "Tebay Services southbound, M6, Cumbria",
         waypoints: [
           "The Green Welly Stop, Tyndrum",
-          "Luss, Loch Lomond",
-          "Abington Services, M74, Lanarkshire",
+          "Polmadie M74, Glasgow",
+          "Roadchef Annandale Water Services, A74(M)",
         ],
         mode: "driving",
-        note: "A82 → A74(M) → M6 一路向南约 4h，一段导航直接开到午餐点 Tebay。已把约每小时一个休息点设成途经点带进这条路线：Tyndrum Green Welly（约 11:45）· 罗蒙湖 Luss（约 12:45）· Abington Services M74（约 14:00）。不想停就在 Google Maps 里把那个途经点删掉。",
+        note: "A82 → A74(M) → M6 一路向南约 4h，一段导航直接开到午餐点 Tebay。沿途按大约每小时一个排了休息点，全是主路 / 高速上的正经服务区、开过时自己决定停不停（不必删点）：Green Welly Tyndrum（A82）· Polmadie M74（格拉斯哥）· Roadchef Annandale Water（A74(M)）。",
         time: "11:00",
       },
       {
@@ -1474,7 +1474,7 @@ const days: Day[] = [
       },
       {
         time: "11:00",
-        text: "上路前往湖区：一段导航直接开到午餐点 Tebay（格伦科→温德米尔实测约 4h35 / 232mi，比原以为远得多）。沿途约每小时有个路边休息点，想停就拐进去、不用重新导航，不需要就过：Tyndrum Green Welly（约 11:45）、罗蒙湖 Luss（约 12:45）、Abington Services（约 14:00）",
+        text: "上路前往湖区：一段导航直接开到午餐点 Tebay（整段约 4h15 / 214mi）。沿途约每小时一个高速服务区，都在主路上、开过时自己决定停不停：Green Welly Tyndrum（约 11:45）、Polmadie M74 格拉斯哥（约 12:50）、Roadchef Annandale Water（约 14:00）",
       },
       {
         time: "15:00",
