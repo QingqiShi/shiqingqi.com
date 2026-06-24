@@ -1640,7 +1640,7 @@ const days: Day[] = [
     weekday: "周四",
     title: "湖区 · 前往伯明翰",
     route: "湖区 → 伯明翰",
-    driving: "约 3 小时（Grasmere→伯明翰单程 2h50 / 166mi）",
+    driving: "约 3 小时（Grasmere→伯明翰单程 3h / 165mi）",
     weather: { temp: "10–18°C", summary: "湖区偏凉有雨" },
     coords: { lat: 52.4862, lon: -1.8904 }, // 伯明翰 Birmingham
     anchors: [
@@ -1658,7 +1658,7 @@ const days: Day[] = [
         query: "Woodlands, New Road, Windermere LA23 2EE",
       },
       {
-        time: "15:45",
+        time: "15:30",
         label: "出发前往伯明翰（赶 19:00 晚餐）",
         kind: "drive",
         query: "Aloft Birmingham Eastside",
@@ -1694,8 +1694,8 @@ const days: Day[] = [
         from: "Sarah Nelson Grasmere Gingerbread",
         to: "Aloft Birmingham Eastside",
         mode: "driving",
-        note: "15:45 出发，M6 南下约 2h50 / 166mi，留出余量赶 19:00 晚餐。",
-        time: "15:45",
+        note: "15:30 出发，M6 南下约 3h / 165mi（高峰约 3h20），留出余量赶 19:00 晚餐。",
+        time: "15:30",
       },
     ],
     timeline: [
@@ -1706,9 +1706,9 @@ const days: Day[] = [
         time: "14:30",
         text: "Grasmere — 华兹华斯故居 + Sarah Nelson's 姜饼店",
       },
-      { time: "15:45", text: "出发前往伯明翰（M6 南下约 2h50）" },
+      { time: "15:30", text: "出发前往伯明翰（M6 南下约 3h）" },
       {
-        time: "18:45",
+        time: "18:40",
         text: "抵达伯明翰，晚餐（已预订 19:00 Albatross Death Cult）",
       },
     ],
@@ -1815,8 +1815,8 @@ const days: Day[] = [
       },
       {
         kind: "drive",
-        text: "Grasmere→伯明翰实测约 2h50 / 166mi（M6 南下），不是 2 小时；15:45 出发留足余量赶 19:00 晚餐，途中 M6 Tebay、Charnock Richard 等服务区可按需歇脚。",
-        time: "15:45",
+        text: "Grasmere→伯明翰实测约 3h / 165mi（M6 南下，高峰约 3h20），不是 2 小时；15:30 出发留足余量赶 19:00 晚餐，途中 M6 Tebay、Charnock Richard 等服务区可按需歇脚。",
+        time: "15:30",
       },
       {
         kind: "parking",
