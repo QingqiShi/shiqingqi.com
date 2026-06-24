@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
 import { DayFeed } from "./day-feed";
 import { DayGlance } from "./day-glance";
 import { DayHeader } from "./day-header";
@@ -12,9 +13,11 @@ import { StaySection } from "./stay-section";
 import { TipsSection } from "./tips-section";
 import type { Day, Trip } from "@/data/types";
 import {
+  type DropReason,
   buildDayFeed,
   dayWideTips,
   momentDomId,
+  planToday,
   untimedDining,
   untimedPlaces,
 } from "@/lib/schedule";
@@ -35,7 +38,36 @@ export function DailyView({
   onOpenDay: (index: number) => void;
 }) {
   const moments = buildDayFeed(day);
-  const jumpableTimes = new Set(moments.map((moment) => moment.time));
+
+  // The live clock that drives the today-only time-budget. One source of truth,
+  // read on the client so it's the user's real "now" — shared by the feed (what
+  // to collapse) and the glance card (which jumps still land somewhere).
+  const [nowMinutes, setNowMinutes] = useState<number | null>(null);
+  useEffect(() => {
+    if (!isToday) return;
+    const tick = () => {
+      const now = new Date();
+      setNowMinutes(now.getHours() * 60 + now.getMinutes());
+    };
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [isToday]);
+
+  const dropped =
+    isToday && nowMinutes !== null
+      ? planToday(moments, nowMinutes)
+      : new Map<string, DropReason>();
+
+  // Only offer to jump to moments that are actually rendered — a dropped
+  // optional has no element to scroll to, so it must not look tappable.
+  const jumpableTimes = new Set(
+    moments
+      .filter((moment) => !dropped.has(moment.time))
+      .map((moment) => moment.time),
+  );
   const extraDining = untimedDining(day);
   const extraPlaces = untimedPlaces(day);
   const generalTips = dayWideTips(day);
@@ -76,7 +108,12 @@ export function DailyView({
       <DayMap day={day} />
 
       <Section icon={Clock} title="行程">
-        <DayFeed tripSlug={trip.slug} day={day} isToday={isToday} />
+        <DayFeed
+          tripSlug={trip.slug}
+          day={day}
+          dropped={dropped}
+          nowMinutes={nowMinutes}
+        />
       </Section>
 
       {extraDining.length > 0 ? (

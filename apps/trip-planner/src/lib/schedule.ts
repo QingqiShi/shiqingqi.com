@@ -157,6 +157,7 @@ function classifyMoment(moment: DayMoment, onHardAnchor: boolean): void {
   const bookedTable = moment.dining.some((r) => r.status === "booked");
   const hasFlight = moment.flights.length > 0;
   const hasChecklist = moment.checklists.length > 0;
+  const hasSignSheet = moment.signSheets.length > 0;
 
   const pieces = [
     ...moment.events,
@@ -175,6 +176,7 @@ function classifyMoment(moment: DayMoment, onHardAnchor: boolean): void {
     !moment.hard &&
     !hasFlight &&
     !hasChecklist &&
+    !hasSignSheet &&
     !bookedTable;
 
   const stated = pieces.reduce((max, piece) => {
@@ -226,13 +228,28 @@ export function planToday(
   for (let i = 0; i < moments.length; i++) {
     const moment = moments[i];
 
+    // An untimed slot (a word like "备选" the geocoder can't place on the clock)
+    // has no real position in the budget — it never constrains the cursor and is
+    // never auto-dropped. Without this guard its MAX_SAFE_INTEGER minutes would
+    // poison the arithmetic and silently drop the slot at every clock value.
+    if (moment.minutes === Number.MAX_SAFE_INTEGER) continue;
+
     if (!moment.optional) {
-      // Backbone: reach it no earlier than its time, then spend its duration —
-      // but only for the leg you're on or haven't reached. Time on legs already
-      // behind you is spent; it's baked into `now`, so re-adding it would stack
-      // the drive on top of the clock.
-      const spend = i >= currentIndex ? moment.durationMin : 0;
-      cursor = Math.max(cursor, moment.minutes) + spend;
+      // Backbone occupies [minutes, minutes + durationMin]. Spend only the slice
+      // still ahead of `now`, so the budget shrinks smoothly as the clock moves
+      // rather than dropping a whole leg the instant the next moment begins —
+      // the discontinuity that made optional stops flicker back into the feed.
+      const legEnd = moment.minutes + moment.durationMin;
+      if (nowMinutes >= legEnd) {
+        // Fully behind us — its time is already baked into `now`.
+        cursor = Math.max(cursor, nowMinutes);
+      } else if (nowMinutes > moment.minutes) {
+        // Mid-leg: the elapsed part is sunk; we're free at its scheduled end.
+        cursor = Math.max(cursor, legEnd);
+      } else {
+        // Still ahead: set off no earlier than its time (or when free), drive it.
+        cursor = Math.max(cursor, moment.minutes) + moment.durationMin;
+      }
       continue;
     }
 
@@ -242,7 +259,7 @@ export function planToday(
       continue;
     }
     if (i === currentIndex) {
-      // In progress right now — keep it, and account for its time.
+      // In progress right now — never yanked out from under you.
       cursor = Math.max(cursor, moment.minutes + moment.durationMin);
       continue;
     }
@@ -251,7 +268,7 @@ export function planToday(
     let capIndex = moments.length;
     let cap = Number.MAX_SAFE_INTEGER;
     for (let j = i + 1; j < moments.length; j++)
-      if (moments[j].hard) {
+      if (moments[j].hard && moments[j].minutes !== Number.MAX_SAFE_INTEGER) {
         capIndex = j;
         cap = moments[j].minutes;
         break;
@@ -271,9 +288,16 @@ export function planToday(
 }
 
 /** A stable DOM id for a moment, shared by the feed (sets it) and the glance
- *  card / auto-scroll (target it). */
+ *  card / auto-scroll (target it). Keyed on the raw `time` string — which is
+ *  unique per day in the feed — so two different labels that happen to map to
+ *  the same minutes never collide on one id. */
 export function momentDomId(dayN: number, time: string): string {
-  return `d${String(dayN)}-moment-${String(parseTimeToMinutes(time))}`;
+  // Encode every non-alphanumeric char by its code point so distinct labels
+  // (including different CJK words) always yield distinct, selector-safe ids.
+  const slug = [...time]
+    .map((ch) => (/[\dA-Za-z]/.test(ch) ? ch : `_${ch.codePointAt(0)?.toString(36) ?? ""}`))
+    .join("");
+  return `d${String(dayN)}-moment-${slug}`;
 }
 
 /** Tips with no `time`: general, all-day heads-ups shown in 今日须知. */

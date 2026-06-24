@@ -15,7 +15,6 @@ import {
   type DropReason,
   buildDayFeed,
   momentDomId,
-  planToday,
 } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 
@@ -81,55 +80,34 @@ function toRows(
  * The day as one chronological feed: every timeline moment, with its nav,
  * checklist, dining and place ideas, and heads-up tips gathered around it.
  *
- * On the current day a live time-budget (see {@link planToday}) drops optional
- * stops that no longer fit before the next fixed commitment; they collapse into
- * a quiet "skipped" toggle rather than vanishing without trace. On phones the
- * feed scrolls to the current time so "now" is in view without hunting.
+ * On the current day a live time-budget (see {@link planToday}, computed by the
+ * parent and passed in as `dropped`) collapses optional stops that no longer fit
+ * before the next fixed commitment into a quiet "skipped" toggle, rather than
+ * letting them vanish without trace. On phones the feed scrolls to the current
+ * time so "now" is in view without hunting.
  */
 export function DayFeed({
   tripSlug,
   day,
-  isToday,
+  dropped,
+  nowMinutes,
 }: {
   tripSlug: string;
   day: Day;
-  isToday: boolean;
+  dropped: Map<string, DropReason>;
+  nowMinutes: number | null;
 }) {
   const moments = buildDayFeed(day);
-
-  // Re-evaluate the budget on mount (and roughly every minute) so the clock
-  // reading is the user's real "now", never the server's render time.
-  const [nowMinutes, setNowMinutes] = useState<number | null>(null);
-  useEffect(() => {
-    if (!isToday) return;
-    const tick = () => {
-      const now = new Date();
-      setNowMinutes(now.getHours() * 60 + now.getMinutes());
-    };
-    tick();
-    const id = window.setInterval(tick, 60_000);
-    return () => {
-      window.clearInterval(id);
-    };
-  }, [isToday]);
-
-  const dropped =
-    isToday && nowMinutes !== null
-      ? planToday(moments, nowMinutes)
-      : new Map<string, DropReason>();
   const rows = toRows(moments, dropped);
 
   const didInitialScrollRef = useRef(false);
   useEffect(() => {
     if (didInitialScrollRef.current) return;
-    if (!isToday || nowMinutes === null) return;
+    if (nowMinutes === null) return;
     didInitialScrollRef.current = true;
     if (!window.matchMedia(MOBILE_QUERY).matches) return;
 
-    // Recompute the hidden set here rather than depend on the render-time `dropped`
-    // map, whose identity changes every render.
-    const hidden = planToday(moments, nowMinutes);
-    const shown = moments.filter((moment) => !hidden.has(moment.time));
+    const shown = moments.filter((moment) => !dropped.has(moment.time));
     if (shown.length === 0) return;
 
     const index = currentMomentIndex(shown, nowMinutes);
@@ -137,7 +115,10 @@ export function DayFeed({
       momentDomId(day.n, shown[index].time),
     );
     target?.scrollIntoView({ block: "start" });
-  }, [moments, isToday, nowMinutes, day.n]);
+    // moments/dropped are derived from props each render; the ref guard makes
+    // this a one-shot, so re-running on their identity change is harmless.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nowMinutes, day.n]);
 
   return (
     <ol>
@@ -194,6 +175,7 @@ function SkippedRow({
     reason === "unfit"
       ? `时间不够，跳过 ${count} 项可选`
       : `已过 ${count} 项可选`;
+  const panelId = `${momentDomId(dayN, moments[0].time)}-skipped`;
 
   return (
     <li className="grid grid-cols-[3.25rem_1fr] gap-x-3">
@@ -206,6 +188,8 @@ function SkippedRow({
       <div className={cn("border-l border-dashed", isLast ? "pb-1" : "pb-8")}>
         <button
           type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
           onClick={() => {
             setOpen((value) => !value);
           }}
@@ -220,7 +204,7 @@ function SkippedRow({
         </button>
 
         {open ? (
-          <ol className="mt-3 space-y-3 opacity-60">
+          <ol id={panelId} className="mt-3 space-y-3 opacity-60">
             {moments.map((moment) => (
               <MomentRow
                 key={moment.time}
