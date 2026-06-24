@@ -1447,14 +1447,6 @@ const days: Day[] = [
         note: "Crook Road（B5284）旁 Linthwaite House，距住处约 10min",
         time: "18:30",
       },
-      {
-        label: "饭后就近兜风（可选）· Kirkstone Pass",
-        from: "Henrock, Linthwaite House, Crook Road, Bowness-on-Windermere LA23 3JA",
-        to: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
-        mode: "driving",
-        note: "6 月日落约 21:40，饭后天还亮：想兜风就上 A592 Kirkstone 山口或环温德米尔湖一圈（单程约 20min）。今天路上已 5 小时，累了就跳过，留到明早走前再转",
-        time: "20:45",
-      },
     ],
     timeline: [
       {
@@ -1473,7 +1465,7 @@ const days: Day[] = [
       },
       {
         time: "14:30",
-        text: "Tebay Services 午餐 + 加油休息（M6 著名农场超市服务区，离湖区约 30min，约停 40min）",
+        text: "Tebay Services 午餐 + 加油休息（约 14:30–15:00 到；M6 上的农场超市服务区，不是普通服务站——农场自产热食（汤、派、炖菜、烤肉卷）、熟食柜、烘焙和好咖啡，离湖区约 30min，约停 40min）",
       },
       {
         time: "16:30",
@@ -1493,7 +1485,7 @@ const days: Day[] = [
       },
       {
         time: "20:45",
-        text: "（可选）饭后天还亮（日落约 21:40）：上 Kirkstone Pass 山口 / 环湖兜风就近转转；累了就跳过，留到明早走前再转",
+        text: "晚餐后直接回 Woodlands 早点休息 — 连着 5 天长行程，今晚不安排兜风，好好睡一觉养足精神",
       },
     ],
     places: [
@@ -1506,7 +1498,7 @@ const days: Day[] = [
       {
         name: "Tebay Services（午餐 / 休息）",
         query: "Tebay Services northbound, M6, Penrith CA10 3SB",
-        note: "M6 著名农场超市服务区，离湖区约 30min，长途中段歇脚午餐",
+        note: "M6 农场超市服务区（Westmorland 家族自营）：农场热食 + 熟食 / 烘焙 / 超市，远胜普通服务站；离湖区约 30min，长途中段歇脚午餐",
         time: "14:30",
       },
       {
@@ -1520,12 +1512,6 @@ const days: Day[] = [
         query: "Lake Road, Bowness-on-Windermere",
         note: "纪念品 / 礼品店集中，Jim 慢慢逛",
         time: "16:45",
-      },
-      {
-        name: "Kirkstone Pass 山口",
-        query: "Kirkstone Pass Inn, Ambleside LA22 9LQ",
-        note: "可选 · 饭后天亮兜风，湖区最高山口；不爬山口可改环温德米尔湖，或留到明早",
-        time: "20:45",
       },
     ],
     restaurants: [
@@ -1637,7 +1623,7 @@ const days: Day[] = [
       },
       {
         kind: "drive",
-        text: "今天是长途驾驶日：格伦科→温德米尔实测约 4h35 / 232mi（Google Maps，比原计划的 2.5h 远得多），加上 Fort William→格伦科约 35min，全天净开车约 5 小时。Guisachan 早餐 9:00、退房 10:00 卫浴共用，早起轮流洗漱、10:00 准点出发；格伦科只快速拍照不久留，把时间留给路程，午餐在 Tebay Services 解决，约 16:30 才到湖区——下午偏紧，先紧着 Jim 想逛的礼品店，兜风留到饭后或明早。",
+        text: "今天是长途驾驶日：格伦科→温德米尔实测约 4h35 / 232mi（Google Maps，比原计划的 2.5h 远得多），加上 Fort William→格伦科约 35min，全天净开车约 5 小时。Guisachan 早餐 9:00、退房 10:00 卫浴共用，早起轮流洗漱、10:00 准点出发；格伦科就在 A82 路边、顺路快速拍照不久留，午餐在 Tebay Services 解决，约 16:30 才到湖区——下午偏紧，先紧着 Jim 想逛的礼品店。连着 5 天长行程，今晚不安排兜风，晚餐后早点回去休息。",
       },
       {
         kind: "fuel",
