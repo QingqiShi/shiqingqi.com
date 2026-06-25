@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveClientIp } from "./rate-limiter";
+import { resolveClientIp } from "./resolve-client-ip";
 
 describe("resolveClientIp", () => {
   it("prefers x-vercel-forwarded-for over x-forwarded-for", () => {
