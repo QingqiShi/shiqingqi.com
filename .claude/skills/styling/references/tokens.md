@@ -17,66 +17,93 @@ All tokens are theme-aware (light/dark) and imported from `#src/tokens.stylex.ts
 
 ## Color
 
-Theme-aware color tokens. All have light and dark variants.
+Theme-aware color tokens. Every token is a single `light-dark(<light>, <dark>)`
+value that resolves against the element's `color-scheme` — no per-theme
+stylesheets exist, and forcing a theme just pins `color-scheme` on the root.
+Values below are palette references (see
+`packages/ui/src/_generated/palette/`); the mapping lives in
+`packages/ui/src/tokens.stylex.ts`.
 
 ### Text
 
-| Token                      | Light     | Dark      |
-| -------------------------- | --------- | --------- |
-| `color.textMain`           | `#292929` | `#f3eded` |
-| `color.textMuted`          | `#505050` | `#bbbbbb` |
-| `color.textOnActive`       | `#ffffff` | `#ffffff` |
-| `color.textOnControlThumb` | `#292929` | `#000000` |
+| Token                 | Light        | Dark         |
+| --------------------- | ------------ | ------------ |
+| `color.textMain`      | `gray._20`   | `gray._92`   |
+| `color.textMuted`     | `gray._40`   | `gray._80`   |
+| `color.textSubtle`    | `gray._50`   | `gray._60`   |
+| `color.accentOn`      | `gray._100`  | `gray._100`  |
+| `color.textOnBright`  | `gray._20`   | `gray._0`    |
+| `color.textOnInverse` | `gray._92`   | `gray._20`   |
+| `color.accentText`    | `purple._30` | `purple._70` |
 
-### Backgrounds
+### Page
 
-| Token                                   | Light              | Dark                    |
-| --------------------------------------- | ------------------ | ----------------------- |
-| `color.backgroundMain`                  | `#ffffff`          | `#000000`               |
-| `color.backgroundRaised`                | `#f5f5f5`          | `#1a1a1a`               |
-| `color.backgroundHover`                 | `#f0f0f0`          | `#2a2a2a`               |
-| `color.backgroundTranslucent`           | `rgba(0,0,0,0.01)` | `rgba(255,255,255,0.1)` |
-| `color.backgroundCalculatorButton`      | `#e0e0e0`          | `#444850`               |
-| `color.backgroundCalculatorButtonHover` | `#ffffff`          | `#5e6065`               |
+| Token                  | Light      | Dark      |
+| ---------------------- | ---------- | --------- |
+| `color.bgCanvas`       | `gray._97` | `gray._0` |
+| `color.bgCanvasSubtle` | `gray._99` | `gray._2` |
+| `color.bgCanvasFade`   | `gray._92` | `gray._0` |
 
-Channel tokens for `rgba()` construction:
+### Surface
 
-| Token                            | Light         | Dark       |
-| -------------------------------- | ------------- | ---------- |
-| `color.backgroundMainChannels`   | `255,255,255` | `0,0,0`    |
-| `color.backgroundRaisedChannels` | `245,245,245` | `26,26,26` |
+| Token                   | Light       | Dark       |
+| ----------------------- | ----------- | ---------- |
+| `color.bgSurface`       | `gray._100` | `gray._5`  |
+| `color.bgSurfaceRaised` | `gray._100` | `gray._7`  |
+| `color.bgSurfaceSunken` | `gray._98`  | `gray._2`  |
+| `color.bgSurfaceBright` | `gray._100` | `gray._80` |
+| `color.bgSurfaceFade`   | `gray._95`  | `gray._5`  |
 
-### Controls
+### Interactive
 
-| Token                      | Light     | Dark      |
-| -------------------------- | --------- | --------- |
-| `color.controlTrack`       | `#e0e0e0` | `#1a1a1a` |
-| `color.controlThumb`       | `#ffffff` | `#bbbbbb` |
-| `color.controlActive`      | `#7e10c2` | `#933bc9` |
-| `color.controlActiveHover` | `#9e2de3` | `#a751db` |
+| Token                         | Light       | Dark       |
+| ----------------------------- | ----------- | ---------- |
+| `color.bgInteractiveRest`     | `gray._100` | `gray._7`  |
+| `color.bgInteractiveHover`    | `gray._97`  | `gray._13` |
+| `color.bgInteractivePressed`  | `gray._92`  | `gray._11` |
+| `color.bgInteractiveSelected` | `gray._90`  | `gray._9`  |
+| `color.bgInteractiveDisabled` | `gray._95`  | `gray._5`  |
 
-### Other
+### Intent surfaces, inverse & overlay
 
-| Token                  | Light        | Dark         |
-| ---------------------- | ------------ | ------------ |
-| `color.border`         | `#e0e0e0`    | `#333333`    |
-| `color.opacityActive`  | `0.1`        | `0.2`        |
-| `color.shadowColor`    | `220 3% 15%` | `220 40% 2%` |
-| `color.shadowStrength` | `1%`         | `25%`        |
+Tonal tints (`surface*Subtle`/`surfaceAccentMuted`) are `rgba(<hue>_rgb, α)`
+recipes; `bgInverse` flips the theme (`gray._20` / `gray._92`), `bgOverlay` is
+the popover surface (`gray._100` / `gray._7`), `bgScrim` is
+`rgba(0, 0, 0, 0.7)` in both themes.
+
+### Roles
+
+| Token                | Light                       | Dark                        |
+| -------------------- | --------------------------- | --------------------------- |
+| `color.accent`       | `purple._30`                | `purple._50`                |
+| `color.accentHover`  | `purple._40`                | `purple._60`                |
+| `color.accentGlow`   | `rgba(purple_rgb._30, 0.1)` | `rgba(purple_rgb._50, 0.2)` |
+| `color.neutral`      | `gray._80`                  | `gray._40`                  |
+| `color.neutralHover` | `gray._70`                  | `gray._50`                  |
+| `color.neutralText`  | `gray._40`                  | `gray._80`                  |
+| `color.neutralOn`    | `gray._20`                  | `gray._92`                  |
+
+### Borders & semantic colors
+
+Translucent borders (`accentBorder`, `infoBorder`, `successBorder`,
+`warningBorder`, `dangerBorder`) are `rgba(<hue>_rgb, 0.4)` recipes;
+`neutralBorder` is opaque (`gray._90` / `gray._20`). Semantic sets
+(`info|success|warning|danger` + `Hover`/`Text`/`On`) map to the cyan, green,
+orange/yellow, and red ramps — see `tokens.stylex.ts` for exact steps.
 
 ### Brand Colors
 
-| Token                    | Light            | Dark               |
-| ------------------------ | ---------------- | ------------------ |
-| `color.brandTmdb`        | `#0ea5e9`        | `#38bdf8`          |
-| `color.brandCalculator`  | `#ff8000`        | `#ff7f00`          |
-| `color.brandCitadel`     | `rgb(26,54,104)` | `rgb(129,174,255)` |
-| `color.brandWtcPlus`     | `#e661b2`        | `#ff84cf`          |
-| `color.brandWtcLetter`   | `#0a47ed`        | `#8dacff`          |
-| `color.brandBristol`     | `#bf2f38`        | `#ff535d`          |
-| `color.brandNottingham`  | `#005480`        | `#0098e7`          |
-| `color.brandSpotify`     | `#1ecc5a`        | `#1ecc5a`          |
-| `color.brandStudentLoan` | `#10b981`        | `#34d399`          |
+`brandTmdb`, `brandCalculator`, `brandCitadel`, `brandWtcPlus`,
+`brandWtcLetter`, `brandBristol`, `brandNottingham`, `brandSpotify`,
+`brandStudentLoan`, `brandPixelCreatureCreator` — nearest system-palette
+swatch per brand, themed light/dark.
+
+### Translucency
+
+There are no channel-triplet tokens. Derive translucent colors from a color
+token with `color-mix`, e.g.
+`color-mix(in srgb, ${color.bgCanvasFade} 45%, transparent)`. The `*Fade`
+tokens are the colors translucent gradients blend toward.
 
 ---
 
@@ -205,7 +232,7 @@ Responsive sizing for interactive components. Larger on mobile (touch targets), 
 
 ## Shadow
 
-Six elevation levels (`shadow._1` through `shadow._6`), each using `color.shadowColor` and `color.shadowStrength` for theme-aware rendering. Higher numbers = more elevation.
+Six elevation levels (`shadow._1` through `shadow._6`) plus `shadow.inset`. Each layer's color is a `light-dark()` HSL tint — faint in light, much stronger in dark — so shadows follow the active `color-scheme`. Higher numbers = more elevation.
 
 ---
 

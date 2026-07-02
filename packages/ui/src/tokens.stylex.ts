@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { cyan, cyan_rgb } from "./_generated/palette/hues/cyan.stylex.ts";
-import { gray, gray_rgb } from "./_generated/palette/hues/gray.stylex.ts";
+import { gray } from "./_generated/palette/hues/gray.stylex.ts";
 import { green, green_rgb } from "./_generated/palette/hues/green.stylex.ts";
 import { indigo } from "./_generated/palette/hues/indigo.stylex.ts";
 import { orange, orange_rgb } from "./_generated/palette/hues/orange.stylex.ts";
@@ -24,13 +24,17 @@ import { breakpoints } from "./breakpoints.stylex.ts";
 // `rgba(var(--gray_rgb_92), 0.4)` evaluates to `rgba(233,232,228, 0.4)` at
 // paint time.
 //
+// Theming: each var in the `color` group below is a single constant
+// `light-dark(<light>, <dark>)` value that resolves against the element's
+// `color-scheme`. The root defaults to `color-scheme: light dark` (follow the
+// OS), and forcing a theme just pins `color-scheme: light` or `dark` — see
+// `getDocumentClassName` in apps/web. No per-theme stylesheets are generated.
+//
 // To change a token's palette mapping, edit the entry below. To change palette
 // values themselves, edit `packages/system-palette-codegen/src/source.ts` and run
 // `pnpm codegen:palette`.
 
 const light = {
-  colorScheme: "light",
-
   // Text
   textMain: gray._20,
   textMuted: gray._40,
@@ -40,17 +44,18 @@ const light = {
   textOnInverse: gray._92,
   accentText: purple._30,
 
-  // Page — app shell, scaffolding behind everything
+  // Page — app shell, scaffolding behind everything. *Fade is the color
+  // translucent gradients blend toward (consumed via color-mix()).
   bgCanvas: gray._97,
   bgCanvasSubtle: gray._99,
-  bgCanvasChannels: gray_rgb._92,
+  bgCanvasFade: gray._92,
 
   // Surface — cards, panels, dialog bodies
   bgSurface: gray._100,
   bgSurfaceRaised: gray._100,
   bgSurfaceSunken: gray._98,
   bgSurfaceBright: gray._100,
-  bgSurfaceChannels: gray_rgb._95,
+  bgSurfaceFade: gray._95,
 
   // Interactive — shared by buttons, list rows, menu items
   bgInteractiveRest: gray._100,
@@ -77,6 +82,8 @@ const light = {
 
   accent: purple._30,
   accentHover: purple._40,
+  // Accent at ambient-glow strength (was `accent` + a themed opacity token).
+  accentGlow: `rgba(${purple_rgb._30}, 0.1)`,
 
   // Mid-tone neutrals for chrome / dividers / chips
   neutral: gray._80,
@@ -91,11 +98,6 @@ const light = {
   warningBorder: `rgba(${orange_rgb._50}, 0.4)`,
   dangerBorder: `rgba(${red_rgb._50}, 0.4)`,
   neutralBorder: gray._90,
-
-  opacityActive: "0.1",
-
-  shadowColor: "220 3% 15%",
-  shadowStrength: "1%",
 
   // Semantic colors — bold (foreground), hover (interactive lift), text, on
   info: cyan._50,
@@ -131,8 +133,6 @@ const light = {
 };
 
 const dark: { [key in keyof typeof light]: string } = {
-  colorScheme: "dark",
-
   textMain: gray._92,
   textMuted: gray._80,
   textSubtle: gray._60,
@@ -143,13 +143,13 @@ const dark: { [key in keyof typeof light]: string } = {
 
   bgCanvas: gray._0,
   bgCanvasSubtle: gray._2,
-  bgCanvasChannels: gray_rgb._0,
+  bgCanvasFade: gray._0,
 
   bgSurface: gray._5,
   bgSurfaceRaised: gray._7,
   bgSurfaceSunken: gray._2,
   bgSurfaceBright: gray._80,
-  bgSurfaceChannels: gray_rgb._5,
+  bgSurfaceFade: gray._5,
 
   bgInteractiveRest: gray._7,
   bgInteractiveHover: gray._13,
@@ -171,6 +171,7 @@ const dark: { [key in keyof typeof light]: string } = {
 
   accent: purple._50,
   accentHover: purple._60,
+  accentGlow: `rgba(${purple_rgb._50}, 0.2)`,
 
   neutral: gray._40,
   neutralHover: gray._50,
@@ -183,11 +184,6 @@ const dark: { [key in keyof typeof light]: string } = {
   warningBorder: `rgba(${yellow_rgb._60}, 0.4)`,
   dangerBorder: `rgba(${red_rgb._60}, 0.4)`,
   neutralBorder: gray._20,
-
-  opacityActive: "0.2",
-
-  shadowColor: "220 40% 2%",
-  shadowStrength: "25%",
 
   info: cyan._70,
   infoHover: cyan._80,
@@ -227,270 +223,87 @@ export const layout = stylex.defineConsts({
 });
 
 export const color = stylex.defineVars({
-  colorScheme: {
-    default: light.colorScheme,
-    [constants.DARK]: dark.colorScheme,
-  },
+  textMain: `light-dark(${light.textMain}, ${dark.textMain})`,
+  textMuted: `light-dark(${light.textMuted}, ${dark.textMuted})`,
+  textSubtle: `light-dark(${light.textSubtle}, ${dark.textSubtle})`,
+  accentOn: `light-dark(${light.accentOn}, ${dark.accentOn})`,
+  textOnBright: `light-dark(${light.textOnBright}, ${dark.textOnBright})`,
+  textOnInverse: `light-dark(${light.textOnInverse}, ${dark.textOnInverse})`,
+  accentText: `light-dark(${light.accentText}, ${dark.accentText})`,
 
-  textMain: { default: light.textMain, [constants.DARK]: dark.textMain },
-  textMuted: { default: light.textMuted, [constants.DARK]: dark.textMuted },
-  textSubtle: {
-    default: light.textSubtle,
-    [constants.DARK]: dark.textSubtle,
-  },
-  accentOn: {
-    default: light.accentOn,
-    [constants.DARK]: dark.accentOn,
-  },
-  textOnBright: {
-    default: light.textOnBright,
-    [constants.DARK]: dark.textOnBright,
-  },
-  textOnInverse: {
-    default: light.textOnInverse,
-    [constants.DARK]: dark.textOnInverse,
-  },
-  accentText: {
-    default: light.accentText,
-    [constants.DARK]: dark.accentText,
-  },
+  bgCanvas: `light-dark(${light.bgCanvas}, ${dark.bgCanvas})`,
+  bgCanvasSubtle: `light-dark(${light.bgCanvasSubtle}, ${dark.bgCanvasSubtle})`,
+  bgCanvasFade: `light-dark(${light.bgCanvasFade}, ${dark.bgCanvasFade})`,
 
-  bgCanvas: {
-    default: light.bgCanvas,
-    [constants.DARK]: dark.bgCanvas,
-  },
-  bgCanvasSubtle: {
-    default: light.bgCanvasSubtle,
-    [constants.DARK]: dark.bgCanvasSubtle,
-  },
-  bgCanvasChannels: {
-    default: light.bgCanvasChannels,
-    [constants.DARK]: dark.bgCanvasChannels,
-  },
+  bgSurface: `light-dark(${light.bgSurface}, ${dark.bgSurface})`,
+  bgSurfaceRaised: `light-dark(${light.bgSurfaceRaised}, ${dark.bgSurfaceRaised})`,
+  bgSurfaceSunken: `light-dark(${light.bgSurfaceSunken}, ${dark.bgSurfaceSunken})`,
+  bgSurfaceBright: `light-dark(${light.bgSurfaceBright}, ${dark.bgSurfaceBright})`,
+  bgSurfaceFade: `light-dark(${light.bgSurfaceFade}, ${dark.bgSurfaceFade})`,
 
-  bgSurface: {
-    default: light.bgSurface,
-    [constants.DARK]: dark.bgSurface,
-  },
-  bgSurfaceRaised: {
-    default: light.bgSurfaceRaised,
-    [constants.DARK]: dark.bgSurfaceRaised,
-  },
-  bgSurfaceSunken: {
-    default: light.bgSurfaceSunken,
-    [constants.DARK]: dark.bgSurfaceSunken,
-  },
-  bgSurfaceBright: {
-    default: light.bgSurfaceBright,
-    [constants.DARK]: dark.bgSurfaceBright,
-  },
-  bgSurfaceChannels: {
-    default: light.bgSurfaceChannels,
-    [constants.DARK]: dark.bgSurfaceChannels,
-  },
+  bgInteractiveRest: `light-dark(${light.bgInteractiveRest}, ${dark.bgInteractiveRest})`,
+  bgInteractiveHover: `light-dark(${light.bgInteractiveHover}, ${dark.bgInteractiveHover})`,
+  bgInteractivePressed: `light-dark(${light.bgInteractivePressed}, ${dark.bgInteractivePressed})`,
+  bgInteractiveSelected: `light-dark(${light.bgInteractiveSelected}, ${dark.bgInteractiveSelected})`,
+  bgInteractiveDisabled: `light-dark(${light.bgInteractiveDisabled}, ${dark.bgInteractiveDisabled})`,
 
-  bgInteractiveRest: {
-    default: light.bgInteractiveRest,
-    [constants.DARK]: dark.bgInteractiveRest,
-  },
-  bgInteractiveHover: {
-    default: light.bgInteractiveHover,
-    [constants.DARK]: dark.bgInteractiveHover,
-  },
-  bgInteractivePressed: {
-    default: light.bgInteractivePressed,
-    [constants.DARK]: dark.bgInteractivePressed,
-  },
-  bgInteractiveSelected: {
-    default: light.bgInteractiveSelected,
-    [constants.DARK]: dark.bgInteractiveSelected,
-  },
-  bgInteractiveDisabled: {
-    default: light.bgInteractiveDisabled,
-    [constants.DARK]: dark.bgInteractiveDisabled,
-  },
+  surfaceNeutralSubtle: `light-dark(${light.surfaceNeutralSubtle}, ${dark.surfaceNeutralSubtle})`,
+  surfaceAccentSubtle: `light-dark(${light.surfaceAccentSubtle}, ${dark.surfaceAccentSubtle})`,
+  surfaceAccentMuted: `light-dark(${light.surfaceAccentMuted}, ${dark.surfaceAccentMuted})`,
+  surfaceInfoSubtle: `light-dark(${light.surfaceInfoSubtle}, ${dark.surfaceInfoSubtle})`,
+  surfaceSuccessSubtle: `light-dark(${light.surfaceSuccessSubtle}, ${dark.surfaceSuccessSubtle})`,
+  surfaceWarningSubtle: `light-dark(${light.surfaceWarningSubtle}, ${dark.surfaceWarningSubtle})`,
+  surfaceDangerSubtle: `light-dark(${light.surfaceDangerSubtle}, ${dark.surfaceDangerSubtle})`,
 
-  surfaceNeutralSubtle: {
-    default: light.surfaceNeutralSubtle,
-    [constants.DARK]: dark.surfaceNeutralSubtle,
-  },
-  surfaceAccentSubtle: {
-    default: light.surfaceAccentSubtle,
-    [constants.DARK]: dark.surfaceAccentSubtle,
-  },
-  surfaceAccentMuted: {
-    default: light.surfaceAccentMuted,
-    [constants.DARK]: dark.surfaceAccentMuted,
-  },
-  surfaceInfoSubtle: {
-    default: light.surfaceInfoSubtle,
-    [constants.DARK]: dark.surfaceInfoSubtle,
-  },
-  surfaceSuccessSubtle: {
-    default: light.surfaceSuccessSubtle,
-    [constants.DARK]: dark.surfaceSuccessSubtle,
-  },
-  surfaceWarningSubtle: {
-    default: light.surfaceWarningSubtle,
-    [constants.DARK]: dark.surfaceWarningSubtle,
-  },
-  surfaceDangerSubtle: {
-    default: light.surfaceDangerSubtle,
-    [constants.DARK]: dark.surfaceDangerSubtle,
-  },
+  bgInverse: `light-dark(${light.bgInverse}, ${dark.bgInverse})`,
 
-  bgInverse: {
-    default: light.bgInverse,
-    [constants.DARK]: dark.bgInverse,
-  },
+  bgOverlay: `light-dark(${light.bgOverlay}, ${dark.bgOverlay})`,
+  bgScrim: `light-dark(${light.bgScrim}, ${dark.bgScrim})`,
 
-  bgOverlay: {
-    default: light.bgOverlay,
-    [constants.DARK]: dark.bgOverlay,
-  },
-  bgScrim: {
-    default: light.bgScrim,
-    [constants.DARK]: dark.bgScrim,
-  },
+  accent: `light-dark(${light.accent}, ${dark.accent})`,
+  accentHover: `light-dark(${light.accentHover}, ${dark.accentHover})`,
+  accentGlow: `light-dark(${light.accentGlow}, ${dark.accentGlow})`,
 
-  accent: {
-    default: light.accent,
-    [constants.DARK]: dark.accent,
-  },
-  accentHover: {
-    default: light.accentHover,
-    [constants.DARK]: dark.accentHover,
-  },
+  neutral: `light-dark(${light.neutral}, ${dark.neutral})`,
+  neutralHover: `light-dark(${light.neutralHover}, ${dark.neutralHover})`,
+  neutralText: `light-dark(${light.neutralText}, ${dark.neutralText})`,
+  neutralOn: `light-dark(${light.neutralOn}, ${dark.neutralOn})`,
 
-  neutral: { default: light.neutral, [constants.DARK]: dark.neutral },
-  neutralHover: {
-    default: light.neutralHover,
-    [constants.DARK]: dark.neutralHover,
-  },
-  neutralText: {
-    default: light.neutralText,
-    [constants.DARK]: dark.neutralText,
-  },
-  neutralOn: {
-    default: light.neutralOn,
-    [constants.DARK]: dark.neutralOn,
-  },
+  accentBorder: `light-dark(${light.accentBorder}, ${dark.accentBorder})`,
+  infoBorder: `light-dark(${light.infoBorder}, ${dark.infoBorder})`,
+  successBorder: `light-dark(${light.successBorder}, ${dark.successBorder})`,
+  warningBorder: `light-dark(${light.warningBorder}, ${dark.warningBorder})`,
+  dangerBorder: `light-dark(${light.dangerBorder}, ${dark.dangerBorder})`,
+  neutralBorder: `light-dark(${light.neutralBorder}, ${dark.neutralBorder})`,
 
-  accentBorder: {
-    default: light.accentBorder,
-    [constants.DARK]: dark.accentBorder,
-  },
-  infoBorder: {
-    default: light.infoBorder,
-    [constants.DARK]: dark.infoBorder,
-  },
-  successBorder: {
-    default: light.successBorder,
-    [constants.DARK]: dark.successBorder,
-  },
-  warningBorder: {
-    default: light.warningBorder,
-    [constants.DARK]: dark.warningBorder,
-  },
-  dangerBorder: {
-    default: light.dangerBorder,
-    [constants.DARK]: dark.dangerBorder,
-  },
-  neutralBorder: {
-    default: light.neutralBorder,
-    [constants.DARK]: dark.neutralBorder,
-  },
+  info: `light-dark(${light.info}, ${dark.info})`,
+  infoHover: `light-dark(${light.infoHover}, ${dark.infoHover})`,
+  infoText: `light-dark(${light.infoText}, ${dark.infoText})`,
+  infoOn: `light-dark(${light.infoOn}, ${dark.infoOn})`,
+  success: `light-dark(${light.success}, ${dark.success})`,
+  successHover: `light-dark(${light.successHover}, ${dark.successHover})`,
+  successText: `light-dark(${light.successText}, ${dark.successText})`,
+  successOn: `light-dark(${light.successOn}, ${dark.successOn})`,
+  warning: `light-dark(${light.warning}, ${dark.warning})`,
+  warningHover: `light-dark(${light.warningHover}, ${dark.warningHover})`,
+  warningText: `light-dark(${light.warningText}, ${dark.warningText})`,
+  warningOn: `light-dark(${light.warningOn}, ${dark.warningOn})`,
+  danger: `light-dark(${light.danger}, ${dark.danger})`,
+  dangerHover: `light-dark(${light.dangerHover}, ${dark.dangerHover})`,
+  dangerText: `light-dark(${light.dangerText}, ${dark.dangerText})`,
+  dangerOn: `light-dark(${light.dangerOn}, ${dark.dangerOn})`,
 
-  opacityActive: {
-    default: light.opacityActive,
-    [constants.DARK]: dark.opacityActive,
-  },
-
-  shadowColor: {
-    default: light.shadowColor,
-    [constants.DARK]: dark.shadowColor,
-  },
-  shadowStrength: {
-    default: light.shadowStrength,
-    [constants.DARK]: dark.shadowStrength,
-  },
-
-  info: { default: light.info, [constants.DARK]: dark.info },
-  infoHover: { default: light.infoHover, [constants.DARK]: dark.infoHover },
-  infoText: { default: light.infoText, [constants.DARK]: dark.infoText },
-  infoOn: { default: light.infoOn, [constants.DARK]: dark.infoOn },
-  success: { default: light.success, [constants.DARK]: dark.success },
-  successHover: {
-    default: light.successHover,
-    [constants.DARK]: dark.successHover,
-  },
-  successText: {
-    default: light.successText,
-    [constants.DARK]: dark.successText,
-  },
-  successOn: { default: light.successOn, [constants.DARK]: dark.successOn },
-  warning: { default: light.warning, [constants.DARK]: dark.warning },
-  warningHover: {
-    default: light.warningHover,
-    [constants.DARK]: dark.warningHover,
-  },
-  warningText: {
-    default: light.warningText,
-    [constants.DARK]: dark.warningText,
-  },
-  warningOn: { default: light.warningOn, [constants.DARK]: dark.warningOn },
-  danger: { default: light.danger, [constants.DARK]: dark.danger },
-  dangerHover: {
-    default: light.dangerHover,
-    [constants.DARK]: dark.dangerHover,
-  },
-  dangerText: {
-    default: light.dangerText,
-    [constants.DARK]: dark.dangerText,
-  },
-  dangerOn: { default: light.dangerOn, [constants.DARK]: dark.dangerOn },
-
-  brandTmdb: { default: light.brandTmdb, [constants.DARK]: dark.brandTmdb },
-  brandCalculator: {
-    default: light.brandCalculator,
-    [constants.DARK]: dark.brandCalculator,
-  },
-  brandCitadel: {
-    default: light.brandCitadel,
-    [constants.DARK]: dark.brandCitadel,
-  },
-  brandWtcPlus: {
-    default: light.brandWtcPlus,
-    [constants.DARK]: dark.brandWtcPlus,
-  },
-  brandWtcLetter: {
-    default: light.brandWtcLetter,
-    [constants.DARK]: dark.brandWtcLetter,
-  },
-  brandBristol: {
-    default: light.brandBristol,
-    [constants.DARK]: dark.brandBristol,
-  },
-  brandNottingham: {
-    default: light.brandNottingham,
-    [constants.DARK]: dark.brandNottingham,
-  },
-  brandSpotify: {
-    default: light.brandSpotify,
-    [constants.DARK]: dark.brandSpotify,
-  },
-  brandStudentLoan: {
-    default: light.brandStudentLoan,
-    [constants.DARK]: dark.brandStudentLoan,
-  },
-  brandPixelCreatureCreator: {
-    default: light.brandPixelCreatureCreator,
-    [constants.DARK]: dark.brandPixelCreatureCreator,
-  },
+  brandTmdb: `light-dark(${light.brandTmdb}, ${dark.brandTmdb})`,
+  brandCalculator: `light-dark(${light.brandCalculator}, ${dark.brandCalculator})`,
+  brandCitadel: `light-dark(${light.brandCitadel}, ${dark.brandCitadel})`,
+  brandWtcPlus: `light-dark(${light.brandWtcPlus}, ${dark.brandWtcPlus})`,
+  brandWtcLetter: `light-dark(${light.brandWtcLetter}, ${dark.brandWtcLetter})`,
+  brandBristol: `light-dark(${light.brandBristol}, ${dark.brandBristol})`,
+  brandNottingham: `light-dark(${light.brandNottingham}, ${dark.brandNottingham})`,
+  brandSpotify: `light-dark(${light.brandSpotify}, ${dark.brandSpotify})`,
+  brandStudentLoan: `light-dark(${light.brandStudentLoan}, ${dark.brandStudentLoan})`,
+  brandPixelCreatureCreator: `light-dark(${light.brandPixelCreatureCreator}, ${dark.brandPixelCreatureCreator})`,
 });
-
-export const lightTheme = stylex.createTheme(color, light);
-export const darkTheme = stylex.createTheme(color, dark);
 
 export const font = stylex.defineVars({
   family: "Inter,Inter-fallback,sans-serif",
@@ -642,14 +455,27 @@ export const ratio = stylex.defineVars({
   portrait: "3/4",
 });
 
+// Shadow tint at each alpha step, resolved per scheme. Light shadows use
+// `hsl(220 3% 15%)` over a 1% base strength; dark shadows `hsl(220 40% 2%)`
+// over 25%. Each `_N` is base + N% — the offsets the layers below use.
+const shadowTint = {
+  _2: "light-dark(hsl(220 3% 15% / 3%), hsl(220 40% 2% / 27%))",
+  _3: "light-dark(hsl(220 3% 15% / 4%), hsl(220 40% 2% / 28%))",
+  _4: "light-dark(hsl(220 3% 15% / 5%), hsl(220 40% 2% / 29%))",
+  _5: "light-dark(hsl(220 3% 15% / 6%), hsl(220 40% 2% / 30%))",
+  _6: "light-dark(hsl(220 3% 15% / 7%), hsl(220 40% 2% / 31%))",
+  _7: "light-dark(hsl(220 3% 15% / 8%), hsl(220 40% 2% / 32%))",
+  _9: "light-dark(hsl(220 3% 15% / 10%), hsl(220 40% 2% / 34%))",
+};
+
 export const shadow = stylex.defineVars({
-  _1: `0 1px 2px -1px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 9%))`,
-  _2: `0 3px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 7px 14px -5px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%))`,
-  _3: `0 -1px 3px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 1px 2px -5px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 2px 5px -5px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 4px 12px -5px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 12px 15px -5px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 7%))`,
-  _4: `0 -2px 5px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 1px 1px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 2px 2px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 5px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 9px 9px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 16px 16px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%))`,
-  _5: `0 -1px 2px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 2px 1px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 5px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 10px 10px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 20px 20px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 40px 40px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 7%))`,
-  _6: `0 -1px 2px 0 hsl(${color.shadowColor} / calc(${color.shadowStrength} + 2%)), 0 3px 2px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 7px 5px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 3%)), 0 12px 10px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 4%)), 0 22px 18px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 5%)), 0 41px 33px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%)), 0 100px 80px -2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 7%))`,
+  _1: `0 1px 2px -1px ${shadowTint._9}`,
+  _2: `0 3px 5px -2px ${shadowTint._3}, 0 7px 14px -5px ${shadowTint._5}`,
+  _3: `0 -1px 3px 0 ${shadowTint._2}, 0 1px 2px -5px ${shadowTint._2}, 0 2px 5px -5px ${shadowTint._4}, 0 4px 12px -5px ${shadowTint._5}, 0 12px 15px -5px ${shadowTint._7}`,
+  _4: `0 -2px 5px 0 ${shadowTint._2}, 0 1px 1px -2px ${shadowTint._3}, 0 2px 2px -2px ${shadowTint._3}, 0 5px 5px -2px ${shadowTint._4}, 0 9px 9px -2px ${shadowTint._5}, 0 16px 16px -2px ${shadowTint._6}`,
+  _5: `0 -1px 2px 0 ${shadowTint._2}, 0 2px 1px -2px ${shadowTint._3}, 0 5px 5px -2px ${shadowTint._3}, 0 10px 10px -2px ${shadowTint._4}, 0 20px 20px -2px ${shadowTint._5}, 0 40px 40px -2px ${shadowTint._7}`,
+  _6: `0 -1px 2px 0 ${shadowTint._2}, 0 3px 2px -2px ${shadowTint._3}, 0 7px 5px -2px ${shadowTint._3}, 0 12px 10px -2px ${shadowTint._4}, 0 22px 18px -2px ${shadowTint._5}, 0 41px 33px -2px ${shadowTint._6}, 0 100px 80px -2px ${shadowTint._7}`,
 
   // Inset shadow for sunken/inset surfaces
-  inset: `inset 0 1px 2px hsl(${color.shadowColor} / calc(${color.shadowStrength} + 6%))`,
+  inset: `inset 0 1px 2px ${shadowTint._6}`,
 });

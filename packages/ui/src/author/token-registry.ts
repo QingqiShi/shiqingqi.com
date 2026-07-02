@@ -8,10 +8,9 @@
 // asserts is empty. Add a token to `tokens.stylex.ts` without handling it here
 // and CI fails — that's the anti-drift guarantee.
 //
-// Out of scope by design: font families (excluded by request), the responsive
-// `vp*`/`cq*` sizes (a single CSS-var override desyncs their breakpoint ramp),
-// and the rgba-channel / HSL-triplet / opacity tokens (they don't map onto a
-// color or length editor cleanly). See `SKIPPED` for the exact list.
+// Out of scope by design: font families (excluded by request) and the
+// responsive `vp*`/`cq*` sizes (a single CSS-var override desyncs their
+// breakpoint ramp). See `SKIPPED` for the exact list.
 
 import { border, color, font, space } from "../tokens.stylex.ts";
 
@@ -54,14 +53,7 @@ interface ScalarClassification {
 
 /** Members intentionally not editable, by group. Keep reasons in the header. */
 export const SKIPPED: Readonly<Record<TokenGroup, ReadonlySet<string>>> = {
-  color: new Set([
-    "colorScheme", // not a color
-    "bgCanvasChannels", // rgba channel triple, not a color value
-    "bgSurfaceChannels",
-    "shadowColor", // bare HSL components for hsl(... / ...)
-    "shadowStrength", // percent string consumed inside calc()
-    "opacityActive", // themed opacity number, not a color
-  ]),
+  color: new Set<string>(),
   font: new Set([
     "family",
     "familyMono",

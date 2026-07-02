@@ -281,7 +281,7 @@ const styles = stylex.create({
     marginRight: "auto",
     backgroundColor: {
       default: color.bgSurface,
-      [constants.DARK]: `rgba(${color.bgSurfaceChannels}, 0.6)`,
+      [constants.DARK]: `color-mix(in srgb, ${color.bgSurfaceFade} 60%, transparent)`,
     },
     backdropFilter: "blur(12px)",
     boxShadow: {

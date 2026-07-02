@@ -25,9 +25,9 @@ interface BandCellProps {
 }
 
 function BandCell({ label, token, bg, fg, detail }: BandCellProps) {
-  // Only tag cells whose token is actually editable. bgCanvasChannels is an
-  // rgba-channel triple the registry skips, so tagging it would render an inert
-  // specimen that never responds to author-mode hover/click like its siblings.
+  // Only tag cells whose token is actually editable, so a specimen the
+  // registry skips never renders an inert author-mode target alongside its
+  // live siblings.
   const authorToken = findEditableToken(token) ? token : undefined;
   return (
     <div css={[styles.cell, bg]} data-author-token={authorToken}>
@@ -203,12 +203,12 @@ export function BackgroundsShowcase() {
             detail={t({ en: "Modal dim layer.", zh: "弹窗变暗层。" })}
           />
           <BandCell
-            label={t({ en: "Channels", zh: "通道" })}
-            token="color.bgCanvasChannels"
+            label={t({ en: "Fade", zh: "渐隐" })}
+            token="color.bgCanvasFade"
             bg={styles.fillChannels}
             detail={t({
-              en: "RGB triplet for translucent fades.",
-              zh: "用于半透明渐变的 RGB 三元组。",
+              en: "Blend color for translucent fades.",
+              zh: "用于半透明渐变的混合色。",
             })}
           />
         </Band>
@@ -349,6 +349,6 @@ const styles = stylex.create({
   // white either way — pull a token that never flips.
   textOnScrim: { color: color.accentOn },
   fillChannels: {
-    backgroundImage: `linear-gradient(180deg, rgba(${color.bgCanvasChannels}, 0) 0%, rgba(${color.bgCanvasChannels}, 1) 100%), linear-gradient(${color.bgSurface}, ${color.bgSurface})`,
+    backgroundImage: `linear-gradient(180deg, transparent 0%, ${color.bgCanvasFade} 100%), linear-gradient(${color.bgSurface}, ${color.bgSurface})`,
   },
 });

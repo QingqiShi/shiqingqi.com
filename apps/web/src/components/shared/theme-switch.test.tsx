@@ -1,4 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { getDocumentClassName } from "#src/app/global-styles.ts";
 import { act, fireEvent, render, screen } from "#src/test-utils.tsx";
 import { ThemeSwitch } from "./theme-switch";
 
@@ -181,7 +182,9 @@ describe("ThemeSwitch cross-tab sync", () => {
     // which only happens if the storage listener updated the singleton and
     // notified subscribers.
     expect(switchControl).toHaveAttribute("aria-label", "Switch to light");
-    expect(document.documentElement.className).toContain("dark");
+    expect(document.documentElement.className).toBe(
+      getDocumentClassName("dark"),
+    );
 
     // Reset to "light" (both storage and singleton) so the resilience test
     // below starts from the theme it expects.
