@@ -7,7 +7,7 @@
 import {
   SYSTEM_PALETTE_TONES,
   systemPalette,
-} from "../_generated/palette/table.ts";
+} from "../_generated/palette/palette-table.ts";
 
 export interface Rgb {
   r: number;

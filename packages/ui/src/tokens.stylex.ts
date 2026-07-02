@@ -1,13 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
-import { cyan, cyan_rgb } from "./_generated/palette/cyan.stylex.ts";
-import { gray, gray_rgb } from "./_generated/palette/gray.stylex.ts";
-import { green, green_rgb } from "./_generated/palette/green.stylex.ts";
-import { indigo } from "./_generated/palette/indigo.stylex.ts";
-import { orange, orange_rgb } from "./_generated/palette/orange.stylex.ts";
-import { pink } from "./_generated/palette/pink.stylex.ts";
-import { purple, purple_rgb } from "./_generated/palette/purple.stylex.ts";
-import { red, red_rgb } from "./_generated/palette/red.stylex.ts";
-import { yellow, yellow_rgb } from "./_generated/palette/yellow.stylex.ts";
+import { cyan, cyan_rgb } from "./_generated/palette/hues/cyan.stylex.ts";
+import { gray, gray_rgb } from "./_generated/palette/hues/gray.stylex.ts";
+import { green, green_rgb } from "./_generated/palette/hues/green.stylex.ts";
+import { indigo } from "./_generated/palette/hues/indigo.stylex.ts";
+import { orange, orange_rgb } from "./_generated/palette/hues/orange.stylex.ts";
+import { pink } from "./_generated/palette/hues/pink.stylex.ts";
+import { purple, purple_rgb } from "./_generated/palette/hues/purple.stylex.ts";
+import { red, red_rgb } from "./_generated/palette/hues/red.stylex.ts";
+import { yellow, yellow_rgb } from "./_generated/palette/hues/yellow.stylex.ts";
 import { breakpoints } from "./breakpoints.stylex.ts";
 
 // Background tokens are organised by role rather than tonal step:
