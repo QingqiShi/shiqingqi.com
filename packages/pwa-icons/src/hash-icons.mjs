@@ -12,7 +12,7 @@ const { values } = parseArgs({
 
 const projectRoot = values.root
   ? path.resolve(values.root)
-  : path.resolve(import.meta.dirname, "../../apps/web");
+  : path.resolve(import.meta.dirname, "../../../apps/web");
 
 const ICON_SIZES = ["192x192", "512x512"];
 const ASSETS_DIR = path.join(projectRoot, "src", "assets");

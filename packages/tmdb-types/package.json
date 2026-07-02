@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./openapi": "./openapi.d.ts",
-    "./vector-db": "./vector-db.ts"
+    "./openapi": "./src/openapi.d.ts",
+    "./vector-db": "./src/vector-db.ts"
   },
   "scripts": {
     "lint": "eslint ."

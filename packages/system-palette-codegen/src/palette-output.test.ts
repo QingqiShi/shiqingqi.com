@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   argbFromHex,
   hexFromArgb,
-} from "../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
-import { TonalPalette } from "../../apps/web/src/vendor/material-color-utilities/tonal_palette.ts";
+} from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
+import { TonalPalette } from "../../../apps/web/src/vendor/material-color-utilities/tonal_palette.ts";
 import { contrastRatio, pickForeground } from "./contrast.ts";
 import { evaluateCurve, SYSTEM_HUES, SYSTEM_PALETTE_TONES } from "./source.ts";
 

@@ -111,7 +111,7 @@ export default defineConfig([
   // type-checked rules and configure for Node.js/CommonJS.
   {
     files: ["packages/**/*.js"],
-    ignores: ["packages/tmdb-codegen/generator.js"],
+    ignores: ["packages/tmdb-codegen/src/generator.js"],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {
       sourceType: "commonjs",
@@ -132,7 +132,7 @@ export default defineConfig([
   },
   // Tooling ESM files — disable type-checked rules and add Node globals.
   {
-    files: ["packages/**/*.mjs", "packages/tmdb-codegen/generator.js"],
+    files: ["packages/**/*.mjs", "packages/tmdb-codegen/src/generator.js"],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {
       parserOptions: { projectService: false },

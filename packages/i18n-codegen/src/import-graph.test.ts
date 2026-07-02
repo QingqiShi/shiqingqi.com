@@ -5,7 +5,7 @@ import { resolveImport, traceClientFiles } from "./import-graph.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const srcDir = path.join(__dirname, "../../apps/web/src");
+const srcDir = path.join(__dirname, "../../../apps/web/src");
 
 describe("resolveImport", () => {
   it("resolves #src/ alias to src directory", () => {

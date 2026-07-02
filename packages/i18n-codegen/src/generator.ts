@@ -14,7 +14,7 @@ const { values } = parseArgs({
 
 const projectRoot = values.root
   ? path.resolve(values.root)
-  : path.resolve(import.meta.dirname, "../../apps/web");
+  : path.resolve(import.meta.dirname, "../../../apps/web");
 const srcDir = path.join(projectRoot, "src");
 const outputDir = path.join(srcDir, "_generated", "i18n");
 
