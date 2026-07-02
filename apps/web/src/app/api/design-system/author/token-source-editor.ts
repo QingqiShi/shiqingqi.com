@@ -133,10 +133,10 @@ function isStylexTypesCall(call: CallExpression): boolean {
   );
 }
 
-/** Generated palette hues live one file each; `<hue>` and `<hue>_rgb` share it. */
+/** Generated palette hues live one file each under `hues/`; `<hue>` and `<hue>_rgb` share it. */
 function paletteModuleFor(name: string): string {
   const hue = name.endsWith("_rgb") ? name.slice(0, -4) : name;
-  return `./_generated/palette/${hue}.stylex.ts`;
+  return `./_generated/palette/hues/${hue}.stylex.ts`;
 }
 
 /**

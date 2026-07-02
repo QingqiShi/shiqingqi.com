@@ -96,7 +96,7 @@ function renderHueFile(hue: ResolvedHue): string {
   //
   // Per StyleX rules, `.stylex.ts` files may only export `defineVars` /
   // `defineConsts` calls — so hue metadata (name, source) and foreground
-  // contrast colors live in `table.ts` (plain `.ts`) where the showcase
+  // contrast colors live in `palette-table.ts` (plain `.ts`) where the showcase
   // already aggregates them.
   const entriesFor = (key: "bg" | "rgb") =>
     SYSTEM_PALETTE_TONES.map((t) => {
@@ -130,11 +130,13 @@ function renderTableFile(hues: readonly ResolvedHue[]): string {
   // plain string literals — they don't belong in a `.stylex.ts` file (the
   // StyleX rule forbids non-stylex exports there) and the showcase needs them
   // at runtime anyway.
+  // The hue primitives live in the sibling `hues/` folder; this derived table
+  // is the lone `.ts` at the palette root.
   // Sort imports alphabetically to satisfy the project's import-x/order
   // lint rule; functional order doesn't matter (each import is independent).
   const imports = [...hues]
     .sort((a, b) => a.slug.localeCompare(b.slug))
-    .map((h) => `import { ${h.slug} } from "./${h.slug}.stylex.ts";`)
+    .map((h) => `import { ${h.slug} } from "./hues/${h.slug}.stylex.ts";`)
     .join("\n");
 
   const entries = hues
@@ -213,20 +215,30 @@ function cleanStaleFiles(
 }
 
 const hues = resolve();
-fs.mkdirSync(outputDir, { recursive: true });
+const huesDir = path.join(outputDir, "hues");
+fs.mkdirSync(huesDir, { recursive: true });
 
-const expectedFiles = new Set<string>(["table.ts"]);
+const expectedHueFiles = new Set<string>();
 for (const hue of hues) {
   const filename = `${hue.slug}.stylex.ts`;
-  expectedFiles.add(filename);
-  writeFileSyncIfChanged(path.join(outputDir, filename), renderHueFile(hue));
+  expectedHueFiles.add(filename);
+  writeFileSyncIfChanged(path.join(huesDir, filename), renderHueFile(hue));
 }
-writeFileSyncIfChanged(path.join(outputDir, "table.ts"), renderTableFile(hues));
+writeFileSyncIfChanged(
+  path.join(outputDir, "palette-table.ts"),
+  renderTableFile(hues),
+);
 
-const removed = cleanStaleFiles(outputDir, expectedFiles);
+// Clean each level to its own expected set. Sweeping the palette root (keeping
+// only the derived table) also removes the pre-subfolder flat layout — the old
+// `table.ts` plus the hue files that used to sit alongside it.
+const removed = [
+  ...cleanStaleFiles(huesDir, expectedHueFiles),
+  ...cleanStaleFiles(outputDir, new Set<string>(["palette-table.ts"])),
+];
 
 console.log(
-  `Wrote ${String(hues.length)} hue files + table.ts to ${outputDir}`,
+  `Wrote ${String(hues.length)} hue files to ${huesDir} + palette-table.ts to ${outputDir}`,
 );
 if (removed.length > 0) {
   console.log(`Removed stale files: ${removed.join(", ")}`);
