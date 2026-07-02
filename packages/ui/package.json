@@ -6,8 +6,8 @@
   "exports": {
     "./tokens.stylex": "./src/tokens.stylex.ts",
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
-    "./palette/*": "./src/_generated/palette/*.stylex.ts",
-    "./palette-table": "./src/_generated/palette/table.ts",
+    "./palette/*": "./src/_generated/palette/hues/*.stylex.ts",
+    "./palette-table": "./src/_generated/palette/palette-table.ts",
     "./author/token-registry": "./src/author/token-registry.ts",
     "./author/palette-match": "./src/author/palette-match.ts",
     "./primitives/flex.stylex": "./src/primitives/flex.stylex.ts",

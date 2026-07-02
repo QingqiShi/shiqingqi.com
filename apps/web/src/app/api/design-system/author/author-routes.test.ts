@@ -189,7 +189,7 @@ describe("author apply route", () => {
     // `teal` is a system hue but is not imported by tokens.stylex.ts, so writing
     // `teal._50` without adding its import would break the build.
     const before = readFixture();
-    expect(before).not.toContain("palette/teal.stylex.ts");
+    expect(before).not.toContain("palette/hues/teal.stylex.ts");
     await apply(
       applyRequest({
         version: 1,
@@ -213,7 +213,7 @@ describe("author apply route", () => {
     );
     const source = readFixture();
     expect(source).toContain(
-      'import { teal } from "./_generated/palette/teal.stylex.ts";',
+      'import { teal } from "./_generated/palette/hues/teal.stylex.ts";',
     );
     expect(source).toContain("textMain: teal._50,");
   });

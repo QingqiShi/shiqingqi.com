@@ -120,8 +120,8 @@ describe("applyScalarEditToSource", () => {
 
 describe("ensurePaletteImport", () => {
   const header = [
-    'import { gray } from "./_generated/palette/gray.stylex.ts";',
-    'import { purple, purple_rgb } from "./_generated/palette/purple.stylex.ts";',
+    'import { gray } from "./_generated/palette/hues/gray.stylex.ts";',
+    'import { purple, purple_rgb } from "./_generated/palette/hues/purple.stylex.ts";',
     'import { breakpoints } from "./breakpoints.stylex.ts";',
     "",
     "const light = { textMain: gray._20 };",
@@ -136,7 +136,7 @@ describe("ensurePaletteImport", () => {
   it("inserts a new import for a hue the file doesn't reference yet", async () => {
     const out = await ensurePaletteImport(header, "teal");
     expect(out).toContain(
-      'import { teal } from "./_generated/palette/teal.stylex.ts";',
+      'import { teal } from "./_generated/palette/hues/teal.stylex.ts";',
     );
     // The original imports and body survive.
     expect(out).toContain("const light = { textMain: gray._20 };");
@@ -145,7 +145,7 @@ describe("ensurePaletteImport", () => {
   it("extends an existing hue import to add its _rgb channel", async () => {
     const out = await ensurePaletteImport(header, "gray_rgb");
     expect(out).toContain(
-      'import { gray, gray_rgb } from "./_generated/palette/gray.stylex.ts";',
+      'import { gray, gray_rgb } from "./_generated/palette/hues/gray.stylex.ts";',
     );
   });
 });
