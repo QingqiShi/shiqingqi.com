@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "generator.js",
+  "main": "src/generator.js",
   "bin": {
-    "tmdb-codegen": "./generator.js"
+    "tmdb-codegen": "./src/generator.js"
   },
   "scripts": {
     "lint": "eslint .",

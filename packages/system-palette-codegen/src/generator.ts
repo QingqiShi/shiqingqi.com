@@ -6,14 +6,14 @@ import { fileURLToPath } from "node:url";
 import {
   argbFromHex,
   hexFromArgb,
-} from "../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
-import { TonalPalette } from "../../apps/web/src/vendor/material-color-utilities/tonal_palette.ts";
+} from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
+import { TonalPalette } from "../../../apps/web/src/vendor/material-color-utilities/tonal_palette.ts";
 import { pickForeground } from "./contrast.ts";
 import { evaluateCurve, SYSTEM_HUES, SYSTEM_PALETTE_TONES } from "./source.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectRoot = path.join(__dirname, "../..");
+const projectRoot = path.join(__dirname, "../../..");
 
 // Per-StyleX docs: `.stylex.ts` files may only export `defineVars` /
 // `defineConsts` calls. The codegen emits one file per hue with two consts

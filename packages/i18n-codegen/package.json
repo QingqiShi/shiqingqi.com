@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "generator.ts",
+  "main": "src/generator.ts",
   "scripts": {
     "lint": "eslint .",
     "test": "vitest run"

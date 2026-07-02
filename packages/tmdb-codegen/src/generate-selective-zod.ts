@@ -29,11 +29,11 @@ const { values } = parseArgs({
 
 const projectRoot = values.root
   ? path.resolve(values.root)
-  : path.resolve(import.meta.dirname, "../../apps/web");
+  : path.resolve(import.meta.dirname, "../../../apps/web");
 const outputPath = path.join(projectRoot, "src/_generated/tmdb-zod.ts");
 const tmdbTypesPath = path.resolve(
   import.meta.dirname,
-  "../tmdb-types/openapi.d.ts",
+  "../../tmdb-types/src/openapi.d.ts",
 );
 
 // Extract operations that need Zod schemas from config

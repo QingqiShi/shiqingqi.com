@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "ingest.ts",
+  "main": "src/ingest.ts",
   "scripts": {
     "lint": "eslint .",
     "test": "vitest run"
