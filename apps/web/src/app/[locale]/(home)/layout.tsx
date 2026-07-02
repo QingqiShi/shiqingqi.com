@@ -180,8 +180,7 @@ const styles = stylex.create({
     zIndex: layer.base,
     overflow: "hidden",
     pointerEvents: "none",
-    backgroundImage: `radial-gradient(circle calc(${glowTokens.height}*5) at center calc(${glowTokens.height}*5), ${color.accent} calc(${glowTokens.height}*4), transparent)`,
-    opacity: color.opacityActive,
+    backgroundImage: `radial-gradient(circle calc(${glowTokens.height}*5) at center calc(${glowTokens.height}*5), ${color.accentGlow} calc(${glowTokens.height}*4), transparent)`,
     height: glowTokens.height,
   },
 });

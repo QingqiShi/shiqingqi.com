@@ -71,7 +71,7 @@ describe("token registry", () => {
     });
 
     it("returns undefined for a skipped member", () => {
-      expect(findEditableToken("color.colorScheme")).toBeUndefined();
+      expect(findEditableToken("font.family")).toBeUndefined();
     });
   });
 });
