@@ -66,7 +66,7 @@ function Band({ name, description, children, columns }: BandProps) {
 
 export function BackgroundsShowcase() {
   return (
-    <Showcase label={t({ en: "Backgrounds", zh: "背景" })}>
+    <Showcase label={t({ en: "Surfaces", zh: "表面" })} frame="plain">
       <ShowcaseHelper>
         {t({
           en: "Surfaces are organised by role, not tonal step. Pick by what the surface is for — scaffolding, a card, an interactive state, an attention-grabbing inverse, or a floating overlay — and the right tone follows.",
@@ -248,19 +248,21 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_4,
   },
   // Gridline-via-gap: the grid is a solid bgCanvas rectangle (the canvas ground
-  // the surface tiles sit on); the opaque cells cover it except the gaps, so
-  // the ground shows through as hairline dividers, with a matching bgCanvas
-  // border as the outer frame. A border (unlike padding) makes overflow shrink
-  // the clip radius by its own width, so the corner cells stay concentric with
-  // the frame instead of bulging the ground at the rounded corners. (The Page
-  // band's Canvas swatch shares this tone, so it reads flush with the ground.)
+  // the surface tiles sit on); the opaque cells cover it except the gaps, so the
+  // ground shows through as hairline dividers. The outer frame is neutralBorder
+  // so the specimen still reads as a self-contained unit now that it sits on the
+  // bare page canvas rather than inside a surface card — the Page band's Canvas
+  // swatch shares the interior ground, so it reads flush there while the frame
+  // keeps a crisp edge. A border (unlike padding) makes overflow shrink the clip
+  // radius by its own width, so the corner cells stay concentric with the frame
+  // instead of bulging the ground at the rounded corners.
   grid: {
     display: "grid",
     gap: space._00,
     backgroundColor: color.bgCanvas,
     borderWidth: space._00,
     borderStyle: "solid",
-    borderColor: color.bgCanvas,
+    borderColor: color.neutralBorder,
     borderRadius: border.radius_2,
     overflow: "hidden",
   },

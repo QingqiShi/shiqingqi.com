@@ -1,276 +1,127 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import {
   type SystemHuePalette,
   SYSTEM_PALETTE_TONES,
   systemPalette,
 } from "@tuja/ui/palette-table";
-import {
-  border,
-  color,
-  font,
-  layer,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 
-const FEATURED_TONES: ReadonlySet<number> = new Set([40, 80]);
+// Cell widths taper smoothly from a wide centre to narrow ends, so each ramp
+// reads like a lens over its mid-tones. Raising the sine to the fourth power
+// concentrates the width into a sharp central peak — the mid tones dominate and
+// the taper accelerates toward the ends — while the 0.18fr floor keeps the
+// outermost cells legible. Applied inline because the varying template is not a
+// static value StyleX can inline. Every ramp shares the same 21-tone shape,
+// computed once.
+const RAMP_COLUMNS = SYSTEM_PALETTE_TONES.map((_tone, index) => {
+  const position = index / (SYSTEM_PALETTE_TONES.length - 1);
+  const width = 0.18 + 2.8 * Math.sin(Math.PI * position) ** 4;
+  return `${width.toFixed(3)}fr`;
+}).join(" ");
 
-// Column counts per breakpoint — keep in sync with styles.grid.
-const GRID_COLUMNS = { md: 2, lg: 3 };
-
-// When the hue count leaves a single card alone on the final row, center it
-// rather than stranding it flush-left: full width in the 2-col grid, the middle
-// column in the 3-col grid. Gating each breakpoint on `count % cols === 1` means
-// the override disappears cleanly when the count is a multiple of that column
-// count (no stray-span collision), and it keeps working as hues are added.
-function orphanColumnVars(count: number) {
-  const center = (cols: number) =>
-    cols % 2 === 1 ? String(Math.ceil(cols / 2)) : "1 / -1";
-  return {
-    "--orphan-col-md":
-      count % GRID_COLUMNS.md === 1 ? center(GRID_COLUMNS.md) : "auto",
-    "--orphan-col-lg":
-      count % GRID_COLUMNS.lg === 1 ? center(GRID_COLUMNS.lg) : "auto",
-  };
-}
-
+/**
+ * The system palette, shown as a plain reference sheet: one row per hue, each a
+ * label and its full tonal ramp. It is intentionally quiet — this is the raw
+ * range the tokens draw from, not something the app styles against directly — so
+ * the surfaces and roles below carry the visual weight.
+ */
 export function PaletteShowcase() {
-  const lastIndex = systemPalette.length - 1;
-  const orphanVars = orphanColumnVars(systemPalette.length);
-
   return (
-    <Showcase label={t({ en: "Tonal palettes", zh: "色调阶梯" })}>
+    <Showcase
+      label={t({ en: "System palette", zh: "系统调色板" })}
+      frame="plain"
+    >
       <ShowcaseHelper>
         {t({
-          en: "Tones 40 and 80 are featured as key stops — the typical pairing for solid roles and their soft surfaces.",
-          zh: "40 与 80 为关键色阶——通常用作实色角色与对应柔和表面。",
+          en: "Thirteen hues, each expanded into a perceptually even 21-step tonal scale. The complete range of available colour — consumed only through the design tokens above.",
+          zh: "十三种色相，各自展开为感知均匀的 21 级色调阶梯。全部可用颜色的范围——仅通过上方的设计令牌使用。",
         })}
       </ShowcaseHelper>
-      <div css={styles.grid}>
-        {systemPalette.map((palette, index) => (
-          <PaletteSpecimen
-            key={palette.name}
-            palette={palette}
-            orphanVars={index === lastIndex ? orphanVars : undefined}
-          />
+      <ul css={styles.list}>
+        {systemPalette.map((palette) => (
+          <PaletteRow key={palette.name} palette={palette} />
         ))}
-      </div>
+      </ul>
     </Showcase>
   );
 }
 
-function PaletteSpecimen({
-  palette,
-  orphanVars,
-}: {
-  palette: SystemHuePalette;
-  orphanVars?: ReturnType<typeof orphanColumnVars>;
-}) {
-  const solid = palette.tones[40];
-  const soft = palette.tones[80];
-
+function PaletteRow({ palette }: { palette: SystemHuePalette }) {
   return (
-    <article
-      css={styles.card}
-      role="group"
-      aria-label={palette.name}
-      style={{ "--source": palette.source, ...orphanVars }}
-    >
-      <div css={styles.wash} aria-hidden />
-
-      <header css={styles.header}>
-        <div css={styles.identity}>
-          <h3 css={styles.name}>{palette.name}</h3>
-          <span css={styles.source}>{palette.source}</span>
-        </div>
-
-        <div css={styles.demo} aria-hidden>
-          <div
-            css={styles.demoSurface}
-            style={{
-              backgroundColor: soft.bg,
-              color: `contrast-color(${soft.bg})`,
-            }}
-          >
-            <div
-              css={styles.demoChip}
-              style={{
-                backgroundColor: solid.bg,
-                color: `contrast-color(${solid.bg})`,
-              }}
-            >
-              Aa
-            </div>
-            <div css={styles.demoMeta}>
-              <span css={styles.demoMetaPrimary}>40</span>
-              <span css={styles.demoMetaDivider}>·</span>
-              <span css={styles.demoMetaSecondary}>80</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div css={styles.tones}>
-        {SYSTEM_PALETTE_TONES.map((tone) => {
-          const swatch = palette.tones[tone];
-          const featured = FEATURED_TONES.has(tone);
-          return (
-            <div
-              key={tone}
-              css={[styles.tone, featured && styles.toneFeatured]}
-              style={{
-                backgroundColor: swatch.bg,
-                color: `contrast-color(${swatch.bg})`,
-              }}
-              role="img"
-              aria-label={`${palette.name} ${String(tone)}`}
-            />
-          );
-        })}
+    <li css={styles.row}>
+      <div css={styles.identity}>
+        <span css={styles.name}>{palette.name}</span>
+        <span css={styles.source}>{palette.source}</span>
       </div>
-    </article>
+      <div
+        css={styles.ramp}
+        style={{ gridTemplateColumns: RAMP_COLUMNS }}
+        role="img"
+        aria-label={palette.name}
+      >
+        {SYSTEM_PALETTE_TONES.map((tone) => (
+          <span
+            key={tone}
+            css={styles.tone}
+            style={{ backgroundColor: palette.tones[tone].bg }}
+          />
+        ))}
+      </div>
+    </li>
   );
 }
 
 const styles = stylex.create({
-  // Two-up field-guide layout: specimen cards flow into a responsive grid so the
-  // thirteen hues read as a compact reference sheet rather than a tall stack.
-  grid: {
-    display: "grid",
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
-      [breakpoints.lg]: "repeat(3, minmax(0, 1fr))",
-    },
-    gap: space._3,
-  },
-  card: {
-    position: "relative",
-    // A lone card on the final row reads `--orphan-col-*` (set only on that card
-    // by `orphanColumnVars`) to center itself — full width at md, middle column at
-    // lg. Every other card leaves the vars unset and falls back to `auto`.
-    gridColumn: {
-      default: "auto",
-      [breakpoints.md]: "var(--orphan-col-md, auto)",
-      [breakpoints.lg]: "var(--orphan-col-lg, auto)",
-    },
+  list: {
+    listStyle: "none",
+    margin: 0,
+    padding: 0,
     display: "flex",
     flexDirection: "column",
     gap: space._2,
-    paddingBlock: space._3,
-    paddingInline: space._4,
-    backgroundColor: color.bgSurfaceRaised,
-    border: `1px solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
-    overflow: "hidden",
-    isolation: "isolate",
   },
-  wash: {
-    position: "absolute",
-    insetBlockStart: 0,
-    insetInlineEnd: 0,
-    inlineSize: "55%",
-    blockSize: "100%",
-    background:
-      "radial-gradient(120% 140% at 100% 0%, var(--source) 0%, transparent 55%)",
-    opacity: 0.12,
-    pointerEvents: "none",
-    zIndex: layer.background,
-  },
-  header: {
+  // Label sits beside the ramp on wide rows and wraps above it when space runs
+  // out, so the ramp always keeps a usable width.
+  row: {
     display: "flex",
     flexWrap: "wrap",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: space._3,
+    alignItems: "center",
+    columnGap: space._4,
+    rowGap: space._1,
   },
   identity: {
+    flexShrink: 0,
+    inlineSize: "6.5rem",
     display: "flex",
-    flexDirection: "column",
-    gap: space._00,
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    gap: space._2,
   },
   name: {
-    margin: 0,
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_7,
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_6,
     color: color.textMain,
     letterSpacing: font.trackingTight,
-    lineHeight: font.lineHeight_1,
   },
   source: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    color: color.textSubtle,
-    letterSpacing: font.trackingWide,
-  },
-  demo: {
-    flexShrink: 0,
-    display: "flex",
-  },
-  demoSurface: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._2,
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    borderRadius: border.radius_2,
-    boxShadow: shadow._1,
-  },
-  demoChip: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    inlineSize: "28px",
-    blockSize: "28px",
-    borderRadius: border.radius_round,
-    fontFamily: font.family,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingTight,
-  },
-  demoMeta: {
-    display: "flex",
-    alignItems: "center",
-    gap: "4px",
-    fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    fontWeight: font.weight_6,
-    letterSpacing: font.trackingWider,
+    color: color.textSubtle,
   },
-  demoMetaPrimary: {
-    opacity: 0.95,
-  },
-  demoMetaSecondary: {
-    opacity: 0.55,
-  },
-  demoMetaDivider: {
-    opacity: 0.4,
-  },
-  tones: {
+  ramp: {
+    flex: "1",
+    minInlineSize: "220px",
     display: "grid",
-    // Compact mode unfurls all 21 tones into a single slim ramp at every width,
-    // so the brightness curve reads as one gesture; featured 40/80 carry rings
-    // and the Aa demo names the key stops, replacing per-cell numerals.
-    gridTemplateColumns: "repeat(21, minmax(0, 1fr))",
+    // Columns are supplied inline (RAMP_COLUMNS) to taper the cell widths.
+    blockSize: "26px",
     borderRadius: border.radius_2,
     overflow: "hidden",
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   tone: {
-    position: "relative",
-    minBlockSize: "30px",
-    // Hover widens the swatch over its neighbours and lifts it above them; the
-    // z-index reset is delayed so it stays on top while scaling back. A drop
-    // shadow would be clipped by the ramp's `overflow: hidden`, so there is none.
-    transition: "transform 220ms cubic-bezier(0.2, 0, 0, 1), z-index 0ms 220ms",
-    zIndex: { default: layer.base, ":hover": layer.content },
-    transform: { default: "scale(1)", ":hover": "scale(1.12)" },
-  },
-  toneFeatured: {
-    boxShadow: "inset 0 0 0 1.5px currentColor",
+    minInlineSize: 0,
   },
 });

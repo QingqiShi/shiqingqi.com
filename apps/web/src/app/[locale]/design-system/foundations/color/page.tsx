@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DocPage } from "#src/components/design-system/doc-page.tsx";
 import { BackgroundsShowcase } from "#src/components/design-system/sections/tokens/backgrounds-showcase.tsx";
+import { ColorHierarchy } from "#src/components/design-system/sections/tokens/color-hierarchy.tsx";
 import { PaletteShowcase } from "#src/components/design-system/sections/tokens/palette-showcase.tsx";
 import { RolesShowcase } from "#src/components/design-system/sections/tokens/roles-showcase.tsx";
 import { t } from "#src/i18n.ts";
@@ -22,10 +23,11 @@ export default function ColorPage() {
     <DocPage
       title={t({ en: "Color", zh: "颜色" })}
       description={t({
-        en: "Thirteen system hues, expanded into perceptually even tonal palettes via Material 3's HCT, then mapped onto semantic background, surface, and text-role tokens.",
-        zh: "十三种系统色调通过 Material 3 的 HCT 展开为感知均匀的色调阶梯，再映射到语义化的背景、表面与文本角色令牌。",
+        en: "Thirteen system hues, expanded into perceptually even tonal palettes, then mapped onto semantic background, surface, and text-role tokens.",
+        zh: "十三种系统色调展开为感知均匀的色调阶梯，再映射到语义化的背景、表面与文本角色令牌。",
       })}
     >
+      <ColorHierarchy />
       <PaletteShowcase />
       <BackgroundsShowcase />
       <RolesShowcase />
