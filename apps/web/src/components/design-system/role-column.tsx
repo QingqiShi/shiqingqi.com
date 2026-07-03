@@ -52,18 +52,18 @@ const styles = stylex.create({
     gridRow: "span 5",
     // Gridline-via-gap: the column is a solid bgCanvas rectangle (the canvas
     // ground the tiles sit on); the cells cover it except the row gaps, so the
-    // ground shows through as hairline dividers, with a matching bgCanvas
-    // border as the outer frame. A border (unlike padding) makes overflow
-    // shrink the clip radius by its own width, so the corner cells stay
-    // concentric with the frame and the ground doesn't bulge at the rounded
-    // corners. Replaces the inset box-shadow, which children paint over.
-    // Translucent role fills composite over this ground, so dividers read
-    // softer next to them.
+    // ground shows through as hairline dividers. The outer frame is neutralBorder
+    // so each column still reads as a self-contained unit now that the section
+    // sits on the bare page canvas rather than inside a surface card. A border
+    // (unlike padding) makes overflow shrink the clip radius by its own width, so
+    // the corner cells stay concentric with the frame and the ground doesn't
+    // bulge at the rounded corners. Translucent role fills still composite over
+    // the bgCanvas ground, so dividers read softer next to them.
     rowGap: space._00,
     backgroundColor: color.bgCanvas,
     borderWidth: space._00,
     borderStyle: "solid",
-    borderColor: color.bgCanvas,
+    borderColor: color.neutralBorder,
     borderRadius: border.radius_2,
     overflow: "hidden",
   },
