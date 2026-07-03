@@ -29,6 +29,14 @@ export default function DesignSystemOverview() {
       }),
     },
     {
+      path: "/design-system/foundations/spacing",
+      label: t({ en: "Spacing", zh: "间距" }),
+      description: t({
+        en: "The rem-based spacing scale.",
+        zh: "以 rem 为基准的间距阶梯。",
+      }),
+    },
+    {
       path: "/design-system/foundations/elevation",
       label: t({ en: "Elevation", zh: "阴影层级" }),
       description: t({
