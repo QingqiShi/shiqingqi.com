@@ -32,8 +32,8 @@ export default function DesignSystemOverview() {
       path: "/design-system/foundations/spacing",
       label: t({ en: "Spacing", zh: "间距" }),
       description: t({
-        en: "The rem-based spacing scale, applied as padding and gap.",
-        zh: "以 rem 为基准的间距阶梯，应用于内边距与间距。",
+        en: "The rem-based spacing scale.",
+        zh: "以 rem 为基准的间距阶梯。",
       }),
     },
     {

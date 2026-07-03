@@ -1,48 +1,23 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import { Fragment } from "react";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
-
-interface Band {
-  label: string;
-  note: string;
-}
 
 interface SpaceStep {
   member: string;
   rem: string;
   px: string;
   bar: StyleXStyles;
-  /** Present on the first step of a regime — renders a banded sub-heading. */
-  band?: Band;
 }
 
 export function SpaceScaleShowcase() {
-  const interior: Band = {
-    label: t({ en: "Interior", zh: "组件内部" }),
-    note: t({ en: "space inside a component", zh: "组件内部的空间" }),
-  };
-  const layout: Band = {
-    label: t({ en: "Layout", zh: "布局" }),
-    note: t({ en: "rhythm between regions", zh: "区域之间的节奏" }),
-  };
-
   // Each bar renders at the token's true size (`inlineSize: space._N`), so the
   // ruler stays honest — and author-mode edits move the bar live. Every row is
-  // an editable specimen keyed on its space token. The scale splits in two at
-  // 2rem: fine, near-even steps for component interiors, then coarser jumps for
-  // layout — the `band` marks each regime's first step.
+  // an editable specimen keyed on its space token.
   const steps: SpaceStep[] = [
-    {
-      member: "_00",
-      rem: "0.1rem",
-      px: "1.6px",
-      bar: styles.w00,
-      band: interior,
-    },
+    { member: "_00", rem: "0.1rem", px: "1.6px", bar: styles.w00 },
     { member: "_0", rem: "0.25rem", px: "4px", bar: styles.w0 },
     { member: "_1", rem: "0.5rem", px: "8px", bar: styles.w1 },
     { member: "_2", rem: "0.75rem", px: "12px", bar: styles.w2 },
@@ -51,7 +26,7 @@ export function SpaceScaleShowcase() {
     { member: "_5", rem: "1.5rem", px: "24px", bar: styles.w5 },
     { member: "_6", rem: "1.75rem", px: "28px", bar: styles.w6 },
     { member: "_7", rem: "2rem", px: "32px", bar: styles.w7 },
-    { member: "_8", rem: "3rem", px: "48px", bar: styles.w8, band: layout },
+    { member: "_8", rem: "3rem", px: "48px", bar: styles.w8 },
     { member: "_9", rem: "4rem", px: "64px", bar: styles.w9 },
     { member: "_10", rem: "5rem", px: "80px", bar: styles.w10 },
     { member: "_11", rem: "7.5rem", px: "120px", bar: styles.w11 },
@@ -66,34 +41,28 @@ export function SpaceScaleShowcase() {
     <Showcase label={t({ en: "Scale", zh: "阶梯" })}>
       <ShowcaseHelper>
         {t({
-          en: "Eighteen steps on a rem base, measured from a common baseline. Fine, near-even increments up to 2rem size a component's interior; the coarser jumps beyond set the rhythm between whole layout regions.",
-          zh: "以 rem 为基准的十八个步长，从同一基线量起。2rem 以内为细密而近乎均匀的增量，用于组件内部；其上的粗跳跃则设定整块布局区域之间的节奏。",
+          en: "Eighteen steps on a rem base, each drawn to true size from a common baseline — fine near the low end, widening as the scale climbs.",
+          zh: "以 rem 为基准的十八个步长，皆按真实尺寸从同一基线量起——低端细密，随阶梯上行而增大。",
         })}
       </ShowcaseHelper>
       <div css={styles.scroller}>
         <ol css={styles.ledger}>
           {steps.map((step) => (
-            <Fragment key={step.member}>
-              {step.band ? (
-                <li css={styles.band}>
-                  <span css={styles.bandInner}>
-                    <span css={styles.bandLabel}>{step.band.label}</span>
-                    <span css={styles.bandNote}>{step.band.note}</span>
-                  </span>
-                </li>
-              ) : null}
-              <li css={styles.row} data-author-token={`space.${step.member}`}>
-                <div css={styles.meta}>
-                  <span css={styles.token}>{`space.${step.member}`}</span>
-                  <span css={styles.value}>
-                    <span css={styles.rem}>{step.rem}</span>
-                    <span css={styles.dot}>·</span>
-                    <span css={styles.px}>{step.px}</span>
-                  </span>
-                </div>
-                <span css={[styles.bar, step.bar]} />
-              </li>
-            </Fragment>
+            <li
+              key={step.member}
+              css={styles.row}
+              data-author-token={`space.${step.member}`}
+            >
+              <div css={styles.meta}>
+                <span css={styles.token}>{`space.${step.member}`}</span>
+                <span css={styles.value}>
+                  <span css={styles.rem}>{step.rem}</span>
+                  <span css={styles.dot}>·</span>
+                  <span css={styles.px}>{step.px}</span>
+                </span>
+              </div>
+              <span css={[styles.bar, step.bar]} />
+            </li>
           ))}
         </ol>
       </div>
@@ -121,39 +90,6 @@ const styles = stylex.create({
     // `min-inline-size: 100%` keeps the ledger filling the lane when it all fits.
     inlineSize: "max-content",
     minInlineSize: "100%",
-  },
-  band: {
-    display: "flex",
-    // A hairline rule + label separating the interior steps from the layout
-    // steps. The first band drops the rule and the leading space.
-    marginBlockStart: { default: space._3, ":first-child": 0 },
-    paddingBlockStart: { default: space._3, ":first-child": 0 },
-    borderBlockStartWidth: { default: "1px", ":first-child": 0 },
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
-  },
-  bandInner: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: space._2,
-    // Pinned like the row meta so the regime label survives the scroll.
-    position: "sticky",
-    insetInlineStart: 0,
-    backgroundColor: color.bgSurface,
-    paddingInlineEnd: space._3,
-  },
-  bandLabel: {
-    fontSize: font.uiOverline,
-    fontWeight: font.weight_6,
-    letterSpacing: font.trackingWidest,
-    textTransform: "uppercase",
-    color: color.textMuted,
-    whiteSpace: "nowrap",
-  },
-  bandNote: {
-    fontSize: font.uiCaption,
-    color: color.textSubtle,
-    whiteSpace: "nowrap",
   },
   // A flex row (not grid): the meta's containing block is the whole row, so its
   // `position: sticky` can travel the full scroll distance. In a grid the meta
