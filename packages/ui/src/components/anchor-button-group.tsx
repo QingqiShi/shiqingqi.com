@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, controlSize, shadow } from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren } from "react";
-import { buttonTokens } from "./button.stylex";
+import { border, color, controlSize, shadow } from "../tokens.stylex.ts";
+import { buttonTokens } from "./button.stylex.ts";
 
 interface AnchorButtonGroupProps {
   bright?: boolean;

@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import { Card } from "#src/components/shared/card.tsx";
-import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { svgTokens } from "#src/logos/svg.stylex.ts";
 
 interface ExperienceCardProps extends React.ComponentProps<typeof Card> {

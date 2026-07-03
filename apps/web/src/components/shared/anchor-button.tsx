@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
+import { sharedStyles } from "@tuja/ui/components/button-shared.stylex";
+import { buttonTokens } from "@tuja/ui/components/button.stylex";
+import { usePressHandlers } from "@tuja/ui/hooks/use-press-handlers";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
-import { usePressHandlers } from "#src/hooks/use-press-handlers.ts";
 import { Anchor } from "./anchor";
-import { anchorTokens } from "./anchor.stylex";
-import { sharedStyles } from "./button-shared.stylex";
-import { buttonTokens } from "./button.stylex";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
   bright?: boolean;
@@ -23,10 +23,22 @@ export function AnchorButton({
   hideLabelOnMobile,
   icon,
   isActive,
+  ref: forwardedRef,
   style,
   ...restProps
 }: AnchorButtonProps) {
   const anchorRef = useRef<HTMLAnchorElement>(null);
+  // Keep the internal ref (used by the press-animation hook) and also forward
+  // to a caller-supplied ref, which `extends ComponentProps<typeof Anchor>`
+  // allows.
+  const setAnchorRef = (node: HTMLAnchorElement | null) => {
+    anchorRef.current = node;
+    if (typeof forwardedRef === "function") {
+      forwardedRef(node);
+    } else if (forwardedRef) {
+      forwardedRef.current = node;
+    }
+  };
 
   const { isPressed, releasedOutside, pressedStyle, handlers } =
     usePressHandlers({
@@ -39,7 +51,7 @@ export function AnchorButton({
       aria-current={isActive ? "true" : undefined}
       {...restProps}
       indicateExternal={false}
-      ref={anchorRef}
+      ref={setAnchorRef}
       className={className}
       style={{ ...style, ...pressedStyle }}
       css={[

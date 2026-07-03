@@ -1,9 +1,9 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
+import { Button } from "@tuja/ui/components/button";
+import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, ratio } from "@tuja/ui/tokens.stylex";
-import { buttonTokens } from "#src/components/shared/button.stylex.ts";
-import { Button } from "#src/components/shared/button.tsx";
 import { t } from "#src/i18n.ts";
 
 interface CalculatorButtonProps {

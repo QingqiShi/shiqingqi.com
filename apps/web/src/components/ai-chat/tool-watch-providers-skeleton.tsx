@@ -1,8 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
-import { Skeleton } from "../shared/skeleton";
 
 const ROWS = [
   { key: "stream", logoCount: 3 },

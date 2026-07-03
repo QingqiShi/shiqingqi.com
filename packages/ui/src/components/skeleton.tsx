@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { border, color } from "@tuja/ui/tokens.stylex";
 import type { CSSProperties, Ref } from "react";
-import { skeletonTokens } from "./skeleton.stylex";
+import { motionConstants } from "../primitives/motion.stylex.ts";
+import { border, color } from "../tokens.stylex.ts";
+import { skeletonTokens } from "./skeleton.stylex.ts";
 
 interface SkeletonProps {
   fill?: boolean;
@@ -29,9 +29,9 @@ export function Skeleton({
       css={[
         styles.skeleton,
         fill && styles.fill,
-        !!width && styles.width(width),
-        !!height && styles.height(height),
-        !!delay && styles.delay(delay),
+        width !== undefined && styles.width(width),
+        height !== undefined && styles.height(height),
+        delay !== undefined && styles.delay(delay),
       ]}
       className={className}
       style={style}

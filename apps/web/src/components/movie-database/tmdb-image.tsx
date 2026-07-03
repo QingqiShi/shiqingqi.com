@@ -1,7 +1,7 @@
 "use client";
 
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { useState, type ReactNode } from "react";
-import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 
 interface TmdbImageProps {

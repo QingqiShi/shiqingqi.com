@@ -2,6 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { AnchorButtonGroup } from "@tuja/ui/components/anchor-button-group";
+import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
@@ -10,8 +12,6 @@ import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { AnchorButton } from "../shared/anchor-button";
-import { AnchorButtonGroup } from "../shared/anchor-button-group";
-import { MenuLabel } from "../shared/menu-label";
 
 interface GenreFilterProps {
   hideTitle?: boolean;

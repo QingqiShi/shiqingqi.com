@@ -3,9 +3,9 @@
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { Button } from "@tuja/ui/components/button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
-import { Button } from "../shared/button";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   useHeroVisibility,

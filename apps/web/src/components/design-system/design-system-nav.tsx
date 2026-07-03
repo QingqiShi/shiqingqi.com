@@ -65,6 +65,26 @@ export function DesignSystemNav() {
           label: t({ en: "Badge", zh: "徽章" }),
           path: "/design-system/components/badge",
         },
+        {
+          label: t({ en: "Skeleton", zh: "骨架屏" }),
+          path: "/design-system/components/skeleton",
+        },
+        {
+          label: t({ en: "Switch", zh: "开关" }),
+          path: "/design-system/components/switch",
+        },
+        {
+          label: t({ en: "Button", zh: "按钮" }),
+          path: "/design-system/components/button",
+        },
+        {
+          label: t({ en: "Menu button", zh: "菜单按钮" }),
+          path: "/design-system/components/menu-button",
+        },
+        {
+          label: t({ en: "Overlay", zh: "覆盖层" }),
+          path: "/design-system/components/overlay",
+        },
       ],
     },
   ];

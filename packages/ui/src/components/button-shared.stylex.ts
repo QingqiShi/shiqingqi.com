@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { color, controlSize } from "@tuja/ui/tokens.stylex";
-import { anchorTokens } from "./anchor.stylex";
-import { buttonTokens } from "./button.stylex";
+import { breakpoints } from "../breakpoints.stylex.ts";
+import { motionConstants } from "../primitives/motion.stylex.ts";
+import { color, controlSize } from "../tokens.stylex.ts";
+import { anchorTokens } from "./anchor.stylex.ts";
+import { buttonTokens } from "./button.stylex.ts";
 
 export const PRESS_ANIMATION_DURATION = 150;
 const RELEASE_OUTSIDE_ANIMATION_DURATION = 300;

@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, layer, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
@@ -12,7 +13,6 @@ import { calculateAge } from "#src/utils/calculate-age.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
-import { Skeleton } from "../shared/skeleton";
 import { CompactMediaCard } from "./compact-media-card";
 import { DepartmentLabel } from "./department-label";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";

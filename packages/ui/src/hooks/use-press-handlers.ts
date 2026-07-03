@@ -7,7 +7,7 @@ import {
   type MouseEvent,
   type MouseEventHandler,
 } from "react";
-import { usePressAnimation } from "./use-press-animation";
+import { usePressAnimation } from "./use-press-animation.ts";
 
 type CSSCustomProperties = Record<`--${string}`, string>;
 
@@ -19,6 +19,7 @@ interface UsePressHandlersOptions<T extends HTMLElement> {
   onPointerMove?: PointerEventHandler<T>;
   onKeyDown?: KeyboardEventHandler<T>;
   onKeyUp?: KeyboardEventHandler<T>;
+  onContextMenu?: MouseEventHandler<T>;
   onClick?: MouseEventHandler<T>;
 }
 
@@ -45,6 +46,7 @@ export function usePressHandlers<T extends HTMLElement>({
   onPointerMove,
   onKeyDown,
   onKeyUp,
+  onContextMenu,
   onClick,
 }: UsePressHandlersOptions<T>): UsePressHandlersReturn<T> {
   const {
@@ -84,6 +86,7 @@ export function usePressHandlers<T extends HTMLElement>({
   }
 
   function handleContextMenu(event: MouseEvent<T>) {
+    onContextMenu?.(event);
     pressHandlers.onContextMenu(event);
   }
 

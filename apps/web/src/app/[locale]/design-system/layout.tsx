@@ -1,7 +1,7 @@
+import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import type { Metadata } from "next";
 import { AuthorMode } from "#src/components/design-system/author/author-mode.tsx";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
-import { SidebarLayout } from "#src/components/shared/sidebar-layout.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
 import type { PageProps } from "#src/types.ts";

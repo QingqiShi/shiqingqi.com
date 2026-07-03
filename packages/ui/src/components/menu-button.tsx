@@ -1,14 +1,6 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import {
-  border,
-  color,
-  controlSize,
-  layer,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren } from "react";
 import {
   useEffect,
@@ -18,9 +10,17 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import { AnimateToTarget } from "./animate-to-target";
-import { Button } from "./button";
-import { FixedContainerContent } from "./fixed-container-content";
+import {
+  border,
+  color,
+  controlSize,
+  layer,
+  shadow,
+  space,
+} from "../tokens.stylex.ts";
+import { AnimateToTarget } from "./animate-to-target.tsx";
+import { Button } from "./button.tsx";
+import { FixedContainerContent } from "./fixed-container-content.tsx";
 
 interface MenuButtonProps {
   /** Button prop overrides */
@@ -170,10 +170,11 @@ export function MenuButton({
             aria-expanded={isMenuShown}
             aria-haspopup={popupRole === "menu" ? "menu" : "true"}
             aria-controls={popupId}
-            onClick={() => {
+            onClick={(event) => {
+              buttonProps.onClick?.(event);
               setIsMenuShown(true);
             }}
-            disabled={disabled}
+            disabled={disabled ?? buttonProps.disabled}
             id={targetId}
             labelId={`${targetId}-label`}
           >

@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event";
+import { Button } from "@tuja/ui/components/button";
 import { beforeAll, describe, it, expect, vi } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
-import { Button } from "./button";
 
 // Mock Pointer Capture API which is not available in jsdom
 beforeAll(() => {

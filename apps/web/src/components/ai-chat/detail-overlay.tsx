@@ -3,6 +3,7 @@
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { fixedFill } from "@tuja/ui/primitives/layout.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
@@ -13,7 +14,6 @@ import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { usePortalTarget } from "#src/contexts/portal-context.tsx";
-import { useDialogFocus } from "#src/hooks/use-dialog-focus.ts";
 import { t } from "#src/i18n.ts";
 
 interface DetailOverlayProps {

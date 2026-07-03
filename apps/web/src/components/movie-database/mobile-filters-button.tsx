@@ -3,10 +3,10 @@
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import type { PropsWithChildren, ReactNode } from "react";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
-import { MenuButton } from "../shared/menu-button";
 import {
   DATA_HERO_REFINE_BUTTON,
   useHeroVisibility,

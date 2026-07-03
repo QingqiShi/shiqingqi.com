@@ -4,6 +4,8 @@ import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
+import { Button } from "@tuja/ui/components/button";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
 import {
   border,
@@ -19,9 +21,7 @@ import { t } from "#src/i18n.ts";
 import { formatRuntime } from "#src/utils/format-runtime.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
-import { Button } from "../shared/button";
 import { ExternalLinkIndicator } from "../shared/external-link-indicator";
-import { Skeleton } from "../shared/skeleton";
 import { useChatActions } from "./chat-actions-context";
 import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
 

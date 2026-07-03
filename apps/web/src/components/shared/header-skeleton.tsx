@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { Skeleton } from "@tuja/ui/components/skeleton";
+import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize, layer, layout, space } from "@tuja/ui/tokens.stylex";
-import { Skeleton } from "./skeleton";
-import { skeletonTokens } from "./skeleton.stylex";
 
 export function HeaderSkeleton() {
   return (

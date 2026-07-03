@@ -10,24 +10,48 @@
     "./palette-table": "./src/_generated/palette/palette-table.ts",
     "./author/token-registry": "./src/author/token-registry.ts",
     "./author/palette-match": "./src/author/palette-match.ts",
+    "./hooks/use-controlled": "./src/hooks/use-controlled.ts",
+    "./hooks/use-dialog-focus": "./src/hooks/use-dialog-focus.ts",
+    "./hooks/use-press-animation": "./src/hooks/use-press-animation.ts",
+    "./hooks/use-press-handlers": "./src/hooks/use-press-handlers.ts",
     "./primitives/flex.stylex": "./src/primitives/flex.stylex.ts",
     "./primitives/layout.stylex": "./src/primitives/layout.stylex.ts",
     "./primitives/motion.stylex": "./src/primitives/motion.stylex.ts",
     "./primitives/reset.stylex": "./src/primitives/reset.stylex.ts",
+    "./components/anchor.stylex": "./src/components/anchor.stylex.ts",
+    "./components/anchor-button-group": "./src/components/anchor-button-group.tsx",
+    "./components/animate-to-target": "./src/components/animate-to-target.tsx",
     "./components/badge": "./src/components/badge.tsx",
+    "./components/button": "./src/components/button.tsx",
+    "./components/button.stylex": "./src/components/button.stylex.ts",
+    "./components/button-shared.stylex": "./src/components/button-shared.stylex.ts",
     "./components/divider": "./src/components/divider.tsx",
+    "./components/fixed-container-content": "./src/components/fixed-container-content.tsx",
     "./components/heading": "./src/components/heading.tsx",
+    "./components/menu-button": "./src/components/menu-button.tsx",
+    "./components/menu-label": "./src/components/menu-label.tsx",
+    "./components/overlay": "./src/components/overlay.tsx",
+    "./components/sidebar-layout": "./src/components/sidebar-layout.tsx",
+    "./components/skeleton": "./src/components/skeleton.tsx",
+    "./components/skeleton.stylex": "./src/components/skeleton.stylex.ts",
+    "./components/switch": "./src/components/switch.tsx",
     "./components/text": "./src/components/text.tsx"
   },
   "scripts": {
     "lint": "eslint ."
   },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "react-remove-scroll": "^2.7.2"
+  },
   "peerDependencies": {
     "@stylexjs/stylex": "*",
-    "react": "catalog:"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
-    "@types/react": "catalog:"
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
   }
 }

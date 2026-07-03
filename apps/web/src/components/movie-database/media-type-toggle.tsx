@@ -1,10 +1,10 @@
 "use client";
 
+import { AnchorButtonGroup } from "@tuja/ui/components/anchor-button-group";
+import { FixedContainerContent } from "@tuja/ui/components/fixed-container-content";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { AnchorButton } from "../shared/anchor-button";
-import { AnchorButtonGroup } from "../shared/anchor-button-group";
-import { FixedContainerContent } from "../shared/fixed-container-content";
 
 interface MediaTypeToggleProps {
   shortLabels?: boolean;

@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { ratio, space } from "@tuja/ui/tokens.stylex";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -24,7 +25,6 @@ import { InlineChatView } from "#src/components/movie-database/inline-chat-view.
 import { MediaFiltersProvider } from "#src/components/movie-database/media-filters-provider.tsx";
 import { MediaList } from "#src/components/movie-database/media-list.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
-import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";

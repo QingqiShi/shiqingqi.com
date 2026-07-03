@@ -1,9 +1,9 @@
 import { fireEvent } from "@testing-library/react";
+import { MenuButton } from "@tuja/ui/components/menu-button";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type { ReactNode } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
-import { MenuButton } from "./menu-button";
 import { MenuItem } from "./menu-item";
 
 // jsdom doesn't implement these APIs used by Button's press animation hook

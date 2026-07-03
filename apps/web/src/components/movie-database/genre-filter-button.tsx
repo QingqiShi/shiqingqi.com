@@ -2,11 +2,11 @@
 
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
+import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
-import { MenuButton } from "../shared/menu-button";
 import { GenreFilter } from "./genre-filter";
 
 export function GenreFilterButton() {

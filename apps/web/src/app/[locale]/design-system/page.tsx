@@ -55,6 +55,46 @@ export default function DesignSystemOverview() {
         zh: "六种色调的紧凑状态与标签指示器。",
       }),
     },
+    {
+      path: "/design-system/components/skeleton",
+      label: t({ en: "Skeleton", zh: "骨架屏" }),
+      description: t({
+        en: "Placeholder shapes that hold space while content loads.",
+        zh: "在内容加载时占位的骨架形状。",
+      }),
+    },
+    {
+      path: "/design-system/components/switch",
+      label: t({ en: "Switch", zh: "开关" }),
+      description: t({
+        en: "A draggable, three-state on/off/indeterminate toggle.",
+        zh: "可拖动的开启／关闭／未定三态开关。",
+      }),
+    },
+    {
+      path: "/design-system/components/button",
+      label: t({ en: "Button", zh: "按钮" }),
+      description: t({
+        en: "The primary action control, with variants and a press animation.",
+        zh: "主要的操作控件，提供多种风格与按压动画。",
+      }),
+    },
+    {
+      path: "/design-system/components/menu-button",
+      label: t({ en: "Menu button", zh: "菜单按钮" }),
+      description: t({
+        en: "A button that expands into a popup menu.",
+        zh: "点击后展开为弹出菜单的按钮。",
+      }),
+    },
+    {
+      path: "/design-system/components/overlay",
+      label: t({ en: "Overlay", zh: "覆盖层" }),
+      description: t({
+        en: "A full-screen modal surface with focus trapping.",
+        zh: "带焦点捕获的全屏模态层。",
+      }),
+    },
   ];
 
   const groups = [

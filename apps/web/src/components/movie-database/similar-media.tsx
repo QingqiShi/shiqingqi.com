@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { layout, ratio, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import {
@@ -11,7 +12,6 @@ import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import { Skeleton } from "../shared/skeleton";
 import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";
 

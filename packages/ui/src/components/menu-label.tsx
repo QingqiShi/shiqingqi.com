@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, controlSize } from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren } from "react";
+import { color, controlSize } from "../tokens.stylex.ts";
 
 export function MenuLabel({ children }: PropsWithChildren) {
   return <div css={styles.label}>{children}</div>;

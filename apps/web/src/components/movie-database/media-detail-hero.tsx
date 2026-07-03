@@ -1,5 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { Skeleton } from "@tuja/ui/components/skeleton";
+import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
 import {
   border,
   color,
@@ -10,8 +12,6 @@ import {
 } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
-import { skeletonTokens } from "#src/components/shared/skeleton.stylex.ts";
-import { Skeleton } from "#src/components/shared/skeleton.tsx";
 import { t } from "#src/i18n.ts";
 import { BackdropImage } from "./backdrop-image.tsx";
 

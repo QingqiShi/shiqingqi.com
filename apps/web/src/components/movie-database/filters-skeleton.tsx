@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { Skeleton } from "@tuja/ui/components/skeleton";
+import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/types.ts";
-import { Skeleton } from "../shared/skeleton";
-import { skeletonTokens } from "../shared/skeleton.stylex";
 import { FiltersContainer } from "./filters-container";
 
 interface FiltersSkeletonProps {
