@@ -17,6 +17,7 @@ const executeContext = {
   toolCallId: "test",
   messages: [] as never[],
   abortSignal: AbortSignal.timeout(5000),
+  context: {},
 };
 
 async function executeTool(
@@ -24,7 +25,6 @@ async function executeTool(
   locale: "en" | "zh" = "en",
 ) {
   const tool = createMediaCreditsTool(locale);
-  if (!tool.execute) throw new Error("expected execute");
   const result = await tool.execute(input, executeContext);
   return JSON.parse(JSON.stringify(result)) as unknown;
 }
@@ -64,7 +64,6 @@ describe("media credits execute", () => {
     );
 
     const tool = createMediaCreditsTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute(
       { media_id: 550, media_type: "movie" },
       executeContext,

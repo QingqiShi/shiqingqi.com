@@ -1,5 +1,9 @@
 import type { UIMessage } from "ai";
-import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
+import {
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  toUIMessageStream,
+} from "ai";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { chat } from "#src/ai-chat/chat.ts";
@@ -67,11 +71,12 @@ export async function POST(request: NextRequest) {
 
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
-        const innerStream = result.toUIMessageStream({
+        const innerStream = toUIMessageStream({
+          stream: result.stream,
           originalMessages: messages,
           messageMetadata: ({ part }) =>
             buildChatMessageMetadata(part, sessionId),
-          onFinish: ({ messages: updatedMessages }) => {
+          onEnd: ({ messages: updatedMessages }) => {
             finishedMessages = updatedMessages;
           },
         });

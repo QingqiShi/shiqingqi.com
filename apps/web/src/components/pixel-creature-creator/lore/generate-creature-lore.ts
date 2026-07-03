@@ -72,14 +72,14 @@ export async function generateCreatureLore(
   const result = await generateText({
     model,
     output: Output.object({ schema: loreOutputSchema }),
-    messages: [
-      {
-        role: "system",
-        content: SYSTEM_PROMPT,
-        providerOptions: {
-          anthropic: { cacheControl: { type: "ephemeral" } },
-        },
+    instructions: {
+      role: "system",
+      content: SYSTEM_PROMPT,
+      providerOptions: {
+        anthropic: { cacheControl: { type: "ephemeral" } },
       },
+    },
+    messages: [
       {
         role: "user",
         content: userPrompt,

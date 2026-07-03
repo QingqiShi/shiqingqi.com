@@ -118,13 +118,13 @@ describe("semantic search error handling", () => {
     // getVectorIndex() throws. The tool should convert that into a
     // structured error rather than propagating the exception.
     const tool = createSemanticSearchTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute(
       { query: "mind-bending sci-fi" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 

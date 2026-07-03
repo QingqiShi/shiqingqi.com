@@ -60,6 +60,7 @@ const executeContext = {
   toolCallId: "test",
   messages: [],
   abortSignal: AbortSignal.timeout(10000),
+  context: {},
 };
 
 interface ReviewSummaryResult {
@@ -80,7 +81,6 @@ async function executeTool(input: {
 }) {
   const tool = createReviewSummaryTool("en");
   const parsed = reviewSummaryInputSchema.parse(input);
-  if (!tool.execute) throw new Error("expected execute");
   const result = await tool.execute(parsed, executeContext);
   return JSON.parse(JSON.stringify(result)) as ReviewSummaryResult;
 }
@@ -349,7 +349,6 @@ describe("review summary error handling", () => {
       media_type: "movie",
       title: "Fight Club",
     });
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute(parsed, executeContext);
 
     expect(isToolError(result)).toBe(true);
@@ -384,7 +383,6 @@ describe("review summary error handling", () => {
       media_type: "movie",
       title: "Fight Club",
     });
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute(parsed, executeContext);
 
     expect(isToolError(result)).toBe(true);

@@ -50,7 +50,7 @@ async function callJudge(
   await throttle.waitIfNeeded();
   const result = await generateText({
     model: getJudgeModel(),
-    system: SYSTEM_PROMPT,
+    instructions: SYSTEM_PROMPT,
     prompt,
     output: Output.object({ schema: judgeSchema }),
   });

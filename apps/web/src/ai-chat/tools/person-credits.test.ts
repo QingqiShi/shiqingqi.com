@@ -17,6 +17,7 @@ const executeContext = {
   toolCallId: "test",
   messages: [] as never[],
   abortSignal: AbortSignal.timeout(5000),
+  context: {},
 };
 
 interface CreditEntry {
@@ -35,7 +36,6 @@ async function executeTool(
   locale: "en" | "zh" = "en",
 ) {
   const tool = createPersonCreditsTool(locale);
-  if (!tool.execute) throw new Error("expected execute");
   const result = await tool.execute(input, executeContext);
   return JSON.parse(JSON.stringify(result)) as CreditEntry[];
 }
@@ -298,7 +298,6 @@ describe("person credits execute", () => {
     );
 
     const tool = createPersonCreditsTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute({ person_id: 287 }, executeContext);
 
     expect(isToolError(result)).toBe(true);

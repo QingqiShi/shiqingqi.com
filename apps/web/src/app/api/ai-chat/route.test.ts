@@ -1,6 +1,6 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import type { UIMessage } from "ai";
-import { simulateReadableStream, stepCountIs, streamText } from "ai";
+import { isStepCount, simulateReadableStream, streamText } from "ai";
 import { MockLanguageModelV3 } from "ai/test";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -87,7 +87,7 @@ function mockStreamResult() {
       save_preference: createSavePreferenceTool(),
       web_search: anthropic.tools.webSearch_20250305({ maxUses: 3 }),
     },
-    stopWhen: stepCountIs(5),
+    stopWhen: isStepCount(5),
   });
 }
 
