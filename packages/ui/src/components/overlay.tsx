@@ -1,5 +1,6 @@
 "use client";
 
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import {
   useDeferredValue,
@@ -23,7 +24,7 @@ interface OverlayProps {
    * i18n, so the consumer supplies the localized string (config layer).
    */
   closeLabel: string;
-  /** Icon rendered inside the close button. Defaults to a plain "×" glyph. */
+  /** Icon rendered inside the close button. Defaults to the built-in X icon. */
   closeIcon?: ReactNode;
   /**
    * Where to render the portal. Defaults to `document.body`. Pass an explicit
@@ -87,7 +88,7 @@ export function Overlay({
           >
             <Button
               css={styles.closeButton}
-              icon={closeIcon ?? <span aria-hidden="true">×</span>}
+              icon={closeIcon ?? <XIcon role="presentation" />}
               aria-label={closeLabel}
               onClick={onClose}
             />

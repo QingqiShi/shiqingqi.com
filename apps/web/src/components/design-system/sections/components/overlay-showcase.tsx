@@ -1,6 +1,5 @@
 "use client";
 
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
@@ -41,7 +40,6 @@ export function OverlayShowcase() {
           setIsOpen(false);
         }}
         closeLabel={t({ en: "Close", zh: "关闭" })}
-        closeIcon={<XIcon role="presentation" />}
         aria-label={t({ en: "Example overlay", zh: "示例覆盖层" })}
       >
         <div css={[flex.col, styles.overlayBody]}>

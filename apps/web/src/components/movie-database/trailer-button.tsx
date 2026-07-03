@@ -1,7 +1,6 @@
 "use client";
 
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Overlay } from "@tuja/ui/components/overlay";
@@ -43,7 +42,6 @@ export function TrailerButton({
           setIsOpen(false);
         }}
         closeLabel={t({ en: "Close", zh: "关闭" })}
-        closeIcon={<XIcon role="presentation" />}
         portalTarget={portalTarget}
         aria-label={iframeTitle}
       >
