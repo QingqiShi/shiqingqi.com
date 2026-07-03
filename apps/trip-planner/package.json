@@ -17,7 +17,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.23.0",
-    "next": "16.2.9",
+    "next": "16.2.10",
     "react": "catalog:",
     "react-dom": "catalog:",
     "serwist": "^9.5.11",
