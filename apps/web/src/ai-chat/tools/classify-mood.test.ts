@@ -30,13 +30,13 @@ describe("createClassifyMoodTool", () => {
 
   it("execute is a pass-through", async () => {
     const tool = createClassifyMoodTool();
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute(
       { mood: "warm" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
     expect(result).toEqual({ mood: "warm" });

@@ -36,6 +36,7 @@ const executeContext = {
   toolCallId: "test",
   messages: [] as never[],
   abortSignal: AbortSignal.timeout(5000),
+  context: {},
 };
 
 interface RegionResult {
@@ -72,7 +73,6 @@ async function executeTool(input: {
   provider_name?: string;
 }) {
   const tool = createWatchProvidersTool();
-  if (!tool.execute) throw new Error("expected execute");
   const result = await tool.execute(input, executeContext);
   return JSON.parse(JSON.stringify(result)) as
     | RegionResult
@@ -426,7 +426,6 @@ describe("watch providers error handling", () => {
     );
 
     const tool = createWatchProvidersTool();
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute(
       { id: 550, media_type: "movie", region: "US" },
       executeContext,

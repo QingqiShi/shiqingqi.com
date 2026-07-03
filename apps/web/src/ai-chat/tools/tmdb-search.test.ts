@@ -111,13 +111,13 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const results = await tool.execute(
       { query: "Dune" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 
@@ -160,13 +160,13 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const items = await tool.execute(
       { query: "Movie" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 
@@ -186,13 +186,13 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const results = await tool.execute(
       { query: "xyznonexistent" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 
@@ -216,13 +216,13 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("zh");
-    if (!tool.execute) throw new Error("expected execute");
     await tool.execute(
       { query: "Parasite" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 
@@ -246,13 +246,13 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     await tool.execute(
       { query: "Breaking Bad" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 
@@ -272,13 +272,13 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const results = await tool.execute(
       { query: "Inception" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 
@@ -306,13 +306,13 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute(
       { query: "Dune" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 
@@ -336,13 +336,13 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    if (!tool.execute) throw new Error("expected execute");
     const results = await tool.execute(
       { query: "Breaking Bad" },
       {
         toolCallId: "test",
         messages: [],
         abortSignal: AbortSignal.timeout(5000),
+        context: {},
       },
     );
 

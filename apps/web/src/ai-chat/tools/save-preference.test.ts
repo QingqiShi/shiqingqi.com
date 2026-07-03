@@ -91,11 +91,11 @@ describe("createSavePreferenceTool", () => {
         },
       ],
     };
-    if (!tool.execute) throw new Error("expected execute");
     const result = await tool.execute(input, {
       toolCallId: "test",
       messages: [],
       abortSignal: AbortSignal.timeout(5000),
+      context: {},
     });
     expect(result).toEqual(input);
   });

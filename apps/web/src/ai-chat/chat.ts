@@ -1,5 +1,5 @@
 import type { LanguageModel } from "ai";
-import { convertToModelMessages, stepCountIs, streamText } from "ai";
+import { convertToModelMessages, isStepCount, streamText } from "ai";
 import "server-only";
 import { addCacheControlToMessages } from "./addCacheControlToMessages";
 import { getAnthropicModel, getAnthropicProvider } from "./client";
@@ -29,13 +29,13 @@ export async function chat({
   countryCode,
   model,
 }: ChatOptions) {
-  const system = getChatSystemInstructions(locale, countryCode);
+  const instructions = getChatSystemInstructions(locale, countryCode);
   const modelMessages = await convertToModelMessages(messages);
   const anthropic = getAnthropicProvider();
 
   return streamText({
     model: model ?? getAnthropicModel(),
-    system,
+    instructions,
     messages: modelMessages,
     tools: {
       classify_mood: createClassifyMoodTool(),
@@ -63,7 +63,7 @@ export async function chat({
       ),
     },
     providerOptions: contextManagementProviderOptions,
-    stopWhen: stepCountIs(5),
+    stopWhen: isStepCount(5),
     prepareStep: ({ messages, model }) => ({
       messages: addCacheControlToMessages({ messages, model }),
     }),

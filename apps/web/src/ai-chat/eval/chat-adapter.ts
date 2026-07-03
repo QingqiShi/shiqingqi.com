@@ -40,12 +40,12 @@ export async function sendMessage(
   const messages: UIMessage[] = [createUserMessage(input)];
   await throttle.waitIfNeeded();
   const result = await chat({ messages, locale });
-  const [text, steps, totalUsage] = await Promise.all([
+  const [text, steps, usage] = await Promise.all([
     result.text,
     result.steps,
-    result.totalUsage,
+    result.usage,
   ]);
-  throttle.record(totalUsage.totalTokens ?? 0);
+  throttle.record(usage.totalTokens ?? 0);
 
   return {
     text,
@@ -64,12 +64,12 @@ export async function sendConversation(
     messages.push(createUserMessage(turn.content));
     await throttle.waitIfNeeded();
     const result = await chat({ messages, locale });
-    const [text, steps, totalUsage] = await Promise.all([
+    const [text, steps, usage] = await Promise.all([
       result.text,
       result.steps,
-      result.totalUsage,
+      result.usage,
     ]);
-    throttle.record(totalUsage.totalTokens ?? 0);
+    throttle.record(usage.totalTokens ?? 0);
     const toolCalls = extractToolCalls(steps);
 
     messages.push(createAssistantMessage(text));
