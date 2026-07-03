@@ -116,10 +116,15 @@ const styles = stylex.create({
     minInlineSize: "220px",
     display: "grid",
     // Columns are supplied inline (RAMP_COLUMNS) to taper the cell widths.
+    gap: border.size_1,
     blockSize: "26px",
+    boxSizing: "border-box",
+    backgroundColor: color.bgCanvas,
+    borderWidth: space._00,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     borderRadius: border.radius_2,
     overflow: "hidden",
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   tone: {
     minInlineSize: 0,
