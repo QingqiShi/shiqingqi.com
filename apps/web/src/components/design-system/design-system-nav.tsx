@@ -49,6 +49,10 @@ export function DesignSystemNav() {
           path: "/design-system/foundations/typography",
         },
         {
+          label: t({ en: "Spacing", zh: "间距" }),
+          path: "/design-system/foundations/spacing",
+        },
+        {
           label: t({ en: "Elevation", zh: "阴影层级" }),
           path: "/design-system/foundations/elevation",
         },
