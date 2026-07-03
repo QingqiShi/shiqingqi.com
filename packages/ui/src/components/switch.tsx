@@ -1,8 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import { useControlled } from "../hooks/use-controlled.ts";
+import { motionConstants } from "../primitives/motion.stylex.ts";
+import { buttonReset } from "../primitives/reset.stylex.ts";
 import {
   border,
   color,
@@ -10,10 +12,8 @@ import {
   layer,
   ratio,
   shadow,
-} from "@tuja/ui/tokens.stylex";
-import React, { useLayoutEffect, useRef, useState } from "react";
-import { useControlled } from "#src/hooks/use-controlled.ts";
-import { switchTokens } from "./switch.stylex";
+} from "../tokens.stylex.ts";
+import { switchTokens } from "./switch.stylex.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";
 
@@ -30,6 +30,7 @@ export function Switch({
   onChange,
   className,
   style,
+  ref: forwardedRef,
   ...rest
 }: SwitchProps) {
   const elRef = useRef<HTMLInputElement>(null);
@@ -135,6 +136,12 @@ export function Switch({
 
   const refCallback = (node: HTMLInputElement | null) => {
     elRef.current = node;
+    // Forward to a caller-supplied ref (input `ref` survives the props Omit).
+    if (typeof forwardedRef === "function") {
+      forwardedRef(node);
+    } else if (forwardedRef) {
+      forwardedRef.current = node;
+    }
     if (node && !hasSetInitialRenderedRef.current) {
       hasSetInitialRenderedRef.current = true;
       setInitialRendered(true);

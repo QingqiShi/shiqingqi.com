@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
 import { border, color } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useState } from "react";
-import { anchorTokens } from "./anchor.stylex";
 import { ExternalLinkIndicator } from "./external-link-indicator";
 
 interface AnchorExtraProps {

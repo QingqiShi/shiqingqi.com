@@ -508,6 +508,12 @@ importers:
       react:
         specifier: 'catalog:'
         version: 19.3.0-canary-56824423-20260414
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.0-canary-56824423-20260414(react@19.3.0-canary-56824423-20260414)
+      react-remove-scroll:
+        specifier: ^2.7.2
+        version: 2.7.2(@types/react@19.2.17)(react@19.3.0-canary-56824423-20260414)
     devDependencies:
       '@tuja/tsconfig':
         specifier: workspace:*
@@ -515,6 +521,9 @@ importers:
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.17
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.17)
 
   packages/vector-ingest:
     dependencies:

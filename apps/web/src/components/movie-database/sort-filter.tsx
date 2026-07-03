@@ -1,10 +1,10 @@
 "use client";
 
+import { AnchorButtonGroup } from "@tuja/ui/components/anchor-button-group";
+import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { AnchorButton } from "../shared/anchor-button";
-import { AnchorButtonGroup } from "../shared/anchor-button-group";
-import { MenuLabel } from "../shared/menu-label";
 
 interface SortFilterProps {
   bright?: boolean;

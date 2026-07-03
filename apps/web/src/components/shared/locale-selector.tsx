@@ -2,13 +2,13 @@
 
 import { TranslateIcon } from "@phosphor-icons/react/dist/ssr/Translate";
 import * as stylex from "@stylexjs/stylex";
+import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { LOCALE_COOKIE_NAME } from "#src/constants.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
-import { MenuButton } from "./menu-button";
 import { MenuItem } from "./menu-item";
 
 interface LocaleSelectorProps {

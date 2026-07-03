@@ -8,6 +8,7 @@ import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
+import { Button } from "@tuja/ui/components/button";
 import {
   duration as motionDuration,
   easing,
@@ -15,7 +16,6 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "#src/components/shared/button.tsx";
 import { t } from "#src/i18n.ts";
 import type { CellPixels } from "./types";
 import { downloadBlob } from "./utils/slice";

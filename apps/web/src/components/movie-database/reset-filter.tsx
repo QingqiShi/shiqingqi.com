@@ -1,10 +1,10 @@
 "use client";
 
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
+import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { AnchorButton } from "../shared/anchor-button";
-import { MenuLabel } from "../shared/menu-label";
 
 interface ResetFilterProps {
   bright?: boolean;

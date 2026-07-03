@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { layer, layout, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { breakpoints } from "../breakpoints.stylex.ts";
+import { layer, layout, space } from "../tokens.stylex.ts";
 
 // Width of the navigation rail on wider viewports.
 const SIDEBAR_WIDTH = "200px";

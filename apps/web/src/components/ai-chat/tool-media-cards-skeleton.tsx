@@ -2,8 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { ratio, space } from "@tuja/ui/tokens.stylex";
-import { Skeleton } from "../shared/skeleton";
 
 const SKELETON_COUNT = 5;
 const STAGGER_DELAY = 100;

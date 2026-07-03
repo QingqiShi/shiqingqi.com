@@ -5,6 +5,7 @@ import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import { ScissorsIcon } from "@phosphor-icons/react/dist/ssr/Scissors";
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/ssr/UploadSimple";
 import * as stylex from "@stylexjs/stylex";
+import { Button } from "@tuja/ui/components/button";
 import {
   duration,
   easing,
@@ -12,7 +13,6 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
-import { Button } from "#src/components/shared/button.tsx";
 import { t } from "#src/i18n.ts";
 import type { SourceImage } from "./types";
 

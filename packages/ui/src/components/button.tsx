@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { controlSize, font } from "@tuja/ui/tokens.stylex";
 import { useRef, type ComponentProps } from "react";
-import { usePressHandlers } from "#src/hooks/use-press-handlers.ts";
-import { sharedStyles } from "./button-shared.stylex";
-import { buttonTokens } from "./button.stylex";
+import { usePressHandlers } from "../hooks/use-press-handlers.ts";
+import { controlSize, font } from "../tokens.stylex.ts";
+import { sharedStyles } from "./button-shared.stylex.ts";
+import { buttonTokens } from "./button.stylex.ts";
 
 interface ButtonProps extends ComponentProps<"button"> {
   bright?: boolean;
@@ -27,12 +27,23 @@ export function Button({
   icon,
   isActive,
   labelId,
+  ref: forwardedRef,
   style,
   type = "button",
   variant,
   ...restProps
 }: ButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
+  // Keep the internal ref (used by the press-animation hook) and also forward
+  // to a caller-supplied ref, which `extends ComponentProps<"button">` allows.
+  const setButtonRef = (node: HTMLButtonElement | null) => {
+    buttonRef.current = node;
+    if (typeof forwardedRef === "function") {
+      forwardedRef(node);
+    } else if (forwardedRef) {
+      forwardedRef.current = node;
+    }
+  };
 
   const { isPressed, releasedOutside, pressedStyle, handlers } =
     usePressHandlers({
@@ -45,7 +56,7 @@ export function Button({
     <button
       aria-pressed={isActive}
       {...restProps}
-      ref={buttonRef}
+      ref={setButtonRef}
       type={type}
       className={className}
       disabled={disabled}
