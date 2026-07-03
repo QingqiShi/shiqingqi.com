@@ -15,7 +15,7 @@
     "codegen:pwa-icons": "node ../../packages/pwa-icons/src/hash-icons.mjs",
     "codegen:tmdb": "node ../../packages/tmdb-codegen/src/generator.js && prettier 'src/_generated/*.ts' -w",
     "codegen:zod": "tsx ../../packages/tmdb-codegen/src/generate-selective-zod.ts && prettier 'src/_generated/tmdb-zod.ts' -w",
-    "predev": "pnpm codegen:palette",
+    "predev": "npm-run-all codegen:i18n codegen:palette",
     "dev": "run-p watch:i18n dev:next",
     "dev:next": "next dev --turbopack -p $(node ../../scripts/worktree-port.mjs)",
     "build": "next build && serwist build serwist.config.mjs",
