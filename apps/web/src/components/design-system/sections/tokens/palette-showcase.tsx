@@ -36,8 +36,8 @@ export function PaletteShowcase() {
     >
       <ShowcaseHelper>
         {t({
-          en: "Thirteen hues, each expanded into a 21-step tonal scale via Material 3's HCT. The complete range of available colour — consumed only through the design tokens above.",
-          zh: "十三种色相，各自通过 Material 3 的 HCT 展开为 21 级色调阶梯。全部可用颜色的范围——仅通过上方的设计令牌使用。",
+          en: "Thirteen hues, each expanded into a perceptually even 21-step tonal scale. The complete range of available colour — consumed only through the design tokens above.",
+          zh: "十三种色相，各自展开为感知均匀的 21 级色调阶梯。全部可用颜色的范围——仅通过上方的设计令牌使用。",
         })}
       </ShowcaseHelper>
       <ul css={styles.list}>
