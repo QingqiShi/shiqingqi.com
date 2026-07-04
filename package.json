@@ -22,9 +22,11 @@
     "eval": "pnpm --filter web eval",
     "eval:dev": "pnpm --filter web eval:dev",
     "ingest:vector": "pnpm --filter web ingest:vector",
-    "verify:vector": "pnpm --filter web verify:vector"
+    "verify:vector": "pnpm --filter web verify:vector",
+    "release": "changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.0",
     "@eslint-react/eslint-plugin": "^5.10.2",
     "@eslint/compat": "^2.1.0",
     "@eslint/eslintrc": "^3.3.5",

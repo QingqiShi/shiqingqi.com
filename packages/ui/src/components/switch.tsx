@@ -13,6 +13,7 @@ import {
   ratio,
   shadow,
 } from "../tokens.stylex.ts";
+import { mergeRefs } from "../utils/merge-refs.ts";
 import { switchTokens } from "./switch.stylex.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";
@@ -21,12 +22,28 @@ interface SwitchProps extends Omit<
   React.ComponentProps<"input">,
   "checked" | "onChange"
 > {
+  /**
+   * Controlled state. When provided, the parent owns the value and must update
+   * it via `onChange`. Omit for an uncontrolled switch.
+   */
   value?: SwitchState;
+  /** Initial state for an uncontrolled switch. Ignored once `value` is set. */
+  defaultValue?: SwitchState;
+  /** Fires with the next state on every user toggle (pointer, keyboard, label). */
   onChange?: (state: SwitchState) => void;
 }
 
+/**
+ * A three-state toggle (`off` / `on` / `indeterminate`) that supports pointer
+ * drag, keyboard, and click activation, and works controlled or uncontrolled.
+ *
+ * Accessibility: the switch renders as an `<input role="switch">`, so it needs
+ * an accessible name. Provide one with `aria-label`, or associate a `<label>`
+ * (via `htmlFor`/`id` or by wrapping) — clicking the label toggles the switch.
+ */
 export function Switch({
   value: valueProp,
+  defaultValue,
   onChange,
   className,
   style,
@@ -35,11 +52,15 @@ export function Switch({
 }: SwitchProps) {
   const elRef = useRef<HTMLInputElement>(null);
   const hasSetInitialRenderedRef = useRef(false);
+  // Set when a pointer release or Space keypress has already performed the
+  // toggle, so the trailing `click` each of those dispatches doesn't repeat it.
+  // A `click` seen without it was forwarded from an associated <label>.
+  const toggleHandledRef = useRef(false);
 
   // Optionally controlled state
   const [value, setValue] = useControlled({
     controlled: valueProp,
-    defaultValue: "off",
+    defaultValue: defaultValue ?? "off",
   });
 
   function setControlledValue(newValue: SwitchState) {
@@ -109,6 +130,10 @@ export function Switch({
       return;
     }
 
+    // This pointer interaction owns the toggle; the trailing click must not
+    // repeat it (see onClick).
+    toggleHandledRef.current = true;
+
     if (isDragging) {
       const rect = initialRectRef.current;
       if (elRef.current && rect) {
@@ -134,23 +159,19 @@ export function Switch({
   // This prevents switches from animating when switching routes or changing locales
   const [initialRendered, setInitialRendered] = useState(false);
 
-  const refCallback = (node: HTMLInputElement | null) => {
-    elRef.current = node;
-    // Forward to a caller-supplied ref (input `ref` survives the props Omit).
-    if (typeof forwardedRef === "function") {
-      forwardedRef(node);
-    } else if (forwardedRef) {
-      forwardedRef.current = node;
-    }
+  // Keep the internal ref, forward to a caller-supplied ref (the input `ref`
+  // survives the props Omit), and enable animations after first mount — all
+  // via a single merged ref callback (the merge runs at commit, not render).
+  const setInputRef = mergeRefs(elRef, forwardedRef, (node) => {
     if (node && !hasSetInitialRenderedRef.current) {
       hasSetInitialRenderedRef.current = true;
       setInitialRendered(true);
     }
-  };
+  });
 
   return (
     <input
-      ref={refCallback}
+      ref={setInputRef}
       {...rest}
       className={className}
       style={style}
@@ -168,6 +189,11 @@ export function Switch({
       onKeyDown={(e) => {
         if (e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
+          // Space activation dispatches a trailing click on keyup; guard so it
+          // doesn't double-toggle. Enter dispatches no click, so it needs none.
+          if (e.code === "Space") {
+            toggleHandledRef.current = true;
+          }
           setControlledValue(value === "on" ? "off" : "on");
         }
       }}
@@ -175,7 +201,19 @@ export function Switch({
         e.preventDefault();
       }}
       onClick={(e) => {
+        // Always suppress the native checkbox toggle — state is managed here.
         e.preventDefault();
+        // A pointer release or Space keypress already handled this toggle.
+        if (toggleHandledRef.current) {
+          toggleHandledRef.current = false;
+          return;
+        }
+        // No preceding toggle: this click was forwarded from an associated
+        // <label>. Toggle so label activation works.
+        if (rest.disabled) {
+          return;
+        }
+        setControlledValue(value === "on" ? "off" : "on");
       }}
     />
   );

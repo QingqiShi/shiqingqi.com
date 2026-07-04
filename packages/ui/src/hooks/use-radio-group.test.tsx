@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it } from "vitest";
-import { useRadioGroup } from "./use-radio-group";
+import { useRadioGroup } from "./use-radio-group.ts";
 
 const VALUES = ["a", "b", "c", "d"] as const;
 type Value = (typeof VALUES)[number];

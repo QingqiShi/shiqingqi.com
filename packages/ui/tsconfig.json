@@ -2,7 +2,8 @@
   "extends": "@tuja/tsconfig/library.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "lib": ["esnext", "dom", "dom.iterable"]
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["node", "react", "react-dom"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { EMOTIONS, type Emotion } from "../state/creature-schema";
-import { useRadioGroup } from "../wizard/use-radio-group";
 
 interface EmotionToggleProps {
   active: Emotion;

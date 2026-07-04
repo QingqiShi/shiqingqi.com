@@ -3,15 +3,16 @@
 import { useCallback, useRef } from "react";
 
 interface RadioGroupOptions<TValue extends string> {
-  /** Ordered list of option values. */
+  /** Ordered list of option values. Arrow-key navigation follows this order. */
   values: readonly TValue[];
-  /** Currently selected value. */
+  /** Currently selected value. Must be one of `values`. */
   value: TValue;
   /** Called when the user picks a value via click or keyboard. */
   onChange: (next: TValue) => void;
 }
 
 interface OptionProps {
+  /** Ref registration so arrow keys can move focus between options. */
   ref: (node: HTMLButtonElement | null) => void;
   role: "radio";
   "aria-checked": boolean;
@@ -32,6 +33,13 @@ interface OptionProps {
  * and selects it; ArrowLeft/Up to the previous; Home / End jump to the
  * first / last; activation wraps. Focus follows selection so the new option
  * announces immediately, matching native <input type="radio"> behaviour.
+ *
+ * @param values Ordered option values; arrow navigation follows this order.
+ * @param value The currently selected value (one of `values`).
+ * @param onChange Invoked with the next value on click or keyboard select.
+ * @returns An object with `getOptionProps(optionValue)`, which returns the
+ * `ref`, `role`, `aria-checked`, `tabIndex`, `onClick`, and `onKeyDown` props
+ * to spread onto the button rendering that option.
  */
 export function useRadioGroup<TValue extends string>({
   values,
@@ -70,6 +78,14 @@ export function useRadioGroup<TValue extends string>({
     [focusValue, onChange, values],
   );
 
+  /**
+   * Build the props for the option rendering `optionValue`. Spread the result
+   * onto the option's <button>. Supplies `role="radio"`, `aria-checked`,
+   * roving `tabIndex` (0 for the selected option, -1 otherwise), a click
+   * handler that selects the option, a keydown handler implementing the
+   * WAI-ARIA arrow/Home/End model, and a `ref` that registers the node so
+   * keyboard navigation can move focus.
+   */
   const getOptionProps = useCallback(
     (optionValue: TValue): OptionProps => ({
       ref: (node) => {

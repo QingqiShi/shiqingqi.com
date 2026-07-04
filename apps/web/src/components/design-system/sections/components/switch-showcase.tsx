@@ -7,7 +7,10 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
+import { DoDont } from "../../do-dont.tsx";
+import { PropsTable } from "../../props-table.tsx";
 import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
+import { UsageSnippet } from "../../usage-snippet.tsx";
 
 function DemoSwitch({
   initial = "off",
@@ -52,6 +55,7 @@ function LiveSwitch() {
 }
 
 export function SwitchShowcase() {
+  const switchLabel = t({ en: "Autoplay trailers", zh: "自动播放预告" });
   return (
     <>
       <Showcase label={t({ en: "States", zh: "状态" })}>
@@ -89,6 +93,96 @@ export function SwitchShowcase() {
           <LiveSwitch />
         </div>
       </Showcase>
+
+      <Showcase label={t({ en: "Usage", zh: "用法" })}>
+        <UsageSnippet
+          code={`import { Switch, type SwitchState } from "@tuja/ui/components/switch";
+import { useState } from "react";
+
+const [state, setState] = useState<SwitchState>("off");
+
+<Switch value={state} onChange={setState} aria-label="Reduce motion" />`}
+          label="tsx"
+        />
+      </Showcase>
+
+      <Showcase>
+        <PropsTable
+          rows={[
+            {
+              name: "value",
+              type: "SwitchState",
+              description: t({
+                en: 'Controlled state ("off" | "on" | "indeterminate"); pair with onChange.',
+                zh: '受控状态（"off" | "on" | "indeterminate"）；与 onChange 搭配使用。',
+              }),
+            },
+            {
+              name: "defaultValue",
+              type: "SwitchState",
+              defaultValue: '"off"',
+              description: t({
+                en: "Initial state for an uncontrolled switch; ignored once value is set.",
+                zh: "非受控开关的初始状态；一旦设置了 value 便忽略。",
+              }),
+            },
+            {
+              name: "onChange",
+              type: "(state: SwitchState) => void",
+              description: t({
+                en: "Fires with the next state on every user toggle (pointer, keyboard, label).",
+                zh: "每次用户切换（指针、键盘、标签）时以下一状态触发。",
+              }),
+            },
+            {
+              name: "disabled",
+              type: "boolean",
+              description: t({
+                en: "Disables all interaction.",
+                zh: "禁用所有交互。",
+              }),
+            },
+            {
+              name: "aria-label",
+              type: "string",
+              description: t({
+                en: 'Accessible name for the role="switch" input; provide this or associate a <label>.',
+                zh: '为 role="switch" 输入提供可访问名称；提供它或关联一个 <label>。',
+              }),
+            },
+            {
+              name: "…input attributes",
+              type: 'ComponentProps<"input">',
+              description: t({
+                en: "Native input attributes are forwarded; checked and onChange are managed internally.",
+                zh: "原生 input 属性会被转发；checked 与 onChange 由内部管理。",
+              }),
+            },
+          ]}
+        />
+      </Showcase>
+
+      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
+        <DoDont
+          do={
+            <label css={styles.switchField}>
+              <Text as="span" variant="bodySmall">
+                {switchLabel}
+              </Text>
+              <Switch defaultValue="on" aria-label={switchLabel} />
+            </label>
+          }
+          doCaption={t({
+            en: "Give every switch a name — an aria-label or an associated <label> — so it announces its purpose.",
+            zh: "为每个开关命名——aria-label 或关联的 <label>——以便宣读其用途。",
+          })}
+          dont={<Switch defaultValue="off" />}
+          dontCaption={t({
+            en: "Don't ship a switch unlabeled or use it to commit an action like submitting a form — that's a Button's job.",
+            zh: "不要让开关缺少标签，也不要用它来提交表单等执行动作——那是按钮的职责。",
+          })}
+        />
+      </Showcase>
     </>
   );
 }
@@ -100,6 +194,13 @@ const styles = stylex.create({
   liveRow: {
     gap: space._3,
     alignItems: "center",
+  },
+  switchField: {
+    display: "inline-flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space._2,
+    cursor: "pointer",
   },
   stateValue: {
     fontFamily: font.familyMono,

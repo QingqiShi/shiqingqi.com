@@ -1,7 +1,7 @@
 import { fireEvent } from "@testing-library/react";
 import { renderHook } from "@testing-library/react";
-import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useDialogFocus } from "./use-dialog-focus.ts";
 
 function createFocusableDialog() {
   const dialog = document.createElement("div");

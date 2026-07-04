@@ -1,6 +1,5 @@
 "use client";
 
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import {
   useDeferredValue,
@@ -8,6 +7,7 @@ import {
   ViewTransition,
   type PropsWithChildren,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
@@ -16,8 +16,13 @@ import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { border, color, layer, space } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
 
-interface OverlayProps {
+interface OverlayBaseProps {
+  /** Whether the overlay is shown. */
   isOpen: boolean;
+  /**
+   * Called when the user requests dismissal — Escape, a backdrop click, or
+   * the close button. The consumer owns the open state.
+   */
   onClose: () => void;
   /**
    * Accessible label for the close button. Required — the package ships no
@@ -32,7 +37,54 @@ interface OverlayProps {
    * to defer rendering until a target is available.
    */
   portalTarget?: Element | DocumentFragment | null;
-  "aria-label"?: string;
+  /**
+   * Element to focus when the overlay opens. Falls back to the first
+   * focusable element inside the dialog (the close button).
+   */
+  initialFocusRef?: RefObject<HTMLElement | null>;
+}
+
+/**
+ * A modal dialog must have an accessible name (WCAG 4.1.2), so exactly one of
+ * `aria-label` / `aria-labelledby` is required at the type level.
+ */
+type OverlayLabelProps =
+  | {
+      /** Accessible name for the dialog. */
+      "aria-label": string;
+      "aria-labelledby"?: undefined;
+    }
+  | {
+      "aria-label"?: undefined;
+      /** Id of a visible element that names the dialog. */
+      "aria-labelledby": string;
+    };
+
+type OverlayProps = OverlayBaseProps & OverlayLabelProps;
+
+/**
+ * Inline X glyph matching the Phosphor "X" icon's metrics (256 viewBox,
+ * 16-unit round-capped strokes, 1em box) so the default close affordance
+ * renders identically without the icon dependency. Decorative — the close
+ * button carries the accessible name via `closeLabel`.
+ */
+function CloseIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      width="1em"
+      height="1em"
+      viewBox="0 0 256 256"
+      fill="none"
+    >
+      <path
+        d="M56 56 200 200M200 56 56 200"
+        stroke="currentColor"
+        strokeWidth={16}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
 
 /**
@@ -48,7 +100,9 @@ export function Overlay({
   closeLabel,
   closeIcon,
   portalTarget,
+  initialFocusRef,
   "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
 }: PropsWithChildren<OverlayProps>) {
   const deferredIsOpen = useDeferredValue(isOpen);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -57,6 +111,7 @@ export function Overlay({
     isOpen: deferredIsOpen,
     dialogRef,
     onClose,
+    initialFocusRef,
   });
 
   // `undefined` means "use the default target"; an explicit `null` means the
@@ -78,17 +133,27 @@ export function Overlay({
         <div css={styles.backdrop} onClick={onClose} aria-hidden="true" />
       </ViewTransition>
       <ViewTransition enter="slide-in" exit="slide-out">
-        <RemoveScroll enabled={deferredIsOpen} allowPinchZoom forwardProps>
+        {/* `forwardProps` makes RemoveScroll clone its single child and inject
+            its own ref, which would clobber a `ref` placed directly on the
+            dialog div and leave `dialogRef` null (breaking default focus and
+            the Tab focus-trap, both of which query `dialogRef.current`). Pass
+            the ref through RemoveScroll instead — it forwards onto the child. */}
+        <RemoveScroll
+          ref={dialogRef}
+          enabled={deferredIsOpen}
+          allowPinchZoom
+          forwardProps
+        >
           <div
-            ref={dialogRef}
             css={styles.content}
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
           >
             <Button
               css={styles.closeButton}
-              icon={closeIcon ?? <XIcon role="presentation" />}
+              icon={closeIcon ?? <CloseIcon />}
               aria-label={closeLabel}
               onClick={onClose}
             />
@@ -118,30 +183,24 @@ export function Overlay({
 const styles = stylex.create({
   positioningRoot: {
     position: "fixed",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    inset: 0,
   },
   backdrop: {
     position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
+    inset: 0,
     backgroundColor: color.bgScrim,
     zIndex: layer.tooltip,
     pointerEvents: "all",
   },
   closeButton: {
     position: "absolute",
-    right: { default: space._2, [breakpoints.md]: space._5 },
-    top: { default: space._2, [breakpoints.md]: space._5 },
+    insetInlineEnd: { default: space._2, [breakpoints.md]: space._5 },
+    insetBlockStart: { default: space._2, [breakpoints.md]: space._5 },
   },
   content: {
     position: "absolute",
-    top: space._8,
-    left: 0,
+    insetBlockStart: space._8,
+    insetInlineStart: 0,
     width: "calc(100% - var(--removed-body-scroll-bar-size, 0px))",
     height: `calc(100% - ${space._8})`,
     backgroundColor: color.bgSurface,

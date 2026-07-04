@@ -39,10 +39,13 @@ export const sharedStyles = stylex.create({
     outlineOffset: { default: null, ":focus-visible": "2px" },
   },
   hasIcon: {
-    paddingLeft: controlSize._2,
+    paddingInlineStart: controlSize._2,
   },
   hasIconHideLabel: {
-    paddingLeft: { default: controlSize._3, [breakpoints.md]: controlSize._2 },
+    paddingInlineStart: {
+      default: controlSize._3,
+      [breakpoints.md]: controlSize._2,
+    },
   },
   icon: {
     display: "inline-flex",

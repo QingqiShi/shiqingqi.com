@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Badge } from "@tuja/ui/components/badge";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
@@ -273,7 +274,7 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
         <span css={styles.title}>
           {t({ en: "Where to Watch", zh: "在哪里看" })}
         </span>
-        <span css={styles.regionBadge}>{regionDisplay}</span>
+        <Badge variant="neutral">{regionDisplay}</Badge>
       </div>
 
       {providers === null ? (
@@ -398,11 +399,11 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
           )}
           <span css={styles.title}>{providerName}</span>
         </div>
-        <span css={styles.regionBadge}>
+        <Badge variant="neutral">
           {regions.length === 1
             ? t({ en: "1 region", zh: "1 个地区" })
             : `${String(regions.length)} ${t({ en: "regions", zh: "个地区" })}`}
-        </span>
+        </Badge>
       </div>
 
       {regions.length === 0 ? (
@@ -469,15 +470,6 @@ const styles = stylex.create({
   title: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-  },
-  regionBadge: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
-    color: color.textMuted,
-    backgroundColor: color.bgSurface,
-    borderRadius: border.radius_1,
-    paddingInline: space._1,
-    paddingBlock: space._00,
   },
   section: {
     marginBottom: space._2,

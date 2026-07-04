@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import {
   duration,
   easing,
@@ -8,7 +9,6 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { useRadioGroup } from "#src/components/pixel-creature-creator/wizard/use-radio-group.ts";
 import { t } from "#src/i18n.ts";
 import type { CellPixels } from "./types";
 

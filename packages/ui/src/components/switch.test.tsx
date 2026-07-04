@@ -1,8 +1,8 @@
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Switch, type SwitchState } from "@tuja/ui/components/switch";
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, fireEvent } from "#src/test-utils.tsx";
+import { Switch, type SwitchState } from "./switch.tsx";
 
 function ThreeStateTestComponent() {
   const [state, setState] = React.useState<SwitchState>("off");
@@ -167,6 +167,76 @@ describe("Switch Component", () => {
       await userEvent.click(setOffButton);
       expect(switchElement).not.toBeChecked();
       expect(switchElement).not.toBePartiallyChecked();
+    });
+  });
+
+  describe("Uncontrolled defaultValue", () => {
+    it("starts from defaultValue when uncontrolled", () => {
+      render(<Switch defaultValue="on" />);
+
+      const switchElement = screen.getByRole("switch");
+      expect(switchElement).toBeChecked();
+      expect(switchElement).not.toBePartiallyChecked();
+    });
+
+    it("supports an indeterminate defaultValue", () => {
+      render(<Switch defaultValue="indeterminate" />);
+
+      const switchElement = screen.getByRole("switch");
+      expect(switchElement).not.toBeChecked();
+      expect(switchElement).toBePartiallyChecked();
+    });
+
+    it("ignores defaultValue when a controlled value is provided", () => {
+      render(<Switch value="off" defaultValue="on" />);
+
+      const switchElement = screen.getByRole("switch");
+      expect(switchElement).not.toBeChecked();
+    });
+
+    it("toggles from a defaultValue baseline", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+      render(<Switch defaultValue="on" onChange={handleChange} />);
+
+      const switchElement = screen.getByRole("switch");
+      await user.click(switchElement);
+
+      expect(handleChange).toHaveBeenCalledWith("off");
+    });
+  });
+
+  describe("Label activation", () => {
+    it("toggles when an associated <label> is clicked", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+
+      render(
+        <>
+          <label htmlFor="labelled-switch">Toggle theme</label>
+          <Switch id="labelled-switch" onChange={handleChange} />
+        </>,
+      );
+
+      await user.click(screen.getByText("Toggle theme"));
+
+      expect(handleChange).toHaveBeenCalledWith("on");
+    });
+
+    it("does not toggle from a label click when disabled", async () => {
+      const user = userEvent.setup();
+      const handleChange = vi.fn();
+
+      render(
+        <>
+          <label htmlFor="disabled-switch">Toggle theme</label>
+          <Switch id="disabled-switch" disabled onChange={handleChange} />
+        </>,
+      );
+
+      await user.click(screen.getByText("Toggle theme"));
+
+      expect(handleChange).not.toHaveBeenCalled();
     });
   });
 

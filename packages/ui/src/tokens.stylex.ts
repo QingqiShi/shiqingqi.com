@@ -321,6 +321,15 @@ export const font = stylex.defineVars({
   uiCaption: ".75rem",
   uiOverline: ".7rem",
 
+  // Responsive UI control label size. `rem`-based so it honours the user's
+  // browser font size (WCAG 1.4.4), while resolving to the same computed px as
+  // `controlSize._4` at the default 16px root (1.2rem→19.2px, 1rem→16px). It is
+  // responsive like the `vp*` sizes, so the registry skips it.
+  uiControl: {
+    default: "1.2rem",
+    [breakpoints.md]: "1rem",
+  },
+
   // Viewport-responsive typography landing pages
   vpDisplay: {
     default: "2rem",

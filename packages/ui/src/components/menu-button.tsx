@@ -27,7 +27,12 @@ interface MenuButtonProps {
   buttonProps: Partial<ComponentProps<typeof Button>>;
   /** The node to render into the expanded menu. */
   menuContent: ReactNode;
-  /** Where to expand from. */
+  /**
+   * Where to expand from, or `"viewportWidth"` to span the viewport width.
+   * Corner names are logical-direction-aware: `Right` anchors to the
+   * inline-end edge and `Left` to the inline-start edge, so the menu mirrors
+   * automatically in RTL locales.
+   */
   position?:
     | "topRight"
     | "topLeft"
@@ -37,11 +42,13 @@ interface MenuButtonProps {
   /** Disable the menu trigger. */
   disabled?: boolean;
   /**
-   * Set the ARIA role for the popup content. Defaults to `"menu"` for menus
-   * that contain `menuitem` children. Set to `"group"` or `undefined` when
-   * the popup contains other interactive controls (e.g. toggle buttons).
+   * ARIA role for the popup content. Defaults to `"menu"` — use it (or omit the
+   * prop) only when the popup contains `role="menuitem"` children; the menu
+   * keyboard model (roving focus, arrow/Home/End) and `aria-haspopup="menu"`
+   * apply. Pass `"group"` when the popup holds other content or controls
+   * (toggle buttons, informational text) so it isn't announced as an empty menu.
    */
-  popupRole?: "menu" | "group" | undefined;
+  popupRole?: "menu" | "group";
 }
 
 /** A button that expands into a menu. */
@@ -231,37 +238,35 @@ const styles = stylex.create({
   },
   menuTitle: {
     fontSize: controlSize._3,
-    padding: `${controlSize._2} ${controlSize._3} ${controlSize._1}`,
+    paddingBlockStart: controlSize._2,
+    paddingBlockEnd: controlSize._1,
+    paddingInline: controlSize._3,
     color: color.textMuted,
   },
   topRight: {
-    top: 0,
-    right: 0,
+    insetBlockStart: 0,
+    insetInlineEnd: 0,
   },
   topLeft: {
-    top: 0,
-    left: 0,
+    insetBlockStart: 0,
+    insetInlineStart: 0,
   },
   bottomLeft: {
-    bottom: 0,
-    left: 0,
+    insetBlockEnd: 0,
+    insetInlineStart: 0,
   },
   bottomRight: {
-    bottom: 0,
-    right: 0,
+    insetBlockEnd: 0,
+    insetInlineEnd: 0,
   },
   viewportWidth: {
     position: "fixed",
-    left: space._2,
-    right: space._2,
+    insetInline: space._2,
     transform: `translate(0, calc(-1 * ${controlSize._9}))`,
   },
   backdrop: {
     position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    inset: 0,
     zIndex: layer.overlay,
   },
 });

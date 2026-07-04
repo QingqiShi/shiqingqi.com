@@ -1,12 +1,12 @@
+import { describe, expect, it } from "vitest";
+import { border, color, font, space } from "../tokens.stylex.ts";
 import {
   editableTokens,
   findEditableToken,
   SKIPPED,
   type TokenGroup,
   unclassifiedTokens,
-} from "@tuja/ui/author/token-registry";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
-import { describe, expect, it } from "vitest";
+} from "./token-registry.ts";
 
 // `object` (not Record<string,string>) because the VarGroup type has no string
 // index signature; read members via Reflect.get + Object.keys instead.

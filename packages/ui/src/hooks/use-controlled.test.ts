@@ -1,6 +1,6 @@
 import { renderHook, act } from "@testing-library/react";
-import { useControlled } from "@tuja/ui/hooks/use-controlled";
 import { describe, expect, it } from "vitest";
+import { useControlled } from "./use-controlled.ts";
 
 describe("useControlled", () => {
   it("returns the default value when uncontrolled", () => {

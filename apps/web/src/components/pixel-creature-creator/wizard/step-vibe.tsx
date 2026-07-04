@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
@@ -11,7 +12,6 @@ import {
   type Emotion,
 } from "../state/creature-schema";
 import { OptionGrid } from "./option-grid";
-import { useRadioGroup } from "./use-radio-group";
 
 interface StepVibeProps {
   def: CreatureDef;

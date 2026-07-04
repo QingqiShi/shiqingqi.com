@@ -23,7 +23,7 @@
     "start": "next start",
     "lint": "eslint .",
     "pretest": "npm-run-all codegen:i18n codegen:palette",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",

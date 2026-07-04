@@ -1,10 +1,8 @@
-import { fireEvent } from "@testing-library/react";
-import { MenuButton } from "@tuja/ui/components/menu-button";
-import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { render, screen, userEvent } from "#src/test-utils.tsx";
-import { MenuItem } from "./menu-item";
+import { MenuButton } from "./menu-button.tsx";
 
 // jsdom doesn't implement these APIs used by Button's press animation hook
 // or AnimateToTarget's reduced-motion check + web-animations call. Stub
@@ -30,20 +28,26 @@ beforeAll(() => {
   });
 });
 
-// MenuItem calls useRouter() at render time, which requires the Next.js
-// App Router context. The keyboard-navigation tests don't exercise routing,
-// so a no-op router stub is enough to let the component mount.
-const stubRouter = {
-  back: vi.fn(),
-  forward: vi.fn(),
-  refresh: vi.fn(),
-  push: vi.fn(),
-  replace: vi.fn(),
-  prefetch: vi.fn(),
-};
-
-function RouterProvider({ children }: { children: ReactNode }) {
-  return <AppRouterContext value={stubRouter}>{children}</AppRouterContext>;
+// Stands in for the app's MenuItem, which lives in app code the package can't
+// import. It reproduces the two contract points MenuButton's keyboard
+// navigation queries: `role="menuitem"` and the `data-menu-autofocus` marker
+// that selects the item to focus first when the menu opens.
+function MenuItemFixture({
+  autoFocus,
+  children,
+}: {
+  autoFocus?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      data-menu-autofocus={autoFocus ? "true" : undefined}
+    >
+      {children}
+    </button>
+  );
 }
 
 function TestMenu({
@@ -59,15 +63,15 @@ function TestMenu({
       popupRole={popupRole}
       menuContent={
         <div>
-          <MenuItem href="/a" autoFocus={autoFocusIndex === 0}>
+          <MenuItemFixture autoFocus={autoFocusIndex === 0}>
             Item A
-          </MenuItem>
-          <MenuItem href="/b" autoFocus={autoFocusIndex === 1}>
+          </MenuItemFixture>
+          <MenuItemFixture autoFocus={autoFocusIndex === 1}>
             Item B
-          </MenuItem>
-          <MenuItem href="/c" autoFocus={autoFocusIndex === 2}>
+          </MenuItemFixture>
+          <MenuItemFixture autoFocus={autoFocusIndex === 2}>
             Item C
-          </MenuItem>
+          </MenuItemFixture>
         </div>
       }
     />
@@ -81,11 +85,7 @@ function getMenuItems() {
 describe("MenuButton keyboard navigation", () => {
   it("moves focus to the first menu item when the menu opens", async () => {
     const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
+    render(<TestMenu />);
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
 
@@ -95,11 +95,7 @@ describe("MenuButton keyboard navigation", () => {
 
   it("moves focus to the item marked as autoFocus when the menu opens", async () => {
     const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <TestMenu autoFocusIndex={1} />
-      </RouterProvider>,
-    );
+    render(<TestMenu autoFocusIndex={1} />);
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
 
@@ -109,11 +105,7 @@ describe("MenuButton keyboard navigation", () => {
 
   it("cycles focus forward with ArrowDown", async () => {
     const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
+    render(<TestMenu />);
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     const items = getMenuItems();
@@ -131,11 +123,7 @@ describe("MenuButton keyboard navigation", () => {
 
   it("cycles focus backward with ArrowUp", async () => {
     const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
+    render(<TestMenu />);
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     const items = getMenuItems();
@@ -150,11 +138,7 @@ describe("MenuButton keyboard navigation", () => {
 
   it("jumps to first item on Home and last item on End", async () => {
     const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <TestMenu autoFocusIndex={1} />
-      </RouterProvider>,
-    );
+    render(<TestMenu autoFocusIndex={1} />);
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     const items = getMenuItems();
@@ -169,11 +153,7 @@ describe("MenuButton keyboard navigation", () => {
 
   it("returns focus to the trigger on Escape", async () => {
     const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
+    render(<TestMenu />);
 
     const trigger = screen.getByRole("button", { name: "Open menu" });
     await user.click(trigger);
@@ -185,11 +165,7 @@ describe("MenuButton keyboard navigation", () => {
 
   it("returns focus to the trigger when the backdrop is clicked", async () => {
     const user = userEvent.setup();
-    const { container } = render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
+    const { container } = render(<TestMenu />);
 
     const trigger = screen.getByRole("button", { name: "Open menu" });
     await user.click(trigger);
@@ -209,11 +185,7 @@ describe("MenuButton keyboard navigation", () => {
 
   it("marks the popup as inert when the menu is closed", async () => {
     const user = userEvent.setup();
-    const { container } = render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
+    const { container } = render(<TestMenu />);
 
     // Before opening, the popup container should be inert so keyboard
     // users cannot tab into invisible menu items.
@@ -226,11 +198,7 @@ describe("MenuButton keyboard navigation", () => {
   });
 
   it("ties the trigger to the popup via aria-controls while closed", () => {
-    render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
+    render(<TestMenu />);
 
     const trigger = screen.getByRole("button", { name: "Open menu" });
     const controlsId = trigger.getAttribute("aria-controls") ?? "";
@@ -245,11 +213,7 @@ describe("MenuButton keyboard navigation", () => {
 
   it("keeps aria-controls pointing at the popup after opening", async () => {
     const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <TestMenu />
-      </RouterProvider>,
-    );
+    render(<TestMenu />);
 
     const trigger = screen.getByRole("button", { name: "Open menu" });
     const controlsIdBefore = trigger.getAttribute("aria-controls") ?? "";
@@ -317,100 +281,5 @@ describe("MenuButton keyboard navigation", () => {
     // Arrow keys should not move focus anywhere; trigger remains focused.
     await user.keyboard("{ArrowDown}");
     expect(trigger).toHaveFocus();
-  });
-});
-
-describe("MenuItem", () => {
-  it("renders as a menuitem with the auto-focus data attribute", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x" autoFocus>
-          Focusable item
-        </MenuItem>
-      </RouterProvider>,
-    );
-
-    const item = screen.getByRole("menuitem", { name: "Focusable item" });
-    expect(item).toHaveAttribute("data-menu-autofocus", "true");
-  });
-
-  it("omits the data attribute when autoFocus is false", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x">Plain item</MenuItem>
-      </RouterProvider>,
-    );
-
-    const item = screen.getByRole("menuitem", { name: "Plain item" });
-    expect(item).not.toHaveAttribute("data-menu-autofocus");
-  });
-
-  it("takes the active item out of the tab order", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x" isActive>
-          Active item
-        </MenuItem>
-      </RouterProvider>,
-    );
-
-    const item = screen.getByRole("menuitem", { name: "Active item" });
-    expect(item).toHaveAttribute("tabindex", "-1");
-  });
-
-  it("marks the active item with aria-current='true'", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x" isActive>
-          Active item
-        </MenuItem>
-      </RouterProvider>,
-    );
-
-    const item = screen.getByRole("menuitem", { name: "Active item" });
-    expect(item).toHaveAttribute("aria-current", "true");
-  });
-
-  it("does not mark an inactive item with aria-current", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x">Inactive item</MenuItem>
-      </RouterProvider>,
-    );
-
-    const item = screen.getByRole("menuitem", { name: "Inactive item" });
-    expect(item).not.toHaveAttribute("aria-current");
-  });
-
-  it("forwards the lang attribute to the underlying anchor", () => {
-    // WCAG 3.1.2 (Language of Parts): when the item's visible text and
-    // aria-label are in a different language from the surrounding page,
-    // the `lang` attribute must appear on an ancestor of the text (here,
-    // the anchor itself) so screen readers switch pronunciation rules.
-    // This is the load-bearing fix for the locale-switcher menu — see
-    // `LocaleSelector`.
-    render(
-      <RouterProvider>
-        <MenuItem href="/zh" lang="zh" ariaLabel="切换至中文">
-          中文
-        </MenuItem>
-      </RouterProvider>,
-    );
-
-    const item = screen.getByRole("menuitem", { name: "切换至中文" });
-    expect(item).toHaveAttribute("lang", "zh");
-  });
-
-  it("omits the lang attribute when none is provided", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x">Default-language item</MenuItem>
-      </RouterProvider>,
-    );
-
-    const item = screen.getByRole("menuitem", {
-      name: "Default-language item",
-    });
-    expect(item).not.toHaveAttribute("lang");
   });
 });

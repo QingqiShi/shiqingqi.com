@@ -1,3 +1,5 @@
+"use client";
+
 import {
   type RefObject,
   type PointerEvent as ReactPointerEvent,

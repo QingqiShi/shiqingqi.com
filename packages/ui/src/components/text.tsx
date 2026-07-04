@@ -1,7 +1,8 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { color, font } from "../tokens.stylex.ts";
+import { mergeRefs } from "../utils/merge-refs.ts";
 
 type TextElement = "p" | "span" | "div";
 type TextVariant = "body" | "bodySmall" | "caption" | "overline";
@@ -10,15 +11,33 @@ type TextWeight = "regular" | "medium" | "semibold" | "bold";
 type TextAlign = "start" | "center" | "end";
 
 interface TextProps {
+  /** Semantic element to render. Defaults to `"p"`. */
   as?: TextElement;
+  /** Type-scale ramp. Defaults to `"body"`. */
   variant?: TextVariant;
+  /** Foreground colour role. Defaults to `"default"`. */
   tone?: TextTone;
+  /** Font weight. `"overline"` defaults to semibold when unset. */
   weight?: TextWeight;
+  /** Text alignment (logical `start` / `center` / `end`). */
   align?: TextAlign;
+  /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleXStyles;
+  /** Escape-hatch class applied to the rendered element. */
+  className?: string;
+  /** Inline style applied to the rendered element. */
+  style?: CSSProperties;
+  /** Ref to the rendered element (`<p>`, `<span>`, or `<div>`). */
+  ref?: Ref<HTMLElement>;
   children: ReactNode;
 }
 
+/**
+ * Body-copy typography primitive. Picks the semantic element via `as` and the
+ * type ramp via `variant`, keeping the two decoupled so a `<span>` can still
+ * read at body size. Forwards `className`, `style`, and `ref` for escape-hatch
+ * composition.
+ */
 export function Text({
   as = "p",
   variant = "body",
@@ -26,6 +45,9 @@ export function Text({
   weight,
   align,
   css,
+  className,
+  style,
+  ref,
   children,
 }: TextProps) {
   const composedCss = [
@@ -40,13 +62,37 @@ export function Text({
     css,
   ];
 
+  // A single callback ref forwards to the caller regardless of which element is
+  // rendered; the three elements share `HTMLElement` but not a concrete ref type.
+  // `mergeRefs` returns `undefined` when no ref is passed, so nothing is
+  // attached during a Server Component render (attaching any ref there is
+  // illegal).
+  const setRef = mergeRefs(ref);
+
   switch (as) {
     case "p":
-      return <p css={composedCss}>{children}</p>;
+      return (
+        <p ref={setRef} css={composedCss} className={className} style={style}>
+          {children}
+        </p>
+      );
     case "span":
-      return <span css={composedCss}>{children}</span>;
+      return (
+        <span
+          ref={setRef}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
+          {children}
+        </span>
+      );
     case "div":
-      return <div css={composedCss}>{children}</div>;
+      return (
+        <div ref={setRef} css={composedCss} className={className} style={style}>
+          {children}
+        </div>
+      );
   }
 }
 

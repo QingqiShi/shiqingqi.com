@@ -9,89 +9,85 @@ import { usePathname } from "next/navigation";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { getLocalePath, normalizePath } from "#src/utils/pathname.ts";
-
-interface NavItem {
-  label: string;
-  /** Locale-agnostic path; resolved per-locale at render and matched for active state. */
-  path: string;
-}
-
-interface NavGroup {
-  /** Section heading shown on the desktop rail; omitted for the ungrouped overview. */
-  label: string | null;
-  items: NavItem[];
-}
+import {
+  type DesignSystemGroupId,
+  type DesignSystemPath,
+  getDesignSystemRouteGroups,
+} from "./routes.ts";
 
 export function DesignSystemNav() {
   const locale = useLocale();
   const current = normalizePath(usePathname());
+  const groups = getDesignSystemRouteGroups();
 
-  // Labels resolve through `t()` directly in render (a fixed call order keeps
-  // the client i18n hooks stable); the render below maps over the resolved
-  // strings. Add a foundation or component by extending this list — the rail,
-  // active state, and mobile bar all follow automatically.
-  const groups: NavGroup[] = [
-    {
-      label: null,
-      items: [
-        { label: t({ en: "Overview", zh: "概览" }), path: "/design-system" },
-      ],
-    },
-    {
-      label: t({ en: "Foundations", zh: "基础" }),
-      items: [
-        {
-          label: t({ en: "Color", zh: "颜色" }),
-          path: "/design-system/foundations/color",
-        },
-        {
-          label: t({ en: "Typography", zh: "排版" }),
-          path: "/design-system/foundations/typography",
-        },
-        {
-          label: t({ en: "Spacing", zh: "间距" }),
-          path: "/design-system/foundations/spacing",
-        },
-        {
-          label: t({ en: "Elevation", zh: "阴影层级" }),
-          path: "/design-system/foundations/elevation",
-        },
-      ],
-    },
-    {
-      label: t({ en: "Components", zh: "组件" }),
-      items: [
-        {
-          label: t({ en: "Divider", zh: "分隔线" }),
-          path: "/design-system/components/divider",
-        },
-        {
-          label: t({ en: "Badge", zh: "徽章" }),
-          path: "/design-system/components/badge",
-        },
-        {
-          label: t({ en: "Skeleton", zh: "骨架屏" }),
-          path: "/design-system/components/skeleton",
-        },
-        {
-          label: t({ en: "Switch", zh: "开关" }),
-          path: "/design-system/components/switch",
-        },
-        {
-          label: t({ en: "Button", zh: "按钮" }),
-          path: "/design-system/components/button",
-        },
-        {
-          label: t({ en: "Menu button", zh: "菜单按钮" }),
-          path: "/design-system/components/menu-button",
-        },
-        {
-          label: t({ en: "Overlay", zh: "覆盖层" }),
-          path: "/design-system/components/overlay",
-        },
-      ],
-    },
-  ];
+  // The route map lives in routes.ts; the localized copy stays here because the
+  // i18n transform compiles these `t()` calls to client hooks. They're resolved
+  // up front in a fixed order (the render loop below only looks them up by key)
+  // so the hook call order stays stable across renders. Only groups with routes
+  // today carry a heading; the overview group is intentionally unheaded.
+  const groupHeadings: Partial<Record<DesignSystemGroupId, string>> = {
+    foundations: t({ en: "Foundations", zh: "基础" }),
+    components: t({ en: "Components", zh: "组件" }),
+    primitives: t({ en: "Primitives", zh: "原语" }),
+    hooks: t({ en: "Hooks", zh: "钩子" }),
+  };
+  const itemLabels: Record<DesignSystemPath, string> = {
+    "/design-system": t({ en: "Overview", zh: "概览" }),
+    "/design-system/foundations/color": t({ en: "Color", zh: "颜色" }),
+    "/design-system/foundations/typography": t({
+      en: "Typography",
+      zh: "排版",
+    }),
+    "/design-system/foundations/spacing": t({ en: "Spacing", zh: "间距" }),
+    "/design-system/foundations/elevation": t({
+      en: "Elevation",
+      zh: "阴影层级",
+    }),
+    "/design-system/foundations/motion": t({ en: "Motion", zh: "动效" }),
+    "/design-system/foundations/borders": t({
+      en: "Borders",
+      zh: "描边与圆角",
+    }),
+    "/design-system/foundations/layout": t({ en: "Layout", zh: "布局与断点" }),
+    "/design-system/foundations/iconography": t({
+      en: "Iconography",
+      zh: "图标",
+    }),
+    "/design-system/components/text": t({ en: "Text", zh: "文本" }),
+    "/design-system/components/heading": t({ en: "Heading", zh: "标题" }),
+    "/design-system/components/button": t({ en: "Button", zh: "按钮" }),
+    "/design-system/components/icon-button": t({
+      en: "Icon button",
+      zh: "图标按钮",
+    }),
+    "/design-system/components/menu-button": t({
+      en: "Menu button",
+      zh: "菜单按钮",
+    }),
+    "/design-system/components/badge": t({ en: "Badge", zh: "徽章" }),
+    "/design-system/components/callout": t({ en: "Callout", zh: "提示框" }),
+    "/design-system/components/spinner": t({ en: "Spinner", zh: "加载指示器" }),
+    "/design-system/components/skeleton": t({ en: "Skeleton", zh: "骨架屏" }),
+    "/design-system/components/divider": t({ en: "Divider", zh: "分隔线" }),
+    "/design-system/components/switch": t({ en: "Switch", zh: "开关" }),
+    "/design-system/components/text-field": t({
+      en: "Text field",
+      zh: "文本输入框",
+    }),
+    "/design-system/components/textarea": t({
+      en: "Textarea",
+      zh: "多行文本框",
+    }),
+    "/design-system/components/checkbox": t({ en: "Checkbox", zh: "复选框" }),
+    "/design-system/components/select": t({ en: "Select", zh: "下拉选择" }),
+    "/design-system/components/overlay": t({ en: "Overlay", zh: "覆盖层" }),
+    "/design-system/components/sidebar-layout": t({
+      en: "Sidebar layout",
+      zh: "侧边栏布局",
+    }),
+    "/design-system/primitives": t({ en: "Primitives", zh: "原语" }),
+    "/design-system/hooks": t({ en: "Hooks", zh: "钩子" }),
+  };
 
   return (
     <nav
@@ -103,30 +99,31 @@ export function DesignSystemNav() {
           stops macOS/iOS momentum overscroll from dragging the pill's surface
           away and exposing the page canvas at the edge. */}
       <div css={styles.scroller}>
-        {groups.map((group) => (
-          <div key={group.label ?? "overview"} css={styles.group}>
-            {group.label ? (
-              <span css={styles.groupLabel}>{group.label}</span>
-            ) : null}
-            {group.items.map((item) => {
-              const active = current === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  href={getLocalePath(item.path, locale)}
-                  aria-current={active ? "page" : undefined}
-                  css={[
-                    transition.colors,
-                    styles.link,
-                    active && styles.linkActive,
-                  ]}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+        {groups.map((group) => {
+          const heading = groupHeadings[group.group];
+          return (
+            <div key={group.group} css={styles.group}>
+              {heading ? <span css={styles.groupLabel}>{heading}</span> : null}
+              {group.paths.map((path) => {
+                const active = current === path;
+                return (
+                  <Link
+                    key={path}
+                    href={getLocalePath(path, locale)}
+                    aria-current={active ? "page" : undefined}
+                    css={[
+                      transition.colors,
+                      styles.link,
+                      active && styles.linkActive,
+                    ]}
+                  >
+                    {itemLabels[path]}
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     </nav>
   );

@@ -1,11 +1,11 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { flex } from "../primitives/flex.stylex.ts";
 import { border, color, font, space } from "../tokens.stylex.ts";
 
 type BadgeVariant =
   | "default"
+  | "neutral"
   | "info"
   | "success"
   | "warning"
@@ -13,23 +13,44 @@ type BadgeVariant =
   | "accent";
 type BadgeSize = "small" | "medium";
 
-interface BadgeProps {
+interface BadgeProps extends ComponentProps<"span"> {
+  /**
+   * Colour treatment. `"default"` is a bordered surface chip; `"neutral"` is a
+   * borderless muted chip for low-emphasis metadata. The rest map to the
+   * semantic status hues.
+   */
   variant?: BadgeVariant;
+  /** Padding and type scale. Defaults to `"medium"`. */
   size?: BadgeSize;
+  /** Optional leading glyph, rendered decoratively (`aria-hidden`). */
   icon?: ReactNode;
-  css?: StyleXStyles;
+  /** Chip contents — usually a short label. */
   children: ReactNode;
 }
 
+/**
+ * Compact status / label chip. Renders an inline `<span>` and forwards native
+ * span attributes (`id`, `onClick`, `data-*`, `className`, `style`, `ref`) so a
+ * caller can attach behaviour or one-off overrides without a wrapper. The `css`
+ * prop is composed last, letting a caller win over the variant defaults.
+ */
 export function Badge({
   variant = "default",
   size = "medium",
   icon,
   css,
+  className,
+  style,
+  ref,
   children,
+  ...restProps
 }: BadgeProps) {
   return (
     <span
+      {...restProps}
+      ref={ref}
+      className={className}
+      style={style}
       css={[
         flex.inlineCenter,
         styles.base,
@@ -92,6 +113,10 @@ const variantStyles = stylex.create({
     backgroundColor: color.bgSurface,
     color: color.textMuted,
     borderColor: color.neutralBorder,
+  },
+  neutral: {
+    backgroundColor: color.bgSurface,
+    color: color.textMuted,
   },
   info: {
     backgroundColor: color.surfaceInfoSubtle,

@@ -2,9 +2,13 @@ import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, ReactNode, Ref } from "react";
 
 interface FixedContainerContentProps {
+  /** Content to isolate on its own compositing layer. */
   children: ReactNode;
+  /** Escape-hatch class applied to the layer wrapper. */
   className?: string;
+  /** Inline style applied to the layer wrapper. */
   style?: CSSProperties;
+  /** Ref to the layer wrapper element. */
   ref?: Ref<HTMLDivElement>;
 }
 

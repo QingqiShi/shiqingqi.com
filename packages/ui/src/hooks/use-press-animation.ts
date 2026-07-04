@@ -1,3 +1,5 @@
+"use client";
+
 import {
   useEffect,
   useRef,
@@ -7,8 +9,8 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
+import { PRESS_ANIMATION_DURATION } from "../components/button-shared.stylex.ts";
 
-const PRESS_ANIMATION_DURATION = 150;
 const MAX_NUDGE_OFFSET = 4;
 
 function isPointerOutside(

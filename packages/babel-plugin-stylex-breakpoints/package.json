@@ -1,15 +1,43 @@
 {
   "name": "@tuja/babel-plugin-stylex-breakpoints",
   "version": "0.0.0",
-  "private": true,
+  "description": "Babel plugin that inlines `stylex.defineConsts` breakpoint references into media-query keys with mobile-first ordering, so responsive StyleX tokens compile correctly. Runs before @stylexjs/babel-plugin.",
+  "keywords": [
+    "stylex",
+    "babel-plugin",
+    "breakpoints",
+    "media-queries",
+    "responsive"
+  ],
+  "homepage": "https://github.com/QingqiShi/shiqingqi.com/tree/master/packages/babel-plugin-stylex-breakpoints#readme",
+  "bugs": {
+    "url": "https://github.com/QingqiShi/shiqingqi.com/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QingqiShi/shiqingqi.com.git",
+    "directory": "packages/babel-plugin-stylex-breakpoints"
+  },
+  "license": "MIT",
+  "author": "Qingqi Shi <hi@qingqi.dev>",
   "type": "commonjs",
   "main": "src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "lint": "eslint ."
   },
   "dependencies": {
-    "@babel/core": "8.0.1",
     "@babel/parser": "^8.0.0",
     "@babel/traverse": "^8.0.0"
+  },
+  "peerDependencies": {
+    "@babel/core": "^8.0.0"
   }
 }

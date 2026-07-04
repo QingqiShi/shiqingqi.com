@@ -3,9 +3,9 @@
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
+import { IconButton } from "@tuja/ui/components/icon-button";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, layer, shadow } from "@tuja/ui/tokens.stylex";
+import { layer } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 
@@ -37,38 +37,34 @@ export function HorizontalScrollButtons({
 
   return (
     <>
-      <button
-        type="button"
+      <IconButton
+        icon={<CaretLeftIcon weight="bold" />}
         aria-label={t({ en: "Scroll left", zh: "向左滚动" })}
+        variant="surface"
         inert={!showLeft}
         onClick={() => {
           scroll(-1);
         }}
         css={[
-          buttonReset.base,
           styles.button,
           showLeft ? styles.visible : styles.hidden,
           leftCss,
         ]}
-      >
-        <CaretLeftIcon weight="bold" role="presentation" />
-      </button>
-      <button
-        type="button"
+      />
+      <IconButton
+        icon={<CaretRightIcon weight="bold" />}
         aria-label={t({ en: "Scroll right", zh: "向右滚动" })}
+        variant="surface"
         inert={!showRight}
         onClick={() => {
           scroll(1);
         }}
         css={[
-          buttonReset.base,
           styles.button,
           showRight ? styles.visible : styles.hidden,
           rightCss,
         ]}
-      >
-        <CaretRightIcon weight="bold" role="presentation" />
-      </button>
+      />
     </>
   );
 }
@@ -83,17 +79,6 @@ const styles = stylex.create({
       default: "inline-flex",
       [HOVER_NONE]: "none",
     },
-    alignItems: "center",
-    justifyContent: "center",
-    width: "2rem",
-    height: "2rem",
-    borderRadius: border.radius_round,
-    backgroundColor: color.bgSurface,
-    color: {
-      default: color.textMuted,
-      ":hover": color.textMain,
-    },
-    boxShadow: shadow._2,
     transition: {
       default: "opacity 0.2s ease",
       [motionConstants.REDUCED_MOTION]: "none",

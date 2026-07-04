@@ -1,21 +1,47 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
+import type { CSSProperties, Ref } from "react";
 import { color } from "../tokens.stylex.ts";
+import { mergeRefs } from "../utils/merge-refs.ts";
 
 type DividerOrientation = "horizontal" | "vertical";
 type DividerVariant = "subtle" | "bold" | "decorative";
 
 interface DividerProps {
+  /** Line direction. Defaults to `"horizontal"`. */
   orientation?: DividerOrientation;
+  /** Weight / treatment of the rule. Defaults to `"subtle"`. */
   variant?: DividerVariant;
+  /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleXStyles;
+  /** Escape-hatch class applied to the rendered rule. */
+  className?: string;
+  /** Inline style applied to the rendered rule. */
+  style?: CSSProperties;
+  /** Ref to the rendered element (`<hr>` when horizontal, `<div>` when vertical). */
+  ref?: Ref<HTMLElement>;
 }
 
+/**
+ * Thin separator rule. Renders a semantic `<hr>` when horizontal and a
+ * `role="separator"` `<div>` when vertical (an `<hr>` cannot be turned on its
+ * side accessibly). Forwards `className`, `style`, and `ref`.
+ */
 export function Divider({
   orientation = "horizontal",
   variant = "subtle",
   css,
+  className,
+  style,
+  ref,
 }: DividerProps) {
+  // A single callback ref forwards to the caller for either rendered element;
+  // `<hr>` and `<div>` share `HTMLElement` but not a concrete ref type.
+  // `mergeRefs` returns `undefined` when no ref is passed, so nothing is
+  // attached during a Server Component render (attaching any ref there is
+  // illegal).
+  const setRef = mergeRefs(ref);
+
   if (orientation === "vertical") {
     const composedCss = [
       styles.base,
@@ -24,7 +50,14 @@ export function Divider({
       css,
     ];
     return (
-      <div role="separator" aria-orientation="vertical" css={composedCss} />
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        ref={setRef}
+        css={composedCss}
+        className={className}
+        style={style}
+      />
     );
   }
 
@@ -34,7 +67,9 @@ export function Divider({
     horizontalVariantStyles[variant],
     css,
   ];
-  return <hr css={composedCss} />;
+  return (
+    <hr ref={setRef} css={composedCss} className={className} style={style} />
+  );
 }
 
 const styles = stylex.create({

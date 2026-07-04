@@ -1,13 +1,38 @@
 {
   "name": "@tuja/babel-plugin-stylex-css-prop",
   "version": "0.0.0",
-  "private": true,
+  "description": "Babel plugin that transforms the `css` JSX prop into `stylex.props(...)`, enabling ergonomic StyleX authoring. Runs before @stylexjs/babel-plugin.",
+  "keywords": [
+    "stylex",
+    "babel-plugin",
+    "css-prop",
+    "jsx"
+  ],
+  "homepage": "https://github.com/QingqiShi/shiqingqi.com/tree/master/packages/babel-plugin-stylex-css-prop#readme",
+  "bugs": {
+    "url": "https://github.com/QingqiShi/shiqingqi.com/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QingqiShi/shiqingqi.com.git",
+    "directory": "packages/babel-plugin-stylex-css-prop"
+  },
+  "license": "MIT",
+  "author": "Qingqi Shi <hi@qingqi.dev>",
   "type": "commonjs",
   "main": "src/index.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "lint": "eslint ."
   },
-  "dependencies": {
-    "@babel/core": "8.0.1"
+  "peerDependencies": {
+    "@babel/core": "^8.0.0"
   }
 }
