@@ -106,6 +106,18 @@ describe("Checkbox", () => {
     expect(checkbox.getAttribute("aria-describedby")).toContain(message.id);
   });
 
+  it("announces the error as an alert", () => {
+    render(<Checkbox label="Accept terms" error="You must accept" />);
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("You must accept");
+    expect(
+      screen
+        .getByRole("checkbox", { name: "Accept terms" })
+        .getAttribute("aria-describedby"),
+    ).toContain(alert.id);
+  });
+
   it("wires the description via aria-describedby", () => {
     render(
       <Checkbox label="Subscribe" description="We send one email a week" />,

@@ -8,7 +8,7 @@ import type {
   CompiledStyles,
   InlineStyles,
   StyleXArray,
-} from "@stylexjs/stylex/lib/StyleXTypes";
+} from "@stylexjs/stylex/lib/types/StyleXTypes";
 
 type StyleProp = StyleXArray<
   null | undefined | boolean | Readonly<[CompiledStyles, InlineStyles]>

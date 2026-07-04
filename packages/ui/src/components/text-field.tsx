@@ -1,5 +1,6 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { useId, type ComponentProps, type ReactNode } from "react";
+import { type ComponentProps, type ReactNode } from "react";
+import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import {
@@ -69,22 +70,15 @@ export function TextField({
   ref,
   ...rest
 }: TextFieldProps) {
-  const reactId = useId();
-  const fieldId = id ?? reactId;
-  const descriptionId = `${fieldId}-description`;
-  const errorId = `${fieldId}-error`;
-
-  const hasDescription = description !== undefined && description !== "";
-  const hasError = error !== undefined && error !== "";
-
-  const describedBy =
-    [
-      ariaDescribedBy,
-      hasDescription ? descriptionId : null,
-      hasError ? errorId : null,
-    ]
-      .filter(Boolean)
-      .join(" ") || undefined;
+  const {
+    fieldId,
+    descriptionId,
+    errorId,
+    hasDescription,
+    hasError,
+    describedBy,
+    ariaInvalid: resolvedAriaInvalid,
+  } = useFieldAria({ id, ariaDescribedBy, ariaInvalid, description, error });
 
   return (
     <div css={fieldStyles.root}>
@@ -115,7 +109,7 @@ export function TextField({
           id={fieldId}
           required={required}
           disabled={disabled}
-          aria-invalid={hasError ? true : ariaInvalid}
+          aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
           className={className}
           style={style}

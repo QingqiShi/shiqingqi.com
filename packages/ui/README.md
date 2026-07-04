@@ -1,7 +1,7 @@
 # @tuja/ui
 
 The [StyleX](https://stylexjs.com) design system that powers
-[shiqingqi.com](https://shiqingqi.com). It ships:
+[qingqi.dev](https://qingqi.dev). It ships:
 
 - **Role-based tokens** — every color is a `light-dark()` pair, so theming is
   driven entirely by `color-scheme`. Plus `font`, `space`, `controlSize`,
@@ -15,7 +15,7 @@ The [StyleX](https://stylexjs.com) design system that powers
   badges, skeletons, and more, with focus management and keyboard behaviour
   built in.
 
-> **Live showcase:** <https://shiqingqi.com/en/design-system>
+> **Live showcase:** <https://qingqi.dev/en/design-system>
 
 `@tuja/ui` ships **raw TypeScript source**. StyleX is a compile-time system:
 your build must run the StyleX Babel plugin over the library source (alongside
@@ -168,7 +168,7 @@ import type {
   CompiledStyles,
   InlineStyles,
   StyleXArray,
-} from "@stylexjs/stylex/lib/StyleXTypes";
+} from "@stylexjs/stylex/lib/types/StyleXTypes";
 
 type StyleProp = StyleXArray<
   null | undefined | boolean | Readonly<[CompiledStyles, InlineStyles]>

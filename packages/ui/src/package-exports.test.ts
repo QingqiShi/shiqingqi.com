@@ -25,6 +25,9 @@ const packageRoot = path.resolve(
 const EXPECTED_UNEXPORTED: ReadonlySet<string> = new Set([
   // Ref-merging helper shared between components; not public API.
   "src/utils/merge-refs.ts",
+  // Field label/description/error wiring shared by the form controls
+  // (TextField, Textarea, Checkbox, Select); an internal composition detail.
+  "src/hooks/use-field-aria.ts",
 ]);
 
 // Hue ramps the "./palette/*" wildcard export must always cover.

@@ -3,11 +3,11 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import {
   useCallback,
-  useId,
   useLayoutEffect,
   useRef,
   type ComponentProps,
 } from "react";
+import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
@@ -79,22 +79,15 @@ export function Textarea({
   ref,
   ...rest
 }: TextareaProps) {
-  const reactId = useId();
-  const fieldId = id ?? reactId;
-  const descriptionId = `${fieldId}-description`;
-  const errorId = `${fieldId}-error`;
-
-  const hasDescription = description !== undefined && description !== "";
-  const hasError = error !== undefined && error !== "";
-
-  const describedBy =
-    [
-      ariaDescribedBy,
-      hasDescription ? descriptionId : null,
-      hasError ? errorId : null,
-    ]
-      .filter(Boolean)
-      .join(" ") || undefined;
+  const {
+    fieldId,
+    descriptionId,
+    errorId,
+    hasDescription,
+    hasError,
+    describedBy,
+    ariaInvalid: resolvedAriaInvalid,
+  } = useFieldAria({ id, ariaDescribedBy, ariaInvalid, description, error });
 
   const innerRef = useRef<HTMLTextAreaElement>(null);
   const setRef = mergeRefs(innerRef, ref);
@@ -149,7 +142,7 @@ export function Textarea({
         disabled={disabled}
         value={value}
         defaultValue={defaultValue}
-        aria-invalid={hasError ? true : ariaInvalid}
+        aria-invalid={resolvedAriaInvalid}
         aria-describedby={describedBy}
         className={className}
         style={style}

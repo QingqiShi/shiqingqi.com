@@ -316,6 +316,23 @@ describe("Switch Component", () => {
       expect(handleChange).toHaveBeenCalledTimes(2);
       expect(handleChange).toHaveBeenCalledWith("on");
     });
+
+    it("does not repeat the toggle while a key is held down", () => {
+      const handleChange = vi.fn();
+      render(<Switch onChange={handleChange} />);
+
+      const switchElement = screen.getByRole("switch");
+      switchElement.focus();
+
+      // The first keydown toggles; the browser's auto-repeat keydowns carry
+      // `repeat: true` and must be ignored so a held key toggles only once.
+      fireEvent.keyDown(switchElement, { code: "Space" });
+      fireEvent.keyDown(switchElement, { code: "Space", repeat: true });
+      fireEvent.keyDown(switchElement, { code: "Space", repeat: true });
+
+      expect(handleChange).toHaveBeenCalledTimes(1);
+      expect(handleChange).toHaveBeenCalledWith("on");
+    });
   });
 
   describe("Pointer and Click Interactions", () => {

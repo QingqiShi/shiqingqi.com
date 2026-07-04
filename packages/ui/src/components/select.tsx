@@ -2,11 +2,13 @@
 
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import { useId, type ComponentProps, type ReactNode } from "react";
+import { type ComponentProps, type ReactNode } from "react";
+import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
+import { fieldStyles } from "./field-shared.stylex.ts";
 
 type SelectSize = "sm" | "md";
 
@@ -110,15 +112,21 @@ export function Select({
   "aria-invalid": ariaInvalid,
   ...rest
 }: SelectProps) {
-  const generatedId = useId();
-  const id = idProp ?? generatedId;
-  const descriptionId = `${generatedId}-description`;
-  const errorId = `${generatedId}-error`;
-
-  const describedBy =
-    [ariaDescribedBy, description && descriptionId, error && errorId]
-      .filter(Boolean)
-      .join(" ") || undefined;
+  const {
+    fieldId,
+    descriptionId,
+    errorId,
+    hasDescription,
+    hasError,
+    describedBy,
+    ariaInvalid: resolvedAriaInvalid,
+  } = useFieldAria({
+    id: idProp,
+    ariaDescribedBy,
+    ariaInvalid,
+    description,
+    error,
+  });
 
   // A disabled placeholder is not auto-selected by the browser, so when the
   // select is uncontrolled and has no explicit default we point `defaultValue`
@@ -132,7 +140,7 @@ export function Select({
   return (
     <span css={[flex.col, styles.root, css]}>
       <label
-        htmlFor={id}
+        htmlFor={fieldId}
         css={labelHidden ? a11y.srOnly : [styles.label, labelSizeStyles[size]]}
       >
         {label}
@@ -140,12 +148,12 @@ export function Select({
       <span css={styles.control}>
         <select
           {...rest}
-          id={id}
+          id={fieldId}
           ref={ref}
           value={value}
           defaultValue={resolvedDefaultValue}
           disabled={disabled}
-          aria-invalid={error ? true : ariaInvalid}
+          aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
           className={className}
           style={style}
@@ -176,13 +184,13 @@ export function Select({
         </select>
         <ChevronIcon />
       </span>
-      {description ? (
-        <span id={descriptionId} css={styles.description}>
+      {hasDescription ? (
+        <span id={descriptionId} css={fieldStyles.description}>
           {description}
         </span>
       ) : null}
-      {error ? (
-        <span id={errorId} css={styles.error}>
+      {hasError ? (
+        <span id={errorId} role="alert" css={fieldStyles.errorText}>
           {error}
         </span>
       ) : null}
@@ -244,16 +252,6 @@ const styles = stylex.create({
     blockSize: "1em",
     pointerEvents: "none",
     color: color.textMuted,
-  },
-  description: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_3,
-    color: color.textMuted,
-  },
-  error: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_3,
-    color: color.dangerText,
   },
 });
 

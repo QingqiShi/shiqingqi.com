@@ -189,6 +189,11 @@ export function Switch({
       onKeyDown={(e) => {
         if (e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
+          // A held key auto-repeats keydown; a native switch toggles once per
+          // press, so ignore repeats (but still preventDefault above to keep
+          // Space from scrolling). The initial keydown already flipped state
+          // and armed the click guard below.
+          if (e.repeat) return;
           // Space activation dispatches a trailing click on keyup; guard so it
           // doesn't double-toggle. Enter dispatches no click, so it needs none.
           if (e.code === "Space") {

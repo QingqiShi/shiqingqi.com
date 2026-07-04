@@ -2,12 +2,14 @@
 
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useId, useRef, type ComponentProps } from "react";
+import { useEffect, useRef, type ComponentProps } from "react";
+import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
+import { fieldStyles } from "./field-shared.stylex.ts";
 
 // Centred glyphs painted as the box background once `:checked` / `:indeterminate`
 // match. Drawn in `white` — which is `accentOn` in both themes — so they read on
@@ -87,14 +89,14 @@ export function Checkbox({
     }
   }, [indeterminate]);
 
-  const generatedId = useId();
-  const descriptionId = `${generatedId}-description`;
-  const errorId = `${generatedId}-error`;
-
-  const describedBy =
-    [ariaDescribedBy, description && descriptionId, error && errorId]
-      .filter(Boolean)
-      .join(" ") || undefined;
+  const {
+    descriptionId,
+    errorId,
+    hasDescription,
+    hasError,
+    describedBy,
+    ariaInvalid: resolvedAriaInvalid,
+  } = useFieldAria({ ariaDescribedBy, ariaInvalid, description, error });
 
   return (
     <span css={[flex.col, styles.root, css]}>
@@ -104,7 +106,7 @@ export function Checkbox({
           ref={setInputRef}
           type="checkbox"
           disabled={disabled}
-          aria-invalid={error ? true : ariaInvalid}
+          aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
           className={className}
           style={style}
@@ -126,13 +128,13 @@ export function Checkbox({
           {label}
         </span>
       </label>
-      {description ? (
-        <span id={descriptionId} css={styles.description}>
+      {hasDescription ? (
+        <span id={descriptionId} css={fieldStyles.description}>
           {description}
         </span>
       ) : null}
-      {error ? (
-        <span id={errorId} css={styles.error}>
+      {hasError ? (
+        <span id={errorId} role="alert" css={fieldStyles.errorText}>
           {error}
         </span>
       ) : null}
@@ -196,16 +198,6 @@ const styles = stylex.create({
     color: color.textMain,
     fontWeight: font.weight_5,
     lineHeight: font.lineHeight_2,
-  },
-  description: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_3,
-    color: color.textMuted,
-  },
-  error: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_3,
-    color: color.dangerText,
   },
 });
 

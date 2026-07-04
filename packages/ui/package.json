@@ -1,7 +1,7 @@
 {
   "name": "@tuja/ui",
   "version": "0.0.0",
-  "description": "StyleX design system powering shiqingqi.com: role-based light-dark() tokens, a generated 13-hue HCT palette, composable primitives, and accessible React components.",
+  "description": "StyleX design system powering qingqi.dev: role-based light-dark() tokens, a generated 13-hue HCT palette, composable primitives, and accessible React components.",
   "keywords": [
     "stylex",
     "react",
@@ -11,7 +11,7 @@
     "light-dark",
     "hct"
   ],
-  "homepage": "https://shiqingqi.com/en/design-system",
+  "homepage": "https://qingqi.dev/en/design-system",
   "bugs": {
     "url": "https://github.com/QingqiShi/shiqingqi.com/issues"
   },

@@ -39,7 +39,7 @@ function CloseIcon() {
       <path
         d="M56 56 200 200M200 56 56 200"
         stroke="currentColor"
-        strokeWidth={20}
+        strokeWidth={16}
         strokeLinecap="round"
       />
     </svg>

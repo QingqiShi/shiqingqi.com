@@ -101,6 +101,18 @@ describe("Select", () => {
     expect(select.getAttribute("aria-describedby")).toContain(message.id);
   });
 
+  it("announces the error as an alert", () => {
+    render(<Select label="Fruit" options={FRUIT} error="Pick something" />);
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Pick something");
+    expect(
+      screen
+        .getByRole("combobox", { name: "Fruit" })
+        .getAttribute("aria-describedby"),
+    ).toContain(alert.id);
+  });
+
   it("wires the description via aria-describedby", () => {
     render(
       <Select
