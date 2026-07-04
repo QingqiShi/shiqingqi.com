@@ -1,3 +1,5 @@
+"use client";
+
 import {
   useEffect,
   useRef,
@@ -7,8 +9,8 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
+import { PRESS_ANIMATION_DURATION } from "../components/button-shared.stylex.ts";
 
-const PRESS_ANIMATION_DURATION = 150;
 const MAX_NUDGE_OFFSET = 4;
 
 function isPointerOutside(
@@ -55,10 +57,25 @@ export function usePressAnimation<T extends HTMLElement>({
   const pointerIdRef = useRef<number | null>(null);
   const isPressedRef = useRef(false);
   const releasedOutsideRef = useRef(false);
+  // Element bounds captured once at press start, so pointer-move doesn't force
+  // a synchronous layout read (`getBoundingClientRect`) on every event.
+  const pressRectRef = useRef<DOMRect | null>(null);
 
   const [isPressed, setIsPressed] = useState(false);
   const [releasedOutside, setReleasedOutside] = useState(false);
   const [nudgeOffset, setNudgeOffset] = useState({ x: 0, y: 0 });
+  // Mirrors `nudgeOffset` so `applyNudge` can skip no-op state updates without
+  // reading render-scoped state — pointer-move fires dozens of times a second
+  // and an unchanged offset must not trigger a re-render.
+  const nudgeOffsetRef = useRef({ x: 0, y: 0 });
+
+  function applyNudge(x: number, y: number) {
+    if (nudgeOffsetRef.current.x === x && nudgeOffsetRef.current.y === y) {
+      return;
+    }
+    nudgeOffsetRef.current = { x, y };
+    setNudgeOffset({ x, y });
+  }
 
   function clearReleaseTimeout() {
     if (releaseTimeoutRef.current !== null) {
@@ -92,7 +109,7 @@ export function usePressAnimation<T extends HTMLElement>({
     setIsPressed(true);
     isPressedRef.current = true;
     setReleasedOutside(false);
-    setNudgeOffset({ x: 0, y: 0 });
+    applyNudge(0, 0);
     pressStartTimeRef.current = performance.now();
   }
 
@@ -108,14 +125,14 @@ export function usePressAnimation<T extends HTMLElement>({
       releaseTimeoutRef.current = setTimeout(() => {
         setIsPressed(false);
         isPressedRef.current = false;
-        setNudgeOffset({ x: 0, y: 0 });
+        applyNudge(0, 0);
       }, remaining);
     } else {
       // Normal release
       setReleasedOutside(isOutside);
       setIsPressed(false);
       isPressedRef.current = false;
-      setNudgeOffset({ x: 0, y: 0 });
+      applyNudge(0, 0);
     }
   }
 
@@ -126,6 +143,9 @@ export function usePressAnimation<T extends HTMLElement>({
     targetRef.current?.setPointerCapture(event.pointerId);
     pointerIdRef.current = event.pointerId;
     handlePress();
+    // Snapshot the bounds now so pointer-move can reuse them instead of
+    // measuring layout on every event.
+    pressRectRef.current = targetRef.current?.getBoundingClientRect() ?? null;
   }
 
   function onPointerUp(event: ReactPointerEvent<T>) {
@@ -141,31 +161,26 @@ export function usePressAnimation<T extends HTMLElement>({
   }
 
   function onPointerMove(event: ReactPointerEvent<T>) {
-    if (!isPressed || !targetRef.current) return;
+    if (!isPressed) return;
 
-    const rect = targetRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    // Reuse the bounds captured at press start (see onPointerDown) rather than
+    // reading layout on every move.
+    const rect = pressRectRef.current;
+    if (!rect) return;
 
-    // Check if pointer is outside the button
-    const isOutside = isPointerOutside(rect, event.clientX, event.clientY);
+    // Snap back to rest while the pointer is inside the button.
+    if (!isPointerOutside(rect, event.clientX, event.clientY)) {
+      applyNudge(0, 0);
+      return;
+    }
 
-    if (isOutside) {
-      // Calculate direction from center to pointer
-      const dx = event.clientX - centerX;
-      const dy = event.clientY - centerY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance > 0) {
-        // Normalize and scale to max offset
-        const scale = Math.min(MAX_NUDGE_OFFSET / distance, 1);
-        setNudgeOffset({
-          x: dx * scale,
-          y: dy * scale,
-        });
-      }
-    } else {
-      setNudgeOffset({ x: 0, y: 0 });
+    // Nudge toward the pointer, capped at MAX_NUDGE_OFFSET.
+    const dx = event.clientX - (rect.left + rect.width / 2);
+    const dy = event.clientY - (rect.top + rect.height / 2);
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance > 0) {
+      const scale = Math.min(MAX_NUDGE_OFFSET / distance, 1);
+      applyNudge(dx * scale, dy * scale);
     }
   }
 

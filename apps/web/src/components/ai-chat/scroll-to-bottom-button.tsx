@@ -2,9 +2,9 @@
 
 import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import * as stylex from "@stylexjs/stylex";
+import { IconButton } from "@tuja/ui/components/icon-button";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, shadow, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 
 interface ScrollToBottomButtonProps {
   visible: boolean;
@@ -18,19 +18,14 @@ export function ScrollToBottomButton({
   onClick,
 }: ScrollToBottomButtonProps) {
   return (
-    <button
-      type="button"
+    <IconButton
+      icon={<ArrowDownIcon weight="bold" />}
       aria-label={label}
+      variant="surface"
       inert={!visible}
       onClick={onClick}
-      css={[
-        buttonReset.base,
-        styles.button,
-        visible ? styles.visible : styles.hidden,
-      ]}
-    >
-      <ArrowDownIcon weight="bold" role="presentation" />
-    </button>
+      css={[styles.button, visible ? styles.visible : styles.hidden]}
+    />
   );
 }
 
@@ -40,19 +35,6 @@ const styles = stylex.create({
     bottom: `calc(100% + ${space._2})`,
     left: "50%",
     transform: "translateX(-50%)",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "2rem",
-    height: "2rem",
-    borderRadius: border.radius_round,
-    padding: 0,
-    backgroundColor: color.bgSurface,
-    color: {
-      default: color.textMuted,
-      ":hover": color.textMain,
-    },
-    boxShadow: shadow._2,
     transition: {
       default: "opacity 0.2s ease, transform 0.2s ease",
       [motionConstants.REDUCED_MOTION]: "opacity 0.2s ease",

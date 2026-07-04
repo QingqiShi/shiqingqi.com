@@ -9,8 +9,9 @@
 // and CI fails — that's the anti-drift guarantee.
 //
 // Out of scope by design: font families (excluded by request) and the
-// responsive `vp*`/`cq*` sizes (a single CSS-var override desyncs their
-// breakpoint ramp). See `SKIPPED` for the exact list.
+// responsive font sizes — `vp*`/`cq*` plus `uiControl` — where a single
+// CSS-var override would desync the breakpoint ramp. See `SKIPPED` for the
+// exact list.
 
 import { border, color, font, space } from "../tokens.stylex.ts";
 
@@ -57,6 +58,7 @@ export const SKIPPED: Readonly<Record<TokenGroup, ReadonlySet<string>>> = {
   font: new Set([
     "family",
     "familyMono",
+    "uiControl", // responsive, multi-value across breakpoints
     "vpDisplay", // responsive, multi-value across breakpoints
     "vpSubDisplay",
     "vpHeading1",

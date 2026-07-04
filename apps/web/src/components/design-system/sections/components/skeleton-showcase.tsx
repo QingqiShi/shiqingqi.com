@@ -4,7 +4,10 @@ import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { DoDont } from "../../do-dont.tsx";
+import { PropsTable } from "../../props-table.tsx";
 import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
+import { UsageSnippet } from "../../usage-snippet.tsx";
 
 export function SkeletonShowcase() {
   return (
@@ -66,6 +69,109 @@ export function SkeletonShowcase() {
           ))}
         </div>
       </Showcase>
+
+      <Showcase label={t({ en: "Usage", zh: "用法" })}>
+        <UsageSnippet
+          code={`import { Skeleton } from "@tuja/ui/components/skeleton";
+
+<Skeleton width="100%" height={160} />`}
+          label="tsx"
+        />
+      </Showcase>
+
+      <Showcase>
+        <PropsTable
+          rows={[
+            {
+              name: "width",
+              type: "string | number",
+              description: t({
+                en: 'Inline size; a number is treated as pixels, a string passes through (e.g. "100%").',
+                zh: '内联尺寸；数字按像素处理，字符串原样传入（例如 "100%"）。',
+              }),
+            },
+            {
+              name: "height",
+              type: "string | number",
+              description: t({
+                en: "Block size; a number is treated as pixels, a string passes through.",
+                zh: "块级尺寸；数字按像素处理，字符串原样传入。",
+              }),
+            },
+            {
+              name: "fill",
+              type: "boolean",
+              description: t({
+                en: "Stretch to fill the parent's inline and block size.",
+                zh: "拉伸以填满父元素的内联与块级尺寸。",
+              }),
+            },
+            {
+              name: "delay",
+              type: "number",
+              description: t({
+                en: "Staggers the pulse start by N milliseconds — useful for lists of rows.",
+                zh: "将脉动起点错开 N 毫秒——适用于多行列表。",
+              }),
+            },
+            {
+              name: "css",
+              type: "StyleXStyles",
+              description: t({
+                en: "StyleX overrides composed last so a caller can win over the defaults.",
+                zh: "最后合成的 StyleX 覆盖样式，使调用方可覆盖默认值。",
+              }),
+            },
+            {
+              name: "className",
+              type: "string",
+              description: t({
+                en: "Escape-hatch class applied to the rendered element.",
+                zh: "应用于渲染元素的逃生舱类名。",
+              }),
+            },
+            {
+              name: "style",
+              type: "CSSProperties",
+              description: t({
+                en: "Inline style applied to the rendered element.",
+                zh: "应用于渲染元素的内联样式。",
+              }),
+            },
+            {
+              name: "ref",
+              type: "Ref<HTMLDivElement>",
+              description: t({
+                en: "Ref to the rendered element.",
+                zh: "指向渲染元素的 ref。",
+              }),
+            },
+          ]}
+        />
+      </Showcase>
+
+      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
+        <DoDont
+          do={
+            <div css={[flex.col, styles.guideCard]}>
+              <Skeleton height={80} />
+              <div css={[flex.col, styles.guideLines]}>
+                <Skeleton width={120} height={12} />
+                <Skeleton width={80} height={10} />
+              </div>
+            </div>
+          }
+          doCaption={t({
+            en: "Mirror the shape and size of the content the skeleton stands in for.",
+            zh: "让骨架屏还原其所替代内容的形状与尺寸。",
+          })}
+          dont={<Skeleton width={200} height={96} />}
+          dontCaption={t({
+            en: "Don't mask a rich layout with one generic block — the swap-in jumps and previews nothing.",
+            zh: "不要用一整块通用骨架遮盖复杂布局——内容载入时会跳动，也无法预览结构。",
+          })}
+        />
+      </Showcase>
     </>
   );
 }
@@ -102,6 +208,13 @@ const styles = stylex.create({
     borderRadius: border.radius_3,
   },
   cardLines: {
+    gap: space._1,
+  },
+  guideCard: {
+    gap: space._2,
+    inlineSize: space._11,
+  },
+  guideLines: {
     gap: space._1,
   },
 });

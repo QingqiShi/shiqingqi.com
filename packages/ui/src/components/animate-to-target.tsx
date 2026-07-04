@@ -10,15 +10,15 @@ const animationOptions: KeyframeAnimationOptions = {
 };
 
 interface AnimateToTargetProps {
-  /** If true, animate towards the target element. */
+  /** If true, animate towards the target element; if false, animate back. */
   animateToTarget: boolean;
-  /** The id of the target element. */
+  /** The `id` of the DOM element to animate towards. */
   targetId: string;
-  /** If true, make the containers inline. */
+  /** If true, lay the outer and inner containers out as `inline-block`. */
   inline?: boolean;
-  /** For style overrides. */
+  /** Escape-hatch class applied to the outer container. */
   className?: string;
-  /** For style overrides. */
+  /** Inline style applied to the outer container. */
   style?: React.CSSProperties;
 }
 
@@ -163,6 +163,9 @@ export function AnimateToTarget({
 
 const styles = stylex.create({
   container: {
+    // `transform-origin` has no logical-property form; the FLIP math above works
+    // in raw viewport coordinates (getBoundingClientRect), so the physical
+    // "top left" origin is correct regardless of writing direction.
     transformOrigin: "top left",
     willChange: "transform",
   },

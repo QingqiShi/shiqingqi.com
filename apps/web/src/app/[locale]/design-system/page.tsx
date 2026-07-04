@@ -3,6 +3,11 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { ViewTransition } from "react";
+import {
+  type DesignSystemGroupId,
+  type DesignSystemPath,
+  getDesignSystemRouteGroups,
+} from "#src/components/design-system/routes.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
@@ -11,104 +16,220 @@ export default function DesignSystemOverview() {
   const locale = getLocale();
   const heading = t({ en: "Design System", zh: "设计系统" });
 
-  const foundations = [
-    {
-      path: "/design-system/foundations/color",
+  // Structure comes from the shared route registry; the localized copy stays
+  // here because the i18n transform compiles these `t()` calls to the server
+  // lookup, which the client nav can't share. The overview lists everything
+  // except itself, so the `"overview"` group is dropped below.
+  const cardGroups = getDesignSystemRouteGroups().filter(
+    (group) => group.group !== "overview",
+  );
+  const groupHeadings: Partial<Record<DesignSystemGroupId, string>> = {
+    foundations: t({ en: "Foundations", zh: "基础" }),
+    components: t({ en: "Components", zh: "组件" }),
+    primitives: t({ en: "Primitives", zh: "原语" }),
+    hooks: t({ en: "Hooks", zh: "钩子" }),
+  };
+  const content: Record<
+    DesignSystemPath,
+    { label: string; description: string }
+  > = {
+    "/design-system": {
+      label: t({ en: "Overview", zh: "概览" }),
+      description: t({
+        en: "The design system overview and index.",
+        zh: "设计系统概览与索引。",
+      }),
+    },
+    "/design-system/foundations/color": {
       label: t({ en: "Color", zh: "颜色" }),
       description: t({
         en: "Tonal palettes, semantic backgrounds, and text roles.",
         zh: "色调阶梯、语义背景与文本角色。",
       }),
     },
-    {
-      path: "/design-system/foundations/typography",
+    "/design-system/foundations/typography": {
       label: t({ en: "Typography", zh: "排版" }),
       description: t({
         en: "Families, the type scale, weights, and heading and body styles.",
         zh: "字体、字号阶梯、字重，以及标题与正文样式。",
       }),
     },
-    {
-      path: "/design-system/foundations/spacing",
+    "/design-system/foundations/spacing": {
       label: t({ en: "Spacing", zh: "间距" }),
       description: t({
         en: "The rem-based spacing scale.",
         zh: "以 rem 为基准的间距阶梯。",
       }),
     },
-    {
-      path: "/design-system/foundations/elevation",
+    "/design-system/foundations/elevation": {
       label: t({ en: "Elevation", zh: "阴影层级" }),
       description: t({
         en: "The shadow scale for layering surfaces above the page.",
         zh: "用于在页面之上叠放表面的阴影阶梯。",
       }),
     },
-  ];
-
-  const components = [
-    {
-      path: "/design-system/components/divider",
-      label: t({ en: "Divider", zh: "分隔线" }),
+    "/design-system/foundations/motion": {
+      label: t({ en: "Motion", zh: "动效" }),
       description: t({
-        en: "Horizontal, vertical, and decorative separators.",
-        zh: "水平、垂直与装饰性分隔线。",
+        en: "Duration and easing tokens, transition and animation presets, and reduced-motion behavior.",
+        zh: "时长与缓动令牌、过渡与动画预设，以及减弱动效行为。",
       }),
     },
-    {
-      path: "/design-system/components/badge",
-      label: t({ en: "Badge", zh: "徽章" }),
+    "/design-system/foundations/borders": {
+      label: t({ en: "Borders", zh: "描边与圆角" }),
       description: t({
-        en: "Compact status and label indicators across six tones.",
-        zh: "六种色调的紧凑状态与标签指示器。",
+        en: "Border widths and the corner-radius scale.",
+        zh: "描边宽度与圆角阶梯。",
       }),
     },
-    {
-      path: "/design-system/components/skeleton",
-      label: t({ en: "Skeleton", zh: "骨架屏" }),
+    "/design-system/foundations/layout": {
+      label: t({ en: "Layout", zh: "布局与断点" }),
       description: t({
-        en: "Placeholder shapes that hold space while content loads.",
-        zh: "在内容加载时占位的骨架形状。",
+        en: "Breakpoints, container widths, control sizes, z-index layers, and aspect ratios.",
+        zh: "断点、容器宽度、控件尺寸、层级与宽高比。",
       }),
     },
-    {
-      path: "/design-system/components/switch",
-      label: t({ en: "Switch", zh: "开关" }),
+    "/design-system/foundations/iconography": {
+      label: t({ en: "Iconography", zh: "图标" }),
       description: t({
-        en: "A draggable, three-state on/off/indeterminate toggle.",
-        zh: "可拖动的开启／关闭／未定三态开关。",
+        en: "Phosphor icon conventions: sizing, weight, and pairing with controls.",
+        zh: "Phosphor 图标约定：尺寸、字重与控件搭配。",
       }),
     },
-    {
-      path: "/design-system/components/button",
+    "/design-system/components/text": {
+      label: t({ en: "Text", zh: "文本" }),
+      description: t({
+        en: "The body-copy type primitive: a four-step ramp, four tones, and four weights.",
+        zh: "正文排版基础组件：四档字阶、四种色调与四种字重。",
+      }),
+    },
+    "/design-system/components/heading": {
+      label: t({ en: "Heading", zh: "标题" }),
+      description: t({
+        en: "The heading primitive, with semantic level decoupled from visual size.",
+        zh: "标题基础组件，语义层级与视觉字号相互独立。",
+      }),
+    },
+    "/design-system/components/button": {
       label: t({ en: "Button", zh: "按钮" }),
       description: t({
         en: "The primary action control, with variants and a press animation.",
         zh: "主要的操作控件，提供多种风格与按压动画。",
       }),
     },
-    {
-      path: "/design-system/components/menu-button",
+    "/design-system/components/icon-button": {
+      label: t({ en: "Icon button", zh: "图标按钮" }),
+      description: t({
+        en: "A compact, icon-only button with a required accessible name.",
+        zh: "紧凑的纯图标按钮，须提供无障碍名称。",
+      }),
+    },
+    "/design-system/components/menu-button": {
       label: t({ en: "Menu button", zh: "菜单按钮" }),
       description: t({
         en: "A button that expands into a popup menu.",
         zh: "点击后展开为弹出菜单的按钮。",
       }),
     },
-    {
-      path: "/design-system/components/overlay",
+    "/design-system/components/badge": {
+      label: t({ en: "Badge", zh: "徽章" }),
+      description: t({
+        en: "Compact status and label indicators across seven tones.",
+        zh: "七种色调的紧凑状态与标签指示器。",
+      }),
+    },
+    "/design-system/components/callout": {
+      label: t({ en: "Callout", zh: "提示框" }),
+      description: t({
+        en: "An inline message box in six tones for status and guidance.",
+        zh: "六种色调的行内消息框，用于状态与提示。",
+      }),
+    },
+    "/design-system/components/spinner": {
+      label: t({ en: "Spinner", zh: "加载指示器" }),
+      description: t({
+        en: "An indeterminate loading indicator that respects reduced motion.",
+        zh: "尊重减弱动效偏好的不确定加载指示器。",
+      }),
+    },
+    "/design-system/components/skeleton": {
+      label: t({ en: "Skeleton", zh: "骨架屏" }),
+      description: t({
+        en: "Placeholder shapes that hold space while content loads.",
+        zh: "在内容加载时占位的骨架形状。",
+      }),
+    },
+    "/design-system/components/divider": {
+      label: t({ en: "Divider", zh: "分隔线" }),
+      description: t({
+        en: "Horizontal, vertical, and decorative separators.",
+        zh: "水平、垂直与装饰性分隔线。",
+      }),
+    },
+    "/design-system/components/switch": {
+      label: t({ en: "Switch", zh: "开关" }),
+      description: t({
+        en: "A draggable, three-state on/off/indeterminate toggle.",
+        zh: "可拖动的开启／关闭／未定三态开关。",
+      }),
+    },
+    "/design-system/components/text-field": {
+      label: t({ en: "Text field", zh: "文本输入框" }),
+      description: t({
+        en: "A single-line input with label, description, and error states.",
+        zh: "带标签、描述与错误态的单行输入框。",
+      }),
+    },
+    "/design-system/components/textarea": {
+      label: t({ en: "Textarea", zh: "多行文本框" }),
+      description: t({
+        en: "A multi-line input with optional auto-grow.",
+        zh: "支持自动增高的多行输入框。",
+      }),
+    },
+    "/design-system/components/checkbox": {
+      label: t({ en: "Checkbox", zh: "复选框" }),
+      description: t({
+        en: "A checkbox with label, indeterminate, and error states.",
+        zh: "带标签、未定态与错误态的复选框。",
+      }),
+    },
+    "/design-system/components/select": {
+      label: t({ en: "Select", zh: "下拉选择" }),
+      description: t({
+        en: "A styled native select driven by options or custom children.",
+        zh: "样式化的原生下拉选择，支持选项数组或自定义子元素。",
+      }),
+    },
+    "/design-system/components/overlay": {
       label: t({ en: "Overlay", zh: "覆盖层" }),
       description: t({
         en: "A full-screen modal surface with focus trapping.",
         zh: "带焦点捕获的全屏模态层。",
       }),
     },
-  ];
-
-  const groups = [
-    { title: t({ en: "Foundations", zh: "基础" }), entries: foundations },
-    { title: t({ en: "Components", zh: "组件" }), entries: components },
-  ];
+    "/design-system/components/sidebar-layout": {
+      label: t({ en: "Sidebar layout", zh: "侧边栏布局" }),
+      description: t({
+        en: "A full-bleed page shell with a sticky navigation rail.",
+        zh: "带粘性导航侧栏的全出血页面骨架。",
+      }),
+    },
+    "/design-system/primitives": {
+      label: t({ en: "Primitives", zh: "原语" }),
+      description: t({
+        en: "Composable StyleX recipes — flex, layout, motion, reset, and accessibility.",
+        zh: "可组合的 StyleX 配方——flex、布局、动效、重置与无障碍。",
+      }),
+    },
+    "/design-system/hooks": {
+      label: t({ en: "Hooks", zh: "钩子" }),
+      description: t({
+        en: "Headless React hooks — controlled state, dialog focus, tactile press, and radiogroups.",
+        zh: "无头 React 钩子——受控状态、对话框焦点、触感按压与单选组。",
+      }),
+    },
+  };
 
   return (
     <div css={styles.page}>
@@ -124,23 +245,31 @@ export default function DesignSystemOverview() {
         </p>
       </header>
 
-      {groups.map((group) => (
-        <section key={group.title} css={styles.group}>
-          <h2 css={styles.groupTitle}>{group.title}</h2>
-          <div css={styles.grid}>
-            {group.entries.map((entry) => (
-              <Link
-                key={entry.path}
-                href={getLocalePath(entry.path, locale)}
-                css={[transition.colors, styles.tile]}
-              >
-                <span css={styles.tileName}>{entry.label}</span>
-                <span css={styles.tileDescription}>{entry.description}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
+      {cardGroups.map((group) => {
+        const title = groupHeadings[group.group];
+        return (
+          <section key={group.group} css={styles.group}>
+            {title ? <h2 css={styles.groupTitle}>{title}</h2> : null}
+            <div css={styles.grid}>
+              {group.paths.map((path) => {
+                const entry = content[path];
+                return (
+                  <Link
+                    key={path}
+                    href={getLocalePath(path, locale)}
+                    css={[transition.colors, styles.tile]}
+                  >
+                    <span css={styles.tileName}>{entry.label}</span>
+                    <span css={styles.tileDescription}>
+                      {entry.description}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

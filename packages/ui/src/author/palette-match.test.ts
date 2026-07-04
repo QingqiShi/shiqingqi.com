@@ -1,10 +1,10 @@
+import { describe, expect, it } from "vitest";
 import {
   nearestPaletteTone,
   paletteHues,
   parseColor,
   withAlpha,
-} from "@tuja/ui/author/palette-match";
-import { describe, expect, it } from "vitest";
+} from "./palette-match.ts";
 
 describe("parseColor", () => {
   it("parses 6-digit hex", () => {

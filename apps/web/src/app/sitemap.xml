@@ -147,4 +147,277 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system" />
   </url>
+
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/color</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/color" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/color" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/color</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/color" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/color" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/typography</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/typography" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/typography" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/typography</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/typography" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/typography" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/spacing</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/spacing" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/spacing" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/spacing</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/spacing" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/spacing" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/elevation</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/elevation" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/elevation" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/elevation</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/elevation" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/elevation" />
+  </url>
+
+  <url>
+    <loc>https://qingqi.dev/design-system/components/divider</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/divider" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/divider" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/divider</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/divider" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/divider" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/badge</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/badge" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/badge" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/badge</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/badge" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/badge" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/skeleton</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/skeleton" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/skeleton" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/skeleton</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/skeleton" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/skeleton" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/switch</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/switch" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/switch" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/switch</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/switch" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/switch" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/button</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/button" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/button" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/button</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/button" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/button" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/menu-button</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/menu-button" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/menu-button" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/menu-button</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/menu-button" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/menu-button" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/overlay</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/overlay" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/overlay" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/overlay</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/overlay" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/overlay" />
+  </url>
+
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/motion</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/motion" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/motion" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/motion</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/motion" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/motion" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/borders</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/borders" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/borders" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/borders</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/borders" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/borders" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/layout</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/layout" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/layout" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/layout</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/layout" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/layout" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/iconography</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/iconography" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/iconography" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/iconography</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/iconography" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/iconography" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/text</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/text" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/text" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/text</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/text" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/text" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/heading</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/heading" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/heading" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/heading</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/heading" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/heading" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/icon-button</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/icon-button" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/icon-button" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/icon-button</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/icon-button" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/icon-button" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/callout</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/callout" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/callout" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/callout</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/callout" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/callout" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/spinner</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/spinner" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/spinner" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/spinner</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/spinner" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/spinner" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/text-field</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/text-field" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/text-field" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/text-field</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/text-field" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/text-field" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/textarea</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/textarea" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/textarea" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/textarea</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/textarea" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/textarea" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/checkbox</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/checkbox" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/checkbox" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/checkbox</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/checkbox" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/checkbox" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/select</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/select" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/select" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/select</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/select" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/select" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/sidebar-layout</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sidebar-layout" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sidebar-layout" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/sidebar-layout</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sidebar-layout" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sidebar-layout" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/primitives</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/primitives" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/primitives" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/primitives</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/primitives" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/primitives" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/hooks</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/hooks" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/hooks" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/hooks</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/hooks" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/hooks" />
+  </url>
 </urlset>

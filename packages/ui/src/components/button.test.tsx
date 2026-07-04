@@ -1,7 +1,7 @@
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Button } from "@tuja/ui/components/button";
 import { beforeAll, describe, it, expect, vi } from "vitest";
-import { render, screen } from "#src/test-utils.tsx";
+import { Button } from "./button.tsx";
 
 // Mock Pointer Capture API which is not available in jsdom
 beforeAll(() => {
@@ -118,6 +118,37 @@ describe("Button Interaction", () => {
 
     const labelElement = screen.getByText("Labeled Button");
     expect(labelElement).toHaveAttribute("id", "my-label");
+  });
+});
+
+describe("Button accessible name", () => {
+  it("marks the icon wrapper as decorative (aria-hidden)", () => {
+    render(<Button icon={<span data-testid="icon">★</span>}>Save</Button>);
+
+    const iconWrapper = screen.getByTestId("icon").parentElement;
+    expect(iconWrapper).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("takes an icon-only button's name from aria-label, not the icon", () => {
+    render(<Button icon={<span>★</span>} aria-label="Favorite" />);
+
+    // The accessible name resolves to the label, not the decorative glyph.
+    expect(
+      screen.getByRole("button", { name: "Favorite" }),
+    ).toBeInTheDocument();
+  });
+
+  it("supports aria-labelledby for an icon-only button", () => {
+    render(
+      <>
+        <span id="fav-label">Favorite</span>
+        <Button icon={<span>★</span>} aria-labelledby="fav-label" />
+      </>,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Favorite" }),
+    ).toBeInTheDocument();
   });
 });
 
