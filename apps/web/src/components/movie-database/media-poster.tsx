@@ -75,7 +75,7 @@ const styles = stylex.create({
     flexDirection: "column",
     textAlign: "center",
     backgroundColor: color.bgSurface,
-    borderWidth: 1,
+    borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     borderRadius: border.radius_2,

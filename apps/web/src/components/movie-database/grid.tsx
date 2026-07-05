@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import type { HTMLAttributes, PropsWithChildren, Ref } from "react";
 
 export function Grid({
@@ -18,9 +19,9 @@ export function Grid({
 
 const styles = stylex.create({
   skeletonGrid: {
-    padding: "0.5rem",
+    padding: space._1,
     display: "grid",
-    gap: "0.5rem",
+    gap: space._1,
     gridTemplateColumns: {
       default: "1fr",
       [breakpoints.sm]: "repeat(auto-fill, minmax(150px, 1fr))",

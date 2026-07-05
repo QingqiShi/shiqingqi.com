@@ -7,6 +7,7 @@ import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { Divider } from "@tuja/ui/components/divider";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useMemo, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -263,7 +264,7 @@ export function SpriteEditor() {
             source={source}
             onSourceChange={setSource}
           />
-          <div css={styles.divider} aria-hidden="true" />
+          <Divider variant="subtle" css={styles.divider} />
           <GridControls
             source={source}
             grid={grid}
@@ -271,9 +272,9 @@ export function SpriteEditor() {
             output={output}
             onOutputChange={setOutput}
           />
-          <div css={styles.divider} aria-hidden="true" />
+          <Divider variant="subtle" css={styles.divider} />
           <GuideControls guides={guides} onGuidesChange={setGuides} />
-          <div css={styles.divider} aria-hidden="true" />
+          <Divider variant="subtle" css={styles.divider} />
           <div css={styles.actions}>
             <Button
               icon={
@@ -449,9 +450,7 @@ const styles = stylex.create({
     overflowX: "hidden",
   },
   divider: {
-    height: "1px",
     marginInline: `calc(${space._4} * -1)`,
-    backgroundColor: color.neutralBorder,
   },
   canvasArea: {
     display: "flex",

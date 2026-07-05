@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { PixelLayer } from "../sprite/pixel-layer";
@@ -69,6 +70,7 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
               data-testid={`accessory-option-${accessory.id}`}
               css={[
                 styles.option,
+                transition.colors,
                 isSelected && styles.optionSelected,
                 disabledByCap && styles.optionDisabled,
               ]}
@@ -129,8 +131,6 @@ const styles = stylex.create({
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": 0.5 },
     color: color.textMain,
-    transitionProperty: "border-color, background-color",
-    transitionDuration: "120ms",
   },
   optionSelected: {
     borderColor: color.accent,

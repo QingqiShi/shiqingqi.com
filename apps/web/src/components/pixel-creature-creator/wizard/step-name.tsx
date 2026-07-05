@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
@@ -51,7 +52,7 @@ export function StepName({ def, onChange }: StepNameProps) {
           aria-describedby={describedBy}
           placeholder={t({ en: "e.g. Mochi", zh: "例如:团子" })}
           data-testid="creature-name-input"
-          css={styles.input}
+          css={[styles.input, transition.colors]}
         />
       </label>
       {/*
@@ -129,8 +130,6 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
     color: color.textMain,
     outlineWidth: 0,
-    transitionProperty: "border-color",
-    transitionDuration: "120ms",
   },
   // Always reserve a line of vertical space so the input doesn't jump as
   // the message appears/disappears.
@@ -138,7 +137,7 @@ const styles = stylex.create({
     margin: 0,
     minHeight: "1.2em",
     fontSize: font.uiBodySmall,
-    color: color.brandBristol,
+    color: color.dangerText,
   },
   lorePanel: {
     marginTop: space._2,

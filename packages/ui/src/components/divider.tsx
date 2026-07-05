@@ -42,6 +42,10 @@ export function Divider({
   // illegal).
   const setRef = mergeRefs(ref);
 
+  // The `decorative` variant is an ornamental gradient flourish, not a content
+  // boundary, so it opts out of the `separator` role rather than announcing one.
+  const decorative = variant === "decorative";
+
   if (orientation === "vertical") {
     const composedCss = [
       styles.base,
@@ -51,8 +55,8 @@ export function Divider({
     ];
     return (
       <div
-        role="separator"
-        aria-orientation="vertical"
+        role={decorative ? "presentation" : "separator"}
+        aria-orientation={decorative ? undefined : "vertical"}
         ref={setRef}
         css={composedCss}
         className={className}
@@ -68,7 +72,13 @@ export function Divider({
     css,
   ];
   return (
-    <hr ref={setRef} css={composedCss} className={className} style={style} />
+    <hr
+      ref={setRef}
+      role={decorative ? "presentation" : undefined}
+      css={composedCss}
+      className={className}
+      style={style}
+    />
   );
 }
 

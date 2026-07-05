@@ -128,6 +128,12 @@ export function SelectShowcase() {
             defaultValue="newest"
           />
           <Select
+            size="lg"
+            label={t({ en: "Large", zh: "大" })}
+            options={sortOptions}
+            defaultValue="newest"
+          />
+          <Select
             label={t({ en: "Timezone", zh: "时区" })}
             description={t({
               en: "Pass <option> children for optgroups — the escape hatch.",
@@ -207,7 +213,7 @@ export function SelectShowcase() {
           },
           {
             name: "size",
-            type: '"sm" | "md"',
+            type: '"sm" | "md" | "lg"',
             defaultValue: '"md"',
             description: t({
               en: "Control height and type scale.",

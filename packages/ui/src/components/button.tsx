@@ -4,7 +4,8 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useRef, type ComponentProps, type ReactNode } from "react";
 import { usePressHandlers } from "../hooks/use-press-handlers.ts";
-import { controlSize, font } from "../tokens.stylex.ts";
+import { a11y } from "../primitives/a11y.stylex.ts";
+import { font } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { sharedStyles } from "./button-shared.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
@@ -86,6 +87,7 @@ export function Button({
       style={{ ...style, ...pressedStyle }}
       css={[
         sharedStyles.base,
+        a11y.focusRing,
         styles.button,
         !!icon &&
           !!children &&
@@ -131,8 +133,9 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
 
-    // Button-specific styles
-    minHeight: controlSize._9,
+    // Button-specific styles. Height flows through the shared `buttonTokens`
+    // knob so a container (e.g. AnchorButtonGroup) can shrink grouped buttons.
+    minHeight: buttonTokens.height,
     color: buttonTokens.color,
     backgroundColor: {
       default: buttonTokens.backgroundColor,

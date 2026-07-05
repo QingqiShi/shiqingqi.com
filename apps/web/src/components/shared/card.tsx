@@ -3,6 +3,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import {
   border,
@@ -26,7 +27,7 @@ export function Card({ children, className, style, ...rest }: CardProps) {
       indicateExternal={false}
       className={className}
       style={style}
-      css={styles.card}
+      css={[styles.card, a11y.focusRingInset]}
     >
       {children}
       <div css={styles.detailsBackdrop} />
@@ -42,7 +43,7 @@ export function Card({ children, className, style, ...rest }: CardProps) {
           <ArrowRightIcon aria-hidden="true" />
         )}
         {isExternal && (
-          <span css={styles.srOnly}>
+          <span css={a11y.srOnly}>
             {t({
               en: "(opens in new tab)",
               zh: "(在新标签页中打开)",
@@ -85,12 +86,6 @@ const styles = stylex.create({
       ":hover": "scale(1.05) translate3d(0, -0.2rem, 0)",
     },
     backdropFilter: { default: null, ":hover": "blur(2rem)" },
-    outline: {
-      default: "none",
-      ":focus-visible": `2px solid ${color.accent}`,
-    },
-    // Draw the ring inside the box so `overflow: hidden` doesn't clip it.
-    outlineOffset: { default: null, ":focus-visible": "-2px" },
 
     [cardTokens.detailsIndicatorOpacity]: {
       default: 0,
@@ -156,16 +151,5 @@ const styles = stylex.create({
   },
   detailsText: {
     fontWeight: font.weight_6,
-  },
-  srOnly: {
-    position: "absolute",
-    width: "1px",
-    height: "1px",
-    padding: 0,
-    margin: "-1px",
-    overflow: "hidden",
-    clipPath: "inset(50%)",
-    whiteSpace: "nowrap",
-    borderWidth: 0,
   },
 });

@@ -84,10 +84,13 @@ export const fieldStyles = stylex.create({
     borderWidth: border.size_1,
     // Neutral at rest, lifts on hover, accents on any focus (the "active field"
     // affordance); the keyboard-only ring is layered on via `a11y.focusRing`.
+    // A disabled control keeps the resting border even under hover (`:hover`
+    // still matches disabled elements), so the compound selector pins it.
     borderColor: {
       default: color.neutralBorder,
       ":hover": color.neutral,
       ":focus": color.accent,
+      ":disabled:hover": color.neutralBorder,
     },
     borderRadius: border.radius_2,
     paddingInline: fieldVars.paddingInline,

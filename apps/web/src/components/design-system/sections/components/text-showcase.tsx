@@ -125,6 +125,33 @@ export function TextShowcase() {
     },
   ];
 
+  const transforms = [
+    {
+      meta: 'transform="uppercase"',
+      node: (
+        <Text variant="caption" transform="uppercase">
+          {t({ en: "Now streaming", zh: "正在热播" })}
+        </Text>
+      ),
+    },
+    {
+      meta: 'transform="capitalize"',
+      node: (
+        <Text variant="caption" transform="capitalize">
+          {t({ en: "now streaming", zh: "正在热播" })}
+        </Text>
+      ),
+    },
+    {
+      meta: 'transform="lowercase"',
+      node: (
+        <Text variant="caption" transform="lowercase">
+          {t({ en: "NOW STREAMING", zh: "正在热播" })}
+        </Text>
+      ),
+    },
+  ];
+
   const alignments = [
     {
       meta: 'align="start"',
@@ -222,6 +249,22 @@ export function TextShowcase() {
         </ShowcaseGrid>
       </Showcase>
 
+      <Showcase label={t({ en: "Case transform", zh: "大小写转换" })}>
+        <ShowcaseHelper>
+          {t({
+            en: "transform sets the letter case independently of variant — e.g. an uppercase eyebrow at caption size.",
+            zh: "transform 独立于 variant 设定字母大小写——例如以 caption 字号呈现的大写眉标。",
+          })}
+        </ShowcaseHelper>
+        <div css={styles.ladder}>
+          {transforms.map((row) => (
+            <SpecRow key={row.meta} meta={row.meta}>
+              {row.node}
+            </SpecRow>
+          ))}
+        </div>
+      </Showcase>
+
       <Showcase label={t({ en: "Alignment", zh: "对齐" })}>
         <div css={styles.ladder}>
           {alignments.map((row) => (
@@ -283,6 +326,14 @@ export function TextShowcase() {
             description: t({
               en: "Font weight. Unset overline defaults to semibold; other variants inherit the base weight.",
               zh: "字重。未设置时 overline 默认半粗，其余字号沿用基础字重。",
+            }),
+          },
+          {
+            name: "transform",
+            type: '"uppercase" | "lowercase" | "capitalize"',
+            description: t({
+              en: "Letter case, decoupled from variant — e.g. an uppercase eyebrow at caption size.",
+              zh: "字母大小写，与 variant 解耦——例如以 caption 字号呈现的大写眉标。",
             }),
           },
           {

@@ -60,7 +60,7 @@ export function Badge({
       ]}
     >
       {icon ? (
-        <span css={[flex.inlineCenter, iconSizeStyles[size]]} aria-hidden>
+        <span css={[flex.inlineCenter, styles.icon]} aria-hidden>
           {icon}
         </span>
       ) : null}
@@ -76,9 +76,15 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
     lineHeight: font.lineHeight_2,
     gap: space._0,
-    borderWidth: "1px",
+    borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: "transparent",
+  },
+  // `em` box so the glyph tracks the chip's font-size across sizes.
+  icon: {
+    inlineSize: "1em",
+    blockSize: "1em",
+    color: "currentColor",
   },
 });
 
@@ -95,27 +101,17 @@ const sizeStyles = stylex.create({
   },
 });
 
-const iconSizeStyles = stylex.create({
-  small: {
-    inlineSize: "0.7rem",
-    blockSize: "0.7rem",
-    color: "currentColor",
-  },
-  medium: {
-    inlineSize: "0.8rem",
-    blockSize: "0.8rem",
-    color: "currentColor",
-  },
-});
-
 const variantStyles = stylex.create({
   default: {
     backgroundColor: color.bgSurface,
     color: color.textMuted,
     borderColor: color.neutralBorder,
   },
+  // Borderless low-emphasis chip. Uses the neutral intent tint (like Callout's
+  // neutral) rather than an opaque surface, so it stays visible on cards and
+  // raised surfaces instead of blending into a same-colour parent.
   neutral: {
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.surfaceNeutralSubtle,
     color: color.textMuted,
   },
   info: {

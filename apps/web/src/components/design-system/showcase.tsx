@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface ShowcaseProps {
@@ -19,7 +20,12 @@ interface ShowcaseProps {
 export function Showcase({ label, frame = "card", children }: ShowcaseProps) {
   const plain = frame === "plain";
   return (
-    <section css={[styles.showcase, plain ? styles.plainFrame : styles.card]}>
+    <section
+      css={[
+        styles.showcase,
+        plain ? styles.plainFrame : [cardSurface.base, styles.card],
+      ]}
+    >
       {label ? (
         <h2 css={plain ? styles.headingPlain : styles.label}>{label}</h2>
       ) : null}
@@ -56,12 +62,10 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._3,
   },
-  // Default doc-page framing: a raised surface card.
+  // Default doc-page framing: the shared card surface (cardSurface.base) plus
+  // the doc-page padding.
   card: {
     padding: space._5,
-    backgroundColor: color.bgSurface,
-    border: `1px solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
   },
   // Plain framing: no card chrome. The section is delineated by its heading and
   // the generous gap the doc-page body puts between siblings, so the page canvas

@@ -7,6 +7,7 @@ import { ThumbsUpIcon } from "@phosphor-icons/react/dist/ssr/ThumbsUp";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -269,7 +270,7 @@ export function PreferencePanel({
           {/* Stable live region: mounted whenever the footer is, populated
               only while confirming, so AT reliably detects the content
               change and announces the prompt. */}
-          <div role="status" aria-live="polite" css={styles.srOnly}>
+          <div role="status" aria-live="polite" css={a11y.srOnly}>
             {confirmingClear
               ? t({
                   en: "Clear all preferences? Confirm or cancel.",
@@ -531,16 +532,5 @@ const styles = stylex.create({
     color: color.textMuted,
     cursor: "pointer",
     transition: "background-color 0.15s ease",
-  },
-  srOnly: {
-    position: "absolute",
-    width: "1px",
-    height: "1px",
-    padding: 0,
-    margin: "-1px",
-    overflow: "hidden",
-    clipPath: "inset(50%)",
-    whiteSpace: "nowrap",
-    borderWidth: 0,
   },
 });

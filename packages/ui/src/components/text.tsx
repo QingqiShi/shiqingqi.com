@@ -8,6 +8,7 @@ type TextElement = "p" | "span" | "div";
 type TextVariant = "body" | "bodySmall" | "caption" | "overline";
 type TextTone = "default" | "muted" | "subtle" | "accent";
 type TextWeight = "regular" | "medium" | "semibold" | "bold";
+type TextTransform = "uppercase" | "lowercase" | "capitalize";
 type TextAlign = "start" | "center" | "end";
 
 interface TextProps {
@@ -19,6 +20,12 @@ interface TextProps {
   tone?: TextTone;
   /** Font weight. `"overline"` defaults to semibold when unset. */
   weight?: TextWeight;
+  /**
+   * Case transform, decoupled from `variant` — so an uppercase "eyebrow" label
+   * can sit at any size (`caption`, `bodySmall`, …) rather than only through the
+   * `overline` ramp.
+   */
+  transform?: TextTransform;
   /** Text alignment (logical `start` / `center` / `end`). */
   align?: TextAlign;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
@@ -43,6 +50,7 @@ export function Text({
   variant = "body",
   tone = "default",
   weight,
+  transform,
   align,
   css,
   className,
@@ -58,6 +66,7 @@ export function Text({
       ? weightStyles.semibold
       : null,
     weight ? weightStyles[weight] : null,
+    transform ? transformStyles[transform] : null,
     align ? alignStyles[align] : null,
     css,
   ];
@@ -135,6 +144,12 @@ const weightStyles = stylex.create({
   medium: { fontWeight: font.weight_5 },
   semibold: { fontWeight: font.weight_6 },
   bold: { fontWeight: font.weight_7 },
+});
+
+const transformStyles = stylex.create({
+  uppercase: { textTransform: "uppercase" },
+  lowercase: { textTransform: "lowercase" },
+  capitalize: { textTransform: "capitalize" },
 });
 
 const alignStyles = stylex.create({

@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { useControlled } from "../hooks/use-controlled.ts";
+import { a11y } from "../primitives/a11y.stylex.ts";
 import { motionConstants } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import {
@@ -177,6 +178,7 @@ export function Switch({
       style={style}
       css={[
         buttonReset.base,
+        a11y.focusRing,
         styles.switch,
         initialRendered && styles.animate,
         isDragging && styles.dragging(position),
@@ -232,7 +234,8 @@ const styles = stylex.create({
     // Custom styles
     aspectRatio: ratio.double,
     borderRadius: border.radius_round,
-    cursor: "pointer",
+    cursor: { default: "pointer", ":disabled": "not-allowed" },
+    opacity: { default: 1, ":disabled": 0.6 },
     display: "flex",
     height: controlSize._9,
     padding: border.size_2,

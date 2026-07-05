@@ -34,6 +34,26 @@ describe("Heading variant decoupling", () => {
   });
 });
 
+describe("Heading weight override", () => {
+  it("applies the weight override on top of the variant ramp", () => {
+    render(
+      <Heading level={1} weight="regular">
+        Light title
+      </Heading>,
+    );
+    const el = screen.getByRole("heading", { level: 1 });
+    expect(el.className).toContain("variantStyles.h1");
+    expect(el.className).toContain("weightStyles.regular");
+  });
+
+  it("does not apply a weight override when weight is unset", () => {
+    render(<Heading level={1}>Title</Heading>);
+    expect(screen.getByRole("heading", { level: 1 }).className).not.toContain(
+      "weightStyles",
+    );
+  });
+});
+
 describe("Heading prop forwarding", () => {
   it("merges a caller className with the StyleX classes", () => {
     render(<Heading className="my-heading">Title</Heading>);
