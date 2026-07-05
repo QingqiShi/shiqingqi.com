@@ -66,6 +66,7 @@ export function DesignSystemNav() {
     }),
     "/design-system/components/badge": t({ en: "Badge", zh: "徽章" }),
     "/design-system/components/callout": t({ en: "Callout", zh: "提示框" }),
+    "/design-system/components/card": t({ en: "Card", zh: "卡片" }),
     "/design-system/components/spinner": t({ en: "Spinner", zh: "加载指示器" }),
     "/design-system/components/skeleton": t({ en: "Skeleton", zh: "骨架屏" }),
     "/design-system/components/divider": t({ en: "Divider", zh: "分隔线" }),

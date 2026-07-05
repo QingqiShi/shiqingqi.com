@@ -66,6 +66,8 @@
     "./components/button.stylex": "./src/components/button.stylex.ts",
     "./components/button-shared.stylex": "./src/components/button-shared.stylex.ts",
     "./components/callout": "./src/components/callout.tsx",
+    "./components/card": "./src/components/card.tsx",
+    "./components/card.stylex": "./src/components/card.stylex.ts",
     "./components/checkbox": "./src/components/checkbox.tsx",
     "./components/divider": "./src/components/divider.tsx",
     "./components/field-shared.stylex": "./src/components/field-shared.stylex.ts",

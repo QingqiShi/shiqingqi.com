@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useSyncExternalStore } from "react";
 import { t } from "#src/i18n.ts";
@@ -82,7 +83,7 @@ export function YourCreations({ locale }: YourCreationsProps) {
             return (
               <li
                 key={entry.id}
-                css={styles.item}
+                css={[cardSurface.base, styles.item]}
                 data-testid="your-creations-item"
               >
                 <a href={href} css={styles.thumbLink} aria-label={displayName}>
@@ -160,11 +161,6 @@ const styles = stylex.create({
     alignItems: "stretch",
     gap: space._1,
     padding: space._2,
-    backgroundColor: color.bgSurface,
-    borderRadius: "12px",
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: color.neutralBorder,
   },
   thumbLink: {
     display: "flex",
