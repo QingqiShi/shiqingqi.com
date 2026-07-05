@@ -1,6 +1,11 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  esbuild: false
+  msw: false
+  sharp: false
+  unrs-resolver: false
 catalog:
   react: 19.3.0-canary-56824423-20260414
   react-dom: 19.3.0-canary-56824423-20260414
