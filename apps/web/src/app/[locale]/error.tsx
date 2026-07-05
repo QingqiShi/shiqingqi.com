@@ -1,7 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { Button } from "@tuja/ui/components/button";
+import { align, flex, justify } from "@tuja/ui/primitives/flex.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -23,7 +25,10 @@ export default function LocaleError({
   }, [error]);
 
   return (
-    <div css={styles.container} role="alert">
+    <div
+      css={[flex.col, align.center, justify.center, styles.container]}
+      role="alert"
+    >
       <h1 css={styles.heading}>
         {t({ en: "Something went wrong", zh: "出了点问题" })}
       </h1>
@@ -33,19 +38,15 @@ export default function LocaleError({
           zh: "发生了意外错误，请重试。",
         })}
       </p>
-      <button type="button" css={styles.button} onClick={unstable_retry}>
+      <Button variant="primary" onClick={unstable_retry} css={styles.button}>
         {t({ en: "Try again", zh: "重试" })}
-      </button>
+      </Button>
     </div>
   );
 }
 
 const styles = stylex.create({
   container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
     minHeight: "60dvh",
     textAlign: "center",
     padding: space._4,
@@ -62,16 +63,5 @@ const styles = stylex.create({
   },
   button: {
     marginTop: space._4,
-    paddingBlock: space._2,
-    paddingInline: space._5,
-    fontSize: font.uiBody,
-    fontWeight: font.weight_5,
-    fontFamily: font.family,
-    borderWidth: 0,
-    borderStyle: "none",
-    borderRadius: border.radius_round,
-    backgroundColor: color.accent,
-    color: color.accentOn,
-    cursor: "pointer",
   },
 });

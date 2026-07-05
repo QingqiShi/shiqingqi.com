@@ -1,35 +1,43 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { absoluteFill } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, layer } from "@tuja/ui/tokens.stylex";
 
 export function BackgroundLines() {
   return (
-    <div css={styles.linesContainer} role="presentation">
-      <div css={[styles.line, styles.line1]} role="presentation" />
-      <div css={[styles.line, styles.line2]} role="presentation" />
-      <div css={[styles.line, styles.line3]} role="presentation" />
-      <div css={[styles.line, styles.line4]} role="presentation" />
-      <div css={[styles.line, styles.line5]} role="presentation" />
+    <div css={[absoluteFill.all, styles.linesContainer]} role="presentation">
+      <div
+        css={[absoluteFill.y, styles.line, styles.line1]}
+        role="presentation"
+      />
+      <div
+        css={[absoluteFill.y, styles.line, styles.line2]}
+        role="presentation"
+      />
+      <div
+        css={[absoluteFill.y, styles.line, styles.line3]}
+        role="presentation"
+      />
+      <div
+        css={[absoluteFill.y, styles.line, styles.line4]}
+        role="presentation"
+      />
+      <div
+        css={[absoluteFill.y, styles.line, styles.line5]}
+        role="presentation"
+      />
     </div>
   );
 }
 
 const styles = stylex.create({
   linesContainer: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
     zIndex: layer.base,
     pointerEvents: "none",
     opacity: 0.24,
   },
   line: {
     display: "none",
-    position: "absolute",
-    top: 0,
-    bottom: 0,
     width: border.size_1,
     backgroundImage: `linear-gradient(${color.textMuted} 33%, transparent 0%)`,
     backgroundPosition: "right",

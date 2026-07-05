@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 
@@ -19,7 +20,7 @@ export function TypingIndicator({ label, isExiting }: TypingIndicatorProps) {
       <span aria-hidden="true" css={styles.shimmerText}>
         {label}
       </span>
-      <span css={styles.srOnly}>{label}</span>
+      <span css={a11y.srOnly}>{label}</span>
     </div>
   );
 }
@@ -67,16 +68,5 @@ const styles = stylex.create({
     },
     animationTimingFunction: "linear",
     animationIterationCount: "infinite",
-  },
-  srOnly: {
-    position: "absolute",
-    width: "1px",
-    height: "1px",
-    padding: 0,
-    margin: "-1px",
-    overflow: "hidden",
-    clipPath: "inset(50%)",
-    whiteSpace: "nowrap",
-    borderWidth: 0,
   },
 });

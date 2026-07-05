@@ -1,14 +1,17 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color, font, layer, space } from "@tuja/ui/tokens.stylex";
+import { Textarea } from "@tuja/ui/components/textarea";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
 import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+  border,
+  color,
+  font,
+  layer,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import type { CreatureDef, Emotion } from "../state/creature-schema";
@@ -164,7 +167,6 @@ export function ActionRow({
   const [manualLore, setManualLore] = useState("");
   const downloadRef = useRef<HTMLDivElement>(null);
   const downloadTriggerRef = useRef<HTMLButtonElement>(null);
-  const manualTextareaId = useId();
 
   // All translated strings live here so the i18n Babel plugin can extract
   // them (it only transforms `t()` calls inside the render scope of a
@@ -389,7 +391,7 @@ export function ActionRow({
       <div css={styles.buttonRow}>
         <button
           type="button"
-          css={[styles.button, styles.buttonPrimary]}
+          css={[styles.button, styles.buttonPrimary, transition.colors]}
           onClick={() => {
             void handleConjureLore();
           }}
@@ -403,7 +405,7 @@ export function ActionRow({
 
         <button
           type="button"
-          css={styles.button}
+          css={[styles.button, transition.colors]}
           onClick={() => {
             void handleCopyLink();
           }}
@@ -417,7 +419,7 @@ export function ActionRow({
           <button
             type="button"
             ref={downloadTriggerRef}
-            css={styles.button}
+            css={[styles.button, transition.colors]}
             aria-haspopup="menu"
             aria-expanded={downloadOpen}
             onClick={() => {
@@ -458,7 +460,7 @@ export function ActionRow({
 
         <button
           type="button"
-          css={[styles.button, saved && styles.buttonSaved]}
+          css={[styles.button, saved && styles.buttonSaved, transition.colors]}
           onClick={handleSave}
           data-testid="action-save"
           aria-pressed={saved}
@@ -469,7 +471,7 @@ export function ActionRow({
 
         <button
           type="button"
-          css={styles.button}
+          css={[styles.button, transition.colors]}
           onClick={handleShuffle}
           data-testid="action-shuffle"
           aria-label={labels.shuffle}
@@ -479,7 +481,7 @@ export function ActionRow({
 
         <button
           type="button"
-          css={styles.button}
+          css={[styles.button, transition.colors]}
           onClick={handleEdit}
           data-testid="action-edit"
           aria-label={labels.edit}
@@ -503,12 +505,8 @@ export function ActionRow({
 
       {showManualFallback && (
         <div css={styles.manualFallback} data-testid="lore-manual">
-          <label htmlFor={manualTextareaId} css={styles.manualLabel}>
-            {labels.manualLabel}
-          </label>
-          <textarea
-            id={manualTextareaId}
-            css={styles.manualTextarea}
+          <Textarea
+            label={labels.manualLabel}
             value={manualLore}
             onChange={(event) => {
               setManualLore(event.target.value);
@@ -520,7 +518,7 @@ export function ActionRow({
           />
           <button
             type="button"
-            css={[styles.button, styles.buttonPrimary]}
+            css={[styles.button, styles.buttonPrimary, transition.colors]}
             onClick={handleManualLoreSubmit}
             disabled={manualLore.trim().length === 0}
             data-testid="lore-manual-submit"
@@ -572,7 +570,7 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: "999px",
+    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     cursor: {
@@ -584,8 +582,6 @@ const styles = stylex.create({
       ":disabled": 0.7,
     },
     outlineOffset: "2px",
-    transitionProperty: "background-color, border-color, color",
-    transitionDuration: "120ms",
   },
   buttonPrimary: {
     backgroundColor: {
@@ -613,11 +609,11 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: "10px",
+    borderRadius: border.radius_2,
     padding: space._0,
     display: "flex",
     flexDirection: "column",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+    boxShadow: shadow._2,
     zIndex: layer.overlay,
   },
   menuItem: {
@@ -630,7 +626,7 @@ const styles = stylex.create({
     },
     color: color.textMain,
     borderWidth: 0,
-    borderRadius: "8px",
+    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: "pointer",
@@ -641,7 +637,7 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: color.bgSurface,
-    borderRadius: "10px",
+    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     color: color.textMain,
     alignSelf: "center",
@@ -659,29 +655,9 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurface,
-    borderRadius: "10px",
+    borderRadius: border.radius_2,
     alignSelf: "center",
     inlineSize: "100%",
     maxInlineSize: "32rem",
-  },
-  manualLabel: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
-    color: color.textMuted,
-  },
-  manualTextarea: {
-    inlineSize: "100%",
-    minBlockSize: "5rem",
-    boxSizing: "border-box",
-    padding: space._2,
-    fontSize: font.uiBody,
-    fontFamily: "inherit",
-    color: color.textMain,
-    backgroundColor: color.bgSurfaceSunken,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    borderRadius: "8px",
-    resize: "vertical",
   },
 });

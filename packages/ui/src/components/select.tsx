@@ -5,12 +5,14 @@ import * as stylex from "@stylexjs/stylex";
 import { type ComponentProps, type ReactNode } from "react";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
-import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
-import { fieldStyles } from "./field-shared.stylex.ts";
+import {
+  fieldSizeBox,
+  fieldSizeInline,
+  fieldStyles,
+} from "./field-shared.stylex.ts";
 
-type SelectSize = "sm" | "md";
+type SelectSize = "sm" | "md" | "lg";
 
 /** A single choice for the {@link Select} `options` config layer. */
 interface SelectOption {
@@ -49,27 +51,25 @@ interface SelectProps extends Omit<
    * the empty placeholder is selected initially.
    */
   placeholder?: string;
-  /** Control height and type scale. Defaults to `"md"`. */
+  /**
+   * Control height and type scale. Shares the field size ramp with `TextField`
+   * / `Textarea`. Defaults to `"md"`.
+   */
   size?: SelectSize;
   /** `<option>` elements — the escape hatch when `options` is not enough. */
   children?: ReactNode;
-  /** StyleX styles merged over the root wrapper — the config-layer escape hatch. */
+  /** StyleX styles merged over the field root — the config-layer escape hatch. */
   css?: StyleXStyles;
 }
 
 /**
- * Inline chevron matching Phosphor "CaretDown" metrics. Decorative — the select
- * carries its own accessible name — so it is `aria-hidden` and ignores pointer
- * events, letting clicks fall through to the native control beneath it.
+ * Inline chevron matching Phosphor "CaretDown" metrics. Rendered inside the
+ * shared trailing-affix slot (`aria-hidden`, no pointer events), so clicks fall
+ * through to the native control beneath it.
  */
 function ChevronIcon() {
   return (
-    <svg
-      css={styles.chevron}
-      aria-hidden="true"
-      viewBox="0 0 256 256"
-      fill="none"
-    >
+    <svg width="1em" height="1em" viewBox="0 0 256 256" fill="none">
       <path
         d="M208 96l-80 80-80-80"
         stroke="currentColor"
@@ -83,10 +83,12 @@ function ChevronIcon() {
 
 /**
  * A labelled wrapper around a native `<select>` — chosen over a custom listbox
- * for its built-in keyboard handling, platform picker, and reliability. The
- * native chevron is replaced with a themed one; the box is restyled but keeps
- * every native behaviour and forwards native select props (`value`,
- * `defaultValue`, `onChange`, `name`, `disabled`, `ref`, `className`, …).
+ * for its built-in keyboard handling, platform picker, and reliability. It
+ * composes the same {@link fieldStyles} chrome as `TextField` / `Textarea`
+ * (label, control box, hover/focus affordance, sizes, invalid state) so the
+ * form-control family reads identically; only the native chevron is swapped for
+ * a themed one in the trailing-affix slot. Forwards native select props
+ * (`value`, `defaultValue`, `onChange`, `name`, `disabled`, `ref`, …).
  *
  * Provide choices via the `options` prop (config layer) or by passing
  * `<option>` `children` (escape hatch).
@@ -138,14 +140,19 @@ export function Select({
     : (defaultValue ?? (placeholder !== undefined ? "" : undefined));
 
   return (
-    <span css={[flex.col, styles.root, css]}>
+    <div css={[fieldStyles.root, css]}>
       <label
         htmlFor={fieldId}
-        css={labelHidden ? a11y.srOnly : [styles.label, labelSizeStyles[size]]}
+        css={[fieldStyles.label, labelHidden && a11y.srOnly]}
       >
         {label}
       </label>
-      <span css={styles.control}>
+      {hasDescription ? (
+        <span id={descriptionId} css={fieldStyles.description}>
+          {description}
+        </span>
+      ) : null}
+      <div css={[fieldStyles.controlAffixRow, fieldSizeInline[size]]}>
         <select
           {...rest}
           id={fieldId}
@@ -158,11 +165,13 @@ export function Select({
           className={className}
           style={style}
           css={[
-            a11y.focusRing,
+            fieldStyles.control,
+            fieldSizeBox[size],
+            fieldStyles.hasTrailingAffix,
             transition.colors,
+            a11y.focusRing,
             styles.select,
-            sizeStyles[size],
-            !!error && styles.selectError,
+            hasError ? fieldStyles.controlInvalid : null,
           ]}
         >
           {placeholder !== undefined ? (
@@ -182,97 +191,23 @@ export function Select({
               ))
             : children}
         </select>
-        <ChevronIcon />
-      </span>
-      {hasDescription ? (
-        <span id={descriptionId} css={fieldStyles.description}>
-          {description}
+        <span css={[fieldStyles.affix, fieldStyles.affixEnd]} aria-hidden>
+          <ChevronIcon />
         </span>
-      ) : null}
+      </div>
       {hasError ? (
         <span id={errorId} role="alert" css={fieldStyles.errorText}>
           {error}
         </span>
       ) : null}
-    </span>
+    </div>
   );
 }
 
 const styles = stylex.create({
-  root: {
-    gap: space._1,
-    alignItems: "stretch",
-  },
-  label: {
-    color: color.textMain,
-    fontWeight: font.weight_5,
-    lineHeight: font.lineHeight_2,
-  },
-  control: {
-    position: "relative",
-    display: "block",
-    inlineSize: "100%",
-  },
+  // A select is a picker, not a text input, so it overrides the field control's
+  // text caret with a pointer.
   select: {
-    appearance: "none",
-    inlineSize: "100%",
-    margin: 0,
-    fontFamily: "inherit",
-    color: color.textMain,
-    backgroundColor: {
-      default: color.bgSurface,
-      ":disabled": color.bgInteractiveDisabled,
-    },
-    borderStyle: "solid",
-    borderWidth: border.size_1,
-    borderColor: {
-      default: color.neutralBorder,
-      ":hover": color.accent,
-      ":disabled": color.neutralBorder,
-    },
-    borderRadius: border.radius_2,
-    paddingInlineStart: space._2,
-    // Leaves room for the absolutely-positioned chevron.
-    paddingInlineEnd: space._7,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": 0.6 },
-  },
-  selectError: {
-    borderColor: {
-      default: color.danger,
-      ":hover": color.danger,
-    },
-  },
-  chevron: {
-    position: "absolute",
-    insetInlineEnd: space._2,
-    insetBlockStart: "50%",
-    transform: "translateY(-50%)",
-    inlineSize: "1em",
-    blockSize: "1em",
-    pointerEvents: "none",
-    color: color.textMuted,
-  },
-});
-
-const sizeStyles = stylex.create({
-  sm: {
-    minBlockSize: controlSize._8,
-    paddingBlock: space._0,
-    fontSize: font.uiBodySmall,
-  },
-  md: {
-    minBlockSize: controlSize._9,
-    paddingBlock: space._1,
-    fontSize: font.uiControl,
-  },
-});
-
-const labelSizeStyles = stylex.create({
-  sm: {
-    fontSize: font.uiBodySmall,
-  },
-  md: {
-    fontSize: font.uiControl,
   },
 });

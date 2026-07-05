@@ -34,6 +34,17 @@ describe("Text variant and modifier classes", () => {
     expect(screen.getByText("Muted").className).toContain("toneStyles.muted");
   });
 
+  it("applies a case transform decoupled from the variant", () => {
+    render(
+      <Text variant="caption" transform="uppercase">
+        Eyebrow
+      </Text>,
+    );
+    const el = screen.getByText("Eyebrow");
+    expect(el.className).toContain("variantStyles.caption");
+    expect(el.className).toContain("transformStyles.uppercase");
+  });
+
   it("applies alignment", () => {
     render(<Text align="center">Centered</Text>);
     expect(screen.getByText("Centered").className).toContain(

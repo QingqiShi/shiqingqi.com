@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Divider } from "@tuja/ui/components/divider";
 import {
   duration,
   easing,
@@ -195,7 +196,7 @@ export function GridControls({
         </div>
       </section>
 
-      <div css={styles.divider} aria-hidden="true" />
+      <Divider variant="subtle" />
 
       <section css={styles.group}>
         <h3 css={styles.sectionLabel}>
@@ -248,10 +249,6 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
     letterSpacing: font.trackingSnug,
     color: color.textMain,
-  },
-  divider: {
-    height: "1px",
-    backgroundColor: color.neutralBorder,
   },
   primaryRow: {
     display: "grid",

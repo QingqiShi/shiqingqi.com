@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import { useId, useMemo } from "react";
@@ -73,7 +74,11 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
               type="button"
               {...getOptionProps(entry.id)}
               data-testid={`species-option-${entry.id}`}
-              css={[styles.option, selected && styles.optionSelected]}
+              css={[
+                styles.option,
+                transition.colors,
+                selected && styles.optionSelected,
+              ]}
             >
               <div css={styles.thumb}>
                 <Image
@@ -139,8 +144,6 @@ const styles = stylex.create({
     borderColor: "transparent",
     cursor: "pointer",
     color: color.textMain,
-    transitionProperty: "border-color, background-color",
-    transitionDuration: "120ms",
   },
   optionSelected: {
     borderColor: color.accent,

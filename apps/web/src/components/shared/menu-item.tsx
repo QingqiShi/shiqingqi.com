@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, border, controlSize } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
@@ -41,7 +42,12 @@ export function MenuItem({
       aria-current={isActive ? "true" : undefined}
       lang={lang}
       role="menuitem"
-      css={[flex.between, styles.item, isActive && styles.itemActive]}
+      css={[
+        flex.between,
+        styles.item,
+        a11y.focusRing,
+        isActive && styles.itemActive,
+      ]}
       data-menu-autofocus={autoFocus ? "true" : undefined}
       tabIndex={isActive ? -1 : 0}
       onClick={(e) => {
@@ -71,11 +77,6 @@ const styles = stylex.create({
     padding: controlSize._3,
     textDecoration: "none",
     transition: "background-color 0.2s",
-    outline: {
-      default: "none",
-      ":focus-visible": `2px solid ${color.accent}`,
-    },
-    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
   itemActive: {
     color: color.accentOn,

@@ -270,7 +270,7 @@ const styles = stylex.create({
   statBar: {
     position: "relative",
     height: "10px",
-    borderRadius: "999px",
+    borderRadius: border.radius_round,
     backgroundColor: color.surfaceNeutralSubtle,
     overflow: "hidden",
   },

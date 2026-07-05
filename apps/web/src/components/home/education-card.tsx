@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
@@ -30,7 +31,7 @@ export function EducationCard({
   return (
     <Card {...rest} className={className} style={style} css={styles.card}>
       <div css={styles.row}>
-        <div css={styles.logo}>
+        <div css={[flex.row, styles.logo]}>
           {typeof logo === "object" && logo && "src" in logo ? (
             <Image
               src={logo.src}
@@ -78,9 +79,6 @@ const styles = stylex.create({
     marginBottom: space._1,
   },
   logo: {
-    alignItems: "center",
-    display: "flex",
-    justifyContent: "flex-start",
     maxInlineSize: "64px",
     blockSize: "64px",
     aspectRatio: {

@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import { Card } from "#src/components/shared/card.tsx";
@@ -23,7 +24,7 @@ export function ExperienceCard({
   return (
     <Card {...rest} className={className} style={style} css={styles.card}>
       <Suspense fallback={<Skeleton />}>
-        <div css={styles.logo}>{logo}</div>
+        <div css={[flex.row, styles.logo]}>{logo}</div>
       </Suspense>
       <time dateTime={dateTime} css={styles.dates}>
         {dates}
@@ -43,12 +44,9 @@ const styles = stylex.create({
     [svgTokens.fill]: { ":not(:hover)": color.textMuted },
   },
   logo: {
-    alignItems: "center",
     aspectRatio: ratio.double,
-    display: "flex",
     width: "100%",
     maxInlineSize: space._13,
-    justifyContent: "flex-start",
     minHeight: 0,
   },
   dates: {

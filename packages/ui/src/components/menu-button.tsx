@@ -175,7 +175,7 @@ export function MenuButton({
           <Button
             {...buttonProps}
             aria-expanded={isMenuShown}
-            aria-haspopup={popupRole === "menu" ? "menu" : "true"}
+            aria-haspopup={popupRole === "menu" ? "menu" : undefined}
             aria-controls={popupId}
             onClick={(event) => {
               buttonProps.onClick?.(event);
@@ -207,7 +207,15 @@ export function MenuButton({
               role={popupRole}
               aria-labelledby={`${targetId}-label`}
             >
-              {children && <div css={styles.menuTitle}>{children}</div>}
+              {/* Visible heading only. The popup is already named by the
+                  trigger's label via `aria-labelledby`, so this duplicate is
+                  `aria-hidden` — which also keeps a bare non-menuitem node out
+                  of the `role="menu"` accessibility tree. */}
+              {children && (
+                <div css={styles.menuTitle} aria-hidden>
+                  {children}
+                </div>
+              )}
               {menuContent}
             </div>
           </AnimateToTarget>

@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -159,7 +160,7 @@ export function WizardShell({ initialDef }: WizardShellProps) {
           type="button"
           onClick={handleShuffle}
           data-testid="wizard-shuffle"
-          css={styles.shuffleBtn}
+          css={[styles.shuffleBtn, transition.colors]}
         >
           {shuffleLabel}
         </button>
@@ -184,6 +185,7 @@ export function WizardShell({ initialDef }: WizardShellProps) {
               data-testid={`wizard-pill-${String(stepNumber)}`}
               css={[
                 styles.pill,
+                transition.colors,
                 isActive && styles.pillActive,
                 !isVisited && styles.pillLocked,
               ]}
@@ -214,7 +216,7 @@ export function WizardShell({ initialDef }: WizardShellProps) {
           }}
           disabled={state.step === 1}
           data-testid="wizard-back"
-          css={[styles.footerBtn, styles.footerBtnSecondary]}
+          css={[styles.footerBtn, transition.colors, styles.footerBtnSecondary]}
         >
           {backLabel}
         </button>
@@ -229,7 +231,7 @@ export function WizardShell({ initialDef }: WizardShellProps) {
           }}
           disabled={nameTooShort}
           data-testid={isLastStep ? "wizard-finish" : "wizard-next"}
-          css={[styles.footerBtn, styles.footerBtnPrimary]}
+          css={[styles.footerBtn, transition.colors, styles.footerBtnPrimary]}
         >
           {isLastStep ? finishLabel : nextLabel}
         </button>
@@ -274,12 +276,10 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: "999px",
+    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: "pointer",
-    transitionProperty: "background-color",
-    transitionDuration: "120ms",
   },
   breadcrumb: {
     display: "flex",
@@ -297,13 +297,11 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
-    borderRadius: "999px",
+    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": 0.45 },
-    transitionProperty: "border-color, background-color, color",
-    transitionDuration: "120ms",
   },
   pillActive: {
     backgroundColor: color.accent,
@@ -335,7 +333,7 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._3,
     backgroundColor: color.bgSurface,
-    borderRadius: "16px",
+    borderRadius: border.radius_3,
     position: { default: "static", [breakpoints.md]: "sticky" },
     top: { default: "auto", [breakpoints.md]: space._3 },
     flexShrink: { default: 1, [breakpoints.md]: 0 },
@@ -378,8 +376,6 @@ const styles = stylex.create({
     opacity: { default: 1, ":disabled": 0.5 },
     borderWidth: "1px",
     borderStyle: "solid",
-    transitionProperty: "background-color, border-color",
-    transitionDuration: "120ms",
   },
   footerBtnSecondary: {
     backgroundColor: {

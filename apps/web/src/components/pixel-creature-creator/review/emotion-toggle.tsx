@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { EMOTIONS, type Emotion } from "../state/creature-schema";
 
@@ -54,7 +55,11 @@ export function EmotionToggle({ active, onChange }: EmotionToggleProps) {
             type="button"
             {...getOptionProps(emotion)}
             data-testid={`emotion-button-${emotion}`}
-            css={[styles.button, isActive && styles.buttonActive]}
+            css={[
+              styles.button,
+              transition.colors,
+              isActive && styles.buttonActive,
+            ]}
           >
             {emotionLabels[emotion]}
           </button>
@@ -89,13 +94,11 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
-    borderRadius: "999px",
+    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: "pointer",
     outlineOffset: "2px",
-    transitionProperty: "background-color, border-color, color",
-    transitionDuration: "120ms",
   },
   buttonActive: {
     backgroundColor: {

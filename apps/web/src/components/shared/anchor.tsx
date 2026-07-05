@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
-import { border, color } from "@tuja/ui/tokens.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { border } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useState } from "react";
 import { ExternalLinkIndicator } from "./external-link-indicator";
@@ -59,7 +60,7 @@ export function Anchor({
       }}
       className={className}
       style={style}
-      css={styles.a}
+      css={[styles.a, a11y.focusRing]}
     >
       {children}
       {showIndicator && <ExternalLinkIndicator />}
@@ -84,10 +85,5 @@ const styles = stylex.create({
     color: anchorTokens.color,
     fontWeight: anchorTokens.fontWeight,
     textDecorationThickness: { default: null, ":hover": border.size_2 },
-    outline: {
-      default: "none",
-      ":focus-visible": `2px solid ${color.accent}`,
-    },
-    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
 });

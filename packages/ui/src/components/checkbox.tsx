@@ -193,6 +193,10 @@ const styles = stylex.create({
       ":checked": color.danger,
       ":indeterminate": color.danger,
     },
+    // Recolour the shared focus ring to danger in the error state, matching
+    // TextField/Textarea/Select's invalid treatment (composed after
+    // `a11y.focusRing`, so it wins).
+    outlineColor: { default: "transparent", ":focus-visible": color.danger },
   },
   labelText: {
     color: color.textMain,

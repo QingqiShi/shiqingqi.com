@@ -1,4 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { Text } from "@tuja/ui/components/text";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition, type ReactNode } from "react";
 import { Card } from "#src/components/shared/card.tsx";
@@ -21,12 +23,14 @@ export function ProjectCard({
   return (
     <Card {...rest} className={className} style={style} css={styles.card}>
       <div css={styles.row}>
-        <div css={styles.logo}>{icon}</div>
+        <div css={[flex.row, styles.logo]}>{icon}</div>
         <ViewTransition name={`project-card-name-${name}`}>
           <div css={styles.name}>{name}</div>
         </ViewTransition>
       </div>
-      <div css={styles.description}>{description}</div>
+      <Text as="div" variant="bodySmall" tone="muted">
+        {description}
+      </Text>
     </Card>
   );
 }
@@ -49,20 +53,12 @@ const styles = stylex.create({
     marginBottom: space._1,
   },
   logo: {
-    alignItems: "center",
-    display: "flex",
-    justifyContent: "flex-start",
     minBlockSize: 0,
     color: svgTokens.fill,
   },
   name: {
     fontSize: font.cqTitle,
     fontWeight: font.weight_7,
-    color: color.textMuted,
-  },
-  description: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_4,
     color: color.textMuted,
   },
 });

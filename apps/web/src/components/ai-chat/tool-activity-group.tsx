@@ -2,6 +2,7 @@
 
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -61,7 +62,12 @@ export function ToolActivityGroup({
     <div css={styles.container}>
       <button
         type="button"
-        css={[buttonReset.base, flex.row, styles.disclosureButton]}
+        css={[
+          buttonReset.base,
+          flex.row,
+          a11y.focusRingInset,
+          styles.disclosureButton,
+        ]}
         aria-expanded={isOpen}
         aria-controls={expandedId}
         onClick={() => {

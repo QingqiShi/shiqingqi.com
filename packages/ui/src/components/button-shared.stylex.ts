@@ -1,12 +1,22 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "../breakpoints.stylex.ts";
-import { motionConstants } from "../primitives/motion.stylex.ts";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "../primitives/motion.stylex.ts";
 import { color, controlSize } from "../tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
 export const PRESS_ANIMATION_DURATION = 150;
-const RELEASE_OUTSIDE_ANIMATION_DURATION = 300;
+
+// Press/release transitions built from the motion scale. The compound
+// transform+filter transition can't be a plain `transition.*` preset, but its
+// numbers come from the shared duration/easing tokens so it tracks the scale.
+const pressTransition = `background ${duration._200} ${easing.ease}, transform ${duration._150} ${easing.easeOut}, filter ${duration._150} ${easing.easeOut}`;
+const releaseTransition = `background ${duration._200} ${easing.ease}, transform ${duration._300} ${easing.easeOut}, filter ${duration._300} ${easing.easeOut}`;
+const reducedTransition = `background ${duration._200} ${easing.ease}`;
 
 export const sharedStyles = stylex.create({
   base: {
@@ -18,8 +28,8 @@ export const sharedStyles = stylex.create({
     borderRadius: buttonTokens.borderRadius,
     boxShadow: buttonTokens.boxShadow,
     transition: {
-      default: `background 0.2s ease, transform ${String(PRESS_ANIMATION_DURATION)}ms ease-out, filter ${String(PRESS_ANIMATION_DURATION)}ms ease-out`,
-      [motionConstants.REDUCED_MOTION]: "background 0.2s ease",
+      default: pressTransition,
+      [motionConstants.REDUCED_MOTION]: reducedTransition,
     },
     backgroundColor: {
       default: buttonTokens.backgroundColor,
@@ -30,13 +40,9 @@ export const sharedStyles = stylex.create({
     filter: "brightness(1)",
     // Touch action to prevent browser gestures from interfering
     touchAction: "manipulation",
-    // Focus ring for keyboard users (WCAG 2.4.7). Replaces the browser
-    // default so the indicator stays consistent across browsers.
-    outline: {
-      default: "none",
-      ":focus-visible": `2px solid ${color.accent}`,
-    },
-    outlineOffset: { default: null, ":focus-visible": "2px" },
+    // The keyboard focus ring (WCAG 2.4.7) is composed at the component via the
+    // shared `a11y.focusRing` primitive, so Button, IconButton, and the app's
+    // anchor button all paint one identical indicator.
   },
   hasIcon: {
     paddingInlineStart: controlSize._2,
@@ -101,8 +107,8 @@ export const sharedStyles = stylex.create({
   },
   releasedOutside: {
     transition: {
-      default: `background 0.2s ease, transform ${String(RELEASE_OUTSIDE_ANIMATION_DURATION)}ms ease-out, filter ${String(RELEASE_OUTSIDE_ANIMATION_DURATION)}ms ease-out`,
-      [motionConstants.REDUCED_MOTION]: "background 0.2s ease",
+      default: releaseTransition,
+      [motionConstants.REDUCED_MOTION]: reducedTransition,
     },
   },
 });

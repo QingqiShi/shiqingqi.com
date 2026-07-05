@@ -9,6 +9,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
+import { IconButton } from "@tuja/ui/components/icon-button";
 import {
   duration as motionDuration,
   easing,
@@ -326,39 +327,36 @@ export function AnimationMode({
                   </label>
                 </div>
                 <div css={styles.frameActions}>
-                  <button
-                    type="button"
-                    css={styles.iconButton}
+                  <IconButton
+                    size="sm"
+                    shape="square"
+                    icon={<ArrowUpIcon size={14} weight="bold" />}
                     onClick={() => {
                       moveFrame(index, -1);
                     }}
                     disabled={index === 0}
                     aria-label={moveUpLabel}
-                  >
-                    <ArrowUpIcon size={14} weight="bold" />
-                  </button>
-                  <button
-                    type="button"
-                    css={styles.iconButton}
+                  />
+                  <IconButton
+                    size="sm"
+                    shape="square"
+                    icon={<ArrowDownIcon size={14} weight="bold" />}
                     onClick={() => {
                       moveFrame(index, 1);
                     }}
                     disabled={index === frames.length - 1}
                     aria-label={moveDownLabel}
-                  >
-                    <ArrowDownIcon size={14} weight="bold" />
-                  </button>
-                  <button
-                    type="button"
-                    css={styles.iconButton}
+                  />
+                  <IconButton
+                    size="sm"
+                    shape="square"
+                    icon={<TrashIcon size={14} weight="bold" />}
                     onClick={() => {
                       removeFrame(index);
                     }}
                     aria-label={removeLabel}
                     data-testid={`remove-frame-${String(index)}`}
-                  >
-                    <TrashIcon size={14} weight="bold" />
-                  </button>
+                  />
                 </div>
               </li>
             ))}
@@ -572,21 +570,5 @@ const styles = stylex.create({
   frameActions: {
     display: "flex",
     gap: "2px",
-  },
-  iconButton: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "26px",
-    height: "26px",
-    border: `1px solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
-    backgroundColor: {
-      default: color.bgSurface,
-      ":hover:not(:disabled)": color.bgInteractiveHover,
-    },
-    color: color.textMain,
-    cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": 0.4 },
   },
 });

@@ -80,6 +80,36 @@ export function HeadingShowcase() {
     },
   ];
 
+  const weightOverrides = [
+    {
+      meta: 'variant="display" · regular',
+      node: (
+        <Heading level={2} variant="display" weight="regular">
+          {t({ en: "Featured this week", zh: "本周精选" })}
+        </Heading>
+      ),
+    },
+    {
+      meta: t({
+        en: 'variant="display" · bold (default)',
+        zh: 'variant="display" · bold（默认）',
+      }),
+      node: (
+        <Heading level={2} variant="display">
+          {t({ en: "Featured this week", zh: "本周精选" })}
+        </Heading>
+      ),
+    },
+    {
+      meta: 'variant="display" · black',
+      node: (
+        <Heading level={2} variant="display" weight="black">
+          {t({ en: "Featured this week", zh: "本周精选" })}
+        </Heading>
+      ),
+    },
+  ];
+
   const alignments = [
     {
       meta: 'align="start"',
@@ -148,6 +178,22 @@ export function HeadingShowcase() {
         </div>
       </Showcase>
 
+      <Showcase label={t({ en: "Weight", zh: "字重" })}>
+        <ShowcaseHelper>
+          {t({
+            en: "weight overrides the weight the variant sets, so a display heading can read light or extra-heavy without touching its size.",
+            zh: "weight 会覆盖 variant 设定的字重，因此 display 标题可以变轻或加重，而无需改动字号。",
+          })}
+        </ShowcaseHelper>
+        <div css={styles.ladder}>
+          {weightOverrides.map((row) => (
+            <SpecRow key={row.meta} meta={row.meta}>
+              {row.node}
+            </SpecRow>
+          ))}
+        </div>
+      </Showcase>
+
       <Showcase label={t({ en: "Alignment", zh: "对齐" })}>
         <div css={styles.ladder}>
           {alignments.map((row) => (
@@ -191,6 +237,18 @@ export function HeadingShowcase() {
             description: t({
               en: "Visual type ramp, decoupled from level so rank and size can differ.",
               zh: "视觉字号档位，与 level 解耦，使层级与字号可以不同。",
+            }),
+          },
+          {
+            name: "weight",
+            type: '"regular" | "medium" | "semibold" | "bold" | "extrabold" | "black"',
+            defaultValue: t({
+              en: "weight matching variant",
+              zh: "与 variant 匹配的字重",
+            }),
+            description: t({
+              en: "Font weight, overriding the weight the variant sets so rank, size, and weight stay independent.",
+              zh: "字重，覆盖 variant 设定的字重，使层级、字号与字重相互独立。",
             }),
           },
           {

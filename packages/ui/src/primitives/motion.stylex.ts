@@ -115,13 +115,21 @@ export const animate = stylex.create({
     animationTimingFunction: "cubic-bezier(0.32, 0.72, 0, 1)",
   },
   pulse: {
-    animationName: pulseKeyframes,
+    // No infinite motion under reduced-motion (mirrors Skeleton's own guard),
+    // so consumers of the preset get the accessible behaviour for free.
+    animationName: {
+      default: pulseKeyframes,
+      [REDUCED_MOTION]: "none",
+    },
     animationDuration: "2s",
     animationTimingFunction: "cubic-bezier(.4,0,.6,1)",
     animationIterationCount: "infinite",
   },
   bounce: {
-    animationName: bounceKeyframes,
+    animationName: {
+      default: bounceKeyframes,
+      [REDUCED_MOTION]: "none",
+    },
     animationDuration: "1.4s",
     animationTimingFunction: "ease-in-out",
     animationIterationCount: "infinite",
