@@ -341,6 +341,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/callout" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/card</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/card" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/card" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/card</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/card" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/card" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/spinner</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/spinner" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/spinner" />

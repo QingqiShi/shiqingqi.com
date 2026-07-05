@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
@@ -42,7 +43,7 @@ export function FeaturedRow({ locale }: FeaturedRowProps) {
             <li key={featured.labelKey} css={styles.item}>
               <a
                 href={href}
-                css={styles.link}
+                css={[cardSurface.base, styles.link]}
                 aria-label={featured.def.name}
                 data-testid={`featured-${featured.labelKey}`}
               >
@@ -110,10 +111,6 @@ const styles = stylex.create({
       ":hover": color.bgInteractiveHover,
       ":focus-visible": color.bgInteractiveHover,
     },
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    borderRadius: "16px",
     transitionProperty: "background-color, transform",
     transitionDuration: "160ms",
     transform: {

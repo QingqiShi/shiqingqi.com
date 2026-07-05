@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { ViewTransition } from "react";
 import {
@@ -145,6 +146,13 @@ export default function DesignSystemOverview() {
         zh: "六种色调的行内消息框，用于状态与提示。",
       }),
     },
+    "/design-system/components/card": {
+      label: t({ en: "Card", zh: "卡片" }),
+      description: t({
+        en: "A bordered surface container, static or interactive.",
+        zh: "带描边的表面容器，支持静态或可交互两种形态。",
+      }),
+    },
     "/design-system/components/spinner": {
       label: t({ en: "Spinner", zh: "加载指示器" }),
       description: t({
@@ -257,7 +265,12 @@ export default function DesignSystemOverview() {
                   <Link
                     key={path}
                     href={getLocalePath(path, locale)}
-                    css={[transition.colors, styles.tile]}
+                    css={[
+                      transition.colors,
+                      cardSurface.base,
+                      cardSurface.interactive,
+                      styles.tile,
+                    ]}
                   >
                     <span css={styles.tileName}>{entry.label}</span>
                     <span css={styles.tileDescription}>
@@ -325,14 +338,6 @@ const styles = stylex.create({
     gap: space._1,
     paddingBlock: space._3,
     paddingInline: space._4,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: { default: color.neutralBorder, ":hover": color.accentBorder },
-    borderRadius: border.radius_3,
-    backgroundColor: {
-      default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
-    },
     textDecoration: "none",
   },
   tileName: {

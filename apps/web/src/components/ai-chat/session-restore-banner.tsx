@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Card } from "@tuja/ui/components/card";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -36,7 +37,7 @@ export function SessionRestoreBanner({
       : t({ en: "Continue", zh: "继续" });
 
   return (
-    <div css={[flex.row, styles.banner]} role={hasError ? "alert" : undefined}>
+    <Card css={[flex.row, styles.banner]} role={hasError ? "alert" : undefined}>
       <p css={[styles.text, hasError && styles.errorText]}>{message}</p>
       <div css={[flex.row, styles.actions]}>
         <button
@@ -57,7 +58,7 @@ export function SessionRestoreBanner({
           {continueLabel}
         </button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -65,13 +66,6 @@ const styles = stylex.create({
   banner: {
     alignItems: "center",
     gap: space._2,
-    paddingBlock: space._3,
-    paddingInline: space._4,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    borderRadius: border.radius_3,
-    backgroundColor: color.bgSurface,
   },
   text: {
     margin: 0,

@@ -56,6 +56,7 @@ export const DESIGN_SYSTEM_ROUTES = [
   { group: "components", path: "/design-system/components/menu-button" },
   { group: "components", path: "/design-system/components/badge" },
   { group: "components", path: "/design-system/components/callout" },
+  { group: "components", path: "/design-system/components/card" },
   { group: "components", path: "/design-system/components/spinner" },
   { group: "components", path: "/design-system/components/skeleton" },
   { group: "components", path: "/design-system/components/divider" },
