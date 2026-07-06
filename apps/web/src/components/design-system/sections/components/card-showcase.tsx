@@ -10,7 +10,7 @@ import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 export function CardShowcase() {
-  const sampleTitle = t({ en: "Typography", zh: "排版" });
+  const sampleTitle = t({ en: "Typography", zh: "文字设计" });
   const sampleBody = t({
     en: "Families, the type scale, weights, and heading and body styles.",
     zh: "字体、字号阶梯、字重，以及标题与正文样式。",

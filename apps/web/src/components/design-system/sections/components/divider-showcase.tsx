@@ -118,7 +118,7 @@ export function DividerShowcase() {
           <Text variant="bodySmall" tone="muted">
             {t({
               en: "Pair with hero typography or section transitions for richest effect.",
-              zh: "搭配英雄排版或区段转换，可获得最佳效果。",
+              zh: "搭配英雄文字排版或区段转换，可获得最佳效果。",
             })}
           </Text>
         </div>

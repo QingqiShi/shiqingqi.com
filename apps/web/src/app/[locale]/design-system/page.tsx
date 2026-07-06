@@ -49,7 +49,7 @@ export default function DesignSystemOverview() {
       }),
     },
     "/design-system/foundations/typography": {
-      label: t({ en: "Typography", zh: "排版" }),
+      label: t({ en: "Typography", zh: "文字设计" }),
       description: t({
         en: "Families, the type scale, weights, and heading and body styles.",
         zh: "字体、字号阶梯、字重，以及标题与正文样式。",
@@ -101,7 +101,7 @@ export default function DesignSystemOverview() {
       label: t({ en: "Text", zh: "文本" }),
       description: t({
         en: "The body-copy type primitive: a four-step ramp, four tones, and four weights.",
-        zh: "正文排版基础组件：四档字阶、四种色调与四种字重。",
+        zh: "正文文字排版基础组件：四档字阶、四种色调与四种字重。",
       }),
     },
     "/design-system/components/heading": {

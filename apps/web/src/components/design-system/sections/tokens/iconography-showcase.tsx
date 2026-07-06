@@ -106,7 +106,7 @@ export function IconographyShowcase() {
         <ShowcaseHelper>
           {t({
             en: "Icons size with font-size, not a width prop. Set the type token on the slot and the glyph follows — so an icon beside text always matches the line.",
-            zh: "图标随 font-size 缩放，而非通过宽度属性。在插槽上设置排版令牌，字形便随之变化——因此文字旁的图标始终与行高相称。",
+            zh: "图标随 font-size 缩放，而非通过宽度属性。在插槽上设置文字排版令牌，字形便随之变化——因此文字旁的图标始终与行高相称。",
           })}
         </ShowcaseHelper>
         <div css={styles.sizeRow}>
@@ -173,7 +173,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
             defaultValue: '"1em"',
             description: t({
               en: "Rendered size. Defaults to 1em, so it scales with font-size — prefer sizing via the type token on the slot.",
-              zh: "渲染尺寸。默认 1em，随 font-size 缩放——优先通过插槽上的排版令牌来设定尺寸。",
+              zh: "渲染尺寸。默认 1em，随 font-size 缩放——优先通过插槽上的文字排版令牌来设定尺寸。",
             }),
           },
           {

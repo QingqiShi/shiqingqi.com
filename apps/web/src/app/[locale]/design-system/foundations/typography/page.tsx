@@ -16,14 +16,14 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/foundations/typography",
-    title: t({ en: "Typography", zh: "排版" }),
+    title: t({ en: "Typography", zh: "文字设计" }),
   });
 }
 
 export default function TypographyPage() {
   return (
     <DocPage
-      title={t({ en: "Typography", zh: "排版" })}
+      title={t({ en: "Typography", zh: "文字设计" })}
       description={t({
         en: "One family in Inter, shaped by a fluid type scale, weight ramp, line-heights, and tracking — then applied through the heading and body text styles.",
         zh: "以 Inter 为单一字体，通过流式字号阶梯、字重梯度、行高与字距塑形，并应用于标题与正文样式。",

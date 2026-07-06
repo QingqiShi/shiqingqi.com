@@ -36,7 +36,7 @@ export function DesignSystemNav() {
     "/design-system/foundations/color": t({ en: "Color", zh: "颜色" }),
     "/design-system/foundations/typography": t({
       en: "Typography",
-      zh: "排版",
+      zh: "文字设计",
     }),
     "/design-system/foundations/spacing": t({ en: "Spacing", zh: "间距" }),
     "/design-system/foundations/elevation": t({
