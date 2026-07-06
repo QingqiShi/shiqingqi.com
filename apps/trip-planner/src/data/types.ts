@@ -194,13 +194,7 @@ export interface Anchor {
 
 /** What kind of practical heads-up a tip is — drives its icon. */
 export type TipKind =
-  | "parking"
-  | "fuel"
-  | "drive"
-  | "transit"
-  | "money"
-  | "warn"
-  | "info";
+  "parking" | "fuel" | "drive" | "transit" | "money" | "warn" | "info";
 
 /** A practical heads-up for the day (parking, fuel, driving rules…). */
 export interface Tip {

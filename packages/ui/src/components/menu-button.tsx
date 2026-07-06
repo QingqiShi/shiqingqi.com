@@ -34,11 +34,7 @@ interface MenuButtonProps {
    * automatically in RTL locales.
    */
   position?:
-    | "topRight"
-    | "topLeft"
-    | "bottomLeft"
-    | "bottomRight"
-    | "viewportWidth";
+    "topRight" | "topLeft" | "bottomLeft" | "bottomRight" | "viewportWidth";
   /** Disable the menu trigger. */
   disabled?: boolean;
   /**

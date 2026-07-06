@@ -21,11 +21,7 @@
  * `"overview"`, `"foundations"`, `"components"`, `"primitives"`, and `"hooks"`.
  */
 export type DesignSystemGroupId =
-  | "overview"
-  | "foundations"
-  | "components"
-  | "primitives"
-  | "hooks";
+  "overview" | "foundations" | "components" | "primitives" | "hooks";
 
 export interface DesignSystemRoute {
   group: DesignSystemGroupId;

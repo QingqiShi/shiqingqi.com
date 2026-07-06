@@ -7,12 +7,7 @@ import { buttonReset } from "../primitives/reset.stylex.ts";
 import { border, color, font, space } from "../tokens.stylex.ts";
 
 type CalloutVariant =
-  | "info"
-  | "success"
-  | "warning"
-  | "danger"
-  | "accent"
-  | "neutral";
+  "info" | "success" | "warning" | "danger" | "accent" | "neutral";
 
 /**
  * Shared SVG frame for the built-in glyphs. 256 viewBox and `currentColor`
