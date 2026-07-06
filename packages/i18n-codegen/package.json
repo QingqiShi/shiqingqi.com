@@ -16,7 +16,7 @@
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
     "@types/babel__traverse": "^7.28.0",
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.1",
     "tsx": "^4.23.0",
     "vitest": "^4.1.9"
   }
