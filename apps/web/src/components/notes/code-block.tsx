@@ -275,7 +275,7 @@ export function CodeBlock({ code }: CodeBlockProps) {
 }
 
 const tokenStyles = stylex.create({
-  keyword: { color: color.textAccent, fontWeight: font.weight_5 },
+  keyword: { color: color.accentText, fontWeight: font.weight_5 },
   type: { color: color.info },
   string: { color: color.success },
   comment: { color: color.textSubtle, fontStyle: "italic" },
@@ -287,8 +287,8 @@ const styles = stylex.create({
   wrapper: {
     position: "relative",
     borderRadius: border.radius_2,
-    backgroundColor: color.backgroundSunken,
-    border: `1px solid ${color.borderSubtle}`,
+    backgroundColor: color.bgSurfaceSunken,
+    border: `1px solid ${color.neutralBorder}`,
     overflow: "hidden",
   },
   copyButton: {
@@ -304,10 +304,10 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {
-      default: color.backgroundElevated,
-      ":hover": color.backgroundHover,
+      default: color.bgInteractiveRest,
+      ":hover": color.bgInteractiveHover,
     },
-    border: `1px solid ${color.borderSubtle}`,
+    border: `1px solid ${color.neutralBorder}`,
     cursor: "pointer",
     zIndex: 1,
   },
