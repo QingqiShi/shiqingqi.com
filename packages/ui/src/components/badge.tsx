@@ -4,13 +4,7 @@ import { flex } from "../primitives/flex.stylex.ts";
 import { border, color, font, space } from "../tokens.stylex.ts";
 
 type BadgeVariant =
-  | "default"
-  | "neutral"
-  | "info"
-  | "success"
-  | "warning"
-  | "danger"
-  | "accent";
+  "default" | "neutral" | "info" | "success" | "warning" | "danger" | "accent";
 type BadgeSize = "small" | "medium";
 
 interface BadgeProps extends ComponentProps<"span"> {

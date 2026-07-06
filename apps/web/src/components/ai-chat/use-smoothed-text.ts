@@ -89,7 +89,7 @@ function scanMarkers(
   limit: number,
   s: MarkerState,
 ) {
-  for (let i = from; i < limit; ) {
+  for (let i = from; i < limit;) {
     const ch = text[i];
 
     // Code fence ```

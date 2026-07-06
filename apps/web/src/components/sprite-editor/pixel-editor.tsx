@@ -49,12 +49,7 @@ import {
 } from "./utils/pixel-ops";
 
 type Tool =
-  | "pencil"
-  | "eraser"
-  | "select"
-  | "eyedropper"
-  | "fill"
-  | "bg-remove";
+  "pencil" | "eraser" | "select" | "eyedropper" | "fill" | "bg-remove";
 
 interface PixelEditorProps {
   /** Source-of-truth cell pixels — what was sliced from the source image. */

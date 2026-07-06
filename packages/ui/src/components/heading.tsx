@@ -6,12 +6,7 @@ import { color, font } from "../tokens.stylex.ts";
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 type HeadingVariant = "display" | "h1" | "h2" | "h3" | "h4";
 type HeadingWeight =
-  | "regular"
-  | "medium"
-  | "semibold"
-  | "bold"
-  | "extrabold"
-  | "black";
+  "regular" | "medium" | "semibold" | "bold" | "extrabold" | "black";
 type HeadingAlign = "start" | "center" | "end";
 
 interface HeadingProps {

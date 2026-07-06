@@ -75,8 +75,7 @@ async function executeTool(input: {
   const tool = createWatchProvidersTool();
   const result = await tool.execute(input, executeContext);
   return JSON.parse(JSON.stringify(result)) as
-    | RegionResult
-    | ProviderSearchResultType;
+    RegionResult | ProviderSearchResultType;
 }
 
 function asRegionResult(result: RegionResult | ProviderSearchResultType) {
