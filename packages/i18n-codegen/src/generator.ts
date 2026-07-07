@@ -19,6 +19,29 @@ const srcDir = path.join(projectRoot, "src");
 const outputDir = path.join(srcDir, "_generated", "i18n");
 
 /**
+ * Write `content` to `filePath` only when it differs from what is already on
+ * disk, using an atomic rename so readers (the Babel plugin, Turbopack) never
+ * observe a truncated or partially written file.
+ *
+ * Skipping unchanged writes keeps mtimes stable, which matters at dev startup:
+ * `predev` generates every bundle up front, then `watch:i18n` re-runs the same
+ * generation concurrently with an already-Ready dev server. Rewriting
+ * byte-identical files would churn mtimes and briefly truncate the manifest
+ * under a live server — the window that produces spurious "Missing translation
+ * key" errors — for no benefit.
+ */
+function writeFileIfChanged(filePath: string, content: string): void {
+  try {
+    if (fs.readFileSync(filePath, "utf8") === content) return;
+  } catch {
+    // File missing or unreadable — fall through and write it.
+  }
+  const tmpPath = `${filePath}.${String(process.pid)}.tmp`;
+  fs.writeFileSync(tmpPath, content, "utf8");
+  fs.renameSync(tmpPath, filePath);
+}
+
+/**
  * Recursively collect .ts and .tsx files from a directory,
  * excluding _generated/ and .d.ts files.
  */
@@ -187,22 +210,19 @@ function generatePerPageBundles(allEntries: TranslationEntry[]): void {
       zhMap[entry.key] = entry.zh;
     }
 
-    fs.writeFileSync(
+    writeFileIfChanged(
       path.join(clientDir, `${name}.en.json`),
       JSON.stringify(enMap, null, 2) + "\n",
-      "utf8",
     );
-    fs.writeFileSync(
+    writeFileIfChanged(
       path.join(clientDir, `${name}.zh.json`),
       JSON.stringify(zhMap, null, 2) + "\n",
-      "utf8",
     );
 
     // Generate loader module
-    fs.writeFileSync(
+    writeFileIfChanged(
       path.join(loadersDir, `${name}.ts`),
       generateLoaderSource(name),
-      "utf8",
     );
 
     // Add to manifest
@@ -216,10 +236,9 @@ function generatePerPageBundles(allEntries: TranslationEntry[]): void {
   }
 
   // Write manifest
-  fs.writeFileSync(
+  writeFileIfChanged(
     path.join(outputDir, "manifest.json"),
     JSON.stringify(manifest, null, 2) + "\n",
-    "utf8",
   );
 
   console.log(`Generated ${String(totalBundles)} per-page client bundles`);
@@ -283,8 +302,8 @@ function main(): void {
   const enPath = path.join(outputDir, "translations.en.json");
   const zhPath = path.join(outputDir, "translations.zh.json");
 
-  fs.writeFileSync(enPath, JSON.stringify(enMap, null, 2) + "\n", "utf8");
-  fs.writeFileSync(zhPath, JSON.stringify(zhMap, null, 2) + "\n", "utf8");
+  writeFileIfChanged(enPath, JSON.stringify(enMap, null, 2) + "\n");
+  writeFileIfChanged(zhPath, JSON.stringify(zhMap, null, 2) + "\n");
 
   console.log(
     `Generated ${String(sortedEntries.length)} global translation entries`,
