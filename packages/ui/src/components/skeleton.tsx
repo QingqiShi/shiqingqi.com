@@ -1,6 +1,6 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, Ref } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { motionConstants } from "../primitives/motion.stylex.ts";
 import { border, color } from "../tokens.stylex.ts";
 import { skeletonTokens } from "./skeleton.stylex.ts";
@@ -21,7 +21,7 @@ interface SkeletonProps {
   /** Staggers the pulse start by N milliseconds — useful for lists of rows. */
   delay?: number;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
-  css?: StyleXStyles;
+  css?: StyleProp;
   /** Escape-hatch class applied to the rendered element. */
   className?: string;
   /** Inline style applied to the rendered element. */

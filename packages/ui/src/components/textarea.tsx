@@ -1,12 +1,12 @@
 "use client";
 
-import type { StyleXStyles } from "@stylexjs/stylex";
 import {
   useCallback,
   useLayoutEffect,
   useRef,
   type ComponentProps,
 } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -48,7 +48,7 @@ interface TextareaProps extends ComponentProps<"textarea"> {
    */
   autoGrow?: boolean;
   /** StyleX overrides merged over the control's own — the escape hatch. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 /**

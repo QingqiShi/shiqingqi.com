@@ -1,6 +1,6 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, ReactNode, Ref } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { color, font } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 
@@ -29,7 +29,7 @@ interface TextProps {
   /** Text alignment (logical `start` / `center` / `end`). */
   align?: TextAlign;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
-  css?: StyleXStyles;
+  css?: StyleProp;
   /** Escape-hatch class applied to the rendered element. */
   className?: string;
   /** Inline style applied to the rendered element. */

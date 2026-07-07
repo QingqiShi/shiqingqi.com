@@ -1,8 +1,8 @@
 "use client";
 
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { type ComponentProps, type ReactNode } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -59,7 +59,7 @@ interface SelectProps extends Omit<
   /** `<option>` elements — the escape hatch when `options` is not enough. */
   children?: ReactNode;
   /** StyleX styles merged over the field root — the config-layer escape hatch. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 /**

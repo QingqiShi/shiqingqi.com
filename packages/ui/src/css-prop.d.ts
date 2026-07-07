@@ -4,15 +4,7 @@
 // so `@tuja/ui` type-checks standalone. Consumers get the same augmentation by
 // adding an equivalent `css-prop.d.ts` to their own project (see the README) —
 // the augmentation must be part of the consumer's TS program, not just ours.
-import type {
-  CompiledStyles,
-  InlineStyles,
-  StyleXArray,
-} from "@stylexjs/stylex/lib/types/StyleXTypes";
-
-type StyleProp = StyleXArray<
-  null | undefined | boolean | Readonly<[CompiledStyles, InlineStyles]>
->;
+import type { StyleProp } from "./css-prop-types.ts";
 
 declare module "react" {
   interface Attributes {

@@ -5,6 +5,7 @@
   "type": "module",
   "main": "src/generator.ts",
   "scripts": {
+    "build:tsc": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run"
   },

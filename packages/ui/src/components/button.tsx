@@ -1,8 +1,8 @@
 "use client";
 
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useRef, type ComponentProps, type ReactNode } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { usePressHandlers } from "../hooks/use-press-handlers.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { font } from "../tokens.stylex.ts";
@@ -31,7 +31,7 @@ interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
   /** Id applied to the label span, e.g. to wire an external `aria-labelledby`. */
   labelId?: string;
   /** StyleX styles merged over the button's own — the config-layer escape hatch. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 /**
