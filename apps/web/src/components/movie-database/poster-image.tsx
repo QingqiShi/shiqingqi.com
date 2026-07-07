@@ -5,7 +5,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
 import { color, font, layer } from "@tuja/ui/tokens.stylex";
+import { useEffect } from "react";
 import { t } from "#src/i18n.ts";
+import { reportPosterFallback } from "#src/utils/report-poster-fallback.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { TmdbImage } from "./tmdb-image.tsx";
 
@@ -31,7 +33,24 @@ export function PosterImage({
 }: PosterImageProps) {
   const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
   const visibleLabel = fallbackLabel ?? alt;
+  const configMissing = !config.images?.base_url || !config.images.poster_sizes;
 
+  // Diagnostic: `posterPath` is truthy here (MediaPoster only renders this
+  // component when it is), so a missing config is always abnormal. Report it so
+  // a device-specific "No Poster" can be attributed to config vs image failure.
+  useEffect(() => {
+    if (!configMissing) return;
+    reportPosterFallback({
+      reason: "config-missing",
+      configImagesPresent: Boolean(config.images),
+      configBaseUrl: Boolean(config.images?.base_url),
+      configSecureBaseUrl: Boolean(config.images?.secure_base_url),
+      configPosterSizes: config.images?.poster_sizes?.length ?? 0,
+    });
+  }, [configMissing, config]);
+
+  // Repeat the condition inline (rather than reuse `configMissing`) so
+  // TypeScript narrows `config.images` to non-null for the `TmdbImage` props.
   if (!config.images?.base_url || !config.images.poster_sizes) {
     return (
       <div css={[imageCover.base, flex.center, styles.errored]}>
