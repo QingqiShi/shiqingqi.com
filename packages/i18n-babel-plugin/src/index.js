@@ -47,7 +47,6 @@ module.exports = function i18nBabelPlugin({ types: t }, opts) {
   const manifestPath =
     opts?.manifestPath ||
     nodePath.join(projectRoot, "src/_generated/i18n/manifest.json");
-  const manifest = readManifest(manifestPath);
 
   return {
     name: "i18n-transform",
@@ -79,8 +78,15 @@ module.exports = function i18nBabelPlugin({ types: t }, opts) {
             }
           }
 
-          // Check if this file is a page/layout with client translations
+          // Check if this file is a page/layout with client translations.
+          // Read the manifest per-file (not once at plugin construction) so
+          // the mtime cache in readManifest picks up codegen re-runs during a
+          // running dev server. A long-lived plugin instance that captured the
+          // manifest once would keep injecting a stale page→bundle mapping
+          // after a route is renamed/added, poisoning newly compiled pages
+          // with "Missing translation key" until `.next` is wiped.
           if (state.filename) {
+            const manifest = readManifest(manifestPath);
             const relPath = nodePath.relative(projectRoot, state.filename);
             const entry = manifest[relPath];
             if (entry) {
@@ -181,8 +187,14 @@ function injectRuntimeImports(t, path, state) {
  * Auto-inject setLocale for server page/layout files under [locale].
  *
  * Next.js SSG can deduplicate renders when a function doesn't read
- * `params`. Any function with t() calls produces locale-dependent
- * output, so it must accept params and call setLocale().
+ * `params`. A page produces locale-dependent output in two ways:
+ *   - it calls t() directly (usedLookup/usedLookupParse), or
+ *   - it is a manifest-wrapped page whose injected
+ *     ClientTranslationsProvider resolves its client bundle via
+ *     getClientTranslations() → getLocale().
+ * Either way the page must accept params and call setLocale(); otherwise
+ * SSG can serve one locale's bundle on another route (e.g. English text
+ * rendered on a /zh URL for a page that only renders client t() children).
  *
  * This targets two kinds of functions:
  *   1. `export default function` in page files
@@ -194,8 +206,11 @@ function injectRuntimeImports(t, path, state) {
  * @param {string} projectRoot
  */
 function injectSetLocaleForPages(t, path, state, projectRoot) {
+  const producesLocaleDependentOutput =
+    state.usedLookup || state.usedLookupParse || Boolean(state.__manifestEntry);
+
   if (
-    (!state.usedLookup && !state.usedLookupParse) ||
+    !producesLocaleDependentOutput ||
     state.isClientComponent ||
     state.hasSetLocaleImport ||
     !state.filename

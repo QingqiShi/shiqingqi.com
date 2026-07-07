@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { transformSync } from "@babel/core";
+import { transformSync, types } from "@babel/core";
 import { describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
@@ -675,6 +675,117 @@ export default function Page() {
       // (in other files) need the translations context
       expect(output).toContain("__I18nProvider");
       expect(output).toContain("__getClientTx");
+    });
+
+    it("injects setLocale into a manifest-wrapped page even without direct t() calls", () => {
+      // A page that only renders client t() children still produces
+      // locale-dependent output via the injected ClientTranslationsProvider,
+      // whose getClientTranslations() resolves the bundle by getLocale(). If
+      // the page never reads params, Next.js SSG can dedupe the per-locale
+      // renders and serve one locale's bundle on the other's route (English
+      // on /zh). Reading params + calling setLocale keeps them distinct.
+      const input = `
+export default function Page() {
+  return <ClientChild />;
+}
+`;
+      const filename = path.join(
+        fakeRoot,
+        "src/app/[locale]/movie-database/(list)/page.tsx",
+      );
+      const output = transformWithManifest(input, filename);
+
+      expect(output).toContain("__I18nProvider");
+      expect(output).toContain("__setLocale");
+      expect(output).toContain("__validateLocale");
+      expect(output).toMatch(/async function Page/);
+      expect(output).toContain(".params");
+    });
+
+    it("does not inject setLocale into a non-manifest page without t() calls", () => {
+      // Boundary: only manifest-wrapped pages (or pages calling t()) get the
+      // setLocale injection. A plain page outside the manifest is untouched.
+      const input = `
+export default function Page() {
+  return <div>No translations</div>;
+}
+`;
+      const filename = path.join(
+        fakeRoot,
+        "src/app/[locale]/calculator/page.tsx",
+      );
+      const output = transformWithManifest(input, filename);
+
+      expect(output).not.toContain("__I18nProvider");
+      expect(output).not.toContain("__setLocale");
+    });
+
+    it("re-reads the manifest per file so a long-lived instance picks up codegen re-runs", () => {
+      // In dev, the plugin is constructed once and reused for every compiled
+      // file. If it captured the manifest only at construction, a route
+      // renamed/added after startup would be compiled against a stale
+      // page→bundle mapping — no ClientTranslationsProvider gets injected and
+      // client t() calls throw "Missing translation key" until `.next` is
+      // wiped. Reading the manifest per file (guarded by an mtime cache) keeps
+      // a single instance current without a restart.
+      const reuseManifestPath = path.join(
+        os.tmpdir(),
+        `i18n-babel-plugin-reuse-manifest-${String(process.pid)}.json`,
+      );
+      const filename = path.join(
+        fakeRoot,
+        "src/app/[locale]/movie-database/(list)/page.tsx",
+      );
+      const input = `
+import { t } from "#src/i18n";
+export default function Page() {
+  return <div>{t({ en: "Hello", zh: "你好" })}</div>;
+}
+`;
+
+      // v1: the page is not yet in the manifest (e.g. codegen has not caught
+      // up to a just-created route). Force an old mtime so the second write is
+      // unambiguously newer even on coarse-resolution filesystems.
+      fs.writeFileSync(reuseManifestPath, JSON.stringify({}));
+      fs.utimesSync(reuseManifestPath, new Date(1000), new Date(1000));
+
+      // Construct the plugin ONCE and reuse the instance across transforms,
+      // exactly as a dev server does.
+      const pluginInstance = require(pluginPath)(
+        { types },
+        { manifestPath: reuseManifestPath, rootDir: fakeRoot },
+      );
+      const runWithInstance = () => {
+        const result = transformSync(input, {
+          filename,
+          parserOpts: { plugins: ["typescript", "jsx"] },
+          plugins: [pluginInstance],
+          configFile: false,
+          babelrc: false,
+        });
+        if (!result || result.code == null) {
+          throw new Error("Transform returned no code");
+        }
+        return result.code;
+      };
+
+      expect(runWithInstance()).not.toContain("__I18nProvider");
+
+      // v2: codegen adds the route to the manifest with a newer mtime.
+      fs.writeFileSync(
+        reuseManifestPath,
+        JSON.stringify({
+          "src/app/[locale]/movie-database/(list)/page.tsx":
+            "movie-database-list-page",
+        }),
+      );
+      fs.utimesSync(reuseManifestPath, new Date(5000), new Date(5000));
+
+      // The same instance must now inject the provider for the freshly mapped
+      // page — no reconstruction required.
+      expect(runWithInstance()).toContain("__I18nProvider");
+
+      fs.rmSync(reuseManifestPath, { force: true });
     });
   });
 });
