@@ -16,6 +16,6 @@
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
-    "typescript": "^6.0.3"
+    "typescript": "catalog:"
   }
 }
