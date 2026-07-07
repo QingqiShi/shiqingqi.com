@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -89,7 +90,12 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
     return (
       <button
         type="button"
-        css={[buttonReset.base, styles.card, styles.interactive]}
+        css={[
+          buttonReset.base,
+          styles.card,
+          styles.interactive,
+          a11y.focusRing,
+        ]}
         onClick={onClick}
         aria-label={label}
       >
@@ -127,11 +133,6 @@ const styles = stylex.create({
       ":hover": "scale(1.03)",
       ":active": "scale(0.98)",
     },
-    outline: {
-      default: "none",
-      ":focus-visible": `2px solid ${color.accent}`,
-    },
-    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
   photoWrapper: {
     position: "relative",
