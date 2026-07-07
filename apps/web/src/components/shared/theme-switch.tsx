@@ -98,7 +98,6 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         </Button>
       </div>
       <Switch
-        id="theme-switch"
         css={styles.switch}
         value={
           theme === "system"

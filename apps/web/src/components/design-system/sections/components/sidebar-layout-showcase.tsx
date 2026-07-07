@@ -3,6 +3,12 @@ import { Heading } from "@tuja/ui/components/heading";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { Text } from "@tuja/ui/components/text";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
+import {
+  DesignSystemSidebarControls,
+  DesignSystemSidebarHeader,
+} from "#src/components/design-system/sidebar-chrome.tsx";
+import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
@@ -11,39 +17,17 @@ import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 export function SidebarLayoutShowcase() {
-  const navItems = [
-    { label: t({ en: "For you", zh: "为你推荐" }), active: true },
-    { label: t({ en: "Popular", zh: "热门" }), active: false },
-    { label: t({ en: "New releases", zh: "最新上映" }), active: false },
-    { label: t({ en: "Watchlist", zh: "待看清单" }), active: false },
-    { label: t({ en: "Settings", zh: "设置" }), active: false },
-  ];
-
-  const movies = [
-    {
-      title: t({ en: "Neon Harbour", zh: "霓虹港湾" }),
-      meta: t({ en: "2024 · Thriller", zh: "2024 · 惊悚" }),
-    },
-    {
-      title: t({ en: "The Long Quiet", zh: "长夜静默" }),
-      meta: t({ en: "2023 · Drama", zh: "2023 · 剧情" }),
-    },
-    {
-      title: t({ en: "Paper Moons", zh: "纸月亮" }),
-      meta: t({ en: "2024 · Comedy", zh: "2024 · 喜剧" }),
-    },
-    {
-      title: t({ en: "Afterglow", zh: "余晖" }),
-      meta: t({ en: "2022 · Sci-fi", zh: "2022 · 科幻" }),
-    },
-  ];
-
-  const railLabel = t({ en: "Library sections", zh: "资料库分区" });
-  const railHeading = t({ en: "Library", zh: "资料库" });
+  const locale = getLocale();
 
   const usage = `import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 
-<SidebarLayout sidebar={<LibraryNav />}>
+<SidebarLayout
+  sidebar={<LibraryNav />}
+  sidebarHeader={<Wordmark />}
+  sidebarFooter={<UtilityControls />}
+  menuLabel={menuLabel}
+  closeLabel={closeMenuLabel}
+>
   <LibraryContent />
 </SidebarLayout>`;
 
@@ -52,60 +36,51 @@ export function SidebarLayoutShowcase() {
       <Showcase label={t({ en: "Page shell", zh: "页面骨架" })}>
         <ShowcaseHelper>
           {t({
-            en: "A full-bleed shell: the rail hugs the start edge and, on wide viewports, becomes a sticky column pinned just below the fixed header. On mobile it collapses to a bar above the content. Resize to watch the columns swap.",
-            zh: "全出血骨架：侧栏贴住起始边缘，在宽视口下成为固定在页头下方的粘性列；在移动端则收起为内容上方的横条。缩放窗口即可看到列的切换。",
+            en: "A live miniature of the shell you're looking at: the slots hold this site's real sidebar chrome — the title with its home link, the design-system navigation, and the theme and language controls pinned at the bottom. Every control works. Below the md breakpoint the rail collapses into a floating bar whose menu button opens the same content as a drawer.",
+            zh: "你正在使用的骨架的实时缩影：插槽中是本站真实的侧栏组件——带首页链接的标题、设计系统导航，以及固定在底部的主题与语言控件。所有控件都可交互。在 md 断点以下，侧栏收起为悬浮条，其菜单按钮会以抽屉形式打开相同内容。",
           })}
         </ShowcaseHelper>
+        {/* The frame's transform creates a containing block, so the shell's
+            fixed mobile chrome (pill bar, drawer, backdrop) anchors to the
+            demo instead of the real viewport. */}
         <div css={styles.frame}>
-          <div css={styles.appBar} aria-hidden="true">
-            <span css={styles.brand}>TUJA</span>
-            <span css={styles.appBarMeta}>
-              {t({ en: "Fixed header", zh: "固定页头" })}
-            </span>
-          </div>
-          <SidebarLayout
-            as="div"
-            sidebar={
-              <nav css={styles.rail} aria-label={railLabel}>
-                <span css={styles.railHeading}>{railHeading}</span>
-                {navItems.map((item) => (
-                  <span
-                    key={item.label}
-                    css={[styles.navItem, item.active && styles.navItemActive]}
-                  >
-                    {item.label}
-                  </span>
-                ))}
-              </nav>
-            }
-          >
-            <div css={styles.contentInner}>
-              <div css={styles.contentHead}>
-                <Heading level={2}>
-                  {t({ en: "Popular this week", zh: "本周热门" })}
-                </Heading>
-                <Text variant="bodySmall" tone="muted">
-                  {t({
-                    en: "Fresh picks, refreshed every Friday.",
-                    zh: "精选片单，每周五更新。",
+          <div css={styles.viewport}>
+            <SidebarLayout
+              as="div"
+              menuLabel={t({ en: "Demo menu", zh: "演示菜单" })}
+              closeLabel={t({ en: "Close demo menu", zh: "关闭演示菜单" })}
+              sidebarHeader={<DesignSystemSidebarHeader locale={locale} />}
+              sidebarFooter={<DesignSystemSidebarControls locale={locale} />}
+              sidebar={
+                <DesignSystemNav
+                  ariaLabel={t({
+                    en: "Design system (demo)",
+                    zh: "设计系统（演示）",
                   })}
-                </Text>
+                />
+              }
+            >
+              <div css={styles.contentInner}>
+                <div css={styles.contentHead}>
+                  <Heading level={2}>
+                    {t({ en: "Content column", zh: "内容列" })}
+                  </Heading>
+                  <Text variant="bodySmall" tone="muted">
+                    {t({
+                      en: "Your page renders here, capped to a readable width beside the rail.",
+                      zh: "你的页面渲染在这里，在侧栏旁保持可读宽度。",
+                    })}
+                  </Text>
+                </div>
+                <div css={styles.cardGrid}>
+                  <div css={styles.placeholder} aria-hidden="true" />
+                  <div css={styles.placeholder} aria-hidden="true" />
+                  <div css={styles.placeholder} aria-hidden="true" />
+                  <div css={styles.placeholder} aria-hidden="true" />
+                </div>
               </div>
-              <div css={styles.cardGrid}>
-                {movies.map((movie) => (
-                  <article key={movie.title} css={styles.card}>
-                    <div css={styles.poster} aria-hidden="true" />
-                    <Text as="span" variant="bodySmall" weight="medium">
-                      {movie.title}
-                    </Text>
-                    <Text as="span" variant="caption" tone="subtle">
-                      {movie.meta}
-                    </Text>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </SidebarLayout>
+            </SidebarLayout>
+          </div>
         </div>
       </Showcase>
 
@@ -118,8 +93,42 @@ export function SidebarLayoutShowcase() {
             type: "ReactNode",
             required: true,
             description: t({
-              en: "Navigation rail. Renders as a sticky column beside the content and collapses above it on mobile; the slot owns its own surface treatment.",
-              zh: "导航侧栏。渲染为内容旁的粘性列，在移动端收起到内容上方；该插槽自行负责表面样式。",
+              en: "Navigation content. Renders inside the sticky rail on wider viewports and inside the drawer on mobile; scrolls independently when it outgrows the viewport.",
+              zh: "导航内容。宽视口下渲染在粘性侧栏中，移动端渲染在抽屉里；超出视口时可独立滚动。",
+            }),
+          },
+          {
+            name: "sidebarHeader",
+            type: "ReactNode",
+            description: t({
+              en: "Title region — shown at the top of the rail, in the collapsed mobile bar, and at the top of the drawer.",
+              zh: "标题区域——显示在侧栏顶部、收起的移动端悬浮条中以及抽屉顶部。",
+            }),
+          },
+          {
+            name: "sidebarFooter",
+            type: "ReactNode",
+            description: t({
+              en: "Utility region pinned to the bottom of the rail and the drawer — theme toggles, language pickers, and similar controls.",
+              zh: "固定在侧栏与抽屉底部的实用区域——主题切换、语言选择等控件。",
+            }),
+          },
+          {
+            name: "menuLabel",
+            type: "string",
+            required: true,
+            description: t({
+              en: "Accessible name for the mobile menu button and the open drawer dialog. The package ships no i18n, so the consumer supplies the localized string.",
+              zh: "移动端菜单按钮与打开的抽屉对话框的无障碍名称。组件库不内置 i18n，由调用方提供本地化文案。",
+            }),
+          },
+          {
+            name: "closeLabel",
+            type: "string",
+            required: true,
+            description: t({
+              en: "Accessible label for the drawer's close button.",
+              zh: "抽屉关闭按钮的无障碍标签。",
             }),
           },
           {
@@ -152,10 +161,10 @@ export function SidebarLayoutShowcase() {
           {
             name: "stickyInsetBlockStart",
             type: "string",
-            defaultValue: "calc(env(safe-area-inset-top) + 5.5rem)",
+            defaultValue: "calc(env(safe-area-inset-top) + 1.25rem)",
             description: t({
-              en: "Logical block-start offset the sticky rail pins to. The default clears the fixed header plus the top safe-area inset.",
-              zh: "粘性侧栏吸附的逻辑起始偏移。默认值可避开固定页头与顶部安全区。",
+              en: "Logical block-start offset the sticky rail pins to. The shell owns the whole page, so the default is a compact offset below the top safe-area inset.",
+              zh: "粘性侧栏吸附的逻辑起始偏移。骨架拥有整个页面，默认值为顶部安全区下方的紧凑偏移。",
             }),
           },
           {
@@ -171,15 +180,17 @@ export function SidebarLayoutShowcase() {
       />
 
       <DoDont
-        do={<code css={styles.code}>{'<SidebarLayout as="div">'}</code>}
+        do={
+          <code css={styles.code}>{"sidebarFooter={<UtilityControls />}"}</code>
+        }
         doCaption={t({
-          en: 'Nesting inside a page that already renders <main>? Pass as="div" so the document keeps a single main landmark.',
-          zh: '嵌套在已渲染 <main> 的页面里？传入 as="div"，让文档只保留一个 main 地标。',
+          en: "Put app-level utilities (theme, language) in sidebarFooter — they stay reachable on every viewport, pinned in the rail and inside the drawer.",
+          zh: "将应用级实用控件（主题、语言）放在 sidebarFooter 中——它们固定在侧栏和抽屉内，任何视口都可触达。",
         })}
-        dont={<code css={styles.code}>{'stickyInsetBlockStart="112px"'}</code>}
+        dont={<code css={styles.code}>{'menuLabel="Menu"'}</code>}
         dontCaption={t({
-          en: "Don't hard-code the sticky offset. The default clears the header and safe-area — override only with a token-based calc when the header height changes.",
-          zh: "不要硬编码粘性偏移。默认值已避开页头与安全区——仅当页头高度改变时才用基于令牌的 calc 覆盖。",
+          en: "Don't hard-code untranslated labels. menuLabel and closeLabel name the drawer dialog for assistive tech — supply localized strings.",
+          zh: "不要硬编码未翻译的标签。menuLabel 与 closeLabel 是抽屉对话框的无障碍名称——请提供本地化文案。",
         })}
       />
     </>
@@ -193,65 +204,16 @@ const styles = stylex.create({
     borderRadius: border.radius_3,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    // Containing block for the shell's fixed mobile chrome (see comment at
+    // the callsite).
+    transform: "translateZ(0)",
   },
-  // Faux fixed header: gives the shell's top padding and the rail's sticky
-  // offset something real to clear, so the demo tells the whole story.
-  appBar: {
-    position: "absolute",
-    insetBlockStart: 0,
-    insetInline: 0,
-    zIndex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    blockSize: space._9,
-    paddingInline: space._4,
-    backgroundColor: color.bgSurface,
-    borderBlockEndWidth: border.size_1,
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.neutralBorder,
-  },
-  brand: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingWider,
-    color: color.textMain,
-  },
-  appBarMeta: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    color: color.textSubtle,
-  },
-  rail: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
-    paddingBlock: space._2,
-    paddingInline: space._2,
-    borderRadius: border.radius_2,
-    backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
-  },
-  railHeading: {
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    fontSize: font.uiOverline,
-    fontWeight: font.weight_6,
-    textTransform: "uppercase",
-    letterSpacing: font.trackingWidest,
-    color: color.textSubtle,
-  },
-  navItem: {
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    borderRadius: border.radius_1,
-    fontSize: font.uiBodySmall,
-    color: color.textMuted,
-  },
-  navItemActive: {
-    backgroundColor: color.bgSurfaceSunken,
-    color: color.textMain,
-    fontWeight: font.weight_6,
+  // The real navigation is tall, so the demo scrolls inside its own viewport
+  // — which also shows off the rail's sticky behaviour in miniature.
+  viewport: {
+    maxBlockSize: space._15,
+    overflowY: "auto",
+    overscrollBehavior: "contain",
   },
   contentInner: {
     display: "flex",
@@ -268,20 +230,11 @@ const styles = stylex.create({
     gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
     gap: space._3,
   },
-  card: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
-    padding: space._2,
+  placeholder: {
+    aspectRatio: "4 / 3",
     borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
-  },
-  poster: {
-    aspectRatio: "2 / 3",
-    marginBlockEnd: space._1,
-    borderRadius: border.radius_1,
-    backgroundColor: color.bgSurfaceSunken,
   },
   code: {
     fontFamily: font.familyMono,

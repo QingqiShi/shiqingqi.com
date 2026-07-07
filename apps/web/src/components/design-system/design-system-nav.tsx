@@ -1,9 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "#src/hooks/use-locale.ts";
@@ -15,7 +14,16 @@ import {
   getDesignSystemRouteGroups,
 } from "./routes.ts";
 
-export function DesignSystemNav() {
+interface DesignSystemNavProps {
+  /**
+   * Overrides the nav landmark's accessible name — needed when a second
+   * instance renders on the same page (e.g. inside a showcase demo) so the
+   * two landmarks stay distinguishable.
+   */
+  ariaLabel?: string;
+}
+
+export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
   const locale = useLocale();
   const current = normalizePath(usePathname());
   const groups = getDesignSystemRouteGroups();
@@ -86,6 +94,10 @@ export function DesignSystemNav() {
       en: "Sidebar layout",
       zh: "侧边栏布局",
     }),
+    "/design-system/components/header-footer-layout": t({
+      en: "Header & footer layout",
+      zh: "页头页脚布局",
+    }),
     "/design-system/primitives": t({ en: "Primitives", zh: "原语" }),
     "/design-system/hooks": t({ en: "Hooks", zh: "钩子" }),
   };
@@ -93,80 +105,54 @@ export function DesignSystemNav() {
   return (
     <nav
       css={styles.nav}
-      aria-label={t({ en: "Design system", zh: "设计系统" })}
+      aria-label={ariaLabel ?? t({ en: "Design system", zh: "设计系统" })}
     >
-      {/* The pill chrome lives on the <nav> while this inner element owns the
-          horizontal scroll. Keeping the background off the scroll container
-          stops macOS/iOS momentum overscroll from dragging the pill's surface
-          away and exposing the page canvas at the edge. */}
-      <div css={styles.scroller}>
-        {groups.map((group) => {
-          const heading = groupHeadings[group.group];
-          return (
-            <div key={group.group} css={styles.group}>
-              {heading ? <span css={styles.groupLabel}>{heading}</span> : null}
-              {group.paths.map((path) => {
-                const active = current === path;
-                return (
-                  <Link
-                    key={path}
-                    href={getLocalePath(path, locale)}
-                    aria-current={active ? "page" : undefined}
-                    css={[
-                      transition.colors,
-                      styles.link,
-                      active && styles.linkActive,
-                    ]}
-                  >
-                    {itemLabels[path]}
-                  </Link>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
+      {groups.map((group) => {
+        const heading = groupHeadings[group.group];
+        return (
+          <div key={group.group} css={styles.group}>
+            {heading ? <span css={styles.groupLabel}>{heading}</span> : null}
+            {group.paths.map((path) => {
+              const active = current === path;
+              return (
+                <Link
+                  key={path}
+                  href={getLocalePath(path, locale)}
+                  aria-current={active ? "page" : undefined}
+                  css={[
+                    transition.colors,
+                    styles.link,
+                    active && styles.linkActive,
+                  ]}
+                >
+                  {itemLabels[path]}
+                </Link>
+              );
+            })}
+          </div>
+        );
+      })}
     </nav>
   );
 }
 
 const styles = stylex.create({
+  // A plain vertical list on every viewport — the shell's rail and drawer own
+  // the surface chrome and the scrolling.
   nav: {
-    minInlineSize: 0,
-    maxInlineSize: "100%",
-    // Reads as a floating pill bar when collapsed on mobile, then dissolves into
-    // the page so the rail sits flush in its column on wider viewports. The
-    // chrome stays here (a non-scrolling element) so momentum overscroll on the
-    // inner scroller can't pull the surface away from its edges.
-    paddingBlock: { default: space._1, [breakpoints.md]: 0 },
-    paddingInline: { default: space._1, [breakpoints.md]: 0 },
-    backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.md]: "transparent",
-    },
-    borderRadius: { default: border.radius_round, [breakpoints.md]: 0 },
-    boxShadow: { default: shadow._2, [breakpoints.md]: "none" },
-  },
-  scroller: {
     display: "flex",
-    flexDirection: { default: "row", [breakpoints.md]: "column" },
+    flexDirection: "column",
     gap: space._1,
     minInlineSize: 0,
-    // Horizontal scroll for the collapsed mobile bar; the vertical rail lets its
-    // links flow naturally.
-    overflowX: { default: "auto", [breakpoints.md]: "visible" },
-    overscrollBehaviorX: "contain",
-    scrollbarWidth: "none",
+    maxInlineSize: "100%",
   },
   group: {
-    // On mobile the group box dissolves so every item flows into the single
-    // horizontal bar; on the desktop rail it stacks its label above its links.
-    display: { default: "contents", [breakpoints.md]: "flex" },
+    display: "flex",
     flexDirection: "column",
     gap: space._1,
   },
   groupLabel: {
-    display: { default: "none", [breakpoints.md]: "block" },
+    display: "block",
     marginBlockStart: space._3,
     paddingInline: space._3,
     fontSize: font.uiOverline,

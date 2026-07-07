@@ -411,6 +411,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sidebar-layout" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/header-footer-layout</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/header-footer-layout" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/header-footer-layout" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/header-footer-layout</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/header-footer-layout" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/header-footer-layout" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/primitives</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/primitives" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/primitives" />

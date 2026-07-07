@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color, layer, layout, space } from "@tuja/ui/tokens.stylex";
+import { color, layer, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -8,6 +8,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { BackgroundLines } from "#src/components/home/background-lines.tsx";
 import { Footer } from "#src/components/home/footer.tsx";
 import { FlowGradient } from "#src/components/shared/flow-gradient/flow-gradient.tsx";
+import { SiteHeaderFooterLayout } from "#src/components/shared/site-header-footer-layout.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { i18nConfig } from "#src/i18n-config.ts";
 import { t } from "#src/i18n.ts";
@@ -75,30 +76,39 @@ export default async function Layout({
 
   const jsonLd = buildHomeJsonLd(validatedLocale);
 
+  // The home page is a header/footer surface: the shell owns the fixed bar and
+  // the footer, the flow gradient and glow ride in the full-bleed background
+  // slot beneath the content, and the hero flows up under the bar.
   return (
-    <>
+    <SiteHeaderFooterLayout
+      locale={validatedLocale}
+      as="div"
+      readingColumn
+      footer={<Footer locale={validatedLocale} />}
+      background={
+        <>
+          <div css={styles.flowGradient} role="presentation">
+            <Suspense fallback={null}>
+              <ErrorBoundary fallback={null}>
+                <FlowGradient />
+              </ErrorBoundary>
+            </Suspense>
+          </div>
+          <div css={styles.glow} role="presentation" />
+        </>
+      }
+    >
       {/* eslint-disable @eslint-react/dom-no-dangerously-set-innerhtml -- JSON-LD must be emitted inline; the payload is escaped in buildHomeJsonLd */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       {/* eslint-enable @eslint-react/dom-no-dangerously-set-innerhtml */}
-      <div css={styles.flowGradient} role="presentation">
-        <Suspense fallback={null}>
-          <ErrorBoundary fallback={null}>
-            <FlowGradient />
-          </ErrorBoundary>
-        </Suspense>
+      <div css={styles.wrapperInner}>
+        <BackgroundLines />
+        <main>{children}</main>
       </div>
-      <div css={styles.glow} role="presentation" />
-      <div css={styles.container}>
-        <div css={styles.wrapperInner}>
-          <BackgroundLines />
-          <main css={styles.main}>{children}</main>
-          <Footer locale={validatedLocale} />
-        </div>
-      </div>
-    </>
+    </SiteHeaderFooterLayout>
   );
 }
 
@@ -147,18 +157,9 @@ function buildHomeJsonLd(locale: SupportedLocale) {
 }
 
 const styles = stylex.create({
-  container: {
-    maxInlineSize: layout.maxInlineSize,
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-  },
   wrapperInner: {
     position: "relative",
   },
-  main: {},
   flowGradient: {
     position: "absolute",
     top: 0,

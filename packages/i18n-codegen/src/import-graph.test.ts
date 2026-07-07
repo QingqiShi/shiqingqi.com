@@ -56,7 +56,7 @@ describe("traceClientFiles", () => {
   it("finds client components from movie database list page", () => {
     const entryFile = path.join(
       srcDir,
-      "app/[locale]/movie-database/(list)/page.tsx",
+      "app/[locale]/(with-header)/movie-database/(list)/page.tsx",
     );
     const clientFiles = traceClientFiles(entryFile, srcDir);
 
@@ -83,14 +83,12 @@ describe("traceClientFiles", () => {
   it("does NOT include server-only components", () => {
     const entryFile = path.join(
       srcDir,
-      "app/[locale]/movie-database/(list)/page.tsx",
+      "app/[locale]/(with-header)/movie-database/(list)/page.tsx",
     );
     const clientFiles = traceClientFiles(entryFile, srcDir);
     const relativePaths = [...clientFiles].map((f) => path.relative(srcDir, f));
 
-    // Header is a server component — should not appear
-    expect(relativePaths).not.toContain("components/shared/header.tsx");
-    // Footer is a server component
+    // Footer is a server component — should not appear
     expect(relativePaths).not.toContain("components/home/footer.tsx");
   });
 
@@ -114,7 +112,7 @@ describe("traceClientFiles", () => {
     // We test by running the tracer and verifying it completes.
     const entryFile = path.join(
       srcDir,
-      "app/[locale]/movie-database/(list)/page.tsx",
+      "app/[locale]/(with-header)/movie-database/(list)/page.tsx",
     );
     const clientFiles = traceClientFiles(entryFile, srcDir);
     expect(clientFiles.size).toBeGreaterThan(0);

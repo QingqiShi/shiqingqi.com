@@ -72,6 +72,7 @@
     "./components/divider": "./src/components/divider.tsx",
     "./components/field-shared.stylex": "./src/components/field-shared.stylex.ts",
     "./components/fixed-container-content": "./src/components/fixed-container-content.tsx",
+    "./components/header-footer-layout": "./src/components/header-footer-layout.tsx",
     "./components/heading": "./src/components/heading.tsx",
     "./components/icon-button": "./src/components/icon-button.tsx",
     "./components/menu-button": "./src/components/menu-button.tsx",

@@ -219,8 +219,15 @@ export default function DesignSystemOverview() {
     "/design-system/components/sidebar-layout": {
       label: t({ en: "Sidebar layout", zh: "侧边栏布局" }),
       description: t({
-        en: "A full-bleed page shell with a sticky navigation rail.",
-        zh: "带粘性导航侧栏的全出血页面骨架。",
+        en: "An app-density page shell with a sticky navigation rail and a mobile drawer.",
+        zh: "带粘性导航侧栏与移动端抽屉的应用密度页面骨架。",
+      }),
+    },
+    "/design-system/components/header-footer-layout": {
+      label: t({ en: "Header & footer layout", zh: "页头页脚布局" }),
+      description: t({
+        en: "A reading-density page shell with a fixed header and an optional footer.",
+        zh: "带固定页头与可选页脚的阅读密度页面骨架。",
       }),
     },
     "/design-system/primitives": {
