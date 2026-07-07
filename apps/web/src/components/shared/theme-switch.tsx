@@ -5,6 +5,7 @@ import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Switch, type SwitchState } from "@tuja/ui/components/switch";
+import { gray } from "@tuja/ui/palette/gray";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, controlSize, font, ratio, space } from "@tuja/ui/tokens.stylex";
@@ -40,15 +41,18 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
       document.head.appendChild(metaTag);
     }
 
+    // Mirror `color.bgCanvas` so the mobile browser chrome matches the page
+    // background: light canvas is `gray._97`, dark is `gray._0`. Keep this in
+    // sync with the pre-hydration `themeHack` script to avoid a color flash.
     metaTag.setAttribute(
       "content",
       theme === "system"
         ? preferDark
-          ? "#000000"
-          : "#ffffff"
+          ? gray._0
+          : gray._97
         : theme === "dark"
-          ? "#000000"
-          : "#ffffff",
+          ? gray._0
+          : gray._97,
     );
   }, [theme, preferDark]);
 
