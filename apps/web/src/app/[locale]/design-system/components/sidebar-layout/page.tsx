@@ -13,8 +13,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     path: "/design-system/components/sidebar-layout",
     title: t({ en: "Sidebar layout", zh: "侧边栏布局" }),
     description: t({
-      en: "A full-bleed page shell with a sticky navigation rail. The rail hugs the start edge while the content stays centered at a readable width; rail width and sticky offset are overridable per page.",
-      zh: "带粘性导航侧栏的全出血页面骨架。侧栏贴住起始边缘，内容以可读宽度居中；侧栏宽度与粘性偏移可按页覆盖。",
+      en: "An app-density page shell with a sticky navigation rail — title, navigation, and utilities — that collapses into a drawer on mobile. The content stays centered at a readable width beside it.",
+      zh: "应用密度的页面骨架，带标题、导航与实用控件的粘性侧栏，移动端收起为抽屉。内容在侧栏旁以可读宽度居中。",
     }),
   });
 }
@@ -24,8 +24,8 @@ export default function SidebarLayoutPage() {
     <DocPage
       title={t({ en: "Sidebar layout", zh: "侧边栏布局" })}
       description={t({
-        en: "A full-bleed page shell with a sticky navigation rail. Supply a sidebar and the content; the shell owns the responsive columns, the sticky offset that clears the header, and the readable content cap.",
-        zh: "带粘性导航侧栏的全出血页面骨架。提供 sidebar 与内容即可；骨架负责响应式分栏、避开页头的粘性偏移，以及可读的内容宽度上限。",
+        en: "An app-density page shell for app-like surfaces. Supply the navigation, an optional title and utility slots, and the content; the shell owns the responsive columns, the mobile drawer, and the readable content cap.",
+        zh: "面向应用型页面的应用密度骨架。提供导航、可选的标题与实用插槽以及内容即可；骨架负责响应式分栏、移动端抽屉与可读的内容宽度上限。",
       })}
     >
       <SidebarLayoutShowcase />

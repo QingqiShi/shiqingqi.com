@@ -67,6 +67,10 @@ export const DESIGN_SYSTEM_ROUTES = [
   { group: "components", path: "/design-system/components/select" },
   { group: "components", path: "/design-system/components/overlay" },
   { group: "components", path: "/design-system/components/sidebar-layout" },
+  {
+    group: "components",
+    path: "/design-system/components/header-footer-layout",
+  },
   { group: "primitives", path: "/design-system/primitives" },
   { group: "hooks", path: "/design-system/hooks" },
 ] as const satisfies readonly DesignSystemRoute[];

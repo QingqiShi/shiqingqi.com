@@ -7,8 +7,6 @@ import { globalStyles } from "#src/app/global-styles.ts";
 import { ReactGrab } from "#src/components/react-grab.tsx";
 import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
-import { HeaderSkeleton } from "#src/components/shared/header-skeleton.tsx";
-import { Header } from "#src/components/shared/header.tsx";
 import { BackOverrideProvider } from "#src/contexts/back-override-context.tsx";
 import { I18nProvider } from "#src/i18n/i18n-provider.tsx";
 import { setLocale } from "#src/i18n/server-locale.ts";
@@ -92,9 +90,6 @@ export default async function RootLayout({
             <ViewTransition>
               <PortalTargetProvider>
                 <BackOverrideProvider>
-                  <Suspense fallback={<HeaderSkeleton />}>
-                    <Header locale={locale} />
-                  </Suspense>
                   <Suspense fallback={null}>{children}</Suspense>
                 </BackOverrideProvider>
               </PortalTargetProvider>
