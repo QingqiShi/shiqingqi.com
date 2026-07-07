@@ -32,13 +32,13 @@
     "@next/eslint-plugin-next": "16.2.10",
     "@stylexjs/eslint-plugin": "^0.19.0",
     "@tuja/eslint-plugin-i18n": "workspace:*",
-    "eslint": "^10.6.0",
+    "eslint": "catalog:",
     "eslint-config-next": "^16.2.10",
     "eslint-config-turbo": "^2.10.3",
     "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-unicorn": "^70.0.0",
-    "prettier": "^3.9.4",
+    "prettier": "catalog:",
     "turbo": "^2.10.3",
     "typescript-eslint": "^8.62.1"
   }
