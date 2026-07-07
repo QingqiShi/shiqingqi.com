@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { purple } from "@tuja/ui/palette/purple";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { border, color, shadow } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
@@ -315,7 +316,7 @@ export function SourceCanvas({
 
   return (
     <section ref={containerRef} css={styles.root} aria-labelledby={headingId}>
-      <h2 id={headingId} css={styles.srOnly}>
+      <h2 id={headingId} css={a11y.srOnly}>
         {t({ en: "Source viewport", zh: "源图视图" })}
       </h2>
       <canvas
@@ -355,18 +356,5 @@ const styles = stylex.create({
   },
   panning: {
     cursor: "grabbing",
-  },
-  srOnly: {
-    position: "absolute",
-    width: "1px",
-    height: "1px",
-    padding: 0,
-    margin: "-1px",
-    overflow: "hidden",
-    clipPath: "inset(50%)",
-    whiteSpace: "nowrap",
-    borderWidth: 0,
-    insetBlockStart: 0,
-    insetInlineStart: 0,
   },
 });

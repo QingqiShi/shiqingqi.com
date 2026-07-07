@@ -6,6 +6,7 @@ import { ScissorsIcon } from "@phosphor-icons/react/dist/ssr/Scissors";
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/ssr/UploadSimple";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import {
   duration,
   easing,
@@ -97,7 +98,7 @@ export function SourceImageInput({
       type="file"
       accept="image/*"
       onChange={handleFile}
-      css={styles.input}
+      css={a11y.srOnly}
       data-testid="source-input"
     />
   );
@@ -208,18 +209,6 @@ export function SourceImageInput({
 }
 
 const styles = stylex.create({
-  input: {
-    position: "absolute",
-    width: "1px",
-    height: "1px",
-    padding: 0,
-    margin: "-1px",
-    overflow: "hidden",
-    clipPath: "inset(50%)",
-    whiteSpace: "nowrap",
-    borderWidth: 0,
-  },
-
   // Hero ------------------------------------------------------------------
   hero: {
     display: "flex",
