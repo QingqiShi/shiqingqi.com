@@ -79,20 +79,16 @@ export function TmdbImage({
           reportPosterFallback({ reason: "image-error", src });
         }}
         ref={(el) => {
-          if (!el?.complete) return;
-          // Browsers short-circuit cached responses without firing onLoad/onError,
-          // so probe the element directly. naturalWidth > 0 means a decoded image
-          // is in memory; naturalWidth === 0 on a complete image means the fetch
-          // failed (404, network error, etc.) and the response was cached.
-          if (el.naturalWidth > 0) {
+          // Adopt the decoded state of images the browser served from cache
+          // without firing onLoad — naturalWidth > 0 means a decoded image is
+          // in memory. Only ever conclude *success* here; leave *failure* to
+          // onError. iOS Safari reports `complete === true` with
+          // `naturalWidth === 0` for loading="lazy" images that haven't loaded
+          // yet (deferred, off-screen) — Chrome reports `complete === false`.
+          // Treating that as a failed fetch flipped every poster to the "No
+          // Poster" fallback on iOS and removed the <img>, so it never loaded.
+          if (el?.complete && el.naturalWidth > 0) {
             setLoaded(true);
-          } else {
-            setErrored(true);
-            reportPosterFallback({
-              reason: "image-error",
-              src,
-              cachedProbe: true,
-            });
           }
         }}
       />
