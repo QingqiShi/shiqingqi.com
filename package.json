@@ -39,7 +39,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-unicorn": "^70.0.0",
     "prettier": "^3.9.4",
-    "turbo": "^2.9.18",
+    "turbo": "^2.10.3",
     "typescript-eslint": "^8.62.1"
   }
 }
