@@ -1,6 +1,6 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { motionConstants } from "../primitives/motion.stylex.ts";
 import { color, space } from "../tokens.stylex.ts";
@@ -23,7 +23,7 @@ interface SpinnerBaseProps extends Omit<
    */
   tone?: SpinnerTone;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 /**

@@ -175,9 +175,9 @@ export class TmdbClient {
     }
 
     this.rateLimiter.resetBackoff();
-    // response.json() returns Promise<any>. We trust the TMDB OpenAPI contract
-    // for typing; full Zod validation is impractical for 22k lines of generated types.
-
-    return response.json();
+    // `response.json()` is typed `Promise<unknown>`. We trust the TMDB OpenAPI
+    // contract for the caller-supplied `T` rather than Zod-validating 22k lines
+    // of generated types (daily exports are validated at their own boundary).
+    return response.json() as Promise<T>;
   }
 }

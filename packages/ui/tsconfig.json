@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "preserve",
     "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["node", "react", "react-dom"]
+    "types": ["node", "react", "react/canary", "react-dom"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.config.mts"]
 }

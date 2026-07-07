@@ -8,6 +8,7 @@
     "tmdb-codegen": "./src/generator.js"
   },
   "scripts": {
+    "build:tsc": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run"
   },

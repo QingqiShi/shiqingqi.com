@@ -1,6 +1,6 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { border, color, controlSize, shadow } from "../tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
@@ -8,7 +8,7 @@ interface AnchorButtonGroupProps {
   /** Renders the group on a bright surface, to sit above elevated content. */
   bright?: boolean;
   /** StyleX styles merged over the container's own — the config-layer escape hatch. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 export function AnchorButtonGroup({

@@ -1,8 +1,8 @@
 "use client";
 
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, type ComponentProps } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
@@ -51,7 +51,7 @@ interface CheckboxProps extends Omit<
   /** Box and type scale. Defaults to `"md"`. */
   size?: CheckboxSize;
   /** StyleX styles merged over the root wrapper — the config-layer escape hatch. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 /**

@@ -1,6 +1,6 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -39,7 +39,7 @@ interface IconButtonBaseProps extends Omit<
   /** `"circle"` (fully rounded) or `"square"` (rounded corners). Defaults to `"circle"`. */
   shape?: IconButtonShape;
   /** StyleX styles merged over the button's own — the config-layer escape hatch, composed last. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 /**

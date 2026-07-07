@@ -42,6 +42,7 @@
   "exports": {
     "./package.json": "./package.json",
     "./css-prop": "./src/css-prop.d.ts",
+    "./css-prop-types": "./src/css-prop-types.ts",
     "./tokens.stylex": "./src/tokens.stylex.ts",
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
     "./palette/*": "./src/_generated/palette/hues/*.stylex.ts",
@@ -90,6 +91,7 @@
     "./components/textarea": "./src/components/textarea.tsx"
   },
   "scripts": {
+    "build:tsc": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run"
   },

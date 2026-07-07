@@ -1,6 +1,6 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, ReactNode, Ref } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { color, font } from "../tokens.stylex.ts";
 
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
@@ -24,7 +24,7 @@ interface HeadingProps {
   /** Text alignment (logical `start` / `center` / `end`). */
   align?: HeadingAlign;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
-  css?: StyleXStyles;
+  css?: StyleProp;
   /** Escape-hatch class applied to the rendered heading. */
   className?: string;
   /** Inline style applied to the rendered heading. */

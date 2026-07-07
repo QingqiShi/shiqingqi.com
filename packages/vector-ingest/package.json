@@ -5,6 +5,7 @@
   "type": "module",
   "main": "src/ingest.ts",
   "scripts": {
+    "build:tsc": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run"
   },

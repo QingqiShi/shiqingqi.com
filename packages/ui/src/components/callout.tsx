@@ -1,6 +1,6 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
@@ -146,7 +146,7 @@ interface CalloutBaseProps extends Omit<
    */
   role?: "status" | "alert";
   /** StyleX overrides, composed last so a caller can win over the defaults. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 /**

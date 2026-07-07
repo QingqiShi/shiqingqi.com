@@ -1,6 +1,6 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, Ref } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { color } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 
@@ -13,7 +13,7 @@ interface DividerProps {
   /** Weight / treatment of the rule. Defaults to `"subtle"`. */
   variant?: DividerVariant;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
-  css?: StyleXStyles;
+  css?: StyleProp;
   /** Escape-hatch class applied to the rendered rule. */
   className?: string;
   /** Inline style applied to the rendered rule. */

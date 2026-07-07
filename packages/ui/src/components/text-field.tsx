@@ -1,5 +1,5 @@
-import type { StyleXStyles } from "@stylexjs/stylex";
 import { type ComponentProps, type ReactNode } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -41,7 +41,7 @@ interface TextFieldProps extends Omit<ComponentProps<"input">, "size"> {
   /** Decorative trailing adornment (icon), rendered `aria-hidden`. */
   trailing?: ReactNode;
   /** StyleX overrides merged over the control's own — the escape hatch. */
-  css?: StyleXStyles;
+  css?: StyleProp;
 }
 
 /**
