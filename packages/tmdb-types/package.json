@@ -12,10 +12,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "zod": "4"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
-    "typescript": "^6.0.3"
+    "typescript": "catalog:"
   }
 }

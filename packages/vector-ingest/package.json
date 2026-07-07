@@ -11,14 +11,14 @@
   },
   "dependencies": {
     "@tuja/tmdb-types": "workspace:*",
-    "@upstash/vector": "^1.2.3",
-    "dotenv": "^17.4.2",
-    "zod": "4"
+    "@upstash/vector": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
-    "@types/node": "^26.0.1",
-    "tsx": "^4.23.0",
-    "vitest": "^4.1.9"
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:"
   }
 }

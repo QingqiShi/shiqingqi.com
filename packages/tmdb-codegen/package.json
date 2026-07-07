@@ -13,12 +13,12 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "catalog:"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
-    "@types/node": "^26.0.1",
-    "tsx": "^4.23.0",
-    "vitest": "^4.1.9"
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:"
   }
 }
