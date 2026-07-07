@@ -102,14 +102,21 @@ describe("TmdbImage", () => {
     expect(container.querySelectorAll("div, img")).toHaveLength(1);
   });
 
-  it("detects cached errors via the ref callback (complete + naturalWidth === 0) and shows the fallback", () => {
+  it("keeps the image on the iOS lazy false positive (complete + naturalWidth === 0) instead of erroring", () => {
+    // iOS Safari reports complete=true / naturalWidth=0 for a loading="lazy"
+    // image that hasn't loaded yet (deferred, off-screen). The ref probe must
+    // NOT read that as a failed fetch: doing so removed the <img> before it
+    // could load and blanked every poster. The image stays and the skeleton
+    // remains; onError is the only signal that renders the fallback.
     restore = stubImageElement({ complete: true, naturalWidth: 0 });
-    render(
+    const { container } = render(
       <TmdbImage {...COMMON_PROPS} errorFallback={<span>fallback ui</span>} />,
     );
 
-    expect(screen.getByText("fallback ui")).toBeInTheDocument();
-    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(screen.getByRole("img")).toBeInTheDocument();
+    expect(screen.queryByText("fallback ui")).not.toBeInTheDocument();
+    // Skeleton sibling still present because the image hasn't reported loaded.
+    expect(container.querySelectorAll("div, img")).toHaveLength(2);
   });
 
   it("resets the error state when the path prop changes", () => {
