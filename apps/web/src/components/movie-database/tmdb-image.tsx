@@ -2,6 +2,7 @@
 
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { useState, type ReactNode } from "react";
+import { reportPosterFallback } from "#src/utils/report-poster-fallback.ts";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 
 interface TmdbImageProps {
@@ -75,6 +76,7 @@ export function TmdbImage({
         }}
         onError={() => {
           setErrored(true);
+          reportPosterFallback({ reason: "image-error", src });
         }}
         ref={(el) => {
           if (!el?.complete) return;
@@ -86,6 +88,11 @@ export function TmdbImage({
             setLoaded(true);
           } else {
             setErrored(true);
+            reportPosterFallback({
+              reason: "image-error",
+              src,
+              cachedProbe: true,
+            });
           }
         }}
       />
