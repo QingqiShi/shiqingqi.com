@@ -108,7 +108,7 @@
     "postcss-preset-env": "^11.3.2",
     "prettier": "^3.9.4",
     "raw-loader": "^4.0.2",
-    "react-grab": "^0.1.47",
+    "react-grab": "^0.1.48",
     "tsx": "^4.23.0",
     "typescript": "^6.0.3",
     "vite": "^8.1.3",
