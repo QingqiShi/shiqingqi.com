@@ -4,9 +4,10 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { fixedFill } from "@tuja/ui/primitives/layout.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { motionConstants, transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, layer, space } from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren, RefObject } from "react";
@@ -106,7 +107,13 @@ export function DetailOverlay({
               <button
                 ref={closeButtonRef}
                 type="button"
-                css={[buttonReset.base, flex.inlineCenter, styles.closeButton]}
+                css={[
+                  buttonReset.base,
+                  flex.inlineCenter,
+                  a11y.focusRing,
+                  transition.colors,
+                  styles.closeButton,
+                ]}
                 onClick={onClose}
                 aria-label={t({ en: "Close", zh: "关闭" })}
               >
@@ -198,8 +205,14 @@ const styles = stylex.create({
     width: "2rem",
     height: "2rem",
     borderRadius: border.radius_round,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    color: "white",
-    transition: "background-color 0.15s ease",
+    // Fixed dark circle so the icon stays legible over arbitrary media in both
+    // themes; darkens to the scrim token on hover for feedback (animated via
+    // the composed `transition.colors`). The icon uses `accentOn` (white in
+    // both themes) rather than a raw literal.
+    backgroundColor: {
+      default: "rgba(0, 0, 0, 0.5)",
+      ":hover": color.bgScrim,
+    },
+    color: color.accentOn,
   },
 });
