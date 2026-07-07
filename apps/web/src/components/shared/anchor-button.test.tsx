@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { render, screen } from "#src/test-utils.tsx";
+import { fireEvent, render, screen } from "#src/test-utils.tsx";
 import { AnchorButton } from "./anchor-button";
 
 beforeAll(() => {
@@ -49,4 +49,55 @@ describe("AnchorButton aria-current from isActive", () => {
       "page",
     );
   });
+});
+
+describe("AnchorButton modified-click passthrough", () => {
+  it("runs the consumer onClick and prevents default on a plain click", () => {
+    const onClick = vi.fn((e: React.MouseEvent) => {
+      e.preventDefault();
+    });
+    render(
+      <AnchorButton href="/a" onClick={onClick}>
+        Filter
+      </AnchorButton>,
+    );
+
+    const notPrevented = fireEvent.click(
+      screen.getByRole("link", { name: "Filter" }),
+    );
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    // dispatchEvent returns false when a handler called preventDefault, so the
+    // browser stays on the page and the consumer drives client-side state.
+    expect(notPrevented).toBe(false);
+  });
+
+  it.each([
+    ["metaKey", { metaKey: true }],
+    ["ctrlKey", { ctrlKey: true }],
+    ["shiftKey", { shiftKey: true }],
+    ["altKey", { altKey: true }],
+    ["a non-primary button", { button: 1 }],
+  ])(
+    "skips the consumer onClick and leaves default unprevented for %s",
+    (_label, init) => {
+      const onClick = vi.fn((e: React.MouseEvent) => {
+        e.preventDefault();
+      });
+      render(
+        <AnchorButton href="/a" onClick={onClick}>
+          Filter
+        </AnchorButton>,
+      );
+
+      const notPrevented = fireEvent.click(
+        screen.getByRole("link", { name: "Filter" }),
+        init,
+      );
+
+      expect(onClick).not.toHaveBeenCalled();
+      // Default left intact, so the browser can open the href in a new tab.
+      expect(notPrevented).toBe(true);
+    },
+  );
 });

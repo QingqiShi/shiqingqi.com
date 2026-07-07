@@ -1,7 +1,7 @@
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type { ReactNode } from "react";
-import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "#src/test-utils.tsx";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "#src/test-utils.tsx";
 import { MenuItem } from "./menu-item";
 
 // MenuItem calls useRouter() at render time, which requires the Next.js App
@@ -111,5 +111,44 @@ describe("MenuItem", () => {
       name: "Default-language item",
     });
     expect(item).not.toHaveAttribute("lang");
+  });
+});
+
+describe("MenuItem navigation", () => {
+  beforeEach(() => {
+    stubRouter.push.mockClear();
+  });
+
+  it("navigates in place and prevents default on a plain click", () => {
+    render(
+      <RouterProvider>
+        <MenuItem href="/zh">中文</MenuItem>
+      </RouterProvider>,
+    );
+
+    const notPrevented = fireEvent.click(
+      screen.getByRole("menuitem", { name: "中文" }),
+    );
+
+    expect(stubRouter.push).toHaveBeenCalledWith("/zh");
+    // Default prevented, so the browser doesn't do a full-page navigation.
+    expect(notPrevented).toBe(false);
+  });
+
+  it("lets a modifier click fall through to native navigation", () => {
+    render(
+      <RouterProvider>
+        <MenuItem href="/zh">中文</MenuItem>
+      </RouterProvider>,
+    );
+
+    const notPrevented = fireEvent.click(
+      screen.getByRole("menuitem", { name: "中文" }),
+      { metaKey: true },
+    );
+
+    expect(stubRouter.push).not.toHaveBeenCalled();
+    // Default left intact, so the browser can open the href in a new tab.
+    expect(notPrevented).toBe(true);
   });
 });
