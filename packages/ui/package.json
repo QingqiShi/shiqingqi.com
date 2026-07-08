@@ -46,8 +46,6 @@
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
     "./palette/*": "./src/_generated/palette/hues/*.stylex.ts",
     "./palette-table": "./src/_generated/palette/palette-table.ts",
-    "./author/token-registry": "./src/author/token-registry.ts",
-    "./author/palette-match": "./src/author/palette-match.ts",
     "./hooks/use-controlled": "./src/hooks/use-controlled.ts",
     "./hooks/use-dialog-focus": "./src/hooks/use-dialog-focus.ts",
     "./hooks/use-press-animation": "./src/hooks/use-press-animation.ts",

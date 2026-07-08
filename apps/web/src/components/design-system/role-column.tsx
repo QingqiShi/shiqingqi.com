@@ -28,11 +28,7 @@ export function RoleColumn({ name, cells }: RoleColumnProps) {
               ? styles.cellMedium
               : styles.cellThin;
         return (
-          <div
-            key={cell.token}
-            css={[styles.cell, sizeStyle, cell.bg]}
-            data-author-token={cell.token}
-          >
+          <div key={cell.token} css={[styles.cell, sizeStyle, cell.bg]}>
             <span css={[styles.label, cell.fg]}>{cell.label}</span>
             <span css={[styles.token, cell.fg]}>{cell.token}</span>
           </div>
