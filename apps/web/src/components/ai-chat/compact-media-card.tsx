@@ -1,9 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, ratio, shadow } from "@tuja/ui/tokens.stylex";
+import { border, ratio, shadow } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "#src/components/shared/anchor.tsx";
 import { t } from "#src/i18n.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
@@ -32,7 +33,12 @@ export function CompactMediaCard({
       <Anchor
         href={href}
         indicateExternal={false}
-        css={[styles.compactCard, styles.interactive, styles.linkReset]}
+        css={[
+          styles.compactCard,
+          styles.interactive,
+          a11y.focusRing,
+          styles.linkReset,
+        ]}
         aria-label={getMediaLabel(media)}
       >
         <MediaPoster media={media} compact decorative />
@@ -44,7 +50,12 @@ export function CompactMediaCard({
     return (
       <button
         type="button"
-        css={[buttonReset.base, styles.compactCard, styles.interactive]}
+        css={[
+          buttonReset.base,
+          styles.compactCard,
+          styles.interactive,
+          a11y.focusRing,
+        ]}
         onClick={onClick}
         aria-label={getMediaLabel(media)}
       >
@@ -84,11 +95,6 @@ const styles = stylex.create({
       default: "none",
       ":hover": shadow._3,
     },
-    outline: {
-      default: "none",
-      ":focus-visible": `2px solid ${color.accent}`,
-    },
-    outlineOffset: { default: null, ":focus-visible": "2px" },
   },
   linkReset: {
     textDecoration: "none",
