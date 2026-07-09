@@ -3,7 +3,6 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
-import { AuthorMode } from "#src/components/design-system/author/author-mode.tsx";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
 import {
   DesignSystemSidebarControls,
@@ -73,26 +72,24 @@ export default async function Layout({
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
 
-  // Persistent shell for every design-system route: the rail and author chrome
-  // stay mounted across navigation while only the page content swaps. The
-  // design system renders no fixed header — the sidebar carries the title, the
-  // theme toggle, and the language picker instead. The content region is the
-  // `<main>` landmark, supplied by `SidebarLayout`.
+  // Persistent shell for every design-system route: the rail stays mounted
+  // across navigation while only the page content swaps. The design system
+  // renders no fixed header — the sidebar carries the title, the theme toggle,
+  // and the language picker instead. The content region is the `<main>`
+  // landmark, supplied by `SidebarLayout`.
   return (
-    <AuthorMode>
-      <SidebarLayout
-        sidebar={<DesignSystemNav />}
-        sidebarHeader={<DesignSystemSidebarHeader locale={validatedLocale} />}
-        sidebarFooter={<DesignSystemSidebarControls locale={validatedLocale} />}
-        menuLabel={t({ en: "Design system menu", zh: "设计系统菜单" })}
-        closeLabel={t({ en: "Close menu", zh: "关闭菜单" })}
-      >
-        {/* Guide pages are reading surfaces inside an app-density shell, so
-            the extra headroom above the page title lives here rather than in
-            the shell's compact defaults. */}
-        <div css={styles.page}>{children}</div>
-      </SidebarLayout>
-    </AuthorMode>
+    <SidebarLayout
+      sidebar={<DesignSystemNav />}
+      sidebarHeader={<DesignSystemSidebarHeader locale={validatedLocale} />}
+      sidebarFooter={<DesignSystemSidebarControls locale={validatedLocale} />}
+      menuLabel={t({ en: "Design system menu", zh: "设计系统菜单" })}
+      closeLabel={t({ en: "Close menu", zh: "关闭菜单" })}
+    >
+      {/* Guide pages are reading surfaces inside an app-density shell, so
+          the extra headroom above the page title lives here rather than in
+          the shell's compact defaults. */}
+      <div css={styles.page}>{children}</div>
+    </SidebarLayout>
   );
 }
 

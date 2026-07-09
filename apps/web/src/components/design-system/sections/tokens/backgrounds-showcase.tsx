@@ -1,6 +1,5 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import { findEditableToken } from "@tuja/ui/author/token-registry";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -25,12 +24,8 @@ interface BandCellProps {
 }
 
 function BandCell({ label, token, bg, fg, detail }: BandCellProps) {
-  // Only tag cells whose token is actually editable, so a specimen the
-  // registry skips never renders an inert author-mode target alongside its
-  // live siblings.
-  const authorToken = findEditableToken(token) ? token : undefined;
   return (
-    <div css={[styles.cell, bg]} data-author-token={authorToken}>
+    <div css={[styles.cell, bg]}>
       <span css={[styles.label, fg]}>{label}</span>
       {detail ? <span css={[styles.detail, fg]}>{detail}</span> : null}
       <span css={[styles.token, fg]}>{token}</span>

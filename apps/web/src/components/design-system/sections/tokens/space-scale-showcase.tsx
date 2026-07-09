@@ -14,8 +14,7 @@ interface SpaceStep {
 
 export function SpaceScaleShowcase() {
   // Each bar renders at the token's true size (`inlineSize: space._N`), so the
-  // ruler stays honest — and author-mode edits move the bar live. Every row is
-  // an editable specimen keyed on its space token.
+  // ruler stays honest. Every row is a specimen keyed on its space token.
   const steps: SpaceStep[] = [
     { member: "_00", rem: "0.1rem", px: "1.6px", bar: styles.w00 },
     { member: "_0", rem: "0.25rem", px: "4px", bar: styles.w0 },
@@ -48,11 +47,7 @@ export function SpaceScaleShowcase() {
       <div css={styles.scroller}>
         <ol css={styles.ledger}>
           {steps.map((step) => (
-            <li
-              key={step.member}
-              css={styles.row}
-              data-author-token={`space.${step.member}`}
-            >
+            <li key={step.member} css={styles.row}>
               <div css={styles.meta}>
                 <span css={styles.token}>{`space.${step.member}`}</span>
                 <span css={styles.value}>

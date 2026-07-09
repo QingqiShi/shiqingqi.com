@@ -26,6 +26,36 @@ function computeSwatch(
 
 const EXPECTED_SWATCH_COUNT = SYSTEM_HUES.length * SYSTEM_PALETTE_TONES.length;
 
+describe("SYSTEM_PALETTE_TONES", () => {
+  it("spans 0 to 100 in 21 strictly ascending steps", () => {
+    expect(SYSTEM_PALETTE_TONES).toHaveLength(21);
+    expect(SYSTEM_PALETTE_TONES[0]).toBe(0);
+    expect(SYSTEM_PALETTE_TONES[SYSTEM_PALETTE_TONES.length - 1]).toBe(100);
+    for (let index = 1; index < SYSTEM_PALETTE_TONES.length; index++) {
+      expect(SYSTEM_PALETTE_TONES[index]).toBeGreaterThan(
+        SYSTEM_PALETTE_TONES[index - 1],
+      );
+    }
+  });
+});
+
+describe("SYSTEM_HUES", () => {
+  it("defines 13 uniquely named hues", () => {
+    expect(SYSTEM_HUES).toHaveLength(13);
+    const names = SYSTEM_HUES.map((hue) => hue.name);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("shares pure black at tone 0 and pure white at tone 100 across hues", () => {
+    // Nearest-swatch color matching relies on every hue sharing the same
+    // extremes; if a hue stopped sharing them, hue-tie-break logic would break.
+    for (const hue of SYSTEM_HUES) {
+      expect(computeSwatch(hue.source, hue.curve, 0).bg).toBe("#000000");
+      expect(computeSwatch(hue.source, hue.curve, 100).bg).toBe("#FFFFFF");
+    }
+  });
+});
+
 describe("generated systemPalette", () => {
   it(`emits a swatch for every hue x tone (${String(EXPECTED_SWATCH_COUNT)} total)`, () => {
     let count = 0;

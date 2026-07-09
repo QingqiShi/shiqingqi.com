@@ -294,8 +294,6 @@ components.
 | `@tuja/ui/breakpoints.stylex`                 | Responsive breakpoint constants (media-query strings) for use as computed keys.                                                                         |
 | `@tuja/ui/palette/*`                          | Per-hue HCT ramp var files (e.g. `@tuja/ui/palette/blue`). Hues: blue, brown, cyan, gray, green, indigo, mint, orange, pink, purple, red, teal, yellow. |
 | `@tuja/ui/palette-table`                      | Flat palette lookup table (all hues and tones) for tooling and color matching.                                                                          |
-| `@tuja/ui/author/token-registry`              | Authoring metadata: which tokens are editable and how, derived from the token objects.                                                                  |
-| `@tuja/ui/author/palette-match`               | Maps an arbitrary color to the nearest palette swatch (deterministic, browser-safe).                                                                    |
 | `@tuja/ui/hooks/use-controlled`               | Controlled/uncontrolled state hook.                                                                                                                     |
 | `@tuja/ui/hooks/use-dialog-focus`             | Focus trap + restore for dialogs and overlays.                                                                                                          |
 | `@tuja/ui/hooks/use-press-animation`          | Press/active animation state.                                                                                                                           |
