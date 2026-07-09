@@ -41,7 +41,35 @@ catalog:
   react-remove-scroll: ^2.7.2
   serwist: ^9.5.11
   tsx: ^4.23.0
-  typescript: ^6.0.3
+  # Per the TypeScript 7.0 announcement: the bare `typescript` name resolves to
+  # the 6.0-compatible API package so every tool that imports `typescript` via a
+  # peer dependency (typescript-eslint, openapi-typescript, Next's checker, our
+  # codegen) keeps working. The native TS 7 compiler is installed under the
+  # `@typescript/native` alias and provides the fast `tsc` used by `build:tsc`.
+  typescript: "npm:@typescript/typescript6@^6.0.2"
+  "@typescript/native": "npm:typescript@^7.0.2"
   vite: ^8.1.3
   vitest: ^4.1.9
   zod: "4"
+minimumReleaseAgeExclude:
+  - "@typescript/typescript-aix-ppc64@7.0.2"
+  - "@typescript/typescript-darwin-arm64@7.0.2"
+  - "@typescript/typescript-darwin-x64@7.0.2"
+  - "@typescript/typescript-freebsd-arm64@7.0.2"
+  - "@typescript/typescript-freebsd-x64@7.0.2"
+  - "@typescript/typescript-linux-arm64@7.0.2"
+  - "@typescript/typescript-linux-arm@7.0.2"
+  - "@typescript/typescript-linux-loong64@7.0.2"
+  - "@typescript/typescript-linux-mips64el@7.0.2"
+  - "@typescript/typescript-linux-ppc64@7.0.2"
+  - "@typescript/typescript-linux-riscv64@7.0.2"
+  - "@typescript/typescript-linux-s390x@7.0.2"
+  - "@typescript/typescript-linux-x64@7.0.2"
+  - "@typescript/typescript-netbsd-arm64@7.0.2"
+  - "@typescript/typescript-netbsd-x64@7.0.2"
+  - "@typescript/typescript-openbsd-arm64@7.0.2"
+  - "@typescript/typescript-openbsd-x64@7.0.2"
+  - "@typescript/typescript-sunos-x64@7.0.2"
+  - "@typescript/typescript-win32-arm64@7.0.2"
+  - "@typescript/typescript-win32-x64@7.0.2"
+  - typescript@7.0.2
