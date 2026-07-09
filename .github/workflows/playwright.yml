@@ -27,6 +27,17 @@ jobs:
         cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
+    # Persist Next.js's incremental compile cache across runs so this single
+    # build is warm (~incremental) rather than cold. Keeps build-once efficient
+    # without the wall-clock hit of a cold build gating the shards.
+    - name: Restore Next.js build cache
+      uses: actions/cache@v4
+      with:
+        path: apps/web/.next/cache
+        key: nextjs-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('apps/web/src/**', 'packages/*/src/**') }}
+        restore-keys: |
+          nextjs-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+          nextjs-cache-${{ runner.os }}-
     - name: Build web app
       working-directory: apps/web
       run: pnpm build
@@ -37,9 +48,12 @@ jobs:
       with:
         name: web-build
         # `next start` serves from `.next`; `public` carries the generated
-        # service worker and hashed PWA icons.
+        # service worker and hashed PWA icons. The incremental compile cache
+        # (`.next/cache`) is build-only dead weight for the shards — exclude it
+        # so all 7 downloads stay small.
         path: |
           apps/web/.next
+          !apps/web/.next/cache
           apps/web/public
         include-hidden-files: true
         retention-days: 1
