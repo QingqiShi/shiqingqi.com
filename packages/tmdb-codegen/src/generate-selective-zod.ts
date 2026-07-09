@@ -271,7 +271,7 @@ function generateSelectiveZodFile() {
   if (!fs.existsSync(tmdbTypesPath)) {
     console.error(`❌ TypeScript definitions not found at: ${tmdbTypesPath}`);
     console.error(
-      "   Run 'pnpm codegen:openapi' first to generate TypeScript definitions",
+      "   Run 'pnpm openapi:generate' first to generate TypeScript definitions",
     );
     process.exit(1);
   }

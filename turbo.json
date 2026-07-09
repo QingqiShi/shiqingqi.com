@@ -24,11 +24,16 @@
   ],
   "tasks": {
     "codegen": {
-      "outputs": ["src/_generated/**", "public/sw.js", "src/app/manifest.json"],
+      "outputs": [
+        "src/_generated/**",
+        "public/sw.js",
+        "public/pwa-*.png",
+        "src/app/manifest.json"
+      ],
       "inputs": ["src/**/*.{ts,tsx,js,mjs,json}", "$TURBO_DEFAULT$"]
     },
     "build": {
-      "dependsOn": ["^build", "codegen"],
+      "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "public/sw.js"]
     },
@@ -41,7 +46,6 @@
       "outputs": []
     },
     "test": {
-      "dependsOn": ["codegen"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [],
       "env": ["UPSTASH_REDIS_REST_URL"]

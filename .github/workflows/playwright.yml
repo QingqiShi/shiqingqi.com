@@ -4,8 +4,48 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
+# Cancel superseded runs on the same ref (e.g. rapid pushes to a PR).
+concurrency:
+  group: playwright-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # Build the web app once and share the output with every test shard, instead
+  # of rebuilding it inside each shard's Playwright webServer.
+  build:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v7
+    - uses: pnpm/action-setup@v6
+    - uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+        cache: 'pnpm'
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+    - name: Build web app
+      working-directory: apps/web
+      run: pnpm build
+      env:
+        TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
+    - name: Upload build output
+      uses: actions/upload-artifact@v7
+      with:
+        name: web-build
+        # `next start` serves from `.next`; `public` carries the generated
+        # service worker and hashed PWA icons.
+        path: |
+          apps/web/.next
+          apps/web/public
+        include-hidden-files: true
+        retention-days: 1
+
   test:
+    needs: [build]
     permissions:
       contents: read
     timeout-minutes: 60
@@ -26,8 +66,15 @@ jobs:
         cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
+    - name: Download prebuilt web app
+      uses: actions/download-artifact@v8
+      with:
+        name: web-build
+        path: apps/web
     - name: Run Playwright tests
       working-directory: apps/web
+      # webServer runs `pnpm start` on CI (see playwright.config.ts); the app is
+      # already built by the `build` job above.
       run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       env:
         TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
