@@ -9,6 +9,18 @@ on:
 permissions:
   contents: read
 
+# Cancel superseded runs on the same ref (e.g. rapid pushes to a PR).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Turborepo remote cache. Unchanged codegen/tsc/lint/test tasks become cache
+# hits shared across matrix jobs and across runs. Inert until the repo sets a
+# TURBO_TOKEN secret and TURBO_TEAM variable (see below), so it's safe to land.
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
 jobs:
   ci:
     runs-on: ubuntu-latest

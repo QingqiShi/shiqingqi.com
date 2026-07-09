@@ -88,7 +88,10 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "pnpm build && pnpm start",
+    // On CI the app is built once in a dedicated job and its output is
+    // downloaded into each shard, so we only start it here. Locally we still
+    // build on demand (or reuse a running dev server via reuseExistingServer).
+    command: process.env.CI ? "pnpm start" : "pnpm build && pnpm start",
     url: baseURL,
     env: { PORT: port }, // next start binds this; reuses a running dev server if present
     reuseExistingServer: !process.env.CI,
