@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.8",
-    "@ai-sdk/react": "^4.0.16",
+    "@ai-sdk/react": "^4.0.17",
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "catalog:",
     "@stylexjs/stylex": "catalog:",
@@ -46,7 +46,7 @@
     "@upstash/vector": "catalog:",
     "@vercel/analytics": "catalog:",
     "@vercel/speed-insights": "catalog:",
-    "ai": "^7.0.15",
+    "ai": "^7.0.16",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
