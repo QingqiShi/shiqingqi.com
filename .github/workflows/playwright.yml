@@ -1,9 +1,9 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 # Cancel superseded runs on the same ref (e.g. rapid pushes to a PR).
 concurrency:
@@ -19,74 +19,129 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v7
-    - uses: pnpm/action-setup@v6
-    - uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-        cache: 'pnpm'
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-    - name: Build web app
-      working-directory: apps/web
-      run: pnpm build
-      env:
-        TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
-    - name: Upload build output
-      uses: actions/upload-artifact@v7
-      with:
-        name: web-build
-        # `next start` serves from `.next`; `public` carries the generated
-        # service worker and hashed PWA icons.
-        path: |
-          apps/web/.next
-          apps/web/public
-        include-hidden-files: true
-        retention-days: 1
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # Restore Next.js's incremental build cache (webpack/Babel module cache) so
+      # unchanged modules aren't recompiled from scratch every run. Keyed per-SHA
+      # to always publish a fresh cache; restore-keys falls back to the newest
+      # cache on the branch, so incremental compiles stay warm across PRs.
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: apps/web/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - name: Build web app
+        working-directory: apps/web
+        run: pnpm build
+        env:
+          TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
+      - name: Upload build output
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-build
+          # `next start` serves from `.next`; `public` carries the generated
+          # service worker and hashed PWA icons. `.next/cache` is build-only, so
+          # excluding it keeps the artifact small and the shard download fast.
+          path: |
+            apps/web/.next
+            !apps/web/.next/cache
+            apps/web/public
+          include-hidden-files: true
+          retention-days: 1
 
   test:
-    needs: [build]
+    # Deliberately NO `needs: [build]`. Shards start at the same time as the
+    # build job and run their own setup (checkout, install, browser install)
+    # *while* the app builds, then wait for the build artifact below. Overlapping
+    # shard setup with the build removes the serial "build gate" without going
+    # back to rebuilding the app inside every shard.
     permissions:
       contents: read
+      # Needed to poll the run's artifacts/jobs API while waiting for the build.
+      actions: read
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.61.0-noble
     strategy:
       fail-fast: false
       matrix:
         shardIndex: [1, 2, 3, 4, 5, 6, 7]
         shardTotal: [7]
     steps:
-    - uses: actions/checkout@v7
-    - uses: pnpm/action-setup@v6
-    - uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-        cache: 'pnpm'
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-    - name: Download prebuilt web app
-      uses: actions/download-artifact@v8
-      with:
-        name: web-build
-        path: apps/web
-    - name: Run Playwright tests
-      working-directory: apps/web
-      # webServer runs `pnpm start` on CI (see playwright.config.ts); the app is
-      # already built by the `build` job above.
-      run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-      env:
-        TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
-    - name: Upload blob report to GitHub Actions Artifacts
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v7
-      with:
-        name: blob-report-${{ matrix.shardIndex }}
-        path: apps/web/blob-report
-        retention-days: 1
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # Run on the standard runner with a cached Chromium instead of the
+      # mcr.microsoft.com/playwright container: pulling that image cost ~25s on
+      # every shard, whereas restoring the cached browser is a few seconds. Keyed
+      # on the lockfile, which pins the Playwright version.
+      - name: Cache Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Playwright browser
+        working-directory: apps/web
+        run: pnpm exec playwright install --with-deps chromium
+      # Wait for the build job to publish the web-build artifact. Artifacts v4 are
+      # downloadable via the API the instant the upload finishes — mid-run — so we
+      # poll for it here rather than gating the whole job on `needs: [build]`. Bail
+      # out early if the build job fails so a broken build fails fast instead of
+      # hanging until the timeout.
+      - name: Wait for prebuilt web app
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            if gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+                 --jq '.artifacts[].name' | grep -qx 'web-build'; then
+              echo "Build artifact is ready."
+              exit 0
+            fi
+            conclusion=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" \
+                 --jq '.jobs[] | select(.name == "build") | .conclusion')
+            if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ]; then
+              echo "Build job $conclusion — aborting shard." >&2
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "Timed out waiting for the build artifact." >&2
+          exit 1
+      - name: Download prebuilt web app
+        uses: actions/download-artifact@v8
+        with:
+          name: web-build
+          path: apps/web
+      - name: Run Playwright tests
+        working-directory: apps/web
+        # webServer runs `pnpm start` on CI (see playwright.config.ts); the app is
+        # already built by the `build` job above.
+        run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        env:
+          TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+      - name: Upload blob report to GitHub Actions Artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: blob-report-${{ matrix.shardIndex }}
+          path: apps/web/blob-report
+          retention-days: 1
 
   merge-reports:
     permissions:
@@ -95,26 +150,26 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: pnpm/action-setup@v6
-    - uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-        cache: 'pnpm'
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-    - name: Download blob reports from GitHub Actions Artifacts
-      uses: actions/download-artifact@v8
-      with:
-        path: all-blob-reports
-        pattern: blob-report-*
-        merge-multiple: true
-    - name: Merge into HTML Report
-      working-directory: apps/web
-      run: pnpm exec playwright merge-reports --reporter html ../../all-blob-reports
-    - name: Upload HTML report
-      uses: actions/upload-artifact@v7
-      with:
-        name: playwright-report
-        path: apps/web/playwright-report
-        retention-days: 30
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Download blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+      - name: Merge into HTML Report
+        working-directory: apps/web
+        run: pnpm exec playwright merge-reports --reporter html ../../all-blob-reports
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 30
