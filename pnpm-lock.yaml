@@ -164,8 +164,8 @@ importers:
         specifier: ^16.2.10
         version: 16.2.10(@typescript-eslint/parser@8.62.1(@typescript/typescript6@6.0.2)(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2))(@typescript/typescript6@6.0.2)(eslint-plugin-import-x@4.17.1(@typescript-eslint/utils@8.62.1(@typescript/typescript6@6.0.2)(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2)))(eslint-import-resolver-node@0.3.10)(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2))(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)
       eslint-config-turbo:
-        specifier: ^2.10.3
-        version: 2.10.3(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(turbo@2.10.3)
+        specifier: ^2.10.4
+        version: 2.10.4(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(turbo@2.10.3)
       eslint-plugin-import-x:
         specifier: ^4.17.1
         version: 4.17.1(@typescript-eslint/utils@8.62.1(@typescript/typescript6@6.0.2)(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2)))(eslint-import-resolver-node@0.3.10)(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)
@@ -4255,8 +4255,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-config-turbo@2.10.3:
-    resolution: {integrity: sha512-P509ALgsf9fA8hxUVuF6MFZdcE2CAdEZIiUq9eHIm8h58u4us0qUZ5SPTxWOQjX+in5vfikXfX4qBrP2Tx//EA==}
+  eslint-config-turbo@2.10.4:
+    resolution: {integrity: sha512-CtWm7UbtsfR+PJOCRIPoLVKUGSDUEeSwKsrlnPGSql9nngUHbVWwWr4xdiMaapvFfiwlks65e5LB7z9uAETgLQ==}
     peerDependencies:
       eslint: '>6.6.0'
       turbo: '>2.0.0'
@@ -4390,8 +4390,8 @@ packages:
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
 
-  eslint-plugin-turbo@2.10.3:
-    resolution: {integrity: sha512-R6aIYTa0bqxPn1IhAom3/zIJF9lPChAq+o7cywdEY8GxPnktGMW04P6oFCrg/V3zvhtF4+n1d5Og2r0GqrBtQA==}
+  eslint-plugin-turbo@2.10.4:
+    resolution: {integrity: sha512-nhpzZoQmjlXlrEkeYbzPA/uXnMmUUpkp/88mEU2V+vhGEO1z/CwlBg+3m64JkgO+MX4ODRoBiSo0gg35KcPryA==}
     peerDependencies:
       eslint: '>6.6.0'
       turbo: '>2.0.0'
@@ -10498,10 +10498,10 @@ snapshots:
       - eslint-plugin-import-x
       - supports-color
 
-  eslint-config-turbo@2.10.3(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(turbo@2.10.3):
+  eslint-config-turbo@2.10.4(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(turbo@2.10.3):
     dependencies:
       eslint: 10.6.0(jiti@2.7.0)(supports-color@10.2.2)
-      eslint-plugin-turbo: 2.10.3(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(turbo@2.10.3)
+      eslint-plugin-turbo: 2.10.4(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(turbo@2.10.3)
       turbo: 2.10.3
 
   eslint-import-context@0.1.9(unrs-resolver@1.12.2):
@@ -10739,7 +10739,7 @@ snapshots:
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
 
-  eslint-plugin-turbo@2.10.3(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(turbo@2.10.3):
+  eslint-plugin-turbo@2.10.4(eslint@10.6.0(jiti@2.7.0)(supports-color@10.2.2))(turbo@2.10.3):
     dependencies:
       dotenv: 16.0.3
       eslint: 10.6.0(jiti@2.7.0)(supports-color@10.2.2)
