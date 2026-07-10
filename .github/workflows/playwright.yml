@@ -97,6 +97,9 @@ jobs:
       # hanging until the timeout. Uses curl + node rather than `gh` because the
       # Playwright container image does not ship the GitHub CLI.
       - name: Wait for prebuilt web app
+        # The container's default shell is `sh` (dash), which rejects
+        # `set -o pipefail`; force bash, which the Playwright image ships.
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
