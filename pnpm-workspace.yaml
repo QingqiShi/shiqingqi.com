@@ -6,6 +6,13 @@ allowBuilds:
   msw: false
   sharp: false
   unrs-resolver: false
+# Security overrides for transitive dependencies flagged by Dependabot. Each
+# pins the first patched version within the existing major. Remove an entry once
+# the direct dependency that pulls it in advances past the patched version.
+overrides:
+  undici: "^7.28.0"
+  js-yaml: "^4.2.0"
+  postcss: "^8.5.10"
 catalog:
   "@babel/core": 8.0.1
   "@babel/parser": ^8.0.0
