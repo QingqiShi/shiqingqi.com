@@ -27,17 +27,6 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # Restore Next.js's incremental build cache (webpack/Babel module cache) so
-      # unchanged modules aren't recompiled from scratch every run. Keyed per-SHA
-      # to always publish a fresh cache; restore-keys falls back to the newest
-      # cache on the branch, so incremental compiles stay warm across PRs.
-      - name: Restore Next.js build cache
-        uses: actions/cache@v4
-        with:
-          path: apps/web/.next/cache
-          key: nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
-          restore-keys: |
-            nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
       - name: Build web app
         working-directory: apps/web
         run: pnpm build
