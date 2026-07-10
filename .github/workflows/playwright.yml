@@ -59,7 +59,7 @@ jobs:
 
   test:
     # Deliberately NO `needs: [build]`. Shards start at the same time as the
-    # build job and run their own setup (checkout, install, browser install)
+    # build job and run their own setup (container pull, checkout, install)
     # *while* the app builds, then wait for the build artifact below. Overlapping
     # shard setup with the build removes the serial "build gate" without going
     # back to rebuilding the app inside every shard.
@@ -69,6 +69,13 @@ jobs:
       actions: read
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    # Keep the Playwright container: its browser and system libraries are
+    # pre-baked, so shards never run `playwright install --with-deps` — whose
+    # apt step intermittently hangs for hours on the runner's dpkg lock
+    # (actions/runner-images#11347). The image pull overlaps with the build job
+    # (see above), so it stays off the critical path.
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
     strategy:
       fail-fast: false
       matrix:
@@ -83,36 +90,28 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # Run on the standard runner with a cached Chromium instead of the
-      # mcr.microsoft.com/playwright container: pulling that image cost ~25s on
-      # every shard, whereas restoring the cached browser is a few seconds. Keyed
-      # on the lockfile, which pins the Playwright version.
-      - name: Cache Playwright browser
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install Playwright browser
-        working-directory: apps/web
-        run: pnpm exec playwright install --with-deps chromium
       # Wait for the build job to publish the web-build artifact. Artifacts v4 are
       # downloadable via the API the instant the upload finishes — mid-run — so we
       # poll for it here rather than gating the whole job on `needs: [build]`. Bail
       # out early if the build job fails so a broken build fails fast instead of
-      # hanging until the timeout.
+      # hanging until the timeout. Uses curl + node rather than `gh` because the
+      # Playwright container image does not ship the GitHub CLI.
       - name: Wait for prebuilt web app
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          run="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          auth="Authorization: Bearer $GH_TOKEN"
+          accept="Accept: application/vnd.github+json"
           for _ in $(seq 1 60); do
-            if gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
-                 --jq '.artifacts[].name' | grep -qx 'web-build'; then
+            if curl -sf -H "$auth" -H "$accept" "$run/artifacts" \
+                 | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));process.exit((d.artifacts||[]).some((a)=>a.name==="web-build")?0:1)'; then
               echo "Build artifact is ready."
               exit 0
             fi
-            conclusion=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" \
-                 --jq '.jobs[] | select(.name == "build") | .conclusion')
+            conclusion=$(curl -sf -H "$auth" -H "$accept" "$run/jobs" \
+                 | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));const b=(d.jobs||[]).find((j)=>j.name==="build");process.stdout.write((b&&b.conclusion)||"")' || true)
             if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ]; then
               echo "Build job $conclusion — aborting shard." >&2
               exit 1
