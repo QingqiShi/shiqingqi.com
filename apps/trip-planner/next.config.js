@@ -5,6 +5,11 @@ module.exports = async () => {
   const nextConfig = {
     reactStrictMode: true,
     reactCompiler: true,
+    // Type-checking runs as a dedicated CI job (build:tsc), so skip the
+    // redundant in-build type-check pass to keep `next build` lean. (Linting
+    // is enforced by the dedicated CI `lint` job; Next 16 no longer runs
+    // ESLint during `next build`.)
+    typescript: { ignoreBuildErrors: true },
     // The app lives in a pnpm workspace; trace from the repo root so Next
     // bundles workspace dependencies correctly for serverless output.
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
