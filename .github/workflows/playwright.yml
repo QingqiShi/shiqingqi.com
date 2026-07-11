@@ -137,7 +137,16 @@ jobs:
   merge-reports:
     permissions:
       contents: read
-    if: ${{ !cancelled() }}
+    # Only build the HTML report when a shard actually failed. With
+    # `trace: on-first-retry`, a fully green run's report carries no
+    # traces/screenshots/video — just a list of passing test names — so generating
+    # it spends ~30s of pnpm/node/install bootstrap on the critical path to produce
+    # an artifact nobody opens. On failure the report is built as before (that's
+    # when traces exist). Per-shard blob reports are still uploaded with 1-day
+    # retention, so a report can be reconstructed by re-running this job if needed.
+    # This job is not a required status check, so skipping it on green blocks
+    # nothing.
+    if: ${{ needs.test.result == 'failure' }}
     needs: [test]
     runs-on: ubuntu-latest
     steps:
