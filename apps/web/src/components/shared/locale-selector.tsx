@@ -13,7 +13,11 @@ import { getLocalePath } from "#src/utils/pathname.ts";
 import { MenuItem } from "./menu-item";
 
 interface LocaleSelectorProps {
-  label: string;
+  /**
+   * Visible trigger label. Omit for an icon-only trigger — the accessible name
+   * still comes from `ariaLabel`.
+   */
+  label?: string;
   ariaLabel: string;
   locale: SupportedLocale;
   /**
@@ -22,6 +26,8 @@ interface LocaleSelectorProps {
    * of the viewport, e.g. in a sidebar's utility row.
    */
   menuPosition?: ComponentProps<typeof MenuButton>["position"];
+  /** Trigger size, forwarded to the underlying Button. Defaults to `"md"`. */
+  size?: ComponentProps<typeof MenuButton>["buttonProps"]["size"];
 }
 
 export function LocaleSelector({
@@ -29,6 +35,7 @@ export function LocaleSelector({
   ariaLabel,
   locale,
   menuPosition,
+  size,
 }: LocaleSelectorProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -43,6 +50,7 @@ export function LocaleSelector({
         "aria-label": ariaLabel,
         icon: <TranslateIcon weight="bold" role="presentation" />,
         hideLabelOnMobile: true,
+        size,
       }}
       menuContent={
         <div css={[flex.col, styles.menu]}>

@@ -201,7 +201,11 @@ export function MenuButton({
               id={popupId}
               ref={popupRef}
               role={popupRole}
-              aria-labelledby={`${targetId}-label`}
+              // Name the popup by the trigger's visible label when there is one,
+              // otherwise fall back to the trigger button itself (an icon-only
+              // trigger renders no label span, so its name comes from
+              // `aria-label`). Keeps existing labelled triggers unchanged.
+              aria-labelledby={children ? `${targetId}-label` : targetId}
             >
               {/* Visible heading only. The popup is already named by the
                   trigger's label via `aria-labelledby`, so this duplicate is

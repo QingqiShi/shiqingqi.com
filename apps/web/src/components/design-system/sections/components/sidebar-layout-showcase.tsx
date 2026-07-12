@@ -159,15 +159,6 @@ export function SidebarLayoutShowcase() {
             }),
           },
           {
-            name: "stickyInsetBlockStart",
-            type: "string",
-            defaultValue: "calc(env(safe-area-inset-top) + 1.25rem)",
-            description: t({
-              en: "Logical block-start offset the sticky rail pins to. The shell owns the whole page, so the default is a compact offset below the top safe-area inset.",
-              zh: "粘性侧栏吸附的逻辑起始偏移。骨架拥有整个页面，默认值为顶部安全区下方的紧凑偏移。",
-            }),
-          },
-          {
             name: "as",
             type: '"main" | "div"',
             defaultValue: '"main"',
