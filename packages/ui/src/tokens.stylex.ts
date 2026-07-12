@@ -426,6 +426,7 @@ export const controlSize = stylex.defineVars({
   _7: { default: "33.6px", [breakpoints.md]: "28px" },
   _8: { default: "38.4px", [breakpoints.md]: "32px" },
   _9: { default: "48px", [breakpoints.md]: "40px" },
+  _10: { default: "57.6px", [breakpoints.md]: "48px" },
 });
 
 export const border = stylex.defineVars({

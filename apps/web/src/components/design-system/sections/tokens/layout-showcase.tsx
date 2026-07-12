@@ -111,6 +111,7 @@ export function LayoutShowcase() {
     { token: "controlSize._7", meta: "33.6 → 28px", swatch: styles.cs7 },
     { token: "controlSize._8", meta: "38.4 → 32px", swatch: styles.cs8 },
     { token: "controlSize._9", meta: "48 → 40px", swatch: styles.cs9 },
+    { token: "controlSize._10", meta: "57.6 → 48px", swatch: styles.cs10 },
   ];
   const layers = [
     { name: "background", value: "-100", z: styles.lzBackground },
@@ -409,6 +410,7 @@ const styles = stylex.create({
   cs7: { inlineSize: controlSize._7, blockSize: controlSize._7 },
   cs8: { inlineSize: controlSize._8, blockSize: controlSize._8 },
   cs9: { inlineSize: controlSize._9, blockSize: controlSize._9 },
+  cs10: { inlineSize: controlSize._10, blockSize: controlSize._10 },
   layerScroll: {
     marginInline: `calc(-1 * ${space._1})`,
     paddingInline: space._1,
