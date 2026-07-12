@@ -47,8 +47,6 @@ export function RecommendedMediaRow({
         ariaLabel={title}
         wrapperCss={rowStyles.scrollWrapper}
         containerCss={rowStyles.scrollContainer}
-        fadeLeftCss={rowStyles.fadeLeft}
-        fadeRightCss={rowStyles.fadeRight}
         scrollButtonLeftCss={rowStyles.scrollButtonLeft}
         scrollButtonRightCss={rowStyles.scrollButtonRight}
       >
@@ -123,12 +121,6 @@ const chatStyles = stylex.create({
     scrollPaddingLeft: chatInsetLeft,
     scrollPaddingRight: chatInsetRight,
   },
-  fadeLeft: {
-    backgroundImage: `linear-gradient(to left, transparent, ${color.bgCanvasFade})`,
-  },
-  fadeRight: {
-    backgroundImage: `linear-gradient(to right, transparent, ${color.bgCanvasFade})`,
-  },
   scrollButtonLeft: {
     left: chatInsetLeft,
   },
@@ -149,12 +141,6 @@ const standaloneStyles = stylex.create({
     paddingRight: standaloneInsetRight,
     scrollPaddingLeft: standaloneInsetLeft,
     scrollPaddingRight: standaloneInsetRight,
-  },
-  fadeLeft: {
-    backgroundImage: `linear-gradient(to left, transparent, ${color.bgCanvasFade})`,
-  },
-  fadeRight: {
-    backgroundImage: `linear-gradient(to right, transparent, ${color.bgCanvasFade})`,
   },
   scrollButtonLeft: {
     left: standaloneInsetLeft,

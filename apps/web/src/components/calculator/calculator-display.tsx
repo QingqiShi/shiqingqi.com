@@ -1,8 +1,8 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { ScrollFade } from "@tuja/ui/components/scroll-fade";
+import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { t } from "#src/i18n.ts";
 import type { Token } from "./types.ts";
 
@@ -63,7 +63,6 @@ export function CalculatorDisplay({
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [isScrollable, setIsScrollable] = useState(false);
-  const { showLeftFade, showRightFade } = useScrollFades(containerRef);
 
   // Observe container resizes (e.g. viewport changes) — created once.
   useLayoutEffect(() => {
@@ -100,8 +99,9 @@ export function CalculatorDisplay({
 
   return (
     <div css={styles.wrapper}>
-      <div
+      <ScrollFade
         ref={containerRef}
+        orientation="horizontal"
         css={[styles.container, isScrollable && styles.scrollable]}
         role="status"
         aria-live="polite"
@@ -109,25 +109,7 @@ export function CalculatorDisplay({
         <span ref={textRef} css={styles.text}>
           {displayText}
         </span>
-      </div>
-      {isScrollable && (
-        <>
-          <div
-            css={[
-              styles.gradient,
-              styles.leftGradient,
-              showLeftFade && styles.visible,
-            ]}
-          />
-          <div
-            css={[
-              styles.gradient,
-              styles.rightGradient,
-              showRightFade && styles.visible,
-            ]}
-          />
-        </>
-      )}
+      </ScrollFade>
     </div>
   );
 }
@@ -138,43 +120,22 @@ const styles = stylex.create({
     position: "relative",
   },
   container: {
+    // ScrollFade owns the overflow (auto on the scroll axis); the height and
+    // end-alignment stay here.
     height: "100%",
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "flex-end",
     paddingInline: space._3,
-    overflow: "hidden",
   },
   scrollable: {
-    overflowX: "auto",
+    // Once the text can no longer shrink to fit, align it to the start so the
+    // most recent tokens are what scrolls into view at the end.
     justifyContent: "flex-start",
   },
   text: {
     display: "inline-flex",
     whiteSpace: "nowrap",
     lineHeight: "0.9em",
-  },
-  gradient: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    // Wide enough to cover padding + fade zone
-    width: `calc(${space._3} + ${space._5})`,
-    pointerEvents: "none",
-    opacity: 0,
-    transition: "opacity 200ms ease-out",
-  },
-  leftGradient: {
-    left: 0,
-    // Solid color for padding area, then fade
-    backgroundImage: `linear-gradient(to right, ${color.bgSurface} ${space._3}, transparent)`,
-  },
-  rightGradient: {
-    right: 0,
-    // Solid color for padding area, then fade
-    backgroundImage: `linear-gradient(to left, ${color.bgSurface} ${space._3}, transparent)`,
-  },
-  visible: {
-    opacity: 1,
   },
 });
