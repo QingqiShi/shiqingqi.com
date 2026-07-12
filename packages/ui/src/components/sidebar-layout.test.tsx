@@ -115,18 +115,14 @@ describe("SidebarLayout drawer", () => {
 });
 
 describe("SidebarLayout tuning props", () => {
-  it("threads the rail width into the grid track and the sticky offset onto the rail", () => {
+  it("threads the rail width into the grid track", () => {
     const { container } = renderShell({
       sidebarInlineSize: "240px",
-      stickyInsetBlockStart: "80px",
     });
     // The rail width feeds the responsive grid track on the root element.
     expect(container.firstElementChild?.getAttribute("style")).toContain(
       "240px",
     );
-    // The sticky offset is applied to the rail panel element itself.
-    const rail = screen.getByText("Rail").closest("[style*='80px']");
-    expect(rail).not.toBeNull();
   });
 
   it("caps the content column when contentMaxInlineSize is passed", () => {

@@ -23,9 +23,16 @@ const themeMap: { [theme in "light" | "dark"]: SwitchState } = {
 interface ThemeSwitchProps {
   /** [switchToLight, switchToDark, switchToSystem] */
   labels: [string, string, string];
+  /**
+   * Control size. `"md"` (default) matches the header chrome; `"sm"` is the
+   * compact form for dense utility rows like the sidebar. Threads through to
+   * the inner switch, system button, and icon overlays.
+   */
+  size?: "sm" | "md";
 }
 
-export function ThemeSwitch({ labels }: ThemeSwitchProps) {
+export function ThemeSwitch({ labels, size = "md" }: ThemeSwitchProps) {
+  const isSmall = size === "sm";
   const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
 
   const [theme, setTheme] = useTheme();
@@ -83,6 +90,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
     >
       <div css={styles.systemButton}>
         <Button
+          size={size}
           aria-label={labels[2]}
           isActive={theme === "system"}
           onClick={() => {
@@ -91,7 +99,12 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           }}
           title={labels[2]}
         >
-          <div css={styles.systemIcon}>
+          <div
+            css={[
+              styles.systemIcon,
+              isSmall ? sizeStyles.systemIconSm : sizeStyles.systemIconMd,
+            ]}
+          >
             <MoonIcon
               weight="fill"
               css={styles.systemMoon}
@@ -102,6 +115,7 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
         </Button>
       </div>
       <Switch
+        size={size}
         css={styles.switch}
         value={
           theme === "system"
@@ -117,10 +131,26 @@ export function ThemeSwitch({ labels }: ThemeSwitchProps) {
           ]
         }
       />
-      <span css={[flex.center, styles.icon, styles.moon]} aria-hidden>
+      <span
+        css={[
+          flex.center,
+          styles.icon,
+          isSmall ? sizeStyles.iconSm : sizeStyles.iconMd,
+          styles.moon,
+        ]}
+        aria-hidden
+      >
         <MoonIcon weight="fill" />
       </span>
-      <span css={[flex.center, styles.icon, styles.sun]} aria-hidden>
+      <span
+        css={[
+          flex.center,
+          styles.icon,
+          isSmall ? sizeStyles.iconSm : sizeStyles.iconMd,
+          styles.sun,
+        ]}
+        aria-hidden
+      >
         <SunIcon weight="fill" />
       </span>
     </div>
@@ -158,11 +188,9 @@ const styles = stylex.create({
   icon: {
     aspectRatio: ratio.square,
     bottom: 0,
-    fontSize: font.uiBody,
     pointerEvents: "none",
     position: "absolute",
     top: 0,
-    width: controlSize._9,
   },
   moon: {
     left: 0,
@@ -185,9 +213,6 @@ const styles = stylex.create({
   },
   systemIcon: {
     position: "relative",
-    width: `calc(${controlSize._9} - ${controlSize._4})`,
-    height: `calc(${controlSize._9} - ${controlSize._4})`,
-    fontSize: controlSize._4,
   },
   systemSun: {
     position: "absolute",
@@ -198,5 +223,30 @@ const styles = stylex.create({
     position: "absolute",
     bottom: 0,
     left: 0,
+  },
+});
+
+// The sun/moon overlays span one switch cell, so their width tracks the inner
+// Switch's track height per size (`md` → controlSize._9, `sm` → controlSize._8),
+// and the system-toggle glyph shrinks in step. `md` reproduces the historic
+// (header) sizing.
+const sizeStyles = stylex.create({
+  iconMd: {
+    width: controlSize._9,
+    fontSize: font.uiBody,
+  },
+  iconSm: {
+    width: controlSize._8,
+    fontSize: font.uiBodySmall,
+  },
+  systemIconMd: {
+    width: `calc(${controlSize._9} - ${controlSize._4})`,
+    height: `calc(${controlSize._9} - ${controlSize._4})`,
+    fontSize: controlSize._4,
+  },
+  systemIconSm: {
+    width: `calc(${controlSize._8} - ${controlSize._4})`,
+    height: `calc(${controlSize._8} - ${controlSize._4})`,
+    fontSize: controlSize._3,
   },
 });

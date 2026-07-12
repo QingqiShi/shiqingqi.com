@@ -14,13 +14,10 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import { IconButton } from "./icon-button.tsx";
+import { ScrollFade } from "./scroll-fade.tsx";
 
 // Default width of the navigation rail on wider viewports.
 const DEFAULT_SIDEBAR_INLINE_SIZE = "200px";
-
-// Default sticky offset for the rail. The shell owns the whole page (no fixed
-// header coexists with it), so the rail pins just below the top safe area.
-const DEFAULT_STICKY_INSET_BLOCK_START = `calc(env(safe-area-inset-top) + ${space._4})`;
 
 // Must stay in sync with `breakpoints.md` (768px): the drawer only exists
 // below it, the rail column at or above it.
@@ -39,8 +36,10 @@ interface SidebarLayoutProps {
    */
   sidebarHeader?: ReactNode;
   /**
-   * Utility region pinned to the bottom of the rail and the drawer — theme
-   * toggles, language pickers, and similar app-level controls.
+   * Utility region pinned to the bottom edge of the rail and the drawer —
+   * theme toggles, language pickers, and similar app-level controls. The nav
+   * between the header and this region takes the free space, so the utilities
+   * always sit at the sidebar's bottom edge regardless of how tall the nav is.
    */
   sidebarFooter?: ReactNode;
   /**
@@ -62,11 +61,6 @@ interface SidebarLayoutProps {
    * @default "200px"
    */
   sidebarInlineSize?: string;
-  /**
-   * Logical block-start offset the sticky rail pins to. Defaults to a compact
-   * offset below the top safe-area inset.
-   */
-  stickyInsetBlockStart?: string;
   /**
    * Landmark element for the content region. Use `"main"` (the default) for the
    * page's primary content, or `"div"` when the shell is nested inside a surface
@@ -121,15 +115,19 @@ function CloseIcon() {
 }
 
 /**
- * Full-bleed, app-density page shell with a sticky navigation rail. On wider
- * viewports the rail hugs the start edge — title on top, navigation in the
- * middle, utilities pinned to the bottom — while the content column keeps a
- * readable max width beside it. On mobile the rail collapses into a compact
- * top bar whose menu button opens the same content as a drawer (focus-trapped,
- * scroll-locked, dismissed by Escape, backdrop, or following a link).
+ * Full-bleed, app-density page shell with a full-height navigation rail. On
+ * wider viewports the rail bleeds to the top, start, and bottom edges of the
+ * viewport and sticks there as the page scrolls — title on top, navigation
+ * filling the middle (scrolling on its own when it outgrows the rail), and
+ * utilities pinned at the bottom edge — separated from the content by a
+ * hairline border. The content column keeps a readable max width beside it,
+ * with its own padding rather than a page-wide frame. On mobile the rail
+ * collapses into a compact top bar whose menu button opens the same content as
+ * a drawer (focus-trapped, scroll-locked, dismissed by Escape, backdrop, or
+ * following a link).
  *
- * The rail width and sticky offset are overridable per page; both default to
- * shared values so existing callers render unchanged.
+ * The rail width is overridable per page and defaults to a shared value so
+ * existing callers render unchanged.
  */
 export function SidebarLayout({
   sidebar,
@@ -140,7 +138,6 @@ export function SidebarLayout({
   children,
   contentMaxInlineSize,
   sidebarInlineSize,
-  stickyInsetBlockStart,
   as = "main",
 }: SidebarLayoutProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -184,9 +181,6 @@ export function SidebarLayout({
       document.body.style.overflow = overflow;
     };
   }, [isOpen]);
-
-  const resolvedStickyOffset =
-    stickyInsetBlockStart ?? DEFAULT_STICKY_INSET_BLOCK_START;
 
   const content = (
     <div
@@ -232,11 +226,7 @@ export function SidebarLayout({
       />
       <div
         ref={drawerRef}
-        css={[
-          styles.rail,
-          dynamicStyles.railOffsets(resolvedStickyOffset),
-          isOpen && styles.railOpen,
-        ]}
+        css={[styles.rail, isOpen && styles.railOpen]}
         role={isOpen ? "dialog" : undefined}
         aria-modal={isOpen || undefined}
         aria-label={isOpen ? menuLabel : undefined}
@@ -263,7 +253,9 @@ export function SidebarLayout({
             }}
           />
         </div>
-        <div css={styles.railNav}>{sidebar}</div>
+        <ScrollFade orientation="vertical" css={styles.railNav}>
+          {sidebar}
+        </ScrollFade>
         {sidebarFooter != null && (
           <div css={styles.railFooter}>{sidebarFooter}</div>
         )}
@@ -280,17 +272,35 @@ export function SidebarLayout({
 const styles = stylex.create({
   root: {
     display: "grid",
-    alignItems: "start",
-    gap: { default: space._4, [breakpoints.md]: space._8 },
-    // Mobile clears the fixed pill bar; wider viewports only need a compact
-    // offset since no fixed chrome coexists with the shell.
+    // Wider viewports stretch the rail to the grid row so it can fill the
+    // viewport height and pin its footer to the bottom edge; mobile only has
+    // the content column in flow (the rail is a fixed drawer), so alignment is
+    // moot there.
+    alignItems: { default: "start", [breakpoints.md]: "stretch" },
+    // Mobile keeps a compact gap between stacked rows; on wider viewports the
+    // rail bleeds to the edges and the content column owns its own padding, so
+    // the grid itself adds no gap or frame.
+    gap: { default: space._4, [breakpoints.md]: 0 },
+    // The mobile shell clears the fixed pill bar and insets its content from
+    // the safe areas. On wider viewports the frame is dropped entirely: the
+    // rail bleeds to the top, start, and bottom edges and the content area
+    // carries its own padding.
     paddingBlockStart: {
       default: `calc(${space._10} + env(safe-area-inset-top))`,
-      [breakpoints.md]: `calc(${space._4} + env(safe-area-inset-top))`,
+      [breakpoints.md]: 0,
     },
-    paddingBlockEnd: `calc(${space._8} + env(safe-area-inset-bottom))`,
-    paddingInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
+    paddingBlockEnd: {
+      default: `calc(${space._8} + env(safe-area-inset-bottom))`,
+      [breakpoints.md]: 0,
+    },
+    paddingInlineStart: {
+      default: `calc(${space._3} + env(safe-area-inset-left))`,
+      [breakpoints.md]: 0,
+    },
+    paddingInlineEnd: {
+      default: `calc(${space._3} + env(safe-area-inset-right))`,
+      [breakpoints.md]: 0,
+    },
   },
   // Collapsed mobile chrome: a floating pill with the title and the menu
   // button. Fixed (a sticky grid item can't escape its own-height row), with
@@ -351,11 +361,18 @@ const styles = stylex.create({
   rail: {
     display: "flex",
     flexDirection: "column",
-    gap: space._4,
+    gap: space._2,
     minInlineSize: 0,
     position: { default: "fixed", [breakpoints.md]: "sticky" },
+    // md+: the sticky rail pins to the very top and stretches to the grid row
+    // (capped at the viewport) so it fills the height and its footer reaches
+    // the bottom edge. Mobile: top and bottom both pinned → a full-height
+    // off-canvas drawer.
+    insetBlockStart: { default: 0, [breakpoints.md]: 0 },
     insetBlockEnd: { default: 0, [breakpoints.md]: "auto" },
     insetInlineEnd: { default: 0, [breakpoints.md]: "auto" },
+    alignSelf: { default: "auto", [breakpoints.md]: "stretch" },
+    maxBlockSize: { default: "none", [breakpoints.md]: "100dvh" },
     inlineSize: {
       default: `min(${space._14}, 85vw)`,
       [breakpoints.md]: "auto",
@@ -363,16 +380,19 @@ const styles = stylex.create({
     zIndex: { default: layer.tooltip, [breakpoints.md]: layer.content },
     paddingBlockStart: {
       default: `calc(${space._3} + env(safe-area-inset-top))`,
-      [breakpoints.md]: 0,
+      [breakpoints.md]: space._2,
     },
     paddingBlockEnd: {
       default: `calc(${space._3} + env(safe-area-inset-bottom))`,
-      [breakpoints.md]: 0,
+      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-bottom))`,
     },
-    paddingInlineStart: { default: space._3, [breakpoints.md]: 0 },
+    paddingInlineStart: {
+      default: space._3,
+      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-left))`,
+    },
     paddingInlineEnd: {
       default: `calc(${space._3} + env(safe-area-inset-right))`,
-      [breakpoints.md]: 0,
+      [breakpoints.md]: space._2,
     },
     backgroundColor: {
       default: color.bgSurface,
@@ -380,6 +400,11 @@ const styles = stylex.create({
     },
     borderStartStartRadius: { default: border.radius_3, [breakpoints.md]: 0 },
     borderEndStartRadius: { default: border.radius_3, [breakpoints.md]: 0 },
+    // md+: a hairline right border separates the rail from the content in place
+    // of the mobile drawer's shadow.
+    borderInlineEndWidth: { default: 0, [breakpoints.md]: border.size_1 },
+    borderInlineEndStyle: "solid",
+    borderInlineEndColor: color.neutralBorder,
     boxShadow: { default: shadow._6, [breakpoints.md]: "none" },
     transform: {
       default: "translateX(110%)",
@@ -415,17 +440,38 @@ const styles = stylex.create({
     display: { default: "inline-flex", [breakpoints.md]: "none" },
   },
   railNav: {
+    // Takes the free space between the header and footer so the utilities pin
+    // to the rail's bottom edge. The `ScrollFade` wrapper owns the overflow,
+    // the shrink-to-scroll min-size, and the scroll-aware edge fade.
     flexGrow: 1,
-    minBlockSize: 0,
-    overflowY: "auto",
     overscrollBehavior: "contain",
-    scrollbarWidth: "none",
+    // The native scrollbar shows only while the nav actually overflows. Bleed
+    // the scroll container's end edge out over the rail's inline padding so the
+    // scrollbar sits flush against the rail's border, then pad the content back
+    // in by the same amount so the links keep their inset.
+    marginInlineEnd: { default: 0, [breakpoints.md]: `calc(-1 * ${space._2})` },
+    paddingInlineEnd: { default: 0, [breakpoints.md]: space._2 },
   },
   railFooter: {
     flexShrink: 0,
   },
   contentArea: {
     minInlineSize: 0,
+    // md+: the content owns its padding now that the rail bleeds to the edges
+    // and the root drops its frame. The inline-start value gives the content
+    // breathing room from the rail's border; the block values keep a compact
+    // reading offset from the top and clear the bottom safe area. Mobile takes
+    // its insets from the root frame, so these stay unset there.
+    paddingBlockStart: { default: 0, [breakpoints.md]: space._4 },
+    paddingBlockEnd: {
+      default: 0,
+      [breakpoints.md]: `calc(${space._8} + env(safe-area-inset-bottom))`,
+    },
+    paddingInlineStart: { default: 0, [breakpoints.md]: space._8 },
+    paddingInlineEnd: {
+      default: 0,
+      [breakpoints.md]: `calc(${space._6} + env(safe-area-inset-right))`,
+    },
   },
   content: {
     inlineSize: "100%",
@@ -435,24 +481,14 @@ const styles = stylex.create({
   },
 });
 
-// Dynamic tuning: StyleX generates the CSS variables and their references, so
-// the rail width participates in the responsive grid track and the sticky
-// offset stays a logical property. Values are runtime args, defaulted by the
-// caller.
+// Dynamic tuning: StyleX generates the CSS variable and its reference, so the
+// rail width participates in the responsive grid track. The value is a runtime
+// arg, defaulted by the caller.
 const dynamicStyles = stylex.create({
   columns: (sidebarInlineSize: string) => ({
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
       [breakpoints.md]: `${sidebarInlineSize} minmax(0, 1fr)`,
-    },
-  }),
-  railOffsets: (stickyInsetBlockStart: string) => ({
-    insetBlockStart: { default: 0, [breakpoints.md]: stickyInsetBlockStart },
-    // Mirrors the shell's block-end padding so a fully-scrolled page never
-    // squeezes the rail out of its sticky position.
-    maxBlockSize: {
-      default: "none",
-      [breakpoints.md]: `calc(100dvh - ${stickyInsetBlockStart} - ${space._8} - env(safe-area-inset-bottom))`,
     },
   }),
 });

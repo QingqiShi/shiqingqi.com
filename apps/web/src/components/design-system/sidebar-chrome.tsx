@@ -47,7 +47,8 @@ export function DesignSystemSidebarHeader({
 /**
  * Utility region pinned to the bottom of the design-system sidebar — the
  * theme toggle and language picker that header-driven pages get from the
- * fixed header chrome, presented as labelled rows above a hairline divider.
+ * fixed header chrome, sat side by side as compact icon controls above a
+ * hairline divider.
  */
 export function DesignSystemSidebarControls({
   locale,
@@ -55,28 +56,21 @@ export function DesignSystemSidebarControls({
   locale: SupportedLocale;
 }) {
   return (
-    <div css={[flex.col, styles.controls]}>
-      <div css={[flex.between, styles.controlRow]}>
-        <span css={styles.controlLabel}>{t({ en: "Theme", zh: "主题" })}</span>
-        <ThemeSwitch
-          labels={[
-            t({ en: "Switch to light theme", zh: "切换至浅色模式" }),
-            t({ en: "Switch to dark theme", zh: "切换至深色模式" }),
-            t({ en: "Switch to system theme", zh: "切换至系统颜色模式" }),
-          ]}
-        />
-      </div>
-      <div css={[flex.between, styles.controlRow]}>
-        <span css={styles.controlLabel}>
-          {t({ en: "Language", zh: "语言" })}
-        </span>
-        <LocaleSelector
-          label={locale === "zh" ? "中文" : "English"}
-          ariaLabel={t({ en: "Select a language", zh: "选择语言" })}
-          locale={locale}
-          menuPosition="bottomRight"
-        />
-      </div>
+    <div css={[flex.row, styles.controls]}>
+      <LocaleSelector
+        size="sm"
+        ariaLabel={t({ en: "Select a language", zh: "选择语言" })}
+        locale={locale}
+        menuPosition="bottomLeft"
+      />
+      <ThemeSwitch
+        size="sm"
+        labels={[
+          t({ en: "Switch to light theme", zh: "切换至浅色模式" }),
+          t({ en: "Switch to dark theme", zh: "切换至深色模式" }),
+          t({ en: "Switch to system theme", zh: "切换至系统颜色模式" }),
+        ]}
+      />
     </div>
   );
 }
@@ -112,18 +106,7 @@ const styles = stylex.create({
   },
   controls: {
     gap: space._2,
-    paddingBlockStart: space._3,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
-  },
-  controlRow: {
-    gap: space._2,
-    minBlockSize: controlSize._9,
-  },
-  controlLabel: {
-    fontSize: font.uiBodySmall,
-    color: color.textMuted,
-    whiteSpace: "nowrap",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });
