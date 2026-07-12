@@ -1,10 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { ScrollFade } from "@tuja/ui/components/scroll-fade";
+import { useScrollFades } from "@tuja/ui/hooks/use-scroll-fades";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
-import { useScrollFades } from "#src/hooks/use-scroll-fades.ts";
 import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";
 
 interface HorizontalScrollRowProps {
@@ -13,8 +14,6 @@ interface HorizontalScrollRowProps {
   role?: "list" | "region";
   wrapperCss?: React.Attributes["css"];
   containerCss?: React.Attributes["css"];
-  fadeLeftCss?: React.Attributes["css"];
-  fadeRightCss?: React.Attributes["css"];
   scrollButtonLeftCss?: React.Attributes["css"];
   scrollButtonRightCss?: React.Attributes["css"];
 }
@@ -25,40 +24,36 @@ export function HorizontalScrollRow({
   role = "list",
   wrapperCss,
   containerCss,
-  fadeLeftCss,
-  fadeRightCss,
   scrollButtonLeftCss,
   scrollButtonRightCss,
 }: HorizontalScrollRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { showLeftFade, showRightFade } = useScrollFades(scrollRef);
+  // Kept in the consumer (not left to ScrollFade) because the scroll-to-page
+  // buttons need the same fade state; ScrollFade runs in controlled mode so
+  // there is a single set of observers on the element.
+  const { showStartFade: showLeftFade, showEndFade: showRightFade } =
+    useScrollFades(scrollRef, "horizontal");
 
   return (
     <div css={[styles.scrollWrapper, wrapperCss]}>
-      <div
+      <ScrollFade
         ref={scrollRef}
+        orientation="horizontal"
+        fadeSize={space._8}
+        showStartFade={showLeftFade}
+        showEndFade={showRightFade}
+        role={role}
+        aria-label={ariaLabel}
+        tabIndex={0}
         css={[
           scrollX.base,
           scrollX.focusRing,
           styles.scrollContainer,
           containerCss,
         ]}
-        role={role}
-        aria-label={ariaLabel}
-        tabIndex={0}
       >
         {children}
-      </div>
-      <div
-        css={[styles.fadeEdge, styles.fadeLeft, fadeLeftCss]}
-        style={{ opacity: showLeftFade ? 1 : 0 }}
-        aria-hidden="true"
-      />
-      <div
-        css={[styles.fadeEdge, styles.fadeRight, fadeRightCss]}
-        style={{ opacity: showRightFade ? 1 : 0 }}
-        aria-hidden="true"
-      />
+      </ScrollFade>
       <HorizontalScrollButtons
         scrollRef={scrollRef}
         showLeft={showLeftFade}
@@ -83,22 +78,6 @@ const styles = stylex.create({
     padding: space._3,
     scrollPaddingLeft: space._3,
     scrollPaddingRight: space._3,
-  },
-  fadeEdge: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: space._8,
-    pointerEvents: "none",
-    transition: "opacity 0.2s ease",
-  },
-  fadeLeft: {
-    left: 0,
-    backgroundImage: `linear-gradient(to left, transparent, ${color.bgSurfaceFade})`,
-  },
-  fadeRight: {
-    right: 0,
-    backgroundImage: `linear-gradient(to right, transparent, ${color.bgSurfaceFade})`,
   },
   scrollButtonLeft: {
     left: space._3,
