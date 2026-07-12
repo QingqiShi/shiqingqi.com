@@ -110,6 +110,31 @@ describe("Switch Component", () => {
     });
   });
 
+  describe("Size", () => {
+    it("applies distinct classes per size", () => {
+      const { container: sm } = render(<Switch size="sm" />);
+      const { container: lg } = render(<Switch size="lg" />);
+
+      const smSwitch = sm.querySelector("input");
+      const lgSwitch = lg.querySelector("input");
+
+      expect(smSwitch?.className).not.toBe(lgSwitch?.className);
+      expect(smSwitch?.className).toContain("sizeStyles.sm");
+      expect(lgSwitch?.className).toContain("sizeStyles.lg");
+    });
+
+    it("defaults to the md size when size is omitted", () => {
+      const { container: implicit } = render(<Switch />);
+      const { container: explicit } = render(<Switch size="md" />);
+
+      const implicitSwitch = implicit.querySelector("input");
+      const explicitSwitch = explicit.querySelector("input");
+
+      expect(implicitSwitch?.className).toContain("sizeStyles.md");
+      expect(implicitSwitch?.className).toBe(explicitSwitch?.className);
+    });
+  });
+
   describe("Three-State Functionality", () => {
     it("defaults to 'off' state when uncontrolled", () => {
       render(<Switch />);

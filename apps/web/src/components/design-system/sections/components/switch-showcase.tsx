@@ -82,6 +82,32 @@ export function SwitchShowcase() {
         </ShowcaseGrid>
       </Showcase>
 
+      <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
+        <ShowcaseGrid>
+          <ShowcaseItem label="sm">
+            <Switch
+              size="sm"
+              defaultValue="on"
+              aria-label={t({ en: "Small", zh: "小" })}
+            />
+          </ShowcaseItem>
+          <ShowcaseItem label="md">
+            <Switch
+              size="md"
+              defaultValue="on"
+              aria-label={t({ en: "Medium", zh: "中" })}
+            />
+          </ShowcaseItem>
+          <ShowcaseItem label="lg">
+            <Switch
+              size="lg"
+              defaultValue="on"
+              aria-label={t({ en: "Large", zh: "大" })}
+            />
+          </ShowcaseItem>
+        </ShowcaseGrid>
+      </Showcase>
+
       <Showcase label={t({ en: "Interactive", zh: "交互" })}>
         <div css={[flex.col, styles.interactiveStack]}>
           <Text variant="bodySmall" tone="muted">
@@ -132,6 +158,15 @@ const [state, setState] = useState<SwitchState>("off");
               description: t({
                 en: "Fires with the next state on every user toggle (pointer, keyboard, label).",
                 zh: "每次用户切换（指针、键盘、标签）时以下一状态触发。",
+              }),
+            },
+            {
+              name: "size",
+              type: '"sm" | "md" | "lg"',
+              defaultValue: '"md"',
+              description: t({
+                en: "Track-height ramp via controlSize; the width and thumb scale with it.",
+                zh: "基于 controlSize 的轨道高度梯度；宽度与滑块随之缩放。",
               }),
             },
             {

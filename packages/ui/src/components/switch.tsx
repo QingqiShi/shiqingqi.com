@@ -19,9 +19,11 @@ import { switchTokens } from "./switch.stylex.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";
 
+type SwitchSize = "sm" | "md" | "lg";
+
 interface SwitchProps extends Omit<
   React.ComponentProps<"input">,
-  "checked" | "onChange"
+  "checked" | "onChange" | "size"
 > {
   /**
    * Controlled state. When provided, the parent owns the value and must update
@@ -32,6 +34,12 @@ interface SwitchProps extends Omit<
   defaultValue?: SwitchState;
   /** Fires with the next state on every user toggle (pointer, keyboard, label). */
   onChange?: (state: SwitchState) => void;
+  /**
+   * Track-height ramp via `controlSize`; the width and thumb scale with it.
+   * Defaults to `"md"` (the app's standard control height). Every size grows
+   * below the `md` breakpoint like the `controlSize` scale.
+   */
+  size?: SwitchSize;
 }
 
 /**
@@ -47,6 +55,7 @@ export function Switch({
   defaultValue,
   onChange,
   className,
+  size = "md",
   style,
   ref: forwardedRef,
   ...rest
@@ -180,6 +189,7 @@ export function Switch({
         buttonReset.base,
         a11y.focusRing,
         styles.switch,
+        sizeStyles[size],
         initialRendered && styles.animate,
         isDragging && styles.dragging(position),
       ]}
@@ -237,7 +247,7 @@ const styles = stylex.create({
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": 0.6 },
     display: "flex",
-    height: controlSize._9,
+    height: switchTokens.trackHeight,
     padding: border.size_2,
     position: "relative",
     transition: `background-color 0.2s ease`,
@@ -253,8 +263,8 @@ const styles = stylex.create({
 
     [switchTokens.thumbPosition]: {
       default: 0,
-      ":checked": controlSize._9,
-      ":indeterminate": `calc(${controlSize._9} / 2)`,
+      ":checked": switchTokens.trackHeight,
+      ":indeterminate": `calc(${switchTokens.trackHeight} / 2)`,
     },
     [switchTokens.thumbShadow]: {
       default: null,
@@ -268,7 +278,7 @@ const styles = stylex.create({
       boxShadow: switchTokens.thumbShadow,
       content: "",
       display: "block",
-      width: `calc(${controlSize._9} - ${border.size_2} * 2)`,
+      width: `calc(${switchTokens.trackHeight} - ${border.size_2} * 2)`,
       aspectRatio: ratio.square,
       transform: `translateX(${switchTokens.thumbPosition})`,
       transition: null,
@@ -289,4 +299,14 @@ const styles = stylex.create({
       transition: null,
     },
   }),
+});
+
+// Each size sets the `switchTokens.trackHeight` knob; `styles.switch` derives
+// the track height, width (2:1 aspect ratio), thumb size, and travel from it.
+// `md` reproduces the historic default, so callsites that omit `size` are
+// pixel-identical.
+const sizeStyles = stylex.create({
+  sm: { [switchTokens.trackHeight]: controlSize._8 },
+  md: { [switchTokens.trackHeight]: controlSize._9 },
+  lg: { [switchTokens.trackHeight]: controlSize._10 },
 });

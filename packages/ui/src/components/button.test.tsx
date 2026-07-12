@@ -49,6 +49,31 @@ describe("Button StyleX Integration", () => {
   });
 });
 
+describe("Button size", () => {
+  it("applies distinct classes per size", () => {
+    const { container: sm } = render(<Button size="sm">A</Button>);
+    const { container: lg } = render(<Button size="lg">B</Button>);
+
+    const smButton = sm.querySelector("button");
+    const lgButton = lg.querySelector("button");
+
+    expect(smButton?.className).not.toBe(lgButton?.className);
+    expect(smButton?.className).toContain("sizeStyles.sm");
+    expect(lgButton?.className).toContain("sizeStyles.lg");
+  });
+
+  it("defaults to the md size when size is omitted", () => {
+    const { container: implicit } = render(<Button>Implicit</Button>);
+    const { container: explicit } = render(<Button size="md">Explicit</Button>);
+
+    const implicitButton = implicit.querySelector("button");
+    const explicitButton = explicit.querySelector("button");
+
+    expect(implicitButton?.className).toContain("sizeStyles.md");
+    expect(implicitButton?.className).toBe(explicitButton?.className);
+  });
+});
+
 describe("Button Interaction", () => {
   it("triggers onClick when clicked", async () => {
     const handleClick = vi.fn();

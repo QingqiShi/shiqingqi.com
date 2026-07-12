@@ -5,10 +5,12 @@ import { useRef, type ComponentProps, type ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { usePressHandlers } from "../hooks/use-press-handlers.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { font } from "../tokens.stylex.ts";
+import { controlSize, font } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { sharedStyles } from "./button-shared.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
+
+type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
   /** Lifts the button onto a bright surface, brightening further on hover. */
@@ -17,6 +19,14 @@ interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
   hideLabelOnMobile?: boolean;
   /** Decorative leading glyph. Rendered `aria-hidden`; never the accessible name. */
   icon?: ReactNode;
+  /**
+   * Height ramp via `controlSize`. Defaults to `"md"` (the app's standard
+   * control height). `"lg"` is for prominent CTAs; `"sm"` best suits
+   * pointer-dense desktop toolbars — like the `controlSize` scale, every size
+   * renders taller below the `md` breakpoint, but `"sm"` still falls short of
+   * the 44px WCAG 2.5.8 touch target.
+   */
+  size?: ButtonSize;
   /**
    * Toggles the active highlight AND emits `aria-pressed` — use for toggle
    * buttons. For a non-toggle CTA that only wants the highlight, use
@@ -59,6 +69,7 @@ export function Button({
   isActive,
   labelId,
   ref: forwardedRef,
+  size = "md",
   style,
   type = "button",
   variant,
@@ -89,6 +100,7 @@ export function Button({
         sharedStyles.base,
         a11y.focusRing,
         styles.button,
+        sizeStyles[size],
         !!icon &&
           !!children &&
           (hideLabelOnMobile
@@ -134,7 +146,8 @@ const styles = stylex.create({
     cursor: { default: "pointer", ":disabled": "not-allowed" },
 
     // Button-specific styles. Height flows through the shared `buttonTokens`
-    // knob so a container (e.g. AnchorButtonGroup) can shrink grouped buttons.
+    // knob, which the `size` variants below set (and a container such as
+    // AnchorButtonGroup can likewise override to shrink grouped buttons).
     minHeight: buttonTokens.height,
     color: buttonTokens.color,
     backgroundColor: {
@@ -146,5 +159,28 @@ const styles = stylex.create({
       default: null,
       ":disabled": 0.7,
     },
+  },
+});
+
+// Each size drives the shared `buttonTokens.height` knob (read by
+// `styles.button.minHeight`) and scales the label size and padding to match.
+// `md` reproduces the historic default, so callsites that omit `size` are
+// pixel-identical. Padding/gap here override the `sharedStyles.base` values.
+const sizeStyles = stylex.create({
+  sm: {
+    [buttonTokens.height]: controlSize._8,
+    fontSize: font.uiBodySmall,
+    gap: controlSize._1,
+    paddingBlock: controlSize._0,
+    paddingInline: controlSize._2,
+  },
+  md: {
+    [buttonTokens.height]: controlSize._9,
+  },
+  lg: {
+    [buttonTokens.height]: controlSize._10,
+    fontSize: font.uiHeading2,
+    paddingBlock: controlSize._2,
+    paddingInline: controlSize._4,
   },
 });

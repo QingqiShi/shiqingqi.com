@@ -35,6 +35,20 @@ export function ButtonShowcase() {
         </ShowcaseGrid>
       </Showcase>
 
+      <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
+        <ShowcaseGrid>
+          <ShowcaseItem label="sm">
+            <Button size="sm">{t({ en: "Small", zh: "小" })}</Button>
+          </ShowcaseItem>
+          <ShowcaseItem label="md">
+            <Button size="md">{t({ en: "Medium", zh: "中" })}</Button>
+          </ShowcaseItem>
+          <ShowcaseItem label="lg">
+            <Button size="lg">{t({ en: "Large", zh: "大" })}</Button>
+          </ShowcaseItem>
+        </ShowcaseGrid>
+      </Showcase>
+
       <Showcase label={t({ en: "With icon", zh: "带图标" })}>
         <ShowcaseGrid>
           <ShowcaseItem label="leading icon">
@@ -132,6 +146,15 @@ export function ButtonShowcase() {
               description: t({
                 en: "For icon-only buttons (no children), exactly one is required to supply the accessible name.",
                 zh: "对于纯图标按钮（无 children），必须二选一以提供可访问名称。",
+              }),
+            },
+            {
+              name: "size",
+              type: '"sm" | "md" | "lg"',
+              defaultValue: '"md"',
+              description: t({
+                en: 'Height ramp via controlSize. "lg" is for prominent CTAs; reserve "sm" for pointer-dense desktop toolbars.',
+                zh: '基于 controlSize 的高度梯度。"lg" 用于醒目的 CTA；"sm" 建议仅用于指针密集的桌面工具栏。',
               }),
             },
             {
