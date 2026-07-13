@@ -99,7 +99,7 @@
     "esbuild-wasm": "^0.28.1",
     "jsdom": "catalog:",
     "modern-normalize": "^3.0.1",
-    "msw": "^2.14.6",
+    "msw": "^2.15.0",
     "next-i18n-router": "^5.5.8",
     "npm-run-all2": "^9.0.2",
     "openapi-typescript": "^7.13.0",
