@@ -199,12 +199,11 @@ const styles = stylex.create({
     // the callsite).
     transform: "translateZ(0)",
   },
-  // The real navigation is tall, so the demo scrolls inside its own viewport
-  // — which also shows off the rail's sticky behaviour in miniature.
+  // Fixed-height box; the shell fills it, so the rail bounds here and its footer
+  // pins to the bottom without the demo scrolling.
   viewport: {
-    maxBlockSize: space._15,
-    overflowY: "auto",
-    overscrollBehavior: "contain",
+    blockSize: space._15,
+    overflow: "hidden",
   },
   contentInner: {
     display: "flex",

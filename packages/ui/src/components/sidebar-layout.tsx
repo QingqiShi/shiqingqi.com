@@ -123,6 +123,10 @@ function CloseIcon() {
  * dismissed by Escape, backdrop, or following a link).
  *
  * The rail width is overridable per page via `sidebarInlineSize`.
+ *
+ * The rail fills its container's height (capped at the viewport), so the shell
+ * works dropped into any bounded box — a split pane, the row beneath a spanning
+ * header — not only at the page root where the container is the viewport.
  */
 export function SidebarLayout({
   sidebar,
@@ -286,6 +290,12 @@ const styles = stylex.create({
       default: `calc(${space._3} + env(safe-area-inset-right))`,
       [breakpoints.md]: 0,
     },
+    // md+: fill the container's height, not the viewport, so the rail and its
+    // pinned footer track the container (inert at the page root, where the
+    // height is indefinite). minBlockSize:0 lets it shrink as a grid/flex item.
+    blockSize: { [breakpoints.md]: "100%" },
+    minBlockSize: { [breakpoints.md]: 0 },
+    gridTemplateRows: { [breakpoints.md]: "minmax(0, 1fr)" },
   },
   // Collapsed mobile chrome: a floating pill with the title and the menu
   // button. Fixed (a sticky grid item can't escape its own-height row), with
