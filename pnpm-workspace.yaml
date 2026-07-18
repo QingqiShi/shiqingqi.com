@@ -15,12 +15,12 @@ overrides:
   postcss: "^8.5.10"
 catalog:
   "@babel/core": 8.0.1
-  "@babel/parser": ^8.0.0
+  "@babel/parser": ^8.0.4
   "@babel/preset-env": ^8.0.2
   "@babel/preset-react": ^8.0.1
   "@babel/preset-typescript": ^8.0.1
-  "@babel/traverse": ^8.0.0
-  "@babel/types": ^8.0.0
+  "@babel/traverse": ^8.0.4
+  "@babel/types": ^8.0.4
   "@rolldown/plugin-babel": ^0.2.3
   "@serwist/cli": ^9.5.11
   "@serwist/next": ^9.5.11
