@@ -16,8 +16,10 @@ import {
 import { IconButton } from "./icon-button.tsx";
 import { ScrollFade } from "./scroll-fade.tsx";
 
-// Default width of the navigation rail on wider viewports.
-const DEFAULT_SIDEBAR_INLINE_SIZE = "200px";
+// Default width of the navigation rail on wider viewports — wide enough for
+// the nav labels used across the app to sit on one line, including once a
+// classic scrollbar claims its reserved gutter from the rail.
+const DEFAULT_SIDEBAR_INLINE_SIZE = "240px";
 
 // Must stay in sync with `breakpoints.md` (768px): the drawer only exists
 // below it, the rail column at or above it.
@@ -58,7 +60,7 @@ interface SidebarLayoutProps {
   contentMaxInlineSize?: string;
   /**
    * Inline size of the rail column on wider viewports.
-   * @default "200px"
+   * @default "240px"
    */
   sidebarInlineSize?: string;
   /**

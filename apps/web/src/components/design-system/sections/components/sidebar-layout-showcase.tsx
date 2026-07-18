@@ -152,7 +152,7 @@ export function SidebarLayoutShowcase() {
           {
             name: "sidebarInlineSize",
             type: "string",
-            defaultValue: '"200px"',
+            defaultValue: '"240px"',
             description: t({
               en: "Inline size of the rail column on wider viewports.",
               zh: "宽视口下侧栏列的行内尺寸。",
