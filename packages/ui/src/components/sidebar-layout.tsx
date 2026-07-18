@@ -117,19 +117,12 @@ function CloseIcon() {
 }
 
 /**
- * Full-bleed, app-density page shell with a full-height navigation rail. On
- * wider viewports the rail bleeds to the top, start, and bottom edges of the
- * viewport and sticks there as the page scrolls — title on top, navigation
- * filling the middle (scrolling on its own when it outgrows the rail), and
- * utilities pinned at the bottom edge — separated from the content by a
- * hairline border. The content column keeps a readable max width beside it,
- * with its own padding rather than a page-wide frame. On mobile the rail
- * collapses into a compact top bar whose menu button opens the same content as
- * a drawer (focus-trapped, scroll-locked, dismissed by Escape, backdrop, or
- * following a link).
+ * App-density page shell: a persistent navigation rail beside a centered
+ * content column on wider viewports, collapsing on mobile into a top bar whose
+ * menu button opens the rail as a drawer (focus-trapped, scroll-locked,
+ * dismissed by Escape, backdrop, or following a link).
  *
- * The rail width is overridable per page and defaults to a shared value so
- * existing callers render unchanged.
+ * The rail width is overridable per page via `sidebarInlineSize`.
  */
 export function SidebarLayout({
   sidebar,
@@ -274,19 +267,9 @@ export function SidebarLayout({
 const styles = stylex.create({
   root: {
     display: "grid",
-    // Wider viewports stretch the rail to the grid row so it can fill the
-    // viewport height and pin its footer to the bottom edge; mobile only has
-    // the content column in flow (the rail is a fixed drawer), so alignment is
-    // moot there.
     alignItems: { default: "start", [breakpoints.md]: "stretch" },
-    // Mobile keeps a compact gap between stacked rows; on wider viewports the
-    // rail bleeds to the edges and the content column owns its own padding, so
-    // the grid itself adds no gap or frame.
     gap: { default: space._4, [breakpoints.md]: 0 },
-    // The mobile shell clears the fixed pill bar and insets its content from
-    // the safe areas. On wider viewports the frame is dropped entirely: the
-    // rail bleeds to the top, start, and bottom edges and the content area
-    // carries its own padding.
+    // Mobile top padding clears the fixed pill bar.
     paddingBlockStart: {
       default: `calc(${space._10} + env(safe-area-inset-top))`,
       [breakpoints.md]: 0,
@@ -355,26 +338,27 @@ const styles = stylex.create({
     visibility: "visible",
     pointerEvents: "auto",
   },
-  // One element plays two roles: an end-edge drawer below md (off-canvas
-  // until opened, sliding in from the same side as the menu button) and the
-  // sticky rail column at md and above. Under reduced motion the slide is
-  // dropped and only the fade plays. Both supported locales are LTR, so the
-  // off-canvas translate doesn't need a logical flip.
+  // One element is both the mobile drawer and the md+ rail. Reduced motion
+  // drops the slide and plays only the fade. Both supported locales are LTR, so
+  // the off-canvas translate needs no logical flip.
   rail: {
     display: "flex",
     flexDirection: "column",
     gap: space._2,
     minInlineSize: 0,
     position: { default: "fixed", [breakpoints.md]: "sticky" },
-    // md+: the sticky rail pins to the very top and stretches to the grid row
-    // (capped at the viewport) so it fills the height and its footer reaches
-    // the bottom edge. Mobile: top and bottom both pinned → a full-height
-    // off-canvas drawer.
-    insetBlockStart: { default: 0, [breakpoints.md]: 0 },
+    insetBlockStart: { default: 0, [breakpoints.md]: space._2 },
     insetBlockEnd: { default: 0, [breakpoints.md]: "auto" },
     insetInlineEnd: { default: 0, [breakpoints.md]: "auto" },
     alignSelf: { default: "auto", [breakpoints.md]: "stretch" },
-    maxBlockSize: { default: "none", [breakpoints.md]: "100dvh" },
+    // Cap = viewport minus the top+bottom margins (keep the factor and
+    // marginBlock in sync) so the full-height card never reaches an edge.
+    maxBlockSize: {
+      default: "none",
+      [breakpoints.md]: `calc(100dvh - 2 * ${space._2})`,
+    },
+    marginBlock: { default: 0, [breakpoints.md]: space._2 },
+    marginInlineStart: { default: 0, [breakpoints.md]: space._2 },
     inlineSize: {
       default: `min(${space._14}, 85vw)`,
       [breakpoints.md]: "auto",
@@ -398,16 +382,19 @@ const styles = stylex.create({
     },
     backgroundColor: {
       default: color.bgSurface,
-      [breakpoints.md]: "transparent",
+      [breakpoints.md]: color.bgCanvasSubtle,
     },
-    borderStartStartRadius: { default: border.radius_3, [breakpoints.md]: 0 },
-    borderEndStartRadius: { default: border.radius_3, [breakpoints.md]: 0 },
-    // md+: a hairline right border separates the rail from the content in place
-    // of the mobile drawer's shadow.
-    borderInlineEndWidth: { default: 0, [breakpoints.md]: border.size_1 },
-    borderInlineEndStyle: "solid",
-    borderInlineEndColor: color.neutralBorder,
-    boxShadow: { default: shadow._6, [breakpoints.md]: "none" },
+    borderStartStartRadius: {
+      default: border.radius_3,
+      [breakpoints.md]: border.radius_3,
+    },
+    borderEndStartRadius: {
+      default: border.radius_3,
+      [breakpoints.md]: border.radius_3,
+    },
+    borderStartEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
+    borderEndEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
+    boxShadow: { default: shadow._6, [breakpoints.md]: shadow._2 },
     transform: {
       default: "translateX(110%)",
       [motionConstants.REDUCED_MOTION]: "none",
@@ -464,11 +451,8 @@ const styles = stylex.create({
   },
   contentArea: {
     minInlineSize: 0,
-    // md+: the content owns its padding now that the rail bleeds to the edges
-    // and the root drops its frame. The inline-start value gives the content
-    // breathing room from the rail's border; the block values keep a compact
-    // reading offset from the top and clear the bottom safe area. Mobile takes
-    // its insets from the root frame, so these stay unset there.
+    // md+ owns its padding (mobile insets come from the root frame). The
+    // inline-start value is the gutter between rail and content.
     paddingBlockStart: { default: 0, [breakpoints.md]: space._4 },
     paddingBlockEnd: {
       default: 0,
