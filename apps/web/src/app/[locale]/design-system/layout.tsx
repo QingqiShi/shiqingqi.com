@@ -82,6 +82,11 @@ export default async function Layout({
       sidebar={<DesignSystemNav />}
       sidebarHeader={<DesignSystemSidebarHeader locale={validatedLocale} />}
       sidebarFooter={<DesignSystemSidebarControls locale={validatedLocale} />}
+      // Wider than the 200px default so the longest nav label ("Header &
+      // footer layout") keeps its full padding on one line — even once a
+      // classic (non-overlay) scrollbar claims its reserved gutter from the
+      // rail.
+      sidebarInlineSize="240px"
       menuLabel={t({ en: "Design system menu", zh: "设计系统菜单" })}
       closeLabel={t({ en: "Close menu", zh: "关闭菜单" })}
     >

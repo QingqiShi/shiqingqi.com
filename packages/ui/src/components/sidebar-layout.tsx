@@ -445,6 +445,11 @@ const styles = stylex.create({
     // the shrink-to-scroll min-size, and the scroll-aware edge fade.
     flexGrow: 1,
     overscrollBehavior: "contain",
+    // Reserve the classic-scrollbar gutter up front (a no-op for overlay
+    // scrollbars) so a nav that overflows never renders its links underneath
+    // the scrollbar, and the link width stays constant whether or not the
+    // scrollbar is present.
+    scrollbarGutter: { default: "auto", [breakpoints.md]: "stable" },
     // The native scrollbar shows only while the nav actually overflows. Bleed
     // the scroll container's end edge out over the rail's inline padding so the
     // scrollbar sits flush against the rail's border, then pad the content back
