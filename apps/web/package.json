@@ -53,7 +53,7 @@
     "react-error-boundary": "^6.1.2",
     "react-markdown": "^10.1.0",
     "react-remove-scroll": "catalog:",
-    "react-virtuoso": "^4.18.10",
+    "react-virtuoso": "^4.18.11",
     "remark-gfm": "^4.0.1",
     "serwist": "catalog:",
     "sharp": "^0.35.3",
