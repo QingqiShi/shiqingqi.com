@@ -33,8 +33,8 @@
     "verify:vector": "tsx ../../packages/vector-ingest/src/verify.ts"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.14",
-    "@ai-sdk/react": "^4.0.27",
+    "@ai-sdk/anthropic": "^4.0.16",
+    "@ai-sdk/react": "^4.0.34",
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "catalog:",
     "@stylexjs/stylex": "catalog:",
@@ -46,7 +46,7 @@
     "@upstash/vector": "catalog:",
     "@vercel/analytics": "catalog:",
     "@vercel/speed-insights": "catalog:",
-    "ai": "^7.0.26",
+    "ai": "^7.0.31",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
