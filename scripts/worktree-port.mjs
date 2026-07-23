@@ -5,11 +5,13 @@ import { pathToFileURL } from "node:url";
 /**
  * Deterministic dev-server port for the current git worktree.
  *
- * The main checkout always keeps the standard port 3000. Each worktree
- * created under `.claude/worktrees/<name>` gets a stable port derived from
- * its folder name (djb2 hash mapped into 3001–3999), so the dev server,
- * Playwright, and the agent all agree on the same port without any shared
- * state to write or read.
+ * The main checkout always keeps the standard port 3000. Worktrees get a
+ * stable port derived from their folder name (djb2 hash mapped into
+ * 3001–3999), so the dev server, Playwright, and the agent all agree on the
+ * same port without any shared state to write or read. A worktree is detected
+ * two ways: an Orca worktree exposes `$ORCA_WORKTREE_ID` (formatted as
+ * `<uuid>::<path>`), and a Claude Code worktree lives under
+ * `.claude/worktrees/<name>`.
  *
  * An optional `offset` shifts the result by a fixed amount. This lets a
  * second app in the monorepo (e.g. `apps/trip-planner`) run alongside `web`
@@ -17,6 +19,16 @@ import { pathToFileURL } from "node:url";
  * offset 0, the second app passes a non-zero offset.
  */
 export function getWorktreePort(offset = 0) {
+  // Orca worktrees expose `<uuid>::<path>` via ORCA_WORKTREE_ID; the path
+  // after the first `::` identifies the worktree, so no git call is needed.
+  const orcaWorktreeId = process.env.ORCA_WORKTREE_ID;
+  if (orcaWorktreeId) {
+    const separator = orcaWorktreeId.indexOf("::");
+    const worktreePath =
+      separator === -1 ? orcaWorktreeId : orcaWorktreeId.slice(separator + 2);
+    return portForName(basename(worktreePath), offset);
+  }
+
   let root;
   try {
     root = execSync("git rev-parse --show-toplevel", {
@@ -28,7 +40,10 @@ export function getWorktreePort(offset = 0) {
 
   if (!root.includes("/.claude/worktrees/")) return 3000 + offset;
 
-  const name = basename(root);
+  return portForName(basename(root), offset);
+}
+
+function portForName(name, offset) {
   let hash = 5381;
   for (const char of name) {
     hash = ((hash * 33) ^ char.charCodeAt(0)) >>> 0;
