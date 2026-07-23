@@ -1,6 +1,3 @@
-// The overview renders the eight foundation-card illustrations. Each tile below
-// carries `illoMarker` (so its scene reads the tile's hover/focus state) and
-// IlloLayer publishes `--ds-illo-px/py` for the scenes' pointer parallax.
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
