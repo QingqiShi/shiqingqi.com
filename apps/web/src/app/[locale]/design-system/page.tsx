@@ -1,9 +1,23 @@
+// Foundation-card illustrations: eight soft-luminous SVG scenes in
+// components/design-system/foundation-illustrations, each a StyleX component
+// that reads a small shared contract set by the tile below and IlloLayer:
+//   --ds-illo                    0 -> 1  aliveness on hover/focus (registered
+//                                        <number> in global.css, so it animates)
+//   --ds-illo-px / --ds-illo-py  0 -> 1  pointer position across the tile
+//                                        (0.5 = centre), set by IlloLayer
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
+import {
+  duration,
+  easing,
+  motionConstants,
+  transition,
+} from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { ViewTransition } from "react";
+import { IlloLayer } from "#src/components/design-system/foundation-illustrations/illo-layer.tsx";
+import { getFoundationIllustration } from "#src/components/design-system/foundation-illustrations/index.tsx";
 import {
   type DesignSystemGroupId,
   type DesignSystemPath,
@@ -268,17 +282,24 @@ export default function DesignSystemOverview() {
             <div css={styles.grid}>
               {group.paths.map((path) => {
                 const entry = content[path];
+                const illustration = getFoundationIllustration(path);
                 return (
                   <Link
                     key={path}
                     href={getLocalePath(path, locale)}
+                    // Marks the pointer-tracked tile so IlloLayer finds it
+                    // without assuming the tile renders as an <a>.
+                    data-illo-tile={illustration ? "" : undefined}
                     css={[
-                      transition.colors,
                       cardSurface.base,
                       cardSurface.interactive,
                       styles.tile,
+                      illustration ? styles.tileIllustrated : transition.colors,
                     ]}
                   >
+                    {illustration ? (
+                      <IlloLayer>{illustration}</IlloLayer>
+                    ) : null}
                     <span css={styles.tileName}>{entry.label}</span>
                     <span css={styles.tileDescription}>
                       {entry.description}
@@ -347,12 +368,39 @@ const styles = stylex.create({
     paddingInline: space._4,
     textDecoration: "none",
   },
+  // Foundation tiles carry a soft-luminous illustration. `--ds-illo` (0 -> 1) is
+  // the aliveness signal every illustration reads; it is registered as an
+  // animatable `<number>` in global.css, so it interpolates over the transition
+  // below and blooms the art from monochrome to colour. The colour transitions
+  // are folded in here because this rule owns the `transition` shorthand (it
+  // replaces the shared `transition.colors` for these tiles).
+  tileIllustrated: {
+    position: "relative",
+    overflow: "hidden",
+    isolation: "isolate",
+    // Foundations tiles carry a bottom-anchored illustration and stand taller
+    // than the plain cards so the art has room to read (a ~3:2 surface, close to
+    // the reference mockups) instead of being letterboxed into a right-hand strip.
+    minBlockSize: "184px",
+    justifyContent: "flex-start",
+    "--ds-illo": { default: "0", ":hover": "1", ":focus-visible": "1" },
+    // The colour parts mirror `transition.colors` exactly (same duration/easing
+    // tokens); only the bespoke `--ds-illo` interpolation is appended here.
+    transition: {
+      default: `color ${duration._200} ${easing.ease}, background-color ${duration._200} ${easing.ease}, border-color ${duration._200} ${easing.ease}, --ds-illo 600ms ${easing.entrance}`,
+      [motionConstants.REDUCED_MOTION]: `color ${duration._200} ${easing.ease}, background-color ${duration._200} ${easing.ease}, border-color ${duration._200} ${easing.ease}, --ds-illo 1ms ${easing.linear}`,
+    },
+  },
   tileName: {
+    position: "relative",
+    zIndex: 1,
     fontSize: font.uiHeading3,
     fontWeight: font.weight_7,
     color: color.textMain,
   },
   tileDescription: {
+    position: "relative",
+    zIndex: 1,
     fontSize: font.uiBodySmall,
     color: color.textMuted,
     lineHeight: font.lineHeight_4,
