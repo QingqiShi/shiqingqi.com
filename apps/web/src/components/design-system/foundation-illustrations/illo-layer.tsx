@@ -14,8 +14,6 @@ export function IlloLayer({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const layer = ref.current;
-    // The interactive tile marks itself with `data-illo-tile` rather than us
-    // assuming it is an <a>, so the coupling survives the tile changing element.
     const tile = layer?.closest("[data-illo-tile]");
     if (!(tile instanceof HTMLElement)) {
       return;

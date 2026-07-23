@@ -360,8 +360,7 @@ const styles = stylex.create({
     paddingInline: space._4,
     textDecoration: "none",
   },
-  // Illustrated tiles stand taller (a ~3:2 surface) and clip the bottom-anchored
-  // art; the shared `transition.colors` is applied at the call site.
+  // Taller than the plain tiles (~3:2) so the bottom-anchored art has room.
   tileIllustrated: {
     position: "relative",
     overflow: "hidden",
