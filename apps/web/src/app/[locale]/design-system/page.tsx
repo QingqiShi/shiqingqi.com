@@ -4,6 +4,9 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { ViewTransition } from "react";
+import { IlloLayer } from "#src/components/design-system/foundation-illustrations/illo-layer.tsx";
+import { illoMarker } from "#src/components/design-system/foundation-illustrations/illustration.stylex.ts";
+import { getFoundationIllustration } from "#src/components/design-system/foundation-illustrations/index.tsx";
 import {
   type DesignSystemGroupId,
   type DesignSystemPath,
@@ -268,17 +271,27 @@ export default function DesignSystemOverview() {
             <div css={styles.grid}>
               {group.paths.map((path) => {
                 const entry = content[path];
+                const illustration = getFoundationIllustration(path);
                 return (
                   <Link
                     key={path}
                     href={getLocalePath(path, locale)}
+                    // IlloLayer locates its tile by this attribute, not by tag.
+                    data-illo-tile={illustration ? "" : undefined}
                     css={[
-                      transition.colors,
                       cardSurface.base,
                       cardSurface.interactive,
                       styles.tile,
+                      transition.colors,
+                      // `illoMarker` lets the scene read this tile's hover/focus
+                      // state via stylex.when.ancestor.
+                      illustration ? styles.tileIllustrated : null,
+                      illustration ? illoMarker : null,
                     ]}
                   >
+                    {illustration ? (
+                      <IlloLayer>{illustration}</IlloLayer>
+                    ) : null}
                     <span css={styles.tileName}>{entry.label}</span>
                     <span css={styles.tileDescription}>
                       {entry.description}
@@ -347,12 +360,24 @@ const styles = stylex.create({
     paddingInline: space._4,
     textDecoration: "none",
   },
+  // Taller than the plain tiles (~3:2) so the bottom-anchored art has room.
+  tileIllustrated: {
+    position: "relative",
+    overflow: "hidden",
+    isolation: "isolate",
+    minBlockSize: "184px",
+    justifyContent: "flex-start",
+  },
   tileName: {
+    position: "relative",
+    zIndex: 1,
     fontSize: font.uiHeading3,
     fontWeight: font.weight_7,
     color: color.textMain,
   },
   tileDescription: {
+    position: "relative",
+    zIndex: 1,
     fontSize: font.uiBodySmall,
     color: color.textMuted,
     lineHeight: font.lineHeight_4,
