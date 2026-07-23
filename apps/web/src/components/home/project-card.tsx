@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import { ViewTransition, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Card } from "#src/components/shared/card.tsx";
 import { svgTokens } from "#src/logos/svg.stylex.ts";
 
@@ -24,9 +24,7 @@ export function ProjectCard({
     <Card {...rest} className={className} style={style} css={styles.card}>
       <div css={styles.row}>
         <div css={[flex.row, styles.logo]}>{icon}</div>
-        <ViewTransition name={`project-card-name-${name}`}>
-          <div css={styles.name}>{name}</div>
-        </ViewTransition>
+        <div css={styles.name}>{name}</div>
       </div>
       <Text as="div" variant="bodySmall" tone="muted">
         {description}
