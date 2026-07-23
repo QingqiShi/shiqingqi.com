@@ -3,20 +3,10 @@ import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
- * Typography foundation-card illustration. A large serif "Aa" with a metallic
- * sheen, sat against a type-scale ruler (72 / 48 / 24 / 16) whose guide lines
- * run across the letterforms. At rest the glyph is a dim silver; on hover it
- * brightens to a warm metallic, the letterforms lean toward the cursor, and a
- * shimmer tracks the pointer along the baseline with a blinking caret.
- *
- * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
- * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
- * (the tile carries `illoMarker`), so each element transitions its own colour /
- * opacity between the two states — no shared signal variable. Continuous pointer
- * lean/parallax reads the inherited `--ds-illo-mx/my` (centred at rest, so the
- * transforms sit at home until IlloLayer feeds a pointer position).
+ * Typography foundation-card illustration: a metallic serif "Aa" over a
+ * type-scale ruler (72 / 48 / 24 / 16), dim silver at rest and warming toward
+ * the cursor on hover.
  */
-
 export function TypographyIllustration() {
   return (
     <svg
@@ -26,7 +16,6 @@ export function TypographyIllustration() {
       aria-hidden="true"
     >
       <defs>
-        {/* Warm ambient glow behind the glyph. */}
         <radialGradient id="dsi-typography-ty-orb" cx="50%" cy="54%" r="58%">
           <stop
             offset="0%"
@@ -36,9 +25,6 @@ export function TypographyIllustration() {
           <stop offset="55%" stopColor="var(--ds-illo-hue)" stopOpacity="0.2" />
           <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
         </radialGradient>
-        {/* Metallic fill: silver with a warm mid-band. Theme-aware so the glyph
-            keeps contrast on the light (cream) surface as brushed pewter, and
-            reads as bright silver on the dark surface. */}
         <linearGradient
           id="dsi-typography-ty-metal"
           x1="0"
@@ -89,8 +75,6 @@ export function TypographyIllustration() {
         </filter>
       </defs>
 
-      {/* Ambient field glow behind the glyph — trails the cursor across the
-          card so the light reads as coming from the pointer. */}
       <ellipse
         css={styles.orb}
         cx="258"
@@ -100,7 +84,6 @@ export function TypographyIllustration() {
         fill="url(#dsi-typography-ty-orb)"
       />
 
-      {/* Type-scale ruler: guide lines + size labels, drawn under the glyph. */}
       <g>
         <g css={styles.rule}>
           <line css={styles.ruleLine} x1="188" y1="76" x2="318" y2="76" />
@@ -124,8 +107,6 @@ export function TypographyIllustration() {
         </g>
       </g>
 
-      {/* The letterform leans toward the cursor: soft glow + crisp glyph, rest
-          silver -> alive metallic. */}
       <g css={styles.letters}>
         <text
           css={[styles.glyph, styles.glow]}
@@ -149,7 +130,6 @@ export function TypographyIllustration() {
         </text>
       </g>
 
-      {/* Shimmer glinting where the cursor is, along the baseline on hover. */}
       <g css={styles.shimmerWrap}>
         <rect
           css={styles.shimmer}
@@ -162,7 +142,6 @@ export function TypographyIllustration() {
         />
       </g>
 
-      {/* Blinking caret just past the glyph, baseline to cap height. */}
       <g css={styles.caret}>
         <line css={styles.caretBlink} x1="315" y1="156" x2="315" y2="74" />
       </g>
@@ -170,10 +149,8 @@ export function TypographyIllustration() {
   );
 }
 
-// The caret stays: a blinking text cursor is a genuine typographic signal, not
-// decorative ambience. It runs continuously but is invisible at rest — the
-// `caret` group is opacity 0 until the tile is alive — so the blink only reads
-// while the card is alive. Disabled outright under reduced motion.
+// Runs continuously but is invisible at rest (the caret group is opacity 0 until
+// the tile is alive), so the blink only reads once the card is hovered.
 const blink = stylex.keyframes({
   "0%, 60%": { opacity: 1 },
   "74%": { opacity: 0.1 },
@@ -188,10 +165,8 @@ const styles = stylex.create({
     fontWeight: 500,
     letterSpacing: "-1px",
   },
-  // The letterforms lean toward the cursor — a small translate plus a hair of
-  // rotation reads as the glyph catching the light, parallaxing ahead of the
-  // glow behind it. Centred (mx/my = 0) at rest, so it sits home until IlloLayer
-  // feeds a pointer position.
+  // Pointer lean; mx/my are 0 at rest, so this (and every --ds-illo-mx/my
+  // transform below) sits home until IlloLayer feeds a pointer position.
   letters: {
     transformBox: "view-box",
     transformOrigin: "238px 120px",
@@ -216,8 +191,6 @@ const styles = stylex.create({
       default: "scale(0.92)",
       [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
         "scale(1.02)",
-      // Frozen under reduced motion so the scale doesn't animate; the opacity
-      // still blooms (via the `alive` conditional).
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -240,9 +213,6 @@ const styles = stylex.create({
     },
     transition: "opacity 480ms cubic-bezier(0.32, 0.72, 0, 1)",
   },
-  // Warm field glow: no drift loop. It trails the cursor across the card, so the
-  // light reads as coming from the pointer. Larger travel than the glyph so the
-  // two layers pull apart into depth.
   orb: {
     opacity: {
       default: 0,
@@ -298,8 +268,6 @@ const styles = stylex.create({
     },
     transition: "fill 520ms ease",
   },
-  // Metallic sheen: instead of sweeping on a timer, it glints where the cursor
-  // is — tracking the pointer's horizontal position across the letterforms.
   shimmerWrap: {
     opacity: {
       default: 0,

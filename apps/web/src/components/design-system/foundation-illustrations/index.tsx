@@ -10,11 +10,9 @@ import { SpacingIllustration } from "./spacing-illustration.tsx";
 import { TypographyIllustration } from "./typography-illustration.tsx";
 
 /**
- * Maps each foundations route to its soft-luminous card illustration. Only the
- * eight foundations have art; other overview cards render without it. Values are
- * ready-made elements (the illustrations are static, stateless SVGs), so the
- * overview embeds one directly rather than instantiating a component variable
- * during render.
+ * Maps each foundations route to its card illustration (the other overview cards
+ * render without art). Values are ready-made elements — the illustrations are
+ * static, stateless SVGs — so the overview embeds one directly.
  */
 const FOUNDATION_ILLUSTRATIONS: Partial<
   Record<DesignSystemPath, ReactElement>

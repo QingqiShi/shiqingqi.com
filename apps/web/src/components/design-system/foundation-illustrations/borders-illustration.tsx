@@ -3,27 +3,8 @@ import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
- * Borders foundation-card illustration. A stack of concentric rounded frames
- * sharing one bottom-right corner and bleeding off the right and bottom edges.
- * Stepping inward the corner radius shrinks (the corner-radius scale) while the
- * stroke treatment varies — a thin outer keyline, a dashed frame whose left
- * edge falls as a long dashed line, a bright accent frame, quieter grey frames,
- * and a small dark rounded rect at the core (the border-width scale). At rest
- * the frames read as dim monochrome greys; on hover the two accent frames warm
- * to gold and a soft bloom glows in.
- *
- * On hover the frames react to the pointer: each ring (`ring1`..`ring6`) leans
- * toward the cursor by a magnitude that grows with nesting, so the flat nest
- * pulls apart into layered depth, and a warm bloom trails the cursor so the
- * gold accents catch light where the pointer sits.
- *
- * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
- * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)` (the
- * tile carries `illoMarker`), so each element transitions its own opacity between
- * the two states — no shared signal variable. Continuous pointer lean/parallax
- * reads the inherited `--ds-illo-mx/my` (centred at rest, so the transforms sit
- * at home until IlloLayer feeds a pointer position); the base palette tokens come
- * from `illoBase`.
+ * Borders foundation-card illustration: nested concentric rounded frames plus a
+ * dashed frame, dim grey at rest -> warm gold on hover.
  */
 export function BordersIllustration() {
   return (
@@ -34,7 +15,6 @@ export function BordersIllustration() {
       aria-hidden="true"
     >
       <defs>
-        {/* Warm amber bloom behind the nested corner (alive). */}
         <radialGradient id="dsi-borders-hue" cx="50%" cy="50%" r="50%">
           <stop
             offset="0%"
@@ -44,14 +24,12 @@ export function BordersIllustration() {
           <stop offset="45%" stopColor="var(--ds-illo-hue)" stopOpacity="0.3" />
           <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
         </radialGradient>
-        {/* Resting monochrome glow. */}
         <radialGradient id="dsi-borders-ink" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="var(--ds-illo-ink)" stopOpacity="0.4" />
           <stop offset="100%" stopColor="var(--ds-illo-ink)" stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      {/* Resting grey glow, fades out as the card comes alive. */}
       <circle
         css={styles.inkGlow}
         cx="300"
@@ -60,7 +38,6 @@ export function BordersIllustration() {
         fill="url(#dsi-borders-ink)"
       />
 
-      {/* Amber bloom: intensifies on hover and trails the cursor. */}
       <circle
         css={styles.bloom}
         cx="298"
@@ -69,11 +46,9 @@ export function BordersIllustration() {
         fill="url(#dsi-borders-hue)"
       />
 
-      {/* The nest of frames — leans and parallaxes toward the cursor as a body. */}
       <g css={styles.frames}>
-        {/* Small dark rounded rect at the core (drawn first so keylines sit over
-            its edge). Reads as a darker inset patch in both themes. Moves with
-            the core keyline (ring-6) so the corner patch stays coherent. */}
+        {/* Drawn first so the keylines paint over its edge; borrows ring-6's
+            transform so the dark corner patch stays glued to the core keyline. */}
         <rect
           css={[
             styles.coreFill,
@@ -89,16 +64,12 @@ export function BordersIllustration() {
           fill="rgb(0 0 0 / 0.4)"
         />
 
-        {/* ============ ALWAYS-GREY FRAMES ============
-            Dashed frame, two quiet grey frames, and the core's keyline. These
-            stay monochrome in both states; only the accent frames warm to gold. */}
         <g
           css={styles.grey}
           fill="none"
           stroke="var(--ds-illo-ink)"
           strokeLinejoin="round"
         >
-          {/* Dashed frame — its left edge falls as a long dashed line. */}
           <rect
             css={[styles.ringGroup, styles.ring2]}
             x="182"
@@ -138,7 +109,8 @@ export function BordersIllustration() {
           />
         </g>
 
-        {/* ============ ACCENT FRAMES — grey at rest ============ */}
+        {/* Each accent frame is drawn twice — grey copy fading out, gold copy fading
+            in — to cross-fade grey -> gold on hover; both share ring styles to track together. */}
         <g
           css={styles.accentRest}
           fill="none"
@@ -165,7 +137,6 @@ export function BordersIllustration() {
           />
         </g>
 
-        {/* ============ ACCENT FRAMES — gold on hover ============ */}
         <g css={styles.accentAlive} fill="none" strokeLinejoin="round">
           <rect
             css={[styles.ringGroup, styles.ring1]}
@@ -194,8 +165,6 @@ export function BordersIllustration() {
 }
 
 const styles = stylex.create({
-  // Resting grey glow — the "at rest" layer. Fades out as the card comes alive;
-  // holds still so the moving warm bloom reads as the light taking over.
   inkGlow: {
     opacity: {
       default: 0.6,
@@ -203,10 +172,6 @@ const styles = stylex.create({
     },
     transition: "opacity 500ms ease",
   },
-  // Warm bloom: no breathing loop. It trails the cursor across the nest, so the
-  // gold light reads as coming from the pointer and the accent frames catch
-  // light on whichever side the cursor sits. Larger travel than any ring, so it
-  // sits furthest back in the parallax stack.
   bloom: {
     opacity: {
       default: 0,
@@ -225,9 +190,6 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // The whole nest tilts a hair toward the cursor — combined with the per-ring
-  // offsets below, the concentric frames swing as one body while pulling apart
-  // into depth. Settles flat (mx = 0) when the pointer leaves.
   frames: {
     transformBox: "view-box",
     transformOrigin: "300px 150px",
@@ -240,8 +202,6 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // Colour bloom — unchanged resting look. Grey frames at rest, accent frames
-  // cross-fade grey -> gold on hover.
   grey: {
     opacity: {
       default: 0.46,
@@ -269,13 +229,6 @@ const styles = stylex.create({
       [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.92,
     },
   },
-  // ---- Concentric parallax depth ------------------------------------------
-  // Each ring translates toward the cursor by a magnitude that grows with
-  // nesting: the outermost frame barely moves, the tiny core swings widest, so
-  // the flat nest pulls apart into layered 3D. Vertical travel is a touch
-  // smaller than horizontal to match the card's landscape aspect. Rings share a
-  // style regardless of colour treatment, so the grey and gold copies of an
-  // accent frame move in lockstep.
   ringGroup: {
     transformBox: "view-box",
     transition: {
@@ -318,8 +271,6 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // Core keyline + its dark fill share ring-6 so the corner patch stays coherent
-  // as it swings widest.
   ring6: {
     transform: {
       default:

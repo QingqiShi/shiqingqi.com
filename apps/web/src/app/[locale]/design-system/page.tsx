@@ -1,10 +1,6 @@
-// Foundation-card illustrations: eight soft-luminous SVG scenes in
-// components/design-system/foundation-illustrations, each a StyleX component.
-// The tile below carries `illoMarker`, so every scene switches from its rest to
-// its alive look off the tile's own :hover / :focus-visible state, via
-// stylex.when.ancestor(...). IlloLayer publishes the pointer position as
-// `--ds-illo-px` / `--ds-illo-py` (0 -> 1 across the tile, 0.5 = centre) for the
-// scenes' parallax / scrub transforms.
+// The overview renders the eight foundation-card illustrations. Each tile below
+// carries `illoMarker` (so its scene reads the tile's hover/focus state) and
+// IlloLayer publishes `--ds-illo-px/py` for the scenes' pointer parallax.
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -283,17 +279,15 @@ export default function DesignSystemOverview() {
                   <Link
                     key={path}
                     href={getLocalePath(path, locale)}
-                    // Marks the pointer-tracked tile so IlloLayer finds it
-                    // without assuming the tile renders as an <a>.
+                    // IlloLayer locates its tile by this attribute, not by tag.
                     data-illo-tile={illustration ? "" : undefined}
                     css={[
                       cardSurface.base,
                       cardSurface.interactive,
                       styles.tile,
                       transition.colors,
-                      // Illustrated tiles clip a taller art surface and carry
-                      // `illoMarker`, so the scene's descendants can read the
-                      // tile's hover/focus state via stylex.when.ancestor.
+                      // `illoMarker` lets the scene read this tile's hover/focus
+                      // state via stylex.when.ancestor.
                       illustration ? styles.tileIllustrated : null,
                       illustration ? illoMarker : null,
                     ]}
@@ -369,11 +363,8 @@ const styles = stylex.create({
     paddingInline: space._4,
     textDecoration: "none",
   },
-  // Foundation tiles carry a bottom-anchored illustration and stand taller than
-  // the plain cards so the art has room to read (a ~3:2 surface, close to the
-  // reference mockups) instead of being letterboxed into a right-hand strip. The
-  // colour transition comes from the shared `transition.colors` at the call
-  // site; each illustration eases its own rest -> alive bloom per element.
+  // Illustrated tiles stand taller (a ~3:2 surface) and clip the bottom-anchored
+  // art; the shared `transition.colors` is applied at the call site.
   tileIllustrated: {
     position: "relative",
     overflow: "hidden",

@@ -3,20 +3,9 @@ import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
- * Motion foundation-card illustration. An ease-in-out cubic-bezier curve drawn
- * against a faint square grid, with a dashed linear reference bowing beneath it.
- * A comet of ghost dots scrubs the curve under the pointer while the lit
- * endpoint marks its target, and the grid / linear layers parallax against the
- * cursor for depth.
- *
- * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
- * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
- * (the tile carries `illoMarker`), so each element transitions its own opacity
- * between the two states — no shared aliveness variable. Continuous pointer
- * reactions still read the inherited pointer channels the IlloLayer publishes:
- * horizontal `--ds-illo-px` (endpoint haloes + comet scrub) and centred
- * `--ds-illo-mx` / `--ds-illo-my` (grid / linear parallax). The base palette
- * tokens come from `illoBase`.
+ * Motion foundation-card illustration: an ease-in-out easing curve with a dot
+ * that scrubs along it under the pointer trailing a comet tail, dim at rest and
+ * warming to life on hover.
  */
 export function MotionIllustration() {
   return (
@@ -52,7 +41,6 @@ export function MotionIllustration() {
         </radialGradient>
       </defs>
 
-      {/* Ambient corner wash */}
       <g>
         <circle
           css={styles.bloomInk}
@@ -70,7 +58,6 @@ export function MotionIllustration() {
         />
       </g>
 
-      {/* Faint square guide grid */}
       <g css={styles.grid}>
         <path css={styles.gridPath} d="M180,60 L180,150" />
         <path css={styles.gridPath} d="M210,60 L210,150" />
@@ -83,17 +70,13 @@ export function MotionIllustration() {
         <path css={styles.gridPath} d="M180,150 L300,150" />
       </g>
 
-      {/* Secondary easing reference (dashed curve bowing below the main curve) */}
       <path css={styles.linear} d="M210,150 C265,150 288,112 300,60" />
 
-      {/* Primary easing curve (ease-in-out cubic bezier) */}
       <path css={styles.curveGlowWide} d="M210,150 C258,150 252,60 300,60" />
       <path css={styles.curveGlow} d="M210,150 C258,150 252,60 300,60" />
       <path css={styles.curveInk} d="M210,150 C258,150 252,60 300,60" />
       <path css={styles.curveHue} d="M210,150 C258,150 252,60 300,60" />
 
-      {/* Endpoint glow haloes: the start brightens as the cursor leans left, the
-          end as it leans right (endpointStart / endpointEnd track --ds-illo-px). */}
       <circle
         css={[styles.endpointGlow, styles.endpointStart]}
         cx="210"
@@ -109,15 +92,12 @@ export function MotionIllustration() {
         fill="url(#dsi-motion-mo-orb)"
       />
 
-      {/* Resting endpoint dots (dim at rest) */}
       <circle css={styles.endpointRest} cx="210" cy="150" r="4" />
       <circle css={styles.endpointRest} cx="300" cy="60" r="4" />
 
-      {/* Live endpoint cores (bloom warm/white on hover) */}
       <circle css={styles.endpointLive} cx="210" cy="150" r="3.4" />
       <circle css={styles.endpointLive} cx="300" cy="60" r="3.4" />
 
-      {/* Dot that scrubs the curve under the cursor (offset-path, per cometCircle) */}
       <g css={styles.comet}>
         <circle
           css={[styles.cometCircle, styles.g4]}
@@ -164,7 +144,6 @@ const styles = stylex.create({
     },
     transition: "opacity 520ms ease",
   },
-  // Faint square guide grid — parallaxes a hair against the cursor for depth.
   grid: {
     transformBox: "view-box",
     transform: {
@@ -234,8 +213,6 @@ const styles = stylex.create({
     },
     transition: "opacity 460ms ease",
   },
-  // Secondary easing reference — parallaxes a touch more than the grid so the
-  // two reference layers separate in depth as the pointer moves.
   linear: {
     fill: "none",
     stroke: "var(--ds-illo-ink)",
@@ -257,10 +234,8 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "opacity 520ms ease",
     },
   },
-  // Endpoint haloes react to which way the cursor leans: the start glow brightens
-  // as the pointer moves left (px -> 0), the end glow as it moves right (px -> 1).
-  // The scrubbing dot rides between them, so the lit endpoint marks its target.
-  // Rest gates the halo off; on hover the pointer-position term drives brightness.
+  // Halo opacity gates off at rest and on via when.ancestor hover, but keeps the
+  // --ds-illo-px pointer term so the lit endpoint tracks which way the cursor leans.
   endpointGlow: {
     transition: "opacity 420ms ease",
   },
@@ -294,13 +269,8 @@ const styles = stylex.create({
     },
     transition: "opacity 420ms ease",
   },
-  // The dot scrubs the easing curve under the cursor: offset-path traces the exact
-  // visible curve and offset-distance maps the pointer's horizontal position
-  // (--ds-illo-px, 0 -> 1) onto it. Transitioning offset-distance glides the dot
-  // along the real curve as the pointer moves and eases it back to the midpoint
-  // (px = 0.5) on leave. The head leads; the ghosts share the same target but ease
-  // in progressively longer, so they lag into a comet tail while scrubbing and
-  // converge onto the head when the pointer settles.
+  // The dot scrubs the curve: cometCircle's offset-path traces it and offset-distance
+  // maps the pointer --ds-illo-px (0->1) onto it; ghosts lag progressively into a tail.
   comet: {
     opacity: {
       default: 0,
@@ -313,7 +283,6 @@ const styles = stylex.create({
     offsetRotate: "0deg",
     offsetDistance: {
       default: "calc(var(--ds-illo-px, 0.5) * 100%)",
-      // No scrubbing under reduced motion: park the dot at the curve midpoint.
       [motionConstants.REDUCED_MOTION]: "50%",
     },
   },

@@ -3,18 +3,9 @@ import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
- * Elevation foundation-card illustration. Four glassy planes recede up and to
- * the right, with the largest, most opaque plane anchored at the bottom. A
- * warm-gold pool of light blooms under the front plane's bottom edge to read as
- * elevation; on hover the stack lifts and fans open toward the cursor while the
- * light pools trail the pointer.
- *
- * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
- * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
- * (the tile carries `illoMarker`), so each element transitions its own colour /
- * opacity / lift between the two states — no shared signal variable. Continuous
- * pointer parallax reads the inherited `--ds-illo-mx/my` (centred at rest, so
- * the transforms sit at home until IlloLayer feeds a pointer position).
+ * Elevation foundation-card illustration: a stack of glassy planes fanning up
+ * and to the right into depth, over a warm-gold pool of light under the front
+ * plane. Dim at rest; warms and lifts alive on hover.
  */
 export function ElevationIllustration() {
   return (
@@ -25,27 +16,22 @@ export function ElevationIllustration() {
       aria-hidden="true"
     >
       <defs>
-        {/* Warm-gold floor pool: bright centre -> transparent edge. Stops
-            crossfade neutral -> warm gold as the card wakes. */}
         <radialGradient id="dsi-elevation-elGlowG" cx="50%" cy="50%" r="50%">
           <stop offset="0%" css={styles.gs0} />
           <stop offset="48%" css={styles.gs1} />
           <stop offset="100%" css={styles.gs2} />
         </radialGradient>
-        {/* Ambient focal bloom behind the stack. */}
         <radialGradient id="dsi-elevation-elFocalG" cx="50%" cy="58%" r="55%">
           <stop offset="0%" css={styles.fs0} />
           <stop offset="60%" css={styles.fs1} />
           <stop offset="100%" css={styles.fs2} />
         </radialGradient>
-        {/* Top-lit glassy sheen on each plane surface. */}
         <linearGradient id="dsi-elevation-elSurfG" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" css={styles.us0} />
           <stop offset="100%" css={styles.us1} />
         </linearGradient>
       </defs>
 
-      {/* Ambient focal bloom, hugging the front plane; follows the cursor. */}
       <g css={styles.focalFollow}>
         <ellipse
           css={styles.focal}
@@ -57,7 +43,6 @@ export function ElevationIllustration() {
         />
       </g>
 
-      {/* Plane 4 — backmost, smallest, faintest; leans furthest on parallax. */}
       <g css={styles.lift4}>
         <g css={[styles.parallax, styles.parallax4]}>
           <rect
@@ -80,7 +65,6 @@ export function ElevationIllustration() {
         </g>
       </g>
 
-      {/* Plane 3. */}
       <g css={styles.lift3}>
         <g css={[styles.parallax, styles.parallax3]}>
           <rect
@@ -103,7 +87,6 @@ export function ElevationIllustration() {
         </g>
       </g>
 
-      {/* Plane 2. */}
       <g css={styles.lift2}>
         <g css={[styles.parallax, styles.parallax2]}>
           <rect
@@ -126,8 +109,6 @@ export function ElevationIllustration() {
         </g>
       </g>
 
-      {/* Warm-gold floor pool under the front plane's bottom edge; tracks the
-          cursor so the light reads as coming from the pointer. */}
       <g css={styles.poolFollow}>
         <ellipse
           css={styles.pool}
@@ -139,7 +120,6 @@ export function ElevationIllustration() {
         />
       </g>
 
-      {/* Plane 1 — front, largest, glassiest; anchors the stack, leans least. */}
       <g css={[styles.parallax, styles.parallax1]}>
         <rect
           css={[styles.pfill, styles.pfillLead]}
@@ -164,8 +144,7 @@ export function ElevationIllustration() {
 }
 
 const styles = stylex.create({
-  // Warm-gold floor pool. The stop colour crossfades neutral -> warm gold as
-  // the card wakes (rest -> alive).
+  // Glow + focal gradient stops crossfade neutral -> warm gold on wake.
   gs0: {
     stopColor: {
       default: "var(--ds-illo-ink)",
@@ -193,7 +172,6 @@ const styles = stylex.create({
     stopOpacity: 0,
     transition: "stop-color 520ms ease",
   },
-  // Ambient focal bloom — same warm-gold crossfade, fainter.
   fs0: {
     stopColor: {
       default: "var(--ds-illo-ink)",
@@ -221,7 +199,6 @@ const styles = stylex.create({
     stopOpacity: 0,
     transition: "stop-color 520ms ease",
   },
-  // Glassy top-lit sheen (neutral, translucent).
   us0: {
     stopColor: "var(--ds-illo-ink)",
     stopOpacity: 0.16,
@@ -237,8 +214,6 @@ const styles = stylex.create({
     },
     transition: "opacity 520ms ease",
   },
-  // Deepest layer: the bloom drifts furthest toward the pointer, so the light
-  // reads as coming from the cursor and the background trails the stack.
   focalFollow: {
     transformBox: "view-box",
     transformOrigin: "216px 140px",
@@ -252,7 +227,6 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // The hero light: gold pool that blooms and widens on wake.
   pool: {
     transformBox: "fill-box",
     transformOrigin: "center",
@@ -272,8 +246,6 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // The floor pool tracks the cursor at large magnitude — the light source sits
-  // under the pointer.
   poolFollow: {
     transformBox: "view-box",
     transformOrigin: "216px 160px",
@@ -287,7 +259,6 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // Glassy plane fills — faint at rest, gently glassier on wake.
   pfill: {
     opacity: {
       default: 0.14,
@@ -301,8 +272,6 @@ const styles = stylex.create({
       [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.62,
     },
   },
-  // Thin light outlines — the receding planes read mostly as these. The stroke
-  // crossfades neutral -> light warm-grey as the card wakes.
   pline: {
     fill: "none",
     stroke: {
@@ -325,7 +294,6 @@ const styles = stylex.create({
       [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.94,
     },
   },
-  // Hover lift: the stack separates diagonally, up and to the right, on wake.
   lift2: {
     transform: {
       default: "translate(0px, 0px)",
@@ -362,11 +330,6 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // Pointer parallax: every plane leans toward the cursor, but the deeper planes
-  // travel further, so the stack fans open into 3D. A shared origin and a uniform
-  // rotate tilt the whole stack rigidly; the per-plane translate does the depth.
-  // All values return to centre at rest (mx/my = 0), and hold there under
-  // reduced motion.
   parallax: {
     transformBox: "view-box",
     transformOrigin: "216px 118px",

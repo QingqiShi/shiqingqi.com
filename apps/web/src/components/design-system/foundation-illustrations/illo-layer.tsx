@@ -4,15 +4,10 @@ import * as stylex from "@stylexjs/stylex";
 import { type ReactNode, useEffect, useRef } from "react";
 
 /**
- * Wraps a foundation-card illustration and, while the card is hovered, feeds the
- * pointer position into `--ds-illo-px` / `--ds-illo-py` — a 0 -> 1 fraction
- * across the card, 0.5 = centre (the rest position) — set on the enclosing tile
- * so the SVG descendants inherit them. The illustrations read these (via the
- * centred `--ds-illo-mx` / `--ds-illo-my`, -1 -> 1, derived below) to lean and
- * parallax toward the cursor instead of running a canned ambient loop.
- *
- * Pointer tracking is skipped under reduced motion; the art then just blooms
- * from monochrome to colour on hover with no positional response.
+ * While the card is hovered, writes the pointer position to `--ds-illo-px/py`
+ * (0 -> 1 across the tile, 0.5 = centre) on the enclosing tile; the scenes read
+ * the derived, centred `--ds-illo-mx/my` to lean toward the cursor. Skipped under
+ * reduced motion — the art still blooms to colour, just without the lean.
  */
 export function IlloLayer({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -48,8 +43,6 @@ export function IlloLayer({ children }: { children: ReactNode }) {
       frame ||= requestAnimationFrame(flush);
     };
 
-    // Ease back to centre when the pointer leaves; the illustrations transition
-    // their transforms, so this reads as the art settling rather than snapping.
     const recentre = () => {
       pending = null;
       if (frame) {
@@ -60,11 +53,8 @@ export function IlloLayer({ children }: { children: ReactNode }) {
       tile.style.setProperty("--ds-illo-py", "0.5");
     };
 
-    // Reduced-motion can be toggled mid-session, so bind tracking to the query
-    // instead of reading it once: attach the listeners when motion is allowed,
-    // detach and settle to centre when it is not. `matchMedia` is guarded for
-    // environments that lack it (e.g. jsdom under test), matching sibling
-    // components; there it resolves to null and motion stays enabled.
+    // Bind to the query (not a one-time read) so a mid-session reduced-motion
+    // toggle takes effect. `matchMedia` is guarded for jsdom under test.
     const reduced =
       typeof window.matchMedia === "function"
         ? window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -104,19 +94,14 @@ function clamp01(value: number) {
 }
 
 const styles = stylex.create({
-  // Sits behind the label + description, clipped to the card. The mask anchors
-  // the art to the bottom-right corner and fades it hard across the text band so
-  // copy never fights the illustration. The centred pointer handles derived here
-  // (-1 = left/top .. 0 = centre .. 1 = right/bottom) are the values the
-  // illustrations lean along; they resolve to 0 at rest via the 0.5 defaults.
+  // The mask fades the art out across the text band so copy never fights it.
   illoLayer: {
     position: "absolute",
     inset: 0,
     zIndex: 0,
     pointerEvents: "none",
-    // `--ds-illo-px/py` are plain inherited custom properties written by the
-    // effect above; the `, 0.5` fallback gives them a defined centre before the
-    // first pointer event (and needs no `@property` registration to do so).
+    // `, 0.5` fallback centres these before the first pointer event, so the
+    // default needs no `@property` registration.
     "--ds-illo-mx": "calc((var(--ds-illo-px, 0.5) - 0.5) * 2)",
     "--ds-illo-my": "calc((var(--ds-illo-py, 0.5) - 0.5) * 2)",
     maskImage:
