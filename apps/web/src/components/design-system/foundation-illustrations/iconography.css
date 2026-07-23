@@ -1,0 +1,100 @@
+/* ============================ Iconography (gold) ============================ */
+.dsi-iconography {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  --ds-illo-ink: light-dark(#6f6f6c, #a9a8a4);
+  --ds-illo-hue: light-dark(#9a7b32, #d8b269);
+  --ds-illo-hue-soft: light-dark(#bd9a4e, #f0d29a);
+  /* Snappy, decisive follow for the spotlight as it tracks the pointer. */
+  --ds-illo-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Broad warm halo behind the cluster: rest ink -> alive hue via --ds-illo. No
+   ambient loop — it simply blooms as the card comes alive. */
+.dsi-iconography .illo-bloom {
+  opacity: calc(0.72 * var(--ds-illo));
+  transform-box: view-box;
+  transform-origin: 252px 100px;
+  transform: scale(calc(0.82 + 0.18 * var(--ds-illo)));
+  transition:
+    opacity 520ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 520ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Cursor-following spotlight: a soft warm pool that tracks the pointer across
+   the card, mapped onto the icon grid so it sweeps the icons like a flashlight.
+   Anchored at the origin and translated to the pointer position (px/py map the
+   full card onto the grid's bounds), so px=0 lights the left column and px=1 the
+   right; likewise top -> bottom. Fades in with --ds-illo so the rest look is
+   untouched. `px` maps to viewBox user units on these transforms. */
+.dsi-iconography .illo-spot {
+  opacity: calc(0.95 * var(--ds-illo));
+  transform-box: view-box;
+  transform: translate(
+    calc(210px + var(--ds-illo-px, 0.5) * 82px),
+    calc(60px + var(--ds-illo-py, 0.5) * 80px)
+  );
+  transition:
+    opacity 420ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 200ms var(--ds-illo-ease);
+}
+
+/* 3x3 icon grid. Stroke crossfades ink -> hue through --ds-illo. A hair of
+   parallax toward the cursor gives the set some life; settles to centre at
+   rest (mx/my = 0). */
+.dsi-iconography .illo-icons {
+  stroke: color-mix(
+    in oklab,
+    var(--ds-illo-ink),
+    var(--ds-illo-hue) calc(var(--ds-illo) * 100%)
+  );
+  opacity: calc(0.5 + 0.44 * var(--ds-illo));
+  transform-box: view-box;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 3px),
+    calc(var(--ds-illo-my) * 3px)
+  );
+  transition:
+    opacity 480ms ease,
+    stroke 480ms ease,
+    transform 260ms var(--ds-illo-ease);
+}
+
+/* Toggle knob: settled ON state driven by --ds-illo, not a pulse loop. It
+   slides right into the "on" position and fills to cream as the card wakes. */
+.dsi-iconography .illo-toggle-knob {
+  fill: color-mix(
+    in oklab,
+    var(--ds-illo-ink),
+    var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%)
+  );
+  stroke: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: translateX(calc((var(--ds-illo) - 1) * 7px));
+  transition: transform 420ms var(--ds-illo-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No pointer response: park the spotlight on the grid centre and drop the
+     grid parallax; the knob still settles on via --ds-illo alone. */
+  .dsi-iconography .illo-spot {
+    transform: translate(251px, 100px);
+    transition: none;
+  }
+  .dsi-iconography .illo-icons {
+    transform: none;
+    transition:
+      opacity 480ms ease,
+      stroke 480ms ease;
+  }
+  .dsi-iconography .illo-toggle-knob {
+    transition: none;
+  }
+  /* Freeze the halo's --ds-illo scale too; it still fades in via opacity. */
+  .dsi-iconography .illo-bloom {
+    transform: none;
+    transition: none;
+  }
+}

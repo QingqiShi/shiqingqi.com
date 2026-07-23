@@ -1,0 +1,139 @@
+/* ============================ Borders (amber) ============================ */
+.dsi-borders {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  --ds-illo-ink: light-dark(#6f6f6c, #a9a8a4);
+  --ds-illo-hue: light-dark(#9a7b32, #d8b269);
+  --ds-illo-hue-soft: light-dark(#bd9a4e, #f0d29a);
+  /* Snappy, decisive follow for the frames; a longer trail for the glow so the
+     layers separate in depth as the pointer moves. */
+  --ds-illo-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Resting grey glow — the "at rest" layer. Fades out as the card comes alive;
+   holds still so the moving warm bloom reads as the light taking over. */
+.dsi-borders .b-ink-glow {
+  opacity: calc(0.6 * (1 - var(--ds-illo)));
+  transition: opacity 500ms ease;
+}
+
+/* Warm bloom: no breathing loop. It trails the cursor across the nest, so the
+   gold light reads as coming from the pointer and the accent frames catch light
+   on whichever side the cursor sits. Larger travel than any ring, so it sits
+   furthest back in the parallax stack. */
+.dsi-borders .b-bloom {
+  opacity: calc(0.5 * var(--ds-illo));
+  transform-box: view-box;
+  transform-origin: 298px 146px;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 22px),
+    calc(var(--ds-illo-my) * 16px)
+  );
+  transition:
+    opacity 550ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 440ms var(--ds-illo-ease);
+}
+
+/* The whole nest tilts a hair toward the cursor — combined with the per-ring
+   offsets below, the concentric frames swing as one body while pulling apart
+   into depth. Settles flat (mx = 0) when the pointer leaves. */
+.dsi-borders .b-frames {
+  transform-box: view-box;
+  transform-origin: 300px 150px;
+  transform: rotate(calc(var(--ds-illo-mx) * 1.1deg));
+  transition: transform 300ms var(--ds-illo-ease);
+}
+
+/* Colour bloom — unchanged resting look. Grey frames at rest, accent frames
+   cross-fade grey -> gold on hover. */
+.dsi-borders .b-grey {
+  opacity: calc(0.46 + 0.12 * var(--ds-illo));
+  transition: opacity 450ms ease;
+}
+.dsi-borders .b-accent-rest {
+  opacity: calc(0.5 * (1 - var(--ds-illo)));
+  transition: opacity 450ms ease;
+}
+.dsi-borders .b-accent-alive {
+  opacity: calc(0.95 * var(--ds-illo));
+  transition: opacity 450ms ease;
+}
+.dsi-borders .b-core-fill {
+  opacity: calc(0.62 + 0.3 * var(--ds-illo));
+}
+
+/* ---- Concentric parallax depth ------------------------------------------
+   Each ring translates toward the cursor by a magnitude that grows with
+   nesting: the outermost frame barely moves, the tiny core swings widest, so
+   the flat nest pulls apart into layered 3D. Vertical travel is a touch
+   smaller than horizontal to match the card's landscape aspect. Rings share a
+   class regardless of colour treatment, so the grey and gold copies of an
+   accent frame move in lockstep. */
+.dsi-borders .b-ring-1,
+.dsi-borders .b-ring-2,
+.dsi-borders .b-ring-3,
+.dsi-borders .b-ring-4,
+.dsi-borders .b-ring-5,
+.dsi-borders .b-ring-6 {
+  transform-box: view-box;
+  transition: transform 260ms var(--ds-illo-ease);
+}
+.dsi-borders .b-ring-1 {
+  transform: translate(
+    calc(var(--ds-illo-mx) * 2px),
+    calc(var(--ds-illo-my) * 1.6px)
+  );
+}
+.dsi-borders .b-ring-2 {
+  transform: translate(
+    calc(var(--ds-illo-mx) * 4px),
+    calc(var(--ds-illo-my) * 3.2px)
+  );
+}
+.dsi-borders .b-ring-3 {
+  transform: translate(
+    calc(var(--ds-illo-mx) * 6.5px),
+    calc(var(--ds-illo-my) * 5.2px)
+  );
+}
+.dsi-borders .b-ring-4 {
+  transform: translate(
+    calc(var(--ds-illo-mx) * 9px),
+    calc(var(--ds-illo-my) * 7.2px)
+  );
+}
+.dsi-borders .b-ring-5 {
+  transform: translate(
+    calc(var(--ds-illo-mx) * 11.5px),
+    calc(var(--ds-illo-my) * 9.2px)
+  );
+}
+/* Core keyline + its dark fill share ring-6 so the corner patch stays coherent
+   as it swings widest. */
+.dsi-borders .b-ring-6 {
+  transform: translate(
+    calc(var(--ds-illo-mx) * 14px),
+    calc(var(--ds-illo-my) * 11px)
+  );
+}
+.dsi-borders .b-core-fill.b-ring-6 {
+  transition:
+    opacity 500ms ease,
+    transform 260ms var(--ds-illo-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dsi-borders .b-bloom,
+  .dsi-borders .b-frames,
+  .dsi-borders .b-ring-1,
+  .dsi-borders .b-ring-2,
+  .dsi-borders .b-ring-3,
+  .dsi-borders .b-ring-4,
+  .dsi-borders .b-ring-5,
+  .dsi-borders .b-ring-6,
+  .dsi-borders .b-core-fill.b-ring-6 {
+    transform: none;
+    transition: none;
+  }
+}

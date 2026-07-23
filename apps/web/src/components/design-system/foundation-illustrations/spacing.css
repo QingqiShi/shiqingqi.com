@@ -1,0 +1,129 @@
+/* ============================ Spacing (metallic/gold) ============================ */
+.dsi-spacing {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  --ds-illo-ink: light-dark(#6f6f6c, #a9a8a4);
+  --ds-illo-hue: light-dark(#9a7b32, #d8b269);
+  --ds-illo-hue-soft: light-dark(#bd9a4e, #f0d29a);
+  /* Neutral dark panel faces for the bars (top/bottom of the sheen). */
+  --sp-face-top: light-dark(#d6d5d1, #47463f);
+  --sp-face-bot: light-dark(#c4c3bd, #34332d);
+  /* Snappy, decisive follow for the foreground bars; a longer, larger-travel
+     trail for the glow so the layers separate in depth as the pointer moves. */
+  --ds-illo-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dsi-spacing .sp-scene {
+  opacity: calc(0.3 + 0.7 * var(--ds-illo));
+}
+
+/* Ambient warmth hugging the bars. No pulse loop — it drifts a touch with the
+   pointer so the field light reads as coming from the cursor. */
+.dsi-spacing .sp-bloom {
+  opacity: calc(0.03 + 0.4 * var(--ds-illo));
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: translate(
+      calc(var(--ds-illo-mx) * 14px),
+      calc(var(--ds-illo-my) * 11px)
+    )
+    scale(calc(0.85 + 0.15 * var(--ds-illo)));
+  transition:
+    opacity 520ms ease,
+    transform 440ms var(--ds-illo-ease);
+}
+
+/* Bars sit slightly compressed at rest and rise from the baseline on hover. */
+.dsi-spacing .sp-rise {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  transform: scaleY(calc(0.9 + 0.1 * var(--ds-illo)));
+  transition: transform 620ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Foreground: the bar stack leans toward the cursor, parallaxing ahead of the
+   ambient bloom behind it and the guides/labels beneath. Settles to centre
+   (mx/my = 0) when the pointer leaves. */
+.dsi-spacing .sp-bars {
+  transform-box: view-box;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 5px),
+    calc(var(--ds-illo-my) * 4px)
+  );
+  transition: transform 260ms var(--ds-illo-ease);
+}
+
+/* Cursor-tracking highlight: a warm radial that sweeps across the bar faces,
+   catching light where the pointer is. Larger travel than the bars so it reads
+   as a moving light source rather than part of the stack. */
+.dsi-spacing .sp-spot {
+  opacity: calc(0.6 * var(--ds-illo));
+  transform-box: view-box;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 44px),
+    calc(var(--ds-illo-my) * 22px)
+  );
+  transition:
+    opacity 520ms ease,
+    transform 420ms var(--ds-illo-ease);
+}
+
+.dsi-spacing .sp-guides line {
+  fill: none;
+  stroke: color-mix(
+    in oklab,
+    var(--ds-illo-ink),
+    var(--ds-illo-hue) calc(var(--ds-illo) * 100%)
+  );
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-dasharray: 2 4.5;
+}
+/* Guides + labels share a smaller parallax than the bars — a mid layer that
+   moves less, so the stack pulls away from them into depth on hover. */
+.dsi-spacing .sp-guides {
+  opacity: calc(0.28 + 0.32 * var(--ds-illo));
+  transform-box: view-box;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 2.5px),
+    calc(var(--ds-illo-my) * 2px)
+  );
+  transition:
+    opacity 520ms ease,
+    transform 320ms var(--ds-illo-ease);
+}
+.dsi-spacing .sp-labels text {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10.5px;
+  font-weight: 500;
+  text-anchor: middle;
+  fill: color-mix(
+    in oklab,
+    var(--ds-illo-ink),
+    var(--ds-illo-hue-soft) calc(var(--ds-illo) * 60%)
+  );
+}
+.dsi-spacing .sp-labels {
+  opacity: calc(0.5 + 0.4 * var(--ds-illo));
+  transform-box: view-box;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 2.5px),
+    calc(var(--ds-illo-my) * 2px)
+  );
+  transition:
+    opacity 520ms ease,
+    transform 320ms var(--ds-illo-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Hold every pointer-driven layer still; the colour bloom (opacity/fill on
+     --ds-illo) still responds, just without motion. */
+  .dsi-spacing .sp-bloom,
+  .dsi-spacing .sp-bars,
+  .dsi-spacing .sp-spot,
+  .dsi-spacing .sp-guides,
+  .dsi-spacing .sp-labels,
+  .dsi-spacing .sp-rise {
+    transform: none;
+    transition: none;
+  }
+}

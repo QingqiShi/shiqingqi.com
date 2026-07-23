@@ -1,0 +1,85 @@
+/* ============================ Color (multi) ============================ */
+.dsi-color {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  --ds-illo-ink: light-dark(#6f6f6c, #a9a8a4);
+  --ds-illo-hue: light-dark(#8f31be, #cc6dfb);
+  --ds-illo-hue-soft: light-dark(#b154e0, #e8b2ff);
+  /* Snappy, decisive follow for the foreground; a longer trail for the glow so
+     the layers separate in depth as the pointer moves. Shared easing with the
+     typography card for family cohesion. */
+  --ds-illo-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Reveal scale: the scene grows a hair as the palette blooms in. Driven by
+   --ds-illo, not a timer. */
+.dsi-color .art {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  transform: scale(calc(0.96 + 0.04 * var(--ds-illo)));
+  transition: transform 550ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Warm field glow: no drift loop. It follows the cursor at a large magnitude so
+   the light reads as coming from the pointer, pulling away from the foreground
+   into depth. Settles to centre (mx/my = 0) when the pointer leaves. */
+.dsi-color .glow {
+  transform-box: view-box;
+  transform-origin: 250px 128px;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 24px),
+    calc(var(--ds-illo-my) * 20px)
+  );
+  transition: transform 420ms var(--ds-illo-ease);
+}
+
+/* Foreground swatches + circles lean toward the cursor — a small translate plus
+   a hair of rotation reads as the row catching the light, parallaxing ahead of
+   the glow behind it. */
+.dsi-color .scene {
+  transform-box: view-box;
+  transform-origin: 232px 116px;
+  transform: translate(
+      calc(var(--ds-illo-mx) * 5px),
+      calc(var(--ds-illo-my) * 4px)
+    )
+    rotate(calc(var(--ds-illo-mx) * 1deg));
+  transition: transform 260ms var(--ds-illo-ease);
+}
+
+.dsi-color .ink {
+  opacity: calc(0.9 * (1 - var(--ds-illo)));
+  transition: opacity 500ms ease;
+}
+.dsi-color .chroma {
+  opacity: var(--ds-illo);
+  transition: opacity 560ms ease;
+}
+.dsi-color .bloomChroma {
+  opacity: calc(0.95 * var(--ds-illo));
+  transition: opacity 560ms ease;
+}
+.dsi-color .sheenWrap {
+  opacity: calc(0.9 * var(--ds-illo));
+  transition: opacity 500ms ease;
+}
+
+/* Specular highlight: instead of sweeping on a timer, it glints where the
+   cursor is — tracking the pointer's horizontal position across the circles. */
+.dsi-color .sheen {
+  transform: translateX(calc(var(--ds-illo-mx) * 70px));
+  transition: transform 220ms var(--ds-illo-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No pointer lean: hold every layer at centre; the colour bloom still works,
+     just without any positional response. */
+  .dsi-color .art,
+  .dsi-color .glow,
+  .dsi-color .scene,
+  .dsi-color .sheen {
+    transform: none;
+    transition: none;
+  }
+}

@@ -1,0 +1,197 @@
+/* ============================ Elevation (warm gold) ======================= */
+.dsi-elevation {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  --ds-illo-ink: light-dark(#6f6f6c, #a9a8a4);
+  --ds-illo-hue: light-dark(#9a7b32, #d8b269);
+  --ds-illo-hue-soft: light-dark(#bd9a4e, #f0d29a);
+  /* Decisive follow for the stack; the light pools trail a touch longer so the
+     layers pull apart into depth as the pointer moves. */
+  --ds-illo-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dsi-elevation {
+  /* Plane outlines crossfade neutral -> light warm-grey as the card wakes. */
+  --el-line: color-mix(
+    in oklab,
+    var(--ds-illo-ink),
+    var(--ds-illo-hue-soft) calc(var(--ds-illo) * 52%)
+  );
+  /* Floor pool crossfades neutral -> warm gold on wake. */
+  --el-glow: color-mix(
+    in oklab,
+    var(--ds-illo-ink),
+    var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%)
+  );
+}
+
+/* Warm-gold floor pool. */
+.dsi-elevation .gs0 {
+  stop-color: var(--el-glow);
+  stop-opacity: 0.9;
+}
+.dsi-elevation .gs1 {
+  stop-color: var(--el-glow);
+  stop-opacity: 0.34;
+}
+.dsi-elevation .gs2 {
+  stop-color: var(--el-glow);
+  stop-opacity: 0;
+}
+
+/* Ambient focal bloom. */
+.dsi-elevation .fs0 {
+  stop-color: var(--el-glow);
+  stop-opacity: 0.34;
+}
+.dsi-elevation .fs1 {
+  stop-color: var(--el-glow);
+  stop-opacity: 0.1;
+}
+.dsi-elevation .fs2 {
+  stop-color: var(--el-glow);
+  stop-opacity: 0;
+}
+
+/* Glassy top-lit sheen (neutral, translucent). */
+.dsi-elevation .us0 {
+  stop-color: var(--ds-illo-ink);
+  stop-opacity: 0.16;
+}
+.dsi-elevation .us1 {
+  stop-color: var(--ds-illo-ink);
+  stop-opacity: 0.02;
+}
+
+.dsi-elevation .focal {
+  opacity: calc(0.06 + 0.24 * var(--ds-illo));
+  transition: opacity 520ms ease;
+}
+/* Deepest layer: the bloom drifts furthest toward the pointer, so the light
+   reads as coming from the cursor and the background trails the stack. */
+.dsi-elevation .focalFollow {
+  transform-box: view-box;
+  transform-origin: 216px 140px;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 22px),
+    calc(var(--ds-illo-my) * 16px)
+  );
+  transition: transform 380ms var(--ds-illo-ease);
+}
+
+/* The hero light: gold pool that blooms and widens on wake. */
+.dsi-elevation .pool {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(calc(0.78 + 0.32 * var(--ds-illo)));
+  opacity: calc(0.18 + 0.62 * var(--ds-illo));
+  transition:
+    opacity 520ms ease,
+    transform 560ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+/* The floor pool tracks the cursor at large magnitude — the light source sits
+   under the pointer. */
+.dsi-elevation .poolFollow {
+  transform-box: view-box;
+  transform-origin: 216px 160px;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 30px),
+    calc(var(--ds-illo-my) * 14px)
+  );
+  transition: transform 340ms var(--ds-illo-ease);
+}
+
+/* Glassy plane fills — faint at rest, gently glassier on wake. */
+.dsi-elevation .pfill {
+  opacity: calc(0.14 + 0.22 * var(--ds-illo));
+  transition: opacity 520ms ease;
+}
+.dsi-elevation .pfill.lead {
+  opacity: calc(0.28 + 0.34 * var(--ds-illo));
+}
+
+/* Thin light outlines — the receding planes read mostly as these. */
+.dsi-elevation .pline {
+  fill: none;
+  stroke: var(--el-line);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  opacity: calc(0.3 + 0.5 * var(--ds-illo));
+  transition: opacity 520ms ease;
+}
+.dsi-elevation .pline.lead {
+  stroke-width: 1.6;
+  opacity: calc(0.42 + 0.52 * var(--ds-illo));
+}
+
+/* Hover lift: the stack separates diagonally, up and to the right, on wake. */
+.dsi-elevation .lift2 {
+  transform: translate(calc(4px * var(--ds-illo)), calc(-7px * var(--ds-illo)));
+  transition: transform 560ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.dsi-elevation .lift3 {
+  transform: translate(
+    calc(8px * var(--ds-illo)),
+    calc(-14px * var(--ds-illo))
+  );
+  transition: transform 560ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.dsi-elevation .lift4 {
+  transform: translate(
+    calc(12px * var(--ds-illo)),
+    calc(-21px * var(--ds-illo))
+  );
+  transition: transform 560ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Pointer parallax: every plane leans toward the cursor, but the deeper planes
+   travel further, so the stack fans open into 3D. A shared origin and a uniform
+   rotate tilt the whole stack rigidly; the per-plane translate does the depth.
+   All values return to centre at rest (mx/my = 0). */
+.dsi-elevation .parallax {
+  transform-box: view-box;
+  transform-origin: 216px 118px;
+  transition: transform 320ms var(--ds-illo-ease);
+}
+.dsi-elevation .parallax1 {
+  transform: translate(
+      calc(var(--ds-illo-mx) * 3px),
+      calc(var(--ds-illo-my) * 3px)
+    )
+    rotate(calc(var(--ds-illo-mx) * 0.8deg));
+}
+.dsi-elevation .parallax2 {
+  transform: translate(
+      calc(var(--ds-illo-mx) * 6px),
+      calc(var(--ds-illo-my) * 5px)
+    )
+    rotate(calc(var(--ds-illo-mx) * 0.8deg));
+}
+.dsi-elevation .parallax3 {
+  transform: translate(
+      calc(var(--ds-illo-mx) * 10px),
+      calc(var(--ds-illo-my) * 8px)
+    )
+    rotate(calc(var(--ds-illo-mx) * 0.8deg));
+}
+.dsi-elevation .parallax4 {
+  transform: translate(
+      calc(var(--ds-illo-mx) * 15px),
+      calc(var(--ds-illo-my) * 12px)
+    )
+    rotate(calc(var(--ds-illo-mx) * 0.8deg));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Hold every pointer-driven and wake transform at centre. */
+  .dsi-elevation .parallax,
+  .dsi-elevation .poolFollow,
+  .dsi-elevation .focalFollow,
+  .dsi-elevation .lift2,
+  .dsi-elevation .lift3,
+  .dsi-elevation .lift4,
+  .dsi-elevation .pool {
+    transform: none;
+    transition: none;
+  }
+}

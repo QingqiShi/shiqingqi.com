@@ -1,0 +1,162 @@
+/* ============================ Motion (gold) ============================ */
+.dsi-motion {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  --ds-illo-ink: light-dark(#6f6f6c, #a9a8a4);
+  --ds-illo-hue: light-dark(#9a7b32, #d8b269);
+  --ds-illo-hue-soft: light-dark(#bd9a4e, #f0d29a);
+  /* Eased follow for the scrubbing dot and the parallax layers, so pointer
+     moves glide along the curve rather than snapping. */
+  --ds-illo-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dsi-motion .mo-bloom-ink {
+  opacity: calc(0.2 * (1 - var(--ds-illo)));
+  transition: opacity 520ms ease;
+}
+.dsi-motion .mo-bloom-hue {
+  opacity: calc(0.6 * var(--ds-illo));
+  transition: opacity 520ms ease;
+}
+
+/* Faint square guide grid — parallaxes a hair against the cursor for depth. */
+.dsi-motion .mo-grid {
+  transform-box: view-box;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 5px),
+    calc(var(--ds-illo-my) * 4px)
+  );
+  transition: transform 340ms var(--ds-illo-ease);
+}
+.dsi-motion .mo-grid path {
+  fill: none;
+  stroke: var(--ds-illo-ink);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: calc(0.075 + 0.08 * var(--ds-illo));
+  transition: opacity 520ms ease;
+}
+.dsi-motion .mo-curve-glow-wide {
+  fill: none;
+  stroke: var(--ds-illo-hue-soft);
+  stroke-width: 13;
+  stroke-linecap: round;
+  opacity: calc(0.38 * var(--ds-illo));
+  filter: blur(6px);
+  transition: opacity 520ms ease;
+}
+.dsi-motion .mo-curve-glow {
+  fill: none;
+  stroke: var(--ds-illo-hue-soft);
+  stroke-width: 5;
+  stroke-linecap: round;
+  opacity: calc(0.7 * var(--ds-illo));
+  filter: blur(2.2px);
+  transition: opacity 520ms ease;
+}
+.dsi-motion .mo-curve-ink {
+  fill: none;
+  stroke: var(--ds-illo-ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: calc(0.5 * (1 - var(--ds-illo)));
+  transition: opacity 460ms ease;
+}
+.dsi-motion .mo-curve-hue {
+  fill: none;
+  stroke: var(--ds-illo-hue);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: calc(0.95 * var(--ds-illo));
+  transition: opacity 460ms ease;
+}
+
+/* Secondary easing reference — parallaxes a touch more than the grid so the
+   two reference layers separate in depth as the pointer moves. */
+.dsi-motion .mo-linear {
+  fill: none;
+  stroke: var(--ds-illo-ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 3 4.5;
+  opacity: calc(0.24 + 0.16 * var(--ds-illo));
+  transform-box: view-box;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 9px),
+    calc(var(--ds-illo-my) * 6px)
+  );
+  transition:
+    opacity 520ms ease,
+    transform 320ms var(--ds-illo-ease);
+}
+
+/* Endpoint haloes react to which way the cursor leans: the start glow brightens
+   as the pointer moves left (px -> 0), the end glow as it moves right (px -> 1).
+   The scrubbing dot rides between them, so the lit endpoint marks its target. */
+.dsi-motion .mo-endpoint-glow {
+  transition: opacity 420ms ease;
+}
+.dsi-motion .mo-endpoint-start {
+  opacity: calc(var(--ds-illo) * (0.35 + 0.55 * (1 - var(--ds-illo-px))));
+}
+.dsi-motion .mo-endpoint-end {
+  opacity: calc(var(--ds-illo) * (0.35 + 0.55 * var(--ds-illo-px)));
+}
+.dsi-motion .mo-endpoint-rest {
+  fill: var(--ds-illo-ink);
+  opacity: calc(0.55 * (1 - var(--ds-illo)));
+  transition: opacity 420ms ease;
+}
+.dsi-motion .mo-endpoint-live {
+  fill: #ffffff;
+  opacity: var(--ds-illo);
+  transition: opacity 420ms ease;
+}
+
+/* The dot scrubs the easing curve under the cursor: offset-path traces the exact
+   visible curve and offset-distance maps the pointer's horizontal position
+   (--ds-illo-px, 0 -> 1) onto it. Transitioning offset-distance glides the dot
+   along the real curve as the pointer moves and eases it back to the midpoint
+   (px = 0.5) on leave. The head leads; the ghosts share the same target but ease
+   in progressively longer, so they lag into a comet tail while scrubbing and
+   converge onto the head when the pointer settles. */
+.dsi-motion .mo-comet {
+  opacity: var(--ds-illo);
+  transition: opacity 420ms ease;
+}
+.dsi-motion .mo-comet circle {
+  offset-path: path("M210,150 C258,150 252,60 300,60");
+  offset-rotate: 0deg;
+  offset-distance: calc(var(--ds-illo-px) * 100%);
+}
+.dsi-motion .mo-head {
+  transition: offset-distance 170ms var(--ds-illo-ease);
+}
+.dsi-motion .mo-g1 {
+  opacity: 0.8;
+  transition: offset-distance 240ms var(--ds-illo-ease);
+}
+.dsi-motion .mo-g2 {
+  opacity: 0.6;
+  transition: offset-distance 320ms var(--ds-illo-ease);
+}
+.dsi-motion .mo-g3 {
+  opacity: 0.42;
+  transition: offset-distance 410ms var(--ds-illo-ease);
+}
+.dsi-motion .mo-g4 {
+  opacity: 0.28;
+  transition: offset-distance 520ms var(--ds-illo-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No scrubbing: park the dot at the curve midpoint and drop the parallax. */
+  .dsi-motion .mo-comet circle {
+    offset-distance: 50%;
+    transition: none;
+  }
+  .dsi-motion .mo-grid,
+  .dsi-motion .mo-linear {
+    transform: none;
+    transition: opacity 520ms ease;
+  }
+}

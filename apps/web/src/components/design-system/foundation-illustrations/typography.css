@@ -1,0 +1,150 @@
+/* ============================ Typography (metallic/gold) ============================ */
+.dsi-typography {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  --ds-illo-ink: light-dark(#6f6f6c, #a9a8a4);
+  --ds-illo-hue: light-dark(#9a7b32, #d8b269);
+  --ds-illo-hue-soft: light-dark(#bd9a4e, #f0d29a);
+  /* Snappy, decisive follow for foreground; a longer trail for the glow so the
+     layers separate in depth as the pointer moves. */
+  --ds-illo-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dsi-typography .ty-glyph {
+  font-family: Georgia, "Times New Roman", "Songti SC", serif;
+  font-size: 120px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+
+/* The letterforms lean toward the cursor — a small translate plus a hair of
+   rotation reads as the glyph catching the light, and parallaxes ahead of the
+   glow behind it. Settles to centre (mx/my = 0) when the pointer leaves. */
+.dsi-typography .ty-letters {
+  transform-box: view-box;
+  transform-origin: 238px 120px;
+  transform: translate(
+      calc(var(--ds-illo-mx) * 6px),
+      calc(var(--ds-illo-my) * 5px)
+    )
+    rotate(calc(var(--ds-illo-mx) * 1.4deg));
+  transition: transform 280ms var(--ds-illo-ease);
+}
+.dsi-typography .ty-glow {
+  opacity: calc(0.5 * var(--ds-illo));
+  transform-box: view-box;
+  transform-origin: 250px 120px;
+  transform: scale(calc(0.92 + 0.1 * var(--ds-illo)));
+  transition:
+    opacity 520ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 560ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.dsi-typography .ty-ink {
+  opacity: calc(0.62 * (1 - var(--ds-illo)));
+  transition: opacity 480ms ease;
+}
+.dsi-typography .ty-metal {
+  opacity: var(--ds-illo);
+  transition: opacity 480ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Warm field glow: no drift loop. It trails the cursor across the card, so the
+   light reads as coming from the pointer. Larger travel than the glyph so the
+   two layers pull apart into depth. */
+.dsi-typography .ty-orb {
+  opacity: calc(0.5 * var(--ds-illo));
+  transform-box: view-box;
+  transform-origin: 256px 118px;
+  transform: translate(
+    calc(var(--ds-illo-mx) * 26px),
+    calc(var(--ds-illo-my) * 20px)
+  );
+  transition:
+    opacity 560ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 420ms var(--ds-illo-ease);
+}
+.dsi-typography .ty-rule line {
+  stroke: color-mix(
+    in oklab,
+    var(--ds-illo-ink),
+    var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%)
+  );
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.dsi-typography .ty-rule {
+  opacity: calc(0.26 + 0.34 * var(--ds-illo));
+  transition: opacity 520ms ease;
+}
+.dsi-typography .ty-nums text {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-anchor: end;
+  dominant-baseline: middle;
+  fill: color-mix(
+    in oklab,
+    var(--ds-illo-ink),
+    var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%)
+  );
+}
+.dsi-typography .ty-nums {
+  opacity: calc(0.4 + 0.4 * var(--ds-illo));
+  transition: opacity 520ms ease;
+}
+
+/* Metallic sheen: instead of sweeping on a timer, it glints where the cursor is
+   — tracking the pointer's horizontal position across the letterforms. */
+.dsi-typography .ty-shimmer-wrap {
+  opacity: calc(0.9 * var(--ds-illo));
+  transition: opacity 520ms ease;
+}
+.dsi-typography .ty-shimmer {
+  transform: translateX(calc(var(--ds-illo-mx) * 34px));
+  transition: transform 220ms var(--ds-illo-ease);
+}
+
+/* The caret stays: a blinking text cursor is a genuine typographic signal, not
+   decorative ambience. */
+.dsi-typography .ty-caret {
+  opacity: var(--ds-illo);
+  transition: opacity 420ms ease;
+}
+.dsi-typography .ty-caret-blink {
+  stroke: var(--ds-illo-hue-soft);
+  stroke-width: 2;
+  stroke-linecap: butt;
+  animation: dsi-typography-ty-blink 2.3s ease-in-out infinite;
+  animation-play-state: var(--ds-illo-play);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dsi-typography .ty-caret-blink {
+    animation: none;
+  }
+  /* No pointer lean under reduced motion: hold everything at centre. The glow
+     is frozen here too so its --ds-illo scale doesn't animate; it still fades
+     in via opacity. */
+  .dsi-typography .ty-glow,
+  .dsi-typography .ty-letters,
+  .dsi-typography .ty-orb,
+  .dsi-typography .ty-shimmer {
+    transform: none;
+    transition: none;
+  }
+}
+@keyframes dsi-typography-ty-blink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  74% {
+    opacity: 0.1;
+  }
+  86% {
+    opacity: 0.1;
+  }
+  96%,
+  100% {
+    opacity: 1;
+  }
+}
