@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
  * Color foundation-card illustration. A row of tonal swatch squares (dark ->
@@ -10,9 +10,12 @@ import { illoBase } from "./illustration.stylex.ts";
  * a warm glow follows it at a larger magnitude, and a specular highlight tracks
  * the cursor across the row.
  *
- * Styling is StyleX, applied per SVG element via the `css` prop. The scene reads
- * the shared `--ds-illo` family (aliveness 0 -> 1, centred pointer
- * `--ds-illo-mx` / `--ds-illo-my`) that the tile and IlloLayer publish; the base
+ * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
+ * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
+ * (the tile carries `illoMarker`), so each element transitions its own opacity /
+ * scale between the two states — no shared signal variable. Continuous pointer
+ * lean/parallax reads the inherited `--ds-illo-mx/my` (centred at rest, so the
+ * transforms sit at home until IlloLayer feeds a pointer position). The base
  * palette tokens come from `illoBase`, with the hue pair overridden to purple.
  */
 export function ColorIllustration() {
@@ -194,13 +197,15 @@ const styles = stylex.create({
     "--ds-illo-hue": "light-dark(#8f31be, #cc6dfb)",
     "--ds-illo-hue-soft": "light-dark(#b154e0, #e8b2ff)",
   },
-  // Reveal scale: the scene grows a hair as the palette blooms in. Driven by
-  // --ds-illo, not a timer.
+  // Reveal scale: the scene grows a hair as the palette blooms in. Keys off the
+  // tile's own hover / focus-visible state, not a timer.
   art: {
     transformBox: "fill-box",
     transformOrigin: "100% 100%",
     transform: {
-      default: "scale(calc(0.96 + 0.04 * var(--ds-illo)))",
+      default: "scale(0.96)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -241,19 +246,31 @@ const styles = stylex.create({
     },
   },
   ink: {
-    opacity: "calc(0.9 * (1 - var(--ds-illo)))",
+    opacity: {
+      default: 0.9,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+    },
     transition: "opacity 500ms ease",
   },
   chroma: {
-    opacity: "var(--ds-illo)",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+    },
     transition: "opacity 560ms ease",
   },
   bloomChroma: {
-    opacity: "calc(0.95 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+    },
     transition: "opacity 560ms ease",
   },
   sheenWrap: {
-    opacity: "calc(0.9 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.9,
+    },
     transition: "opacity 500ms ease",
   },
   // Specular highlight: instead of sweeping on a timer, it glints where the

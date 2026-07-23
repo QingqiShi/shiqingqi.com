@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
  * Borders foundation-card illustration. A stack of concentric rounded frames
@@ -17,10 +17,13 @@ import { illoBase } from "./illustration.stylex.ts";
  * pulls apart into layered depth, and a warm bloom trails the cursor so the
  * gold accents catch light where the pointer sits.
  *
- * Styling is StyleX, applied per SVG element via the `css` prop. The scene reads
- * the shared `--ds-illo` family (aliveness 0 -> 1, centred pointer
- * `--ds-illo-mx` / `--ds-illo-my`) that the tile and IlloLayer publish; the base
- * palette tokens come from `illoBase`.
+ * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
+ * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)` (the
+ * tile carries `illoMarker`), so each element transitions its own opacity between
+ * the two states — no shared signal variable. Continuous pointer lean/parallax
+ * reads the inherited `--ds-illo-mx/my` (centred at rest, so the transforms sit
+ * at home until IlloLayer feeds a pointer position); the base palette tokens come
+ * from `illoBase`.
  */
 export function BordersIllustration() {
   return (
@@ -194,7 +197,10 @@ const styles = stylex.create({
   // Resting grey glow — the "at rest" layer. Fades out as the card comes alive;
   // holds still so the moving warm bloom reads as the light taking over.
   inkGlow: {
-    opacity: "calc(0.6 * (1 - var(--ds-illo)))",
+    opacity: {
+      default: 0.6,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+    },
     transition: "opacity 500ms ease",
   },
   // Warm bloom: no breathing loop. It trails the cursor across the nest, so the
@@ -202,7 +208,10 @@ const styles = stylex.create({
   // light on whichever side the cursor sits. Larger travel than any ring, so it
   // sits furthest back in the parallax stack.
   bloom: {
-    opacity: "calc(0.5 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.5,
+    },
     transformBox: "view-box",
     transformOrigin: "298px 146px",
     transform: {
@@ -234,19 +243,31 @@ const styles = stylex.create({
   // Colour bloom — unchanged resting look. Grey frames at rest, accent frames
   // cross-fade grey -> gold on hover.
   grey: {
-    opacity: "calc(0.46 + 0.12 * var(--ds-illo))",
+    opacity: {
+      default: 0.46,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.58,
+    },
     transition: "opacity 450ms ease",
   },
   accentRest: {
-    opacity: "calc(0.5 * (1 - var(--ds-illo)))",
+    opacity: {
+      default: 0.5,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+    },
     transition: "opacity 450ms ease",
   },
   accentAlive: {
-    opacity: "calc(0.95 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+    },
     transition: "opacity 450ms ease",
   },
   coreFill: {
-    opacity: "calc(0.62 + 0.3 * var(--ds-illo))",
+    opacity: {
+      default: 0.62,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.92,
+    },
   },
   // ---- Concentric parallax depth ------------------------------------------
   // Each ring translates toward the cursor by a magnitude that grows with

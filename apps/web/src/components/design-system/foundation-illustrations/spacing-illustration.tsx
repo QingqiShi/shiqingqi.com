@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
  * Spacing foundation-card illustration. A rem-based spacing scale drawn as seven
@@ -14,11 +14,14 @@ import { illoBase } from "./illustration.stylex.ts";
  * cursor, an ambient bloom behind it drifts a touch further, and a warm
  * highlight sweeps across the bar faces tracking where the pointer is.
  *
- * Styling is StyleX, applied per SVG element via the `css` prop. The scene reads
- * the shared `--ds-illo` family (aliveness 0 -> 1, centred pointer
- * `--ds-illo-mx` / `--ds-illo-my`) that the tile and IlloLayer publish; the base
- * palette tokens come from `illoBase`, with two card-specific bar-face tokens
- * (`--sp-face-top` / `--sp-face-bot`) added on the root.
+ * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
+ * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
+ * (the tile carries `illoMarker`), so each element transitions its own colour /
+ * opacity between the two states — no shared signal variable. Continuous pointer
+ * lean/parallax reads the inherited `--ds-illo-mx` / `--ds-illo-my` (centred at
+ * rest, so the transforms sit at home until IlloLayer feeds a pointer position).
+ * The base palette tokens come from `illoBase`, with two card-specific bar-face
+ * tokens (`--sp-face-top` / `--sp-face-bot`) added on the root.
  */
 const BASELINE = 170;
 
@@ -41,30 +44,17 @@ export function SpacingIllustration() {
       aria-hidden="true"
     >
       <defs>
-        {/* Warm bloom that rises behind the taller bars on hover. */}
+        {/* Warm bloom that rises behind the taller bars on hover. The inner
+            stops crossfade neutral ink -> warm gold as the card wakes. */}
         <radialGradient id="dsi-spacing-sp-glow" cx="50%" cy="50%" r="50%">
-          <stop
-            offset="0%"
-            stopColor="color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))"
-            stopOpacity="0.85"
-          />
-          <stop
-            offset="55%"
-            stopColor="color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 100%))"
-            stopOpacity="0.26"
-          />
+          <stop css={styles.glowStop0} offset="0%" />
+          <stop css={styles.glowStop1} offset="55%" />
           <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
         </radialGradient>
         {/* Bar face: a neutral dark panel that warms a touch on hover. */}
         <linearGradient id="dsi-spacing-sp-face" x1="0" y1="0" x2="0" y2="1">
-          <stop
-            offset="0%"
-            stopColor="color-mix(in oklab, var(--sp-face-top), var(--ds-illo-hue) calc(var(--ds-illo) * 13%))"
-          />
-          <stop
-            offset="100%"
-            stopColor="color-mix(in oklab, var(--sp-face-bot), var(--ds-illo-hue) calc(var(--ds-illo) * 7%))"
-          />
+          <stop css={styles.faceStop0} offset="0%" />
+          <stop css={styles.faceStop1} offset="100%" />
         </linearGradient>
         {/* Warm highlight that tracks the cursor across the bar faces. */}
         <radialGradient id="dsi-spacing-sp-spot" cx="50%" cy="50%" r="50%">
@@ -162,18 +152,64 @@ const styles = stylex.create({
     "--sp-face-top": "light-dark(#d6d5d1, #47463f)",
     "--sp-face-bot": "light-dark(#c4c3bd, #34332d)",
   },
+  // Bloom gradient stops: neutral ink at rest, crossfading to warm gold as the
+  // card wakes. The tail stop (offset 100%) stays static in the markup.
+  glowStop0: {
+    stopColor: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
+    stopOpacity: 0.85,
+    transition: "stop-color 520ms ease",
+  },
+  glowStop1: {
+    stopColor: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue)",
+    },
+    stopOpacity: 0.26,
+    transition: "stop-color 520ms ease",
+  },
+  // Bar-face gradient stops: neutral dark panel that warms a touch on hover.
+  faceStop0: {
+    stopColor: {
+      default: "var(--sp-face-top)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "color-mix(in oklab, var(--sp-face-top), var(--ds-illo-hue) 13%)",
+    },
+    transition: "stop-color 520ms ease",
+  },
+  faceStop1: {
+    stopColor: {
+      default: "var(--sp-face-bot)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "color-mix(in oklab, var(--sp-face-bot), var(--ds-illo-hue) 7%)",
+    },
+    transition: "stop-color 520ms ease",
+  },
   scene: {
-    opacity: "calc(0.3 + 0.7 * var(--ds-illo))",
+    opacity: {
+      default: 0.3,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+    },
+    transition: "opacity 520ms ease",
   },
   // Ambient warmth hugging the bars. No pulse loop — it drifts a touch with the
   // pointer so the field light reads as coming from the cursor.
   bloom: {
-    opacity: "calc(0.03 + 0.4 * var(--ds-illo))",
+    opacity: {
+      default: 0.03,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.43,
+    },
     transformBox: "fill-box",
     transformOrigin: "center",
     transform: {
       default:
-        "translate(calc(var(--ds-illo-mx) * 14px), calc(var(--ds-illo-my) * 11px)) scale(calc(0.85 + 0.15 * var(--ds-illo)))",
+        "translate(calc(var(--ds-illo-mx) * 14px), calc(var(--ds-illo-my) * 11px)) scale(0.85)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "translate(calc(var(--ds-illo-mx) * 14px), calc(var(--ds-illo-my) * 11px)) scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -186,7 +222,9 @@ const styles = stylex.create({
     transformBox: "fill-box",
     transformOrigin: "bottom",
     transform: {
-      default: "scaleY(calc(0.9 + 0.1 * var(--ds-illo)))",
+      default: "scaleY(0.9)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "scaleY(1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -213,7 +251,10 @@ const styles = stylex.create({
   // catching light where the pointer is. Larger travel than the bars so it reads
   // as a moving light source rather than part of the stack.
   spot: {
-    opacity: "calc(0.6 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.6,
+    },
     transformBox: "view-box",
     transform: {
       default:
@@ -228,7 +269,10 @@ const styles = stylex.create({
   // Guides + labels share a smaller parallax than the bars — a mid layer that
   // moves less, so the stack pulls away from them into depth on hover.
   guides: {
-    opacity: "calc(0.28 + 0.32 * var(--ds-illo))",
+    opacity: {
+      default: 0.28,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.6,
+    },
     transformBox: "view-box",
     transform: {
       default:
@@ -242,14 +286,21 @@ const styles = stylex.create({
   },
   guideLine: {
     fill: "none",
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 100%))",
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue)",
+    },
     strokeWidth: 1,
     strokeLinecap: "round",
     strokeDasharray: "2 4.5",
+    transition: "stroke 520ms ease",
   },
   labels: {
-    opacity: "calc(0.5 + 0.4 * var(--ds-illo))",
+    opacity: {
+      default: 0.5,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.9,
+    },
     transformBox: "view-box",
     transform: {
       default:
@@ -266,6 +317,11 @@ const styles = stylex.create({
     fontSize: "10.5px",
     fontWeight: 500,
     textAnchor: "middle",
-    fill: "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 60%))",
+    fill: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) 60%)",
+    },
+    transition: "fill 520ms ease",
   },
 });

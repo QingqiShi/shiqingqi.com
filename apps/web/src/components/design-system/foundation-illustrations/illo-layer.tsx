@@ -114,8 +114,11 @@ const styles = stylex.create({
     inset: 0,
     zIndex: 0,
     pointerEvents: "none",
-    "--ds-illo-mx": "calc((var(--ds-illo-px) - 0.5) * 2)",
-    "--ds-illo-my": "calc((var(--ds-illo-py) - 0.5) * 2)",
+    // `--ds-illo-px/py` are plain inherited custom properties written by the
+    // effect above; the `, 0.5` fallback gives them a defined centre before the
+    // first pointer event (and needs no `@property` registration to do so).
+    "--ds-illo-mx": "calc((var(--ds-illo-px, 0.5) - 0.5) * 2)",
+    "--ds-illo-my": "calc((var(--ds-illo-py, 0.5) - 0.5) * 2)",
     maskImage:
       "radial-gradient(125% 140% at 100% 100%, #000 44%, rgba(0, 0, 0, 0.5) 66%, transparent 85%)",
     WebkitMaskImage:

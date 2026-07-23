@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
  * Layout foundation-card illustration. A breakpoint ruler (360 / 768 / 1024 /
@@ -12,10 +12,13 @@ import { illoBase } from "./illustration.stylex.ts";
  * warm gold, the column block drifts a touch toward the cursor, and a breakpoint
  * handle scrubs along the ruler tracking the pointer's horizontal position.
  *
- * Styling is StyleX, applied per SVG element via the `css` prop. The scene reads
- * the shared `--ds-illo` family (aliveness 0 -> 1, centred pointer
- * `--ds-illo-mx` / `--ds-illo-my`, ruler progress `--ds-illo-px`) that the tile
- * and IlloLayer publish; the base palette tokens come from `illoBase`.
+ * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
+ * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
+ * (the tile carries `illoMarker`), so each keyline / label / column switches its
+ * own colour and opacity between the two states — no shared signal variable.
+ * Continuous pointer drift reads the inherited `--ds-illo-mx` / `--ds-illo-my`
+ * (centred at rest) and the ruler handle scrubs via `--ds-illo-px` (0.5 when
+ * unset); the base palette tokens come from `illoBase`.
  */
 export function LayoutIllustration() {
   return (
@@ -116,7 +119,10 @@ const columnX = [150, 171, 192, 213, 234, 255, 276, 297];
 
 const styles = stylex.create({
   art: {
-    opacity: "calc(0.24 + 0.76 * var(--ds-illo))",
+    opacity: {
+      default: 0.24,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+    },
     transition: "opacity 560ms ease",
   },
   // Column grid — shared perspective skew keeps verticals upright, drifting
@@ -137,12 +143,22 @@ const styles = stylex.create({
     },
   },
   col: {
-    fill: "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 15%))",
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 100%))",
+    fill: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) 15%)",
+    },
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue)",
+    },
     strokeWidth: 0.75,
-    strokeOpacity: "calc(0.32 + 0.28 * var(--ds-illo))",
-    transition: "fill 500ms ease, stroke 500ms ease",
+    strokeOpacity: {
+      default: 0.32,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.6,
+    },
+    transition: "fill 500ms ease, stroke 500ms ease, stroke-opacity 500ms ease",
   },
   colOdd: {
     fillOpacity: 0.16,
@@ -152,20 +168,32 @@ const styles = stylex.create({
   },
   frame: {
     fill: "none",
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 100%))",
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue)",
+    },
     strokeWidth: 1.2,
-    opacity: "calc(0.4 + 0.35 * var(--ds-illo))",
+    opacity: {
+      default: 0.4,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.75,
+    },
     transition: "stroke 500ms ease, opacity 500ms ease",
   },
   ratio: {
     fill: "none",
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     strokeWidth: 1.2,
     strokeDasharray: "6 5",
     strokeLinecap: "butt",
-    opacity: "calc(0.5 + 0.4 * var(--ds-illo))",
+    opacity: {
+      default: 0.5,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.9,
+    },
     // An extra sliver of drift on top of the grid so the aspect box floats a
     // layer above the columns behind it.
     transformBox: "view-box",
@@ -186,8 +214,15 @@ const styles = stylex.create({
     fontWeight: 500,
     textAnchor: "middle",
     dominantBaseline: "middle",
-    fill: "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
-    opacity: "calc(0.55 + 0.4 * var(--ds-illo))",
+    fill: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
+    opacity: {
+      default: 0.55,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+    },
     // Track the aspect box's total drift (grid + own) so the label stays glued.
     transformBox: "view-box",
     transform: {
@@ -204,16 +239,22 @@ const styles = stylex.create({
   // Breakpoint ruler.
   rline: {
     fill: "none",
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 100%))",
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue)",
+    },
     strokeWidth: 1.2,
     strokeLinecap: "round",
     opacity: 0.85,
     transition: "stroke 500ms ease",
   },
   tick: {
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 100%))",
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue)",
+    },
     strokeWidth: 1.3,
     strokeLinecap: "round",
     transition: "stroke 500ms ease",
@@ -226,8 +267,15 @@ const styles = stylex.create({
     fontSize: "11px",
     fontWeight: 500,
     textAnchor: "middle",
-    fill: "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 100%))",
-    opacity: "calc(0.55 + 0.4 * var(--ds-illo))",
+    fill: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue)",
+    },
+    opacity: {
+      default: 0.55,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+    },
     transition: "fill 500ms ease, opacity 500ms ease",
   },
   // The handle scrubs along the ruler with the cursor's horizontal position:
@@ -235,17 +283,26 @@ const styles = stylex.create({
   // breakpoint. The multipliers trace the ruler's leftward rise (174px of run
   // drops ~10px), so the handle stays on the baseline across its full length.
   handle: {
-    fill: "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
-    opacity: "calc(0.85 * var(--ds-illo))",
+    fill: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.85,
+    },
     transformBox: "view-box",
-    // Park the handle mid-ruler (px treated as 0.5) under reduced motion.
+    // Park the handle mid-ruler (px treated as 0.5) under reduced motion, and
+    // fall back to the same mid-ruler position when the pointer hasn't set px.
     transform: {
       default:
-        "translate(calc(var(--ds-illo-px) * 150px), calc(var(--ds-illo-px) * -8.6px))",
+        "translate(calc(var(--ds-illo-px, 0.5) * 150px), calc(var(--ds-illo-px, 0.5) * -8.6px))",
       [motionConstants.REDUCED_MOTION]: "translate(75px, -4.3px)",
     },
     transition: {
-      default: "transform 220ms var(--ds-illo-ease), opacity 500ms ease",
+      default:
+        "transform 220ms var(--ds-illo-ease), fill 500ms ease, opacity 500ms ease",
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },

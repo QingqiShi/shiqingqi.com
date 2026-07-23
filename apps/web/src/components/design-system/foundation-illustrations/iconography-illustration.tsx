@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
  * Iconography foundation-card illustration. A 3x3 grid of recognisable
@@ -11,11 +11,14 @@ import { illoBase } from "./illustration.stylex.ts";
  * on and fills to cream as the card comes alive. Each icon is drawn in a local
  * box centred on the origin, then translated onto the grid.
  *
- * Styling is StyleX, applied per SVG element via the `css` prop. The scene reads
- * the shared `--ds-illo` family (aliveness 0 -> 1, centred pointer
- * `--ds-illo-mx` / `--ds-illo-my`, and grid-mapped `--ds-illo-px` /
- * `--ds-illo-py` for the spotlight) that the tile and IlloLayer publish; the
- * base palette tokens come from `illoBase`.
+ * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
+ * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
+ * (the tile carries `illoMarker`), so each element transitions its own colour /
+ * opacity between the two states — no shared aliveness variable. Continuous
+ * pointer response still reads the inherited pointer vars: centred
+ * `--ds-illo-mx` / `--ds-illo-my` for the parallax lean, and grid-mapped
+ * `--ds-illo-px` / `--ds-illo-py` for the cursor-following spotlight. The base
+ * palette tokens come from `illoBase`.
  */
 export function IconographyIllustration() {
   return (
@@ -75,7 +78,7 @@ export function IconographyIllustration() {
         <circle cx="0" cy="0" r="44" fill="url(#dsi-iconography-spot-glow)" />
       </g>
 
-      {/* 3x3 icon grid. Stroke crossfades ink -> hue through --ds-illo. */}
+      {/* 3x3 icon grid. Stroke crossfades ink -> hue on hover. */}
       <g
         css={styles.icons}
         fill="none"
@@ -126,7 +129,7 @@ export function IconographyIllustration() {
           <line x1="-3.6" y1="0" x2="3.6" y2="0" />
         </g>
         <g transform="translate(252 140)">
-          {/* toggle switch — focal: knob slides on + fills to cream via --ds-illo */}
+          {/* toggle switch — focal: knob slides on + fills to cream on hover */}
           <rect x="-8.5" y="-4.8" width="17" height="9.6" rx="4.8" />
           <circle css={styles.toggleKnob} cx="3.6" cy="0" r="3" />
         </g>
@@ -142,15 +145,20 @@ export function IconographyIllustration() {
 }
 
 const styles = stylex.create({
-  // Broad warm halo behind the cluster: rest ink -> alive hue via --ds-illo. No
+  // Broad warm halo behind the cluster: rest ink -> alive hue via opacity. No
   // ambient loop — it simply blooms as the card comes alive. Frozen under
   // reduced motion; it still fades in via opacity.
   bloom: {
-    opacity: "calc(0.72 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.72,
+    },
     transformBox: "view-box",
     transformOrigin: "252px 100px",
     transform: {
-      default: "scale(calc(0.82 + 0.18 * var(--ds-illo)))",
+      default: "scale(0.82)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -166,7 +174,10 @@ const styles = stylex.create({
   // the right; likewise top -> bottom. Under reduced motion it parks on the grid
   // centre with no pointer response.
   spot: {
-    opacity: "calc(0.95 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+    },
     transformBox: "view-box",
     transform: {
       default:
@@ -179,13 +190,19 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // 3x3 icon grid. Stroke crossfades ink -> hue through --ds-illo. A hair of
-  // parallax toward the cursor gives the set some life; settles to centre at
-  // rest (mx/my = 0), and drops the parallax entirely under reduced motion.
+  // 3x3 icon grid. Stroke crossfades ink -> hue on hover. A hair of parallax
+  // toward the cursor gives the set some life; settles to centre at rest
+  // (mx/my = 0), and drops the parallax entirely under reduced motion.
   icons: {
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) calc(var(--ds-illo) * 100%))",
-    opacity: "calc(0.5 + 0.44 * var(--ds-illo))",
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue)",
+    },
+    opacity: {
+      default: 0.5,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.94,
+    },
     transformBox: "view-box",
     transform: {
       default:
@@ -198,16 +215,26 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "opacity 480ms ease, stroke 480ms ease",
     },
   },
-  // Toggle knob: settled ON state driven by --ds-illo, not a pulse loop. It
-  // slides right into the "on" position and fills to cream as the card wakes.
+  // Toggle knob: settled ON state driven by the tile's hover/focus, not a pulse
+  // loop. It slides right into the "on" position and fills to cream as the card
+  // wakes.
   toggleKnob: {
-    fill: "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    fill: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     stroke: "none",
     transformBox: "fill-box",
     transformOrigin: "center",
-    transform: "translateX(calc((var(--ds-illo) - 1) * 7px))",
+    transform: {
+      default: "translateX(-7px)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "translateX(0px)",
+    },
     transition: {
-      default: "transform 420ms var(--ds-illo-ease)",
+      default:
+        "transform 420ms var(--ds-illo-ease), fill 420ms var(--ds-illo-ease)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },

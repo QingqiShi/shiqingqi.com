@@ -8,32 +8,6 @@
   initial-value: #7e10c2;
 }
 
-/* Drives the foundation-card illustrations (design-system overview). Registered
-   so it interpolates 0 -> 1 when a card is hovered/focused; inherits so the SVG
-   descendants read it. See components/design-system/foundation-illustrations. */
-@property --ds-illo {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 0;
-}
-
-/* Pointer position over a hovered foundation card, written by the IlloLayer
-   client component as a 0 -> 1 fraction across the card (0.5 = centre, the rest
-   position). The illustrations read these to lean and parallax toward the cursor
-   instead of running a canned ambient loop. Registered so they carry a defined
-   centre default before hydration and inherit down to the SVG descendants. The
-   IlloLayer style derives centred `--ds-illo-mx` / `--ds-illo-my` (-1 -> 1). */
-@property --ds-illo-px {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 0.5;
-}
-@property --ds-illo-py {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 0.5;
-}
-
 @font-face {
   font-family: "Inter";
   src: url("/InterVariableOptimized.woff2");

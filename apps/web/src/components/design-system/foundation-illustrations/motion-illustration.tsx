@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
  * Motion foundation-card illustration. An ease-in-out cubic-bezier curve drawn
@@ -9,10 +9,14 @@ import { illoBase } from "./illustration.stylex.ts";
  * endpoint marks its target, and the grid / linear layers parallax against the
  * cursor for depth.
  *
- * Styling is StyleX, applied per SVG element via the `css` prop. The scene reads
- * the shared `--ds-illo` family (aliveness 0 -> 1, pointer horizontal
- * `--ds-illo-px`, centred pointer `--ds-illo-mx` / `--ds-illo-my`) that the tile
- * and IlloLayer publish; the base palette tokens come from `illoBase`.
+ * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
+ * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
+ * (the tile carries `illoMarker`), so each element transitions its own opacity
+ * between the two states — no shared aliveness variable. Continuous pointer
+ * reactions still read the inherited pointer channels the IlloLayer publishes:
+ * horizontal `--ds-illo-px` (endpoint haloes + comet scrub) and centred
+ * `--ds-illo-mx` / `--ds-illo-my` (grid / linear parallax). The base palette
+ * tokens come from `illoBase`.
  */
 export function MotionIllustration() {
   return (
@@ -147,11 +151,17 @@ export function MotionIllustration() {
 
 const styles = stylex.create({
   bloomInk: {
-    opacity: "calc(0.2 * (1 - var(--ds-illo)))",
+    opacity: {
+      default: 0.2,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+    },
     transition: "opacity 520ms ease",
   },
   bloomHue: {
-    opacity: "calc(0.6 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.6,
+    },
     transition: "opacity 520ms ease",
   },
   // Faint square guide grid — parallaxes a hair against the cursor for depth.
@@ -172,7 +182,10 @@ const styles = stylex.create({
     stroke: "var(--ds-illo-ink)",
     strokeWidth: 1,
     strokeLinecap: "round",
-    opacity: "calc(0.075 + 0.08 * var(--ds-illo))",
+    opacity: {
+      default: 0.075,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.155,
+    },
     transition: "opacity 520ms ease",
   },
   curveGlowWide: {
@@ -180,7 +193,10 @@ const styles = stylex.create({
     stroke: "var(--ds-illo-hue-soft)",
     strokeWidth: 13,
     strokeLinecap: "round",
-    opacity: "calc(0.38 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.38,
+    },
     filter: "blur(6px)",
     transition: "opacity 520ms ease",
   },
@@ -189,7 +205,10 @@ const styles = stylex.create({
     stroke: "var(--ds-illo-hue-soft)",
     strokeWidth: 5,
     strokeLinecap: "round",
-    opacity: "calc(0.7 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.7,
+    },
     filter: "blur(2.2px)",
     transition: "opacity 520ms ease",
   },
@@ -198,7 +217,10 @@ const styles = stylex.create({
     stroke: "var(--ds-illo-ink)",
     strokeWidth: 2,
     strokeLinecap: "round",
-    opacity: "calc(0.5 * (1 - var(--ds-illo)))",
+    opacity: {
+      default: 0.5,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+    },
     transition: "opacity 460ms ease",
   },
   curveHue: {
@@ -206,7 +228,10 @@ const styles = stylex.create({
     stroke: "var(--ds-illo-hue)",
     strokeWidth: 2,
     strokeLinecap: "round",
-    opacity: "calc(0.95 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+    },
     transition: "opacity 460ms ease",
   },
   // Secondary easing reference — parallaxes a touch more than the grid so the
@@ -217,7 +242,10 @@ const styles = stylex.create({
     strokeWidth: 1.6,
     strokeLinecap: "round",
     strokeDasharray: "3 4.5",
-    opacity: "calc(0.24 + 0.16 * var(--ds-illo))",
+    opacity: {
+      default: 0.24,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.4,
+    },
     transformBox: "view-box",
     transform: {
       default:
@@ -232,23 +260,38 @@ const styles = stylex.create({
   // Endpoint haloes react to which way the cursor leans: the start glow brightens
   // as the pointer moves left (px -> 0), the end glow as it moves right (px -> 1).
   // The scrubbing dot rides between them, so the lit endpoint marks its target.
+  // Rest gates the halo off; on hover the pointer-position term drives brightness.
   endpointGlow: {
     transition: "opacity 420ms ease",
   },
   endpointStart: {
-    opacity: "calc(var(--ds-illo) * (0.35 + 0.55 * (1 - var(--ds-illo-px))))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "calc(0.35 + 0.55 * (1 - var(--ds-illo-px, 0.5)))",
+    },
   },
   endpointEnd: {
-    opacity: "calc(var(--ds-illo) * (0.35 + 0.55 * var(--ds-illo-px)))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "calc(0.35 + 0.55 * var(--ds-illo-px, 0.5))",
+    },
   },
   endpointRest: {
     fill: "var(--ds-illo-ink)",
-    opacity: "calc(0.55 * (1 - var(--ds-illo)))",
+    opacity: {
+      default: 0.55,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+    },
     transition: "opacity 420ms ease",
   },
   endpointLive: {
     fill: "#ffffff",
-    opacity: "var(--ds-illo)",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+    },
     transition: "opacity 420ms ease",
   },
   // The dot scrubs the easing curve under the cursor: offset-path traces the exact
@@ -259,14 +302,17 @@ const styles = stylex.create({
   // in progressively longer, so they lag into a comet tail while scrubbing and
   // converge onto the head when the pointer settles.
   comet: {
-    opacity: "var(--ds-illo)",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+    },
     transition: "opacity 420ms ease",
   },
   cometCircle: {
     offsetPath: 'path("M210,150 C258,150 252,60 300,60")',
     offsetRotate: "0deg",
     offsetDistance: {
-      default: "calc(var(--ds-illo-px) * 100%)",
+      default: "calc(var(--ds-illo-px, 0.5) * 100%)",
       // No scrubbing under reduced motion: park the dot at the curve midpoint.
       [motionConstants.REDUCED_MOTION]: "50%",
     },

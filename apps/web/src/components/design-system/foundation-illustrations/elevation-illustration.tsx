@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
  * Elevation foundation-card illustration. Four glassy planes recede up and to
@@ -9,10 +9,12 @@ import { illoBase } from "./illustration.stylex.ts";
  * elevation; on hover the stack lifts and fans open toward the cursor while the
  * light pools trail the pointer.
  *
- * Styling is StyleX, applied per SVG element via the `css` prop. The scene reads
- * the shared `--ds-illo` family (aliveness 0 -> 1, centred pointer
- * `--ds-illo-mx` / `--ds-illo-my`) that the tile and IlloLayer publish; the base
- * palette tokens come from `illoBase`.
+ * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
+ * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
+ * (the tile carries `illoMarker`), so each element transitions its own colour /
+ * opacity / lift between the two states — no shared signal variable. Continuous
+ * pointer parallax reads the inherited `--ds-illo-mx/my` (centred at rest, so
+ * the transforms sit at home until IlloLayer feeds a pointer position).
  */
 export function ElevationIllustration() {
   return (
@@ -163,37 +165,61 @@ export function ElevationIllustration() {
 
 const styles = stylex.create({
   // Warm-gold floor pool. The stop colour crossfades neutral -> warm gold as
-  // the card wakes (--ds-illo 0 -> 1).
+  // the card wakes (rest -> alive).
   gs0: {
-    stopColor:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    stopColor: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     stopOpacity: 0.9,
+    transition: "stop-color 520ms ease",
   },
   gs1: {
-    stopColor:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    stopColor: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     stopOpacity: 0.34,
+    transition: "stop-color 520ms ease",
   },
   gs2: {
-    stopColor:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    stopColor: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     stopOpacity: 0,
+    transition: "stop-color 520ms ease",
   },
   // Ambient focal bloom — same warm-gold crossfade, fainter.
   fs0: {
-    stopColor:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    stopColor: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     stopOpacity: 0.34,
+    transition: "stop-color 520ms ease",
   },
   fs1: {
-    stopColor:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    stopColor: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     stopOpacity: 0.1,
+    transition: "stop-color 520ms ease",
   },
   fs2: {
-    stopColor:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    stopColor: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     stopOpacity: 0,
+    transition: "stop-color 520ms ease",
   },
   // Glassy top-lit sheen (neutral, translucent).
   us0: {
@@ -205,7 +231,10 @@ const styles = stylex.create({
     stopOpacity: 0.02,
   },
   focal: {
-    opacity: "calc(0.06 + 0.24 * var(--ds-illo))",
+    opacity: {
+      default: 0.06,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.3,
+    },
     transition: "opacity 520ms ease",
   },
   // Deepest layer: the bloom drifts furthest toward the pointer, so the light
@@ -228,10 +257,15 @@ const styles = stylex.create({
     transformBox: "fill-box",
     transformOrigin: "center",
     transform: {
-      default: "scale(calc(0.78 + 0.32 * var(--ds-illo)))",
+      default: "scale(0.78)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "scale(1.1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
-    opacity: "calc(0.18 + 0.62 * var(--ds-illo))",
+    opacity: {
+      default: 0.18,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.8,
+    },
     transition: {
       default:
         "opacity 520ms ease, transform 560ms cubic-bezier(0.32, 0.72, 0, 1)",
@@ -255,32 +289,48 @@ const styles = stylex.create({
   },
   // Glassy plane fills — faint at rest, gently glassier on wake.
   pfill: {
-    opacity: "calc(0.14 + 0.22 * var(--ds-illo))",
+    opacity: {
+      default: 0.14,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.36,
+    },
     transition: "opacity 520ms ease",
   },
   pfillLead: {
-    opacity: "calc(0.28 + 0.34 * var(--ds-illo))",
+    opacity: {
+      default: 0.28,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.62,
+    },
   },
   // Thin light outlines — the receding planes read mostly as these. The stroke
   // crossfades neutral -> light warm-grey as the card wakes.
   pline: {
     fill: "none",
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 52%))",
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) 52%)",
+    },
     strokeWidth: 1.4,
     strokeLinejoin: "round",
-    opacity: "calc(0.3 + 0.5 * var(--ds-illo))",
-    transition: "opacity 520ms ease",
+    opacity: {
+      default: 0.3,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.8,
+    },
+    transition: "opacity 520ms ease, stroke 520ms ease",
   },
   plineLead: {
     strokeWidth: 1.6,
-    opacity: "calc(0.42 + 0.52 * var(--ds-illo))",
+    opacity: {
+      default: 0.42,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.94,
+    },
   },
   // Hover lift: the stack separates diagonally, up and to the right, on wake.
   lift2: {
     transform: {
-      default:
-        "translate(calc(4px * var(--ds-illo)), calc(-7px * var(--ds-illo)))",
+      default: "translate(0px, 0px)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "translate(4px, -7px)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -290,8 +340,9 @@ const styles = stylex.create({
   },
   lift3: {
     transform: {
-      default:
-        "translate(calc(8px * var(--ds-illo)), calc(-14px * var(--ds-illo)))",
+      default: "translate(0px, 0px)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "translate(8px, -14px)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -301,8 +352,9 @@ const styles = stylex.create({
   },
   lift4: {
     transform: {
-      default:
-        "translate(calc(12px * var(--ds-illo)), calc(-21px * var(--ds-illo)))",
+      default: "translate(0px, 0px)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "translate(12px, -21px)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {

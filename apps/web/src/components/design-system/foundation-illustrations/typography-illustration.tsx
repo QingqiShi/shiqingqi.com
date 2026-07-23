@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoMarker } from "./illustration.stylex.ts";
 
 /**
  * Typography foundation-card illustration. A large serif "Aa" with a metallic
@@ -9,11 +9,14 @@ import { illoBase } from "./illustration.stylex.ts";
  * brightens to a warm metallic, the letterforms lean toward the cursor, and a
  * shimmer tracks the pointer along the baseline with a blinking caret.
  *
- * Styling is StyleX, applied per SVG element via the `css` prop. The scene reads
- * the shared `--ds-illo` family (aliveness 0 -> 1, centred pointer
- * `--ds-illo-mx` / `--ds-illo-my`) that the tile and IlloLayer publish; the base
- * palette tokens come from `illoBase`.
+ * Styling is StyleX, applied per SVG element via the `css` prop. The rest ->
+ * alive bloom keys off the tile's own state with `stylex.when.ancestor(...)`
+ * (the tile carries `illoMarker`), so each element transitions its own colour /
+ * opacity between the two states — no shared signal variable. Continuous pointer
+ * lean/parallax reads the inherited `--ds-illo-mx/my` (centred at rest, so the
+ * transforms sit at home until IlloLayer feeds a pointer position).
  */
+
 export function TypographyIllustration() {
   return (
     <svg
@@ -169,8 +172,8 @@ export function TypographyIllustration() {
 
 // The caret stays: a blinking text cursor is a genuine typographic signal, not
 // decorative ambience. It runs continuously but is invisible at rest — the
-// `caret` group is opacity 0 until --ds-illo lifts it on hover — so the blink
-// only reads while the card is alive. Disabled outright under reduced motion.
+// `caret` group is opacity 0 until the tile is alive — so the blink only reads
+// while the card is alive. Disabled outright under reduced motion.
 const blink = stylex.keyframes({
   "0%, 60%": { opacity: 1 },
   "74%": { opacity: 0.1 },
@@ -187,14 +190,14 @@ const styles = stylex.create({
   },
   // The letterforms lean toward the cursor — a small translate plus a hair of
   // rotation reads as the glyph catching the light, parallaxing ahead of the
-  // glow behind it. Settles to centre (mx/my = 0) when the pointer leaves.
+  // glow behind it. Centred (mx/my = 0) at rest, so it sits home until IlloLayer
+  // feeds a pointer position.
   letters: {
     transformBox: "view-box",
     transformOrigin: "238px 120px",
     transform: {
       default:
         "translate(calc(var(--ds-illo-mx) * 6px), calc(var(--ds-illo-my) * 5px)) rotate(calc(var(--ds-illo-mx) * 1.4deg))",
-      // No pointer lean under reduced motion: hold at centre, no transition.
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -203,13 +206,18 @@ const styles = stylex.create({
     },
   },
   glow: {
-    opacity: "calc(0.5 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.5,
+    },
     transformBox: "view-box",
     transformOrigin: "250px 120px",
-    // Frozen under reduced motion so its --ds-illo scale doesn't animate; it
-    // still fades in via opacity.
     transform: {
-      default: "scale(calc(0.92 + 0.1 * var(--ds-illo)))",
+      default: "scale(0.92)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "scale(1.02)",
+      // Frozen under reduced motion so the scale doesn't animate; the opacity
+      // still blooms (via the `alive` conditional).
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -219,18 +227,27 @@ const styles = stylex.create({
     },
   },
   ink: {
-    opacity: "calc(0.62 * (1 - var(--ds-illo)))",
+    opacity: {
+      default: 0.62,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+    },
     transition: "opacity 480ms ease",
   },
   metal: {
-    opacity: "var(--ds-illo)",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+    },
     transition: "opacity 480ms cubic-bezier(0.32, 0.72, 0, 1)",
   },
   // Warm field glow: no drift loop. It trails the cursor across the card, so the
   // light reads as coming from the pointer. Larger travel than the glyph so the
   // two layers pull apart into depth.
   orb: {
-    opacity: "calc(0.5 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.5,
+    },
     transformBox: "view-box",
     transformOrigin: "256px 118px",
     transform: {
@@ -245,17 +262,27 @@ const styles = stylex.create({
     },
   },
   rule: {
-    opacity: "calc(0.26 + 0.34 * var(--ds-illo))",
+    opacity: {
+      default: 0.26,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.6,
+    },
     transition: "opacity 520ms ease",
   },
   ruleLine: {
-    stroke:
-      "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    stroke: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
     strokeWidth: 1.2,
     strokeLinecap: "round",
+    transition: "stroke 520ms ease",
   },
   nums: {
-    opacity: "calc(0.4 + 0.4 * var(--ds-illo))",
+    opacity: {
+      default: 0.4,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.8,
+    },
     transition: "opacity 520ms ease",
   },
   numsText: {
@@ -264,12 +291,20 @@ const styles = stylex.create({
     fontWeight: 500,
     textAnchor: "end",
     dominantBaseline: "middle",
-    fill: "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) calc(var(--ds-illo) * 100%))",
+    fill: {
+      default: "var(--ds-illo-ink)",
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+        "var(--ds-illo-hue-soft)",
+    },
+    transition: "fill 520ms ease",
   },
   // Metallic sheen: instead of sweeping on a timer, it glints where the cursor
   // is — tracking the pointer's horizontal position across the letterforms.
   shimmerWrap: {
-    opacity: "calc(0.9 * var(--ds-illo))",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.9,
+    },
     transition: "opacity 520ms ease",
   },
   shimmer: {
@@ -283,7 +318,10 @@ const styles = stylex.create({
     },
   },
   caret: {
-    opacity: "var(--ds-illo)",
+    opacity: {
+      default: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+    },
     transition: "opacity 420ms ease",
   },
   caretBlink: {
