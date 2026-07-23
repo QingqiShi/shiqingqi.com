@@ -3,7 +3,6 @@ import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
-import { ViewTransition } from "react";
 import { IlloLayer } from "#src/components/design-system/foundation-illustrations/illo-layer.tsx";
 import { illoMarker } from "#src/components/design-system/foundation-illustrations/illustration.stylex.ts";
 import { getFoundationIllustration } from "#src/components/design-system/foundation-illustrations/index.tsx";
@@ -252,9 +251,7 @@ export default function DesignSystemOverview() {
   return (
     <div css={styles.page}>
       <header css={styles.hero}>
-        <ViewTransition name={`project-card-name-${heading}`}>
-          <h1 css={styles.heading}>{heading}</h1>
-        </ViewTransition>
+        <h1 css={styles.heading}>{heading}</h1>
         <p css={styles.intro}>
           {t({
             en: "Tokens, primitives, and components that compose a refined visual language. Browse the foundations the system is built on, then the components built from them.",

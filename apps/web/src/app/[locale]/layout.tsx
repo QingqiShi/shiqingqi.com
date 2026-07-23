@@ -2,7 +2,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
-import { Suspense, ViewTransition } from "react";
+import { Suspense } from "react";
 import { globalStyles } from "#src/app/global-styles.ts";
 import { ReactGrab } from "#src/components/react-grab.tsx";
 import { SerwistProvider } from "#src/components/serwist-provider.tsx";
@@ -87,13 +87,11 @@ export default async function RootLayout({
           >
             {/* eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- Intentional inline script for theme initialization before hydration */}
             <script dangerouslySetInnerHTML={{ __html: themeHack }} />
-            <ViewTransition>
-              <PortalTargetProvider>
-                <BackOverrideProvider>
-                  <Suspense fallback={null}>{children}</Suspense>
-                </BackOverrideProvider>
-              </PortalTargetProvider>
-            </ViewTransition>
+            <PortalTargetProvider>
+              <BackOverrideProvider>
+                <Suspense fallback={null}>{children}</Suspense>
+              </BackOverrideProvider>
+            </PortalTargetProvider>
             <ReactGrab />
             <Analytics />
             <SpeedInsights />
