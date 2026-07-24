@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
-import { motionConstants } from "../primitives/motion.stylex.ts";
+import { scrollbar } from "../primitives/layout.stylex.ts";
+import { motionConstants, transition } from "../primitives/motion.stylex.ts";
 import {
   border,
   color,
@@ -252,7 +253,10 @@ export function SidebarLayout({
             }}
           />
         </div>
-        <ScrollFade orientation="vertical" css={styles.railNav}>
+        <ScrollFade
+          orientation="vertical"
+          css={[styles.railNav, scrollbar.autoHide, transition.scrollbarColor]}
+        >
           {sidebar}
         </ScrollFade>
         {sidebarFooter != null && (
