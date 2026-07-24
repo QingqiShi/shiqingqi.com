@@ -94,8 +94,8 @@ catalogs:
       specifier: 16.2.10
       version: 16.2.10
     prettier:
-      specifier: ^3.9.5
-      version: 3.9.5
+      specifier: ^3.9.6
+      version: 3.9.6
     react:
       specifier: 19.3.0-canary-56824423-20260414
       version: 19.3.0-canary-56824423-20260414
@@ -177,7 +177,7 @@ importers:
         version: 72.0.0(eslint@10.7.0(jiti@2.7.0)(supports-color@10.2.2))
       prettier:
         specifier: 'catalog:'
-        version: 3.9.5
+        version: 3.9.6
       turbo:
         specifier: ^2.10.5
         version: 2.10.5
@@ -250,7 +250,7 @@ importers:
         version: 19.0.0-beta-714736e-20250131
       prettier:
         specifier: 'catalog:'
-        version: 3.9.5
+        version: 3.9.6
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -479,7 +479,7 @@ importers:
         version: 11.3.2(postcss@8.5.15)
       prettier:
         specifier: 'catalog:'
-        version: 3.9.5
+        version: 3.9.6
       raw-loader:
         specifier: ^4.0.2
         version: 4.0.2(webpack@5.97.1(esbuild@0.28.1)(postcss@8.5.21))
@@ -5984,8 +5984,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier@3.9.5:
-    resolution: {integrity: sha512-/FVl766LpUfB5vXgCYOYa0MeV/441Ia99AeICQIQFTY/Nw0roZwULcXpku5i1/m5kt/baz+s4Zogspd839HSMg==}
+  prettier@3.9.6:
+    resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -12767,7 +12767,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.9.5: {}
+  prettier@3.9.6: {}
 
   pretty-bytes@6.1.1: {}
 
