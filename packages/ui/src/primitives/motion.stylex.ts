@@ -49,6 +49,15 @@ export const transition = stylex.create({
       [REDUCED_MOTION]: "none",
     },
   },
+  // Fades the themed scrollbar thumb in/out for `scrollbar.autoHide`
+  // (layout.stylex.ts). Chromium interpolates `scrollbar-color`; other browsers
+  // (and reduced-motion) get an instant swap.
+  scrollbarColor: {
+    transition: {
+      default: `scrollbar-color ${duration._200} ${easing.easeOut}`,
+      [REDUCED_MOTION]: "none",
+    },
+  },
 });
 
 const fadeInKeyframes = stylex.keyframes({

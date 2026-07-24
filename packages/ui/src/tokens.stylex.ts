@@ -99,6 +99,10 @@ const light = {
   dangerBorder: `rgba(${red_rgb._50}, 0.4)`,
   neutralBorder: gray._90,
 
+  // Scrollbar thumb — a low-contrast chrome affordance. A notch softer than
+  // `textSubtle` (clears ~3:1 on the canvas without reading as heavy text).
+  scrollbarThumb: gray._60,
+
   // Semantic colors — bold (foreground), hover (interactive lift), text, on
   info: cyan._50,
   infoHover: cyan._60,
@@ -184,6 +188,9 @@ const dark: { [key in keyof typeof light]: string } = {
   warningBorder: `rgba(${yellow_rgb._60}, 0.4)`,
   dangerBorder: `rgba(${red_rgb._60}, 0.4)`,
   neutralBorder: gray._20,
+
+  // Softer than the dark `textSubtle` (gray._60), which read as too bright.
+  scrollbarThumb: gray._50,
 
   info: cyan._70,
   infoHover: cyan._80,
@@ -275,6 +282,7 @@ export const color = stylex.defineVars({
   warningBorder: `light-dark(${light.warningBorder}, ${dark.warningBorder})`,
   dangerBorder: `light-dark(${light.dangerBorder}, ${dark.dangerBorder})`,
   neutralBorder: `light-dark(${light.neutralBorder}, ${dark.neutralBorder})`,
+  scrollbarThumb: `light-dark(${light.scrollbarThumb}, ${dark.scrollbarThumb})`,
 
   info: `light-dark(${light.info}, ${dark.info})`,
   infoHover: `light-dark(${light.infoHover}, ${dark.infoHover})`,
