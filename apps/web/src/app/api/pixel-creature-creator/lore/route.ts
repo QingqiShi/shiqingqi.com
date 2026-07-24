@@ -8,11 +8,8 @@ import {
   type CreatureDef,
 } from "#src/components/pixel-creature-creator/state/creature-schema.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import {
-  limitLoreRequest,
-  resolveClientIp,
-  type LoreRateLimitResult,
-} from "./rate-limiter";
+import { resolveClientIp } from "#src/utils/resolve-client-ip.ts";
+import { limitLoreRequest, type LoreRateLimitResult } from "./rate-limiter";
 
 const requestSchema = z.object({
   def: creatureDefSchema,
