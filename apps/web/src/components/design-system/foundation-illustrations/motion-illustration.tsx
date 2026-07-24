@@ -41,89 +41,92 @@ export function MotionIllustration() {
         </radialGradient>
       </defs>
 
-      <g>
+      {/* Nudged down so the curve sits nearer the card's bottom edge, trimming
+          the empty band the art used to leave below it. */}
+      <g transform="translate(0, 14)">
+        <g>
+          <circle
+            css={styles.bloomInk}
+            cx="262"
+            cy="112"
+            r="78"
+            fill="url(#dsi-motion-mo-bloom-ink)"
+          />
+          <circle
+            css={styles.bloomHue}
+            cx="270"
+            cy="118"
+            r="62"
+            fill="url(#dsi-motion-mo-bloom-hue)"
+          />
+        </g>
+
+        <g css={styles.grid}>
+          <path css={styles.gridPath} d="M210,60 L210,150" />
+          <path css={styles.gridPath} d="M240,60 L240,150" />
+          <path css={styles.gridPath} d="M270,60 L270,150" />
+          <path css={styles.gridPath} d="M300,60 L300,150" />
+          <path css={styles.gridPath} d="M210,60 L300,60" />
+          <path css={styles.gridPath} d="M210,90 L300,90" />
+          <path css={styles.gridPath} d="M210,120 L300,120" />
+          <path css={styles.gridPath} d="M210,150 L300,150" />
+        </g>
+
+        <path css={styles.linear} d="M210,150 C265,150 288,112 300,60" />
+
+        <path css={styles.curveGlowWide} d="M210,150 C258,150 252,60 300,60" />
+        <path css={styles.curveGlow} d="M210,150 C258,150 252,60 300,60" />
+        <path css={styles.curveInk} d="M210,150 C258,150 252,60 300,60" />
+        <path css={styles.curveHue} d="M210,150 C258,150 252,60 300,60" />
+
         <circle
-          css={styles.bloomInk}
-          cx="262"
-          cy="112"
-          r="78"
-          fill="url(#dsi-motion-mo-bloom-ink)"
-        />
-        <circle
-          css={styles.bloomHue}
-          cx="270"
-          cy="118"
-          r="62"
-          fill="url(#dsi-motion-mo-bloom-hue)"
-        />
-      </g>
-
-      <g css={styles.grid}>
-        <path css={styles.gridPath} d="M180,60 L180,150" />
-        <path css={styles.gridPath} d="M210,60 L210,150" />
-        <path css={styles.gridPath} d="M240,60 L240,150" />
-        <path css={styles.gridPath} d="M270,60 L270,150" />
-        <path css={styles.gridPath} d="M300,60 L300,150" />
-        <path css={styles.gridPath} d="M180,60 L300,60" />
-        <path css={styles.gridPath} d="M180,90 L300,90" />
-        <path css={styles.gridPath} d="M180,120 L300,120" />
-        <path css={styles.gridPath} d="M180,150 L300,150" />
-      </g>
-
-      <path css={styles.linear} d="M210,150 C265,150 288,112 300,60" />
-
-      <path css={styles.curveGlowWide} d="M210,150 C258,150 252,60 300,60" />
-      <path css={styles.curveGlow} d="M210,150 C258,150 252,60 300,60" />
-      <path css={styles.curveInk} d="M210,150 C258,150 252,60 300,60" />
-      <path css={styles.curveHue} d="M210,150 C258,150 252,60 300,60" />
-
-      <circle
-        css={[styles.endpointGlow, styles.endpointStart]}
-        cx="210"
-        cy="150"
-        r="12"
-        fill="url(#dsi-motion-mo-orb)"
-      />
-      <circle
-        css={[styles.endpointGlow, styles.endpointEnd]}
-        cx="300"
-        cy="60"
-        r="12"
-        fill="url(#dsi-motion-mo-orb)"
-      />
-
-      <circle css={styles.endpointRest} cx="210" cy="150" r="4" />
-      <circle css={styles.endpointRest} cx="300" cy="60" r="4" />
-
-      <circle css={styles.endpointLive} cx="210" cy="150" r="3.4" />
-      <circle css={styles.endpointLive} cx="300" cy="60" r="3.4" />
-
-      <g css={styles.comet}>
-        <circle
-          css={[styles.cometCircle, styles.g4]}
-          r="2.4"
+          css={[styles.endpointGlow, styles.endpointStart]}
+          cx="210"
+          cy="150"
+          r="12"
           fill="url(#dsi-motion-mo-orb)"
         />
         <circle
-          css={[styles.cometCircle, styles.g3]}
-          r="3"
+          css={[styles.endpointGlow, styles.endpointEnd]}
+          cx="300"
+          cy="60"
+          r="12"
           fill="url(#dsi-motion-mo-orb)"
         />
-        <circle
-          css={[styles.cometCircle, styles.g2]}
-          r="3.6"
-          fill="url(#dsi-motion-mo-orb)"
-        />
-        <circle
-          css={[styles.cometCircle, styles.g1]}
-          r="4.4"
-          fill="url(#dsi-motion-mo-orb)"
-        />
-        <circle
-          css={[styles.cometCircle, styles.head]}
-          r="5.6"
-          fill="url(#dsi-motion-mo-orb)"
-        />
+
+        <circle css={styles.endpointRest} cx="210" cy="150" r="4" />
+        <circle css={styles.endpointRest} cx="300" cy="60" r="4" />
+
+        <circle css={styles.endpointLive} cx="210" cy="150" r="3.4" />
+        <circle css={styles.endpointLive} cx="300" cy="60" r="3.4" />
+
+        <g css={styles.comet}>
+          <circle
+            css={[styles.cometCircle, styles.g4]}
+            r="2.4"
+            fill="url(#dsi-motion-mo-orb)"
+          />
+          <circle
+            css={[styles.cometCircle, styles.g3]}
+            r="3"
+            fill="url(#dsi-motion-mo-orb)"
+          />
+          <circle
+            css={[styles.cometCircle, styles.g2]}
+            r="3.6"
+            fill="url(#dsi-motion-mo-orb)"
+          />
+          <circle
+            css={[styles.cometCircle, styles.g1]}
+            r="4.4"
+            fill="url(#dsi-motion-mo-orb)"
+          />
+          <circle
+            css={[styles.cometCircle, styles.head]}
+            r="5.6"
+            fill="url(#dsi-motion-mo-orb)"
+          />
+        </g>
       </g>
     </svg>
   );
