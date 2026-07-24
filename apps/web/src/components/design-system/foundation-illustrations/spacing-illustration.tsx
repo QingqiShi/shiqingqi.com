@@ -164,6 +164,11 @@ const styles = stylex.create({
       default: 0.3,
       [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
     },
+    // Compact the whole scale toward the bottom-right corner so the tallest
+    // bars clear the description copy and the art reads smaller.
+    transformBox: "view-box",
+    transformOrigin: "320px 176px",
+    transform: "scale(0.72)",
     transition: "opacity 520ms ease",
   },
   bloom: {

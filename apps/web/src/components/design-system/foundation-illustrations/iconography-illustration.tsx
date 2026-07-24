@@ -45,66 +45,70 @@ export function IconographyIllustration() {
         </radialGradient>
       </defs>
 
-      <g css={styles.bloom}>
-        <circle
-          cx="252"
-          cy="100"
-          r="72"
-          fill="url(#dsi-iconography-ico-glow)"
-        />
-      </g>
-
-      <g css={styles.spot}>
-        <circle cx="0" cy="0" r="44" fill="url(#dsi-iconography-spot-glow)" />
-      </g>
-
-      <g
-        css={styles.icons}
-        fill="none"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <g transform="translate(213 62)">
-          <circle cx="-2" cy="-2" r="6.2" />
-          <line x1="2.4" y1="2.4" x2="7.4" y2="7.4" />
-        </g>
-        <g transform="translate(252 62)">
-          <path d="M -6 4 C -6 4 -4.4 2.4 -4.4 -1 A 4.4 4.4 0 0 1 4.4 -1 C 4.4 2.4 6 4 6 4 Z" />
-          <path d="M -1.9 4 A 1.9 1.9 0 0 0 1.9 4" />
-        </g>
-        <g transform="translate(291 62)">
-          <path d="M 0 6 C -7.6 0.6 -6 -6 -2.4 -6 C -0.4 -6 0 -4.1 0 -4.1 C 0 -4.1 0.4 -6 2.4 -6 C 6 -6 7.6 0.6 0 6 Z" />
+      {/* Nudged down so the icon lattice sits nearer the card's bottom edge,
+          trimming the empty band the art used to leave below it. */}
+      <g transform="translate(0, 16)">
+        <g css={styles.bloom}>
+          <circle
+            cx="252"
+            cy="100"
+            r="72"
+            fill="url(#dsi-iconography-ico-glow)"
+          />
         </g>
 
-        <g transform="translate(213 101)">
-          <path d="M 7.6 0 L 4.62 1.91 L 5.37 5.37 L 1.91 4.62 L 0 7.6 L -1.91 4.62 L -5.37 5.37 L -4.62 1.91 L -7.6 0 L -4.62 -1.91 L -5.37 -5.37 L -1.91 -4.62 L 0 -7.6 L 1.91 -4.62 L 5.37 -5.37 L 4.62 -1.91 Z" />
-          <circle cx="0" cy="0" r="2.6" />
-        </g>
-        <g transform="translate(252 101)">
-          <circle cx="0" cy="-3.2" r="3.3" />
-          <path d="M -5.6 6.2 C -5.6 1.7 -3 0.2 0 0.2 C 3 0.2 5.6 1.7 5.6 6.2" />
-        </g>
-        <g transform="translate(291 101)">
-          <rect x="-6.5" y="-5" width="13" height="11.5" rx="2" />
-          <line x1="-6.5" y1="-1" x2="6.5" y2="-1" />
-          <line x1="-3.2" y1="-7.2" x2="-3.2" y2="-3" />
-          <line x1="3.2" y1="-7.2" x2="3.2" y2="-3" />
+        <g css={styles.spot}>
+          <circle cx="0" cy="0" r="44" fill="url(#dsi-iconography-spot-glow)" />
         </g>
 
-        <g transform="translate(213 140)">
-          <circle cx="0" cy="0" r="7.2" />
-          <line x1="0" y1="-3.6" x2="0" y2="3.6" />
-          <line x1="-3.6" y1="0" x2="3.6" y2="0" />
-        </g>
-        <g transform="translate(252 140)">
-          <rect x="-8.5" y="-4.8" width="17" height="9.6" rx="4.8" />
-          <circle css={styles.toggleKnob} cx="3.6" cy="0" r="3" />
-        </g>
-        <g transform="translate(291 140)">
-          <path d="M 6 0.5 L 6 6 L -6 6 L -6 -6 L -0.5 -6" />
-          <line x1="-0.5" y1="0.5" x2="6.5" y2="-6.5" />
-          <path d="M 1.8 -6.5 L 6.5 -6.5 L 6.5 -1.8" />
+        <g
+          css={styles.icons}
+          fill="none"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <g transform="translate(213 62)">
+            <circle cx="-2" cy="-2" r="6.2" />
+            <line x1="2.4" y1="2.4" x2="7.4" y2="7.4" />
+          </g>
+          <g transform="translate(252 62)">
+            <path d="M -6 4 C -6 4 -4.4 2.4 -4.4 -1 A 4.4 4.4 0 0 1 4.4 -1 C 4.4 2.4 6 4 6 4 Z" />
+            <path d="M -1.9 4 A 1.9 1.9 0 0 0 1.9 4" />
+          </g>
+          <g transform="translate(291 62)">
+            <path d="M 0 6 C -7.6 0.6 -6 -6 -2.4 -6 C -0.4 -6 0 -4.1 0 -4.1 C 0 -4.1 0.4 -6 2.4 -6 C 6 -6 7.6 0.6 0 6 Z" />
+          </g>
+
+          <g transform="translate(213 101)">
+            <path d="M 7.6 0 L 4.62 1.91 L 5.37 5.37 L 1.91 4.62 L 0 7.6 L -1.91 4.62 L -5.37 5.37 L -4.62 1.91 L -7.6 0 L -4.62 -1.91 L -5.37 -5.37 L -1.91 -4.62 L 0 -7.6 L 1.91 -4.62 L 5.37 -5.37 L 4.62 -1.91 Z" />
+            <circle cx="0" cy="0" r="2.6" />
+          </g>
+          <g transform="translate(252 101)">
+            <circle cx="0" cy="-3.2" r="3.3" />
+            <path d="M -5.6 6.2 C -5.6 1.7 -3 0.2 0 0.2 C 3 0.2 5.6 1.7 5.6 6.2" />
+          </g>
+          <g transform="translate(291 101)">
+            <rect x="-6.5" y="-5" width="13" height="11.5" rx="2" />
+            <line x1="-6.5" y1="-1" x2="6.5" y2="-1" />
+            <line x1="-3.2" y1="-7.2" x2="-3.2" y2="-3" />
+            <line x1="3.2" y1="-7.2" x2="3.2" y2="-3" />
+          </g>
+
+          <g transform="translate(213 140)">
+            <circle cx="0" cy="0" r="7.2" />
+            <line x1="0" y1="-3.6" x2="0" y2="3.6" />
+            <line x1="-3.6" y1="0" x2="3.6" y2="0" />
+          </g>
+          <g transform="translate(252 140)">
+            <rect x="-8.5" y="-4.8" width="17" height="9.6" rx="4.8" />
+            <circle css={styles.toggleKnob} cx="3.6" cy="0" r="3" />
+          </g>
+          <g transform="translate(291 140)">
+            <path d="M 6 0.5 L 6 6 L -6 6 L -6 -6 L -0.5 -6" />
+            <line x1="-0.5" y1="0.5" x2="6.5" y2="-6.5" />
+            <path d="M 1.8 -6.5 L 6.5 -6.5 L 6.5 -1.8" />
+          </g>
         </g>
       </g>
     </svg>
@@ -117,8 +121,8 @@ const styles = stylex.create({
       default: 0,
       [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.72,
     },
-    transformBox: "view-box",
-    transformOrigin: "252px 100px",
+    transformBox: "fill-box",
+    transformOrigin: "center",
     transform: {
       default: "scale(0.82)",
       [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
