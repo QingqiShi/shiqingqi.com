@@ -1,0 +1,107 @@
+# Design System
+
+`@tuja/ui` — a StyleX system of generated colour, role-based tokens, composable style objects, and accessible React components — together with the showcase site that documents it. The package is published, so this vocabulary is a public API.
+
+## Language
+
+### Colour
+
+**Hue**:
+One colour family in the generated system palette, defined by a source sRGB colour expanded into an HCT tonal series. There are thirteen.
+
+**Tone**:
+One lightness step within a hue. The series runs `_0` (darkest) to `_100`, denser at the extremes than the Material 3 grid.
+_Avoid_: step, shade
+
+**Swatch**:
+One tone's background/foreground pair — the unit the palette codegen emits.
+
+**Ramp**:
+A hue's full ordered series of tones. Colour only.
+_Avoid_: tonal scale, tonal palette
+
+**Scale**:
+An ordered series of sizes — the type scale, the control-height scale, the spacing scale. Size only.
+_Avoid_: ramp (for sizes: "type-scale ramp", "height ramp", "diameter ramp")
+
+**Token**:
+A named design value exposed as a StyleX var. Tokens reference tones; consumers reference tokens and never a tone directly.
+_Avoid_: var (as in `fieldVars`), CSS variable
+
+**Role**:
+The grouping axis for background tokens: Page, Surface, Interactive, Intent, Inverse, Overlay.
+_Avoid_: semantic (as a grouping word)
+
+**Intent**:
+The six-member family that carries meaning rather than structure — accent, info, success, warning, danger, neutral. The prop name on every component that takes one.
+_Avoid_: variant (for this sense), tone (for this sense), semantic colour, status hue, colour treatment
+
+**Elevation**:
+The depth scale, six levels plus inset. `shadow._1`…`shadow._6` are the tokens that implement it; `layer` is the unrelated z-index scale.
+_Avoid_: shadow (as the name of the concept)
+
+### Component API
+
+**Variant**:
+A component's visual treatment when it is neither an Intent nor a size — `Text`'s type step, `Divider`'s weight, `IconButton`'s fill.
+
+**Size**:
+The dimension axis. Always `sm` | `md` | `lg`.
+_Avoid_: small, medium, large (as prop values)
+
+**Icon**:
+The decorative SVG a component renders beside its content, and the prop that supplies one.
+_Avoid_: glyph
+
+**Slot**:
+A subcomponent passed in as a prop, so the consumer replaces one internal piece while the parent keeps layout, accessibility, and state. See `DESIGN.md`.
+
+**Escape hatch**:
+The route from one abstraction layer down to the one below — usually the `css` prop, sometimes a shared style object like `cardSurface`. Every layer has one.
+
+**controlSize**:
+The spacing scale that is responsive by definition — larger on touch, tighter from `md` up. Distinct from `space`; choosing between them is a real decision, not a preference.
+
+### Composition
+
+**Primitive**:
+A composable multi-property StyleX style object — `flex`, `layout`, `motion`, `reset`, `a11y` — spread through the `css` prop. Not a component, and not a generated hue file.
+_Avoid_: recipe, pattern (for this sense)
+
+**Modifier**:
+A single-property override that tunes a primitive — `align`, `justify`, `grow`, `shrink`.
+
+**Chrome**:
+Non-content UI furniture: dividers, field borders, card edges, header bars. Never the browser.
+
+**Shell**:
+A page-level layout frame. Every page gets exactly one of the two.
+
+### The showcase site
+
+**Specimen**:
+A live, `inert` instance of a component rendered as illustration inside an overview tile. It is an illustration of the component, not a working copy — which is why it stays out of the tab order.
+_Avoid_: preview, demo
+
+**Plate**:
+The sunken panel a specimen sits on. Structure that holds still while its contents drain of colour at rest.
+_Avoid_: tray
+
+**Illustration**:
+The abstract graphic a foundation tile carries, in place of a specimen.
+_Avoid_: illo (in prose — the `--ds-illo-*` var prefix is a frozen contract), scene, art
+
+**Showcase**:
+One labelled section on a documentation page. A page has many; each may hold specimens, illustrations, or neither.
+
+## Frozen contracts
+
+Published var names and generated identifiers. Rename only through codegen and a major version.
+
+- Token group names and members: `color.*`, `space._N`, `controlSize._N`, `border.*`, `shadow._N`, `layer.*`, `font.{ui,vp,cq}*`
+- The `_N` step convention, including `_00` for the sub-minimum step
+- `<hue>` and `<hue>_rgb` consts groups, and the `hues/` file layout the wildcard export covers
+- The `*Fade`, `*On`, and `accentGlow` token suffixes
+- `motionTokens.playState`
+- CSS custom properties `--ds-illo-*`
+- The `.stylex.ts` suffix — StyleX permits only `defineVars` / `defineConsts` exports from these files
