@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { FixedContainerContent } from "@tuja/ui/components/fixed-container-content";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { controlSize, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { CollapsedChatButton } from "./collapsed-chat-button";
 import { CollapsedChatInput } from "./collapsed-chat-input";
@@ -82,10 +82,11 @@ const styles = stylex.create({
   mobileMenuContent: {
     gap: space._4,
     padding: space._2,
-    width: `calc(100dvw - (${space._3} * 2))`,
-    maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
-    overflow: "auto",
-    willChange: "transform",
+    // No width, height cap, or scrolling of its own: the `sheet` popup sizes
+    // itself to the filters bar and caps its own block size against wherever
+    // that bar currently sits, which is the part this could only guess at. The
+    // compositing hint went with the scrolling — `AnimateToTarget` already
+    // promotes the two elements it actually animates, above this one.
   },
   content: {
     display: "flex",

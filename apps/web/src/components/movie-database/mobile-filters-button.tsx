@@ -39,7 +39,10 @@ export function MobileFiltersButton({
           type: "button",
           isActive: canReset,
         }}
-        position="topRight"
+        // The panel is nearly bar-wide and this trigger sits mid-row (the chat
+        // input and AI button follow it), so anchoring the panel to the
+        // trigger's corner would hang most of it off the inline-start edge.
+        position="sheet"
         popupRole="group"
       >
         {children}
@@ -52,7 +55,14 @@ export function MobileFiltersButton({
 const styles = stylex.create({
   wrapper: {
     display: "flex",
-    willChange: "transform",
+    // Deliberately no `will-change: transform` here, even though
+    // `HeroVisibilityProvider` morphs this element: it would make the wrapper a
+    // containing block for positioned descendants, which both shrinks
+    // MenuButton's viewport-filling backdrop to the button's own box — leaving
+    // the open panel undismissable — and collapses the sheet onto the button
+    // instead of the filters bar. The trigger still gets its own compositing
+    // layer from MenuButton's internal `FixedContainerContent`, and the browser
+    // promotes this element for the duration of the morph animation anyway.
   },
   pushedRight: {
     marginInlineStart: { default: "auto", [breakpoints.md]: "unset" },
