@@ -28,7 +28,11 @@ import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-b
 import { t } from "#src/i18n.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import { isGenreFilterType, isSort } from "#src/utils/media-filter-types.ts";
+import {
+  isGenreFilterType,
+  isMediaView,
+  isSort,
+} from "#src/utils/media-filter-types.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
@@ -66,6 +70,10 @@ export default async function Page(
     ? searchParams.sort[0]
     : searchParams.sort;
   const sort = isSort(rawSort) ? rawSort : undefined;
+  const rawView = Array.isArray(searchParams.view)
+    ? searchParams.view[0]
+    : searchParams.view;
+  const view = isMediaView(rawView) ? rawView : undefined;
 
   // Fetch config, genres, and initial page
   const queryClient = getQueryClient();
@@ -170,6 +178,7 @@ export default async function Page(
                         genreFilterType,
                         sort,
                         mediaType,
+                        view,
                       }}
                     >
                       <Suspense

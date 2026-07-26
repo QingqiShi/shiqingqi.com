@@ -19,6 +19,7 @@ export function FiltersSkeleton({ locale }: FiltersSkeletonProps) {
           <Skeleton css={styles.control} width={widths.desktopMediaType} />
           <Skeleton css={styles.control} width={widths.desktopGenre} />
           <Skeleton css={styles.control} width={widths.desktopSort} />
+          <Skeleton css={styles.control} width={widths.desktopView} />
           <Skeleton css={styles.control} width={widths.desktopInfo} />
         </>
       }
@@ -37,6 +38,8 @@ const controlWidths = {
     desktopMediaType: 194,
     desktopGenre: 90,
     desktopSort: 205,
+    // The view toggle is icon-only, so it is the same width in both locales.
+    desktopView: 92,
     desktopInfo: 40,
     mobileMediaType: 165,
     mobileFilters: 110,
@@ -45,6 +48,7 @@ const controlWidths = {
     desktopMediaType: 140,
     desktopGenre: 76,
     desktopSort: 142,
+    desktopView: 92,
     desktopInfo: 40,
     mobileMediaType: 149,
     mobileFilters: 91,

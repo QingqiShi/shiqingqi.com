@@ -51,23 +51,32 @@ function selectMediaListItems(
 ): MediaListItem[] {
   const items = data.pages
     .flatMap<MediaResult>((page) => page.results ?? [])
-    .map<MediaListItem>((media) =>
-      isMovieListResult(media)
+    .map<MediaListItem>((media) => {
+      const shared = {
+        id: media.id,
+        posterPath: media.poster_path,
+        rating: media.vote_average,
+        mediaType,
+        voteCount: media.vote_count,
+        popularity: media.popularity,
+        genreIds: media.genre_ids,
+        originalLanguage: media.original_language,
+        overview: media.overview,
+      };
+      return isMovieListResult(media)
         ? {
-            id: media.id,
+            ...shared,
             title: media.title,
-            posterPath: media.poster_path,
-            rating: media.vote_average,
-            mediaType,
+            originalTitle: media.original_title,
+            releaseDate: media.release_date,
           }
         : {
-            id: media.id,
+            ...shared,
             title: media.name,
-            posterPath: media.poster_path,
-            rating: media.vote_average,
-            mediaType,
-          },
-    );
+            originalTitle: media.original_name,
+            releaseDate: media.first_air_date,
+          };
+    });
   return Array.from(new Map(items.map((media) => [media.id, media])).values());
 }
 

@@ -3,7 +3,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
 import { color, layout, space } from "@tuja/ui/tokens.stylex";
-import { useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "#src/components/movie-database/grid.tsx";
 import { useViewportHeight } from "#src/hooks/use-viewport-height.ts";
@@ -13,12 +12,19 @@ import { MediaCard } from "./media-card";
 interface MediaVirtuosoGridProps {
   queryResult: UseSuspenseInfiniteQueryResult<MediaListItem[]>;
   virtuosoKey: string;
+  /**
+   * Row count to render on the first pass, for hydration. Owned by the caller
+   * so it survives this component being unmounted by the view toggle — see the
+   * note at its declaration in `MediaList`.
+   */
+  initialItemCount: number;
   notFoundLabel: string;
 }
 
 export function MediaVirtuosoGrid({
   queryResult,
   virtuosoKey,
+  initialItemCount,
   notFoundLabel,
 }: MediaVirtuosoGridProps) {
   const {
@@ -28,8 +34,6 @@ export function MediaVirtuosoGrid({
     isFetchingNextPage,
   } = queryResult;
   const height = useViewportHeight();
-  const [storedInitialItemCount] = useState(items.length);
-  const initialItemCount = Math.min(storedInitialItemCount, items.length);
 
   if (!items.length) {
     return (
@@ -61,7 +65,7 @@ export function MediaVirtuosoGrid({
         }
       }}
       increaseViewportBy={height}
-      initialItemCount={initialItemCount}
+      initialItemCount={Math.min(initialItemCount, items.length)}
       useWindowScroll
     />
   );

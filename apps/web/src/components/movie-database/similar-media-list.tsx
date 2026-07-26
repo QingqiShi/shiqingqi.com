@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import type { SupportedLocale } from "#src/types.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { MediaVirtuosoGrid } from "./media-virtuoso-grid";
@@ -29,10 +30,14 @@ export function SimilarMediaList({
 
   const queryResult = useSuspenseInfiniteQuery(queryOptions);
 
+  // The server-rendered row count, for hydration.
+  const [initialItemCount] = useState(() => queryResult.data.length);
+
   return (
     <MediaVirtuosoGrid
       queryResult={queryResult}
       virtuosoKey={`${mediaType}-${mediaId}-${locale}`}
+      initialItemCount={initialItemCount}
       notFoundLabel={notFoundLabel}
     />
   );

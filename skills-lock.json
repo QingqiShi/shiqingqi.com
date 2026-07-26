@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "lytenyte-grid": {
+      "source": "1771-Technologies/lytenyte",
+      "sourceType": "github",
+      "skillPath": "skills/lytenyte-grid/SKILL.md",
+      "computedHash": "07789a6dadd2fffcca989137aa6a647196c1883b0fa4d3f3e4d29c8e0a01521c"
+    },
     "next-best-practices": {
       "source": "vercel-labs/next-skills",
       "sourceType": "github",

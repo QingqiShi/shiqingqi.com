@@ -14,6 +14,7 @@ import {
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { copyTextToClipboard } from "#src/utils/copy-text-to-clipboard.ts";
 import type { CreatureDef, Emotion } from "../state/creature-schema";
 import { encodeCreature } from "../state/encode-decode";
 import { saveCreature } from "../state/local-storage";
@@ -43,51 +44,6 @@ interface EphemeralState {
 }
 
 const EPHEMERAL_TIMEOUT_MS = 2000;
-
-/**
- * Copy `text` to the system clipboard. Prefers the modern async API and
- * falls back to a hidden textarea + `document.execCommand("copy")` for
- * non-secure contexts (HTTP, file://, in-app webviews) where
- * `navigator.clipboard` is undefined or throws. `execCommand` is deprecated
- * but remains the only working path in those environments. Returns
- * `boolean` so callers can branch on success without inspecting errors.
- */
-async function copyTextToClipboard(text: string): Promise<boolean> {
-  // `navigator.clipboard` is typed as always-defined in modern lib.dom but
-  // can throw at runtime on HTTP origins or in restricted webviews. The
-  // try/catch guards both the missing-API and rejected-promise cases; we
-  // then drop into the legacy textarea path.
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    // Fall through to the legacy path below.
-  }
-  if (typeof document === "undefined") return false;
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  textarea.style.pointerEvents = "none";
-  document.body.appendChild(textarea);
-  // Wrap focus/select/exec all in one try so a synchronous throw at any step
-  // (e.g. `select()` raising in restricted webviews) still hits the finally
-  // block and removes the textarea from the DOM.
-  let ok = false;
-  try {
-    textarea.focus();
-    textarea.select();
-    // `execCommand` is deprecated but is the only API that works in
-    // non-secure contexts where `navigator.clipboard` is unavailable.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    ok = document.execCommand("copy");
-  } catch {
-    // ok stays false; the textarea is still removed in the finally block.
-  } finally {
-    document.body.removeChild(textarea);
-  }
-  return ok;
-}
 
 interface ActionLabels {
   conjure: string;
