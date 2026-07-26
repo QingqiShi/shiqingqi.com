@@ -6,6 +6,29 @@ export const motionConstants = stylex.defineConsts({
   REDUCED_MOTION,
 });
 
+/**
+ * The one property every looping animation in the package shares, exposed so an
+ * ancestor can hold the motion beneath it still.
+ *
+ * `animation-play-state` does not inherit, and the components that loop run
+ * their animation on an inner element `css` cannot reach — so without this a
+ * consumer has no way to pause them at all, which is the one shape of
+ * customization the system otherwise always leaves open. A custom property
+ * *does* inherit, so one declaration on a container reaches every looping
+ * descendant, conditionally if it likes: a gallery tile can hold its specimens
+ * still and start them on hover.
+ *
+ * It lives here rather than in a per-component token file because pausing is
+ * not a Spinner dimension the way `width` is a Skeleton dimension — it is the
+ * same property for every looping component, and a per-component token would
+ * make each one's pause mechanism something a consumer has to look up.
+ *
+ * `"running"` is the default, so nothing changes for existing callers.
+ */
+export const motionTokens = stylex.defineVars({
+  playState: "running",
+});
+
 export const duration = {
   _75: "75ms",
   _100: "100ms",

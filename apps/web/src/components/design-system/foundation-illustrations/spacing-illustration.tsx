@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase, illoMarker } from "./illustration.stylex.ts";
+import { tileMarker } from "../overview-tile.stylex.ts";
+import { illoBase } from "./illustration.stylex.ts";
 
 /**
  * Spacing foundation-card illustration: a rem-based spacing scale drawn as seven
@@ -128,7 +129,7 @@ const styles = stylex.create({
   glowStop0: {
     stopColor: {
       default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "var(--ds-illo-hue-soft)",
     },
     stopOpacity: 0.85,
@@ -137,7 +138,7 @@ const styles = stylex.create({
   glowStop1: {
     stopColor: {
       default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "var(--ds-illo-hue)",
     },
     stopOpacity: 0.26,
@@ -146,7 +147,7 @@ const styles = stylex.create({
   faceStop0: {
     stopColor: {
       default: "var(--sp-face-top)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "color-mix(in oklab, var(--sp-face-top), var(--ds-illo-hue) 13%)",
     },
     transition: "stop-color 520ms ease",
@@ -154,7 +155,7 @@ const styles = stylex.create({
   faceStop1: {
     stopColor: {
       default: "var(--sp-face-bot)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "color-mix(in oklab, var(--sp-face-bot), var(--ds-illo-hue) 7%)",
     },
     transition: "stop-color 520ms ease",
@@ -162,7 +163,7 @@ const styles = stylex.create({
   scene: {
     opacity: {
       default: 0.3,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
     },
     // Compact the whole scale toward the bottom-right corner so the tallest
     // bars clear the description copy and the art reads smaller.
@@ -174,14 +175,14 @@ const styles = stylex.create({
   bloom: {
     opacity: {
       default: 0.03,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.43,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.43,
     },
     transformBox: "fill-box",
     transformOrigin: "center",
     transform: {
       default:
         "translate(calc(var(--ds-illo-mx) * 14px), calc(var(--ds-illo-my) * 11px)) scale(0.85)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "translate(calc(var(--ds-illo-mx) * 14px), calc(var(--ds-illo-my) * 11px)) scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
@@ -195,7 +196,7 @@ const styles = stylex.create({
     transformOrigin: "bottom",
     transform: {
       default: "scaleY(0.9)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "scaleY(1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
@@ -219,7 +220,7 @@ const styles = stylex.create({
   spot: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.6,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
     },
     transformBox: "view-box",
     transform: {
@@ -235,7 +236,7 @@ const styles = stylex.create({
   guides: {
     opacity: {
       default: 0.28,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.6,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
     },
     transformBox: "view-box",
     transform: {
@@ -252,7 +253,7 @@ const styles = stylex.create({
     fill: "none",
     stroke: {
       default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "var(--ds-illo-hue)",
     },
     strokeWidth: 1,
@@ -263,7 +264,7 @@ const styles = stylex.create({
   labels: {
     opacity: {
       default: 0.5,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.9,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
     },
     transformBox: "view-box",
     transform: {
@@ -283,7 +284,7 @@ const styles = stylex.create({
     textAnchor: "middle",
     fill: {
       default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue-soft) 60%)",
     },
     transition: "fill 520ms ease",
