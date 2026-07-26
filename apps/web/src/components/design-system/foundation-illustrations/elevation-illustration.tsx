@@ -52,6 +52,12 @@ const GRID_LINES = Array.from(
 const SHEET_RECT = { x: 178, y: 50, width: 110, height: 110, rx: 21 };
 const SHADOW_ELLIPSE = { cx: 233, cy: 122, rx: 58, ry: 13 };
 
+// The resting framing, named because it is declared twice — once as the framing
+// and once as the reduced-motion pin that holds it there. The two have to move
+// together, and a compound transform drifts silently: nothing renders both, so a
+// mismatch shows up only as reduced-motion users seeing a framing nobody chose.
+const RESTING_FRAME = "translate(34px, 40px) scale(1.3)";
+
 export function ElevationIllustration() {
   // Bottom -> top. Painted in order so each higher sheet (and its shadow) lands
   // over the one below it.
@@ -109,7 +115,11 @@ export function ElevationIllustration() {
 
       <g css={styles.scene}>
         {/* The surface the stack sits on: a flat isometric grid, same size as a
-            sheet. Stays put — only the sheets above it react to the pointer. */}
+            sheet. The pointer never touches it — only the sheets above it react.
+            It does travel with the framing, though, since it sits inside the same
+            group: engaging the tile pans and rescales the grid along with the
+            stack, and the sheets rise relative to it rather than over a fixed
+            plane. */}
         <g css={styles.grid} mask="url(#dsi-elevation-grid-mask)">
           {/* All lines share one style, so they render as a single multi-subpath. */}
           <path d={GRID_LINES.join("")} />
@@ -160,6 +170,16 @@ const styles = stylex.create({
     // Pointer height as an elevation driver: 1 when the cursor is at the top of
     // the card, 0 at the bottom (parks at 0.5 with no pointer).
     "--el-lift": "calc(1 - var(--ds-illo-py, 0.5))",
+    // How far the sheets fan, as a factor on the three lift steps below. It is
+    // trimmed only where the engaged framing is enlarged, because that is the
+    // only place the fan needs trimming — the sheets have to clear the copy at a
+    // scale they were not drawn at. A device that cannot hover never gets the
+    // enlargement, and can still reach the engaged state through `:focus-within`,
+    // so trimming there would shorten the fan against nothing.
+    "--el-fan": {
+      default: 1,
+      "@media (hover: hover)": 0.8,
+    },
   },
   topStop0: {
     stopColor: {
@@ -177,16 +197,60 @@ const styles = stylex.create({
     },
     transition: "stop-color 520ms ease",
   },
-  // Dim grey at rest, full alive on hover. The scene itself holds still (nudged
-  // toward the card's bottom-right corner) — the pointer only moves the sheets.
+  // Dim grey at rest, full alive on hover. The pointer only ever moves the sheets;
+  // the illustration itself sits in one of two framings, and this group carries
+  // the whole of it — grid included, which is why the surface no longer holds
+  // still between the two (see the note on the grid in the markup above).
+  //
+  // Both framings are hand-tuned rather than derived, so the numbers below are the
+  // record of what was chosen and these notes only explain the mechanism.
+  //
+  // The corner is the transform origin because `preserveAspectRatio="xMaxYMax"`
+  // already anchors the illustration there, so growth keeps that corner fixed and
+  // pushes everything else away from it. That is also why a scale alone cannot
+  // tuck the stack in: the stack is composed over the grid in the middle of the
+  // box, and its margin from the corner grows right along with it. The translate
+  // is what carries it out, and past the edge — at rest the far side of the stack
+  // and most of the grid are cropped, which is the intent.
+  //
+  // Engaging the tile opens it back out, though not to the framing the illustration
+  // is composed at: it lands lower and further right, and slightly larger, so the
+  // stack still meets the card's right edge with the sheets fanned. It is a
+  // different crop, not an uncropped view.
+  //
+  // The pair is gated to devices that can hover, the way the component specimens'
+  // resting treatment is: each framing is only reachable through the other, and a
+  // phone has no way in, so it would be held in one of them with no exit. Touch
+  // gets the composed framing instead — the widest view of the stack, and the one
+  // the illustration was drawn at. It is only the *framing* that is gated: the fan,
+  // the grey -> gold bloom and the opacity lift all key off `:focus-within` too,
+  // which a device without hover can still reach, so it sees those.
   scene: {
     opacity: {
       default: 0.42,
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
     },
     transformBox: "view-box",
-    transform: "translate(4px, 4px)",
-    transition: "opacity 520ms ease",
+    transformOrigin: "100% 100%",
+    transform: {
+      default: "translate(4px, 4px)",
+      "@media (hover: hover)": {
+        default: RESTING_FRAME,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "translate(50px, 20px) scale(1.1)",
+        // Reduced motion keeps the resting framing and simply never animates out
+        // of it. The stack still blooms grey -> gold, the same trade the pointer
+        // lean already makes.
+        [motionConstants.REDUCED_MOTION]: RESTING_FRAME,
+      },
+    },
+    // Paced with the bloom rather than with the faster pointer-driven motion
+    // below, so the reframe and the colour land together as one move instead of
+    // the card waking up in two steps.
+    transition: {
+      default: "opacity 520ms ease, transform 520ms var(--ds-illo-ease)",
+      [motionConstants.REDUCED_MOTION]: "opacity 520ms ease",
+    },
   },
   // The grid lines: thin grey lattice at rest, warming to gold on hover.
   grid: {
@@ -236,7 +300,7 @@ const styles = stylex.create({
     transform: {
       default: "translate(0px, 14px)",
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "translate(calc(var(--ds-illo-mx) * 4px), calc(14px - var(--el-lift) * 7px))",
+        "translate(calc(var(--ds-illo-mx) * 4px), calc(14px - var(--el-lift) * 7px * var(--el-fan)))",
       [motionConstants.REDUCED_MOTION]: "translate(0px, 14px)",
     },
     transition: {
@@ -249,7 +313,7 @@ const styles = stylex.create({
     transform: {
       default: "translate(0px, -1px)",
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "translate(calc(var(--ds-illo-mx) * 12px), calc(-1px - var(--el-lift) * 22px))",
+        "translate(calc(var(--ds-illo-mx) * 12px), calc(-1px - var(--el-lift) * 22px * var(--el-fan)))",
       [motionConstants.REDUCED_MOTION]: "translate(0px, -1px)",
     },
     transition: {
@@ -262,7 +326,7 @@ const styles = stylex.create({
     transform: {
       default: "translate(0px, -16px)",
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "translate(calc(var(--ds-illo-mx) * 22px), calc(-16px - var(--el-lift) * 47px))",
+        "translate(calc(var(--ds-illo-mx) * 22px), calc(-16px - var(--el-lift) * 47px * var(--el-fan)))",
       [motionConstants.REDUCED_MOTION]: "translate(0px, -16px)",
     },
     transition: {
