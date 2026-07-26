@@ -5,7 +5,14 @@ import * as stylex from "@stylexjs/stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
-import { createContext, use, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  use,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 interface ChatTextareaContextValue {
   trimmedText: string;
@@ -40,7 +47,14 @@ interface ChatTextareaProps {
    * mid-stream the same way they can in every other modern chat UI.
    */
   submitDisabled?: boolean;
-  autoGrow?: boolean;
+  /**
+   * Render a multi-line composer: a `<textarea>` that grows with its content,
+   * where Shift+Enter inserts a newline. Without it the field is a single-line
+   * `<input>` — text that overruns it is truncated with an ellipsis, Enter
+   * sends, and Shift+Enter does nothing, there being no second line to put a
+   * newline on.
+   */
+  multiline?: boolean;
   /** Reduced vertical padding for use inside sticky toolbars. */
   compact?: boolean;
   /** Content rendered before the textarea (e.g. attachment row). */
@@ -55,24 +69,52 @@ export function ChatTextarea({
   onSubmit,
   disabled = false,
   submitDisabled = false,
-  autoGrow = false,
+  multiline = false,
   compact = false,
   beforeTextarea,
   children,
 }: ChatTextareaProps) {
   const [text, setText] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const fieldRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
   const trimmed = text.trim();
   const sendBlocked = disabled || submitDisabled;
 
+  // A ref object typed for both elements can't be handed to either `ref` prop
+  // directly (the object types are invariant), so assign it from a callback.
+  function captureField(node: HTMLTextAreaElement | HTMLInputElement | null) {
+    fieldRef.current = node;
+  }
+
   function resetHeight() {
-    if (autoGrow && textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+    const field = fieldRef.current;
+    if (multiline && field) {
+      field.style.height = "auto";
     }
   }
 
+  // The grown height is a pixel value measured at the width the text wrapped
+  // at, and nothing re-measures it on its own: resize or rotate after typing
+  // and the last lines sit clipped below the fold of a box whose whole job is
+  // to fit them. Re-measure when the viewport changes, which is what moves
+  // this field's width.
+  useEffect(() => {
+    if (!multiline) return;
+
+    function fitToContent() {
+      const field = fieldRef.current;
+      if (!field) return;
+      field.style.height = "auto";
+      field.style.height = `${String(field.scrollHeight)}px`;
+    }
+
+    window.addEventListener("resize", fitToContent);
+    return () => {
+      window.removeEventListener("resize", fitToContent);
+    };
+  }, [multiline]);
+
   function focusTextarea() {
-    textareaRef.current?.focus();
+    fieldRef.current?.focus();
   }
 
   function submit() {
@@ -83,12 +125,14 @@ export function ChatTextarea({
     focusTextarea();
   }
 
-  function handleChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+  function handleChange(
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) {
     setText(event.target.value);
-    if (autoGrow) {
-      const textarea = event.target;
-      textarea.style.height = "auto";
-      textarea.style.height = `${String(textarea.scrollHeight)}px`;
+    if (multiline) {
+      const field = event.target;
+      field.style.height = "auto";
+      field.style.height = `${String(field.scrollHeight)}px`;
     }
   }
 
@@ -97,15 +141,26 @@ export function ChatTextarea({
     submit();
   }
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+  function handleKeyDown(
+    event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) {
+    if (event.key !== "Enter") return;
+
     // Skip during IME composition (e.g. Chinese/Japanese/Korean input) —
     // Enter should confirm the composed characters, not submit the message.
     if (event.nativeEvent.isComposing) return;
 
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      submit();
+    if (event.shiftKey) {
+      // A newline only lands somewhere visible on the multi-line composer.
+      // On the single-line field the key is swallowed rather than sent: an
+      // unhandled Enter would implicitly submit the form, dispatching a
+      // half-written prompt to someone who was reaching for a line break.
+      if (!multiline) event.preventDefault();
+      return;
     }
+
+    event.preventDefault();
+    submit();
   }
 
   return (
@@ -115,19 +170,35 @@ export function ChatTextarea({
         css={[flex.wrap, styles.container, compact && styles.containerCompact]}
       >
         {beforeTextarea}
-        <textarea
-          ref={textareaRef}
-          value={text}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          aria-label={placeholder}
-          rows={1}
-          disabled={disabled}
-          css={[styles.textarea, autoGrow && styles.textareaAutoGrow]}
-          autoComplete="off"
-          enterKeyHint="send"
-        />
+        {multiline ? (
+          <textarea
+            ref={captureField}
+            value={text}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            aria-label={placeholder}
+            rows={1}
+            disabled={disabled}
+            css={[styles.field, styles.fieldMultiline]}
+            autoComplete="off"
+            enterKeyHint="send"
+          />
+        ) : (
+          <input
+            ref={captureField}
+            type="text"
+            value={text}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            aria-label={placeholder}
+            disabled={disabled}
+            css={[styles.field, styles.fieldSingleLine]}
+            autoComplete="off"
+            enterKeyHint="send"
+          />
+        )}
         {children ?? (
           <button
             type="submit"
@@ -181,8 +252,14 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingLeft: space._2,
   },
-  textarea: {
+  field: {
     flexGrow: 1,
+    // Take up the leftover space rather than the control's intrinsic `cols`/
+    // `size` width: a narrow bar then truncates the text instead of wrapping
+    // the send button onto a second row (the form wraps for the attachment
+    // row).
+    flexBasis: 0,
+    minWidth: 0,
     resize: "none",
     borderWidth: 0,
     borderStyle: "none",
@@ -197,8 +274,13 @@ const styles = stylex.create({
       color: color.textMuted,
     },
   },
-  textareaAutoGrow: {
+  fieldMultiline: {
     maxHeight: "200px",
     overflowY: "auto",
+  },
+  fieldSingleLine: {
+    // Only an `<input>` honours this — a textarea clips its placeholder
+    // mid-word instead, which is why the single-line variant is not one.
+    textOverflow: "ellipsis",
   },
 });

@@ -50,7 +50,7 @@ export function ChatInputBar({
       // `submitDisabled`, and the visible send/stop swap below makes the
       // current state obvious.
       submitDisabled={isLoading}
-      autoGrow
+      multiline
       beforeTextarea={
         attachedMedia && (
           <div css={styles.attachmentRow}>

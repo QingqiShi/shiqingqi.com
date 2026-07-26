@@ -61,6 +61,9 @@ const styles = stylex.create({
   desktopContent: {
     flexGrow: 1,
     gap: space._1,
+    // Without this the row is sized by its content and pushes past the
+    // container, so nothing inside it ever shrinks.
+    minInlineSize: 0,
   },
 
   mobileContainer: {
@@ -76,5 +79,8 @@ const styles = stylex.create({
 
   trailingContent: {
     marginInlineStart: "auto",
+    // Shrinkable so a crowded toolbar narrows the trailing content instead of
+    // pushing the row wider than the container.
+    minInlineSize: 0,
   },
 });
