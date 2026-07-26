@@ -50,9 +50,14 @@ export function CollapsedChatButton({
 
 const styles = stylex.create({
   container: {
-    display: { default: "flex", [breakpoints.md]: "none" },
+    // Stands in for `CollapsedChatInput` wherever the toolbar is too narrow
+    // to hold it.
+    display: { default: "flex", [breakpoints.lg]: "none" },
     willChange: "transform, opacity",
-    position: "absolute",
+    // Out of flow on the mobile bar, which has no room to reserve for it; in
+    // flow from `md`, where it sits in the desktop toolbar's trailing slot and
+    // has to claim width or it would be painted over the filters beside it.
+    position: { default: "absolute", [breakpoints.md]: "static" },
     insetBlockStart: 0,
     insetBlockEnd: 0,
     insetInlineEnd: `calc(${space._3} + env(safe-area-inset-right, 0px) + var(--removed-body-scroll-bar-size, 0px))`,

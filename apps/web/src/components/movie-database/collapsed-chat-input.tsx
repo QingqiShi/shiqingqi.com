@@ -52,9 +52,16 @@ export function CollapsedChatInput({
 
 const styles = stylex.create({
   container: {
-    display: { default: "none", [breakpoints.md]: "flex" },
+    // Below `lg` the filters leave too little room for a field worth typing
+    // in, so the toolbar falls back to `CollapsedChatButton`.
+    display: { default: "none", [breakpoints.lg]: "flex" },
     willChange: "transform, opacity",
-    width: "min(22rem, 100%)",
+    // Wide enough for the whole placeholder. A fixed width (rather than
+    // `min(22rem, 100%)`, whose percentage counts as `auto` when the ancestor
+    // flex item is sized from its content) is what makes the toolbar reserve
+    // the room; `maxInlineSize` hands it back when the filters need it.
+    inlineSize: "22rem",
+    maxInlineSize: "100%",
   },
   visible: {
     opacity: 1,

@@ -66,6 +66,10 @@ export function HeroChatInput({
               sendLabel={sendLabel}
               onSubmit={send}
               submitDisabled={isLoading}
+              // The hero is a full composer, not a toolbar field: a long
+              // prompt grows the box instead of scrolling out of view, and
+              // Shift+Enter still breaks a line.
+              multiline
               beforeTextarea={
                 <span css={[flex.inlineCenter, styles.icon]}>
                   <SparkleIcon weight="fill" role="presentation" />
