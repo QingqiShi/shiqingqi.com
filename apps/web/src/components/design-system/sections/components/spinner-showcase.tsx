@@ -27,6 +27,9 @@ export function SpinnerShowcase() {
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <ShowcaseGrid>
+          <ShowcaseItem label="inline">
+            <Spinner size="inline" label={loadingLabel} />
+          </ShowcaseItem>
           <ShowcaseItem label="sm">
             <Spinner size="sm" label={loadingLabel} />
           </ShowcaseItem>
@@ -37,6 +40,12 @@ export function SpinnerShowcase() {
             <Spinner size="lg" label={loadingLabel} />
           </ShowcaseItem>
         </ShowcaseGrid>
+        <ShowcaseHelper>
+          {t({
+            en: "sm, md and lg are fixed rem diameters. inline is 1em, so it takes the size of the text around it — that is what Button's loading state uses, so the spinner occupies exactly the box the icon it replaces did.",
+            zh: "sm、md、lg 为固定的 rem 直径。inline 为 1em，会取周围文字的字号——按钮的加载态正是使用它，因此加载指示器所占空间与被替换的图标完全一致。",
+          })}
+        </ShowcaseHelper>
       </Showcase>
 
       <Showcase label={t({ en: "Tone", zh: "色调" })}>
@@ -97,11 +106,11 @@ export function SpinnerShowcase() {
         rows={[
           {
             name: "size",
-            type: '"sm" | "md" | "lg"',
+            type: '"inline" | "sm" | "md" | "lg"',
             defaultValue: '"md"',
             description: t({
-              en: "Rendered diameter, mapped to rem so it scales with the user's font size (WCAG 1.4.4).",
-              zh: "渲染直径，以 rem 表示，随用户字号缩放（WCAG 1.4.4）。",
+              en: "Rendered diameter. sm/md/lg map to rem so the indicator scales with the user's font size (WCAG 1.4.4). inline takes 1em instead, matching the surrounding text — for a spinner standing in for a glyph, so swapping it in doesn't shift the layout around it.",
+              zh: "渲染直径。sm/md/lg 以 rem 表示，随用户字号缩放（WCAG 1.4.4）。inline 则取 1em，与周围文字一致——用于替代某个字形的加载指示器，因此替换时不会改变周围布局。",
             }),
           },
           {

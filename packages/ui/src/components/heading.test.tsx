@@ -77,3 +77,22 @@ describe("Heading prop forwarding", () => {
     expect(ref.current?.tagName).toBe("H3");
   });
 });
+
+describe("Heading wrapping", () => {
+  it.each(["balance", "pretty", "nowrap"] as const)(
+    "applies the %s wrap style",
+    (wrap) => {
+      render(<Heading wrap={wrap}>Tuscany by car</Heading>);
+
+      expect(screen.getByRole("heading").className).toContain(
+        `wrapStyles.${wrap}`,
+      );
+    },
+  );
+
+  it("leaves wrapping to the browser by default", () => {
+    render(<Heading>Tuscany by car</Heading>);
+
+    expect(screen.getByRole("heading").className).not.toContain("wrapStyles.");
+  });
+});

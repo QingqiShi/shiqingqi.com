@@ -10,6 +10,7 @@ type TextTone = "default" | "muted" | "subtle" | "accent";
 type TextWeight = "regular" | "medium" | "semibold" | "bold";
 type TextTransform = "uppercase" | "lowercase" | "capitalize";
 type TextAlign = "start" | "center" | "end";
+type TextWrap = "balance" | "pretty" | "nowrap";
 
 interface TextProps {
   /** Semantic element to render. Defaults to `"p"`. */
@@ -28,6 +29,23 @@ interface TextProps {
   transform?: TextTransform;
   /** Text alignment (logical `start` / `center` / `end`). */
   align?: TextAlign;
+  /**
+   * How lines break. `"pretty"` is the one to reach for on body copy — it
+   * spends a little layout time to avoid a one-word last line. `"balance"`
+   * evens every line instead, which suits short standalone copy but is capped
+   * by the browser at a handful of lines. `"nowrap"` keeps the run on one line.
+   */
+  wrap?: TextWrap;
+  /**
+   * Renders figures at a fixed width so numbers line up in a column and a
+   * ticking value doesn't jitter. For times, counts, prices, and durations.
+   */
+  numeric?: boolean;
+  /**
+   * Id applied to the rendered element, so another node can point
+   * `aria-labelledby` / `aria-describedby` here.
+   */
+  id?: string;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
   /** Escape-hatch class applied to the rendered element. */
@@ -52,6 +70,9 @@ export function Text({
   weight,
   transform,
   align,
+  wrap,
+  numeric,
+  id,
   css,
   className,
   style,
@@ -68,6 +89,8 @@ export function Text({
     weight ? weightStyles[weight] : null,
     transform ? transformStyles[transform] : null,
     align ? alignStyles[align] : null,
+    wrap ? wrapStyles[wrap] : null,
+    numeric === true ? styles.numeric : null,
     css,
   ];
 
@@ -81,7 +104,13 @@ export function Text({
   switch (as) {
     case "p":
       return (
-        <p ref={setRef} css={composedCss} className={className} style={style}>
+        <p
+          ref={setRef}
+          id={id}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
           {children}
         </p>
       );
@@ -89,6 +118,7 @@ export function Text({
       return (
         <span
           ref={setRef}
+          id={id}
           css={composedCss}
           className={className}
           style={style}
@@ -98,7 +128,13 @@ export function Text({
       );
     case "div":
       return (
-        <div ref={setRef} css={composedCss} className={className} style={style}>
+        <div
+          ref={setRef}
+          id={id}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
           {children}
         </div>
       );
@@ -108,6 +144,11 @@ export function Text({
 const styles = stylex.create({
   base: {
     margin: 0,
+  },
+  // `tabular-nums` alone: lining figures are already Inter's default, so asking
+  // for both would pin a preference the type family doesn't need.
+  numeric: {
+    fontVariantNumeric: "tabular-nums",
   },
 });
 
@@ -156,4 +197,10 @@ const alignStyles = stylex.create({
   start: { textAlign: "start" },
   center: { textAlign: "center" },
   end: { textAlign: "end" },
+});
+
+const wrapStyles = stylex.create({
+  balance: { textWrap: "balance" },
+  pretty: { textWrap: "pretty" },
+  nowrap: { textWrap: "nowrap" },
 });

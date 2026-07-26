@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeAll, describe, it, expect, vi } from "vitest";
 import { Button } from "./button.tsx";
+import { Spinner } from "./spinner.tsx";
 
 // Mock Pointer Capture API which is not available in jsdom
 beforeAll(() => {
@@ -245,5 +246,197 @@ describe("Button type attribute", () => {
 
     const button = screen.getByRole("button");
     expect(button).toHaveAttribute("type", "reset");
+  });
+});
+
+describe("Button variants", () => {
+  it("paints the shared active highlight for the primary variant", () => {
+    render(<Button variant="primary">Save</Button>);
+
+    expect(screen.getByRole("button").className).toContain(
+      "sharedStyles.active",
+    );
+  });
+
+  it.each(["outline", "ghost", "danger"] as const)(
+    "applies the %s skin",
+    (variant) => {
+      render(<Button variant={variant}>Save</Button>);
+
+      expect(screen.getByRole("button").className).toContain(
+        `variantStyles.${variant}`,
+      );
+    },
+  );
+
+  it("leaves the default button unskinned", () => {
+    render(<Button>Save</Button>);
+
+    const className = screen.getByRole("button").className;
+    expect(className).not.toContain("variantStyles.");
+    expect(className).not.toContain("sharedStyles.active");
+  });
+
+  it("does not emit aria-pressed for a non-toggle variant", () => {
+    render(<Button variant="danger">Delete</Button>);
+
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-pressed");
+  });
+
+  it("lets an active toggle keep the highlight over its variant skin", () => {
+    render(
+      <Button variant="outline" isActive>
+        Filter
+      </Button>,
+    );
+
+    const button = screen.getByRole("button");
+    expect(button).toHaveAttribute("aria-pressed", "true");
+    expect(button.className).toContain("sharedStyles.active");
+  });
+});
+
+describe("Button loading state", () => {
+  it("announces busy and blocks activation without losing focus", () => {
+    const onClick = vi.fn();
+    render(
+      <Button loading onClick={onClick}>
+        Save
+      </Button>,
+    );
+
+    const button = screen.getByRole("button");
+    expect(button).toHaveAttribute("aria-busy", "true");
+    // `aria-disabled`, not the native attribute: a natively disabled button
+    // drops out of the tab order, throwing focus to the document body just as
+    // the busy state is announced.
+    expect(button).toHaveAttribute("aria-disabled", "true");
+    expect(button).not.toBeDisabled();
+
+    button.focus();
+    expect(button).toHaveFocus();
+
+    fireEvent.click(button);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("still disables natively when disabled outright", () => {
+    render(
+      <Button disabled loading>
+        Save
+      </Button>,
+    );
+
+    expect(screen.getByRole("button")).toBeDisabled();
+  });
+
+  it("keeps a caller's own aria-busy when not loading", () => {
+    render(
+      <Button aria-busy icon={<Spinner size="sm" aria-hidden />}>
+        Saving
+      </Button>,
+    );
+
+    expect(screen.getByRole("button")).toHaveAttribute("aria-busy", "true");
+  });
+
+  it("omits aria-busy when idle", () => {
+    render(<Button>Save</Button>);
+
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-busy");
+  });
+
+  it("keeps the label so the button does not resize mid-submit", () => {
+    render(<Button loading>Save</Button>);
+
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+  });
+
+  it("swaps a decorative spinner in for the icon", () => {
+    render(
+      <Button loading icon={<span data-testid="icon" />}>
+        Save
+      </Button>,
+    );
+
+    expect(screen.queryByTestId("icon")).not.toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.getByRole("button").querySelector("svg")).not.toBeNull();
+  });
+
+  it("sizes the spinner to the glyph box it replaces", () => {
+    render(
+      <Button loading icon={<span data-testid="icon" />}>
+        Save
+      </Button>,
+    );
+
+    // `size="inline"` is the 1em step. A rem-based step would be a different
+    // width from the icon it stands in for, so the button would resize the
+    // moment it went busy — the one thing the prop promises not to do. Asserted
+    // on the class because jsdom computes no layout.
+    const spinner =
+      screen.getByRole("button").firstElementChild?.firstElementChild;
+    expect(spinner?.className).toContain("sizeStyles.inline");
+  });
+
+  it("adds no glyph slot to an icon-less button", () => {
+    const { rerender } = render(<Button>Save</Button>);
+    const idleChildren = screen.getByRole("button").children.length;
+
+    rerender(<Button loading>Save</Button>);
+
+    // With no icon there is no glyph box to borrow, and inserting one would
+    // widen the button by that box plus its gap. The spinner is laid over the
+    // label instead, and the label keeps reserving its width.
+    const button = screen.getByRole("button");
+    expect(button.firstElementChild?.className).toContain(
+      "sharedStyles.childrenContainer",
+    );
+    expect(button.firstElementChild?.className).toContain("styles.labelHidden");
+    expect(button.lastElementChild?.className).toContain(
+      "styles.spinnerOverlay",
+    );
+    expect(button.children.length).toBe(idleChildren + 1);
+    expect(button.querySelector("svg")).not.toBeNull();
+  });
+
+  it("keeps a busy button out of reach of pointer events", () => {
+    render(<Button loading>Save</Button>);
+
+    // Standing in for what the native `disabled` attribute did to the pointer:
+    // no hover lift on a control that can't be used, and no mousedown,
+    // dblclick or pointerdown reaching a caller's handler.
+    expect(screen.getByRole("button").className).toContain("styles.busy");
+  });
+
+  it("keeps the danger fill when a danger button is active", () => {
+    render(
+      <Button variant="danger" isActive>
+        Delete
+      </Button>,
+    );
+
+    // `sharedStyles.active` paints a literal accent background that would win
+    // over the danger variant's token, so the destructive button would stop
+    // reading as destructive exactly when it is armed.
+    const button = screen.getByRole("button");
+    expect(button.className).toContain("variantStyles.danger");
+    expect(button.className).not.toContain("sharedStyles.active");
+    expect(button).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("does not fire onClick while loading", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    render(
+      <Button loading onClick={onClick}>
+        Save
+      </Button>,
+    );
+
+    await user.click(screen.getByRole("button"));
+
+    expect(onClick).not.toHaveBeenCalled();
   });
 });

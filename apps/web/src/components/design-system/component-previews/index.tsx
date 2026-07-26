@@ -1,16 +1,21 @@
 import type { ReactElement } from "react";
 import type { DesignSystemPath } from "#src/components/design-system/routes.ts";
+import { AvatarPreview } from "./avatar-preview.tsx";
 import { BadgePreview } from "./badge-preview.tsx";
 import { ButtonPreview } from "./button-preview.tsx";
 import { CalloutPreview } from "./callout-preview.tsx";
 import { CardPreview } from "./card-preview.tsx";
 import { CheckboxPreview } from "./checkbox-preview.tsx";
+import { ChipPreview } from "./chip-preview.tsx";
+import { DisclosurePreview } from "./disclosure-preview.tsx";
 import { DividerPreview } from "./divider-preview.tsx";
 import { HeaderFooterLayoutPreview } from "./header-footer-layout-preview.tsx";
 import { HeadingPreview } from "./heading-preview.tsx";
 import { IconButtonPreview } from "./icon-button-preview.tsx";
 import { MenuButtonPreview } from "./menu-button-preview.tsx";
 import { OverlayPreview } from "./overlay-preview.tsx";
+import { SectionPreview } from "./section-preview.tsx";
+import { SegmentedControlPreview } from "./segmented-control-preview.tsx";
 import { SelectPreview } from "./select-preview.tsx";
 import { SidebarLayoutPreview } from "./sidebar-layout-preview.tsx";
 import { SkeletonPreview } from "./skeleton-preview.tsx";
@@ -60,9 +65,13 @@ const COMPONENT_PREVIEWS: Partial<Record<DesignSystemPath, ComponentPreview>> =
     "/design-system/components/button": { element: <ButtonPreview /> },
     "/design-system/components/icon-button": { element: <IconButtonPreview /> },
     "/design-system/components/menu-button": { element: <MenuButtonPreview /> },
+    "/design-system/components/chip": { element: <ChipPreview /> },
     "/design-system/components/badge": { element: <BadgePreview /> },
+    "/design-system/components/avatar": { element: <AvatarPreview /> },
     "/design-system/components/callout": { element: <CalloutPreview /> },
     "/design-system/components/card": { element: <CardPreview /> },
+    "/design-system/components/section": { element: <SectionPreview /> },
+    "/design-system/components/disclosure": { element: <DisclosurePreview /> },
     "/design-system/components/spinner": { element: <SpinnerPreview /> },
     "/design-system/components/skeleton": { element: <SkeletonPreview /> },
     "/design-system/components/divider": { element: <DividerPreview /> },
@@ -70,6 +79,9 @@ const COMPONENT_PREVIEWS: Partial<Record<DesignSystemPath, ComponentPreview>> =
     "/design-system/components/text-field": { element: <TextFieldPreview /> },
     "/design-system/components/textarea": { element: <TextareaPreview /> },
     "/design-system/components/checkbox": { element: <CheckboxPreview /> },
+    "/design-system/components/segmented-control": {
+      element: <SegmentedControlPreview />,
+    },
     "/design-system/components/select": { element: <SelectPreview /> },
     "/design-system/components/overlay": {
       element: <OverlayPreview />,

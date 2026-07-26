@@ -56,6 +56,17 @@ _Avoid_: glyph
 **Slot**:
 A subcomponent passed in as a prop, so the consumer replaces one internal piece while the parent keeps layout, accessibility, and state. See `DESIGN.md`.
 
+**Badge**:
+The inert `<span>` that labels something or reports its status. It never takes a click.
+
+**Chip**:
+The interactive pill — a link or a button — that the visitor can activate or select. If it can be clicked it is a Chip, not a Badge; the two are not size or colour variants of each other.
+_Avoid_: pill, tag, token (as the name of this component)
+
+**Monogram**:
+The one or two characters an `Avatar` derives from a name when there is no portrait.
+_Avoid_: initials (in prose — the `initials` prop name is the override, not the concept)
+
 **Escape hatch**:
 The route from one abstraction layer down to the one below — usually the `css` prop, sometimes a shared style object like `cardSurface`. Every layer has one.
 

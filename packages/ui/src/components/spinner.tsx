@@ -5,7 +5,7 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { motionConstants, motionTokens } from "../primitives/motion.stylex.ts";
 import { color, space } from "../tokens.stylex.ts";
 
-type SpinnerSize = "sm" | "md" | "lg";
+type SpinnerSize = "inline" | "sm" | "md" | "lg";
 type SpinnerTone = "accent" | "current";
 
 interface SpinnerBaseProps extends Omit<
@@ -13,8 +13,11 @@ interface SpinnerBaseProps extends Omit<
   "children" | "role" | "aria-hidden"
 > {
   /**
-   * Rendered diameter. Maps to `rem` so the indicator scales with the user's
-   * font size (WCAG 1.4.4). Defaults to `"md"`.
+   * Rendered diameter. The `sm`/`md`/`lg` steps map to `rem` so the indicator
+   * scales with the user's font size (WCAG 1.4.4). `"inline"` instead takes
+   * `1em`, matching the surrounding text — use it where the spinner stands in
+   * for a glyph, so swapping it in doesn't change the layout around it.
+   * Defaults to `"md"`.
    */
   size?: SpinnerSize;
   /**
@@ -156,6 +159,11 @@ const styles = stylex.create({
 });
 
 const sizeStyles = stylex.create({
+  // `em`, not `rem`: this one takes the size of whatever text it sits in, so a
+  // spinner standing in for an inline glyph occupies exactly the box that glyph
+  // did and the line doesn't reflow. The `rem` steps below are for a spinner
+  // that owns its space rather than one substituting for a character.
+  inline: { inlineSize: "1em", blockSize: "1em" },
   sm: { inlineSize: space._3, blockSize: space._3 },
   md: { inlineSize: space._5, blockSize: space._5 },
   lg: { inlineSize: space._7, blockSize: space._7 },

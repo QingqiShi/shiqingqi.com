@@ -177,11 +177,37 @@ export function TextShowcase() {
     },
   ];
 
+  const wrapSample = t({
+    en: "A tense, patient thriller that trusts its audience completely.",
+    zh: "一部紧张而耐心的惊悚片，全然信任它的观众。",
+  });
+  const wraps = [
+    {
+      meta: 'wrap="balance"',
+      node: <Text wrap="balance">{wrapSample}</Text>,
+    },
+    {
+      meta: 'wrap="pretty"',
+      node: <Text wrap="pretty">{wrapSample}</Text>,
+    },
+    {
+      meta: 'wrap="nowrap"',
+      node: <Text wrap="nowrap">{wrapSample}</Text>,
+    },
+  ];
+
+  const runtimes = ["1:02", "12:45", "128:09"];
+
   const usage = `import { Text } from "@tuja/ui/components/text";
 
 <Text variant="bodySmall" tone="muted">
   2h 08m · Crime, Drama
-</Text>`;
+</Text>
+
+// Body copy that shouldn't strand a word, and a column of times
+// whose digits line up.
+<Text wrap="pretty">{overview}</Text>
+<Text numeric align="end">{runtime}</Text>`;
 
   return (
     <>
@@ -276,6 +302,42 @@ export function TextShowcase() {
         </div>
       </Showcase>
 
+      <Showcase label={t({ en: "Wrapping", zh: "换行" })}>
+        <div css={styles.ladder}>
+          {wraps.map((row) => (
+            <div key={row.meta} css={styles.alignRow}>
+              <div css={styles.wrapSpecimen}>{row.node}</div>
+              <span css={styles.meta}>{row.meta}</span>
+            </div>
+          ))}
+        </div>
+      </Showcase>
+
+      <Showcase label={t({ en: "Figures", zh: "数字" })}>
+        <div css={styles.figureRow}>
+          <div css={styles.alignRow}>
+            <div css={styles.figureColumn}>
+              {runtimes.map((runtime) => (
+                <Text key={runtime} align="end">
+                  {runtime}
+                </Text>
+              ))}
+            </div>
+            <span css={styles.meta}>{t({ en: "default", zh: "默认" })}</span>
+          </div>
+          <div css={styles.alignRow}>
+            <div css={styles.figureColumn}>
+              {runtimes.map((runtime) => (
+                <Text key={runtime} numeric align="end">
+                  {runtime}
+                </Text>
+              ))}
+            </div>
+            <span css={styles.meta}>numeric</span>
+          </div>
+        </div>
+      </Showcase>
+
       <UsageSnippet code={usage} />
 
       <PropsTable
@@ -342,6 +404,30 @@ export function TextShowcase() {
             description: t({
               en: "Logical text alignment.",
               zh: "逻辑文本对齐方式。",
+            }),
+          },
+          {
+            name: "wrap",
+            type: '"balance" | "pretty" | "nowrap"',
+            description: t({
+              en: 'How lines break. "pretty" is the one for body copy — it avoids a one-word last line. "balance" evens every line, which suits short standalone copy but the browser caps it at a few lines.',
+              zh: '控制换行方式。"pretty" 适用于正文——可避免最后一行只剩一个词。"balance" 会让每行长度均衡，适合简短独立文案，但浏览器只对少数几行生效。',
+            }),
+          },
+          {
+            name: "numeric",
+            type: "boolean",
+            description: t({
+              en: "Renders figures at a fixed width so numbers line up in a column and a ticking value doesn't jitter.",
+              zh: "以等宽方式渲染数字，使数字在列中对齐，跳动的数值也不会抖动。",
+            }),
+          },
+          {
+            name: "id",
+            type: "string",
+            description: t({
+              en: "Id applied to the rendered element, so another node can point aria-labelledby or aria-describedby here.",
+              zh: "应用到渲染元素上的 id，使其他节点可用 aria-labelledby 或 aria-describedby 指向它。",
             }),
           },
           {
@@ -437,6 +523,23 @@ const styles = stylex.create({
   alignSpecimen: {
     inlineSize: "100%",
     minInlineSize: 0,
+  },
+  // Narrow enough that the line breaks land differently per mode, and clipped
+  // so the nowrap specimen overflows its box instead of the page.
+  wrapSpecimen: {
+    inlineSize: "100%",
+    maxInlineSize: "22rem",
+    overflow: "hidden",
+  },
+  figureRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: space._7,
+  },
+  figureColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._0,
   },
   meta: {
     fontFamily: font.familyMono,

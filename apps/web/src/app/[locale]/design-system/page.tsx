@@ -129,11 +129,25 @@ export default function DesignSystemOverview() {
         zh: "点击后展开为弹出菜单的按钮。",
       }),
     },
+    "/design-system/components/chip": {
+      label: t({ en: "Chip", zh: "标签按钮" }),
+      description: t({
+        en: "A compact interactive pill — a link or a button, never an inert label.",
+        zh: "紧凑的可交互药丸——链接或按钮，绝非静态标签。",
+      }),
+    },
     "/design-system/components/badge": {
       label: t({ en: "Badge", zh: "徽章" }),
       description: t({
         en: "Compact status and label indicators across seven tones.",
         zh: "七种色调的紧凑状态与标签指示器。",
+      }),
+    },
+    "/design-system/components/avatar": {
+      label: t({ en: "Avatar", zh: "头像" }),
+      description: t({
+        en: "A portrait or monogram medallion with an optional corner badge.",
+        zh: "头像或字母缩写徽章，可附带角标。",
       }),
     },
     "/design-system/components/callout": {
@@ -148,6 +162,20 @@ export default function DesignSystemOverview() {
       description: t({
         en: "A bordered surface container, static or interactive.",
         zh: "带描边的表面容器，支持静态或可交互两种形态。",
+      }),
+    },
+    "/design-system/components/section": {
+      label: t({ en: "Section", zh: "区块" }),
+      description: t({
+        en: "A labelled block of content with a quiet heading row.",
+        zh: "带轻量标题行的内容区块。",
+      }),
+    },
+    "/design-system/components/disclosure": {
+      label: t({ en: "Disclosure", zh: "折叠面板" }),
+      description: t({
+        en: "An expand and collapse section, with a headless hook beneath it.",
+        zh: "展开与折叠区块，底层提供无头钩子。",
       }),
     },
     "/design-system/components/spinner": {
@@ -197,6 +225,13 @@ export default function DesignSystemOverview() {
       description: t({
         en: "A checkbox with label, indeterminate, and error states.",
         zh: "带标签、未定态与错误态的复选框。",
+      }),
+    },
+    "/design-system/components/segmented-control": {
+      label: t({ en: "Segmented control", zh: "分段控件" }),
+      description: t({
+        en: "A single-select track for two to four views of the same content.",
+        zh: "用于同一内容二至四种视图的单选轨道。",
       }),
     },
     "/design-system/components/select": {
