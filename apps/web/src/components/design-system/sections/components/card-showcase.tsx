@@ -1,6 +1,16 @@
 import * as stylex from "@stylexjs/stylex";
-import { Card } from "@tuja/ui/components/card";
+import { Badge } from "@tuja/ui/components/badge";
+import { Button } from "@tuja/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -50,12 +60,61 @@ export function CardShowcase() {
         </a>
       </Showcase>
 
+      <Showcase label={t({ en: "Slots", zh: "插槽" })}>
+        <Card>
+          <CardHeader
+            action={
+              <Badge variant="success">
+                {t({ en: "Released", zh: "已上映" })}
+              </Badge>
+            }
+          >
+            <CardTitle>{sampleTitle}</CardTitle>
+            <CardDescription>{sampleBody}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Text variant="bodySmall" tone="muted">
+              {t({
+                en: "Each block spaces itself off the one before it rather than relying on a gap from the parent, so the slots keep their rhythm inside a plain Card or a bare element composing cardSurface. The spacing is vertical: lay the slots out in a row and you set the gap yourself.",
+                zh: "每个区块都会与前一个区块自行拉开间距，而不依赖父元素的 gap，因此这些插槽在普通卡片或仅组合 cardSurface 的裸元素中都能保持节奏。该间距为纵向：若要横向排列插槽，需自行设置 gap。",
+              })}
+            </Text>
+          </CardContent>
+          <CardFooter>
+            <Button size="sm">{t({ en: "Watch", zh: "观看" })}</Button>
+            <Button size="sm" variant="ghost">
+              {t({ en: "Save", zh: "收藏" })}
+            </Button>
+          </CardFooter>
+        </Card>
+        <Text variant="bodySmall" tone="muted" css={styles.note}>
+          {t({
+            en: "CardTitle renders a real heading — its visual size is fixed while level moves the rank, so a card stays reachable by heading navigation without distorting the outline.",
+            zh: "CardTitle 渲染为真实的标题元素——视觉字号固定，由 level 调整层级，因此卡片既可通过标题导航访问，又不会破坏文档大纲。",
+          })}
+        </Text>
+      </Showcase>
+
       <Showcase label={t({ en: "Usage", zh: "用法" })}>
         <UsageSnippet
           code={`import { Card } from "@tuja/ui/components/card";
 
 // A static surface — a panel, an alert, a list item.
 <Card role="alert">Heads up.</Card>
+
+// With the slots, for a card that has a title block and actions.
+import {
+  CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
+} from "@tuja/ui/components/card";
+
+<Card>
+  <CardHeader action={<Badge variant="success">Released</Badge>}>
+    <CardTitle>Typography</CardTitle>
+    <CardDescription>Families, the type scale, weights.</CardDescription>
+  </CardHeader>
+  <CardContent>…</CardContent>
+  <CardFooter><Button size="sm">Watch</Button></CardFooter>
+</Card>
 
 // When the whole card is clickable, render a real anchor or button and
 // compose the surface from the escape-hatch styles.
@@ -107,6 +166,47 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
               description: t({
                 en: "Native div attributes (role, id, onClick, data-*, className, style, ref) are forwarded.",
                 zh: "原生 div 属性（role、id、onClick、data-*、className、style、ref）会被转发。",
+              }),
+            },
+            {
+              name: "CardHeader",
+              type: '{ action?: ReactNode } & ComponentProps<"div">',
+              description: t({
+                en: "The title block: a tight stack for the title and its description, plus an optional action top-aligned at the trailing edge.",
+                zh: "标题区块：标题与描述的紧凑堆叠，外加可选的、顶部对齐于尾部的操作元素。",
+              }),
+            },
+            {
+              name: "CardTitle",
+              type: "{ level?: 2 | 3 | 4 | 5 | 6, id?: string }",
+              defaultValue: "level: 3",
+              description: t({
+                en: "The card's title as a real heading. Visual size stays fixed while level moves the rank. Give it an id and the Card can name itself with aria-labelledby.",
+                zh: "以真实标题元素渲染的卡片标题。视觉字号固定，由 level 调整层级。为其设置 id，卡片即可用 aria-labelledby 命名自身。",
+              }),
+            },
+            {
+              name: "CardDescription",
+              type: "{ children: ReactNode, id?: string }",
+              description: t({
+                en: "Supporting copy beneath the title, at the muted small-body step.",
+                zh: "标题下方的补充文案，采用弱化的小号正文样式。",
+              }),
+            },
+            {
+              name: "CardContent",
+              type: 'ComponentProps<"div">',
+              description: t({
+                en: "The main content region.",
+                zh: "主要内容区域。",
+              }),
+            },
+            {
+              name: "CardFooter",
+              type: 'ComponentProps<"div">',
+              description: t({
+                en: "A trailing row for the card's actions.",
+                zh: "位于末尾、承载卡片操作的一行。",
               }),
             },
           ]}
@@ -162,6 +262,9 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._4,
     textDecoration: "none",
+  },
+  note: {
+    maxInlineSize: "65ch",
   },
   title: {
     fontSize: font.uiHeading3,

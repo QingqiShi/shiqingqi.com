@@ -1,19 +1,32 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useRef, type ComponentProps, type ReactNode } from "react";
+import {
+  useRef,
+  type ComponentProps,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { usePressHandlers } from "../hooks/use-press-handlers.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { controlSize, font } from "../tokens.stylex.ts";
+import { border, color, controlSize, font } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { sharedStyles } from "./button-shared.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
+import { Spinner } from "./spinner.tsx";
 
 type ButtonSize = "sm" | "md" | "lg";
+type ButtonVariant = "primary" | "outline" | "ghost" | "danger";
 
 interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
-  /** Lifts the button onto a bright surface, brightening further on hover. */
+  /**
+   * Lifts the button onto a bright surface, brightening further on hover.
+   *
+   * It paints its own fill, so it overrides whatever `variant` set — pairing it
+   * with `outline` or `ghost` cancels the very chrome those drop. Pick one.
+   */
   bright?: boolean;
   /** Below the `md` breakpoint, collapses to the icon and hides the label. */
   hideLabelOnMobile?: boolean;
@@ -34,10 +47,30 @@ interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
    */
   isActive?: boolean;
   /**
-   * Visual variant. `"primary"` applies the same active highlight style but
-   * does NOT emit `aria-pressed` — use it for one-shot CTAs, not toggles.
+   * Visual variant. Omit for the default raised surface button.
+   *
+   * - `"primary"` applies the same active highlight style but does NOT emit
+   *   `aria-pressed` — use it for one-shot CTAs, not toggles.
+   * - `"outline"` drops the fill and shadow for a hairline border, for a
+   *   secondary action sitting beside a primary one.
+   * - `"ghost"` drops the chrome entirely, for dense toolbars and inline
+   *   affordances where a full button would shout.
+   * - `"danger"` fills with the danger intent, for destructive confirmations.
+   *   Reserve it for the action that actually destroys something.
    */
-  variant?: "primary";
+  variant?: ButtonVariant;
+  /**
+   * Marks the button busy: swaps the icon for a spinner, announces `aria-busy`,
+   * and blocks activation so the action can't be fired twice. The block is
+   * `aria-disabled` plus a click guard rather than the native `disabled`
+   * attribute — a natively disabled button drops out of the tab order, which
+   * would throw focus to the document the instant the user activated it and
+   * leave the `aria-busy` change unannounced.
+   *
+   * Keep the label as it is — a button that changes width mid-submit shifts
+   * everything around it.
+   */
+  loading?: boolean;
   /** Id applied to the label span, e.g. to wire an external `aria-labelledby`. */
   labelId?: string;
   /** StyleX styles merged over the button's own — the config-layer escape hatch. */
@@ -68,11 +101,16 @@ export function Button({
   icon,
   isActive,
   labelId,
+  loading,
+  onClick,
+  onKeyDown,
   ref: forwardedRef,
   size = "md",
   style,
   type = "button",
   variant,
+  "aria-busy": ariaBusy,
+  "aria-disabled": ariaDisabled,
   ...restProps
 }: ButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -80,11 +118,50 @@ export function Button({
   // to a caller-supplied ref, which `extends ComponentProps<"button">` allows.
   const setButtonRef = mergeRefs(buttonRef, forwardedRef);
 
+  const isLoading = loading === true;
+  // Inert either way as far as the press animation goes — neither a disabled
+  // nor a busy button should animate a press. Only `disabled` reaches the DOM
+  // attribute; see the `loading` prop docs for why busy stays focusable.
+  const isInert = disabled === true || isLoading;
+  // Truthiness rather than a null check, so the `icon={count && <Icon />}` idiom
+  // still renders nothing when `count` is `0` — `0` is a valid ReactNode and
+  // would otherwise paint a stray glyph.
+  const hasIcon = !!icon;
+  // Two ways to show the spinner, both of which leave the button exactly as wide
+  // as it was. With an icon it takes the icon's place. Without one there is no
+  // glyph box to borrow, and adding one would widen the button by the box plus
+  // its gap — so the spinner is laid over the label instead, and the label is
+  // hidden with `visibility` so it goes on reserving its width.
+  const swapsIconForSpinner = isLoading && hasIcon;
+  const overlaysSpinner = isLoading && !hasIcon;
+
+  // `aria-disabled` is advisory: it stops nothing on its own. Pointer events are
+  // off while busy (see `styles.busy`), but a focused button still fires a click
+  // from Enter or Space, so activation has to be blocked here as well — else a
+  // busy submit button would still submit its form.
+  function handleClick(event: MouseEvent<HTMLButtonElement>) {
+    if (isLoading) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    onClick?.(event);
+  }
+
+  // Keyboard events reach a busy button too, and `pointerEvents` can't stop
+  // them. A caller's handler must not run while the action is in flight.
+  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (isLoading) return;
+    onKeyDown?.(event);
+  }
+
   const { isPressed, releasedOutside, pressedStyle, handlers } =
     usePressHandlers({
-      disabled,
+      disabled: isInert,
       targetRef: buttonRef,
       ...restProps,
+      onClick: handleClick,
+      onKeyDown: handleKeyDown,
     });
 
   return (
@@ -95,29 +172,49 @@ export function Button({
       type={type}
       className={className}
       disabled={disabled}
+      // Both fall back to the caller's own value rather than `undefined`: these
+      // are written after `{...restProps}`, so hard-coding `undefined` would
+      // strip an `aria-busy` a caller set themselves.
+      aria-disabled={isLoading ? true : ariaDisabled}
+      aria-busy={isLoading ? true : ariaBusy}
       style={{ ...style, ...pressedStyle }}
       css={[
         sharedStyles.base,
         a11y.focusRing,
         styles.button,
         sizeStyles[size],
-        !!icon &&
+        variant !== undefined &&
+          variant !== "primary" &&
+          variantStyles[variant],
+        hasIcon &&
           !!children &&
           (hideLabelOnMobile
             ? sharedStyles.hasIconHideLabel
             : sharedStyles.hasIcon),
         bright && sharedStyles.bright,
-        (isActive || variant === "primary") && sharedStyles.active,
-        isPressed && !disabled && sharedStyles.pressed,
-        isPressed && !disabled && bright && sharedStyles.pressedBright,
+        // `variantStyles` re-points tokens, but `active` and `bright` set a
+        // literal `backgroundColor` that wins over them. `danger` is the one
+        // clash that matters — a destructive button repainted brand-accent the
+        // moment it toggles on stops reading as destructive — so it keeps its
+        // own fill and `isActive` shows through `aria-pressed` alone.
+        (isActive === true || variant === "primary") &&
+          variant !== "danger" &&
+          sharedStyles.active,
+        isLoading && styles.busy,
+        isPressed && !isInert && sharedStyles.pressed,
+        isPressed && !isInert && bright && sharedStyles.pressedBright,
         releasedOutside && sharedStyles.releasedOutside,
         css,
       ]}
       {...handlers}
     >
-      {icon && (
+      {hasIcon && (
         <span css={sharedStyles.icon} aria-hidden>
-          {icon}
+          {/* Decorative: `aria-busy` on the button already announces the state,
+              so a labelled spinner would say it twice. `size="inline"` is the
+              `1em` step, so the spinner occupies exactly the box the icon it
+              replaces did and the button can't change width mid-submit. */}
+          {swapsIconForSpinner ? <Spinner size="inline" aria-hidden /> : icon}
         </span>
       )}
       {children && (
@@ -125,10 +222,16 @@ export function Button({
           css={[
             sharedStyles.childrenContainer,
             hideLabelOnMobile && sharedStyles.hideLabelOnMobile,
+            overlaysSpinner && styles.labelHidden,
           ]}
           id={labelId}
         >
           {children}
+        </span>
+      )}
+      {overlaysSpinner && (
+        <span css={styles.spinnerOverlay} aria-hidden>
+          <Spinner size="inline" aria-hidden />
         </span>
       )}
     </button>
@@ -137,6 +240,9 @@ export function Button({
 
 const styles = stylex.create({
   button: {
+    // Anchors the busy spinner overlay, which has to sit outside the flow so it
+    // doesn't change the button's width.
+    position: "relative",
     // Button-specific resets
     borderWidth: 0,
     borderStyle: "none",
@@ -159,6 +265,69 @@ const styles = stylex.create({
       default: null,
       ":disabled": 0.7,
     },
+  },
+  // A busy button stays natively enabled so it can keep focus, which means none
+  // of the `:disabled` rules above fire — the dimming has to be applied
+  // directly, and `pointerEvents` stands in for what `disabled` did to the
+  // pointer: no hover lift on a control that can't be used, and no click,
+  // mousedown, dblclick or pointerdown reaching a caller's handler. Keyboard
+  // events still arrive, so the component guards those in JS. There is no
+  // `cursor: not-allowed` because a `pointer-events: none` element never gets
+  // to set the cursor — the arrow it falls back to is what a natively disabled
+  // button shows anyway.
+  busy: {
+    opacity: 0.7,
+    pointerEvents: "none",
+  },
+  // Keeps the label's box, and so the button's width, while the spinner sits on
+  // top of it. `visibility` rather than `opacity` so the text is out of the
+  // accessibility tree too — `aria-busy` is what should be announced.
+  labelHidden: {
+    visibility: "hidden",
+  },
+  spinnerOverlay: {
+    position: "absolute",
+    insetBlockStart: 0,
+    insetInlineStart: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    inlineSize: "100%",
+    blockSize: "100%",
+  },
+});
+
+// Each variant re-points the shared `buttonTokens` knobs rather than declaring
+// its own colours, so the skin travels to anything else reading them (the app's
+// anchor button, a grouped cluster) exactly as the defaults do.
+//
+// `"primary"` is deliberately absent: it reuses `sharedStyles.active`, the same
+// highlight `isActive` paints, so a toggle in its on state and a primary CTA
+// cannot drift apart.
+const variantStyles = stylex.create({
+  outline: {
+    [buttonTokens.backgroundColor]: "transparent",
+    [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
+    [buttonTokens.backgroundColorDisabledHover]: "transparent",
+    [buttonTokens.boxShadow]: "none",
+    // Border-box so the hairline sits inside the height the size step set,
+    // keeping an outline button the same height as its filled neighbour.
+    boxSizing: "border-box",
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
+  },
+  ghost: {
+    [buttonTokens.backgroundColor]: "transparent",
+    [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
+    [buttonTokens.backgroundColorDisabledHover]: "transparent",
+    [buttonTokens.boxShadow]: "none",
+  },
+  danger: {
+    [buttonTokens.backgroundColor]: color.danger,
+    [buttonTokens.backgroundColorHover]: color.dangerHover,
+    [buttonTokens.backgroundColorDisabledHover]: color.danger,
+    [buttonTokens.color]: color.dangerOn,
   },
 });
 

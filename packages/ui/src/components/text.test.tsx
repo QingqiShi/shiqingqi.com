@@ -89,3 +89,34 @@ describe("Text prop forwarding", () => {
     expect(ref.current?.tagName).toBe("SPAN");
   });
 });
+
+describe("Text wrapping and figures", () => {
+  it.each(["balance", "pretty", "nowrap"] as const)(
+    "applies the %s wrap style",
+    (wrap) => {
+      render(<Text wrap={wrap}>Copy</Text>);
+
+      expect(screen.getByText("Copy").className).toContain(
+        `wrapStyles.${wrap}`,
+      );
+    },
+  );
+
+  it("leaves wrapping to the browser by default", () => {
+    render(<Text>Copy</Text>);
+
+    expect(screen.getByText("Copy").className).not.toContain("wrapStyles.");
+  });
+
+  it("switches to tabular figures when numeric", () => {
+    render(<Text numeric>09:45</Text>);
+
+    expect(screen.getByText("09:45").className).toContain("styles.numeric");
+  });
+
+  it("keeps proportional figures by default", () => {
+    render(<Text>09:45</Text>);
+
+    expect(screen.getByText("09:45").className).not.toContain("styles.numeric");
+  });
+});

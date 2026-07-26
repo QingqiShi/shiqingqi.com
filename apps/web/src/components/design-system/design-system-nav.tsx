@@ -72,9 +72,16 @@ export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
       en: "Menu button",
       zh: "菜单按钮",
     }),
+    "/design-system/components/chip": t({ en: "Chip", zh: "标签按钮" }),
     "/design-system/components/badge": t({ en: "Badge", zh: "徽章" }),
+    "/design-system/components/avatar": t({ en: "Avatar", zh: "头像" }),
     "/design-system/components/callout": t({ en: "Callout", zh: "提示框" }),
     "/design-system/components/card": t({ en: "Card", zh: "卡片" }),
+    "/design-system/components/section": t({ en: "Section", zh: "区块" }),
+    "/design-system/components/disclosure": t({
+      en: "Disclosure",
+      zh: "折叠面板",
+    }),
     "/design-system/components/spinner": t({ en: "Spinner", zh: "加载指示器" }),
     "/design-system/components/skeleton": t({ en: "Skeleton", zh: "骨架屏" }),
     "/design-system/components/divider": t({ en: "Divider", zh: "分隔线" }),
@@ -88,6 +95,10 @@ export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
       zh: "多行文本框",
     }),
     "/design-system/components/checkbox": t({ en: "Checkbox", zh: "复选框" }),
+    "/design-system/components/segmented-control": t({
+      en: "Segmented control",
+      zh: "分段控件",
+    }),
     "/design-system/components/select": t({ en: "Select", zh: "下拉选择" }),
     "/design-system/components/overlay": t({ en: "Overlay", zh: "覆盖层" }),
     "/design-system/components/sidebar-layout": t({

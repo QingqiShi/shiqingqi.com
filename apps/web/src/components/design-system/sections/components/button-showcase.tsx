@@ -10,6 +10,7 @@ import { AnchorButton } from "#src/components/shared/anchor-button.tsx";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
+import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
@@ -26,6 +27,19 @@ export function ButtonShowcase() {
               {t({ en: "Primary", zh: "主要" })}
             </Button>
           </ShowcaseItem>
+          <ShowcaseItem label="outline">
+            <Button variant="outline">
+              {t({ en: "Outline", zh: "描边" })}
+            </Button>
+          </ShowcaseItem>
+          <ShowcaseItem label="ghost">
+            <Button variant="ghost">{t({ en: "Ghost", zh: "无框" })}</Button>
+          </ShowcaseItem>
+          <ShowcaseItem label="danger">
+            <Button variant="danger" icon={<TrashIcon weight="bold" />}>
+              {t({ en: "Delete", zh: "删除" })}
+            </Button>
+          </ShowcaseItem>
           <ShowcaseItem label="active">
             <Button isActive>{t({ en: "Active", zh: "激活" })}</Button>
           </ShowcaseItem>
@@ -33,6 +47,30 @@ export function ButtonShowcase() {
             <Button bright>{t({ en: "Bright", zh: "明亮" })}</Button>
           </ShowcaseItem>
         </ShowcaseGrid>
+      </Showcase>
+
+      <Showcase label={t({ en: "Loading", zh: "加载中" })}>
+        <ShowcaseGrid>
+          <ShowcaseItem label="default">
+            <Button loading>{t({ en: "Save", zh: "保存" })}</Button>
+          </ShowcaseItem>
+          <ShowcaseItem label="primary">
+            <Button variant="primary" loading>
+              {t({ en: "Continue", zh: "继续" })}
+            </Button>
+          </ShowcaseItem>
+          <ShowcaseItem label="outline">
+            <Button variant="outline" loading icon={<PlusIcon weight="bold" />}>
+              {t({ en: "Add", zh: "添加" })}
+            </Button>
+          </ShowcaseItem>
+        </ShowcaseGrid>
+        <ShowcaseHelper>
+          {t({
+            en: "The button keeps its width either way. With an icon the spinner takes the icon's place; without one it sits over the label, which stays in the layout reserving its space. Pointer events are off while busy, so a control that can't be used doesn't light up under the cursor.",
+            zh: "两种情况下按钮宽度都保持不变。有图标时，加载指示器取代图标；没有图标时，它覆盖在标签之上，而标签仍留在布局中占据原有空间。忙碌期间指针事件被关闭，因此无法使用的控件不会在光标下产生响应。",
+          })}
+        </ShowcaseHelper>
       </Showcase>
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
@@ -124,6 +162,12 @@ export function ButtonShowcase() {
 
 <Button variant="primary" icon={<PlusIcon weight="bold" />}>
   Add to list
+</Button>
+
+// A form submit: the label holds still while the spinner takes the
+// icon's place, and the button disables itself until the action settles.
+<Button type="submit" variant="primary" loading={isPending}>
+  Save changes
 </Button>`}
           label="tsx"
         />
@@ -159,10 +203,18 @@ export function ButtonShowcase() {
             },
             {
               name: "variant",
-              type: '"primary"',
+              type: '"primary" | "outline" | "ghost" | "danger"',
               description: t({
-                en: "One-shot CTA highlight. Unlike isActive, it does not emit aria-pressed.",
-                zh: "一次性 CTA 高亮。与 isActive 不同，它不会发出 aria-pressed。",
+                en: 'Visual treatment; omit for the default raised button. "primary" is the one-shot CTA highlight and, unlike isActive, does not emit aria-pressed. "outline" and "ghost" step the chrome down for secondary and inline actions; "danger" is for the action that actually destroys something.',
+                zh: '视觉样式；省略则为默认的凸起按钮。"primary" 是一次性 CTA 高亮，与 isActive 不同，它不会发出 aria-pressed。"outline" 与 "ghost" 依次减弱外框，用于次要与行内操作；"danger" 用于真正具有破坏性的操作。',
+              }),
+            },
+            {
+              name: "loading",
+              type: "boolean",
+              description: t({
+                en: "Marks the button busy: shows a spinner, announces aria-busy, and blocks activation so the action can't fire twice. The block is aria-disabled plus a click guard rather than the native disabled attribute, so the button keeps focus and the busy state is actually heard. Either way the width holds — with an icon the spinner takes its place, without one it sits over the label. Keep the label text as it is.",
+                zh: "将按钮标记为忙碌：显示加载指示器，输出 aria-busy，并阻止再次触发。阻止方式为 aria-disabled 加点击拦截，而非原生 disabled 属性，因此按钮保留焦点，忙碌状态才能被真正读出。两种情况下宽度都保持不变——有图标时加载指示器取代图标，没有图标时则覆盖在标签之上。请保持标签文案不变。",
               }),
             },
             {

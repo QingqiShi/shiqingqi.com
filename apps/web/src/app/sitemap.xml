@@ -200,6 +200,56 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/divider" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/chip</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/chip" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/chip</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/chip" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/avatar</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/avatar" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/avatar" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/avatar</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/avatar" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/avatar" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/section</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/section" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/section" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/section</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/section" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/section" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/disclosure</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/disclosure" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/disclosure" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/disclosure</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/disclosure" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/disclosure" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/segmented-control</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/segmented-control" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/segmented-control" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/segmented-control</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/segmented-control" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/segmented-control" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/badge</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/badge" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/badge" />

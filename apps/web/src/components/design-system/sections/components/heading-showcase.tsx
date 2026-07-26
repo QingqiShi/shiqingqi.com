@@ -137,11 +137,39 @@ export function HeadingShowcase() {
     },
   ];
 
+  const wrapSample = t({
+    en: "The quiet triumph of a very patient thriller",
+    zh: "一部极有耐心的惊悚片的静默胜利",
+  });
+  const wraps = [
+    {
+      meta: "(default)",
+      node: (
+        <Heading level={3} variant="h2">
+          {wrapSample}
+        </Heading>
+      ),
+    },
+    {
+      meta: 'wrap="balance"',
+      node: (
+        <Heading level={3} variant="h2" wrap="balance">
+          {wrapSample}
+        </Heading>
+      ),
+    },
+  ];
+
   const usage = `import { Heading } from "@tuja/ui/components/heading";
 
 // Semantic <h2>, display-scale look
 <Heading level={2} variant="display">
   Featured this week
+</Heading>
+
+// A title that wraps to two lines without stranding a word on the second
+<Heading level={1} wrap="balance">
+  {movie.title}
 </Heading>`;
 
   return (
@@ -205,6 +233,23 @@ export function HeadingShowcase() {
         </div>
       </Showcase>
 
+      <Showcase label={t({ en: "Wrapping", zh: "换行" })}>
+        <ShowcaseHelper>
+          {t({
+            en: "balance evens the lines so a two-line title doesn't leave one word stranded. The browser's line cap is no constraint at heading length, which is why this is the mode headings want.",
+            zh: "balance 会让各行长度均衡，使两行的标题不会在第二行只剩一个词。在标题长度下浏览器的行数上限不构成限制，因此这正是标题需要的模式。",
+          })}
+        </ShowcaseHelper>
+        <div css={styles.ladder}>
+          {wraps.map((row) => (
+            <div key={row.meta} css={styles.alignRow}>
+              <div css={styles.wrapSpecimen}>{row.node}</div>
+              <span css={styles.meta}>{row.meta}</span>
+            </div>
+          ))}
+        </div>
+      </Showcase>
+
       <UsageSnippet code={usage} />
 
       <PropsTable
@@ -257,6 +302,22 @@ export function HeadingShowcase() {
             description: t({
               en: "Logical text alignment.",
               zh: "逻辑文本对齐方式。",
+            }),
+          },
+          {
+            name: "wrap",
+            type: '"balance" | "pretty" | "nowrap"',
+            description: t({
+              en: 'How lines break. "balance" is the one headings want — it evens the lines so a two-line title doesn\'t strand a word.',
+              zh: '控制换行方式。"balance" 正是标题所需——它让各行长度均衡，使两行标题不会孤零零地留下一个词。',
+            }),
+          },
+          {
+            name: "id",
+            type: "string",
+            description: t({
+              en: "Id applied to the rendered heading, so a region can name itself with aria-labelledby pointing here.",
+              zh: "应用到渲染标题上的 id，使某个区域可用 aria-labelledby 指向它来命名自身。",
             }),
           },
           {
@@ -352,6 +413,11 @@ const styles = stylex.create({
   alignSpecimen: {
     inlineSize: "100%",
     minInlineSize: 0,
+  },
+  // Narrow enough that the sample wraps to two lines, where balancing shows.
+  wrapSpecimen: {
+    inlineSize: "100%",
+    maxInlineSize: "22rem",
   },
   meta: {
     fontFamily: font.familyMono,

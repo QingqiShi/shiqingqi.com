@@ -78,6 +78,13 @@ export function useRadioGroup<TValue extends string>({
     [focusValue, onChange, values],
   );
 
+  // `value` is documented as one of `values`, but it can drift at runtime — a
+  // view restored from a stale query param, options that arrive after the
+  // value. WAI-ARIA requires the first option to stay tabbable when none is
+  // checked; without this every option would be `tabIndex={-1}` and the group
+  // would be unreachable by keyboard, with no way in for the arrow keys either.
+  const fallbackValue = values.includes(value) ? undefined : values[0];
+
   /**
    * Build the props for the option rendering `optionValue`. Spread the result
    * onto the option's <button>. Supplies `role="radio"`, `aria-checked`,
@@ -97,7 +104,7 @@ export function useRadioGroup<TValue extends string>({
       },
       role: "radio",
       "aria-checked": optionValue === value,
-      tabIndex: optionValue === value ? 0 : -1,
+      tabIndex: optionValue === (fallbackValue ?? value) ? 0 : -1,
       onClick: () => {
         onChange(optionValue);
       },
@@ -123,7 +130,7 @@ export function useRadioGroup<TValue extends string>({
         }
       },
     }),
-    [jump, move, onChange, value],
+    [fallbackValue, jump, move, onChange, value],
   );
 
   return { getOptionProps };

@@ -8,6 +8,7 @@ type HeadingVariant = "display" | "h1" | "h2" | "h3" | "h4";
 type HeadingWeight =
   "regular" | "medium" | "semibold" | "bold" | "extrabold" | "black";
 type HeadingAlign = "start" | "center" | "end";
+type HeadingWrap = "balance" | "pretty" | "nowrap";
 
 interface HeadingProps {
   /** Heading rank `<h1>`–`<h6>`. Drives the semantic element. Defaults to `2`. */
@@ -23,6 +24,18 @@ interface HeadingProps {
   weight?: HeadingWeight;
   /** Text alignment (logical `start` / `center` / `end`). */
   align?: HeadingAlign;
+  /**
+   * How lines break. `"balance"` is the one headings want — it evens the lines
+   * so a two-line title doesn't leave one word stranded, and the browser's
+   * line cap is no constraint at heading length. `"pretty"` and `"nowrap"` are
+   * here for the rare heading that needs body-copy or single-line behaviour.
+   */
+  wrap?: HeadingWrap;
+  /**
+   * Id applied to the rendered heading, so a region can name itself with
+   * `aria-labelledby` pointing here.
+   */
+  id?: string;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
   /** Escape-hatch class applied to the rendered heading. */
@@ -57,6 +70,8 @@ export function Heading({
   variant,
   weight,
   align,
+  wrap,
+  id,
   css,
   className,
   style,
@@ -69,43 +84,80 @@ export function Heading({
     variantStyles[resolvedVariant],
     weight ? weightStyles[weight] : null,
     align ? alignStyles[align] : null,
+    wrap ? wrapStyles[wrap] : null,
     css,
   ];
 
   switch (level) {
     case 1:
       return (
-        <h1 ref={ref} css={composedCss} className={className} style={style}>
+        <h1
+          ref={ref}
+          id={id}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
           {children}
         </h1>
       );
     case 2:
       return (
-        <h2 ref={ref} css={composedCss} className={className} style={style}>
+        <h2
+          ref={ref}
+          id={id}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
           {children}
         </h2>
       );
     case 3:
       return (
-        <h3 ref={ref} css={composedCss} className={className} style={style}>
+        <h3
+          ref={ref}
+          id={id}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
           {children}
         </h3>
       );
     case 4:
       return (
-        <h4 ref={ref} css={composedCss} className={className} style={style}>
+        <h4
+          ref={ref}
+          id={id}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
           {children}
         </h4>
       );
     case 5:
       return (
-        <h5 ref={ref} css={composedCss} className={className} style={style}>
+        <h5
+          ref={ref}
+          id={id}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
           {children}
         </h5>
       );
     case 6:
       return (
-        <h6 ref={ref} css={composedCss} className={className} style={style}>
+        <h6
+          ref={ref}
+          id={id}
+          css={composedCss}
+          className={className}
+          style={style}
+        >
           {children}
         </h6>
       );
@@ -162,4 +214,10 @@ const alignStyles = stylex.create({
   start: { textAlign: "start" },
   center: { textAlign: "center" },
   end: { textAlign: "end" },
+});
+
+const wrapStyles = stylex.create({
+  balance: { textWrap: "balance" },
+  pretty: { textWrap: "pretty" },
+  nowrap: { textWrap: "nowrap" },
 });
