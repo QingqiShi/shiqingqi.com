@@ -13,25 +13,14 @@ ALWAYS follow these rules
 - NEVER chain bash commands with `&&` - use separate Bash tool calls instead for better error handling and visibility.
 - NEVER violate the [Rules of React](https://react.dev/reference/rules). Components and hooks MUST be pure, side effects belong in event handlers or effects, and props/state must never be mutated directly.
 
-# Available Commands
+# Command Notes
 
-```bash
-pnpm dev                # Start dev server
-pnpm build              # Full Next.js build (including type checking and linting)
-pnpm build:tsc          # TypeScript type checking
-pnpm lint               # Lint all files
-pnpm lint:changed       # Lint changed files
-pnpm format:write       # Format all files
-pnpm format:changed     # Format changed files
-pnpm test               # Run unit tests (Vitest)
-pnpm test:e2e           # Run E2E tests (Playwright) - auto-starts dev server
-pnpm codegen            # Generate TMDB API types and server functions
-pnpm codegen:tmdb       # Generate only TMDB server functions
-pnpm eval               # Run ALL AI chat evals (expensive - hits real LLM APIs)
-pnpm eval <filter>      # Run a subset of evals matching the filter, e.g. `pnpm eval tmdb-search`
-```
+Scripts live in `package.json`. The non-obvious bits:
 
-- **Evals are expensive** (they hit real LLM APIs). When working on a specific eval, use `pnpm eval <name>` to run only that file (e.g. `pnpm eval tmdb-search`). Only run `pnpm eval` without a filter when a full eval suite run is needed.
+- `pnpm build` runs type checking and linting as well as the build.
+- `pnpm test` is Vitest; `pnpm test:e2e` is Playwright and auto-starts the dev server.
+- `pnpm codegen:tmdb` regenerates only the TMDB server functions — it is not a root script, it lives in the web workspace.
+- **Evals are expensive** (they hit real LLM APIs). Use `pnpm eval <filter>` to run a single file (e.g. `pnpm eval tmdb-search`). Only run bare `pnpm eval` when a full suite run is needed.
 
 # Visual Verification
 
