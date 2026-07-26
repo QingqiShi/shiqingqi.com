@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase, illoMarker } from "./illustration.stylex.ts";
+import { tileMarker } from "../overview-tile.stylex.ts";
+import { illoBase } from "./illustration.stylex.ts";
 
 /**
  * Color foundation-card illustration: a row of tonal swatch squares (dark ->
@@ -176,7 +177,7 @@ const styles = stylex.create({
     transformOrigin: "100% 100%",
     transform: {
       default: "scale(0.96)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
@@ -214,28 +215,28 @@ const styles = stylex.create({
   ink: {
     opacity: {
       default: 0.9,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
     },
     transition: "opacity 500ms ease",
   },
   chroma: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
     },
     transition: "opacity 560ms ease",
   },
   bloomChroma: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
     },
     transition: "opacity 560ms ease",
   },
   sheenWrap: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.9,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
     },
     transition: "opacity 500ms ease",
   },

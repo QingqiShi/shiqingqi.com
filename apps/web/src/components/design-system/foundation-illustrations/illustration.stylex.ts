@@ -1,13 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 
 /**
- * Marks the interactive tile so each illustration's descendants can key off its
- * `:hover` / `:focus-visible` state via `stylex.when.ancestor(...)` — the reason
- * the scenes need no shared signal variable or `@property` registration.
- */
-export const illoMarker = stylex.defineMarker();
-
-/**
  * Shared base for the eight illustrations: theme-aware palette tokens set on the
  * root `<svg>` and inherited by its descendants (`--ds-illo-ink` for the rest
  * state, the `--ds-illo-hue` / `-hue-soft` gold pair for the alive state, plus a

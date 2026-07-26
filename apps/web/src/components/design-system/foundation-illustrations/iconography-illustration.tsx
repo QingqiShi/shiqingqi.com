@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase, illoMarker } from "./illustration.stylex.ts";
+import { tileMarker } from "../overview-tile.stylex.ts";
+import { illoBase } from "./illustration.stylex.ts";
 
 /**
  * Iconography foundation-card illustration: a 3x3 grid of Phosphor-style
@@ -119,13 +120,13 @@ const styles = stylex.create({
   bloom: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.72,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.72,
     },
     transformBox: "fill-box",
     transformOrigin: "center",
     transform: {
       default: "scale(0.82)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
@@ -140,7 +141,7 @@ const styles = stylex.create({
   spot: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
     },
     transformBox: "view-box",
     transform: {
@@ -157,12 +158,12 @@ const styles = stylex.create({
   icons: {
     stroke: {
       default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "var(--ds-illo-hue)",
     },
     opacity: {
       default: 0.5,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.94,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.94,
     },
     transformBox: "view-box",
     transform: {
@@ -179,7 +180,7 @@ const styles = stylex.create({
   toggleKnob: {
     fill: {
       default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "var(--ds-illo-hue-soft)",
     },
     stroke: "none",
@@ -187,7 +188,7 @@ const styles = stylex.create({
     transformOrigin: "center",
     transform: {
       default: "translateX(-7px)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "translateX(0px)",
     },
     transition: {

@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { motionConstants } from "../primitives/motion.stylex.ts";
+import { motionConstants, motionTokens } from "../primitives/motion.stylex.ts";
 import { color, space } from "../tokens.stylex.ts";
 
 type SpinnerSize = "sm" | "md" | "lg";
@@ -145,6 +145,10 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "ease-in-out",
     },
     animationIterationCount: "infinite",
+    // The spin is on this inner element, so `css` — which composes onto the
+    // root — can't reach it. Reading the inherited token lets any ancestor
+    // hold it still. See `motionTokens` in the motion primitive.
+    animationPlayState: motionTokens.playState,
   },
   track: {
     opacity: 0.25,

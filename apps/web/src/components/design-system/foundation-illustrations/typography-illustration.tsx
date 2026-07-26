@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase, illoMarker } from "./illustration.stylex.ts";
+import { tileMarker } from "../overview-tile.stylex.ts";
+import { illoBase } from "./illustration.stylex.ts";
 
 /**
  * Typography foundation-card illustration: a metallic serif "Aa" over a
@@ -183,13 +184,13 @@ const styles = stylex.create({
   glow: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.5,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
     },
     transformBox: "view-box",
     transformOrigin: "250px 120px",
     transform: {
       default: "scale(0.92)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "scale(1.02)",
       [motionConstants.REDUCED_MOTION]: "none",
     },
@@ -202,21 +203,21 @@ const styles = stylex.create({
   ink: {
     opacity: {
       default: 0.62,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
     },
     transition: "opacity 480ms ease",
   },
   metal: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
     },
     transition: "opacity 480ms cubic-bezier(0.32, 0.72, 0, 1)",
   },
   orb: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.5,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
     },
     transformBox: "view-box",
     transformOrigin: "256px 118px",
@@ -234,14 +235,14 @@ const styles = stylex.create({
   rule: {
     opacity: {
       default: 0.26,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.6,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
     },
     transition: "opacity 520ms ease",
   },
   ruleLine: {
     stroke: {
       default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "var(--ds-illo-hue-soft)",
     },
     strokeWidth: 1.2,
@@ -251,7 +252,7 @@ const styles = stylex.create({
   nums: {
     opacity: {
       default: 0.4,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.8,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.8,
     },
     transition: "opacity 520ms ease",
   },
@@ -263,7 +264,7 @@ const styles = stylex.create({
     dominantBaseline: "middle",
     fill: {
       default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]:
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "var(--ds-illo-hue-soft)",
     },
     transition: "fill 520ms ease",
@@ -271,7 +272,7 @@ const styles = stylex.create({
   shimmerWrap: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.9,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
     },
     transition: "opacity 520ms ease",
   },
@@ -288,7 +289,7 @@ const styles = stylex.create({
   caret: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 1,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
     },
     transition: "opacity 420ms ease",
   },

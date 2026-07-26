@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { illoBase, illoMarker } from "./illustration.stylex.ts";
+import { tileMarker } from "../overview-tile.stylex.ts";
+import { illoBase } from "./illustration.stylex.ts";
 
 /**
  * Borders foundation-card illustration: nested concentric rounded frames plus a
@@ -177,14 +178,14 @@ const styles = stylex.create({
   inkGlow: {
     opacity: {
       default: 0.6,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
     },
     transition: "opacity 500ms ease",
   },
   bloom: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.5,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
     },
     transformBox: "view-box",
     transformOrigin: "298px 146px",
@@ -214,28 +215,28 @@ const styles = stylex.create({
   grey: {
     opacity: {
       default: 0.46,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.58,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.58,
     },
     transition: "opacity 450ms ease",
   },
   accentRest: {
     opacity: {
       default: 0.5,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
     },
     transition: "opacity 450ms ease",
   },
   accentAlive: {
     opacity: {
       default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.95,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
     },
     transition: "opacity 450ms ease",
   },
   coreFill: {
     opacity: {
       default: 0.62,
-      [stylex.when.ancestor(":is(:hover, :focus-visible)", illoMarker)]: 0.92,
+      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.92,
     },
   },
   ringGroup: {
