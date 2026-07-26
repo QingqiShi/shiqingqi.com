@@ -195,8 +195,18 @@ const styles = stylex.create({
   // documented. What it buys is that a specimen can never be mistaken for a
   // working control, which matters more here than a pixel-accurate button.
   //
-  // Scaled from the inline edge, not the centre, so the specimens stay on the
-  // same alignment axis as the title and description above them.
+  // Centred on the plate, and scaled from that centre so the thumbnail shrinks
+  // in place. The plate is a frame around the specimen rather than a
+  // continuation of the copy above it — and since every plate in a row is the
+  // same size while the specimens inside them are not, pinning them to the
+  // inline edge left each one trailing a different amount of empty plate.
+  //
+  // This centres the specimen box, which is the whole mechanism for every
+  // specimen narrower than its plate. Because the element is `inline-size: 100%`
+  // the same `justify-content` on `styles.tray` would be inert, so it cannot be
+  // consolidated upward. Its counterpart lives in
+  // `component-previews/preview.stylex.ts`: once a box is plate-wide there is
+  // nothing here left to move, and those recipes place the contents inside it.
   //
   // The whole resting treatment is gated behind `(hover: hover)`. Its only exit
   // is engaging the tile, and a touch device cannot hover — the tray is `inert`
@@ -208,9 +218,10 @@ const styles = stylex.create({
   specimen: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "center",
     inlineSize: "100%",
     transform: "scale(0.85)",
-    transformOrigin: "left center",
+    transformOrigin: "center",
     filter: {
       default: "none",
       "@media (hover: hover)": {
@@ -257,9 +268,9 @@ const styles = stylex.create({
   },
   // The page miniatures fill the plate instead of sitting on it. Stretched so
   // the wireframe's `block-size: 100%` has a definite height to resolve
-  // against, and un-scaled: the thumbnail scale left them at 85% of the plate,
-  // pinned to its inline edge, so a diagram of a whole page read as a small
-  // card floating in the corner of a much larger tray.
+  // against, and un-scaled: the thumbnail scale left them at 85% of the plate
+  // with a margin of tray showing on every side, so a diagram of a whole page
+  // read as a small card adrift inside a much larger one.
   specimenFillsPlate: {
     alignSelf: "stretch",
     transform: "none",

@@ -7,13 +7,30 @@ import { border, color, space } from "@tuja/ui/tokens.stylex";
  * each other: `row` for a small cluster, `stack` for a vertical sample, and
  * `fill` for the controls (fields, a callout, a card) that span the tile.
  *
- * Everything starts at the inline edge, on the same axis as the tile's title and
- * description. A centred specimen under left-aligned copy gives the card two
- * alignment axes, which is most of what makes a grid of them feel restless.
+ * Everything centres on the plate. The plate is a frame around the specimen
+ * rather than a continuation of the copy above it, so the specimen sits in the
+ * middle of it the way a thumbnail sits in the middle of its mount — and because
+ * the plates are all one size while the specimens are not, centring is what
+ * stops a row of them from looking like a ragged left column with empty space
+ * trailing off to the right.
+ *
+ * It takes two levers, split by who owns the box. `styles.specimen` in
+ * `overview-tile.tsx` centres the specimen box on the plate, which settles every
+ * specimen narrower than its plate. Once a box is as wide as the plate — because
+ * it asked to be, or because its content overran — that declaration has nothing
+ * left to move, and placing the contents inside it falls to the recipes here.
  *
  * `fill` sets width only, never `align-self: stretch` — stretching would pull a
  * callout or a field to the full height of its row and make it read as a panel
- * rather than as one specimen.
+ * rather than as one specimen. Note it does not always produce a plate-wide
+ * specimen. The `css` prop compiles to a `className` at the callsite, so where it
+ * lands is the receiving component's decision: Callout, Card, Divider, Skeleton
+ * and the Menu button stage put it on their rendered root, while Select, Text
+ * field and Textarea put it on their inner control and leave the field root
+ * content-sized. (Select declares a `css` prop of its own that would reach its
+ * root, but the callsite's `css` never arrives as that prop.) So `fill` is not
+ * evidence that a specimen fills its plate — check the rendered root — and the
+ * wrapper's centring is load-bearing for those three callsites too.
  *
  * Anything beyond arrangement — a wireframe's chrome, a component-specific
  * width cap — stays local to the preview that needs it.
@@ -23,12 +40,35 @@ export const previewLayout = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
+    // Only matters once a cluster wraps. While it fits, the row shrinks to the
+    // cluster and the specimen wrapper centres that box. Once it doesn't, the
+    // row is as wide as the space it was given — a flex item shrinks to the
+    // available width, not to its longest line — so without this every line,
+    // the first included, would sit at the inline start of a plate-wide box.
+    justifyContent: "center",
     gap: space._1,
   },
+  // Both axes, because a stack hits the same wall the row does: the moment one
+  // of its rows is wider than the plate the box stretches to the plate, and
+  // wherever it lands short of that the rows are narrower than the box. So the
+  // rows centre within the box (`align-items`) and a row's own lines centre
+  // within it once it wraps (`text-align`) — otherwise a sample whose copy
+  // overruns reads flush to the inline start, next to neighbours that don't.
+  //
+  // This does mean the prose samples show centred copy, which is not how Text
+  // or Heading are used in place. At thumbnail scale, sitting in a grid of
+  // centred specimens, agreeing with the grid beats agreeing with the callsite;
+  // the component's own page is where it appears in real prose.
+  //
+  // The two are not symmetrical to opt out of: `align-items` reaches the direct
+  // children only, `text-align` inherits all the way down. A preview that wants
+  // its own alignment — `checkbox-preview.tsx` is the one so far — has to unset
+  // both, or it gets rows that line up above copy that is still centred.
   stack: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-start",
+    alignItems: "center",
+    textAlign: "center",
     gap: space._0,
   },
   fill: {
