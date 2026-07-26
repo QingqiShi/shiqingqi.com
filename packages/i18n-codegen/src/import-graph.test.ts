@@ -80,6 +80,25 @@ describe("traceClientFiles", () => {
     );
   });
 
+  it("follows dynamic import() into lazily loaded client components", () => {
+    const entryFile = path.join(
+      srcDir,
+      "app/[locale]/(with-header)/movie-database/(list)/page.tsx",
+    );
+    const clientFiles = traceClientFiles(entryFile, srcDir);
+    const relativePaths = [...clientFiles].map((f) => path.relative(srcDir, f));
+
+    // `media-list.tsx` reaches the table only through
+    // `dynamic(() => import("./media-table"))`. Its translations still belong
+    // in the page's client bundle, so the tracer has to walk that expression.
+    expect(relativePaths).toContain(
+      "components/movie-database/media-table.tsx",
+    );
+    expect(relativePaths).toContain(
+      "components/movie-database/media-table-cells.tsx",
+    );
+  });
+
   it("does NOT include server-only components", () => {
     const entryFile = path.join(
       srcDir,

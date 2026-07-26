@@ -2,6 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { parse } from "@babel/parser";
 import type { File as BabelFile } from "@babel/types";
+import { isStringLiteral } from "@babel/types";
+
+// @babel/traverse is a CJS module whose default export is the traverse function.
+// Dynamic import() resolves the CJS→ESM interop correctly in both tsx and vitest,
+// and unlike createRequire it preserves type information from @types/babel__traverse.
+const _traverseModule = await import("@babel/traverse");
+const traverse = _traverseModule.default;
 
 const SRC_ALIAS = "#src/";
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
@@ -101,6 +108,11 @@ function hasUseClient(ast: BabelFile): boolean {
 
 /**
  * Extract runtime import sources from an AST (skips type-only imports).
+ *
+ * Covers dynamic `import()` as well as the static forms. A component pulled in
+ * with `next/dynamic` is still part of the page's client tree, and missing it
+ * here means its `t()` calls are absent from the generated client bundle — the
+ * component then throws "Missing translation key" the first time it renders.
  */
 function getImportSources(ast: BabelFile): string[] {
   const sources: string[] = [];
@@ -117,6 +129,20 @@ function getImportSources(ast: BabelFile): string[] {
       sources.push(node.source.value);
     }
   }
+
+  // Dynamic imports are expressions and can sit anywhere, so they need a walk
+  // rather than a scan of the top-level statements.
+  traverse(ast, {
+    ImportExpression(nodePath) {
+      const { source } = nodePath.node;
+      // Only statically analysable specifiers; a computed one has no single
+      // file to follow.
+      if (isStringLiteral(source)) {
+        sources.push(source.value);
+      }
+    },
+  });
+
   return sources;
 }
 

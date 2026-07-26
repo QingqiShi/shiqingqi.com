@@ -60,6 +60,7 @@ describe("MediaVirtuosoGrid", () => {
       <MediaVirtuosoGrid
         queryResult={makeQueryResult([])}
         virtuosoKey="test-key"
+        initialItemCount={0}
         notFoundLabel="No movies found that match the criteria"
       />,
     );
@@ -87,17 +88,19 @@ describe("MediaVirtuosoGrid", () => {
       <MediaVirtuosoGrid
         queryResult={makeQueryResult(fiveItems)}
         virtuosoKey="test-key"
+        initialItemCount={fiveItems.length}
         notFoundLabel="No items"
       />,
     );
 
-    // Simulate navigation back: component re-renders with fewer items
-    // but React state (initialItemCount) is preserved from the first render.
+    // Simulate navigation back: component re-renders with fewer items while
+    // the caller's captured `initialItemCount` still describes the first one.
     expect(() => {
       rerender(
         <MediaVirtuosoGrid
           queryResult={makeQueryResult(twoItems)}
           virtuosoKey="test-key"
+          initialItemCount={fiveItems.length}
           notFoundLabel="No items"
         />,
       );

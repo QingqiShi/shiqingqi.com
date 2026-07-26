@@ -6,6 +6,7 @@ import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 import type {
   GenreFilterType,
   MediaType,
+  MediaView,
   Sort,
 } from "#src/utils/media-filters-context.ts";
 import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
@@ -14,10 +15,12 @@ const emptyFilters = {
   genreFilterType: "all",
   sort: "popularity.desc",
   mediaType: "movie",
+  view: "grid",
 } satisfies {
   genreFilterType: GenreFilterType;
   sort: Sort;
   mediaType: MediaType;
+  view: MediaView;
 };
 
 interface MediaFilters {
@@ -25,6 +28,12 @@ interface MediaFilters {
   genreFilterType: GenreFilterType;
   sort: Sort;
   mediaType: MediaType;
+  // Layout choice rather than a query input — it never feeds the TMDB request
+  // and `reset` deliberately leaves it alone. It lives here because this
+  // provider owns the page's whole search string: `buildFiltersSearchParams`
+  // rebuilds the query from scratch on every commit, so any param managed
+  // elsewhere would be dropped the next time a filter changed.
+  view: MediaView;
 }
 
 function buildFiltersSearchParams(filters: MediaFilters): URLSearchParams {
@@ -41,6 +50,9 @@ function buildFiltersSearchParams(filters: MediaFilters): URLSearchParams {
   if (filters.sort !== emptyFilters.sort) {
     params.append("sort", filters.sort);
   }
+  if (filters.view !== emptyFilters.view) {
+    params.append("view", filters.view);
+  }
   return params;
 }
 
@@ -50,6 +62,7 @@ interface MediaFiltersProviderProps {
     genreFilterType?: GenreFilterType;
     sort?: Sort;
     mediaType?: MediaType;
+    view?: MediaView;
   };
 }
 
@@ -68,6 +81,7 @@ export function MediaFiltersProvider({
       defaultFilters?.genreFilterType ?? emptyFilters.genreFilterType,
     sort: defaultFilters?.sort ?? emptyFilters.sort,
     mediaType: initialMediaType,
+    view: defaultFilters?.view ?? emptyFilters.view,
   }));
 
   const buildUrl = (nextFilters: MediaFilters) => {
@@ -124,39 +138,33 @@ export function MediaFiltersProvider({
     mediaFilters.genreFilterType !== emptyFilters.genreFilterType ||
     mediaFilters.sort !== emptyFilters.sort;
 
+  // Switching media type clears every filter, but keeps the chosen layout —
+  // the user asked to see TV shows, not to go back to posters.
+  const clearedFilters = (mediaType: MediaType): MediaFilters => ({
+    genres: new Set<string>(),
+    genreFilterType: emptyFilters.genreFilterType,
+    sort: emptyFilters.sort,
+    mediaType,
+    view: mediaFilters.view,
+  });
+
   const setMediaType = (type: MediaType) => {
-    commit({
-      genres: new Set<string>(),
-      genreFilterType: emptyFilters.genreFilterType,
-      sort: emptyFilters.sort,
-      mediaType: type,
-    });
+    commit(clearedFilters(type));
   };
 
-  const setMediaTypeUrl = (type: MediaType) =>
-    buildUrl({
-      genres: new Set<string>(),
-      genreFilterType: emptyFilters.genreFilterType,
-      sort: emptyFilters.sort,
-      mediaType: type,
-    });
+  const setMediaTypeUrl = (type: MediaType) => buildUrl(clearedFilters(type));
 
   const reset = () => {
-    commit({
-      genres: new Set<string>(),
-      genreFilterType: emptyFilters.genreFilterType,
-      sort: emptyFilters.sort,
-      mediaType: mediaFilters.mediaType,
-    });
+    commit(clearedFilters(mediaFilters.mediaType));
   };
 
-  const resetUrl = () =>
-    buildUrl({
-      genres: new Set<string>(),
-      genreFilterType: emptyFilters.genreFilterType,
-      sort: emptyFilters.sort,
-      mediaType: mediaFilters.mediaType,
-    });
+  const resetUrl = () => buildUrl(clearedFilters(mediaFilters.mediaType));
+
+  const setView = (view: MediaView) => {
+    commit({ ...mediaFilters, view });
+  };
+
+  const setViewUrl = (view: MediaView) => buildUrl({ ...mediaFilters, view });
 
   return (
     <MediaFiltersContext
@@ -171,6 +179,8 @@ export function MediaFiltersProvider({
         setSortUrl,
         setMediaType,
         setMediaTypeUrl,
+        setView,
+        setViewUrl,
         reset,
         resetUrl,
       }}

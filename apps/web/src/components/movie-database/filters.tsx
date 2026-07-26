@@ -9,6 +9,7 @@ import { FiltersContainer } from "./filters-container";
 import { GenreFilter } from "./genre-filter";
 import { GenreFilterButton } from "./genre-filter-button";
 import { MediaTypeToggle } from "./media-type-toggle";
+import { MediaViewToggle } from "./media-view-toggle";
 import { MobileFiltersButton } from "./mobile-filters-button";
 import { ResetFilter } from "./reset-filter";
 import { SortFilter } from "./sort-filter";
@@ -49,6 +50,9 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
             <SortFilter hideLabel />
             <ResetFilter hideLabel />
           </FixedContainerContent>
+          <FixedContainerContent>
+            <MediaViewToggle iconOnly hideLabel />
+          </FixedContainerContent>
           <TmdbCredit position="topLeft" />
         </>
       }
@@ -58,6 +62,7 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
           <MobileFiltersButton
             menuContent={
               <div css={[flex.wrap, styles.mobileMenuContent]}>
+                <MediaViewToggle bright />
                 <SortFilter bright />
                 <GenreFilter />
                 <ResetFilter bright />
