@@ -3,6 +3,7 @@
 ALWAYS follow these rules
 
 - Run `pnpm lint:changed`, `pnpm format:changed`, `pnpm test`, and `pnpm build` before any task is considered complete.
+- Domain language is defined in `CONTEXT-MAP.md`, which points at a `CONTEXT.md` per context. Use those terms in code, comments, and copy.
 - NEVER EVER use `any` type explicitly or implicitly
 - AVOID type assertions (`as Type`)
 - Prefer letting TypeScript infer types over explicit type annotations
