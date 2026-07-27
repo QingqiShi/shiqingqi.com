@@ -1,4 +1,34 @@
-import { test, expect, type Locator, type Page } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
+
+/**
+ * A MenuButton popup's box once its entrance transforms have settled.
+ *
+ * Every popup FLIPs out of its trigger, and one on the filters bar also rides
+ * the hero morph that shifts the trigger's wrapper as the hero input scrolls
+ * away, so a box read on arrival describes an animation frame rather than what
+ * CSS anchored the popup to. All of them run on `fill: "none"`, so waiting for
+ * every finite animation to finish leaves exactly the computed geometry. The
+ * infinite ones are skeleton shimmers, which never finish and never move a
+ * popup.
+ */
+async function settledPopupBox(popup: Locator) {
+  await expect(popup).toBeVisible();
+
+  return popup.evaluate(async (element) => {
+    await Promise.allSettled(
+      document
+        .getAnimations()
+        .filter(
+          (animation) =>
+            animation.effect?.getComputedTiming().iterations !== Infinity,
+        )
+        .map((animation) => animation.finished),
+    );
+
+    const { x, y, width, height } = element.getBoundingClientRect();
+    return { x, y, width, height };
+  });
+}
 
 test.describe("Movie and TV Show Browsing", () => {
   test.beforeEach(async ({ page }) => {
@@ -330,34 +360,6 @@ test.describe("Mobile filters sheet", () => {
     await expect(refine).toBeInViewport();
   }
 
-  /** The sheet's box once both of its entrance transforms have settled. */
-  async function settledSheetBox(page: Page) {
-    const sheet = page.getByRole("group", { name: refineName });
-    await expect(sheet).toBeVisible();
-
-    // Two transforms slide the sheet on open — its own FLIP out of the trigger,
-    // and the hero morph that shifts the trigger's wrapper once the hero input
-    // scrolls away — so wait for the box to stop moving before reading it. Both
-    // use `fill: "none"`, so what settles is what CSS actually computed. Poll
-    // tightly: the default back-off would idle for ~500ms past the 300ms
-    // animation before noticing, in both tests.
-    let box = await sheet.boundingBox();
-    await expect
-      .poll(
-        async () => {
-          const current = await sheet.boundingBox();
-          const settled = JSON.stringify(current) === JSON.stringify(box);
-          box = current;
-          return settled;
-        },
-        { intervals: [50] },
-      )
-      .toBe(true);
-
-    if (!box) throw new Error("expected the sheet to have a box");
-    return box;
-  }
-
   test("opens inside the viewport and closes on a tap behind it", async ({
     page,
   }) => {
@@ -369,7 +371,9 @@ test.describe("Mobile filters sheet", () => {
     await scrollBarTo(refine, 0);
     await refine.click();
 
-    const box = await settledSheetBox(page);
+    const box = await settledPopupBox(
+      page.getByRole("group", { name: refineName }),
+    );
 
     // The sheet spans the filters bar and stays inside the viewport. Anchoring
     // it to the trigger's corner hung most of it off the inline-start edge, and
@@ -420,7 +424,9 @@ test.describe("Mobile filters sheet", () => {
     await scrollBarTo(refine, viewport.height / 2);
     await refine.click();
 
-    const box = await settledSheetBox(page);
+    const box = await settledPopupBox(
+      page.getByRole("group", { name: refineName }),
+    );
 
     // Read the bar after the sheet has settled, so both describe the same
     // moment, and guard the premise — this only tests anything while unstuck.
@@ -430,5 +436,54 @@ test.describe("Mobile filters sheet", () => {
 
     expect(box.y).toBeGreaterThanOrEqual(triggerBox.y);
     expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+  });
+});
+
+// The TMDB Attribution hangs off a trigger in the middle of the desktop filters
+// bar, and its panel is wider than the room left beside it. A closed MenuButton
+// popup is laid out rather than unmounted, so an outward anchor added its full
+// width to the page's scrollable area at every viewport it did not fit — a
+// document-level measurement no unit test can make.
+test.describe("Attribution popup", () => {
+  // Wide enough for the desktop bar, narrow enough that the panel cannot fit
+  // between its trigger and the inline-end edge. Above roughly 1200px it fits
+  // either way, which is why this went unnoticed on a large display.
+  const viewport = { width: 880, height: 900 };
+  test.use({ viewport });
+
+  const attributionName = /tmdb attribution info/i;
+
+  test("opens inside the viewport without widening the page", async ({
+    page,
+  }) => {
+    await page.goto("/movie-database");
+    // Settle first: the trending rows arrive after the bar, and a row still
+    // mid-render is its own transient source of document width.
+    const cards = page.getByRole("link").filter({ has: page.getByRole("img") });
+    await expect(cards.first()).toBeVisible();
+    await page.waitForLoadState("networkidle");
+
+    const documentWidths = () =>
+      page.evaluate(() => ({
+        scroll: document.documentElement.scrollWidth,
+        client: document.documentElement.clientWidth,
+      }));
+
+    const closed = await documentWidths();
+    expect(closed.scroll).toBeLessThanOrEqual(closed.client);
+
+    const trigger = page.getByRole("button", { name: attributionName });
+    await trigger.click();
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+
+    const box = await settledPopupBox(
+      page.getByRole("group", { name: attributionName }),
+    );
+
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+
+    const open = await documentWidths();
+    expect(open.scroll).toBeLessThanOrEqual(open.client);
   });
 });
