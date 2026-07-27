@@ -102,11 +102,11 @@ import { MenuLabel } from "@tuja/ui/components/menu-label";
             },
             {
               name: "position",
-              type: '"topRight" | "topLeft" | "bottomLeft" | "bottomRight" | "viewportWidth"',
+              type: '"topRight" | "topLeft" | "bottomLeft" | "bottomRight" | "sheet"',
               defaultValue: '"topRight"',
               description: t({
-                en: "Which corner the menu expands from (logical-direction-aware), or span the viewport width.",
-                zh: "菜单从哪个角展开（感知逻辑方向），或横跨视口宽度。",
+                en: 'Which corner the menu expands from (logical-direction-aware), or "sheet" to span the bar the trigger sits in.',
+                zh: '菜单从哪个角展开（感知逻辑方向），或使用 "sheet" 横跨触发按钮所在的工具栏。',
               }),
             },
             {

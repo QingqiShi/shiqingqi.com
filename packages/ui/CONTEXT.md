@@ -56,6 +56,10 @@ _Avoid_: glyph
 **Slot**:
 A subcomponent passed in as a prop, so the consumer replaces one internal piece while the parent keeps layout, accessibility, and state. See `DESIGN.md`.
 
+**Sheet**:
+A popup that spans the bar its trigger sits in rather than hanging off the trigger's own corner — `MenuButton`'s `position="sheet"`. Not a centred dialog and not an edge-anchored panel; if it does not span a bar it is not a Sheet.
+_Avoid_: drawer, bottom sheet, panel (for this sense)
+
 **Badge**:
 The inert `<span>` that labels something or reports its status. It never takes a click.
 

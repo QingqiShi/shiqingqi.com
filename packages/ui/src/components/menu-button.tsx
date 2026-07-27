@@ -5,6 +5,7 @@ import type { PropsWithChildren } from "react";
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type ComponentProps,
@@ -28,13 +29,17 @@ interface MenuButtonProps {
   /** The node to render into the expanded menu. */
   menuContent: ReactNode;
   /**
-   * Where to expand from, or `"viewportWidth"` to span the viewport width.
-   * Corner names are logical-direction-aware: `Right` anchors to the
-   * inline-end edge and `Left` to the inline-start edge, so the menu mirrors
-   * automatically in RTL locales.
+   * Which of the trigger's corners the menu expands from, or `"sheet"` to span
+   * the bar the trigger sits in. Corner names are logical-direction-aware:
+   * `Right` anchors to the inline-end edge and `Left` to the inline-start edge,
+   * so the menu mirrors automatically in RTL locales.
+   *
+   * `"sheet"` is for popups too wide to sit beside a trigger that isn't at the
+   * end of its row: it spans the trigger's nearest positioned ancestor instead
+   * of the trigger itself, so use it only for a trigger inside a full-bleed bar
+   * or toolbar.
    */
-  position?:
-    "topRight" | "topLeft" | "bottomLeft" | "bottomRight" | "viewportWidth";
+  position?: "topRight" | "topLeft" | "bottomLeft" | "bottomRight" | "sheet";
   /** Disable the menu trigger. */
   disabled?: boolean;
   /**
@@ -59,6 +64,36 @@ export function MenuButton({
   const [isMenuShown, setIsMenuShown] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const menuContainerRef = useRef<HTMLDivElement>(null);
+
+  const isSheet = position === "sheet";
+
+  // A sheet hangs from a bar that may not be where it finally settles: a sticky
+  // bar sits further down the viewport until it reaches its stuck offset, so the
+  // room left underneath is only knowable at runtime. Measure it on open and
+  // again while the bar slides, so the sheet always ends inside the viewport
+  // instead of running off the bottom. Written straight to the node rather than
+  // kept in state: nothing else reads it, and a scroll gesture would otherwise
+  // re-render the popup every frame. The cap deliberately survives closing —
+  // dropping it would let the panel snap to full height mid-close-animation.
+  useLayoutEffect(() => {
+    const sheet = menuContainerRef.current;
+    const popup = popupRef.current;
+    if (!isSheet || !isMenuShown || !sheet || !popup) return;
+
+    const measure = () => {
+      const { top } = sheet.getBoundingClientRect();
+      popup.style.maxBlockSize = `calc(100dvh - ${String(top)}px - ${space._3} - env(safe-area-inset-bottom))`;
+    };
+
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+    };
+  }, [isMenuShown, isSheet]);
 
   const outsideClickedRef = useRef(false);
   useEffect(() => {
@@ -105,7 +140,7 @@ export function MenuButton({
         />
       )}
       <div
-        css={styles.container}
+        css={[styles.container, isSheet && styles.staticContainer]}
         ref={containerRef}
         onKeyDown={(e) => {
           if (e.key === "Escape" && isMenuShown) {
@@ -185,6 +220,7 @@ export function MenuButton({
           </Button>
         </FixedContainerContent>
         <div
+          ref={menuContainerRef}
           css={[
             styles.menuContainer,
             !isMenuShown && styles.hidden,
@@ -206,13 +242,17 @@ export function MenuButton({
               // trigger renders no label span, so its name comes from
               // `aria-label`). Keeps existing labelled triggers unchanged.
               aria-labelledby={children ? `${targetId}-label` : targetId}
+              css={isSheet && styles.sheetScroller}
             >
               {/* Visible heading only. The popup is already named by the
                   trigger's label via `aria-labelledby`, so this duplicate is
                   `aria-hidden` — which also keeps a bare non-menuitem node out
                   of the `role="menu"` accessibility tree. */}
               {children && (
-                <div css={styles.menuTitle} aria-hidden>
+                <div
+                  css={[styles.menuTitle, isSheet && styles.stickyMenuTitle]}
+                  aria-hidden
+                >
                   {children}
                 </div>
               )}
@@ -267,11 +307,46 @@ const styles = stylex.create({
     insetBlockEnd: 0,
     insetInlineEnd: 0,
   },
-  viewportWidth: {
-    position: "fixed",
-    insetInline: space._2,
-    transform: `translate(0, calc(-1 * ${controlSize._9}))`,
+  // Sheet mode takes the trigger's wrapper out of the positioning chain so the
+  // popup resolves against the bar the trigger sits in.
+  staticContainer: {
+    position: "static",
   },
+  // Spans that bar, inset by the standard gutter, and sits level with its block
+  // start. `position: fixed` would be the obvious way to reach the viewport
+  // edges, but a fixed box with auto block insets takes its static position in
+  // document space, so the sheet lands wherever the bar's unscrolled position
+  // was — off-screen on a sticky bar. Staying absolute keeps it pinned to the
+  // bar through both scrolling and the sticky shift.
+  sheet: {
+    insetBlockStart: 0,
+    insetInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
+    insetInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
+  },
+  // A sheet can be taller than the room under its bar, so it scrolls itself
+  // rather than asking every consumer to cap its own content. `contain` keeps a
+  // flick that reaches the end from scrolling the page behind the backdrop.
+  sheetScroller: {
+    overflowY: "auto",
+    overscrollBehavior: "contain",
+  },
+  // With the sheet itself scrolling, the heading would scroll away with the
+  // content; pinning it keeps the sheet's subject in view while the body moves.
+  // The z-index is not optional: `Button` carries a base `transform` and
+  // `filter` at rest for its press animation, so every button scrolling past is
+  // a stacking context that would otherwise paint over a pinned heading it
+  // follows in the DOM.
+  stickyMenuTitle: {
+    position: "sticky",
+    insetBlockStart: 0,
+    backgroundColor: color.bgOverlay,
+    zIndex: layer.content,
+  },
+  // The click-catcher that makes outside-click dismissal work. It relies on
+  // `position: fixed` resolving against the viewport, so no ancestor of a
+  // MenuButton may establish a containing block for fixed descendants —
+  // `transform`, `will-change: transform`, `filter`, or `contain` on a wrapper
+  // shrinks this to that wrapper's box and silently kills dismissal.
   backdrop: {
     position: "fixed",
     inset: 0,

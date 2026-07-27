@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 
 test.describe("Movie and TV Show Browsing", () => {
   test.beforeEach(async ({ page }) => {
@@ -302,5 +302,133 @@ test.describe("Movie and TV Show Browsing", () => {
       // Verify detail page loaded with Chinese UI (movie title appears)
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     });
+  });
+});
+
+// Below `md` the filters collapse into a single Refine trigger that opens a
+// bar-wide sheet. Where the sheet lands, how tall it is allowed to be, and the
+// backdrop that dismisses it all depend on real layout, so they can only be
+// checked in a browser at a phone viewport.
+test.describe("Mobile filters sheet", () => {
+  const viewport = { width: 393, height: 852 };
+  test.use({ viewport });
+
+  const refineName = /^refine/i;
+
+  /**
+   * Scrolls so the filters bar renders `barTop` down the viewport. Passing a
+   * value above its sticky offset leaves the bar stuck at that offset instead.
+   * At the top of the page the bar is below the fold and therefore unstuck, so
+   * its rect there is its natural document offset.
+   */
+  async function scrollBarTo(refine: Locator, barTop: number) {
+    // One round trip: reading the natural offset and scrolling by it separately
+    // leaves a window in which layout can shift between the two.
+    await refine.evaluate((el, top) => {
+      window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - top);
+    }, barTop);
+    await expect(refine).toBeInViewport();
+  }
+
+  /** The sheet's box once both of its entrance transforms have settled. */
+  async function settledSheetBox(page: Page) {
+    const sheet = page.getByRole("group", { name: refineName });
+    await expect(sheet).toBeVisible();
+
+    // Two transforms slide the sheet on open — its own FLIP out of the trigger,
+    // and the hero morph that shifts the trigger's wrapper once the hero input
+    // scrolls away — so wait for the box to stop moving before reading it. Both
+    // use `fill: "none"`, so what settles is what CSS actually computed. Poll
+    // tightly: the default back-off would idle for ~500ms past the 300ms
+    // animation before noticing, in both tests.
+    let box = await sheet.boundingBox();
+    await expect
+      .poll(
+        async () => {
+          const current = await sheet.boundingBox();
+          const settled = JSON.stringify(current) === JSON.stringify(box);
+          box = current;
+          return settled;
+        },
+        { intervals: [50] },
+      )
+      .toBe(true);
+
+    if (!box) throw new Error("expected the sheet to have a box");
+    return box;
+  }
+
+  test("opens inside the viewport and closes on a tap behind it", async ({
+    page,
+  }) => {
+    await page.goto("/movie-database");
+
+    // Drive the bar past its sticky offset, the state it spends most of its life
+    // in. The sheet's anchoring has to survive both the scroll and the pinning.
+    const refine = page.getByRole("button", { name: refineName });
+    await scrollBarTo(refine, 0);
+    await refine.click();
+
+    const box = await settledSheetBox(page);
+
+    // The sheet spans the filters bar and stays inside the viewport. Anchoring
+    // it to the trigger's corner hung most of it off the inline-start edge, and
+    // a compositing layer on the trigger's wrapper collapsed it onto the button.
+    expect(box.width).toBeGreaterThan(viewport.width * 0.8);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+
+    // A tap outside the sheet has to be intercepted, not passed through to the
+    // page — on a phone there is no Escape key and no close button, so that
+    // interception is the only way out. Check what is actually topmost at the
+    // tap point first: Chromium also closes the menu on blur, which would mask
+    // a backdrop shrunk back to the trigger's box, and iOS Safari has no such
+    // fallback because tapping a button there never focuses it.
+    const outsideX = viewport.width / 2;
+    const outsideY = (box.y + box.height + viewport.height) / 2;
+    expect(outsideY).toBeGreaterThan(box.y + box.height);
+    const topmost = await page.evaluate(
+      ([x, y]) => document.elementFromPoint(x, y)?.getAttribute("aria-hidden"),
+      [outsideX, outsideY],
+    );
+    expect(topmost).toBe("true");
+
+    await page.mouse.click(outsideX, outsideY);
+
+    await expect(refine).toHaveAttribute("aria-expanded", "false");
+    // The tap dismissed the sheet rather than reaching whatever sat under it.
+    await expect(page).toHaveURL(/\/movie-database$/);
+  });
+
+  test("stays inside the viewport when the bar has not stuck yet", async ({
+    page,
+  }) => {
+    await page.goto("/movie-database");
+
+    // Let the page settle first: content still arriving above the bar shifts it
+    // after a scroll, which would move the bar out of the state under test.
+    const cards = page.getByRole("link").filter({ has: page.getByRole("img") });
+    await expect(cards.first()).toBeVisible();
+    await page.waitForLoadState("networkidle");
+
+    // Halfway down the viewport the bar is still short of its sticky offset, so
+    // there is far less room beneath it than once it pins. A sheet whose height
+    // cap assumed the stuck offset ran off the bottom of the screen here.
+    const refine = page.getByRole("button", { name: refineName });
+    await scrollBarTo(refine, viewport.height / 2);
+    await refine.click();
+
+    const box = await settledSheetBox(page);
+
+    // Read the bar after the sheet has settled, so both describe the same
+    // moment, and guard the premise — this only tests anything while unstuck.
+    const triggerBox = await refine.boundingBox();
+    if (!triggerBox) throw new Error("expected the trigger to have a box");
+    expect(triggerBox.y).toBeGreaterThan(viewport.height / 4);
+
+    expect(box.y).toBeGreaterThanOrEqual(triggerBox.y);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
   });
 });

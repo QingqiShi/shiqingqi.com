@@ -23,13 +23,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
       }}
       popupRole="group"
       menuContent={
-        <div
-          css={[
-            flex.row,
-            styles.container,
-            position === "viewportWidth" && styles.viewportContainer,
-          ]}
-        >
+        <div css={[flex.row, styles.container]}>
           <div css={styles.imageContainer}>
             <Image
               src="/tmdb.svg"
@@ -78,10 +72,6 @@ const styles = stylex.create({
     width: "50dvw",
     maxInlineSize: 500,
     fontSize: font.uiBodySmall,
-  },
-  viewportContainer: {
-    width: null,
-    maxInlineSize: null,
   },
   inlineContainer: {
     gap: space._2,

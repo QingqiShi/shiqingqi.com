@@ -91,7 +91,7 @@ function CloseIcon() {
  * Full-screen, ViewTransition-driven overlay for immersive content such as
  * embedded video players. Owns focus trapping, scroll locking, Escape-to-close,
  * and the backdrop; the consumer supplies the content and the localized close
- * label. For a bounded, centred dialog prefer a dedicated sheet component.
+ * label. For bounded, centred content prefer a dedicated dialog component.
  */
 export function Overlay({
   children,
