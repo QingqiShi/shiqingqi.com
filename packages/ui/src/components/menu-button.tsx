@@ -34,6 +34,11 @@ interface MenuButtonProps {
    * `Right` anchors to the inline-end edge and `Left` to the inline-start edge,
    * so the menu mirrors automatically in RTL locales.
    *
+   * Pick the corner that grows the menu back across the trigger, not out past
+   * the nearest viewport edge: a closed menu is hidden rather than unmounted, so
+   * a menu wider than the room on that side adds its overhang to the page's
+   * scrollable area whether or not anyone ever opens it.
+   *
    * `"sheet"` is for popups too wide to sit beside a trigger that isn't at the
    * end of its row: it spans the trigger's nearest positioned ancestor instead
    * of the trigger itself, so use it only for a trigger inside a full-bleed bar

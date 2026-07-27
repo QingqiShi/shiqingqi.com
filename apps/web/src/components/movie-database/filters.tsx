@@ -53,7 +53,13 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
           <FixedContainerContent>
             <MediaViewToggle iconOnly hideLabel />
           </FixedContainerContent>
-          <TmdbCredit position="topLeft" />
+          {/* Anchored to the trigger's inline-end so the Attribution grows back
+              over the bar. Its trigger sits mid-row, so growing the other way
+              ran a 500px panel past the inline-end edge of every viewport under
+              ~1200px — and a closed MenuButton popup is still laid out, so that
+              widened the page into a sideways scroll whether or not anyone
+              opened it. */}
+          <TmdbCredit position="topRight" />
         </>
       }
       mobileChildren={
