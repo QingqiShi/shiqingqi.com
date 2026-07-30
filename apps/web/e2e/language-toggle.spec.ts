@@ -211,7 +211,21 @@ test.describe("Language Toggle", () => {
     // Verify 404 status (not 500 server error)
     expect(response?.status()).toBe(404);
 
-    // Verify user sees the 404 page
-    await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
+    // Verify the user sees the branded 404 rather than Next's bare error
+    // document. This path skips the locale rewrite in `src/proxy.ts` (it has a
+    // file extension), so it is rejected by the router above the `[locale]`
+    // segment and served the prerendered root 404 — the case that breaks the
+    // moment that screen reaches for a request-time API.
+    await expect(
+      page.getByRole("heading", { name: "This page doesn't exist", level: 1 }),
+    ).toBeVisible();
+
+    // And that it is not a dead end: the 404 offers a way back into the site.
+    await expect(
+      page.getByRole("link", { name: "Back to home" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /Movie Database/ }),
+    ).toBeVisible();
   });
 });
