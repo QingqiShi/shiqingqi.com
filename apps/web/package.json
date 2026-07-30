@@ -70,7 +70,7 @@
     "@babel/runtime": "^8.0.0",
     "@babel/traverse": "catalog:",
     "@babel/types": "catalog:",
-    "@playwright/test": "^1.61.0",
+    "@playwright/test": "^1.62.0",
     "@rolldown/plugin-babel": "catalog:",
     "@serwist/cli": "catalog:",
     "@stylexjs/babel-plugin": "catalog:",
