@@ -98,7 +98,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: "pointer",
-    outlineOffset: "2px",
+    outlineOffset: border.size_2,
   },
   buttonActive: {
     backgroundColor: {

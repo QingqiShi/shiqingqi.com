@@ -1245,7 +1245,7 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._2,
     backgroundColor: color.bgSurface,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
   },
   spacer: {
@@ -1257,7 +1257,7 @@ const styles = stylex.create({
     justifyContent: "center",
     width: "34px",
     height: "34px",
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     backgroundColor: {
       default: color.bgInteractiveRest,
@@ -1283,7 +1283,7 @@ const styles = stylex.create({
     gap: space._2,
     padding: space._2,
     backgroundColor: color.bgSurface,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
   },
   colorLabel: {
@@ -1297,7 +1297,7 @@ const styles = stylex.create({
     width: "32px",
     height: "32px",
     padding: 0,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     backgroundColor: "transparent",
     cursor: "pointer",
@@ -1309,14 +1309,14 @@ const styles = stylex.create({
   swatch: {
     width: "24px",
     height: "24px",
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: "4px",
     cursor: "pointer",
     padding: 0,
   },
   swatchActive: {
-    outline: `2px solid ${color.accent}`,
-    outlineOffset: "1px",
+    outline: `${border.size_2} solid ${color.accent}`,
+    outlineOffset: border.size_1,
   },
   range: {
     accentColor: color.accent,
@@ -1333,7 +1333,7 @@ const styles = stylex.create({
   canvasArea: {
     position: "relative",
     backgroundColor: color.bgSurface,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
     boxShadow: shadow.inset,
     flex: "1",
@@ -1367,7 +1367,7 @@ const styles = stylex.create({
     gap: "2px",
     padding: "4px",
     backgroundColor: color.bgOverlay,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
     flexWrap: "wrap",

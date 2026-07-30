@@ -52,10 +52,10 @@ export const chipSurface = stylex.create({
     // Matches Button's disabled treatment, so a disabled chip and a disabled
     // button fade by the same amount.
     opacity: { default: null, ":disabled": 0.7 },
-    outlineWidth: "2px",
+    outlineWidth: border.size_2,
     outlineStyle: "solid",
     outlineColor: { default: "transparent", ":focus-visible": color.accent },
-    outlineOffset: "2px",
+    outlineOffset: border.size_2,
   },
   active: {
     borderColor: { default: color.accent, ":hover": color.accentHover },

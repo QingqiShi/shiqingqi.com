@@ -343,7 +343,7 @@ const styles = stylex.create({
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
     borderRadius: border.radius_3,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     boxShadow: shadow.inset,
     overflow: "hidden",
   },

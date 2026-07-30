@@ -68,7 +68,7 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._1,
     paddingInline: space._2,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
     fontSize: font.uiBodySmall,
@@ -79,7 +79,7 @@ const styles = stylex.create({
   select: {
     backgroundColor: color.bgSurfaceSunken,
     color: color.textMain,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     paddingBlock: space._1,
     paddingInline: space._2,

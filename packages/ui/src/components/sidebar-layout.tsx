@@ -5,7 +5,12 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { scrollbar } from "../primitives/layout.stylex.ts";
-import { motionConstants, transition } from "../primitives/motion.stylex.ts";
+import {
+  duration,
+  easing,
+  motionConstants,
+  transition,
+} from "../primitives/motion.stylex.ts";
 import {
   border,
   color,
@@ -19,12 +24,16 @@ import { ScrollFade } from "./scroll-fade.tsx";
 
 // Default width of the navigation rail on wider viewports — wide enough for
 // the nav labels used across the app to sit on one line, including once a
-// classic scrollbar claims its reserved gutter from the rail.
-const DEFAULT_SIDEBAR_INLINE_SIZE = "240px";
+// classic scrollbar claims its reserved gutter from the rail. `rem`-based, so
+// the rail grows with the labels when the user raises their browser font size
+// (WCAG 1.4.4) instead of wrapping them.
+const DEFAULT_SIDEBAR_INLINE_SIZE = space._13;
 
-// Must stay in sync with `breakpoints.md` (768px): the drawer only exists
-// below it, the rail column at or above it.
-const MD_MEDIA_QUERY = "(min-width: 768px)";
+// The drawer only exists below `breakpoints.md`, the rail column at or above
+// it. Derived from the breakpoint rather than restated, so the JS-side check
+// cannot drift from the style-side one — `matchMedia` takes the bare condition,
+// while the StyleX const carries the `@media ` prefix.
+const MD_MEDIA_QUERY = breakpoints.md.replace("@media ", "");
 
 interface SidebarLayoutProps {
   /**
@@ -61,7 +70,7 @@ interface SidebarLayoutProps {
   contentMaxInlineSize?: string;
   /**
    * Inline size of the rail column on wider viewports.
-   * @default "240px"
+   * @default space._13 (15rem)
    */
   sidebarInlineSize?: string;
   /**
@@ -343,8 +352,8 @@ const styles = stylex.create({
     visibility: "hidden",
     pointerEvents: "none",
     transition: {
-      default: "opacity 300ms ease, visibility 300ms",
-      [motionConstants.REDUCED_MOTION]: "opacity 150ms ease, visibility 150ms",
+      default: `opacity ${duration._300} ${easing.ease}, visibility ${duration._300}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._150} ${easing.ease}, visibility ${duration._150}`,
     },
   },
   backdropOpen: {
@@ -417,9 +426,8 @@ const styles = stylex.create({
     opacity: { default: 0, [breakpoints.md]: 1 },
     visibility: { default: "hidden", [breakpoints.md]: "visible" },
     transition: {
-      default:
-        "transform 300ms cubic-bezier(0.32, 0.72, 0, 1), opacity 300ms cubic-bezier(0.32, 0.72, 0, 1), visibility 300ms",
-      [motionConstants.REDUCED_MOTION]: "opacity 150ms ease, visibility 150ms",
+      default: `transform ${duration._300} ${easing.entrance}, opacity ${duration._300} ${easing.entrance}, visibility ${duration._300}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._150} ${easing.ease}, visibility ${duration._150}`,
       [breakpoints.md]: "none",
     },
   },

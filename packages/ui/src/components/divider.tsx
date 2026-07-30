@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, Ref } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
-import { color } from "../tokens.stylex.ts";
+import { border, color } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 
 type DividerOrientation = "horizontal" | "vertical";
@@ -99,30 +99,30 @@ const styles = stylex.create({
 
 const horizontalVariantStyles = stylex.create({
   subtle: {
-    blockSize: "1px",
+    blockSize: border.size_1,
     backgroundColor: color.neutralBorder,
   },
   bold: {
-    blockSize: "2px",
+    blockSize: border.size_2,
     backgroundColor: color.neutralBorder,
   },
   decorative: {
-    blockSize: "1px",
+    blockSize: border.size_1,
     backgroundImage: `linear-gradient(135deg, ${color.accent} 0%, ${color.info} 100%)`,
   },
 });
 
 const verticalVariantStyles = stylex.create({
   subtle: {
-    inlineSize: "1px",
+    inlineSize: border.size_1,
     backgroundColor: color.neutralBorder,
   },
   bold: {
-    inlineSize: "2px",
+    inlineSize: border.size_2,
     backgroundColor: color.neutralBorder,
   },
   decorative: {
-    inlineSize: "1px",
+    inlineSize: border.size_1,
     backgroundImage: `linear-gradient(180deg, ${color.accent} 0%, ${color.info} 100%)`,
   },
 });

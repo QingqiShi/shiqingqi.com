@@ -2,7 +2,12 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { motionConstants, motionTokens } from "../primitives/motion.stylex.ts";
+import {
+  duration,
+  easing,
+  motionConstants,
+  motionTokens,
+} from "../primitives/motion.stylex.ts";
 import { color, space } from "../tokens.stylex.ts";
 
 type SpinnerSize = "inline" | "sm" | "md" | "lg";
@@ -140,12 +145,12 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: pulse,
     },
     animationDuration: {
-      default: "0.8s",
-      [motionConstants.REDUCED_MOTION]: "1.6s",
+      default: duration._800,
+      [motionConstants.REDUCED_MOTION]: duration._1600,
     },
     animationTimingFunction: {
-      default: "linear",
-      [motionConstants.REDUCED_MOTION]: "ease-in-out",
+      default: easing.linear,
+      [motionConstants.REDUCED_MOTION]: easing.easeInOut,
     },
     animationIterationCount: "infinite",
     // The spin is on this inner element, so `css` — which composes onto the

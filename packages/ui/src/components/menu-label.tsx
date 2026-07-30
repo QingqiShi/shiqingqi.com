@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { color, controlSize } from "../tokens.stylex.ts";
+import { color, controlSize, font } from "../tokens.stylex.ts";
 
 /**
  * Muted caption for a group of controls inside a `MenuButton` popup. Purely
@@ -19,7 +19,7 @@ export function MenuLabel({ children, css, ...props }: ComponentProps<"div">) {
 
 const styles = stylex.create({
   label: {
-    fontSize: controlSize._3,
+    fontSize: font.uiControlCaption,
     paddingBlockEnd: controlSize._2,
     color: color.textMuted,
   },

@@ -4,12 +4,17 @@ import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { motionConstants } from "../primitives/motion.stylex.ts";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import {
   border,
   color,
   controlSize,
+  font,
   layer,
   ratio,
   shadow,
@@ -238,7 +243,7 @@ export function Switch({
 
 const styles = stylex.create({
   switch: {
-    fontSize: controlSize._4,
+    fontSize: font.uiControl,
     margin: 0,
 
     // Custom styles
@@ -250,7 +255,7 @@ const styles = stylex.create({
     height: switchTokens.trackHeight,
     padding: border.size_2,
     position: "relative",
-    transition: `background-color 0.2s ease`,
+    transition: `background-color ${duration._200} ${easing.ease}`,
     backgroundColor: {
       default: color.surfaceNeutralSubtle,
       ":checked": color.accent,
@@ -288,8 +293,8 @@ const styles = stylex.create({
   animate: {
     "::before": {
       transition: {
-        default: `transform ${switchTokens.thumbTransitionDuration} ease, box-shadow 0.4s ease`,
-        [motionConstants.REDUCED_MOTION]: "box-shadow 0.4s ease",
+        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.ease}, box-shadow ${duration._400} ${easing.ease}`,
+        [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._400} ${easing.ease}`,
       },
     },
   },

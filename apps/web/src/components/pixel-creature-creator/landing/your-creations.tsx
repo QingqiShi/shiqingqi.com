@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useSyncExternalStore } from "react";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
@@ -178,7 +178,7 @@ const styles = stylex.create({
       ":hover": color.bgInteractiveHover,
       ":focus-visible": color.bgInteractiveHover,
     },
-    outlineOffset: "2px",
+    outlineOffset: border.size_2,
   },
   thumb: {
     display: "inline-flex",

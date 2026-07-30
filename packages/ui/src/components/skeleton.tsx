@@ -1,7 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, Ref } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
-import { motionConstants, motionTokens } from "../primitives/motion.stylex.ts";
+import {
+  duration,
+  easing,
+  motionConstants,
+  motionTokens,
+} from "../primitives/motion.stylex.ts";
 import { border, color } from "../tokens.stylex.ts";
 import { skeletonTokens } from "./skeleton.stylex.ts";
 
@@ -74,8 +79,8 @@ const styles = stylex.create({
       default: pulse,
       [motionConstants.REDUCED_MOTION]: "none",
     },
-    animationDuration: "2s",
-    animationTimingFunction: "cubic-bezier(.4,0,.6,1)",
+    animationDuration: duration._2000,
+    animationTimingFunction: easing.pulse,
     animationFillMode: "both",
     animationIterationCount: "infinite",
     animationDelay: skeletonTokens.delay,

@@ -537,7 +537,7 @@ const styles = stylex.create({
       default: 1,
       ":disabled": 0.7,
     },
-    outlineOffset: "2px",
+    outlineOffset: border.size_2,
   },
   buttonPrimary: {
     backgroundColor: {

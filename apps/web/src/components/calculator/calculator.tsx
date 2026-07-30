@@ -339,7 +339,7 @@ const styles = stylex.create({
     containerType: "inline-size",
     cornerShape: "squircle",
     outline: {
-      ":focus-visible": `2px solid ${color.brandCalculator}`,
+      ":focus-visible": `${border.size_2} solid ${color.brandCalculator}`,
     },
     outlineOffset: {
       ":focus-visible": "2px",

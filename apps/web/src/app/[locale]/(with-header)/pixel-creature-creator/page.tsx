@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FeaturedRow } from "#src/components/pixel-creature-creator/landing/featured-row.tsx";
@@ -131,7 +131,7 @@ const styles = stylex.create({
     textDecoration: "none",
     transitionProperty: "background-color, transform",
     transitionDuration: "120ms",
-    outlineOffset: "2px",
+    outlineOffset: border.size_2,
     marginBlockStart: space._2,
   },
 });

@@ -15,6 +15,7 @@ import {
   border,
   color,
   controlSize,
+  font,
   layer,
   shadow,
   space,
@@ -290,7 +291,7 @@ const styles = stylex.create({
     overflow: "hidden",
   },
   menuTitle: {
-    fontSize: controlSize._3,
+    fontSize: font.uiControlCaption,
     paddingBlockStart: controlSize._2,
     paddingBlockEnd: controlSize._1,
     paddingInline: controlSize._3,

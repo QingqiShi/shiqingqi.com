@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { FEATURED_CREATURES } from "../featured-creatures";
@@ -117,7 +117,7 @@ const styles = stylex.create({
       default: null,
       ":hover": "translate3d(0, -2px, 0)",
     },
-    outlineOffset: "2px",
+    outlineOffset: border.size_2,
   },
   spriteSlot: {
     display: "inline-flex",

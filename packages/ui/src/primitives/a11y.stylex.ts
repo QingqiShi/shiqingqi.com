@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "../tokens.stylex.ts";
+import { border, color } from "../tokens.stylex.ts";
 
 /**
  * Accessibility primitives shared across components.
@@ -27,17 +27,17 @@ export const a11y = stylex.create({
   // Keyboard focus ring. Transparent until `:focus-visible` so pointer
   // interactions stay quiet while keyboard users get a clear indicator.
   focusRing: {
-    outlineWidth: "2px",
+    outlineWidth: border.size_2,
     outlineStyle: "solid",
     outlineColor: { default: "transparent", ":focus-visible": color.accent },
-    outlineOffset: "2px",
+    outlineOffset: border.size_2,
   },
   // Same ring pulled inside the element's box, for use where an ancestor
   // clips overflow (e.g. a rounded card) and an outward ring would be cropped.
   focusRingInset: {
-    outlineWidth: "2px",
+    outlineWidth: border.size_2,
     outlineStyle: "solid",
     outlineColor: { default: "transparent", ":focus-visible": color.accent },
-    outlineOffset: "-2px",
+    outlineOffset: `calc(-1 * ${border.size_2})`,
   },
 });

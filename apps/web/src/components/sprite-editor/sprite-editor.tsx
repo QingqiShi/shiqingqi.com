@@ -440,7 +440,7 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._4,
     padding: space._4,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
     // Keep natural height inside the scrolling sidebar — without this the
