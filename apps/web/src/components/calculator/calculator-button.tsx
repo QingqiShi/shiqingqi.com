@@ -77,7 +77,7 @@ const styles = stylex.create({
     [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
     filter: { ":hover": "brightness(1.1)" },
     outline: {
-      ":focus-visible": `2px solid ${color.brandCalculator}`,
+      ":focus-visible": `${border.size_2} solid ${color.brandCalculator}`,
     },
     outlineOffset: {
       ":focus-visible": "2px",

@@ -296,7 +296,7 @@ const styles = stylex.create({
     paddingInline: space._2,
     backgroundColor: color.bgSurfaceSunken,
     color: color.textMain,
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     fontFamily: font.familyMono,

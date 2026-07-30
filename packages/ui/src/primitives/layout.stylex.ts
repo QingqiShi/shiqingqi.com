@@ -29,9 +29,9 @@ export const scrollX = stylex.create({
   focusRing: {
     outline: {
       default: "none",
-      ":focus-visible": `2px solid ${color.accent}`,
+      ":focus-visible": `${border.size_2} solid ${color.accent}`,
     },
-    outlineOffset: { default: null, ":focus-visible": "2px" },
+    outlineOffset: { default: null, ":focus-visible": border.size_2 },
     borderRadius: border.radius_2,
   },
 });
@@ -72,15 +72,21 @@ export const scrollY = stylex.create({
 // alongside this. Keeping the `transition` shorthand out of the primitive avoids
 // clobbering a consumer's own transition (StyleX composition is last-wins per
 // property) and colocates the timing with the motion scale.
+// A precise pointer with NO touch pointer available — the predicate the whole
+// auto-hide is gated behind, named once so the two declarations below cannot
+// drift apart (mirroring `REDUCED_MOTION` in motion.stylex.ts).
+const PRECISE_POINTER_ONLY =
+  "@media (hover: hover) and (not (any-pointer: coarse))";
+
 export const scrollbar = stylex.create({
   autoHide: {
     scrollbarWidth: {
       default: "auto",
-      "@media (hover: hover) and (not (any-pointer: coarse))": "thin",
+      [PRECISE_POINTER_ONLY]: "thin",
     },
     scrollbarColor: {
       default: "auto",
-      "@media (hover: hover) and (not (any-pointer: coarse))": {
+      [PRECISE_POINTER_ONLY]: {
         default: "transparent transparent",
         ":hover": `${color.scrollbarThumb} transparent`,
         ":focus-within": `${color.scrollbarThumb} transparent`,

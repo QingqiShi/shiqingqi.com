@@ -319,7 +319,7 @@ const styles = stylex.create({
       default: color.bgInteractiveRest,
       ":hover": color.bgInteractiveHover,
     },
-    border: `1px solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: border.radius_2,
     cursor: "pointer",
     transition: {

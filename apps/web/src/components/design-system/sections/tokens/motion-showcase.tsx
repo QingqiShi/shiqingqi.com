@@ -13,20 +13,28 @@ import { Showcase } from "../../showcase.tsx";
 import { SpecCard } from "../../spec-card.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
-// Duration ledger — the eight steps of `duration.*`, drawn as proportional bars
-// so their relative lengths read at a glance (1000ms = full track). Token names
-// and millisecond values carry no locale, so this config sits at module scope.
+// Duration ledger — every step of `duration.*`, drawn as proportional bars so
+// their relative lengths read at a glance (2000ms = full track). The steps from
+// `_800` up drive looping animations (spinner sweep, skeleton pulse) rather than
+// transitions, which is why the scale runs so much longer than the UI-feedback
+// range. Token names and millisecond values carry no locale, so this config sits
+// at module scope.
 const DURATIONS = [
   { token: "duration._75", ms: 75 },
   { token: "duration._100", ms: 100 },
   { token: "duration._150", ms: 150 },
   { token: "duration._200", ms: 200 },
   { token: "duration._300", ms: 300 },
+  { token: "duration._400", ms: 400 },
   { token: "duration._500", ms: 500 },
   { token: "duration._700", ms: 700 },
+  { token: "duration._800", ms: 800 },
   { token: "duration._1000", ms: 1000 },
+  { token: "duration._1400", ms: 1400 },
+  { token: "duration._1600", ms: 1600 },
+  { token: "duration._2000", ms: 2000 },
 ];
-const MAX_MS = 1000;
+const MAX_MS = 2000;
 
 // Easing ledger — each curve plotted from its cubic-bezier control points
 // (progress on Y against time on X). The named CSS keywords map to their
@@ -41,6 +49,11 @@ const EASINGS = [
     token: "easing.entrance",
     curve: "cubic-bezier(0.32, 0.72, 0, 1)",
     pts: [0.32, 0.72, 0, 1],
+  },
+  {
+    token: "easing.pulse",
+    curve: "cubic-bezier(.4,0,.6,1)",
+    pts: [0.4, 0, 0.6, 1],
   },
 ];
 

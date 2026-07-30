@@ -338,6 +338,16 @@ export const font = stylex.defineVars({
     [breakpoints.md]: "1rem",
   },
 
+  // The caption step of the same scale, for muted labels inside control chrome
+  // (menu section titles and the like). Same bargain as `uiControl`: `rem`-based
+  // so it honours the user's browser font size, while resolving to the same
+  // computed px as `controlSize._3` at the default 16px root
+  // (0.9rem→14.4px, 0.75rem→12px). Also skipped by the registry.
+  uiControlCaption: {
+    default: "0.9rem",
+    [breakpoints.md]: "0.75rem",
+  },
+
   // Viewport-responsive typography landing pages
   vpDisplay: {
     default: "2rem",

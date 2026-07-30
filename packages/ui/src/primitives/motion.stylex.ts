@@ -29,25 +29,42 @@ export const motionTokens = stylex.defineVars({
   playState: "running",
 });
 
-export const duration = {
+// `defineConsts`, not a plain object: StyleX resolves a member reference across
+// module boundaries only for its own constructs, so a plain object compiles to
+// nothing at a foreign call site — silently, taking the whole declaration with
+// it. `stylex-module-exports.test.ts` guards that. Not `defineVars` either:
+// nothing themes these at runtime, so they inline and emit no CSS variables.
+//
+// The scale covers every duration the package actually uses — the short end for
+// transitions, `_800` and up for the looping animations in `animate` below and
+// the components that roll their own.
+export const duration = stylex.defineConsts({
   _75: "75ms",
   _100: "100ms",
   _150: "150ms",
   _200: "200ms",
   _300: "300ms",
+  _400: "400ms",
   _500: "500ms",
   _700: "700ms",
+  _800: "800ms",
   _1000: "1000ms",
-} as const;
+  _1400: "1400ms",
+  _1600: "1600ms",
+  _2000: "2000ms",
+});
 
-export const easing = {
+export const easing = stylex.defineConsts({
   linear: "linear",
   ease: "ease",
   easeIn: "ease-in",
   easeOut: "ease-out",
   easeInOut: "ease-in-out",
   entrance: "cubic-bezier(0.32, 0.72, 0, 1)",
-} as const;
+  // Symmetric ease for looping attention states (pulse/shimmer), which need a
+  // gentler hold at each end than `easeInOut` gives.
+  pulse: "cubic-bezier(.4,0,.6,1)",
+});
 
 export const transition = stylex.create({
   none: { transition: "none" },
@@ -122,29 +139,29 @@ const collapseKeyframes = stylex.keyframes({
 export const animate = stylex.create({
   fadeIn: {
     animationName: fadeInKeyframes,
-    animationDuration: "200ms",
-    animationTimingFunction: "ease",
+    animationDuration: duration._200,
+    animationTimingFunction: easing.ease,
   },
   fadeOut: {
     animationName: fadeOutKeyframes,
-    animationDuration: "200ms",
-    animationTimingFunction: "ease",
+    animationDuration: duration._200,
+    animationTimingFunction: easing.ease,
   },
   slideUp: {
     animationName: {
       default: slideUpKeyframes,
       [REDUCED_MOTION]: "none",
     },
-    animationDuration: "300ms",
-    animationTimingFunction: "cubic-bezier(0.32, 0.72, 0, 1)",
+    animationDuration: duration._300,
+    animationTimingFunction: easing.entrance,
   },
   slideDown: {
     animationName: {
       default: slideDownKeyframes,
       [REDUCED_MOTION]: "none",
     },
-    animationDuration: "300ms",
-    animationTimingFunction: "cubic-bezier(0.32, 0.72, 0, 1)",
+    animationDuration: duration._300,
+    animationTimingFunction: easing.entrance,
   },
   pulse: {
     // No infinite motion under reduced-motion (mirrors Skeleton's own guard),
@@ -153,8 +170,8 @@ export const animate = stylex.create({
       default: pulseKeyframes,
       [REDUCED_MOTION]: "none",
     },
-    animationDuration: "2s",
-    animationTimingFunction: "cubic-bezier(.4,0,.6,1)",
+    animationDuration: duration._2000,
+    animationTimingFunction: easing.pulse,
     animationIterationCount: "infinite",
   },
   bounce: {
@@ -162,23 +179,23 @@ export const animate = stylex.create({
       default: bounceKeyframes,
       [REDUCED_MOTION]: "none",
     },
-    animationDuration: "1.4s",
-    animationTimingFunction: "ease-in-out",
+    animationDuration: duration._1400,
+    animationTimingFunction: easing.easeInOut,
     animationIterationCount: "infinite",
     animationFillMode: "both",
   },
   expand: {
     display: "grid",
     animationName: expandKeyframes,
-    animationDuration: "300ms",
-    animationTimingFunction: "ease-out",
+    animationDuration: duration._300,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: "forwards",
   },
   collapse: {
     display: "grid",
     animationName: collapseKeyframes,
-    animationDuration: "300ms",
-    animationTimingFunction: "ease-out",
+    animationDuration: duration._300,
+    animationTimingFunction: easing.easeOut,
     animationFillMode: "forwards",
   },
 });

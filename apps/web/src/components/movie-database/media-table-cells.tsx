@@ -347,7 +347,7 @@ const styles = stylex.create({
   titleText: {
     display: "flex",
     flexDirection: "column",
-    gap: "0.1rem",
+    gap: space._00,
     minInlineSize: 0,
   },
   titleLink: {
@@ -426,7 +426,7 @@ const styles = stylex.create({
   },
   chip: {
     maxInlineSize: "8rem",
-    paddingBlock: "0.1rem",
+    paddingBlock: space._00,
     paddingInline: space._1,
     borderRadius: border.radius_round,
     backgroundColor: color.surfaceAccentSubtle,

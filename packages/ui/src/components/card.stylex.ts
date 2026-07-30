@@ -37,9 +37,9 @@ export const cardSurface = stylex.create({
       default: color.bgSurface,
       ":hover": color.bgInteractiveHover,
     },
-    outlineWidth: "2px",
+    outlineWidth: border.size_2,
     outlineStyle: "solid",
     outlineColor: { default: "transparent", ":focus-visible": color.accent },
-    outlineOffset: "-2px",
+    outlineOffset: `calc(-1 * ${border.size_2})`,
   },
 });
