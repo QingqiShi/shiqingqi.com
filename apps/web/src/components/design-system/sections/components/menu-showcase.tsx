@@ -1,18 +1,222 @@
 "use client";
 
+import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import { Text } from "@tuja/ui/components/text";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { align, flex } from "@tuja/ui/primitives/flex.stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
+import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
+
+const MENU_USAGE = `import { MenuButton } from "@tuja/ui/components/menu-button";
+
+// Anything focusable that carries role="menuitem" joins the keyboard model.
+<MenuButton
+  buttonProps={{ icon: <DotsThreeIcon weight="bold" /> }}
+  menuContent={
+    <div role="none">
+      <a role="menuitem" href={detailsHref} data-menu-autofocus="true">
+        Details
+      </a>
+      <a role="menuitem" href={creditsHref}>
+        Cast & crew
+      </a>
+    </div>
+  }
+>
+  More
+</MenuButton>`;
+
+const GROUP_USAGE = `import { MenuButton } from "@tuja/ui/components/menu-button";
+import { MenuLabel } from "@tuja/ui/components/menu-label";
+
+// Controls rather than commands: opt out of the menu keyboard model.
+<MenuButton
+  buttonProps={{ icon: <FunnelIcon weight="bold" /> }}
+  popupRole="group"
+  menuContent={
+    <div>
+      <MenuLabel>Sort by</MenuLabel>
+      <Button variant="primary">Newest</Button>
+      <Button>Popular</Button>
+    </div>
+  }
+>
+  Filters
+</MenuButton>`;
+
+interface DemoMenuItemProps {
+  /** Renders the accent treatment and `aria-current` for the chosen item. */
+  isCurrent: boolean;
+  label: string;
+  onSelect: () => void;
+}
+
+/**
+ * The whole of what `MenuButton`'s menu contract asks of a popup child:
+ * `role="menuitem"` on something focusable. The site's real menu items are
+ * navigating links; this one is a plain button so every key can be tried
+ * without leaving the page.
+ *
+ * The chosen item also carries `data-menu-autofocus`, which is how a consumer
+ * says "open on this one" — reopening the menu lands focus here rather than on
+ * the first item.
+ */
+function DemoMenuItem({ isCurrent, label, onSelect }: DemoMenuItemProps) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      aria-current={isCurrent ? "true" : undefined}
+      data-menu-autofocus={isCurrent ? "true" : undefined}
+      css={[
+        buttonReset.base,
+        a11y.focusRing,
+        transition.colors,
+        styles.item,
+        isCurrent && styles.itemCurrent,
+      ]}
+      onClick={onSelect}
+    >
+      {label}
+    </button>
+  );
+}
+
+/**
+ * The primary demo: a real `role="menu"` popup, so arrow keys, Home/End,
+ * Escape, and focus entry are all live on the page that documents them. The
+ * readout beside the stage reports the last item activated, which doubles as
+ * the marker for `data-menu-autofocus`.
+ */
+function MenuDemo() {
+  const items = [
+    { id: "details", label: t({ en: "Details", zh: "详情" }) },
+    { id: "credits", label: t({ en: "Cast & crew", zh: "演职人员" }) },
+    { id: "similar", label: t({ en: "Similar", zh: "相似作品" }) },
+    { id: "ask", label: t({ en: "Ask the AI", zh: "询问 AI" }) },
+  ];
+  const [openedId, setOpenedId] = useState<string | null>(null);
+  const opened = items.find((item) => item.id === openedId);
+
+  return (
+    <div css={styles.demoLayout}>
+      <div css={[flex.row, align.start, styles.menuStage]}>
+        <MenuButton
+          buttonProps={{ icon: <DotsThreeIcon weight="bold" /> }}
+          position="topLeft"
+          menuContent={
+            // `role="none"` keeps the menuitems owned by the popup's
+            // `role="menu"` despite the layout wrapper in between.
+            <div role="none" css={[flex.col, styles.menu]}>
+              {items.map((item) => (
+                <DemoMenuItem
+                  key={item.id}
+                  label={item.label}
+                  isCurrent={item.id === openedId}
+                  onSelect={() => {
+                    setOpenedId(item.id);
+                  }}
+                />
+              ))}
+            </div>
+          }
+        >
+          {t({ en: "More", zh: "更多" })}
+        </MenuButton>
+      </div>
+      <div css={[flex.col, styles.notes]}>
+        <Text variant="bodySmall" tone="muted">
+          {t({ en: "Opened →", zh: "已打开 →" })}{" "}
+          <span css={styles.stateValue}>
+            {opened ? opened.label : t({ en: "nothing yet", zh: "尚无" })}
+          </span>
+        </Text>
+        <KeyTable />
+        <ShowcaseHelper>
+          {t({
+            en: "Opening the menu moves focus inside it — onto the item marked data-menu-autofocus=\"true\", otherwise the first menuitem. Activation is the item's own business: the site's real menu items navigate, and the route change ends the popup.",
+            zh: '打开菜单会把焦点移入弹层——优先落在标记了 data-menu-autofocus="true" 的项，否则落在第一个 menuitem。激活做什么由该项自己决定：站点里真正的菜单项会跳转，路由切换随之结束弹层。',
+          })}
+        </ShowcaseHelper>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The menu keyboard model spelled out next to the demo that performs it, so the
+ * two can be read against each other key by key.
+ */
+function KeyTable() {
+  const rows = [
+    {
+      keys: "ArrowDown / ArrowUp",
+      effect: t({
+        en: "Next or previous item, wrapping at both ends.",
+        zh: "移到下一项或上一项，并在两端回绕。",
+      }),
+    },
+    {
+      keys: "Home / End",
+      effect: t({
+        en: "First or last item.",
+        zh: "移到首项或末项。",
+      }),
+    },
+    {
+      keys: "Enter / Space",
+      effect: t({
+        en: "Activate the focused item.",
+        zh: "激活当前聚焦的项。",
+      }),
+    },
+    {
+      keys: "Escape",
+      effect: t({
+        en: "Close, and return focus to the trigger.",
+        zh: "关闭，并把焦点交还触发按钮。",
+      }),
+    },
+    {
+      keys: "Tab",
+      effect: t({
+        en: "Leave the popup, which closes it where focus lands outside.",
+        zh: "离开弹层；当焦点落到弹层之外时随即关闭。",
+      }),
+    },
+  ];
+  return (
+    <dl css={[flex.col, styles.keyTable]}>
+      {rows.map((row) => (
+        <div key={row.keys} css={styles.keyRow}>
+          <dt css={styles.keyName}>{row.keys}</dt>
+          <dd css={styles.keyEffect}>{row.effect}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
 
 function SortPopup() {
   return (
@@ -27,47 +231,49 @@ function SortPopup() {
 export function MenuShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Menu button", zh: "菜单按钮" })}>
-        <div css={styles.stage}>
-          <MenuButton
-            buttonProps={{ icon: <FunnelIcon weight="bold" /> }}
-            position="topLeft"
-            popupRole="group"
-            menuContent={
-              <div css={[flex.col, styles.menu]}>
-                <MenuLabel>{t({ en: "Sort by", zh: "排序方式" })}</MenuLabel>
-                <Button variant="primary">
-                  {t({ en: "Newest", zh: "最新" })}
-                </Button>
-                <Button>{t({ en: "Popular", zh: "热门" })}</Button>
-                <Button>{t({ en: "Top rated", zh: "高分" })}</Button>
-              </div>
-            }
-          >
-            {t({ en: "Filters", zh: "筛选" })}
-          </MenuButton>
+      <Showcase label={t({ en: "Menu popup", zh: "菜单弹层" })}>
+        <MenuDemo />
+      </Showcase>
+
+      <Showcase
+        label={t({ en: "Contrast: group popup", zh: "对照：分组弹层" })}
+      >
+        <div css={styles.demoLayout}>
+          <div css={[flex.row, align.start, styles.groupStage]}>
+            <MenuButton
+              buttonProps={{ icon: <FunnelIcon weight="bold" /> }}
+              position="topLeft"
+              popupRole="group"
+              menuContent={
+                <div css={[flex.col, styles.groupMenu]}>
+                  <MenuLabel>{t({ en: "Sort by", zh: "排序方式" })}</MenuLabel>
+                  <Button variant="primary">
+                    {t({ en: "Newest", zh: "最新" })}
+                  </Button>
+                  <Button>{t({ en: "Popular", zh: "热门" })}</Button>
+                </div>
+              }
+            >
+              {t({ en: "Filters", zh: "筛选" })}
+            </MenuButton>
+          </div>
+          <ShowcaseHelper>
+            {t({
+              en: 'The same component with popupRole="group". This popup holds controls, not commands, so it is announced as a group, focus stays on the trigger when it opens, and the arrow keys are left to the browser — Tab moves between the controls and Escape still closes. That is the group contract, not a menu that stopped working.',
+              zh: '同一个组件改用 popupRole="group"。这个弹层装的是控件而非命令，因此会被宣读为分组，打开时焦点留在触发按钮上，方向键交还浏览器——用 Tab 在控件间移动，Escape 依然可关闭。这是分组契约，而非菜单失灵。',
+            })}
+          </ShowcaseHelper>
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Usage", zh: "用法" })}>
         <UsageSnippet
-          code={`import { MenuButton } from "@tuja/ui/components/menu-button";
-import { MenuLabel } from "@tuja/ui/components/menu-label";
-
-<MenuButton
-  buttonProps={{ icon: <FunnelIcon weight="bold" /> }}
-  popupRole="group"
-  menuContent={
-    <>
-      <MenuLabel>Sort by</MenuLabel>
-      <Button variant="primary">Newest</Button>
-      <Button>Popular</Button>
-    </>
-  }
->
-  Filters
-</MenuButton>`}
-          label="tsx"
+          code={MENU_USAGE}
+          label={t({ en: "Menu popup", zh: "菜单弹层" })}
+        />
+        <UsageSnippet
+          code={GROUP_USAGE}
+          label={t({ en: "Group popup", zh: "分组弹层" })}
         />
       </Showcase>
 
@@ -114,8 +320,8 @@ import { MenuLabel } from "@tuja/ui/components/menu-label";
               type: '"menu" | "group"',
               defaultValue: '"menu"',
               description: t({
-                en: 'ARIA role for the popup; use "group" when it holds toggle buttons rather than menuitems.',
-                zh: '弹层的 ARIA 角色；当其包含切换按钮而非菜单项时使用 "group"。',
+                en: 'ARIA role for the popup. "menu" moves focus into the popup on open and roves its role="menuitem" children; "group" leaves focus on the trigger and the arrow keys to the browser — use it when the popup holds controls rather than commands.',
+                zh: '弹层的 ARIA 角色。"menu" 在打开时把焦点移入弹层，并在其 role="menuitem" 子元素间移动焦点；"group" 让焦点留在触发按钮上、方向键交还浏览器——弹层装的是控件而非命令时使用。',
               }),
             },
             {
@@ -130,8 +336,8 @@ import { MenuLabel } from "@tuja/ui/components/menu-label";
         />
         <ShowcaseHelper>
           {t({
-            en: "Caption a group of controls inside menuContent with MenuLabel.",
-            zh: "在 menuContent 中用 MenuLabel 为一组控件添加标题。",
+            en: 'Two conventions live inside menuContent rather than on a prop: caption a group of controls with MenuLabel, and mark one role="menuitem" child with data-menu-autofocus="true" to choose where focus lands when a menu opens.',
+            zh: 'menuContent 内部有两项约定，而非通过属性表达：用 MenuLabel 为一组控件添加标题；给某个 role="menuitem" 子元素标上 data-menu-autofocus="true"，以决定菜单打开时焦点落在哪里。',
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -155,8 +361,8 @@ import { MenuLabel } from "@tuja/ui/components/menu-label";
             </div>
           }
           dontCaption={t({
-            en: "Don't leave the default \"menu\" role around buttons — arrow-key menuitem semantics won't match the content.",
-            zh: '不要在按钮周围保留默认的 "menu" 角色——方向键菜单项语义与内容不符。',
+            en: 'Don\'t leave the default "menu" role around buttons — the popup promises arrow-key menuitem navigation that has no menuitems to move between.',
+            zh: '不要在按钮周围保留默认的 "menu" 角色——弹层承诺了方向键菜单项导航，却没有可供移动的菜单项。',
           })}
         />
       </Showcase>
@@ -165,19 +371,112 @@ import { MenuLabel } from "@tuja/ui/components/menu-label";
 }
 
 const styles = stylex.create({
-  // Reserve room so the expanded popup stays inside the showcase card, and
-  // keep the trigger at its natural height (don't let flex stretch it, or the
-  // `topLeft`-anchored popup would be pushed to the bottom of the stage).
-  stage: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    minBlockSize: space._16,
+  // A stage is only as wide as the popup it holds, so from `md` up the section's
+  // copy takes the column beside it instead of sitting under a band of empty
+  // card. The stage column is that popup width — `space._13`, the same token the
+  // popups below set as their own `inlineSize`. Stacked below `md`, where the
+  // popup is nearly the full page width.
+  demoLayout: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "1fr",
+      [breakpoints.md]: `${space._13} 1fr`,
+    },
+    gap: { default: space._3, [breakpoints.md]: space._5 },
+    alignItems: "start",
+  },
+  notes: {
+    gap: space._2,
+    minInlineSize: 0,
+  },
+  // Rows sit tighter from `md` up, where each is a single line; stacked below it
+  // the key and its effect need the extra breathing room between pairs.
+  keyTable: {
+    gap: { default: space._1, [breakpoints.md]: space._0 },
+    margin: 0,
+    minInlineSize: 0,
+  },
+  keyRow: {
+    display: "grid",
+    gridTemplateColumns: { default: "1fr", [breakpoints.md]: "11rem 1fr" },
+    gap: { default: 0, [breakpoints.md]: space._3 },
+    minInlineSize: 0,
+  },
+  keyName: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiCaption,
+    fontWeight: font.weight_6,
+    color: color.textMain,
+    overflowWrap: "anywhere",
+  },
+  keyEffect: {
+    margin: 0,
+    fontSize: font.uiCaption,
+    lineHeight: font.lineHeight_4,
+    color: color.textSubtle,
+    minInlineSize: 0,
+  },
+  // A popup is out of flow, so each stage reserves the height of its own open
+  // popup — and not a pixel more — to keep the popup inside the showcase card.
+  // The four values are measured, not derived: open each popup and read its
+  // height off the popup element at 1440px and at 390px. Two per stage because
+  // `controlSize` is larger on touch, which makes every popup taller below `md`.
+  // Re-measure whenever either popup gains or loses an item.
+  //
+  // The reservation stands at both widths deliberately. Leaning on the stacked
+  // copy below `md` to hold the card open would tie containment to how long that
+  // copy runs in a given locale — the shorter Chinese wording let the group
+  // popup out of the bottom of its card.
+  //
+  // The stages pair this with `align.start`, which keeps the trigger at its
+  // natural height: let flex stretch it and the `topLeft`-anchored popup is
+  // pushed to the bottom of the stage.
+  menuStage: {
+    minBlockSize: { default: "16rem", [breakpoints.md]: "13.25rem" },
+  },
+  groupStage: {
+    minBlockSize: { default: "12.5rem", [breakpoints.md]: "10.75rem" },
   },
   menu: {
+    gap: controlSize._1,
+    padding: controlSize._1,
+    inlineSize: space._13,
+  },
+  item: {
+    color: { default: color.textMain, ":hover": color.textMuted },
+    // Spelled out rather than left `null`: this declaration replaces
+    // `buttonReset`'s, and a null default would let the UA's `buttonface` grey
+    // paint the item at rest.
+    backgroundColor: {
+      default: "transparent",
+      ":hover": color.bgInteractiveHover,
+    },
+    borderRadius: border.radius_1,
+    fontSize: controlSize._4,
+    fontWeight: font.weight_6,
+    blockSize: controlSize._9,
+    paddingInline: controlSize._3,
+    textAlign: "start",
+  },
+  // Flat values, so they replace `item`'s hover variants too and the accent
+  // treatment holds steady under the pointer.
+  itemCurrent: {
+    color: color.accentOn,
+    backgroundColor: color.accent,
+  },
+  groupMenu: {
     gap: space._1,
     padding: space._2,
     inlineSize: space._13,
+  },
+  stateValue: {
+    fontFamily: font.familyMono,
+    fontWeight: font.weight_6,
+    color: color.textMain,
+    paddingInline: space._1,
+    paddingBlock: space._00,
+    borderRadius: border.radius_1,
+    backgroundColor: color.bgInteractiveRest,
   },
   popupSample: {
     display: "flex",
