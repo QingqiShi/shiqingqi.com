@@ -109,6 +109,10 @@ _Avoid_: illo (in prose — the `--ds-illo-*` var prefix is a frozen contract), 
 **Showcase**:
 One labelled section on a documentation page. A page has many; each may hold specimens, illustrations, or neither.
 
+**Identifier**:
+A name the documentation renders for copying rather than reading — a token name, a prop name, a Phosphor component name. Distinct from a Token, which is the value itself: the same component renders all three kinds, and none of them may be truncated or broken mid-word, because the name is the content.
+_Avoid_: label, key (for this sense)
+
 ## Frozen contracts
 
 Published var names and generated identifiers. Rename only through codegen and a major version.

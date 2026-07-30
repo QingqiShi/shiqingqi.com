@@ -7,6 +7,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { Identifier } from "./identifier.tsx";
 
 export interface PropsTableRow {
   /** Prop name, rendered monospace. */
@@ -41,7 +42,9 @@ export function PropsTable({ rows }: PropsTableProps) {
           <div key={row.name} css={styles.row}>
             <div css={styles.signature}>
               <div css={styles.nameLine}>
-                <span css={styles.name}>{row.name}</span>
+                <span css={styles.name}>
+                  <Identifier>{row.name}</Identifier>
+                </span>
                 {row.required ? (
                   <Badge variant="accent" size="small">
                     {requiredLabel}
@@ -110,13 +113,14 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.textMain,
-    overflowWrap: "anywhere",
   },
+  // No `Identifier`: a type expression is not a name, and it already breaks at
+  // its spaces, commas and pipes.
   type: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     color: color.textMuted,
-    overflowWrap: "anywhere",
+    overflowWrap: "break-word",
   },
   defaultLine: {
     display: "flex",
@@ -133,7 +137,7 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     color: color.textMuted,
-    overflowWrap: "anywhere",
+    overflowWrap: "break-word",
   },
   description: {
     minInlineSize: 0,

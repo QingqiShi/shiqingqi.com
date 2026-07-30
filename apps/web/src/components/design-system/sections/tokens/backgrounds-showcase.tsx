@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { Identifier } from "../../identifier.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 
@@ -28,7 +29,9 @@ function BandCell({ label, token, bg, fg, detail }: BandCellProps) {
     <div css={[styles.cell, bg]}>
       <span css={[styles.label, fg]}>{label}</span>
       {detail ? <span css={[styles.detail, fg]}>{detail}</span> : null}
-      <span css={[styles.token, fg]}>{token}</span>
+      <span css={[styles.token, fg]}>
+        <Identifier>{token}</Identifier>
+      </span>
     </div>
   );
 }
@@ -309,7 +312,6 @@ const styles = stylex.create({
     color: color.textSubtle,
     opacity: 0.85,
     lineHeight: font.lineHeight_2,
-    overflowWrap: "anywhere",
   },
 
   // Page band

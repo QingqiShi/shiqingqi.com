@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { Identifier } from "./identifier.tsx";
 
 interface SpecCardProps {
   token: string;
@@ -12,7 +13,9 @@ export function SpecCard({ token, meta, children }: SpecCardProps) {
   return (
     <div css={styles.card}>
       <div css={styles.header}>
-        <span css={styles.token}>{token}</span>
+        <span css={styles.token}>
+          <Identifier>{token}</Identifier>
+        </span>
         <span css={styles.meta}>{meta}</span>
       </div>
       {children}
@@ -41,12 +44,8 @@ const styles = stylex.create({
   token: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
+    lineHeight: font.lineHeight_2,
     color: color.textSubtle,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    minInlineSize: 0,
-    maxInlineSize: "100%",
   },
   meta: {
     fontFamily: font.familyMono,
