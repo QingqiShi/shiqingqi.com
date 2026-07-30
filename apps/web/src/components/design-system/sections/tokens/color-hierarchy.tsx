@@ -190,7 +190,7 @@ const styles = stylex.create({
   },
   step: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
+    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.textSubtle,
     letterSpacing: font.trackingWider,
@@ -234,7 +234,7 @@ const styles = stylex.create({
     transform: { default: "rotate(90deg)", [breakpoints.lg]: "rotate(0deg)" },
   },
   connectorLabel: {
-    fontSize: font.uiOverline,
+    fontSize: font.uiCaption,
     color: color.textSubtle,
     letterSpacing: font.trackingWide,
     whiteSpace: "nowrap",
@@ -271,7 +271,7 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderRadius: border.radius_round,
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
+    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     letterSpacing: font.trackingWide,
   },

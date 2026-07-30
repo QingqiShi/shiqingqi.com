@@ -108,7 +108,7 @@ const styles = stylex.create({
   },
   source: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
+    fontSize: font.uiCaption,
     color: color.textSubtle,
   },
   ramp: {

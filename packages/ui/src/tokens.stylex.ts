@@ -35,10 +35,19 @@ import { breakpoints } from "./breakpoints.stylex.ts";
 // `pnpm codegen:palette`.
 
 const light = {
-  // Text
+  // Text — three quietening levels, each of which must clear WCAG AA (4.5:1)
+  // for small text against every surface it can land on, the darkest being
+  // `surfaceNeutralSubtle`/`bgInteractiveSelected` (gray._90). Worst case per
+  // level: main 10.1:1, muted 7.2:1, subtle 5.0:1 — the same profile the dark
+  // ladder below has (13.0 / 9.4 / 5.1).
+  //
+  // `textSubtle` was gray._50, which measured 4.2:1 on the canvas and 4.5:1 on
+  // a white card — below AA at the caption and eyebrow-label sizes it is used
+  // at. The ramp carries no tone between _40 and _50, so the whole ladder moved
+  // one tone darker rather than collapsing subtle into muted.
   textMain: gray._20,
-  textMuted: gray._40,
-  textSubtle: gray._50,
+  textMuted: gray._30,
+  textSubtle: gray._40,
   accentOn: gray._100,
   textOnBright: gray._20,
   textOnInverse: gray._92,
@@ -99,8 +108,9 @@ const light = {
   dangerBorder: `rgba(${red_rgb._50}, 0.4)`,
   neutralBorder: gray._90,
 
-  // Scrollbar thumb — a low-contrast chrome affordance. A notch softer than
-  // `textSubtle` (clears ~3:1 on the canvas without reading as heavy text).
+  // Scrollbar thumb — chrome rather than text, so it is tuned around the 3:1
+  // non-text mark (2.9:1 on the canvas, 3.2:1 on a white card) and stays
+  // lighter than `textSubtle`, which has to clear the 4.5:1 text minimum.
   scrollbarThumb: gray._60,
 
   // Intent colors — bold (foreground), hover (interactive lift), text, on

@@ -306,11 +306,18 @@ const styles = stylex.create({
     color: color.textSubtle,
     lineHeight: font.lineHeight_2,
   },
+  // The token name is read, not glanced at, so it sits at the caption size
+  // rather than the overline size, at the full strength of `textSubtle` — the
+  // token is already the quiet end of the text ladder, and dimming it further
+  // dropped it back under AA on every surface lighter than a white card.
+  // Tight tracking buys back the width the larger size costs, so the longest
+  // names (`color.bgInteractiveSelected`, `…Disabled`) still set on one line in
+  // the five-column Interactive band.
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
+    fontSize: font.uiCaption,
+    letterSpacing: font.trackingTight,
     color: color.textSubtle,
-    opacity: 0.85,
     lineHeight: font.lineHeight_2,
   },
 
@@ -331,7 +338,11 @@ const styles = stylex.create({
   fillInteractivePressed: { backgroundColor: color.bgInteractivePressed },
   fillInteractiveSelected: { backgroundColor: color.bgInteractiveSelected },
   fillInteractiveDisabled: { backgroundColor: color.bgInteractiveDisabled },
-  textDisabled: { color: color.textSubtle, opacity: 0.7 },
+  // The disabled cell reads quieter by dropping its label from `textMain` to
+  // `textSubtle`. It carries no extra opacity: the swatch documents a disabled
+  // *surface*, and the label describing it is page content that has to stay
+  // legible, not an inactive control's own text.
+  textDisabled: { color: color.textSubtle },
 
   // Inverse / overlay band
   fillInverse: { backgroundColor: color.bgInverse },

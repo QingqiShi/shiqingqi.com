@@ -56,7 +56,7 @@ export const scrollY = stylex.create({
 // and a transparent thumb would hide even the platform's while-scrolling
 // indicator. On a pure-pointer device the thumb is transparent at rest and
 // reveals on pointer hover or keyboard `:focus-within`, using the low-contrast
-// `scrollbarThumb` token (a notch softer than `textSubtle`, ~3:1 either theme).
+// `scrollbarThumb` token (softer than `textSubtle`, ~3:1 either theme).
 //
 // `:focus-within`, not `:has(:focus-visible)`: `:has()` only shipped in Firefox
 // 121, below this package's Firefox 120 floor (see README). The cost is that
