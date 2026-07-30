@@ -31,13 +31,18 @@ export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
   // The route map lives in routes.ts; the localized copy stays here because the
   // i18n transform compiles these `t()` calls to client hooks. They're resolved
   // up front in a fixed order (the render loop below only looks them up by key)
-  // so the hook call order stays stable across renders. Only groups with routes
-  // today carry a heading; the overview group is intentionally unheaded.
+  // so the hook call order stays stable across renders. Every group carries a
+  // heading except `overview`, which is a single unheaded link at the top.
   const groupHeadings: Partial<Record<DesignSystemGroupId, string>> = {
     foundations: t({ en: "Foundations", zh: "基础" }),
-    components: t({ en: "Components", zh: "组件" }),
-    primitives: t({ en: "Primitives", zh: "原语" }),
-    hooks: t({ en: "Hooks", zh: "钩子" }),
+    content: t({ en: "Content", zh: "内容" }),
+    actions: t({ en: "Actions", zh: "操作控件" }),
+    forms: t({ en: "Forms", zh: "表单控件" }),
+    dataDisplay: t({ en: "Data display", zh: "信息展示" }),
+    feedback: t({ en: "Feedback", zh: "反馈" }),
+    surfaces: t({ en: "Surfaces", zh: "表面" }),
+    shells: t({ en: "Page shells", zh: "页面骨架" }),
+    composition: t({ en: "Composition", zh: "组合" }),
   };
   const itemLabels: Record<DesignSystemPath, string> = {
     "/design-system": t({ en: "Overview", zh: "概览" }),

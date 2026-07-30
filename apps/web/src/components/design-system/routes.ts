@@ -17,11 +17,31 @@
  */
 
 /**
- * Group a design-system route falls into. Every group now has routes:
- * `"overview"`, `"foundations"`, `"components"`, `"primitives"`, and `"hooks"`.
+ * Group a design-system route falls into. The component routes are bucketed by
+ * what a visitor is trying to do — write copy, offer an action, collect input,
+ * report state, build a page — rather than piled into one `"components"` list;
+ * a single flat group of two dozen entries is a wall, not a map. Two rules keep
+ * it honest:
+ *
+ * 1. Every group carries at least two routes, so no heading ever sits over a
+ *    lone card that repeats it (the old `"primitives"` and `"hooks"` groups each
+ *    did — they are now one `"composition"` group).
+ * 2. Group ids describe a job, never a directory. `/design-system/components/*`
+ *    paths are spread across several groups on purpose; the URL is unchanged.
+ *
+ * Both rules are enforced by `routes.test.ts`.
  */
 export type DesignSystemGroupId =
-  "overview" | "foundations" | "components" | "primitives" | "hooks";
+  | "overview"
+  | "foundations"
+  | "content"
+  | "actions"
+  | "forms"
+  | "dataDisplay"
+  | "feedback"
+  | "surfaces"
+  | "shells"
+  | "composition";
 
 export interface DesignSystemRoute {
   group: DesignSystemGroupId;
@@ -45,35 +65,44 @@ export const DESIGN_SYSTEM_ROUTES = [
   { group: "foundations", path: "/design-system/foundations/borders" },
   { group: "foundations", path: "/design-system/foundations/layout" },
   { group: "foundations", path: "/design-system/foundations/iconography" },
-  { group: "components", path: "/design-system/components/text" },
-  { group: "components", path: "/design-system/components/heading" },
-  { group: "components", path: "/design-system/components/button" },
-  { group: "components", path: "/design-system/components/icon-button" },
-  { group: "components", path: "/design-system/components/menu-button" },
-  { group: "components", path: "/design-system/components/chip" },
-  { group: "components", path: "/design-system/components/badge" },
-  { group: "components", path: "/design-system/components/avatar" },
-  { group: "components", path: "/design-system/components/callout" },
-  { group: "components", path: "/design-system/components/card" },
-  { group: "components", path: "/design-system/components/section" },
-  { group: "components", path: "/design-system/components/disclosure" },
-  { group: "components", path: "/design-system/components/spinner" },
-  { group: "components", path: "/design-system/components/skeleton" },
-  { group: "components", path: "/design-system/components/divider" },
-  { group: "components", path: "/design-system/components/switch" },
-  { group: "components", path: "/design-system/components/text-field" },
-  { group: "components", path: "/design-system/components/textarea" },
-  { group: "components", path: "/design-system/components/checkbox" },
-  { group: "components", path: "/design-system/components/segmented-control" },
-  { group: "components", path: "/design-system/components/select" },
-  { group: "components", path: "/design-system/components/overlay" },
-  { group: "components", path: "/design-system/components/sidebar-layout" },
+  // "Content", not "Typography": Foundations already carries a Typography page,
+  // and a Typography heading four rows under a Typography tile reads as the same
+  // page twice. The tokens live there; what you write copy with lives here.
+  { group: "content", path: "/design-system/components/text" },
+  { group: "content", path: "/design-system/components/heading" },
+  { group: "actions", path: "/design-system/components/button" },
+  { group: "actions", path: "/design-system/components/icon-button" },
+  { group: "actions", path: "/design-system/components/menu-button" },
+  { group: "actions", path: "/design-system/components/chip" },
+  { group: "forms", path: "/design-system/components/text-field" },
+  { group: "forms", path: "/design-system/components/textarea" },
+  { group: "forms", path: "/design-system/components/select" },
+  { group: "forms", path: "/design-system/components/checkbox" },
+  { group: "forms", path: "/design-system/components/switch" },
+  { group: "forms", path: "/design-system/components/segmented-control" },
+  // Avatar and Badge are the inert markers that label a thing or report its
+  // state. Badge sits here rather than beside Chip on purpose: the two are not
+  // variants of each other, and the split is the distinction made visible.
+  { group: "dataDisplay", path: "/design-system/components/avatar" },
+  { group: "dataDisplay", path: "/design-system/components/badge" },
+  { group: "feedback", path: "/design-system/components/callout" },
+  { group: "feedback", path: "/design-system/components/spinner" },
+  { group: "feedback", path: "/design-system/components/skeleton" },
+  // Containers and the chrome between them. Overlay is a surface too — one that
+  // arrives above the page — so it sits with the rest rather than alone.
+  { group: "surfaces", path: "/design-system/components/card" },
+  { group: "surfaces", path: "/design-system/components/section" },
+  { group: "surfaces", path: "/design-system/components/disclosure" },
+  { group: "surfaces", path: "/design-system/components/overlay" },
+  { group: "surfaces", path: "/design-system/components/divider" },
+  // The two Shells. Every page gets exactly one of them.
+  { group: "shells", path: "/design-system/components/sidebar-layout" },
   {
-    group: "components",
+    group: "shells",
     path: "/design-system/components/header-footer-layout",
   },
-  { group: "primitives", path: "/design-system/primitives" },
-  { group: "hooks", path: "/design-system/hooks" },
+  { group: "composition", path: "/design-system/primitives" },
+  { group: "composition", path: "/design-system/hooks" },
 ] as const satisfies readonly DesignSystemRoute[];
 
 /** Union of every registered path — lets consumers type copy maps for exhaustiveness. */
@@ -87,15 +116,23 @@ export const DESIGN_SYSTEM_PATHS: readonly DesignSystemPath[] =
   DESIGN_SYSTEM_ROUTES.map((route) => route.path);
 
 /**
- * Group render order. Groups with no routes are dropped by
- * `getDesignSystemRouteGroups`, so seeding future groups here is harmless.
+ * Group render order: the tokens first, then the components a page is assembled
+ * from — what you write with, what the visitor operates, what reports back, what
+ * holds it all — and the raw composition layer last. Groups with no routes are
+ * dropped by `getDesignSystemRouteGroups`, so seeding future groups here is
+ * harmless.
  */
 export const DESIGN_SYSTEM_GROUP_ORDER = [
   "overview",
   "foundations",
-  "components",
-  "primitives",
-  "hooks",
+  "content",
+  "actions",
+  "forms",
+  "dataDisplay",
+  "feedback",
+  "surfaces",
+  "shells",
+  "composition",
 ] as const satisfies readonly DesignSystemGroupId[];
 
 export interface DesignSystemRouteGroup {

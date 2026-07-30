@@ -21,13 +21,21 @@ export default function DesignSystemOverview() {
   const cardGroups = getDesignSystemRouteGroups().filter(
     (group) => group.group !== "overview",
   );
+  // Same headings as the nav rail, resolved separately — see routes.ts. Keeping
+  // them identical is what lets the rail act as a table of contents for this
+  // page instead of a second, differently-worded index.
   const groupHeadings: Partial<Record<DesignSystemGroupId, string>> = {
     foundations: t({ en: "Foundations", zh: "基础" }),
-    components: t({ en: "Components", zh: "组件" }),
-    primitives: t({ en: "Primitives", zh: "原语" }),
-    hooks: t({ en: "Hooks", zh: "钩子" }),
+    content: t({ en: "Content", zh: "内容" }),
+    actions: t({ en: "Actions", zh: "操作控件" }),
+    forms: t({ en: "Forms", zh: "表单控件" }),
+    dataDisplay: t({ en: "Data display", zh: "信息展示" }),
+    feedback: t({ en: "Feedback", zh: "反馈" }),
+    surfaces: t({ en: "Surfaces", zh: "表面" }),
+    shells: t({ en: "Page shells", zh: "页面骨架" }),
+    composition: t({ en: "Composition", zh: "组合" }),
   };
-  const content: Record<
+  const tileCopy: Record<
     DesignSystemPath,
     { label: string; description: string }
   > = {
@@ -284,8 +292,8 @@ export default function DesignSystemOverview() {
         <h1 css={styles.heading}>{heading}</h1>
         <p css={styles.intro}>
           {t({
-            en: "Tokens, primitives, and components that compose a refined visual language. Browse the foundations the system is built on, then the components built from them.",
-            zh: "构成精致视觉语言的设计令牌、原语与组件。先浏览系统赖以构建的基础，再查看由其构成的组件。",
+            en: "Tokens, primitives, and components that compose a refined visual language. Browse the foundations the system is built on, then the components built from them, grouped by the job they do.",
+            zh: "构成精致视觉语言的设计令牌、原语与组件。先浏览系统赖以构建的基础，再查看由其构成的组件——按用途分组。",
           })}
         </p>
       </header>
@@ -297,7 +305,7 @@ export default function DesignSystemOverview() {
             {title ? <h2 css={styles.groupTitle}>{title}</h2> : null}
             <div css={styles.grid}>
               {group.paths.map((path) => {
-                const entry = content[path];
+                const entry = tileCopy[path];
                 return (
                   <OverviewTile
                     key={path}
@@ -356,9 +364,14 @@ const styles = stylex.create({
     letterSpacing: font.trackingSnug,
     color: color.textMain,
   },
+  // `auto-fill`, not `auto-fit`: the groups run from two tiles to eight, and
+  // `auto-fit` collapses the empty tracks so a two-tile group would stretch into
+  // two half-page slabs while an eight-tile group keeps normal cards. Holding the
+  // empty tracks keeps one tile width down the whole page, so group size reads as
+  // group size rather than as importance.
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
     gap: space._3,
   },
 });
