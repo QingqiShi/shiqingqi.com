@@ -25,8 +25,8 @@ import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
-/** A captioned demo cell — the live specimen sits above a muted caption. */
-function DemoCell({
+/** A captioned specimen cell — the live specimen sits above a muted caption. */
+function SpecimenCell({
   caption,
   children,
 }: {
@@ -34,8 +34,8 @@ function DemoCell({
   children: ReactNode;
 }) {
   return (
-    <div css={styles.demoCell}>
-      <div css={styles.demoStage}>{children}</div>
+    <div css={styles.specimenCell}>
+      <div css={styles.specimenStage}>{children}</div>
       <Text variant="caption" tone="subtle">
         {caption}
       </Text>
@@ -90,7 +90,7 @@ function StepperControl({
 }
 
 /** Parent-owned value: the stepper defers to props, proving the controlled path. */
-function ControlledStepperDemo() {
+function ControlledStepperSpecimen() {
   const [value, setValue] = useState(2);
   const stateLabel = t({ en: "Parent state", zh: "父组件状态" });
   return (
@@ -112,23 +112,23 @@ function UseControlledSection() {
           zh: "一次调用即让组件同时拥有受控与非受控两种模式。传入 `controlled` 值时由它驱动组件；否则组件从 `defaultValue` 维护自身状态。构建任何类输入控件时都可使用。",
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
           caption={t({
             en: "Uncontrolled — owns its own state",
             zh: "非受控——自行维护状态",
           })}
         >
           <StepperControl defaultValue={0} />
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({
             en: "Controlled — parent owns the value",
             zh: "受控——由父组件持有值",
           })}
         >
-          <ControlledStepperDemo />
-        </DemoCell>
+          <ControlledStepperSpecimen />
+        </SpecimenCell>
       </div>
       <UsageSnippet
         code={`import { useControlled } from "@tuja/ui/hooks/use-controlled";
@@ -145,7 +145,7 @@ function Stepper({ value, defaultValue = 0, onChange }) {
 }
 
 /** A modal whose focus lifecycle is fully managed by `useDialogFocus`. */
-function DialogDemo() {
+function DialogSpecimen() {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialogFocus({
@@ -217,15 +217,15 @@ function UseDialogFocusSection() {
           zh: "一次调用即处理模态的完整焦点生命周期：打开时将焦点移入对话框，把 Tab 与 Shift+Tab 困在其中，按 Escape 关闭，并在卸载时把焦点还给触发元素。适用于任何不得泄漏焦点的对话框、抽屉或弹出层。",
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
           caption={t({
             en: "Open, then Tab and Escape — focus stays trapped and restores",
             zh: "打开后按 Tab 和 Escape——焦点被困住并会恢复",
           })}
         >
-          <DialogDemo />
-        </DemoCell>
+          <DialogSpecimen />
+        </SpecimenCell>
       </div>
       <UsageSnippet
         code={`import { useRef, useState } from "react";
@@ -243,7 +243,7 @@ useDialogFocus({ isOpen, dialogRef, onClose: () => setOpen(false) });
 }
 
 /** A plain element wearing the Button press animation via `usePressHandlers`. */
-function PressDemo() {
+function PressSpecimen() {
   const ref = useRef<HTMLButtonElement>(null);
   const { isPressed, pressedStyle, handlers } = usePressHandlers({
     targetRef: ref,
@@ -277,15 +277,15 @@ function UsePressSection() {
           zh: "把 Button 的触感按压——弹性缩放、亮度提升，以及指针移开时的方向性偏移——封装给任意元素。`usePressAnimation` 是底层状态机；`usePressHandlers` 在其上叠加点击取消与 CSS 自定义属性。让自定义控件拥有与系统一致的手感时使用。",
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
           caption={t({
             en: "Press with a pointer or Space/Enter; drag off to see the nudge",
             zh: "用指针或空格/回车按下；拖离可见方向偏移",
           })}
         >
-          <PressDemo />
-        </DemoCell>
+          <PressSpecimen />
+        </SpecimenCell>
       </div>
       <UsageSnippet
         code={`import { useRef } from "react";
@@ -366,15 +366,15 @@ function UseRadioGroupSection() {
           zh: '无头单选语义：钩子返回 `getOptionProps(value)` 工厂，提供 `role="radio"`、`aria-checked`、roving `tabIndex` 以及完整的 WAI-ARIA 键盘模型——方向键移动并选中，Home/End 跳转，焦点跟随选择。你负责标记与样式，它负责无障碍。',
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
           caption={t({
             en: "Focus a segment, then use ← → and Home / End",
             zh: "聚焦某段后，使用 ← → 与 Home / End",
           })}
         >
           <DensityRadioGroup />
-        </DemoCell>
+        </SpecimenCell>
       </div>
       <UsageSnippet
         code={`import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
@@ -403,7 +403,7 @@ export function HooksShowcase() {
 }
 
 const styles = stylex.create({
-  demoGrid: {
+  specimenGrid: {
     display: "grid",
     gridTemplateColumns: {
       default: "1fr",
@@ -411,13 +411,13 @@ const styles = stylex.create({
     },
     gap: space._3,
   },
-  demoCell: {
+  specimenCell: {
     display: "flex",
     flexDirection: "column",
     gap: space._2,
     minInlineSize: 0,
   },
-  demoStage: {
+  specimenStage: {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",

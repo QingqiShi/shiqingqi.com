@@ -158,7 +158,7 @@ describe("Button accessible name", () => {
   it("takes an icon-only button's name from aria-label, not the icon", () => {
     render(<Button icon={<span>★</span>} aria-label="Favorite" />);
 
-    // The accessible name resolves to the label, not the decorative glyph.
+    // The accessible name resolves to the label, not the decorative icon.
     expect(
       screen.getByRole("button", { name: "Favorite" }),
     ).toBeInTheDocument();
@@ -364,7 +364,7 @@ describe("Button loading state", () => {
     expect(screen.getByRole("button").querySelector("svg")).not.toBeNull();
   });
 
-  it("sizes the spinner to the glyph box it replaces", () => {
+  it("sizes the spinner to the icon box it replaces", () => {
     render(
       <Button loading icon={<span data-testid="icon" />}>
         Save
@@ -380,13 +380,13 @@ describe("Button loading state", () => {
     expect(spinner?.className).toContain("sizeStyles.inline");
   });
 
-  it("adds no glyph slot to an icon-less button", () => {
+  it("adds no icon slot to an icon-less button", () => {
     const { rerender } = render(<Button>Save</Button>);
     const idleChildren = screen.getByRole("button").children.length;
 
     rerender(<Button loading>Save</Button>);
 
-    // With no icon there is no glyph box to borrow, and inserting one would
+    // With no icon there is no icon box to borrow, and inserting one would
     // widen the button by that box plus its gap. The spinner is laid over the
     // label instead, and the label keeps reserving its width.
     const button = screen.getByRole("button");

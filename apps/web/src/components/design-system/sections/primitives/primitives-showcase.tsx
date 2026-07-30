@@ -45,8 +45,8 @@ function ApiGrid({ entries }: { entries: ApiEntry[] }) {
   );
 }
 
-/** A captioned demo cell — the live specimen sits above a muted caption. */
-function DemoCell({
+/** A captioned specimen cell — the live specimen sits above a muted caption. */
+function SpecimenCell({
   caption,
   children,
 }: {
@@ -54,8 +54,8 @@ function DemoCell({
   children: ReactNode;
 }) {
   return (
-    <div css={styles.demoCell}>
-      <div css={styles.demoStage}>{children}</div>
+    <div css={styles.specimenCell}>
+      <div css={styles.specimenStage}>{children}</div>
       <Text variant="caption" tone="subtle">
         {caption}
       </Text>
@@ -63,8 +63,8 @@ function DemoCell({
   );
 }
 
-/** Four-point star used by the reset and a11y demos. */
-function SparkleGlyph() {
+/** Four-point star used by the reset and a11y specimens. */
+function SparkleIcon() {
   return (
     <svg
       aria-hidden="true"
@@ -116,15 +116,15 @@ function FlexSection() {
       token: "flex.wrap",
       meta: "flex-wrap:wrap · align:center",
       description: t({
-        en: "Wrapping row for chips and tags.",
-        zh: "用于标签与筹码的换行行。",
+        en: "Wrapping row for chips and badges.",
+        zh: "用于标签按钮与徽章的换行行。",
       }),
     },
     {
       token: "flex.inlineCenter",
       meta: "display:inline-flex · center",
       description: t({
-        en: "Inline centred box for glyph-plus-label controls.",
+        en: "Inline centred box for icon-plus-label controls.",
         zh: "内联居中盒，用于图标加文字的控件。",
       }),
     },
@@ -150,12 +150,12 @@ function FlexSection() {
     <Showcase label={t({ en: "Flex", zh: "Flex 布局" })}>
       <ShowcaseHelper>
         {t({
-          en: "Multi-property flex recipes. Drop to them when composing a bespoke layout the component library doesn't cover — they encode the alignment defaults so a callsite reads as intent, not CSS plumbing.",
-          zh: "多属性 flex 组合。当组件库未覆盖某个自定义布局时下沉到它们——它们封装了对齐默认值，让调用处读起来是意图而非 CSS 细节。",
+          en: "Multi-property flex primitives. Drop to them when composing a bespoke layout the component library doesn't cover — they encode the alignment defaults so a callsite reads as intent, not CSS plumbing.",
+          zh: "多属性 flex 原语。当组件库未覆盖某个自定义布局时下沉到它们——它们封装了对齐默认值，让调用处读起来是意图而非 CSS 细节。",
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
           caption={t({
             en: "flex.between — toolbar",
             zh: "flex.between —— 工具栏",
@@ -172,9 +172,9 @@ function FlexSection() {
               </span>
             </div>
           </div>
-        </DemoCell>
-        <DemoCell
-          caption={t({ en: "flex.wrap — chips", zh: "flex.wrap —— 筹码" })}
+        </SpecimenCell>
+        <SpecimenCell
+          caption={t({ en: "flex.wrap — chips", zh: "flex.wrap —— 标签按钮" })}
         >
           <div css={[flex.wrap, styles.chipRow]}>
             <span css={styles.chip}>{t({ en: "Drama", zh: "剧情" })}</span>
@@ -182,8 +182,8 @@ function FlexSection() {
             <span css={styles.chip}>{t({ en: "Thriller", zh: "惊悚" })}</span>
             <span css={styles.chip}>{t({ en: "Comedy", zh: "喜剧" })}</span>
           </div>
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({ en: "flex.row + grow._1", zh: "flex.row + grow._1" })}
         >
           <div css={[flex.row, styles.growRow]}>
@@ -194,7 +194,7 @@ function FlexSection() {
               {t({ en: "Go", zh: "搜索" })}
             </span>
           </div>
-        </DemoCell>
+        </SpecimenCell>
       </div>
       <ApiGrid entries={api} />
       <UsageSnippet
@@ -209,7 +209,7 @@ function FlexSection() {
 }
 
 function LayoutSection() {
-  const demoImage = `data:image/svg+xml,${encodeURIComponent(
+  const sampleImage = `data:image/svg+xml,${encodeURIComponent(
     "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#7c5cff'/><stop offset='1' stop-color='#22d3ee'/></linearGradient></defs><rect width='320' height='180' fill='url(#g)'/><circle cx='160' cy='90' r='52' fill='#ffffff' fill-opacity='0.92'/></svg>",
   )}`;
   const imageAlt = t({ en: "Sample 16:9 artwork", zh: "示例 16:9 图像" });
@@ -251,8 +251,8 @@ function LayoutSection() {
       token: "truncate.base",
       meta: "overflow · ellipsis · nowrap",
       description: t({
-        en: "The three-property single-line ellipsis recipe.",
-        zh: "单行省略号的三属性配方。",
+        en: "The three-property single-line ellipsis primitive.",
+        zh: "单行省略号的三属性原语。",
       }),
     },
     {
@@ -277,20 +277,20 @@ function LayoutSection() {
     <Showcase label={t({ en: "Layout", zh: "布局" })}>
       <ShowcaseHelper>
         {t({
-          en: "Position fills, scroll containers, truncation, and image fit — the recurring layout recipes that would otherwise be copy-pasted property clusters.",
-          zh: "定位填充、滚动容器、文本截断与图像适配——否则就得到处复制粘贴的重复布局配方。",
+          en: "Position fills, scroll containers, truncation, and image fit — the recurring layout primitives that would otherwise be copy-pasted property clusters.",
+          zh: "定位填充、滚动容器、文本截断与图像适配——否则就得到处复制粘贴的重复布局原语。",
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell caption={t({ en: "truncate.base", zh: "truncate.base" })}>
+      <div css={styles.specimenGrid}>
+        <SpecimenCell caption={t({ en: "truncate.base", zh: "truncate.base" })}>
           <div css={[styles.truncateBox, truncate.base]}>
             {t({
               en: "The Shawshank Redemption — Extended Director's Cut, Remastered",
               zh: "肖申克的救赎——加长导演剪辑版，重制修复",
             })}
           </div>
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({
             en: "absoluteFill.all — overlay",
             zh: "absoluteFill.all —— 覆盖层",
@@ -303,8 +303,8 @@ function LayoutSection() {
               </span>
             </div>
           </div>
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({
             en: "scrollX.base + focusRing",
             zh: "scrollX.base + focusRing",
@@ -323,8 +323,8 @@ function LayoutSection() {
               ))}
             </div>
           </div>
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({
             en: "imageCover vs imageContain",
             zh: "imageCover 与 imageContain",
@@ -333,14 +333,14 @@ function LayoutSection() {
           <div css={[flex.row, styles.imagePair]}>
             <div css={styles.imageFrame}>
               {/* eslint-disable-next-line @next/next/no-img-element -- inline data-URI specimen, not a remote asset */}
-              <img src={demoImage} alt={imageAlt} css={imageCover.base} />
+              <img src={sampleImage} alt={imageAlt} css={imageCover.base} />
             </div>
             <div css={styles.imageFrame}>
               {/* eslint-disable-next-line @next/next/no-img-element -- inline data-URI specimen, not a remote asset */}
-              <img src={demoImage} alt={imageAlt} css={imageContain.base} />
+              <img src={sampleImage} alt={imageAlt} css={imageContain.base} />
             </div>
           </div>
-        </DemoCell>
+        </SpecimenCell>
       </div>
       <ApiGrid entries={api} />
       <UsageSnippet
@@ -432,8 +432,8 @@ function MotionSection() {
           zh: "过渡与动画预设，每一个都内建了减少动态偏好的处理。将它们组合到自定义元素上，而不必手写关键帧。动效基础页记录了完整的时长与缓动阶梯。",
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
           caption={t({
             en: "transition.colors — hover",
             zh: "transition.colors —— 悬停",
@@ -442,8 +442,8 @@ function MotionSection() {
           <div css={[transition.colors, styles.hoverTile]}>
             {t({ en: "Hover me", zh: "悬停试试" })}
           </div>
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({
             en: "animate.bounce — loading dots",
             zh: "animate.bounce —— 加载圆点",
@@ -475,8 +475,8 @@ function MotionSection() {
               ]}
             />
           </div>
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({
             en: "animate.pulse — skeleton",
             zh: "animate.pulse —— 骨架屏",
@@ -498,7 +498,7 @@ function MotionSection() {
               ]}
             />
           </div>
-        </DemoCell>
+        </SpecimenCell>
       </div>
       <ApiGrid entries={transitions} />
       <ApiGrid entries={animations} />
@@ -532,8 +532,8 @@ function ResetSection() {
           zh: "在不放弃语义的前提下抹平浏览器默认样式。当某个独特控件需要完全掌控样式、又必须保持对键盘和屏幕阅读器友好的 <button> 时，使用 buttonReset。",
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
           caption={t({
             en: "A fully custom control on a real <button>",
             zh: "构建在真实 <button> 上的完全自定义控件",
@@ -548,12 +548,12 @@ function ResetSection() {
               styles.customControl,
             ]}
           >
-            <span css={styles.glyph}>
-              <SparkleGlyph />
+            <span css={styles.icon}>
+              <SparkleIcon />
             </span>
             {t({ en: "Add to list", zh: "加入清单" })}
           </button>
-        </DemoCell>
+        </SpecimenCell>
       </div>
       <ApiGrid entries={api} />
       <UsageSnippet
@@ -574,8 +574,8 @@ function A11ySection() {
       token: "a11y.srOnly",
       meta: "clip-path:inset(50%) · 1px box",
       description: t({
-        en: "Visually hidden, still announced — the canonical accessible-name recipe.",
-        zh: "视觉上隐藏但仍会被朗读——标准的可访问名称配方。",
+        en: "Visually hidden, still announced — the canonical accessible-name primitive.",
+        zh: "视觉上隐藏但仍会被朗读——标准的可访问名称原语。",
       }),
     },
     {
@@ -600,12 +600,12 @@ function A11ySection() {
     <Showcase label={t({ en: "Accessibility", zh: "无障碍" })}>
       <ShowcaseHelper>
         {t({
-          en: "The accessibility recipes that ship in the base of every component — surfaced here so a custom control built from primitives can inherit the same guarantees rather than reinventing them.",
-          zh: "随每个组件基座一同交付的无障碍配方——在此单独呈现，让由原语搭建的自定义控件能继承同样的保证，而无需重新发明。",
+          en: "The accessibility primitives that ship in the base of every component — surfaced here so a custom control built from primitives can inherit the same guarantees rather than reinventing them.",
+          zh: "随每个组件基座一同交付的无障碍原语——在此单独呈现，让由原语搭建的自定义控件能继承同样的保证，而无需重新发明。",
         })}
       </ShowcaseHelper>
-      <div css={styles.demoGrid}>
-        <DemoCell
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
           caption={t({
             en: "srOnly names an icon-only control",
             zh: "srOnly 为纯图标控件提供名称",
@@ -620,15 +620,15 @@ function A11ySection() {
               styles.iconButton,
             ]}
           >
-            <span css={styles.glyph}>
-              <SparkleGlyph />
+            <span css={styles.icon}>
+              <SparkleIcon />
             </span>
             <span css={a11y.srOnly}>
               {t({ en: "Add to favourites", zh: "加入收藏" })}
             </span>
           </button>
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({
             en: "focusRing — Tab to reveal",
             zh: "focusRing —— 按 Tab 显示",
@@ -645,8 +645,8 @@ function A11ySection() {
           >
             {t({ en: "Focus me", zh: "聚焦我" })}
           </button>
-        </DemoCell>
-        <DemoCell
+        </SpecimenCell>
+        <SpecimenCell
           caption={t({
             en: "focusRingInset — ring stays inside a clipped frame",
             zh: "focusRingInset —— 焦点环留在被裁切外框内",
@@ -665,7 +665,7 @@ function A11ySection() {
               {t({ en: "Focus me", zh: "聚焦我" })}
             </button>
           </div>
-        </DemoCell>
+        </SpecimenCell>
       </div>
       <ApiGrid entries={api} />
       <UsageSnippet
@@ -693,7 +693,7 @@ export function PrimitivesShowcase() {
 }
 
 const styles = stylex.create({
-  demoGrid: {
+  specimenGrid: {
     display: "grid",
     gridTemplateColumns: {
       default: "1fr",
@@ -701,13 +701,13 @@ const styles = stylex.create({
     },
     gap: space._3,
   },
-  demoCell: {
+  specimenCell: {
     display: "flex",
     flexDirection: "column",
     gap: space._2,
     minInlineSize: 0,
   },
-  demoStage: {
+  specimenStage: {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -727,7 +727,7 @@ const styles = stylex.create({
     },
     gap: space._2,
   },
-  // Flex demos
+  // Flex specimens
   bar: {
     inlineSize: "100%",
     paddingBlock: space._2,
@@ -782,7 +782,7 @@ const styles = stylex.create({
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
-  // Layout demos
+  // Layout specimens
   truncateBox: {
     inlineSize: "100%",
     maxInlineSize: "220px",
@@ -850,7 +850,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
-  // Motion demos
+  // Motion specimens
   hoverTile: {
     display: "flex",
     alignItems: "center",
@@ -907,7 +907,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "paused",
     },
   },
-  // Reset + a11y demos
+  // Reset + a11y specimens
   customControl: {
     gap: space._2,
     paddingBlock: space._1,
@@ -918,7 +918,7 @@ const styles = stylex.create({
     color: color.accentOn,
     backgroundColor: color.accent,
   },
-  glyph: {
+  icon: {
     display: "inline-flex",
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_0,

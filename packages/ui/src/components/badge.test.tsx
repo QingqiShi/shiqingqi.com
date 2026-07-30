@@ -32,47 +32,47 @@ describe("Badge rendering", () => {
   });
 
   it("renders a decorative icon marked aria-hidden", () => {
-    render(<Badge icon={<span data-testid="glyph">★</span>}>Rated</Badge>);
-    const glyph = screen.getByTestId("glyph");
-    expect(glyph).toBeInTheDocument();
+    render(<Badge icon={<span data-testid="icon">★</span>}>Rated</Badge>);
+    const icon = screen.getByTestId("icon");
+    expect(icon).toBeInTheDocument();
     // The icon is wrapped in an aria-hidden span.
-    expect(glyph.parentElement).toHaveAttribute("aria-hidden");
+    expect(icon.parentElement).toHaveAttribute("aria-hidden");
   });
 });
 
 describe("Badge prop forwarding", () => {
   it("merges a caller className with the StyleX classes", () => {
-    render(<Badge className="my-badge">Tag</Badge>);
-    const badge = screen.getByText("Tag");
+    render(<Badge className="my-badge">Label</Badge>);
+    const badge = screen.getByText("Label");
     expect(badge.className).toContain("my-badge");
     expect(badge.className).toContain("styles.base");
   });
 
   it("forwards inline style", () => {
-    render(<Badge style={{ opacity: 0.5 }}>Tag</Badge>);
-    expect(screen.getByText("Tag")).toHaveStyle({ opacity: "0.5" });
+    render(<Badge style={{ opacity: 0.5 }}>Label</Badge>);
+    expect(screen.getByText("Label")).toHaveStyle({ opacity: "0.5" });
   });
 
   it("forwards native span attributes", () => {
     render(
-      <Badge data-testid="chip" id="chip-id">
-        Tag
+      <Badge data-testid="badge" id="badge-id">
+        Label
       </Badge>,
     );
-    const chip = screen.getByTestId("chip");
-    expect(chip).toHaveAttribute("id", "chip-id");
+    const badge = screen.getByTestId("badge");
+    expect(badge).toHaveAttribute("id", "badge-id");
   });
 
   it("forwards click handlers", () => {
     const handleClick = vi.fn();
-    render(<Badge onClick={handleClick}>Tag</Badge>);
-    fireEvent.click(screen.getByText("Tag"));
+    render(<Badge onClick={handleClick}>Label</Badge>);
+    fireEvent.click(screen.getByText("Label"));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
   it("forwards a ref to the span element", () => {
     const ref: { current: HTMLSpanElement | null } = { current: null };
-    render(<Badge ref={ref}>Tag</Badge>);
+    render(<Badge ref={ref}>Label</Badge>);
     expect(ref.current?.tagName).toBe("SPAN");
   });
 });

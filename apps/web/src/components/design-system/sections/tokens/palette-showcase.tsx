@@ -24,7 +24,7 @@ const RAMP_COLUMNS = SYSTEM_PALETTE_TONES.map((_tone, index) => {
 
 /**
  * The system palette, shown as a plain reference sheet: one row per hue, each a
- * label and its full tonal ramp. It is intentionally quiet — this is the raw
+ * label and its full ramp. It is intentionally quiet — this is the raw
  * range the tokens draw from, not something the app styles against directly — so
  * the surfaces and roles below carry the visual weight.
  */
@@ -36,7 +36,7 @@ export function PaletteShowcase() {
     >
       <ShowcaseHelper>
         {t({
-          en: "Thirteen hues, each expanded into a perceptually even 21-step tonal scale. The complete range of available colour — consumed only through the design tokens above.",
+          en: "Thirteen hues, each expanded into a perceptually even 21-step ramp. The complete range of available colour — consumed only through the design tokens above.",
           zh: "十三种色相，各自展开为感知均匀的 21 级色调阶梯。全部可用颜色的范围——仅通过上方的设计令牌使用。",
         })}
       </ShowcaseHelper>

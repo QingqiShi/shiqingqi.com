@@ -10,7 +10,7 @@ import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
-import { DisclosureHeadlessDemo } from "./disclosure-headless-demo.tsx";
+import { DisclosureHeadlessSpecimen } from "./disclosure-headless-specimen.tsx";
 
 export function DisclosureShowcase() {
   const panelBody = t({
@@ -65,7 +65,7 @@ export function DisclosureShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Headless", zh: "无头用法" })}>
-        <DisclosureHeadlessDemo />
+        <DisclosureHeadlessSpecimen />
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "When the header holds its own link, the whole row can't be a button. useDisclosure hands the same aria-expanded and aria-controls wiring to a separate toggle beside it.",
@@ -146,7 +146,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
               name: "icon",
               type: "ReactNode",
               description: t({
-                en: "Decorative leading glyph in the header, rendered aria-hidden.",
+                en: "Decorative leading icon in the header, rendered aria-hidden.",
                 zh: "标题行的装饰性前置图标，以 aria-hidden 渲染。",
               }),
             },
@@ -197,7 +197,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
-          do={<DisclosureHeadlessDemo />}
+          do={<DisclosureHeadlessSpecimen />}
           doCaption={t({
             en: "When the header already holds a link, use useDisclosure and give the toggle its own button beside it.",
             zh: "当标题行已包含链接时，使用 useDisclosure，并在旁边为开关设置独立按钮。",

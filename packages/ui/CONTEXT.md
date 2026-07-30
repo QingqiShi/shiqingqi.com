@@ -60,6 +60,9 @@ A subcomponent passed in as a prop, so the consumer replaces one internal piece 
 A popup that spans the bar its trigger sits in rather than hanging off the trigger's own corner — `MenuButton`'s `position="sheet"`. Not a centred dialog and not an edge-anchored panel; if it does not span a bar it is not a Sheet.
 _Avoid_: drawer, bottom sheet, panel (for this sense)
 
+**Drawer**:
+`SidebarLayout`'s navigation rail in its mobile form below `md` — edge-anchored, focus-trapped, scroll-locked, dismissed by following a link inside it. One element is both the Drawer and the `md`+ rail. Not a Sheet: a Sheet spans a bar, a Drawer hangs off an edge.
+
 **Badge**:
 The inert `<span>` that labels something or reports its status. It never takes a click.
 
@@ -95,8 +98,8 @@ A page-level layout frame. Every page gets exactly one of the two.
 ### The showcase site
 
 **Specimen**:
-A live, `inert` instance of a component rendered as illustration inside an overview tile. It is an illustration of the component, not a working copy — which is why it stays out of the tab order.
-_Avoid_: preview, demo
+A real instance of a component, placed to illustrate it rather than to be used. In an overview tile it is `inert` and out of the tab order — most are scaled down, though the whole-page ones fill their plate instead. Inside a Showcase it may be fully operable, because there the point is to let a visitor work it.
+_Avoid_: preview, demo — except where a mock labels _itself_ for the visitor ("Demo menu", "Demo toggle"); those strings stay.
 
 **Plate**:
 The sunken panel a specimen sits on. Structure that holds still while its contents drain of colour at rest.
@@ -112,6 +115,26 @@ One labelled section on a documentation page. A page has many; each may hold spe
 **Identifier**:
 A name the documentation renders for copying rather than reading — a token name, a prop name, a Phosphor component name. Distinct from a Token, which is the value itself: the same component renders all three kinds, and none of them may be truncated or broken mid-word, because the name is the content.
 _Avoid_: label, key (for this sense)
+
+## Chinese terms
+
+The showcase site ships bilingual copy, so each term needs one Chinese word too — the same rule applies, and `zh` drifts the same way `en` does. API names (`variant`, `tone`, `as`, `onDismiss`) stay untranslated inside zh copy.
+
+| Term       | zh       | Not                                                |
+| ---------- | -------- | -------------------------------------------------- |
+| Hue        | 色相     | 色调 (that is Tone)                                |
+| Tone       | 色调     | 明度阶梯                                           |
+| Ramp       | 色调阶梯 |                                                    |
+| Intent     | 意图色   | 语义色, 语义变体, 语义化的状态色, 色调, 颜色处理   |
+| Role       | 角色     | 语义 (as a grouping word)                          |
+| Icon       | 图标     | 字形 (that is a typographic glyph)                 |
+| Elevation  | 层深     | 阴影层级 — 阴影 names the shadows, not the concept |
+| Chip       | 标签按钮 | 筹码 (a gambling chip), 药丸 (a medicine pill)     |
+| Badge      | 徽章     | 标签 (that is a label)                             |
+| Primitive  | 原语     | 配方                                               |
+| pill shape | 胶囊形   | 药丸, 标签                                         |
+
+`语义` is correct only for the HTML/ARIA sense — 语义元素, 语义层级, `<button>` 语义 — matching English "semantic element/rank".
 
 ## Frozen contracts
 

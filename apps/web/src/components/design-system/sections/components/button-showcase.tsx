@@ -197,8 +197,8 @@ export function ButtonShowcase() {
               type: '"sm" | "md" | "lg"',
               defaultValue: '"md"',
               description: t({
-                en: 'Height ramp via controlSize. "lg" is for prominent CTAs; reserve "sm" for pointer-dense desktop toolbars.',
-                zh: '基于 controlSize 的高度梯度。"lg" 用于醒目的 CTA；"sm" 建议仅用于指针密集的桌面工具栏。',
+                en: 'Height scale via controlSize. "lg" is for prominent CTAs; reserve "sm" for pointer-dense desktop toolbars.',
+                zh: '基于 controlSize 的高度阶梯。"lg" 用于醒目的 CTA；"sm" 建议仅用于指针密集的桌面工具栏。',
               }),
             },
             {
@@ -237,7 +237,7 @@ export function ButtonShowcase() {
               name: "icon",
               type: "ReactNode",
               description: t({
-                en: "Decorative leading glyph, rendered aria-hidden; never the accessible name.",
+                en: "Decorative leading icon, rendered aria-hidden; never the accessible name.",
                 zh: "装饰性前置图标，以 aria-hidden 渲染；绝不作为可访问名称。",
               }),
             },
@@ -295,7 +295,7 @@ export function ButtonShowcase() {
             />
           }
           doCaption={t({
-            en: "Pass the glyph through icon and name an icon-only button with aria-label.",
+            en: "Pass the icon through icon and name an icon-only button with aria-label.",
             zh: "通过 icon 传入图标，并用 aria-label 为纯图标按钮命名。",
           })}
           dont={

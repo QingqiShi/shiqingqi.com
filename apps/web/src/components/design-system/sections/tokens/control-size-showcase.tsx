@@ -6,8 +6,8 @@ import { Showcase } from "../../showcase.tsx";
 import { SpecCard } from "../../spec-card.tsx";
 
 export function ControlSizeShowcase() {
-  // Control-size ramp: each square is drawn at its token, which itself shrinks at
-  // the md breakpoint — so the whole ramp steps down live as the window widens.
+  // Control-size scale: each square is drawn at its token, which itself shrinks at
+  // the md breakpoint — so the whole scale steps down live as the window widens.
   const controls = [
     { token: "controlSize._0", meta: "2.4 → 2px", swatch: styles.cs0 },
     { token: "controlSize._1", meta: "4.8 → 4px", swatch: styles.cs1 },
@@ -26,7 +26,7 @@ export function ControlSizeShowcase() {
     <Showcase label={t({ en: "Control size", zh: "控件尺寸" })}>
       <ShowcaseHelper>
         {t({
-          en: "The dimension ramp for controls — heights, paddings, icon boxes. Every step renders larger on touch viewports and shrinks at the md breakpoint, so tap targets stay comfortable on phones.",
+          en: "The dimension scale for controls — heights, paddings, icon boxes. Every step renders larger on touch viewports and shrinks at the md breakpoint, so tap targets stay comfortable on phones.",
           zh: "控件的尺寸阶梯——高度、内边距、图标盒。每一级在触摸视口上更大，并在 md 断点收缩，从而在手机上保持舒适的点按目标。",
         })}
       </ShowcaseHelper>

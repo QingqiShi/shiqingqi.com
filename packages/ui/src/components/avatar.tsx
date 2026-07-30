@@ -50,7 +50,7 @@ interface AvatarBaseProps extends Omit<
 type AvatarBadgeProps =
   | {
       /**
-       * Corner marker — a status dot, a small glyph. Sits on its own surface so
+       * Corner marker — a status dot, a small icon. Sits on its own surface so
        * it reads against the medallion and the page alike, and is drawn
        * `aria-hidden`; `badgeLabel` carries its meaning instead.
        */
@@ -243,7 +243,7 @@ const sizeStyles = stylex.create({
 });
 
 // The badge shrinks as a proportion of the medallion but never below a legible
-// glyph, so `sm` and `md` share a diameter and only `lg` steps up.
+// icon, so `sm` and `md` share a diameter and only `lg` steps up.
 const badgeSizeStyles = stylex.create({
   sm: {
     inlineSize: space._3,

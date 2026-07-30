@@ -21,18 +21,18 @@ describe("Callout rendering", () => {
     expect(screen.getByText("Just a note.")).toBeInTheDocument();
   });
 
-  it("renders a built-in decorative glyph marked aria-hidden", () => {
+  it("renders a built-in decorative icon marked aria-hidden", () => {
     const { container } = render(<Callout variant="success">Saved.</Callout>);
     const svg = container.querySelector("svg");
     expect(svg).not.toBeNull();
-    // The glyph is wrapped in an aria-hidden span.
+    // The icon is wrapped in an aria-hidden span.
     expect(svg?.closest("[aria-hidden]")).not.toBeNull();
   });
 
   it("wraps a custom icon in an aria-hidden slot", () => {
-    render(<Callout icon={<span data-testid="glyph">★</span>}>Body</Callout>);
-    const glyph = screen.getByTestId("glyph");
-    expect(glyph.parentElement).toHaveAttribute("aria-hidden");
+    render(<Callout icon={<span data-testid="icon">★</span>}>Body</Callout>);
+    const icon = screen.getByTestId("icon");
+    expect(icon.parentElement).toHaveAttribute("aria-hidden");
   });
 
   it("drops the icon when icon is null", () => {

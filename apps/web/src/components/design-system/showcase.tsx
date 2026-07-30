@@ -50,7 +50,7 @@ interface ShowcaseItemProps {
 export function ShowcaseItem({ label, children }: ShowcaseItemProps) {
   return (
     <div css={[flex.col, styles.item]}>
-      <div css={styles.itemPreview}>{children}</div>
+      <div css={styles.itemSpecimen}>{children}</div>
       <span css={styles.itemLabel}>{label}</span>
     </div>
   );
@@ -102,7 +102,7 @@ const styles = stylex.create({
   item: {
     gap: space._2,
   },
-  itemPreview: {
+  itemSpecimen: {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",

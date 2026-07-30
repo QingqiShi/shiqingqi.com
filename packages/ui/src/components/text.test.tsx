@@ -22,7 +22,7 @@ describe("Text element selection", () => {
 });
 
 describe("Text variant and modifier classes", () => {
-  it("applies the overline ramp", () => {
+  it("applies the overline step", () => {
     render(<Text variant="overline">Label</Text>);
     expect(screen.getByText("Label").className).toContain(
       "variantStyles.overline",

@@ -10,7 +10,7 @@ type ChipSize = "sm" | "md";
 interface ChipBaseProps {
   /** Chip contents — usually a short label. */
   children: ReactNode;
-  /** Decorative leading glyph, rendered `aria-hidden`. */
+  /** Decorative leading icon, rendered `aria-hidden`. */
   icon?: ReactNode;
   /**
    * Trailing content — a count, a note, a caret. Unlike `icon` it stays in the
@@ -145,7 +145,7 @@ export function Chip(props: ChipProps) {
 }
 
 const styles = stylex.create({
-  // `em` boxes so the glyph tracks the chip's font-size across sizes.
+  // `em` boxes so the icon tracks the chip's font-size across sizes.
   icon: {
     display: "inline-flex",
     alignItems: "center",

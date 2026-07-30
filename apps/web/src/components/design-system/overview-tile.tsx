@@ -8,14 +8,14 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
-import { getComponentPreview } from "./component-previews/index.tsx";
 import { IlloLayer } from "./foundation-illustrations/illo-layer.tsx";
 import { getFoundationIllustration } from "./foundation-illustrations/index.tsx";
 import { tileMarker } from "./overview-tile.stylex.ts";
 import type { DesignSystemPath } from "./routes.ts";
+import { getComponentSpecimen } from "./specimens/index.tsx";
 
 interface OverviewTileProps {
-  /** Which route this tile leads to; also selects its art. */
+  /** Which route this tile leads to; also selects its illustration or specimen. */
   path: DesignSystemPath;
   href: string;
   label: string;
@@ -24,12 +24,13 @@ interface OverviewTileProps {
 
 /**
  * One card in the design-system overview grid: copy, a stretched link, and
- * whichever art the route carries — an abstract scene for a foundation, a live
- * specimen for a component, nothing for the rest.
+ * either an abstract illustration for a foundation route or a live specimen for
+ * a component route — nothing for the rest.
  *
  * It owns the whole tile rather than leaving the markup inline on the overview
  * page because the pieces are load-bearing on each other: the z-index ladder
- * below spans art, copy, tray and link, and the `::after` focus ring only works
+ * below spans the illustration or specimen, copy, plate and link, and the
+ * `::after` focus ring only works
  * while the link stays unpositioned. Those invariants are enforceable here and
  * not in a `.map()` on a page that is otherwise localized copy.
  */
@@ -40,11 +41,11 @@ export function OverviewTile({
   description,
 }: OverviewTileProps) {
   const illustration = getFoundationIllustration(path);
-  const preview = getComponentPreview(path);
+  const specimen = getComponentSpecimen(path);
 
   return (
     // A plain element wrapping a stretched link, not a link wrapping
-    // everything: the component previews render real buttons, inputs and
+    // everything: the component specimens render real buttons, inputs and
     // selects, and interactive content nested inside an `<a>` is invalid — an
     // anchor inside one is even reparented by the HTML parser. `styles.link`
     // casts a pseudo-element over the whole surface instead, so the entire tile
@@ -66,7 +67,7 @@ export function OverviewTile({
         {label}
       </Link>
       <span css={styles.description}>{description}</span>
-      {preview ? (
+      {specimen ? (
         // `inert` keeps the specimens out of the tab order and the
         // accessibility tree: they are an illustration of the component, not a
         // working copy of it.
@@ -75,14 +76,14 @@ export function OverviewTile({
         // the plate is structure and holds still, while only its contents drain
         // of colour at rest. Putting the treatment on the plate would fade the
         // plate too, so the tile's shape would change on hover.
-        <div css={styles.tray} inert>
+        <div css={styles.plate} inert>
           <div
             css={[
               styles.specimen,
-              preview.fillsPlate ? styles.specimenFillsPlate : null,
+              specimen.fillsPlate ? styles.specimenFillsPlate : null,
             ]}
           >
-            {preview.element}
+            {specimen.element}
           </div>
         </div>
       ) : null}
@@ -93,7 +94,7 @@ export function OverviewTile({
 const styles = stylex.create({
   tile: {
     // Positioning context and clip for both the stretched link's overlay and
-    // whatever art the tile carries; `isolation` keeps their z-indexes local.
+    // the illustration or specimen; `isolation` keeps their z-indexes local.
     position: "relative",
     overflow: "hidden",
     isolation: "isolate",
@@ -103,7 +104,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._4,
   },
-  // Taller than the plain tiles (~3:2) so the bottom-anchored art has room.
+  // Taller than the plain tiles (~3:2) so the bottom-anchored illustration has room.
   tileIllustrated: {
     minBlockSize: "184px",
     justifyContent: "flex-start",
@@ -113,9 +114,9 @@ const styles = stylex.create({
   // itself (`cardSurface.interactive`'s ring keys off `:focus-visible` on the
   // focused element, which is now this link rather than the tile).
   //
-  // Stacking, all inside the tile's `isolation: isolate`: art sits at 0, the
-  // copy and the tray at 1, and the link above both at 3 — otherwise its
-  // `::after` would paint under the later-in-DOM tray and the previews would
+  // Stacking, all inside the tile's `isolation: isolate`: the illustration or specimen sits at 0, the
+  // copy and the plate at 1, and the link above both at 3 — otherwise its
+  // `::after` would paint under the later-in-DOM plate and the specimens would
   // carve dead zones out of the tile. The link must stay unpositioned so
   // `::after` resolves against the tile; a flex item honours `z-index` without
   // it. Every layer therefore needs an explicit `z-index`, because one
@@ -166,7 +167,7 @@ const styles = stylex.create({
   // `flexGrow` makes the plate absorb whatever height the row's tallest tile
   // leaves over, so every plate in a row is exactly the same size regardless of
   // how long its copy runs or how small its specimen is.
-  tray: {
+  plate: {
     zIndex: 1,
     pointerEvents: "none",
     display: "flex",
@@ -203,13 +204,13 @@ const styles = stylex.create({
   //
   // This centres the specimen box, which is the whole mechanism for every
   // specimen narrower than its plate. Because the element is `inline-size: 100%`
-  // the same `justify-content` on `styles.tray` would be inert, so it cannot be
+  // the same `justify-content` on `styles.plate` would be inert, so it cannot be
   // consolidated upward. Its counterpart lives in
-  // `component-previews/preview.stylex.ts`: once a box is plate-wide there is
-  // nothing here left to move, and those recipes place the contents inside it.
+  // `specimens/specimen.stylex.ts`: once a box is plate-wide there is
+  // nothing here left to move, and those styles place the contents inside it.
   //
   // The whole resting treatment is gated behind `(hover: hover)`. Its only exit
-  // is engaging the tile, and a touch device cannot hover — the tray is `inert`
+  // is engaging the tile, and a touch device cannot hover — the plate is `inert`
   // so it never takes focus, and tapping the link navigates away. Ungated, a
   // phone would show nineteen permanently grey specimens with the Spinner and
   // Skeleton frozen, which is the exact opposite of what they document. Where
@@ -250,7 +251,7 @@ const styles = stylex.create({
     // motion, and a grid where two of nineteen tiles never stop moving reads as
     // two tiles asking to be looked at. `motionTokens.playState` inherits, so
     // this one declaration reaches both — the Spinner's inner ring and every
-    // Skeleton bar — without either preview knowing it is inside a tile.
+    // Skeleton bar — without either specimen knowing it is inside a tile.
     //
     // Under reduced motion it is a no-op for Skeleton, which sets
     // `animation-name: none` and so has no animation left to hold; Spinner keeps
@@ -269,7 +270,7 @@ const styles = stylex.create({
   // The page miniatures fill the plate instead of sitting on it. Stretched so
   // the wireframe's `block-size: 100%` has a definite height to resolve
   // against, and un-scaled: the thumbnail scale left them at 85% of the plate
-  // with a margin of tray showing on every side, so a diagram of a whole page
+  // with a margin of plate showing on every side, so a diagram of a whole page
   // read as a small card adrift inside a much larger one.
   specimenFillsPlate: {
     alignSelf: "stretch",

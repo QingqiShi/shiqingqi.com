@@ -23,8 +23,8 @@ export default function ColorPage() {
     <DocPage
       title={t({ en: "Color", zh: "颜色" })}
       description={t({
-        en: "Thirteen system hues, expanded into perceptually even tonal palettes, then mapped onto semantic background, surface, and text-role tokens.",
-        zh: "十三种系统色调展开为感知均匀的色调阶梯，再映射到语义化的背景、表面与文本角色令牌。",
+        en: "Thirteen system hues, expanded into perceptually even ramps, then mapped onto background, surface, and text role tokens.",
+        zh: "十三种系统色相展开为感知均匀的色调阶梯，再映射到背景、表面与文本角色令牌。",
       })}
     >
       <ColorHierarchy />

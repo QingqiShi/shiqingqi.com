@@ -40,7 +40,7 @@ interface SwitchProps extends Omit<
   /** Fires with the next state on every user toggle (pointer, keyboard, label). */
   onChange?: (state: SwitchState) => void;
   /**
-   * Track-height ramp via `controlSize`; the width and thumb scale with it.
+   * Track-height scale via `controlSize`; the width and thumb scale with it.
    * Defaults to `"md"` (the app's standard control height). Every size grows
    * below the `md` breakpoint like the `controlSize` scale.
    */

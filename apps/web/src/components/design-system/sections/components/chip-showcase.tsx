@@ -118,7 +118,7 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
               name: "icon",
               type: "ReactNode",
               description: t({
-                en: "Decorative leading glyph, rendered aria-hidden.",
+                en: "Decorative leading icon, rendered aria-hidden.",
                 zh: "装饰性前置图标，以 aria-hidden 渲染。",
               }),
             },
@@ -177,7 +177,7 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
           }
           doCaption={t({
             en: "Reach for a Chip when the pill does something — filtering, selecting, navigating. It is focusable and announced with a role.",
-            zh: "当药丸有实际行为时使用标签按钮——筛选、选择或跳转。它可获得焦点，并带有明确的角色语义。",
+            zh: "当胶囊形元素有实际行为时使用标签按钮——筛选、选择或跳转。它可获得焦点，并带有明确的角色语义。",
           })}
           dont={
             <>

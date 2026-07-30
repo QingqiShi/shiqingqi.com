@@ -25,8 +25,8 @@ export default function TypographyPage() {
     <DocPage
       title={t({ en: "Typography", zh: "文字设计" })}
       description={t({
-        en: "One family in Inter, shaped by a fluid type scale, weight ramp, line-heights, and tracking — then applied through the heading and body text styles.",
-        zh: "以 Inter 为单一字体，通过流式字号阶梯、字重梯度、行高与字距塑形，并应用于标题与正文样式。",
+        en: "One family in Inter, shaped by a fluid type scale, weight scale, line-heights, and tracking — then applied through the heading and body text styles.",
+        zh: "以 Inter 为单一字体，通过流式字号阶梯、字重阶梯、行高与字距塑形，并应用于标题与正文样式。",
       })}
     >
       <FamiliesShowcase />

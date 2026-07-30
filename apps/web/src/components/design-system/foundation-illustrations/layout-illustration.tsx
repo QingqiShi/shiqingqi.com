@@ -16,7 +16,7 @@ export function LayoutIllustration() {
       preserveAspectRatio="xMaxYMax meet"
       aria-hidden="true"
     >
-      <g css={styles.art}>
+      <g css={styles.illustration}>
         <g css={styles.grid}>
           <g>
             {columnX.map((x, i) => (
@@ -95,7 +95,7 @@ export function LayoutIllustration() {
 const columnX = [150, 171, 192, 213, 234, 255, 276, 297];
 
 const styles = stylex.create({
-  art: {
+  illustration: {
     opacity: {
       default: 0.24,
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,

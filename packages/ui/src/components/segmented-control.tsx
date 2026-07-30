@@ -24,7 +24,7 @@ interface SegmentedControlOption<TValue extends string> {
   value: TValue;
   /** Visible label. Keep it to a word or two — segments share one track. */
   label: ReactNode;
-  /** Decorative leading glyph, rendered `aria-hidden` beside the label. */
+  /** Decorative leading icon, rendered `aria-hidden` beside the label. */
   icon?: ReactNode;
 }
 

@@ -136,21 +136,27 @@ export function MotionShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.tileGrid}>
-          <div css={[styles.demoTile, transition.colors, styles.hoverColors]}>
+          <div css={[styles.tokenTile, transition.colors, styles.hoverColors]}>
             transition.colors
           </div>
-          <div css={[styles.demoTile, transition.opacity, styles.hoverOpacity]}>
+          <div
+            css={[styles.tokenTile, transition.opacity, styles.hoverOpacity]}
+          >
             transition.opacity
           </div>
-          <div css={[styles.demoTile, transition.shadow, styles.hoverShadow]}>
+          <div css={[styles.tokenTile, transition.shadow, styles.hoverShadow]}>
             transition.shadow
           </div>
           <div
-            css={[styles.demoTile, transition.transform, styles.hoverTransform]}
+            css={[
+              styles.tokenTile,
+              transition.transform,
+              styles.hoverTransform,
+            ]}
           >
             transition.transform
           </div>
-          <div css={[styles.demoTile, transition.all, styles.hoverAll]}>
+          <div css={[styles.tokenTile, transition.all, styles.hoverAll]}>
             transition.all
           </div>
         </div>
@@ -171,39 +177,39 @@ export function MotionShowcase() {
         </div>
         <div css={styles.tileGrid}>
           <div key={`fadeIn-${tick.toString()}`} css={styles.animTile}>
-            <span css={[styles.animGlyph, animate.fadeIn]} />
+            <span css={[styles.animSubject, animate.fadeIn]} />
             <span css={styles.animLabel}>animate.fadeIn</span>
           </div>
           <div key={`fadeOut-${tick.toString()}`} css={styles.animTile}>
-            <span css={[styles.animGlyph, animate.fadeOut]} />
+            <span css={[styles.animSubject, animate.fadeOut]} />
             <span css={styles.animLabel}>animate.fadeOut</span>
           </div>
           <div key={`slideUp-${tick.toString()}`} css={styles.animTile}>
             <div css={styles.slideViewport}>
-              <span css={[styles.animGlyph, animate.slideUp]} />
+              <span css={[styles.animSubject, animate.slideUp]} />
             </div>
             <span css={styles.animLabel}>animate.slideUp</span>
           </div>
           <div key={`slideDown-${tick.toString()}`} css={styles.animTile}>
             <div css={styles.slideViewport}>
-              <span css={[styles.animGlyph, animate.slideDown]} />
+              <span css={[styles.animSubject, animate.slideDown]} />
             </div>
             <span css={styles.animLabel}>animate.slideDown</span>
           </div>
           <div key={`expand-${tick.toString()}`} css={styles.animTile}>
             <div css={animate.expand}>
-              <span css={[styles.expandInner, styles.animGlyph]} />
+              <span css={[styles.expandInner, styles.animSubject]} />
             </div>
             <span css={styles.animLabel}>animate.expand</span>
           </div>
           <div key={`collapse-${tick.toString()}`} css={styles.animTile}>
             <div css={animate.collapse}>
-              <span css={[styles.expandInner, styles.animGlyph]} />
+              <span css={[styles.expandInner, styles.animSubject]} />
             </div>
             <span css={styles.animLabel}>animate.collapse</span>
           </div>
           <div css={styles.animTile}>
-            <span css={[styles.animGlyph, animate.pulse]} />
+            <span css={[styles.animSubject, animate.pulse]} />
             <span css={styles.animLabel}>animate.pulse</span>
           </div>
           <div css={styles.animTile}>
@@ -302,7 +308,7 @@ const styles = stylex.create({
     gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))",
     gap: space._2,
   },
-  demoTile: {
+  tokenTile: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -382,7 +388,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
-  animGlyph: {
+  animSubject: {
     inlineSize: space._7,
     blockSize: space._7,
     borderRadius: border.radius_2,

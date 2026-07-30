@@ -37,7 +37,7 @@ function projectSurface(u: number, v: number) {
 }
 
 // A flat isometric lattice: one straight line per division in each direction —
-// constant-v lines run across, constant-u lines run into the scene.
+// constant-v lines run across, constant-u lines run into depth.
 const GRID_LINES = Array.from(
   { length: GRID_CELLS + 1 },
   (_, i) => (i / GRID_CELLS) * 2 - 1,
@@ -113,7 +113,7 @@ export function ElevationIllustration() {
         </mask>
       </defs>
 
-      <g css={styles.scene}>
+      <g css={styles.illustration}>
         {/* The surface the stack sits on: a flat isometric grid, same size as a
             sheet. The pointer never touches it — only the sheets above it react.
             It does travel with the framing, though, since it sits inside the same
@@ -225,7 +225,7 @@ const styles = stylex.create({
   // the illustration was drawn at. It is only the *framing* that is gated: the fan,
   // the grey -> gold bloom and the opacity lift all key off `:focus-within` too,
   // which a device without hover can still reach, so it sees those.
-  scene: {
+  illustration: {
     opacity: {
       default: 0.42,
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,

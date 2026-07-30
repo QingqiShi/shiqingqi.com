@@ -10,7 +10,7 @@ import { Showcase } from "../../showcase.tsx";
 // as a compact stand-in for the full 21-tone scale demonstrated further down.
 const MINI_TONES = [11, 20, 40, 60, 80, 92] as const;
 
-// The semantic roles previewed as dots in stage 3, in the order they appear in
+// The Intents shown as dots in stage 3, in the order they appear in
 // the Roles section below.
 const ROLE_DOTS = [
   color.accent,
@@ -32,8 +32,8 @@ export function ColorHierarchy() {
     <Showcase frame="card">
       <p css={styles.lead}>
         {t({
-          en: "Colour is layered. A fixed system palette defines every available tone; design tokens reference those tones with intent; and the tokens are grouped into the surfaces and roles the app actually uses.",
-          zh: "颜色是分层的。固定的系统调色板定义了所有可用色调；设计令牌带着语义引用这些色调；令牌再归类为应用真正使用的表面与角色。",
+          en: "Colour is layered. A fixed system palette defines every available tone; design tokens reference those tones by purpose; and the tokens are grouped into the surfaces and roles the app actually uses.",
+          zh: "颜色是分层的。固定的系统调色板定义了所有可用色调；设计令牌按用途引用这些色调；令牌再归类为应用真正使用的表面与角色。",
         })}
       </p>
 
@@ -54,8 +54,8 @@ export function ColorHierarchy() {
           step="02"
           name={t({ en: "Design tokens", zh: "设计令牌" })}
           detail={t({
-            en: "Semantic, purpose-named values that point at specific palette tones. What the app is built from.",
-            zh: "语义化、按用途命名的值，指向特定的调色板色调。应用由此构建。",
+            en: "Purpose-named values that point at specific palette tones. What the app is built from.",
+            zh: "按用途命名的值，指向特定的调色板色调。应用由此构建。",
           })}
           visual={<TokensVisual />}
         />
@@ -66,8 +66,8 @@ export function ColorHierarchy() {
           step="03"
           name={t({ en: "Surfaces & roles", zh: "表面与角色" })}
           detail={t({
-            en: "Tokens organised by purpose — background surfaces and semantic colour roles. Demonstrated below.",
-            zh: "按用途组织的令牌——背景表面与语义颜色角色。下方演示。",
+            en: "Tokens organised by purpose — background surfaces and colour roles. Demonstrated below.",
+            zh: "按用途组织的令牌——背景表面与颜色角色。下方演示。",
           })}
           visual={<TokensDownstreamVisual />}
         />

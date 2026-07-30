@@ -52,7 +52,7 @@ interface SelectProps extends Omit<
    */
   placeholder?: string;
   /**
-   * Control height and type scale. Shares the field size ramp with `TextField`
+   * Control height and type scale. Shares the field size scale with `TextField`
    * / `Textarea`. Defaults to `"md"`.
    */
   size?: SelectSize;
