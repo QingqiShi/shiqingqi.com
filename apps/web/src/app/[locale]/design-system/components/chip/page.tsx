@@ -21,7 +21,7 @@ export default function ChipPage() {
       title={t({ en: "Chip", zh: "标签按钮" })}
       description={t({
         en: "A compact interactive pill: a filter, a shortcut, a selectable option. It renders a link when given an href and a button otherwise, so it is always keyboard-reachable. If it can't be clicked, it's a Badge.",
-        zh: "紧凑的可交互药丸：筛选项、快捷入口或可选项。传入 href 时渲染为链接，否则渲染为按钮，因此始终可用键盘访问。若不可点击，则应使用徽章。",
+        zh: "紧凑的可交互胶囊形控件：筛选项、快捷入口或可选项。传入 href 时渲染为链接，否则渲染为按钮，因此始终可用键盘访问。若不可点击，则应使用徽章。",
       })}
     >
       <ChipShowcase />

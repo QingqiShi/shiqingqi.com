@@ -14,7 +14,7 @@ type DisclosureVariant = "plain" | "card";
 
 /**
  * Default caret. Same 256 viewBox and round-capped stroke recipe as Callout's
- * glyphs, so a caller can swap in a Phosphor icon without a size jump. `1em`
+ * icons, so a caller can swap in a Phosphor icon without a size jump. `1em`
  * box scales with the inherited font-size.
  */
 function CaretIcon() {
@@ -40,7 +40,7 @@ interface DisclosureBaseProps extends Omit<ComponentProps<"div">, "children"> {
   summary: ReactNode;
   /** Panel content, revealed when open. */
   children: ReactNode;
-  /** Decorative leading glyph in the header, rendered `aria-hidden`. */
+  /** Decorative leading icon in the header, rendered `aria-hidden`. */
   icon?: ReactNode;
   /**
    * Content between the summary and the caret — a count, a status badge. It
@@ -189,7 +189,7 @@ const styles = stylex.create({
     textAlign: "start",
     borderRadius: border.radius_2,
   },
-  // `em` boxes so every glyph tracks the header's font-size.
+  // `em` boxes so every icon tracks the header's font-size.
   slot: {
     display: "inline-flex",
     alignItems: "center",

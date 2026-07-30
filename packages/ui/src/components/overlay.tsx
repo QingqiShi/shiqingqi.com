@@ -63,7 +63,7 @@ type OverlayLabelProps =
 type OverlayProps = OverlayBaseProps & OverlayLabelProps;
 
 /**
- * Inline X glyph matching the Phosphor "X" icon's metrics (256 viewBox,
+ * Inline X icon matching the Phosphor "X" metrics (256 viewBox,
  * 16-unit round-capped strokes, 1em box) so the default close affordance
  * renders identically without the icon dependency. Decorative — the close
  * button carries the accessible name via `closeLabel`.

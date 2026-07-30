@@ -42,7 +42,7 @@ export function SidebarLayoutShowcase() {
         </ShowcaseHelper>
         {/* The frame's transform creates a containing block, so the shell's
             fixed mobile chrome (pill bar, drawer, backdrop) anchors to the
-            demo instead of the real viewport. */}
+            specimen instead of the real viewport. */}
         <div css={styles.frame}>
           <div css={styles.viewport}>
             <SidebarLayout
@@ -200,7 +200,7 @@ const styles = stylex.create({
     transform: "translateZ(0)",
   },
   // Fixed-height box; the shell fills it, so the rail bounds here and its footer
-  // pins to the bottom without the demo scrolling.
+  // pins to the bottom without the specimen scrolling.
   viewport: {
     blockSize: space._15,
     overflow: "hidden",

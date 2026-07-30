@@ -10,12 +10,12 @@ import { red, red_rgb } from "./_generated/palette/hues/red.stylex.ts";
 import { yellow, yellow_rgb } from "./_generated/palette/hues/yellow.stylex.ts";
 import { breakpoints } from "./breakpoints.stylex.ts";
 
-// Background tokens are organised by role rather than tonal step:
+// Background tokens are organised by role rather than tone:
 //
 // • Page (bgCanvas/bgCanvasSubtle)      — app shell and scaffolding
 // • Surface (bgSurface/Raised/Sunken/Bright) — cards and panels
 // • Interactive (bgInteractive*)        — buttons, list rows, menu items
-// • Intent (surfaceAccent/Info/...)     — tonal tints carrying meaning
+// • Intent (surfaceAccent/Info/...)     — tints carrying meaning
 // • Inverse (bgInverse)                 — tooltips and snackbars
 // • Overlay (bgOverlay/bgScrim)         — popovers and modal dim layer
 //
@@ -103,7 +103,7 @@ const light = {
   // `textSubtle` (clears ~3:1 on the canvas without reading as heavy text).
   scrollbarThumb: gray._60,
 
-  // Semantic colors — bold (foreground), hover (interactive lift), text, on
+  // Intent colors — bold (foreground), hover (interactive lift), text, on
   info: cyan._50,
   infoHover: cyan._60,
   infoText: cyan._30,

@@ -20,8 +20,8 @@ interface DoDontProps {
 
 /**
  * A side-by-side "do / don't" pair. Each panel carries its meaning through a
- * full token-themed background (success vs danger) and a top label row with a
- * glyph — never a leading-edge accent bar (see DESIGN.md). Collapses to a single
+ * full token-themed background (success vs danger) and a top label row with an
+ * icon — never a leading-edge accent bar (see DESIGN.md). Collapses to a single
  * column on narrow viewports.
  */
 export function DoDont({
@@ -36,8 +36,8 @@ export function DoDont({
     <div css={styles.grid}>
       <div css={[styles.panel, styles.doPanel]}>
         <div css={styles.header}>
-          <span css={[styles.glyph, styles.doText]}>
-            <CheckGlyph />
+          <span css={[styles.icon, styles.doText]}>
+            <CheckIcon />
           </span>
           <Text
             as="span"
@@ -55,8 +55,8 @@ export function DoDont({
       </div>
       <div css={[styles.panel, styles.dontPanel]}>
         <div css={styles.header}>
-          <span css={[styles.glyph, styles.dontText]}>
-            <CrossGlyph />
+          <span css={[styles.icon, styles.dontText]}>
+            <CrossIcon />
           </span>
           <Text
             as="span"
@@ -76,8 +76,8 @@ export function DoDont({
   );
 }
 
-/** Inline check glyph on the shared 256 viewBox / 16-unit round-stroke metrics. */
-function CheckGlyph() {
+/** Inline check icon on the shared 256 viewBox / 16-unit round-stroke metrics. */
+function CheckIcon() {
   return (
     <svg
       aria-hidden="true"
@@ -97,8 +97,8 @@ function CheckGlyph() {
   );
 }
 
-/** Inline cross glyph matching {@link CheckGlyph}'s metrics. */
-function CrossGlyph() {
+/** Inline cross icon matching {@link CheckIcon}'s metrics. */
+function CrossIcon() {
   return (
     <svg
       aria-hidden="true"
@@ -147,7 +147,7 @@ const styles = stylex.create({
     alignItems: "center",
     gap: space._1,
   },
-  glyph: {
+  icon: {
     display: "inline-flex",
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_0,

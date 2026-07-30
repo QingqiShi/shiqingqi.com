@@ -7,30 +7,30 @@ import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
-import { SegmentedControlDemo } from "./segmented-control-demo.tsx";
+import { SegmentedControlInteractiveSpecimen } from "./segmented-control-interactive-specimen.tsx";
 
 export function SegmentedControlShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <div css={[flex.wrap, styles.row]}>
-          <SegmentedControlDemo size="sm" />
-          <SegmentedControlDemo size="md" />
+          <SegmentedControlInteractiveSpecimen size="sm" />
+          <SegmentedControlInteractiveSpecimen size="md" />
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "With icons", zh: "带图标" })}>
-        <SegmentedControlDemo withIcons count={3} />
+        <SegmentedControlInteractiveSpecimen withIcons count={3} />
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
-            en: "Each glyph is decorative and sits beside its label, never instead of it — an icon-only segment leaves the reader guessing at what the view is.",
+            en: "Each icon is decorative and sits beside its label, never instead of it — an icon-only segment leaves the reader guessing at what the view is.",
             zh: "每个图标都是装饰性的，位于标签旁边而非取代标签——纯图标的分段会让读者猜测该视图究竟是什么。",
           })}
         </Text>
       </Showcase>
 
       <Showcase label={t({ en: "Full width", zh: "撑满宽度" })}>
-        <SegmentedControlDemo fullWidth count={3} />
+        <SegmentedControlInteractiveSpecimen fullWidth count={3} />
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Segments share the track evenly rather than in proportion to their labels, so the widths stay stable as the copy is translated.",
@@ -40,7 +40,7 @@ export function SegmentedControlShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Keyboard", zh: "键盘操作" })}>
-        <SegmentedControlDemo count={4} />
+        <SegmentedControlInteractiveSpecimen count={4} />
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "A full WAI-ARIA radiogroup: Tab reaches the selected segment only, arrow keys move and select, Home and End jump to the ends, and focus follows selection so each choice announces as you land on it.",
@@ -157,12 +157,12 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
-          do={<SegmentedControlDemo count={3} />}
+          do={<SegmentedControlInteractiveSpecimen count={3} />}
           doCaption={t({
             en: "Two to four mutually exclusive views of the same content, all readable at a glance.",
             zh: "同一内容的二至四种互斥视图，一眼即可全部读完。",
           })}
-          dont={<SegmentedControlDemo count={7} />}
+          dont={<SegmentedControlInteractiveSpecimen count={7} />}
           dontCaption={t({
             en: "Don't keep adding segments — past four the labels crush, the track outgrows small screens, and the set belongs in a Select.",
             zh: "不要不断增加分段——超过四个后标签会被挤压，轨道在小屏幕上放不下，这样的选项集应改用下拉选择。",

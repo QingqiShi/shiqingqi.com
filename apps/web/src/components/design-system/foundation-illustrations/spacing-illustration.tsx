@@ -54,7 +54,7 @@ export function SpacingIllustration() {
         </radialGradient>
       </defs>
 
-      <g css={styles.scene}>
+      <g css={styles.illustration}>
         <g css={styles.bloom}>
           <ellipse
             cx="228"
@@ -160,13 +160,13 @@ const styles = stylex.create({
     },
     transition: "stop-color 520ms ease",
   },
-  scene: {
+  illustration: {
     opacity: {
       default: 0.3,
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
     },
     // Compact the whole scale toward the bottom-right corner so the tallest
-    // bars clear the description copy and the art reads smaller.
+    // bars clear the description copy and the illustration reads smaller.
     transformBox: "view-box",
     transformOrigin: "320px 176px",
     transform: "scale(0.72)",

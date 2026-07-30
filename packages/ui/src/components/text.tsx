@@ -15,7 +15,7 @@ type TextWrap = "balance" | "pretty" | "nowrap";
 interface TextProps {
   /** Semantic element to render. Defaults to `"p"`. */
   as?: TextElement;
-  /** Type-scale ramp. Defaults to `"body"`. */
+  /** Type-scale step. Defaults to `"body"`. */
   variant?: TextVariant;
   /** Foreground colour role. Defaults to `"default"`. */
   tone?: TextTone;
@@ -24,7 +24,7 @@ interface TextProps {
   /**
    * Case transform, decoupled from `variant` — so an uppercase "eyebrow" label
    * can sit at any size (`caption`, `bodySmall`, …) rather than only through the
-   * `overline` ramp.
+   * `overline` step.
    */
   transform?: TextTransform;
   /** Text alignment (logical `start` / `center` / `end`). */
@@ -59,7 +59,7 @@ interface TextProps {
 
 /**
  * Body-copy typography primitive. Picks the semantic element via `as` and the
- * type ramp via `variant`, keeping the two decoupled so a `<span>` can still
+ * type step via `variant`, keeping the two decoupled so a `<span>` can still
  * read at body size. Forwards `className`, `style`, and `ref` for escape-hatch
  * composition.
  */

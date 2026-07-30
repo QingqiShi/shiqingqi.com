@@ -8,7 +8,7 @@ import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
-import { CalloutDismissDemo } from "./callout-dismiss-demo.tsx";
+import { CalloutDismissSpecimen } from "./callout-dismiss-specimen.tsx";
 
 const usageCode = `import { Callout } from "@tuja/ui/components/callout";
 
@@ -73,13 +73,13 @@ export function CalloutShowcase() {
   const variantsLabel = t({ en: "Variants", zh: "风格" });
   const bodyOnlyLabel = t({ en: "Body only", zh: "仅正文" });
   const bodyOnlyText = t({
-    en: "Omit the title for a single, concise line — the glyph and tint still carry the tone.",
-    zh: "省略标题即为单行简讯——字形与色调依旧传达语义。",
+    en: "Omit the title for a single, concise line — the icon and tint still carry the Intent.",
+    zh: "省略标题即为单行简讯——图标与着色依旧传达意图色。",
   });
   const iconLabel = t({ en: "Icon", zh: "图标" });
   const iconHelper = t({
-    en: "Override the built-in glyph with any node, or pass icon={null} to drop it entirely.",
-    zh: "可用任意节点覆盖内置字形，或传入 icon={null} 完全移除。",
+    en: "Override the built-in icon with any node, or pass icon={null} to drop it entirely.",
+    zh: "可用任意节点覆盖内置图标，或传入 icon={null} 完全移除。",
   });
   const customIconCaption = t({ en: "custom icon", zh: "自定义图标" });
   const noIconCaption = t({ en: "no icon", zh: "无图标" });
@@ -118,14 +118,14 @@ export function CalloutShowcase() {
             icon={<MegaphoneIcon weight="fill" />}
           >
             {t({
-              en: "Swap in a Phosphor icon when a variant's default glyph isn't specific enough.",
-              zh: "当变体的默认字形不够贴切时，可换用 Phosphor 图标。",
+              en: "Swap in a Phosphor icon when a variant's default icon isn't specific enough.",
+              zh: "当变体的默认图标不够贴切时，可换用 Phosphor 图标。",
             })}
           </Callout>
           <Callout variant="neutral" title={noIconCaption} icon={null}>
             {t({
-              en: "Drop the glyph for a dense, text-first note where an icon would only add noise.",
-              zh: "在以文字为主的紧凑提示中移除字形，避免图标造成干扰。",
+              en: "Drop the icon for a dense, text-first note where an icon would only add noise.",
+              zh: "在以文字为主的紧凑提示中移除图标，避免图标造成干扰。",
             })}
           </Callout>
         </div>
@@ -134,7 +134,7 @@ export function CalloutShowcase() {
       <Showcase label={dismissLabel}>
         <div css={styles.stack}>
           <ShowcaseHelper>{dismissHelper}</ShowcaseHelper>
-          <CalloutDismissDemo />
+          <CalloutDismissSpecimen />
         </div>
       </Showcase>
 
@@ -147,8 +147,8 @@ export function CalloutShowcase() {
             type: '"info" | "success" | "warning" | "danger" | "accent" | "neutral"',
             defaultValue: '"info"',
             description: t({
-              en: "Colour treatment and default glyph — maps to the semantic tint, border, and text token.",
-              zh: "颜色处理与默认字形——映射到语义色调、边框与文本令牌。",
+              en: "Intent and default icon — maps to the Intent tint, border, and text token.",
+              zh: "意图色与默认图标——映射到意图色的着色、边框与文本令牌。",
             }),
           },
           {
@@ -172,8 +172,8 @@ export function CalloutShowcase() {
             name: "icon",
             type: "ReactNode",
             description: t({
-              en: "Leading glyph override. Defaults to the variant glyph; pass null to drop it. Always decorative.",
-              zh: "前置字形覆盖。默认使用变体字形；传入 null 可移除。始终为装饰性。",
+              en: "Leading icon override. Defaults to the variant icon; pass null to drop it. Always decorative.",
+              zh: "前置图标覆盖。默认使用变体图标；传入 null 可移除。始终为装饰性。",
             }),
           },
           {
@@ -232,8 +232,8 @@ export function CalloutShowcase() {
           </Callout>
         }
         doCaption={t({
-          en: "Let the tinted background, border, and glyph carry the tone, and keep the body to a sentence.",
-          zh: "让色调背景、边框与字形传达语义，并将正文控制在一句话内。",
+          en: "Let the tinted background, border, and icon carry the Intent, and keep the body to a sentence.",
+          zh: "让着色背景、边框与图标传达意图色，并将正文控制在一句话内。",
         })}
         dont={
           <div css={styles.dontBar}>

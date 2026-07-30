@@ -83,7 +83,7 @@ interface SidebarLayoutProps {
 }
 
 /**
- * Inline glyphs matching the Phosphor "List"/"X" icon metrics (256 viewBox,
+ * Inline icons matching the Phosphor "List"/"X" icon metrics (256 viewBox,
  * 16-unit round-capped strokes, 1em box) so the default affordances render
  * identically without the icon dependency. Decorative — the buttons carry
  * their accessible names via `menuLabel` / `closeLabel`.

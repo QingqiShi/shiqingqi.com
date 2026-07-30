@@ -9,21 +9,21 @@ type BadgeSize = "small" | "medium";
 
 interface BadgeProps extends ComponentProps<"span"> {
   /**
-   * Colour treatment. `"default"` is a bordered surface chip; `"neutral"` is a
-   * borderless muted chip for low-emphasis metadata. The rest map to the
-   * semantic status hues.
+   * Which colour the badge carries. `"default"` is the only bordered one — a
+   * plain surface. The other six are the Intents, each a borderless tint; of
+   * those, `"neutral"` is the muted one for low-emphasis metadata.
    */
   variant?: BadgeVariant;
   /** Padding and type scale. Defaults to `"medium"`. */
   size?: BadgeSize;
-  /** Optional leading glyph, rendered decoratively (`aria-hidden`). */
+  /** Optional leading icon, rendered decoratively (`aria-hidden`). */
   icon?: ReactNode;
-  /** Chip contents — usually a short label. */
+  /** Badge contents — usually a short label. */
   children: ReactNode;
 }
 
 /**
- * Compact status / label chip. Renders an inline `<span>` and forwards native
+ * Compact status / label badge. Renders an inline `<span>` and forwards native
  * span attributes (`id`, `onClick`, `data-*`, `className`, `style`, `ref`) so a
  * caller can attach behaviour or one-off overrides without a wrapper. The `css`
  * prop is composed last, letting a caller win over the variant defaults.
@@ -74,7 +74,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "transparent",
   },
-  // `em` box so the glyph tracks the chip's font-size across sizes.
+  // `em` box so the icon tracks the badge's font-size across sizes.
   icon: {
     inlineSize: "1em",
     blockSize: "1em",
@@ -101,7 +101,7 @@ const variantStyles = stylex.create({
     color: color.textMuted,
     borderColor: color.neutralBorder,
   },
-  // Borderless low-emphasis chip. Uses the neutral intent tint (like Callout's
+  // Borderless low-emphasis badge. Uses the neutral intent tint (like Callout's
   // neutral) rather than an opaque surface, so it stays visible on cards and
   // raised surfaces instead of blending into a same-colour parent.
   neutral: {

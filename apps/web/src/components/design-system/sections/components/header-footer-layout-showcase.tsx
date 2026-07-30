@@ -40,7 +40,7 @@ export function HeaderFooterLayoutShowcase() {
           })}
         </ShowcaseHelper>
         {/* The frame's transform creates a containing block, so the shell's
-            fixed header anchors to the demo frame; the inner viewport owns the
+            fixed header anchors to the specimen frame; the inner viewport owns the
             scrolling to show the bar staying pinned. */}
         <div css={styles.frame}>
           <div css={styles.viewport}>
@@ -73,7 +73,7 @@ export function HeaderFooterLayoutShowcase() {
                 </>
               }
               background={
-                <div css={styles.demoBackground} aria-hidden="true" />
+                <div css={styles.specimenBackground} aria-hidden="true" />
               }
               footer={<Footer locale={locale} />}
             >
@@ -216,7 +216,7 @@ const styles = stylex.create({
     overscrollBehavior: "contain",
   },
   // Stand-in for a page's decoration layer — a soft wash beneath the content.
-  demoBackground: {
+  specimenBackground: {
     position: "absolute",
     insetInlineStart: 0,
     insetInlineEnd: 0,

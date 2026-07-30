@@ -43,7 +43,7 @@ export function MotionIllustration() {
       </defs>
 
       {/* Nudged down so the curve sits nearer the card's bottom edge, trimming
-          the empty band the art used to leave below it. */}
+          the empty band the illustration used to leave below it. */}
       <g transform="translate(0, 14)">
         <g>
           <circle

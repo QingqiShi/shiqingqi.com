@@ -95,7 +95,7 @@ export const scrollbar = stylex.create({
   },
 });
 
-// Text truncation — the 3-property recipe
+// Text truncation — the 3-property primitive
 export const truncate = stylex.create({
   base: {
     overflow: "hidden",

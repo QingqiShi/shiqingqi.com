@@ -57,7 +57,7 @@ export function ColorIllustration() {
         </clipPath>
       </defs>
 
-      <g css={styles.art}>
+      <g css={styles.illustration}>
         <g css={styles.glow}>
           <circle cx="250" cy="128" r="96" fill="url(#dsi-color-bloomInk)" />
           <circle
@@ -69,7 +69,7 @@ export function ColorIllustration() {
           />
         </g>
 
-        <g css={styles.scene}>
+        <g css={styles.subject}>
           <g css={styles.ink}>
             <rect
               x="196"
@@ -172,7 +172,7 @@ const styles = stylex.create({
     "--ds-illo-hue": "light-dark(#8f31be, #cc6dfb)",
     "--ds-illo-hue-soft": "light-dark(#b154e0, #e8b2ff)",
   },
-  art: {
+  illustration: {
     transformBox: "fill-box",
     transformOrigin: "100% 100%",
     transform: {
@@ -199,7 +199,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  scene: {
+  subject: {
     transformBox: "view-box",
     transformOrigin: "232px 116px",
     transform: {

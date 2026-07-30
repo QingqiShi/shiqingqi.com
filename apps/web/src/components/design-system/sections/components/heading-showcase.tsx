@@ -10,7 +10,7 @@ import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 export function HeadingShowcase() {
-  const ramp = [
+  const scale = [
     {
       meta: "display · 3rem",
       node: (
@@ -174,7 +174,7 @@ export function HeadingShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "Visual ramp", zh: "视觉字阶" })}>
+      <Showcase label={t({ en: "Visual scale", zh: "视觉字阶" })}>
         <ShowcaseHelper>
           {t({
             en: "Five visual variants, from the hero display down to a body-size section label.",
@@ -182,7 +182,7 @@ export function HeadingShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.ladder}>
-          {ramp.map((row) => (
+          {scale.map((row) => (
             <SpecRow key={row.meta} meta={row.meta}>
               {row.node}
             </SpecRow>
@@ -276,11 +276,11 @@ export function HeadingShowcase() {
             name: "variant",
             type: '"display" | "h1" | "h2" | "h3" | "h4"',
             defaultValue: t({
-              en: "ramp matching level",
+              en: "step matching level",
               zh: "与 level 匹配的字号",
             }),
             description: t({
-              en: "Visual type ramp, decoupled from level so rank and size can differ.",
+              en: "Visual type step, decoupled from level so rank and size can differ.",
               zh: "视觉字号档位，与 level 解耦，使层级与字号可以不同。",
             }),
           },

@@ -11,13 +11,13 @@ import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 
-// Centred glyphs painted as the box background once `:checked` / `:indeterminate`
+// Centred icons painted as the box background once `:checked` / `:indeterminate`
 // match. Drawn in `white` — which is `accentOn` in both themes — so they read on
 // the accent fill without a theme-specific asset. Spaces/angle-brackets are
 // percent-encoded so the data URI survives CSS parsing.
-const CHECK_GLYPH =
+const CHECK_ICON =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%208.5l3%203%205-6'%20fill='none'%20stroke='white'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E";
-const DASH_GLYPH =
+const DASH_ICON =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%208h8'%20fill='none'%20stroke='white'%20stroke-width='2'%20stroke-linecap='round'/%3E%3C/svg%3E";
 
 type CheckboxSize = "sm" | "md";
@@ -177,8 +177,8 @@ const styles = stylex.create({
     },
     backgroundImage: {
       default: "none",
-      ":checked": `url("${CHECK_GLYPH}")`,
-      ":indeterminate": `url("${DASH_GLYPH}")`,
+      ":checked": `url("${CHECK_ICON}")`,
+      ":indeterminate": `url("${DASH_ICON}")`,
     },
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center",

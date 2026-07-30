@@ -13,7 +13,7 @@ type HeadingWrap = "balance" | "pretty" | "nowrap";
 interface HeadingProps {
   /** Heading rank `<h1>`–`<h6>`. Drives the semantic element. Defaults to `2`. */
   level?: HeadingLevel;
-  /** Type-scale ramp. Defaults to the ramp matching `level`. */
+  /** Type-scale step. Defaults to the step matching `level`. */
   variant?: HeadingVariant;
   /**
    * Overrides the weight the `variant` sets — e.g. `"regular"` for an elegant
@@ -62,7 +62,7 @@ function defaultVariantForLevel(level: HeadingLevel): HeadingVariant {
 
 /**
  * Heading typography primitive. `level` sets the semantic rank while `variant`
- * sets the visual ramp, so an `<h2>` can look like a display heading without
+ * sets the visual step, so an `<h2>` can look like a display heading without
  * breaking the document outline. Forwards `className`, `style`, and `ref`.
  */
 export function Heading({

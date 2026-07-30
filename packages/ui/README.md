@@ -310,11 +310,11 @@ components.
 | `@tuja/ui/components/anchor-button-group`     | Grouped anchor/button cluster.                                                                                                                          |
 | `@tuja/ui/components/animate-to-target`       | FLIP-style animate-to-target wrapper.                                                                                                                   |
 | `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                        |
-| `@tuja/ui/components/badge`                   | Status/label badge (seven tones, two sizes).                                                                                                            |
+| `@tuja/ui/components/badge`                   | Status/label badge (six Intents plus a default, two sizes).                                                                                             |
 | `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger variants, three sizes, loading state).                                                                             |
 | `@tuja/ui/components/button.stylex`           | Button style tokens.                                                                                                                                    |
 | `@tuja/ui/components/button-shared.stylex`    | Shared button styles (base, icon, active, pressed).                                                                                                     |
-| `@tuja/ui/components/callout`                 | Inline message/alert box (six tones, built-in glyph, optional dismiss).                                                                                 |
+| `@tuja/ui/components/callout`                 | Inline message/alert box (six Intents, built-in icon, optional dismiss).                                                                                |
 | `@tuja/ui/components/card`                    | Bordered surface container, plus header/title/description/content/footer slots.                                                                         |
 | `@tuja/ui/components/card.stylex`             | Card surface styles (`cardSurface`) for composing onto a link or list item.                                                                             |
 | `@tuja/ui/components/checkbox`                | Checkbox with label, description, error, and indeterminate states.                                                                                      |
@@ -340,7 +340,7 @@ components.
 | `@tuja/ui/components/spinner`                 | Indeterminate loading spinner (reduced-motion aware).                                                                                                   |
 | `@tuja/ui/components/switch`                  | Toggle switch.                                                                                                                                          |
 | `@tuja/ui/components/switch.stylex`           | Switch style tokens.                                                                                                                                    |
-| `@tuja/ui/components/text`                    | Text/paragraph component (four ramps, tones and weights, `wrap`, `numeric`).                                                                            |
+| `@tuja/ui/components/text`                    | Text/paragraph component (four type-scale steps, four foreground roles, four weights, `wrap`, `numeric`).                                               |
 | `@tuja/ui/components/text-field`              | Single-line text input with label, description, error, and adornments.                                                                                  |
 | `@tuja/ui/components/textarea`                | Multi-line text input with optional auto-grow.                                                                                                          |
 | `@tuja/ui/package.json`                       | Package manifest (for tooling).                                                                                                                         |

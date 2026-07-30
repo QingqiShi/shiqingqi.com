@@ -13,7 +13,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     path: "/design-system/foundations/layout",
     title: t({ en: "Layout & breakpoints", zh: "布局与断点" }),
     description: t({
-      en: "Min-width breakpoints with a live band indicator, the content-width cap, the responsive control-size ramp, the named z-index scale, and aspect-ratio tokens.",
+      en: "Min-width breakpoints with a live band indicator, the content-width cap, the responsive controlSize scale, the named z-index scale, and aspect-ratio tokens.",
       zh: "带实时区间指示的最小宽度断点、内容宽度上限、响应式控件尺寸阶梯、具名 z-index 阶梯，以及宽高比令牌。",
     }),
   });
@@ -24,7 +24,7 @@ export default function LayoutPage() {
     <DocPage
       title={t({ en: "Layout & breakpoints", zh: "布局与断点" })}
       description={t({
-        en: "The scaffolding tokens: mobile-first breakpoints, the 1140px content cap, a control-size ramp that scales up for touch, a named z-index scale, and aspect ratios for media frames.",
+        en: "The scaffolding tokens: mobile-first breakpoints, the 1140px content cap, a controlSize scale that scales up for touch, a named z-index scale, and aspect ratios for media frames.",
         zh: "构建骨架的令牌：移动端优先的断点、1140px 的内容上限、为触摸放大的控件尺寸阶梯、具名的 z-index 阶梯，以及用于媒体框的宽高比。",
       })}
     >

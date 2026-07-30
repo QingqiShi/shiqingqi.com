@@ -5,11 +5,11 @@ import { tileMarker } from "../overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
 /**
- * Iconography foundation-card illustration: one Phosphor glyph on the drafting
+ * Iconography foundation-card illustration: one Phosphor icon on the drafting
  * board it was cut on — the 1em box scaled off in sixteenths, corner brackets, and
- * the construction star the shape is built from. A grid of nine finished glyphs
- * used to sit here; a single glyph with its construction showing says what the
- * page is about (how a glyph is sized and weighted) instead of listing what
+ * the construction star the shape is built from. A grid of nine finished icons
+ * used to sit here; a single icon with its construction showing says what the
+ * page is about (how an icon is sized and weighted) instead of listing what
  * Phosphor ships.
  *
  * Every line is a real proportion off Phosphor's grid rather than texture. It
@@ -20,13 +20,13 @@ import { illoBase } from "./illustration.stylex.ts";
  * construction lines pass through the lens centre and land on grid points at the
  * bounds — which is what puts the handle on the box diagonal.
  *
- * The glyph is the only curve on the board, deliberately: a guide circle offset
+ * The icon is the only curve on the board, deliberately: a guide circle offset
  * around the lens cannot clear both the lens and the box edge at this size, and
  * two curves that nearly touch read as one blurred line rather than two drawn
  * ones.
  *
  * At rest it is a dim grey drawing. Engage the card and it is drafted: the frame
- * strokes itself round from the top-left corner, the glyph thickens from regular
+ * strokes itself round from the top-left corner, the icon thickens from regular
  * to bold weight, and its vector anchors pop in around the path.
  */
 
@@ -75,13 +75,13 @@ export function IconographyIllustration() {
         >
           <feGaussianBlur stdDeviation="3.2" />
         </filter>
-        {/* The glyph, drawn once and referenced twice below — a blurred halo and
+        {/* The icon, drawn once and referenced twice below — a blurred halo and
             the stroke itself. Two copies of the same path have to agree exactly,
             so they share one definition; the shapes fix their own fill and cap
             and inherit stroke and width from each `use`. This is Phosphor's
             MagnifyingGlass scaled onto the box: lens 112,112 r80 of 256, handle
             leaving the lens at 45° and ending at 224,224. */}
-        <g id="dsi-iconography-ico-glyph" fill="none" strokeLinecap="round">
+        <g id="dsi-iconography-ico-icon" fill="none" strokeLinecap="round">
           <circle cx="255.75" cy="113.75" r="26.25" />
           <line x1="274.3" y1="132.3" x2="292.5" y2="150.5" />
         </g>
@@ -148,7 +148,7 @@ export function IconographyIllustration() {
           <line x1="292.5" y1="77" x2="219" y2="150.5" />
         </g>
 
-        {/* The height rail: these glyphs size with font-size, so the box is one
+        {/* The height rail: these icons size with font-size, so the box is one
             em tall and the label reads the Icon default. */}
         <g css={[styles.keyline, styles.rail]}>
           <line x1="210" y1="77" x2="210" y2="161" />
@@ -160,14 +160,14 @@ export function IconographyIllustration() {
         </text>
       </g>
 
-      <g css={styles.glyph}>
+      <g css={styles.icon}>
         <use
-          css={styles.glyphHalo}
-          href="#dsi-iconography-ico-glyph"
+          css={styles.iconHalo}
+          href="#dsi-iconography-ico-icon"
           strokeWidth="7.875"
           filter="url(#dsi-iconography-ico-blur)"
         />
-        <use css={styles.glyphStroke} href="#dsi-iconography-ico-glyph" />
+        <use css={styles.iconStroke} href="#dsi-iconography-ico-icon" />
 
         {ANCHORS.map((anchor) => (
           <rect
@@ -204,8 +204,8 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // The board leans toward the cursor a little less far than the glyph does, so
-  // the glyph reads as floating above its own construction rather than printed on
+  // The board leans toward the cursor a little less far than the icon does, so
+  // the icon reads as floating above its own construction rather than printed on
   // it. The two tiers stay close together on purpose: their difference is how far
   // the lens slides off the construction star that generated it, and hover is
   // exactly when those guides brighten. At 5/4 against 3.5/3 the worst case — the
@@ -319,7 +319,7 @@ const styles = stylex.create({
     },
     transition: "fill 520ms ease, opacity 520ms ease",
   },
-  glyph: {
+  icon: {
     transformBox: "view-box",
     transform: {
       default:
@@ -331,7 +331,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  glyphHalo: {
+  iconHalo: {
     stroke: "var(--ds-illo-hue-soft)",
     opacity: {
       default: 0,
@@ -343,7 +343,7 @@ const styles = stylex.create({
   // interpolates, so regular -> bold happens in the stroke itself, which is the
   // property the page documents. 5.25 and 7.875 are Phosphor's 16 and 24 units
   // at this size.
-  glyphStroke: {
+  iconStroke: {
     stroke: {
       default: "var(--ds-illo-ink)",
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
@@ -360,7 +360,7 @@ const styles = stylex.create({
     // `stroke-width` is geometry, not colour: reduced motion drops it from the
     // transition so the weight change lands as an instant swap, the way the
     // scales elsewhere in the file null their transforms. Without this the
-    // largest element in the scene still swells 50% over 480ms on a decelerating
+    // largest element in the illustration still swells 50% over 480ms on a decelerating
     // curve for a reader who asked not to see movement.
     transition: {
       default:
@@ -376,7 +376,7 @@ const styles = stylex.create({
   // through the gold rather than a block sitting over it. They were once as wide
   // as the stroke and hardcoded `#ffffff`: that lands on the light card exactly,
   // but the dark card is `#10110F`, so six white squares at 0.95 came out around
-  // 20:1 against it — brighter than anything else in the scene — while eating the
+  // 20:1 against it — brighter than anything else in the illustration — while eating the
   // lens ring into four arcs in both themes.
   anchor: {
     fill: color.bgSurface,
@@ -445,7 +445,7 @@ const styles = stylex.create({
 // Anchor centres in draw order: the four lens extremes clockwise from the top,
 // then the joint where the handle leaves the lens and the handle's far end. Kept
 // as centres rather than rect corners so each entry is recognisably a point on the
-// glyph — `255.75, 87.5` is the lens top, where `252.05, 83.8` was arithmetic
+// icon — `255.75, 87.5` is the lens top, where `252.05, 83.8` was arithmetic
 // nobody could check — and the half-size shift happens once, in the render.
 //
 // Declared here rather than beside the other constants because the stagger styles

@@ -109,8 +109,8 @@ export function SpinnerShowcase() {
             type: '"inline" | "sm" | "md" | "lg"',
             defaultValue: '"md"',
             description: t({
-              en: "Rendered diameter. sm/md/lg map to rem so the indicator scales with the user's font size (WCAG 1.4.4). inline takes 1em instead, matching the surrounding text — for a spinner standing in for a glyph, so swapping it in doesn't shift the layout around it.",
-              zh: "渲染直径。sm/md/lg 以 rem 表示，随用户字号缩放（WCAG 1.4.4）。inline 则取 1em，与周围文字一致——用于替代某个字形的加载指示器，因此替换时不会改变周围布局。",
+              en: "Rendered diameter. sm/md/lg map to rem so the indicator scales with the user's font size (WCAG 1.4.4). inline takes 1em instead, matching the surrounding text — for a spinner standing in for an icon, so swapping it in doesn't shift the layout around it.",
+              zh: "渲染直径。sm/md/lg 以 rem 表示，随用户字号缩放（WCAG 1.4.4）。inline 则取 1em，与周围文字一致——用于替代某个图标的加载指示器，因此替换时不会改变周围布局。",
             }),
           },
           {

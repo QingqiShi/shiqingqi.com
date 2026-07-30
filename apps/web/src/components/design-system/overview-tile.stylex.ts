@@ -1,14 +1,14 @@
 import * as stylex from "@stylexjs/stylex";
 
 /**
- * Marks an overview tile so its art can key off the tile's own hover / focus
+ * Marks an overview tile so its illustration or specimen can key off the tile's own hover / focus
  * state via `stylex.when.ancestor(...)` — the reason neither the foundation
- * illustrations nor the component previews need a shared signal variable or an
+ * illustrations nor the component specimens need a shared signal variable or an
  * `@property` registration.
  *
- * It lives here rather than beside the illustrations because both kinds of art
- * read it: the foundations scenes bloom grey -> gold, and the components
- * specimen tray lifts to full opacity.
+ * It lives here rather than beside the illustrations because both kinds
+ * read it: the foundation illustrations bloom grey -> gold, and the components
+ * specimen plate lifts to full opacity.
  *
  * Consumers match `:is(:hover, :focus-within)`, not `:focus-visible` — the tile
  * is a plain element that never takes focus itself, so the state has to be read

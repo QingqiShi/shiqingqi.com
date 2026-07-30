@@ -20,8 +20,8 @@ export default function BadgePage() {
     <DocPage
       title={t({ en: "Badge", zh: "徽章" })}
       description={t({
-        en: "Compact status and label indicators. Six tones for different signals — neutral, accent, and four semantic — at two sizes.",
-        zh: "紧凑的状态和标签指示器。提供六种色调以传达不同信号——中性、强调与四种语义色——并支持两种尺寸。",
+        en: "Compact status and label indicators. The six Intents plus a bordered default, at two sizes.",
+        zh: "紧凑的状态和标签指示器。六种意图色，加一个带边框的默认样式，并支持两种尺寸。",
       })}
     >
       <BadgeShowcase />

@@ -5,9 +5,9 @@ import { type ReactNode, useEffect, useRef } from "react";
 
 /**
  * While the card is hovered, writes the pointer position to `--ds-illo-px/py`
- * (0 -> 1 across the tile, 0.5 = centre) on the enclosing tile; the scenes read
+ * (0 -> 1 across the tile, 0.5 = centre) on the enclosing tile; the illustrations read
  * the derived, centred `--ds-illo-mx/my` to lean toward the cursor. Skipped under
- * reduced motion — the art still blooms to colour, just without the lean.
+ * reduced motion — the illustration still blooms to colour, just without the lean.
  */
 export function IlloLayer({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -92,7 +92,7 @@ function clamp01(value: number) {
 }
 
 const styles = stylex.create({
-  // The mask fades the art out across the text band so copy never fights it.
+  // The mask fades the illustration out across the text band so copy never fights it.
   illoLayer: {
     position: "absolute",
     inset: 0,

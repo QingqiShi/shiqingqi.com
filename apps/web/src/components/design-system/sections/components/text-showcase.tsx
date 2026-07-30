@@ -7,7 +7,7 @@ import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
-import { ThemePreviewPair } from "../../theme-preview.tsx";
+import { ThemeFramePair } from "../../theme-frame.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 export function TextShowcase() {
@@ -214,7 +214,7 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Type scale", zh: "字号" })}>
         <ShowcaseHelper>
           {t({
-            en: "One ramp of four steps. Pick the step by role, not by eyeballing a pixel size.",
+            en: "One scale of four steps. Pick the step by role, not by eyeballing a pixel size.",
             zh: "四档字号构成的一套字阶。按用途选择档位，而不是靠肉眼估算像素大小。",
           })}
         </ShowcaseHelper>
@@ -234,7 +234,7 @@ export function TextShowcase() {
             zh: "四种前景色角色会随主题自动解析——无需手动挑选颜色。",
           })}
         </ShowcaseHelper>
-        <ThemePreviewPair>
+        <ThemeFramePair>
           <div css={styles.ladder}>
             {tones.map((row) => (
               <SpecRow key={row.meta} meta={row.meta}>
@@ -242,7 +242,7 @@ export function TextShowcase() {
               </SpecRow>
             ))}
           </div>
-        </ThemePreviewPair>
+        </ThemeFramePair>
       </Showcase>
 
       <Showcase label={t({ en: "Weights", zh: "字重" })}>
@@ -365,7 +365,7 @@ export function TextShowcase() {
             type: '"body" | "bodySmall" | "caption" | "overline"',
             defaultValue: '"body"',
             description: t({
-              en: "Type-scale ramp that sets font size, line height, and (for overline) tracking.",
+              en: "Type-scale step that sets font size, line height, and (for overline) tracking.",
               zh: "字阶档位，决定字号、行高，并为 overline 设置字距。",
             }),
           },

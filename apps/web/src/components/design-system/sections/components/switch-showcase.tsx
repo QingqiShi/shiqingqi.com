@@ -12,7 +12,7 @@ import { PropsTable } from "../../props-table.tsx";
 import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
-function DemoSwitch({
+function SpecimenSwitch({
   initial = "off",
   disabled,
   label,
@@ -61,19 +61,22 @@ export function SwitchShowcase() {
       <Showcase label={t({ en: "States", zh: "状态" })}>
         <ShowcaseGrid>
           <ShowcaseItem label="off">
-            <DemoSwitch initial="off" label={t({ en: "Off", zh: "关闭" })} />
+            <SpecimenSwitch
+              initial="off"
+              label={t({ en: "Off", zh: "关闭" })}
+            />
           </ShowcaseItem>
           <ShowcaseItem label="on">
-            <DemoSwitch initial="on" label={t({ en: "On", zh: "开启" })} />
+            <SpecimenSwitch initial="on" label={t({ en: "On", zh: "开启" })} />
           </ShowcaseItem>
           <ShowcaseItem label="indeterminate">
-            <DemoSwitch
+            <SpecimenSwitch
               initial="indeterminate"
               label={t({ en: "Indeterminate", zh: "未定" })}
             />
           </ShowcaseItem>
           <ShowcaseItem label="disabled">
-            <DemoSwitch
+            <SpecimenSwitch
               initial="off"
               disabled
               label={t({ en: "Disabled", zh: "禁用" })}
@@ -165,8 +168,8 @@ const [state, setState] = useState<SwitchState>("off");
               type: '"sm" | "md" | "lg"',
               defaultValue: '"md"',
               description: t({
-                en: "Track-height ramp via controlSize; the width and thumb scale with it.",
-                zh: "基于 controlSize 的轨道高度梯度；宽度与滑块随之缩放。",
+                en: "Track-height scale via controlSize; the width and thumb scale with it.",
+                zh: "基于 controlSize 的轨道高度阶梯；宽度与滑块随之缩放。",
               }),
             },
             {

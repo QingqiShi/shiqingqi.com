@@ -65,7 +65,7 @@ export function BordersShowcase() {
         <ShowcaseHelper>
           {t({
             en: "The radius scale reads as a hierarchy: tighter corners on small controls, softer corners on the surfaces that hold them, and a full pill for chips and avatars.",
-            zh: "圆角阶梯本身就是一套层级：小控件用更紧的圆角，承载它们的表面用更柔和的圆角，标签与头像则用完整的胶囊形。",
+            zh: "圆角阶梯本身就是一套层级：小控件用更紧的圆角，承载它们的表面用更柔和的圆角，标签按钮与头像则用完整的胶囊形。",
           })}
         </ShowcaseHelper>
         <div css={styles.useRow}>
@@ -98,7 +98,7 @@ export function BordersShowcase() {
               <span css={styles.useAvatar}>QS</span>
             </div>
             <span css={styles.useToken}>
-              radius_round · {t({ en: "pills, avatars", zh: "标签、头像" })}
+              radius_round · {t({ en: "pills, avatars", zh: "胶囊形、头像" })}
             </span>
           </div>
         </div>

@@ -15,6 +15,9 @@ export function BadgeShowcase() {
           <ShowcaseItem label="default">
             <Badge variant="default">{t({ en: "Default", zh: "默认" })}</Badge>
           </ShowcaseItem>
+          <ShowcaseItem label="neutral">
+            <Badge variant="neutral">{t({ en: "Neutral", zh: "中性" })}</Badge>
+          </ShowcaseItem>
           <ShowcaseItem label="info">
             <Badge variant="info">{t({ en: "Info", zh: "信息" })}</Badge>
           </ShowcaseItem>
@@ -90,7 +93,7 @@ export function BadgeShowcase() {
               type: "ReactNode",
               required: true,
               description: t({
-                en: "Chip contents — usually a short label.",
+                en: "Badge contents — usually a short label.",
                 zh: "徽章内容——通常是简短的标签。",
               }),
             },
@@ -99,8 +102,8 @@ export function BadgeShowcase() {
               type: '"default" | "neutral" | "info" | "success" | "warning" | "danger" | "accent"',
               defaultValue: '"default"',
               description: t({
-                en: "Colour treatment: bordered or borderless surfaces, or a semantic status hue.",
-                zh: "颜色处理：带边框或无边框的表面，或语义化的状态色。",
+                en: "Which colour the badge carries: the bordered default, or one of the six Intents.",
+                zh: "徽章承载的颜色：带边框的默认样式，或六种意图色之一。",
               }),
             },
             {
@@ -116,7 +119,7 @@ export function BadgeShowcase() {
               name: "icon",
               type: "ReactNode",
               description: t({
-                en: "Optional leading glyph, rendered decoratively (aria-hidden).",
+                en: "Optional leading icon, rendered decoratively (aria-hidden).",
                 zh: "可选的前置图标，以装饰性方式渲染（aria-hidden）。",
               }),
             },

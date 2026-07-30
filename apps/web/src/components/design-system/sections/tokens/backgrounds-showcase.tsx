@@ -10,7 +10,7 @@ import { Showcase } from "../../showcase.tsx";
 // Role-based background taxonomy. Each band groups tokens that share a
 // purpose — Page scaffolding, Surface cards, Interactive states, Inverse
 // callouts, and Overlay popovers + scrim — so a consumer picks by role
-// rather than by tonal step.
+// rather than by tone.
 //
 // Layering follows RoleColumn: the grid owns all the chrome (radius, clip,
 // and the gridline-via-gap hairlines), and each cell is a pure opaque fill
@@ -67,8 +67,8 @@ export function BackgroundsShowcase() {
     <Showcase label={t({ en: "Surfaces", zh: "表面" })} frame="plain">
       <ShowcaseHelper>
         {t({
-          en: "Surfaces are organised by role, not tonal step. Pick by what the surface is for — scaffolding, a card, an interactive state, an attention-grabbing inverse, or a floating overlay — and the right tone follows.",
-          zh: "表面按角色组织，而非明度阶梯。按用途选择——脚手架、卡片、交互状态、反相强调或悬浮覆盖层——对应的色调自然跟随。",
+          en: "Surfaces are organised by role, not tone. Pick by what the surface is for — scaffolding, a card, an interactive state, an attention-grabbing inverse, or a floating overlay — and the right tone follows.",
+          zh: "表面按角色组织，而非色调。按用途选择——脚手架、卡片、交互状态、反相强调或悬浮覆盖层——对应的色调自然跟随。",
         })}
       </ShowcaseHelper>
 

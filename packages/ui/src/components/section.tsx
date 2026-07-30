@@ -42,7 +42,7 @@ interface SectionProps extends Omit<
   title: ReactNode;
   /** Section body. */
   children: ReactNode;
-  /** Decorative glyph before the label, rendered `aria-hidden`. */
+  /** Decorative icon before the label, rendered `aria-hidden`. */
   icon?: ReactNode;
   /**
    * Controls parked at the end of the heading row — a "see all" link, a filter.
@@ -65,7 +65,7 @@ interface SectionProps extends Omit<
 }
 
 /**
- * A labelled block of content: a quiet heading row — optional glyph, the label,
+ * A labelled block of content: a quiet heading row — optional icon, the label,
  * optional trailing controls — above whatever the section holds.
  *
  * The label is deliberately understated: at this scale a section title is
@@ -132,7 +132,7 @@ const styles = stylex.create({
     alignItems: "center",
     gap: space._1,
   },
-  // `em` box against an explicit font-size, so the glyph tracks the label
+  // `em` box against an explicit font-size, so the icon tracks the label
   // rather than whatever the section's contents happen to set.
   icon: {
     display: "inline-flex",

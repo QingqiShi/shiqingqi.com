@@ -11,7 +11,7 @@ import { TypographyIllustration } from "./typography-illustration.tsx";
 
 /**
  * Maps each foundations route to its card illustration (the other overview cards
- * render without art). Values are ready-made elements — the illustrations are
+ * render without an illustration). Values are ready-made elements — the illustrations are
  * static, stateless SVGs — so the overview embeds one directly.
  */
 const FOUNDATION_ILLUSTRATIONS: Partial<

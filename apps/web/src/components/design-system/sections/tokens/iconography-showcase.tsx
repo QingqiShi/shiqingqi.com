@@ -43,7 +43,7 @@ const GALLERY = [
 ];
 
 export function IconographyShowcase() {
-  // Same glyph at each type-scale token — the icon inherits font-size via its
+  // Same icon at each type-scale token — the icon inherits font-size via its
   // default 1em box, so no per-size prop is needed. Built in render scope so it
   // can reference the `styles` created below.
   const sizes = [
@@ -60,14 +60,14 @@ export function IconographyShowcase() {
       <Showcase label={t({ en: "The set", zh: "图标集" })}>
         <ShowcaseHelper>
           {t({
-            en: "The app draws from Phosphor. Each glyph imports from its own SSR entry so only the icons you use ship to the client — no barrel import, no full-set bundle.",
-            zh: "应用采用 Phosphor 图标。每个字形从各自的 SSR 入口单独引入，因此只有用到的图标会发送到客户端——不走桶文件、不打包整套图标。",
+            en: "The app draws from Phosphor. Each icon imports from its own SSR entry so only the icons you use ship to the client — no barrel import, no full-set bundle.",
+            zh: "应用采用 Phosphor 图标。每个图标从各自的 SSR 入口单独引入，因此只有用到的图标会发送到客户端——不走桶文件、不打包整套图标。",
           })}
         </ShowcaseHelper>
         <div css={styles.gallery}>
           {GALLERY.map(({ name, Icon }) => (
             <div key={name} css={styles.galleryItem}>
-              <span css={styles.galleryGlyph}>
+              <span css={styles.galleryIcon}>
                 <Icon aria-hidden />
               </span>
               <span css={styles.galleryName}>
@@ -87,7 +87,7 @@ export function IconographyShowcase() {
         </ShowcaseHelper>
         <div css={styles.weightRow}>
           <div css={styles.weightCol}>
-            <span css={styles.weightGlyph}>
+            <span css={styles.weightIcon}>
               <SparkleIcon weight="regular" aria-hidden />
               <LightningIcon weight="regular" aria-hidden />
               <HeartIcon weight="regular" aria-hidden />
@@ -95,7 +95,7 @@ export function IconographyShowcase() {
             <span css={styles.weightLabel}>weight=&quot;regular&quot;</span>
           </div>
           <div css={styles.weightCol}>
-            <span css={styles.weightGlyph}>
+            <span css={styles.weightIcon}>
               <SparkleIcon weight="bold" aria-hidden />
               <LightningIcon weight="bold" aria-hidden />
               <HeartIcon weight="bold" aria-hidden />
@@ -108,14 +108,14 @@ export function IconographyShowcase() {
       <Showcase label={t({ en: "Size", zh: "尺寸" })}>
         <ShowcaseHelper>
           {t({
-            en: "Icons size with font-size, not a width prop. Set the type token on the slot and the glyph follows — so an icon beside text always matches the line.",
-            zh: "图标随 font-size 缩放，而非通过宽度属性。在插槽上设置文字排版令牌，字形便随之变化——因此文字旁的图标始终与行高相称。",
+            en: "Icons size with font-size, not a width prop. Set the type token on the slot and the icon follows — so an icon beside text always matches the line.",
+            zh: "图标随 font-size 缩放，而非通过宽度属性。在插槽上设置文字排版令牌，图标便随之变化——因此文字旁的图标始终与行高相称。",
           })}
         </ShowcaseHelper>
         <div css={styles.sizeRow}>
           {sizes.map((size) => (
             <div key={size.token} css={styles.sizeItem}>
-              <span css={[styles.sizeGlyph, size.slot]}>
+              <span css={[styles.sizeIcon, size.slot]}>
                 <StarIcon weight="fill" aria-hidden />
               </span>
               <span css={styles.sizeToken}>{size.token}</span>
@@ -127,8 +127,8 @@ export function IconographyShowcase() {
       <Showcase label={t({ en: "Pairing", zh: "搭配组件" })}>
         <ShowcaseHelper>
           {t({
-            en: "Drop a Phosphor glyph straight into a Button, Badge, or IconButton. Each wraps the icon in an aria-hidden slot, so the visible label — or the button's aria-label — carries the name.",
-            zh: "可将 Phosphor 字形直接放入 Button、Badge 或 IconButton。它们都会把图标包在 aria-hidden 插槽里，因此由可见标签——或按钮的 aria-label——承载名称。",
+            en: "Drop a Phosphor icon straight into a Button, Badge, or IconButton. Each wraps the icon in an aria-hidden slot, so the visible label — or the button's aria-label — carries the name.",
+            zh: "可将 Phosphor 图标直接放入 Button、Badge 或 IconButton。它们都会把图标包在 aria-hidden 插槽里，因此由可见标签——或按钮的 aria-label——承载名称。",
           })}
         </ShowcaseHelper>
         <div css={styles.pairRow}>
@@ -147,7 +147,7 @@ export function IconographyShowcase() {
       </Showcase>
 
       <UsageSnippet
-        code={`// Import from the SSR entry so only this glyph ships to the client.
+        code={`// Import from the SSR entry so only this icon ships to the client.
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 
 // Decorative beside text — hide it from assistive tech.
@@ -166,8 +166,8 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
             type: '"thin" | "light" | "regular" | "bold" | "fill" | "duotone"',
             defaultValue: '"regular"',
             description: t({
-              en: "Stroke weight of the glyph. The app uses regular and bold.",
-              zh: "字形的笔画粗细。应用使用常规与加粗两种。",
+              en: "Stroke weight of the icon. The app uses regular and bold.",
+              zh: "图标的笔画粗细。应用使用常规与加粗两种。",
             }),
           },
           {
@@ -193,16 +193,16 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
             type: "boolean",
             defaultValue: "false",
             description: t({
-              en: "Flips the glyph horizontally for right-to-left layouts.",
-              zh: "为从右到左的布局水平翻转字形。",
+              en: "Flips the icon horizontally for right-to-left layouts.",
+              zh: "为从右到左的布局水平翻转图标。",
             }),
           },
           {
             name: "aria-hidden",
             type: "boolean",
             description: t({
-              en: "Hide a decorative glyph from assistive tech — the recommended default when an icon sits beside text.",
-              zh: "将装饰性字形对辅助技术隐藏——当图标与文字并列时的推荐默认做法。",
+              en: "Hide a decorative icon from assistive tech — the recommended default when an icon sits beside text.",
+              zh: "将装饰性图标对辅助技术隐藏——当图标与文字并列时的推荐默认做法。",
             }),
           },
         ]}
@@ -250,7 +250,7 @@ const styles = stylex.create({
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,
   },
-  galleryGlyph: {
+  galleryIcon: {
     display: "inline-flex",
     fontSize: font.uiHeading1,
     color: color.textMain,
@@ -279,7 +279,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
-  weightGlyph: {
+  weightIcon: {
     display: "inline-flex",
     alignItems: "center",
     gap: space._3,
@@ -308,7 +308,7 @@ const styles = stylex.create({
     alignItems: "center",
     gap: space._2,
   },
-  sizeGlyph: {
+  sizeIcon: {
     display: "inline-flex",
     color: color.accent,
   },

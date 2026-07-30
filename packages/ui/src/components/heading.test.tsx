@@ -22,7 +22,7 @@ describe("Heading level selection", () => {
 });
 
 describe("Heading variant decoupling", () => {
-  it("keeps the semantic level while applying a different visual ramp", () => {
+  it("keeps the semantic level while applying a different visual step", () => {
     render(
       <Heading level={2} variant="display">
         Big h2
@@ -35,7 +35,7 @@ describe("Heading variant decoupling", () => {
 });
 
 describe("Heading weight override", () => {
-  it("applies the weight override on top of the variant ramp", () => {
+  it("applies the weight override on top of the variant step", () => {
     render(
       <Heading level={1} weight="regular">
         Light title

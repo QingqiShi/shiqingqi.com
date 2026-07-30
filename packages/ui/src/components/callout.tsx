@@ -10,12 +10,12 @@ type CalloutVariant =
   "info" | "success" | "warning" | "danger" | "accent" | "neutral";
 
 /**
- * Shared SVG frame for the built-in glyphs. 256 viewBox and `currentColor`
+ * Shared SVG frame for the built-in icons. 256 viewBox and `currentColor`
  * strokes match the Phosphor metrics used elsewhere (see Overlay's CloseIcon),
  * so a caller can swap in a Phosphor icon without a size jump. `1em` box scales
  * with the icon slot's font-size. Decorative — the wrapper carries `aria-hidden`.
  */
-function GlyphSvg({ children }: { children: ReactNode }) {
+function IconSvg({ children }: { children: ReactNode }) {
   return (
     <svg viewBox="0 0 256 256" width="1em" height="1em" fill="none">
       {children}
@@ -24,7 +24,7 @@ function GlyphSvg({ children }: { children: ReactNode }) {
 }
 
 /**
- * Inline X glyph for the dismiss affordance — same 256 viewBox / round-capped
+ * Inline X icon for the dismiss affordance — same 256 viewBox / round-capped
  * stroke recipe as Overlay's CloseIcon so the two read identically without the
  * Phosphor dependency. Decorative; the button is named by `dismissLabel`.
  */
@@ -41,11 +41,11 @@ function CloseIcon() {
   );
 }
 
-// Default leading glyph per variant. Built as tiny inline SVGs using
+// Default leading icon per variant. Built as tiny inline SVGs using
 // `currentColor` so they inherit the variant tint set on the icon slot.
 const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
   info: (
-    <GlyphSvg>
+    <IconSvg>
       <circle cx="128" cy="128" r="96" stroke="currentColor" strokeWidth={16} />
       <line
         x1="128"
@@ -57,10 +57,10 @@ const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
         strokeLinecap="round"
       />
       <circle cx="128" cy="84" r="11" fill="currentColor" />
-    </GlyphSvg>
+    </IconSvg>
   ),
   success: (
-    <GlyphSvg>
+    <IconSvg>
       <circle cx="128" cy="128" r="96" stroke="currentColor" strokeWidth={16} />
       <path
         d="M84 130 116 162 172 98"
@@ -69,10 +69,10 @@ const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </GlyphSvg>
+    </IconSvg>
   ),
   warning: (
-    <GlyphSvg>
+    <IconSvg>
       <path
         d="M128 44 226 212 30 212Z"
         stroke="currentColor"
@@ -89,10 +89,10 @@ const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
         strokeLinecap="round"
       />
       <circle cx="128" cy="186" r="11" fill="currentColor" />
-    </GlyphSvg>
+    </IconSvg>
   ),
   danger: (
-    <GlyphSvg>
+    <IconSvg>
       <circle cx="128" cy="128" r="96" stroke="currentColor" strokeWidth={16} />
       <path
         d="M100 100 156 156M156 100 100 156"
@@ -100,20 +100,20 @@ const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
         strokeWidth={16}
         strokeLinecap="round"
       />
-    </GlyphSvg>
+    </IconSvg>
   ),
   accent: (
-    <GlyphSvg>
+    <IconSvg>
       <path
         d="M128 28C134 92 164 122 228 128 164 134 134 164 128 228 122 164 92 134 28 128 92 122 122 92 128 28Z"
         fill="currentColor"
       />
-    </GlyphSvg>
+    </IconSvg>
   ),
   neutral: (
-    <GlyphSvg>
+    <IconSvg>
       <circle cx="128" cy="128" r="40" fill="currentColor" />
-    </GlyphSvg>
+    </IconSvg>
   ),
 };
 
@@ -122,7 +122,7 @@ interface CalloutBaseProps extends Omit<
   "title" | "role" | "children"
 > {
   /**
-   * Colour treatment and default glyph. Maps to the semantic surface tint,
+   * Intent and default icon. Maps to the Intent's surface tint,
    * matching border, and readable text token. Defaults to `"info"`.
    */
   variant?: CalloutVariant;
@@ -134,7 +134,7 @@ interface CalloutBaseProps extends Omit<
   /** Body content. Keep it short — a callout is a summary, not a paragraph. */
   children: ReactNode;
   /**
-   * Leading glyph. Defaults to a built-in variant glyph; pass a Phosphor icon
+   * Leading icon. Defaults to a built-in variant icon; pass a Phosphor icon
    * (or any node) to override, or `null` to drop the icon entirely. Always
    * rendered decoratively (`aria-hidden`) — the message text carries meaning.
    */
@@ -166,7 +166,7 @@ type CalloutProps = CalloutBaseProps & CalloutDismissProps;
 
 /**
  * Inline message / alert box. A token-themed subtle background, matching
- * border, tinted leading glyph, and type hierarchy carry the variant's meaning
+ * border, tinted leading icon, and type hierarchy carry the variant's meaning
  * — deliberately no leading accent bar (DESIGN.md ban). The box itself is the
  * live region (`role="status"`/`"alert"`), so its text is announced.
  *
@@ -232,7 +232,7 @@ export function Callout({
 }
 
 // Icon and dismiss boxes are sized to the title's line box
-// (`uiBody × lineHeight_4`) so the glyph optically centres on the first line
+// (`uiBody × lineHeight_4`) so the icon optically centres on the first line
 // while the box top-aligns with the content column.
 const controlLineBox = `calc(${font.uiBody} * ${font.lineHeight_4})`;
 

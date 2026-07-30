@@ -154,8 +154,8 @@ export function IconButtonShowcase() {
             type: "ReactNode",
             required: true,
             description: t({
-              en: "Glyph rendered inside an aria-hidden wrapper — decorative, so the accessible name must come from aria-label / aria-labelledby.",
-              zh: "字形渲染在 aria-hidden 包裹层内——为装饰性，无障碍名称须来自 aria-label / aria-labelledby。",
+              en: "Icon rendered inside an aria-hidden wrapper — decorative, so the accessible name must come from aria-label / aria-labelledby.",
+              zh: "图标渲染在 aria-hidden 包裹层内——为装饰性，无障碍名称须来自 aria-label / aria-labelledby。",
             }),
           },
           {
@@ -179,8 +179,8 @@ export function IconButtonShowcase() {
             type: '"sm" | "md" | "lg"',
             defaultValue: '"md"',
             description: t({
-              en: 'Diameter ramp via controlSize. "md"/"lg" clear the 44px touch target; reserve "sm" for pointer-dense desktop toolbars.',
-              zh: '基于 controlSize 的直径梯度。"md"/"lg" 满足 44px 触控目标；"sm" 建议仅用于指针密集的桌面工具栏。',
+              en: 'Diameter scale via controlSize. "md"/"lg" clear the 44px touch target; reserve "sm" for pointer-dense desktop toolbars.',
+              zh: '基于 controlSize 的直径阶梯。"md"/"lg" 满足 44px 触控目标；"sm" 建议仅用于指针密集的桌面工具栏。',
             }),
           },
           {

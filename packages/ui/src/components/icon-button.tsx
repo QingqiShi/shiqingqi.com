@@ -16,13 +16,13 @@ interface IconButtonBaseProps extends Omit<
   "children"
 > {
   /**
-   * Glyph to render. Rendered inside an `aria-hidden` wrapper — it is purely
+   * Icon to render. Rendered inside an `aria-hidden` wrapper — it is purely
    * decorative, so the button's accessible name must come from `aria-label` /
    * `aria-labelledby`, never the icon.
    */
   icon: ReactNode;
   /**
-   * Diameter ramp, sized via `controlSize`. Defaults to `"md"`. On touch
+   * Diameter scale, sized via `controlSize`. Defaults to `"md"`. On touch
    * viewports every size renders larger (the `controlSize` tokens scale up
    * below the `md` breakpoint); `"md"`/`"lg"` clear the 44px WCAG 2.5.8 target
    * there, while `"sm"` is best reserved for pointer-dense desktop toolbars.

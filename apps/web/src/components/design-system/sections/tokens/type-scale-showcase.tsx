@@ -5,8 +5,8 @@ import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { Showcase } from "../../showcase.tsx";
-import { ContainerScaleDemo } from "./cq-scale-demo.tsx";
-import { ViewportScaleDemo } from "./vp-scale-demo.tsx";
+import { ContainerScaleSpecimen } from "./cq-scale-specimen.tsx";
+import { ViewportScaleSpecimen } from "./vp-scale-specimen.tsx";
 
 export function TypeScaleShowcase() {
   const pangram = t({
@@ -105,7 +105,7 @@ export function TypeScaleShowcase() {
           zh: "在 sm/md/lg 断点处分级——随画布扩展的标题。网格以真实尺寸呈现全部五个 vp 令牌的每一档；与当前窗口匹配的列会高亮，并随缩放跟随。Display 从 base 到 lg 大幅跃升，而 Heading 3 几乎不变。本页主标题即为 font.vpDisplay，正在实时演示。",
         })}
       >
-        <ViewportScaleDemo />
+        <ViewportScaleSpecimen />
       </Movement>
 
       <Movement
@@ -116,7 +116,7 @@ export function TypeScaleShowcase() {
           zh: "随容器行内尺寸变化，而非视口。下方每张卡片都是真实的定宽容器——滑动轨道或拖动滑块进行对比，浏览器会将每个标题在 1.1 至 1.4rem 之间取值。",
         })}
       >
-        <ContainerScaleDemo />
+        <ContainerScaleSpecimen />
       </Movement>
     </Showcase>
   );

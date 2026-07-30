@@ -30,10 +30,10 @@ interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
   bright?: boolean;
   /** Below the `md` breakpoint, collapses to the icon and hides the label. */
   hideLabelOnMobile?: boolean;
-  /** Decorative leading glyph. Rendered `aria-hidden`; never the accessible name. */
+  /** Decorative leading icon. Rendered `aria-hidden`; never the accessible name. */
   icon?: ReactNode;
   /**
-   * Height ramp via `controlSize`. Defaults to `"md"` (the app's standard
+   * Height scale via `controlSize`. Defaults to `"md"` (the app's standard
    * control height). `"lg"` is for prominent CTAs; `"sm"` best suits
    * pointer-dense desktop toolbars — like the `controlSize` scale, every size
    * renders taller below the `md` breakpoint, but `"sm"` still falls short of
@@ -125,11 +125,11 @@ export function Button({
   const isInert = disabled === true || isLoading;
   // Truthiness rather than a null check, so the `icon={count && <Icon />}` idiom
   // still renders nothing when `count` is `0` — `0` is a valid ReactNode and
-  // would otherwise paint a stray glyph.
+  // would otherwise paint a stray icon.
   const hasIcon = !!icon;
   // Two ways to show the spinner, both of which leave the button exactly as wide
   // as it was. With an icon it takes the icon's place. Without one there is no
-  // glyph box to borrow, and adding one would widen the button by the box plus
+  // icon box to borrow, and adding one would widen the button by the box plus
   // its gap — so the spinner is laid over the label instead, and the label is
   // hidden with `visibility` so it goes on reserving its width.
   const swapsIconForSpinner = isLoading && hasIcon;

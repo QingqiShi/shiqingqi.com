@@ -17,7 +17,7 @@ import {
 interface DesignSystemNavProps {
   /**
    * Overrides the nav landmark's accessible name — needed when a second
-   * instance renders on the same page (e.g. inside a showcase demo) so the
+   * instance renders on the same page (e.g. inside a showcase specimen) so the
    * two landmarks stay distinguishable.
    */
   ariaLabel?: string;
@@ -49,7 +49,7 @@ export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
     "/design-system/foundations/spacing": t({ en: "Spacing", zh: "间距" }),
     "/design-system/foundations/elevation": t({
       en: "Elevation",
-      zh: "阴影层级",
+      zh: "层深",
     }),
     "/design-system/foundations/motion": t({ en: "Motion", zh: "动效" }),
     "/design-system/foundations/borders": t({

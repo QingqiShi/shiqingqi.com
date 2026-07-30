@@ -41,8 +41,8 @@ export default function DesignSystemOverview() {
     "/design-system/foundations/color": {
       label: t({ en: "Color", zh: "颜色" }),
       description: t({
-        en: "Tonal palettes, semantic backgrounds, and text roles.",
-        zh: "色调阶梯、语义背景与文本角色。",
+        en: "Ramps, background roles, and text roles.",
+        zh: "色调阶梯、背景角色与文本角色。",
       }),
     },
     "/design-system/foundations/typography": {
@@ -60,10 +60,10 @@ export default function DesignSystemOverview() {
       }),
     },
     "/design-system/foundations/elevation": {
-      label: t({ en: "Elevation", zh: "阴影层级" }),
+      label: t({ en: "Elevation", zh: "层深" }),
       description: t({
-        en: "The shadow scale for layering surfaces above the page.",
-        zh: "用于在页面之上叠放表面的阴影阶梯。",
+        en: "The elevation scale for layering surfaces above the page.",
+        zh: "用于在页面之上叠放表面的层深阶梯。",
       }),
     },
     "/design-system/foundations/motion": {
@@ -97,8 +97,8 @@ export default function DesignSystemOverview() {
     "/design-system/components/text": {
       label: t({ en: "Text", zh: "文本" }),
       description: t({
-        en: "The body-copy type primitive: a four-step ramp, four tones, and four weights.",
-        zh: "正文文字排版基础组件：四档字阶、四种色调与四种字重。",
+        en: "The body-copy type primitive: a four-step type scale, four foreground roles, and four weights.",
+        zh: "正文文字排版基础组件：四档字阶、四种前景色角色与四种字重。",
       }),
     },
     "/design-system/components/heading": {
@@ -133,14 +133,14 @@ export default function DesignSystemOverview() {
       label: t({ en: "Chip", zh: "标签按钮" }),
       description: t({
         en: "A compact interactive pill — a link or a button, never an inert label.",
-        zh: "紧凑的可交互药丸——链接或按钮，绝非静态标签。",
+        zh: "紧凑的可交互胶囊形控件——链接或按钮，绝非静态标签。",
       }),
     },
     "/design-system/components/badge": {
       label: t({ en: "Badge", zh: "徽章" }),
       description: t({
-        en: "Compact status and label indicators across seven tones.",
-        zh: "七种色调的紧凑状态与标签指示器。",
+        en: "Compact status and label indicators in the six Intents plus a default.",
+        zh: "六种意图色加默认样式的紧凑状态与标签指示器。",
       }),
     },
     "/design-system/components/avatar": {
@@ -153,8 +153,8 @@ export default function DesignSystemOverview() {
     "/design-system/components/callout": {
       label: t({ en: "Callout", zh: "提示框" }),
       description: t({
-        en: "An inline message box in six tones for status and guidance.",
-        zh: "六种色调的行内消息框，用于状态与提示。",
+        en: "An inline message box in six Intents for status and guidance.",
+        zh: "六种意图色的行内消息框，用于状态与提示。",
       }),
     },
     "/design-system/components/card": {
@@ -265,8 +265,8 @@ export default function DesignSystemOverview() {
     "/design-system/primitives": {
       label: t({ en: "Primitives", zh: "原语" }),
       description: t({
-        en: "Composable StyleX recipes — flex, layout, motion, reset, and accessibility.",
-        zh: "可组合的 StyleX 配方——flex、布局、动效、重置与无障碍。",
+        en: "Composable StyleX primitives — flex, layout, motion, reset, and accessibility.",
+        zh: "可组合的 StyleX 原语——flex、布局、动效、重置与无障碍。",
       }),
     },
     "/design-system/hooks": {

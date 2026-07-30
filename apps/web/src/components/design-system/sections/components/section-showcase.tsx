@@ -113,7 +113,7 @@ export function SectionShowcase() {
               name: "icon",
               type: "ReactNode",
               description: t({
-                en: "Decorative glyph before the label, rendered aria-hidden.",
+                en: "Decorative icon before the label, rendered aria-hidden.",
                 zh: "标签前的装饰性图标，以 aria-hidden 渲染。",
               }),
             },
