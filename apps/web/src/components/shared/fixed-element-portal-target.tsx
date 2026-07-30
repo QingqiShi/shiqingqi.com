@@ -51,7 +51,10 @@ const styles = stylex.create({
   container: {
     height: "100dvh",
     pointerEvents: "none",
-    zIndex: layer.tooltip,
+    // Everything hosted here is an overlay, and the overlay plane already
+    // clears the site header and the sidebar rail — so the target sits on that
+    // plane rather than borrowing the tooltip one above it.
+    zIndex: layer.overlay,
     willChange: "transform",
   },
 });

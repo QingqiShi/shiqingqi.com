@@ -337,7 +337,7 @@ const styles = stylex.create({
     display: { default: "block", [breakpoints.md]: "none" },
     position: "fixed",
     inset: 0,
-    zIndex: layer.tooltip,
+    zIndex: layer.overlay,
     backgroundColor: color.bgScrim,
     opacity: 0,
     visibility: "hidden",
@@ -377,7 +377,10 @@ const styles = stylex.create({
       default: `min(${space._14}, 85vw)`,
       [breakpoints.md]: "auto",
     },
-    zIndex: { default: layer.tooltip, [breakpoints.md]: layer.content },
+    // Mobile: the drawer is an overlay, so it takes that plane and covers the
+    // pill bar (`layer.header`). md+: the rail is page chrome that only has to
+    // clear scrolling content, which leaves an open overlay above it.
+    zIndex: { default: layer.overlay, [breakpoints.md]: layer.content },
     paddingBlockStart: {
       default: `calc(${space._3} + env(safe-area-inset-top))`,
       [breakpoints.md]: space._2,

@@ -151,12 +151,18 @@ export function Overlay({
             aria-label={ariaLabel}
             aria-labelledby={ariaLabelledBy}
           >
-            <Button
-              css={styles.closeButton}
-              icon={closeIcon ?? <CloseIcon />}
-              aria-label={closeLabel}
-              onClick={onClose}
-            />
+            {/* `Button` anchors its own busy spinner with `position: relative`,
+                which a caller's `position: absolute` can't reliably outrank —
+                the button would land at its static position, offset by the
+                insets, and hang off the dialog's inline-start edge. Pin the
+                corner from a wrapper instead, which owns nothing but placement. */}
+            <div css={styles.closeButtonCorner}>
+              <Button
+                icon={closeIcon ?? <CloseIcon />}
+                aria-label={closeLabel}
+                onClick={onClose}
+              />
+            </div>
             {children}
           </div>
         </RemoveScroll>
@@ -181,21 +187,33 @@ export function Overlay({
 }
 
 const styles = stylex.create({
+  // `position: fixed` opens a stacking context, so the backdrop's and dialog's
+  // `z-index` can't escape this element — the plane has to sit here or the
+  // whole overlay paints wherever DOM order drops it, which is underneath any
+  // app chrome that claims a plane of its own (a fixed header, a sticky rail).
   positioningRoot: {
     position: "fixed",
     inset: 0,
+    zIndex: layer.overlay,
   },
+  // The backdrop and the dialog share the overlay plane: they are one surface,
+  // and DOM order already paints the dialog over its own scrim. Sharing keeps
+  // the pair on the overlay plane when an explicit `portalTarget` hosts them
+  // directly, without either of them outranking a tooltip or a toast.
   backdrop: {
     position: "absolute",
     inset: 0,
     backgroundColor: color.bgScrim,
-    zIndex: layer.tooltip,
+    zIndex: layer.overlay,
     pointerEvents: "all",
   },
-  closeButton: {
+  closeButtonCorner: {
     position: "absolute",
     insetInlineEnd: { default: space._2, [breakpoints.md]: space._5 },
     insetBlockStart: { default: space._2, [breakpoints.md]: space._5 },
+    // Above the consumer's content, which shares the dialog as its containing
+    // block: the close affordance is the overlay's own chrome.
+    zIndex: layer.content,
   },
   content: {
     position: "absolute",
@@ -204,7 +222,7 @@ const styles = stylex.create({
     width: "calc(100% - var(--removed-body-scroll-bar-size, 0px))",
     height: `calc(100% - ${space._8})`,
     backgroundColor: color.bgSurface,
-    zIndex: layer.tooltip,
+    zIndex: layer.overlay,
     borderRadius: border.radius_4,
     overflow: "hidden",
     pointerEvents: "all",
