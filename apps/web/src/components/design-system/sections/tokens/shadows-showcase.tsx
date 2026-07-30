@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { Identifier } from "../../identifier.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 
@@ -59,7 +60,9 @@ function ElevationTile({ token, shadowStyle, liftStyle }: ElevationTileProps) {
         <div css={[styles.tile, shadowStyle, liftStyle]} />
       </div>
       <div css={styles.caption}>
-        <span css={styles.token}>{token}</span>
+        <span css={styles.token}>
+          <Identifier>{token}</Identifier>
+        </span>
       </div>
     </div>
   );
@@ -130,6 +133,5 @@ const styles = stylex.create({
     color: color.textSubtle,
     lineHeight: font.lineHeight_2,
     textAlign: "center",
-    overflowWrap: "anywhere",
   },
 });

@@ -3,14 +3,18 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { t } from "#src/i18n.ts";
 import { previewLayout } from "./preview.stylex.ts";
 
-/** Label, leading slot, and a filled value — the field's everyday shape. */
+/**
+ * Label, leading slot, and a filled value — the field's everyday shape. The
+ * value stays short because an `<input>` cannot wrap and the narrowest overview
+ * tile clips anything longer.
+ */
 export function TextFieldPreview() {
   return (
     <TextField
       size="sm"
       label={t({ en: "Email", zh: "邮箱" })}
       leading={<EnvelopeIcon />}
-      defaultValue="ada@example.com"
+      defaultValue="ada@mail.test"
       css={previewLayout.fill}
     />
   );

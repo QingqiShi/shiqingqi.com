@@ -1,6 +1,7 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { Identifier } from "./identifier.tsx";
 
 type RoleCellSize = "large" | "medium" | "thin";
 
@@ -30,7 +31,9 @@ export function RoleColumn({ name, cells }: RoleColumnProps) {
         return (
           <div key={cell.token} css={[styles.cell, sizeStyle, cell.bg]}>
             <span css={[styles.label, cell.fg]}>{cell.label}</span>
-            <span css={[styles.token, cell.fg]}>{cell.token}</span>
+            <span css={[styles.token, cell.fg]}>
+              <Identifier>{cell.token}</Identifier>
+            </span>
           </div>
         );
       })}
@@ -92,6 +95,5 @@ const styles = stylex.create({
     fontSize: font.uiOverline,
     opacity: 0.85,
     lineHeight: font.lineHeight_2,
-    overflowWrap: "anywhere",
   },
 });

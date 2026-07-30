@@ -19,6 +19,7 @@ import { IconButton } from "@tuja/ui/components/icon-button";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
+import { Identifier } from "../../identifier.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
@@ -69,7 +70,9 @@ export function IconographyShowcase() {
               <span css={styles.galleryGlyph}>
                 <Icon aria-hidden />
               </span>
-              <span css={styles.galleryName}>{name}</span>
+              <span css={styles.galleryName}>
+                <Identifier>{name}</Identifier>
+              </span>
             </div>
           ))}
         </div>
@@ -256,8 +259,8 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
     color: color.textSubtle,
+    lineHeight: font.lineHeight_2,
     textAlign: "center",
-    overflowWrap: "anywhere",
     maxInlineSize: "100%",
   },
   weightRow: {
