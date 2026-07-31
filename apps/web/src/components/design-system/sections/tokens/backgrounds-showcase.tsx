@@ -168,7 +168,6 @@ export function BackgroundsShowcase() {
             label={t({ en: "Disabled", zh: "禁用" })}
             token="color.bgInteractiveDisabled"
             bg={styles.fillInteractiveDisabled}
-            fg={styles.textDisabled}
           />
         </Band>
 
@@ -337,12 +336,11 @@ const styles = stylex.create({
   fillInteractiveHover: { backgroundColor: color.bgInteractiveHover },
   fillInteractivePressed: { backgroundColor: color.bgInteractivePressed },
   fillInteractiveSelected: { backgroundColor: color.bgInteractiveSelected },
+  // No `fg` override: `fg` is for fills that need a different foreground to
+  // stay legible (bright, inverse, scrim). Dimming this cell's label would
+  // instead be documenting a disabled-text token, and there isn't one — a
+  // disabled control fades as a whole through opacity. The fill is the specimen.
   fillInteractiveDisabled: { backgroundColor: color.bgInteractiveDisabled },
-  // The disabled cell reads quieter by dropping its label from `textMain` to
-  // `textSubtle`. It carries no extra opacity: the swatch documents a disabled
-  // *surface*, and the label describing it is page content that has to stay
-  // legible, not an inactive control's own text.
-  textDisabled: { color: color.textSubtle },
 
   // Inverse / overlay band
   fillInverse: { backgroundColor: color.bgInverse },

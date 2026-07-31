@@ -38,14 +38,19 @@ const light = {
   // Text — three quietening levels, each of which must clear WCAG AA (4.5:1)
   // for small text against every surface it can land on, the darkest being
   // `surfaceNeutralSubtle`/`bgInteractiveSelected` (gray._90). Worst case per
-  // level: main 10.1:1, muted 7.2:1, subtle 5.0:1 — the same profile the dark
-  // ladder below has (13.0 / 9.4 / 5.1).
+  // level: main 12.4:1, muted 7.2:1, subtle 5.0:1.
   //
   // `textSubtle` was gray._50, which measured 4.2:1 on the canvas and 4.5:1 on
   // a white card — below AA at the caption and eyebrow-label sizes it is used
-  // at. The ramp carries no tone between _40 and _50, so the whole ladder moved
-  // one tone darker rather than collapsing subtle into muted.
-  textMain: gray._20,
+  // at. The ramp carries no tone between _40 and _50, so subtle and muted both
+  // moved one tone darker rather than collapsing into each other.
+  //
+  // That alone would have squashed the ladder: the AA floor pins the quiet end,
+  // so the range has to be recovered at the loud end instead, and `textMain`
+  // drops to gray._13. The steps are ΔL* 16.9 then 9.9 (they were 19.7 / 10.1),
+  // so main→muted — the pair carrying most of the site's hierarchy — keeps
+  // nearly all of its separation.
+  textMain: gray._13,
   textMuted: gray._30,
   textSubtle: gray._40,
   accentOn: gray._100,
@@ -230,6 +235,11 @@ const dark: { [key in keyof typeof light]: string } = {
   brandStudentLoan: green._60,
   brandPixelCreatureCreator: purple._70,
 };
+
+// The palette mapping above, before StyleX turns it into CSS vars. Exported so
+// `tokens.contrast.test.ts` can measure the pairings; nothing else should read
+// it — consume `color` below.
+export const themeSource = { light, dark };
 
 export const constants = stylex.defineConsts({
   DARK: "@media (prefers-color-scheme: dark)",
