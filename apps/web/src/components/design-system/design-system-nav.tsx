@@ -5,13 +5,14 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useId } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { getLocalePath, normalizePath } from "#src/utils/pathname.ts";
+import { useDesignSystemGroupLabels } from "./group-labels.ts";
 import {
-  type DesignSystemGroupId,
   type DesignSystemPath,
-  getDesignSystemRouteGroups,
+  getDesignSystemRouteSections,
 } from "./routes.ts";
 
 interface DesignSystemNavProps {
@@ -26,24 +27,16 @@ interface DesignSystemNavProps {
 export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
   const locale = useLocale();
   const current = normalizePath(usePathname());
-  const groups = getDesignSystemRouteGroups();
+  const sections = getDesignSystemRouteSections();
+  const labelId = useId();
 
-  // The route map lives in routes.ts; the localized copy stays here because the
-  // i18n transform compiles these `t()` calls to client hooks. They're resolved
-  // up front in a fixed order (the render loop below only looks them up by key)
-  // so the hook call order stays stable across renders. Every group carries a
-  // heading except `overview`, which is a single unheaded link at the top.
-  const groupHeadings: Partial<Record<DesignSystemGroupId, string>> = {
-    foundations: t({ en: "Foundations", zh: "基础" }),
-    content: t({ en: "Content", zh: "内容" }),
-    actions: t({ en: "Actions", zh: "操作控件" }),
-    forms: t({ en: "Forms", zh: "表单控件" }),
-    dataDisplay: t({ en: "Data display", zh: "信息展示" }),
-    feedback: t({ en: "Feedback", zh: "反馈" }),
-    surfaces: t({ en: "Surfaces", zh: "表面" }),
-    shells: t({ en: "Page shells", zh: "页面骨架" }),
-    composition: t({ en: "Composition", zh: "组合" }),
-  };
+  // The route map lives in routes.ts and the group headings in group-labels.ts;
+  // the per-route copy stays here because the i18n transform compiles these
+  // `t()` calls to client hooks. They're resolved up front in a fixed order (the
+  // render loop below only looks them up by key) so the hook call order stays
+  // stable across renders.
+  const { sections: sectionLabels, categories: categoryLabels } =
+    useDesignSystemGroupLabels();
   const itemLabels: Record<DesignSystemPath, string> = {
     "/design-system": t({ en: "Overview", zh: "概览" }),
     "/design-system/foundations/color": t({ en: "Color", zh: "颜色" }),
@@ -123,26 +116,59 @@ export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
       css={styles.nav}
       aria-label={ariaLabel ?? t({ en: "Design system", zh: "设计系统" })}
     >
-      {groups.map((group) => {
-        const heading = groupHeadings[group.group];
+      {/* Two levels: what kind of thing a link is, then what job it does. Each
+          is a labelled `role="group"` rather than a heading, so the structure
+          reaches assistive tech without adding a second outline beside the
+          page's own headings. */}
+      {sections.map((section) => {
+        const heading = sectionLabels[section.section];
+        const sectionLabelId = `${labelId}-${section.section}`;
         return (
-          <div key={group.group} css={styles.group}>
-            {heading ? <span css={styles.groupLabel}>{heading}</span> : null}
-            {group.paths.map((path) => {
-              const active = current === path;
+          <div
+            key={section.section}
+            css={styles.section}
+            role={heading === null ? undefined : "group"}
+            aria-labelledby={heading === null ? undefined : sectionLabelId}
+          >
+            {heading !== null && (
+              <span id={sectionLabelId} css={styles.sectionLabel}>
+                {heading}
+              </span>
+            )}
+            {section.groups.map((group) => {
+              const category = group.category;
+              const categoryLabelId =
+                category === undefined ? undefined : `${labelId}-${category}`;
               return (
-                <Link
-                  key={path}
-                  href={getLocalePath(path, locale)}
-                  aria-current={active ? "page" : undefined}
-                  css={[
-                    transition.colors,
-                    styles.link,
-                    active && styles.linkActive,
-                  ]}
+                <div
+                  key={category ?? section.section}
+                  css={styles.group}
+                  role={category === undefined ? undefined : "group"}
+                  aria-labelledby={categoryLabelId}
                 >
-                  {itemLabels[path]}
-                </Link>
+                  {category !== undefined && (
+                    <span id={categoryLabelId} css={styles.categoryLabel}>
+                      {categoryLabels[category]}
+                    </span>
+                  )}
+                  {group.paths.map((path) => {
+                    const active = current === path;
+                    return (
+                      <Link
+                        key={path}
+                        href={getLocalePath(path, locale)}
+                        aria-current={active ? "page" : undefined}
+                        css={[
+                          transition.colors,
+                          styles.link,
+                          active && styles.linkActive,
+                        ]}
+                      >
+                        {itemLabels[path]}
+                      </Link>
+                    );
+                  })}
+                </div>
               );
             })}
           </div>
@@ -162,19 +188,38 @@ const styles = stylex.create({
     minInlineSize: 0,
     maxInlineSize: "100%",
   },
+  section: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._1,
+  },
   group: {
     display: "flex",
     flexDirection: "column",
     gap: space._1,
   },
-  groupLabel: {
+  // The two labels carry the whole hierarchy, so they differ on every axis a
+  // small label has: the section is uppercase, tracked out and full-strength;
+  // the category is sentence case, untracked and subtle. Links stay flush with
+  // both rather than indenting under the category — indentation would only
+  // separate the component links from the foundation ones, which sit at the
+  // same rank.
+  sectionLabel: {
+    display: "block",
+    marginBlockStart: space._5,
+    paddingInline: space._3,
+    fontSize: font.uiOverline,
+    fontWeight: font.weight_7,
+    letterSpacing: font.trackingWidest,
+    textTransform: "uppercase",
+    color: color.textMain,
+  },
+  categoryLabel: {
     display: "block",
     marginBlockStart: space._3,
     paddingInline: space._3,
     fontSize: font.uiOverline,
     fontWeight: font.weight_6,
-    letterSpacing: font.trackingWidest,
-    textTransform: "uppercase",
     color: color.textSubtle,
   },
   link: {
