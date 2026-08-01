@@ -1,10 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
+import {
+  OverviewBrowser,
+  type OverviewEntry,
+} from "#src/components/design-system/overview-browser.tsx";
 import { OverviewTile } from "#src/components/design-system/overview-tile.tsx";
 import {
-  type DesignSystemGroupId,
+  DESIGN_SYSTEM_ROUTES,
   type DesignSystemPath,
-  getDesignSystemRouteGroups,
 } from "#src/components/design-system/routes.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -14,20 +17,11 @@ export default function DesignSystemOverview() {
   const locale = getLocale();
   const heading = t({ en: "Design System", zh: "设计系统" });
 
-  // Structure comes from the shared route registry; the localized copy stays
-  // here because the i18n transform compiles these `t()` calls to the server
-  // lookup, which the client nav can't share. The overview lists everything
-  // except itself, so the `"overview"` group is dropped below.
-  const cardGroups = getDesignSystemRouteGroups().filter(
-    (group) => group.group !== "overview",
-  );
-  const groupHeadings: Partial<Record<DesignSystemGroupId, string>> = {
-    foundations: t({ en: "Foundations", zh: "基础" }),
-    components: t({ en: "Components", zh: "组件" }),
-    primitives: t({ en: "Primitives", zh: "原语" }),
-    hooks: t({ en: "Hooks", zh: "钩子" }),
-  };
-  const content: Record<
+  // Structure comes from the shared route registry and the group headings from
+  // `group-labels.ts`; the per-route copy stays here because the i18n transform
+  // compiles these `t()` calls to the server lookup, which the client nav can't
+  // share.
+  const tileCopy: Record<
     DesignSystemPath,
     { label: string; description: string }
   > = {
@@ -278,40 +272,46 @@ export default function DesignSystemOverview() {
     },
   };
 
+  // The overview lists everything except itself. Tiles are built here, on the
+  // server, and handed to the browser as ready-made nodes: it only ever reorders
+  // and filters them, so the two dozen live specimens never reach the client
+  // bundle.
+  const routes = DESIGN_SYSTEM_ROUTES.filter(
+    (route) => route.path !== "/design-system",
+  );
+  const entries: OverviewEntry[] = routes.map((route) => ({
+    path: route.path,
+    label: tileCopy[route.path].label,
+    tile: (
+      <OverviewTile
+        path={route.path}
+        href={getLocalePath(route.path, locale)}
+        label={tileCopy[route.path].label}
+        description={tileCopy[route.path].description}
+      />
+    ),
+  }));
+  const collator = new Intl.Collator(locale);
+  const alphabeticalOrder = entries
+    .map((entry) => entry.path)
+    .toSorted((a, b) => collator.compare(tileCopy[a].label, tileCopy[b].label));
+
   return (
     <div css={styles.page}>
       <header css={styles.hero}>
         <h1 css={styles.heading}>{heading}</h1>
         <p css={styles.intro}>
           {t({
-            en: "Tokens, primitives, and components that compose a refined visual language. Browse the foundations the system is built on, then the components built from them.",
-            zh: "构成精致视觉语言的设计令牌、原语与组件。先浏览系统赖以构建的基础，再查看由其构成的组件。",
+            en: "Tokens, primitives, and components that compose a refined visual language. Browse them by the job they do or by name — or search for the one you already have in mind.",
+            zh: "构成精致视觉语言的设计令牌、原语与组件。可按用途或名称浏览，也可直接搜索你想找的内容。",
           })}
         </p>
       </header>
 
-      {cardGroups.map((group) => {
-        const title = groupHeadings[group.group];
-        return (
-          <section key={group.group} css={styles.group}>
-            {title ? <h2 css={styles.groupTitle}>{title}</h2> : null}
-            <div css={styles.grid}>
-              {group.paths.map((path) => {
-                const entry = content[path];
-                return (
-                  <OverviewTile
-                    key={path}
-                    path={path}
-                    href={getLocalePath(path, locale)}
-                    label={entry.label}
-                    description={entry.description}
-                  />
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+      <OverviewBrowser
+        entries={entries}
+        alphabeticalOrder={alphabeticalOrder}
+      />
     </div>
   );
 }
@@ -343,22 +343,5 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_4,
     maxInlineSize: "60ch",
     textWrap: "pretty",
-  },
-  group: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
-  groupTitle: {
-    margin: 0,
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingSnug,
-    color: color.textMain,
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: space._3,
   },
 });
