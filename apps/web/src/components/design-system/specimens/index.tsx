@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import type { DesignSystemPath } from "#src/components/design-system/routes.ts";
 import { AvatarSpecimen } from "./avatar-specimen.tsx";
 import { BadgeSpecimen } from "./badge-specimen.tsx";
+import { BreadcrumbSpecimen } from "./breadcrumb-specimen.tsx";
 import { ButtonSpecimen } from "./button-specimen.tsx";
 import { CalloutSpecimen } from "./callout-specimen.tsx";
 import { CardSpecimen } from "./card-specimen.tsx";
@@ -13,14 +14,19 @@ import { HeaderFooterLayoutSpecimen } from "./header-footer-layout-specimen.tsx"
 import { HeadingSpecimen } from "./heading-specimen.tsx";
 import { IconButtonSpecimen } from "./icon-button-specimen.tsx";
 import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
+import { OptionCardSpecimen } from "./option-card-specimen.tsx";
 import { OverlaySpecimen } from "./overlay-specimen.tsx";
+import { PopoverSpecimen } from "./popover-specimen.tsx";
+import { ProgressSpecimen } from "./progress-specimen.tsx";
 import { SectionSpecimen } from "./section-specimen.tsx";
 import { SegmentedControlSpecimen } from "./segmented-control-specimen.tsx";
 import { SelectSpecimen } from "./select-specimen.tsx";
 import { SidebarLayoutSpecimen } from "./sidebar-layout-specimen.tsx";
 import { SkeletonSpecimen } from "./skeleton-specimen.tsx";
+import { SliderSpecimen } from "./slider-specimen.tsx";
 import { SpinnerSpecimen } from "./spinner-specimen.tsx";
 import { SwitchSpecimen } from "./switch-specimen.tsx";
+import { TableSpecimen } from "./table-specimen.tsx";
 import { TextFieldSpecimen } from "./text-field-specimen.tsx";
 import { TextSpecimen } from "./text-specimen.tsx";
 import { TextareaSpecimen } from "./textarea-specimen.tsx";
@@ -67,13 +73,16 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/icon-button": { element: <IconButtonSpecimen /> },
   "/design-system/components/menu-button": { element: <MenuButtonSpecimen /> },
   "/design-system/components/chip": { element: <ChipSpecimen /> },
+  "/design-system/components/breadcrumb": { element: <BreadcrumbSpecimen /> },
   "/design-system/components/badge": { element: <BadgeSpecimen /> },
   "/design-system/components/avatar": { element: <AvatarSpecimen /> },
+  "/design-system/components/table": { element: <TableSpecimen /> },
   "/design-system/components/callout": { element: <CalloutSpecimen /> },
   "/design-system/components/card": { element: <CardSpecimen /> },
   "/design-system/components/section": { element: <SectionSpecimen /> },
   "/design-system/components/disclosure": { element: <DisclosureSpecimen /> },
   "/design-system/components/spinner": { element: <SpinnerSpecimen /> },
+  "/design-system/components/progress": { element: <ProgressSpecimen /> },
   "/design-system/components/skeleton": { element: <SkeletonSpecimen /> },
   "/design-system/components/divider": { element: <DividerSpecimen /> },
   "/design-system/components/switch": { element: <SwitchSpecimen /> },
@@ -84,6 +93,9 @@ const COMPONENT_SPECIMENS: Partial<
     element: <SegmentedControlSpecimen />,
   },
   "/design-system/components/select": { element: <SelectSpecimen /> },
+  "/design-system/components/option-card": { element: <OptionCardSpecimen /> },
+  "/design-system/components/slider": { element: <SliderSpecimen /> },
+  "/design-system/components/popover": { element: <PopoverSpecimen /> },
   "/design-system/components/overlay": {
     element: <OverlaySpecimen />,
     fillsPlate: true,

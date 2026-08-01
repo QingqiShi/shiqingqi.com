@@ -280,6 +280,66 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/switch" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/breadcrumb</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/breadcrumb" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/breadcrumb" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/breadcrumb</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/breadcrumb" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/breadcrumb" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/option-card</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/option-card" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/option-card" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/option-card</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/option-card" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/option-card" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/popover</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/popover" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/popover" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/popover</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/popover" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/popover" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/progress</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/progress" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/progress" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/progress</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/progress" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/progress" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/slider</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/slider" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/slider" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/slider</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/slider" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/slider" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/table</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/table" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/table" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/table</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/table" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/table" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/button</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/button" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/button" />

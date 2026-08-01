@@ -310,9 +310,6 @@ const styles = stylex.create({
     insetBlockStart: tableTokens.headInset,
     zIndex: layer.content,
     backgroundColor: tableTokens.headBackground,
-    borderBlockEndWidth: border.size_1,
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.neutralBorder,
   },
   foot: {
     borderBlockStartWidth: border.size_1,
@@ -337,9 +334,15 @@ const styles = stylex.create({
     textAlign: "start",
     verticalAlign: "top",
   },
+  // The rule sits on the cells, not on `<thead>`: in the collapsed model a
+  // sticky `<thead>` leaves its own border behind at the top of the table, so
+  // the head arrives over the scrolling rows with nothing separating them.
   columnHeaderCell: {
     fontWeight: font.weight_6,
     color: color.textMuted,
+    borderBlockEndWidth: border.size_1,
+    borderBlockEndStyle: "solid",
+    borderBlockEndColor: color.neutralBorder,
   },
   rowHeaderCell: {
     fontWeight: font.weight_6,

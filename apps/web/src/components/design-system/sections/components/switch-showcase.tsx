@@ -4,12 +4,17 @@ import * as stylex from "@stylexjs/stylex";
 import { Switch, type SwitchState } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
+import {
+  Showcase,
+  ShowcaseGrid,
+  ShowcaseItem,
+  StateReadout,
+} from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 function SpecimenSwitch({
@@ -46,10 +51,9 @@ function LiveSwitch() {
         onChange={setState}
         aria-label={t({ en: "Demo toggle", zh: "演示开关" })}
       />
-      <Text variant="bodySmall" tone="muted">
-        {t({ en: "onChange →", zh: "onChange →" })}{" "}
-        <span css={styles.stateValue}>{label}</span>
-      </Text>
+      <StateReadout label={t({ en: "onChange →", zh: "onChange →" })}>
+        {label}
+      </StateReadout>
     </div>
   );
 }
@@ -239,14 +243,5 @@ const styles = stylex.create({
     alignItems: "center",
     gap: space._2,
     cursor: "pointer",
-  },
-  stateValue: {
-    fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.textMain,
-    paddingInline: space._1,
-    paddingBlock: space._00,
-    borderRadius: border.radius_1,
-    backgroundColor: color.bgInteractiveRest,
   },
 });

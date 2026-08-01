@@ -4,9 +4,11 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
+import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { useControlled } from "@tuja/ui/hooks/use-controlled";
 import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
+import { usePopover } from "@tuja/ui/hooks/use-popover";
 import { usePressHandlers } from "@tuja/ui/hooks/use-press-handlers";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -18,7 +20,14 @@ import {
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  font,
+  layer,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useRef, useState, type ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
@@ -242,6 +251,176 @@ useDialogFocus({ isOpen, dialogRef, onClose: () => setOpen(false) });
   );
 }
 
+type LabelIntent =
+  "accent" | "info" | "success" | "warning" | "danger" | "neutral";
+
+/** A picker whose popup is a bare colour grid — markup that `Popover`'s padded surface would fight. */
+function IntentPickerSpecimen() {
+  const [selected, setSelected] = useState<LabelIntent>("accent");
+  const { open, setOpen, triggerProps, contentProps } = usePopover();
+  const intents: readonly LabelIntent[] = [
+    "accent",
+    "info",
+    "success",
+    "warning",
+    "danger",
+    "neutral",
+  ];
+  const labels: Record<LabelIntent, string> = {
+    accent: t({ en: "Accent", zh: "强调" }),
+    info: t({ en: "Info", zh: "信息" }),
+    success: t({ en: "Success", zh: "成功" }),
+    warning: t({ en: "Warning", zh: "警告" }),
+    danger: t({ en: "Danger", zh: "危险" }),
+    neutral: t({ en: "Neutral", zh: "中性" }),
+  };
+  const fieldLabel = t({ en: "Label colour", zh: "标签颜色" });
+  return (
+    <div css={[flex.col, styles.popoverHost]}>
+      <button
+        {...triggerProps}
+        aria-label={`${fieldLabel}: ${labels[selected]}`}
+        css={[buttonReset.base, flex.row, a11y.focusRing, styles.intentTrigger]}
+      >
+        <span
+          aria-hidden="true"
+          css={[styles.intentDot, intentFill[selected]]}
+        />
+        {labels[selected]}
+      </button>
+      {open ? (
+        <div {...contentProps} css={styles.pickerPopup}>
+          {intents.map((intent) => (
+            <button
+              key={intent}
+              type="button"
+              aria-label={labels[intent]}
+              aria-pressed={intent === selected}
+              css={[
+                buttonReset.base,
+                a11y.focusRingInset,
+                styles.pickerCell,
+                intentFill[intent],
+                intent === selected && styles.pickerCellSelected,
+              ]}
+              onClick={() => {
+                setSelected(intent);
+                setOpen(false);
+              }}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** A hint placed above its trigger; growing it re-runs the placement maths. */
+function PlacementSpecimen() {
+  const [expanded, setExpanded] = useState(false);
+  const { open, triggerProps, contentProps } = usePopover({
+    placement: "top-start",
+    onOpenChange: (next) => {
+      if (!next) setExpanded(false);
+    },
+  });
+  const triggerLabel = t({ en: "What is this?", zh: "这是什么？" });
+  const summary = t({
+    en: "Placement is measured against the viewport, so this sits above the trigger only while there is room above it.",
+    zh: "定位以视口为准，因此只有上方有空间时，它才会停在触发元素之上。",
+  });
+  const detail = t({
+    en: "Scroll until the trigger nears the top edge and the side flips to bottom. Expand or collapse this panel and the placement runs again — the hook watches the popup's own size as well as the trigger's.",
+    zh: "向下滚动，触发元素接近顶边时它会翻到下方。展开或收起这块面板，定位也会重新计算——钩子既观察触发元素的尺寸，也观察弹出层自身的尺寸。",
+  });
+  return (
+    <div css={[flex.col, styles.popoverHost]}>
+      <button
+        {...triggerProps}
+        css={[buttonReset.base, a11y.focusRing, styles.hintTrigger]}
+      >
+        {triggerLabel}
+      </button>
+      {open ? (
+        <div
+          {...contentProps}
+          css={[
+            flex.col,
+            popoverSurface.base,
+            popoverSurface.enter,
+            styles.hintPopup,
+          ]}
+        >
+          <Text variant="caption" tone="muted">
+            {summary}
+          </Text>
+          {expanded ? (
+            <Text variant="caption" tone="muted">
+              {detail}
+            </Text>
+          ) : null}
+          <button
+            type="button"
+            css={[buttonReset.base, a11y.focusRing, styles.hintToggle]}
+            onClick={() => {
+              setExpanded(!expanded);
+            }}
+          >
+            {expanded
+              ? t({ en: "Show less", zh: "收起" })
+              : t({ en: "Show more", zh: "展开" })}
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function UsePopoverSection() {
+  return (
+    <Showcase label="usePopover">
+      <ShowcaseHelper>
+        {t({
+          en: "The headless layer beneath `Popover`, which is this hook plus a portal and the shared surface skin: it owns the open state, the placement, the dismissal rules, and the ARIA wiring, then hands back `triggerProps` and `contentProps` to spread onto your own elements. Placement is measured against the viewport rather than the trigger's corner — the side flips when it would overflow, both axes shift to stay on screen, and it re-places on scroll, on window resize, and whenever the trigger or the popup itself changes size. It moves focus into the popup on open and gives it back to the trigger on close, but it never traps focus and never locks scroll. Reach for it when the popup has to be something other than a padded surface — the element is yours to render, and it must be `position: fixed`, because the hook writes `top`/`left` straight to the node.",
+          zh: "`Popover` 之下的无头层——`Popover` 就是这个钩子加上 portal 与共享的表面皮肤：它负责开合状态、定位、关闭时机与 ARIA 关联，再把 `triggerProps` 与 `contentProps` 交还给你，由你铺到自己的元素上。定位以视口为准，而非贴着触发元素的角落——放不下时会翻到对侧，两个轴向都会平移以留在屏幕内，并在滚动、窗口尺寸变化，以及触发元素或弹出层自身尺寸变化时重新定位。打开时它把焦点移入弹出层，关闭时再交还给触发元素，但它既不困陷焦点，也不锁定滚动。当弹出层需要的不是一块带内边距的表面时就用它——元素由你渲染，并且必须是 `position: fixed`，因为钩子会把 `top`/`left` 直接写到节点上。",
+        })}
+      </ShowcaseHelper>
+      <div css={styles.specimenGrid}>
+        <SpecimenCell
+          caption={t({
+            en: "Your own popup — a bare colour grid, not a padded surface",
+            zh: "由你渲染的弹出层——一片纯色方格，而非带内边距的表面",
+          })}
+        >
+          <IntentPickerSpecimen />
+        </SpecimenCell>
+        <SpecimenCell
+          caption={t({
+            en: "Placed above; expand the panel and it re-places itself",
+            zh: "置于上方；展开面板后它会重新定位",
+          })}
+        >
+          <PlacementSpecimen />
+        </SpecimenCell>
+      </div>
+      <UsageSnippet
+        code={`import { usePopover } from "@tuja/ui/hooks/use-popover";
+
+// placement defaults to "bottom-start", offset to 8
+const { open, setOpen, toggle, triggerProps, contentProps } = usePopover({
+  placement: "top-start",
+});
+
+<button {...triggerProps}>What is this?</button>
+{open ? (
+  // position: fixed — the hook writes top/left onto this node
+  <div {...contentProps} css={styles.popup}>{/* your markup */}</div>
+) : null}`}
+      />
+    </Showcase>
+  );
+}
+
 /** A plain element wearing the Button press animation via `usePressHandlers`. */
 function PressSpecimen() {
   const ref = useRef<HTMLButtonElement>(null);
@@ -396,6 +575,7 @@ export function HooksShowcase() {
     <>
       <UseControlledSection />
       <UseDialogFocusSection />
+      <UsePopoverSection />
       <UsePressSection />
       <UseRadioGroupSection />
     </>
@@ -495,6 +675,91 @@ const styles = stylex.create({
     justifyContent: "flex-end",
     marginBlockStart: space._2,
   },
+  // usePopover
+  popoverHost: {
+    gap: space._2,
+    alignItems: "flex-start",
+  },
+  intentTrigger: {
+    gap: space._2,
+    paddingBlock: space._1,
+    paddingInline: space._3,
+    borderRadius: border.radius_round,
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_5,
+    color: color.textMain,
+    backgroundColor: {
+      default: color.bgInteractiveRest,
+      ":hover": color.bgInteractiveHover,
+    },
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    whiteSpace: "nowrap",
+    cursor: "pointer",
+  },
+  intentDot: {
+    inlineSize: "12px",
+    blockSize: "12px",
+    borderRadius: border.radius_round,
+    flexShrink: 0,
+  },
+  // `fixed` is the hook's one requirement — it writes `top`/`left` onto the
+  // node. No portal and no surface skin here: both belong to `Popover`.
+  pickerPopup: {
+    position: "fixed",
+    zIndex: layer.tooltip,
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    // The hairline grid is the border colour showing through the gaps.
+    gap: "1px",
+    overflow: "hidden",
+    borderRadius: border.radius_2,
+    backgroundColor: color.neutralBorder,
+    boxShadow: shadow._5,
+  },
+  pickerCell: {
+    inlineSize: "44px",
+    blockSize: "36px",
+    cursor: "pointer",
+  },
+  // Two rings so the mark survives every hue in both themes: the overlay colour
+  // reads on the saturated fills, the text colour on the pale neutral one.
+  pickerCellSelected: {
+    boxShadow: `inset 0 0 0 3px ${color.bgOverlay}, inset 0 0 0 4px ${color.textMain}`,
+  },
+  hintTrigger: {
+    paddingBlock: space._1,
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_5,
+    color: {
+      default: color.textMuted,
+      ":hover": color.textMain,
+    },
+    textDecorationLine: "underline",
+    textDecorationStyle: "dotted",
+    textUnderlineOffset: "3px",
+    textAlign: "start",
+    cursor: "pointer",
+  },
+  hintPopup: {
+    position: "fixed",
+    zIndex: layer.tooltip,
+    gap: space._2,
+    alignItems: "flex-start",
+    boxSizing: "border-box",
+    maxInlineSize: "260px",
+    paddingBlock: space._2,
+    paddingInline: space._3,
+  },
+  hintToggle: {
+    paddingBlock: space._00,
+    paddingInline: space._1,
+    marginInlineStart: `calc(-1 * ${space._1})`,
+    borderRadius: border.radius_1,
+    fontSize: font.uiCaption,
+    fontWeight: font.weight_6,
+    color: color.accentText,
+    cursor: "pointer",
+  },
   // usePressHandlers
   pressTile: {
     paddingBlock: space._3,
@@ -554,4 +819,14 @@ const styles = stylex.create({
     boxShadow: shadow._1,
     fontWeight: font.weight_6,
   },
+});
+
+/** Keyed by intent so the picker can look a fill up by value. */
+const intentFill = stylex.create({
+  accent: { backgroundColor: color.accent },
+  info: { backgroundColor: color.info },
+  success: { backgroundColor: color.success },
+  warning: { backgroundColor: color.warning },
+  danger: { backgroundColor: color.danger },
+  neutral: { backgroundColor: color.neutral },
 });
