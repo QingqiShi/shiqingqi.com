@@ -12,7 +12,7 @@ import { Showcase } from "../../showcase.tsx";
 // Cell widths taper smoothly from a wide centre to narrow ends, so each ramp
 // reads like a lens over its mid-tones. Raising the sine to the fourth power
 // concentrates the width into a sharp central peak — the mid tones dominate and
-// the taper accelerates toward the ends — while the 0.18fr floor keeps the
+// the taper accelerates towards the ends — while the 0.18fr floor keeps the
 // outermost cells legible. Applied inline because the varying template is not a
 // static value StyleX can inline. Every ramp shares the same 21-tone shape,
 // computed once.

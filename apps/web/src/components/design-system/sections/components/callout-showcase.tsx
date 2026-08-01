@@ -247,7 +247,7 @@ export function CalloutShowcase() {
           </div>
         }
         dontCaption={t({
-          en: "Don't add a leading colored accent bar (DESIGN.md ban) or rely on hue alone to signal status.",
+          en: "Don't add a leading coloured accent bar (DESIGN.md ban) or rely on hue alone to signal status.",
           zh: "不要添加前缘彩色装饰条（DESIGN.md 禁止），也不要仅靠色相传达状态。",
         })}
       />

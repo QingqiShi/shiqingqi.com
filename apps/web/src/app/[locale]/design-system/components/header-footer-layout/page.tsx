@@ -24,7 +24,7 @@ export default function HeaderFooterLayoutPage() {
     <DocPage
       title={t({ en: "Header & footer layout", zh: "页头页脚布局" })}
       description={t({
-        en: "A reading-density shell for information surfaces. Supply the header's start and end regions and an optional footer; the shell owns the fixed bar, the readable centered column, and the breathing room around it.",
+        en: "A reading-density shell for information surfaces. Supply the header's start and end regions and an optional footer; the shell owns the fixed bar, the readable centred column, and the breathing room around it.",
         zh: "面向信息型页面的阅读密度骨架。提供页头的起始与结尾区域以及可选页脚即可；骨架负责固定横条、可读的居中内容列及其周围的留白。",
       })}
     >

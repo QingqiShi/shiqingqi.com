@@ -8,6 +8,15 @@ import type { ReactNode } from "react";
 interface ShowcaseProps {
   label?: string;
   /**
+   * How the label is set. `"words"` (default) is the uppercase eyebrow, which
+   * only works on ordinary words: it flattens the camel humps a code identifier
+   * relies on, so `useControlled` arrives as `USECONTROLLED`. `"code"` is for a
+   * label that names a real export — a hook, a primitive, a token — and keeps
+   * its casing, setting it in the mono face so it still reads as an eyebrow
+   * rather than as a heading.
+   */
+  labelVariant?: "words" | "code";
+  /**
    * Section framing. `"card"` (default) wraps the section in a raised surface —
    * the treatment shared across the design-system doc pages. `"plain"` drops the
    * card chrome so the section reads from its heading and surrounding spacing
@@ -18,7 +27,12 @@ interface ShowcaseProps {
   children: ReactNode;
 }
 
-export function Showcase({ label, frame = "card", children }: ShowcaseProps) {
+export function Showcase({
+  label,
+  labelVariant = "words",
+  frame = "card",
+  children,
+}: ShowcaseProps) {
   const plain = frame === "plain";
   return (
     <section
@@ -28,7 +42,14 @@ export function Showcase({ label, frame = "card", children }: ShowcaseProps) {
       ]}
     >
       {label ? (
-        <h2 css={plain ? styles.headingPlain : styles.label}>{label}</h2>
+        <h2
+          css={[
+            plain ? styles.headingPlain : styles.label,
+            labelVariant === "code" && styles.labelCode,
+          ]}
+        >
+          {label}
+        </h2>
       ) : null}
       <div css={styles.body}>{children}</div>
     </section>
@@ -58,7 +79,7 @@ export function ShowcaseItem({ label, children }: ShowcaseItemProps) {
 }
 
 interface StateReadoutProps {
-  /** What produced the value — `"onChange →"`, `"selected →"`. Already localized. */
+  /** What produced the value — `"onChange →"`, `"selected →"`. Already localised. */
   label: string;
   /** Fixed-width figures, so a value that changes on every move holds still. */
   tabular?: boolean;
@@ -110,6 +131,15 @@ const styles = stylex.create({
     letterSpacing: font.trackingWider,
     textTransform: "uppercase",
     fontWeight: font.weight_6,
+  },
+  // Overlays whichever label style is in play, so a code label keeps that
+  // style's size, colour and weight and changes only what the uppercase eyebrow
+  // gets wrong for an identifier: the transform that eats its camel humps, and
+  // the wide tracking that belongs to small caps rather than to code.
+  labelCode: {
+    fontFamily: font.familyMono,
+    textTransform: "none",
+    letterSpacing: font.trackingNormal,
   },
   headingPlain: {
     margin: 0,

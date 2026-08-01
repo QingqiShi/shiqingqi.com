@@ -165,7 +165,7 @@ const styles = stylex.create({
       default: 0.3,
       [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
     },
-    // Compact the whole scale toward the bottom-right corner so the tallest
+    // Compact the whole scale towards the bottom-right corner so the tallest
     // bars clear the description copy and the illustration reads smaller.
     transformBox: "view-box",
     transformOrigin: "320px 176px",

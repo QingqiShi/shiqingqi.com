@@ -114,7 +114,7 @@ function ControlledStepperSpecimen() {
 
 function UseControlledSection() {
   return (
-    <Showcase label="useControlled">
+    <Showcase label="useControlled" labelVariant="code">
       <ShowcaseHelper>
         {t({
           en: "Give a component both a controlled and an uncontrolled mode from one call. When a `controlled` value is passed it drives the component; otherwise the component keeps its own state from `defaultValue`. Reach for it whenever you build an input-like control.",
@@ -219,7 +219,7 @@ function DialogSpecimen() {
 
 function UseDialogFocusSection() {
   return (
-    <Showcase label="useDialogFocus">
+    <Showcase label="useDialogFocus" labelVariant="code">
       <ShowcaseHelper>
         {t({
           en: "The full focus lifecycle for a modal in one call: it moves focus into the dialog on open, traps Tab and Shift+Tab inside it, closes on Escape, and restores focus to the trigger on unmount. Use it for any dialog, sheet, or popover that must not leak focus.",
@@ -378,7 +378,7 @@ function PlacementSpecimen() {
 
 function UsePopoverSection() {
   return (
-    <Showcase label="usePopover">
+    <Showcase label="usePopover" labelVariant="code">
       <ShowcaseHelper>
         {t({
           en: "The headless layer beneath `Popover`, which is this hook plus a portal and the shared surface skin: it owns the open state, the placement, the dismissal rules, and the ARIA wiring, then hands back `triggerProps` and `contentProps` to spread onto your own elements. Placement is measured against the viewport rather than the trigger's corner — the side flips when it would overflow, both axes shift to stay on screen, and it re-places on scroll, on window resize, and whenever the trigger or the popup itself changes size. It moves focus into the popup on open and gives it back to the trigger on close, but it never traps focus and never locks scroll. Reach for it when the popup has to be something other than a padded surface — the element is yours to render, and it must be `position: fixed`, because the hook writes `top`/`left` straight to the node.",
@@ -449,7 +449,7 @@ function PressSpecimen() {
 
 function UsePressSection() {
   return (
-    <Showcase label="usePressHandlers / usePressAnimation">
+    <Showcase label="usePressHandlers / usePressAnimation" labelVariant="code">
       <ShowcaseHelper>
         {t({
           en: "The tactile press from Button — a spring scale, brightness lift, and directional nudge when the pointer drifts off — packaged for any element. `usePressAnimation` is the low-level state machine; `usePressHandlers` layers on click-cancel and the CSS custom properties. Reach for it to make a bespoke control feel like the rest of the system.",
@@ -538,7 +538,7 @@ function DensityRadioGroup() {
 
 function UseRadioGroupSection() {
   return (
-    <Showcase label="useRadioGroup">
+    <Showcase label="useRadioGroup" labelVariant="code">
       <ShowcaseHelper>
         {t({
           en: 'Headless single-select semantics: the hook returns a `getOptionProps(value)` factory that supplies `role="radio"`, `aria-checked`, roving `tabIndex`, and the full WAI-ARIA keyboard model — arrows move and select, Home/End jump, focus follows selection. You render the markup and the styling; it owns the accessibility.',

@@ -456,7 +456,7 @@ const styles = stylex.create({ region: { blockSize: space._13 } });`}
         />
       </Showcase>
 
-      <Showcase label="Table">
+      <Showcase label="Table" labelVariant="code">
         <PropsTable
           rows={[
             {
@@ -556,7 +556,7 @@ const styles = stylex.create({ region: { blockSize: space._13 } });`}
         />
       </Showcase>
 
-      <Showcase label="TableHeaderCell">
+      <Showcase label="TableHeaderCell" labelVariant="code">
         <PropsTable
           rows={[
             {
@@ -598,7 +598,7 @@ const styles = stylex.create({ region: { blockSize: space._13 } });`}
         />
       </Showcase>
 
-      <Showcase label="TableCell">
+      <Showcase label="TableCell" labelVariant="code">
         <PropsTable
           rows={[
             {

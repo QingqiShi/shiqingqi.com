@@ -9,11 +9,11 @@ import { t } from "#src/i18n.ts";
 interface DoDontProps {
   /** The recommended example. */
   do: ReactNode;
-  /** Caption for the recommended example — already localized by the caller. */
+  /** Caption for the recommended example — already localised by the caller. */
   doCaption: string;
   /** The discouraged example. */
   dont: ReactNode;
-  /** Caption for the discouraged example — already localized by the caller. */
+  /** Caption for the discouraged example — already localised by the caller. */
   dontCaption: string;
 }
 

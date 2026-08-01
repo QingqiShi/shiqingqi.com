@@ -11,7 +11,7 @@ interface UsageSnippetProps {
    * minimal JSX example. Multiline is expected; indentation is preserved.
    */
   code: string;
-  /** Caption above the code block. Defaults to a localized "Usage". */
+  /** Caption above the code block. Defaults to a localised "Usage". */
   label?: string;
 }
 

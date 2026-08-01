@@ -33,7 +33,7 @@ export default function DesignSystemOverview() {
       }),
     },
     "/design-system/foundations/color": {
-      label: t({ en: "Color", zh: "颜色" }),
+      label: t({ en: "Colour", zh: "颜色" }),
       description: t({
         en: "Ramps, background roles, and text roles.",
         zh: "色调阶梯、背景角色与文本角色。",
@@ -63,7 +63,7 @@ export default function DesignSystemOverview() {
     "/design-system/foundations/motion": {
       label: t({ en: "Motion", zh: "动效" }),
       description: t({
-        en: "Duration and easing tokens, transition and animation presets, and reduced-motion behavior.",
+        en: "Duration and easing tokens, transition and animation presets, and reduced-motion behaviour.",
         zh: "时长与缓动令牌、过渡与动画预设，以及减弱动效行为。",
       }),
     },

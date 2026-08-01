@@ -159,7 +159,7 @@ export function ElevationIllustration() {
 
 const styles = stylex.create({
   // Quiet grey face tokens, matched to the spacing bars so the sheets sit at the
-  // same brightness as the rest of the set; warm slightly toward gold on hover.
+  // same brightness as the rest of the set; warm slightly towards gold on hover.
   svg: {
     "--el-face-top": "light-dark(#d6d5d1, #47463f)",
     "--el-face-bot": "light-dark(#c4c3bd, #34332d)",

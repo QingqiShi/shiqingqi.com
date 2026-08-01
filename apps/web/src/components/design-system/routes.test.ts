@@ -10,7 +10,7 @@ import {
 
 // The shape of the route map, not its contents: these are the invariants the
 // nav rail and the overview browser both lean on, and neither can assert them
-// (both resolve localized copy, so neither is importable from a plain test).
+// (both resolve localised copy, so neither is importable from a plain test).
 describe("design-system route map", () => {
   const sections = getDesignSystemRouteSections();
 
@@ -127,7 +127,7 @@ describe("matchesDesignSystemQuery", () => {
 
   // Chinese labels carry no English, so the slug is what keeps a component
   // findable by its English name in the zh locale.
-  it("matches the English slug under a localized label", () => {
+  it("matches the English slug under a localised label", () => {
     expect(
       matchesDesignSystemQuery(
         "/design-system/components/switch",

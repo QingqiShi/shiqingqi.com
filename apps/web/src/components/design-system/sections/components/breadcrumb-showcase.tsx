@@ -58,7 +58,7 @@ export function BreadcrumbShowcase() {
         />
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
-            en: "Items run root first and the last one is the page you are on. label names the <nav> landmark and is required — the package ships no copy of its own, so the localized name comes from the consumer.",
+            en: "Items run root first and the last one is the page you are on. label names the <nav> landmark and is required — the package ships no copy of its own, so the localised name comes from the consumer.",
             zh: "各项从根开始排列，最后一项就是当前所在页面。label 为 <nav> 地标命名，且为必填——该包不自带任何文案，本地化名称由使用方提供。",
           })}
         </Text>
@@ -201,7 +201,7 @@ function RouterLink({ href, children, className, style }: BreadcrumbLinkProps) {
               type: "string",
               required: true,
               description: t({
-                en: "Accessible name for the <nav> landmark. Required because the package ships no i18n, so the consumer supplies the localized string.",
+                en: "Accessible name for the <nav> landmark. Required because the package ships no i18n, so the consumer supplies the localised string.",
                 zh: "为 <nav> 地标提供的可访问名称。因该包不内置 i18n 而设为必填，本地化字符串由使用方提供。",
               }),
             },

@@ -15,7 +15,7 @@ export function LineHeightsShowcase() {
     <Showcase label={t({ en: "Line heights", zh: "行高" })}>
       <ShowcaseHelper>
         {t({
-          en: "Same passage at every line-height — rhythm tightens at the bottom of the scale and opens up toward the top.",
+          en: "Same passage at every line-height — rhythm tightens at the bottom of the scale and opens up towards the top.",
           zh: "同一段文字以不同行高呈现——下端紧凑、上端舒缓。",
         })}
       </ShowcaseHelper>

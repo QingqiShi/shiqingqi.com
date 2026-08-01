@@ -5,7 +5,7 @@ import { illoBase } from "./illustration.stylex.ts";
 
 /**
  * Typography foundation-card illustration: a metallic serif "Aa" over a
- * type-scale ruler (72 / 48 / 24 / 16), dim silver at rest and warming toward
+ * type-scale ruler (72 / 48 / 24 / 16), dim silver at rest and warming towards
  * the cursor on hover.
  */
 export function TypographyIllustration() {
