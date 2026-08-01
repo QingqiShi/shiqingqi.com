@@ -20,8 +20,8 @@ export default function MenuButtonPage() {
     <DocPage
       title={t({ en: "Menu button", zh: "菜单按钮" })}
       description={t({
-        en: "A button that expands into a popup menu with a FLIP-animated reveal. Manages focus, keyboard navigation, and dismissal; pair it with menu labels and items.",
-        zh: "点击后以 FLIP 动画展开为弹出菜单的按钮。自动管理焦点、键盘导航与关闭；可搭配菜单标签与菜单项使用。",
+        en: "A button that expands into a popup with a FLIP-animated reveal. The default menu role moves focus into the popup and roves its items with the arrow keys; the group role is for popups that hold controls instead of commands. Both dismiss on Escape and on a click outside.",
+        zh: "点击后以 FLIP 动画展开为弹层的按钮。默认的 menu 角色会把焦点移入弹层，并用方向键在各项间移动；group 角色用于装控件而非命令的弹层。两者都可用 Escape 或点击弹层外关闭。",
       })}
     >
       <MenuShowcase />
