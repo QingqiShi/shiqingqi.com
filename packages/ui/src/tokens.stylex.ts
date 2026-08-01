@@ -486,14 +486,34 @@ export const border = stylex.defineVars({
   radius_round: "1e5px",
 });
 
+// Named planes for stacking order, listed bottom to top — the numbers are
+// spaced by 100 so a plane can take local steps without colliding with the next
+// one. The order encodes the invariants, so read it as a ladder:
+//
+// - `raised` lifts an in-page surface above scrolling `content` without leaving
+//   the page: a menu popped from a control, a sticky filter bar, a card that
+//   rises on hover. It stays under the chrome, so it scrolls away beneath it.
+// - `header` is that chrome — a fixed header, a sticky nav rail, a mobile bar.
+// - `overlay` covers the chrome too: a modal, drawer, or sheet owns the viewport
+//   while it is open, so its close affordance can never end up behind a header
+//   or a rail. Reach for it only when the surface really does own the viewport;
+//   a popover anchored to a control belongs on `raised`.
+// - `tooltip` covers an open overlay, because a tooltip can describe a control
+//   inside one; `toaster` covers everything, because a toast may be the only
+//   report that an action succeeded.
+//
+// A plane only applies where it can be seen: `position: fixed`, `sticky`, and
+// `isolation: isolate` all open a stacking context, and a child's `z-index`
+// never escapes one. Put the plane on the outermost element of the surface.
 export const layer = stylex.defineVars({
   background: stylex.types.integer(-100),
   base: stylex.types.integer(0),
   content: stylex.types.integer(100),
-  overlay: stylex.types.integer(200),
+  raised: stylex.types.integer(200),
   header: stylex.types.integer(300),
-  tooltip: stylex.types.integer(400),
-  toaster: stylex.types.integer(500),
+  overlay: stylex.types.integer(400),
+  tooltip: stylex.types.integer(500),
+  toaster: stylex.types.integer(600),
 });
 
 // The fade that marks a control inactive. One value for every control, because

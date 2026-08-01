@@ -276,9 +276,12 @@ const styles = stylex.create({
     position: "relative",
     display: "inline-block",
   },
+  // `raised`, not `overlay`: the menu is anchored to its trigger and belongs to
+  // the page, so it lifts over the content around it but still scrolls away
+  // under a fixed header rather than covering it.
   menuContainer: {
     position: "absolute",
-    zIndex: layer.overlay,
+    zIndex: layer.raised,
     borderRadius: border.radius_2,
   },
   hidden: {
@@ -356,6 +359,6 @@ const styles = stylex.create({
   backdrop: {
     position: "fixed",
     inset: 0,
-    zIndex: layer.overlay,
+    zIndex: layer.raised,
   },
 });

@@ -46,7 +46,9 @@ const styles = stylex.create({
   desktopContainer: {
     position: "sticky",
     top: `calc(${space._10} + env(safe-area-inset-top))`,
-    zIndex: layer.overlay,
+    // Sticky page chrome: above the cards it pins over (including one lifted by
+    // hover), below the site header it parks beneath.
+    zIndex: layer.raised,
     paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
     marginBottom: space._3,
   },
@@ -69,7 +71,7 @@ const styles = stylex.create({
   mobileContainer: {
     position: "sticky",
     top: `calc(${space._10} + env(safe-area-inset-top))`,
-    zIndex: layer.overlay,
+    zIndex: layer.raised,
     alignItems: "center",
     gap: space._1,
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,

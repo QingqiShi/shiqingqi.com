@@ -571,7 +571,9 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     boxShadow: shadow._2,
-    zIndex: layer.overlay,
+    // Anchored to its trigger, so it lifts over the page around it rather than
+    // claiming the viewport the way an overlay does.
+    zIndex: layer.raised,
   },
   menuItem: {
     paddingBlock: space._2,
