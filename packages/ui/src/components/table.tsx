@@ -334,15 +334,30 @@ const styles = stylex.create({
     textAlign: "start",
     verticalAlign: "top",
   },
-  // The rule sits on the cells, not on `<thead>`: in the collapsed model a
-  // sticky `<thead>` leaves its own border behind at the top of the table, so
-  // the head arrives over the scrolling rows with nothing separating them.
+  // A shadow, not a border: in the collapsed model a browser drops a stuck
+  // sticky head's collapsed border wherever it is declared — thead, tr or th —
+  // so the head arrives over the scrolling rows with nothing under it. An inset
+  // shadow is painted normally and survives the stick. `forced-colors` drops
+  // shadows, so the border comes back there, where nothing is sticky-painted
+  // anyway.
   columnHeaderCell: {
     fontWeight: font.weight_6,
     color: color.textMuted,
-    borderBlockEndWidth: border.size_1,
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.neutralBorder,
+    // `calc`, not a bare minus: the token is a `var()`, and `-var(…)` is not a
+    // length — the whole declaration parses as invalid and is dropped.
+    boxShadow: `inset 0 calc(-1 * ${border.size_1}) 0 ${color.neutralBorder}`,
+    borderBlockEndWidth: {
+      default: null,
+      "@media (forced-colors: active)": border.size_1,
+    },
+    borderBlockEndStyle: {
+      default: null,
+      "@media (forced-colors: active)": "solid",
+    },
+    borderBlockEndColor: {
+      default: null,
+      "@media (forced-colors: active)": color.neutralBorder,
+    },
   },
   rowHeaderCell: {
     fontWeight: font.weight_6,
