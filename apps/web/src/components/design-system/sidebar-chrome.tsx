@@ -1,5 +1,6 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import {
@@ -33,11 +34,14 @@ export function DesignSystemSidebarHeader({
       <Link
         href={getLocalePath("/", locale)}
         aria-label={t({ en: "Home", zh: "首页" })}
-        css={[transition.colors, styles.homeLink]}
+        css={[transition.colors, styles.homeLink, a11y.focusRing]}
       >
         <HouseIcon weight="bold" role="presentation" />
       </Link>
-      <Link href={getLocalePath("/design-system", locale)} css={styles.title}>
+      <Link
+        href={getLocalePath("/design-system", locale)}
+        css={[styles.title, a11y.focusRing]}
+      >
         {t({ en: "Design system", zh: "设计系统" })}
       </Link>
     </div>

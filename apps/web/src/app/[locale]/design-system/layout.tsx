@@ -1,13 +1,18 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
-import { space } from "@tuja/ui/tokens.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { border, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
 import {
   DesignSystemSidebarControls,
   DesignSystemSidebarHeader,
 } from "#src/components/design-system/sidebar-chrome.tsx";
+import {
+  DESIGN_SYSTEM_CONTENT_ID,
+  SkipToContent,
+} from "#src/components/design-system/skip-to-content.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
@@ -77,24 +82,53 @@ export default async function Layout({
   // renders no fixed header — the sidebar carries the title, the theme toggle,
   // and the language picker instead. The content region is the `<main>`
   // landmark, supplied by `SidebarLayout`.
+  //
+  // The skip link is the shell's first tab stop, ahead of the rail's ~30 route
+  // links, so it has to render before `SidebarLayout` in document order.
   return (
-    <SidebarLayout
-      sidebar={<DesignSystemNav />}
-      sidebarHeader={<DesignSystemSidebarHeader locale={validatedLocale} />}
-      sidebarFooter={<DesignSystemSidebarControls locale={validatedLocale} />}
-      menuLabel={t({ en: "Design system menu", zh: "设计系统菜单" })}
-      closeLabel={t({ en: "Close menu", zh: "关闭菜单" })}
-    >
-      {/* Guide pages are reading surfaces inside an app-density shell, so
-          the extra headroom above the page title lives here rather than in
-          the shell's compact defaults. */}
-      <div css={styles.page}>{children}</div>
-    </SidebarLayout>
+    <>
+      <SkipToContent />
+      <SidebarLayout
+        sidebar={<DesignSystemNav />}
+        sidebarHeader={<DesignSystemSidebarHeader locale={validatedLocale} />}
+        sidebarFooter={<DesignSystemSidebarControls locale={validatedLocale} />}
+        menuLabel={t({ en: "Design system menu", zh: "设计系统菜单" })}
+        closeLabel={t({ en: "Close menu", zh: "关闭菜单" })}
+      >
+        {/* Guide pages are reading surfaces inside an app-density shell, so
+            the extra headroom above the page title lives here rather than in
+            the shell's compact defaults.
+
+            This wrapper opens the `<main>` landmark, so it doubles as the skip
+            link's target. `tabIndex={-1}` is what lets the fragment move focus
+            here — a bare `id` only moves the sequential-navigation start point
+            — and the ring then confirms the jump landed rather than leaving the
+            visitor to guess. */}
+        <div
+          id={DESIGN_SYSTEM_CONTENT_ID}
+          tabIndex={-1}
+          css={[styles.page, a11y.focusRingInset]}
+        >
+          {children}
+        </div>
+      </SidebarLayout>
+    </>
   );
 }
 
 const styles = stylex.create({
   page: {
     paddingBlockStart: { default: space._3, [breakpoints.md]: space._7 },
+    // Corners for the focus ring above — the wrapper is otherwise unpainted.
+    borderRadius: border.radius_3,
+    // The skip link's fragment jump scrolls this element's block-start edge to
+    // the viewport's, and below `md` the shell's fixed pill bar is sitting
+    // there. Reserve its height so the page title lands in view instead of
+    // behind the bar; the value mirrors the mobile `paddingBlockStart` that
+    // `SidebarLayout`'s own `styles.root` uses to clear the same bar.
+    scrollMarginBlockStart: {
+      default: `calc(${space._10} + env(safe-area-inset-top))`,
+      [breakpoints.md]: 0,
+    },
   },
 });

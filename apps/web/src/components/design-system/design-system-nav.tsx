@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
@@ -175,10 +176,13 @@ export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
                         key={path}
                         href={getLocalePath(path, locale)}
                         aria-current={active ? "page" : undefined}
+                        // Inset ring: the rail scrolls the nav through a container
+                        // that clips inline overflow, which would crop an outward one.
                         css={[
                           transition.colors,
                           styles.link,
                           active && styles.linkActive,
+                          a11y.focusRingInset,
                         ]}
                       >
                         {itemLabels[path]}
