@@ -1,0 +1,369 @@
+"use client";
+
+import * as stylex from "@stylexjs/stylex";
+import { useRef, type ComponentProps, type ReactNode } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
+import { useControlled } from "../hooks/use-controlled.ts";
+import { useFieldAria } from "../hooks/use-field-aria.ts";
+import { a11y } from "../primitives/a11y.stylex.ts";
+import { flex } from "../primitives/flex.stylex.ts";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "../primitives/motion.stylex.ts";
+import { border, color, controlSize, shadow, space } from "../tokens.stylex.ts";
+import { fieldStyles } from "./field-shared.stylex.ts";
+import { sliderTokens } from "./slider.stylex.ts";
+
+type SliderSize = "sm" | "md" | "lg";
+
+// `size` is the design system's scale, not the native character-width attribute.
+// The rest are dropped so the numeric API below replaces their string forms.
+interface SliderOwnProps extends Omit<
+  ComponentProps<"input">,
+  | "type"
+  | "size"
+  | "min"
+  | "max"
+  | "step"
+  | "value"
+  | "defaultValue"
+  | "onChange"
+  | "children"
+> {
+  /**
+   * Visible label text, and the control's accessible name — it lands on the
+   * `<input>` itself via `htmlFor`, never on a wrapper. Required even when
+   * hidden via {@link SliderProps.labelHidden}.
+   */
+  label: string;
+  /**
+   * Visually hide the label (kept in the accessibility tree via `sr-only`). Use
+   * when an adjacent visual cue already names the control.
+   */
+  labelHidden?: boolean;
+  /** Helper text rendered under the label and wired via `aria-describedby`. */
+  description?: string;
+  /**
+   * Error message. When set, the track turns danger-coloured, `aria-invalid` is
+   * set, and the message renders with `role="alert"` and is appended to
+   * `aria-describedby`.
+   */
+  error?: string;
+  /**
+   * Live value display rendered opposite the label. Formatting is the
+   * consumer's — the Slider only places it.
+   */
+  readout?: ReactNode;
+  /** Lower bound of the range. Defaults to `0`. */
+  min?: number;
+  /** Upper bound of the range. Defaults to `100`. */
+  max?: number;
+  /** Granularity of each step. Defaults to `1`. */
+  step?: number;
+  /**
+   * Fires once when an interaction that moved the value ends — pointer release,
+   * key release, or losing focus mid-gesture. Drive expensive recomputation
+   * from this rather than from `onChange`.
+   */
+  onCommit?: (value: number) => void;
+  /** Track and thumb scale. Defaults to `"md"`. */
+  size?: SliderSize;
+  /** StyleX styles merged over the root wrapper — the escape hatch. */
+  css?: StyleProp;
+}
+
+/**
+ * A controlled slider whose parent never hears about the move is a dead
+ * control: `useControlled` hands back a no-op setter while `value` is supplied,
+ * so without `onChange` the thumb springs back the moment it is released.
+ */
+type SliderValueProps =
+  | {
+      /** Controlled value. Requires `onChange`. */
+      value: number;
+      /** Fires on every value change, including each move of a drag. */
+      onChange: (value: number) => void;
+      defaultValue?: undefined;
+    }
+  | {
+      value?: undefined;
+      /** Fires on every value change, including each move of a drag. */
+      onChange?: (value: number) => void;
+      /** Starting value when uncontrolled. Defaults to `min`. */
+      defaultValue?: number;
+    };
+
+type SliderProps = SliderOwnProps & SliderValueProps;
+
+/**
+ * Single-value slider built on a native `<input type="range">` restyled with
+ * `appearance: none`, so keyboard stepping (arrows, Home/End, PageUp/PageDown),
+ * focus, and value announcement come from the platform. Works controlled or
+ * uncontrolled, and carries the same label / description / error contract as
+ * the other fields.
+ *
+ * `onChange` streams every move; `onCommit` fires once per interaction.
+ */
+export function Slider({
+  label,
+  labelHidden,
+  description,
+  error,
+  readout,
+  value: valueProp,
+  defaultValue,
+  min = 0,
+  max = 100,
+  step = 1,
+  onChange,
+  onCommit,
+  size = "md",
+  css,
+  id,
+  disabled,
+  className,
+  style,
+  onPointerUp,
+  onPointerCancel,
+  onKeyUp,
+  onBlur,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+  ref,
+  ...rest
+}: SliderProps) {
+  const [value, setValue] = useControlled({
+    controlled: valueProp,
+    defaultValue: defaultValue ?? min,
+  });
+
+  // Holds the value of the in-flight interaction, so a commit reports what the
+  // last move produced and fires only when something actually moved.
+  const pendingCommitRef = useRef<number | null>(null);
+
+  const {
+    fieldId,
+    descriptionId,
+    errorId,
+    hasDescription,
+    hasError,
+    describedBy,
+    ariaInvalid: resolvedAriaInvalid,
+  } = useFieldAria({ id, ariaDescribedBy, ariaInvalid, description, error });
+
+  function commit() {
+    const pending = pendingCommitRef.current;
+    if (pending === null) {
+      return;
+    }
+    pendingCommitRef.current = null;
+    onCommit?.(pending);
+  }
+
+  const span = max - min;
+  const percent =
+    span > 0 ? Math.min(100, Math.max(0, ((value - min) / span) * 100)) : 0;
+
+  return (
+    <div css={[fieldStyles.root, css]}>
+      <div css={[flex.between, styles.labelRow]}>
+        <label
+          htmlFor={fieldId}
+          css={[fieldStyles.label, labelHidden && a11y.srOnly]}
+        >
+          {label}
+        </label>
+        {readout === undefined ? null : (
+          <span css={[fieldStyles.label, styles.readout]}>{readout}</span>
+        )}
+      </div>
+      {hasDescription ? (
+        <span id={descriptionId} css={fieldStyles.description}>
+          {description}
+        </span>
+      ) : null}
+      <input
+        {...rest}
+        ref={ref}
+        id={fieldId}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        disabled={disabled}
+        aria-invalid={resolvedAriaInvalid}
+        aria-describedby={describedBy}
+        className={className}
+        style={style}
+        css={[
+          a11y.focusRing,
+          styles.input,
+          sizeStyles[size],
+          fillStyles.fill(percent),
+          hasError && styles.inputInvalid,
+          disabled && styles.inputDisabled,
+        ]}
+        onChange={(event) => {
+          const next = event.currentTarget.valueAsNumber;
+          pendingCommitRef.current = next;
+          setValue(next);
+          onChange?.(next);
+        }}
+        onPointerUp={(event) => {
+          commit();
+          onPointerUp?.(event);
+        }}
+        onPointerCancel={(event) => {
+          commit();
+          onPointerCancel?.(event);
+        }}
+        onKeyUp={(event) => {
+          commit();
+          onKeyUp?.(event);
+        }}
+        onBlur={(event) => {
+          commit();
+          onBlur?.(event);
+        }}
+      />
+      {hasError ? (
+        <span id={errorId} role="alert" css={fieldStyles.errorText}>
+          {error}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+// The filled portion runs to `sliderTokens.fill`; the remainder falls through to
+// the track's own background colour.
+const ACCENT_FILL = `linear-gradient(to right, ${color.accent} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
+const DANGER_FILL = `linear-gradient(to right, ${color.danger} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
+const DISABLED_FILL = `linear-gradient(to right, ${color.neutral} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
+
+// WebKit stacks the thumb from the track's top edge instead of centring it.
+const THUMB_OFFSET = `calc((${sliderTokens.trackHeight} - ${sliderTokens.thumbSize}) / 2)`;
+const THUMB_LIFT = `transform ${duration._150} ${easing.easeOut}`;
+
+const styles = stylex.create({
+  labelRow: {
+    gap: space._2,
+  },
+  // Composed over `fieldStyles.label`, which it sits opposite in the same row.
+  readout: {
+    // A live figure that changes on every move must not shift its neighbours.
+    fontVariantNumeric: "tabular-nums",
+  },
+  input: {
+    appearance: "none",
+    margin: 0,
+    padding: 0,
+    inlineSize: "100%",
+    minInlineSize: 0,
+    // Tall enough that the thumb is never clipped by the track.
+    blockSize: sliderTokens.thumbSize,
+    backgroundColor: "transparent",
+    // Invisible in itself; it shapes the focus ring around the pill track.
+    borderRadius: border.radius_round,
+    cursor: { default: "pointer", ":disabled": "not-allowed" },
+    opacity: { default: null, ":disabled": 0.6 },
+
+    // The two engines each need their own track and thumb; StyleX takes only
+    // literal blocks under a pseudo-element, so the pair is spelled out twice.
+    "::-webkit-slider-runnable-track": {
+      blockSize: sliderTokens.trackHeight,
+      borderRadius: border.radius_round,
+      backgroundColor: color.surfaceNeutralSubtle,
+      backgroundImage: ACCENT_FILL,
+    },
+    "::-moz-range-track": {
+      blockSize: sliderTokens.trackHeight,
+      borderRadius: border.radius_round,
+      backgroundColor: color.surfaceNeutralSubtle,
+      backgroundImage: ACCENT_FILL,
+    },
+    "::-webkit-slider-thumb": {
+      appearance: "none",
+      boxSizing: "border-box",
+      blockSize: sliderTokens.thumbSize,
+      inlineSize: sliderTokens.thumbSize,
+      borderRadius: border.radius_round,
+      borderStyle: "solid",
+      borderWidth: border.size_2,
+      borderColor: color.accent,
+      backgroundColor: color.bgSurfaceBright,
+      boxShadow: shadow._2,
+      cursor: "inherit",
+      marginBlockStart: THUMB_OFFSET,
+      transition: {
+        default: THUMB_LIFT,
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
+      transform: { default: null, ":hover": "scale(1.12)" },
+    },
+    "::-moz-range-thumb": {
+      boxSizing: "border-box",
+      blockSize: sliderTokens.thumbSize,
+      inlineSize: sliderTokens.thumbSize,
+      borderRadius: border.radius_round,
+      borderStyle: "solid",
+      borderWidth: border.size_2,
+      borderColor: color.accent,
+      backgroundColor: color.bgSurfaceBright,
+      boxShadow: shadow._2,
+      cursor: "inherit",
+      transition: {
+        default: THUMB_LIFT,
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
+      transform: { default: null, ":hover": "scale(1.12)" },
+    },
+  },
+  // Composed after `a11y.focusRing`, so the danger ring wins — matching the
+  // invalid treatment on the other fields.
+  inputInvalid: {
+    outlineColor: { default: "transparent", ":focus-visible": color.danger },
+    "::-webkit-slider-runnable-track": { backgroundImage: DANGER_FILL },
+    "::-moz-range-track": { backgroundImage: DANGER_FILL },
+    "::-webkit-slider-thumb": { borderColor: color.danger },
+    "::-moz-range-thumb": { borderColor: color.danger },
+  },
+  // `:disabled` cannot be expressed from inside a pseudo-element block, so the
+  // disabled track is selected by the prop instead.
+  inputDisabled: {
+    "::-webkit-slider-runnable-track": { backgroundImage: DISABLED_FILL },
+    "::-moz-range-track": { backgroundImage: DISABLED_FILL },
+    "::-webkit-slider-thumb": {
+      borderColor: color.neutral,
+      transform: { default: null, ":hover": "none" },
+    },
+    "::-moz-range-thumb": {
+      borderColor: color.neutral,
+      transform: { default: null, ":hover": "none" },
+    },
+  },
+});
+
+const fillStyles = stylex.create({
+  fill: (percent: number) => ({
+    [sliderTokens.fill]: `${String(percent)}%`,
+  }),
+});
+
+const sizeStyles = stylex.create({
+  sm: {
+    [sliderTokens.trackHeight]: controlSize._1,
+    [sliderTokens.thumbSize]: controlSize._4,
+  },
+  md: {
+    [sliderTokens.trackHeight]: controlSize._2,
+    [sliderTokens.thumbSize]: controlSize._5,
+  },
+  lg: {
+    [sliderTokens.trackHeight]: controlSize._3,
+    [sliderTokens.thumbSize]: controlSize._6,
+  },
+});
