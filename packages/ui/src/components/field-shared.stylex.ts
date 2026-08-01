@@ -1,5 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  opacity,
+  space,
+} from "../tokens.stylex.ts";
 
 /**
  * Shared form-field chrome. `TextField`, `Textarea`, and future choice controls
@@ -95,7 +102,7 @@ export const fieldStyles = stylex.create({
     borderRadius: border.radius_2,
     paddingInline: fieldVars.paddingInline,
     cursor: { default: "text", ":disabled": "not-allowed" },
-    opacity: { default: null, ":disabled": 0.6 },
+    opacity: { default: null, ":disabled": opacity.disabled },
     "::placeholder": {
       color: color.textSubtle,
       opacity: 1,

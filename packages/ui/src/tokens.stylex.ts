@@ -71,7 +71,10 @@ const light = {
   bgSurfaceBright: gray._100,
   bgSurfaceFade: gray._95,
 
-  // Interactive — shared by buttons, list rows, menu items
+  // Interactive — shared by buttons, list rows, menu items. `…Disabled` is the
+  // one tone that never lands at full strength: it is painted on the same
+  // element as `opacity.disabled`, so what you see is always this tone
+  // composited with whatever sits behind the control.
   bgInteractiveRest: gray._100,
   bgInteractiveHover: gray._97,
   bgInteractivePressed: gray._92,
@@ -491,6 +494,17 @@ export const layer = stylex.defineVars({
   header: stylex.types.integer(300),
   tooltip: stylex.types.integer(400),
   toaster: stylex.types.integer(500),
+});
+
+// The fade that marks a control inactive. One value for every control, because
+// the fade is the whole disabled treatment — fill, label, border and icon dim
+// together against whatever is behind, which is what keeps it right on any
+// surface in either theme without a disabled color per variant. 0.6 lands
+// disabled text just under the AA floor the text ladder is held to (~4.0:1 for
+// a field's value and an accent button's label in light mode): legible, but
+// never as loud as something active.
+export const opacity = stylex.defineVars({
+  disabled: stylex.types.number(0.6),
 });
 
 export const ratio = stylex.defineVars({

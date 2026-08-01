@@ -11,7 +11,7 @@ import {
 import type { StyleProp } from "../css-prop-types.ts";
 import { usePressHandlers } from "../hooks/use-press-handlers.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { border, color, controlSize, font } from "../tokens.stylex.ts";
+import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { sharedStyles } from "./button-shared.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
@@ -263,7 +263,7 @@ const styles = stylex.create({
     },
     opacity: {
       default: null,
-      ":disabled": 0.7,
+      ":disabled": opacity.disabled,
     },
   },
   // A busy button stays natively enabled so it can keep focus, which means none
@@ -276,7 +276,7 @@ const styles = stylex.create({
   // to set the cursor — the arrow it falls back to is what a natively disabled
   // button shows anyway.
   busy: {
-    opacity: 0.7,
+    opacity: opacity.disabled,
     pointerEvents: "none",
   },
   // Keeps the label's box, and so the button's width, while the spinner sits on

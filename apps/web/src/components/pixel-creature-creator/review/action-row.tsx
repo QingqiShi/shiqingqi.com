@@ -8,6 +8,7 @@ import {
   color,
   font,
   layer,
+  opacity,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -535,7 +536,7 @@ const styles = stylex.create({
     },
     opacity: {
       default: 1,
-      ":disabled": 0.7,
+      ":disabled": opacity.disabled,
     },
     outlineOffset: border.size_2,
   },

@@ -23,7 +23,14 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  font,
+  opacity,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import { t } from "#src/i18n.ts";
@@ -1265,7 +1272,7 @@ const styles = stylex.create({
     },
     color: color.textMain,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": 0.4 },
+    opacity: { default: 1, ":disabled": opacity.disabled },
     transition: {
       default: `background-color ${duration._150} ${easing.easeOut}, border-color ${duration._150} ${easing.easeOut}, color ${duration._150} ${easing.easeOut}`,
       [motionConstants.REDUCED_MOTION]: "none",

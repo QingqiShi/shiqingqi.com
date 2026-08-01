@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { PixelLayer } from "../sprite/pixel-layer";
 import { ACCESSORY_PALETTE, accessories } from "../sprite/sprites";
@@ -129,7 +129,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "transparent",
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": 0.5 },
+    opacity: { default: 1, ":disabled": opacity.disabled },
     color: color.textMain,
   },
   optionSelected: {
