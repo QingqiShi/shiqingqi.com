@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function VoicePage() {
   return (
     <DocPage
+      path="/design-system/foundations/voice"
       title={t({ en: "Voice", zh: "语气" })}
       description={t({
         en: "The words are part of the component. A button whose label doesn't say what happens is a broken button, and no amount of styling repairs it. This is the standard the copy is held to.",

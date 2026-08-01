@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function TextFieldPage() {
   return (
     <DocPage
+      path="/design-system/components/text-field"
       title={t({ en: "Text field", zh: "文本输入框" })}
       description={t({
         en: "A single-line text input with a built-in label, optional helper text, and an accessible error state. Three sizes, leading and trailing adornment slots, and full native input props — server-renderable out of the box.",

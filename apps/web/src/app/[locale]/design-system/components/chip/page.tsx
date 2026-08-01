@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function ChipPage() {
   return (
     <DocPage
+      path="/design-system/components/chip"
       title={t({ en: "Chip", zh: "标签按钮" })}
       description={t({
         en: "A compact interactive pill: a filter, a shortcut, a selectable option. It renders a link when given an href and a button otherwise, so it is always keyboard-reachable. If it can't be clicked, it's a Badge.",

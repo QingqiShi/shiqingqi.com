@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function MenuButtonPage() {
   return (
     <DocPage
+      path="/design-system/components/menu-button"
       title={t({ en: "Menu button", zh: "菜单按钮" })}
       description={t({
         en: "A button that expands into a popup with a FLIP-animated reveal. The default menu role moves focus into the popup and roves its items with the arrow keys; the group role is for popups that hold controls instead of commands. Both dismiss on Escape and on a click outside.",

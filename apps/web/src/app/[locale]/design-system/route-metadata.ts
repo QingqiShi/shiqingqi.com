@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { DesignSystemPath } from "#src/components/design-system/routes.ts";
 import { BASE_URL } from "#src/constants.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
@@ -16,7 +17,8 @@ import { getLocalePath } from "#src/utils/pathname.ts";
  */
 export function designSystemMetadata(options: {
   locale: SupportedLocale;
-  path: string;
+  /** Same registered path the page hands `DocPage`, so the two cannot drift apart. */
+  path: DesignSystemPath;
   title: string;
   description?: string;
 }): Metadata {

@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function OptionCardPage() {
   return (
     <DocPage
+      path="/design-system/components/option-card"
       title={t({ en: "Option card", zh: "选项卡片" })}
       description={t({
         en: "The card-sized answer to a question: an icon, a label, a description, and a selection mark on one tappable surface — a radiogroup when only one answer is right, independent checkboxes when several are.",

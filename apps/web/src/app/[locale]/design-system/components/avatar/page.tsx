@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function AvatarPage() {
   return (
     <DocPage
+      path="/design-system/components/avatar"
       title={t({ en: "Avatar", zh: "头像" })}
       description={t({
         en: "A circular medallion standing for one person: their portrait when there is one, a monogram derived from their name when there isn't, and an optional corner badge for what they're doing.",

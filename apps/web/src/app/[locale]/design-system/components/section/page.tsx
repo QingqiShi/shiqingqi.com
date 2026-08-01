@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function SectionPage() {
   return (
     <DocPage
+      path="/design-system/components/section"
       title={t({ en: "Section", zh: "区块" })}
       description={t({
         en: "A labelled block of content. The label reads as quiet muted text because at this scale a section title is wayfinding rather than hierarchy — but it is still a real heading, so it can be navigated to.",

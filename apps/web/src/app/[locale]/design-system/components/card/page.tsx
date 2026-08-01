@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function CardPage() {
   return (
     <DocPage
+      path="/design-system/components/card"
       title={t({ en: "Card", zh: "卡片" })}
       description={t({
         en: "A bordered surface container. Static by default for panels and alerts; interactive for a clickable tile. When the whole card is a link, compose the surface onto a real anchor.",

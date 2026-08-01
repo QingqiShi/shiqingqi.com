@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function TextPage() {
   return (
     <DocPage
+      path="/design-system/components/text"
       title={t({ en: "Text", zh: "文本" })}
       description={t({
         en: "The body-copy typography primitive. Choose the type step with variant and the colour with tone, then pick the element with as — the semantic tag and the visual size stay decoupled.",

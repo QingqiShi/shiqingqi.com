@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function AccessibilityPage() {
   return (
     <DocPage
+      path="/design-system/foundations/accessibility"
       title={t({ en: "Accessibility", zh: "无障碍" })}
       description={t({
         en: "Not a checklist run at the end. Most of the work is already done by the components — this page says which parts, and what is left to you.",

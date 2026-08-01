@@ -21,6 +21,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function ColorPage() {
   return (
     <DocPage
+      path="/design-system/foundations/color"
       title={t({ en: "Colour", zh: "颜色" })}
       description={t({
         en: "Thirteen system hues, expanded into perceptually even ramps, then mapped onto background, surface, and text role tokens.",

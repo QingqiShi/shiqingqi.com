@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function DisclosurePage() {
   return (
     <DocPage
+      path="/design-system/components/disclosure"
       title={t({ en: "Disclosure", zh: "折叠面板" })}
       description={t({
         en: "A header row that reveals a panel beneath it. The component covers the case where the whole header is the trigger; the useDisclosure hook underneath covers the rest, keeping the same ARIA wiring.",

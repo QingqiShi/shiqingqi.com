@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function TextareaPage() {
   return (
     <DocPage
+      path="/design-system/components/textarea"
       title={t({ en: "Textarea", zh: "多行文本框" })}
       description={t({
         en: "A multi-line text input that shares TextField's label, description, and error chrome. Opt into auto-grow to have it expand with its content, or set a fixed row height the user can resize.",

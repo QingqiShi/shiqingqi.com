@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function LayoutPage() {
   return (
     <DocPage
+      path="/design-system/foundations/layout"
       title={t({ en: "Layout & breakpoints", zh: "布局与断点" })}
       description={t({
         en: "The scaffolding tokens: mobile-first breakpoints, the 1140px content cap, a controlSize scale that scales up for touch, a named z-index scale, and aspect ratios for media frames.",

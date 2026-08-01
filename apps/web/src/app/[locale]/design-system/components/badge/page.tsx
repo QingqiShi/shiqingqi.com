@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function BadgePage() {
   return (
     <DocPage
+      path="/design-system/components/badge"
       title={t({ en: "Badge", zh: "徽章" })}
       description={t({
         en: "Compact status and label indicators. The six Intents plus a bordered default, at two sizes.",

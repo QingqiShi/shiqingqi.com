@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function OverlayPage() {
   return (
     <DocPage
+      path="/design-system/components/overlay"
       title={t({ en: "Overlay", zh: "覆盖层" })}
       description={t({
         en: "A full-screen modal surface with a ViewTransition reveal. It owns the backdrop, focus trap, scroll lock, and Escape-to-close; you supply the content, the localised close label, and where it portals.",

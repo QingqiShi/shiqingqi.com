@@ -23,6 +23,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function TypographyPage() {
   return (
     <DocPage
+      path="/design-system/foundations/typography"
       title={t({ en: "Typography", zh: "文字设计" })}
       description={t({
         en: "One family in Inter, shaped by a fluid type scale, weight scale, line-heights, and tracking — then applied through the heading and body text styles.",

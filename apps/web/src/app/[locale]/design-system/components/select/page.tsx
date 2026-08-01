@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function SelectPage() {
   return (
     <DocPage
+      path="/design-system/components/select"
       title={t({ en: "Select", zh: "下拉选择" })}
       description={t({
         en: "A labelled wrapper around a native select, chosen for its built-in keyboard handling and platform picker. Feed choices through the options prop or drop down to option children for groups, with a themed chevron, placeholder, and error state.",

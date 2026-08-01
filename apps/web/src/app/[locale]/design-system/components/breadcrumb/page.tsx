@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function BreadcrumbPage() {
   return (
     <DocPage
+      path="/design-system/components/breadcrumb"
       title={t({ en: "Breadcrumb", zh: "面包屑导航" })}
       description={t({
         en: "The trail of ancestor pages above the current one: a named nav landmark, a link to every level that has a page, and the current page rendered as text rather than as a link to itself.",

@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function PopoverPage() {
   return (
     <DocPage
+      path="/design-system/components/popover"
       title={t({ en: "Popover", zh: "浮层" })}
       description={t({
         en: "Arbitrary content hung off a trigger and placed against the window, so the side flips and the panel shifts to stay on screen — dismissed by Escape, an outside pointer, or focus leaving, and never trapping either focus or scroll.",

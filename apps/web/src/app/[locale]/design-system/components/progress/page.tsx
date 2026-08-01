@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function ProgressPage() {
   return (
     <DocPage
+      path="/design-system/components/progress"
       title={t({ en: "Progress", zh: "进度条" })}
       description={t({
         en: "A determinate meter for work of known length — it reports its value to a screen reader as well as drawing it, and leaves waits with no measurable end to Spinner.",

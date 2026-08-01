@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function HeaderFooterLayoutPage() {
   return (
     <DocPage
+      path="/design-system/components/header-footer-layout"
       title={t({ en: "Header & footer layout", zh: "页头页脚布局" })}
       description={t({
         en: "A reading-density shell for information surfaces. Supply the header's start and end regions and an optional footer; the shell owns the fixed bar, the readable centred column, and the breathing room around it.",

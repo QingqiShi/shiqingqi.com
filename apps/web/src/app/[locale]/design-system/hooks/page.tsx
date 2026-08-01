@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function HooksPage() {
   return (
     <DocPage
+      path="/design-system/hooks"
       title={t({ en: "Hooks", zh: "钩子" })}
       description={t({
         en: "The custom layer's behaviour, decoupled from its looks. These headless hooks carry the hard parts — controlled/uncontrolled state, focus trapping, viewport-aware placement, press physics, and accessible keyboard models — so a bespoke control can borrow the guarantees without inheriting a single opinion about how it should look.",

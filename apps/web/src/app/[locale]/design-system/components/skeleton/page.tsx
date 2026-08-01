@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function SkeletonPage() {
   return (
     <DocPage
+      path="/design-system/components/skeleton"
       title={t({ en: "Skeleton", zh: "骨架屏" })}
       description={t({
         en: "Placeholder shapes that hold a layout's space while content loads. Size them explicitly, let them fill their container, or stagger their pulse across a group.",

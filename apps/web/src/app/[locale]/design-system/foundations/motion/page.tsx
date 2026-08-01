@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function MotionPage() {
   return (
     <DocPage
+      path="/design-system/foundations/motion"
       title={t({ en: "Motion", zh: "动效" })}
       description={t({
         en: "The timing language of the system: a duration scale, a set of easing curves, and ready-made transition and keyframe presets — each with a prefers-reduced-motion fallback baked in.",

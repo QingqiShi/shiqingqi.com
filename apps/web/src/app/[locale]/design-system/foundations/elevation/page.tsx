@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function ElevationPage() {
   return (
     <DocPage
+      path="/design-system/foundations/elevation"
       title={t({ en: "Elevation", zh: "层深" })}
       description={t({
         en: "A layered elevation scale that lifts surfaces off the page — from a hairline rest state up to floating overlays.",

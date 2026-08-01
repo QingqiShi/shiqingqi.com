@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function CalloutPage() {
   return (
     <DocPage
+      path="/design-system/components/callout"
       title={t({ en: "Callout", zh: "提示框" })}
       description={t({
         en: "An inline message or alert box. A token-themed subtle background, matching border, and tinted icon carry the Intent, and the box itself is the live region so its text is announced. Add a title for a heading, override or drop the icon, and pair onDismiss with a label for a close button.",

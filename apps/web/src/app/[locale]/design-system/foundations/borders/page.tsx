@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function BordersPage() {
   return (
     <DocPage
+      path="/design-system/foundations/borders"
       title={t({ en: "Borders & radius", zh: "描边与圆角" })}
       description={t({
         en: "The edges of the system: rule thicknesses for surfaces and dividers, and a corner-radius scale that reads as a hierarchy — tight on controls, softer on the surfaces that hold them, full pill for chips and avatars.",

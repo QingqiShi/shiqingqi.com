@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function SegmentedControlPage() {
   return (
     <DocPage
+      path="/design-system/components/segmented-control"
       title={t({ en: "Segmented control", zh: "分段控件" })}
       description={t({
         en: "A single-select track whose options are all visible at once. Use it for two to four mutually exclusive views of the same content; a longer or open-ended list belongs in a Select.",

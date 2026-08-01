@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function IconographyPage() {
   return (
     <DocPage
+      path="/design-system/foundations/iconography"
       title={t({ en: "Iconography", zh: "图标" })}
       description={t({
         en: "Icons come from Phosphor, imported one icon at a time from the SSR entry so the client only ships what it uses. Two weights, sizing that follows font-size, and colour that follows currentColor — with accessible names handled by the control the icon sits in.",

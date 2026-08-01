@@ -448,9 +448,21 @@ export function getDesignSystemRouteSections(): DesignSystemRouteSection[] {
   }).filter((entry) => entry.groups.length > 0);
 }
 
-const KEYWORDS_BY_PATH = new Map(
-  ROUTES.map((route) => [route.path, route.keywords ?? []]),
-);
+const ROUTE_BY_PATH = new Map(ROUTES.map((route) => [route.path, route]));
+
+/**
+ * Which section a route belongs to — what a breadcrumb puts between the
+ * overview and the page. Pure, so a server page can resolve the section here
+ * and its own copy separately.
+ */
+export function getDesignSystemRouteSection(
+  path: DesignSystemPath,
+): DesignSystemSectionId {
+  // The fallback is unreachable while `path` comes from the route map, which
+  // the type says and a `Map` lookup cannot; `overview` carries no crumb, so
+  // an impossible path loses a level rather than naming the wrong one.
+  return ROUTE_BY_PATH.get(path)?.section ?? "overview";
+}
 
 /**
  * Case- and separator-insensitive, so "text field", "textfield" and
@@ -474,7 +486,11 @@ export function matchesDesignSystemQuery(
   if (needle === "") return true;
 
   const slug = path.slice(path.lastIndexOf("/") + 1);
-  const candidates = [label, slug, ...(KEYWORDS_BY_PATH.get(path) ?? [])];
+  const candidates = [
+    label,
+    slug,
+    ...(ROUTE_BY_PATH.get(path)?.keywords ?? []),
+  ];
   return candidates.some((candidate) =>
     foldForSearch(candidate).includes(needle),
   );

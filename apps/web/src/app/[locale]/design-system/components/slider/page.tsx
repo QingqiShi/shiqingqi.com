@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function SliderPage() {
   return (
     <DocPage
+      path="/design-system/components/slider"
       title={t({ en: "Slider", zh: "滑块" })}
       description={t({
         en: "A single-value range control built on the native input, so keyboard stepping and value announcement come from the platform, with a readout slot for the figure the visitor is choosing.",

@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function PrimitivesPage() {
   return (
     <DocPage
+      path="/design-system/primitives"
       title={t({ en: "Primitives", zh: "原语" })}
       description={t({
         en: "The custom layer's building blocks: multi-property StyleX primitives you compose directly when no component fits. Each bundles a common cluster of properties — flex layouts, position fills, motion presets, resets, and accessibility helpers — so a bespoke surface still inherits the system's defaults instead of hand-rolling CSS.",

@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function HeadingPage() {
   return (
     <DocPage
+      path="/design-system/components/heading"
       title={t({ en: "Heading", zh: "标题" })}
       description={t({
         en: "The heading typography primitive. Keep ranks in document order with level, then pick any visual size with variant — the two stay decoupled so the outline never fights the design.",

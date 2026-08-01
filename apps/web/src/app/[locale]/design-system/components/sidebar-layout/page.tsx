@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function SidebarLayoutPage() {
   return (
     <DocPage
+      path="/design-system/components/sidebar-layout"
       title={t({ en: "Sidebar layout", zh: "侧边栏布局" })}
       description={t({
         en: "An app-density page shell for app-like surfaces. Supply the navigation, an optional title and utility slots, and the content; the shell owns the responsive columns, the mobile drawer, and the readable content cap.",

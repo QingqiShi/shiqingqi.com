@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function IconButtonPage() {
   return (
     <DocPage
+      path="/design-system/components/icon-button"
       title={t({ en: "Icon button", zh: "图标按钮" })}
       description={t({
         en: "A compact, icon-only button. The plain variant is a transparent affordance for inline use over a surface; the surface variant floats over scrolling content with a fill and shadow. It renders a real button element, so keyboard focus and activation work for free — and because it has no visible text, an aria-label or aria-labelledby is required at the type level.",

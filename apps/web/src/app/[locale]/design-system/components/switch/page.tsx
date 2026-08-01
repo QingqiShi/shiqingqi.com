@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function SwitchPage() {
   return (
     <DocPage
+      path="/design-system/components/switch"
       title={t({ en: "Switch", zh: "开关" })}
       description={t({
         en: "A draggable, three-state toggle. Click, drag the thumb, or use the keyboard — on, off, and an indeterminate middle state, controlled or uncontrolled.",

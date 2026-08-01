@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function SpinnerPage() {
   return (
     <DocPage
+      path="/design-system/components/spinner"
       title={t({ en: "Spinner", zh: "加载指示器" })}
       description={t({
         en: "An indeterminate loading indicator — a gapped ring that spins smoothly. Sizes map to rem so it scales with the user's font size; tone inherits the surrounding text colour or pins the accent. It needs an accessible name via label, unless it sits inside an already-labelled busy region, where it should be aria-hidden.",

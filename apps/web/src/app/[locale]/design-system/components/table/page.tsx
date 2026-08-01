@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function TablePage() {
   return (
     <DocPage
+      path="/design-system/components/table"
       title={t({ en: "Table", zh: "表格" })}
       description={t({
         en: "A static, semantic data table in its own scrolling region — a required caption names it, numeric columns line up digit for digit, and the head can hold at the top while the rows move under it.",

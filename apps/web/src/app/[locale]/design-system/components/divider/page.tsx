@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function DividerPage() {
   return (
     <DocPage
+      path="/design-system/components/divider"
       title={t({ en: "Divider", zh: "分隔线" })}
       description={t({
         en: "Visual separators for content. Subtle for in-flow breaks, bold for stronger separation, decorative for accent moments.",

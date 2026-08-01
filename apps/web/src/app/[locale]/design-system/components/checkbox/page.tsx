@@ -22,6 +22,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function CheckboxPage() {
   return (
     <DocPage
+      path="/design-system/components/checkbox"
       title={t({ en: "Checkbox", zh: "复选框" })}
       description={t({
         en: "A labelled checkbox built on a native input, so keyboard activation, focus, and label association come for free. Supports a tri-state indeterminate dash for select-all groups, a description, and an inline error message.",

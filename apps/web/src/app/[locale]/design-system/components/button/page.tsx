@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default function ButtonPage() {
   return (
     <DocPage
+      path="/design-system/components/button"
       title={t({ en: "Button", zh: "按钮" })}
       description={t({
         en: "The primary action control, with a tactile press animation. Variants step from the default raised surface down through outline and ghost, plus primary and danger for the actions that carry weight; optional leading or icon-only content, a busy state, and a segmented group for related choices.",

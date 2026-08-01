@@ -1,9 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { DocBreadcrumb } from "./doc-breadcrumb.tsx";
 import { measure } from "./measure.stylex.ts";
+import type { DesignSystemPath } from "./routes.ts";
 
 interface DocPageProps {
+  /** The route this page is registered at — the breadcrumb reads its section from it. */
+  path: DesignSystemPath;
   title: string;
   description: ReactNode;
   children: ReactNode;
@@ -11,15 +15,20 @@ interface DocPageProps {
 
 /**
  * Shared header + body frame for a single design-system entry (one foundation
- * or component per route). Renders the page-level `h1` and intro, then a
- * consistent content column the showcases flow into.
+ * or component per route). Renders the breadcrumb, the page-level `h1` and
+ * intro, then a consistent content column the showcases flow into.
  */
-export function DocPage({ title, description, children }: DocPageProps) {
+export function DocPage({ path, title, description, children }: DocPageProps) {
   return (
     <article css={styles.page}>
       <header css={styles.header}>
-        <h1 css={styles.title}>{title}</h1>
-        <p css={styles.description}>{description}</p>
+        <DocBreadcrumb path={path} title={title} />
+        {/* Its own column: the trail is chrome above the page, and sharing the
+            header's gap would set it as an over-line on the title. */}
+        <div css={styles.intro}>
+          <h1 css={styles.title}>{title}</h1>
+          <p css={styles.description}>{description}</p>
+        </div>
       </header>
       <div css={styles.body}>{children}</div>
     </article>
@@ -35,6 +44,11 @@ const styles = stylex.create({
     marginInline: "auto",
   },
   header: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._4,
+  },
+  intro: {
     display: "flex",
     flexDirection: "column",
     gap: space._2,
