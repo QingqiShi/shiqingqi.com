@@ -36,6 +36,10 @@ const EXPECTED_NON_STYLEX_EXPORTS: ReadonlySet<string> = new Set([
   // value. It parses its millisecond count off `duration._150` so it cannot
   // drift from the `transform` leg of `pressTransition`.
   "src/components/button-shared.stylex.ts#PRESS_ANIMATION_DURATION",
+  // The palette mapping behind the `color` vars, as plain hex. Read only by
+  // `tokens.contrast.test.ts`, which measures the pairings — styles compose
+  // `color.*` instead, and the vars carry no hex at runtime to measure.
+  "src/tokens.stylex.ts#themeSource",
 ]);
 
 /** Recursively list `*.stylex.ts` files as package-relative posix paths. */

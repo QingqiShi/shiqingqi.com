@@ -90,10 +90,12 @@ const styles = stylex.create({
     letterSpacing: font.trackingSnug,
     lineHeight: font.lineHeight_2,
   },
+  // Matches the surface cells' token label: caption size at full strength, so
+  // the name stays readable on the tinted and solid role fills alike.
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    opacity: 0.85,
+    fontSize: font.uiCaption,
+    letterSpacing: font.trackingTight,
     lineHeight: font.lineHeight_2,
   },
 });

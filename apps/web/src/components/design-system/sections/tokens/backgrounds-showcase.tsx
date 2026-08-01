@@ -168,7 +168,6 @@ export function BackgroundsShowcase() {
             label={t({ en: "Disabled", zh: "禁用" })}
             token="color.bgInteractiveDisabled"
             bg={styles.fillInteractiveDisabled}
-            fg={styles.textDisabled}
           />
         </Band>
 
@@ -306,11 +305,18 @@ const styles = stylex.create({
     color: color.textSubtle,
     lineHeight: font.lineHeight_2,
   },
+  // The token name is read, not glanced at, so it sits at the caption size
+  // rather than the overline size, at the full strength of `textSubtle` — the
+  // token is already the quiet end of the text ladder, and dimming it further
+  // dropped it back under AA on every surface lighter than a white card.
+  // Tight tracking buys back the width the larger size costs, so the longest
+  // names (`color.bgInteractiveSelected`, `…Disabled`) still set on one line in
+  // the five-column Interactive band.
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
+    fontSize: font.uiCaption,
+    letterSpacing: font.trackingTight,
     color: color.textSubtle,
-    opacity: 0.85,
     lineHeight: font.lineHeight_2,
   },
 
@@ -330,8 +336,11 @@ const styles = stylex.create({
   fillInteractiveHover: { backgroundColor: color.bgInteractiveHover },
   fillInteractivePressed: { backgroundColor: color.bgInteractivePressed },
   fillInteractiveSelected: { backgroundColor: color.bgInteractiveSelected },
+  // No `fg` override: `fg` is for fills that need a different foreground to
+  // stay legible (bright, inverse, scrim). Dimming this cell's label would
+  // instead be documenting a disabled-text token, and there isn't one — a
+  // disabled control fades as a whole through opacity. The fill is the specimen.
   fillInteractiveDisabled: { backgroundColor: color.bgInteractiveDisabled },
-  textDisabled: { color: color.textSubtle, opacity: 0.7 },
 
   // Inverse / overlay band
   fillInverse: { backgroundColor: color.bgInverse },
