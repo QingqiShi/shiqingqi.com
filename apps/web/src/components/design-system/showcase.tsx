@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface ShowcaseProps {
@@ -53,6 +54,35 @@ export function ShowcaseItem({ label, children }: ShowcaseItemProps) {
       <div css={styles.itemSpecimen}>{children}</div>
       <span css={styles.itemLabel}>{label}</span>
     </div>
+  );
+}
+
+interface StateReadoutProps {
+  /** What produced the value — `"onChange →"`, `"selected →"`. Already localized. */
+  label: string;
+  /** Fixed-width figures, so a value that changes on every move holds still. */
+  tabular?: boolean;
+  children: ReactNode;
+}
+
+/**
+ * The value a live demo reports back, as a labelled monospace chip. Shared
+ * because every page that demonstrates a callback firing has to answer the same
+ * question — what did it just fire with — and four of them had grown their own
+ * identical copy of the answer.
+ */
+export function StateReadout({
+  label,
+  tabular = false,
+  children,
+}: StateReadoutProps) {
+  return (
+    <Text variant="bodySmall" tone="muted">
+      {label}{" "}
+      <span css={[styles.stateValue, tabular && styles.tabular]}>
+        {children}
+      </span>
+    </Text>
   );
 }
 
@@ -110,5 +140,17 @@ const styles = stylex.create({
   itemLabel: {
     fontSize: font.uiCaption,
     color: color.textSubtle,
+  },
+  stateValue: {
+    fontFamily: font.familyMono,
+    fontWeight: font.weight_6,
+    color: color.textMain,
+    paddingInline: space._1,
+    paddingBlock: space._00,
+    borderRadius: border.radius_1,
+    backgroundColor: color.bgInteractiveRest,
+  },
+  tabular: {
+    fontVariantNumeric: "tabular-nums",
   },
 });

@@ -144,6 +144,13 @@ export default function DesignSystemOverview() {
         zh: "紧凑的可交互胶囊形控件——链接或按钮，绝非静态标签。",
       }),
     },
+    "/design-system/components/breadcrumb": {
+      label: t({ en: "Breadcrumb", zh: "面包屑导航" }),
+      description: t({
+        en: "A trail of links back up the hierarchy, ending on the page you are reading.",
+        zh: "沿层级向上回溯的链接路径，终点是当前所在页面。",
+      }),
+    },
     "/design-system/components/badge": {
       label: t({ en: "Badge", zh: "徽章" }),
       description: t({
@@ -156,6 +163,13 @@ export default function DesignSystemOverview() {
       description: t({
         en: "A portrait or monogram medallion with an optional corner badge.",
         zh: "头像或字母缩写徽章，可附带角标。",
+      }),
+    },
+    "/design-system/components/table": {
+      label: t({ en: "Table", zh: "表格" }),
+      description: t({
+        en: "A semantic data table in its own scrolling region, with tabular figures and a sticky head.",
+        zh: "位于独立滚动区域的语义化数据表格，支持等宽数字与粘性表头。",
       }),
     },
     "/design-system/components/callout": {
@@ -191,6 +205,13 @@ export default function DesignSystemOverview() {
       description: t({
         en: "An indeterminate loading indicator that respects reduced motion.",
         zh: "尊重减弱动效偏好的不确定加载指示器。",
+      }),
+    },
+    "/design-system/components/progress": {
+      label: t({ en: "Progress", zh: "进度条" }),
+      description: t({
+        en: "A determinate bar for a wait whose length the page already knows.",
+        zh: "用于页面已知时长的等待过程的确定型进度条。",
       }),
     },
     "/design-system/components/skeleton": {
@@ -242,6 +263,20 @@ export default function DesignSystemOverview() {
         zh: "用于同一内容二至四种视图的单选轨道。",
       }),
     },
+    "/design-system/components/option-card": {
+      label: t({ en: "Option card", zh: "选项卡片" }),
+      description: t({
+        en: "The roomy form of a single choice, for options that need explaining.",
+        zh: "单选的宽裕形态，适合需要说明的选项。",
+      }),
+    },
+    "/design-system/components/slider": {
+      label: t({ en: "Slider", zh: "滑块" }),
+      description: t({
+        en: "A range input with a live readout, streaming moves and a single commit.",
+        zh: "带实时读数的范围输入，持续报告移动并在结束时提交一次。",
+      }),
+    },
     "/design-system/components/select": {
       label: t({ en: "Select", zh: "下拉选择" }),
       description: t({
@@ -254,6 +289,13 @@ export default function DesignSystemOverview() {
       description: t({
         en: "A full-screen modal surface with focus trapping.",
         zh: "带焦点捕获的全屏模态层。",
+      }),
+    },
+    "/design-system/components/popover": {
+      label: t({ en: "Popover", zh: "浮层" }),
+      description: t({
+        en: "A surface anchored to its trigger that flips away from the viewport edge.",
+        zh: "锚定在触发元素上的浮层，会自动避开视口边缘翻转。",
       }),
     },
     "/design-system/components/sidebar-layout": {

@@ -139,7 +139,12 @@ const styles = stylex.create({
     color: color.textMuted,
     overflowWrap: "break-word",
   },
+  // `minInlineSize: 0` lets the grid track shrink, but a description carrying an
+  // unbreakable run — a type expression quoted inline — still floors at its
+  // min-content width and escapes the card, and every ancestor up to `<body>`
+  // is `overflow: visible`, so the whole page ends up scrolling sideways.
   description: {
     minInlineSize: 0,
+    overflowWrap: "break-word",
   },
 });

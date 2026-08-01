@@ -3,13 +3,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Select } from "@tuja/ui/components/select";
-import { Text } from "@tuja/ui/components/text";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import { Showcase } from "../../showcase.tsx";
+import { Showcase, StateReadout } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 const USAGE = `import { Select } from "@tuja/ui/components/select";
@@ -44,12 +43,9 @@ function LiveSelect() {
           }}
         />
       </div>
-      <Text variant="bodySmall" tone="muted">
-        {t({ en: "onChange →", zh: "onChange →" })}{" "}
-        <span css={styles.stateValue}>
-          {selected ? selected.label : t({ en: "none", zh: "无" })}
-        </span>
-      </Text>
+      <StateReadout label={t({ en: "onChange →", zh: "onChange →" })}>
+        {selected ? selected.label : t({ en: "none", zh: "无" })}
+      </StateReadout>
     </div>
   );
 }
@@ -302,14 +298,5 @@ const styles = stylex.create({
   },
   fill: {
     inlineSize: "100%",
-  },
-  stateValue: {
-    fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.textMain,
-    paddingInline: space._1,
-    paddingBlock: space._00,
-    borderRadius: border.radius_1,
-    backgroundColor: color.bgInteractiveRest,
   },
 });

@@ -168,6 +168,15 @@ export const DESIGN_SYSTEM_ROUTES = [
     path: "/design-system/components/chip",
     keywords: ["pill", "tag", "filter", "token"],
   },
+  // Breadcrumb sits with the Actions rather than under a Navigation heading of
+  // its own: it is a row of links the visitor operates, and one route cannot
+  // carry a category — the route map requires two before a heading earns a slot.
+  {
+    section: "components",
+    category: "actions",
+    path: "/design-system/components/breadcrumb",
+    keywords: ["trail", "navigation", "path", "hierarchy", "back", "crumbs"],
+  },
   {
     section: "components",
     category: "forms",
@@ -204,6 +213,20 @@ export const DESIGN_SYSTEM_ROUTES = [
     path: "/design-system/components/segmented-control",
     keywords: ["tabs", "toggle group", "radio", "switcher", "form"],
   },
+  // Directly under Segmented control, which it is the roomy form of: the same
+  // pick-one-from-a-visible-set job, sized for choices that need explaining.
+  {
+    section: "components",
+    category: "forms",
+    path: "/design-system/components/option-card",
+    keywords: ["radio", "choice", "tile", "picker", "selectable", "form"],
+  },
+  {
+    section: "components",
+    category: "forms",
+    path: "/design-system/components/slider",
+    keywords: ["range", "track", "thumb", "scrub", "form"],
+  },
   // Avatar and Badge are the inert markers that label a thing or report its
   // state. Badge sits here rather than beside Chip in Actions on purpose: the
   // two are not variants of each other, and the split is the rule made visible.
@@ -219,6 +242,16 @@ export const DESIGN_SYSTEM_ROUTES = [
     path: "/design-system/components/badge",
     keywords: ["label", "status", "tag", "count", "pill"],
   },
+  // Table joins the two markers above rather than opening a category of its
+  // own: one route cannot carry a heading, and the obvious name for that
+  // heading — Data — would promise the sorting, virtualisation and selection
+  // this component deliberately does not have.
+  {
+    section: "components",
+    category: "dataDisplay",
+    path: "/design-system/components/table",
+    keywords: ["data", "rows", "columns", "grid", "spreadsheet", "tabular"],
+  },
   {
     section: "components",
     category: "feedback",
@@ -230,6 +263,14 @@ export const DESIGN_SYSTEM_ROUTES = [
     category: "feedback",
     path: "/design-system/components/spinner",
     keywords: ["loader", "loading", "progress", "busy"],
+  },
+  // Beside Spinner on purpose: the pair is one decision, and reading them apart
+  // is what leads to a spinner standing in for a quantity the page already knows.
+  {
+    section: "components",
+    category: "feedback",
+    path: "/design-system/components/progress",
+    keywords: ["bar", "loading", "percent", "determinate", "meter"],
   },
   {
     section: "components",
@@ -262,6 +303,12 @@ export const DESIGN_SYSTEM_ROUTES = [
     category: "surfaces",
     path: "/design-system/components/overlay",
     keywords: ["modal", "dialog", "popup", "lightbox"],
+  },
+  {
+    section: "components",
+    category: "surfaces",
+    path: "/design-system/components/popover",
+    keywords: ["tooltip", "dropdown", "flyout", "anchored", "floating"],
   },
   {
     section: "components",
