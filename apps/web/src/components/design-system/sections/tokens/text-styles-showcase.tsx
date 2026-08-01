@@ -4,6 +4,7 @@ import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 
 export function TextStylesShowcase() {
@@ -83,6 +84,12 @@ export function TextStylesShowcase() {
             <span css={styles.token}>overline</span>
           </div>
         </div>
+        <ShowcaseHelper>
+          {t({
+            en: "How long a line of any of these may run is a page decision, not a type one — see the measure on the Layout foundation.",
+            zh: "这些样式的每行能排多长，取决于页面而非字体样式——见“布局与断点”基础页中的行长。",
+          })}
+        </ShowcaseHelper>
       </Showcase>
 
       <Showcase label={t({ en: "Tones", zh: "色调" })}>

@@ -28,11 +28,12 @@ export type DesignSystemSectionId =
   "overview" | "foundations" | "components" | "composition";
 
 /**
- * The job a component does, and the inner level of the route map. Only
- * `"components"` routes carry one — the other sections are short enough to
- * read as one list each.
+ * The inner level of the route map: what a component is for, or what a
+ * foundation decides. `"composition"` is short enough to read as one list.
  */
 export type DesignSystemCategoryId =
+  | "visual"
+  | "behaviour"
   | "content"
   | "actions"
   | "forms"
@@ -43,7 +44,7 @@ export type DesignSystemCategoryId =
 
 export interface DesignSystemRoute {
   section: DesignSystemSectionId;
-  /** Components only. Absent elsewhere — those sections list routes directly. */
+  /** Absent on the sections short enough to list their routes directly. */
   category?: DesignSystemCategoryId;
   /** Locale-agnostic path; resolved per-locale by the consumer at render. */
   path: string;
@@ -65,45 +66,68 @@ export interface DesignSystemRoute {
  */
 export const DESIGN_SYSTEM_ROUTES = [
   { section: "overview", path: "/design-system" },
+  // Foundations splits the same way Components does, and for the same reason:
+  // ten in a row is past what a visitor can scan. Seven decide what a surface
+  // looks like; three decide how it treats the person in front of it.
   {
     section: "foundations",
+    category: "visual",
     path: "/design-system/foundations/color",
     keywords: ["palette", "hue", "tone", "swatch", "theme", "contrast"],
   },
   {
     section: "foundations",
+    category: "visual",
     path: "/design-system/foundations/typography",
     keywords: ["font", "type scale", "weight", "leading", "tracking"],
   },
   {
     section: "foundations",
+    category: "visual",
     path: "/design-system/foundations/spacing",
     keywords: ["space", "gap", "padding", "margin", "rhythm"],
   },
   {
     section: "foundations",
+    category: "visual",
     path: "/design-system/foundations/elevation",
     keywords: ["shadow", "depth", "raised", "sunken"],
   },
   {
     section: "foundations",
-    path: "/design-system/foundations/motion",
-    keywords: ["animation", "transition", "easing", "duration", "reduced"],
-  },
-  {
-    section: "foundations",
+    category: "visual",
     path: "/design-system/foundations/borders",
     keywords: ["radius", "corner", "stroke", "outline", "hairline"],
   },
   {
     section: "foundations",
+    category: "visual",
     path: "/design-system/foundations/layout",
     keywords: ["breakpoint", "container", "responsive", "z-index", "ratio"],
   },
   {
     section: "foundations",
+    category: "visual",
     path: "/design-system/foundations/iconography",
     keywords: ["icon", "phosphor", "glyph", "svg"],
+  },
+  {
+    section: "foundations",
+    category: "behaviour",
+    path: "/design-system/foundations/motion",
+    keywords: ["animation", "transition", "easing", "duration", "reduced"],
+  },
+  {
+    section: "foundations",
+    category: "behaviour",
+    path: "/design-system/foundations/accessibility",
+    keywords: ["a11y", "aria", "screen reader", "focus", "keyboard", "wcag"],
+  },
+  {
+    section: "foundations",
+    category: "behaviour",
+    path: "/design-system/foundations/voice",
+    keywords: ["copy", "wording", "microcopy", "writing", "content", "label"],
   },
   // "Content", not "Typography": Foundations already carries a Typography page,
   // and a Typography heading a few rows under a Typography tile reads as the
@@ -274,6 +298,15 @@ export const DESIGN_SYSTEM_ROUTES = [
 export type DesignSystemPath = (typeof DESIGN_SYSTEM_ROUTES)[number]["path"];
 
 /**
+ * Just the foundations paths, so the illustration map can be a total `Record` over
+ * the routes that carry art and a new foundation without one fails to compile.
+ */
+export type DesignSystemFoundationPath = Extract<
+  (typeof DESIGN_SYSTEM_ROUTES)[number],
+  { section: "foundations" }
+>["path"];
+
+/**
  * The registry as a plain list. The `satisfies` above is what checks each entry
  * and catches a misspelled key; this view is what makes the optional `category`
  * reachable at all, which it is not on a union of literal object types.
@@ -307,6 +340,8 @@ export const DESIGN_SYSTEM_SECTION_ORDER = [
  * back, what holds it all, and the frame around the whole page.
  */
 export const DESIGN_SYSTEM_CATEGORY_ORDER = [
+  "visual",
+  "behaviour",
   "content",
   "actions",
   "forms",

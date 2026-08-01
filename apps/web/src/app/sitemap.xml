@@ -351,6 +351,26 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/iconography" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/foundations/accessibility</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/accessibility" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/accessibility" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/accessibility</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/accessibility" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/accessibility" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/voice</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/voice" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/voice" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/voice</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/voice" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/voice" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/text</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/text" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/text" />

@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { measure } from "./measure.stylex.ts";
 
 interface ShowcaseHelperProps {
   children: ReactNode;
@@ -16,5 +17,7 @@ const styles = stylex.create({
     fontSize: font.uiCaption,
     color: color.textSubtle,
     lineHeight: font.lineHeight_4,
+    maxInlineSize: measure.prose,
+    textWrap: "pretty",
   },
 });

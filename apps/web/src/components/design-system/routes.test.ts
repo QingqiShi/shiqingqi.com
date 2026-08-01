@@ -36,16 +36,25 @@ describe("design-system route map", () => {
     expect(rendered.toSorted()).toEqual([...DESIGN_SYSTEM_PATHS].toSorted());
   });
 
-  // Categories are the components-only inner level. A route outside Components
-  // carrying one would render under a heading its section never shows, and a
-  // component without one would drop out of the grouped arrangement entirely.
-  it("gives a category to every component route and to nothing else", () => {
-    const misfiled = DESIGN_SYSTEM_ROUTES.filter((route) =>
-      route.section === "components"
-        ? !("category" in route)
-        : "category" in route,
-    ).map((route) => route.path);
-    expect(misfiled).toEqual([]);
+  // A section either splits into categories or lists its routes directly.
+  // Half-categorized, the leftovers render as an unheaded group above the
+  // headed ones, which reads as a section with a nameless first category.
+  it("categorizes all of a section's routes or none of them", () => {
+    const split = [...new Set(DESIGN_SYSTEM_ROUTES.map((r) => r.section))]
+      .map((section) => {
+        const routes = DESIGN_SYSTEM_ROUTES.filter(
+          (route) => route.section === section,
+        );
+        return {
+          section,
+          categorized: routes.filter((route) => "category" in route).length,
+          total: routes.length,
+        };
+      })
+      .filter(
+        (entry) => entry.categorized > 0 && entry.categorized < entry.total,
+      );
+    expect(split).toEqual([]);
   });
 
   // Every section but `overview` renders under a heading, and so does every

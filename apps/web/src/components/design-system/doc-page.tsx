@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { measure } from "./measure.stylex.ts";
 
 interface DocPageProps {
   title: string;
@@ -30,6 +31,8 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space._6,
+    maxInlineSize: measure.reading,
+    marginInline: "auto",
   },
   header: {
     display: "flex",
@@ -50,7 +53,7 @@ const styles = stylex.create({
     fontSize: font.uiBody,
     color: color.textMuted,
     lineHeight: font.lineHeight_4,
-    maxInlineSize: "65ch",
+    maxInlineSize: measure.prose,
     textWrap: "pretty",
   },
   body: {

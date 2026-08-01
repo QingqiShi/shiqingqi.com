@@ -61,8 +61,8 @@ export function TextareaShowcase() {
             label={t({ en: "Feedback", zh: "反馈" })}
             defaultValue={t({ en: "Too short", zh: "太短" })}
             error={t({
-              en: "Please add at least 20 characters.",
-              zh: "请至少输入 20 个字符。",
+              en: "Feedback needs at least 20 characters.",
+              zh: "反馈内容至少需要 20 个字符。",
             })}
           />
         </div>

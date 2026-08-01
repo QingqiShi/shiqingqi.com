@@ -4,6 +4,7 @@ import { systemPalette } from "@tuja/ui/palette-table";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
+import { measure } from "../../measure.stylex.ts";
 import { Showcase } from "../../showcase.tsx";
 
 // Tones sampled for the miniature hue ramps — a light-to-dark spread that reads
@@ -164,7 +165,7 @@ const styles = stylex.create({
     fontSize: font.uiBody,
     color: color.textMuted,
     lineHeight: font.lineHeight_4,
-    maxInlineSize: "70ch",
+    maxInlineSize: measure.prose,
     textWrap: "pretty",
   },
   flow: {

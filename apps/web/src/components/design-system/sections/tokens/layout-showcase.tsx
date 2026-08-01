@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
+import { measure } from "../../measure.stylex.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { SpecCard } from "../../spec-card.tsx";
@@ -96,6 +97,50 @@ function BreakpointBands() {
   );
 }
 
+/**
+ * Two pages drawn to the same scale, each holding the same 41rem paragraph:
+ * one capped so the leftover reads as a margin, one wide enough that it reads
+ * as a column with nothing in it.
+ */
+function MeasureBands() {
+  return (
+    <div css={styles.measureRows}>
+      <div css={styles.measureRow}>
+        <div css={styles.measurePage}>
+          <div css={[styles.measureProse, styles.measureProseNarrow]}>
+            <span css={styles.measureProseLabel}>prose 41rem</span>
+          </div>
+          <span css={styles.measureRest}>
+            {t({ en: "margin", zh: "页边" })}
+          </span>
+        </div>
+        <span css={styles.measureCaption}>
+          {t({
+            en: "A 48rem page. What is left beside the paragraph is a margin.",
+            zh: "48rem 的页面。段落旁边剩下的是页边。",
+          })}
+        </span>
+      </div>
+      <div css={styles.measureRow}>
+        <div css={styles.measurePage}>
+          <div css={[styles.measureProse, styles.measureProseWide]}>
+            <span css={styles.measureProseLabel}>prose 41rem</span>
+          </div>
+          <span css={[styles.measureRest, styles.measureRestEmpty]}>
+            {t({ en: "empty column", zh: "空栏" })}
+          </span>
+        </div>
+        <span css={styles.measureCaption}>
+          {t({
+            en: "A 1140px page. The same paragraph, and the gap beside it now reads as a column with something missing.",
+            zh: "1140px 的页面。同样的段落，旁边的空隙此时读起来像一列缺了内容的栏。",
+          })}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function LayoutShowcase() {
   const layers = [
     { name: "background", value: "-100", z: styles.lzBackground },
@@ -131,8 +176,8 @@ export function LayoutShowcase() {
       <Showcase label={t({ en: "Content width", zh: "内容宽度" })}>
         <ShowcaseHelper>
           {t({
-            en: "layout.maxInlineSize caps the page at 1140px and centres it, so line length stays readable and gutters open up on wide screens.",
-            zh: "layout.maxInlineSize 将页面上限设为 1140px 并居中，使行长保持易读，并在宽屏上留出留白。",
+            en: "layout.maxInlineSize caps the page at 1140px and centres it, so gutters open up on wide screens. It bounds the page; the measure below bounds the text inside it.",
+            zh: "layout.maxInlineSize 将页面上限设为 1140px 并居中，使宽屏上留出留白。它约束的是页面，下面的行长约束的是页面里的文字。",
           })}
         </ShowcaseHelper>
         <div css={styles.viewport}>
@@ -149,6 +194,22 @@ export function LayoutShowcase() {
             {t({ en: "gutter", zh: "留白" })}
           </span>
         </div>
+      </Showcase>
+
+      <Showcase label={t({ en: "Measure", zh: "行长" })}>
+        <ShowcaseHelper>
+          {t({
+            en: "Prose caps at 41rem: around 65 Latin characters, or 41 han. The unit is rem rather than ch, which is the width of a Latin zero — one ch value lands somewhere different at every type size and in every script.",
+            zh: "正文行长上限为 41rem，约 65 个拉丁字符或 41 个汉字。单位用 rem 而非 ch，因为 ch 是拉丁数字零的宽度——同一个 ch 值在每个字号、每种文字下都会落在不同的位置。",
+          })}
+        </ShowcaseHelper>
+        <MeasureBands />
+        <ShowcaseHelper>
+          {t({
+            en: "The cap exists because the eye has to jump back to the start of the next line, and the longer that jump, the more often it lands on the wrong one. A wide screen is not a reason to set text wider, or bigger. Either put something beside the paragraph, or cap the page so what is left beside it stays a margin. Design-system pages take the second route at 48rem, and a specimen that needs more room scrolls inside its own card.",
+            zh: "设这个上限，是因为读到行尾时眼睛要跳回下一行的开头；这一跳越长，落错行的次数就越多。屏幕宽，不是把文字排得更宽或更大的理由。要么在段落旁边放点别的东西，要么把页面收窄，让段落旁边剩下的只是页边。设计系统页面走的是后一条路，宽度为 48rem；放不下的示例则在自己的卡片内横向滚动。",
+          })}
+        </ShowcaseHelper>
       </Showcase>
 
       <Showcase label={t({ en: "Layers", zh: "层级" })}>
@@ -350,6 +411,70 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
     color: color.textMuted,
+  },
+  measureRows: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._4,
+  },
+  measureRow: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._1,
+  },
+  // Both pages are drawn at the same width, so the prose bands inside them are
+  // to scale against each other: 41/48 against 656/1140.
+  measurePage: {
+    display: "flex",
+    alignItems: "stretch",
+    gap: space._00,
+    padding: space._1,
+    borderRadius: border.radius_2,
+    backgroundColor: color.bgCanvas,
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+  },
+  measureProse: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    paddingBlock: space._4,
+    borderRadius: border.radius_1,
+    backgroundColor: color.surfaceAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+  },
+  measureProseNarrow: { inlineSize: "85.4%" },
+  measureProseWide: { inlineSize: "57.5%" },
+  measureProseLabel: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiOverline,
+    color: color.accentText,
+  },
+  measureRest: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexGrow: 1,
+    minInlineSize: 0,
+    fontFamily: font.familyMono,
+    fontSize: font.uiOverline,
+    color: color.textSubtle,
+    textAlign: "center",
+  },
+  // The wide page's leftover is drawn as a slot rather than as space: it is big
+  // enough to hold something, which is why it reads as missing content.
+  measureRestEmpty: {
+    borderRadius: border.radius_1,
+    borderWidth: border.size_1,
+    borderStyle: "dashed",
+    borderColor: color.neutralBorder,
+  },
+  measureCaption: {
+    fontSize: font.uiCaption,
+    lineHeight: font.lineHeight_4,
+    color: color.textSubtle,
+    maxInlineSize: measure.prose,
+    textWrap: "pretty",
   },
   grid: {
     display: "grid",

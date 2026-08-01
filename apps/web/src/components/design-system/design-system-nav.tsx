@@ -59,6 +59,11 @@ export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
       en: "Iconography",
       zh: "图标",
     }),
+    "/design-system/foundations/accessibility": t({
+      en: "Accessibility",
+      zh: "无障碍",
+    }),
+    "/design-system/foundations/voice": t({ en: "Voice", zh: "语气" }),
     "/design-system/components/text": t({ en: "Text", zh: "文本" }),
     "/design-system/components/heading": t({ en: "Heading", zh: "标题" }),
     "/design-system/components/button": t({ en: "Button", zh: "按钮" }),
