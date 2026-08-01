@@ -12,7 +12,14 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { border, color, controlSize, shadow, space } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlSize,
+  opacity,
+  shadow,
+  space,
+} from "../tokens.stylex.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 import { sliderTokens } from "./slider.stylex.ts";
 
@@ -269,7 +276,7 @@ const styles = stylex.create({
     // Invisible in itself; it shapes the focus ring around the pill track.
     borderRadius: border.radius_round,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: null, ":disabled": 0.6 },
+    opacity: { default: null, ":disabled": opacity.disabled },
 
     // The two engines each need their own track and thumb; StyleX takes only
     // literal blocks under a pseudo-element, so the pair is spelled out twice.
