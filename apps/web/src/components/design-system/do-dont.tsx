@@ -1,7 +1,6 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -118,9 +117,11 @@ function CrossIcon() {
 }
 
 const styles = stylex.create({
+  // Pairs up when the pair has room for it, rather than when the screen does —
+  // this often sits in a column narrower than the viewport suggests.
   grid: {
     display: "grid",
-    gridTemplateColumns: { default: "1fr", [breakpoints.md]: "1fr 1fr" },
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 18rem), 1fr))",
     gap: space._3,
   },
   panel: {
@@ -158,11 +159,14 @@ const styles = stylex.create({
   dontText: {
     color: color.dangerText,
   },
+  // A specimen that cannot shrink — a segmented control with too many segments,
+  // say — scrolls inside the panel rather than spilling past its border.
   example: {
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
     gap: space._2,
     minInlineSize: 0,
+    overflowX: "auto",
   },
 });

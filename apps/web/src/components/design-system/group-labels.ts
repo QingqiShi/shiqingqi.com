@@ -34,6 +34,8 @@ export function useDesignSystemGroupLabels(): DesignSystemGroupLabels {
       composition: t({ en: "Composition", zh: "组合" }),
     },
     categories: {
+      visual: t({ en: "Visual", zh: "视觉" }),
+      behaviour: t({ en: "Behaviour", zh: "行为" }),
       content: t({ en: "Content", zh: "内容" }),
       actions: t({ en: "Actions", zh: "操作控件" }),
       forms: t({ en: "Forms", zh: "表单控件" }),

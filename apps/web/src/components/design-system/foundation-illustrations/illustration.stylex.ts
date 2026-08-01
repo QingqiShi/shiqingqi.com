@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 
 /**
- * Shared base for the eight illustrations: theme-aware palette tokens set on the
+ * Shared base for every illustration: theme-aware palette tokens set on the
  * root `<svg>` and inherited by its descendants (`--ds-illo-ink` for the rest
  * state, the `--ds-illo-hue` / `-hue-soft` gold pair for the alive state, plus a
  * follow-ease). Compose first — `css={[illoBase.svg, styles.svg]}` — so a card

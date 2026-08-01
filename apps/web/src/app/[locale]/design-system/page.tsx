@@ -88,6 +88,20 @@ export default function DesignSystemOverview() {
         zh: "Phosphor 图标约定：尺寸、字重与控件搭配。",
       }),
     },
+    "/design-system/foundations/accessibility": {
+      label: t({ en: "Accessibility", zh: "无障碍" }),
+      description: t({
+        en: "Naming, focus, keyboard models, contrast, and announcements.",
+        zh: "无障碍名称、焦点、键盘模型、对比度与状态播报。",
+      }),
+    },
+    "/design-system/foundations/voice": {
+      label: t({ en: "Voice", zh: "语气" }),
+      description: t({
+        en: "How the copy should read, and how much of it each component holds.",
+        zh: "文案该怎么读起来，以及每个组件能装下多少。",
+      }),
+    },
     "/design-system/components/text": {
       label: t({ en: "Text", zh: "文本" }),
       description: t({

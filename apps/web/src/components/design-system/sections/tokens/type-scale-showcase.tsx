@@ -4,6 +4,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
+import { measure } from "../../measure.stylex.ts";
 import { Showcase } from "../../showcase.tsx";
 import { ContainerScaleSpecimen } from "./cq-scale-specimen.tsx";
 import { ViewportScaleSpecimen } from "./vp-scale-specimen.tsx";
@@ -173,7 +174,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     color: color.textMuted,
     lineHeight: font.lineHeight_4,
-    maxInlineSize: "62ch",
+    maxInlineSize: measure.prose,
   },
   movement: {
     display: "flex",
@@ -222,7 +223,7 @@ const styles = stylex.create({
     fontSize: font.uiCaption,
     color: color.textSubtle,
     lineHeight: font.lineHeight_4,
-    maxInlineSize: "60ch",
+    maxInlineSize: measure.prose,
   },
   ledger: {
     listStyle: "none",

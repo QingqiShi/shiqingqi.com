@@ -7,6 +7,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
+import { measure } from "../../measure.stylex.ts";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
@@ -228,7 +229,7 @@ const styles = stylex.create({
     gap: space._3,
   },
   note: {
-    maxInlineSize: "65ch",
+    maxInlineSize: measure.prose,
   },
   example: {
     inlineSize: "100%",
