@@ -5,7 +5,14 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import { border, color, controlSize, font, shadow } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  opacity,
+  shadow,
+} from "../tokens.stylex.ts";
 
 type IconButtonSize = "sm" | "md" | "lg";
 type IconButtonVariant = "plain" | "surface";
@@ -115,7 +122,7 @@ const styles = stylex.create({
       ":disabled:hover": color.textMuted,
     },
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: null, ":disabled": 0.7 },
+    opacity: { default: null, ":disabled": opacity.disabled },
   },
   icon: {
     display: "inline-flex",

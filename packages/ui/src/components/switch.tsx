@@ -16,6 +16,7 @@ import {
   controlSize,
   font,
   layer,
+  opacity,
   ratio,
   shadow,
 } from "../tokens.stylex.ts";
@@ -250,7 +251,7 @@ const styles = stylex.create({
     aspectRatio: ratio.double,
     borderRadius: border.radius_round,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": 0.6 },
+    opacity: { default: 1, ":disabled": opacity.disabled },
     display: "flex",
     height: switchTokens.trackHeight,
     padding: border.size_2,

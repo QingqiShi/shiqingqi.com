@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Card } from "@tuja/ui/components/card";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 interface SessionRestoreBannerProps {
@@ -117,7 +117,7 @@ const styles = stylex.create({
     },
     opacity: {
       default: 1,
-      ":disabled": 0.6,
+      ":disabled": opacity.disabled,
     },
     transition: "background-color 0.15s ease, opacity 0.15s ease",
   },

@@ -4,7 +4,7 @@ import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import {
   createContext,
   use,
@@ -229,7 +229,7 @@ export const chatTextareaStyles = stylex.create({
     cursor: { default: "pointer", ":disabled": "default" },
     backgroundColor: color.surfaceNeutralSubtle,
     color: color.textMuted,
-    opacity: { default: null, ":disabled": 0.5 },
+    opacity: { default: null, ":disabled": opacity.disabled },
     transition: "background-color 0.15s ease, color 0.15s ease",
   },
   iconButtonActive: {

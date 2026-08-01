@@ -139,8 +139,8 @@ export function BackgroundsShowcase() {
         <Band
           name={t({ en: "Interactive", zh: "交互" })}
           description={t({
-            en: "Shared by buttons, list rows, and menu items. Rest, hover, pressed, selected, disabled.",
-            zh: "按钮、列表行与菜单项共享。静态、悬停、按下、选中、禁用。",
+            en: "Shared by buttons, list rows, and menu items. Rest, hover, pressed, selected, disabled — the last pairs with opacity.disabled, so it never lands at full strength.",
+            zh: "按钮、列表行与菜单项共享。静态、悬停、按下、选中、禁用——禁用需搭配 opacity.disabled，因此永远不会以完整强度呈现。",
           })}
           columns={5}
         >

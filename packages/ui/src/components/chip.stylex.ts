@@ -1,5 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  opacity,
+  space,
+} from "../tokens.stylex.ts";
 
 /**
  * The pill skin shared by every chip in the system, exposed as composable
@@ -49,9 +56,7 @@ export const chipSurface = stylex.create({
       ":hover": color.bgInteractiveHover,
       ":disabled:hover": color.bgSurface,
     },
-    // Matches Button's disabled treatment, so a disabled chip and a disabled
-    // button fade by the same amount.
-    opacity: { default: null, ":disabled": 0.7 },
+    opacity: { default: null, ":disabled": opacity.disabled },
     outlineWidth: border.size_2,
     outlineStyle: "solid",
     outlineColor: { default: "transparent", ":focus-visible": color.accent },

@@ -72,6 +72,18 @@ export default defineConfig([
         },
       ],
       "one-var": ["error", "never"],
+      "no-restricted-syntax": [
+        "error",
+        {
+          // Only catches the `opacity: { ":disabled": … }` shape. A bare
+          // `opacity: 0.3` can't be restricted without flagging the shimmer and
+          // spinner fades, which are not this token.
+          selector:
+            'Property[key.name="opacity"] > ObjectExpression > Property[key.value=":disabled"] > Literal[value=type(number)]',
+          message:
+            "Use `opacity.disabled` from tokens.stylex. Hand-picked disabled fades drifted to five different values before it existed.",
+        },
+      ],
       "@eslint-react/set-state-in-effect": "off",
       "unicorn/no-unused-properties": "error",
       "i18n/no-t-outside-render": "error",

@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { flex, justify } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { use } from "react";
 import { ChatActionsContext } from "./chat-actions-context";
 
@@ -84,7 +84,7 @@ const styles = stylex.create({
     },
     opacity: {
       default: 1,
-      ":disabled": 0.5,
+      ":disabled": opacity.disabled,
     },
     transition:
       "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease",

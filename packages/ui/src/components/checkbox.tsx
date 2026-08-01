@@ -7,7 +7,14 @@ import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
-import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  opacity,
+  space,
+} from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 
@@ -184,7 +191,7 @@ const styles = stylex.create({
     backgroundPosition: "center",
     backgroundSize: "74% 74%",
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": 0.6 },
+    opacity: { default: 1, ":disabled": opacity.disabled },
   },
   boxError: {
     borderColor: {

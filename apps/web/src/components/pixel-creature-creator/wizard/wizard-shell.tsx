@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -301,7 +301,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": 0.45 },
+    opacity: { default: 1, ":disabled": opacity.disabled },
   },
   pillActive: {
     backgroundColor: color.accent,
@@ -373,7 +373,7 @@ const styles = stylex.create({
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    opacity: { default: 1, ":disabled": 0.5 },
+    opacity: { default: 1, ":disabled": opacity.disabled },
     borderWidth: "1px",
     borderStyle: "solid",
   },
