@@ -9,10 +9,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState, type ReactNode } from "react";
 import { t } from "#src/i18n.ts";
-import {
-  useDesignSystemGroupLabels,
-  type DesignSystemGroupLabels,
-} from "./group-labels.ts";
+import type { DesignSystemGroupLabels } from "./route-copy.ts";
 import {
   getDesignSystemRouteSections,
   matchesDesignSystemQuery,
@@ -43,6 +40,8 @@ interface OverviewBrowserProps {
    * is the one sort whose result depends on which ICU is running it.
    */
   alphabeticalOrder: readonly DesignSystemPath[];
+  /** The section and category headings. Resolved on the server — see `route-copy.ts`. */
+  groupLabels: DesignSystemGroupLabels;
 }
 
 /** One heading and the tiles under it, plus any sub-headed blocks it contains. */
@@ -66,7 +65,7 @@ interface BuildBlocksOptions {
   arrangement: Arrangement;
   /** Narrows a path list to the entries that survived the search, in that order. */
   inOrder: (paths: readonly DesignSystemPath[]) => OverviewEntry[];
-  labels: DesignSystemGroupLabels;
+  groupLabels: DesignSystemGroupLabels;
   alphabeticalOrder: readonly DesignSystemPath[];
 }
 
@@ -74,7 +73,7 @@ interface BuildBlocksOptions {
 function buildBlocks({
   arrangement,
   inOrder,
-  labels,
+  groupLabels,
   alphabeticalOrder,
 }: BuildBlocksOptions): OverviewBlock[] {
   if (arrangement === "name") {
@@ -94,7 +93,7 @@ function buildBlocks({
     .filter((section) => section.section !== "overview")
     .map((section) => ({
       key: section.section,
-      heading: labels.sections[section.section],
+      heading: groupLabels.sections[section.section],
       entries: inOrder(
         section.groups.find((group) => group.category === undefined)?.paths ??
           [],
@@ -105,7 +104,7 @@ function buildBlocks({
           : [
               {
                 key: group.category,
-                heading: labels.categories[group.category],
+                heading: groupLabels.categories[group.category],
                 entries: inOrder(group.paths),
               },
             ],
@@ -124,11 +123,11 @@ function buildBlocks({
 export function OverviewBrowser({
   entries,
   alphabeticalOrder,
+  groupLabels,
 }: OverviewBrowserProps) {
   const [arrangement, setArrangement] = useState<Arrangement>("job");
   const [query, setQuery] = useState("");
 
-  const labels = useDesignSystemGroupLabels();
   const searchLabel = t({
     en: "Search the design system",
     zh: "搜索设计系统",
@@ -160,7 +159,7 @@ export function OverviewBrowser({
   const visible = buildBlocks({
     arrangement,
     inOrder,
-    labels,
+    groupLabels,
     alphabeticalOrder,
   }).filter(hasEntries);
   const resultCount =

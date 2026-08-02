@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, userEvent, within } from "#src/test-utils.tsx";
 import { OverviewBrowser, type OverviewEntry } from "./overview-browser.tsx";
+import type { DesignSystemGroupLabels } from "./route-copy.ts";
 
 // A stand-in for the server-rendered tile: the browser never looks inside one,
 // it only places it, so a link is enough to find it by name.
@@ -24,9 +25,35 @@ const ALPHABETICAL = [
   "/design-system/primitives",
 ] as const;
 
+// The headings the server resolves. Only the ones these entries fall under are
+// asserted; the rest are here because the prop is a total map.
+const GROUP_LABELS: DesignSystemGroupLabels = {
+  sections: {
+    overview: null,
+    foundations: "Foundations",
+    components: "Components",
+    composition: "Composition",
+  },
+  categories: {
+    visual: "Visual",
+    behaviour: "Behaviour",
+    content: "Content",
+    actions: "Actions",
+    forms: "Forms",
+    dataDisplay: "Data display",
+    feedback: "Feedback",
+    surfaces: "Surfaces",
+    shells: "Page shells",
+  },
+};
+
 function renderBrowser() {
   return render(
-    <OverviewBrowser entries={ENTRIES} alphabeticalOrder={ALPHABETICAL} />,
+    <OverviewBrowser
+      entries={ENTRIES}
+      alphabeticalOrder={ALPHABETICAL}
+      groupLabels={GROUP_LABELS}
+    />,
   );
 }
 

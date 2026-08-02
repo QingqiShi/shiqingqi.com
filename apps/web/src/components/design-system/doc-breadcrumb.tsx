@@ -7,15 +7,16 @@ import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 import {
+  getDesignSystemGroupLabels,
+  getDesignSystemRouteLabel,
+} from "./route-copy.ts";
+import {
   type DesignSystemPath,
-  type DesignSystemSectionId,
   getDesignSystemRouteSection,
 } from "./routes.ts";
 
 interface DocBreadcrumbProps {
   path: DesignSystemPath;
-  /** The page's own name — the trailing crumb, and the `h1` right below it. */
-  title: string;
 }
 
 /** The link Slot's contract: forward `className` and `style` onto the anchor. */
@@ -32,16 +33,11 @@ function RouterLink({ href, children, className, style }: BreadcrumbLinkProps) {
  * then the page itself. The section crumb carries no `href` — the sections are
  * headings in the nav rail and the overview grid, not pages of their own.
  */
-export function DocBreadcrumb({ path, title }: DocBreadcrumbProps) {
-  // Total over the sections so a new one fails to compile rather than losing
-  // its crumb. `overview` is the root crumb already, so it adds nothing.
-  const sectionLabels: Record<DesignSystemSectionId, string | null> = {
-    overview: null,
-    foundations: t({ en: "Foundations", zh: "基础" }),
-    components: t({ en: "Components", zh: "组件" }),
-    composition: t({ en: "Composition", zh: "组合" }),
-  };
-  const section = sectionLabels[getDesignSystemRouteSection(path)];
+export function DocBreadcrumb({ path }: DocBreadcrumbProps) {
+  // `overview` names the root crumb, which the trail already carries, so it
+  // resolves to `null` and the section level is skipped.
+  const { sections } = getDesignSystemGroupLabels();
+  const section = sections[getDesignSystemRouteSection(path)];
 
   return (
     <Breadcrumb
@@ -53,7 +49,7 @@ export function DocBreadcrumb({ path, title }: DocBreadcrumbProps) {
           href: getLocalePath("/design-system", getLocale()),
         },
         ...(section === null ? [] : [{ label: section }]),
-        { label: title },
+        { label: getDesignSystemRouteLabel(path) },
       ]}
     />
   );

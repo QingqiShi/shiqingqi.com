@@ -5,6 +5,10 @@ import { Text } from "@tuja/ui/components/text";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
 import {
+  getDesignSystemGroupLabels,
+  getDesignSystemRouteLabels,
+} from "#src/components/design-system/route-copy.ts";
+import {
   DesignSystemSidebarControls,
   DesignSystemSidebarHeader,
 } from "#src/components/design-system/sidebar-chrome.tsx";
@@ -53,6 +57,8 @@ export function SidebarLayoutShowcase() {
               sidebarFooter={<DesignSystemSidebarControls locale={locale} />}
               sidebar={
                 <DesignSystemNav
+                  routeLabels={getDesignSystemRouteLabels()}
+                  groupLabels={getDesignSystemGroupLabels()}
                   ariaLabel={t({
                     en: "Design system (demo)",
                     zh: "设计系统（演示）",

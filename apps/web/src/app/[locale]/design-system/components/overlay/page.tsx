@@ -11,7 +11,6 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/components/overlay",
-    title: t({ en: "Overlay", zh: "覆盖层" }),
   });
 }
 
@@ -19,7 +18,6 @@ export default function OverlayPage() {
   return (
     <DocPage
       path="/design-system/components/overlay"
-      title={t({ en: "Overlay", zh: "覆盖层" })}
       description={t({
         en: "A full-screen modal surface with a ViewTransition reveal. It owns the backdrop, focus trap, scroll lock, and Escape-to-close; you supply the content, the localised close label, and where it portals.",
         zh: "带 ViewTransition 揭示动画的全屏模态层。它负责背景、焦点捕获、滚动锁定与 Escape 关闭；使用方提供内容、本地化的关闭标签以及挂载位置。",
