@@ -338,6 +338,13 @@ export const DESIGN_SYSTEM_ROUTES = [
     path: "/design-system/components/header-footer-layout",
     keywords: ["shell", "header", "footer", "page", "reading"],
   },
+  // First in the section, ahead of the parts it is built from: the fastest
+  // answer to "what does this add up to" is one screen that adds up.
+  {
+    section: "composition",
+    path: "/design-system/examples/movie-detail",
+    keywords: ["example", "exemplar", "screen", "page", "movie", "detail"],
+  },
   {
     section: "composition",
     path: "/design-system/primitives",

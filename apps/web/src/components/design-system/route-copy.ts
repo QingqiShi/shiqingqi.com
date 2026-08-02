@@ -112,6 +112,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Header & footer layout",
       zh: "页头页脚布局",
     }),
+    "/design-system/examples/movie-detail": t({
+      en: "Movie details",
+      zh: "影片详情",
+    }),
     "/design-system/primitives": t({ en: "Primitives", zh: "原语" }),
     "/design-system/hooks": t({ en: "Hooks", zh: "钩子" }),
   };
