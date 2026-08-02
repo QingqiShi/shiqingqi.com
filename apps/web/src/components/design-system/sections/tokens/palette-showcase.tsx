@@ -36,7 +36,7 @@ export function PaletteShowcase() {
     >
       <ShowcaseHelper>
         {t({
-          en: "Thirteen hues, each expanded into a perceptually even 21-step ramp. The complete range of available colour — consumed only through the design tokens above.",
+          en: "Thirteen hues, each expanded into a perceptually even 21-tone ramp. The complete range of available colour — consumed only through the design tokens above.",
           zh: "十三种色相，各自展开为感知均匀的 21 级色调阶梯。全部可用颜色的范围——仅通过上方的设计令牌使用。",
         })}
       </ShowcaseHelper>
@@ -52,10 +52,7 @@ export function PaletteShowcase() {
 function PaletteRow({ palette }: { palette: SystemHuePalette }) {
   return (
     <li css={styles.row}>
-      <div css={styles.identity}>
-        <span css={styles.name}>{palette.name}</span>
-        <span css={styles.source}>{palette.source}</span>
-      </div>
+      <span css={styles.name}>{palette.name}</span>
       <div
         css={styles.ramp}
         style={{ gridTemplateColumns: RAMP_COLUMNS }}
@@ -92,24 +89,14 @@ const styles = stylex.create({
     columnGap: space._4,
     rowGap: space._1,
   },
-  identity: {
-    flexShrink: 0,
-    inlineSize: "6.5rem",
-    display: "flex",
-    alignItems: "baseline",
-    justifyContent: "space-between",
-    gap: space._2,
-  },
+  // Fixed width so every ramp starts at the same edge, whatever the name.
   name: {
+    flexShrink: 0,
+    inlineSize: "4.5rem",
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.textMain,
     letterSpacing: font.trackingTight,
-  },
-  source: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    color: color.textSubtle,
   },
   ramp: {
     flex: "1",
