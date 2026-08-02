@@ -4,6 +4,7 @@ import { BackgroundsShowcase } from "#src/components/design-system/sections/toke
 import { ColorHierarchy } from "#src/components/design-system/sections/tokens/color-hierarchy.tsx";
 import { PaletteShowcase } from "#src/components/design-system/sections/tokens/palette-showcase.tsx";
 import { RolesShowcase } from "#src/components/design-system/sections/tokens/roles-showcase.tsx";
+import { TextRolesShowcase } from "#src/components/design-system/sections/tokens/text-roles-showcase.tsx";
 import { t } from "#src/i18n.ts";
 import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
@@ -29,6 +30,7 @@ export default function ColorPage() {
       <ColorHierarchy />
       <PaletteShowcase />
       <BackgroundsShowcase />
+      <TextRolesShowcase />
       <RolesShowcase />
     </DocPage>
   );

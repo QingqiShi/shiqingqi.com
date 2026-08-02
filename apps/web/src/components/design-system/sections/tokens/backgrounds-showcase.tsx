@@ -1,8 +1,9 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { gridlineGround } from "../../gridline-ground.stylex.ts";
 import { Identifier } from "../../identifier.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
@@ -13,8 +14,8 @@ import { Showcase } from "../../showcase.tsx";
 // rather than by tone.
 //
 // Layering follows RoleColumn: the grid owns all the chrome (radius, clip,
-// and the gridline-via-gap hairlines), and each cell is a pure opaque fill
-// with no border, shadow, or radius of its own.
+// and the gridline-via-gap hairlines — see `gridlineGround`), and each cell
+// is a pure opaque fill with no border, shadow, or radius of its own.
 
 interface BandCellProps {
   label: string;
@@ -57,7 +58,7 @@ function Band({ name, description, children, columns }: BandProps) {
         <span css={styles.bandName}>{name}</span>
         <span css={styles.bandDescription}>{description}</span>
       </header>
-      <div css={[styles.grid, gridStyle]}>{children}</div>
+      <div css={[gridlineGround.base, styles.grid, gridStyle]}>{children}</div>
     </section>
   );
 }
@@ -244,24 +245,12 @@ const styles = stylex.create({
     color: color.textSubtle,
     lineHeight: font.lineHeight_4,
   },
-  // Gridline-via-gap: the grid is a solid bgCanvas rectangle (the canvas ground
-  // the surface tiles sit on); the opaque cells cover it except the gaps, so the
-  // ground shows through as hairline dividers. The outer frame is neutralBorder
-  // so the specimen still reads as a self-contained unit now that it sits on the
-  // bare page canvas rather than inside a surface card — the Page band's Canvas
+  // Ground, frame, and clip come from `gridlineGround`. The Page band's Canvas
   // swatch shares the interior ground, so it reads flush there while the frame
-  // keeps a crisp edge. A border (unlike padding) makes overflow shrink the clip
-  // radius by its own width, so the corner cells stay concentric with the frame
-  // instead of bulging the ground at the rounded corners.
+  // keeps a crisp edge.
   grid: {
     display: "grid",
     gap: space._00,
-    backgroundColor: color.bgCanvas,
-    borderWidth: space._00,
-    borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
-    overflow: "hidden",
   },
   gridTwo: {
     gridTemplateColumns: {

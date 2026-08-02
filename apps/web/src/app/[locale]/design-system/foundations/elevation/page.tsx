@@ -19,8 +19,8 @@ export default function ElevationPage() {
     <DocPage
       path="/design-system/foundations/elevation"
       description={t({
-        en: "A layered elevation scale that lifts surfaces off the page — from a hairline rest state up to floating overlays.",
-        zh: "分层的层深阶梯，将表面从页面上抬起——从细微的静止状态到悬浮的覆盖层。",
+        en: "A layered elevation scale: six levels that lift a surface off the page — from a hairline rest state up to floating overlays — plus one inset that sinks a well into it.",
+        zh: "分层的层深阶梯：六个把表面抬离页面的层级——从细微的静止状态到悬浮的覆盖层——另有一个把凹位压入页面的内嵌。",
       })}
     >
       <ShadowsShowcase />

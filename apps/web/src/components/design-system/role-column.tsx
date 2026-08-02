@@ -1,6 +1,7 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { font, space } from "@tuja/ui/tokens.stylex";
+import { gridlineGround } from "./gridline-ground.stylex.ts";
 import { Identifier } from "./identifier.tsx";
 
 type RoleCellSize = "large" | "medium" | "thin";
@@ -20,7 +21,7 @@ interface RoleColumnProps {
 
 export function RoleColumn({ name, cells }: RoleColumnProps) {
   return (
-    <div css={styles.column} aria-label={name}>
+    <div css={[gridlineGround.base, styles.column]} aria-label={name}>
       {cells.map((cell) => {
         const sizeStyle =
           cell.size === "large"
@@ -49,22 +50,9 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateRows: "subgrid",
     gridRow: "span 5",
-    // Gridline-via-gap: the column is a solid bgCanvas rectangle (the canvas
-    // ground the tiles sit on); the cells cover it except the row gaps, so the
-    // ground shows through as hairline dividers. The outer frame is neutralBorder
-    // so each column still reads as a self-contained unit now that the section
-    // sits on the bare page canvas rather than inside a surface card. A border
-    // (unlike padding) makes overflow shrink the clip radius by its own width, so
-    // the corner cells stay concentric with the frame and the ground doesn't
-    // bulge at the rounded corners. Translucent role fills still composite over
-    // the bgCanvas ground, so dividers read softer next to them.
+    // Rows only: the ground, frame, and clip come from `gridlineGround`, and a
+    // column has no cells beside each other to divide.
     rowGap: space._00,
-    backgroundColor: color.bgCanvas,
-    borderWidth: space._00,
-    borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
-    overflow: "hidden",
   },
   cell: {
     display: "flex",
