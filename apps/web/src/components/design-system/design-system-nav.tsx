@@ -40,7 +40,7 @@ export function DesignSystemNav({ ariaLabel }: DesignSystemNavProps) {
     useDesignSystemGroupLabels();
   const itemLabels: Record<DesignSystemPath, string> = {
     "/design-system": t({ en: "Overview", zh: "概览" }),
-    "/design-system/foundations/color": t({ en: "Color", zh: "颜色" }),
+    "/design-system/foundations/color": t({ en: "Colour", zh: "颜色" }),
     "/design-system/foundations/typography": t({
       en: "Typography",
       zh: "文字设计",

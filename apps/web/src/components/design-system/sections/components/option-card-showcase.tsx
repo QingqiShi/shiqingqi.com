@@ -521,7 +521,7 @@ export function OptionCardShowcase() {
         <UsageSnippet code={USAGE} label="tsx" />
       </Showcase>
 
-      <Showcase label="OptionCard">
+      <Showcase label="OptionCard" labelVariant="code">
         <PropsTable
           rows={[
             {
@@ -619,7 +619,7 @@ export function OptionCardShowcase() {
         />
       </Showcase>
 
-      <Showcase label="OptionCardGroup">
+      <Showcase label="OptionCardGroup" labelVariant="code">
         <PropsTable
           rows={[
             {

@@ -18,7 +18,7 @@ export interface PropsTableRow {
   defaultValue?: string;
   /** Marks the prop as required with a Badge. */
   required?: boolean;
-  /** Human description — already localized by the caller. */
+  /** Human description — already localised by the caller. */
   description: string;
 }
 

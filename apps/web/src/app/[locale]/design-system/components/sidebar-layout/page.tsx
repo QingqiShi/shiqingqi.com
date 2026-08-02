@@ -13,7 +13,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     path: "/design-system/components/sidebar-layout",
     title: t({ en: "Sidebar layout", zh: "侧边栏布局" }),
     description: t({
-      en: "An app-density page shell with a sticky navigation rail — title, navigation, and utilities — that collapses into a drawer on mobile. The content stays centered at a readable width beside it.",
+      en: "An app-density page shell with a sticky navigation rail — title, navigation, and utilities — that collapses into a drawer on mobile. The content stays centred at a readable width beside it.",
       zh: "应用密度的页面骨架，带标题、导航与实用控件的粘性侧栏，移动端收起为抽屉。内容在侧栏旁以可读宽度居中。",
     }),
   });

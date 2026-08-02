@@ -94,6 +94,7 @@ Hold any string against these and the answer is yes or no.
 - **Say it once.** A field's label, description and error answer three different questions. Filling two with the same sentence doubles the form without clarifying it.
 - **Empty states name what would be here**, then give the control that puts it there.
 - **One concept, one word** — in the copy, the prop names, and the code. `CONTEXT-MAP.md` records which word won.
+- **English copy is en-GB.** `colour`, `centred`, `localised`, `behaviour`, `-ise` over `-ize`. An identifier keeps the spelling of the code it names, wherever it appears: the `color.*` token group, `transition.colors`, `align="center"`, the `/foundations/color` route. So the page titled "Colour" documents tokens spelled `color.*`, and both are right — one is prose, the other is a contract.
 
 ### Copy budgets
 

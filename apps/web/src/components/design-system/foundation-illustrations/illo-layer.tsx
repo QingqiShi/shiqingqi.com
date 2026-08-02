@@ -6,7 +6,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 /**
  * While the card is hovered, writes the pointer position to `--ds-illo-px/py`
  * (0 -> 1 across the tile, 0.5 = centre) on the enclosing tile; the illustrations read
- * the derived, centred `--ds-illo-mx/my` to lean toward the cursor. Skipped under
+ * the derived, centred `--ds-illo-mx/my` to lean towards the cursor. Skipped under
  * reduced motion — the illustration still blooms to colour, just without the lean.
  */
 export function IlloLayer({ children }: { children: ReactNode }) {

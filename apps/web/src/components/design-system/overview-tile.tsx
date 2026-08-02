@@ -32,7 +32,7 @@ interface OverviewTileProps {
  * below spans the illustration or specimen, copy, plate and link, and the
  * `::after` focus ring only works
  * while the link stays unpositioned. Those invariants are enforceable here and
- * not in a `.map()` on a page that is otherwise localized copy.
+ * not in a `.map()` on a page that is otherwise localised copy.
  */
 export function OverviewTile({
   path,

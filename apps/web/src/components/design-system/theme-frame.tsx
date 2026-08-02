@@ -10,7 +10,7 @@ import { t } from "#src/i18n.ts";
 interface ThemeFrameProps {
   /** Theme to pin the frame to, regardless of the viewer's active theme. */
   scheme: "light" | "dark";
-  /** Caption above the frame. Defaults to a localized "Light" / "Dark". */
+  /** Caption above the frame. Defaults to a localised "Light" / "Dark". */
   label?: string;
   children: ReactNode;
 }

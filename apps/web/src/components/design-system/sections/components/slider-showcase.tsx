@@ -391,7 +391,7 @@ export function SliderShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label="onChange / onCommit">
+      <Showcase label="onChange / onCommit" labelVariant="code">
         <div css={styles.stack}>
           <Text
             variant="bodySmall"

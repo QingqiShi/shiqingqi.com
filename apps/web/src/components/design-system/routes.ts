@@ -127,7 +127,16 @@ export const DESIGN_SYSTEM_ROUTES = [
     section: "foundations",
     category: "behaviour",
     path: "/design-system/foundations/voice",
-    keywords: ["copy", "wording", "microcopy", "writing", "content", "label"],
+    keywords: [
+      "copy",
+      "wording",
+      "microcopy",
+      "writing",
+      "content",
+      "label",
+      "spelling",
+      "dialect",
+    ],
   },
   // "Content", not "Typography": Foundations already carries a Typography page,
   // and a Typography heading a few rows under a Typography tile reads as the
@@ -452,7 +461,7 @@ function foldForSearch(value: string) {
 }
 
 /**
- * Whether a route answers a search. It matches the route's localized name, its
+ * Whether a route answers a search. It matches the route's localised name, its
  * URL slug — which keeps the English name searchable in the Chinese locale —
  * and its `keywords`, so a visitor finds Overlay by typing "modal".
  */

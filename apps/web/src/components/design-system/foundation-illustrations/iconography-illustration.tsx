@@ -204,7 +204,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // The board leans toward the cursor a little less far than the icon does, so
+  // The board leans towards the cursor a little less far than the icon does, so
   // the icon reads as floating above its own construction rather than printed on
   // it. The two tiers stay close together on purpose: their difference is how far
   // the lens slides off the construction star that generated it, and hover is

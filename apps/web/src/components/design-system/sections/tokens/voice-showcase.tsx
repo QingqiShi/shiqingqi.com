@@ -273,6 +273,36 @@ export function VoiceShowcase() {
     },
   ];
 
+  const dialectPairs = [
+    {
+      label: <span css={styles.qualityName}>colour</span>,
+      recommended: t({ en: "Colour is layered.", zh: "颜色是分层的。" }),
+      notRecommended: t({ en: "Color is layered.", zh: "色彩是分层的。" }),
+    },
+    {
+      label: <span css={styles.qualityName}>centred</span>,
+      recommended: t({
+        en: "The content stays centred beside the rail.",
+        zh: "内容在侧栏旁保持居中。",
+      }),
+      notRecommended: t({
+        en: "The content stays centered beside the rail.",
+        zh: "内容在侧栏旁保持置中。",
+      }),
+    },
+    {
+      label: <span css={styles.qualityName}>localised</span>,
+      recommended: t({
+        en: "The consumer supplies the localised string.",
+        zh: "由调用方提供本地化文案。",
+      }),
+      notRecommended: t({
+        en: "The consumer supplies the localized string.",
+        zh: "由调用方提供在地化文案。",
+      }),
+    },
+  ];
+
   const descriptionPair = [
     {
       recommended: t({
@@ -478,6 +508,22 @@ export function VoiceShowcase() {
           {t({
             en: "Then the rule that outranks the list: one concept, one word, everywhere it appears — in the copy, the prop names, and the code. Decide it once and write the decision down, so the next person inherits it instead of picking a synonym.",
             zh: "还有一条压过上述清单的规则：一个概念只对应一个词，出现在哪里都用它——文案、属性名与代码皆然。这个词只定一次，并把这个决定记录下来，下一个人便可直接沿用，而不是另选一个近义词。",
+          })}
+        </GuideNote>
+      </GuideSection>
+
+      <GuideSection
+        title={t({ en: "One dialect", zh: "只用一种拼写" })}
+        lead={t({
+          en: "English copy here is en-GB. The choice matters less than the consistency: two dialects on one page reads as two authors, and a reader who notices the seam stops reading the sentence and starts reading the spelling.",
+          zh: "本站英文文案统一使用英式拼写。选哪一种并不重要，一致才重要：同一页面上出现两种拼写，读起来就像出自两个人之手；读者一旦察觉这道接缝，就会从读句子转为读拼写。",
+        })}
+      >
+        <GuidelinePairs pairs={dialectPairs} />
+        <GuideNote>
+          {t({
+            en: 'An identifier keeps the spelling of the code it names, wherever it appears — the color.* token group, transition.colors, align="center", the /foundations/color route. So this page\'s neighbour is titled “Colour” while its URL stays /foundations/color and its specimens read color.surfaceAccent. Both are right: one is prose, the other is a contract.',
+            zh: '标识符在任何位置都保持其所指代码的拼写——color.* 令牌组、transition.colors、align="center"，以及 /foundations/color 路由。因此相邻的页面标题写作「Colour」，而其网址仍是 /foundations/color，页面上的示例仍写作 color.surfaceAccent。两者都对：一个是文案，一个是契约。',
           })}
         </GuideNote>
       </GuideSection>

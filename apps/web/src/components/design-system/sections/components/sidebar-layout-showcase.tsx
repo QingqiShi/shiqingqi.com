@@ -118,7 +118,7 @@ export function SidebarLayoutShowcase() {
             type: "string",
             required: true,
             description: t({
-              en: "Accessible name for the mobile menu button and the open drawer dialog. The package ships no i18n, so the consumer supplies the localized string.",
+              en: "Accessible name for the mobile menu button and the open drawer dialog. The package ships no i18n, so the consumer supplies the localised string.",
               zh: "移动端菜单按钮与打开的抽屉对话框的无障碍名称。组件库不内置 i18n，由调用方提供本地化文案。",
             }),
           },
@@ -136,7 +136,7 @@ export function SidebarLayoutShowcase() {
             type: "ReactNode",
             required: true,
             description: t({
-              en: "Content column, capped to a readable width and centered beside the rail.",
+              en: "Content column, capped to a readable width and centred beside the rail.",
               zh: "内容列，限制在可读宽度内并在侧栏旁居中。",
             }),
           },
@@ -145,7 +145,7 @@ export function SidebarLayoutShowcase() {
             type: "string",
             defaultValue: "layout.maxInlineSize",
             description: t({
-              en: "Caps the centered content column; pass a narrower value for prose-heavy pages.",
+              en: "Caps the centred content column; pass a narrower value for prose-heavy pages.",
               zh: "限制居中内容列的宽度；文字密集的页面可传入更窄的值。",
             }),
           },
@@ -180,7 +180,7 @@ export function SidebarLayoutShowcase() {
         })}
         dont={<code css={styles.code}>{'menuLabel="Menu"'}</code>}
         dontCaption={t({
-          en: "Don't hard-code untranslated labels. menuLabel and closeLabel name the drawer dialog for assistive tech — supply localized strings.",
+          en: "Don't hard-code untranslated labels. menuLabel and closeLabel name the drawer dialog for assistive tech — supply localised strings.",
           zh: "不要硬编码未翻译的标签。menuLabel 与 closeLabel 是抽屉对话框的无障碍名称——请提供本地化文案。",
         })}
       />

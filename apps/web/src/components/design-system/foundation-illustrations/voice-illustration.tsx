@@ -120,7 +120,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  // Retracts toward the start of the line rather than fading in place, so the
+  // Retracts towards the start of the line rather than fading in place, so the
   // paragraph reads as edited down and not merely dimmed.
   cut: {
     fill: "var(--ds-illo-ink)",

@@ -83,7 +83,7 @@ export function HeaderFooterLayoutShowcase() {
                 </Heading>
                 <Text tone="muted">
                   {t({
-                    en: "Reading surfaces get one centered measure and generous breathing room. The chrome recedes: a back affordance on the left, utilities on the right, and nothing else competing with the text.",
+                    en: "Reading surfaces get one centred measure and generous breathing room. The chrome recedes: a back affordance on the left, utilities on the right, and nothing else competing with the text.",
                     zh: "阅读型页面拥有单一居中的版心与充裕的留白。界面装饰退居其次：左侧是返回入口，右侧是实用控件，没有其他元素与正文争夺注意力。",
                   })}
                 </Text>
@@ -137,7 +137,7 @@ export function HeaderFooterLayoutShowcase() {
             name: "footer",
             type: "ReactNode",
             description: t({
-              en: "Footer element at the bottom of the centered measure. Pass a <footer> (e.g. the site footer); the shell adds no landmark of its own, so the element you pass owns the contentinfo role.",
+              en: "Footer element at the bottom of the centred measure. Pass a <footer> (e.g. the site footer); the shell adds no landmark of its own, so the element you pass owns the contentinfo role.",
               zh: "居中版心底部的页脚元素。传入一个 <footer>（如站点页脚）；骨架不添加自己的地标，你传入的元素拥有 contentinfo 角色。",
             }),
           },
@@ -154,7 +154,7 @@ export function HeaderFooterLayoutShowcase() {
             name: "readingColumn",
             type: "boolean",
             description: t({
-              en: "Caps the content into the site's centered reading column with gutters. Left off, the content is full-bleed and manages its own width (media heroes, app canvases).",
+              en: "Caps the content into the site's centred reading column with gutters. Left off, the content is full-bleed and manages its own width (media heroes, app canvases).",
               zh: "将内容限制在本站居中的阅读列内并带边距。不启用时内容为满幅并自行管理宽度（媒体主视觉、应用画布）。",
             }),
           },

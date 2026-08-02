@@ -282,7 +282,7 @@ export function ProgressShowcase() {
               type: "string",
               required: true,
               description: t({
-                en: "Accessible name, applied as aria-label. The package ships no i18n, so pass the localized string.",
+                en: "Accessible name, applied as aria-label. The package ships no i18n, so pass the localised string.",
                 zh: "可访问名称，以 aria-label 应用。该包不包含 i18n，请传入已本地化的字符串。",
               }),
             },

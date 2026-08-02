@@ -7,10 +7,10 @@ import { getLocalePath } from "#src/utils/pathname.ts";
  * Metadata for a design-system sub-route: a self-canonical plus en/zh hreflang
  * derived from the route's locale-agnostic path. Without per-page `alternates`,
  * sub-pages shallow-inherit the layout's `/design-system` canonical and would
- * point crawlers at the overview instead of themselves. The localized `title`
+ * point crawlers at the overview instead of themselves. The localised `title`
  * composes against the layout's `%s | Design System | Qingqi Shi` template.
  *
- * Passing an optional localized `description` enriches the entry with a meta
+ * Passing an optional localised `description` enriches the entry with a meta
  * description plus matching Open Graph and Twitter cards. Callers that omit it
  * keep the prior title-and-alternates-only output unchanged.
  */
