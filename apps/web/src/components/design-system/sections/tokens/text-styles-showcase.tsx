@@ -87,7 +87,7 @@ export function TextStylesShowcase() {
         <ShowcaseHelper>
           {t({
             en: "How long a line of any of these may run is a page decision, not a type one — see the measure on the Layout foundation.",
-            zh: "这些样式的每行能排多长，取决于页面而非字体样式——见“布局与断点”基础页中的行长。",
+            zh: "这些样式的每行能排多长，取决于页面而非字体样式——见“布局”基础页中的行长。",
           })}
         </ShowcaseHelper>
       </Showcase>

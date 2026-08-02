@@ -4,6 +4,7 @@ import {
   DESIGN_SYSTEM_PATHS,
   DESIGN_SYSTEM_ROUTES,
   DESIGN_SYSTEM_SECTION_ORDER,
+  getDesignSystemRouteSection,
   getDesignSystemRouteSections,
   matchesDesignSystemQuery,
 } from "./routes.ts";
@@ -87,6 +88,22 @@ describe("design-system route map", () => {
       .filter((group) => group.paths.length > 9)
       .map((group) => ({ group: group.category, size: group.paths.length }));
     expect(oversized).toEqual([]);
+  });
+});
+
+describe("getDesignSystemRouteSection", () => {
+  // The breadcrumb reads its middle crumb from this.
+  it("returns the section the route registered", () => {
+    expect(getDesignSystemRouteSection("/design-system")).toBe("overview");
+    expect(
+      getDesignSystemRouteSection("/design-system/foundations/color"),
+    ).toBe("foundations");
+    expect(getDesignSystemRouteSection("/design-system/components/chip")).toBe(
+      "components",
+    );
+    expect(getDesignSystemRouteSection("/design-system/primitives")).toBe(
+      "composition",
+    );
   });
 });
 

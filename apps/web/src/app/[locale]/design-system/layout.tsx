@@ -6,6 +6,10 @@ import { border, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
 import {
+  getDesignSystemGroupLabels,
+  getDesignSystemRouteLabels,
+} from "#src/components/design-system/route-copy.ts";
+import {
   DesignSystemSidebarControls,
   DesignSystemSidebarHeader,
 } from "#src/components/design-system/sidebar-chrome.tsx";
@@ -89,7 +93,12 @@ export default async function Layout({
     <>
       <SkipToContent />
       <SidebarLayout
-        sidebar={<DesignSystemNav />}
+        sidebar={
+          <DesignSystemNav
+            routeLabels={getDesignSystemRouteLabels()}
+            groupLabels={getDesignSystemGroupLabels()}
+          />
+        }
         sidebarHeader={<DesignSystemSidebarHeader locale={validatedLocale} />}
         sidebarFooter={<DesignSystemSidebarControls locale={validatedLocale} />}
         menuLabel={t({ en: "Design system menu", zh: "设计系统菜单" })}

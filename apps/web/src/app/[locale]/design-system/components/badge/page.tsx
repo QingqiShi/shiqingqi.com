@@ -11,14 +11,13 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/components/badge",
-    title: t({ en: "Badge", zh: "徽章" }),
   });
 }
 
 export default function BadgePage() {
   return (
     <DocPage
-      title={t({ en: "Badge", zh: "徽章" })}
+      path="/design-system/components/badge"
       description={t({
         en: "Compact status and label indicators. The six Intents plus a bordered default, at two sizes.",
         zh: "紧凑的状态和标签指示器。六种意图色，加一个带边框的默认样式，并支持两种尺寸。",

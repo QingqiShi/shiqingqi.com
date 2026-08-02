@@ -11,14 +11,13 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   return designSystemMetadata({
     locale: validateLocale(locale),
     path: "/design-system/foundations/elevation",
-    title: t({ en: "Elevation", zh: "层深" }),
   });
 }
 
 export default function ElevationPage() {
   return (
     <DocPage
-      title={t({ en: "Elevation", zh: "层深" })}
+      path="/design-system/foundations/elevation"
       description={t({
         en: "A layered elevation scale that lifts surfaces off the page — from a hairline rest state up to floating overlays.",
         zh: "分层的层深阶梯，将表面从页面上抬起——从细微的静止状态到悬浮的覆盖层。",

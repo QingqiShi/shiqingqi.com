@@ -1,25 +1,38 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { DocBreadcrumb } from "./doc-breadcrumb.tsx";
 import { measure } from "./measure.stylex.ts";
+import { getDesignSystemRouteLabel } from "./route-copy.ts";
+import type { DesignSystemPath } from "./routes.ts";
 
 interface DocPageProps {
-  title: string;
+  /**
+   * The route this page is registered at. The title and the breadcrumb's
+   * section both come from it, so a page cannot name itself something the nav
+   * rail disagrees with.
+   */
+  path: DesignSystemPath;
   description: ReactNode;
   children: ReactNode;
 }
 
 /**
  * Shared header + body frame for a single design-system entry (one foundation
- * or component per route). Renders the page-level `h1` and intro, then a
- * consistent content column the showcases flow into.
+ * or component per route). Renders the breadcrumb, the page-level `h1` and
+ * intro, then a consistent content column the showcases flow into.
  */
-export function DocPage({ title, description, children }: DocPageProps) {
+export function DocPage({ path, description, children }: DocPageProps) {
   return (
     <article css={styles.page}>
       <header css={styles.header}>
-        <h1 css={styles.title}>{title}</h1>
-        <p css={styles.description}>{description}</p>
+        <DocBreadcrumb path={path} />
+        {/* Its own column: the trail is chrome above the page, and sharing the
+            header's gap would set it as an over-line on the title. */}
+        <div css={styles.intro}>
+          <h1 css={styles.title}>{getDesignSystemRouteLabel(path)}</h1>
+          <p css={styles.description}>{description}</p>
+        </div>
       </header>
       <div css={styles.body}>{children}</div>
     </article>
@@ -35,6 +48,11 @@ const styles = stylex.create({
     marginInline: "auto",
   },
   header: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._4,
+  },
+  intro: {
     display: "flex",
     flexDirection: "column",
     gap: space._2,
