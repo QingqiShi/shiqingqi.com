@@ -190,6 +190,10 @@ export default function DesignSystemOverview() {
       en: "A reading-density page shell with a fixed header and an optional footer.",
       zh: "带固定页头与可选页脚的阅读密度页面骨架。",
     }),
+    "/design-system/examples/movie-detail": t({
+      en: "A whole movie-details screen built from nothing but this system.",
+      zh: "一整个影片详情页面，完全由本系统搭建。",
+    }),
     "/design-system/primitives": t({
       en: "Composable StyleX primitives — flex, layout, motion, reset, and accessibility.",
       zh: "可组合的 StyleX 原语——flex、布局、动效、重置与无障碍。",

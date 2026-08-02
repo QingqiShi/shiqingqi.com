@@ -149,6 +149,17 @@
   </url>
 
   <url>
+    <loc>https://qingqi.dev/design-system/examples/movie-detail</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/examples/movie-detail" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/examples/movie-detail" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/examples/movie-detail</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/examples/movie-detail" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/examples/movie-detail" />
+  </url>
+
+  <url>
     <loc>https://qingqi.dev/design-system/foundations/color</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/color" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/color" />

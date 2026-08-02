@@ -18,9 +18,10 @@ interface DocPageProps {
 }
 
 /**
- * Shared header + body frame for a single design-system entry (one foundation
- * or component per route). Renders the breadcrumb, the page-level `h1` and
- * intro, then a consistent content column the showcases flow into.
+ * Shared header + body frame for a single design-system entry — one foundation,
+ * component, or composed example per route. Renders the breadcrumb, the
+ * page-level `h1` and intro, then a consistent content column the showcases
+ * flow into.
  */
 export function DocPage({ path, description, children }: DocPageProps) {
   return (
