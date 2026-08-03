@@ -75,8 +75,8 @@ export function IconographyIllustration() {
         >
           <feGaussianBlur stdDeviation="3.2" />
         </filter>
-        {/* The icon, drawn once and referenced twice below — a blurred halo and
-            the stroke itself. Two copies of the same path have to agree exactly,
+        {/* The icon, drawn once and referenced twice below — the glow and the
+            stroke itself. Two copies of the same path have to agree exactly,
             so they share one definition; the shapes fix their own fill and cap
             and inherit stroke and width from each `use`. This is Phosphor's
             MagnifyingGlass scaled onto the box: lens 112,112 r80 of 256, handle
@@ -162,7 +162,7 @@ export function IconographyIllustration() {
 
       <g css={styles.icon}>
         <use
-          css={styles.iconHalo}
+          css={styles.iconGlow}
           href="#dsi-iconography-ico-icon"
           strokeWidth="7.875"
           filter="url(#dsi-iconography-ico-blur)"
@@ -331,7 +331,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  iconHalo: {
+  iconGlow: {
     stroke: "var(--ds-illo-hue-soft)",
     opacity: {
       default: 0,
