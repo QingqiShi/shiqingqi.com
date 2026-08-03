@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v6.0.9
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -72,7 +72,7 @@ jobs:
         shardTotal: [7]
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v6.0.9
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -151,7 +151,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v6.0.9
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
