@@ -67,6 +67,7 @@ const CHROME = new Set([
   "GuideNote",
   "PropsTable",
   "ShowcaseHelper",
+  "StateReadout",
   "UsageSnippet",
 ]);
 

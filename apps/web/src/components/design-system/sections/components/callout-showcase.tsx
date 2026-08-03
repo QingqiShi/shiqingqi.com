@@ -1,14 +1,17 @@
+"use client";
+
 import { MegaphoneIcon } from "@phosphor-icons/react/dist/ssr/Megaphone";
 import * as stylex from "@stylexjs/stylex";
+import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
-import { CalloutDismissSpecimen } from "./callout-dismiss-specimen.tsx";
 
 export function CalloutShowcase() {
   return (
@@ -245,6 +248,43 @@ export function CalloutShowcase() {
         })}
       />
     </>
+  );
+}
+
+/**
+ * A dismissible callout that can be brought back, so the control can be tried
+ * more than once. All `t()` strings resolve at the top of render, so the
+ * conditional branch never varies the hook call order.
+ */
+function CalloutDismissSpecimen() {
+  const [dismissed, setDismissed] = useState(false);
+  const title = t({ en: "Storage almost full", zh: "存储空间即将用满" });
+  const body = t({
+    en: "You're using 92% of your plan's space. Free up room or upgrade before uploads start failing.",
+    zh: "你已使用套餐 92% 的空间。请在上传开始失败前清理空间或升级套餐。",
+  });
+  const dismissLabel = t({ en: "Dismiss", zh: "关闭" });
+  const restoreLabel = t({ en: "Restore callout", zh: "恢复提示框" });
+
+  return dismissed ? (
+    <Button
+      onClick={() => {
+        setDismissed(false);
+      }}
+    >
+      {restoreLabel}
+    </Button>
+  ) : (
+    <Callout
+      variant="warning"
+      title={title}
+      onDismiss={() => {
+        setDismissed(true);
+      }}
+      dismissLabel={dismissLabel}
+    >
+      {body}
+    </Callout>
   );
 }
 

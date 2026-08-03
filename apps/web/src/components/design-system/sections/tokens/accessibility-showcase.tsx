@@ -19,7 +19,7 @@ import { GuideList } from "../../guide/guide-list.tsx";
 import { GuideNote, GuideSection } from "../../guide/guide-section.tsx";
 import { Identifier } from "../../identifier.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
-import { SegmentedControlInteractiveSpecimen } from "../components/segmented-control-interactive-specimen.tsx";
+import { KeyboardModelSpecimen } from "./keyboard-model-specimen.tsx";
 import { ReducedMotionSpecimen } from "./reduced-motion-specimen.tsx";
 import { TEXT_ROLE_CONTRAST } from "./text-role-contrast.ts";
 
@@ -209,9 +209,7 @@ type Named =
         })}
       >
         <div css={[flex.wrap, styles.row]}>
-          {/* The segmented-control page's specimen, borrowed so this showcase
-              can stay a server component. */}
-          <SegmentedControlInteractiveSpecimen count={3} />
+          <KeyboardModelSpecimen />
         </div>
         <GuideNote>
           {t({

@@ -1,5 +1,12 @@
+"use client";
+
+import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
+import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
+import { RowsIcon } from "@phosphor-icons/react/dist/ssr/Rows";
 import * as stylex from "@stylexjs/stylex";
+import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Text } from "@tuja/ui/components/text";
+import { useState, type ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { measure } from "../../measure.stylex.ts";
@@ -7,7 +14,6 @@ import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
-import { SegmentedControlInteractiveSpecimen } from "./segmented-control-interactive-specimen.tsx";
 
 export function SegmentedControlShowcase() {
   return (
@@ -15,17 +21,47 @@ export function SegmentedControlShowcase() {
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <SpecimenGrid>
           <Specimen caption="sm">
-            <SegmentedControlInteractiveSpecimen size="sm" />
+            <ViewControl
+              size="sm"
+              options={[
+                { value: "grid", label: t({ en: "Grid", zh: "网格" }) },
+                { value: "list", label: t({ en: "List", zh: "列表" }) },
+              ]}
+            />
           </Specimen>
           <Specimen caption="md">
-            <SegmentedControlInteractiveSpecimen size="md" />
+            <ViewControl
+              size="md"
+              options={[
+                { value: "grid", label: t({ en: "Grid", zh: "网格" }) },
+                { value: "list", label: t({ en: "List", zh: "列表" }) },
+              ]}
+            />
           </Specimen>
         </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "With icons", zh: "带图标" })}>
         <Specimen caption={t({ en: "decorative icons", zh: "装饰性图标" })}>
-          <SegmentedControlInteractiveSpecimen withIcons count={3} />
+          <ViewControl
+            options={[
+              {
+                value: "grid",
+                label: t({ en: "Grid", zh: "网格" }),
+                icon: <GridFourIcon weight="bold" />,
+              },
+              {
+                value: "list",
+                label: t({ en: "List", zh: "列表" }),
+                icon: <ListIcon weight="bold" />,
+              },
+              {
+                value: "compact",
+                label: t({ en: "Compact", zh: "紧凑" }),
+                icon: <RowsIcon weight="bold" />,
+              },
+            ]}
+          />
         </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
@@ -37,7 +73,14 @@ export function SegmentedControlShowcase() {
 
       <Showcase label={t({ en: "Full width", zh: "撑满宽度" })}>
         <Specimen caption={t({ en: "equal shares", zh: "等分宽度" })}>
-          <SegmentedControlInteractiveSpecimen fullWidth count={3} />
+          <ViewControl
+            fullWidth
+            options={[
+              { value: "grid", label: t({ en: "Grid", zh: "网格" }) },
+              { value: "list", label: t({ en: "List", zh: "列表" }) },
+              { value: "compact", label: t({ en: "Compact", zh: "紧凑" }) },
+            ]}
+          />
         </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
@@ -49,7 +92,14 @@ export function SegmentedControlShowcase() {
 
       <Showcase label={t({ en: "Keyboard", zh: "键盘操作" })}>
         <Specimen caption="radiogroup">
-          <SegmentedControlInteractiveSpecimen count={4} />
+          <ViewControl
+            options={[
+              { value: "grid", label: t({ en: "Grid", zh: "网格" }) },
+              { value: "list", label: t({ en: "List", zh: "列表" }) },
+              { value: "compact", label: t({ en: "Compact", zh: "紧凑" }) },
+              { value: "table", label: t({ en: "Table", zh: "表格" }) },
+            ]}
+          />
         </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
@@ -167,12 +217,35 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
-          do={<SegmentedControlInteractiveSpecimen count={3} />}
+          do={
+            <ViewControl
+              options={[
+                { value: "grid", label: t({ en: "Grid", zh: "网格" }) },
+                { value: "list", label: t({ en: "List", zh: "列表" }) },
+                { value: "compact", label: t({ en: "Compact", zh: "紧凑" }) },
+              ]}
+            />
+          }
           doCaption={t({
             en: "Two to four mutually exclusive views of the same content, all readable at a glance.",
             zh: "同一内容的二至四种互斥视图，一眼即可全部读完。",
           })}
-          dont={<SegmentedControlInteractiveSpecimen count={7} />}
+          dont={
+            <ViewControl
+              options={[
+                { value: "grid", label: t({ en: "Grid", zh: "网格" }) },
+                { value: "list", label: t({ en: "List", zh: "列表" }) },
+                { value: "compact", label: t({ en: "Compact", zh: "紧凑" }) },
+                { value: "table", label: t({ en: "Table", zh: "表格" }) },
+                { value: "gallery", label: t({ en: "Gallery", zh: "画廊" }) },
+                {
+                  value: "timeline",
+                  label: t({ en: "Timeline", zh: "时间线" }),
+                },
+                { value: "map", label: t({ en: "Map", zh: "地图" }) },
+              ]}
+            />
+          }
           dontCaption={t({
             en: "Don't keep adding segments — past four the labels crush, the track outgrows small screens, and the set belongs in a Select.",
             zh: "不要不断增加分段——超过四个后标签会被挤压，轨道在小屏幕上放不下，这样的选项集应改用下拉选择。",
@@ -180,6 +253,31 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
         />
       </Showcase>
     </>
+  );
+}
+
+/** Holds the selected view — `SegmentedControl` is controlled by contract. */
+function ViewControl({
+  options,
+  size,
+  fullWidth,
+}: {
+  /** Ordered segments, exactly as `SegmentedControl` takes them. */
+  options: readonly { value: string; label: ReactNode; icon?: ReactNode }[];
+  size?: "sm" | "md";
+  fullWidth?: boolean;
+}) {
+  const [view, setView] = useState(options[0].value);
+
+  return (
+    <SegmentedControl
+      aria-label={t({ en: "View", zh: "视图" })}
+      options={options}
+      value={view}
+      onChange={setView}
+      size={size}
+      fullWidth={fullWidth}
+    />
   );
 }
 

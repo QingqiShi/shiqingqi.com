@@ -28,10 +28,9 @@ const renderedMarkup = `<Progress label="Checkout" value={3} max={5} aria-valuet
   aria-valuetext="Step 3 of 5"
 />`;
 
-const STEP = 20;
-
 /** Steps a controlled value so a visitor can watch `aria-valuenow` track it. */
 function ProgressStepper() {
+  const STEP = 20;
   const [value, setValue] = useState(40);
   return (
     <div css={[flex.col, styles.stepperStack]}>
@@ -223,7 +222,7 @@ export function ProgressShowcase() {
             <Progress
               value={78}
               size="lg"
-              css={tints.warning}
+              css={styles.warningIndicator}
               label={t({ en: "Storage filling up", zh: "存储即将占满" })}
             />
           </Specimen>
@@ -231,7 +230,7 @@ export function ProgressShowcase() {
             <Progress
               value={96}
               size="lg"
-              css={tints.danger}
+              css={styles.dangerIndicator}
               label={t({ en: "Storage almost full", zh: "存储几乎已满" })}
             />
           </Specimen>
@@ -371,13 +370,10 @@ const styles = stylex.create({
     inlineSize: "100%",
     gap: space._2,
   },
-});
-
-const tints = stylex.create({
-  warning: {
+  warningIndicator: {
     [progressTokens.indicatorColor]: color.warning,
   },
-  danger: {
+  dangerIndicator: {
     [progressTokens.indicatorColor]: color.danger,
   },
 });

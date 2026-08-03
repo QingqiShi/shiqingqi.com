@@ -15,7 +15,6 @@ import { Showcase } from "../../showcase.tsx";
 import { Specimen } from "../../specimen.tsx";
 
 export function OverlayShowcase() {
-  const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <Showcase label={t({ en: "Overlay", zh: "覆盖层" })}>
@@ -27,34 +26,7 @@ export function OverlayShowcase() {
             })}
           </Text>
           <Specimen caption={t({ en: "open and dismiss", zh: "打开与关闭" })}>
-            <Button
-              variant="primary"
-              onClick={() => {
-                setIsOpen(true);
-              }}
-            >
-              {t({ en: "Open overlay", zh: "打开覆盖层" })}
-            </Button>
-            <Overlay
-              isOpen={isOpen}
-              onClose={() => {
-                setIsOpen(false);
-              }}
-              closeLabel={t({ en: "Close", zh: "关闭" })}
-              aria-label={t({ en: "Example overlay", zh: "示例覆盖层" })}
-            >
-              <div css={[flex.col, styles.overlayBody]}>
-                <Heading level={2}>
-                  {t({ en: "Overlay content", zh: "覆盖层内容" })}
-                </Heading>
-                <Text tone="muted">
-                  {t({
-                    en: "The consumer owns this content; the overlay owns the backdrop, focus trap, scroll lock, and close affordance. Press Escape or click the backdrop to dismiss.",
-                    zh: "内容由使用方掌控；覆盖层负责背景、焦点捕获、滚动锁定与关闭控件。按 Escape 或点击背景即可关闭。",
-                  })}
-                </Text>
-              </div>
-            </Overlay>
+            <OverlayDemo />
           </Specimen>
         </div>
       </Showcase>
@@ -168,6 +140,44 @@ export function OverlayShowcase() {
           })}
         />
       </Showcase>
+    </>
+  );
+}
+
+/** The consumer owns `isOpen`, so a specimen has to own it too. */
+function OverlayDemo() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        variant="primary"
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
+        {t({ en: "Open overlay", zh: "打开覆盖层" })}
+      </Button>
+      <Overlay
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+        closeLabel={t({ en: "Close", zh: "关闭" })}
+        aria-label={t({ en: "Example overlay", zh: "示例覆盖层" })}
+      >
+        <div css={[flex.col, styles.overlayBody]}>
+          <Heading level={2}>
+            {t({ en: "Overlay content", zh: "覆盖层内容" })}
+          </Heading>
+          <Text tone="muted">
+            {t({
+              en: "The consumer owns this content; the overlay owns the backdrop, focus trap, scroll lock, and close affordance. Press Escape or click the backdrop to dismiss.",
+              zh: "内容由使用方掌控；覆盖层负责背景、焦点捕获、滚动锁定与关闭控件。按 Escape 或点击背景即可关闭。",
+            })}
+          </Text>
+        </div>
+      </Overlay>
     </>
   );
 }

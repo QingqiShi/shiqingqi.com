@@ -275,9 +275,26 @@ function ReadoutSlider() {
   );
 }
 
-export function SliderShowcase() {
+/** A slider locked to its value — the readout still says what that value is. */
+function DisabledSlider() {
   const locale = useLocale();
   const percent = new Intl.NumberFormat(locale, { style: "percent" });
+
+  return (
+    <Slider
+      label={t({ en: "Overpayment", zh: "额外还款" })}
+      description={t({
+        en: "Unlocked once the fixed-rate period ends.",
+        zh: "固定利率期结束后才可调整。",
+      })}
+      disabled
+      defaultValue={35}
+      readout={percent.format(0.35)}
+    />
+  );
+}
+
+export function SliderShowcase() {
   const smallLabel = t({ en: "Small", zh: "小" });
   const mediumLabel = t({ en: "Medium", zh: "中" });
   const largeLabel = t({ en: "Large", zh: "大" });
@@ -437,16 +454,7 @@ export function SliderShowcase() {
       <Showcase label={t({ en: "Disabled", zh: "禁用" })}>
         <div css={styles.column}>
           <Specimen caption={t({ en: "overpayment", zh: "额外还款" })}>
-            <Slider
-              label={t({ en: "Overpayment", zh: "额外还款" })}
-              description={t({
-                en: "Unlocked once the fixed-rate period ends.",
-                zh: "固定利率期结束后才可调整。",
-              })}
-              disabled
-              defaultValue={35}
-              readout={percent.format(0.35)}
-            />
+            <DisabledSlider />
           </Specimen>
         </div>
       </Showcase>
