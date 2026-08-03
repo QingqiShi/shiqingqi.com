@@ -10,191 +10,6 @@ import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { ThemeFramePair } from "../../theme-frame.tsx";
 
 export function TextShowcase() {
-  const typeScale = [
-    {
-      meta: "body · 1rem",
-      node: (
-        <Text variant="body">
-          {t({
-            en: "A weary detective takes one last case that drags his own past back into the light.",
-            zh: "一位疲惫的警探接下最后一桩案子，却让自己的过往重见天日。",
-          })}
-        </Text>
-      ),
-    },
-    {
-      meta: "bodySmall · .85rem",
-      node: (
-        <Text variant="bodySmall">
-          {t({
-            en: "2h 08m · Crime, Drama · Directed by Ana Reyes",
-            zh: "2小时08分 · 犯罪、剧情 · 导演 Ana Reyes",
-          })}
-        </Text>
-      ),
-    },
-    {
-      meta: "caption · .75rem",
-      node: (
-        <Text variant="caption">
-          {t({
-            en: "Added to your list 3 hours ago",
-            zh: "3 小时前加入你的清单",
-          })}
-        </Text>
-      ),
-    },
-    {
-      meta: "overline · .7rem",
-      node: (
-        <Text variant="overline">
-          {t({ en: "Now streaming", zh: "正在热播" })}
-        </Text>
-      ),
-    },
-  ];
-
-  const tones = [
-    {
-      meta: "default",
-      node: (
-        <Text tone="default">
-          {t({ en: "Primary reading content", zh: "主要阅读内容" })}
-        </Text>
-      ),
-    },
-    {
-      meta: "muted",
-      node: (
-        <Text tone="muted">
-          {t({ en: "Secondary metadata and captions", zh: "次要信息与说明" })}
-        </Text>
-      ),
-    },
-    {
-      meta: "subtle",
-      node: (
-        <Text tone="subtle">
-          {t({ en: "Incidental footnotes and hints", zh: "附带的脚注与提示" })}
-        </Text>
-      ),
-    },
-    {
-      meta: "accent",
-      node: (
-        <Text tone="accent">
-          {t({ en: "Highlighted, on-brand phrases", zh: "突出显示的品牌语句" })}
-        </Text>
-      ),
-    },
-  ];
-
-  const weights = [
-    {
-      meta: "regular",
-      node: (
-        <Text weight="regular">
-          {t({ en: "Regular — comfortable default", zh: "常规——舒适的默认值" })}
-        </Text>
-      ),
-    },
-    {
-      meta: "medium",
-      node: (
-        <Text weight="medium">
-          {t({ en: "Medium — gentle emphasis", zh: "中等——轻度强调" })}
-        </Text>
-      ),
-    },
-    {
-      meta: "semibold",
-      node: (
-        <Text weight="semibold">
-          {t({ en: "Semibold — confident emphasis", zh: "半粗——明确强调" })}
-        </Text>
-      ),
-    },
-    {
-      meta: "bold",
-      node: (
-        <Text weight="bold">
-          {t({ en: "Bold — strong emphasis", zh: "粗体——强烈强调" })}
-        </Text>
-      ),
-    },
-  ];
-
-  const transforms = [
-    {
-      meta: 'transform="uppercase"',
-      node: (
-        <Text variant="caption" transform="uppercase">
-          {t({ en: "Now streaming", zh: "正在热播" })}
-        </Text>
-      ),
-    },
-    {
-      meta: 'transform="capitalize"',
-      node: (
-        <Text variant="caption" transform="capitalize">
-          {t({ en: "now streaming", zh: "正在热播" })}
-        </Text>
-      ),
-    },
-    {
-      meta: 'transform="lowercase"',
-      node: (
-        <Text variant="caption" transform="lowercase">
-          {t({ en: "NOW STREAMING", zh: "正在热播" })}
-        </Text>
-      ),
-    },
-  ];
-
-  const alignments = [
-    {
-      meta: 'align="start"',
-      node: (
-        <Text align="start">
-          {t({ en: "Aligned to start", zh: "起始对齐" })}
-        </Text>
-      ),
-    },
-    {
-      meta: 'align="center"',
-      node: (
-        <Text align="center">
-          {t({ en: "Aligned to center", zh: "居中对齐" })}
-        </Text>
-      ),
-    },
-    {
-      meta: 'align="end"',
-      node: (
-        <Text align="end">{t({ en: "Aligned to end", zh: "末尾对齐" })}</Text>
-      ),
-    },
-  ];
-
-  const wrapSample = t({
-    en: "A tense, patient thriller that trusts its audience completely.",
-    zh: "一部紧张而耐心的惊悚片，全然信任它的观众。",
-  });
-  const wraps = [
-    {
-      meta: 'wrap="balance"',
-      node: <Text wrap="balance">{wrapSample}</Text>,
-    },
-    {
-      meta: 'wrap="pretty"',
-      node: <Text wrap="pretty">{wrapSample}</Text>,
-    },
-    {
-      meta: 'wrap="nowrap"',
-      node: <Text wrap="nowrap">{wrapSample}</Text>,
-    },
-  ];
-
   const runtimes = ["1:02", "12:45", "128:09"];
 
   return (
@@ -207,11 +22,35 @@ export function TextShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.ladder}>
-          {typeScale.map((row) => (
-            <Specimen key={row.meta} caption={row.meta}>
-              {row.node}
-            </Specimen>
-          ))}
+          <Specimen caption="body · 1rem">
+            <Text variant="body">
+              {t({
+                en: "A weary detective takes one last case that drags his own past back into the light.",
+                zh: "一位疲惫的警探接下最后一桩案子，却让自己的过往重见天日。",
+              })}
+            </Text>
+          </Specimen>
+          <Specimen caption="bodySmall · .85rem">
+            <Text variant="bodySmall">
+              {t({
+                en: "2h 08m · Crime, Drama · Directed by Ana Reyes",
+                zh: "2小时08分 · 犯罪、剧情 · 导演 Ana Reyes",
+              })}
+            </Text>
+          </Specimen>
+          <Specimen caption="caption · .75rem">
+            <Text variant="caption">
+              {t({
+                en: "Added to your list 3 hours ago",
+                zh: "3 小时前加入你的清单",
+              })}
+            </Text>
+          </Specimen>
+          <Specimen caption="overline · .7rem">
+            <Text variant="overline">
+              {t({ en: "Now streaming", zh: "正在热播" })}
+            </Text>
+          </Specimen>
         </div>
       </Showcase>
 
@@ -224,22 +63,64 @@ export function TextShowcase() {
         </ShowcaseHelper>
         <ThemeFramePair>
           <div css={styles.ladder}>
-            {tones.map((row) => (
-              <Specimen key={row.meta} caption={row.meta}>
-                {row.node}
-              </Specimen>
-            ))}
+            <Specimen caption="default">
+              <Text tone="default">
+                {t({ en: "Primary reading content", zh: "主要阅读内容" })}
+              </Text>
+            </Specimen>
+            <Specimen caption="muted">
+              <Text tone="muted">
+                {t({
+                  en: "Secondary metadata and captions",
+                  zh: "次要信息与说明",
+                })}
+              </Text>
+            </Specimen>
+            <Specimen caption="subtle">
+              <Text tone="subtle">
+                {t({
+                  en: "Incidental footnotes and hints",
+                  zh: "附带的脚注与提示",
+                })}
+              </Text>
+            </Specimen>
+            <Specimen caption="accent">
+              <Text tone="accent">
+                {t({
+                  en: "Highlighted, on-brand phrases",
+                  zh: "突出显示的品牌语句",
+                })}
+              </Text>
+            </Specimen>
           </div>
         </ThemeFramePair>
       </Showcase>
 
       <Showcase label={t({ en: "Weights", zh: "字重" })}>
         <div css={styles.ladder}>
-          {weights.map((row) => (
-            <Specimen key={row.meta} caption={row.meta}>
-              {row.node}
-            </Specimen>
-          ))}
+          <Specimen caption="regular">
+            <Text weight="regular">
+              {t({
+                en: "Regular — comfortable default",
+                zh: "常规——舒适的默认值",
+              })}
+            </Text>
+          </Specimen>
+          <Specimen caption="medium">
+            <Text weight="medium">
+              {t({ en: "Medium — gentle emphasis", zh: "中等——轻度强调" })}
+            </Text>
+          </Specimen>
+          <Specimen caption="semibold">
+            <Text weight="semibold">
+              {t({ en: "Semibold — confident emphasis", zh: "半粗——明确强调" })}
+            </Text>
+          </Specimen>
+          <Specimen caption="bold">
+            <Text weight="bold">
+              {t({ en: "Bold — strong emphasis", zh: "粗体——强烈强调" })}
+            </Text>
+          </Specimen>
         </div>
       </Showcase>
 
@@ -271,31 +152,76 @@ export function TextShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.ladder}>
-          {transforms.map((row) => (
-            <Specimen key={row.meta} caption={row.meta}>
-              {row.node}
-            </Specimen>
-          ))}
+          <Specimen caption='transform="uppercase"'>
+            <Text variant="caption" transform="uppercase">
+              {t({ en: "Now streaming", zh: "正在热播" })}
+            </Text>
+          </Specimen>
+          <Specimen caption='transform="capitalize"'>
+            <Text variant="caption" transform="capitalize">
+              {t({ en: "now streaming", zh: "正在热播" })}
+            </Text>
+          </Specimen>
+          <Specimen caption='transform="lowercase"'>
+            <Text variant="caption" transform="lowercase">
+              {t({ en: "NOW STREAMING", zh: "正在热播" })}
+            </Text>
+          </Specimen>
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Alignment", zh: "对齐" })}>
         <div css={styles.ladder}>
-          {alignments.map((row) => (
-            <Specimen key={row.meta} caption={row.meta}>
-              {row.node}
-            </Specimen>
-          ))}
+          <Specimen caption='align="start"'>
+            <Text align="start">
+              {t({ en: "Aligned to start", zh: "起始对齐" })}
+            </Text>
+          </Specimen>
+          <Specimen caption='align="center"'>
+            <Text align="center">
+              {t({ en: "Aligned to center", zh: "居中对齐" })}
+            </Text>
+          </Specimen>
+          <Specimen caption='align="end"'>
+            <Text align="end">
+              {t({ en: "Aligned to end", zh: "末尾对齐" })}
+            </Text>
+          </Specimen>
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Wrapping", zh: "换行" })}>
         <div css={styles.ladder}>
-          {wraps.map((row) => (
-            <Specimen key={row.meta} caption={row.meta}>
-              <div css={styles.wrapSpecimen}>{row.node}</div>
-            </Specimen>
-          ))}
+          <Specimen caption='wrap="balance"'>
+            <div css={styles.wrapSpecimen}>
+              <Text wrap="balance">
+                {t({
+                  en: "A tense, patient thriller that trusts its audience completely.",
+                  zh: "一部紧张而耐心的惊悚片，全然信任它的观众。",
+                })}
+              </Text>
+            </div>
+          </Specimen>
+          <Specimen caption='wrap="pretty"'>
+            <div css={styles.wrapSpecimen}>
+              <Text wrap="pretty">
+                {t({
+                  en: "A tense, patient thriller that trusts its audience completely.",
+                  zh: "一部紧张而耐心的惊悚片，全然信任它的观众。",
+                })}
+              </Text>
+            </div>
+          </Specimen>
+          <Specimen caption='wrap="nowrap"'>
+            <div css={styles.wrapSpecimen}>
+              <Text wrap="nowrap">
+                {t({
+                  en: "A tense, patient thriller that trusts its audience completely.",
+                  zh: "一部紧张而耐心的惊悚片，全然信任它的观众。",
+                })}
+              </Text>
+            </div>
+          </Specimen>
         </div>
       </Showcase>
 

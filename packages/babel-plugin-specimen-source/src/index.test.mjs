@@ -212,6 +212,41 @@ export function ButtonShowcase() {
   <Button>Go</Button>
 </div>`);
     });
+
+    it("drops chrome inside a local component the specimen reaches", () => {
+      const code = `${IMPORTS}import { StateReadout } from "../../showcase.tsx";
+
+export function ButtonShowcase() {
+  return (
+    <Specimen caption="live">
+      <LiveButton />
+    </Specimen>
+  );
+}
+
+function LiveButton() {
+  return (
+    <div>
+      <Button>Go</Button>
+      <StateReadout label="onClick →">{count}</StateReadout>
+    </div>
+  );
+}
+`;
+
+      expect(sourceOf(code))
+        .toBe(`import { Button } from "@tuja/ui/components/button";
+
+<LiveButton />
+
+function LiveButton() {
+  return (
+    <div>
+      <Button>Go</Button>
+    </div>
+  );
+}`);
+    });
   });
 
   describe("unwrapping t()", () => {
