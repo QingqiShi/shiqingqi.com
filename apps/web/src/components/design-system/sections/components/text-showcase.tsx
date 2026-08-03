@@ -1,14 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
-import type { ReactNode } from "react";
+import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
+import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { ThemeFramePair } from "../../theme-frame.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
 
 export function TextShowcase() {
   const typeScale = [
@@ -198,17 +197,6 @@ export function TextShowcase() {
 
   const runtimes = ["1:02", "12:45", "128:09"];
 
-  const usage = `import { Text } from "@tuja/ui/components/text";
-
-<Text variant="bodySmall" tone="muted">
-  2h 08m · Crime, Drama
-</Text>
-
-// Body copy that shouldn't strand a word, and a column of times
-// whose digits line up.
-<Text wrap="pretty">{overview}</Text>
-<Text numeric align="end">{runtime}</Text>`;
-
   return (
     <>
       <Showcase label={t({ en: "Type scale", zh: "字号" })}>
@@ -220,9 +208,9 @@ export function TextShowcase() {
         </ShowcaseHelper>
         <div css={styles.ladder}>
           {typeScale.map((row) => (
-            <SpecRow key={row.meta} meta={row.meta}>
+            <Specimen key={row.meta} caption={row.meta}>
               {row.node}
-            </SpecRow>
+            </Specimen>
           ))}
         </div>
       </Showcase>
@@ -237,9 +225,9 @@ export function TextShowcase() {
         <ThemeFramePair>
           <div css={styles.ladder}>
             {tones.map((row) => (
-              <SpecRow key={row.meta} meta={row.meta}>
+              <Specimen key={row.meta} caption={row.meta}>
                 {row.node}
-              </SpecRow>
+              </Specimen>
             ))}
           </div>
         </ThemeFramePair>
@@ -248,9 +236,9 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Weights", zh: "字重" })}>
         <div css={styles.ladder}>
           {weights.map((row) => (
-            <SpecRow key={row.meta} meta={row.meta}>
+            <Specimen key={row.meta} caption={row.meta}>
               {row.node}
-            </SpecRow>
+            </Specimen>
           ))}
         </div>
       </Showcase>
@@ -262,17 +250,17 @@ export function TextShowcase() {
             zh: "as 决定语义元素，variant 决定字号，二者相互独立——因此 span 仍可在行内保持正文字号。",
           })}
         </ShowcaseHelper>
-        <ShowcaseGrid>
-          <ShowcaseItem label='as="p"'>
+        <SpecimenGrid>
+          <Specimen caption='as="p"'>
             <Text as="p">{t({ en: "Paragraph block", zh: "段落块" })}</Text>
-          </ShowcaseItem>
-          <ShowcaseItem label='as="span"'>
+          </Specimen>
+          <Specimen caption='as="span"'>
             <Text as="span">{t({ en: "Inline run", zh: "行内文本" })}</Text>
-          </ShowcaseItem>
-          <ShowcaseItem label='as="div"'>
+          </Specimen>
+          <Specimen caption='as="div"'>
             <Text as="div">{t({ en: "Generic block", zh: "通用块" })}</Text>
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Case transform", zh: "大小写转换" })}>
@@ -284,9 +272,9 @@ export function TextShowcase() {
         </ShowcaseHelper>
         <div css={styles.ladder}>
           {transforms.map((row) => (
-            <SpecRow key={row.meta} meta={row.meta}>
+            <Specimen key={row.meta} caption={row.meta}>
               {row.node}
-            </SpecRow>
+            </Specimen>
           ))}
         </div>
       </Showcase>
@@ -294,10 +282,9 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Alignment", zh: "对齐" })}>
         <div css={styles.ladder}>
           {alignments.map((row) => (
-            <div key={row.meta} css={styles.alignRow}>
-              <div css={styles.alignSpecimen}>{row.node}</div>
-              <span css={styles.meta}>{row.meta}</span>
-            </div>
+            <Specimen key={row.meta} caption={row.meta}>
+              {row.node}
+            </Specimen>
           ))}
         </div>
       </Showcase>
@@ -305,17 +292,16 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Wrapping", zh: "换行" })}>
         <div css={styles.ladder}>
           {wraps.map((row) => (
-            <div key={row.meta} css={styles.alignRow}>
+            <Specimen key={row.meta} caption={row.meta}>
               <div css={styles.wrapSpecimen}>{row.node}</div>
-              <span css={styles.meta}>{row.meta}</span>
-            </div>
+            </Specimen>
           ))}
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Figures", zh: "数字" })}>
         <div css={styles.figureRow}>
-          <div css={styles.alignRow}>
+          <Specimen caption="default">
             <div css={styles.figureColumn}>
               {runtimes.map((runtime) => (
                 <Text key={runtime} align="end">
@@ -323,9 +309,8 @@ export function TextShowcase() {
                 </Text>
               ))}
             </div>
-            <span css={styles.meta}>{t({ en: "default", zh: "默认" })}</span>
-          </div>
-          <div css={styles.alignRow}>
+          </Specimen>
+          <Specimen caption="numeric">
             <div css={styles.figureColumn}>
               {runtimes.map((runtime) => (
                 <Text key={runtime} numeric align="end">
@@ -333,12 +318,9 @@ export function TextShowcase() {
                 </Text>
               ))}
             </div>
-            <span css={styles.meta}>numeric</span>
-          </div>
+          </Specimen>
         </div>
       </Showcase>
-
-      <UsageSnippet code={usage} />
 
       <PropsTable
         rows={[
@@ -489,40 +471,11 @@ export function TextShowcase() {
   );
 }
 
-function SpecRow({ meta, children }: { meta: string; children: ReactNode }) {
-  return (
-    <div css={styles.specRow}>
-      <div css={styles.specimen}>{children}</div>
-      <span css={styles.meta}>{meta}</span>
-    </div>
-  );
-}
-
 const styles = stylex.create({
   ladder: {
     display: "flex",
     flexDirection: "column",
     gap: space._4,
-  },
-  specRow: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    gap: space._0,
-    minInlineSize: 0,
-  },
-  specimen: {
-    minInlineSize: 0,
-  },
-  alignRow: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
-    minInlineSize: 0,
-  },
-  alignSpecimen: {
-    inlineSize: "100%",
-    minInlineSize: 0,
   },
   // Narrow enough that the line breaks land differently per mode, and clipped
   // so the nowrap specimen overflows its box instead of the page.
@@ -540,10 +493,5 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space._0,
-  },
-  meta: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    color: color.textSubtle,
   },
 });

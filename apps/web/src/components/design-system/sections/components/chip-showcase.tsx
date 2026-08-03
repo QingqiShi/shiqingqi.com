@@ -5,45 +5,60 @@ import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Chip } from "@tuja/ui/components/chip";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { measure } from "../../measure.stylex.ts";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 export function ChipShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <div css={[flex.wrap, styles.row]}>
-          <Chip size="sm">{t({ en: "Small", zh: "小" })}</Chip>
-          <Chip size="md">{t({ en: "Medium", zh: "中" })}</Chip>
-        </div>
+        <SpecimenGrid>
+          <Specimen caption="sm">
+            <Chip size="sm">{t({ en: "Small", zh: "小" })}</Chip>
+          </Specimen>
+          <Specimen caption="md">
+            <Chip size="md">{t({ en: "Medium", zh: "中" })}</Chip>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "States", zh: "状态" })}>
-        <div css={[flex.wrap, styles.row]}>
-          <Chip>{t({ en: "Unselected", zh: "未选中" })}</Chip>
-          <Chip isActive>{t({ en: "Selected", zh: "已选中" })}</Chip>
-          <Chip disabled>{t({ en: "Disabled", zh: "已禁用" })}</Chip>
-        </div>
+        <SpecimenGrid>
+          <Specimen caption="default">
+            <Chip>{t({ en: "Unselected", zh: "未选中" })}</Chip>
+          </Specimen>
+          <Specimen caption="isActive">
+            <Chip isActive>{t({ en: "Selected", zh: "已选中" })}</Chip>
+          </Specimen>
+          <Specimen caption="disabled">
+            <Chip disabled>{t({ en: "Disabled", zh: "已禁用" })}</Chip>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Slots", zh: "插槽" })}>
-        <div css={[flex.wrap, styles.row]}>
-          <Chip icon={<FunnelIcon weight="bold" />}>
-            {t({ en: "Genre", zh: "类型" })}
-          </Chip>
-          <Chip icon={<BookmarkIcon weight="bold" />} trailing="12">
-            {t({ en: "Watchlist", zh: "待看清单" })}
-          </Chip>
-          <Chip isActive icon={<BookmarkIcon weight="bold" />} trailing="12">
-            {t({ en: "Watchlist", zh: "待看清单" })}
-          </Chip>
-        </div>
+        <SpecimenGrid>
+          <Specimen caption="icon">
+            <Chip icon={<FunnelIcon weight="bold" />}>
+              {t({ en: "Genre", zh: "类型" })}
+            </Chip>
+          </Specimen>
+          <Specimen caption="trailing">
+            <Chip icon={<BookmarkIcon weight="bold" />} trailing="12">
+              {t({ en: "Watchlist", zh: "待看清单" })}
+            </Chip>
+          </Specimen>
+          <Specimen caption="isActive">
+            <Chip isActive icon={<BookmarkIcon weight="bold" />} trailing="12">
+              {t({ en: "Watchlist", zh: "待看清单" })}
+            </Chip>
+          </Specimen>
+        </SpecimenGrid>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "The icon is decorative and hidden from assistive tech; the trailing slot stays announced, so the second chip reads as “Watchlist12”. Trailing content is set back a step with the muted token — but on the selected fill it takes the label's colour, since dimming an already-tight pairing would drop it below the contrast floor.",
@@ -53,7 +68,7 @@ export function ChipShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "As a link", zh: "作为链接" })}>
-        <div css={[flex.wrap, styles.row]}>
+        <Specimen caption="href">
           <Chip
             href="https://www.themoviedb.org/"
             target="_blank"
@@ -62,7 +77,7 @@ export function ChipShowcase() {
           >
             {t({ en: "Open on TMDB", zh: "在 TMDB 打开" })}
           </Chip>
-        </div>
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Passing href renders a real anchor, so the chip is announced as a link and forwards target and rel. A link is not a toggle — mark the current one with aria-current rather than isActive.",
@@ -73,18 +88,10 @@ export function ChipShowcase() {
 
       <Showcase label={t({ en: "Usage", zh: "用法" })}>
         <UsageSnippet
-          code={`import { Chip } from "@tuja/ui/components/chip";
-
-// A selectable filter — renders a <button> with aria-pressed.
-<Chip isActive={active} onClick={toggle}>Now playing</Chip>
-
-// A shortcut — renders a real <a>.
-<Chip href="/movies/now-playing">Now playing</Chip>
-
-// For a framework <Link>, compose the surface directly.
-import { chipSize, chipSurface } from "@tuja/ui/components/chip.stylex";
+          code={`import { chipSize, chipSurface } from "@tuja/ui/components/chip.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 
+// For a framework <Link>, compose the surface directly.
 <Link
   href={href}
   css={[chipSurface.base, chipSize.md, chipSurface.interactive, transition.colors]}
@@ -199,9 +206,6 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 }
 
 const styles = stylex.create({
-  row: {
-    gap: space._2,
-  },
   note: {
     maxInlineSize: measure.prose,
   },

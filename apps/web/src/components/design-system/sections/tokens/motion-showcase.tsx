@@ -11,6 +11,7 @@ import { DoDont } from "../../do-dont.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { SpecCard } from "../../spec-card.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 // Duration ledger — every step of `duration.*`, drawn as proportional bars so
@@ -135,31 +136,45 @@ export function MotionShowcase() {
             zh: "将指针悬停在方块上以触发其属性变化。预设只负责时长，状态变化由普通 CSS 承担。每个值均在 200 毫秒内完成。",
           })}
         </ShowcaseHelper>
-        <div css={styles.tileGrid}>
-          <div css={[styles.tokenTile, transition.colors, styles.hoverColors]}>
-            transition.colors
-          </div>
-          <div
-            css={[styles.tokenTile, transition.opacity, styles.hoverOpacity]}
-          >
-            transition.opacity
-          </div>
-          <div css={[styles.tokenTile, transition.shadow, styles.hoverShadow]}>
-            transition.shadow
-          </div>
-          <div
-            css={[
-              styles.tokenTile,
-              transition.transform,
-              styles.hoverTransform,
-            ]}
-          >
-            transition.transform
-          </div>
-          <div css={[styles.tokenTile, transition.all, styles.hoverAll]}>
-            transition.all
-          </div>
-        </div>
+        <SpecimenGrid>
+          <Specimen caption="transition.colors">
+            <div
+              css={[styles.tokenTile, transition.colors, styles.hoverColors]}
+            >
+              {t({ en: "Hover me", zh: "悬停我" })}
+            </div>
+          </Specimen>
+          <Specimen caption="transition.opacity">
+            <div
+              css={[styles.tokenTile, transition.opacity, styles.hoverOpacity]}
+            >
+              {t({ en: "Hover me", zh: "悬停我" })}
+            </div>
+          </Specimen>
+          <Specimen caption="transition.shadow">
+            <div
+              css={[styles.tokenTile, transition.shadow, styles.hoverShadow]}
+            >
+              {t({ en: "Hover me", zh: "悬停我" })}
+            </div>
+          </Specimen>
+          <Specimen caption="transition.transform">
+            <div
+              css={[
+                styles.tokenTile,
+                transition.transform,
+                styles.hoverTransform,
+              ]}
+            >
+              {t({ en: "Hover me", zh: "悬停我" })}
+            </div>
+          </Specimen>
+          <Specimen caption="transition.all">
+            <div css={[styles.tokenTile, transition.all, styles.hoverAll]}>
+              {t({ en: "Hover me", zh: "悬停我" })}
+            </div>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Keyframe animations", zh: "关键帧动画" })}>
@@ -175,52 +190,60 @@ export function MotionShowcase() {
             {t({ en: "Replay", zh: "重播" })}
           </button>
         </div>
-        <div css={styles.tileGrid}>
-          <div key={`fadeIn-${tick.toString()}`} css={styles.animTile}>
-            <span css={[styles.animSubject, animate.fadeIn]} />
-            <span css={styles.animLabel}>animate.fadeIn</span>
-          </div>
-          <div key={`fadeOut-${tick.toString()}`} css={styles.animTile}>
-            <span css={[styles.animSubject, animate.fadeOut]} />
-            <span css={styles.animLabel}>animate.fadeOut</span>
-          </div>
-          <div key={`slideUp-${tick.toString()}`} css={styles.animTile}>
-            <div css={styles.slideViewport}>
-              <span css={[styles.animSubject, animate.slideUp]} />
+        <SpecimenGrid>
+          <Specimen caption="animate.fadeIn">
+            <div key={`fadeIn-${tick.toString()}`} css={styles.animTile}>
+              <span css={[styles.animSubject, animate.fadeIn]} />
             </div>
-            <span css={styles.animLabel}>animate.slideUp</span>
-          </div>
-          <div key={`slideDown-${tick.toString()}`} css={styles.animTile}>
-            <div css={styles.slideViewport}>
-              <span css={[styles.animSubject, animate.slideDown]} />
+          </Specimen>
+          <Specimen caption="animate.fadeOut">
+            <div key={`fadeOut-${tick.toString()}`} css={styles.animTile}>
+              <span css={[styles.animSubject, animate.fadeOut]} />
             </div>
-            <span css={styles.animLabel}>animate.slideDown</span>
-          </div>
-          <div key={`expand-${tick.toString()}`} css={styles.animTile}>
-            <div css={animate.expand}>
-              <span css={[styles.expandInner, styles.animSubject]} />
+          </Specimen>
+          <Specimen caption="animate.slideUp">
+            <div key={`slideUp-${tick.toString()}`} css={styles.animTile}>
+              <div css={styles.slideViewport}>
+                <span css={[styles.animSubject, animate.slideUp]} />
+              </div>
             </div>
-            <span css={styles.animLabel}>animate.expand</span>
-          </div>
-          <div key={`collapse-${tick.toString()}`} css={styles.animTile}>
-            <div css={animate.collapse}>
-              <span css={[styles.expandInner, styles.animSubject]} />
+          </Specimen>
+          <Specimen caption="animate.slideDown">
+            <div key={`slideDown-${tick.toString()}`} css={styles.animTile}>
+              <div css={styles.slideViewport}>
+                <span css={[styles.animSubject, animate.slideDown]} />
+              </div>
             </div>
-            <span css={styles.animLabel}>animate.collapse</span>
-          </div>
-          <div css={styles.animTile}>
-            <span css={[styles.animSubject, animate.pulse]} />
-            <span css={styles.animLabel}>animate.pulse</span>
-          </div>
-          <div css={styles.animTile}>
-            <div css={styles.dots}>
-              <span css={[styles.dot, animate.bounce]} />
-              <span css={[styles.dot, animate.bounce, styles.dotDelay1]} />
-              <span css={[styles.dot, animate.bounce, styles.dotDelay2]} />
+          </Specimen>
+          <Specimen caption="animate.expand">
+            <div key={`expand-${tick.toString()}`} css={styles.animTile}>
+              <div css={animate.expand}>
+                <span css={[styles.expandInner, styles.animSubject]} />
+              </div>
             </div>
-            <span css={styles.animLabel}>animate.bounce</span>
-          </div>
-        </div>
+          </Specimen>
+          <Specimen caption="animate.collapse">
+            <div key={`collapse-${tick.toString()}`} css={styles.animTile}>
+              <div css={animate.collapse}>
+                <span css={[styles.expandInner, styles.animSubject]} />
+              </div>
+            </div>
+          </Specimen>
+          <Specimen caption="animate.pulse">
+            <div css={styles.animTile}>
+              <span css={[styles.animSubject, animate.pulse]} />
+            </div>
+          </Specimen>
+          <Specimen caption="animate.bounce">
+            <div css={styles.animTile}>
+              <div css={styles.dots}>
+                <span css={[styles.dot, animate.bounce]} />
+                <span css={[styles.dot, animate.bounce, styles.dotDelay1]} />
+                <span css={[styles.dot, animate.bounce, styles.dotDelay2]} />
+              </div>
+            </div>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Callout
@@ -303,15 +326,11 @@ const styles = stylex.create({
     strokeLinecap: "round",
     vectorEffect: "non-scaling-stroke",
   },
-  tileGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))",
-    gap: space._2,
-  },
   tokenTile: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    inlineSize: "100%",
     minBlockSize: "72px",
     paddingBlock: space._2,
     paddingInline: space._2,
@@ -379,8 +398,8 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: space._2,
+    justifyContent: "center",
+    inlineSize: "100%",
     minBlockSize: "96px",
     paddingBlock: space._3,
     paddingInline: space._2,
@@ -407,12 +426,6 @@ const styles = stylex.create({
     inlineSize: space._7,
     minBlockSize: 0,
     overflow: "hidden",
-  },
-  animLabel: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    color: color.textSubtle,
-    textAlign: "center",
   },
   dots: {
     display: "flex",

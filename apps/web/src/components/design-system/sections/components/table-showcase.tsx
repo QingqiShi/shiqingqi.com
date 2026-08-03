@@ -14,8 +14,8 @@ import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 /** Every figure on this page is formatted for the active locale. */
 function getFigureFormats() {
@@ -321,7 +321,9 @@ export function TableShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Anatomy", zh: "结构" })}>
-        <PlanTable caption={planCaption} />
+        <Specimen caption={t({ en: "repayment plans", zh: "还款计划" })}>
+          <PlanTable caption={planCaption} />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Every part at once: a head of column headers, a body whose rows open with a row header, three numeric columns, the row the visitor is on, and a foot summarising the spread of each column above it.",
@@ -345,14 +347,14 @@ export function TableShowcase() {
             zh: "caption 是必填项。它同时为表格及其外层滚动区域命名，读屏软件因此会宣读这些数字代表什么，而不只是“表格”。它默认仅供读屏使用；当表格在页面上也需要一个标题时，请设置 captionVisible。",
           })}
         </Text>
-        <ShowcaseGrid>
-          <ShowcaseItem label="default">
+        <SpecimenGrid>
+          <Specimen caption="default">
             <ThresholdTable caption={thresholdCaption} />
-          </ShowcaseItem>
-          <ShowcaseItem label="captionVisible">
+          </Specimen>
+          <Specimen caption="captionVisible">
             <ThresholdTable caption={thresholdCaption} captionVisible />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Numeric columns", zh: "数字列" })}>
@@ -362,16 +364,16 @@ export function TableShowcase() {
             zh: "numeric 让数字以等宽呈现并使单元格靠末端对齐，因此四位数与五位数的余额也能逐位对齐。请同时为该列的标题和单元格设置它，否则标题会与其所标注的数字错位。",
           })}
         </Text>
-        <ShowcaseGrid>
-          <ShowcaseItem label="default">
+        <SpecimenGrid>
+          <Specimen caption="default">
             <BalanceTable
               caption={t({
                 en: "Loan balance, plain cells",
                 zh: "贷款余额，普通单元格",
               })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="numeric">
+          </Specimen>
+          <Specimen caption="numeric">
             <BalanceTable
               caption={t({
                 en: "Loan balance, numeric cells",
@@ -379,18 +381,20 @@ export function TableShowcase() {
               })}
               numeric
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Current row", zh: "当前行" })}>
-        <ThresholdTable
-          caption={t({
-            en: "Repayment thresholds, with the visitor's own plan marked",
-            zh: "还款起征点，并标出访客所属的计划",
-          })}
-          markCurrent
-        />
+        <Specimen caption="markCurrent">
+          <ThresholdTable
+            caption={t({
+              en: "Repayment thresholds, with the visitor's own plan marked",
+              zh: "还款起征点，并标出访客所属的计划",
+            })}
+            markCurrent
+          />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: 'current puts aria-current="true" on the row and joins the tint with heavier type, so the state survives a colour-blind reading and forced-colours mode. Pass aria-current yourself to announce it as something other than "true" — "page", say, when the row is the page being read.',
@@ -406,7 +410,9 @@ export function TableShowcase() {
             zh: "表头固定的对象是滚动容器而非页面，因此必须先给容器设定高度，才会有内容从表头下方滚过。这里的高度通过 containerCss 限制——滚动各行时，列标题会保持不动。",
           })}
         </Text>
-        <ThresholdHistoryTable />
+        <Specimen caption="stickyHeader">
+          <ThresholdHistoryTable />
+        </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Scroll region", zh: "滚动区域" })}>
@@ -416,44 +422,9 @@ export function TableShowcase() {
             zh: "表格始终位于自己的横向滚动区域内，因此宽表格只在自身的盒子里滚动，页面永远不会横向滚动。该区域可获得焦点，这正是溢出内容能通过键盘访问的原因（WCAG 2.1.1），其可访问名称同样来自 caption。用 Tab 聚焦后，即可用方向键滚动。下方的区域被特意收窄，因此在任何屏幕上都会溢出。",
           })}
         </Text>
-        <PlanTable caption={planCaption} constrained />
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet
-          code={`import {
-  Table, TableBody, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow,
-} from "@tuja/ui/components/table";
-
-<Table
-  caption="UK student loan repayment plans, 2025/26"
-  stickyHeader
-  containerCss={styles.region}
->
-  <TableHead>
-    <TableRow>
-      <TableHeaderCell scope="col">Plan</TableHeaderCell>
-      <TableHeaderCell scope="col" numeric>Threshold</TableHeaderCell>
-    </TableRow>
-  </TableHead>
-  <TableBody>
-    <TableRow current>
-      <TableHeaderCell scope="row">Plan 2</TableHeaderCell>
-      <TableCell numeric>£28,470</TableCell>
-    </TableRow>
-  </TableBody>
-  <TableFoot>
-    <TableRow>
-      <TableHeaderCell scope="row">Across all plans</TableHeaderCell>
-      <TableCell numeric>£21,000 – £32,745</TableCell>
-    </TableRow>
-  </TableFoot>
-</Table>
-
-// The head sticks to the container, so the container is what needs a height.
-const styles = stylex.create({ region: { blockSize: space._13 } });`}
-          label="tsx"
-        />
+        <Specimen caption="constrained">
+          <PlanTable caption={planCaption} constrained />
+        </Specimen>
       </Showcase>
 
       <Showcase label="Table" labelVariant="code">

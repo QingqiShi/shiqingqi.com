@@ -23,6 +23,7 @@ import { Identifier } from "../../identifier.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 // A representative slice of the Phosphor set. Names are the library's own Pascal
@@ -85,24 +86,22 @@ export function IconographyShowcase() {
             zh: "应用主要使用两种字重：常规用于默认状态，加粗用于与文字搭配或充当操作的图标。让图标字重与周围文字相称。",
           })}
         </ShowcaseHelper>
-        <div css={styles.weightRow}>
-          <div css={styles.weightCol}>
+        <SpecimenGrid>
+          <Specimen caption='weight="regular"'>
             <span css={styles.weightIcon}>
               <SparkleIcon weight="regular" aria-hidden />
               <LightningIcon weight="regular" aria-hidden />
               <HeartIcon weight="regular" aria-hidden />
             </span>
-            <span css={styles.weightLabel}>weight=&quot;regular&quot;</span>
-          </div>
-          <div css={styles.weightCol}>
+          </Specimen>
+          <Specimen caption='weight="bold"'>
             <span css={styles.weightIcon}>
               <SparkleIcon weight="bold" aria-hidden />
               <LightningIcon weight="bold" aria-hidden />
               <HeartIcon weight="bold" aria-hidden />
             </span>
-            <span css={styles.weightLabel}>weight=&quot;bold&quot;</span>
-          </div>
-        </div>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Size", zh: "尺寸" })}>
@@ -131,19 +130,25 @@ export function IconographyShowcase() {
             zh: "可将 Phosphor 图标直接放入 Button、Badge 或 IconButton。它们都会把图标包在 aria-hidden 插槽里，因此由可见标签——或按钮的 aria-label——承载名称。",
           })}
         </ShowcaseHelper>
-        <div css={styles.pairRow}>
-          <Button variant="primary" icon={<PlusIcon weight="bold" />}>
-            {t({ en: "Add to list", zh: "加入列表" })}
-          </Button>
-          <Badge variant="accent" icon={<StarIcon weight="fill" />}>
-            {t({ en: "Featured", zh: "精选" })}
-          </Badge>
-          <IconButton
-            variant="surface"
-            icon={<TrashIcon weight="bold" />}
-            aria-label={t({ en: "Delete", zh: "删除" })}
-          />
-        </div>
+        <SpecimenGrid>
+          <Specimen caption="Button">
+            <Button variant="primary" icon={<PlusIcon weight="bold" />}>
+              {t({ en: "Add to list", zh: "加入列表" })}
+            </Button>
+          </Specimen>
+          <Specimen caption="Badge">
+            <Badge variant="accent" icon={<StarIcon weight="fill" />}>
+              {t({ en: "Featured", zh: "精选" })}
+            </Badge>
+          </Specimen>
+          <Specimen caption="IconButton">
+            <IconButton
+              variant="surface"
+              icon={<TrashIcon weight="bold" />}
+              aria-label={t({ en: "Delete", zh: "删除" })}
+            />
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <UsageSnippet
@@ -263,33 +268,12 @@ const styles = stylex.create({
     textAlign: "center",
     maxInlineSize: "100%",
   },
-  weightRow: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-    gap: space._3,
-  },
-  weightCol: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: space._2,
-    paddingBlock: space._4,
-    paddingInline: space._3,
-    borderRadius: border.radius_2,
-    backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
-  },
   weightIcon: {
     display: "inline-flex",
     alignItems: "center",
     gap: space._3,
     fontSize: font.uiHeading1,
     color: color.textMain,
-  },
-  weightLabel: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    color: color.textSubtle,
   },
   sizeRow: {
     display: "flex",
@@ -322,12 +306,6 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
     color: color.textSubtle,
-  },
-  pairRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: space._3,
   },
   dontIcon: {
     display: "inline-flex",

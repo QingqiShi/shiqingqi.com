@@ -6,6 +6,7 @@ import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Chip } from "@tuja/ui/components/chip";
 import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -23,7 +24,7 @@ export function DisclosureHeadlessSpecimen() {
   const { open, triggerProps, panelProps } = useDisclosure();
 
   return (
-    <div css={[cardSurface.base, styles.row]}>
+    <div css={[cardSurface.base, fill.inline]}>
       <div css={styles.header}>
         <a href="#disclosure" css={styles.link}>
           {t({ en: "Florence → Siena", zh: "佛罗伦萨 → 锡耶纳" })}
@@ -60,9 +61,6 @@ export function DisclosureHeadlessSpecimen() {
 }
 
 const styles = stylex.create({
-  row: {
-    inlineSize: "100%",
-  },
   header: {
     display: "flex",
     alignItems: "center",

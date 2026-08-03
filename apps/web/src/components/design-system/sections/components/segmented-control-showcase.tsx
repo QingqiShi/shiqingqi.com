@@ -1,12 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { measure } from "../../measure.stylex.ts";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 import { SegmentedControlInteractiveSpecimen } from "./segmented-control-interactive-specimen.tsx";
 
@@ -14,14 +13,20 @@ export function SegmentedControlShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <div css={[flex.wrap, styles.row]}>
-          <SegmentedControlInteractiveSpecimen size="sm" />
-          <SegmentedControlInteractiveSpecimen size="md" />
-        </div>
+        <SpecimenGrid>
+          <Specimen caption="sm">
+            <SegmentedControlInteractiveSpecimen size="sm" />
+          </Specimen>
+          <Specimen caption="md">
+            <SegmentedControlInteractiveSpecimen size="md" />
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "With icons", zh: "带图标" })}>
-        <SegmentedControlInteractiveSpecimen withIcons count={3} />
+        <Specimen caption={t({ en: "decorative icons", zh: "装饰性图标" })}>
+          <SegmentedControlInteractiveSpecimen withIcons count={3} />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Each icon is decorative and sits beside its label, never instead of it — an icon-only segment leaves the reader guessing at what the view is.",
@@ -31,7 +36,9 @@ export function SegmentedControlShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Full width", zh: "撑满宽度" })}>
-        <SegmentedControlInteractiveSpecimen fullWidth count={3} />
+        <Specimen caption={t({ en: "equal shares", zh: "等分宽度" })}>
+          <SegmentedControlInteractiveSpecimen fullWidth count={3} />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Segments share the track evenly rather than in proportion to their labels, so the widths stay stable as the copy is translated.",
@@ -41,7 +48,9 @@ export function SegmentedControlShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Keyboard", zh: "键盘操作" })}>
-        <SegmentedControlInteractiveSpecimen count={4} />
+        <Specimen caption="radiogroup">
+          <SegmentedControlInteractiveSpecimen count={4} />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "A full WAI-ARIA radiogroup: Tab reaches the selected segment only, arrow keys move and select, Home and End jump to the ends, and focus follows selection so each choice announces as you land on it.",
@@ -175,10 +184,6 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
 }
 
 const styles = stylex.create({
-  row: {
-    alignItems: "center",
-    gap: space._3,
-  },
   note: {
     maxInlineSize: measure.prose,
   },

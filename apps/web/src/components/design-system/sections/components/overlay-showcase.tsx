@@ -12,7 +12,7 @@ import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Specimen } from "../../specimen.tsx";
 
 export function OverlayShowcase() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +26,7 @@ export function OverlayShowcase() {
               zh: "全屏覆盖层：捕获焦点、锁定滚动，按 Escape 或点击背景即可关闭，退出时恢复焦点。打开后可按 Escape 或使用关闭按钮。",
             })}
           </Text>
-          <div>
+          <Specimen caption={t({ en: "open and dismiss", zh: "打开与关闭" })}>
             <Button
               variant="primary"
               onClick={() => {
@@ -35,48 +35,28 @@ export function OverlayShowcase() {
             >
               {t({ en: "Open overlay", zh: "打开覆盖层" })}
             </Button>
-          </div>
+            <Overlay
+              isOpen={isOpen}
+              onClose={() => {
+                setIsOpen(false);
+              }}
+              closeLabel={t({ en: "Close", zh: "关闭" })}
+              aria-label={t({ en: "Example overlay", zh: "示例覆盖层" })}
+            >
+              <div css={[flex.col, styles.overlayBody]}>
+                <Heading level={2}>
+                  {t({ en: "Overlay content", zh: "覆盖层内容" })}
+                </Heading>
+                <Text tone="muted">
+                  {t({
+                    en: "The consumer owns this content; the overlay owns the backdrop, focus trap, scroll lock, and close affordance. Press Escape or click the backdrop to dismiss.",
+                    zh: "内容由使用方掌控；覆盖层负责背景、焦点捕获、滚动锁定与关闭控件。按 Escape 或点击背景即可关闭。",
+                  })}
+                </Text>
+              </div>
+            </Overlay>
+          </Specimen>
         </div>
-
-        <Overlay
-          isOpen={isOpen}
-          onClose={() => {
-            setIsOpen(false);
-          }}
-          closeLabel={t({ en: "Close", zh: "关闭" })}
-          aria-label={t({ en: "Example overlay", zh: "示例覆盖层" })}
-        >
-          <div css={[flex.col, styles.overlayBody]}>
-            <Heading level={2}>
-              {t({ en: "Overlay content", zh: "覆盖层内容" })}
-            </Heading>
-            <Text tone="muted">
-              {t({
-                en: "The consumer owns this content; the overlay owns the backdrop, focus trap, scroll lock, and close affordance. Press Escape or click the backdrop to dismiss.",
-                zh: "内容由使用方掌控；覆盖层负责背景、焦点捕获、滚动锁定与关闭控件。按 Escape 或点击背景即可关闭。",
-              })}
-            </Text>
-          </div>
-        </Overlay>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet
-          code={`import { Overlay } from "@tuja/ui/components/overlay";
-import { useState } from "react";
-
-const [isOpen, setIsOpen] = useState(false);
-
-<Overlay
-  isOpen={isOpen}
-  onClose={() => setIsOpen(false)}
-  closeLabel="Close"
-  aria-label="Trailer"
->
-  {/* content */}
-</Overlay>`}
-          label="tsx"
-        />
       </Showcase>
 
       <Showcase>
@@ -193,9 +173,10 @@ const [isOpen, setIsOpen] = useState(false);
 }
 
 const styles = stylex.create({
+  // No `alignItems`: the specimen takes the full width so its code panel does
+  // too. The trigger inside stays at its own width.
   stack: {
     gap: space._3,
-    alignItems: "flex-start",
   },
   overlayBody: {
     gap: space._3,

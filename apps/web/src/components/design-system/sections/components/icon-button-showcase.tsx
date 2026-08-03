@@ -14,13 +14,8 @@ import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
-
-const usageCode = `import { IconButton } from "@tuja/ui/components/icon-button";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
-
-<IconButton icon={<XIcon />} aria-label="Close" />`;
+import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 export function IconButtonShowcase() {
   const searchLabel = t({ en: "Search", zh: "搜索" });
@@ -33,29 +28,29 @@ export function IconButtonShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="sm">
+        <SpecimenGrid>
+          <Specimen caption="sm">
             <IconButton
               size="sm"
               icon={<MagnifyingGlassIcon />}
               aria-label={searchLabel}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="md">
+          </Specimen>
+          <Specimen caption="md">
             <IconButton
               size="md"
               icon={<MagnifyingGlassIcon />}
               aria-label={searchLabel}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="lg">
+          </Specimen>
+          <Specimen caption="lg">
             <IconButton
               size="lg"
               icon={<MagnifyingGlassIcon />}
               aria-label={searchLabel}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Variants", zh: "风格" })}>
@@ -66,8 +61,13 @@ export function IconButtonShowcase() {
               zh: 'variant="plain" 为透明控件，悬停时着色——用于置于表面之上的行内场景。variant="surface" 添加不透明填充与阴影，使其悬浮于滚动内容之上。',
             })}
           </ShowcaseHelper>
-          <div css={styles.sceneRow}>
-            <div css={styles.scene}>
+          <SpecimenGrid>
+            <Specimen
+              caption={t({
+                en: "plain · over a surface",
+                zh: "plain · 置于表面之上",
+              })}
+            >
               <div css={styles.surfaceScene}>
                 <IconButton
                   variant="plain"
@@ -75,14 +75,13 @@ export function IconButtonShowcase() {
                   aria-label={editLabel}
                 />
               </div>
-              <Text variant="caption" tone="subtle">
-                {t({
-                  en: "plain · over a surface",
-                  zh: "plain · 置于表面之上",
-                })}
-              </Text>
-            </div>
-            <div css={styles.scene}>
+            </Specimen>
+            <Specimen
+              caption={t({
+                en: "surface · over canvas",
+                zh: "surface · 悬浮于画布上",
+              })}
+            >
               <div css={styles.canvasScene}>
                 <IconButton
                   variant="surface"
@@ -90,52 +89,46 @@ export function IconButtonShowcase() {
                   aria-label={nextLabel}
                 />
               </div>
-              <Text variant="caption" tone="subtle">
-                {t({
-                  en: "surface · over canvas",
-                  zh: "surface · 悬浮于画布上",
-                })}
-              </Text>
-            </div>
-          </div>
+            </Specimen>
+          </SpecimenGrid>
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Shape", zh: "形状" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="circle">
+        <SpecimenGrid>
+          <Specimen caption="circle">
             <IconButton
               shape="circle"
               variant="surface"
               icon={<HeartIcon />}
               aria-label={favouriteLabel}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="square">
+          </Specimen>
+          <Specimen caption="square">
             <IconButton
               shape="square"
               variant="surface"
               icon={<ShareNetworkIcon />}
               aria-label={shareLabel}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Disabled & focus", zh: "禁用与聚焦" })}>
         <div css={styles.stack}>
-          <ShowcaseGrid>
-            <ShowcaseItem label="enabled">
+          <SpecimenGrid>
+            <Specimen caption="enabled">
               <IconButton icon={<TrashIcon />} aria-label={deleteLabel} />
-            </ShowcaseItem>
-            <ShowcaseItem label="disabled">
+            </Specimen>
+            <Specimen caption="disabled">
               <IconButton
                 icon={<TrashIcon />}
                 aria-label={deleteLabel}
                 disabled
               />
-            </ShowcaseItem>
-          </ShowcaseGrid>
+            </Specimen>
+          </SpecimenGrid>
           <ShowcaseHelper>
             {t({
               en: "Tab to an enabled button to see the focus ring — it renders a real <button>, so keyboard focus, Enter, and Space work for free.",
@@ -144,8 +137,6 @@ export function IconButtonShowcase() {
           </ShowcaseHelper>
         </div>
       </Showcase>
-
-      <UsageSnippet code={usageCode} />
 
       <PropsTable
         rows={[
@@ -264,16 +255,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space._3,
-  },
-  sceneRow: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 12rem), 1fr))",
-    gap: space._3,
-  },
-  scene: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
   },
   surfaceScene: {
     display: "flex",

@@ -22,6 +22,8 @@ module.exports = {
     ],
   ],
   plugins: [
+    // Reads the original source, so it must run before anything rewrites it.
+    "@tuja/babel-plugin-specimen-source",
     "@tuja/i18n-babel-plugin",
     [
       "module-resolver",

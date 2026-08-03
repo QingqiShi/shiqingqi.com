@@ -17,11 +17,11 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
-import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { SpecCard } from "../../spec-card.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 interface ApiEntry {
@@ -41,24 +41,6 @@ function ApiGrid({ entries }: { entries: ApiEntry[] }) {
           </Text>
         </SpecCard>
       ))}
-    </div>
-  );
-}
-
-/** A captioned specimen cell — the live specimen sits above a muted caption. */
-function SpecimenCell({
-  caption,
-  children,
-}: {
-  caption: string;
-  children: ReactNode;
-}) {
-  return (
-    <div css={styles.specimenCell}>
-      <div css={styles.specimenStage}>{children}</div>
-      <Text variant="caption" tone="subtle">
-        {caption}
-      </Text>
     </div>
   );
 }
@@ -154,8 +136,8 @@ function FlexSection() {
           zh: "多属性 flex 原语。当组件库未覆盖某个自定义布局时下沉到它们——它们封装了对齐默认值，让调用处读起来是意图而非 CSS 细节。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "flex.between — toolbar",
             zh: "flex.between —— 工具栏",
@@ -172,8 +154,8 @@ function FlexSection() {
               </span>
             </div>
           </div>
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({ en: "flex.wrap — chips", zh: "flex.wrap —— 标签按钮" })}
         >
           <div css={[flex.wrap, styles.chipRow]}>
@@ -182,10 +164,8 @@ function FlexSection() {
             <span css={styles.chip}>{t({ en: "Thriller", zh: "惊悚" })}</span>
             <span css={styles.chip}>{t({ en: "Comedy", zh: "喜剧" })}</span>
           </div>
-        </SpecimenCell>
-        <SpecimenCell
-          caption={t({ en: "flex.row + grow._1", zh: "flex.row + grow._1" })}
-        >
+        </Specimen>
+        <Specimen caption="flex.row + grow._1">
           <div css={[flex.row, styles.growRow]}>
             <span css={[grow._1, styles.growField]}>
               {t({ en: "Search titles", zh: "搜索标题" })}
@@ -194,8 +174,8 @@ function FlexSection() {
               {t({ en: "Go", zh: "搜索" })}
             </span>
           </div>
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <ApiGrid entries={api} />
       <UsageSnippet
         code={`import { flex, align, grow } from "@tuja/ui/primitives/flex.stylex";
@@ -229,6 +209,14 @@ function LayoutSection() {
       description: t({
         en: "Full-viewport layer for scrims and modal backdrops.",
         zh: "铺满视口的层，用于遮罩与模态背景。",
+      }),
+    },
+    {
+      token: "fill.inline",
+      meta: "inline-size:100%",
+      description: t({
+        en: "Take the whole track. A block-level child of a flex or grid parent shrinks to its content otherwise.",
+        zh: "占满整个轨道。否则，弹性或网格父元素下的块级子元素会收缩到内容宽度。",
       }),
     },
     {
@@ -281,16 +269,16 @@ function LayoutSection() {
           zh: "定位填充、滚动容器、文本截断与图像适配——否则就得到处复制粘贴的重复布局原语。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell caption={t({ en: "truncate.base", zh: "truncate.base" })}>
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen caption="truncate.base">
           <div css={[styles.truncateBox, truncate.base]}>
             {t({
               en: "The Shawshank Redemption — Extended Director's Cut, Remastered",
               zh: "肖申克的救赎——加长导演剪辑版，重制修复",
             })}
           </div>
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({
             en: "absoluteFill.all — overlay",
             zh: "absoluteFill.all —— 覆盖层",
@@ -303,13 +291,8 @@ function LayoutSection() {
               </span>
             </div>
           </div>
-        </SpecimenCell>
-        <SpecimenCell
-          caption={t({
-            en: "scrollX.base + focusRing",
-            zh: "scrollX.base + focusRing",
-          })}
-        >
+        </Specimen>
+        <Specimen caption="scrollX.base + focusRing">
           <div
             tabIndex={0}
             css={[scrollX.base, scrollX.focusRing, styles.scrollStrip]}
@@ -323,8 +306,8 @@ function LayoutSection() {
               ))}
             </div>
           </div>
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({
             en: "imageCover vs imageContain",
             zh: "imageCover 与 imageContain",
@@ -340,8 +323,8 @@ function LayoutSection() {
               <img src={sampleImage} alt={imageAlt} css={imageContain.base} />
             </div>
           </div>
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <ApiGrid entries={api} />
       <UsageSnippet
         code={`import { truncate, absoluteFill, imageCover } from "@tuja/ui/primitives/layout.stylex";
@@ -432,8 +415,8 @@ function MotionSection() {
           zh: "过渡与动画预设，每一个都内建了减少动态偏好的处理。将它们组合到自定义元素上，而不必手写关键帧。动效基础页记录了完整的时长与缓动阶梯。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "transition.colors — hover",
             zh: "transition.colors —— 悬停",
@@ -442,8 +425,8 @@ function MotionSection() {
           <div css={[transition.colors, styles.hoverTile]}>
             {t({ en: "Hover me", zh: "悬停试试" })}
           </div>
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({
             en: "animate.bounce — loading dots",
             zh: "animate.bounce —— 加载圆点",
@@ -475,8 +458,8 @@ function MotionSection() {
               ]}
             />
           </div>
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({
             en: "animate.pulse — skeleton",
             zh: "animate.pulse —— 骨架屏",
@@ -498,8 +481,8 @@ function MotionSection() {
               ]}
             />
           </div>
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <ApiGrid entries={transitions} />
       <ApiGrid entries={animations} />
       <UsageSnippet
@@ -532,8 +515,8 @@ function ResetSection() {
           zh: "在不放弃语义的前提下抹平浏览器默认样式。当某个独特控件需要完全掌控样式、又必须保持对键盘和屏幕阅读器友好的 <button> 时，使用 buttonReset。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "A fully custom control on a real <button>",
             zh: "构建在真实 <button> 上的完全自定义控件",
@@ -553,8 +536,8 @@ function ResetSection() {
             </span>
             {t({ en: "Add to list", zh: "加入清单" })}
           </button>
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <ApiGrid entries={api} />
       <UsageSnippet
         code={`import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -604,8 +587,8 @@ function A11ySection() {
           zh: "随每个组件基座一同交付的无障碍原语——在此单独呈现，让由原语搭建的自定义控件能继承同样的保证，而无需重新发明。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "srOnly names an icon-only control",
             zh: "srOnly 为纯图标控件提供名称",
@@ -627,8 +610,8 @@ function A11ySection() {
               {t({ en: "Add to favourites", zh: "加入收藏" })}
             </span>
           </button>
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({
             en: "focusRing — Tab to reveal",
             zh: "focusRing —— 按 Tab 显示",
@@ -645,8 +628,8 @@ function A11ySection() {
           >
             {t({ en: "Focus me", zh: "聚焦我" })}
           </button>
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({
             en: "focusRingInset — ring stays inside a clipped frame",
             zh: "focusRingInset —— 焦点环留在被裁切外框内",
@@ -665,8 +648,8 @@ function A11ySection() {
               {t({ en: "Focus me", zh: "聚焦我" })}
             </button>
           </div>
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <ApiGrid entries={api} />
       <UsageSnippet
         code={`import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -693,31 +676,13 @@ export function PrimitivesShowcase() {
 }
 
 const styles = stylex.create({
-  specimenGrid: {
-    display: "grid",
+  // Wider tracks than the default: a toolbar, a scroller and a pair of image
+  // frames all need more room than a button does.
+  specimenTracks: {
     gridTemplateColumns: {
       default: "1fr",
       [breakpoints.md]: "repeat(auto-fit, minmax(240px, 1fr))",
     },
-    gap: space._3,
-  },
-  specimenCell: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-    minInlineSize: 0,
-  },
-  specimenStage: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    minBlockSize: "80px",
-    paddingBlock: space._3,
-    paddingInline: space._3,
-    borderRadius: border.radius_2,
-    backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
-    minInlineSize: 0,
   },
   apiGrid: {
     display: "grid",

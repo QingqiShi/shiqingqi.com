@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
@@ -53,28 +52,6 @@ export function Showcase({
       ) : null}
       <div css={styles.body}>{children}</div>
     </section>
-  );
-}
-
-interface ShowcaseGridProps {
-  children: ReactNode;
-}
-
-export function ShowcaseGrid({ children }: ShowcaseGridProps) {
-  return <div css={styles.grid}>{children}</div>;
-}
-
-interface ShowcaseItemProps {
-  label: string;
-  children: ReactNode;
-}
-
-export function ShowcaseItem({ label, children }: ShowcaseItemProps) {
-  return (
-    <div css={[flex.col, styles.item]}>
-      <div css={styles.itemSpecimen}>{children}</div>
-      <span css={styles.itemLabel}>{label}</span>
-    </div>
   );
 }
 
@@ -153,23 +130,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space._3,
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: space._3,
-  },
-  item: {
-    gap: space._2,
-  },
-  itemSpecimen: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start",
-  },
-  itemLabel: {
-    fontSize: font.uiCaption,
-    color: color.textSubtle,
   },
   stateValue: {
     fontFamily: font.familyMono,

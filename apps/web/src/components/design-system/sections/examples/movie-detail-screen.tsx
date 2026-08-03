@@ -20,6 +20,7 @@ import { Section } from "@tuja/ui/components/section";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -347,7 +348,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 id={panelId}
                 role="group"
                 aria-label={activeViewLabel}
-                css={styles.panel}
+                css={fill.inline}
               >
                 {view === "overview" ? (
                   <OverviewPanel overview={movie.overview} />
@@ -647,13 +648,6 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "flex-start",
     gap: space._4,
-    inlineSize: "100%",
-  },
-  // Height is whatever the mounted panel needs. A floor tall enough to hold the
-  // Similar row would leave the Overview sitting above a third of a screen of
-  // nothing, and that permanent void is worse than the content below shifting
-  // when someone deliberately changes view.
-  panel: {
     inlineSize: "100%",
   },
   // `auto-fill` at the width the longest term needs, so the five facts settle
