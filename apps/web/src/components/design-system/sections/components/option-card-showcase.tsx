@@ -13,13 +13,14 @@ import { OptionCard, OptionCardGroup } from "@tuja/ui/components/option-card";
 import { Text } from "@tuja/ui/components/text";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase, StateReadout } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Specimen } from "../../specimen.tsx";
 
 type Plan = "free" | "pro" | "enterprise";
 type AddOn = "support" | "seats" | "audit";
@@ -33,35 +34,6 @@ interface DemoOption<TValue extends string> {
   icon?: ReactNode;
   disabled?: boolean;
 }
-
-const USAGE = `import { OptionCardGroup } from "@tuja/ui/components/option-card";
-import { useState } from "react";
-
-const [plan, setPlan] = useState<"free" | "pro">("free");
-
-<OptionCardGroup
-  aria-label="Plan"
-  value={plan}
-  onChange={setPlan}
-  options={[
-    { value: "free", label: "Free", description: "One project." },
-    { value: "pro", label: "Pro", description: "Unlimited projects." },
-  ]}
-/>
-
-// Independent toggles: every card becomes a checkbox with its own tab stop.
-<OptionCardGroup
-  selection="multiple"
-  aria-label="Add-ons"
-  value={addOns}
-  onChange={setAddOns}
-  options={addOnOptions}
-/>
-
-// A card carrying bespoke content drops a layer: render OptionCard
-// yourself and keep the group's keyboard model with the same hook.
-import { OptionCard } from "@tuja/ui/components/option-card";
-import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`;
 
 function SingleSelectDemo() {
   const [plan, setPlan] = useState<Plan>("pro");
@@ -182,6 +154,7 @@ function TileDemo() {
       options={options}
       value={delivery}
       onChange={setDelivery}
+      css={fill.inline}
     />
   );
 }
@@ -208,13 +181,8 @@ function KeyHint({ keys, effect }: KeyHintProps) {
   );
 }
 
-function KeyboardDemo() {
-  const [plan, setPlan] = useState<Plan>("pro");
-  const options: DemoOption<Plan>[] = [
-    { value: "free", label: t({ en: "Free", zh: "免费" }) },
-    { value: "pro", label: t({ en: "Pro", zh: "专业版" }) },
-    { value: "enterprise", label: t({ en: "Enterprise", zh: "企业版" }) },
-  ];
+/** The keyboard model spelled out above the cards that perform it. */
+function KeyboardNotes() {
   const hints = [
     {
       keys: ["Tab"],
@@ -246,7 +214,7 @@ function KeyboardDemo() {
     },
   ];
   return (
-    <div css={[flex.col, styles.stack]}>
+    <>
       <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
         {t({
           en: "Click a card, then press the keys below. Focus follows selection, so each card announces as you land on it — the WAI-ARIA radiogroup model, exactly as a native radio behaves.",
@@ -262,6 +230,19 @@ function KeyboardDemo() {
           />
         ))}
       </dl>
+    </>
+  );
+}
+
+function KeyboardDemo() {
+  const [plan, setPlan] = useState<Plan>("pro");
+  const options: DemoOption<Plan>[] = [
+    { value: "free", label: t({ en: "Free", zh: "免费" }) },
+    { value: "pro", label: t({ en: "Pro", zh: "专业版" }) },
+    { value: "enterprise", label: t({ en: "Enterprise", zh: "企业版" }) },
+  ];
+  return (
+    <div css={[flex.col, styles.stack]}>
       <OptionCardGroup
         aria-label={t({ en: "Plan", zh: "套餐" })}
         options={options}
@@ -423,6 +404,7 @@ function DisabledDemo() {
       options={options}
       value={plan}
       onChange={setPlan}
+      css={fill.inline}
     />
   );
 }
@@ -449,7 +431,9 @@ export function OptionCardShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Single selection", zh: "单选" })}>
-        <SingleSelectDemo />
+        <Specimen caption='selection="single"'>
+          <SingleSelectDemo />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "The default. The group is a WAI-ARIA radiogroup, each card a radio, and the group needs a name of its own — one of aria-label or aria-labelledby is required at the type level, so an unnamed group cannot ship.",
@@ -459,7 +443,9 @@ export function OptionCardShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Multiple selection", zh: "多选" })}>
-        <MultipleSelectDemo />
+        <Specimen caption='selection="multiple"'>
+          <MultipleSelectDemo />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: 'selection="multiple" makes every card a checkbox with its own tab stop, and the arrow keys stay out of it — that is what the checkbox pattern asks for, since each card is an independent answer rather than one of a set.',
@@ -469,7 +455,9 @@ export function OptionCardShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Row and tile", zh: "行式与平铺" })}>
-        <TileDemo />
+        <Specimen caption='variant="tile"'>
+          <TileDemo />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: 'variant="tile" stacks each card and moves the selection mark into the corner, and the group becomes a grid that fits as many cards per line as the space allows. Reach for it when the labels are short; a row keeps a long description readable.',
@@ -479,7 +467,12 @@ export function OptionCardShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Keyboard", zh: "键盘操作" })}>
-        <KeyboardDemo />
+        <KeyboardNotes />
+        <Specimen
+          caption={t({ en: "focus follows selection", zh: "焦点跟随选择" })}
+        >
+          <KeyboardDemo />
+        </Specimen>
       </Showcase>
 
       <Showcase
@@ -488,7 +481,9 @@ export function OptionCardShowcase() {
           zh: "图标、说明与指示符",
         })}
       >
-        <SlotsDemo />
+        <Specimen caption={t({ en: "three cards", zh: "三张卡片" })}>
+          <SlotsDemo />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Only the label names the card. The description is attached with aria-describedby and the icon is hidden, so a card never announces a paragraph. The indicator is a slot: replace the tick with anything that still changes when the card is chosen.",
@@ -498,7 +493,11 @@ export function OptionCardShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Bespoke content", zh: "自定义内容" })}>
-        <BespokeDemo />
+        <Specimen
+          caption={t({ en: "price as children", zh: "价格作为 children" })}
+        >
+          <BespokeDemo />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "When a card needs to carry more than an options array can express, drop a layer: render OptionCard yourself, pass the extra content as children, and spread useRadioGroup's getOptionProps() to keep the same keyboard model. Children sit under the description and stay out of the accessible name.",
@@ -508,17 +507,15 @@ export function OptionCardShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Disabled", zh: "禁用" })}>
-        <DisabledDemo />
+        <Specimen caption={t({ en: "the third card", zh: "第三张卡片" })}>
+          <DisabledDemo />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "A disabled card stays rendered and still announces its label and description, so the visitor learns the choice exists — but it leaves the arrow-key order, so the keys can never land selection on it.",
             zh: "被禁用的卡片仍会渲染，也仍会朗读其标签与说明，让访客知道存在这个选项——但它会退出方向键的顺序，因此按键永远不会把选择落在它上面。",
           })}
         </Text>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet code={USAGE} label="tsx" />
       </Showcase>
 
       <Showcase label="OptionCard" labelVariant="code">
@@ -722,11 +719,15 @@ export function OptionCardShowcase() {
 }
 
 const styles = stylex.create({
+  // A `Specimen` lays its stage out with flex, so every demo root states its own
+  // width: without it a group of short labels shrinks to the widest card.
   stack: {
     gap: space._3,
+    inlineSize: "100%",
   },
   group: {
     gap: space._2,
+    inlineSize: "100%",
   },
   note: {
     maxInlineSize: "65ch",

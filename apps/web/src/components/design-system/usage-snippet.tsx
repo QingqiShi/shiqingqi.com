@@ -4,6 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { CodeBlock } from "./code/code-block.tsx";
+import type { CodeToken } from "./code/code-token.ts";
 
 interface UsageSnippetProps {
   /**
@@ -13,6 +15,11 @@ interface UsageSnippetProps {
   code: string;
   /** Caption above the code block. Defaults to a localised "Usage". */
   label?: string;
+  /**
+   * The coloured runs of `code`. The Babel plugin puts this in. Without it the
+   * snippet draws as one plain run.
+   */
+  source?: readonly CodeToken[];
 }
 
 /**
@@ -20,18 +27,15 @@ interface UsageSnippetProps {
  * a hairline ring, a small caption, and the source in a monospace block that
  * owns its own horizontal scroll so long lines never widen the page.
  */
-export function UsageSnippet({ code, label }: UsageSnippetProps) {
+export function UsageSnippet({ code, label, source }: UsageSnippetProps) {
   const resolvedLabel = label ?? t({ en: "Usage", zh: "用法" });
+  const runs: readonly CodeToken[] = source ?? [["plain", code]];
   return (
     <div css={styles.card}>
       <Text as="span" variant="caption" tone="subtle" css={styles.label}>
         {resolvedLabel}
       </Text>
-      <div css={styles.scroller}>
-        <pre css={styles.pre}>
-          <code css={styles.code}>{code}</code>
-        </pre>
-      </div>
+      <CodeBlock source={runs} />
     </div>
   );
 }
@@ -52,22 +56,5 @@ const styles = stylex.create({
     textTransform: "uppercase",
     letterSpacing: font.trackingWider,
     fontWeight: font.weight_6,
-  },
-  // Owns the horizontal overflow so a wide line scrolls inside the card rather
-  // than stretching the doc column.
-  scroller: {
-    overflowX: "auto",
-    overscrollBehaviorX: "contain",
-    minInlineSize: 0,
-  },
-  pre: {
-    margin: 0,
-  },
-  code: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
-    color: color.textMain,
-    whiteSpace: "pre",
   },
 });

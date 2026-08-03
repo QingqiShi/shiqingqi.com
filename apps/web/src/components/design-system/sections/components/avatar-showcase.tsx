@@ -3,14 +3,12 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import * as stylex from "@stylexjs/stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { measure } from "../../measure.stylex.ts";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 /**
  * A drawn stand-in rather than a photograph: the page needs to show what a
@@ -24,35 +22,45 @@ export function AvatarShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <div css={[flex.wrap, styles.row]}>
-          <Avatar
-            size="sm"
-            name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
-          />
-          <Avatar
-            size="md"
-            name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
-          />
-          <Avatar
-            size="lg"
-            name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
-          />
-        </div>
+        <SpecimenGrid>
+          <Specimen caption="sm">
+            <Avatar
+              size="sm"
+              name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
+            />
+          </Specimen>
+          <Specimen caption="md">
+            <Avatar
+              size="md"
+              name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
+            />
+          </Specimen>
+          <Specimen caption="lg">
+            <Avatar
+              size="lg"
+              name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
+            />
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Variants", zh: "样式" })}>
-        <div css={[flex.wrap, styles.row]}>
-          <Avatar
-            variant="subtle"
-            size="lg"
-            name={t({ en: "Grace Hopper", zh: "格蕾丝·霍珀" })}
-          />
-          <Avatar
-            variant="solid"
-            size="lg"
-            name={t({ en: "Grace Hopper", zh: "格蕾丝·霍珀" })}
-          />
-        </div>
+        <SpecimenGrid>
+          <Specimen caption="subtle">
+            <Avatar
+              variant="subtle"
+              size="lg"
+              name={t({ en: "Grace Hopper", zh: "格蕾丝·霍珀" })}
+            />
+          </Specimen>
+          <Specimen caption="solid">
+            <Avatar
+              variant="solid"
+              size="lg"
+              name={t({ en: "Grace Hopper", zh: "格蕾丝·霍珀" })}
+            />
+          </Specimen>
+        </SpecimenGrid>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Subtle is the resting state for someone simply present. Reserve solid for the few people a view is actually about, so they stand out of a row of their peers.",
@@ -62,12 +70,20 @@ export function AvatarShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Monogram", zh: "字母缩写" })}>
-        <div css={[flex.wrap, styles.row]}>
-          <Avatar size="lg" name="Ada Lovelace" />
-          <Avatar size="lg" name="石头" />
-          <Avatar size="lg" name="Ada Byron Lovelace" />
-          <Avatar size="lg" name="Ada Lovelace" initials="A" />
-        </div>
+        <SpecimenGrid>
+          <Specimen caption={t({ en: "two words", zh: "两个词" })}>
+            <Avatar size="lg" name="Ada Lovelace" />
+          </Specimen>
+          <Specimen caption={t({ en: "one word", zh: "单个词" })}>
+            <Avatar size="lg" name="石头" />
+          </Specimen>
+          <Specimen caption={t({ en: "three words", zh: "三个词" })}>
+            <Avatar size="lg" name="Ada Byron Lovelace" />
+          </Specimen>
+          <Specimen caption='initials="A"'>
+            <Avatar size="lg" name="Ada Lovelace" initials="A" />
+          </Specimen>
+        </SpecimenGrid>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Without a portrait the monogram comes from the first and last words of the name. A single word — including an unspaced CJK name — yields one character rather than two unrelated ones; initials overrides the derivation entirely.",
@@ -77,56 +93,41 @@ export function AvatarShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Portrait", zh: "头像图片" })}>
-        <div css={[flex.wrap, styles.row]}>
+        <Specimen caption="src">
           <Avatar
             size="lg"
             src={PORTRAIT}
             name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
           />
-        </div>
+        </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Badge", zh: "角标" })}>
-        <div css={[flex.wrap, styles.row]}>
-          <Avatar
-            size="lg"
-            variant="solid"
-            name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
-            badge={<AirplaneTakeoffIcon weight="bold" />}
-            badgeLabel={t({ en: "departing", zh: "出发" })}
-          />
-          <Avatar
-            size="lg"
-            name={t({ en: "Grace Hopper", zh: "格蕾丝·霍珀" })}
-            badge={<CheckIcon weight="bold" />}
-            badgeLabel={t({ en: "confirmed", zh: "已确认" })}
-          />
-        </div>
+        <SpecimenGrid>
+          <Specimen caption={t({ en: "departing", zh: "出发" })}>
+            <Avatar
+              size="lg"
+              variant="solid"
+              name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
+              badge={<AirplaneTakeoffIcon weight="bold" />}
+              badgeLabel={t({ en: "departing", zh: "出发" })}
+            />
+          </Specimen>
+          <Specimen caption={t({ en: "confirmed", zh: "已确认" })}>
+            <Avatar
+              size="lg"
+              name={t({ en: "Grace Hopper", zh: "格蕾丝·霍珀" })}
+              badge={<CheckIcon weight="bold" />}
+              badgeLabel={t({ en: "confirmed", zh: "已确认" })}
+            />
+          </Specimen>
+        </SpecimenGrid>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "The badge is drawn, so it says nothing on its own — badgeLabel carries its meaning and is required whenever a badge is set. Keeping it out of name is also what stops the label from corrupting the monogram.",
             zh: "角标只是图形，本身不表达任何信息——badgeLabel 承载其含义，且在设置角标时必填。把它与 name 分开，也避免了标签污染字母缩写。",
           })}
         </Text>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet
-          code={`import { Avatar } from "@tuja/ui/components/avatar";
-
-// Monogram derived from the name.
-<Avatar name="Ada Lovelace" />
-
-// Portrait plus a badge, whose meaning rides on badgeLabel rather than
-// on name — so the monogram and the announcement stay correct.
-<Avatar
-  src={person.photoUrl}
-  name={person.name}
-  badge={<AirplaneTakeoffIcon weight="bold" />}
-  badgeLabel={t({ en: "departing", zh: "出发" })}
-/>`}
-          label="tsx"
-        />
       </Showcase>
 
       <Showcase>
@@ -249,10 +250,6 @@ export function AvatarShowcase() {
 }
 
 const styles = stylex.create({
-  row: {
-    alignItems: "flex-end",
-    gap: space._3,
-  },
   note: {
     maxInlineSize: measure.prose,
   },

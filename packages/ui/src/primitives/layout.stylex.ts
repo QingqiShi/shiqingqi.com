@@ -18,6 +18,17 @@ export const fixedFill = stylex.create({
   },
 });
 
+// Size fills — a box that takes the width it is given. Distinct from
+// `absoluteFill`/`fixedFill` above, which take their parent out of flow and pin
+// it by inset; this one stays in flow and only sets a size. Inline axis only,
+// because that is the one that keeps being asked for: a block-level element
+// inside a flex or grid parent shrinks to its content, and a specimen, a field
+// or a card usually wants the whole track. Add a block member when a second
+// caller needs one.
+export const fill = stylex.create({
+  inline: { inlineSize: "100%" },
+});
+
 // Scroll containers — overflow + scrollbar behavior
 export const scrollX = stylex.create({
   base: {

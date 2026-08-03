@@ -28,29 +28,12 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
-
-/** A captioned specimen cell — the live specimen sits above a muted caption. */
-function SpecimenCell({
-  caption,
-  children,
-}: {
-  caption: string;
-  children: ReactNode;
-}) {
-  return (
-    <div css={styles.specimenCell}>
-      <div css={styles.specimenStage}>{children}</div>
-      <Text variant="caption" tone="subtle">
-        {caption}
-      </Text>
-    </div>
-  );
-}
 
 interface StepperProps {
   value?: number;
@@ -121,24 +104,24 @@ function UseControlledSection() {
           zh: "一次调用即让组件同时拥有受控与非受控两种模式。传入 `controlled` 值时由它驱动组件；否则组件从 `defaultValue` 维护自身状态。构建任何类输入控件时都可使用。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "Uncontrolled — owns its own state",
             zh: "非受控——自行维护状态",
           })}
         >
           <StepperControl defaultValue={0} />
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({
             en: "Controlled — parent owns the value",
             zh: "受控——由父组件持有值",
           })}
         >
           <ControlledStepperSpecimen />
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <UsageSnippet
         code={`import { useControlled } from "@tuja/ui/hooks/use-controlled";
 
@@ -226,16 +209,16 @@ function UseDialogFocusSection() {
           zh: "一次调用即处理模态的完整焦点生命周期：打开时将焦点移入对话框，把 Tab 与 Shift+Tab 困在其中，按 Escape 关闭，并在卸载时把焦点还给触发元素。适用于任何不得泄漏焦点的对话框、抽屉或弹出层。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "Open, then Tab and Escape — focus stays trapped and restores",
             zh: "打开后按 Tab 和 Escape——焦点被困住并会恢复",
           })}
         >
           <DialogSpecimen />
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <UsageSnippet
         code={`import { useRef, useState } from "react";
 import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
@@ -385,24 +368,24 @@ function UsePopoverSection() {
           zh: "`Popover` 之下的无头层——`Popover` 就是这个钩子加上 portal 与共享的表面皮肤：它负责开合状态、定位、关闭时机与 ARIA 关联，再把 `triggerProps` 与 `contentProps` 交还给你，由你铺到自己的元素上。定位以视口为准，而非贴着触发元素的角落——放不下时会翻到对侧，两个轴向都会平移以留在屏幕内，并在滚动、窗口尺寸变化，以及触发元素或弹出层自身尺寸变化时重新定位。打开时它把焦点移入弹出层，关闭时再交还给触发元素，但它既不困陷焦点，也不锁定滚动。当弹出层需要的不是一块带内边距的表面时就用它——元素由你渲染，并且必须是 `position: fixed`，因为钩子会把 `top`/`left` 直接写到节点上。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "Your own popup — a bare colour grid, not a padded surface",
             zh: "由你渲染的弹出层——一片纯色方格，而非带内边距的表面",
           })}
         >
           <IntentPickerSpecimen />
-        </SpecimenCell>
-        <SpecimenCell
+        </Specimen>
+        <Specimen
           caption={t({
             en: "Placed above; expand the panel and it re-places itself",
             zh: "置于上方；展开面板后它会重新定位",
           })}
         >
           <PlacementSpecimen />
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <UsageSnippet
         code={`import { usePopover } from "@tuja/ui/hooks/use-popover";
 
@@ -456,16 +439,16 @@ function UsePressSection() {
           zh: "把 Button 的触感按压——弹性缩放、亮度提升，以及指针移开时的方向性偏移——封装给任意元素。`usePressAnimation` 是底层状态机；`usePressHandlers` 在其上叠加点击取消与 CSS 自定义属性。让自定义控件拥有与系统一致的手感时使用。",
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "Press with a pointer or Space/Enter; drag off to see the nudge",
             zh: "用指针或空格/回车按下；拖离可见方向偏移",
           })}
         >
           <PressSpecimen />
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <UsageSnippet
         code={`import { useRef } from "react";
 import { usePressHandlers } from "@tuja/ui/hooks/use-press-handlers";
@@ -545,16 +528,16 @@ function UseRadioGroupSection() {
           zh: '无头单选语义：钩子返回 `getOptionProps(value)` 工厂，提供 `role="radio"`、`aria-checked`、roving `tabIndex` 以及完整的 WAI-ARIA 键盘模型——方向键移动并选中，Home/End 跳转，焦点跟随选择。你负责标记与样式，它负责无障碍。',
         })}
       </ShowcaseHelper>
-      <div css={styles.specimenGrid}>
-        <SpecimenCell
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
           caption={t({
             en: "Focus a segment, then use ← → and Home / End",
             zh: "聚焦某段后，使用 ← → 与 Home / End",
           })}
         >
           <DensityRadioGroup />
-        </SpecimenCell>
-      </div>
+        </Specimen>
+      </SpecimenGrid>
       <UsageSnippet
         code={`import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 
@@ -583,31 +566,13 @@ export function HooksShowcase() {
 }
 
 const styles = stylex.create({
-  specimenGrid: {
-    display: "grid",
+  // Wider tracks than the default: a dialog, a popover and a segmented control
+  // all need more room than a button does.
+  specimenTracks: {
     gridTemplateColumns: {
       default: "1fr",
       [breakpoints.md]: "repeat(auto-fit, minmax(260px, 1fr))",
     },
-    gap: space._3,
-  },
-  specimenCell: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-    minInlineSize: 0,
-  },
-  specimenStage: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    minBlockSize: "80px",
-    paddingBlock: space._3,
-    paddingInline: space._3,
-    borderRadius: border.radius_2,
-    backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
-    minInlineSize: 0,
   },
   // useControlled
   stepper: {

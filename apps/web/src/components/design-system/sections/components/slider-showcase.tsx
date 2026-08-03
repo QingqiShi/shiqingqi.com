@@ -4,36 +4,15 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
-
-const USAGE = `import { Slider } from "@tuja/ui/components/slider";
-import { useState } from "react";
-
-const [rate, setRate] = useState(4.25);
-const percent = new Intl.NumberFormat(locale, {
-  style: "percent",
-  minimumFractionDigits: 2,
-});
-
-<Slider
-  label="Interest rate"
-  min={1}
-  max={9}
-  step={0.25}
-  value={rate}
-  onChange={setRate}
-  onCommit={(committed) => {
-    recalculateSchedule(committed);
-  }}
-  readout={percent.format(rate / 100)}
-/>`;
+import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 /** A money readout — the figure a budget slider exists to name. */
 function BudgetSlider() {
@@ -291,7 +270,7 @@ function ReadoutSlider() {
       value={amount}
       onChange={setAmount}
       readout={money.format(amount)}
-      css={styles.fill}
+      css={fill.inline}
     />
   );
 }
@@ -322,35 +301,35 @@ export function SliderShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="sm">
+        <SpecimenGrid>
+          <Specimen caption="sm">
             <Slider
               size="sm"
               label={smallLabel}
               labelHidden
               defaultValue={60}
-              css={styles.fill}
+              css={fill.inline}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="md">
+          </Specimen>
+          <Specimen caption="md">
             <Slider
               size="md"
               label={mediumLabel}
               labelHidden
               defaultValue={60}
-              css={styles.fill}
+              css={fill.inline}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="lg">
+          </Specimen>
+          <Specimen caption="lg">
             <Slider
               size="lg"
               label={largeLabel}
               labelHidden
               defaultValue={60}
-              css={styles.fill}
+              css={fill.inline}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Readout", zh: "数值显示" })}>
@@ -367,7 +346,9 @@ export function SliderShowcase() {
             })}
           </Text>
           <div css={styles.column}>
-            <BudgetSlider />
+            <Specimen caption={t({ en: "currency", zh: "货币" })}>
+              <BudgetSlider />
+            </Specimen>
           </div>
         </div>
       </Showcase>
@@ -386,7 +367,9 @@ export function SliderShowcase() {
             })}
           </Text>
           <div css={styles.column}>
-            <BoundedSliders />
+            <Specimen caption={t({ en: "term and rate", zh: "期限与利率" })}>
+              <BoundedSliders />
+            </Specimen>
           </div>
         </div>
       </Showcase>
@@ -416,7 +399,9 @@ export function SliderShowcase() {
             })}
           </Text>
           <div css={styles.column}>
-            <ChangeVersusCommit />
+            <Specimen caption={t({ en: "live vs settled", zh: "实时与落定" })}>
+              <ChangeVersusCommit />
+            </Specimen>
           </div>
         </div>
       </Showcase>
@@ -437,23 +422,32 @@ export function SliderShowcase() {
             })}
           </Text>
           <div css={styles.column}>
-            <FieldContractSliders />
+            <Specimen
+              caption={t({
+                en: "overpayment, risk, deposit",
+                zh: "额外还款、风险、首付",
+              })}
+            >
+              <FieldContractSliders />
+            </Specimen>
           </div>
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Disabled", zh: "禁用" })}>
         <div css={styles.column}>
-          <Slider
-            label={t({ en: "Overpayment", zh: "额外还款" })}
-            description={t({
-              en: "Unlocked once the fixed-rate period ends.",
-              zh: "固定利率期结束后才可调整。",
-            })}
-            disabled
-            defaultValue={35}
-            readout={percent.format(0.35)}
-          />
+          <Specimen caption={t({ en: "overpayment", zh: "额外还款" })}>
+            <Slider
+              label={t({ en: "Overpayment", zh: "额外还款" })}
+              description={t({
+                en: "Unlocked once the fixed-rate period ends.",
+                zh: "固定利率期结束后才可调整。",
+              })}
+              disabled
+              defaultValue={35}
+              readout={percent.format(0.35)}
+            />
+          </Specimen>
         </div>
       </Showcase>
 
@@ -480,13 +474,11 @@ export function SliderShowcase() {
             ))}
           </dl>
           <div css={styles.column}>
-            <KeyboardSlider />
+            <Specimen caption={t({ en: "defaults", zh: "默认值" })}>
+              <KeyboardSlider />
+            </Specimen>
           </div>
         </div>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet code={USAGE} label="tsx" />
       </Showcase>
 
       <Showcase>
@@ -647,7 +639,7 @@ export function SliderShowcase() {
             zh: "只要确切数值重要，就为轨道配一个格式化的 readout——单看滑块位置只能得到一个估计。",
           })}
           dont={
-            <div css={styles.fill}>
+            <div css={fill.inline}>
               <Slider
                 label={t({ en: "Loan amount", zh: "贷款金额" })}
                 min={50000}
@@ -679,9 +671,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     maxInlineSize: "32rem",
-  },
-  fill: {
-    inlineSize: "100%",
   },
   note: {
     maxInlineSize: "65ch",

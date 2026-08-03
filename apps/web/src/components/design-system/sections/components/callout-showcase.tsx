@@ -7,138 +7,131 @@ import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { CalloutDismissSpecimen } from "./callout-dismiss-specimen.tsx";
 
-const usageCode = `import { Callout } from "@tuja/ui/components/callout";
-
-<Callout variant="success" title="Saved">
-  Your profile changes are live.
-</Callout>`;
-
 export function CalloutShowcase() {
-  // Resolve every variant's copy once, in a fixed order, and never inside the
-  // `.map()` below — t() must run in render scope, not a callback.
-  const variants = [
-    {
-      variant: "info",
-      title: t({ en: "Heads up", zh: "请注意" }),
-      body: t({
-        en: "Your export keeps running in the background — we'll email you when it's ready.",
-        zh: "导出将在后台继续运行——完成后我们会通过邮件通知你。",
-      }),
-    },
-    {
-      variant: "success",
-      title: t({ en: "Changes saved", zh: "更改已保存" }),
-      body: t({
-        en: "Your profile is live and visible to everyone.",
-        zh: "你的资料已发布，所有人均可查看。",
-      }),
-    },
-    {
-      variant: "warning",
-      title: t({ en: "Storage almost full", zh: "存储空间即将用满" }),
-      body: t({
-        en: "You're using 92% of your plan's space.",
-        zh: "你已使用套餐 92% 的空间。",
-      }),
-    },
-    {
-      variant: "danger",
-      title: t({ en: "Payment failed", zh: "付款失败" }),
-      body: t({
-        en: "We couldn't charge the card ending in 4242. Update it to keep your subscription.",
-        zh: "无法向尾号 4242 的卡扣款。请更新卡片以保留订阅。",
-      }),
-    },
-    {
-      variant: "accent",
-      title: t({ en: "New in 2.0", zh: "2.0 新功能" }),
-      body: t({
-        en: "Segmented button groups now support leading icons.",
-        zh: "分段按钮组现已支持前置图标。",
-      }),
-    },
-    {
-      variant: "neutral",
-      title: t({ en: "Read-only workspace", zh: "只读工作区" }),
-      body: t({
-        en: "You have view access. Ask an owner for edit rights.",
-        zh: "你拥有查看权限。如需编辑，请向所有者申请。",
-      }),
-    },
-  ] as const;
-
-  const variantsLabel = t({ en: "Variants", zh: "风格" });
-  const bodyOnlyLabel = t({ en: "Body only", zh: "仅正文" });
-  const bodyOnlyText = t({
-    en: "Omit the title for a single, concise line — the icon and tint still carry the Intent.",
-    zh: "省略标题即为单行简讯——图标与着色依旧传达意图色。",
-  });
-  const iconLabel = t({ en: "Icon", zh: "图标" });
-  const iconHelper = t({
-    en: "Override the built-in icon with any node, or pass icon={null} to drop it entirely.",
-    zh: "可用任意节点覆盖内置图标，或传入 icon={null} 完全移除。",
-  });
-  const customIconCaption = t({ en: "custom icon", zh: "自定义图标" });
-  const noIconCaption = t({ en: "no icon", zh: "无图标" });
-  const dismissLabel = t({ en: "Dismissible", zh: "可关闭" });
-  const dismissHelper = t({
-    en: "Pair onDismiss with a required dismissLabel to add an accessible inline close button.",
-    zh: "将 onDismiss 与必填的 dismissLabel 搭配，即可添加带无障碍名称的行内关闭按钮。",
-  });
-
   return (
     <>
-      <Showcase label={variantsLabel}>
-        <div css={styles.calloutGrid}>
-          {variants.map((entry) => (
-            <Callout
-              key={entry.variant}
-              variant={entry.variant}
-              title={entry.title}
-            >
-              {entry.body}
+      <Showcase label={t({ en: "Variants", zh: "风格" })}>
+        <SpecimenGrid css={styles.calloutGrid}>
+          <Specimen caption="info">
+            <Callout variant="info" title={t({ en: "Heads up", zh: "请注意" })}>
+              {t({
+                en: "Your export keeps running in the background — we'll email you when it's ready.",
+                zh: "导出将在后台继续运行——完成后我们会通过邮件通知你。",
+              })}
             </Callout>
-          ))}
-        </div>
+          </Specimen>
+          <Specimen caption="success">
+            <Callout
+              variant="success"
+              title={t({ en: "Changes saved", zh: "更改已保存" })}
+            >
+              {t({
+                en: "Your profile is live and visible to everyone.",
+                zh: "你的资料已发布，所有人均可查看。",
+              })}
+            </Callout>
+          </Specimen>
+          <Specimen caption="warning">
+            <Callout
+              variant="warning"
+              title={t({ en: "Storage almost full", zh: "存储空间即将用满" })}
+            >
+              {t({
+                en: "You're using 92% of your plan's space.",
+                zh: "你已使用套餐 92% 的空间。",
+              })}
+            </Callout>
+          </Specimen>
+          <Specimen caption="danger">
+            <Callout
+              variant="danger"
+              title={t({ en: "Payment failed", zh: "付款失败" })}
+            >
+              {t({
+                en: "We couldn't charge the card ending in 4242. Update it to keep your subscription.",
+                zh: "无法向尾号 4242 的卡扣款。请更新卡片以保留订阅。",
+              })}
+            </Callout>
+          </Specimen>
+          <Specimen caption="accent">
+            <Callout
+              variant="accent"
+              title={t({ en: "New in 2.0", zh: "2.0 新功能" })}
+            >
+              {t({
+                en: "Segmented button groups now support leading icons.",
+                zh: "分段按钮组现已支持前置图标。",
+              })}
+            </Callout>
+          </Specimen>
+          <Specimen caption="neutral">
+            <Callout
+              variant="neutral"
+              title={t({ en: "Read-only workspace", zh: "只读工作区" })}
+            >
+              {t({
+                en: "You have view access. Ask an owner for edit rights.",
+                zh: "你拥有查看权限。如需编辑，请向所有者申请。",
+              })}
+            </Callout>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={bodyOnlyLabel}>
-        <Callout variant="info">{bodyOnlyText}</Callout>
-      </Showcase>
-
-      <Showcase label={iconLabel}>
-        <div css={styles.stack}>
-          <ShowcaseHelper>{iconHelper}</ShowcaseHelper>
-          <Callout
-            variant="accent"
-            title={customIconCaption}
-            icon={<MegaphoneIcon weight="fill" />}
-          >
+      <Showcase label={t({ en: "Body only", zh: "仅正文" })}>
+        <Specimen caption={t({ en: "no title", zh: "无标题" })}>
+          <Callout variant="info">
             {t({
-              en: "Swap in a Phosphor icon when a variant's default icon isn't specific enough.",
-              zh: "当变体的默认图标不够贴切时，可换用 Phosphor 图标。",
+              en: "Omit the title for a single, concise line — the icon and tint still carry the Intent.",
+              zh: "省略标题即为单行简讯——图标与着色依旧传达意图色。",
             })}
           </Callout>
-          <Callout variant="neutral" title={noIconCaption} icon={null}>
-            {t({
-              en: "Drop the icon for a dense, text-first note where an icon would only add noise.",
-              zh: "在以文字为主的紧凑提示中移除图标，避免图标造成干扰。",
-            })}
-          </Callout>
-        </div>
+        </Specimen>
       </Showcase>
 
-      <Showcase label={dismissLabel}>
+      <Showcase label={t({ en: "Icon", zh: "图标" })}>
         <div css={styles.stack}>
-          <ShowcaseHelper>{dismissHelper}</ShowcaseHelper>
-          <CalloutDismissSpecimen />
+          <ShowcaseHelper>
+            {t({
+              en: "Override the built-in icon with any node, or pass icon={null} to drop it entirely.",
+              zh: "可用任意节点覆盖内置图标，或传入 icon={null} 完全移除。",
+            })}
+          </ShowcaseHelper>
+          <Specimen caption={t({ en: "custom icon", zh: "自定义图标" })}>
+            <Callout variant="accent" icon={<MegaphoneIcon weight="fill" />}>
+              {t({
+                en: "Swap in a Phosphor icon when a variant's default icon isn't specific enough.",
+                zh: "当变体的默认图标不够贴切时，可换用 Phosphor 图标。",
+              })}
+            </Callout>
+          </Specimen>
+          <Specimen caption={t({ en: "no icon", zh: "无图标" })}>
+            <Callout variant="neutral" icon={null}>
+              {t({
+                en: "Drop the icon for a dense, text-first note where an icon would only add noise.",
+                zh: "在以文字为主的紧凑提示中移除图标，避免图标造成干扰。",
+              })}
+            </Callout>
+          </Specimen>
         </div>
       </Showcase>
 
-      <UsageSnippet code={usageCode} />
+      <Showcase label={t({ en: "Dismissible", zh: "可关闭" })}>
+        <div css={styles.stack}>
+          <ShowcaseHelper>
+            {t({
+              en: "Pair onDismiss with a required dismissLabel to add an accessible inline close button.",
+              zh: "将 onDismiss 与必填的 dismissLabel 搭配，即可添加带无障碍名称的行内关闭按钮。",
+            })}
+          </ShowcaseHelper>
+          <Specimen caption="onDismiss">
+            <CalloutDismissSpecimen />
+          </Specimen>
+        </div>
+      </Showcase>
 
       <PropsTable
         rows={[
@@ -256,10 +249,9 @@ export function CalloutShowcase() {
 }
 
 const styles = stylex.create({
+  // A callout needs more room than a specimen track gives it by default.
   calloutGrid: {
-    display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 20rem), 1fr))",
-    gap: space._3,
   },
   stack: {
     display: "flex",

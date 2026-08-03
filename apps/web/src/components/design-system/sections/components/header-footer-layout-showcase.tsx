@@ -13,22 +13,10 @@ import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Specimen } from "../../specimen.tsx";
 
 export function HeaderFooterLayoutShowcase() {
   const locale = getLocale();
-
-  const usage = `import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
-
-<HeaderFooterLayout
-  headerStart={<BackButton />}
-  headerEnd={<ThemeSwitch />}
-  background={<FlowGradient />}
-  footer={<SiteFooter />}
-  readingColumn
->
-  <Article />
-</HeaderFooterLayout>`;
 
   return (
     <>
@@ -42,70 +30,73 @@ export function HeaderFooterLayoutShowcase() {
         {/* The frame's transform creates a containing block, so the shell's
             fixed header anchors to the specimen frame; the inner viewport owns the
             scrolling to show the bar staying pinned. */}
-        <div css={styles.frame}>
-          <div css={styles.viewport}>
-            <HeaderFooterLayout
-              as="div"
-              readingColumn
-              headerStart={
-                <BackButton
-                  locale={locale}
-                  label={t({ en: "Back", zh: "返回" })}
-                />
-              }
-              headerEnd={
-                <>
-                  <ThemeSwitch
-                    labels={[
-                      t({ en: "Switch to light theme", zh: "切换至浅色模式" }),
-                      t({ en: "Switch to dark theme", zh: "切换至深色模式" }),
-                      t({
-                        en: "Switch to system theme",
-                        zh: "切换至系统颜色模式",
-                      }),
-                    ]}
-                  />
-                  <LocaleSelector
-                    label={t({ en: "Language", zh: "语言" })}
-                    ariaLabel={t({ en: "Select a language", zh: "选择语言" })}
+        <Specimen caption={t({ en: "every slot filled", zh: "填满全部插槽" })}>
+          <div css={styles.frame}>
+            <div css={styles.viewport}>
+              <HeaderFooterLayout
+                as="div"
+                readingColumn
+                headerStart={
+                  <BackButton
                     locale={locale}
+                    label={t({ en: "Back", zh: "返回" })}
                   />
-                </>
-              }
-              background={
-                <div css={styles.specimenBackground} aria-hidden="true" />
-              }
-              footer={<Footer locale={locale} />}
-            >
-              <article css={styles.article}>
-                <Heading level={2}>
-                  {t({ en: "The quiet harbour", zh: "静谧的港湾" })}
-                </Heading>
-                <Text tone="muted">
-                  {t({
-                    en: "Reading surfaces get one centred measure and generous breathing room. The chrome recedes: a back affordance on the left, utilities on the right, and nothing else competing with the text.",
-                    zh: "阅读型页面拥有单一居中的版心与充裕的留白。界面装饰退居其次：左侧是返回入口，右侧是实用控件，没有其他元素与正文争夺注意力。",
-                  })}
-                </Text>
-                <Text tone="muted">
-                  {t({
-                    en: "The background layer bleeds edge to edge beneath the content, and the bar stays pointer-transparent outside its two slot regions — text remains selectable right up to the top edge.",
-                    zh: "背景层在内容下方满幅延展，横条在两个插槽区域之外不拦截指针事件——文字直到顶部边缘都可以选中。",
-                  })}
-                </Text>
-                <Text tone="muted">
-                  {t({
-                    en: "The footer shares the column's width and gutters, so the page reads as one continuous measure from headline to colophon.",
-                    zh: "页脚与内容列共享宽度和边距，从标题到版权信息整页保持同一版心。",
-                  })}
-                </Text>
-              </article>
-            </HeaderFooterLayout>
+                }
+                headerEnd={
+                  <>
+                    <ThemeSwitch
+                      labels={[
+                        t({
+                          en: "Switch to light theme",
+                          zh: "切换至浅色模式",
+                        }),
+                        t({ en: "Switch to dark theme", zh: "切换至深色模式" }),
+                        t({
+                          en: "Switch to system theme",
+                          zh: "切换至系统颜色模式",
+                        }),
+                      ]}
+                    />
+                    <LocaleSelector
+                      label={t({ en: "Language", zh: "语言" })}
+                      ariaLabel={t({ en: "Select a language", zh: "选择语言" })}
+                      locale={locale}
+                    />
+                  </>
+                }
+                background={
+                  <div css={styles.specimenBackground} aria-hidden="true" />
+                }
+                footer={<Footer locale={locale} />}
+              >
+                <article css={styles.article}>
+                  <Heading level={2}>
+                    {t({ en: "The quiet harbour", zh: "静谧的港湾" })}
+                  </Heading>
+                  <Text tone="muted">
+                    {t({
+                      en: "Reading surfaces get one centred measure and generous breathing room. The chrome recedes: a back affordance on the left, utilities on the right, and nothing else competing with the text.",
+                      zh: "阅读型页面拥有单一居中的版心与充裕的留白。界面装饰退居其次：左侧是返回入口，右侧是实用控件，没有其他元素与正文争夺注意力。",
+                    })}
+                  </Text>
+                  <Text tone="muted">
+                    {t({
+                      en: "The background layer bleeds edge to edge beneath the content, and the bar stays pointer-transparent outside its two slot regions — text remains selectable right up to the top edge.",
+                      zh: "背景层在内容下方满幅延展，横条在两个插槽区域之外不拦截指针事件——文字直到顶部边缘都可以选中。",
+                    })}
+                  </Text>
+                  <Text tone="muted">
+                    {t({
+                      en: "The footer shares the column's width and gutters, so the page reads as one continuous measure from headline to colophon.",
+                      zh: "页脚与内容列共享宽度和边距，从标题到版权信息整页保持同一版心。",
+                    })}
+                  </Text>
+                </article>
+              </HeaderFooterLayout>
+            </div>
           </div>
-        </div>
+        </Specimen>
       </Showcase>
-
-      <UsageSnippet code={usage} />
 
       <PropsTable
         rows={[
@@ -203,6 +194,7 @@ const styles = stylex.create({
   frame: {
     position: "relative",
     overflow: "hidden",
+    inlineSize: "100%",
     borderRadius: border.radius_3,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,

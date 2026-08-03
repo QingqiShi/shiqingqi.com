@@ -4,38 +4,49 @@ import { Badge } from "@tuja/ui/components/badge";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { measure } from "../../measure.stylex.ts";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
+import { Specimen } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 import { DisclosureHeadlessSpecimen } from "./disclosure-headless-specimen.tsx";
 
 export function DisclosureShowcase() {
-  const panelBody = t({
-    en: "Passport, EU driving licence, and the rental confirmation printed out.",
-    zh: "护照、欧盟驾照，以及打印好的租车确认单。",
-  });
-
   return (
     <>
       <Showcase label={t({ en: "Variants", zh: "样式" })}>
         <div css={[flex.col, styles.stack]}>
-          <Disclosure summary={t({ en: "Packing list", zh: "行李清单" })}>
-            <Text variant="bodySmall" tone="muted">
-              {panelBody}
-            </Text>
-          </Disclosure>
-          <Disclosure
-            variant="card"
-            summary={t({ en: "Packing list", zh: "行李清单" })}
-          >
-            <Text variant="bodySmall" tone="muted">
-              {panelBody}
-            </Text>
-          </Disclosure>
+          <Specimen caption="plain">
+            <Disclosure
+              summary={t({ en: "Packing list", zh: "行李清单" })}
+              css={fill.inline}
+            >
+              <Text variant="bodySmall" tone="muted">
+                {t({
+                  en: "Passport, EU driving licence, and the rental confirmation printed out.",
+                  zh: "护照、欧盟驾照，以及打印好的租车确认单。",
+                })}
+              </Text>
+            </Disclosure>
+          </Specimen>
+          <Specimen caption="card">
+            <Disclosure
+              variant="card"
+              summary={t({ en: "Packing list", zh: "行李清单" })}
+              css={fill.inline}
+            >
+              <Text variant="bodySmall" tone="muted">
+                {t({
+                  en: "Passport, EU driving licence, and the rental confirmation printed out.",
+                  zh: "护照、欧盟驾照，以及打印好的租车确认单。",
+                })}
+              </Text>
+            </Disclosure>
+          </Specimen>
         </div>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
@@ -46,17 +57,23 @@ export function DisclosureShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Slots", zh: "插槽" })}>
-        <Disclosure
-          variant="card"
-          defaultOpen
-          icon={<SuitcaseIcon weight="bold" />}
-          trailing={<Badge variant="neutral">2/5</Badge>}
-          summary={t({ en: "Packing list", zh: "行李清单" })}
-        >
-          <Text variant="bodySmall" tone="muted">
-            {panelBody}
-          </Text>
-        </Disclosure>
+        <Specimen caption="icon + trailing">
+          <Disclosure
+            variant="card"
+            defaultOpen
+            icon={<SuitcaseIcon weight="bold" />}
+            trailing={<Badge variant="neutral">2/5</Badge>}
+            summary={t({ en: "Packing list", zh: "行李清单" })}
+            css={fill.inline}
+          >
+            <Text variant="bodySmall" tone="muted">
+              {t({
+                en: "Passport, EU driving licence, and the rental confirmation printed out.",
+                zh: "护照、欧盟驾照，以及打印好的租车确认单。",
+              })}
+            </Text>
+          </Disclosure>
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Both slots render inside the trigger, so neither may be interactive — a count or a status badge, never a button. The icon is hidden from assistive tech but trailing is not: a count is content, and the trigger announces as “Packing list 2/5”. defaultOpen starts this one expanded.",
@@ -66,7 +83,9 @@ export function DisclosureShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Headless", zh: "无头用法" })}>
-        <DisclosureHeadlessSpecimen />
+        <Specimen caption="useDisclosure">
+          <DisclosureHeadlessSpecimen />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "When the header holds its own link, the whole row can't be a button. useDisclosure hands the same aria-expanded and aria-controls wiring to a separate toggle beside it.",
@@ -77,15 +96,9 @@ export function DisclosureShowcase() {
 
       <Showcase label={t({ en: "Usage", zh: "用法" })}>
         <UsageSnippet
-          code={`import { Disclosure } from "@tuja/ui/components/disclosure";
-
-<Disclosure variant="card" summary="Packing list" trailing={<Badge>2/5</Badge>}>
-  <ChecklistItems items={items} />
-</Disclosure>
+          code={`import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 
 // When the header holds its own control, drop to the hook.
-import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
-
 const { open, triggerProps, panelProps } = useDisclosure();
 
 <li>
@@ -207,7 +220,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
             <Disclosure
               variant="card"
               summary={t({ en: "Florence → Siena", zh: "佛罗伦萨 → 锡耶纳" })}
-              css={styles.example}
+              css={fill.inline}
             >
               <Text variant="bodySmall" tone="muted">
                 {t({ en: "Route map", zh: "路线地图" })}
@@ -230,8 +243,5 @@ const styles = stylex.create({
   },
   note: {
     maxInlineSize: measure.prose,
-  },
-  example: {
-    inlineSize: "100%",
   },
 });

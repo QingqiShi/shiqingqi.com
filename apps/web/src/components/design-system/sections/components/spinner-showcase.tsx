@@ -6,18 +6,8 @@ import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
-
-const usageCode = `import { Spinner } from "@tuja/ui/components/spinner";
-
-// Standalone — announces its busy state:
-<Spinner label="Loading" />
-
-// Decorative — inside an already-labelled busy region:
-<button aria-busy>
-  <Spinner aria-hidden /> Saving…
-</button>`;
+import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 export function SpinnerShowcase() {
   const loadingLabel = t({ en: "Loading", zh: "加载中" });
@@ -26,20 +16,20 @@ export function SpinnerShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="inline">
+        <SpecimenGrid>
+          <Specimen caption="inline">
             <Spinner size="inline" label={loadingLabel} />
-          </ShowcaseItem>
-          <ShowcaseItem label="sm">
+          </Specimen>
+          <Specimen caption="sm">
             <Spinner size="sm" label={loadingLabel} />
-          </ShowcaseItem>
-          <ShowcaseItem label="md">
+          </Specimen>
+          <Specimen caption="md">
             <Spinner size="md" label={loadingLabel} />
-          </ShowcaseItem>
-          <ShowcaseItem label="lg">
+          </Specimen>
+          <Specimen caption="lg">
             <Spinner size="lg" label={loadingLabel} />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
         <ShowcaseHelper>
           {t({
             en: "sm, md and lg are fixed rem diameters. inline is 1em, so it takes the size of the text around it — that is what Button's loading state uses, so the spinner occupies exactly the box the icon it replaces did.",
@@ -57,20 +47,23 @@ export function SpinnerShowcase() {
             })}
           </ShowcaseHelper>
           <div css={styles.toneRow}>
-            <ShowcaseItem label="accent">
+            <Specimen caption="accent">
               <Spinner tone="accent" label={loadingLabel} />
-            </ShowcaseItem>
-            <ShowcaseItem label="current">
+            </Specimen>
+            <Specimen caption="current">
               <Spinner tone="current" label={loadingLabel} />
-            </ShowcaseItem>
-            <ShowcaseItem
-              label={t({ en: "current · on accent", zh: "current · 强调色上" })}
+            </Specimen>
+            <Specimen
+              caption={t({
+                en: "current · on accent",
+                zh: "current · 强调色上",
+              })}
             >
               <span css={styles.accentPill}>
                 <Spinner tone="current" aria-hidden />
                 <span>{t({ en: "Loading", zh: "加载中" })}</span>
               </span>
-            </ShowcaseItem>
+            </Specimen>
           </div>
         </div>
       </Showcase>
@@ -83,11 +76,11 @@ export function SpinnerShowcase() {
               zh: "在已通过 aria-busy 宣告繁忙状态的控件中，将 spinner 标记为 aria-hidden，避免被重复播报。",
             })}
           </ShowcaseHelper>
-          <div>
+          <Specimen caption="aria-hidden">
             <Button aria-busy icon={<Spinner size="sm" aria-hidden />} disabled>
               {savingLabel}
             </Button>
-          </div>
+          </Specimen>
         </div>
       </Showcase>
 
@@ -99,8 +92,6 @@ export function SpinnerShowcase() {
           })}
         </ShowcaseHelper>
       </Showcase>
-
-      <UsageSnippet code={usageCode} />
 
       <PropsTable
         rows={[

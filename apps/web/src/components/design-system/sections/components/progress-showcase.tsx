@@ -11,21 +11,9 @@ import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import {
-  Showcase,
-  ShowcaseGrid,
-  ShowcaseItem,
-  StateReadout,
-} from "../../showcase.tsx";
+import { Showcase, StateReadout } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
-
-const usageCode = `import { Progress } from "@tuja/ui/components/progress";
-
-// A percentage of a known total:
-<Progress label="Upload progress" value={uploadedPercent} />
-
-// A count, with the words a screen reader should say instead:
-<Progress label="Checkout" value={3} max={5} aria-valuetext="Step 3 of 5" />`;
 
 const renderedMarkup = `<Progress label="Checkout" value={3} max={5} aria-valuetext="Step 3 of 5" />
 
@@ -88,32 +76,32 @@ export function ProgressShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Values", zh: "取值" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="0">
+        <SpecimenGrid>
+          <Specimen caption="0">
             <Progress
               value={0}
               label={t({ en: "Upload progress", zh: "上传进度" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="25">
+          </Specimen>
+          <Specimen caption="25">
             <Progress
               value={25}
               label={t({ en: "Download progress", zh: "下载进度" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="60">
+          </Specimen>
+          <Specimen caption="60">
             <Progress
               value={60}
               label={t({ en: "Import progress", zh: "导入进度" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="100">
+          </Specimen>
+          <Specimen caption="100">
             <Progress
               value={100}
               label={t({ en: "Export progress", zh: "导出进度" })}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "value is clamped to 0–max before anything reaches ARIA, and a non-finite number falls back to 0 — a bad reading can never announce a figure a screen reader is unable to interpret.",
@@ -123,29 +111,29 @@ export function ProgressShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="sm">
+        <SpecimenGrid>
+          <Specimen caption="sm">
             <Progress
               size="sm"
               value={60}
               label={t({ en: "Sync progress", zh: "同步进度" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="md">
+          </Specimen>
+          <Specimen caption="md">
             <Progress
               size="md"
               value={60}
               label={t({ en: "Backup progress", zh: "备份进度" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="lg">
+          </Specimen>
+          <Specimen caption="lg">
             <Progress
               size="lg"
               value={60}
               label={t({ en: "Render progress", zh: "渲染进度" })}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "The three steps map to rem, so the track thickens with the user's font size instead of staying pinned to a pixel height (WCAG 1.4.4).",
@@ -169,13 +157,15 @@ export function ProgressShowcase() {
               zh: '当你计的是件数时请设置 max：进度条会以 aria-valuenow="3" 对照 aria-valuemax="5" 报告。屏幕阅读器仍会由这对数值算出“60%”，因此当用户关心的是件数时，请传入 aria-valuetext。',
             })}
           </Text>
-          <Progress
-            value={3}
-            max={5}
-            size="lg"
-            label={t({ en: "Checkout", zh: "结账流程" })}
-            aria-valuetext={t({ en: "Step 3 of 5", zh: "第 3 步，共 5 步" })}
-          />
+          <Specimen caption="aria-valuetext">
+            <Progress
+              value={3}
+              max={5}
+              size="lg"
+              label={t({ en: "Checkout", zh: "结账流程" })}
+              aria-valuetext={t({ en: "Step 3 of 5", zh: "第 3 步，共 5 步" })}
+            />
+          </Specimen>
         </div>
       </Showcase>
 
@@ -214,46 +204,44 @@ export function ProgressShowcase() {
               zh: "调整数值，观察 aria-valuenow 随之变化。指示条会在宽度之间缓动；在 prefers-reduced-motion 下则直接跳到新宽度。",
             })}
           </Text>
-          <ProgressStepper />
+          <Specimen caption={t({ en: "stepped value", zh: "步进数值" })}>
+            <ProgressStepper />
+          </Specimen>
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Indicator colour", zh: "指示条颜色" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="color.accent">
+        <SpecimenGrid>
+          <Specimen caption="color.accent">
             <Progress
               value={46}
               size="lg"
               label={t({ en: "Storage used", zh: "已用存储" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="color.warning">
+          </Specimen>
+          <Specimen caption="color.warning">
             <Progress
               value={78}
               size="lg"
               css={tints.warning}
               label={t({ en: "Storage filling up", zh: "存储即将占满" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="color.danger">
+          </Specimen>
+          <Specimen caption="color.danger">
             <Progress
               value={96}
               size="lg"
               css={tints.danger}
               label={t({ en: "Storage almost full", zh: "存储几乎已满" })}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "The indicator is a ::before pseudo-element, so css cannot reach it. progressTokens.indicatorColor is the way in — the same escape hatch, one level down. Retinting by threshold like this needs a second signal too: colour alone is not a status (WCAG 1.4.1).",
             zh: "指示条是 ::before 伪元素，css 无法触及。progressTokens.indicatorColor 就是入口——同一个逃生舱，只是下沉一层。像这样按阈值改色时还需要第二个信号：仅靠颜色不足以表达状态（WCAG 1.4.1）。",
           })}
         </Text>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet code={usageCode} label="tsx" />
       </Showcase>
 
       <Showcase>

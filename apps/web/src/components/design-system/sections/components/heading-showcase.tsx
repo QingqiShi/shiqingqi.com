@@ -1,177 +1,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
-import type { ReactNode } from "react";
+import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Specimen } from "../../specimen.tsx";
 
 export function HeadingShowcase() {
-  const scale = [
-    {
-      meta: "display · 3rem",
-      node: (
-        <Heading level={1} variant="display">
-          {t({ en: "Stories worth the night in", zh: "值得留家一晚的故事" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: "h1 · 1.5rem",
-      node: (
-        <Heading level={1} variant="h1">
-          {t({ en: "Trending this week", zh: "本周趋势" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: "h2 · 1.25rem",
-      node: (
-        <Heading level={2} variant="h2">
-          {t({ en: "Because you watched noir", zh: "因为你看过黑色电影" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: "h3 · 1.1rem",
-      node: (
-        <Heading level={3} variant="h3">
-          {t({ en: "New this Friday", zh: "本周五上新" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: "h4 · 1rem",
-      node: (
-        <Heading level={4} variant="h4">
-          {t({ en: "Continue watching", zh: "继续观看" })}
-        </Heading>
-      ),
-    },
-  ];
-
-  const decoupled = [
-    {
-      meta: "<h2> · display",
-      node: (
-        <Heading level={2} variant="display">
-          {t({ en: "Featured this week", zh: "本周精选" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: "<h3> · h1",
-      node: (
-        <Heading level={3} variant="h1">
-          {t({ en: "Featured this week", zh: "本周精选" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: t({ en: "<h2> · h2 (default)", zh: "<h2> · h2（默认）" }),
-      node: (
-        <Heading level={2}>
-          {t({ en: "Featured this week", zh: "本周精选" })}
-        </Heading>
-      ),
-    },
-  ];
-
-  const weightOverrides = [
-    {
-      meta: 'variant="display" · regular',
-      node: (
-        <Heading level={2} variant="display" weight="regular">
-          {t({ en: "Featured this week", zh: "本周精选" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: t({
-        en: 'variant="display" · bold (default)',
-        zh: 'variant="display" · bold（默认）',
-      }),
-      node: (
-        <Heading level={2} variant="display">
-          {t({ en: "Featured this week", zh: "本周精选" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: 'variant="display" · black',
-      node: (
-        <Heading level={2} variant="display" weight="black">
-          {t({ en: "Featured this week", zh: "本周精选" })}
-        </Heading>
-      ),
-    },
-  ];
-
-  const alignments = [
-    {
-      meta: 'align="start"',
-      node: (
-        <Heading level={3} align="start">
-          {t({ en: "Aligned to start", zh: "起始对齐" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: 'align="center"',
-      node: (
-        <Heading level={3} align="center">
-          {t({ en: "Aligned to center", zh: "居中对齐" })}
-        </Heading>
-      ),
-    },
-    {
-      meta: 'align="end"',
-      node: (
-        <Heading level={3} align="end">
-          {t({ en: "Aligned to end", zh: "末尾对齐" })}
-        </Heading>
-      ),
-    },
-  ];
-
-  const wrapSample = t({
-    en: "The quiet triumph of a very patient thriller",
-    zh: "一部极有耐心的惊悚片的静默胜利",
-  });
-  const wraps = [
-    {
-      meta: "(default)",
-      node: (
-        <Heading level={3} variant="h2">
-          {wrapSample}
-        </Heading>
-      ),
-    },
-    {
-      meta: 'wrap="balance"',
-      node: (
-        <Heading level={3} variant="h2" wrap="balance">
-          {wrapSample}
-        </Heading>
-      ),
-    },
-  ];
-
-  const usage = `import { Heading } from "@tuja/ui/components/heading";
-
-// Semantic <h2>, display-scale look
-<Heading level={2} variant="display">
-  Featured this week
-</Heading>
-
-// A title that wraps to two lines without stranding a word on the second
-<Heading level={1} wrap="balance">
-  {movie.title}
-</Heading>`;
-
   return (
     <>
       <Showcase label={t({ en: "Visual scale", zh: "视觉字阶" })}>
@@ -182,11 +19,34 @@ export function HeadingShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.ladder}>
-          {scale.map((row) => (
-            <SpecRow key={row.meta} meta={row.meta}>
-              {row.node}
-            </SpecRow>
-          ))}
+          <Specimen caption="display · 3rem">
+            <Heading level={1} variant="display">
+              {t({
+                en: "Stories worth the night in",
+                zh: "值得留家一晚的故事",
+              })}
+            </Heading>
+          </Specimen>
+          <Specimen caption="h1 · 1.5rem">
+            <Heading level={1} variant="h1">
+              {t({ en: "Trending this week", zh: "本周趋势" })}
+            </Heading>
+          </Specimen>
+          <Specimen caption="h2 · 1.25rem">
+            <Heading level={2} variant="h2">
+              {t({ en: "Because you watched noir", zh: "因为你看过黑色电影" })}
+            </Heading>
+          </Specimen>
+          <Specimen caption="h3 · 1.1rem">
+            <Heading level={3} variant="h3">
+              {t({ en: "New this Friday", zh: "本周五上新" })}
+            </Heading>
+          </Specimen>
+          <Specimen caption="h4 · 1rem">
+            <Heading level={4} variant="h4">
+              {t({ en: "Continue watching", zh: "继续观看" })}
+            </Heading>
+          </Specimen>
         </div>
       </Showcase>
 
@@ -198,11 +58,26 @@ export function HeadingShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.ladder}>
-          {decoupled.map((row) => (
-            <SpecRow key={row.meta} meta={row.meta}>
-              {row.node}
-            </SpecRow>
-          ))}
+          <Specimen caption="<h2> · display">
+            <Heading level={2} variant="display">
+              {t({ en: "Featured this week", zh: "本周精选" })}
+            </Heading>
+          </Specimen>
+          <Specimen caption="<h3> · h1">
+            <Heading level={3} variant="h1">
+              {t({ en: "Featured this week", zh: "本周精选" })}
+            </Heading>
+          </Specimen>
+          <Specimen
+            caption={t({
+              en: "<h2> · h2 (default)",
+              zh: "<h2> · h2（默认）",
+            })}
+          >
+            <Heading level={2}>
+              {t({ en: "Featured this week", zh: "本周精选" })}
+            </Heading>
+          </Specimen>
         </div>
       </Showcase>
 
@@ -214,22 +89,46 @@ export function HeadingShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.ladder}>
-          {weightOverrides.map((row) => (
-            <SpecRow key={row.meta} meta={row.meta}>
-              {row.node}
-            </SpecRow>
-          ))}
+          <Specimen caption='variant="display" · regular'>
+            <Heading level={2} variant="display" weight="regular">
+              {t({ en: "Featured this week", zh: "本周精选" })}
+            </Heading>
+          </Specimen>
+          <Specimen
+            caption={t({
+              en: 'variant="display" · bold (default)',
+              zh: 'variant="display" · bold（默认）',
+            })}
+          >
+            <Heading level={2} variant="display">
+              {t({ en: "Featured this week", zh: "本周精选" })}
+            </Heading>
+          </Specimen>
+          <Specimen caption='variant="display" · black'>
+            <Heading level={2} variant="display" weight="black">
+              {t({ en: "Featured this week", zh: "本周精选" })}
+            </Heading>
+          </Specimen>
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Alignment", zh: "对齐" })}>
         <div css={styles.ladder}>
-          {alignments.map((row) => (
-            <div key={row.meta} css={styles.alignRow}>
-              <div css={styles.alignSpecimen}>{row.node}</div>
-              <span css={styles.meta}>{row.meta}</span>
-            </div>
-          ))}
+          <Specimen caption='align="start"'>
+            <Heading level={3} align="start">
+              {t({ en: "Aligned to start", zh: "起始对齐" })}
+            </Heading>
+          </Specimen>
+          <Specimen caption='align="center"'>
+            <Heading level={3} align="center">
+              {t({ en: "Aligned to center", zh: "居中对齐" })}
+            </Heading>
+          </Specimen>
+          <Specimen caption='align="end"'>
+            <Heading level={3} align="end">
+              {t({ en: "Aligned to end", zh: "末尾对齐" })}
+            </Heading>
+          </Specimen>
         </div>
       </Showcase>
 
@@ -241,16 +140,28 @@ export function HeadingShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.ladder}>
-          {wraps.map((row) => (
-            <div key={row.meta} css={styles.alignRow}>
-              <div css={styles.wrapSpecimen}>{row.node}</div>
-              <span css={styles.meta}>{row.meta}</span>
+          <Specimen caption="(default)">
+            <div css={styles.wrapStage}>
+              <Heading level={3} variant="h2">
+                {t({
+                  en: "The quiet triumph of a very patient thriller",
+                  zh: "一部极有耐心的惊悚片的静默胜利",
+                })}
+              </Heading>
             </div>
-          ))}
+          </Specimen>
+          <Specimen caption='wrap="balance"'>
+            <div css={styles.wrapStage}>
+              <Heading level={3} variant="h2" wrap="balance">
+                {t({
+                  en: "The quiet triumph of a very patient thriller",
+                  zh: "一部极有耐心的惊悚片的静默胜利",
+                })}
+              </Heading>
+            </div>
+          </Specimen>
         </div>
       </Showcase>
-
-      <UsageSnippet code={usage} />
 
       <PropsTable
         rows={[
@@ -379,49 +290,15 @@ export function HeadingShowcase() {
   );
 }
 
-function SpecRow({ meta, children }: { meta: string; children: ReactNode }) {
-  return (
-    <div css={styles.specRow}>
-      <div css={styles.specimen}>{children}</div>
-      <span css={styles.meta}>{meta}</span>
-    </div>
-  );
-}
-
 const styles = stylex.create({
   ladder: {
     display: "flex",
     flexDirection: "column",
     gap: space._4,
   },
-  specRow: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    gap: space._0,
-    minInlineSize: 0,
-  },
-  specimen: {
-    minInlineSize: 0,
-  },
-  alignRow: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
-    minInlineSize: 0,
-  },
-  alignSpecimen: {
-    inlineSize: "100%",
-    minInlineSize: 0,
-  },
   // Narrow enough that the sample wraps to two lines, where balancing shows.
-  wrapSpecimen: {
+  wrapStage: {
     inlineSize: "100%",
     maxInlineSize: "22rem",
-  },
-  meta: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    color: color.textSubtle,
   },
 });

@@ -4,56 +4,56 @@ import { Badge } from "@tuja/ui/components/badge";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 export function BadgeShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Variants", zh: "风格" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="default">
+        <SpecimenGrid>
+          <Specimen caption="default">
             <Badge variant="default">{t({ en: "Default", zh: "默认" })}</Badge>
-          </ShowcaseItem>
-          <ShowcaseItem label="neutral">
+          </Specimen>
+          <Specimen caption="neutral">
             <Badge variant="neutral">{t({ en: "Neutral", zh: "中性" })}</Badge>
-          </ShowcaseItem>
-          <ShowcaseItem label="info">
+          </Specimen>
+          <Specimen caption="info">
             <Badge variant="info">{t({ en: "Info", zh: "信息" })}</Badge>
-          </ShowcaseItem>
-          <ShowcaseItem label="success">
+          </Specimen>
+          <Specimen caption="success">
             <Badge variant="success">{t({ en: "Success", zh: "成功" })}</Badge>
-          </ShowcaseItem>
-          <ShowcaseItem label="warning">
+          </Specimen>
+          <Specimen caption="warning">
             <Badge variant="warning">{t({ en: "Warning", zh: "警告" })}</Badge>
-          </ShowcaseItem>
-          <ShowcaseItem label="danger">
+          </Specimen>
+          <Specimen caption="danger">
             <Badge variant="danger">{t({ en: "Danger", zh: "危险" })}</Badge>
-          </ShowcaseItem>
-          <ShowcaseItem label="accent">
+          </Specimen>
+          <Specimen caption="accent">
             <Badge variant="accent">{t({ en: "Accent", zh: "强调" })}</Badge>
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="small">
+        <SpecimenGrid>
+          <Specimen caption="small">
             <Badge size="small" variant="accent">
               {t({ en: "Small", zh: "小" })}
             </Badge>
-          </ShowcaseItem>
-          <ShowcaseItem label="medium">
+          </Specimen>
+          <Specimen caption="medium">
             <Badge size="medium" variant="accent">
               {t({ en: "Medium", zh: "中" })}
             </Badge>
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "With icon", zh: "带图标" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="small">
+        <SpecimenGrid>
+          <Specimen caption="small">
             <Badge
               size="small"
               variant="success"
@@ -61,8 +61,8 @@ export function BadgeShowcase() {
             >
               {t({ en: "Verified", zh: "已验证" })}
             </Badge>
-          </ShowcaseItem>
-          <ShowcaseItem label="medium">
+          </Specimen>
+          <Specimen caption="medium">
             <Badge
               size="medium"
               variant="warning"
@@ -70,19 +70,8 @@ export function BadgeShowcase() {
             >
               {t({ en: "Featured", zh: "精选" })}
             </Badge>
-          </ShowcaseItem>
-        </ShowcaseGrid>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet
-          code={`import { Badge } from "@tuja/ui/components/badge";
-
-<Badge variant="success" icon={<CheckIcon weight="bold" />}>
-  Verified
-</Badge>`}
-          label="tsx"
-        />
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase>

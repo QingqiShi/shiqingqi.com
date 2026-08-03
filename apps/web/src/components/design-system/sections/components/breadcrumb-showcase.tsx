@@ -16,7 +16,7 @@ import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Specimen } from "../../specimen.tsx";
 
 /** The link Slot's contract: forward `className` and `style` onto the anchor. */
 function RouterLink({ href, children, className, style }: BreadcrumbLinkProps) {
@@ -52,10 +52,12 @@ export function BreadcrumbShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Trail", zh: "路径" })}>
-        <Breadcrumb
-          items={trail}
-          label={t({ en: "Trail example", zh: "路径示例" })}
-        />
+        <Specimen caption="items">
+          <Breadcrumb
+            items={trail}
+            label={t({ en: "Trail example", zh: "路径示例" })}
+          />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Items run root first and the last one is the page you are on. label names the <nav> landmark and is required — the package ships no copy of its own, so the localised name comes from the consumer.",
@@ -66,23 +68,27 @@ export function BreadcrumbShowcase() {
 
       <Showcase label={t({ en: "Crumbs", zh: "层级项" })}>
         <div css={[flex.col, styles.stack]}>
-          <Breadcrumb
-            items={[
-              { label: home, href: homeHref },
-              { label: designSystem, href: designSystemHref },
-              { label: breadcrumb, href: breadcrumbHref },
-            ]}
-            label={t({ en: "Current page example", zh: "当前页面示例" })}
-          />
-          <Breadcrumb
-            items={[
-              { label: home, href: homeHref },
-              { label: designSystem, href: designSystemHref },
-              { label: components },
-              { label: breadcrumb },
-            ]}
-            label={t({ en: "Grouping level example", zh: "分组层级示例" })}
-          />
+          <Specimen caption={t({ en: "current page", zh: "当前页面" })}>
+            <Breadcrumb
+              items={[
+                { label: home, href: homeHref },
+                { label: designSystem, href: designSystemHref },
+                { label: breadcrumb, href: breadcrumbHref },
+              ]}
+              label={t({ en: "Current page example", zh: "当前页面示例" })}
+            />
+          </Specimen>
+          <Specimen caption={t({ en: "grouping level", zh: "分组层级" })}>
+            <Breadcrumb
+              items={[
+                { label: home, href: homeHref },
+                { label: designSystem, href: designSystemHref },
+                { label: components },
+                { label: breadcrumb },
+              ]}
+              label={t({ en: "Grouping level example", zh: "分组层级示例" })}
+            />
+          </Specimen>
         </div>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
@@ -94,20 +100,29 @@ export function BreadcrumbShowcase() {
 
       <Showcase label={t({ en: "Separator", zh: "分隔符" })}>
         <div css={[flex.col, styles.stack]}>
-          <Breadcrumb
-            items={trail}
-            label={t({ en: "Default separator example", zh: "默认分隔符示例" })}
-          />
-          <Breadcrumb
-            items={trail}
-            separator="/"
-            label={t({ en: "Slash separator example", zh: "斜杠分隔符示例" })}
-          />
-          <Breadcrumb
-            items={trail}
-            separator="·"
-            label={t({ en: "Dot separator example", zh: "圆点分隔符示例" })}
-          />
+          <Specimen caption="default">
+            <Breadcrumb
+              items={trail}
+              label={t({
+                en: "Default separator example",
+                zh: "默认分隔符示例",
+              })}
+            />
+          </Specimen>
+          <Specimen caption='separator="/"'>
+            <Breadcrumb
+              items={trail}
+              separator="/"
+              label={t({ en: "Slash separator example", zh: "斜杠分隔符示例" })}
+            />
+          </Specimen>
+          <Specimen caption='separator="·"'>
+            <Breadcrumb
+              items={trail}
+              separator="·"
+              label={t({ en: "Dot separator example", zh: "圆点分隔符示例" })}
+            />
+          </Specimen>
         </div>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
@@ -118,18 +133,20 @@ export function BreadcrumbShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Long trails", zh: "长路径" })}>
-        <div css={styles.container}>
-          <Breadcrumb
-            items={[
-              { label: home, href: homeHref },
-              { label: designSystem, href: designSystemHref },
-              { label: components },
-              { label: actions },
-              { label: breadcrumb },
-            ]}
-            label={t({ en: "Long trail example", zh: "长路径示例" })}
-          />
-        </div>
+        <Specimen caption={t({ en: "wraps", zh: "换行" })}>
+          <div css={styles.container}>
+            <Breadcrumb
+              items={[
+                { label: home, href: homeHref },
+                { label: designSystem, href: designSystemHref },
+                { label: components },
+                { label: actions },
+                { label: breadcrumb },
+              ]}
+              label={t({ en: "Long trail example", zh: "长路径示例" })}
+            />
+          </div>
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "There is no overflow menu and no ellipsis crumb. A trail too wide for its container wraps onto another line, so every ancestor stays reachable at 400% zoom. When a trail only reads well collapsed, shorten the hierarchy rather than the component.",
@@ -139,49 +156,19 @@ export function BreadcrumbShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Link Slot", zh: "链接插槽" })}>
-        <Breadcrumb
-          items={trail}
-          linkComponent={RouterLink}
-          label={t({ en: "Link Slot example", zh: "链接插槽示例" })}
-        />
+        <Specimen caption="linkComponent">
+          <Breadcrumb
+            items={trail}
+            linkComponent={RouterLink}
+            label={t({ en: "Link Slot example", zh: "链接插槽示例" })}
+          />
+        </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Every navigable crumb goes through linkComponent. The default is a plain <a>, which reloads the page; pass the framework's link — next/link here — to keep navigation client-side. The Slot receives the crumb's className and style and has to forward both onto its anchor, or the crumb loses its colour and its focus ring.",
             zh: "每个可导航的层级项都经由 linkComponent 渲染。默认是原生 <a>，会触发整页刷新；传入框架自带的链接组件——这里是 next/link——即可保留客户端导航。该插槽会收到层级项的 className 与 style，必须把两者都转发到锚点上，否则层级项会失去配色与聚焦轮廓。",
           })}
         </Text>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet
-          code={`import {
-  Breadcrumb,
-  type BreadcrumbLinkProps,
-} from "@tuja/ui/components/breadcrumb";
-import Link from "next/link";
-
-// The last item is the current page — it renders as text, never as a link.
-<Breadcrumb
-  label="Breadcrumb"
-  items={[
-    { label: "Home", href: "/" },
-    { label: "Design system", href: "/design-system" },
-    { label: "Breadcrumb" },
-  ]}
-/>
-
-// Client-side navigation: forward className and style onto the anchor.
-function RouterLink({ href, children, className, style }: BreadcrumbLinkProps) {
-  return (
-    <Link href={href} className={className} style={style}>
-      {children}
-    </Link>
-  );
-}
-
-<Breadcrumb label="Breadcrumb" items={items} linkComponent={RouterLink} />`}
-          label="tsx"
-        />
       </Showcase>
 
       <Showcase>
@@ -306,7 +293,6 @@ function RouterLink({ href, children, className, style }: BreadcrumbLinkProps) {
 const styles = stylex.create({
   stack: {
     gap: space._3,
-    alignItems: "flex-start",
   },
   note: {
     maxInlineSize: "65ch",

@@ -9,13 +9,8 @@ import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import {
-  Showcase,
-  ShowcaseGrid,
-  ShowcaseItem,
-  StateReadout,
-} from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Showcase, StateReadout } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 function SpecimenSwitch({
   initial = "off",
@@ -63,56 +58,56 @@ export function SwitchShowcase() {
   return (
     <>
       <Showcase label={t({ en: "States", zh: "状态" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="off">
+        <SpecimenGrid>
+          <Specimen caption="off">
             <SpecimenSwitch
               initial="off"
               label={t({ en: "Off", zh: "关闭" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="on">
+          </Specimen>
+          <Specimen caption="on">
             <SpecimenSwitch initial="on" label={t({ en: "On", zh: "开启" })} />
-          </ShowcaseItem>
-          <ShowcaseItem label="indeterminate">
+          </Specimen>
+          <Specimen caption="indeterminate">
             <SpecimenSwitch
               initial="indeterminate"
               label={t({ en: "Indeterminate", zh: "未定" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="disabled">
+          </Specimen>
+          <Specimen caption="disabled">
             <SpecimenSwitch
               initial="off"
               disabled
               label={t({ en: "Disabled", zh: "禁用" })}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="sm">
+        <SpecimenGrid>
+          <Specimen caption="sm">
             <Switch
               size="sm"
               defaultValue="on"
               aria-label={t({ en: "Small", zh: "小" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="md">
+          </Specimen>
+          <Specimen caption="md">
             <Switch
               size="md"
               defaultValue="on"
               aria-label={t({ en: "Medium", zh: "中" })}
             />
-          </ShowcaseItem>
-          <ShowcaseItem label="lg">
+          </Specimen>
+          <Specimen caption="lg">
             <Switch
               size="lg"
               defaultValue="on"
               aria-label={t({ en: "Large", zh: "大" })}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Interactive", zh: "交互" })}>
@@ -123,20 +118,10 @@ export function SwitchShowcase() {
               zh: "点击、拖动滑块，或聚焦后按空格或回车。开关会通过 `onChange` 报告每次变化。",
             })}
           </Text>
-          <LiveSwitch />
+          <Specimen caption={t({ en: "live", zh: "实时" })}>
+            <LiveSwitch />
+          </Specimen>
         </div>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet
-          code={`import { Switch, type SwitchState } from "@tuja/ui/components/switch";
-import { useState } from "react";
-
-const [state, setState] = useState<SwitchState>("off");
-
-<Switch value={state} onChange={setState} aria-label="Reduce motion" />`}
-          label="tsx"
-        />
       </Showcase>
 
       <Showcase>

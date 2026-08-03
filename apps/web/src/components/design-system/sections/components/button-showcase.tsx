@@ -11,60 +11,60 @@ import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
+import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 export function ButtonShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Variants", zh: "风格" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="default">
+        <SpecimenGrid>
+          <Specimen caption="default">
             <Button>{t({ en: "Default", zh: "默认" })}</Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="primary">
+          </Specimen>
+          <Specimen caption="primary">
             <Button variant="primary">
               {t({ en: "Primary", zh: "主要" })}
             </Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="outline">
+          </Specimen>
+          <Specimen caption="outline">
             <Button variant="outline">
               {t({ en: "Outline", zh: "描边" })}
             </Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="ghost">
+          </Specimen>
+          <Specimen caption="ghost">
             <Button variant="ghost">{t({ en: "Ghost", zh: "无框" })}</Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="danger">
+          </Specimen>
+          <Specimen caption="danger">
             <Button variant="danger" icon={<TrashIcon weight="bold" />}>
               {t({ en: "Delete", zh: "删除" })}
             </Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="active">
+          </Specimen>
+          <Specimen caption="active">
             <Button isActive>{t({ en: "Active", zh: "激活" })}</Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="bright">
+          </Specimen>
+          <Specimen caption="bright">
             <Button bright>{t({ en: "Bright", zh: "明亮" })}</Button>
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Loading", zh: "加载中" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="default">
+        <SpecimenGrid>
+          <Specimen caption="default">
             <Button loading>{t({ en: "Save", zh: "保存" })}</Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="primary">
+          </Specimen>
+          <Specimen caption="primary">
             <Button variant="primary" loading>
               {t({ en: "Continue", zh: "继续" })}
             </Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="outline">
+          </Specimen>
+          <Specimen caption="outline">
             <Button variant="outline" loading icon={<PlusIcon weight="bold" />}>
               {t({ en: "Add", zh: "添加" })}
             </Button>
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
         <ShowcaseHelper>
           {t({
             en: "The button keeps its width either way. With an icon the spinner takes the icon's place; without one it sits over the label, which stays in the layout reserving its space. Pointer events are off while busy, so a control that can't be used doesn't light up under the cursor.",
@@ -74,56 +74,56 @@ export function ButtonShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="sm">
+        <SpecimenGrid>
+          <Specimen caption="sm">
             <Button size="sm">{t({ en: "Small", zh: "小" })}</Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="md">
+          </Specimen>
+          <Specimen caption="md">
             <Button size="md">{t({ en: "Medium", zh: "中" })}</Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="lg">
+          </Specimen>
+          <Specimen caption="lg">
             <Button size="lg">{t({ en: "Large", zh: "大" })}</Button>
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "With icon", zh: "带图标" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="leading icon">
+        <SpecimenGrid>
+          <Specimen caption="leading icon">
             <Button icon={<PlusIcon weight="bold" />}>
               {t({ en: "Add", zh: "添加" })}
             </Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="primary + icon">
+          </Specimen>
+          <Specimen caption="primary + icon">
             <Button variant="primary" icon={<ArrowRightIcon weight="bold" />}>
               {t({ en: "Continue", zh: "继续" })}
             </Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="icon only">
+          </Specimen>
+          <Specimen caption="icon only">
             <Button
               icon={<TrashIcon weight="bold" />}
               aria-label={t({ en: "Delete", zh: "删除" })}
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Disabled", zh: "禁用" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="default">
+        <SpecimenGrid>
+          <Specimen caption="default">
             <Button disabled>{t({ en: "Default", zh: "默认" })}</Button>
-          </ShowcaseItem>
-          <ShowcaseItem label="primary">
+          </Specimen>
+          <Specimen caption="primary">
             <Button variant="primary" disabled>
               {t({ en: "Primary", zh: "主要" })}
             </Button>
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Button group", zh: "按钮组" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="segmented">
+        <SpecimenGrid>
+          <Specimen caption="segmented">
             <AnchorButtonGroup>
               <AnchorButton href="#newest" isActive>
                 {t({ en: "Newest", zh: "最新" })}
@@ -135,8 +135,8 @@ export function ButtonShowcase() {
                 {t({ en: "Top rated", zh: "高分" })}
               </AnchorButton>
             </AnchorButtonGroup>
-          </ShowcaseItem>
-          <ShowcaseItem label="with icon">
+          </Specimen>
+          <Specimen caption="with icon">
             <AnchorButtonGroup>
               <AnchorButton
                 href="#all"
@@ -152,25 +152,8 @@ export function ButtonShowcase() {
                 {t({ en: "Shows", zh: "剧集" })}
               </AnchorButton>
             </AnchorButtonGroup>
-          </ShowcaseItem>
-        </ShowcaseGrid>
-      </Showcase>
-
-      <Showcase label={t({ en: "Usage", zh: "用法" })}>
-        <UsageSnippet
-          code={`import { Button } from "@tuja/ui/components/button";
-
-<Button variant="primary" icon={<PlusIcon weight="bold" />}>
-  Add to list
-</Button>
-
-// A form submit: the label holds still while the spinner takes the
-// icon's place, and the button disables itself until the action settles.
-<Button type="submit" variant="primary" loading={isPending}>
-  Save changes
-</Button>`}
-          label="tsx"
-        />
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase>

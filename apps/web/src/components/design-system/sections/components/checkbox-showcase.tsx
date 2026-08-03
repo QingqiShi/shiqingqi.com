@@ -8,16 +8,8 @@ import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import { Showcase, ShowcaseGrid, ShowcaseItem } from "../../showcase.tsx";
-import { UsageSnippet } from "../../usage-snippet.tsx";
-
-const USAGE = `import { Checkbox } from "@tuja/ui/components/checkbox";
-
-<Checkbox
-  label="Email me about product updates"
-  description="Roughly one message a month."
-  defaultChecked
-/>`;
+import { Showcase } from "../../showcase.tsx";
+import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 function SelectAllGroup() {
   const options = [
@@ -67,65 +59,73 @@ export function CheckboxShowcase() {
   return (
     <>
       <Showcase label={t({ en: "States", zh: "状态" })}>
-        <ShowcaseGrid>
-          <ShowcaseItem label="unchecked">
+        <SpecimenGrid>
+          <Specimen caption="unchecked">
             <Checkbox label={exampleLabel} labelHidden />
-          </ShowcaseItem>
-          <ShowcaseItem label="checked">
+          </Specimen>
+          <Specimen caption="checked">
             <Checkbox label={exampleLabel} labelHidden defaultChecked />
-          </ShowcaseItem>
-          <ShowcaseItem label="indeterminate">
+          </Specimen>
+          <Specimen caption="indeterminate">
             <Checkbox label={exampleLabel} labelHidden indeterminate />
-          </ShowcaseItem>
-          <ShowcaseItem label="disabled">
+          </Specimen>
+          <Specimen caption="disabled">
             <Checkbox label={exampleLabel} labelHidden disabled />
-          </ShowcaseItem>
-          <ShowcaseItem label="disabled checked">
+          </Specimen>
+          <Specimen caption="disabled checked">
             <Checkbox
               label={exampleLabel}
               labelHidden
               disabled
               defaultChecked
             />
-          </ShowcaseItem>
-        </ShowcaseGrid>
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <Showcase label={t({ en: "Label and description", zh: "标签与说明" })}>
         <div css={styles.stack}>
-          <Checkbox
-            label={t({
-              en: "Email me about product updates",
-              zh: "向我发送产品更新邮件",
-            })}
-            description={t({
-              en: "Roughly one message a month. Unsubscribe anytime.",
-              zh: "大约每月一封，可随时退订。",
-            })}
-            defaultChecked
-          />
-          <Checkbox
-            label={t({ en: "Accept the terms", zh: "接受条款" })}
-            error={t({
-              en: "You must accept the terms to continue.",
-              zh: "必须接受条款才能继续。",
-            })}
-          />
+          <Specimen caption={t({ en: "with description", zh: "带说明文字" })}>
+            <Checkbox
+              label={t({
+                en: "Email me about product updates",
+                zh: "向我发送产品更新邮件",
+              })}
+              description={t({
+                en: "Roughly one message a month. Unsubscribe anytime.",
+                zh: "大约每月一封，可随时退订。",
+              })}
+              defaultChecked
+            />
+          </Specimen>
+          <Specimen caption={t({ en: "with error", zh: "带错误提示" })}>
+            <Checkbox
+              label={t({ en: "Accept the terms", zh: "接受条款" })}
+              error={t({
+                en: "You must accept the terms to continue.",
+                zh: "必须接受条款才能继续。",
+              })}
+            />
+          </Specimen>
         </div>
       </Showcase>
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <div css={styles.stack}>
-          <Checkbox
-            size="sm"
-            label={t({ en: "Small checkbox", zh: "小号复选框" })}
-            defaultChecked
-          />
-          <Checkbox
-            size="md"
-            label={t({ en: "Medium checkbox", zh: "中号复选框" })}
-            defaultChecked
-          />
+          <Specimen caption="sm">
+            <Checkbox
+              size="sm"
+              label={t({ en: "Small checkbox", zh: "小号复选框" })}
+              defaultChecked
+            />
+          </Specimen>
+          <Specimen caption="md">
+            <Checkbox
+              size="md"
+              label={t({ en: "Medium checkbox", zh: "中号复选框" })}
+              defaultChecked
+            />
+          </Specimen>
         </div>
       </Showcase>
 
@@ -137,11 +137,13 @@ export function CheckboxShowcase() {
               zh: "父级复选框反映其子项：全部选中时为已选，部分选中时为中间态。",
             })}
           </Text>
-          <SelectAllGroup />
+          <Specimen
+            caption={t({ en: "indeterminate parent", zh: "父项半选状态" })}
+          >
+            <SelectAllGroup />
+          </Specimen>
         </div>
       </Showcase>
-
-      <UsageSnippet code={USAGE} />
 
       <PropsTable
         rows={[

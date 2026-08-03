@@ -18,6 +18,7 @@ import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
+import { Specimen } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 export function SidebarLayoutShowcase() {
@@ -44,50 +45,52 @@ export function SidebarLayoutShowcase() {
             zh: "你正在使用的骨架的实时缩影：插槽中是本站真实的侧栏组件——带首页链接的标题、设计系统导航，以及固定在底部的主题与语言控件。所有控件都可交互。在 md 断点以下，侧栏收起为悬浮条，其菜单按钮会以抽屉形式打开相同内容。",
           })}
         </ShowcaseHelper>
-        {/* The frame's transform creates a containing block, so the shell's
-            fixed mobile chrome (pill bar, drawer, backdrop) anchors to the
-            specimen instead of the real viewport. */}
-        <div css={styles.frame}>
-          <div css={styles.viewport}>
-            <SidebarLayout
-              as="div"
-              menuLabel={t({ en: "Demo menu", zh: "演示菜单" })}
-              closeLabel={t({ en: "Close demo menu", zh: "关闭演示菜单" })}
-              sidebarHeader={<DesignSystemSidebarHeader locale={locale} />}
-              sidebarFooter={<DesignSystemSidebarControls locale={locale} />}
-              sidebar={
-                <DesignSystemNav
-                  routeLabels={getDesignSystemRouteLabels()}
-                  groupLabels={getDesignSystemGroupLabels()}
-                  ariaLabel={t({
-                    en: "Design system (demo)",
-                    zh: "设计系统（演示）",
-                  })}
-                />
-              }
-            >
-              <div css={styles.contentInner}>
-                <div css={styles.contentHead}>
-                  <Heading level={2}>
-                    {t({ en: "Content column", zh: "内容列" })}
-                  </Heading>
-                  <Text variant="bodySmall" tone="muted">
-                    {t({
-                      en: "Your page renders here, capped to a readable width beside the rail.",
-                      zh: "你的页面渲染在这里，在侧栏旁保持可读宽度。",
+        <Specimen caption={t({ en: "rail and content", zh: "侧栏与内容列" })}>
+          {/* The frame's transform creates a containing block, so the shell's
+              fixed mobile chrome (pill bar, drawer, backdrop) anchors to the
+              specimen instead of the real viewport. */}
+          <div css={styles.frame}>
+            <div css={styles.viewport}>
+              <SidebarLayout
+                as="div"
+                menuLabel={t({ en: "Demo menu", zh: "演示菜单" })}
+                closeLabel={t({ en: "Close demo menu", zh: "关闭演示菜单" })}
+                sidebarHeader={<DesignSystemSidebarHeader locale={locale} />}
+                sidebarFooter={<DesignSystemSidebarControls locale={locale} />}
+                sidebar={
+                  <DesignSystemNav
+                    routeLabels={getDesignSystemRouteLabels()}
+                    groupLabels={getDesignSystemGroupLabels()}
+                    ariaLabel={t({
+                      en: "Design system (demo)",
+                      zh: "设计系统（演示）",
                     })}
-                  </Text>
+                  />
+                }
+              >
+                <div css={styles.contentInner}>
+                  <div css={styles.contentHead}>
+                    <Heading level={2}>
+                      {t({ en: "Content column", zh: "内容列" })}
+                    </Heading>
+                    <Text variant="bodySmall" tone="muted">
+                      {t({
+                        en: "Your page renders here, capped to a readable width beside the rail.",
+                        zh: "你的页面渲染在这里，在侧栏旁保持可读宽度。",
+                      })}
+                    </Text>
+                  </div>
+                  <div css={styles.cardGrid}>
+                    <div css={styles.placeholder} aria-hidden="true" />
+                    <div css={styles.placeholder} aria-hidden="true" />
+                    <div css={styles.placeholder} aria-hidden="true" />
+                    <div css={styles.placeholder} aria-hidden="true" />
+                  </div>
                 </div>
-                <div css={styles.cardGrid}>
-                  <div css={styles.placeholder} aria-hidden="true" />
-                  <div css={styles.placeholder} aria-hidden="true" />
-                  <div css={styles.placeholder} aria-hidden="true" />
-                  <div css={styles.placeholder} aria-hidden="true" />
-                </div>
-              </div>
-            </SidebarLayout>
+              </SidebarLayout>
+            </div>
           </div>
-        </div>
+        </Specimen>
       </Showcase>
 
       <UsageSnippet code={usage} />
@@ -197,6 +200,7 @@ export function SidebarLayoutShowcase() {
 const styles = stylex.create({
   frame: {
     position: "relative",
+    inlineSize: "100%",
     overflow: "hidden",
     borderRadius: border.radius_3,
     backgroundColor: color.bgCanvas,

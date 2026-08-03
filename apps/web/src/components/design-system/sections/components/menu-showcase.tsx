@@ -26,6 +26,7 @@ import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
+import { Specimen } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
 const MENU_USAGE = `import { MenuButton } from "@tuja/ui/components/menu-button";
@@ -45,24 +46,6 @@ const MENU_USAGE = `import { MenuButton } from "@tuja/ui/components/menu-button"
   }
 >
   More
-</MenuButton>`;
-
-const GROUP_USAGE = `import { MenuButton } from "@tuja/ui/components/menu-button";
-import { MenuLabel } from "@tuja/ui/components/menu-label";
-
-// Controls rather than commands: opt out of the menu keyboard model.
-<MenuButton
-  buttonProps={{ icon: <FunnelIcon weight="bold" /> }}
-  popupRole="group"
-  menuContent={
-    <div>
-      <MenuLabel>Sort by</MenuLabel>
-      <Button variant="primary">Newest</Button>
-      <Button>Popular</Button>
-    </div>
-  }
->
-  Filters
 </MenuButton>`;
 
 interface DemoMenuItemProps {
@@ -121,30 +104,34 @@ function MenuDemo() {
 
   return (
     <div css={styles.demoLayout}>
-      <div css={[flex.row, align.start, styles.menuStage]}>
-        <MenuButton
-          buttonProps={{ icon: <DotsThreeIcon weight="bold" /> }}
-          position="topLeft"
-          menuContent={
-            // `role="none"` keeps the menuitems owned by the popup's
-            // `role="menu"` despite the layout wrapper in between.
-            <div role="none" css={[flex.col, styles.menu]}>
-              {items.map((item) => (
-                <DemoMenuItem
-                  key={item.id}
-                  label={item.label}
-                  isCurrent={item.id === openedId}
-                  onSelect={() => {
-                    setOpenedId(item.id);
-                  }}
-                />
-              ))}
-            </div>
-          }
-        >
-          {t({ en: "More", zh: "更多" })}
-        </MenuButton>
-      </div>
+      <Specimen
+        caption={t({ en: "arrow keys move focus", zh: "方向键移动焦点" })}
+      >
+        <div css={[flex.row, align.start, styles.menuStage]}>
+          <MenuButton
+            buttonProps={{ icon: <DotsThreeIcon weight="bold" /> }}
+            position="topLeft"
+            menuContent={
+              // `role="none"` keeps the menuitems owned by the popup's
+              // `role="menu"` despite the layout wrapper in between.
+              <div role="none" css={[flex.col, styles.menu]}>
+                {items.map((item) => (
+                  <DemoMenuItem
+                    key={item.id}
+                    label={item.label}
+                    isCurrent={item.id === openedId}
+                    onSelect={() => {
+                      setOpenedId(item.id);
+                    }}
+                  />
+                ))}
+              </div>
+            }
+          >
+            {t({ en: "More", zh: "更多" })}
+          </MenuButton>
+        </div>
+      </Specimen>
       <div css={[flex.col, styles.notes]}>
         <Text variant="bodySmall" tone="muted">
           {t({ en: "Opened →", zh: "已打开 →" })}{" "}
@@ -239,30 +226,36 @@ export function MenuShowcase() {
         label={t({ en: "Contrast: group popup", zh: "对照：分组弹层" })}
       >
         <div css={styles.demoLayout}>
-          <div css={[flex.row, align.start, styles.groupStage]}>
-            <MenuButton
-              buttonProps={{ icon: <FunnelIcon weight="bold" /> }}
-              position="topLeft"
-              popupRole="group"
-              menuContent={
-                <div css={[flex.col, styles.groupMenu]}>
-                  <MenuLabel>{t({ en: "Sort by", zh: "排序方式" })}</MenuLabel>
-                  <Button variant="primary">
-                    {t({ en: "Newest", zh: "最新" })}
-                  </Button>
-                  <Button>{t({ en: "Popular", zh: "热门" })}</Button>
-                </div>
-              }
-            >
-              {t({ en: "Filters", zh: "筛选" })}
-            </MenuButton>
+          <Specimen caption={t({ en: "Tab moves focus", zh: "Tab 移动焦点" })}>
+            <div css={[flex.row, align.start, styles.groupStage]}>
+              <MenuButton
+                buttonProps={{ icon: <FunnelIcon weight="bold" /> }}
+                position="topLeft"
+                popupRole="group"
+                menuContent={
+                  <div css={[flex.col, styles.groupMenu]}>
+                    <MenuLabel>
+                      {t({ en: "Sort by", zh: "排序方式" })}
+                    </MenuLabel>
+                    <Button variant="primary">
+                      {t({ en: "Newest", zh: "最新" })}
+                    </Button>
+                    <Button>{t({ en: "Popular", zh: "热门" })}</Button>
+                  </div>
+                }
+              >
+                {t({ en: "Filters", zh: "筛选" })}
+              </MenuButton>
+            </div>
+          </Specimen>
+          <div css={[flex.col, styles.notes]}>
+            <ShowcaseHelper>
+              {t({
+                en: 'The same component with popupRole="group". This popup holds controls, not commands, so it is announced as a group, focus stays on the trigger when it opens, and the arrow keys are left to the browser — Tab moves between the controls and Escape still closes. That is the group contract, not a menu that stopped working.',
+                zh: '同一个组件改用 popupRole="group"。这个弹层装的是控件而非命令，因此会被宣读为分组，打开时焦点留在触发按钮上，方向键交还浏览器——用 Tab 在控件间移动，Escape 依然可关闭。这是分组契约，而非菜单失灵。',
+              })}
+            </ShowcaseHelper>
           </div>
-          <ShowcaseHelper>
-            {t({
-              en: 'The same component with popupRole="group". This popup holds controls, not commands, so it is announced as a group, focus stays on the trigger when it opens, and the arrow keys are left to the browser — Tab moves between the controls and Escape still closes. That is the group contract, not a menu that stopped working.',
-              zh: '同一个组件改用 popupRole="group"。这个弹层装的是控件而非命令，因此会被宣读为分组，打开时焦点留在触发按钮上，方向键交还浏览器——用 Tab 在控件间移动，Escape 依然可关闭。这是分组契约，而非菜单失灵。',
-            })}
-          </ShowcaseHelper>
         </div>
       </Showcase>
 
@@ -270,10 +263,6 @@ export function MenuShowcase() {
         <UsageSnippet
           code={MENU_USAGE}
           label={t({ en: "Menu popup", zh: "菜单弹层" })}
-        />
-        <UsageSnippet
-          code={GROUP_USAGE}
-          label={t({ en: "Group popup", zh: "分组弹层" })}
         />
       </Showcase>
 
@@ -385,9 +374,14 @@ const styles = stylex.create({
     gap: { default: space._3, [breakpoints.md]: space._5 },
     alignItems: "start",
   },
+  // The copy gets an explicit cell. A `Specimen` adds its open code panel to the
+  // grid as a second item that spans both tracks, which would push the copy down
+  // a row.
   notes: {
     gap: space._2,
     minInlineSize: 0,
+    gridColumn: { default: "auto", [breakpoints.md]: "2" },
+    gridRow: { default: "auto", [breakpoints.md]: "1" },
   },
   // Rows sit tighter from `md` up, where each is a single line; stacked below it
   // the key and its effect need the extra breathing room between pairs.
@@ -431,10 +425,15 @@ const styles = stylex.create({
   // The stages pair this with `align.start`, which keeps the trigger at its
   // natural height: let flex stretch it and the `topLeft`-anchored popup is
   // pushed to the bottom of the stage.
+  //
+  // A `Specimen` lays its stage out with flex, so each stage states its own
+  // width. Without it the stage shrinks to the trigger.
   menuStage: {
+    inlineSize: "100%",
     minBlockSize: { default: "16rem", [breakpoints.md]: "13.25rem" },
   },
   groupStage: {
+    inlineSize: "100%",
     minBlockSize: { default: "12.5rem", [breakpoints.md]: "10.75rem" },
   },
   menu: {

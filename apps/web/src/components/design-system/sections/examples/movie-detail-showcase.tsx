@@ -11,7 +11,7 @@ import { Text } from "@tuja/ui/components/text";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { measure } from "../../measure.stylex.ts";
-import { Showcase, ShowcaseGrid } from "../../showcase.tsx";
+import { Showcase } from "../../showcase.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 import { MovieDetailExemplar } from "./movie-detail-exemplar.tsx";
 
@@ -74,7 +74,7 @@ export function MovieDetailShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "What it composes", zh: "组成结构" })}>
-        <ShowcaseGrid>
+        <div css={styles.layerGrid}>
           <LayerCard
             title={t({ en: "Config layer", zh: "配置层" })}
             description={t({
@@ -124,7 +124,7 @@ export function MovieDetailShowcase() {
               "breakpoints.stylex — the hero grid",
             ]}
           />
-        </ShowcaseGrid>
+        </div>
         <Text variant="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "Three absences are worth as much as the list. No close button appears anywhere in the source — Callout supplies its own dismiss and Overlay its own close, so both arrive carrying the system's focus ring and hover easing without this file naming either. No Chip appears either: a Chip is a control, and the system's own rule is that a label which can't be clicked is a Badge, so on a screen with nothing to navigate to the Genres and the providers are Badges. And the movie database has no accounts, so the screen has no review form and therefore no TextField, Textarea, or Checkbox. A composed screen shows what a surface needs, not everything the system owns.",
@@ -191,6 +191,13 @@ export function MovieDetailShowcase() {
 }
 
 const styles = stylex.create({
+  // The one place on the site that lays out cards rather than specimens, so the
+  // grid lives here rather than as a shared component with a single caller.
+  layerGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: space._3,
+  },
   // Stretched, so the three layer cards in a row end level with each other
   // however unevenly their lists run.
   layerCard: {

@@ -1,0 +1,132 @@
+# @tuja/babel-plugin-specimen-source
+
+A Babel plugin that lets a design-system page reveal the code behind a
+specimen. It reads the original text of every `<Specimen>` and
+`<UsageSnippet>`, turns it into a syntax-highlighting token array, and injects
+that back as a `source` prop:
+
+```jsx
+<Specimen caption="primary">
+  <Button variant="primary">{t({ en: "Primary", zh: "主要" })}</Button>
+</Specimen>
+```
+
+compiles to a specimen carrying its own source:
+
+```jsx
+<Specimen
+  caption="primary"
+  source={[
+    ["keyword", "import"],
+    ["plain", " "],
+    ["punct", "{"],
+    // …
+  ]}
+>
+  <Button variant="primary">{t({ en: "Primary", zh: "主要" })}</Button>
+</Specimen>
+```
+
+which reads back as:
+
+```tsx
+import { Button } from "@tuja/ui/components/button";
+
+<Button variant="primary">Primary</Button>;
+```
+
+The tokeniser runs at build time, so no highlighting library reaches the
+browser. An element that already writes a `source` prop is left alone, so
+`source={undefined}` is how a test asks for a specimen with no source.
+
+## Install
+
+```sh
+npm install --save-dev @tuja/babel-plugin-specimen-source
+```
+
+`@babel/core` (v8) is a peer dependency — your build already provides it.
+
+## Babel setup
+
+**Ordering matters.** The plugin quotes the file as the author wrote it, so it
+must run **before** any plugin that rewrites the source. Babel runs plugins in
+array order, so list this one first:
+
+```js
+// babel.config.js
+module.exports = {
+  plugins: [
+    "@tuja/babel-plugin-specimen-source",
+    // …everything that rewrites source, such as @tuja/i18n-babel-plugin
+  ],
+};
+```
+
+## What it builds
+
+For a `<Specimen>`, from its children:
+
+1. The children, printed from the original text.
+2. Documentation chrome dropped: `ApiGrid`, `DoDont`, `GuideNote`,
+   `PropsTable`, `ShowcaseHelper`, `UsageSnippet`.
+3. `t({ en: "Primary", zh: "主要" })` unwrapped to the English it stands for —
+   `Primary` as a JSX child, `"Primary"` anywhere else.
+4. A common left edge stripped, and the blank lines at either end.
+5. An import header: one declaration for every imported name the code
+   references, grouped by source and ordered the way `import-x/order` orders
+   them.
+6. The source of every component the module declares and the snippet reaches,
+   including the ones it reaches only through another component, each once and
+   in declaration order.
+7. Tokenised.
+
+For a `<UsageSnippet code={…}>`, the code string is tokenised as it stands. The
+`code` prop can be a string literal, a template literal with no holes, or a
+name that resolves to a module-level constant holding either.
+
+## The token format
+
+One highlighted run is a `[kind, text]` pair, and a source is a flat array of
+them. Concatenating every run's text reproduces the input exactly, so a
+renderer only has to wrap each run in a coloured span.
+
+```ts
+type CodeTokenKind =
+  | "plain" // whitespace and anything with no other role
+  | "keyword" // import, from, const, type, return, function
+  | "string" // "…", '…', `…`
+  | "comment" // // … and /* … */
+  | "number"
+  | "tag" // JSX element name starting lowercase — div, span
+  | "component" // JSX element name starting uppercase — Button, Card
+  | "attr" // JSX attribute name
+  | "property" // object key, and the name after a dot
+  | "punct"; // < > / { } = ( ) , ; : …
+
+type CodeToken = readonly [CodeTokenKind, string];
+```
+
+The list is also exported at runtime, so the consumer can assert that its own
+copy of the union still agrees:
+
+```js
+const {
+  TOKEN_KINDS,
+} = require("@tuja/babel-plugin-specimen-source/src/token-kinds.js");
+```
+
+## TypeScript
+
+The transform is invisible to the type checker, so declare the prop yourself:
+
+```ts
+interface SpecimenProps {
+  /** Injected by the Babel plugin. Never write this by hand. */
+  source?: readonly CodeToken[];
+}
+```
+
+## License
+
+MIT
