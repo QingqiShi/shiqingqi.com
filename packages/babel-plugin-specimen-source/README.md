@@ -85,6 +85,41 @@ For a `<UsageSnippet code={…}>`, the code string is tokenised as it stands. Th
 `code` prop can be a string literal, a template literal with no holes, or a
 name that resolves to a module-level constant holding either.
 
+## How it tokenises
+
+The tokeniser parses the source with `@babel/core`, the peer dependency the
+plugin already needs. It then walks Babel's own token stream and fills every
+gap between two tokens with a plain run, which is what makes the runs
+reproduce the input. The AST supplies the kinds a token stream cannot: a
+lowercase element name is a `tag` and any other one is a `component`, an
+attribute name is an `attr`, and an object key or a name after a dot is a
+`property`.
+
+Four cases need care:
+
+- **Element text is prose, not code.** A word such as `type` or `in` inside
+  `<Text>…</Text>` keeps the colour of the sentence around it.
+- **Sibling elements.** A specimen can show one element beside another with no
+  `;` between them, which Babel reads as one malformed element. The tokeniser
+  replaces one whitespace character between them with a `;`, and repeats that
+  for up to 40 separators. Each replacement keeps the length of the source, so
+  every run still quotes the original text. Only that one parse error is
+  repaired; every other one fails at once, with the parse error as the `cause`.
+- **An elided fragment does not parse.** A snippet cannot drop the
+  `stylex.create({ … })` from around two object properties, the way a prose
+  example often does. Babel reads the whole snippet, so write the enclosing form
+  and let the reader see it.
+- **A contextual keyword is matched by spelling.** A variable named `from`,
+  `type`, `of` or `as` is coloured as a keyword, because the token stream calls
+  each one a plain name. Deriving the role of each from the AST would cost about
+  as much code as the walk above.
+
+A snippet that Babel cannot parse fails the build. The error quotes the first
+lines of the snippet, and Babel's code frame points at the `<Specimen>` or
+`<UsageSnippet>` that holds it. The parse error itself is the `cause`. Write
+TypeScript or TSX in a `<Specimen>` and in `<UsageSnippet code={…}>` — prose
+belongs in a `//` comment.
+
 ## The token format
 
 One highlighted run is a `[kind, text]` pair, and a source is a flat array of

@@ -297,7 +297,7 @@ import { Popover } from "@tuja/ui/components/popover";
   // components/progress-showcase.tsx
   `<Progress label="Checkout" value={3} max={5} aria-valuetext="Step 3 of 5" />
 
-<!-- renders -->
+// renders
 
 <div
   role="progressbar"

@@ -25,6 +25,7 @@ const unitFixtures = [
   "function Cell({ caption }: { caption: string }) {\n  return <div>{caption}</div>;\n}",
   "const rows = items.map((item) => <Row key={item.id} {...item} />);",
   "<div>{/* a comment child */}</div>",
+  "<Card />\n\n<Card />",
   "",
   "\n\n",
 ];
@@ -72,6 +73,60 @@ describe("tokenise", () => {
         }
       }
     });
+
+    it("separates as many siblings as the ceiling allows", () => {
+      const source = Array.from({ length: 20 }, () => "<A />").join("\n\n");
+      const tokens = tokenise(source);
+      expect(join(tokens)).toBe(source);
+      expect(tokens).toContainEqual(["component", "A"]);
+    });
+  });
+
+  describe("source that does not parse", () => {
+    it("throws, quoting the snippet", () => {
+      expect(() => tokenise("pnpm add --save-dev @tuja/ui"))
+        .toThrowErrorMatchingInlineSnapshot(`
+        [Error: [specimen-source]
+        The snippet is not valid TSX. A specimen expects TypeScript or TSX.
+          pnpm add --save-dev @tuja/ui]
+      `);
+    });
+
+    it("quotes the snippet, up to three lines", () => {
+      const source =
+        '<Progress label="Checkout" />\n\n<!-- renders -->\n\n<div />';
+      expect(() => tokenise(source)).toThrow("<!-- renders -->");
+      expect(() => tokenise(source)).toThrow('<Progress label="Checkout" />');
+    });
+
+    it("keeps the Babel error as the cause", () => {
+      try {
+        tokenise("pnpm add --save-dev @tuja/ui");
+        expect.unreachable("tokenise should have thrown");
+      } catch (error) {
+        expect(error.cause).toBeInstanceOf(Error);
+        expect(error.cause.message).not.toBe("");
+        expect(error.cause.message).not.toBe(error.message);
+      }
+    });
+
+    it("throws past the separator ceiling", () => {
+      const source = Array.from({ length: 45 }, () => "<A />").join("\n\n");
+      expect(() => tokenise(source)).toThrow("not valid TSX");
+    });
+
+    it("gives up on an error the separator cannot fix", () => {
+      // The `)` follows whitespace that follows a `>`, which is the shape the
+      // repair looks for. Only the reason Babel gives rules it out.
+      try {
+        tokenise("<div />\n\n)");
+        expect.unreachable("tokenise should have thrown");
+      } catch (error) {
+        expect(error.cause.reasonCode).toBe("UnexpectedToken");
+        // Line 3 of the source as written, so no `;` went in first.
+        expect(error.cause.message).toContain("Unexpected token (3:0)");
+      }
+    });
   });
 
   describe("comments", () => {
@@ -96,6 +151,13 @@ describe("tokenise", () => {
         ),
       ).toEqual(["comment"]);
     });
+
+    it("reads a comment child", () => {
+      expect(tokenise("<div>{/* a comment child */}</div>")).toContainEqual([
+        "comment",
+        "/* a comment child */",
+      ]);
+    });
   });
 
   describe("strings", () => {
@@ -119,6 +181,12 @@ describe("tokenise", () => {
       expect(tokens).toContainEqual(["number", "1"]);
       expect(tokens).toContainEqual(["string", " items`"]);
     });
+
+    it("reads a regular expression as a string, not as division", () => {
+      expect(kindsOf("const slug = /[a-z>]+/g;", "/[a-z>]+/g")).toEqual([
+        "string",
+      ]);
+    });
   });
 
   describe("JSX", () => {
@@ -128,8 +196,37 @@ describe("tokenise", () => {
       expect(tokens).toContainEqual(["component", "Button"]);
     });
 
-    it("calls a dotted element a component", () => {
-      expect(kindsOf("<Icons.Trash />", "Icons.Trash")).toEqual(["component"]);
+    it("calls both halves of a dotted element a component", () => {
+      expect(tokenise("<Icons.Trash />")).toEqual([
+        ["punct", "<"],
+        ["component", "Icons"],
+        ["punct", "."],
+        ["component", "Trash"],
+        ["plain", " "],
+        ["punct", "/>"],
+      ]);
+    });
+
+    it("calls both halves of a namespaced element a tag", () => {
+      expect(tokenise("<svg:rect x={1} />")).toEqual([
+        ["punct", "<"],
+        ["tag", "svg"],
+        ["punct", ":"],
+        ["tag", "rect"],
+        ["plain", " "],
+        ["attr", "x"],
+        ["punct", "={"],
+        ["number", "1"],
+        ["punct", "}"],
+        ["plain", " "],
+        ["punct", "/>"],
+      ]);
+    });
+
+    it("marks both halves of a namespaced attribute name", () => {
+      const tokens = tokenise('<a xlink:href="x" />');
+      expect(tokens).toContainEqual(["attr", "xlink"]);
+      expect(tokens).toContainEqual(["attr", "href"]);
     });
 
     it("marks attribute names", () => {
@@ -156,6 +253,21 @@ describe("tokenise", () => {
       ]);
     });
 
+    it("leaves element text as prose, whatever words it holds", () => {
+      const tokens = tokenise("<Text>the type scale, in use</Text>");
+      expect(tokens).toContainEqual(["plain", "the type scale, in use"]);
+      expect(tokens.map(([kind]) => kind)).not.toContain("keyword");
+    });
+
+    it("reads two sibling elements with no semicolon between them", () => {
+      const source = '<Progress label="Checkout" />\n\n// renders\n\n<div />';
+      const tokens = tokenise(source);
+      expect(join(tokens)).toBe(source);
+      expect(tokens).toContainEqual(["component", "Progress"]);
+      expect(tokens).toContainEqual(["comment", "// renders"]);
+      expect(tokens).toContainEqual(["tag", "div"]);
+    });
+
     it("returns to code after a self-closing element", () => {
       const tokens = tokenise("const el = <Card />;\nconst n = 2;");
       expect(tokens).toContainEqual(["number", "2"]);
@@ -168,19 +280,24 @@ describe("tokenise", () => {
       expect(kindsOf("const el = <Card />;", "Card")).toEqual(["component"]);
     });
 
+    it("opens a tag after a return", () => {
+      expect(kindsOf("return <Card />;", "Card")).toEqual(["component"]);
+    });
+
     it("is punctuation in a generic argument list", () => {
-      const tokens = tokenise('useState<Density>("cozy")');
-      expect(tokens).toContainEqual(["punct", "<"]);
-      expect(tokens).not.toContainEqual(["component", "Density"]);
+      expect(tokenise('useState<Density>("cozy")')).toEqual([
+        ["plain", "useState"],
+        ["punct", "<"],
+        ["plain", "Density"],
+        ["punct", ">("],
+        ["string", '"cozy"'],
+        ["punct", ")"],
+      ]);
     });
 
     it("is punctuation in a comparison", () => {
       const tokens = tokenise("if (count < limit) return;");
       expect(tokens).toContainEqual(["punct", "<"]);
-    });
-
-    it("opens a tag after a return", () => {
-      expect(kindsOf("return <Card />;", "Card")).toEqual(["component"]);
     });
   });
 
@@ -189,6 +306,15 @@ describe("tokenise", () => {
       const tokens = tokenise('import { Button } from "./button";');
       expect(tokens).toContainEqual(["keyword", "import"]);
       expect(tokens).toContainEqual(["keyword", "from"]);
+    });
+
+    it("marks a keyword TypeScript spells as a plain name", () => {
+      const tokens = tokenise(
+        "interface P {}\nasync function f() { await g(); }",
+      );
+      expect(tokens).toContainEqual(["keyword", "interface"]);
+      expect(tokens).toContainEqual(["keyword", "async"]);
+      expect(tokens).toContainEqual(["keyword", "await"]);
     });
 
     it("marks numbers", () => {
@@ -210,14 +336,52 @@ describe("tokenise", () => {
       expect(tokens).toContainEqual(["property", "step"]);
     });
 
+    it("leaves a quoted key as a string", () => {
+      expect(
+        kindsOf('const a = { "aria-label": "Go" };', '"aria-label"'),
+      ).toEqual(["string"]);
+    });
+
     it("marks the name after a dot", () => {
-      expect(kindsOf("styles.card", "card")).toEqual(["property"]);
+      expect(tokenise("console.log(x)")).toEqual([
+        ["plain", "console"],
+        ["punct", "."],
+        ["property", "log"],
+        ["punct", "("],
+        ["plain", "x"],
+        ["punct", ")"],
+      ]);
+    });
+
+    it("marks the name after an optional dot", () => {
+      expect(kindsOf("theme?.card", "card")).toEqual(["property"]);
     });
 
     it("leaves a spread name alone", () => {
-      const tokens = tokenise("<div {...props} />");
-      expect(tokens).toContainEqual(["plain", "props"]);
-      expect(tokens).not.toContainEqual(["property", "props"]);
+      expect(kindsOf("<div {...props} />", "props")).toEqual(["plain"]);
+    });
+
+    it("leaves a shorthand key alone, because it names a binding", () => {
+      expect(tokenise("function Row({ href, children }) {}")).toEqual([
+        ["keyword", "function"],
+        ["plain", " Row"],
+        ["punct", "({"],
+        ["plain", " href"],
+        ["punct", ","],
+        ["plain", " children "],
+        ["punct", "})"],
+        ["plain", " "],
+        ["punct", "{}"],
+      ]);
+    });
+
+    it("marks a private class member", () => {
+      const tokens = tokenise("class C { #p = 1; get #q() {} }");
+      expect(tokens).toContainEqual(["property", "#p"]);
+      expect(tokens).toContainEqual(["property", "#q"]);
+      expect(
+        kindsOf("class C { #p = 1; r() { return this.#p; } }", "#p"),
+      ).toEqual(["property", "property"]);
     });
 
     it("joins neighbouring runs of the same kind", () => {
@@ -238,8 +402,17 @@ describe("tokenise", () => {
     });
 
     it("does not mistake a ternary branch for a key", () => {
-      const tokens = tokenise("const a = open ? shown : hidden;");
-      expect(tokens).not.toContainEqual(["property", "shown"]);
+      expect(tokenise("const a = open ? shown : hidden;")).toEqual([
+        ["keyword", "const"],
+        ["plain", " a "],
+        ["punct", "="],
+        ["plain", " open "],
+        ["punct", "?"],
+        ["plain", " shown "],
+        ["punct", ":"],
+        ["plain", " hidden"],
+        ["punct", ";"],
+      ]);
     });
   });
 });
