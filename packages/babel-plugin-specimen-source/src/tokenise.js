@@ -1,112 +1,68 @@
 // @ts-check
 
+const { parseSync, traverse, types: t } = require("@babel/core");
+
 /**
  * @typedef {import("./token-kinds").CodeTokenKind} CodeTokenKind
  * @typedef {import("./token-kinds").CodeToken} CodeToken
+ * @typedef {import("@babel/types").File} File
+ * @typedef {import("@babel/types").Node} Node
+ * @typedef {import("@babel/types").JSXIdentifier
+ *   | import("@babel/types").JSXMemberExpression
+ *   | import("@babel/types").JSXNamespacedName} JSXName
  */
 
 /**
- * One nesting level of the scanner.
+ * What Babel puts on a token: a bare label, or the record that holds one.
  *
- * @typedef {object} Frame
- * @property {"code" | "template" | "tag" | "children"} mode
- * @property {boolean} [closing] Tag frames only: the frame opened on `</`.
- * @property {boolean} [selfClosing] Tag frames only: a `/` came before the `>`.
- * @property {boolean} [opened] Template frames only: the first backtick is read.
+ * @typedef {string | { label: string; keyword?: string | null }} TokenType
  */
 
-const KEYWORDS = new Set([
+/**
+ * @typedef {object} Parsed
+ * @property {File} ast
+ * @property {number[]} separators Offsets where a `;` replaced one
+ *   whitespace character.
+ */
+
+/** Contextual keywords, which Babel lexes as plain names. */
+const SOFT_KEYWORDS = new Set([
   "abstract",
   "as",
+  "asserts",
   "async",
   "await",
-  "break",
-  "case",
-  "catch",
-  "class",
-  "const",
-  "continue",
   "declare",
-  "default",
-  "delete",
-  "do",
-  "else",
   "enum",
-  "export",
-  "extends",
-  "false",
-  "finally",
-  "for",
   "from",
-  "function",
-  "if",
   "implements",
-  "import",
-  "in",
   "infer",
-  "instanceof",
   "interface",
   "is",
   "keyof",
   "let",
   "namespace",
-  "new",
-  "null",
   "of",
   "override",
   "private",
   "protected",
   "public",
   "readonly",
-  "return",
   "satisfies",
   "static",
-  "super",
-  "switch",
-  "this",
-  "throw",
-  "try",
   "type",
-  "typeof",
   "undefined",
-  "var",
-  "void",
-  "while",
   "yield",
 ]);
 
-/** Keywords that end a value, so a `<` after one is a comparison. */
-const VALUE_KEYWORDS = new Set([
-  "false",
-  "null",
-  "super",
-  "this",
-  "true",
-  "undefined",
-]);
+/** The labels Babel gives the chunks of a template literal. */
+const TEMPLATE_LABELS = new Set(["...`", "...${"]);
 
-/** Kinds that end a value, so a `<` after one is a comparison or a generic. */
-const VALUE_KINDS = new Set([
-  "plain",
-  "number",
-  "string",
-  "property",
-  "component",
-  "tag",
-  "attr",
-]);
+/** How many separators the tokeniser will try before it gives up. */
+const MAX_REPAIRS = 40;
 
-/** Punctuation a key can follow. */
-const KEY_LEAD = new Set(["{", ",", ";"]);
-
-const WHITESPACE = /\s+/y;
-const IDENTIFIER = /[A-Za-z_$][\w$]*/y;
-const JSX_NAME = /[A-Za-z_$][\w$.:-]*/y;
-const ATTR_NAME = /[A-Za-z_$][\w$:-]*/y;
-const NUMBER =
-  /0[xX][\da-fA-F_]+n?|0[bB][01_]+n?|0[oO][0-7_]+n?|(?:\d[\d_]*(?:\.[\d_]*)?|\.\d[\d_]*)(?:[eE][+-]?\d+)?n?/y;
-/** An optional marker and a colon, which turns the name before it into a key. */
-const KEY_TAIL = /[ \t]*\??[ \t]*:/y;
+/** The one parse error the repair below can fix. */
+const ADJACENT_ELEMENTS = "UnwrappedAdjacentJSXElements";
 
 /**
  * Split TypeScript or TSX source into highlighted runs. Concatenating every
@@ -116,313 +72,299 @@ const KEY_TAIL = /[ \t]*\??[ \t]*:/y;
  * @returns {CodeToken[]}
  */
 function tokenise(source) {
+  const parsed = repair(source);
+  const context = contextKinds(parsed.ast);
+  // Each separator stands for one whitespace character of the original.
+  for (const at of parsed.separators) context.set(at, "plain");
+
+  // Babel puts the comments in this array too. It types the array loosely, so
+  // the shape read below is declared here.
+  /** @type {{ start: number; end: number; type: TokenType }[]} */
+  const stream = parsed.ast.tokens ?? [];
+
   /** @type {CodeToken[]} */
   const tokens = [];
-  /** @type {Frame[]} */
-  const stack = [{ mode: "code" }];
   let pos = 0;
-  /** @type {CodeTokenKind | null} */
-  let previousKind = null;
-  let previousText = "";
+  for (const { start, end, type } of stream) {
+    // Insurance: an empty or overlapping token would break the round trip.
+    if (end <= start || start < pos) continue;
+    if (start > pos) tokens.push(["plain", source.slice(pos, start)]);
 
-  /**
-   * Emit everything from the cursor up to `end` as one run.
-   *
-   * @param {CodeTokenKind} kind
-   * @param {number} end
-   */
-  function emit(kind, end) {
-    const stop = Math.min(Math.max(end, pos), source.length);
-    if (stop === pos) return;
-    const text = source.slice(pos, stop);
-    tokens.push([kind, text]);
-    if (kind !== "comment" && text.trim() !== "") {
-      previousKind = kind;
-      previousText = text;
-    }
-    pos = stop;
+    const text = source.slice(start, end);
+    const label = typeof type === "string" ? type : type.label;
+    const marked = context.get(start);
+    if (marked !== undefined) tokens.push([marked, text]);
+    else if (TEMPLATE_LABELS.has(label)) tokens.push(...templateRuns(text));
+    else tokens.push([tokenKind(label, type, text), text]);
+    pos = end;
   }
-
-  /**
-   * Match a sticky pattern at the cursor.
-   *
-   * @param {RegExp} pattern
-   * @returns {string | null}
-   */
-  function match(pattern) {
-    pattern.lastIndex = pos;
-    const found = pattern.exec(source);
-    return found ? found[0] : null;
-  }
-
-  /** Whether the run before the cursor ends a value. */
-  function afterValue() {
-    if (previousKind === null) return false;
-    if (previousKind === "keyword") return VALUE_KEYWORDS.has(previousText);
-    if (previousKind === "punct")
-      return previousText === ")" || previousText === "]";
-    return VALUE_KINDS.has(previousKind);
-  }
-
-  /** Whether the `<` at the cursor opens a JSX tag rather than compares. */
-  function opensTag() {
-    const next = source[pos + 1];
-    if (next === undefined) return false;
-    if (!/[A-Za-z_$>/]/.test(next)) return false;
-    return !afterValue();
-  }
-
-  /** Read the `<` or `</` at the cursor, then the element name. */
-  function readTagOpen() {
-    const closing = source[pos + 1] === "/";
-    emit("punct", pos + (closing ? 2 : 1));
-    /** @type {Frame} */
-    const frame = { mode: "tag", closing, selfClosing: false };
-    stack.push(frame);
-    const name = match(JSX_NAME);
-    if (name === null) return;
-    const isComponent = name.includes(".") || /^[A-Z]/.test(name);
-    emit(isComponent ? "component" : "tag", pos + name.length);
-  }
-
-  /** Read a `//` line comment, stopping before the newline. */
-  function readLineComment() {
-    const newline = source.indexOf("\n", pos);
-    emit("comment", newline === -1 ? source.length : newline);
-  }
-
-  /** Read a block comment. */
-  function readBlockComment() {
-    const close = source.indexOf("*/", pos + 2);
-    emit("comment", close === -1 ? source.length : close + 2);
-  }
-
-  /** Read a quoted string, stopping at the newline if it never closes. */
-  function readQuoted() {
-    const quote = source[pos];
-    let index = pos + 1;
-    while (index < source.length) {
-      const char = source[index];
-      if (char === "\\") {
-        index += 2;
-        continue;
-      }
-      if (char === "\n") break;
-      index += 1;
-      if (char === quote) break;
-    }
-    emit("string", index);
-  }
-
-  /** Read a run of ordinary TypeScript. */
-  function readCode() {
-    const char = source[pos];
-
-    const space = match(WHITESPACE);
-    if (space !== null) {
-      emit("plain", pos + space.length);
-      return;
-    }
-
-    if (char === "/" && source[pos + 1] === "/") {
-      readLineComment();
-      return;
-    }
-    if (char === "/" && source[pos + 1] === "*") {
-      readBlockComment();
-      return;
-    }
-    if (char === '"' || char === "'") {
-      readQuoted();
-      return;
-    }
-    if (char === "`") {
-      /** @type {Frame} */
-      const template = { mode: "template", opened: false };
-      stack.push(template);
-      readTemplate(template);
-      return;
-    }
-    if (char === "{") {
-      emit("punct", pos + 1);
-      stack.push({ mode: "code" });
-      return;
-    }
-    if (char === "}") {
-      emit("punct", pos + 1);
-      if (stack.length > 1) stack.pop();
-      return;
-    }
-    if (char === "<") {
-      if (opensTag()) readTagOpen();
-      else emit("punct", pos + 1);
-      return;
-    }
-    if (char === "." && source.startsWith("...", pos)) {
-      emit("punct", pos + 3);
-      return;
-    }
-
-    const isNumberStart =
-      /\d/.test(char ?? "") ||
-      (char === "." && /\d/.test(source[pos + 1] ?? "") && !afterValue());
-    if (isNumberStart) {
-      const number = match(NUMBER);
-      if (number !== null) {
-        emit("number", pos + number.length);
-        return;
-      }
-    }
-
-    const name = match(IDENTIFIER);
-    if (name !== null) {
-      const end = pos + name.length;
-      if (previousKind === "punct" && previousText === ".") {
-        emit("property", end);
-        return;
-      }
-      if (KEY_LEAD.has(previousText) && isKeyAt(end)) {
-        emit("property", end);
-        return;
-      }
-      emit(KEYWORDS.has(name) ? "keyword" : "plain", end);
-      return;
-    }
-
-    emit("punct", pos + 1);
-  }
-
-  /**
-   * Whether a colon follows, which makes the name before `at` an object key.
-   *
-   * @param {number} at
-   */
-  function isKeyAt(at) {
-    KEY_TAIL.lastIndex = at;
-    return KEY_TAIL.test(source);
-  }
-
-  /**
-   * Read a template literal chunk, up to its end or the next `${` hole.
-   *
-   * @param {Frame} frame
-   */
-  function readTemplate(frame) {
-    let index = pos;
-    if (!frame.opened) {
-      frame.opened = true;
-      index += 1;
-    }
-    while (index < source.length) {
-      const char = source[index];
-      if (char === "\\") {
-        index += 2;
-        continue;
-      }
-      if (char === "`") {
-        emit("string", index + 1);
-        stack.pop();
-        return;
-      }
-      if (char === "$" && source[index + 1] === "{") {
-        emit("string", index);
-        emit("punct", index + 2);
-        stack.push({ mode: "code" });
-        return;
-      }
-      index += 1;
-    }
-    emit("string", source.length);
-    stack.pop();
-  }
-
-  /**
-   * Read a run inside a `<…>` tag.
-   *
-   * @param {Frame} frame
-   */
-  function readTag(frame) {
-    const char = source[pos];
-
-    const space = match(WHITESPACE);
-    if (space !== null) {
-      emit("plain", pos + space.length);
-      return;
-    }
-
-    if (char === ">") {
-      emit("punct", pos + 1);
-      stack.pop();
-      if (frame.closing) {
-        if (stack.length > 1 && stack[stack.length - 1].mode === "children")
-          stack.pop();
-      } else if (!frame.selfClosing) {
-        stack.push({ mode: "children" });
-      }
-      return;
-    }
-    if (char === "/") {
-      if (source[pos + 1] === "/") {
-        readLineComment();
-        return;
-      }
-      if (source[pos + 1] === "*") {
-        readBlockComment();
-        return;
-      }
-      frame.selfClosing = true;
-      emit("punct", pos + 1);
-      return;
-    }
-    if (char === "{") {
-      emit("punct", pos + 1);
-      stack.push({ mode: "code" });
-      return;
-    }
-    if (char === '"' || char === "'") {
-      readQuoted();
-      return;
-    }
-
-    const name = match(ATTR_NAME);
-    if (name !== null) {
-      emit("attr", pos + name.length);
-      return;
-    }
-
-    emit("punct", pos + 1);
-  }
-
-  /** Read a run of element children. */
-  function readChildren() {
-    const char = source[pos];
-    if (char === "<") {
-      readTagOpen();
-      return;
-    }
-    if (char === "{") {
-      emit("punct", pos + 1);
-      stack.push({ mode: "code" });
-      return;
-    }
-    let index = pos + 1;
-    while (index < source.length && !"<{".includes(source[index])) index += 1;
-    emit("plain", index);
-  }
-
-  while (pos < source.length) {
-    const before = pos;
-    const frame = stack[stack.length - 1];
-    if (frame.mode === "code") readCode();
-    else if (frame.mode === "template") readTemplate(frame);
-    else if (frame.mode === "tag") readTag(frame);
-    else readChildren();
-    // Every branch consumes at least one character, but a scanner that stalls
-    // would hang the build, so force progress.
-    if (pos === before) emit("punct", pos + 1);
-  }
-
+  if (pos < source.length) tokens.push(["plain", source.slice(pos)]);
   return merge(tokens);
+}
+
+/**
+ * Report source that Babel cannot read. The quote shows the snippet, and the
+ * cause holds the parse error.
+ *
+ * @param {string} source
+ * @param {unknown} cause
+ * @returns {Error}
+ */
+function invalidSource(source, cause) {
+  const quote = source
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .slice(0, 3)
+    .map((line) => `  ${line}`)
+    .join("\n");
+  return new Error(
+    `[specimen-source]\n` +
+      `The snippet is not valid TSX. A specimen expects TypeScript or TSX.\n` +
+      quote,
+    { cause },
+  );
+}
+
+/**
+ * Split a template chunk. The `${` and `}` that bound a hole are punctuation,
+ * and the text around them is string.
+ *
+ * @param {string} text
+ * @returns {CodeToken[]}
+ */
+function templateRuns(text) {
+  /** @type {CodeToken[]} */
+  const runs = [];
+  let body = text;
+  if (body.startsWith("}")) {
+    runs.push(["punct", "}"]);
+    body = body.slice(1);
+  }
+  const hole = body.endsWith("${");
+  if (hole) body = body.slice(0, -2);
+  if (body !== "") runs.push(["string", body]);
+  if (hole) runs.push(["punct", "${"]);
+  return runs;
+}
+
+/**
+ * The kind the token stream alone gives one token.
+ *
+ * @param {string} label
+ * @param {TokenType} type
+ * @param {string} text
+ * @returns {CodeTokenKind}
+ */
+function tokenKind(label, type, text) {
+  if (label === "CommentLine" || label === "CommentBlock") return "comment";
+  if (label === "string" || label === "template" || label === "regexp") {
+    return "string";
+  }
+  if (label === "num" || label === "bigint") return "number";
+  if (label === "jsxText") return "plain";
+  if (label === "name") return SOFT_KEYWORDS.has(text) ? "keyword" : "plain";
+  if (typeof type !== "string" && type.keyword != null) return "keyword";
+  return "punct";
+}
+
+/**
+ * Find the offsets the token stream cannot classify on its own.
+ *
+ * @param {File} ast
+ * @returns {Map<number, CodeTokenKind>}
+ */
+function contextKinds(ast) {
+  /** @type {Map<number, CodeTokenKind>} */
+  const byStart = new Map();
+
+  /**
+   * @param {Node | null | undefined} node
+   * @param {CodeTokenKind} kind
+   */
+  const mark = (node, kind) => {
+    if (node?.start != null) byStart.set(node.start, kind);
+  };
+
+  /**
+   * Give every part of a dotted or namespaced element name the same kind.
+   *
+   * @param {JSXName} name
+   * @param {CodeTokenKind} kind
+   */
+  const markName = (name, kind) => {
+    if (t.isJSXMemberExpression(name)) {
+      markName(name.object, kind);
+      mark(name.property, kind);
+      return;
+    }
+    if (t.isJSXNamespacedName(name)) {
+      mark(name.namespace, kind);
+      mark(name.name, kind);
+      return;
+    }
+    mark(name, kind);
+  };
+
+  /**
+   * A quoted key keeps its string colour.
+   *
+   * @param {Node} key
+   * @param {boolean} computed
+   */
+  const markKey = (key, computed) => {
+    if (computed || t.isStringLiteral(key)) return;
+    mark(key, "property");
+  };
+
+  traverse(ast, {
+    "JSXOpeningElement|JSXClosingElement"({ node }) {
+      markName(node.name, elementKind(node.name));
+    },
+    JSXAttribute({ node }) {
+      markName(node.name, "attr");
+    },
+    "MemberExpression|OptionalMemberExpression"({ node }) {
+      if (!node.computed) mark(node.property, "property");
+    },
+    ObjectProperty({ node }) {
+      // A shorthand key names a binding, so it keeps the plain colour.
+      if (!node.shorthand) markKey(node.key, node.computed);
+    },
+    "ObjectMethod|ClassProperty|ClassMethod|TSPropertySignature|TSMethodSignature"({
+      node,
+    }) {
+      markKey(node.key, node.computed);
+    },
+    "ClassPrivateProperty|ClassPrivateMethod"({ node }) {
+      mark(node.key, "property");
+    },
+  });
+
+  return byStart;
+}
+
+/**
+ * A name that starts with a lowercase letter is an intrinsic tag. Anything
+ * else names a component.
+ *
+ * @param {JSXName} name
+ * @returns {CodeTokenKind}
+ */
+function elementKind(name) {
+  if (t.isJSXMemberExpression(name)) return "component";
+  const text = t.isJSXNamespacedName(name) ? name.namespace.name : name.name;
+  return /^[a-z]/.test(text) ? "tag" : "component";
+}
+
+/**
+ * Parse TSX and keep the lexed tokens.
+ *
+ * @param {string} code
+ * @returns {File}
+ */
+function parse(code) {
+  const ast = parseSync(code, {
+    filename: "snippet.tsx",
+    configFile: false,
+    babelrc: false,
+    parserOpts: {
+      plugins: ["jsx", "typescript"],
+      tokens: true,
+      errorRecovery: true,
+      sourceType: "module",
+      allowReturnOutsideFunction: true,
+      allowSuperOutsideMethod: true,
+      allowUndeclaredExports: true,
+    },
+  });
+  // Babel returns null only when the config excludes the file, which the
+  // options above rule out.
+  if (ast === null) throw new Error("Babel returned no AST for the snippet.");
+  return ast;
+}
+
+/**
+ * Parse the source. Replace one whitespace character between two sibling
+ * elements with a `;`, which keeps the length and every offset.
+ *
+ * @param {string} source
+ * @returns {Parsed}
+ */
+function repair(source) {
+  let buffer = source;
+  /** @type {number[]} */
+  const separators = [];
+  /** @type {unknown} */
+  let failure = null;
+  for (let round = 0; round <= MAX_REPAIRS; round += 1) {
+    try {
+      return { ast: parse(buffer), separators };
+    } catch (error) {
+      failure = error;
+      if (errorReason(error) !== ADJACENT_ELEMENTS) break;
+      const at = errorIndex(error);
+      if (at < 1) break;
+      const gap = skipGapBack(buffer, at);
+      if (gap < 1 || buffer[gap - 1] !== ">") break;
+      if (!/\s/.test(buffer[gap] ?? "")) break;
+      separators.push(gap);
+      buffer = `${buffer.slice(0, gap)};${buffer.slice(gap + 1)}`;
+    }
+  }
+  throw invalidSource(source, failure);
+}
+
+/**
+ * Step back over the whitespace and comments that end before `at`.
+ *
+ * @param {string} source
+ * @param {number} at
+ * @returns {number}
+ */
+function skipGapBack(source, at) {
+  for (;;) {
+    while (at > 0 && /\s/.test(source[at - 1])) at -= 1;
+    if (source.endsWith("*/", at)) {
+      const open = source.lastIndexOf("/*", at - 2);
+      if (open !== -1) {
+        at = open;
+        continue;
+      }
+    }
+    const line = source.lastIndexOf("//", at - 1);
+    if (line !== -1 && source.indexOf("\n", line) === at) {
+      at = line;
+      continue;
+    }
+    return at;
+  }
+}
+
+/**
+ * The offset Babel reports for a parse error, or -1.
+ *
+ * @param {unknown} error
+ * @returns {number}
+ */
+function errorIndex(error) {
+  if (typeof error !== "object" || error === null) return -1;
+  if (!("loc" in error)) return -1;
+  const loc = error.loc;
+  if (typeof loc !== "object" || loc === null) return -1;
+  if (!("index" in loc)) return -1;
+  return typeof loc.index === "number" ? loc.index : -1;
+}
+
+/**
+ * The name Babel gives a parse error, or an empty string.
+ *
+ * @param {unknown} error
+ * @returns {string}
+ */
+function errorReason(error) {
+  if (typeof error !== "object" || error === null) return "";
+  if (!("reasonCode" in error)) return "";
+  return typeof error.reasonCode === "string" ? error.reasonCode : "";
 }
 
 /**

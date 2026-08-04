@@ -730,6 +730,32 @@ export function ButtonShowcase() {
     });
   });
 
+  describe("a snippet that does not parse", () => {
+    const code = `import { UsageSnippet } from "../../usage-snippet.tsx";
+
+export function Install() {
+  return <UsageSnippet code="pnpm add --save-dev @tuja/ui" />;
+}
+`;
+
+    it("fails with a code frame that points at the element", () => {
+      expect(() => collect(code)).toThrow("showcase.tsx: [specimen-source]");
+      expect(() => collect(code)).toThrow(
+        '> 4 |   return <UsageSnippet code="pnpm add --save-dev @tuja/ui" />;',
+      );
+    });
+
+    it("keeps the tokeniser error, and the parse error under it, as causes", () => {
+      try {
+        collect(code);
+        expect.unreachable("the transform should have thrown");
+      } catch (error) {
+        expect(error.cause.message).toContain("not valid TSX");
+        expect(error.cause.cause).toBeInstanceOf(Error);
+      }
+    });
+  });
+
   describe("the token array", () => {
     it("holds a kind and a text for every run", () => {
       const code = `${IMPORTS}

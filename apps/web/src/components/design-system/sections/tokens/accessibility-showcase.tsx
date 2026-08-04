@@ -279,13 +279,15 @@ type Named =
       >
         <ReducedMotionSpecimen />
         <UsageSnippet
-          code={`// transition.transform — movement drops out entirely.
-transform: { default: "transform 200ms ease", [REDUCED_MOTION]: "none" }
+          code={`stylex.create({
+  // transition.transform — movement drops out entirely.
+  transform: { default: "transform 200ms ease", [REDUCED_MOTION]: "none" },
 
-// animate.pulse — the loop stops rather than slowing down.
-animationName: { default: pulseKeyframes, [REDUCED_MOTION]: "none" }
+  // animate.pulse — the loop stops rather than slowing down.
+  animationName: { default: pulseKeyframes, [REDUCED_MOTION]: "none" },
 
-// transition.colors has no branch: a crossfade is already safe.`}
+  // transition.colors has no branch: a crossfade is already safe.
+});`}
         />
         <GuideNote>
           {t({

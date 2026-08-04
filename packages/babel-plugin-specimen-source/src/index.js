@@ -109,16 +109,20 @@ module.exports = function specimenSourcePlugin({ types: t }) {
               if (!t.isJSXIdentifier(opening.name)) return;
               if (findAttribute(t, opening, "source")) return;
 
-              if (opening.name.name === "Specimen") {
+              const element = opening.name.name;
+
+              if (element === "Specimen") {
                 const tokens = buildSpecimenSource(t, elementPath, code, facts);
                 if (tokens) opening.attributes.push(sourceAttribute(t, tokens));
                 return;
               }
 
-              if (opening.name.name === "UsageSnippet") {
+              if (element === "UsageSnippet") {
                 const snippet = resolveSnippet(t, opening, facts);
                 if (snippet === null) return;
-                opening.attributes.push(sourceAttribute(t, tokenise(snippet)));
+                opening.attributes.push(
+                  sourceAttribute(t, tokeniseAt(snippet, elementPath)),
+                );
               }
             },
           });
@@ -260,6 +264,25 @@ function readStringValue(t, node) {
 // ── Building the source ──────────────────────────────────────────────────────
 
 /**
+ * Tokenise a snippet. Source that Babel cannot read fails with a code frame
+ * that points at the element holding it.
+ *
+ * @param {string} source
+ * @param {AnyPath} elementPath
+ * @returns {CodeToken[]}
+ */
+function tokeniseAt(source, elementPath) {
+  try {
+    return tokenise(source);
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    const framed = elementPath.buildCodeFrameError(error.message);
+    framed.cause = error;
+    throw framed;
+  }
+}
+
+/**
  * Build the token array for one specimen.
  *
  * @param {BabelTypes} t
@@ -305,7 +328,7 @@ function buildSpecimenSource(t, elementPath, code, facts) {
   for (const component of components) {
     parts.push(applyEdits(code, component.start, component.end, edits));
   }
-  return tokenise(parts.join("\n\n"));
+  return tokeniseAt(parts.join("\n\n"), elementPath);
 }
 
 /**
