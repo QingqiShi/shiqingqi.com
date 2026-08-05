@@ -62,6 +62,10 @@ export default function DesignSystemOverview() {
       en: "Phosphor icon conventions: sizing, weight, and pairing with controls.",
       zh: "Phosphor 图标约定：尺寸、字重与控件搭配。",
     }),
+    "/design-system/foundations/visual-language": t({
+      en: "Surfaces, nested radii, measure, texture, wash, progressive blur, motion springs, and what a brand may configure.",
+      zh: "表面、嵌套圆角、行长、纹理、淡彩、渐进虚化、弹簧动效，以及品牌可配置的范围。",
+    }),
     "/design-system/foundations/accessibility": t({
       en: "Naming, focus, keyboard models, contrast, and announcements.",
       zh: "无障碍名称、焦点、键盘模型、对比度与状态播报。",

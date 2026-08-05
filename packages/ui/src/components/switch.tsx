@@ -18,7 +18,6 @@ import {
   layer,
   opacity,
   ratio,
-  shadow,
 } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { switchTokens } from "./switch.stylex.ts";
@@ -261,20 +260,12 @@ const styles = stylex.create({
       default: color.surfaceNeutralSubtle,
       ":checked": color.accent,
     },
-    boxShadow: {
-      default: shadow._2,
-      ":hover": { "::before": shadow._3 },
-    },
     touchAction: "none",
 
     [switchTokens.thumbPosition]: {
       default: 0,
       ":checked": switchTokens.trackHeight,
       ":indeterminate": `calc(${switchTokens.trackHeight} / 2)`,
-    },
-    [switchTokens.thumbShadow]: {
-      default: null,
-      ":hover": shadow._3,
     },
 
     // Pseudo elements
@@ -294,8 +285,8 @@ const styles = stylex.create({
   animate: {
     "::before": {
       transition: {
-        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.ease}, box-shadow ${duration._400} ${easing.ease}`,
-        [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._400} ${easing.ease}`,
+        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.spring}`,
+        [motionConstants.REDUCED_MOTION]: "none",
       },
     },
   },

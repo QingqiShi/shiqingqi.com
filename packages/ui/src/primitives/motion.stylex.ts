@@ -64,6 +64,24 @@ export const easing = stylex.defineConsts({
   // Symmetric ease for looping attention states (pulse/shimmer), which need a
   // gentler hold at each end than `easeInOut` gives.
   pulse: "cubic-bezier(.4,0,.6,1)",
+
+  // A damped spring sampled into `linear()` — it overshoots, then settles. Each
+  // step is one damping ratio of the same oscillator, so the three differ in how
+  // far they carry past the target and in nothing else: 4%, 9%, 20%.
+  //
+  // The curve encodes its own settle, so each wants the duration it was sampled
+  // over — `_300`, `_400` and `_500` respectively. A shorter one clips the
+  // overshoot off, and a longer one drags it out.
+  //
+  // `linear()` takes literal stops, so a brand cannot dial the overshoot by
+  // interpolating a token — it picks one of these instead, and the clamped range
+  // the design language asks for is the list rather than a range of numbers.
+  springQuiet:
+    "linear(0,0.066,0.215,0.393,0.565,0.715,0.833,0.919,0.978,1.013,1.032,1.038,1.037,1.032,1.026,1.019,1)",
+  spring:
+    "linear(0,0.094,0.302,0.539,0.752,0.914,1.02,1.076,1.094,1.089,1.07,1.048,1.027,1.011,1,0.993,1)",
+  springLively:
+    "linear(0,0.165,0.509,0.85,1.087,1.194,1.196,1.138,1.064,1.003,0.968,0.958,0.965,0.979,0.994,1.004,1)",
 });
 
 export const transition = stylex.create({

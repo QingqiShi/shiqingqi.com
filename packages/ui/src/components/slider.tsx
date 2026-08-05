@@ -17,7 +17,6 @@ import {
   color,
   controlSize,
   opacity,
-  shadow,
   space,
 } from "../tokens.stylex.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
@@ -308,7 +307,6 @@ const styles = stylex.create({
       borderWidth: border.size_2,
       borderColor: color.accent,
       backgroundColor: color.bgSurfaceBright,
-      boxShadow: shadow._2,
       cursor: "inherit",
       marginBlockStart: THUMB_OFFSET,
       transition: {
@@ -326,7 +324,6 @@ const styles = stylex.create({
       borderWidth: border.size_2,
       borderColor: color.accent,
       backgroundColor: color.bgSurfaceBright,
-      boxShadow: shadow._2,
       cursor: "inherit",
       transition: {
         default: THUMB_LIFT,

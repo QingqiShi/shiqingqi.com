@@ -8,14 +8,7 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  shadow,
-  space,
-} from "../tokens.stylex.ts";
+import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
 
 type SegmentedControlSize = "sm" | "md";
 
@@ -180,7 +173,6 @@ const styles = stylex.create({
     },
     color: { default: color.textMain, ":hover": color.textMain },
     fontWeight: font.weight_6,
-    boxShadow: shadow._1,
   },
   icon: {
     display: "inline-flex",

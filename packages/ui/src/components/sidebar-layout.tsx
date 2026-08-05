@@ -11,15 +11,9 @@ import {
   motionConstants,
   transition,
 } from "../primitives/motion.stylex.ts";
-import {
-  border,
-  color,
-  layer,
-  layout,
-  shadow,
-  space,
-} from "../tokens.stylex.ts";
+import { border, color, layer, layout, space } from "../tokens.stylex.ts";
 import { IconButton } from "./icon-button.tsx";
+import { ProgressiveBlur } from "./progressive-blur.tsx";
 import { ScrollFade } from "./scroll-fade.tsx";
 
 // Default width of the navigation rail on wider viewports — wide enough for
@@ -232,7 +226,12 @@ export function SidebarLayout({
           setIsOpen(false);
         }}
         aria-hidden="true"
-      />
+      >
+        {/* The Drawer slides in from the inline-end, so the blur is strongest
+            there. The origin is a physical percentage and does not mirror under
+            `direction: rtl` the way the Drawer itself does. */}
+        <ProgressiveBlur radius="20px" reach="70vmax" originX="100%" />
+      </div>
       <div
         ref={drawerRef}
         css={[styles.rail, isOpen && styles.railOpen]}
@@ -328,7 +327,10 @@ const styles = stylex.create({
     padding: space._1,
     backgroundColor: color.bgSurface,
     borderRadius: border.radius_round,
-    boxShadow: shadow._2,
+    // Floats over the scrolling page, so it needs a findable edge of its own.
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     minInlineSize: 0,
   },
   mobileBarTitle: {
@@ -347,7 +349,6 @@ const styles = stylex.create({
     position: "fixed",
     inset: 0,
     zIndex: layer.overlay,
-    backgroundColor: color.bgScrim,
     opacity: 0,
     visibility: "hidden",
     pointerEvents: "none",
@@ -420,7 +421,9 @@ const styles = stylex.create({
     },
     borderStartEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
     borderEndEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
-    boxShadow: { default: shadow._6, [breakpoints.md]: shadow._2 },
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     transform: {
       default: "translateX(110%)",
       [motionConstants.REDUCED_MOTION]: "none",

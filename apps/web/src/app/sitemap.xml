@@ -422,6 +422,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/iconography" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/foundations/visual-language</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/visual-language" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/visual-language" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/visual-language</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/visual-language" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/visual-language" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/foundations/accessibility</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/accessibility" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/accessibility" />

@@ -15,6 +15,7 @@ import { breakpoints } from "../breakpoints.stylex.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { border, color, layer, space } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
+import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 interface OverlayBaseProps {
   /** Whether the overlay is shown. */
@@ -130,7 +131,9 @@ export function Overlay({
   const overlay = (
     <>
       <ViewTransition>
-        <div css={styles.backdrop} onClick={onClose} aria-hidden="true" />
+        <div css={styles.backdrop} onClick={onClose} aria-hidden="true">
+          <ProgressiveBlur radius="28px" reach="80vmax" />
+        </div>
       </ViewTransition>
       <ViewTransition enter="slide-in" exit="slide-out">
         {/* `forwardProps` makes RemoveScroll clone its single child and inject
@@ -200,10 +203,12 @@ const styles = stylex.create({
   // and DOM order already paints the dialog over its own scrim. Sharing keeps
   // the pair on the overlay plane when an explicit `portalTarget` hosts them
   // directly, without either of them outranking a tooltip or a toast.
+  // No fill of its own: the page behind an open overlay is blurred rather than
+  // darkened, and `ProgressiveBlur` does that. What is left here is the hit
+  // area that dismisses on a click outside the dialog.
   backdrop: {
     position: "absolute",
     inset: 0,
-    backgroundColor: color.bgScrim,
     zIndex: layer.overlay,
     pointerEvents: "all",
   },

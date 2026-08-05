@@ -1,7 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import type { CSSProperties, ReactNode, Ref } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+  type ReactNode,
+  type Ref,
+} from "react";
 import { createPortal } from "react-dom";
 import type { StyleProp } from "../css-prop-types.ts";
 import {
@@ -12,6 +18,7 @@ import {
 import { color, layer, space } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { popoverSurface } from "./popover-surface.stylex.ts";
+import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 interface PopoverBaseProps {
   /**
@@ -129,31 +136,53 @@ export function Popover({
         : document.body
       : portalTarget;
 
+  // The blur is strongest where the popover is, and `usePopover` only knows
+  // where that is once it has measured — so the origin is written onto the node
+  // rather than passed as a prop. Written directly, not through state: a
+  // re-render per open would remount the five blur layers mid-entrance.
+  const blurRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const blur = blurRef.current;
+    const content = contentRef.current;
+    if (!open || !blur || !content) return;
+    const { left, top, width, height } = content.getBoundingClientRect();
+    blur.style.setProperty("--ds-blur-x", `${String(left + width / 2)}px`);
+    blur.style.setProperty("--ds-blur-y", `${String(top + height / 2)}px`);
+  });
+
   return (
     <>
       {trigger(triggerProps)}
       {open && resolvedTarget
         ? createPortal(
-            <div
-              {...restContentProps}
-              ref={mergeRefs(ref, contentRef)}
-              aria-label={ariaLabel}
-              aria-labelledby={
-                ariaLabel === undefined
-                  ? (ariaLabelledBy ?? labelledByTrigger)
-                  : undefined
-              }
-              className={className}
-              style={style}
-              css={[
-                styles.content,
-                popoverSurface.base,
-                popoverSurface.enter,
-                css,
-              ]}
-            >
-              {children}
-            </div>,
+            <>
+              <ProgressiveBlur
+                ref={blurRef}
+                radius="10px"
+                reach="36vmax"
+                css={styles.blur}
+              />
+              <div
+                {...restContentProps}
+                ref={mergeRefs(ref, contentRef)}
+                aria-label={ariaLabel}
+                aria-labelledby={
+                  ariaLabel === undefined
+                    ? (ariaLabelledBy ?? labelledByTrigger)
+                    : undefined
+                }
+                className={className}
+                style={style}
+                css={[
+                  styles.content,
+                  popoverSurface.base,
+                  popoverSurface.enter,
+                  css,
+                ]}
+              >
+                {children}
+              </div>
+            </>,
             resolvedTarget,
           )
         : null}
@@ -162,6 +191,11 @@ export function Popover({
 }
 
 const styles = stylex.create({
+  // One plane below the popover, so the page blurs beneath it and the popover
+  // itself stays sharp.
+  blur: {
+    zIndex: layer.overlay,
+  },
   // No `inset` declarations: `usePopover` writes `top`/`left` to the node, and a
   // logical inset left over from the stylesheet would over-constrain it in RTL.
   content: {

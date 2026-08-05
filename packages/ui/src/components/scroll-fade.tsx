@@ -1,6 +1,5 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { useRef, type ComponentProps, type ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import {
@@ -9,17 +8,18 @@ import {
 } from "../hooks/use-scroll-fades.ts";
 import { space } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
+import { scrollFadeContainer, scrollFadeEdge } from "./scroll-fade.stylex.ts";
 
 interface ScrollFadeProps extends Omit<ComponentProps<"div">, "children"> {
   children: ReactNode;
   /**
-   * Scroll axis. `"vertical"` fades the top and bottom edges; `"horizontal"`
-   * fades the start and end edges.
+   * Scroll axis. `"vertical"` blurs the top and bottom edges; `"horizontal"`
+   * blurs the start and end edges.
    * @default "vertical"
    */
   orientation?: ScrollFadeOrientation;
   /**
-   * Depth of the fade at each scrollable edge. Any CSS length.
+   * Depth of the blur at each scrollable edge. Any CSS length.
    * @default "1.5rem"
    */
   fadeSize?: string;
@@ -42,18 +42,20 @@ interface ScrollFadeProps extends Omit<ComponentProps<"div">, "children"> {
 }
 
 /**
- * A scroll container whose content fades out toward the edges it can still
- * scroll to, cueing that more sits beyond. The fade is a mask, so it dissolves
- * the content itself over whatever is behind it — a border, a sticky header, a
- * footer, a canvas or a surface — with no knowledge of the background colour,
- * unlike a gradient panel that has to be painted to match its surface. Each
- * edge fades only once there is scrolled-away content in that direction, so a
- * container resting at the start shows no start fade.
+ * A scroll container that blurs toward the edges it can still scroll to,
+ * cueing that more sits beyond, rather than stopping the content dead at a
+ * line. The blur is a stack of `backdrop-filter` bands layered over the true
+ * edge — it reads what is behind it rather than needing to know the
+ * background colour, unlike a gradient panel painted to match its surface.
+ * Falls back to the mask-image fade this replaced where `backdrop-filter` is
+ * unavailable or `prefers-reduced-transparency` asks for it. Each edge blurs
+ * only once there is scrolled-away content in that direction, so a container
+ * resting at the start shows no start blur.
  *
  * Forwards a `ref` and native `div` attributes (`role`, `aria-*`, `tabIndex`,
  * `onScroll`, …), so a consumer can name the region, measure the element, or
  * scroll it imperatively while ScrollFade keeps ownership of the overflow and
- * the fade.
+ * the blur.
  */
 export function ScrollFade({
   children,
@@ -78,48 +80,58 @@ export function ScrollFade({
   const showStartFade = isControlled ? startFadeProp : tracked.showStartFade;
   const showEndFade = isControlled ? endFadeProp : tracked.showEndFade;
 
-  const towardEnd = orientation === "horizontal" ? "to right" : "to bottom";
-  // A collapsed (0px) stop leaves that edge fully opaque, so each end fades
-  // only while there is content hidden past it. Black vs. transparent are the
-  // mask's opaque/cut keywords — the colour value is irrelevant.
+  const isHorizontal = orientation === "horizontal";
+  // Drives the fallback mask only (bands below skip rendering instead of
+  // collapsing) — 0px leaves that edge fully opaque, so it fades only while
+  // there is content hidden past it, same as before.
   const startStop = showStartFade ? fadeSize : "0px";
   const endStop = showEndFade ? fadeSize : "0px";
-  const mask = `linear-gradient(${towardEnd}, transparent 0, #000 ${startStop}, #000 calc(100% - ${endStop}), transparent 100%)`;
 
   return (
     <div
       {...rest}
       ref={mergeRefs(scrollRef, forwardedRef)}
       className={className}
-      style={{
-        ...style,
-        maskImage: mask,
-        WebkitMaskImage: mask,
-        // The default mask-clip (border-box) would also clip a focusable
-        // consumer's focus ring, which is an `outline` painted OUTSIDE the
-        // border box. no-clip lets that ring show; the gradient still fades the
-        // content, and overflow still clips the scrolled-away content.
-        maskClip: "no-clip",
-      }}
+      style={style}
       css={[
-        orientation === "horizontal" ? styles.horizontal : styles.vertical,
+        isHorizontal
+          ? scrollFadeContainer.horizontal
+          : scrollFadeContainer.vertical,
+        scrollFadeContainer.vars(fadeSize, startStop, endStop),
         css,
       ]}
     >
       {children}
+      {showStartFade && (
+        <div
+          aria-hidden="true"
+          css={[
+            isHorizontal
+              ? scrollFadeEdge.inlineStart
+              : scrollFadeEdge.blockStart,
+            scrollFadeEdge.vars(isHorizontal ? "to right" : "to bottom"),
+          ]}
+        >
+          <div css={scrollFadeEdge.band_1} />
+          <div css={scrollFadeEdge.band_2} />
+          <div css={scrollFadeEdge.band_3} />
+          <div css={scrollFadeEdge.band_4} />
+        </div>
+      )}
+      {showEndFade && (
+        <div
+          aria-hidden="true"
+          css={[
+            isHorizontal ? scrollFadeEdge.inlineEnd : scrollFadeEdge.blockEnd,
+            scrollFadeEdge.vars(isHorizontal ? "to left" : "to top"),
+          ]}
+        >
+          <div css={scrollFadeEdge.band_1} />
+          <div css={scrollFadeEdge.band_2} />
+          <div css={scrollFadeEdge.band_3} />
+          <div css={scrollFadeEdge.band_4} />
+        </div>
+      )}
     </div>
   );
 }
-
-const styles = stylex.create({
-  vertical: {
-    overflowX: "hidden",
-    overflowY: "auto",
-    minBlockSize: 0,
-  },
-  horizontal: {
-    overflowX: "auto",
-    overflowY: "hidden",
-    minInlineSize: 0,
-  },
-});
