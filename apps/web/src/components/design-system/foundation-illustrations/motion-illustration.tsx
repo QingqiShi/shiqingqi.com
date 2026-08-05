@@ -238,7 +238,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "opacity 520ms ease",
     },
   },
-  // Halo opacity gates off at rest and on via when.ancestor hover, but keeps the
+  // Opacity gates off at rest and on via when.ancestor hover, but keeps the
   // --ds-illo-px pointer term so the lit endpoint tracks which way the cursor leans.
   endpointGlow: {
     transition: "opacity 420ms ease",

@@ -36,9 +36,19 @@ _Avoid_: semantic (as a grouping word)
 The six-member family that carries meaning rather than structure — accent, info, success, warning, danger, neutral. The prop name on every component that takes one.
 _Avoid_: variant (for this sense), tone (for this sense), semantic colour, status hue, colour treatment
 
-**Elevation**:
-The depth scale, six levels plus inset. `shadow._1`…`shadow._6` are the tokens that implement it; `layer` is the unrelated z-index scale.
-_Avoid_: shadow (as the name of the concept)
+### Wash and blur
+
+**Wash**:
+A broad gradient that gives a surface some volume — one tone drifting across it. It has no hotspot, because a hotspot is a light source.
+_Avoid_: glow, tint, gradient (as the name of this — the CSS function keeps its name)
+
+**Progressive blur**:
+The page blurred around whatever floats, in place of dimming it — strongest nearest the element, and easing back to sharp further out. The blur belongs to the page rather than to the element, and the element keeps a crisp edge. The radius is set per element, within a cap. Also used at the edge of a scroll region, where it is a Scroll mask.
+_Avoid_: halo, glow, elevation, shadow, disturbance
+
+**Scroll mask**:
+The progressive blur at the edge of a scroll region, marking content on its way out of view.
+_Avoid_: fade, gradient mask
 
 ### Component API
 
@@ -120,19 +130,21 @@ _Avoid_: label, key (for this sense)
 
 The showcase site ships bilingual copy, so each term needs one Chinese word too — the same rule applies, and `zh` drifts the same way `en` does. API names (`variant`, `tone`, `as`, `onDismiss`) stay untranslated inside zh copy.
 
-| Term       | zh       | Not                                                |
-| ---------- | -------- | -------------------------------------------------- |
-| Hue        | 色相     | 色调 (that is Tone)                                |
-| Tone       | 色调     | 明度阶梯                                           |
-| Ramp       | 色调阶梯 |                                                    |
-| Intent     | 意图色   | 语义色, 语义变体, 语义化的状态色, 色调, 颜色处理   |
-| Role       | 角色     | 语义 (as a grouping word)                          |
-| Icon       | 图标     | 字形 (that is a typographic glyph)                 |
-| Elevation  | 层深     | 阴影层级 — 阴影 names the shadows, not the concept |
-| Chip       | 标签按钮 | 筹码 (a gambling chip), 药丸 (a medicine pill)     |
-| Badge      | 徽章     | 标签 (that is a label)                             |
-| Primitive  | 原语     | 配方                                               |
-| pill shape | 胶囊形   | 药丸, 标签                                         |
+| Term             | zh       | Not                                                   |
+| ---------------- | -------- | ----------------------------------------------------- |
+| Hue              | 色相     | 色调 (that is Tone)                                   |
+| Tone             | 色调     | 明度阶梯                                              |
+| Ramp             | 色调阶梯 |                                                       |
+| Intent           | 意图色   | 语义色, 语义变体, 语义化的状态色, 色调, 颜色处理      |
+| Role             | 角色     | 语义 (as a grouping word)                             |
+| Icon             | 图标     | 字形 (that is a typographic glyph)                    |
+| Chip             | 标签按钮 | 筹码 (a gambling chip), 药丸 (a medicine pill)        |
+| Badge            | 徽章     | 标签 (that is a label)                                |
+| Primitive        | 原语     | 配方                                                  |
+| pill shape       | 胶囊形   | 药丸, 标签                                            |
+| Wash             | 淡彩     | 渐变 (that is a gradient), 光晕                       |
+| Progressive blur | 渐进虚化 | 光晕, 光环 — both name light, and nothing here is lit |
+| Scroll mask      | 滚动虚化 | 遮罩 (that is a mask in general)                      |
 
 `语义` is correct only for the HTML/ARIA sense — 语义元素, 语义层级, `<button>` 语义 — matching English "semantic element/rank".
 
@@ -141,6 +153,7 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 Published var names and generated identifiers. Rename only through codegen and a major version.
 
 - Token group names and members: `color.*`, `space._N`, `controlSize._N`, `border.*`, `shadow._N`, `layer.*`, `font.{ui,vp,cq}*`
+  - `shadow._N` is unused, because nothing casts a shadow, but it is still exported. Removing it is a major version.
 - The `_N` step convention, including `_00` for the sub-minimum step
 - `<hue>` and `<hue>_rgb` consts groups, and the `hues/` file layout the wildcard export covers
 - The `*Fade`, `*On`, and `accentGlow` token suffixes
