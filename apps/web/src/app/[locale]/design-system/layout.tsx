@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { border, space } from "@tuja/ui/tokens.stylex";
+import { surface } from "@tuja/ui/primitives/surface.stylex";
+import { border, layer, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
 import {
@@ -90,7 +91,11 @@ export default async function Layout({
   // The skip link is the shell's first tab stop, ahead of the rail's ~30 route
   // links, so it has to render before `SidebarLayout` in document order.
   return (
-    <>
+    <div css={[styles.ground, surface.dots("26px")]}>
+      <div
+        aria-hidden
+        css={[styles.wash, surface.accentWash("160deg", "4%")]}
+      />
       <SkipToContent />
       <SidebarLayout
         sidebar={
@@ -121,11 +126,34 @@ export default async function Layout({
           {children}
         </div>
       </SidebarLayout>
-    </>
+    </div>
   );
 }
 
 const styles = stylex.create({
+  // The ground every design-system surface is laid on. The texture is what a
+  // card interrupts — a plain plane over a marked one separates far harder than
+  // a hairline does, which is the whole reason the language forbids nesting one
+  // texture in another.
+  //
+  // `isolation` so the wash below can take a negative layer: inside a stacking
+  // context, that paints over this element's own texture and under everything
+  // in flow.
+  ground: {
+    minBlockSize: "100dvh",
+    isolation: "isolate",
+  },
+  // The wash is its own fixed layer rather than a second background on the
+  // ground. A background sized to a 6000px document is a gradient nobody can
+  // see, and `background-attachment` cannot differ per layer — so the drift that
+  // belongs to the viewport gets a viewport-sized element, and the marks that
+  // belong to the paper stay on the paper and scroll with it.
+  wash: {
+    position: "fixed",
+    inset: 0,
+    zIndex: layer.background,
+    pointerEvents: "none",
+  },
   page: {
     paddingBlockStart: { default: space._3, [breakpoints.md]: space._7 },
     // Corners for the focus ring above — the wrapper is otherwise unpainted.

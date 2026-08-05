@@ -4,8 +4,8 @@ import {
   duration,
   easing,
   motionTokens,
-  transition,
 } from "@tuja/ui/primitives/motion.stylex";
+import { surface } from "@tuja/ui/primitives/surface.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { IlloLayer } from "./foundation-illustrations/illo-layer.tsx";
@@ -56,8 +56,9 @@ export function OverviewTile({
       css={[
         cardSurface.base,
         cardSurface.interactive,
+        cardSurface.press,
+        surface.wash("160deg", "5%"),
         styles.tile,
-        transition.colors,
         illustration ? styles.tileIllustrated : null,
         tileMarker,
       ]}

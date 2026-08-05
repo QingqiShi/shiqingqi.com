@@ -2,8 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { radius } from "@tuja/ui/primitives/radius.stylex";
-import { texture } from "@tuja/ui/primitives/texture.stylex";
-import { wash } from "@tuja/ui/primitives/wash.stylex";
+import { surface } from "@tuja/ui/primitives/surface.stylex";
 import { border, color, font, measure, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
@@ -158,16 +157,16 @@ export function VisualLanguageShowcase() {
           })}
         </ShowcaseHelper>
         <div css={styles.textureLargeRow}>
-          <div css={[styles.textureLarge, texture.lines("28px")]}>
+          <div css={[styles.textureLarge, surface.lines("28px")]}>
             <span css={styles.textureLabel}>
-              {'texture.lines("28px") · '}
+              {'surface.lines("28px") · '}
               {t({ en: "large surface", zh: "大表面" })}
             </span>
           </div>
         </div>
         <div css={styles.textureGrid}>
           <div css={styles.textureItem}>
-            <div css={[styles.textureCard, texture.lines("28px")]} />
+            <div css={[styles.textureCard, surface.lines("28px")]} />
             <Text variant="caption" tone="muted">
               {t({
                 en: "Same 28px gap on a small card — reads as noise.",
@@ -176,7 +175,7 @@ export function VisualLanguageShowcase() {
             </Text>
           </div>
           <div css={styles.textureItem}>
-            <div css={[styles.textureCard, texture.lines("6px")]} />
+            <div css={[styles.textureCard, surface.lines("6px")]} />
             <Text variant="caption" tone="muted">
               {t({
                 en: "6px gap, tuned for a small card.",
@@ -186,16 +185,16 @@ export function VisualLanguageShowcase() {
           </div>
         </div>
         <div css={styles.textureLargeRow}>
-          <div css={[styles.textureLarge, texture.dots("40px")]}>
+          <div css={[styles.textureLarge, surface.dots("40px")]}>
             <span css={styles.textureLabel}>
-              {'texture.dots("40px") · '}
+              {'surface.dots("40px") · '}
               {t({ en: "large surface", zh: "大表面" })}
             </span>
           </div>
         </div>
         <div css={styles.textureGrid}>
           <div css={styles.textureItem}>
-            <div css={[styles.textureCard, texture.dots("40px")]} />
+            <div css={[styles.textureCard, surface.dots("40px")]} />
             <Text variant="caption" tone="muted">
               {t({
                 en: "Same 40px gap on a small card — reads as noise.",
@@ -204,7 +203,7 @@ export function VisualLanguageShowcase() {
             </Text>
           </div>
           <div css={styles.textureItem}>
-            <div css={[styles.textureCard, texture.dots("10px")]} />
+            <div css={[styles.textureCard, surface.dots("10px")]} />
             <Text variant="caption" tone="muted">
               {t({
                 en: "10px gap, tuned for a small card.",
@@ -224,24 +223,43 @@ export function VisualLanguageShowcase() {
         </ShowcaseHelper>
         <div css={styles.washGrid}>
           <div css={styles.washItem}>
-            <div css={[styles.washSwatch, wash.none]} />
+            <div css={[styles.washSwatch, surface.plain]} />
             <Text variant="caption" tone="muted">
-              wash.none
+              surface.plain
             </Text>
           </div>
           <div css={styles.washItem}>
-            <div css={[styles.washSwatch, wash.neutral("165deg")]} />
+            <div css={[styles.washSwatch, surface.wash("165deg", "5%")]} />
             <Text variant="caption" tone="muted">
-              {'wash.neutral("165deg")'}
+              {'surface.wash("165deg", "5%")'}
             </Text>
           </div>
           <div css={styles.washItem}>
-            <div css={[styles.washSwatch, wash.accent("165deg")]} />
+            <div
+              css={[styles.washSwatch, surface.accentWash("165deg", "8%")]}
+            />
             <Text variant="caption" tone="muted">
-              {'wash.accent("165deg")'}
+              {'surface.accentWash("165deg", "8%")'}
+            </Text>
+          </div>
+          <div css={styles.washItem}>
+            <div
+              css={[
+                styles.washSwatch,
+                surface.washedDots("165deg", "5%", "8px"),
+              ]}
+            />
+            <Text variant="caption" tone="muted">
+              {'surface.washedDots("165deg", "5%", "8px")'}
             </Text>
           </div>
         </div>
+        <ShowcaseHelper>
+          {t({
+            en: "A wash and a texture are one primitive because they are one CSS property. Both are background layers, so applied as two separate styles the second silently replaces the first — a surface that carries both asks for it in one call.",
+            zh: "淡彩与纹理属于同一个原语，因为它们本就是同一条 CSS 属性。两者都是背景层，若当作两组样式分别套用，后者会悄悄覆盖前者——需要同时具备两者的表面，要在一次调用里取得。",
+          })}
+        </ShowcaseHelper>
       </Showcase>
     </>
   );

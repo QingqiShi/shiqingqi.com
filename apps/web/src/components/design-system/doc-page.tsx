@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { DocBreadcrumb } from "./doc-breadcrumb.tsx";
 import { measure } from "./measure.stylex.ts";
@@ -48,10 +48,19 @@ const styles = stylex.create({
     maxInlineSize: measure.reading,
     marginInline: "auto",
   },
+  // The rule is what gives the page a masthead. Without it the title and intro
+  // sit on the bare ground and the first showcase card is the only edge on the
+  // page, so the header reads as something that fell off the top of the stack
+  // rather than as the page's own head. It matches the rule the overview's
+  // category headings carry, so the two pages share one horizontal.
   header: {
     display: "flex",
     flexDirection: "column",
     gap: space._4,
+    paddingBlockEnd: space._4,
+    borderBlockEndWidth: border.size_1,
+    borderBlockEndStyle: "solid",
+    borderBlockEndColor: color.neutralBorder,
   },
   intro: {
     display: "flex",

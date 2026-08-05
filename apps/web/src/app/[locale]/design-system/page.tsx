@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { measure } from "#src/components/design-system/measure.stylex.ts";
 import {
   OverviewBrowser,
   type OverviewEntry,
@@ -234,20 +235,21 @@ export default function DesignSystemOverview() {
 
   return (
     <div css={styles.page}>
-      <header css={styles.hero}>
-        <h1 css={styles.heading}>{heading}</h1>
-        <p css={styles.intro}>
-          {t({
-            en: "Tokens, primitives, and components that compose a refined visual language. Browse them by the job they do or by name — or search for the one you already have in mind.",
-            zh: "构成精致视觉语言的设计令牌、原语与组件。可按用途或名称浏览，也可直接搜索你想找的内容。",
-          })}
-        </p>
-      </header>
-
       <OverviewBrowser
         entries={entries}
         alphabeticalOrder={alphabeticalOrder}
         groupLabels={getDesignSystemGroupLabels()}
+        header={
+          <header css={styles.hero}>
+            <h1 css={styles.heading}>{heading}</h1>
+            <p css={styles.intro}>
+              {t({
+                en: "Tokens, primitives, and components that compose a refined visual language. Browse them by the job they do or by name — or search for the one you already have in mind.",
+                zh: "构成精致视觉语言的设计令牌、原语与组件。可按用途或名称浏览，也可直接搜索你想找的内容。",
+              })}
+            </p>
+          </header>
+        }
       />
     </div>
   );
@@ -263,7 +265,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space._4,
-    paddingBlockEnd: space._2,
   },
   heading: {
     margin: 0,
@@ -278,7 +279,7 @@ const styles = stylex.create({
     fontSize: font.vpHeading3,
     color: color.textMuted,
     lineHeight: font.lineHeight_4,
-    maxInlineSize: "60ch",
+    maxInlineSize: measure.prose,
     textWrap: "pretty",
   },
 });

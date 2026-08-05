@@ -50,6 +50,12 @@ _Avoid_: pattern, noise, grain (a Texture is drawn, so none of these name it)
 A broad gradient that gives a surface some volume — one tone drifting across it. It has no hotspot, because a hotspot is a light source.
 _Avoid_: glow, tint, gradient (as the name of this — the CSS function keeps its name)
 
+**Finish**:
+A surface's Wash, its Texture, or both. One word for the pair because they are
+one CSS property: both are background layers, so a surface carrying both carries
+one list, and the `surface` primitive is where that list is composed.
+_Avoid_: decoration, treatment, skin
+
 **Progressive blur**:
 The page blurred around whatever floats, in place of dimming it — strongest nearest the element, and easing back to sharp further out. The blur belongs to the page rather than to the element, and the element keeps a crisp edge. The radius is set per element, within a cap. Also used at the edge of a scroll region, where it is a Scroll mask.
 _Avoid_: halo, glow, elevation, shadow, disturbance
@@ -183,6 +189,7 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | pill shape       | 胶囊形   | 药丸, 标签                                            |
 | Wash             | 淡彩     | 渐变 (that is a gradient), 光晕                       |
 | Texture          | 纹理     | 噪点 (that is noise), 图案                            |
+| Finish           | 表面处理 | 装饰, 皮肤                                            |
 | Measure          | 行宽     | 最大宽度, 字符宽度                                    |
 | Brand dial       | 品牌旋钮 | 设置, 选项 (neither says the range is bounded)        |
 | Density          | 密度     |                                                       |

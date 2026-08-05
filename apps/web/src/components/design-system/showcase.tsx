@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
+import { surface } from "@tuja/ui/primitives/surface.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
@@ -37,7 +38,9 @@ export function Showcase({
     <section
       css={[
         styles.showcase,
-        plain ? styles.plainFrame : [cardSurface.base, styles.card],
+        plain
+          ? styles.plainFrame
+          : [cardSurface.base, styles.card, surface.wash("160deg", "5%")],
       ]}
     >
       {label ? (

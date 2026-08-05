@@ -1,5 +1,16 @@
 import * as stylex from "@stylexjs/stylex";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "../primitives/motion.stylex.ts";
 import { border, color } from "../tokens.stylex.ts";
+
+// The colour legs every interactive card shares, and the transform leg only
+// `press` adds. Only the release springs, matching `button-shared`: going down
+// under the finger is a grab and wants to arrive without argument, while coming
+// back up is the state change worth marking.
+const colourLegs = `color ${duration._200} ${easing.ease}, background-color ${duration._200} ${easing.ease}, border-color ${duration._200} ${easing.ease}`;
 
 /**
  * The bordered-surface skin shared by every card in the system, exposed as
@@ -41,5 +52,26 @@ export const cardSurface = stylex.create({
     outlineStyle: "solid",
     outlineColor: { default: "transparent", ":focus-visible": color.accent },
     outlineOffset: `calc(-1 * ${border.size_2})`,
+  },
+  /**
+   * A card that is a control, springing on press. It carries the colour
+   * transitions itself, so it *replaces* `transition.colors` at the call site
+   * rather than composing with it — both write `transition`, and the last one
+   * applied takes the whole declaration.
+   *
+   * The card shrinks rather than grows, so it never needs to sit above its
+   * neighbours or have space reserved for it in the grid.
+   */
+  press: {
+    transform: {
+      default: "none",
+      ":active": "scale(0.985)",
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
+    transition: {
+      default: `${colourLegs}, transform ${duration._400} ${easing.spring}`,
+      ":active": `${colourLegs}, transform ${duration._150} ${easing.easeOut}`,
+      [motionConstants.REDUCED_MOTION]: colourLegs,
+    },
   },
 });

@@ -142,8 +142,9 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._2,
     borderRadius: border.radius_2,
-    backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    // Carved into the showcase card rather than stacked on it: a sunken tone
+    // separates it from the card without a second hairline inside the first.
+    backgroundColor: color.bgSurfaceSunken,
     minInlineSize: 0,
   },
 });
