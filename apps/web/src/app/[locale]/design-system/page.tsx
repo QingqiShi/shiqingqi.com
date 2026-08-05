@@ -42,10 +42,6 @@ export default function DesignSystemOverview() {
       en: "The rem-based spacing scale.",
       zh: "以 rem 为基准的间距阶梯。",
     }),
-    "/design-system/foundations/elevation": t({
-      en: "The elevation scale for layering surfaces above the page.",
-      zh: "用于在页面之上叠放表面的层深阶梯。",
-    }),
     "/design-system/foundations/motion": t({
       en: "Duration and easing tokens, transition and animation presets, and reduced-motion behaviour.",
       zh: "时长与缓动令牌、过渡与动画预设，以及减弱动效行为。",

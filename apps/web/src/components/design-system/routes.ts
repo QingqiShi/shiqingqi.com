@@ -67,7 +67,7 @@ export interface DesignSystemRoute {
 export const DESIGN_SYSTEM_ROUTES = [
   { section: "overview", path: "/design-system" },
   // Foundations splits the same way Components does, and for the same reason:
-  // ten in a row is past what a visitor can scan. Seven decide what a surface
+  // nine in a row is past what a visitor can scan. Six decide what a surface
   // looks like; three decide how it treats the person in front of it.
   {
     section: "foundations",
@@ -86,12 +86,6 @@ export const DESIGN_SYSTEM_ROUTES = [
     category: "visual",
     path: "/design-system/foundations/spacing",
     keywords: ["space", "gap", "padding", "margin", "rhythm"],
-  },
-  {
-    section: "foundations",
-    category: "visual",
-    path: "/design-system/foundations/elevation",
-    keywords: ["shadow", "depth", "raised", "sunken"],
   },
   {
     section: "foundations",
