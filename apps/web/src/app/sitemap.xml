@@ -189,16 +189,6 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/spacing" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/spacing" />
   </url>
-  <url>
-    <loc>https://qingqi.dev/design-system/foundations/elevation</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/elevation" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/elevation" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/foundations/elevation</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/elevation" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/elevation" />
-  </url>
 
   <url>
     <loc>https://qingqi.dev/design-system/components/divider</loc>
