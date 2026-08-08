@@ -24,8 +24,11 @@ Terms are defined in `packages/ui/CONTEXT.md`.
 
 ### Measure
 
-- **Text runs at a width the eye can return across.** At the end of a line the eye jumps back to the start of the next one, and the longer that jump, the more often it lands on a line it has already read. Around 65 Latin characters, or 41 han, is where the jump stops being a risk.
-- **The cap is a length, in `rem` — never a fraction of the viewport, and never `ch`.** `ch` is the width of a Latin zero, so one value comes out at a different length at every type size and in every script.
+- **Text runs at a width the eye can return across.** At the end of a line the eye jumps back to the start of the next one, and the longer that jump, the more often it lands on a line it has already read. The references disagree on where that starts, and they disagree by script: around 65 Latin characters by typographic convention, 80 Latin or 40 Chinese by WCAG. No single width sits on all three.
+- **The cap is 41em: 41 Chinese characters at any type size, and around 88 Latin.** It sits on the Chinese ceiling and runs past the Latin one. That is one measure serving both scripts rather than a measure per script, and the Latin cost is the price of the single value.
+- **The unit is `em` — never a fraction of the viewport, never `rem`, and never `ch`.** `em` tracks the size of the text it caps, which is what holds the character count still. A `rem` cap holds the width still instead, so the same cap lets small print run longer than body copy. `ch` is the width of a Latin zero, so it never tracks Chinese at all.
+- **A cap that tracks its text gives up a shared right edge.** Blocks set at different sizes end in different places. That is what the steady character count costs, and it is the right way round: the measure belongs to the text, not to the column.
+- **A page's width is not derived from the measure.** A page is sized to hold its widest specimen, and a paragraph caps itself. Deriving one from the other lets a decision about text squeeze a diagram.
 - **Type does not scale up to fill a wide screen.** Larger type in a wider column holds the character count and lengthens the jump, so it makes the return worse rather than better.
 - **The space beside a paragraph is either a margin or a column.** Small enough to hold nothing, or actually holding something. In between it reads as a column with content missing, which is what a capped paragraph in a much wider container looks like.
 - **Anything that needs more width scrolls inside its own surface** — a table, a code block, a specimen. Widening the page to fit one of them leaves every paragraph on it stranded.

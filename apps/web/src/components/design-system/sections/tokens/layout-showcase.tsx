@@ -98,7 +98,7 @@ function BreakpointBands() {
 }
 
 /**
- * Two pages drawn to the same scale, each holding the same 41rem paragraph:
+ * Two pages drawn to the same scale, each holding the same 41em paragraph:
  * one capped so the leftover reads as a margin, one wide enough that it reads
  * as a column with nothing in it.
  */
@@ -108,7 +108,7 @@ function MeasureBands() {
       <div css={styles.measureRow}>
         <div css={styles.measurePage}>
           <div css={[styles.measureProse, styles.measureProseNarrow]}>
-            <span css={styles.measureProseLabel}>prose 41rem</span>
+            <span css={styles.measureProseLabel}>prose 41em</span>
           </div>
           <span css={styles.measureRest}>
             {t({ en: "margin", zh: "页边" })}
@@ -124,7 +124,7 @@ function MeasureBands() {
       <div css={styles.measureRow}>
         <div css={styles.measurePage}>
           <div css={[styles.measureProse, styles.measureProseWide]}>
-            <span css={styles.measureProseLabel}>prose 41rem</span>
+            <span css={styles.measureProseLabel}>prose 41em</span>
           </div>
           <span css={[styles.measureRest, styles.measureRestEmpty]}>
             {t({ en: "empty column", zh: "空栏" })}
@@ -200,8 +200,8 @@ export function LayoutShowcase() {
       <Showcase label={t({ en: "Measure", zh: "行长" })}>
         <ShowcaseHelper>
           {t({
-            en: "Prose caps at 41rem: around 65 Latin characters, or 41 han. The unit is rem rather than ch, which is the width of a Latin zero — one ch value lands somewhere different at every type size and in every script.",
-            zh: "正文行长上限为 41rem，约 65 个拉丁字符或 41 个汉字。单位用 rem 而非 ch，因为 ch 是拉丁数字零的宽度——同一个 ch 值在每个字号、每种文字下都会落在不同的位置。",
+            en: "Prose caps at 41em: 41 Chinese characters at any type size, around 88 Latin. The unit is em so the cap tracks its own text — a rem cap holds the width still instead, and small print then runs longer than body copy.",
+            zh: "正文行长上限为 41em：在任何字号下都是 41 个汉字，约 88 个拉丁字符。单位用 em，上限才会随文字大小变化——rem 上限固定的是宽度，小字于是会比正文排得更长。",
           })}
         </ShowcaseHelper>
         <MeasureBands />
