@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { IconButton } from "./icon-button.tsx";
@@ -130,20 +131,12 @@ describe("IconButton variants", () => {
 });
 
 describe("IconButton prop forwarding", () => {
-  it("merges a caller className with the StyleX classes", () => {
-    render(<IconButton icon={<Icon />} aria-label="Add" className="mine" />);
+  it("composes a caller css override last", () => {
+    const overrides = stylex.create({ box: { opacity: 0.9 } });
+    render(<IconButton icon={<Icon />} aria-label="Add" css={overrides.box} />);
     const button = screen.getByRole("button", { name: "Add" });
-    expect(button.className).toContain("mine");
+    expect(button.className).toContain("overrides.box");
     expect(button.className).toContain("styles.base");
-  });
-
-  it("forwards inline style", () => {
-    render(
-      <IconButton icon={<Icon />} aria-label="Add" style={{ opacity: 0.5 }} />,
-    );
-    expect(screen.getByRole("button", { name: "Add" })).toHaveStyle({
-      opacity: "0.5",
-    });
   });
 
   it("forwards native button attributes", () => {

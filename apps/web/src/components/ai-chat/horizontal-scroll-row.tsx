@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { ScrollFade } from "@tuja/ui/components/scroll-fade";
+import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { useScrollFades } from "@tuja/ui/hooks/use-scroll-fades";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
@@ -12,10 +13,10 @@ interface HorizontalScrollRowProps {
   children: React.ReactNode;
   ariaLabel: string;
   role?: "list" | "region";
-  wrapperCss?: React.Attributes["css"];
-  containerCss?: React.Attributes["css"];
-  scrollButtonLeftCss?: React.Attributes["css"];
-  scrollButtonRightCss?: React.Attributes["css"];
+  wrapperCss?: StyleProp;
+  containerCss?: StyleProp;
+  scrollButtonLeftCss?: StyleProp;
+  scrollButtonRightCss?: StyleProp;
 }
 
 export function HorizontalScrollRow({

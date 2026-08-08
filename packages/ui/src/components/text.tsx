@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { CSSProperties, ReactNode, Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { color, font } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
@@ -48,10 +48,6 @@ interface TextProps {
   id?: string;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
-  /** Escape-hatch class applied to the rendered element. */
-  className?: string;
-  /** Inline style applied to the rendered element. */
-  style?: CSSProperties;
   /** Ref to the rendered element (`<p>`, `<span>`, or `<div>`). */
   ref?: Ref<HTMLElement>;
   children: ReactNode;
@@ -60,8 +56,7 @@ interface TextProps {
 /**
  * Body-copy typography primitive. Picks the semantic element via `as` and the
  * type step via `variant`, keeping the two decoupled so a `<span>` can still
- * read at body size. Forwards `className`, `style`, and `ref` for escape-hatch
- * composition.
+ * read at body size. Forwards `ref` for escape-hatch composition.
  */
 export function Text({
   as = "p",
@@ -74,12 +69,10 @@ export function Text({
   numeric,
   id,
   css,
-  className,
-  style,
   ref,
   children,
 }: TextProps) {
-  const composedCss = [
+  const textCss = [
     styles.base,
     variantStyles[variant],
     toneStyles[tone],
@@ -104,37 +97,19 @@ export function Text({
   switch (as) {
     case "p":
       return (
-        <p
-          ref={setRef}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <p ref={setRef} id={id} css={textCss}>
           {children}
         </p>
       );
     case "span":
       return (
-        <span
-          ref={setRef}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <span ref={setRef} id={id} css={textCss}>
           {children}
         </span>
       );
     case "div":
       return (
-        <div
-          ref={setRef}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <div ref={setRef} id={id} css={textCss}>
           {children}
         </div>
       );

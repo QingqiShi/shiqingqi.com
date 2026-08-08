@@ -26,11 +26,7 @@ export function DotGridBackground() {
   const { mood } = useAIChatContext();
   const wash = MOOD_WASH_COLORS[mood ?? "neutral"];
   return (
-    <div
-      css={styles.background}
-      role="presentation"
-      style={{ "--chat-mood-wash": wash }}
-    />
+    <div role="presentation" css={[styles.background, styles.moodWash(wash)]} />
   );
 }
 
@@ -49,4 +45,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
+  moodWash: (wash: string) => ({
+    "--chat-mood-wash": wash,
+  }),
 });

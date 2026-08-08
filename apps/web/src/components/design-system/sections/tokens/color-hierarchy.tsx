@@ -116,8 +116,7 @@ function PaletteVisual() {
           {MINI_TONES.map((tone) => (
             <span
               key={tone}
-              css={styles.paletteCell}
-              style={{ backgroundColor: hue.tones[tone].bg }}
+              css={[styles.paletteCell, styles.cellColor(hue.tones[tone].bg)]}
             />
           ))}
         </div>
@@ -148,11 +147,7 @@ function TokensDownstreamVisual() {
       </div>
       <div css={styles.roleDots}>
         {ROLE_DOTS.map((role) => (
-          <span
-            key={role}
-            css={styles.roleDot}
-            style={{ backgroundColor: role }}
-          />
+          <span key={role} css={[styles.roleDot, styles.cellColor(role)]} />
         ))}
       </div>
     </div>
@@ -258,6 +253,9 @@ const styles = stylex.create({
   paletteCell: {
     blockSize: "8px",
   },
+  cellColor: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
 
   // Stage 2 visual
   tokens: {

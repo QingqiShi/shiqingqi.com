@@ -610,6 +610,10 @@ export function MediaTable({
     timeZone: "UTC",
   });
 
+  // LyteNyte Grid's own grid.css targets the literal class `ln-grid`, which has
+  // to coexist with the compiled StyleX classes on the same element.
+  const sx = stylex.props(styles.gridShell, styles.lyteNyteTheme);
+
   return (
     <MediaTableContext
       value={{
@@ -696,10 +700,7 @@ export function MediaTable({
               {query ? noMatchesLabel : notFoundLabel}
             </p>
           ) : (
-            <div
-              className="ln-grid"
-              css={[styles.gridShell, styles.lyteNyteTheme]}
-            >
+            <div {...sx} className={`${sx.className ?? ""} ln-grid`}>
               <Grid<MediaGridSpec>
                 // Remounting on a new result set is what returns the viewport
                 // to the first row and clears stale cell selections.

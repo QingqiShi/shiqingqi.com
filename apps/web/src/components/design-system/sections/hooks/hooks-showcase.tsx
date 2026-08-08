@@ -407,7 +407,7 @@ const { open, setOpen, toggle, triggerProps, contentProps } = usePopover({
 /** A plain element wearing the Button press animation via `usePressHandlers`. */
 function PressSpecimen() {
   const ref = useRef<HTMLButtonElement>(null);
-  const { isPressed, pressedStyle, handlers } = usePressHandlers({
+  const { isPressed, pressedCss, handlers } = usePressHandlers({
     targetRef: ref,
   });
   const label = t({ en: "Press and hold", zh: "按住试试" });
@@ -416,13 +416,13 @@ function PressSpecimen() {
       ref={ref}
       type="button"
       {...handlers}
-      style={{ ...pressedStyle }}
       css={[
         buttonReset.base,
         flex.center,
         a11y.focusRing,
         styles.pressTile,
         isPressed && styles.pressTilePressed,
+        pressedCss,
       ]}
     >
       {label}
@@ -454,13 +454,12 @@ function UsePressSection() {
 import { usePressHandlers } from "@tuja/ui/hooks/use-press-handlers";
 
 const ref = useRef(null);
-const { isPressed, pressedStyle, handlers } = usePressHandlers({
+const { isPressed, pressedCss, handlers } = usePressHandlers({
   targetRef: ref,
   onClick,
 });
 
-<button ref={ref} {...handlers} style={pressedStyle}
-  css={[isPressed && styles.pressed]} />`}
+<button ref={ref} {...handlers} css={[isPressed && styles.pressed, pressedCss]} />`}
       />
     </Showcase>
   );

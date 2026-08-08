@@ -193,12 +193,12 @@ export function SidebarLayout({
 
   const content = (
     <div
-      css={styles.content}
-      style={
+      css={[
+        styles.content,
         contentMaxInlineSize
-          ? { maxInlineSize: contentMaxInlineSize }
-          : undefined
-      }
+          ? dynamicStyles.maxInlineSize(contentMaxInlineSize)
+          : null,
+      ]}
     >
       {children}
     </div>
@@ -507,4 +507,5 @@ const dynamicStyles = stylex.create({
       [breakpoints.md]: `${sidebarInlineSize} minmax(0, 1fr)`,
     },
   }),
+  maxInlineSize: (maxInlineSize: string) => ({ maxInlineSize }),
 });

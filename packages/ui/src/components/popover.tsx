@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import type { CSSProperties, ReactNode, Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import { createPortal } from "react-dom";
 import type { StyleProp } from "../css-prop-types.ts";
 import {
@@ -48,10 +48,6 @@ interface PopoverBaseProps {
   "aria-labelledby"?: string;
   /** StyleX styles merged over the surface — the config-layer escape hatch. */
   css?: StyleProp;
-  /** Escape-hatch class applied to the popover. */
-  className?: string;
-  /** Inline style applied to the popover. `top`/`left` belong to placement. */
-  style?: CSSProperties;
   /** Ref to the popover element. */
   ref?: Ref<HTMLDivElement>;
 }
@@ -102,8 +98,6 @@ export function Popover({
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
   css,
-  className,
-  style,
   ref,
 }: PopoverProps) {
   const { open, triggerProps, contentProps } = usePopover({
@@ -143,8 +137,6 @@ export function Popover({
                   ? (ariaLabelledBy ?? labelledByTrigger)
                   : undefined
               }
-              className={className}
-              style={style}
               css={[
                 styles.content,
                 popoverSurface.base,

@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { CSSProperties, Ref } from "react";
+import type { Ref } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import {
   duration,
@@ -27,10 +27,6 @@ interface SkeletonProps {
   delay?: number;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
-  /** Escape-hatch class applied to the rendered element. */
-  className?: string;
-  /** Inline style applied to the rendered element. */
-  style?: CSSProperties;
   /** Ref to the rendered element. */
   ref?: Ref<HTMLDivElement>;
 }
@@ -46,8 +42,6 @@ export function Skeleton({
   height,
   delay,
   css,
-  className,
-  style,
   ref,
 }: SkeletonProps) {
   return (
@@ -61,8 +55,6 @@ export function Skeleton({
         delay !== undefined && styles.delay(delay),
         css,
       ]}
-      className={className}
-      style={style}
     />
   );
 }

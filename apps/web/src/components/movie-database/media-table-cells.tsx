@@ -106,9 +106,11 @@ export function MediaScoreCell({ api, row }: MediaCellParams) {
     <div css={styles.meterCell}>
       <span css={styles.scoreValue}>{rating.format(score)}</span>
       <span
-        css={styles.meterTrack}
-        style={{ "--media-meter": `${String(toPercent(score, 10))}%` }}
         aria-hidden="true"
+        css={[
+          styles.meterTrack,
+          styles.meterTrackFill(`${String(toPercent(score, 10))}%`),
+        ]}
       >
         <span
           css={[
@@ -161,11 +163,13 @@ export function MediaPopularityCell({ api, row }: MediaCellParams) {
     <div css={styles.meterCell}>
       <span css={styles.numeric}>{compact.format(popularity)}</span>
       <span
-        css={styles.meterTrack}
-        style={{
-          "--media-meter": `${String(toPercent(popularity, maxPopularity))}%`,
-        }}
         aria-hidden="true"
+        css={[
+          styles.meterTrack,
+          styles.meterTrackFill(
+            `${String(toPercent(popularity, maxPopularity))}%`,
+          ),
+        ]}
       >
         <span css={[styles.meterFill, styles.meterFillAccent]} />
       </span>
@@ -381,6 +385,9 @@ const styles = stylex.create({
     borderRadius: border.radius_round,
     backgroundColor: color.surfaceNeutralSubtle,
   },
+  meterTrackFill: (percent: string) => ({
+    "--media-meter": percent,
+  }),
   meterFill: {
     display: "block",
     inlineSize: "var(--media-meter, 0%)",

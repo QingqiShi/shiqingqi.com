@@ -151,12 +151,11 @@ export function PixelSprite({
       role={ariaLabel === undefined ? undefined : "img"}
       aria-label={ariaLabel}
       data-paused={paused ? "true" : undefined}
-      style={{
-        width: `${String(stagePx)}px`,
-        height: `${String(stagePx)}px`,
-        filter,
-      }}
-      css={styles.stage}
+      css={[
+        styles.stage,
+        styles.stageSize(`${String(stagePx)}px`),
+        filter !== undefined && styles.stageFilter(filter),
+      ]}
     >
       <div css={[styles.layer, styles.bodyLayer]}>
         <Image
@@ -176,13 +175,14 @@ export function PixelSprite({
       {accessoryTiles.map((accessory) => (
         <div
           key={accessory.id}
-          css={[styles.layer, styles.accessoryLayer]}
-          style={{
-            left: `${String(accessoryOffsetCss)}px`,
-            top: `${String(accessoryOffsetCss)}px`,
-            width: `${String(accessorySizePx)}px`,
-            height: `${String(accessorySizePx)}px`,
-          }}
+          css={[
+            styles.layer,
+            styles.accessoryLayer,
+            styles.accessoryLayerRect(
+              `${String(accessoryOffsetCss)}px`,
+              `${String(accessorySizePx)}px`,
+            ),
+          ]}
         >
           <PixelLayer
             tile={accessory.tile}
@@ -200,6 +200,13 @@ const styles = stylex.create({
     position: "relative",
     display: "inline-block",
   },
+  stageSize: (size: string) => ({
+    width: size,
+    height: size,
+  }),
+  stageFilter: (filter: string) => ({
+    filter,
+  }),
   layer: {
     position: "absolute",
     top: 0,
@@ -216,4 +223,10 @@ const styles = stylex.create({
     transform:
       "translate3d(var(--pcc-body-dx, 0px), var(--pcc-body-dy, 0px), 0)",
   },
+  accessoryLayerRect: (offset: string, size: string) => ({
+    left: offset,
+    top: offset,
+    width: size,
+    height: size,
+  }),
 });

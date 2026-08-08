@@ -119,7 +119,7 @@ const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
 
 interface CalloutBaseProps extends Omit<
   ComponentProps<"div">,
-  "title" | "role" | "children"
+  "title" | "role" | "children" | "className" | "style"
 > {
   /**
    * Intent and default icon. Maps to the Intent's surface tint,
@@ -170,8 +170,8 @@ type CalloutProps = CalloutBaseProps & CalloutDismissProps;
  * — deliberately no leading accent bar (DESIGN.md ban). The box itself is the
  * live region (`role="status"`/`"alert"`), so its text is announced.
  *
- * Forwards native `<div>` attributes (`id`, `data-*`, `className`, `style`,
- * `ref`) for escape-hatch composition; `css` is composed last so a caller wins.
+ * Forwards native `<div>` attributes (`id`, `data-*`, `ref`) for escape-hatch
+ * composition; `css` is composed last so a caller wins.
  */
 export function Callout({
   variant = "info",
@@ -182,8 +182,6 @@ export function Callout({
   onDismiss,
   dismissLabel,
   css,
-  className,
-  style,
   ref,
   ...restProps
 }: CalloutProps) {
@@ -197,8 +195,6 @@ export function Callout({
       {...restProps}
       ref={ref}
       role={resolvedRole}
-      className={className}
-      style={style}
       css={[styles.base, surfaceStyles[variant], css]}
     >
       {resolvedIcon != null ? (

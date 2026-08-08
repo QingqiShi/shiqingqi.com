@@ -46,10 +46,6 @@ interface BreadcrumbProps {
   linkComponent?: ComponentType<BreadcrumbLinkProps>;
   /** StyleX styles merged over the nav's own — the config-layer escape hatch. */
   css?: StyleProp;
-  /** Escape-hatch class applied to the nav. */
-  className?: string;
-  /** Inline style applied to the nav. */
-  style?: CSSProperties;
 }
 
 /**
@@ -98,24 +94,14 @@ export function Breadcrumb({
   separator,
   linkComponent: LinkComponent = BreadcrumbAnchor,
   css,
-  className,
-  style,
 }: BreadcrumbProps) {
   // A named landmark holding an empty list is worse than no landmark.
   if (items.length === 0) return null;
 
   const lastIndex = items.length - 1;
 
-  // `className` and `style` are explicit attributes rather than a spread: the
-  // `css` transform merges a caller's own styles only when it can see them on
-  // the element.
   return (
-    <nav
-      aria-label={label}
-      className={className}
-      style={style}
-      css={[styles.nav, css]}
-    >
+    <nav aria-label={label} css={[styles.nav, css]}>
       {/* `role="list"` survives the marker reset, which otherwise drops list
           semantics in Safari/VoiceOver. */}
       <ol role="list" css={[flex.wrap, styles.list]}>
@@ -133,7 +119,11 @@ export function Breadcrumb({
               ) : (
                 <LinkComponent
                   href={item.href}
-                  css={[styles.link, transition.colors, a11y.focusRing]}
+                  {...stylex.props(
+                    styles.link,
+                    transition.colors,
+                    a11y.focusRing,
+                  )}
                 >
                   {item.label}
                 </LinkComponent>

@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useLayoutEffect, useRef, type PropsWithChildren } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 
 const animationOptions: KeyframeAnimationOptions = {
   duration: 300,
@@ -16,10 +17,8 @@ interface AnimateToTargetProps {
   targetId: string;
   /** If true, lay the outer and inner containers out as `inline-block`. */
   inline?: boolean;
-  /** Escape-hatch class applied to the outer container. */
-  className?: string;
-  /** Inline style applied to the outer container. */
-  style?: React.CSSProperties;
+  /** StyleX overrides, composed last so a caller wins over the defaults. */
+  css?: StyleProp;
 }
 
 /**
@@ -42,8 +41,7 @@ export function AnimateToTarget({
   animateToTarget,
   targetId,
   inline,
-  className,
-  style,
+  css,
   children,
 }: PropsWithChildren<AnimateToTargetProps>) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -146,12 +144,11 @@ export function AnimateToTarget({
   return (
     <div
       ref={containerRef}
-      className={className}
-      style={style}
       css={[
         styles.container,
         inline && styles.inline,
         animateToTarget && styles.hidden,
+        css,
       ]}
     >
       <div ref={innerRef} css={[styles.inner, inline && styles.inline]}>

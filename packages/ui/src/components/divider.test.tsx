@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Divider } from "./divider.tsx";
@@ -31,16 +32,12 @@ describe("Divider variants", () => {
 });
 
 describe("Divider prop forwarding", () => {
-  it("merges a caller className with the StyleX classes", () => {
-    render(<Divider className="my-rule" />);
+  it("composes a caller css override last", () => {
+    const overrides = stylex.create({ box: { opacity: 0.9 } });
+    render(<Divider css={overrides.box} />);
     const rule = screen.getByRole("separator");
-    expect(rule.className).toContain("my-rule");
+    expect(rule.className).toContain("overrides.box");
     expect(rule.className).toContain("styles.horizontal");
-  });
-
-  it("forwards inline style", () => {
-    render(<Divider style={{ opacity: 0.5 }} />);
-    expect(screen.getByRole("separator")).toHaveStyle({ opacity: "0.5" });
   });
 
   it("forwards a ref to the <hr> when horizontal", () => {

@@ -100,14 +100,13 @@ describe("Callout prop forwarding", () => {
     expect(screen.getByTestId("callout").className).toContain("overrides.box");
   });
 
-  it("merges a caller className and forwards native attributes", () => {
+  it("forwards native attributes", () => {
     render(
-      <Callout className="my-callout" id="c1" data-testid="callout">
+      <Callout id="c1" data-testid="callout">
         Body
       </Callout>,
     );
     const el = screen.getByTestId("callout");
-    expect(el.className).toContain("my-callout");
     expect(el).toHaveAttribute("id", "c1");
   });
 

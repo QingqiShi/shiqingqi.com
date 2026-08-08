@@ -254,9 +254,9 @@ describe("Table prop forwarding", () => {
     );
   });
 
-  it("forwards native attributes, className, and style to the table", () => {
+  it("forwards native attributes to the table", () => {
     render(
-      <Table caption="Rates" id="rates" className="extra" style={{ margin: 4 }}>
+      <Table caption="Rates" id="rates">
         <TableBody>
           <TableRow>
             <TableCell>6.3%</TableCell>
@@ -267,8 +267,6 @@ describe("Table prop forwarding", () => {
 
     const table = screen.getByRole("table");
     expect(table).toHaveAttribute("id", "rates");
-    expect(table.className).toContain("extra");
-    expect(table).toHaveStyle({ margin: "4px" });
   });
 
   it("forwards a ref to the underlying table", () => {

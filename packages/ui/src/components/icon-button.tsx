@@ -20,7 +20,7 @@ type IconButtonShape = "circle" | "square";
 
 interface IconButtonBaseProps extends Omit<
   ComponentProps<"button">,
-  "children"
+  "children" | "className" | "style"
 > {
   /**
    * Icon to render. Rendered inside an `aria-hidden` wrapper — it is purely
@@ -70,10 +70,10 @@ type IconButtonProps = IconButtonBaseProps & IconButtonLabelProps;
 
 /**
  * A compact, icon-only button. Renders a single `<button>` and forwards native
- * button attributes (`onClick`, `disabled`, `inert`, `className`, `style`,
- * `ref`, `type`, `data-*`, …), so positioning and show/hide behaviour stay with
- * the caller. Stateless and server-renderable; the `css` prop is composed last
- * so a caller can override any default (e.g. absolute positioning).
+ * button attributes (`onClick`, `disabled`, `inert`, `ref`, `type`, `data-*`,
+ * …), so positioning and show/hide behaviour stay with the caller. Stateless
+ * and server-renderable; the `css` prop is composed last so a caller can
+ * override any default (e.g. absolute positioning).
  */
 export function IconButton({
   icon,
@@ -81,8 +81,6 @@ export function IconButton({
   variant = "plain",
   shape = "circle",
   type = "button",
-  className,
-  style,
   css,
   ref,
   ...restProps
@@ -92,8 +90,6 @@ export function IconButton({
       {...restProps}
       ref={ref}
       type={type}
-      className={className}
-      style={style}
       css={[
         buttonReset.base,
         flex.center,

@@ -17,9 +17,9 @@ This project uses StyleX for all styling. The system has three layers: **design 
 | Responsive behavior                                    | `stylex.create` + breakpoints | `{ default: "none", [breakpoints.md]: "flex" }` |
 | Pseudo-selectors (hover, focus)                        | `stylex.create`               | `{ default: val, ":hover": hoverVal }`          |
 
-## Custom `css` Prop
+## The `css` Prop
 
-Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is transpiled by a custom Babel plugin.
+Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is StyleX's official JSX shorthand (`sx`), configured under the name `css` via the `sxPropName` Babel option.
 
 ```tsx
 // Single style
@@ -28,6 +28,14 @@ Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is trans
 // Composed — array of styles, primitives, and conditionals
 <div css={[flex.row, styles.header, isActive && styles.active]}>
 ```
+
+**The transform only compiles `css` on lowercase host elements** (`div`, `svg`, …). On a component, `css` is a real runtime prop carrying raw StyleX styles:
+
+- A component that should take styles declares `css?: StyleProp` (from `@tuja/ui/css-prop-types`, or `#src/css-prop-types.ts` inside the ui package) and composes it **last** into its root element's `css` array: `css={[styles.base, css]}`. Every `@tuja/ui` component works this way — `css` is the only styling entry; components do not accept `className` or `style`.
+- NEVER pass `css` to a third-party component (next/link, next/image, Phosphor icons) — it doesn't know the prop. Spread compiled props instead: `<Link {...stylex.props(styles.cta)}>`.
+- NEVER put an explicit `className=`/`style=` attribute on the same host element as `css=` — the compiled spread and the attributes clobber each other, and merging is never needed:
+  - A runtime-computed value belongs in a **dynamic style function**, not a `style` attribute: `stylex.create({ swatch: (bg: string) => ({ backgroundColor: bg }) })`, applied as `css={[styles.tone, styles.swatch(hex)]}`. Custom properties work too: `(x: string) => ({ "--nudge-x": x })`.
+  - A literal class required by a third-party stylesheet (the repo has exactly one: LyteNyte's `ln-grid` in media-table.tsx) is concatenated inline: `const sx = stylex.props(...); <div {...sx} className={`${sx.className ?? ""} ln-grid`}>`.
 
 ## Design Tokens
 

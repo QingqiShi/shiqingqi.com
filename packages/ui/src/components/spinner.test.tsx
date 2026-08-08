@@ -68,10 +68,9 @@ describe("Spinner prop forwarding", () => {
     expect(screen.getByRole("status").className).toContain("overrides.mark");
   });
 
-  it("merges a caller className and forwards native attributes", () => {
-    render(<Spinner label="Loading" className="my-spinner" id="s1" />);
+  it("forwards native attributes", () => {
+    render(<Spinner label="Loading" id="s1" />);
     const el = screen.getByRole("status");
-    expect(el.className).toContain("my-spinner");
     expect(el).toHaveAttribute("id", "s1");
   });
 

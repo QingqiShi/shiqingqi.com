@@ -181,7 +181,7 @@ export function SourceImageInput({
             size={18}
             weight="bold"
             aria-hidden="true"
-            css={styles.capabilityIcon}
+            {...stylex.props(styles.capabilityIcon)}
           />
           <span>{t({ en: "Slice into cells", zh: "切分为单元格" })}</span>
         </li>
@@ -190,7 +190,7 @@ export function SourceImageInput({
             size={18}
             weight="bold"
             aria-hidden="true"
-            css={styles.capabilityIcon}
+            {...stylex.props(styles.capabilityIcon)}
           />
           <span>{t({ en: "Clean up pixels", zh: "清理像素" })}</span>
         </li>
@@ -199,7 +199,7 @@ export function SourceImageInput({
             size={18}
             weight="bold"
             aria-hidden="true"
-            css={styles.capabilityIcon}
+            {...stylex.props(styles.capabilityIcon)}
           />
           <span>{t({ en: "Assemble frames", zh: "组装动画帧" })}</span>
         </li>

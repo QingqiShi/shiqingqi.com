@@ -8,7 +8,11 @@ import { t } from "#src/i18n.ts";
 export function ExternalLinkIndicator() {
   return (
     <>
-      <ArrowSquareOutIcon size="0.85em" css={styles.icon} aria-hidden="true" />
+      <ArrowSquareOutIcon
+        size="0.85em"
+        aria-hidden="true"
+        {...stylex.props(styles.icon)}
+      />
       <span css={a11y.srOnly}>
         {t({ en: "(opens in new tab)", zh: "(在新标签页中打开)" })}
       </span>

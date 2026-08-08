@@ -48,20 +48,6 @@ describe("Skeleton prop forwarding", () => {
     );
   });
 
-  it("merges a caller className with the StyleX classes", () => {
-    const { container } = render(<Skeleton className="my-skeleton" />);
-    const el = container.querySelector("div");
-    expect(el?.className).toContain("my-skeleton");
-    expect(el?.className).toContain("styles.skeleton");
-  });
-
-  it("forwards inline style", () => {
-    const { container } = render(<Skeleton style={{ margin: "4px" }} />);
-    expect(container.querySelector("div")?.getAttribute("style")).toContain(
-      "margin",
-    );
-  });
-
   it("forwards a ref to the div element", () => {
     const ref: { current: HTMLDivElement | null } = { current: null };
     render(<Skeleton ref={ref} />);

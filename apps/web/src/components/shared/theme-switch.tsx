@@ -107,10 +107,14 @@ export function ThemeSwitch({ labels, size = "md" }: ThemeSwitchProps) {
           >
             <MoonIcon
               weight="fill"
-              css={styles.systemMoon}
               aria-hidden="true"
+              {...stylex.props(styles.systemMoon)}
             />
-            <SunIcon weight="fill" css={styles.systemSun} aria-hidden="true" />
+            <SunIcon
+              weight="fill"
+              aria-hidden="true"
+              {...stylex.props(styles.systemSun)}
+            />
           </div>
         </Button>
       </div>

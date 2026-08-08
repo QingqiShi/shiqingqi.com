@@ -26,7 +26,7 @@ interface SelectOption {
 
 interface SelectProps extends Omit<
   ComponentProps<"select">,
-  "size" | "children"
+  "size" | "children" | "className" | "style"
 > {
   /** Visible text that labels the select. Pass `labelHidden` to keep it screen-reader-only. */
   label: string;
@@ -103,8 +103,6 @@ export function Select({
   size = "md",
   children,
   css,
-  className,
-  style,
   id: idProp,
   value,
   defaultValue,
@@ -162,8 +160,6 @@ export function Select({
           disabled={disabled}
           aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
-          className={className}
-          style={style}
           css={[
             fieldStyles.control,
             fieldSizeBox[size],
