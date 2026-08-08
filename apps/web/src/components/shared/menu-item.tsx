@@ -20,6 +20,14 @@ interface ItemProps {
   lang?: string;
   onBeforeNavigation?: () => void;
   onAfterNavigation?: () => void;
+  /**
+   * Runs inside the same transition as the navigation, right after
+   * `router.push`. For follow-up router work that must batch with the
+   * navigation — e.g. a `router.refresh()` that flushes client caches made
+   * stale by what the navigation changes. `onAfterNavigation` runs outside
+   * the transition and cannot do this.
+   */
+  onNavigation?: () => void;
 }
 
 export function MenuItem({
@@ -31,6 +39,7 @@ export function MenuItem({
   lang,
   onBeforeNavigation,
   onAfterNavigation,
+  onNavigation,
 }: PropsWithChildren<ItemProps>) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -56,6 +65,7 @@ export function MenuItem({
         onBeforeNavigation?.();
         startTransition(() => {
           router.push(href);
+          onNavigation?.();
         });
         onAfterNavigation?.();
       }}
