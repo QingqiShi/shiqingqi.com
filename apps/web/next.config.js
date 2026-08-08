@@ -10,6 +10,12 @@ module.exports = async () => {
     // is enforced by the dedicated CI `lint` job; Next 16 no longer runs
     // ESLint during `next build`.)
     typescript: { ignoreBuildErrors: true },
+    experimental: {
+      // Next 16.3 defaults to the `typescript` package's CLI binary, but our
+      // workspace aliases that package to `@typescript/typescript6`, which
+      // ships the compiler API without a `tsc` binary. Use the API instead.
+      useTypeScriptCli: false,
+    },
     transpilePackages: ["@tuja/ui"],
     serverExternalPackages: ["esbuild-wasm", "@babel/parser", "prettier"],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),

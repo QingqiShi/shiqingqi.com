@@ -10,6 +10,12 @@ module.exports = async () => {
     // is enforced by the dedicated CI `lint` job; Next 16 no longer runs
     // ESLint during `next build`.)
     typescript: { ignoreBuildErrors: true },
+    experimental: {
+      // Next 16.3 defaults to the `typescript` package's CLI binary, but our
+      // workspace aliases that package to `@typescript/typescript6`, which
+      // ships the compiler API without a `tsc` binary. Use the API instead.
+      useTypeScriptCli: false,
+    },
     // The app lives in a pnpm workspace; trace from the repo root so Next
     // bundles workspace dependencies correctly for serverless output.
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
