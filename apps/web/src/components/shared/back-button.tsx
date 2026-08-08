@@ -44,7 +44,7 @@ export function BackButton({ locale, label }: BackButtonProps) {
         <HouseIcon
           weight="bold"
           role="presentation"
-          css={styles.mobileVisible}
+          {...stylex.props(styles.mobileVisible)}
         />
       </Button>
     );
@@ -77,7 +77,7 @@ export function BackButton({ locale, label }: BackButtonProps) {
           <HouseIcon
             weight="bold"
             role="presentation"
-            css={styles.mobileVisible}
+            {...stylex.props(styles.mobileVisible)}
           />
         </AnchorButton>
       );
@@ -98,7 +98,11 @@ export function BackButton({ locale, label }: BackButtonProps) {
       aria-label={label}
     >
       <span css={styles.desktopVisible}>{label}</span>
-      <HouseIcon weight="bold" role="presentation" css={styles.mobileVisible} />
+      <HouseIcon
+        weight="bold"
+        role="presentation"
+        {...stylex.props(styles.mobileVisible)}
+      />
     </AnchorButton>
   );
 }

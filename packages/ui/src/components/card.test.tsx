@@ -43,17 +43,6 @@ describe("Card rendering", () => {
 });
 
 describe("Card prop forwarding", () => {
-  it("merges className and forwards style", () => {
-    render(
-      <Card data-testid="card" className="extra" style={{ margin: 4 }}>
-        Body
-      </Card>,
-    );
-    const card = screen.getByTestId("card");
-    expect(card.className).toContain("extra");
-    expect(card).toHaveStyle({ margin: "4px" });
-  });
-
   it("forwards native attributes and events", () => {
     const onClick = vi.fn();
     render(

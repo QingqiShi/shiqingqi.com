@@ -3,7 +3,6 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { border, color, font, ratio, space } from "@tuja/ui/tokens.stylex";
-import type { CSSProperties } from "react";
 
 interface TypesetPosterProps {
   /** The Movie's localized title, set as the poster's own artwork. */
@@ -24,14 +23,6 @@ interface TypesetPosterProps {
   lead?: boolean;
   /** StyleX overrides, composed last. */
   css?: StyleProp;
-  /**
-   * Where a callsite's own `css` prop actually lands. The Babel plugin rewrites
-   * `css` on a JSX element — component or DOM node — into `className` plus
-   * `style`, so a component that wants to be styleable from outside has to accept
-   * both and hand them to the element it renders, exactly as `Skeleton` does.
-   */
-  className?: string;
-  style?: CSSProperties;
 }
 
 /**
@@ -64,17 +55,11 @@ export function TypesetPoster({
   credit,
   lead,
   css,
-  className,
-  style,
 }: TypesetPosterProps) {
   const hasFooter = Boolean(credit ?? year);
 
   return (
-    <div
-      css={[styles.poster, lead ? styles.lead : styles.thumb, css]}
-      className={className}
-      style={style}
-    >
+    <div css={[styles.poster, lead ? styles.lead : styles.thumb, css]}>
       {studio ? (
         <Text as="span" variant="overline" tone="subtle" transform="uppercase">
           {studio}

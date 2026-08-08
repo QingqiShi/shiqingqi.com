@@ -20,7 +20,10 @@ import { Spinner } from "./spinner.tsx";
 type ButtonSize = "sm" | "md" | "lg";
 type ButtonVariant = "primary" | "outline" | "ghost" | "danger";
 
-interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
+interface ButtonBaseProps extends Omit<
+  ComponentProps<"button">,
+  "children" | "className" | "style"
+> {
   /**
    * Lifts the button onto a bright surface, brightening further on hover.
    *
@@ -94,7 +97,6 @@ type ButtonProps = ButtonBaseProps &
 export function Button({
   bright,
   children,
-  className,
   css,
   disabled,
   hideLabelOnMobile,
@@ -106,7 +108,6 @@ export function Button({
   onKeyDown,
   ref: forwardedRef,
   size = "md",
-  style,
   type = "button",
   variant,
   "aria-busy": ariaBusy,
@@ -155,14 +156,15 @@ export function Button({
     onKeyDown?.(event);
   }
 
-  const { isPressed, releasedOutside, pressedStyle, handlers } =
-    usePressHandlers({
+  const { isPressed, releasedOutside, pressedCss, handlers } = usePressHandlers(
+    {
       disabled: isInert,
       targetRef: buttonRef,
       ...restProps,
       onClick: handleClick,
       onKeyDown: handleKeyDown,
-    });
+    },
+  );
 
   return (
     <button
@@ -170,14 +172,12 @@ export function Button({
       {...restProps}
       ref={setButtonRef}
       type={type}
-      className={className}
       disabled={disabled}
       // Both fall back to the caller's own value rather than `undefined`: these
       // are written after `{...restProps}`, so hard-coding `undefined` would
       // strip an `aria-busy` a caller set themselves.
       aria-disabled={isLoading ? true : ariaDisabled}
       aria-busy={isLoading ? true : ariaBusy}
-      style={{ ...style, ...pressedStyle }}
       css={[
         sharedStyles.base,
         a11y.focusRing,
@@ -205,6 +205,7 @@ export function Button({
         isPressed && !isInert && bright && sharedStyles.pressedBright,
         releasedOutside && sharedStyles.releasedOutside,
         css,
+        pressedCss,
       ]}
       {...handlers}
     >

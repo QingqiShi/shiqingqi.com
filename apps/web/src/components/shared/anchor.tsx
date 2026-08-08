@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
+import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { border } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
@@ -16,11 +17,11 @@ interface AnchorExtraProps {
    * icon-slot-driven buttons).
    */
   indicateExternal?: boolean;
+  css?: StyleProp;
 }
 
 export function Anchor({
-  className,
-  style,
+  css,
   prefetch,
   onMouseEnter,
   onFocus,
@@ -30,7 +31,8 @@ export function Anchor({
   children,
   indicateExternal = true,
   ...props
-}: React.ComponentProps<typeof Link> & AnchorExtraProps) {
+}: Omit<React.ComponentProps<typeof Link>, "className" | "style"> &
+  AnchorExtraProps) {
   // Defer Next.js's hover/focus prefetching until the user signals intent,
   // then hand control back to the framework by flipping `prefetch` to `null`.
   // Wiring both pointer and keyboard signals keeps prefetch parity for
@@ -58,9 +60,7 @@ export function Anchor({
         setIntent(true);
         onFocus?.(e);
       }}
-      className={className}
-      style={style}
-      css={[styles.a, a11y.focusRing]}
+      {...stylex.props(styles.a, a11y.focusRing, css)}
     >
       {children}
       {showIndicator && <ExternalLinkIndicator />}

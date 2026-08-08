@@ -1055,13 +1055,16 @@ export function PixelEditor({
             <button
               key={hex}
               type="button"
-              css={[styles.swatch, activeColor === hex && styles.swatchActive]}
-              style={{ backgroundColor: hex }}
               aria-label={hex}
               onClick={() => {
                 setActiveColor(hex);
                 remember(hex);
               }}
+              css={[
+                styles.swatch,
+                activeColor === hex && styles.swatchActive,
+                styles.swatchColor(hex),
+              ]}
             />
           ))}
         </div>
@@ -1074,15 +1077,15 @@ export function PixelEditor({
               <button
                 key={hex}
                 type="button"
-                css={[
-                  styles.swatch,
-                  activeColor === hex && styles.swatchActive,
-                ]}
-                style={{ backgroundColor: hex }}
                 aria-label={hex}
                 onClick={() => {
                   setActiveColor(hex);
                 }}
+                css={[
+                  styles.swatch,
+                  activeColor === hex && styles.swatchActive,
+                  styles.swatchColor(hex),
+                ]}
               />
             ))}
           </div>
@@ -1325,6 +1328,9 @@ const styles = stylex.create({
     outline: `${border.size_2} solid ${color.accent}`,
     outlineOffset: border.size_1,
   },
+  swatchColor: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
   range: {
     accentColor: color.accent,
     cursor: "pointer",

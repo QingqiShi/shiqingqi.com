@@ -8,7 +8,7 @@ type AvatarVariant = "subtle" | "solid";
 
 interface AvatarBaseProps extends Omit<
   ComponentProps<"span">,
-  "children" | "role" | "aria-label"
+  "children" | "role" | "aria-label" | "className" | "style"
 > {
   /**
    * Who the avatar stands for. Names the avatar and, without `src` or
@@ -88,8 +88,7 @@ function monogramFrom(name: string): string {
  * The whole thing is one `role="img"` named by `name` — plus `badgeLabel` when
  * there is a badge — so it announces as a single object rather than reading its
  * monogram out letter by letter. Renders a `<span>` and forwards native span
- * attributes (`id`, `data-*`, `className`, `style`, `ref`); `css` is composed
- * last.
+ * attributes (`id`, `data-*`, `ref`); `css` is composed last.
  */
 export function Avatar({
   name,
@@ -100,8 +99,6 @@ export function Avatar({
   badge,
   badgeLabel,
   css,
-  className,
-  style,
   ...restProps
 }: AvatarProps) {
   // `||` rather than `??`: a record that carries `initials: ""` has no override
@@ -134,8 +131,6 @@ export function Avatar({
       {...restProps}
       role={isImage ? "img" : undefined}
       aria-label={isNamed ? label : undefined}
-      className={className}
-      style={style}
       css={[styles.root, sizeStyles[size], css]}
     >
       <span css={[styles.medallion, variantStyles[variant]]} aria-hidden>

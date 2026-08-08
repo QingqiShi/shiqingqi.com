@@ -15,7 +15,7 @@ type SpinnerTone = "accent" | "current";
 
 interface SpinnerBaseProps extends Omit<
   ComponentProps<"span">,
-  "children" | "role" | "aria-hidden"
+  "children" | "role" | "aria-hidden" | "className" | "style"
 > {
   /**
    * Rendered diameter. The `sm`/`md`/`lg` steps map to `rem` so the indicator
@@ -65,7 +65,7 @@ type SpinnerProps = SpinnerBaseProps & SpinnerA11yProps;
  * Indeterminate loading indicator — a gapped ring that spins smoothly. Under
  * `prefers-reduced-motion` the rotation is replaced by a gentle opacity pulse,
  * never an infinite spin. Renders an `<span>` and forwards native attributes
- * (`id`, `data-*`, `className`, `style`, `ref`); `css` is composed last.
+ * (`id`, `data-*`, `ref`); `css` is composed last.
  */
 export function Spinner({
   size = "md",
@@ -73,8 +73,6 @@ export function Spinner({
   label,
   "aria-hidden": ariaHidden,
   css,
-  className,
-  style,
   ...restProps
 }: SpinnerProps) {
   const isDecorative = ariaHidden === true;
@@ -82,8 +80,6 @@ export function Spinner({
   return (
     <span
       {...restProps}
-      className={className}
-      style={style}
       role={isDecorative ? undefined : "status"}
       aria-live={isDecorative ? undefined : "polite"}
       aria-label={isDecorative ? undefined : label}

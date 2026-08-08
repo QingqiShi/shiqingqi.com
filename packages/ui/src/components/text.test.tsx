@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Text } from "./text.tsx";
@@ -61,16 +62,12 @@ describe("Text variant and modifier classes", () => {
 });
 
 describe("Text prop forwarding", () => {
-  it("merges a caller className with the StyleX classes", () => {
-    render(<Text className="my-text">Copy</Text>);
+  it("composes a caller css override last", () => {
+    const overrides = stylex.create({ box: { opacity: 0.9 } });
+    render(<Text css={overrides.box}>Copy</Text>);
     const el = screen.getByText("Copy");
-    expect(el.className).toContain("my-text");
+    expect(el.className).toContain("overrides.box");
     expect(el.className).toContain("styles.base");
-  });
-
-  it("forwards inline style", () => {
-    render(<Text style={{ opacity: 0.5 }}>Copy</Text>);
-    expect(screen.getByText("Copy")).toHaveStyle({ opacity: "0.5" });
   });
 
   it("forwards a ref to the rendered element", () => {

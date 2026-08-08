@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { ComponentProps, CSSProperties, ReactNode, Ref } from "react";
+import type { ComponentProps, ReactNode, Ref } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { space } from "../tokens.stylex.ts";
@@ -9,7 +9,7 @@ import { Text } from "./text.tsx";
 
 type CardTitleLevel = 2 | 3 | 4 | 5 | 6;
 
-interface CardProps extends ComponentProps<"div"> {
+interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
   /**
    * Adds pointer affordances — a hover border and background lift plus an eased
    * colour transition — for a card that is itself clickable. Leave `false` (the
@@ -26,16 +26,14 @@ interface CardProps extends ComponentProps<"div"> {
 /**
  * The system's bordered-surface container: a 1px neutral border, rounded
  * corners, and a raised surface background. Renders a `<div>` and forwards
- * native div attributes (`role`, `id`, `onClick`, `data-*`, `className`,
- * `style`, `ref`) so a caller can add behaviour or a one-off override without a
- * wrapper. The `css` prop is composed last, letting a caller win over the
- * defaults — including the padding, so a denser or roomier card is a one-liner.
+ * native div attributes (`role`, `id`, `onClick`, `data-*`, `ref`) so a caller
+ * can add behaviour or a one-off override without a wrapper. The `css` prop is
+ * composed last, letting a caller win over the defaults — including the
+ * padding, so a denser or roomier card is a one-liner.
  */
 export function Card({
   interactive = false,
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
@@ -44,8 +42,6 @@ export function Card({
     <div
       {...restProps}
       ref={ref}
-      className={className}
-      style={style}
       css={[
         styles.base,
         cardSurface.base,
@@ -59,7 +55,10 @@ export function Card({
   );
 }
 
-interface CardHeaderProps extends ComponentProps<"div"> {
+interface CardHeaderProps extends Omit<
+  ComponentProps<"div">,
+  "className" | "style"
+> {
   /**
    * Control parked at the trailing edge of the header — a menu button, a
    * dismiss, a badge. Top-aligned with the title and never squeezed, so a long
@@ -77,8 +76,6 @@ interface CardHeaderProps extends ComponentProps<"div"> {
 export function CardHeader({
   action,
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
@@ -87,8 +84,6 @@ export function CardHeader({
     <div
       {...restProps}
       ref={ref}
-      className={className}
-      style={style}
       css={[slotStyles.block, slotStyles.header, css]}
     >
       <div css={slotStyles.headerText}>{children}</div>
@@ -115,10 +110,6 @@ interface CardTitleProps {
   id?: string;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
-  /** Escape-hatch class applied to the rendered heading. */
-  className?: string;
-  /** Inline style applied to the rendered heading. */
-  style?: CSSProperties;
   /** Ref to the rendered heading element. */
   ref?: Ref<HTMLHeadingElement>;
 }
@@ -131,21 +122,11 @@ export function CardTitle({
   level = 3,
   id,
   css,
-  className,
-  style,
   ref,
   children,
 }: CardTitleProps) {
   return (
-    <Heading
-      level={level}
-      variant="h3"
-      ref={ref}
-      id={id}
-      className={className}
-      style={style}
-      css={css}
-    >
+    <Heading level={level} variant="h3" ref={ref} id={id} css={css}>
       {children}
     </Heading>
   );
@@ -161,10 +142,6 @@ interface CardDescriptionProps {
   id?: string;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
-  /** Escape-hatch class applied to the rendered paragraph. */
-  className?: string;
-  /** Inline style applied to the rendered paragraph. */
-  style?: CSSProperties;
   /** Ref to the rendered paragraph. */
   ref?: Ref<HTMLElement>;
 }
@@ -173,21 +150,11 @@ interface CardDescriptionProps {
 export function CardDescription({
   id,
   css,
-  className,
-  style,
   ref,
   children,
 }: CardDescriptionProps) {
   return (
-    <Text
-      variant="bodySmall"
-      tone="muted"
-      ref={ref}
-      id={id}
-      className={className}
-      style={style}
-      css={css}
-    >
+    <Text variant="bodySmall" tone="muted" ref={ref} id={id} css={css}>
       {children}
     </Text>
   );
@@ -196,20 +163,12 @@ export function CardDescription({
 /** The card's main content region. */
 export function CardContent({
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
-}: ComponentProps<"div">) {
+}: Omit<ComponentProps<"div">, "className" | "style">) {
   return (
-    <div
-      {...restProps}
-      ref={ref}
-      className={className}
-      style={style}
-      css={[slotStyles.block, css]}
-    >
+    <div {...restProps} ref={ref} css={[slotStyles.block, css]}>
       {children}
     </div>
   );
@@ -218,18 +177,14 @@ export function CardContent({
 /** A trailing row for the card's actions. */
 export function CardFooter({
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
-}: ComponentProps<"div">) {
+}: Omit<ComponentProps<"div">, "className" | "style">) {
   return (
     <div
       {...restProps}
       ref={ref}
-      className={className}
-      style={style}
       css={[slotStyles.block, slotStyles.footer, css]}
     >
       {children}

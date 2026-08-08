@@ -17,12 +17,10 @@ export function ExperienceCard({
   logo,
   dates,
   dateTime,
-  className,
-  style,
   ...rest
 }: ExperienceCardProps) {
   return (
-    <Card {...rest} className={className} style={style} css={styles.card}>
+    <Card {...rest} css={styles.card}>
       <Suspense fallback={<Skeleton />}>
         <div css={[flex.row, styles.logo]}>{logo}</div>
       </Suspense>

@@ -36,8 +36,14 @@ interface ChipBaseProps {
  */
 type ChipProps = ChipBaseProps &
   (
-    | ({ href: string } & Omit<ComponentProps<"a">, "children">)
-    | ({ href?: undefined } & Omit<ComponentProps<"button">, "children">)
+    | ({ href: string } & Omit<
+        ComponentProps<"a">,
+        "children" | "className" | "style"
+      >)
+    | ({ href?: undefined } & Omit<
+        ComponentProps<"button">,
+        "children" | "className" | "style"
+      >)
   );
 
 /**
@@ -55,16 +61,7 @@ type ChipProps = ChipBaseProps &
  * intentionally stays framework-agnostic.
  */
 export function Chip(props: ChipProps) {
-  const {
-    children,
-    icon,
-    trailing,
-    size = "md",
-    isActive,
-    css,
-    className,
-    style,
-  } = props;
+  const { children, icon, trailing, size = "md", isActive, css } = props;
 
   const chipCss = [
     chipSurface.base,
@@ -94,10 +91,10 @@ export function Chip(props: ChipProps) {
   );
 
   // Narrowed before destructuring so each branch's rest object carries only the
-  // attributes its element accepts. `className` and `style` are pulled out and
-  // re-applied as explicit attributes: the `css` transform merges them only when
-  // it can see them on the element, never through a spread. The unused names are
-  // rest siblings, which the lint config ignores.
+  // attributes its element accepts. `css` is pulled out rather than left to
+  // travel through the rest spread, so it can be recombined with the chip's own
+  // styles below instead of leaking onto the DOM as a raw prop. The unused
+  // names are rest siblings, which the lint config ignores.
   if (props.href !== undefined) {
     const {
       children: _children,
@@ -106,12 +103,10 @@ export function Chip(props: ChipProps) {
       size: _size,
       isActive: _isActive,
       css: _css,
-      className: _className,
-      style: _style,
       ...anchorProps
     } = props;
     return (
-      <a {...anchorProps} className={className} style={style} css={chipCss}>
+      <a {...anchorProps} css={chipCss}>
         {content}
       </a>
     );
@@ -124,21 +119,12 @@ export function Chip(props: ChipProps) {
     size: _size,
     isActive: _isActive,
     css: _css,
-    className: _className,
-    style: _style,
     href: _href,
     type = "button",
     ...buttonProps
   } = props;
   return (
-    <button
-      aria-pressed={isActive}
-      {...buttonProps}
-      type={type}
-      className={className}
-      style={style}
-      css={chipCss}
-    >
+    <button aria-pressed={isActive} {...buttonProps} type={type} css={chipCss}>
       {content}
     </button>
   );

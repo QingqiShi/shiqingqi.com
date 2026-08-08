@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
@@ -100,13 +101,13 @@ describe("Switch Component", () => {
       expect(switchElement).toBeDisabled();
     });
 
-    it("applies custom className and style props", () => {
-      const customStyle = { margin: "10px" };
-      render(<Switch className="custom-class" style={customStyle} />);
+    it("composes a caller css override last", () => {
+      const overrides = stylex.create({ box: { opacity: 0.9 } });
+      render(<Switch css={overrides.box} />);
 
       const switchElement = screen.getByRole("switch");
-      expect(switchElement).toHaveClass("custom-class");
-      expect(switchElement).toHaveStyle({ margin: "10px" });
+      expect(switchElement.className).toContain("overrides.box");
+      expect(switchElement.className).toContain("switch__styles.switch");
     });
   });
 

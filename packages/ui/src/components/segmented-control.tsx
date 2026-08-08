@@ -30,7 +30,13 @@ interface SegmentedControlOption<TValue extends string> {
 
 interface SegmentedControlBaseProps<TValue extends string> extends Omit<
   ComponentProps<"div">,
-  "children" | "onChange" | "role" | "aria-label" | "aria-labelledby"
+  | "children"
+  | "onChange"
+  | "role"
+  | "aria-label"
+  | "aria-labelledby"
+  | "className"
+  | "style"
 > {
   /** Ordered segments. Arrow-key navigation follows this order. */
   options: readonly SegmentedControlOption<TValue>[];
@@ -78,8 +84,6 @@ export function SegmentedControl<TValue extends string>({
   size = "md",
   fullWidth,
   css,
-  className,
-  style,
   ref,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -98,8 +102,6 @@ export function SegmentedControl<TValue extends string>({
       role="radiogroup"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      className={className}
-      style={style}
       css={[styles.track, fullWidth && styles.trackFullWidth, css]}
     >
       {options.map((option) => (

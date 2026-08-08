@@ -36,7 +36,7 @@ function SectionHeading({
 
 interface SectionProps extends Omit<
   ComponentProps<"section">,
-  "title" | "children"
+  "title" | "children" | "className" | "style"
 > {
   /** The block's label. Rendered as a real heading, so keep it to a phrase. */
   title: ReactNode;
@@ -74,7 +74,7 @@ interface SectionProps extends Omit<
  * directly when a section genuinely needs a prominent title.
  *
  * Renders a `<section>` and forwards native attributes (`id`, `aria-*`,
- * `data-*`, `className`, `style`, `ref`); `css` is composed last.
+ * `data-*`, `ref`); `css` is composed last.
  */
 export function Section({
   title,
@@ -84,8 +84,6 @@ export function Section({
   level = 3,
   divider,
   css,
-  className,
-  style,
   ref,
   ...restProps
 }: SectionProps) {
@@ -93,8 +91,6 @@ export function Section({
     <section
       {...restProps}
       ref={ref}
-      className={className}
-      style={style}
       css={[styles.root, divider === true && styles.divided, css]}
     >
       <div css={styles.header}>

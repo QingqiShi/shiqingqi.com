@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Heading } from "./heading.tsx";
@@ -55,16 +56,12 @@ describe("Heading weight override", () => {
 });
 
 describe("Heading prop forwarding", () => {
-  it("merges a caller className with the StyleX classes", () => {
-    render(<Heading className="my-heading">Title</Heading>);
+  it("composes a caller css override last", () => {
+    const overrides = stylex.create({ box: { opacity: 0.9 } });
+    render(<Heading css={overrides.box}>Title</Heading>);
     const el = screen.getByRole("heading");
-    expect(el.className).toContain("my-heading");
+    expect(el.className).toContain("overrides.box");
     expect(el.className).toContain("styles.base");
-  });
-
-  it("forwards inline style", () => {
-    render(<Heading style={{ opacity: 0.5 }}>Title</Heading>);
-    expect(screen.getByRole("heading")).toHaveStyle({ opacity: "0.5" });
   });
 
   it("forwards a ref to the heading element", () => {

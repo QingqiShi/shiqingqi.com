@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Badge } from "./badge.tsx";
@@ -41,16 +42,10 @@ describe("Badge rendering", () => {
 });
 
 describe("Badge prop forwarding", () => {
-  it("merges a caller className with the StyleX classes", () => {
-    render(<Badge className="my-badge">Label</Badge>);
-    const badge = screen.getByText("Label");
-    expect(badge.className).toContain("my-badge");
-    expect(badge.className).toContain("styles.base");
-  });
-
-  it("forwards inline style", () => {
-    render(<Badge style={{ opacity: 0.5 }}>Label</Badge>);
-    expect(screen.getByText("Label")).toHaveStyle({ opacity: "0.5" });
+  it("composes a caller css override last", () => {
+    const overrides = stylex.create({ box: { opacity: 0.9 } });
+    render(<Badge css={overrides.box}>Label</Badge>);
+    expect(screen.getByText("Label").className).toContain("overrides.box");
   });
 
   it("forwards native span attributes", () => {

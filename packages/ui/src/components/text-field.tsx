@@ -13,7 +13,10 @@ type FieldSize = "sm" | "md" | "lg";
 
 // `size` on the intrinsic input is the HTML character-width attribute; the
 // design system reuses the name for its own scale, so drop the native one.
-interface TextFieldProps extends Omit<ComponentProps<"input">, "size"> {
+interface TextFieldProps extends Omit<
+  ComponentProps<"input">,
+  "size" | "className" | "style"
+> {
   /**
    * Visible label text. Always required for an accessible name, even when
    * hidden via {@link TextFieldProps.labelHidden} — never rely on a
@@ -63,8 +66,6 @@ export function TextField({
   required,
   disabled,
   css,
-  className,
-  style,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
   ref,
@@ -111,8 +112,6 @@ export function TextField({
           disabled={disabled}
           aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
-          className={className}
-          style={style}
           css={[
             fieldStyles.control,
             fieldSizeBox[size],

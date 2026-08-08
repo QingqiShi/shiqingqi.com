@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { CSSProperties, Ref } from "react";
+import type { Ref } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { border, color } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
@@ -14,10 +14,6 @@ interface DividerProps {
   variant?: DividerVariant;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
-  /** Escape-hatch class applied to the rendered rule. */
-  className?: string;
-  /** Inline style applied to the rendered rule. */
-  style?: CSSProperties;
   /** Ref to the rendered element (`<hr>` when horizontal, `<div>` when vertical). */
   ref?: Ref<HTMLElement>;
 }
@@ -25,14 +21,12 @@ interface DividerProps {
 /**
  * Thin separator rule. Renders a semantic `<hr>` when horizontal and a
  * `role="separator"` `<div>` when vertical (an `<hr>` cannot be turned on its
- * side accessibly). Forwards `className`, `style`, and `ref`.
+ * side accessibly). Forwards `ref`.
  */
 export function Divider({
   orientation = "horizontal",
   variant = "subtle",
   css,
-  className,
-  style,
   ref,
 }: DividerProps) {
   // A single callback ref forwards to the caller for either rendered element;
@@ -47,37 +41,31 @@ export function Divider({
   const decorative = variant === "decorative";
 
   if (orientation === "vertical") {
-    const composedCss = [
-      styles.base,
-      styles.vertical,
-      verticalVariantStyles[variant],
-      css,
-    ];
     return (
       <div
         role={decorative ? "presentation" : "separator"}
         aria-orientation={decorative ? undefined : "vertical"}
         ref={setRef}
-        css={composedCss}
-        className={className}
-        style={style}
+        css={[
+          styles.base,
+          styles.vertical,
+          verticalVariantStyles[variant],
+          css,
+        ]}
       />
     );
   }
 
-  const composedCss = [
-    styles.base,
-    styles.horizontal,
-    horizontalVariantStyles[variant],
-    css,
-  ];
   return (
     <hr
       ref={setRef}
       role={decorative ? "presentation" : undefined}
-      css={composedCss}
-      className={className}
-      style={style}
+      css={[
+        styles.base,
+        styles.horizontal,
+        horizontalVariantStyles[variant],
+        css,
+      ]}
     />
   );
 }

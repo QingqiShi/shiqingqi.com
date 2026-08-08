@@ -4,6 +4,7 @@ import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { IconButton } from "@tuja/ui/components/icon-button";
+import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { layer } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -15,8 +16,8 @@ interface HorizontalScrollButtonsProps {
   scrollRef: React.RefObject<HTMLElement | null>;
   showLeft: boolean;
   showRight: boolean;
-  leftCss?: React.Attributes["css"];
-  rightCss?: React.Attributes["css"];
+  leftCss?: StyleProp;
+  rightCss?: StyleProp;
 }
 
 export function HorizontalScrollButtons({

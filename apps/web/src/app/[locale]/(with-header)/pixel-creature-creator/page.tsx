@@ -67,7 +67,11 @@ export default async function Page(props: PageProps) {
             zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
           })}
         </p>
-        <Link href={createHref} css={styles.cta} data-testid="landing-cta">
+        <Link
+          href={createHref}
+          data-testid="landing-cta"
+          {...stylex.props(styles.cta)}
+        >
           {t({ en: "Start creating", zh: "开始创造" })}
         </Link>
       </section>

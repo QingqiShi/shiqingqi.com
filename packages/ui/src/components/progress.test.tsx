@@ -133,12 +133,9 @@ describe("Progress prop forwarding", () => {
     );
   });
 
-  it("merges a caller className and forwards native attributes", () => {
-    render(
-      <Progress label="Upload" value={40} className="my-bar" id="upload-bar" />,
-    );
+  it("forwards native attributes", () => {
+    render(<Progress label="Upload" value={40} id="upload-bar" />);
     const bar = screen.getByRole("progressbar");
-    expect(bar.className).toContain("my-bar");
     expect(bar).toHaveAttribute("id", "upload-bar");
   });
 

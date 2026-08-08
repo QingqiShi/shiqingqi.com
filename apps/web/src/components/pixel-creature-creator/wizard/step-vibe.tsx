@@ -116,9 +116,11 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
               ]}
             >
               <span
-                style={{ backgroundColor: tp.accentColor }}
-                css={styles.typeAccent}
                 title={tp.accentColor}
+                css={[
+                  styles.typeAccent,
+                  styles.typeAccentColor(tp.accentColor),
+                ]}
               />
               <span css={styles.optionLabel}>{typeLabels[tp.id] ?? tp.id}</span>
             </button>
@@ -205,6 +207,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
   },
+  typeAccentColor: (backgroundColor: string) => ({ backgroundColor }),
   optionLabel: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,

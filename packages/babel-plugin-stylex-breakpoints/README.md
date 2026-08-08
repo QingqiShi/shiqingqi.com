@@ -69,11 +69,11 @@ const uiRoot = path.dirname(require.resolve("@tuja/ui/package.json"));
 
 module.exports = {
   plugins: [
-    "@tuja/babel-plugin-stylex-css-prop",
     ["@tuja/babel-plugin-stylex-breakpoints", { rootDir: uiRoot }],
     [
       "@stylexjs/babel-plugin",
       {
+        sxPropName: "css",
         runtimeInjection: false,
         treeshakeCompensation: true,
         styleResolution: "property-specificity",

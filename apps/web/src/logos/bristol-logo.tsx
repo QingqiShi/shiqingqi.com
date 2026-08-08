@@ -1,26 +1,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/tokens.stylex";
-import type { CSSProperties } from "react";
 import { svgTokens } from "./svg.stylex";
 
 interface BristolLogoProps {
   title: string;
-  className?: string;
-  style?: CSSProperties;
 }
 
-export default function BristolLogo({
-  title,
-  className,
-  style,
-}: BristolLogoProps) {
+export default function BristolLogo({ title }: BristolLogoProps) {
   return (
-    <svg
-      viewBox="0 0 156 164"
-      className={className}
-      style={style}
-      css={styles.svg}
-    >
+    <svg viewBox="0 0 156 164" css={styles.svg}>
       <title>{title}</title>
       <g transform="translate(-16.9375,-333.76838)">
         <clipPath id="clippath1">

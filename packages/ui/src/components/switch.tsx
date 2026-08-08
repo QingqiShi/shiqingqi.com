@@ -29,7 +29,7 @@ type SwitchSize = "sm" | "md" | "lg";
 
 interface SwitchProps extends Omit<
   React.ComponentProps<"input">,
-  "checked" | "onChange" | "size"
+  "checked" | "onChange" | "size" | "className" | "style"
 > {
   /**
    * Controlled state. When provided, the parent owns the value and must update
@@ -60,9 +60,8 @@ export function Switch({
   value: valueProp,
   defaultValue,
   onChange,
-  className,
   size = "md",
-  style,
+  css,
   ref: forwardedRef,
   ...rest
 }: SwitchProps) {
@@ -189,8 +188,6 @@ export function Switch({
     <input
       ref={setInputRef}
       {...rest}
-      className={className}
-      style={style}
       css={[
         buttonReset.base,
         a11y.focusRing,
@@ -198,6 +195,7 @@ export function Switch({
         sizeStyles[size],
         initialRendered && styles.animate,
         isDragging && styles.dragging(position),
+        css,
       ]}
       role="switch"
       type="checkbox"

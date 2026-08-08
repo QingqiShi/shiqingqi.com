@@ -31,7 +31,10 @@ function CaretIcon() {
   );
 }
 
-interface DisclosureBaseProps extends Omit<ComponentProps<"div">, "children"> {
+interface DisclosureBaseProps extends Omit<
+  ComponentProps<"div">,
+  "children" | "className" | "style"
+> {
   /**
    * Header content — the whole row is the trigger, so keep this text and
    * decoration only. Anything interactive would nest a control inside a button;
@@ -99,7 +102,7 @@ type DisclosureProps = DisclosureBaseProps & DisclosureStateProps;
  *
  * The trigger's font-size is inherited from the root, so one `css` override
  * resizes the whole header. Forwards native `<div>` attributes (`id`, `data-*`,
- * `className`, `style`, `ref`) on the root for escape-hatch composition.
+ * `ref`) on the root for escape-hatch composition.
  */
 export function Disclosure({
   summary,
@@ -112,8 +115,6 @@ export function Disclosure({
   indicator,
   variant = "plain",
   css,
-  className,
-  style,
   ref,
   ...restProps
 }: DisclosureProps) {
@@ -128,8 +129,6 @@ export function Disclosure({
     <div
       {...restProps}
       ref={ref}
-      className={className}
-      style={style}
       css={[styles.root, variant === "card" && cardSurface.base, css]}
     >
       <button

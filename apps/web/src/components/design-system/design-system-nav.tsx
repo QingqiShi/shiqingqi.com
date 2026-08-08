@@ -89,12 +89,12 @@ export function DesignSystemNav({
                         aria-current={active ? "page" : undefined}
                         // Inset ring: the rail scrolls the nav through a container
                         // that clips inline overflow, which would crop an outward one.
-                        css={[
+                        {...stylex.props(
                           transition.colors,
                           styles.link,
                           active && styles.linkActive,
                           a11y.focusRingInset,
-                        ]}
+                        )}
                       >
                         {routeLabels[path]}
                       </Link>

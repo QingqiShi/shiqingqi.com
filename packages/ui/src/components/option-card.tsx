@@ -44,7 +44,10 @@ interface OptionCardOwnProps {
 }
 
 type OptionCardProps = OptionCardOwnProps &
-  Omit<ComponentProps<"button">, "children" | "role"> & {
+  Omit<
+    ComponentProps<"button">,
+    "children" | "role" | "className" | "style"
+  > & {
     /** Selection semantics. Omit for a card that merely acts when pressed. */
     role?: OptionCardRole;
   };
@@ -71,8 +74,6 @@ export function OptionCard({
   type = "button",
   disabled,
   css,
-  className,
-  style,
   ref,
   "aria-checked": ariaChecked,
   "aria-label": ariaLabel,
@@ -112,8 +113,6 @@ export function OptionCard({
         ariaLabelledBy ?? (ariaLabel === undefined ? labelId : undefined)
       }
       aria-describedby={describedBy === "" ? undefined : describedBy}
-      className={className}
-      style={style}
       css={[
         buttonReset.base,
         cardSurface.base,
@@ -177,7 +176,13 @@ interface OptionCardGroupOption<TValue extends string> {
 
 interface OptionCardGroupBaseProps<TValue extends string> extends Omit<
   ComponentProps<"div">,
-  "children" | "onChange" | "role" | "aria-label" | "aria-labelledby"
+  | "children"
+  | "onChange"
+  | "role"
+  | "aria-label"
+  | "aria-labelledby"
+  | "className"
+  | "style"
 > {
   /** Ordered cards. Arrow-key navigation follows this order. */
   options: readonly OptionCardGroupOption<TValue>[];
@@ -254,8 +259,6 @@ function SingleSelectGroup<TValue extends string>({
   variant = "row",
   selection: _selection,
   css,
-  className,
-  style,
   ref,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -278,8 +281,6 @@ function SingleSelectGroup<TValue extends string>({
       role="radiogroup"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      className={className}
-      style={style}
       css={[groupStyles[variant], css]}
     >
       {options.map((option) => (
@@ -305,8 +306,6 @@ function MultipleSelectGroup<TValue extends string>({
   variant = "row",
   selection: _selection,
   css,
-  className,
-  style,
   ref,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -321,8 +320,6 @@ function MultipleSelectGroup<TValue extends string>({
       role="group"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      className={className}
-      style={style}
       css={[groupStyles[variant], css]}
     >
       {options.map((option) => (

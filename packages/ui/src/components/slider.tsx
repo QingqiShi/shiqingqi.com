@@ -38,6 +38,8 @@ interface SliderOwnProps extends Omit<
   | "defaultValue"
   | "onChange"
   | "children"
+  | "className"
+  | "style"
 > {
   /**
    * Visible label text, and the control's accessible name — it lands on the
@@ -130,8 +132,6 @@ export function Slider({
   css,
   id,
   disabled,
-  className,
-  style,
   onPointerUp,
   onPointerCancel,
   onKeyUp,
@@ -203,8 +203,6 @@ export function Slider({
         disabled={disabled}
         aria-invalid={resolvedAriaInvalid}
         aria-describedby={describedBy}
-        className={className}
-        style={style}
         css={[
           a11y.focusRing,
           styles.input,

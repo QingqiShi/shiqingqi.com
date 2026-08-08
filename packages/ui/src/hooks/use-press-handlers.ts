@@ -1,5 +1,6 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
 import {
   type RefObject,
   type PointerEvent as ReactPointerEvent,
@@ -10,8 +11,6 @@ import {
   type MouseEventHandler,
 } from "react";
 import { usePressAnimation } from "./use-press-animation.ts";
-
-type CSSCustomProperties = Record<`--${string}`, string>;
 
 interface UsePressHandlersOptions<T extends HTMLElement> {
   disabled?: boolean;
@@ -28,7 +27,7 @@ interface UsePressHandlersOptions<T extends HTMLElement> {
 interface UsePressHandlersReturn<T extends HTMLElement> {
   isPressed: boolean;
   releasedOutside: boolean;
-  pressedStyle: CSSCustomProperties | undefined;
+  pressedCss: ReturnType<typeof styles.nudge> | null;
   handlers: {
     onPointerDown: PointerEventHandler<T>;
     onPointerUp: PointerEventHandler<T>;
@@ -101,18 +100,15 @@ export function usePressHandlers<T extends HTMLElement>({
     onClick?.(event);
   }
 
-  const pressedStyle =
+  const pressedCss =
     isPressed && !disabled
-      ? {
-          "--button-nudge-x": `${String(nudgeOffset.x)}px`,
-          "--button-nudge-y": `${String(nudgeOffset.y)}px`,
-        }
-      : undefined;
+      ? styles.nudge(`${String(nudgeOffset.x)}px`, `${String(nudgeOffset.y)}px`)
+      : null;
 
   return {
     isPressed,
     releasedOutside,
-    pressedStyle,
+    pressedCss,
     handlers: {
       onPointerDown: handlePointerDown,
       onPointerUp: handlePointerUp,
@@ -124,3 +120,10 @@ export function usePressHandlers<T extends HTMLElement>({
     },
   };
 }
+
+const styles = stylex.create({
+  nudge: (x: string, y: string) => ({
+    "--button-nudge-x": x,
+    "--button-nudge-y": y,
+  }),
+});

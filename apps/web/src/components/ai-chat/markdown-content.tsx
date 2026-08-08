@@ -135,11 +135,11 @@ const components: Components = {
     <blockquote css={styles.blockquote} {...props} />
   ),
   pre: ({ node, ...props }) => <pre css={styles.pre} {...props} />,
-  code: ({ node, className, ...props }) => {
+  code: ({ node, className, style, ...props }) => {
     const isBlock =
       typeof className === "string" && className.startsWith("language-");
     if (isBlock) {
-      return <code css={styles.codeBlock} className={className} {...props} />;
+      return <code {...props} css={styles.codeBlock} />;
     }
     return <code css={styles.codeInline} {...props} />;
   },

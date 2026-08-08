@@ -7,7 +7,10 @@ type BadgeVariant =
   "default" | "neutral" | "info" | "success" | "warning" | "danger" | "accent";
 type BadgeSize = "small" | "medium";
 
-interface BadgeProps extends ComponentProps<"span"> {
+interface BadgeProps extends Omit<
+  ComponentProps<"span">,
+  "className" | "style"
+> {
   /**
    * Which colour the badge carries. `"default"` is the only bordered one — a
    * plain surface. The other six are the Intents, each a borderless tint; of
@@ -24,17 +27,15 @@ interface BadgeProps extends ComponentProps<"span"> {
 
 /**
  * Compact status / label badge. Renders an inline `<span>` and forwards native
- * span attributes (`id`, `onClick`, `data-*`, `className`, `style`, `ref`) so a
- * caller can attach behaviour or one-off overrides without a wrapper. The `css`
- * prop is composed last, letting a caller win over the variant defaults.
+ * span attributes (`id`, `onClick`, `data-*`, `ref`) so a caller can attach
+ * behaviour or one-off overrides without a wrapper. The `css` prop is composed
+ * last, letting a caller win over the variant defaults.
  */
 export function Badge({
   variant = "default",
   size = "medium",
   icon,
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
@@ -43,8 +44,6 @@ export function Badge({
     <span
       {...restProps}
       ref={ref}
-      className={className}
-      style={style}
       css={[
         flex.inlineCenter,
         styles.base,

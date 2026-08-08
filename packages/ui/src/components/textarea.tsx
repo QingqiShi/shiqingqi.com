@@ -19,7 +19,10 @@ import {
 
 type FieldSize = "sm" | "md" | "lg";
 
-interface TextareaProps extends ComponentProps<"textarea"> {
+interface TextareaProps extends Omit<
+  ComponentProps<"textarea">,
+  "className" | "style"
+> {
   /**
    * Visible label text. Always required for an accessible name, even when
    * hidden via {@link TextareaProps.labelHidden} — never rely on a placeholder
@@ -69,8 +72,6 @@ export function Textarea({
   required,
   disabled,
   css,
-  className,
-  style,
   value,
   defaultValue,
   onInput,
@@ -144,8 +145,6 @@ export function Textarea({
         defaultValue={defaultValue}
         aria-invalid={resolvedAriaInvalid}
         aria-describedby={describedBy}
-        className={className}
-        style={style}
         onInput={(event) => {
           resize();
           onInput?.(event);

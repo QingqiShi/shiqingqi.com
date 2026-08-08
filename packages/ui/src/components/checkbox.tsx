@@ -31,7 +31,7 @@ type CheckboxSize = "sm" | "md";
 
 interface CheckboxProps extends Omit<
   ComponentProps<"input">,
-  "type" | "size" | "children"
+  "type" | "size" | "children" | "className" | "style"
 > {
   /**
    * Visible text that labels the checkbox. Always rendered into the DOM so it
@@ -66,8 +66,8 @@ interface CheckboxProps extends Omit<
  * activation, focus, and label association come for free. The native box is
  * restyled in place (`appearance: none`) rather than hidden behind a proxy, and
  * forwards native input props (`checked`, `defaultChecked`, `onChange`, `name`,
- * `disabled`, `ref`, `className`, `style`, …). Supports a tri-state
- * `indeterminate` dash and an inline `error` message.
+ * `disabled`, `ref`, …). Supports a tri-state `indeterminate` dash and an
+ * inline `error` message.
  */
 export function Checkbox({
   label,
@@ -77,8 +77,6 @@ export function Checkbox({
   indeterminate,
   size = "md",
   css,
-  className,
-  style,
   disabled,
   ref: forwardedRef,
   "aria-describedby": ariaDescribedBy,
@@ -115,8 +113,6 @@ export function Checkbox({
           disabled={disabled}
           aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
-          className={className}
-          style={style}
           css={[
             a11y.focusRing,
             transition.colors,

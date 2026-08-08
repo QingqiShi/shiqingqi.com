@@ -10,7 +10,10 @@ import {
 import { space } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 
-interface ScrollFadeProps extends Omit<ComponentProps<"div">, "children"> {
+interface ScrollFadeProps extends Omit<
+  ComponentProps<"div">,
+  "children" | "className" | "style"
+> {
   children: ReactNode;
   /**
    * Scroll axis. `"vertical"` fades the top and bottom edges; `"horizontal"`
@@ -62,8 +65,6 @@ export function ScrollFade({
   showStartFade: startFadeProp,
   showEndFade: endFadeProp,
   css,
-  className,
-  style,
   ref: forwardedRef,
   ...rest
 }: ScrollFadeProps) {
@@ -90,20 +91,10 @@ export function ScrollFade({
     <div
       {...rest}
       ref={mergeRefs(scrollRef, forwardedRef)}
-      className={className}
-      style={{
-        ...style,
-        maskImage: mask,
-        WebkitMaskImage: mask,
-        // The default mask-clip (border-box) would also clip a focusable
-        // consumer's focus ring, which is an `outline` painted OUTSIDE the
-        // border box. no-clip lets that ring show; the gradient still fades the
-        // content, and overflow still clips the scrolled-away content.
-        maskClip: "no-clip",
-      }}
       css={[
         orientation === "horizontal" ? styles.horizontal : styles.vertical,
         css,
+        dynamicStyles.mask(mask),
       ]}
     >
       {children}
@@ -122,4 +113,18 @@ const styles = stylex.create({
     overflowY: "hidden",
     minInlineSize: 0,
   },
+});
+
+// The fade mask is a runtime-computed gradient, so it composes as a dynamic
+// style rather than an inline `style` attribute. The default mask-clip
+// (border-box) would also clip a focusable consumer's focus ring, which is an
+// `outline` painted OUTSIDE the border box; `no-clip` lets that ring show,
+// the gradient still fades the content, and overflow still clips the
+// scrolled-away content.
+const dynamicStyles = stylex.create({
+  mask: (mask: string) => ({
+    maskImage: mask,
+    WebkitMaskImage: mask,
+    maskClip: "no-clip",
+  }),
 });

@@ -178,8 +178,11 @@ export function ContainerScaleSpecimen() {
               ref={(node) => {
                 cardElementsRef.current[i] = node;
               }}
-              css={[styles.card, isActive && styles.cardActive]}
-              style={{ inlineSize: `${width.toString()}px` }}
+              css={[
+                styles.card,
+                isActive && styles.cardActive,
+                styles.cardWidth(`${width.toString()}px`),
+              ]}
               aria-current={isActive ? "true" : undefined}
             >
               <div css={styles.cardInner}>
@@ -188,8 +191,10 @@ export function ContainerScaleSpecimen() {
                   ref={(node) => {
                     titleElementsRef.current[i] = node;
                   }}
-                  css={styles.specimen}
-                  style={{ fontSize: CQ_TITLE_CLAMP }}
+                  css={[
+                    styles.specimen,
+                    styles.specimenFontSize(CQ_TITLE_CLAMP),
+                  ]}
                 >
                   {specimen}
                 </p>
@@ -232,28 +237,37 @@ export function ContainerScaleSpecimen() {
           <span css={styles.baseline} aria-hidden="true" />
           {availWidth !== undefined && !fits ? (
             <span
-              css={styles.offscreen}
-              style={{ left: `${needlePercent.toString()}%` }}
+              css={[
+                styles.offscreen,
+                styles.leftPercent(`${needlePercent.toString()}%`),
+              ]}
               aria-hidden="true"
             />
           ) : null}
           {CARD_WIDTHS.map((width, i) => (
             <span
               key={width}
-              css={[styles.notch, i === active && styles.notchActive]}
-              style={{ left: `${toPercent(width).toString()}%` }}
+              css={[
+                styles.notch,
+                i === active && styles.notchActive,
+                styles.leftPercent(`${toPercent(width).toString()}%`),
+              ]}
               aria-hidden="true"
             />
           ))}
           {availWidth !== undefined ? (
             <span
-              css={styles.needle}
-              style={{ left: `${needlePercent.toString()}%` }}
+              css={[
+                styles.needle,
+                styles.leftPercent(`${needlePercent.toString()}%`),
+              ]}
               aria-hidden="true"
             >
               <span
-                css={styles.needleLabel}
-                style={{ transform: labelAnchor(needlePercent) }}
+                css={[
+                  styles.needleLabel,
+                  styles.needleLabelTransform(labelAnchor(needlePercent)),
+                ]}
               >
                 {`${availWord} ≈${availWidth.toString()}px`}
               </span>
@@ -322,6 +336,9 @@ const styles = stylex.create({
     backgroundColor: color.surfaceAccentSubtle,
     boxShadow: `inset 0 0 0 1px ${color.accent}`,
   },
+  cardWidth: (inlineSize: string) => ({
+    inlineSize,
+  }),
   cardInner: {
     display: "flex",
     flexDirection: "column",
@@ -344,6 +361,9 @@ const styles = stylex.create({
     color: color.textMain,
     overflowWrap: "break-word",
   },
+  specimenFontSize: (fontSize: string) => ({
+    fontSize,
+  }),
   readout: {
     marginBlockStart: "auto",
     fontFamily: font.familyMono,
@@ -408,6 +428,9 @@ const styles = stylex.create({
     borderRadius: border.radius_round,
     backgroundColor: color.neutralBorder,
   },
+  leftPercent: (left: string) => ({
+    left,
+  }),
   // Container widths beyond the screen-reach needle — hatched "out of bounds".
   offscreen: {
     position: "absolute",
@@ -454,6 +477,9 @@ const styles = stylex.create({
     fontVariantNumeric: "tabular-nums",
     color: color.accentText,
   },
+  needleLabelTransform: (transform: string) => ({
+    transform,
+  }),
   ends: {
     display: "flex",
     justifyContent: "space-between",

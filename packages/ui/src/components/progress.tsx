@@ -19,6 +19,8 @@ interface ProgressProps extends Omit<
   | "aria-valuenow"
   | "aria-valuemin"
   | "aria-valuemax"
+  | "className"
+  | "style"
 > {
   /** How much is done. Clamped to `0`–`max`. */
   value: number;
@@ -43,9 +45,9 @@ interface ProgressProps extends Omit<
  * with no measurable end is `Spinner`'s job, not this one.
  *
  * Renders a `role="progressbar"` `<div>` and forwards native attributes (`id`,
- * `data-*`, `className`, `style`, `ref`); `css` is composed last. Pass
- * `aria-valuetext` where a bare percentage would mislead ("Step 3 of 5"), and
- * set `progressTokens.indicatorColor` through `css` to retint the fill.
+ * `data-*`, `ref`); `css` is composed last. Pass `aria-valuetext` where a bare
+ * percentage would mislead ("Step 3 of 5"), and set
+ * `progressTokens.indicatorColor` through `css` to retint the fill.
  */
 export function Progress({
   value,
@@ -53,8 +55,6 @@ export function Progress({
   label,
   size = "md",
   css,
-  className,
-  style,
   ...restProps
 }: ProgressProps) {
   // Clamp both ends before anything reaches ARIA: a non-finite or non-positive
@@ -67,8 +67,6 @@ export function Progress({
   return (
     <div
       {...restProps}
-      className={className}
-      style={style}
       role="progressbar"
       aria-label={label}
       aria-valuenow={safeValue}

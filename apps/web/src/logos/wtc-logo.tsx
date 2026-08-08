@@ -1,21 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/tokens.stylex";
-import type { CSSProperties } from "react";
 import { svgTokens } from "./svg.stylex";
 
-interface WtcLogoProps {
-  className?: string;
-  style?: CSSProperties;
-}
-
-export default function WtcLogo({ className, style }: WtcLogoProps) {
+export default function WtcLogo() {
   return (
-    <svg
-      viewBox="-51 -14.008 115 39.953"
-      className={className}
-      style={style}
-      css={styles.svg}
-    >
+    <svg viewBox="-51 -14.008 115 39.953" css={styles.svg}>
       <title>Wunderman Thompson Commerce</title>
       <path
         css={styles.plusPath}

@@ -72,7 +72,11 @@ export function ReviewScreen({ paused = false }: ReviewScreenProps) {
             zh: "我们无法解析这个生物。试着重新设计一个吧。",
           })}
         </p>
-        <Link href={createHref} css={styles.cta} data-testid="review-cta">
+        <Link
+          href={createHref}
+          data-testid="review-cta"
+          {...stylex.props(styles.cta)}
+        >
           {t({ en: "Open the creator", zh: "打开创造器" })}
         </Link>
       </div>

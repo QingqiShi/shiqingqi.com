@@ -33,7 +33,6 @@ module.exports = {
         },
       },
     ],
-    "@tuja/babel-plugin-stylex-css-prop",
     [
       "@tuja/babel-plugin-stylex-breakpoints",
       {
@@ -43,6 +42,7 @@ module.exports = {
     [
       "@stylexjs/babel-plugin",
       {
+        sxPropName: "css",
         dev: process.env.NODE_ENV === "development",
         test: process.env.NODE_ENV === "test",
         runtimeInjection: false,

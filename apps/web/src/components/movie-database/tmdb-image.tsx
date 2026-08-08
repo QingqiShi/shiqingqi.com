@@ -1,6 +1,7 @@
 "use client";
 
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { useState, type ReactNode } from "react";
 import { buildSrcSet } from "#src/utils/tmdb-image.ts";
 
@@ -10,8 +11,8 @@ interface TmdbImageProps {
   path: string;
   alt: string;
   sizes: string;
-  imgCss?: React.Attributes["css"];
-  skeletonCss?: React.Attributes["css"];
+  imgCss?: StyleProp;
+  skeletonCss?: StyleProp;
   skeletonFill?: boolean;
   errorFallback?: ReactNode;
   loading?: "lazy" | "eager";

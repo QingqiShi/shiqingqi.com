@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { CSSProperties, ReactNode, Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { color, font } from "../tokens.stylex.ts";
 
@@ -38,10 +38,6 @@ interface HeadingProps {
   id?: string;
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
-  /** Escape-hatch class applied to the rendered heading. */
-  className?: string;
-  /** Inline style applied to the rendered heading. */
-  style?: CSSProperties;
   /** Ref to the rendered heading element. */
   ref?: Ref<HTMLHeadingElement>;
   children: ReactNode;
@@ -63,7 +59,7 @@ function defaultVariantForLevel(level: HeadingLevel): HeadingVariant {
 /**
  * Heading typography primitive. `level` sets the semantic rank while `variant`
  * sets the visual step, so an `<h2>` can look like a display heading without
- * breaking the document outline. Forwards `className`, `style`, and `ref`.
+ * breaking the document outline. Forwards `ref`.
  */
 export function Heading({
   level = 2,
@@ -73,13 +69,11 @@ export function Heading({
   wrap,
   id,
   css,
-  className,
-  style,
   ref,
   children,
 }: HeadingProps) {
   const resolvedVariant = variant ?? defaultVariantForLevel(level);
-  const composedCss = [
+  const headingCss = [
     styles.base,
     variantStyles[resolvedVariant],
     weight ? weightStyles[weight] : null,
@@ -91,73 +85,37 @@ export function Heading({
   switch (level) {
     case 1:
       return (
-        <h1
-          ref={ref}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <h1 ref={ref} id={id} css={headingCss}>
           {children}
         </h1>
       );
     case 2:
       return (
-        <h2
-          ref={ref}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <h2 ref={ref} id={id} css={headingCss}>
           {children}
         </h2>
       );
     case 3:
       return (
-        <h3
-          ref={ref}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <h3 ref={ref} id={id} css={headingCss}>
           {children}
         </h3>
       );
     case 4:
       return (
-        <h4
-          ref={ref}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <h4 ref={ref} id={id} css={headingCss}>
           {children}
         </h4>
       );
     case 5:
       return (
-        <h5
-          ref={ref}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <h5 ref={ref} id={id} css={headingCss}>
           {children}
         </h5>
       );
     case 6:
       return (
-        <h6
-          ref={ref}
-          id={id}
-          css={composedCss}
-          className={className}
-          style={style}
-        >
+        <h6 ref={ref} id={id} css={headingCss}>
           {children}
         </h6>
       );

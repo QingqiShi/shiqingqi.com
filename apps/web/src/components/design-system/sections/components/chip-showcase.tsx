@@ -88,13 +88,14 @@ export function ChipShowcase() {
 
       <Showcase label={t({ en: "Usage", zh: "用法" })}>
         <UsageSnippet
-          code={`import { chipSize, chipSurface } from "@tuja/ui/components/chip.stylex";
+          code={`import * as stylex from "@stylexjs/stylex";
+import { chipSize, chipSurface } from "@tuja/ui/components/chip.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 
 // For a framework <Link>, compose the surface directly.
 <Link
   href={href}
-  css={[chipSurface.base, chipSize.md, chipSurface.interactive, transition.colors]}
+  {...stylex.props(chipSurface.base, chipSize.md, chipSurface.interactive, transition.colors)}
 >
   …
 </Link>`}
