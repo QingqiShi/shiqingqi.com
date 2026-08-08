@@ -1,7 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
 import type { GuideOptions } from "./utils/guides";
@@ -55,7 +56,14 @@ interface ToggleProps {
 function Toggle({ label, checked, onChange, testId }: ToggleProps) {
   const id = useId();
   return (
-    <label htmlFor={id} css={[styles.toggle, checked && styles.toggleChecked]}>
+    <label
+      htmlFor={id}
+      css={[
+        corner.radius_round,
+        styles.toggle,
+        checked && styles.toggleChecked,
+      ]}
+    >
       <input
         id={id}
         type="checkbox"
@@ -78,7 +86,8 @@ const styles = stylex.create({
     gap: space._2,
     margin: 0,
     padding: 0,
-    border: "none",
+    borderWidth: 0,
+    borderStyle: "none",
   },
   sectionLabel: {
     margin: 0,
@@ -102,7 +111,6 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     color: color.textMuted,
     backgroundColor: color.bgSurfaceSunken,
-    borderRadius: border.radius_round,
     cursor: "pointer",
   },
   toggleChecked: {

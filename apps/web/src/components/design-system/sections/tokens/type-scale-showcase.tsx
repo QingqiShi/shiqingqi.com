@@ -1,7 +1,8 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { measure } from "../../measure.stylex.ts";
@@ -132,11 +133,11 @@ interface MovementProps {
 
 function Movement({ label, namespace, description, children }: MovementProps) {
   return (
-    <section css={styles.movement}>
+    <section css={[corner.radius_3, styles.movement]}>
       <header css={styles.movementHeader}>
         <div css={styles.titleRow}>
           <h3 css={styles.movementLabel}>{label}</h3>
-          <span css={styles.chip}>{namespace}</span>
+          <span css={[corner.radius_round, styles.chip]}>{namespace}</span>
         </div>
         <p css={styles.movementDesc}>{description}</p>
       </header>
@@ -182,7 +183,6 @@ const styles = stylex.create({
     gap: space._4,
     paddingBlock: space._5,
     paddingInline: space._5,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: PANEL_BORDER,
   },
@@ -211,7 +211,6 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._00,
     paddingInline: space._2,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: PANEL_BORDER,
     fontFamily: font.familyMono,

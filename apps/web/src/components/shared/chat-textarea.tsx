@@ -2,6 +2,7 @@
 
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
@@ -167,7 +168,12 @@ export function ChatTextarea({
     <ChatTextareaContext value={{ trimmedText: trimmed, focusTextarea }}>
       <form
         onSubmit={handleSubmit}
-        css={[flex.wrap, styles.container, compact && styles.containerCompact]}
+        css={[
+          flex.wrap,
+          corner.radius_3,
+          styles.container,
+          compact && styles.containerCompact,
+        ]}
       >
         {beforeTextarea}
         {multiline ? (
@@ -226,6 +232,7 @@ export const chatTextareaStyles = stylex.create({
     width: "1.75rem",
     height: "1.75rem",
     borderRadius: border.radius_round,
+    cornerShape: "squircle",
     cursor: { default: "pointer", ":disabled": "default" },
     backgroundColor: color.surfaceNeutralSubtle,
     color: color.textMuted,
@@ -243,7 +250,6 @@ const styles = stylex.create({
     width: "100%",
     gap: space._1,
     backgroundColor: color.bgSurface,
-    borderRadius: border.radius_3,
     paddingBlock: space._2,
     paddingLeft: space._3,
     paddingRight: space._2,

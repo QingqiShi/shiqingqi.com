@@ -5,7 +5,8 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { Identifier } from "./identifier.tsx";
 
@@ -39,7 +40,7 @@ export function PropsTable({ rows }: PropsTableProps) {
       <Heading level={3}>{t({ en: "Props", zh: "属性" })}</Heading>
       <div css={styles.rows}>
         {rows.map((row) => (
-          <div key={row.name} css={styles.row}>
+          <div key={row.name} css={[corner.radius_2, styles.row]}>
             <div css={styles.signature}>
               <div css={styles.nameLine}>
                 <span css={styles.name}>
@@ -90,7 +91,6 @@ const styles = stylex.create({
     gap: { default: space._1, [breakpoints.md]: space._4 },
     paddingBlock: space._3,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,

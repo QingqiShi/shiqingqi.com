@@ -1,8 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { centerInScrollX } from "#src/utils/center-in-scroll-x.ts";
@@ -145,7 +146,11 @@ export function ViewportScaleSpecimen() {
               {row.sizes.map((size, c) => (
                 <div
                   key={STEPS[c].label}
-                  css={[styles.cell, c === band && styles.cellActive]}
+                  css={[
+                    corner.radius_1,
+                    styles.cell,
+                    c === band && styles.cellActive,
+                  ]}
                 >
                   <span
                     css={[
@@ -256,7 +261,6 @@ const styles = stylex.create({
     alignItems: "flex-end",
     justifyContent: "center",
     paddingBlock: space._1,
-    borderRadius: border.radius_1,
   },
   cellActive: {
     backgroundColor: color.surfaceAccentSubtle,

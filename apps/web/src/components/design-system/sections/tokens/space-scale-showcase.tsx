@@ -141,6 +141,7 @@ const styles = stylex.create({
     // Keep the token's true width — never let flexbox compress it to fit.
     flexShrink: 0,
     borderRadius: "2px",
+    cornerShape: "squircle",
     backgroundColor: color.neutralText,
   },
   w00: { inlineSize: space._00 },

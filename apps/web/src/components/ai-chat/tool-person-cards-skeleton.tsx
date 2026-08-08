@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { border, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 
 const SKELETON_COUNT = 5;
 const STAGGER_DELAY = 100;
@@ -14,7 +15,11 @@ export function ToolPersonCardsSkeleton() {
       <div css={styles.scrollContainer}>
         {Array.from({ length: SKELETON_COUNT }, (_, i) => (
           <div key={i} css={styles.cardWrapper}>
-            <Skeleton fill delay={i * STAGGER_DELAY} css={styles.skeleton} />
+            <Skeleton
+              fill
+              delay={i * STAGGER_DELAY}
+              css={[corner.radius_round, styles.skeleton]}
+            />
           </div>
         ))}
       </div>
@@ -49,6 +54,5 @@ const styles = stylex.create({
   },
   skeleton: {
     aspectRatio: "1",
-    borderRadius: border.radius_round,
   },
 });

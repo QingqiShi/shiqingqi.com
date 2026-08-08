@@ -10,6 +10,7 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { IconButton } from "@tuja/ui/components/icon-button";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration as motionDuration,
   easing,
@@ -211,10 +212,10 @@ export function AnimationMode({
 
   return (
     <div css={styles.root}>
-      <div css={styles.previewArea}>
+      <div css={[corner.radius_3, styles.previewArea]}>
         <canvas
           ref={previewCanvasRef}
-          css={styles.previewCanvas}
+          css={[corner.radius_2, styles.previewCanvas]}
           data-testid="animation-preview"
         />
         <div css={styles.previewControls}>
@@ -267,7 +268,7 @@ export function AnimationMode({
         </div>
       </div>
 
-      <div css={styles.timelineArea}>
+      <div css={[corner.radius_3, styles.timelineArea]}>
         <div css={styles.timelineHeader}>
           <h2 css={styles.timelineTitle}>
             {t({ en: "Frames", zh: "帧" })}{" "}
@@ -296,6 +297,7 @@ export function AnimationMode({
                 // eslint-disable-next-line @eslint-react/no-array-index-key -- frames are positional; index IS the identity
                 key={index}
                 css={[
+                  corner.radius_2,
                   styles.frameItem,
                   activeFrame === index && styles.frameItemActive,
                 ]}
@@ -321,7 +323,7 @@ export function AnimationMode({
                         if (event.target.value === "") return;
                         setFrameDuration(index, Number(event.target.value));
                       }}
-                      css={styles.frameDuration}
+                      css={[corner.radius_2, styles.frameDuration]}
                       data-testid={`frame-duration-${String(index)}`}
                     />
                   </label>
@@ -411,7 +413,13 @@ function FrameThumb({ cell }: FrameThumbProps) {
       ctx.putImageData(imageData, dx, dy);
     }
   }, [cell]);
-  return <canvas ref={ref} css={styles.thumb} aria-hidden="true" />;
+  return (
+    <canvas
+      ref={ref}
+      css={[corner.radius_2, styles.thumb]}
+      aria-hidden="true"
+    />
+  );
 }
 
 const styles = stylex.create({
@@ -429,7 +437,6 @@ const styles = stylex.create({
     gap: space._2,
     padding: space._3,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
   },
   previewCanvas: {
@@ -439,7 +446,6 @@ const styles = stylex.create({
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     boxShadow: shadow.inset,
     imageRendering: "pixelated",
     alignSelf: "center",
@@ -475,7 +481,6 @@ const styles = stylex.create({
     gap: space._2,
     padding: space._3,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
     flex: "1",
     minHeight: 0,
@@ -518,7 +523,6 @@ const styles = stylex.create({
     gap: space._2,
     padding: space._2,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
     transition: {
       default: `border-color ${motionDuration._150} ${easing.easeOut}, background-color ${motionDuration._150} ${easing.easeOut}`,
@@ -534,7 +538,6 @@ const styles = stylex.create({
     backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
     backgroundSize: "8px 8px",
     backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
-    borderRadius: border.radius_2,
     imageRendering: "pixelated",
   },
   frameMeta: {
@@ -560,7 +563,6 @@ const styles = stylex.create({
     paddingBlock: "2px",
     paddingInline: space._1,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     color: color.textMain,
     fontFamily: font.familyMono,

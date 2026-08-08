@@ -5,6 +5,7 @@ import type { ComponentProps, ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { useDisclosure } from "../hooks/use-disclosure.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { border, color, font, space } from "../tokens.stylex.ts";
@@ -136,6 +137,7 @@ export function Disclosure({
         css={[
           buttonReset.base,
           a11y.focusRingInset,
+          corner.radius_2,
           styles.trigger,
           triggerVariants[variant],
         ]}
@@ -186,7 +188,6 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_3,
     color: color.textMain,
     textAlign: "start",
-    borderRadius: border.radius_2,
   },
   // `em` boxes so every icon tracks the header's font-size.
   slot: {

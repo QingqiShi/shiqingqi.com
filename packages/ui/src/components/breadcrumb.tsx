@@ -2,9 +2,10 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentType, CSSProperties, ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
-import { border, color, font, space } from "../tokens.stylex.ts";
+import { color, font, space } from "../tokens.stylex.ts";
 
 /** One crumb in the trail. */
 export interface BreadcrumbItem {
@@ -119,7 +120,10 @@ export function Breadcrumb({
               ) : (
                 <LinkComponent
                   href={item.href}
+                  // Rounds the focus ring to match the rest of the system's
+                  // controls.
                   {...stylex.props(
+                    corner.radius_1,
                     styles.link,
                     transition.colors,
                     a11y.focusRing,
@@ -161,8 +165,6 @@ const styles = stylex.create({
   link: {
     color: { default: color.textMuted, ":hover": color.textMain },
     textDecorationLine: { default: "none", ":hover": "underline" },
-    // Rounds the focus ring to match the rest of the system's controls.
-    borderRadius: border.radius_1,
     fontWeight: font.weight_5,
   },
   current: {

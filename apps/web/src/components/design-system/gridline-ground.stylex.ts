@@ -33,6 +33,7 @@ export const gridlineGround = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     borderRadius: border.radius_2,
+    cornerShape: "squircle",
     overflow: "hidden",
   },
 });

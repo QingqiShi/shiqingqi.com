@@ -11,8 +11,8 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
+import { corner } from "../primitives/corner.stylex.ts";
 import {
-  border,
   color,
   controlSize,
   font,
@@ -228,6 +228,7 @@ export function MenuButton({
         <div
           ref={menuContainerRef}
           css={[
+            corner.radius_2,
             styles.menuContainer,
             !isMenuShown && styles.hidden,
             styles[position],
@@ -235,7 +236,7 @@ export function MenuButton({
           inert={!isMenuShown}
         >
           <AnimateToTarget
-            css={[styles.menu]}
+            css={[corner.radius_2, styles.menu]}
             animateToTarget={!isMenuShown}
             targetId={targetId}
           >
@@ -282,7 +283,6 @@ const styles = stylex.create({
   menuContainer: {
     position: "absolute",
     zIndex: layer.raised,
-    borderRadius: border.radius_2,
   },
   hidden: {
     pointerEvents: "none",
@@ -290,7 +290,6 @@ const styles = stylex.create({
   menu: {
     backgroundColor: color.bgOverlay,
     boxShadow: shadow._5,
-    borderRadius: border.radius_2,
     overflow: "hidden",
   },
   menuTitle: {

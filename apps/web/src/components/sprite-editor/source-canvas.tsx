@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { purple } from "@tuja/ui/palette/purple";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, shadow } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
@@ -315,7 +316,11 @@ export function SourceCanvas({
   };
 
   return (
-    <section ref={containerRef} css={styles.root} aria-labelledby={headingId}>
+    <section
+      ref={containerRef}
+      css={[corner.radius_3, styles.root]}
+      aria-labelledby={headingId}
+    >
       <h2 id={headingId} css={a11y.srOnly}>
         {t({ en: "Source viewport", zh: "源图视图" })}
       </h2>
@@ -342,7 +347,6 @@ const styles = stylex.create({
     backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
-    borderRadius: border.radius_3,
     border: `${border.size_1} solid ${color.neutralBorder}`,
     boxShadow: shadow.inset,
     overflow: "hidden",

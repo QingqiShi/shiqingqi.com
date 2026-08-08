@@ -1,7 +1,8 @@
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
-import { border, color, shadow, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, shadow, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
@@ -21,7 +22,7 @@ export function MenuButtonSpecimen() {
       <Button size="sm" icon={<FunnelIcon weight="bold" />}>
         {t({ en: "Filters", zh: "筛选" })}
       </Button>
-      <div css={styles.popup}>
+      <div css={[corner.radius_2, styles.popup]}>
         <Button size="sm" variant="primary">
           {t({ en: "Newest", zh: "最新" })}
         </Button>
@@ -51,7 +52,6 @@ const styles = stylex.create({
     flexDirection: "column",
     minInlineSize: "8rem",
     padding: space._0,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgOverlay,
     // A step below the popup's own `shadow._5`. That elevation is calibrated for
     // a menu floating over a whole page; on a 128px specimen it reads as a dark

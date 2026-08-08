@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   border,
   color,
@@ -55,7 +56,11 @@ export function ChatMessage({
 
   return (
     <div
-      css={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}
+      css={[
+        styles.bubble,
+        corner.radius_3,
+        isUser ? styles.userBubble : styles.assistantBubble,
+      ]}
     >
       {message.parts.map((part, index) => {
         const key = partKeys[index];
@@ -274,7 +279,6 @@ const styles = stylex.create({
     marginLeft: "auto",
     backgroundColor: color.accent,
     color: color.accentOn,
-    borderRadius: border.radius_3,
     borderBottomRightRadius: border.radius_1,
   },
   assistantBubble: {
@@ -289,7 +293,6 @@ const styles = stylex.create({
       [constants.DARK]: "none",
     },
     color: color.textMain,
-    borderRadius: border.radius_3,
     borderBottomLeftRadius: border.radius_1,
   },
   partBase: {

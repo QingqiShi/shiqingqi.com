@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
@@ -33,7 +34,7 @@ export function DoDont({
   const dontLabel = t({ en: "Don't", zh: "避免" });
   return (
     <div css={styles.grid}>
-      <div css={[styles.panel, styles.doPanel]}>
+      <div css={[corner.radius_2, styles.panel, styles.doPanel]}>
         <div css={styles.header}>
           <span css={[styles.icon, styles.doText]}>
             <CheckIcon />
@@ -52,7 +53,7 @@ export function DoDont({
           {doCaption}
         </Text>
       </div>
-      <div css={[styles.panel, styles.dontPanel]}>
+      <div css={[corner.radius_2, styles.panel, styles.dontPanel]}>
         <div css={styles.header}>
           <span css={[styles.icon, styles.dontText]}>
             <CrossIcon />
@@ -130,7 +131,6 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._3,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     borderWidth: border.size_1,
     borderStyle: "solid",
     minInlineSize: 0,

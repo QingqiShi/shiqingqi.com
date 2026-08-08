@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { border, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
 import {
@@ -116,7 +117,7 @@ export default async function Layout({
         <div
           id={DESIGN_SYSTEM_CONTENT_ID}
           tabIndex={-1}
-          css={[styles.page, a11y.focusRingInset]}
+          css={[corner.radius_3, styles.page, a11y.focusRingInset]}
         >
           {children}
         </div>
@@ -128,8 +129,6 @@ export default async function Layout({
 const styles = stylex.create({
   page: {
     paddingBlockStart: { default: space._3, [breakpoints.md]: space._7 },
-    // Corners for the focus ring above — the wrapper is otherwise unpainted.
-    borderRadius: border.radius_3,
     // The skip link's fragment jump scrolls this element's block-start edge to
     // the viewport's, and below `md` the shell's fixed pill bar is sitting
     // there. Reserve its height so the page title lands in view instead of

@@ -6,10 +6,11 @@ import { Text } from "@tuja/ui/components/text";
 import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -53,6 +54,7 @@ export function SpecimenReveal({
                 buttonReset.base,
                 a11y.focusRing,
                 transition.colors,
+                corner.radius_1,
                 styles.control,
               ]}
             >
@@ -75,7 +77,7 @@ export function SpecimenReveal({
       {/* No `display` here: the panel collapses through the `hidden` attribute,
           which any `display` declaration would override. */}
       {code ? (
-        <div {...panelProps} css={styles.panel}>
+        <div {...panelProps} css={[corner.radius_2, styles.panel]}>
           {code}
         </div>
       ) : null}
@@ -118,7 +120,6 @@ const styles = stylex.create({
     flexShrink: 0,
     paddingInline: space._1,
     paddingBlock: space._00,
-    borderRadius: border.radius_1,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: { default: color.textSubtle, ":hover": color.textMain },
@@ -141,7 +142,6 @@ const styles = stylex.create({
     gridColumn: "1 / -1",
     paddingBlock: space._2,
     paddingInline: space._2,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,

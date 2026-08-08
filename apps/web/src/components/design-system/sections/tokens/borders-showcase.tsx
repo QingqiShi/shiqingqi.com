@@ -1,7 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
+import { GuideNote } from "../../guide/guide-section.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { SpecCard } from "../../spec-card.tsx";
@@ -19,12 +21,16 @@ export function BordersShowcase() {
     { token: "border.size_5", px: "25px", swatch: styles.w5 },
   ];
   const radii = [
-    { token: "border.radius_1", meta: "0.3rem", swatch: styles.r1 },
-    { token: "border.radius_2", meta: "0.5rem", swatch: styles.r2 },
-    { token: "border.radius_3", meta: "1rem", swatch: styles.r3 },
-    { token: "border.radius_4", meta: "2rem", swatch: styles.r4 },
-    { token: "border.radius_5", meta: "3rem", swatch: styles.r5 },
-    { token: "border.radius_round", meta: "pill", swatch: styles.rRound },
+    { token: "border.radius_1", meta: "0.3rem", swatch: radiusCornerStyles.r1 },
+    { token: "border.radius_2", meta: "0.5rem", swatch: radiusCornerStyles.r2 },
+    { token: "border.radius_3", meta: "1rem", swatch: radiusCornerStyles.r3 },
+    { token: "border.radius_4", meta: "2rem", swatch: radiusCornerStyles.r4 },
+    { token: "border.radius_5", meta: "3rem", swatch: radiusCornerStyles.r5 },
+    {
+      token: "border.radius_round",
+      meta: "pill",
+      swatch: radiusCornerStyles.rRound,
+    },
   ];
 
   return (
@@ -39,7 +45,7 @@ export function BordersShowcase() {
         <div css={styles.grid}>
           {widths.map((step) => (
             <SpecCard key={step.token} token={step.token} meta={step.px}>
-              <div css={[styles.widthSwatch, step.swatch]} />
+              <div css={[corner.radius_2, styles.widthSwatch, step.swatch]} />
             </SpecCard>
           ))}
         </div>
@@ -59,6 +65,12 @@ export function BordersShowcase() {
             </SpecCard>
           ))}
         </div>
+        <GuideNote>
+          {t({
+            en: "Every radius above renders as a squircle. A browser without corner-shape falls back to a circular arc.",
+            zh: "上方的每个圆角均以超椭圆角渲染。不支持 corner-shape 的浏览器会回退为圆弧。",
+          })}
+        </GuideNote>
       </Showcase>
 
       <Showcase label={t({ en: "When to use", zh: "何时使用" })}>
@@ -70,7 +82,7 @@ export function BordersShowcase() {
         </ShowcaseHelper>
         <div css={styles.useRow}>
           <div css={styles.useItem}>
-            <div css={[styles.useField]}>
+            <div css={[corner.radius_2, styles.useField]}>
               {t({ en: "Search movies", zh: "搜索电影" })}
             </div>
             <span css={styles.useToken}>
@@ -78,7 +90,7 @@ export function BordersShowcase() {
             </span>
           </div>
           <div css={styles.useItem}>
-            <div css={styles.useCard}>
+            <div css={[corner.radius_3, styles.useCard]}>
               <span css={styles.useCardTitle}>
                 {t({ en: "Now playing", zh: "正在热映" })}
               </span>
@@ -92,10 +104,10 @@ export function BordersShowcase() {
           </div>
           <div css={styles.useItem}>
             <div css={styles.usePillRow}>
-              <span css={styles.usePill}>
+              <span css={[corner.radius_round, styles.usePill]}>
                 {t({ en: "Popular", zh: "热门" })}
               </span>
-              <span css={styles.useAvatar}>QS</span>
+              <span css={[corner.radius_round, styles.useAvatar]}>QS</span>
             </div>
             <span css={styles.useToken}>
               radius_round · {t({ en: "pills, avatars", zh: "胶囊形、头像" })}
@@ -105,21 +117,23 @@ export function BordersShowcase() {
       </Showcase>
 
       <UsageSnippet
-        code={`import { border } from "@tuja/ui/tokens.stylex";
+        code={`import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { border } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
-  card: {
-    borderWidth: border.size_1,        // hairline surface edge
-    borderRadius: border.radius_3,     // 1rem card corner
-  },
-  pill: { borderRadius: border.radius_round },
-});`}
+  card: { borderWidth: border.size_1 },  // hairline surface edge
+});
+
+<article css={[corner.radius_3, styles.card]} />  // 1rem card corner
+<span css={corner.radius_round} />                // pill`}
       />
 
       <DoDont
         do={
-          <div css={styles.doCard}>
-            <span css={styles.doBadge}>{t({ en: "New", zh: "新" })}</span>
+          <div css={[corner.radius_2, styles.doCard]}>
+            <span css={[corner.radius_round, styles.doBadge]}>
+              {t({ en: "New", zh: "新" })}
+            </span>
             <span css={styles.doCardText}>
               {t({
                 en: "Communicate status with a badge",
@@ -133,8 +147,8 @@ const styles = stylex.create({
           zh: "用文字、主题化背景或徽章来标示卡片的类别或状态。",
         })}
         dont={
-          <div css={styles.dontCard}>
-            <span css={styles.dontBar} aria-hidden />
+          <div css={[corner.radius_2, styles.dontCard]}>
+            <span css={[corner.radius_round, styles.dontBar]} aria-hidden />
             <span css={styles.dontCardText}>
               {t({ en: "Leading accent stripe", zh: "首端强调竖条" })}
             </span>
@@ -161,7 +175,6 @@ const styles = stylex.create({
     blockSize: "56px",
     borderStyle: "solid",
     borderColor: color.textMuted,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
   },
   w1: { borderWidth: border.size_1 },
@@ -175,12 +188,6 @@ const styles = stylex.create({
     backgroundColor: color.surfaceAccentSubtle,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
-  r1: { borderRadius: border.radius_1 },
-  r2: { borderRadius: border.radius_2 },
-  r3: { borderRadius: border.radius_3 },
-  r4: { borderRadius: border.radius_4 },
-  r5: { borderRadius: border.radius_5 },
-  rRound: { borderRadius: border.radius_round },
   useRow: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
@@ -198,7 +205,6 @@ const styles = stylex.create({
     alignItems: "center",
     minBlockSize: "40px",
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
@@ -212,7 +218,6 @@ const styles = stylex.create({
     gap: space._0,
     paddingBlock: space._3,
     paddingInline: space._3,
-    borderRadius: border.radius_3,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
@@ -238,7 +243,6 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._0,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     backgroundColor: color.surfaceAccentSubtle,
     color: color.accentText,
     fontSize: font.uiCaption,
@@ -250,7 +254,6 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: space._7,
     blockSize: space._7,
-    borderRadius: border.radius_round,
     backgroundColor: color.accent,
     color: color.accentOn,
     fontSize: font.uiCaption,
@@ -269,7 +272,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
@@ -278,7 +280,6 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._00,
     paddingInline: space._1,
-    borderRadius: border.radius_round,
     backgroundColor: color.surfaceAccentSubtle,
     color: color.accentText,
     fontSize: font.uiOverline,
@@ -297,7 +298,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     overflow: "hidden",
@@ -306,7 +306,6 @@ const styles = stylex.create({
     inlineSize: space._0,
     alignSelf: "stretch",
     minBlockSize: space._5,
-    borderRadius: border.radius_round,
     backgroundColor: color.accent,
     flexShrink: 0,
   },
@@ -315,3 +314,15 @@ const styles = stylex.create({
     color: color.textMuted,
   },
 });
+
+// The radius ledger's swatches map straight to the `corner` primitive — each
+// entry holds nothing but the radius, so there is no other styling to compose
+// it into.
+const radiusCornerStyles = {
+  r1: corner.radius_1,
+  r2: corner.radius_2,
+  r3: corner.radius_3,
+  r4: corner.radius_4,
+  r5: corner.radius_5,
+  rRound: corner.radius_round,
+};

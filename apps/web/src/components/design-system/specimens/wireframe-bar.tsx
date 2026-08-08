@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleProp } from "@tuja/ui/css-prop-types";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 
 interface WireframeBarProps {
   /** How far across its container the bar runs, e.g. `"45%"` or `"2.5rem"`. */
@@ -24,6 +25,7 @@ export function WireframeBar({ width, strong, css }: WireframeBarProps) {
   return (
     <div
       css={[
+        corner.radius_1,
         styles.bar,
         strong ? styles.strong : null,
         styles.width(width),
@@ -35,7 +37,6 @@ export function WireframeBar({ width, strong, css }: WireframeBarProps) {
 
 const styles = stylex.create({
   bar: {
-    borderRadius: border.radius_1,
     backgroundColor: color.neutralBorder,
     blockSize: space._0,
   },

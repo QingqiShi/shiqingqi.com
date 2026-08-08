@@ -13,7 +13,8 @@ import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
-import { border, color, layer, space } from "../tokens.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
+import { color, layer, space } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
 
 interface OverlayBaseProps {
@@ -145,7 +146,7 @@ export function Overlay({
           forwardProps
         >
           <div
-            css={styles.content}
+            css={[corner.radius_4, styles.content]}
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel}
@@ -223,7 +224,6 @@ const styles = stylex.create({
     height: `calc(100% - ${space._8})`,
     backgroundColor: color.bgSurface,
     zIndex: layer.overlay,
-    borderRadius: border.radius_4,
     overflow: "hidden",
     pointerEvents: "all",
   },

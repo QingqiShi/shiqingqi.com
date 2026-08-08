@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
+import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { border, color, font, space } from "../tokens.stylex.ts";
 
@@ -46,6 +47,7 @@ export function Badge({
       ref={ref}
       css={[
         flex.inlineCenter,
+        corner.radius_round,
         styles.base,
         sizeStyles[size],
         variantStyles[variant],
@@ -64,7 +66,6 @@ export function Badge({
 
 const styles = stylex.create({
   base: {
-    borderRadius: border.radius_round,
     fontWeight: font.weight_6,
     whiteSpace: "nowrap",
     lineHeight: font.lineHeight_2,

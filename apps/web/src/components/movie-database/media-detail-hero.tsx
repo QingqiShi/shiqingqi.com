@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
-  border,
   color,
   controlSize,
   font,
@@ -48,7 +48,7 @@ export function MediaDetailHero({
           // Hide the badge entirely (matches the MediaPoster precedent)
           // rather than render a misleading "0 out of 10".
           <div
-            css={styles.ratingContainer}
+            css={[corner.radius_round, styles.ratingContainer]}
             role="img"
             aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(voteAverage)}${t({ en: " out of 10", zh: "/10" })}, ${t({ en: "based on", zh: "基于" })} ${voteCount.toLocaleString(locale)} ${t({ en: "votes", zh: "票" })}`}
           >
@@ -111,7 +111,6 @@ const styles = stylex.create({
   ratingContainer: {
     width: space._10,
     height: space._10,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgSurface,
     borderWidth: space._0,
     borderColor: color.textMuted,

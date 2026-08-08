@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
@@ -20,8 +21,8 @@ export function SidebarLayoutSpecimen() {
       <div css={styles.content}>
         <WireframeBar width="50%" strong />
         <div css={styles.grid}>
-          <div css={styles.tile} />
-          <div css={styles.tile} />
+          <div css={[corner.radius_1, styles.tile]} />
+          <div css={[corner.radius_1, styles.tile]} />
         </div>
       </div>
     </div>
@@ -61,7 +62,6 @@ const styles = stylex.create({
     gap: space._0,
   },
   tile: {
-    borderRadius: border.radius_1,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,

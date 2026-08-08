@@ -3,8 +3,9 @@
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
 import * as stylex from "@stylexjs/stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, font, space } from "@tuja/ui/tokens.stylex";
+import { font, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
 import { t } from "#src/i18n.ts";
@@ -24,7 +25,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
       popupRole="group"
       menuContent={
         <div css={[flex.row, styles.container]}>
-          <div css={styles.imageContainer}>
+          <div css={[corner.radius_2, styles.imageContainer]}>
             <Image
               src="/tmdb.svg"
               alt={t({ en: "TMDB Logo", zh: "TMDB Logo" })}
@@ -81,7 +82,6 @@ const styles = stylex.create({
   },
   imageContainer: {
     backgroundColor: "#0d253f",
-    borderRadius: border.radius_2,
     padding: space._2,
   },
 });

@@ -5,6 +5,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Overlay } from "@tuja/ui/components/overlay";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
@@ -110,15 +111,15 @@ export function OverlayShowcase() {
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
           do={
-            <div css={styles.dialogSample}>
+            <div css={[corner.radius_3, styles.dialogSample]}>
               <span css={styles.dialogClose} aria-hidden>
                 {"×"}
               </span>
               <Text as="span" variant="bodySmall" weight="semibold">
                 {t({ en: "Official trailer", zh: "官方预告" })}
               </Text>
-              <div css={styles.dialogBar} />
-              <div css={styles.dialogBarShort} />
+              <div css={[corner.radius_1, styles.dialogBar]} />
+              <div css={[corner.radius_1, styles.dialogBarShort]} />
             </div>
           }
           doCaption={t({
@@ -126,12 +127,12 @@ export function OverlayShowcase() {
             zh: "始终用 aria-label 或 aria-labelledby 为对话框命名，以便打开时被宣读。",
           })}
           dont={
-            <div css={styles.dialogSample}>
+            <div css={[corner.radius_3, styles.dialogSample]}>
               <span css={styles.dialogClose} aria-hidden>
                 {"×"}
               </span>
-              <div css={styles.dialogBar} />
-              <div css={styles.dialogBarShort} />
+              <div css={[corner.radius_1, styles.dialogBar]} />
+              <div css={[corner.radius_1, styles.dialogBarShort]} />
             </div>
           }
           dontCaption={t({
@@ -204,7 +205,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
   },
   dialogClose: {
@@ -218,13 +218,11 @@ const styles = stylex.create({
   dialogBar: {
     blockSize: space._1,
     inlineSize: "100%",
-    borderRadius: border.radius_1,
     backgroundColor: color.surfaceNeutralSubtle,
   },
   dialogBarShort: {
     blockSize: space._1,
     inlineSize: "60%",
-    borderRadius: border.radius_1,
     backgroundColor: color.surfaceNeutralSubtle,
   },
 });

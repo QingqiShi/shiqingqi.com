@@ -6,8 +6,9 @@ import {
   type BreadcrumbLinkProps,
 } from "@tuja/ui/components/breadcrumb";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -134,7 +135,7 @@ export function BreadcrumbShowcase() {
 
       <Showcase label={t({ en: "Long trails", zh: "长路径" })}>
         <Specimen caption={t({ en: "wraps", zh: "换行" })}>
-          <div css={styles.container}>
+          <div css={[corner.radius_2, styles.container]}>
             <Breadcrumb
               items={[
                 { label: home, href: homeHref },
@@ -303,7 +304,6 @@ const styles = stylex.create({
     maxInlineSize: space._13,
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
 });

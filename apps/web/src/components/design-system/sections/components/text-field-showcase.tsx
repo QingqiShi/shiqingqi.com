@@ -1,6 +1,7 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import * as stylex from "@stylexjs/stylex";
 import { TextField } from "@tuja/ui/components/text-field";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -225,7 +226,7 @@ export function TextFieldShowcase() {
         dont={
           <div css={fill.inline}>
             <input
-              css={styles.rawInput}
+              css={[corner.radius_2, styles.rawInput]}
               placeholder={t({ en: "Email", zh: "电子邮箱" })}
               aria-label={t({ en: "Email", zh: "电子邮箱" })}
             />
@@ -254,7 +255,6 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderWidth: border.size_1,
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     paddingBlock: space._2,
     paddingInline: space._3,
   },

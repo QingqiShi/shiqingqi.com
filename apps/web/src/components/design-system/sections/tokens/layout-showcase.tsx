@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import {
   border,
@@ -60,7 +61,7 @@ function BreakpointBands() {
 
   return (
     <div css={styles.bandWrap}>
-      <div css={styles.bandRow}>
+      <div css={[corner.radius_2, styles.bandRow]}>
         {BANDS.map((band, index) => {
           const isActive = index === active;
           return (
@@ -106,8 +107,14 @@ function MeasureBands() {
   return (
     <div css={styles.measureRows}>
       <div css={styles.measureRow}>
-        <div css={styles.measurePage}>
-          <div css={[styles.measureProse, styles.measureProseNarrow]}>
+        <div css={[corner.radius_2, styles.measurePage]}>
+          <div
+            css={[
+              corner.radius_1,
+              styles.measureProse,
+              styles.measureProseNarrow,
+            ]}
+          >
             <span css={styles.measureProseLabel}>prose 41em</span>
           </div>
           <span css={styles.measureRest}>
@@ -122,11 +129,19 @@ function MeasureBands() {
         </span>
       </div>
       <div css={styles.measureRow}>
-        <div css={styles.measurePage}>
-          <div css={[styles.measureProse, styles.measureProseWide]}>
+        <div css={[corner.radius_2, styles.measurePage]}>
+          <div
+            css={[
+              corner.radius_1,
+              styles.measureProse,
+              styles.measureProseWide,
+            ]}
+          >
             <span css={styles.measureProseLabel}>prose 41em</span>
           </div>
-          <span css={[styles.measureRest, styles.measureRestEmpty]}>
+          <span
+            css={[styles.measureRest, corner.radius_1, styles.measureRestEmpty]}
+          >
             {t({ en: "empty column", zh: "空栏" })}
           </span>
         </div>
@@ -181,11 +196,11 @@ export function LayoutShowcase() {
             zh: "layout.maxInlineSize 将页面上限设为 1140px 并居中，使宽屏上留出留白。它约束的是页面，下面的行长约束的是页面里的文字。",
           })}
         </ShowcaseHelper>
-        <div css={styles.viewport}>
+        <div css={[corner.radius_2, styles.viewport]}>
           <span css={styles.gutterLabel}>
             {t({ en: "gutter", zh: "留白" })}
           </span>
-          <div css={styles.contentBand}>
+          <div css={[corner.radius_1, styles.contentBand]}>
             <span css={styles.contentLabel}>
               {t({ en: "content", zh: "内容" })}
             </span>
@@ -226,6 +241,7 @@ export function LayoutShowcase() {
               <div
                 key={plane.name}
                 css={[
+                  corner.radius_2,
                   styles.layerCard,
                   plane.z,
                   styles.layerOffset(
@@ -252,7 +268,9 @@ export function LayoutShowcase() {
           {ratios.map((step) => (
             <SpecCard key={step.token} token={step.token} meta={step.meta}>
               <div css={styles.ratioFloor}>
-                <span css={[styles.ratioSwatch, step.swatch]} />
+                <span
+                  css={[corner.radius_1, styles.ratioSwatch, step.swatch]}
+                />
               </div>
             </SpecCard>
           ))}
@@ -276,7 +294,7 @@ const styles = stylex.create({
 
       <DoDont
         do={
-          <div css={styles.codeTile}>
+          <div css={[corner.radius_2, styles.codeTile]}>
             <span css={styles.codeMuted}>gridTemplateColumns:</span>
             <span css={styles.codeLine}>
               {'{ default: "1fr", [breakpoints.md]: "1fr 1fr" }'}
@@ -288,7 +306,7 @@ const styles = stylex.create({
           zh: "以移动端优先：先写基础值，再用最小宽度覆盖，随着空间出现增加列数。",
         })}
         dont={
-          <div css={styles.codeTile}>
+          <div css={[corner.radius_2, styles.codeTile]}>
             <span css={styles.codeMuted}>@media (max-width: 767px)</span>
             <span css={styles.codeLine}>
               {t({ en: "override desktop back down", zh: "把桌面端往回覆盖" })}
@@ -314,7 +332,6 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
     gap: space._00,
-    borderRadius: border.radius_2,
     overflow: "hidden",
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     backgroundColor: color.bgCanvas,
@@ -378,7 +395,6 @@ const styles = stylex.create({
     alignItems: "stretch",
     gap: space._1,
     padding: space._1,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
@@ -402,7 +418,6 @@ const styles = stylex.create({
     flexGrow: 1,
     minInlineSize: 0,
     paddingBlock: space._5,
-    borderRadius: border.radius_1,
     backgroundColor: color.surfaceAccentSubtle,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
@@ -433,7 +448,6 @@ const styles = stylex.create({
     alignItems: "stretch",
     gap: space._00,
     padding: space._1,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
@@ -443,7 +457,6 @@ const styles = stylex.create({
     justifyContent: "center",
     flexShrink: 0,
     paddingBlock: space._4,
-    borderRadius: border.radius_1,
     backgroundColor: color.surfaceAccentSubtle,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
@@ -468,7 +481,6 @@ const styles = stylex.create({
   // The wide page's leftover is drawn as a slot rather than as space: it is big
   // enough to hold something, which is why it reads as missing content.
   measureRestEmpty: {
-    borderRadius: border.radius_1,
     borderWidth: border.size_1,
     borderStyle: "dashed",
     borderColor: color.neutralBorder,
@@ -508,7 +520,6 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     marginBlockStart: `calc(-1 * ${space._1})`,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: shadow._2,
     borderWidth: border.size_1,
@@ -548,7 +559,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     maxInlineSize: "112px",
     maxBlockSize: "88px",
-    borderRadius: border.radius_1,
     backgroundColor: color.surfaceAccentSubtle,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
@@ -566,7 +576,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,

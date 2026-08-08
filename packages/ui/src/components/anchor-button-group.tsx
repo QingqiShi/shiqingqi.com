@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { border, color, controlSize, shadow } from "../tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
@@ -17,7 +18,11 @@ export function AnchorButtonGroup({
   children,
 }: PropsWithChildren<AnchorButtonGroupProps>) {
   return (
-    <div css={[styles.container, bright && styles.bright, css]}>{children}</div>
+    <div
+      css={[corner.radius_2, styles.container, bright && styles.bright, css]}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -27,7 +32,6 @@ const styles = stylex.create({
     gap: controlSize._1,
     backgroundColor: color.bgSurface,
     padding: controlSize._1,
-    borderRadius: border.radius_2,
     boxShadow: shadow._2,
     justifyContent: "center",
     position: "relative",

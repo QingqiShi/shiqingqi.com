@@ -9,7 +9,8 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { IconButton } from "@tuja/ui/components/icon-button";
 import { Text } from "@tuja/ui/components/text";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
@@ -68,7 +69,7 @@ export function IconButtonShowcase() {
                 zh: "plain · 置于表面之上",
               })}
             >
-              <div css={styles.surfaceScene}>
+              <div css={[corner.radius_3, styles.surfaceScene]}>
                 <IconButton
                   variant="plain"
                   icon={<PencilSimpleIcon />}
@@ -82,7 +83,7 @@ export function IconButtonShowcase() {
                 zh: "surface · 悬浮于画布上",
               })}
             >
-              <div css={styles.canvasScene}>
+              <div css={[corner.radius_3, styles.canvasScene]}>
                 <IconButton
                   variant="surface"
                   icon={<CaretRightIcon weight="bold" />}
@@ -261,7 +262,6 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     paddingBlock: space._6,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
@@ -270,7 +270,6 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     paddingBlock: space._6,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },

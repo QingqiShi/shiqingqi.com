@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, controlSize, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
@@ -34,7 +35,7 @@ export function ControlSizeShowcase() {
         {controls.map((step) => (
           <SpecCard key={step.token} token={step.token} meta={step.meta}>
             <div css={styles.csFloor}>
-              <span css={[styles.csSwatch, step.swatch]} />
+              <span css={[corner.radius_1, styles.csSwatch, step.swatch]} />
             </div>
           </SpecCard>
         ))}
@@ -56,7 +57,6 @@ const styles = stylex.create({
     minBlockSize: "56px",
   },
   csSwatch: {
-    borderRadius: border.radius_1,
     backgroundColor: color.accent,
   },
   cs0: { inlineSize: controlSize._0, blockSize: controlSize._0 },

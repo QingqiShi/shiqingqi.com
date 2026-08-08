@@ -1,15 +1,10 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { LocaleSelector } from "#src/components/shared/locale-selector.tsx";
 import { ThemeSwitch } from "#src/components/shared/theme-switch.tsx";
@@ -34,7 +29,12 @@ export function DesignSystemSidebarHeader({
       <Link
         href={getLocalePath("/", locale)}
         aria-label={t({ en: "Home", zh: "首页" })}
-        {...stylex.props(transition.colors, styles.homeLink, a11y.focusRing)}
+        {...stylex.props(
+          transition.colors,
+          corner.radius_round,
+          styles.homeLink,
+          a11y.focusRing,
+        )}
       >
         <HouseIcon weight="bold" role="presentation" />
       </Link>
@@ -91,7 +91,6 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
-    borderRadius: border.radius_round,
     fontSize: controlSize._4,
     color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {

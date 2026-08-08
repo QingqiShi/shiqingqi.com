@@ -1,7 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { t } from "#src/i18n.ts";
 import { captureException } from "#src/utils/posthog.ts";
@@ -18,7 +19,7 @@ function ErrorFallback({
       <p css={styles.errorText}>{message}</p>
       <button
         type="button"
-        css={styles.retryButton}
+        css={[corner.radius_round, styles.retryButton]}
         onClick={resetErrorBoundary}
       >
         {t({ en: "Try again", zh: "重试" })}
@@ -73,7 +74,6 @@ const styles = stylex.create({
     fontFamily: font.family,
     borderWidth: 0,
     borderStyle: "none",
-    borderRadius: border.radius_round,
     backgroundColor: color.accent,
     color: color.accentOn,
     cursor: "pointer",

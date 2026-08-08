@@ -4,7 +4,8 @@ import { MegaphoneIcon } from "@phosphor-icons/react/dist/ssr/Megaphone";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
@@ -233,7 +234,7 @@ export function CalloutShowcase() {
         })}
         dont={
           <div css={styles.dontBar}>
-            <span css={styles.dontBarStripe} aria-hidden />
+            <span css={[corner.radius_1, styles.dontBarStripe]} aria-hidden />
             <span>
               {t({
                 en: "Upload failed — the file is too large.",
@@ -310,7 +311,6 @@ const styles = stylex.create({
     inlineSize: space._0,
     alignSelf: "stretch",
     minBlockSize: space._5,
-    borderRadius: border.radius_1,
     backgroundColor: color.danger,
   },
 });

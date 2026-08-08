@@ -2,9 +2,10 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Card } from "@tuja/ui/components/card";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
+import { color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 interface SessionRestoreBannerProps {
@@ -42,7 +43,7 @@ export function SessionRestoreBanner({
       <div css={[flex.row, styles.actions]}>
         <button
           type="button"
-          css={[buttonReset.base, styles.dismissButton]}
+          css={[buttonReset.base, corner.radius_round, styles.dismissButton]}
           onClick={onDismiss}
           disabled={isPending}
         >
@@ -50,7 +51,7 @@ export function SessionRestoreBanner({
         </button>
         <button
           type="button"
-          css={[buttonReset.base, styles.continueButton]}
+          css={[buttonReset.base, corner.radius_round, styles.continueButton]}
           onClick={onContinue}
           disabled={isPending}
           aria-busy={isPending || undefined}
@@ -86,7 +87,6 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_3,
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     backgroundColor: "transparent",
     color: {
       default: color.textMuted,
@@ -104,7 +104,6 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_3,
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     backgroundColor: {
       default: color.accent,
       ":hover": color.accentHover,

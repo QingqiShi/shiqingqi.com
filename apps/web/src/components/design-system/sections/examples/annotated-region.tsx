@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
@@ -46,7 +47,13 @@ export function AnnotatedRegion({
   children,
 }: AnnotatedRegionProps) {
   return (
-    <div css={[styles.region, annotated ? styles.outlined : null]}>
+    <div
+      css={[
+        styles.region,
+        annotated ? corner.radius_2 : null,
+        annotated ? styles.outlined : null,
+      ]}
+    >
       {children}
       {annotated ? (
         <p css={styles.caption}>
@@ -73,7 +80,6 @@ const styles = stylex.create({
     outlineStyle: "dashed",
     outlineColor: color.accentBorder,
     outlineOffset: space._1,
-    borderRadius: border.radius_2,
   },
   caption: {
     display: "flex",

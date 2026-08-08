@@ -30,6 +30,7 @@ export const sharedStyles = stylex.create({
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
     borderRadius: buttonTokens.borderRadius,
+    cornerShape: "squircle",
     boxShadow: buttonTokens.boxShadow,
     transition: {
       default: pressTransition,

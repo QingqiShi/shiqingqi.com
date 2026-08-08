@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Overlay } from "@tuja/ui/components/overlay";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
@@ -53,7 +54,7 @@ export function TrailerOverlay({
             zh: "官方预告片",
           })}
         </Heading>
-        <div css={styles.player}>
+        <div css={[corner.radius_2, styles.player]}>
           <Text
             as="span"
             variant="overline"
@@ -102,7 +103,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
   },
   // The one local type step, for the same reason the poster's title is local:

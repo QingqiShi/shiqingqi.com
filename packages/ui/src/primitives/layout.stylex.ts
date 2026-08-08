@@ -44,6 +44,7 @@ export const scrollX = stylex.create({
     },
     outlineOffset: { default: null, ":focus-visible": border.size_2 },
     borderRadius: border.radius_2,
+    cornerShape: "squircle",
   },
 });
 

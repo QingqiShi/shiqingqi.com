@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { Showcase } from "../../showcase.tsx";
 
@@ -8,7 +9,7 @@ export function FamiliesShowcase() {
   return (
     <Showcase label={t({ en: "Families", zh: "字体族" })}>
       <div css={styles.grid}>
-        <div css={styles.card}>
+        <div css={[corner.radius_2, styles.card]}>
           <header css={styles.header}>
             <span css={styles.token}>font.family</span>
             <span css={styles.value}>Inter, sans-serif</span>
@@ -20,7 +21,7 @@ export function FamiliesShowcase() {
             <p css={styles.charsetLine}>0123456789 — &amp; ?!“”</p>
           </div>
         </div>
-        <div css={styles.card}>
+        <div css={[corner.radius_2, styles.card]}>
           <header css={styles.header}>
             <span css={styles.token}>font.familyMono</span>
             <span css={styles.value}>ui-monospace, SF Mono, Menlo</span>
@@ -52,7 +53,6 @@ const styles = stylex.create({
     gap: space._3,
     paddingBlock: space._4,
     paddingInline: space._4,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,

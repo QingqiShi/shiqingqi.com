@@ -20,6 +20,7 @@ import { Section } from "@tuja/ui/components/section";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
@@ -209,7 +210,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 stated in full beside it. Labelling both would announce the same
                 score twice.
               */}
-              <div css={styles.dial} aria-hidden="true">
+              <div css={[corner.radius_round, styles.dial]} aria-hidden="true">
                 <span css={styles.dialScore}>{movie.rating}</span>
                 <span css={styles.dialScale}>/10</span>
               </div>
@@ -590,7 +591,6 @@ const styles = stylex.create({
     borderWidth: border.size_2,
     borderStyle: "solid",
     borderColor: color.accentBorder,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgSurfaceSunken,
   },
   dialScore: {

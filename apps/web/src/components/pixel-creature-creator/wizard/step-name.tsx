@@ -121,6 +121,7 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     borderRadius: "10px",
+    cornerShape: "squircle",
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: {
@@ -143,6 +144,7 @@ const styles = stylex.create({
     marginTop: space._2,
     padding: space._3,
     borderRadius: "12px",
+    cornerShape: "squircle",
     borderWidth: "1px",
     borderStyle: "dashed",
     borderColor: color.neutralBorder,

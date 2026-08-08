@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/hooks/use-locale.ts";
@@ -45,6 +46,7 @@ export function MediaPoster({ media, compact, decorative }: MediaPosterProps) {
         <div
           css={[
             flex.center,
+            corner.radius_2,
             styles.noPoster,
             compact && styles.noPosterCompact,
           ]}
@@ -57,7 +59,12 @@ export function MediaPoster({ media, compact, decorative }: MediaPosterProps) {
       )}
       {media.rating ? (
         <div
-          css={[flex.center, styles.rating, compact && styles.ratingCompact]}
+          css={[
+            flex.center,
+            corner.radius_round,
+            styles.rating,
+            compact && styles.ratingCompact,
+          ]}
           role="img"
           aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(media.rating)}`}
         >
@@ -78,7 +85,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     color: color.textMuted,
   },
@@ -95,7 +101,6 @@ const styles = stylex.create({
     left: space._1,
     width: space._7,
     height: space._7,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgSurface,
     borderWidth: ".2em",
     borderColor: color.textMain,

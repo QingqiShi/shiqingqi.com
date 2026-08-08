@@ -18,6 +18,7 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { purple } from "@tuja/ui/palette/purple";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
   easing,
@@ -946,7 +947,7 @@ export function PixelEditor({
   return (
     <div css={styles.root}>
       <div
-        css={styles.toolbar}
+        css={[corner.radius_2, styles.toolbar]}
         role="toolbar"
         aria-label={t({ en: "Tools", zh: "工具" })}
       >
@@ -1037,7 +1038,7 @@ export function PixelEditor({
         />
       </div>
 
-      <div css={styles.colorRow}>
+      <div css={[corner.radius_2, styles.colorRow]}>
         <label css={styles.colorLabel}>
           <span>{t({ en: "Color", zh: "颜色" })}</span>
           <input
@@ -1046,7 +1047,7 @@ export function PixelEditor({
             onChange={(event) => {
               setActiveColor(event.target.value);
             }}
-            css={styles.colorInput}
+            css={[corner.radius_2, styles.colorInput]}
             data-testid="color-input"
           />
         </label>
@@ -1109,7 +1110,7 @@ export function PixelEditor({
         ) : null}
       </div>
 
-      <div ref={containerRef} css={styles.canvasArea}>
+      <div ref={containerRef} css={[corner.radius_3, styles.canvasArea]}>
         <canvas
           ref={canvasRef}
           css={[styles.canvas, cursorClass]}
@@ -1121,7 +1122,7 @@ export function PixelEditor({
         />
         {selection !== null ? (
           <div
-            css={styles.selectionBar}
+            css={[corner.radius_2, styles.selectionBar]}
             role="toolbar"
             aria-label={t({ en: "Selection actions", zh: "选区操作" })}
           >
@@ -1194,7 +1195,11 @@ function ToolButton({
   return (
     <button
       type="button"
-      css={[styles.toolButton, active && styles.toolButtonActive]}
+      css={[
+        corner.radius_2,
+        styles.toolButton,
+        active && styles.toolButtonActive,
+      ]}
       title={label}
       aria-label={label}
       aria-pressed={active}
@@ -1226,6 +1231,7 @@ function SelectionButton({
     <button
       type="button"
       css={[
+        corner.radius_1,
         styles.selectionButton,
         variant === "primary" && styles.selectionButtonPrimary,
       ]}
@@ -1256,7 +1262,6 @@ const styles = stylex.create({
     padding: space._2,
     backgroundColor: color.bgSurface,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
   },
   spacer: {
     flex: "1",
@@ -1268,7 +1273,6 @@ const styles = stylex.create({
     width: "34px",
     height: "34px",
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     backgroundColor: {
       default: color.bgInteractiveRest,
       ":hover:not(:disabled)": color.bgInteractiveHover,
@@ -1294,7 +1298,6 @@ const styles = stylex.create({
     padding: space._2,
     backgroundColor: color.bgSurface,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
   },
   colorLabel: {
     display: "inline-flex",
@@ -1308,7 +1311,6 @@ const styles = stylex.create({
     height: "32px",
     padding: 0,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     backgroundColor: "transparent",
     cursor: "pointer",
   },
@@ -1321,6 +1323,7 @@ const styles = stylex.create({
     height: "24px",
     border: `${border.size_1} solid ${color.neutralBorder}`,
     borderRadius: "4px",
+    cornerShape: "squircle",
     cursor: "pointer",
     padding: 0,
   },
@@ -1347,7 +1350,6 @@ const styles = stylex.create({
     position: "relative",
     backgroundColor: color.bgSurface,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
     boxShadow: shadow.inset,
     flex: "1",
     minHeight: 0,
@@ -1381,7 +1383,6 @@ const styles = stylex.create({
     padding: "4px",
     backgroundColor: color.bgOverlay,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
     flexWrap: "wrap",
     maxInlineSize: "calc(100% - 24px)",
@@ -1399,7 +1400,6 @@ const styles = stylex.create({
     },
     color: color.textMain,
     border: "none",
-    borderRadius: border.radius_1,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     cursor: "pointer",

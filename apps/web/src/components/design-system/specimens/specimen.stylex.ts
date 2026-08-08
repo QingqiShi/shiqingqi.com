@@ -112,6 +112,7 @@ export const wireframe = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     borderRadius: border.radius_2,
+    cornerShape: "squircle",
     // Lighter than the sunken plate it sits on, in both themes, so the miniature
     // reads as a page lying on the specimen plate rather than dissolving into it.
     backgroundColor: color.bgSurface,

@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface ShowcaseProps {
@@ -77,7 +78,9 @@ export function StateReadout({
   return (
     <Text variant="bodySmall" tone="muted">
       {label}{" "}
-      <span css={[styles.stateValue, tabular && styles.tabular]}>
+      <span
+        css={[corner.radius_1, styles.stateValue, tabular && styles.tabular]}
+      >
         {children}
       </span>
     </Text>
@@ -137,7 +140,6 @@ const styles = stylex.create({
     color: color.textMain,
     paddingInline: space._1,
     paddingBlock: space._00,
-    borderRadius: border.radius_1,
     backgroundColor: color.bgInteractiveRest,
   },
   tabular: {

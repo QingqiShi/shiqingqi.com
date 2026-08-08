@@ -9,11 +9,11 @@ import { MenuButton } from "@tuja/ui/components/menu-button";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import {
-  border,
   color,
   controlSize,
   font,
@@ -76,6 +76,7 @@ function DemoMenuItem({ isCurrent, label, onSelect }: DemoMenuItemProps) {
         buttonReset.base,
         a11y.focusRing,
         transition.colors,
+        corner.radius_1,
         styles.item,
         isCurrent && styles.itemCurrent,
       ]}
@@ -135,7 +136,7 @@ function MenuDemo() {
       <div css={[flex.col, styles.notes]}>
         <Text variant="bodySmall" tone="muted">
           {t({ en: "Opened →", zh: "已打开 →" })}{" "}
-          <span css={styles.stateValue}>
+          <span css={[corner.radius_1, styles.stateValue]}>
             {opened ? opened.label : t({ en: "nothing yet", zh: "尚无" })}
           </span>
         </Text>
@@ -207,7 +208,7 @@ function KeyTable() {
 
 function SortPopup() {
   return (
-    <div css={styles.popupSample}>
+    <div css={[corner.radius_2, styles.popupSample]}>
       <MenuLabel>{t({ en: "Sort by", zh: "排序方式" })}</MenuLabel>
       <Button variant="primary">{t({ en: "Newest", zh: "最新" })}</Button>
       <Button>{t({ en: "Popular", zh: "热门" })}</Button>
@@ -336,7 +337,9 @@ export function MenuShowcase() {
           do={
             <div css={[flex.col, styles.guideExample]}>
               <SortPopup />
-              <code css={styles.roleTag}>{'popupRole="group"'}</code>
+              <code css={[corner.radius_1, styles.roleTag]}>
+                {'popupRole="group"'}
+              </code>
             </div>
           }
           doCaption={t({
@@ -346,7 +349,9 @@ export function MenuShowcase() {
           dont={
             <div css={[flex.col, styles.guideExample]}>
               <SortPopup />
-              <code css={styles.roleTag}>{'popupRole="menu"'}</code>
+              <code css={[corner.radius_1, styles.roleTag]}>
+                {'popupRole="menu"'}
+              </code>
             </div>
           }
           dontCaption={t({
@@ -450,7 +455,6 @@ const styles = stylex.create({
       default: "transparent",
       ":hover": color.bgInteractiveHover,
     },
-    borderRadius: border.radius_1,
     fontSize: controlSize._4,
     fontWeight: font.weight_6,
     blockSize: controlSize._9,
@@ -474,7 +478,6 @@ const styles = stylex.create({
     color: color.textMain,
     paddingInline: space._1,
     paddingBlock: space._00,
-    borderRadius: border.radius_1,
     backgroundColor: color.bgInteractiveRest,
   },
   popupSample: {
@@ -486,7 +489,6 @@ const styles = stylex.create({
     maxInlineSize: space._13,
     backgroundColor: color.bgOverlay,
     boxShadow: shadow._3,
-    borderRadius: border.radius_2,
   },
   guideExample: {
     gap: space._2,
@@ -500,6 +502,5 @@ const styles = stylex.create({
     backgroundColor: color.surfaceNeutralSubtle,
     paddingInline: space._1,
     paddingBlock: space._00,
-    borderRadius: border.radius_1,
   },
 });

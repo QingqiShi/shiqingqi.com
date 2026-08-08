@@ -5,11 +5,12 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { fixedFill } from "@tuja/ui/primitives/layout.stylex";
 import { motionConstants, transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, layer, space } from "@tuja/ui/tokens.stylex";
+import { color, layer, space } from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren, RefObject } from "react";
 import { useRef } from "react";
 import { createPortal } from "react-dom";
@@ -90,6 +91,7 @@ export function DetailOverlay({
           <div
             ref={dialogRef}
             css={[
+              corner.radius_4,
               styles.card,
               width === "narrow" ? styles.cardNarrow : styles.cardDefault,
               height === "compact"
@@ -112,6 +114,7 @@ export function DetailOverlay({
                   flex.inlineCenter,
                   a11y.focusRing,
                   transition.colors,
+                  corner.radius_round,
                   styles.closeButton,
                 ]}
                 onClick={onClose}
@@ -166,7 +169,6 @@ const styles = stylex.create({
     position: "relative",
     width: "100%",
     backgroundColor: color.bgSurface,
-    borderRadius: border.radius_4,
     pointerEvents: "all",
     animationName: {
       default: slideUp,
@@ -204,7 +206,6 @@ const styles = stylex.create({
     zIndex: layer.content,
     width: "2rem",
     height: "2rem",
-    borderRadius: border.radius_round,
     // Fixed dark circle so the icon stays legible over arbitrary media in both
     // themes; darkens to the scrim token on hover for feedback (animated via
     // the composed `transition.colors`). The icon uses `accentOn` (white in

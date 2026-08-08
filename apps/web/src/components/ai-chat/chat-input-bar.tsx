@@ -4,10 +4,11 @@ import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import {
   ChatTextarea,
   chatTextareaStyles,
@@ -54,7 +55,9 @@ export function ChatInputBar({
       beforeTextarea={
         attachedMedia && (
           <div css={styles.attachmentRow}>
-            <span css={[truncate.base, styles.attachmentTag]}>
+            <span
+              css={[truncate.base, corner.radius_round, styles.attachmentTag]}
+            >
               {attachedMedia.title}
               <button
                 type="button"
@@ -63,6 +66,7 @@ export function ChatInputBar({
                 css={[
                   flex.inlineCenter,
                   buttonReset.base,
+                  corner.radius_round,
                   styles.attachmentDismiss,
                 ]}
               >
@@ -145,7 +149,6 @@ const styles = stylex.create({
     alignItems: "center",
     gap: space._1,
     backgroundColor: color.bgSurfaceRaised,
-    borderRadius: border.radius_round,
     paddingBlock: space._0,
     paddingLeft: space._2,
     paddingRight: space._1,
@@ -157,7 +160,6 @@ const styles = stylex.create({
     flexShrink: 0,
     width: "1rem",
     height: "1rem",
-    borderRadius: border.radius_round,
     backgroundColor: {
       default: "transparent",
       ":hover": color.surfaceNeutralSubtle,

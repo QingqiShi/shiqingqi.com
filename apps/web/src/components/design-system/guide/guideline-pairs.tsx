@@ -2,6 +2,7 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
@@ -37,7 +38,7 @@ export function GuidelinePairs({ pairs }: GuidelinePairsProps) {
         <div key={pair.recommended} css={styles.row}>
           {pair.label ? <p css={styles.label}>{pair.label}</p> : null}
           <div css={styles.pair}>
-            <p css={[styles.cell, styles.good]}>
+            <p css={[corner.radius_2, styles.cell, styles.good]}>
               <span css={[styles.icon, styles.goodIcon]}>
                 <CheckIcon weight="bold" aria-hidden />
               </span>
@@ -46,7 +47,7 @@ export function GuidelinePairs({ pairs }: GuidelinePairsProps) {
                 {pair.recommended}
               </span>
             </p>
-            <p css={[styles.cell, styles.bad]}>
+            <p css={[corner.radius_2, styles.cell, styles.bad]}>
               <span css={[styles.icon, styles.badIcon]}>
                 <XIcon weight="bold" aria-hidden />
               </span>
@@ -97,7 +98,6 @@ const styles = stylex.create({
     margin: 0,
     paddingBlock: space._2,
     paddingInline: space._2,
-    borderRadius: border.radius_2,
     borderWidth: border.size_1,
     borderStyle: "solid",
     fontSize: font.uiBodySmall,

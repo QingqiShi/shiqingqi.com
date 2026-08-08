@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { Text } from "@tuja/ui/components/text";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
 import {
   getDesignSystemGroupLabels,
@@ -49,7 +50,7 @@ export function SidebarLayoutShowcase() {
           {/* The frame's transform creates a containing block, so the shell's
               fixed mobile chrome (pill bar, drawer, backdrop) anchors to the
               specimen instead of the real viewport. */}
-          <div css={styles.frame}>
+          <div css={[corner.radius_3, styles.frame]}>
             <div css={styles.viewport}>
               <SidebarLayout
                 as="div"
@@ -81,10 +82,22 @@ export function SidebarLayoutShowcase() {
                     </Text>
                   </div>
                   <div css={styles.cardGrid}>
-                    <div css={styles.placeholder} aria-hidden="true" />
-                    <div css={styles.placeholder} aria-hidden="true" />
-                    <div css={styles.placeholder} aria-hidden="true" />
-                    <div css={styles.placeholder} aria-hidden="true" />
+                    <div
+                      css={[corner.radius_2, styles.placeholder]}
+                      aria-hidden="true"
+                    />
+                    <div
+                      css={[corner.radius_2, styles.placeholder]}
+                      aria-hidden="true"
+                    />
+                    <div
+                      css={[corner.radius_2, styles.placeholder]}
+                      aria-hidden="true"
+                    />
+                    <div
+                      css={[corner.radius_2, styles.placeholder]}
+                      aria-hidden="true"
+                    />
                   </div>
                 </div>
               </SidebarLayout>
@@ -202,7 +215,6 @@ const styles = stylex.create({
     position: "relative",
     inlineSize: "100%",
     overflow: "hidden",
-    borderRadius: border.radius_3,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     // Containing block for the shell's fixed mobile chrome (see comment at
@@ -232,7 +244,6 @@ const styles = stylex.create({
   },
   placeholder: {
     aspectRatio: "4 / 3",
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },

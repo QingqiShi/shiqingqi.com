@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, ratio, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
@@ -18,7 +19,7 @@ export function MovieDetailSpecimen() {
   return (
     <div css={[wireframe.page, styles.page]}>
       <div css={styles.hero}>
-        <div css={styles.poster} />
+        <div css={[corner.radius_1, styles.poster]} />
         <div css={styles.identity}>
           <WireframeBar width="35%" />
           <WireframeBar width="80%" strong />
@@ -28,9 +29,18 @@ export function MovieDetailSpecimen() {
               them here would leave this specimen behind the next time they move.
               Only the taller box and the pill radius are local. */}
           <div css={styles.chips}>
-            <WireframeBar width="0.75rem" css={styles.chip} />
-            <WireframeBar width="0.75rem" css={styles.chip} />
-            <WireframeBar width="0.75rem" css={styles.chip} />
+            <WireframeBar
+              width="0.75rem"
+              css={[corner.radius_round, styles.chip]}
+            />
+            <WireframeBar
+              width="0.75rem"
+              css={[corner.radius_round, styles.chip]}
+            />
+            <WireframeBar
+              width="0.75rem"
+              css={[corner.radius_round, styles.chip]}
+            />
           </div>
         </div>
       </div>
@@ -60,7 +70,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_1,
     backgroundColor: color.bgSurfaceSunken,
   },
   identity: {
@@ -77,7 +86,6 @@ const styles = stylex.create({
   },
   chip: {
     blockSize: space._1,
-    borderRadius: border.radius_round,
   },
   // Pinned to the foot of the miniature, under the hero, the way the real
   // screen's view switch sits below the fold of its hero.

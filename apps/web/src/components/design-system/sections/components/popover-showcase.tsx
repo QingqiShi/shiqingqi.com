@@ -7,6 +7,7 @@ import { Popover } from "@tuja/ui/components/popover";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
@@ -143,7 +144,7 @@ function PortalTargetDemo() {
           })}
         </Text>
       </Popover>
-      <div ref={setHost} css={styles.portalHost}>
+      <div ref={setHost} css={[corner.radius_2, styles.portalHost]}>
         <span css={styles.code}>portalTarget</span>
       </div>
     </div>
@@ -158,8 +159,8 @@ function PortalTargetDemo() {
  */
 function PopoverDiagram() {
   return (
-    <div css={styles.diagram}>
-      <div css={styles.diagramTrigger} />
+    <div css={[corner.radius_2, styles.diagram]}>
+      <div css={[corner.radius_1, styles.diagramTrigger]} />
       <WireframeBar width="72%" />
       <WireframeBar width="48%" />
       <div css={[popoverSurface.base, styles.diagramPanel]}>
@@ -173,8 +174,8 @@ function PopoverDiagram() {
 /** The same page under a modal: dimmed, and the panel centred rather than hung. */
 function ModalDiagram() {
   return (
-    <div css={styles.diagram}>
-      <div css={styles.diagramTrigger} />
+    <div css={[corner.radius_2, styles.diagram]}>
+      <div css={[corner.radius_1, styles.diagramTrigger]} />
       <WireframeBar width="72%" />
       <WireframeBar width="48%" />
       <div css={styles.diagramScrim} />
@@ -249,7 +250,7 @@ export function PopoverShowcase() {
           })}
         </Text>
         <Specimen caption={t({ en: "shifting", zh: "平移" })}>
-          <div css={styles.rail}>
+          <div css={[corner.radius_2, styles.rail]}>
             <div css={styles.railTrack}>
               <RailPopover label={t({ en: "Start", zh: "起点" })} />
               <RailPopover label={t({ en: "Middle", zh: "中间" })} />
@@ -578,7 +579,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
   },
   railTrack: {
@@ -614,7 +614,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "dashed",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
   },
   diagram: {
     position: "relative",
@@ -628,13 +627,11 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
   },
   diagramTrigger: {
     inlineSize: space._9,
     blockSize: space._2,
-    borderRadius: border.radius_1,
     backgroundColor: color.bgInteractiveSelected,
   },
   // Thinned the way the Overlay specimen thins it: at this size the real scrim

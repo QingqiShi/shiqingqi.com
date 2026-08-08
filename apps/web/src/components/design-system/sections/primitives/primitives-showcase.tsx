@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex, grow } from "@tuja/ui/primitives/flex.stylex";
 import {
   absoluteFill,
@@ -16,7 +17,7 @@ import {
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
@@ -143,13 +144,15 @@ function FlexSection() {
             zh: "flex.between —— 工具栏",
           })}
         >
-          <div css={[flex.between, styles.bar]}>
+          <div css={[flex.between, corner.radius_2, styles.bar]}>
             <Text as="span" variant="bodySmall" weight="semibold">
               {t({ en: "Library", zh: "媒体库" })}
             </Text>
             <div css={[flex.row, styles.barActions]}>
-              <span css={styles.pill}>{t({ en: "Filter", zh: "筛选" })}</span>
-              <span css={[styles.pill, styles.pillAccent]}>
+              <span css={[corner.radius_round, styles.pill]}>
+                {t({ en: "Filter", zh: "筛选" })}
+              </span>
+              <span css={[corner.radius_round, styles.pill, styles.pillAccent]}>
                 {t({ en: "Sort", zh: "排序" })}
               </span>
             </div>
@@ -159,18 +162,26 @@ function FlexSection() {
           caption={t({ en: "flex.wrap — chips", zh: "flex.wrap —— 标签按钮" })}
         >
           <div css={[flex.wrap, styles.chipRow]}>
-            <span css={styles.chip}>{t({ en: "Drama", zh: "剧情" })}</span>
-            <span css={styles.chip}>{t({ en: "Sci-fi", zh: "科幻" })}</span>
-            <span css={styles.chip}>{t({ en: "Thriller", zh: "惊悚" })}</span>
-            <span css={styles.chip}>{t({ en: "Comedy", zh: "喜剧" })}</span>
+            <span css={[corner.radius_round, styles.chip]}>
+              {t({ en: "Drama", zh: "剧情" })}
+            </span>
+            <span css={[corner.radius_round, styles.chip]}>
+              {t({ en: "Sci-fi", zh: "科幻" })}
+            </span>
+            <span css={[corner.radius_round, styles.chip]}>
+              {t({ en: "Thriller", zh: "惊悚" })}
+            </span>
+            <span css={[corner.radius_round, styles.chip]}>
+              {t({ en: "Comedy", zh: "喜剧" })}
+            </span>
           </div>
         </Specimen>
         <Specimen caption="flex.row + grow._1">
           <div css={[flex.row, styles.growRow]}>
-            <span css={[grow._1, styles.growField]}>
+            <span css={[grow._1, corner.radius_2, styles.growField]}>
               {t({ en: "Search titles", zh: "搜索标题" })}
             </span>
-            <span css={[styles.pill, styles.pillAccent]}>
+            <span css={[corner.radius_round, styles.pill, styles.pillAccent]}>
               {t({ en: "Go", zh: "搜索" })}
             </span>
           </div>
@@ -271,7 +282,7 @@ function LayoutSection() {
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
         <Specimen caption="truncate.base">
-          <div css={[styles.truncateBox, truncate.base]}>
+          <div css={[corner.radius_2, styles.truncateBox, truncate.base]}>
             {t({
               en: "The Shawshank Redemption — Extended Director's Cut, Remastered",
               zh: "肖申克的救赎——加长导演剪辑版，重制修复",
@@ -284,7 +295,7 @@ function LayoutSection() {
             zh: "absoluteFill.all —— 覆盖层",
           })}
         >
-          <div css={styles.fillTile}>
+          <div css={[corner.radius_2, styles.fillTile]}>
             <div css={[absoluteFill.all, styles.fillScrim]}>
               <span css={styles.fillLabel}>
                 {t({ en: "Now playing", zh: "正在播放" })}
@@ -300,7 +311,7 @@ function LayoutSection() {
           >
             <div css={[flex.row, styles.scrollTrack]}>
               {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                <div key={n} css={styles.scrollTile}>
+                <div key={n} css={[corner.radius_2, styles.scrollTile]}>
                   {n}
                 </div>
               ))}
@@ -314,11 +325,11 @@ function LayoutSection() {
           })}
         >
           <div css={[flex.row, styles.imagePair]}>
-            <div css={styles.imageFrame}>
+            <div css={[corner.radius_2, styles.imageFrame]}>
               {/* eslint-disable-next-line @next/next/no-img-element -- inline data-URI specimen, not a remote asset */}
               <img src={sampleImage} alt={imageAlt} css={imageCover.base} />
             </div>
-            <div css={styles.imageFrame}>
+            <div css={[corner.radius_2, styles.imageFrame]}>
               {/* eslint-disable-next-line @next/next/no-img-element -- inline data-URI specimen, not a remote asset */}
               <img src={sampleImage} alt={imageAlt} css={imageContain.base} />
             </div>
@@ -422,7 +433,7 @@ function MotionSection() {
             zh: "transition.colors —— 悬停",
           })}
         >
-          <div css={[transition.colors, styles.hoverTile]}>
+          <div css={[transition.colors, corner.radius_2, styles.hoverTile]}>
             {t({ en: "Hover me", zh: "悬停试试" })}
           </div>
         </Specimen>
@@ -437,6 +448,7 @@ function MotionSection() {
               css={[
                 animate.bounce,
                 styles.reduceMotionPause,
+                corner.radius_round,
                 styles.dot,
                 styles.dotDelay0,
               ]}
@@ -445,6 +457,7 @@ function MotionSection() {
               css={[
                 animate.bounce,
                 styles.reduceMotionPause,
+                corner.radius_round,
                 styles.dot,
                 styles.dotDelay1,
               ]}
@@ -453,6 +466,7 @@ function MotionSection() {
               css={[
                 animate.bounce,
                 styles.reduceMotionPause,
+                corner.radius_round,
                 styles.dot,
                 styles.dotDelay2,
               ]}
@@ -470,6 +484,7 @@ function MotionSection() {
               css={[
                 animate.pulse,
                 styles.reduceMotionPause,
+                corner.radius_round,
                 styles.skeletonBar,
               ]}
             />
@@ -477,6 +492,7 @@ function MotionSection() {
               css={[
                 animate.pulse,
                 styles.reduceMotionPause,
+                corner.radius_round,
                 styles.skeletonBarShort,
               ]}
             />
@@ -528,6 +544,7 @@ function ResetSection() {
               buttonReset.base,
               flex.inlineCenter,
               a11y.focusRing,
+              corner.radius_round,
               styles.customControl,
             ]}
           >
@@ -546,6 +563,55 @@ function ResetSection() {
   {icon}
   {label}
 </button>`}
+      />
+    </Showcase>
+  );
+}
+
+function CornerSection() {
+  const api: ApiEntry[] = [
+    {
+      token: "corner.radius_1 – radius_5",
+      meta: "_1 · _2 · _3 · _4 · _5",
+      description: t({
+        en: "Squircle corner at each border.radius step — borderRadius and cornerShape in one declaration.",
+        zh: "在每一级 border.radius 上配对的超椭圆角——borderRadius 与 cornerShape 写在同一条声明里。",
+      }),
+    },
+    {
+      token: "corner.radius_round",
+      meta: "cornerShape:squircle",
+      description: t({
+        en: "Squircle corner for pills, avatars, and circles.",
+        zh: "用于胶囊形、头像与圆形的超椭圆角。",
+      }),
+    },
+  ];
+
+  return (
+    <Showcase label={t({ en: "Corner", zh: "圆角原语" })}>
+      <ShowcaseHelper>
+        {t({
+          en: 'Pairs a border.radius step with cornerShape: "squircle" in one declaration, so every rounded corner ships as a squircle without a global corner-shape rule. A browser without corner-shape support keeps circular corners.',
+          zh: '在同一条声明中把某一级 border.radius 与 cornerShape: "squircle" 配对，让每个圆角都以超椭圆角出厂，无需全局 corner-shape 规则。不支持 corner-shape 的浏览器会回退为圆弧。',
+        })}
+      </ShowcaseHelper>
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen caption="corner.radius_3 — card">
+          <div css={[corner.radius_3, styles.cornerCard]} />
+        </Specimen>
+        <Specimen caption="corner.radius_round — pill">
+          <span css={[corner.radius_round, styles.cornerPill]}>
+            {t({ en: "Popular", zh: "热门" })}
+          </span>
+        </Specimen>
+      </SpecimenGrid>
+      <ApiGrid entries={api} />
+      <UsageSnippet
+        code={`import { corner } from "@tuja/ui/primitives/corner.stylex";
+
+<div css={corner.radius_3}>…</div>
+<span css={corner.radius_round}>…</span>`}
       />
     </Showcase>
   );
@@ -600,6 +666,7 @@ function A11ySection() {
               buttonReset.base,
               flex.center,
               a11y.focusRing,
+              corner.radius_round,
               styles.iconButton,
             ]}
           >
@@ -623,6 +690,7 @@ function A11ySection() {
               buttonReset.base,
               flex.center,
               a11y.focusRing,
+              corner.radius_2,
               styles.focusTile,
             ]}
           >
@@ -635,13 +703,14 @@ function A11ySection() {
             zh: "focusRingInset —— 焦点环留在被裁切外框内",
           })}
         >
-          <div css={styles.clipFrame}>
+          <div css={[corner.radius_2, styles.clipFrame]}>
             <button
               type="button"
               css={[
                 buttonReset.base,
                 flex.center,
                 a11y.focusRingInset,
+                corner.radius_1,
                 styles.insetTile,
               ]}
             >
@@ -670,6 +739,7 @@ export function PrimitivesShowcase() {
       <LayoutSection />
       <MotionSection />
       <ResetSection />
+      <CornerSection />
       <A11ySection />
     </>
   );
@@ -697,7 +767,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
@@ -707,7 +776,6 @@ const styles = stylex.create({
   pill: {
     paddingBlock: space._00,
     paddingInline: space._2,
-    borderRadius: border.radius_round,
     fontSize: font.uiCaption,
     fontWeight: font.weight_5,
     color: color.textMuted,
@@ -725,7 +793,6 @@ const styles = stylex.create({
   chip: {
     paddingBlock: space._00,
     paddingInline: space._2,
-    borderRadius: border.radius_round,
     fontSize: font.uiCaption,
     color: color.textMuted,
     backgroundColor: color.bgInteractiveRest,
@@ -738,7 +805,6 @@ const styles = stylex.create({
   growField: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     fontSize: font.uiCaption,
     color: color.textSubtle,
     backgroundColor: color.bgSurfaceSunken,
@@ -753,7 +819,6 @@ const styles = stylex.create({
     maxInlineSize: "220px",
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     color: color.textMain,
     backgroundColor: color.bgSurface,
@@ -763,7 +828,6 @@ const styles = stylex.create({
     position: "relative",
     inlineSize: "100%",
     blockSize: "96px",
-    borderRadius: border.radius_2,
     overflow: "hidden",
     backgroundImage: `linear-gradient(135deg, ${color.accent}, ${color.info})`,
   },
@@ -795,7 +859,6 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: "72px",
     blockSize: "48px",
-    borderRadius: border.radius_2,
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     color: color.textMuted,
@@ -810,7 +873,6 @@ const styles = stylex.create({
     inlineSize: "80px",
     blockSize: "80px",
     flexShrink: 0,
-    borderRadius: border.radius_2,
     overflow: "hidden",
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
@@ -822,7 +884,6 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: "100%",
     paddingBlock: space._3,
-    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: { default: color.textMuted, ":hover": color.accentOn },
@@ -837,7 +898,6 @@ const styles = stylex.create({
   dot: {
     inlineSize: "12px",
     blockSize: "12px",
-    borderRadius: border.radius_round,
     backgroundColor: color.accent,
   },
   dotDelay0: {
@@ -856,13 +916,11 @@ const styles = stylex.create({
   skeletonBar: {
     blockSize: "12px",
     inlineSize: "100%",
-    borderRadius: border.radius_round,
     backgroundColor: color.bgInteractiveHover,
   },
   skeletonBarShort: {
     blockSize: "12px",
     inlineSize: "60%",
-    borderRadius: border.radius_round,
     backgroundColor: color.bgInteractiveHover,
   },
   // Pauses infinite animations for viewers who prefer reduced motion.
@@ -872,12 +930,29 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "paused",
     },
   },
+  // Corner specimens — corner.* already sets borderRadius, so these only add
+  // the fill and text styling around it.
+  cornerCard: {
+    inlineSize: "100%",
+    blockSize: "72px",
+    backgroundColor: color.surfaceAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+  },
+  cornerPill: {
+    display: "inline-flex",
+    alignItems: "center",
+    paddingBlock: space._1,
+    paddingInline: space._4,
+    fontSize: font.uiCaption,
+    fontWeight: font.weight_6,
+    color: color.accentText,
+    backgroundColor: color.surfaceAccentSubtle,
+  },
   // Reset + a11y specimens
   customControl: {
     gap: space._2,
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.accentOn,
@@ -891,7 +966,6 @@ const styles = stylex.create({
   iconButton: {
     inlineSize: "40px",
     blockSize: "40px",
-    borderRadius: border.radius_round,
     fontSize: font.uiHeading3,
     color: color.textMuted,
     backgroundColor: color.bgInteractiveRest,
@@ -899,7 +973,6 @@ const styles = stylex.create({
   focusTile: {
     paddingBlock: space._2,
     paddingInline: space._4,
-    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: color.textMain,
@@ -908,7 +981,6 @@ const styles = stylex.create({
   },
   clipFrame: {
     padding: space._1,
-    borderRadius: border.radius_2,
     overflow: "hidden",
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
@@ -917,7 +989,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._4,
-    borderRadius: border.radius_1,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: color.textMain,

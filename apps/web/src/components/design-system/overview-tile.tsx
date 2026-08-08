@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
   easing,
@@ -76,7 +77,7 @@ export function OverviewTile({
         // the plate is structure and holds still, while only its contents drain
         // of colour at rest. Putting the treatment on the plate would fade the
         // plate too, so the tile's shape would change on hover.
-        <div css={styles.plate} inert>
+        <div css={[corner.radius_2, styles.plate]} inert>
           <div
             css={[
               styles.specimen,
@@ -141,6 +142,7 @@ const styles = stylex.create({
       position: "absolute",
       inset: 0,
       borderRadius: border.radius_3,
+      cornerShape: "squircle",
       outlineWidth: border.size_2,
       outlineStyle: "solid",
       outlineOffset: `calc(-1 * ${border.size_2})`,
@@ -175,7 +177,6 @@ const styles = stylex.create({
     flexGrow: 1,
     marginBlockStart: space._3,
     padding: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
   },
   // At rest the specimen is drained of colour and held back, then returns to
