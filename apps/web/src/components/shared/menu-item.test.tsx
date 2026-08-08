@@ -1,12 +1,12 @@
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type { ReactNode } from "react";
-import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "#src/test-utils.tsx";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { MenuItem } from "./menu-item";
 
 // MenuItem calls useRouter() at render time, which requires the Next.js App
-// Router context. These tests only assert rendered attributes (they never
-// navigate), so a no-op router stub is enough to let the component mount.
+// Router context. A no-op router stub is enough: the attribute tests never
+// navigate, and the click tests only assert which router methods were called.
 const stubRouter = {
   back: vi.fn(),
   forward: vi.fn(),
@@ -22,6 +22,10 @@ function RouterProvider({ children }: { children: ReactNode }) {
 }
 
 describe("MenuItem", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("renders as a menuitem with the auto-focus data attribute", () => {
     render(
       <RouterProvider>
@@ -112,5 +116,47 @@ describe("MenuItem", () => {
       name: "Default-language item",
     });
     expect(item).not.toHaveAttribute("lang");
+  });
+
+  it("navigates via router.push on click", async () => {
+    const user = userEvent.setup();
+    render(
+      <RouterProvider>
+        <MenuItem href="/zh">Switch to Chinese</MenuItem>
+      </RouterProvider>,
+    );
+
+    await user.click(
+      screen.getByRole("menuitem", { name: "Switch to Chinese" }),
+    );
+
+    expect(stubRouter.push).toHaveBeenCalledWith("/zh");
+  });
+
+  it("runs onNavigation once, after the push", async () => {
+    // Covers the locale switcher's router.refresh(): it must run with the
+    // navigation already issued, in the same transition. Recording the push
+    // count at call time asserts the ordering without another spy.
+    const pushCountWhenCalled: number[] = [];
+    const user = userEvent.setup();
+    render(
+      <RouterProvider>
+        <MenuItem
+          href="/zh"
+          onNavigation={() => {
+            pushCountWhenCalled.push(stubRouter.push.mock.calls.length);
+          }}
+        >
+          Switch to Chinese
+        </MenuItem>
+      </RouterProvider>,
+    );
+
+    await user.click(
+      screen.getByRole("menuitem", { name: "Switch to Chinese" }),
+    );
+
+    expect(stubRouter.push).toHaveBeenCalledWith("/zh");
+    expect(pushCountWhenCalled).toEqual([1]);
   });
 });

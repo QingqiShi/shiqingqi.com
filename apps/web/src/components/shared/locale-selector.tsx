@@ -6,9 +6,12 @@ import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, type ComponentProps } from "react";
-import { LOCALE_COOKIE_NAME } from "#src/constants.ts";
+import {
+  LOCALE_COOKIE_MAX_AGE_SECONDS,
+  LOCALE_COOKIE_NAME,
+} from "#src/constants.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/pathname.ts";
 import { MenuItem } from "./menu-item";
@@ -79,8 +82,16 @@ function LocaleSelectorMenu({
 }: LocaleSelectorProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const router = useRouter();
 
   const searchString = searchParams.size ? `?${searchParams.toString()}` : "";
+
+  // Locale changes how every route renders, so drop the client router cache
+  // and prefetch entries created before the switch — replayed as-is, they
+  // would show the old locale.
+  const refreshRoute = () => {
+    router.refresh();
+  };
 
   return (
     <MenuButton
@@ -100,6 +111,7 @@ function LocaleSelectorMenu({
             isActive={locale === "en"}
             autoFocus={locale !== "en"}
             lang="en"
+            onNavigation={refreshRoute}
             onBeforeNavigation={() => {
               // next-i18n-router respects the locale cookie, so we must keep
               // it in sync to avoid reverting locale on reload or root navigation.
@@ -115,6 +127,7 @@ function LocaleSelectorMenu({
             isActive={locale === "zh"}
             autoFocus={locale === "en"}
             lang="zh"
+            onNavigation={refreshRoute}
             onBeforeNavigation={() => {
               setLocaleCookie("zh");
             }}
@@ -132,9 +145,8 @@ function LocaleSelectorMenu({
 
 function setLocaleCookie(locale: SupportedLocale) {
   // set cookie for next-i18n-router
-  const maxAge = 31536000; // 1 year in seconds
   const secure = window.location.protocol === "https:" ? ";Secure" : "";
-  document.cookie = `${LOCALE_COOKIE_NAME}=${locale};max-age=${String(maxAge)};path=/;SameSite=Lax${secure}`;
+  document.cookie = `${LOCALE_COOKIE_NAME}=${locale};max-age=${String(LOCALE_COOKIE_MAX_AGE_SECONDS)};path=/;SameSite=Lax${secure}`;
 }
 
 const styles = stylex.create({

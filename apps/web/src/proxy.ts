@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { i18nRouter } from "next-i18n-router";
-import { ALLOWED_REFERER } from "#src/constants.ts";
+import {
+  ALLOWED_REFERER,
+  LOCALE_COOKIE_MAX_AGE_SECONDS,
+  LOCALE_COOKIE_NAME,
+} from "#src/constants.ts";
+import { isValidLocale } from "#src/utils/validate-locale.ts";
 import { i18nConfig } from "./i18n-config";
 
 function validateReferer(request: NextRequest): NextResponse | null {
@@ -35,7 +40,28 @@ export function proxy(request: NextRequest) {
     return validateReferer(request) ?? NextResponse.next();
   }
 
-  return i18nRouter(request, i18nConfig);
+  const response = i18nRouter(request, i18nConfig);
+
+  // Client-set cookies are capped at 7 days by Safari/Brave, and
+  // next-i18n-router only refreshes NEXT_LOCALE on locale-prefixed paths —
+  // default-locale traffic is served by rewrite and never touches it. Re-issue
+  // the cookie here so an expressed preference doesn't decay to
+  // Accept-Language. Skip it when the library already set one itself: that
+  // reflects an actual locale change and must win.
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
+  if (
+    cookieLocale &&
+    isValidLocale(cookieLocale) &&
+    !response.cookies.get(LOCALE_COOKIE_NAME)
+  ) {
+    response.cookies.set(LOCALE_COOKIE_NAME, cookieLocale, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: LOCALE_COOKIE_MAX_AGE_SECONDS,
+    });
+  }
+
+  return response;
 }
 
 export const config = {
