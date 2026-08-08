@@ -1,4 +1,3 @@
-import { Analytics } from "@vercel/analytics/react";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -93,7 +92,6 @@ export default async function RootLayout({
               </BackOverrideProvider>
             </PortalTargetProvider>
             <ReactGrab />
-            <Analytics />
             <PostHogInit />
           </SerwistProvider>
         </I18nProvider>

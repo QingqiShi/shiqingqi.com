@@ -45,7 +45,6 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.2",
     "@upstash/vector": "catalog:",
-    "@vercel/analytics": "catalog:",
     "ai": "^7.0.51",
     "next": "catalog:",
     "posthog-js": "^1.413.3",
