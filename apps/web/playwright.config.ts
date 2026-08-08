@@ -93,7 +93,19 @@ export default defineConfig({
     // build on demand (or reuse a running dev server via reuseExistingServer).
     command: process.env.CI ? "pnpm start" : "pnpm build && pnpm start",
     url: baseURL,
-    env: { PORT: port }, // next start binds this; reuses a running dev server if present
+    env: {
+      PORT: port, // next start binds this; reuses a running dev server if present
+      // Exercises the real posthog.init() path (see src/utils/posthog.ts)
+      // without sending anything: the host never resolves, so nothing leaves
+      // the machine, but a crash in init still fails the suite. NEXT_PUBLIC_*
+      // is inlined at build time, so these only take effect via the local
+      // `pnpm build` branch above — on CI the prebuilt artifact already
+      // carries the same placeholders from playwright.yml's build step.
+      // Playwright merges this object onto process.env rather than replacing
+      // it, so CI's TMDB/OpenAI vars still reach the spawned server.
+      NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder",
+      NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid",
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 300 * 1000, // 5 minutes for build + server to start
   },

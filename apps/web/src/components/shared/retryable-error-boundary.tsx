@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { t } from "#src/i18n.ts";
+import { captureException } from "#src/utils/posthog.ts";
 
 function ErrorFallback({
   resetErrorBoundary,
@@ -35,6 +36,7 @@ export function RetryableErrorBoundary({
 }) {
   return (
     <ErrorBoundary
+      onError={captureException}
       fallbackRender={({ resetErrorBoundary }) => (
         <ErrorFallback
           resetErrorBoundary={resetErrorBoundary}

@@ -32,6 +32,12 @@ jobs:
         run: pnpm build
         env:
           TMDB_API_TOKEN: ${{ secrets.TMDB_API_TOKEN }}
+          # NEXT_PUBLIC_* values are inlined into the client bundle at build
+          # time, so playwright.config.ts's webServer env alone can't exercise
+          # posthog.init() on CI — the build step needs the same placeholders.
+          # The host is deliberately unresolvable so init sends nothing.
+          NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder"
+          NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid"
       - name: Upload build output
         uses: actions/upload-artifact@v7
         with:
