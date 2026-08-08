@@ -16,7 +16,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { IconButton } from "@tuja/ui/components/icon-button";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { Identifier } from "../../identifier.tsx";
@@ -67,7 +68,7 @@ export function IconographyShowcase() {
         </ShowcaseHelper>
         <div css={styles.gallery}>
           {GALLERY.map(({ name, Icon }) => (
-            <div key={name} css={styles.galleryItem}>
+            <div key={name} css={[corner.radius_2, styles.galleryItem]}>
               <span css={styles.galleryIcon}>
                 <Icon aria-hidden />
               </span>
@@ -111,7 +112,7 @@ export function IconographyShowcase() {
             zh: "图标随 font-size 缩放，而非通过宽度属性。在插槽上设置文字排版令牌，图标便随之变化——因此文字旁的图标始终与行高相称。",
           })}
         </ShowcaseHelper>
-        <div css={styles.sizeRow}>
+        <div css={[corner.radius_2, styles.sizeRow]}>
           {sizes.map((size) => (
             <div key={size.token} css={styles.sizeItem}>
               <span css={[styles.sizeIcon, size.slot]}>
@@ -224,7 +225,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
           zh: "用可见标签命名操作并让图标保持装饰性——纯图标控件则需提供 aria-label。",
         })}
         dont={
-          <span css={styles.dontIcon}>
+          <span css={[corner.radius_round, styles.dontIcon]}>
             <MagicWandIcon weight="bold" />
           </span>
         }
@@ -250,7 +251,6 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._3,
     paddingInline: space._2,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,
@@ -282,7 +282,6 @@ const styles = stylex.create({
     gap: space._5,
     paddingBlock: space._3,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
@@ -313,7 +312,6 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: space._8,
     blockSize: space._8,
-    borderRadius: border.radius_round,
     fontSize: font.uiHeading2,
     color: color.textMuted,
     backgroundColor: color.bgSurface,

@@ -21,6 +21,7 @@ import { Checkbox } from "@tuja/ui/components/checkbox";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { TextField } from "@tuja/ui/components/text-field";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   border,
   color,
@@ -626,7 +627,7 @@ export function MediaTable({
       }}
     >
       <div css={styles.panelContainer}>
-        <section css={styles.panel} aria-label={tableLabel}>
+        <section css={[corner.radius_3, styles.panel]} aria-label={tableLabel}>
           <div css={styles.toolbar}>
             <TextField
               label={searchLabel}
@@ -794,7 +795,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
     boxShadow: shadow._3,
   },

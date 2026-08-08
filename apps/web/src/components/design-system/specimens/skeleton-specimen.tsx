@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { border, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
@@ -14,7 +15,11 @@ import { specimenLayout } from "./specimen.stylex.ts";
 export function SkeletonSpecimen() {
   return (
     <div css={[specimenLayout.fill, styles.row]}>
-      <Skeleton width={36} height={36} css={styles.avatar} />
+      <Skeleton
+        width={36}
+        height={36}
+        css={[corner.radius_round, styles.avatar]}
+      />
       <div css={styles.lines}>
         <Skeleton width="65%" height={10} />
         <Skeleton width="100%" height={10} delay={200} />
@@ -30,7 +35,6 @@ const styles = stylex.create({
     gap: space._2,
   },
   avatar: {
-    borderRadius: border.radius_round,
     flexShrink: 0,
   },
   lines: {

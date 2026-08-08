@@ -8,6 +8,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Divider } from "@tuja/ui/components/divider";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useMemo, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -258,7 +259,7 @@ export function SpriteEditor() {
   return (
     <div css={styles.root}>
       <aside css={styles.sidebar}>
-        <div css={styles.panel}>
+        <div css={[corner.radius_3, styles.panel]}>
           <SourceImageInput
             variant="compact"
             source={source}
@@ -441,7 +442,6 @@ const styles = stylex.create({
     gap: space._4,
     padding: space._4,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
     // Keep natural height inside the scrolling sidebar — without this the
     // panel shrinks as a flex child and `overflow: hidden` (kept for the

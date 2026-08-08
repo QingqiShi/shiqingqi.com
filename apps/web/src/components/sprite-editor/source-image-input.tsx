@@ -7,6 +7,7 @@ import { UploadSimpleIcon } from "@phosphor-icons/react/dist/ssr/UploadSimple";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
   easing,
@@ -107,12 +108,16 @@ export function SourceImageInput({
   if (variant === "compact") {
     return (
       <div
-        css={[styles.compact, isDragging && styles.compactDragging]}
+        css={[
+          styles.compact,
+          isDragging && corner.radius_2,
+          isDragging && styles.compactDragging,
+        ]}
         {...dragHandlers}
       >
         <button
           type="button"
-          css={styles.compactSwap}
+          css={[corner.radius_2, styles.compactSwap]}
           onClick={() => {
             inputRef.current?.click();
           }}
@@ -144,10 +149,10 @@ export function SourceImageInput({
   // Hero drop target — the empty stage.
   return (
     <div
-      css={[styles.hero, isDragging && styles.heroDragging]}
+      css={[corner.radius_3, styles.hero, isDragging && styles.heroDragging]}
       {...dragHandlers}
     >
-      <span css={styles.heroIcon} aria-hidden="true">
+      <span css={[corner.radius_round, styles.heroIcon]} aria-hidden="true">
         <UploadSimpleIcon size={28} weight="bold" />
       </span>
       <h2 css={styles.heroTitle}>
@@ -223,7 +228,6 @@ const styles = stylex.create({
     paddingInline: space._4,
     textAlign: "center",
     border: `2px dashed ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
     boxSizing: "border-box",
     transition: {
@@ -240,7 +244,6 @@ const styles = stylex.create({
     placeItems: "center",
     width: "60px",
     height: "60px",
-    borderRadius: border.radius_round,
     color: color.accent,
     backgroundColor: color.surfaceAccentSubtle,
   },
@@ -302,7 +305,6 @@ const styles = stylex.create({
   },
   compactDragging: {
     backgroundColor: color.surfaceAccentSubtle,
-    borderRadius: border.radius_2,
   },
   compactSwap: {
     display: "inline-flex",
@@ -320,7 +322,6 @@ const styles = stylex.create({
       ":hover": color.bgInteractiveHover,
     },
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     cursor: "pointer",
     transition: {
       default: `background-color ${duration._150} ${easing.easeOut}`,

@@ -5,9 +5,10 @@ import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, ratio, space } from "@tuja/ui/tokens.stylex";
+import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { t } from "#src/i18n.ts";
 import { Anchor } from "../shared/anchor";
@@ -58,7 +59,7 @@ export function MediaTitleCell({ api, row }: MediaCellParams) {
 
   return (
     <div css={styles.titleCell}>
-      <span css={styles.poster}>
+      <span css={[corner.radius_1, styles.poster]}>
         {posterBaseUrl && posterSizes && media.posterPath ? (
           // `alt=""` — the title is right next to it as a real link, so
           // announcing the poster would just repeat it.
@@ -106,12 +107,13 @@ export function MediaScoreCell({ api, row }: MediaCellParams) {
     <div css={styles.meterCell}>
       <span css={styles.scoreValue}>{rating.format(score)}</span>
       <span
-        css={styles.meterTrack}
+        css={[corner.radius_round, styles.meterTrack]}
         style={{ "--media-meter": `${String(toPercent(score, 10))}%` }}
         aria-hidden="true"
       >
         <span
           css={[
+            corner.radius_round,
             styles.meterFill,
             score >= SCORE_GOOD && styles.meterFillGood,
             score < SCORE_POOR && styles.meterFillPoor,
@@ -161,13 +163,15 @@ export function MediaPopularityCell({ api, row }: MediaCellParams) {
     <div css={styles.meterCell}>
       <span css={styles.numeric}>{compact.format(popularity)}</span>
       <span
-        css={styles.meterTrack}
+        css={[corner.radius_round, styles.meterTrack]}
         style={{
           "--media-meter": `${String(toPercent(popularity, maxPopularity))}%`,
         }}
         aria-hidden="true"
       >
-        <span css={[styles.meterFill, styles.meterFillAccent]} />
+        <span
+          css={[corner.radius_round, styles.meterFill, styles.meterFillAccent]}
+        />
       </span>
     </div>
   );
@@ -189,7 +193,10 @@ export function MediaGenresCell({ api, row }: MediaCellParams) {
   return (
     <div css={styles.chipRow} title={names.join(", ")}>
       {shown.map((name) => (
-        <span key={name} css={[styles.chip, truncate.base]}>
+        <span
+          key={name}
+          css={[corner.radius_round, styles.chip, truncate.base]}
+        >
           {name}
         </span>
       ))}
@@ -331,7 +338,6 @@ const styles = stylex.create({
     blockSize: "3.5rem",
     aspectRatio: ratio.poster,
     overflow: "hidden",
-    borderRadius: border.radius_1,
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: `0 0 0 1px ${color.neutralBorder}`,
   },
@@ -378,14 +384,12 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "3px",
     overflow: "hidden",
-    borderRadius: border.radius_round,
     backgroundColor: color.surfaceNeutralSubtle,
   },
   meterFill: {
     display: "block",
     inlineSize: "var(--media-meter, 0%)",
     blockSize: "100%",
-    borderRadius: border.radius_round,
     backgroundColor: color.warning,
   },
   meterFillGood: {
@@ -428,7 +432,6 @@ const styles = stylex.create({
     maxInlineSize: "8rem",
     paddingBlock: space._00,
     paddingInline: space._1,
-    borderRadius: border.radius_round,
     backgroundColor: color.surfaceAccentSubtle,
     color: color.accentText,
     fontSize: font.uiOverline,

@@ -7,6 +7,7 @@ import { PepperIcon } from "@phosphor-icons/react/dist/ssr/Pepper";
 import { ScalesIcon } from "@phosphor-icons/react/dist/ssr/Scales";
 import { SmileyWinkIcon } from "@phosphor-icons/react/dist/ssr/SmileyWink";
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -123,7 +124,7 @@ export function ToolReviewSummary({
   }
 
   return (
-    <div css={styles.card}>
+    <div css={[corner.radius_2, styles.card]}>
       <div css={[flex.between, styles.header]}>
         <span css={styles.title}>
           {t({ en: "Review Summary", zh: "评论摘要" })}
@@ -138,7 +139,7 @@ export function ToolReviewSummary({
               <span aria-hidden="true">{`★ ${formattedRating}`}</span>
             </span>
           )}
-          <span css={styles.countBadge}>
+          <span css={[corner.radius_1, styles.countBadge]}>
             {data.reviewCount === 1
               ? t({ en: "1 review", zh: "1 条评论" })
               : `${String(data.reviewCount)} ${t({ en: "reviews", zh: "条评论" })}`}
@@ -160,6 +161,7 @@ export function ToolReviewSummary({
                   type="button"
                   css={[
                     buttonReset.base,
+                    corner.radius_2,
                     styles.levelButton,
                     isCurrent && styles.levelButtonCurrent,
                     isSelected && styles.levelButtonSelected,
@@ -203,7 +205,6 @@ export function ToolReviewSummary({
 const styles = stylex.create({
   card: {
     backgroundColor: color.bgSurfaceRaised,
-    borderRadius: border.radius_2,
     padding: space._3,
     marginTop: space._2,
   },
@@ -227,7 +228,6 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     color: color.textMuted,
     backgroundColor: color.bgSurface,
-    borderRadius: border.radius_1,
     paddingInline: space._1,
     paddingBlock: space._00,
   },
@@ -256,7 +256,6 @@ const styles = stylex.create({
     gap: space._00,
     paddingBlock: space._1,
     paddingInline: space._2,
-    borderRadius: border.radius_2,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: "transparent",

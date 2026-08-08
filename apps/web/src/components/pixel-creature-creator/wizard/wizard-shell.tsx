@@ -2,8 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
+import { color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -160,7 +161,7 @@ export function WizardShell({ initialDef }: WizardShellProps) {
           type="button"
           onClick={handleShuffle}
           data-testid="wizard-shuffle"
-          css={[styles.shuffleBtn, transition.colors]}
+          css={[corner.radius_round, styles.shuffleBtn, transition.colors]}
         >
           {shuffleLabel}
         </button>
@@ -184,6 +185,7 @@ export function WizardShell({ initialDef }: WizardShellProps) {
               }}
               data-testid={`wizard-pill-${String(stepNumber)}`}
               css={[
+                corner.radius_round,
                 styles.pill,
                 transition.colors,
                 isActive && styles.pillActive,
@@ -198,7 +200,10 @@ export function WizardShell({ initialDef }: WizardShellProps) {
       </nav>
 
       <div css={styles.body}>
-        <aside css={styles.preview} data-testid="wizard-preview">
+        <aside
+          css={[corner.radius_3, styles.preview]}
+          data-testid="wizard-preview"
+        >
           <span css={styles.previewLabel}>{previewLabel}</span>
           <div css={styles.previewStage}>
             <PixelSprite def={state.def} scale={8} aria-label={previewLabel} />
@@ -276,7 +281,6 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: "pointer",
@@ -297,7 +301,6 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
-    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
@@ -333,7 +336,6 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._3,
     backgroundColor: color.bgSurface,
-    borderRadius: border.radius_3,
     position: { default: "static", [breakpoints.md]: "sticky" },
     top: { default: "auto", [breakpoints.md]: space._3 },
     flexShrink: { default: 1, [breakpoints.md]: 0 },
@@ -370,6 +372,7 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._4,
     borderRadius: "10px",
+    cornerShape: "squircle",
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
     cursor: { default: "pointer", ":disabled": "not-allowed" },

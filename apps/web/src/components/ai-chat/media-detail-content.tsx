@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
 import { Button } from "@tuja/ui/components/button";
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
 import {
   border,
@@ -125,7 +126,7 @@ export function MediaDetailContent({
       <div css={[styles.body, hasBackdrop && styles.bodyWithBackdrop]}>
         <div css={styles.header}>
           {posterPath && imageBaseUrl ? (
-            <div css={styles.posterWrapper}>
+            <div css={[corner.radius_2, styles.posterWrapper]}>
               <PosterImage
                 baseUrl={imageBaseUrl}
                 sizes={config.images?.poster_sizes ?? []}
@@ -134,7 +135,7 @@ export function MediaDetailContent({
               />
             </div>
           ) : posterPath ? (
-            <div css={styles.posterWrapper}>
+            <div css={[corner.radius_2, styles.posterWrapper]}>
               <Skeleton css={skeletonStyles.poster} />
             </div>
           ) : null}
@@ -178,7 +179,7 @@ export function MediaDetailContent({
           {trailer?.key && (
             <a
               href={`https://www.youtube.com/watch?v=${trailer.key}`}
-              css={styles.trailerLink}
+              css={[corner.radius_round, styles.trailerLink]}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={
@@ -325,7 +326,6 @@ const styles = stylex.create({
     flexShrink: 0,
     width: "90px",
     aspectRatio: ratio.poster,
-    borderRadius: border.radius_2,
     overflow: "hidden",
     boxShadow: shadow._2,
     zIndex: layer.content,
@@ -400,7 +400,6 @@ const styles = stylex.create({
       ":hover": color.accent,
       ":focus-visible": color.accent,
     },
-    borderRadius: border.radius_round,
     paddingBlock: space._1,
     paddingInline: space._3,
     transition:

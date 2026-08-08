@@ -1,13 +1,14 @@
 import * as stylex from "@stylexjs/stylex";
 import type { CSSProperties, Ref } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
   motionTokens,
 } from "../primitives/motion.stylex.ts";
-import { border, color } from "../tokens.stylex.ts";
+import { color } from "../tokens.stylex.ts";
 import { skeletonTokens } from "./skeleton.stylex.ts";
 
 interface SkeletonProps {
@@ -54,6 +55,7 @@ export function Skeleton({
     <div
       ref={ref}
       css={[
+        corner.radius_2,
         styles.skeleton,
         fill && styles.fill,
         width !== undefined && styles.width(width),
@@ -87,7 +89,6 @@ const styles = stylex.create({
     // Inherited, so an ancestor can hold the pulse still — see `motionTokens`.
     animationPlayState: motionTokens.playState,
     backgroundColor: color.textMuted,
-    borderRadius: border.radius_2,
     overflow: "hidden",
     opacity: 0.3,
     width: skeletonTokens.width,

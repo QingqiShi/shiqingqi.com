@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { systemPalette } from "@tuja/ui/palette-table";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
@@ -86,7 +87,7 @@ interface StageProps {
 
 function Stage({ step, name, detail, visual }: StageProps) {
   return (
-    <article css={styles.stage}>
+    <article css={[corner.radius_2, styles.stage]}>
       <header css={styles.stageHeader}>
         <span css={styles.step}>{step}</span>
         <h3 css={styles.stageName}>{name}</h3>
@@ -112,7 +113,7 @@ function PaletteVisual() {
   return (
     <div css={styles.palette} aria-hidden>
       {systemPalette.map((hue) => (
-        <div key={hue.name} css={styles.paletteColumn}>
+        <div key={hue.name} css={[corner.radius_1, styles.paletteColumn]}>
           {MINI_TONES.map((tone) => (
             <span
               key={tone}
@@ -130,9 +131,15 @@ function PaletteVisual() {
 function TokensVisual() {
   return (
     <div css={styles.tokens} aria-hidden>
-      <span css={[styles.tokenChip, styles.chipAccent]}>accent</span>
-      <span css={[styles.tokenChip, styles.chipSurface]}>bgSurface</span>
-      <span css={[styles.tokenChip, styles.chipDanger]}>danger</span>
+      <span css={[corner.radius_round, styles.tokenChip, styles.chipAccent]}>
+        accent
+      </span>
+      <span css={[corner.radius_round, styles.tokenChip, styles.chipSurface]}>
+        bgSurface
+      </span>
+      <span css={[corner.radius_round, styles.tokenChip, styles.chipDanger]}>
+        danger
+      </span>
     </div>
   );
 }
@@ -143,14 +150,18 @@ function TokensDownstreamVisual() {
   return (
     <div css={styles.downstream} aria-hidden>
       <div css={styles.surfaceStack}>
-        <span css={[styles.surfaceCard, styles.surfaceCardBack]} />
-        <span css={[styles.surfaceCard, styles.surfaceCardFront]} />
+        <span
+          css={[corner.radius_2, styles.surfaceCard, styles.surfaceCardBack]}
+        />
+        <span
+          css={[corner.radius_2, styles.surfaceCard, styles.surfaceCardFront]}
+        />
       </div>
       <div css={styles.roleDots}>
         {ROLE_DOTS.map((role) => (
           <span
             key={role}
-            css={styles.roleDot}
+            css={[corner.radius_round, styles.roleDot]}
             style={{ backgroundColor: role }}
           />
         ))}
@@ -182,7 +193,6 @@ const styles = stylex.create({
     padding: space._4,
     backgroundColor: color.bgCanvas,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
   },
   stageHeader: {
     display: "flex",
@@ -252,7 +262,6 @@ const styles = stylex.create({
     minInlineSize: 0,
     display: "flex",
     flexDirection: "column",
-    borderRadius: border.radius_1,
     overflow: "hidden",
   },
   paletteCell: {
@@ -270,7 +279,6 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._0,
     paddingInline: space._2,
-    borderRadius: border.radius_round,
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
@@ -309,7 +317,6 @@ const styles = stylex.create({
     position: "absolute",
     inlineSize: "28px",
     blockSize: "28px",
-    borderRadius: border.radius_2,
     border: `${border.size_1} solid ${color.neutralBorder}`,
   },
   surfaceCardBack: {
@@ -330,6 +337,5 @@ const styles = stylex.create({
   roleDot: {
     inlineSize: "12px",
     blockSize: "12px",
-    borderRadius: border.radius_round,
   },
 });

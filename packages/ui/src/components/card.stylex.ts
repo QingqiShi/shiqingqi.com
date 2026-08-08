@@ -25,6 +25,7 @@ export const cardSurface = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     borderRadius: border.radius_3,
+    cornerShape: "squircle",
     backgroundColor: color.bgSurface,
   },
   interactive: {

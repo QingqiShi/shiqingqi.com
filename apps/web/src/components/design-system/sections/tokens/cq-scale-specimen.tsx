@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
@@ -178,7 +179,11 @@ export function ContainerScaleSpecimen() {
               ref={(node) => {
                 cardElementsRef.current[i] = node;
               }}
-              css={[styles.card, isActive && styles.cardActive]}
+              css={[
+                corner.radius_2,
+                styles.card,
+                isActive && styles.cardActive,
+              ]}
               style={{ inlineSize: `${width.toString()}px` }}
               aria-current={isActive ? "true" : undefined}
             >
@@ -229,7 +234,10 @@ export function ContainerScaleSpecimen() {
 
       <div css={styles.ruler}>
         <div css={styles.track}>
-          <span css={styles.baseline} aria-hidden="true" />
+          <span
+            css={[corner.radius_round, styles.baseline]}
+            aria-hidden="true"
+          />
           {availWidth !== undefined && !fits ? (
             <span
               css={styles.offscreen}
@@ -240,7 +248,11 @@ export function ContainerScaleSpecimen() {
           {CARD_WIDTHS.map((width, i) => (
             <span
               key={width}
-              css={[styles.notch, i === active && styles.notchActive]}
+              css={[
+                corner.radius_round,
+                styles.notch,
+                i === active && styles.notchActive,
+              ]}
               style={{ left: `${toPercent(width).toString()}%` }}
               aria-hidden="true"
             />
@@ -252,7 +264,7 @@ export function ContainerScaleSpecimen() {
               aria-hidden="true"
             >
               <span
-                css={styles.needleLabel}
+                css={[corner.radius_1, styles.needleLabel]}
                 style={{ transform: labelAnchor(needlePercent) }}
               >
                 {`${availWord} ≈${availWidth.toString()}px`}
@@ -271,7 +283,7 @@ export function ContainerScaleSpecimen() {
       </div>
 
       <p css={styles.lgNote}>
-        <span css={styles.lgChip}>≥ lg · 1.5rem</span>
+        <span css={[corner.radius_round, styles.lgChip]}>≥ lg · 1.5rem</span>
         <span css={styles.lgCopy}>
           {t({
             en: "At the lg breakpoint and up the real token pins to a fixed 1.5rem — it stops tracking the container.",
@@ -310,7 +322,6 @@ const styles = stylex.create({
     flexShrink: 0,
     containerType: "inline-size",
     scrollSnapAlign: "center",
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: HAIRLINE,
     transition:
@@ -405,10 +416,11 @@ const styles = stylex.create({
     insetInline: 0,
     insetBlockEnd: 0,
     blockSize: border.size_2,
-    borderRadius: border.radius_round,
     backgroundColor: color.neutralBorder,
   },
   // Container widths beyond the screen-reach needle — hatched "out of bounds".
+  // Only the leading corners round, so `corner.*`'s shorthand can't reach this
+  // one; the shape is paired inline instead.
   offscreen: {
     position: "absolute",
     insetInlineEnd: 0,
@@ -417,6 +429,7 @@ const styles = stylex.create({
     opacity: 0.55,
     borderStartStartRadius: border.radius_1,
     borderEndStartRadius: border.radius_1,
+    cornerShape: "squircle",
     backgroundImage: `repeating-linear-gradient(135deg, transparent 0, transparent 5px, ${color.neutral} 5px, ${color.neutral} 6px)`,
   },
   notch: {
@@ -425,7 +438,6 @@ const styles = stylex.create({
     inlineSize: border.size_2,
     blockSize: space._2,
     marginInlineStart: `calc(-1 * ${border.size_1})`,
-    borderRadius: border.radius_round,
     backgroundColor: color.neutral,
     transition: "background-color 0.18s ease, block-size 0.18s ease",
   },
@@ -447,7 +459,6 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
     paddingBlock: space._00,
     paddingInline: space._1,
-    borderRadius: border.radius_1,
     backgroundColor: color.surfaceAccentSubtle,
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
@@ -481,7 +492,6 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._00,
     paddingInline: space._2,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: HAIRLINE,
     fontFamily: font.familyMono,

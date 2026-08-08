@@ -12,6 +12,7 @@ import { Badge } from "@tuja/ui/components/badge";
 import { OptionCard, OptionCardGroup } from "@tuja/ui/components/option-card";
 import { Text } from "@tuja/ui/components/text";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -171,7 +172,7 @@ function KeyHint({ keys, effect }: KeyHintProps) {
     <div css={styles.keyRow}>
       <dt css={styles.keyCluster}>
         {keys.map((key) => (
-          <kbd key={key} css={styles.key}>
+          <kbd key={key} css={[corner.radius_1, styles.key]}>
             {key}
           </kbd>
         ))}
@@ -759,7 +760,6 @@ const styles = stylex.create({
     color: color.textMain,
     paddingInline: space._1,
     paddingBlock: space._00,
-    borderRadius: border.radius_1,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,

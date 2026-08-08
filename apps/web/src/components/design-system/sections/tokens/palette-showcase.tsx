@@ -4,6 +4,7 @@ import {
   SYSTEM_PALETTE_TONES,
   systemPalette,
 } from "@tuja/ui/palette-table";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
@@ -54,7 +55,7 @@ function PaletteRow({ palette }: { palette: SystemHuePalette }) {
     <li css={styles.row}>
       <span css={styles.name}>{palette.name}</span>
       <div
-        css={styles.ramp}
+        css={[corner.radius_2, styles.ramp]}
         style={{ gridTemplateColumns: RAMP_COLUMNS }}
         role="img"
         aria-label={palette.name}
@@ -110,7 +111,6 @@ const styles = stylex.create({
     borderWidth: space._00,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     overflow: "hidden",
   },
   tone: {

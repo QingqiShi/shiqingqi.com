@@ -2,6 +2,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, ratio } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -49,6 +50,7 @@ export function CalculatorButton({
       <Button
         css={[
           flex.center,
+          corner.radius_round,
           styles.button,
           isZero && styles.zeroButton,
           isRowEnd && styles.rowEndButton,
@@ -69,7 +71,6 @@ const styles = stylex.create({
   button: {
     height: "100%",
     aspectRatio: ratio.square,
-    borderRadius: border.radius_round,
     borderWidth: 0,
     appearance: "unset",
     textTransform: "uppercase",

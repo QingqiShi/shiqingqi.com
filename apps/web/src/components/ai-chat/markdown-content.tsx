@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { Components } from "react-markdown";
@@ -66,7 +67,6 @@ const styles = stylex.create({
   },
   pre: {
     backgroundColor: color.bgSurfaceSunken,
-    borderRadius: border.radius_2,
     padding: space._2,
     marginBlock: 0,
     overflowX: "auto",
@@ -80,7 +80,6 @@ const styles = stylex.create({
     fontFamily: "monospace",
     fontSize: font.uiBodySmall,
     backgroundColor: color.bgSurfaceSunken,
-    borderRadius: border.radius_1,
     paddingInline: space._00,
     paddingBlock: space._00,
   },
@@ -134,14 +133,16 @@ const components: Components = {
   blockquote: ({ node, ...props }) => (
     <blockquote css={styles.blockquote} {...props} />
   ),
-  pre: ({ node, ...props }) => <pre css={styles.pre} {...props} />,
+  pre: ({ node, ...props }) => (
+    <pre css={[corner.radius_2, styles.pre]} {...props} />
+  ),
   code: ({ node, className, ...props }) => {
     const isBlock =
       typeof className === "string" && className.startsWith("language-");
     if (isBlock) {
       return <code css={styles.codeBlock} className={className} {...props} />;
     }
-    return <code css={styles.codeInline} {...props} />;
+    return <code css={[corner.radius_1, styles.codeInline]} {...props} />;
   },
   table: ({ node, ...props }) => (
     <div css={styles.tableWrapper}>

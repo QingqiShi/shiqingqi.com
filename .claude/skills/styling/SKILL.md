@@ -9,13 +9,14 @@ This project uses StyleX for all styling. The system has three layers: **design 
 
 ## Quick Decision Guide
 
-| Need                                                   | Use                           | Example                                         |
-| ------------------------------------------------------ | ----------------------------- | ----------------------------------------------- |
-| Flex layout, fills, truncation, resets, transitions    | Design primitives             | `css={flex.row}`                                |
-| Override a primitive's default                         | Layout modifier               | `css={[flex.row, align.end]}`                   |
-| Single-property styling (color, spacing, font, border) | `stylex.create` + tokens      | `color: color.textMain`                         |
-| Responsive behavior                                    | `stylex.create` + breakpoints | `{ default: "none", [breakpoints.md]: "flex" }` |
-| Pseudo-selectors (hover, focus)                        | `stylex.create`               | `{ default: val, ":hover": hoverVal }`          |
+| Need                                                   | Use                            | Example                                         |
+| ------------------------------------------------------ | ------------------------------ | ----------------------------------------------- |
+| Flex layout, fills, truncation, resets, transitions    | Design primitives              | `css={flex.row}`                                |
+| Rounded corners                                        | Design primitives (`corner.*`) | `css={corner.radius_3}`                         |
+| Override a primitive's default                         | Layout modifier                | `css={[flex.row, align.end]}`                   |
+| Single-property styling (color, spacing, font, border) | `stylex.create` + tokens       | `color: color.textMain`                         |
+| Responsive behavior                                    | `stylex.create` + breakpoints  | `{ default: "none", [breakpoints.md]: "flex" }` |
+| Pseudo-selectors (hover, focus)                        | `stylex.create`                | `{ default: val, ":hover": hoverVal }`          |
 
 ## Custom `css` Prop
 
@@ -41,12 +42,14 @@ import { color, space, border, font } from "#src/tokens.stylex.ts";
 const styles = stylex.create({
   card: {
     padding: space._4,
-    borderRadius: border.radius_3,
+    borderWidth: border.size_1,
     backgroundColor: color.backgroundRaised,
     fontSize: font.uiBody,
   },
 });
 ```
+
+Rounded corners are the one exception: don't reach for a bare `border.radius_*` here — use the `corner` primitive below instead, so the radius always ships paired with its corner shape.
 
 ## Breakpoints
 
@@ -89,6 +92,21 @@ import { flex, align, justify } from "#src/primitives/flex.stylex.ts";
 <div css={[flex.col, justify.center]}>      {/* vertically centered column */}
 ```
 
+### Corner (`#src/primitives/corner.stylex.ts`)
+
+Pairs each `border.radius_*` step with its corner shape in one declaration — squircle on `corner.radius_1` … `corner.radius_5`, circular caps on `corner.radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Rounded corners always go through this primitive; never write a bare `borderRadius`.
+
+```tsx
+import { corner } from "#src/primitives/corner.stylex.ts";
+
+<div css={corner.radius_3}>       {/* card corner */}
+<span css={corner.radius_round}>  {/* pill / avatar */}
+```
+
+If a radius genuinely can't go through the primitive — a vendor pseudo-element, a CSS-var-driven radius — pair `cornerShape` beside `borderRadius` in the same object literal instead (`"squircle"`, or `"round"` at the full-round radius). `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
+
+`apps/web` composes the same primitive via `@tuja/ui/primitives/corner.stylex`. There is no global `corner-shape` rule anywhere — every rounded corner carries its own shape through the primitive or a local `cornerShape` pairing.
+
 ### Other Primitives (see `references/primitives.md`)
 
 - **Layout** — position fills, scroll containers, truncation, image fit
@@ -99,9 +117,10 @@ import { flex, align, justify } from "#src/primitives/flex.stylex.ts";
 
 1. **Primitives for multi-property patterns** — flex, fills, truncation, resets, transitions
 2. **Tokens for single properties** — `fontSize: font.uiBody`, `gap: space._3`
-3. **Always use the `css` prop** — never `{...stylex.props()}`
-4. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
-5. **Mobile-first** — use breakpoint overrides for larger screens
-6. **Theme-aware colors** — use `color` tokens that adapt to light/dark
-7. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
-8. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`
+3. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
+4. **Always use the `css` prop** — never `{...stylex.props()}`
+5. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
+6. **Mobile-first** — use breakpoint overrides for larger screens
+7. **Theme-aware colors** — use `color` tokens that adapt to light/dark
+8. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
+9. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`

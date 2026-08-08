@@ -4,15 +4,9 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import {
-  border,
-  color,
-  font,
-  layer,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { color, font, layer, shadow, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
@@ -27,7 +21,7 @@ export function Card({ children, className, style, ...rest }: CardProps) {
       indicateExternal={false}
       className={className}
       style={style}
-      css={[styles.card, a11y.focusRingInset]}
+      css={[corner.radius_2, styles.card, a11y.focusRingInset]}
     >
       {children}
       <div css={styles.detailsBackdrop} />
@@ -62,7 +56,6 @@ const styles = stylex.create({
     borderStyle: "none",
     textDecoration: "none",
     fontSize: font.uiBody,
-    borderRadius: border.radius_2,
     textAlign: "left",
     padding: space._3,
     overflow: "hidden",

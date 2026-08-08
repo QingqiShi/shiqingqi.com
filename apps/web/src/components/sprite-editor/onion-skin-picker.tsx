@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
@@ -24,13 +25,13 @@ export function OnionSkinPicker({
   const id = useId();
   const cellLabel = t({ en: "Cell", zh: "单元格" });
   return (
-    <div css={styles.root}>
+    <div css={[corner.radius_2, styles.root]}>
       <label htmlFor={id} css={styles.label}>
         {t({ en: "Onion skin", zh: "洋葱皮" })}
       </label>
       <select
         id={id}
-        css={styles.select}
+        css={[corner.radius_2, styles.select]}
         value={onionSourceCell ?? ""}
         onChange={(event) => {
           const value = event.target.value;
@@ -69,7 +70,6 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._2,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurface,
     fontSize: font.uiBodySmall,
   },
@@ -80,7 +80,6 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
     color: color.textMain,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     paddingBlock: space._1,
     paddingInline: space._2,
     fontSize: font.uiBodySmall,

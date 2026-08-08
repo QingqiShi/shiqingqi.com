@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { CodeBlock } from "./code/code-block.tsx";
 import type { CodeToken } from "./code/code-token.ts";
@@ -31,7 +32,7 @@ export function UsageSnippet({ code, label, source }: UsageSnippetProps) {
   const resolvedLabel = label ?? t({ en: "Usage", zh: "用法" });
   const runs: readonly CodeToken[] = source ?? [["plain", code]];
   return (
-    <div css={styles.card}>
+    <div css={[corner.radius_2, styles.card]}>
       <Text as="span" variant="caption" tone="subtle" css={styles.label}>
         {resolvedLabel}
       </Text>
@@ -47,7 +48,6 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._3,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,

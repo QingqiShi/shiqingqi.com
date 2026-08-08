@@ -5,6 +5,7 @@ import { useEffect, useRef, type ComponentProps } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import {
@@ -120,6 +121,7 @@ export function Checkbox({
           css={[
             a11y.focusRing,
             transition.colors,
+            corner.radius_1,
             styles.box,
             sizeStyles[size],
             !!error && styles.boxError,
@@ -175,7 +177,6 @@ const styles = stylex.create({
       ":indeterminate": color.accent,
       ":disabled": color.neutralBorder,
     },
-    borderRadius: border.radius_1,
     backgroundColor: {
       default: color.bgSurface,
       ":checked": color.accent,
