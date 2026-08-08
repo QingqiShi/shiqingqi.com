@@ -3,10 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import type { PersonListItem } from "#src/utils/types.ts";
@@ -35,7 +36,9 @@ function ProfilePhoto({
 
   if (!config.images?.base_url || !config.images.profile_sizes) {
     return (
-      <div css={[flex.center, styles.photoFallback]}>{fallbackInitial}</div>
+      <div css={[flex.center, corner.radius_round, styles.photoFallback]}>
+        {fallbackInitial}
+      </div>
     );
   }
 
@@ -47,9 +50,11 @@ function ProfilePhoto({
       alt={alt}
       sizes="80px"
       imgCss={styles.photo}
-      skeletonCss={styles.photoSkeleton}
+      skeletonCss={[corner.radius_round, styles.photoSkeleton]}
       errorFallback={
-        <div css={[flex.center, styles.photoFallback]}>{fallbackInitial}</div>
+        <div css={[flex.center, corner.radius_round, styles.photoFallback]}>
+          {fallbackInitial}
+        </div>
       }
       loading="lazy"
     />
@@ -66,7 +71,7 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
 
   const content = (
     <>
-      <div css={styles.photoWrapper}>
+      <div css={[corner.radius_round, styles.photoWrapper]}>
         {person.profilePath ? (
           <ProfilePhoto
             profilePath={person.profilePath}
@@ -74,7 +79,9 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
             fallbackInitial={label.charAt(0)}
           />
         ) : (
-          <div css={[flex.center, styles.photoFallback]}>{label.charAt(0)}</div>
+          <div css={[flex.center, corner.radius_round, styles.photoFallback]}>
+            {label.charAt(0)}
+          </div>
         )}
       </div>
       <span css={styles.name}>{label}</span>
@@ -92,6 +99,7 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
         type="button"
         css={[
           buttonReset.base,
+          corner.radius_2,
           styles.card,
           styles.interactive,
           a11y.focusRing,
@@ -104,7 +112,7 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
     );
   }
 
-  return <div css={styles.card}>{content}</div>;
+  return <div css={[corner.radius_2, styles.card]}>{content}</div>;
 }
 
 const styles = stylex.create({
@@ -116,7 +124,6 @@ const styles = stylex.create({
     width: "100%",
     color: "inherit",
     textAlign: "center",
-    borderRadius: border.radius_2,
     padding: space._1,
   },
   interactive: {
@@ -138,7 +145,6 @@ const styles = stylex.create({
     position: "relative",
     width: "100%",
     aspectRatio: "1",
-    borderRadius: border.radius_round,
     overflow: "hidden",
   },
   photo: {
@@ -150,7 +156,6 @@ const styles = stylex.create({
   photoSkeleton: {
     position: "absolute",
     inset: 0,
-    borderRadius: border.radius_round,
   },
   photoFallback: {
     width: "100%",
@@ -159,7 +164,6 @@ const styles = stylex.create({
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_round,
     fontSize: font.uiHeading1,
     color: color.textMuted,
   },

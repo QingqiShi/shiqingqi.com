@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -35,7 +36,7 @@ export function SkeletonShowcase() {
             })}
           </Text>
           <Specimen caption={t({ en: "box", zh: "容器" })}>
-            <div css={styles.fillBox}>
+            <div css={[corner.radius_2, styles.fillBox]}>
               <Skeleton fill />
             </div>
           </Specimen>
@@ -64,7 +65,7 @@ export function SkeletonShowcase() {
         <Specimen caption={t({ en: "card", zh: "卡片" })}>
           <div css={styles.cardRow}>
             {[0, 1, 2].map((index) => (
-              <div key={index} css={[flex.col, styles.card]}>
+              <div key={index} css={[flex.col, corner.radius_3, styles.card]}>
                 <Skeleton height={160} delay={index * 120} />
                 <div css={[flex.col, styles.cardLines]}>
                   <Skeleton width={132} height={14} delay={index * 120} />
@@ -180,7 +181,6 @@ const styles = stylex.create({
   fillBox: {
     inlineSize: "100%",
     blockSize: space._13,
-    borderRadius: border.radius_2,
     overflow: "hidden",
   },
   staggerStack: {
@@ -202,7 +202,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_3,
   },
   cardLines: {
     gap: space._1,

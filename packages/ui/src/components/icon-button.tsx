@@ -2,17 +2,11 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  opacity,
-  shadow,
-} from "../tokens.stylex.ts";
+import { color, controlSize, font, opacity, shadow } from "../tokens.stylex.ts";
 
 type IconButtonSize = "sm" | "md" | "lg";
 type IconButtonVariant = "plain" | "surface";
@@ -101,7 +95,7 @@ export function IconButton({
         a11y.focusRing,
         styles.base,
         sizeStyles[size],
-        shapeStyles[shape],
+        shapeCornerStyles[shape],
         variantStyles[variant],
         css,
       ]}
@@ -151,10 +145,13 @@ const sizeStyles = stylex.create({
   },
 });
 
-const shapeStyles = stylex.create({
-  circle: { borderRadius: border.radius_round },
-  square: { borderRadius: border.radius_2 },
-});
+// `circle`/`square` carry no other styling of their own, so they map straight
+// to the `corner` primitive rather than composing it inside a `stylex.create`
+// entry that would otherwise hold nothing else.
+const shapeCornerStyles = {
+  circle: corner.radius_round,
+  square: corner.radius_2,
+};
 
 const variantStyles = stylex.create({
   plain: {

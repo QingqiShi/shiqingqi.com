@@ -9,6 +9,7 @@ Terms are defined in `packages/ui/CONTEXT.md`.
 - **A surface separates itself with a border, a background colour, or both.** Use the least that does the job. A card holding content of its own takes both; the selected row in a menu only has to stand out from its siblings, so a background alone does it, and a border there would be noise.
 - **A border stays quiet.** Thin, and close in colour to what it borders — enough to find the edge, never enough to draw the eye. A border you notice before the content is too heavy.
 - **Nothing casts a shadow.** There is no light above the page, so nothing is separated by one.
+- **Every rounded corner is a squircle.** The corner curve is a superellipse rather than a circular arc: it leaves the edge gradually, with no tangent point where flat turns to curved. Pills and circles take the same curve, so one corner character runs through the system. The shape is fixed — radius is a brand dial, shape is not. A browser without `corner-shape` falls back to circular corners.
 - **A radius inside a radius is reduced by the inset between them:** `inner = outer − inset`. This applies to a surface nested at another surface's corner. A button or a badge keeps its own full radius.
 - **A scroll region uses a progressive blur at its edge.** Content on its way out of view blurs rather than stopping at a line, so the region reads as continuing. That is a Scroll mask, and it never appears where nothing scrolls.
 

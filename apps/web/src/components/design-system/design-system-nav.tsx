@@ -2,8 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId } from "react";
@@ -91,6 +92,7 @@ export function DesignSystemNav({
                         // that clips inline overflow, which would crop an outward one.
                         css={[
                           transition.colors,
+                          corner.radius_round,
                           styles.link,
                           active && styles.linkActive,
                           a11y.focusRingInset,
@@ -158,7 +160,6 @@ const styles = stylex.create({
     flexShrink: 0,
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: { default: color.textMuted, ":hover": color.textMain },

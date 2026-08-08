@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex, justify } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { use } from "react";
@@ -38,7 +39,7 @@ export function SuggestionChips({
         <button
           key={text}
           type="button"
-          css={styles.chip}
+          css={[corner.radius_round, styles.chip]}
           onClick={() => handleSelect?.(text)}
           disabled={disabled}
         >
@@ -62,7 +63,6 @@ const styles = stylex.create({
       ":hover": color.accent,
       ":disabled": color.surfaceNeutralSubtle,
     },
-    borderRadius: border.radius_round,
     backgroundColor: {
       default: "transparent",
       ":hover": color.accent,

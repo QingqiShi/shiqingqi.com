@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -28,7 +29,13 @@ export function ThemeFrame({ scheme, label, children }: ThemeFrameProps) {
   const darkLabel = t({ en: "Dark", zh: "深色" });
   const resolvedLabel = label ?? (scheme === "dark" ? darkLabel : lightLabel);
   return (
-    <div css={[styles.frame, scheme === "dark" ? styles.dark : styles.light]}>
+    <div
+      css={[
+        corner.radius_3,
+        styles.frame,
+        scheme === "dark" ? styles.dark : styles.light,
+      ]}
+    >
       <Text as="span" variant="caption" tone="subtle" css={styles.label}>
         {resolvedLabel}
       </Text>
@@ -77,7 +84,6 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._4,
     paddingInline: space._4,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,

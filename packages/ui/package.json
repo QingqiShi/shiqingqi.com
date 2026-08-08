@@ -56,6 +56,7 @@
     "./hooks/use-radio-group": "./src/hooks/use-radio-group.ts",
     "./hooks/use-scroll-fades": "./src/hooks/use-scroll-fades.ts",
     "./primitives/a11y.stylex": "./src/primitives/a11y.stylex.ts",
+    "./primitives/corner.stylex": "./src/primitives/corner.stylex.ts",
     "./primitives/flex.stylex": "./src/primitives/flex.stylex.ts",
     "./primitives/layout.stylex": "./src/primitives/layout.stylex.ts",
     "./primitives/motion.stylex": "./src/primitives/motion.stylex.ts",

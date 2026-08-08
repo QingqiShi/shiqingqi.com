@@ -2,13 +2,14 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 
 const STAGGER_DELAY = 80;
 
 export function ToolReviewSummarySkeleton() {
   return (
-    <div css={styles.card}>
+    <div css={[corner.radius_2, styles.card]}>
       <div css={styles.headerRow}>
         <Skeleton width={110} height={14} delay={0 * STAGGER_DELAY} />
         <Skeleton width={70} height={18} delay={1 * STAGGER_DELAY} />
@@ -35,7 +36,6 @@ export function ToolReviewSummarySkeleton() {
 const styles = stylex.create({
   card: {
     backgroundColor: color.bgSurfaceRaised,
-    borderRadius: border.radius_2,
     padding: space._3,
     marginTop: space._2,
   },

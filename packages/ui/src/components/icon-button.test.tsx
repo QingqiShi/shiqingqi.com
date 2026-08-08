@@ -124,7 +124,7 @@ describe("IconButton variants", () => {
       square.querySelector("button")?.className,
     );
     expect(square.querySelector("button")?.className).toContain(
-      "shapeStyles.square",
+      "corner.radius_2",
     );
   });
 });

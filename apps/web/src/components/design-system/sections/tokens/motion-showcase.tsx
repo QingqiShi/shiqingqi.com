@@ -3,6 +3,7 @@
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
 import * as stylex from "@stylexjs/stylex";
 import { Callout } from "@tuja/ui/components/callout";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { animate, transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
@@ -92,9 +93,9 @@ export function MotionShowcase() {
               token={step.token}
               meta={`${step.ms.toString()}ms`}
             >
-              <div css={styles.track}>
+              <div css={[corner.radius_round, styles.track]}>
                 <span
-                  css={styles.trackFill}
+                  css={[corner.radius_round, styles.trackFill]}
                   style={{
                     inlineSize: `${((step.ms / MAX_MS) * 100).toFixed(1)}%`,
                   }}
@@ -139,21 +140,36 @@ export function MotionShowcase() {
         <SpecimenGrid>
           <Specimen caption="transition.colors">
             <div
-              css={[styles.tokenTile, transition.colors, styles.hoverColors]}
+              css={[
+                corner.radius_2,
+                styles.tokenTile,
+                transition.colors,
+                styles.hoverColors,
+              ]}
             >
               {t({ en: "Hover me", zh: "悬停我" })}
             </div>
           </Specimen>
           <Specimen caption="transition.opacity">
             <div
-              css={[styles.tokenTile, transition.opacity, styles.hoverOpacity]}
+              css={[
+                corner.radius_2,
+                styles.tokenTile,
+                transition.opacity,
+                styles.hoverOpacity,
+              ]}
             >
               {t({ en: "Hover me", zh: "悬停我" })}
             </div>
           </Specimen>
           <Specimen caption="transition.shadow">
             <div
-              css={[styles.tokenTile, transition.shadow, styles.hoverShadow]}
+              css={[
+                corner.radius_2,
+                styles.tokenTile,
+                transition.shadow,
+                styles.hoverShadow,
+              ]}
             >
               {t({ en: "Hover me", zh: "悬停我" })}
             </div>
@@ -161,6 +177,7 @@ export function MotionShowcase() {
           <Specimen caption="transition.transform">
             <div
               css={[
+                corner.radius_2,
                 styles.tokenTile,
                 transition.transform,
                 styles.hoverTransform,
@@ -170,7 +187,14 @@ export function MotionShowcase() {
             </div>
           </Specimen>
           <Specimen caption="transition.all">
-            <div css={[styles.tokenTile, transition.all, styles.hoverAll]}>
+            <div
+              css={[
+                corner.radius_2,
+                styles.tokenTile,
+                transition.all,
+                styles.hoverAll,
+              ]}
+            >
               {t({ en: "Hover me", zh: "悬停我" })}
             </div>
           </Specimen>
@@ -185,61 +209,119 @@ export function MotionShowcase() {
               zh: "一次性预设在挂载时播放；pulse 与 bounce 用于繁忙与加载状态，循环运行。点击重播可再次播放一次性预设。",
             })}
           </ShowcaseHelper>
-          <button type="button" css={styles.replayButton} onClick={replay}>
+          <button
+            type="button"
+            css={[corner.radius_2, styles.replayButton]}
+            onClick={replay}
+          >
             <ArrowClockwiseIcon weight="bold" aria-hidden />
             {t({ en: "Replay", zh: "重播" })}
           </button>
         </div>
         <SpecimenGrid>
           <Specimen caption="animate.fadeIn">
-            <div key={`fadeIn-${tick.toString()}`} css={styles.animTile}>
-              <span css={[styles.animSubject, animate.fadeIn]} />
+            <div
+              key={`fadeIn-${tick.toString()}`}
+              css={[corner.radius_2, styles.animTile]}
+            >
+              <span
+                css={[corner.radius_2, styles.animSubject, animate.fadeIn]}
+              />
             </div>
           </Specimen>
           <Specimen caption="animate.fadeOut">
-            <div key={`fadeOut-${tick.toString()}`} css={styles.animTile}>
-              <span css={[styles.animSubject, animate.fadeOut]} />
+            <div
+              key={`fadeOut-${tick.toString()}`}
+              css={[corner.radius_2, styles.animTile]}
+            >
+              <span
+                css={[corner.radius_2, styles.animSubject, animate.fadeOut]}
+              />
             </div>
           </Specimen>
           <Specimen caption="animate.slideUp">
-            <div key={`slideUp-${tick.toString()}`} css={styles.animTile}>
-              <div css={styles.slideViewport}>
-                <span css={[styles.animSubject, animate.slideUp]} />
+            <div
+              key={`slideUp-${tick.toString()}`}
+              css={[corner.radius_2, styles.animTile]}
+            >
+              <div css={[corner.radius_2, styles.slideViewport]}>
+                <span
+                  css={[corner.radius_2, styles.animSubject, animate.slideUp]}
+                />
               </div>
             </div>
           </Specimen>
           <Specimen caption="animate.slideDown">
-            <div key={`slideDown-${tick.toString()}`} css={styles.animTile}>
-              <div css={styles.slideViewport}>
-                <span css={[styles.animSubject, animate.slideDown]} />
+            <div
+              key={`slideDown-${tick.toString()}`}
+              css={[corner.radius_2, styles.animTile]}
+            >
+              <div css={[corner.radius_2, styles.slideViewport]}>
+                <span
+                  css={[corner.radius_2, styles.animSubject, animate.slideDown]}
+                />
               </div>
             </div>
           </Specimen>
           <Specimen caption="animate.expand">
-            <div key={`expand-${tick.toString()}`} css={styles.animTile}>
+            <div
+              key={`expand-${tick.toString()}`}
+              css={[corner.radius_2, styles.animTile]}
+            >
               <div css={animate.expand}>
-                <span css={[styles.expandInner, styles.animSubject]} />
+                <span
+                  css={[
+                    styles.expandInner,
+                    corner.radius_2,
+                    styles.animSubject,
+                  ]}
+                />
               </div>
             </div>
           </Specimen>
           <Specimen caption="animate.collapse">
-            <div key={`collapse-${tick.toString()}`} css={styles.animTile}>
+            <div
+              key={`collapse-${tick.toString()}`}
+              css={[corner.radius_2, styles.animTile]}
+            >
               <div css={animate.collapse}>
-                <span css={[styles.expandInner, styles.animSubject]} />
+                <span
+                  css={[
+                    styles.expandInner,
+                    corner.radius_2,
+                    styles.animSubject,
+                  ]}
+                />
               </div>
             </div>
           </Specimen>
           <Specimen caption="animate.pulse">
-            <div css={styles.animTile}>
-              <span css={[styles.animSubject, animate.pulse]} />
+            <div css={[corner.radius_2, styles.animTile]}>
+              <span
+                css={[corner.radius_2, styles.animSubject, animate.pulse]}
+              />
             </div>
           </Specimen>
           <Specimen caption="animate.bounce">
-            <div css={styles.animTile}>
+            <div css={[corner.radius_2, styles.animTile]}>
               <div css={styles.dots}>
-                <span css={[styles.dot, animate.bounce]} />
-                <span css={[styles.dot, animate.bounce, styles.dotDelay1]} />
-                <span css={[styles.dot, animate.bounce, styles.dotDelay2]} />
+                <span css={[corner.radius_round, styles.dot, animate.bounce]} />
+                <span
+                  css={[
+                    corner.radius_round,
+                    styles.dot,
+                    animate.bounce,
+                    styles.dotDelay1,
+                  ]}
+                />
+                <span
+                  css={[
+                    corner.radius_round,
+                    styles.dot,
+                    animate.bounce,
+                    styles.dotDelay2,
+                  ]}
+                />
               </div>
             </div>
           </Specimen>
@@ -268,7 +350,14 @@ export function MotionShowcase() {
 
       <DoDont
         do={
-          <div css={[styles.doTile, transition.colors, styles.hoverColors]}>
+          <div
+            css={[
+              corner.radius_2,
+              styles.doTile,
+              transition.colors,
+              styles.hoverColors,
+            ]}
+          >
             {t({ en: "Hover me", zh: "悬停我" })}
           </div>
         }
@@ -277,7 +366,7 @@ export function MotionShowcase() {
           zh: "为状态变化搭配过渡预设，即可免费获得减少动态效果的回退。",
         })}
         dont={
-          <div css={styles.dontTile}>
+          <div css={[corner.radius_2, styles.dontTile]}>
             {t({ en: "transition: all 3s", zh: "transition: all 3s" })}
           </div>
         }
@@ -298,14 +387,12 @@ const styles = stylex.create({
   },
   track: {
     blockSize: space._1,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgInteractivePressed,
     overflow: "hidden",
   },
   trackFill: {
     display: "block",
     blockSize: "100%",
-    borderRadius: border.radius_round,
     backgroundColor: color.accent,
   },
   curve: {
@@ -334,7 +421,6 @@ const styles = stylex.create({
     minBlockSize: "72px",
     paddingBlock: space._2,
     paddingInline: space._2,
-    borderRadius: border.radius_2,
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     textAlign: "center",
@@ -383,7 +469,6 @@ const styles = stylex.create({
     gap: space._1,
     paddingBlock: space._1,
     paddingInline: space._2,
-    borderRadius: border.radius_2,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
@@ -403,14 +488,12 @@ const styles = stylex.create({
     minBlockSize: "96px",
     paddingBlock: space._3,
     paddingInline: space._2,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   animSubject: {
     inlineSize: space._7,
     blockSize: space._7,
-    borderRadius: border.radius_2,
     backgroundColor: color.accent,
   },
   slideViewport: {
@@ -420,7 +503,6 @@ const styles = stylex.create({
     inlineSize: space._7,
     blockSize: space._7,
     overflow: "hidden",
-    borderRadius: border.radius_2,
   },
   expandInner: {
     inlineSize: space._7,
@@ -436,7 +518,6 @@ const styles = stylex.create({
   dot: {
     inlineSize: space._2,
     blockSize: space._2,
-    borderRadius: border.radius_round,
     backgroundColor: color.accent,
   },
   dotDelay1: {
@@ -452,7 +533,6 @@ const styles = stylex.create({
     minBlockSize: "56px",
     paddingBlock: space._2,
     paddingInline: space._4,
-    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     cursor: "pointer",
@@ -470,7 +550,6 @@ const styles = stylex.create({
     minBlockSize: "56px",
     paddingBlock: space._2,
     paddingInline: space._4,
-    borderRadius: border.radius_2,
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
     color: color.textMuted,

@@ -1,5 +1,6 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, ratio, shadow, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
@@ -300,7 +301,7 @@ export function Calculator() {
 
   return (
     <div
-      css={[flex.col, styles.container]}
+      css={[flex.col, corner.radius_5, styles.container]}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="group"
@@ -332,12 +333,10 @@ const styles = stylex.create({
   container: {
     height: "600px",
     aspectRatio: ratio.poster,
-    borderRadius: border.radius_5,
     backgroundColor: color.bgSurface,
     overflow: "hidden",
     boxShadow: shadow._5,
     containerType: "inline-size",
-    cornerShape: "squircle",
     outline: {
       ":focus-visible": `${border.size_2} solid ${color.brandCalculator}`,
     },

@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import {
   duration,
   easing,
@@ -194,6 +195,7 @@ export function Switch({
       css={[
         buttonReset.base,
         a11y.focusRing,
+        corner.radius_round,
         styles.switch,
         sizeStyles[size],
         initialRendered && styles.animate,
@@ -249,7 +251,6 @@ const styles = stylex.create({
 
     // Custom styles
     aspectRatio: ratio.double,
-    borderRadius: border.radius_round,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
     display: "flex",
@@ -281,6 +282,7 @@ const styles = stylex.create({
     "::before": {
       backgroundColor: color.bgSurfaceBright,
       borderRadius: border.radius_round,
+      cornerShape: "squircle",
       boxShadow: switchTokens.thumbShadow,
       content: "",
       display: "block",

@@ -171,6 +171,7 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._4,
     borderRadius: "10px",
+    cornerShape: "squircle",
     backgroundColor: {
       default: color.accent,
       ":hover": color.accentHover,

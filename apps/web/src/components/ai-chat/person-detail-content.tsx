@@ -4,8 +4,9 @@ import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, layer, space } from "@tuja/ui/tokens.stylex";
+import { color, font, layer, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -68,7 +69,7 @@ export function PersonDetailContent({
     <div css={styles.body}>
       <div css={styles.header}>
         {profilePath && imageBaseUrl ? (
-          <div css={styles.photoWrapper}>
+          <div css={[corner.radius_round, styles.photoWrapper]}>
             <ProfileImage
               baseUrl={imageBaseUrl}
               sizes={config.images?.profile_sizes ?? []}
@@ -77,7 +78,7 @@ export function PersonDetailContent({
             />
           </div>
         ) : profilePath ? (
-          <div css={styles.photoWrapper}>
+          <div css={[corner.radius_round, styles.photoWrapper]}>
             <Skeleton css={skeletonStyles.photo} />
           </div>
         ) : null}
@@ -326,7 +327,6 @@ const styles = stylex.create({
     flexShrink: 0,
     width: "90px",
     aspectRatio: "1",
-    borderRadius: border.radius_round,
     overflow: "hidden",
     zIndex: layer.content,
   },

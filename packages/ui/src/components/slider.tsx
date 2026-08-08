@@ -6,6 +6,7 @@ import type { StyleProp } from "../css-prop-types.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import {
   duration,
@@ -205,8 +206,11 @@ export function Slider({
         aria-describedby={describedBy}
         className={className}
         style={style}
+        // The input itself is invisible; `corner.radius_round` only shapes the
+        // focus ring around the pill track.
         css={[
           a11y.focusRing,
+          corner.radius_round,
           styles.input,
           sizeStyles[size],
           fillStyles.fill(percent),
@@ -273,8 +277,6 @@ const styles = stylex.create({
     // Tall enough that the thumb is never clipped by the track.
     blockSize: sliderTokens.thumbSize,
     backgroundColor: "transparent",
-    // Invisible in itself; it shapes the focus ring around the pill track.
-    borderRadius: border.radius_round,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: null, ":disabled": opacity.disabled },
 
@@ -283,6 +285,7 @@ const styles = stylex.create({
     "::-webkit-slider-runnable-track": {
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
+      cornerShape: "squircle",
       // Matches Progress's track. `surfaceNeutralSubtle` is a surface tint, and
       // against a raised card in dark theme it lands at 1.04:1 — the unfilled
       // remainder disappears, taking the slider's range with it.
@@ -292,6 +295,7 @@ const styles = stylex.create({
     "::-moz-range-track": {
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
+      cornerShape: "squircle",
       // Matches Progress's track. `surfaceNeutralSubtle` is a surface tint, and
       // against a raised card in dark theme it lands at 1.04:1 — the unfilled
       // remainder disappears, taking the slider's range with it.
@@ -304,6 +308,7 @@ const styles = stylex.create({
       blockSize: sliderTokens.thumbSize,
       inlineSize: sliderTokens.thumbSize,
       borderRadius: border.radius_round,
+      cornerShape: "squircle",
       borderStyle: "solid",
       borderWidth: border.size_2,
       borderColor: color.accent,
@@ -322,6 +327,7 @@ const styles = stylex.create({
       blockSize: sliderTokens.thumbSize,
       inlineSize: sliderTokens.thumbSize,
       borderRadius: border.radius_round,
+      cornerShape: "squircle",
       borderStyle: "solid",
       borderWidth: border.size_2,
       borderColor: color.accent,
