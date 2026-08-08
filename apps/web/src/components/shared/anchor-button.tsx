@@ -7,6 +7,7 @@ import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { usePressHandlers } from "@tuja/ui/hooks/use-press-handlers";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
+import { isModifiedClick } from "#src/utils/is-modified-click.ts";
 import { Anchor } from "./anchor";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
@@ -23,6 +24,7 @@ export function AnchorButton({
   hideLabelOnMobile,
   icon,
   isActive,
+  onClick,
   ref: forwardedRef,
   style,
   ...restProps
@@ -40,10 +42,23 @@ export function AnchorButton({
     }
   };
 
+  // Let modifier / non-primary clicks fall through to the browser so the link's
+  // real `href` opens in a new tab/window. Consumers wire `onClick` to
+  // `preventDefault()` and drive client-side state (filters, etc.); skipping
+  // that on a modified click preserves the standard link convention while plain
+  // primary clicks keep the in-place behavior.
+  const handleClick = onClick
+    ? (event: React.MouseEvent<HTMLAnchorElement>) => {
+        if (isModifiedClick(event)) return;
+        onClick(event);
+      }
+    : undefined;
+
   const { isPressed, releasedOutside, pressedStyle, handlers } =
     usePressHandlers({
       targetRef: anchorRef,
       ...restProps,
+      onClick: handleClick,
     });
 
   return (
