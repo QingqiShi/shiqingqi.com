@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
-import { border, color, font, shadow, space } from "../tokens.stylex.ts";
+import { border, color, font, space } from "../tokens.stylex.ts";
 
 type AvatarSize = "sm" | "md" | "lg";
 type AvatarVariant = "subtle" | "solid";
@@ -218,7 +218,6 @@ const styles = stylex.create({
     borderColor: color.neutralBorder,
     backgroundColor: color.bgSurface,
     color: color.textMain,
-    boxShadow: shadow._1,
   },
 });
 

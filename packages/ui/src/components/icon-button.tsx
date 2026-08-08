@@ -5,14 +5,7 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  opacity,
-  shadow,
-} from "../tokens.stylex.ts";
+import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
 
 type IconButtonSize = "sm" | "md" | "lg";
 type IconButtonVariant = "plain" | "surface";
@@ -38,9 +31,8 @@ interface IconButtonBaseProps extends Omit<
   /**
    * `"plain"` is a transparent affordance that tints its background on hover —
    * use it inline, over an existing surface. `"surface"` adds an opaque surface
-   * fill and a drop shadow so the button reads as a floating control (e.g. a
-   * scroll-to-bottom or carousel arrow overlaid on scrolling content).
-   * Defaults to `"plain"`.
+   * fill so the button reads as a floating control (e.g. a scroll-to-bottom or
+   * carousel arrow overlaid on scrolling content). Defaults to `"plain"`.
    */
   variant?: IconButtonVariant;
   /** `"circle"` (fully rounded) or `"square"` (rounded corners). Defaults to `"circle"`. */
@@ -166,6 +158,5 @@ const variantStyles = stylex.create({
   },
   surface: {
     backgroundColor: color.bgSurface,
-    boxShadow: shadow._2,
   },
 });

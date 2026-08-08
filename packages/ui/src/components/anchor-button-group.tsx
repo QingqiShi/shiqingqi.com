@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
-import { border, color, controlSize, shadow } from "../tokens.stylex.ts";
+import { border, color, controlSize } from "../tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
 interface AnchorButtonGroupProps {
@@ -28,7 +28,11 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
     padding: controlSize._1,
     borderRadius: border.radius_2,
-    boxShadow: shadow._2,
+    // The group sits over other content, so the fill alone does not always find
+    // an edge. A hairline does the separating a shadow used to.
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     justifyContent: "center",
     position: "relative",
     [buttonTokens.borderRadius]: border.radius_1,

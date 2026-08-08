@@ -45,6 +45,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Iconography",
       zh: "图标",
     }),
+    "/design-system/foundations/visual-language": t({
+      en: "Visual language",
+      zh: "视觉语言",
+    }),
     "/design-system/foundations/motion": t({ en: "Motion", zh: "动效" }),
     "/design-system/foundations/accessibility": t({
       en: "Accessibility",

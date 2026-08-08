@@ -11,15 +11,10 @@ import {
   motionConstants,
   transition,
 } from "../primitives/motion.stylex.ts";
-import {
-  border,
-  color,
-  layer,
-  layout,
-  shadow,
-  space,
-} from "../tokens.stylex.ts";
+import { surface } from "../primitives/surface.stylex.ts";
+import { border, color, layer, layout, space } from "../tokens.stylex.ts";
 import { IconButton } from "./icon-button.tsx";
+import { ProgressiveBlur } from "./progressive-blur.tsx";
 import { ScrollFade } from "./scroll-fade.tsx";
 
 // Default width of the navigation rail on wider viewports — wide enough for
@@ -232,10 +227,22 @@ export function SidebarLayout({
           setIsOpen(false);
         }}
         aria-hidden="true"
-      />
+      >
+        {/* The Drawer slides in from the inline-end, so the blur is strongest
+            there. The origin is a physical percentage and does not mirror under
+            `direction: rtl` the way the Drawer itself does. */}
+        <ProgressiveBlur radius="20px" reach="70vmax" originX="100%" />
+      </div>
       <div
         ref={drawerRef}
-        css={[styles.rail, isOpen && styles.railOpen]}
+        css={[
+          styles.rail,
+          // Volume, so a full-height slab does not read as one flat plate. The
+          // angle runs down the rail rather than across it, because that is the
+          // direction it is long in.
+          surface.wash("185deg", "4%"),
+          isOpen && styles.railOpen,
+        ]}
         role={isOpen ? "dialog" : undefined}
         aria-modal={isOpen || undefined}
         aria-label={isOpen ? menuLabel : undefined}
@@ -328,7 +335,10 @@ const styles = stylex.create({
     padding: space._1,
     backgroundColor: color.bgSurface,
     borderRadius: border.radius_round,
-    boxShadow: shadow._2,
+    // Floats over the scrolling page, so it needs a findable edge of its own.
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     minInlineSize: 0,
   },
   mobileBarTitle: {
@@ -347,7 +357,6 @@ const styles = stylex.create({
     position: "fixed",
     inset: 0,
     zIndex: layer.overlay,
-    backgroundColor: color.bgScrim,
     opacity: 0,
     visibility: "hidden",
     pointerEvents: "none",
@@ -406,10 +415,10 @@ const styles = stylex.create({
       default: `calc(${space._3} + env(safe-area-inset-right))`,
       [breakpoints.md]: space._2,
     },
-    backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.md]: color.bgCanvasSubtle,
-    },
+    // A surface at every size. `bgCanvasSubtle` sat a single tone off the page
+    // in dark mode, which left the rail readable only by its hairline — and a
+    // rail that has to be found by its border is not separating itself.
+    backgroundColor: color.bgSurface,
     borderStartStartRadius: {
       default: border.radius_3,
       [breakpoints.md]: border.radius_3,
@@ -420,7 +429,9 @@ const styles = stylex.create({
     },
     borderStartEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
     borderEndEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
-    boxShadow: { default: shadow._6, [breakpoints.md]: shadow._2 },
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     transform: {
       default: "translateX(110%)",
       [motionConstants.REDUCED_MOTION]: "none",

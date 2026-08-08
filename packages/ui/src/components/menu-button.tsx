@@ -17,7 +17,6 @@ import {
   controlSize,
   font,
   layer,
-  shadow,
   space,
 } from "../tokens.stylex.ts";
 import { AnimateToTarget } from "./animate-to-target.tsx";
@@ -287,9 +286,13 @@ const styles = stylex.create({
   hidden: {
     pointerEvents: "none",
   },
+  // A hairline in place of the elevation shadow. The page blurs around an open
+  // menu; what the menu itself owes the visitor is a findable edge.
   menu: {
     backgroundColor: color.bgOverlay,
-    boxShadow: shadow._5,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     borderRadius: border.radius_2,
     overflow: "hidden",
   },

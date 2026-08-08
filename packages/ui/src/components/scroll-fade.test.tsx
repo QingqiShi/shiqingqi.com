@@ -13,8 +13,8 @@ describe("ScrollFade", () => {
     expect(screen.getByText("content")).toBeInTheDocument();
   });
 
-  // The mask gradient itself lives in an inline style that jsdom's CSS engine
-  // drops, so orientation is asserted through the applied StyleX class instead.
+  // The blur/mask formulas themselves live in stylex-generated rules jsdom's
+  // CSS engine drops, so orientation is asserted through the applied class instead.
   it("applies the vertical scroll styles by default", () => {
     render(
       <ScrollFade>
@@ -22,8 +22,10 @@ describe("ScrollFade", () => {
       </ScrollFade>,
     );
     const container = screen.getByText("rows").parentElement;
-    expect(container?.className).toContain("styles.vertical");
-    expect(container?.className).not.toContain("styles.horizontal");
+    expect(container?.className).toContain("scrollFadeContainer.vertical");
+    expect(container?.className).not.toContain(
+      "scrollFadeContainer.horizontal",
+    );
   });
 
   it("applies the horizontal scroll styles when horizontal", () => {
@@ -33,8 +35,8 @@ describe("ScrollFade", () => {
       </ScrollFade>,
     );
     const container = screen.getByText("cards").parentElement;
-    expect(container?.className).toContain("styles.horizontal");
-    expect(container?.className).not.toContain("styles.vertical");
+    expect(container?.className).toContain("scrollFadeContainer.horizontal");
+    expect(container?.className).not.toContain("scrollFadeContainer.vertical");
   });
 
   it("forwards a ref to the scroll container", () => {

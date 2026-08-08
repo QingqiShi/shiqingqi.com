@@ -107,6 +107,21 @@ export const DESIGN_SYSTEM_ROUTES = [
   },
   {
     section: "foundations",
+    category: "visual",
+    path: "/design-system/foundations/visual-language",
+    keywords: [
+      "surface",
+      "wash",
+      "texture",
+      "measure",
+      "progressive blur",
+      "brand",
+      "spring",
+      "radius",
+    ],
+  },
+  {
+    section: "foundations",
     category: "behaviour",
     path: "/design-system/foundations/motion",
     keywords: ["animation", "transition", "easing", "duration", "reduced"],

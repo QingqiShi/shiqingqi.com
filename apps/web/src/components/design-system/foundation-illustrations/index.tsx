@@ -11,6 +11,7 @@ import { LayoutIllustration } from "./layout-illustration.tsx";
 import { MotionIllustration } from "./motion-illustration.tsx";
 import { SpacingIllustration } from "./spacing-illustration.tsx";
 import { TypographyIllustration } from "./typography-illustration.tsx";
+import { VisualLanguageIllustration } from "./visual-language-illustration.tsx";
 import { VoiceIllustration } from "./voice-illustration.tsx";
 
 /**
@@ -29,6 +30,7 @@ const FOUNDATION_ILLUSTRATIONS: Record<
   "/design-system/foundations/borders": <BordersIllustration />,
   "/design-system/foundations/layout": <LayoutIllustration />,
   "/design-system/foundations/iconography": <IconographyIllustration />,
+  "/design-system/foundations/visual-language": <VisualLanguageIllustration />,
   "/design-system/foundations/accessibility": <AccessibilityIllustration />,
   "/design-system/foundations/voice": <VoiceIllustration />,
 };

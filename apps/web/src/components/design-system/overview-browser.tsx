@@ -3,10 +3,17 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { IconButton } from "@tuja/ui/components/icon-button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { Fragment, useState, type ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import type { DesignSystemGroupLabels } from "./route-copy.ts";
@@ -42,6 +49,12 @@ interface OverviewBrowserProps {
   alphabeticalOrder: readonly DesignSystemPath[];
   /** The section and category headings. Resolved on the server — see `route-copy.ts`. */
   groupLabels: DesignSystemGroupLabels;
+  /**
+   * The page's own title and intro, rendered beside the controls. A slot rather
+   * than props, because the header is server-rendered content this client
+   * component only has to place.
+   */
+  header?: ReactNode;
 }
 
 /** One heading and the tiles under it, plus any sub-headed blocks it contains. */
@@ -124,6 +137,7 @@ export function OverviewBrowser({
   entries,
   alphabeticalOrder,
   groupLabels,
+  header,
 }: OverviewBrowserProps) {
   const [arrangement, setArrangement] = useState<Arrangement>("job");
   const [query, setQuery] = useState("");
@@ -171,49 +185,55 @@ export function OverviewBrowser({
 
   return (
     <div css={styles.browser}>
-      <div css={styles.controls}>
-        <div css={styles.toolbar}>
-          <div css={styles.search}>
-            <TextField
-              type="search"
-              label={searchLabel}
-              labelHidden
-              placeholder={searchPlaceholder}
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-              }}
-              leading={<MagnifyingGlassIcon weight="bold" />}
-              css={styles.searchInput}
-            />
-            {query !== "" && (
-              <IconButton
-                size="sm"
-                icon={<XIcon weight="bold" />}
-                aria-label={clearLabel}
-                css={styles.clear}
-                onClick={() => {
-                  setQuery("");
+      <div css={styles.masthead}>
+        {/* Its own cell rather than `{header}` inline: the slot arrives from a
+            server component, so as one of two sibling expressions React reads it
+            as an unkeyed list item and warns. */}
+        <div css={styles.mastheadHeader}>{header}</div>
+        <div css={styles.controls}>
+          <div css={styles.toolbar}>
+            <div css={styles.search}>
+              <TextField
+                type="search"
+                label={searchLabel}
+                labelHidden
+                placeholder={searchPlaceholder}
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
                 }}
+                leading={<MagnifyingGlassIcon weight="bold" />}
+                css={styles.searchInput}
               />
-            )}
+              {query !== "" && (
+                <IconButton
+                  size="sm"
+                  icon={<XIcon weight="bold" />}
+                  aria-label={clearLabel}
+                  css={styles.clear}
+                  onClick={() => {
+                    setQuery("");
+                  }}
+                />
+              )}
+            </div>
+            <SegmentedControl
+              aria-label={arrangementLabel}
+              value={arrangement}
+              onChange={setArrangement}
+              options={[
+                { value: "job", label: byJobLabel },
+                { value: "name", label: byNameLabel },
+              ]}
+            />
           </div>
-          <SegmentedControl
-            aria-label={arrangementLabel}
-            value={arrangement}
-            onChange={setArrangement}
-            options={[
-              { value: "job", label: byJobLabel },
-              { value: "name", label: byNameLabel },
-            ]}
-          />
+          {/* Always mounted and holding its line, empty until there is a query:
+              a live region that only appears once results change has nothing to
+              announce from, and one that appears at all shifts the page. */}
+          <p role="status" css={styles.resultCount}>
+            {resultCount}
+          </p>
         </div>
-        {/* Always mounted and holding its line, empty until there is a query: a
-            live region that only appears once results change has nothing to
-            announce from, and one that appears at all shifts the page. */}
-        <p role="status" css={styles.resultCount}>
-          {resultCount}
-        </p>
       </div>
 
       {visible.length === 0 ? (
@@ -256,6 +276,25 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._8,
   },
+  // The page title and the controls that filter it, side by side once there is
+  // room. Stacked, the controls sat under a paragraph capped at its measure,
+  // which left the space beside that paragraph reading as a column with its
+  // content missing — so the controls move into it and it becomes a column.
+  //
+  // Bottom-aligned, so the search field sits on the intro's last line rather
+  // than floating opposite the middle of it.
+  masthead: {
+    display: "grid",
+    gap: { default: space._5, [breakpoints.lg]: space._7 },
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.lg]: "minmax(0, 1fr) minmax(16rem, 20rem)",
+    },
+    alignItems: { default: "stretch", [breakpoints.lg]: "end" },
+  },
+  mastheadHeader: {
+    minInlineSize: 0,
+  },
   controls: {
     display: "flex",
     flexDirection: "column",
@@ -269,13 +308,15 @@ const styles = stylex.create({
     gap: space._3,
   },
   // Takes the row's slack up to a comfortable reading width, then stops: a
-  // search field as wide as the page reads as a form, not as a filter.
+  // search field as wide as the page reads as a form, not as a filter. Inside
+  // the masthead column the column is already narrower than that cap, so the
+  // field fills it and the arrangement control wraps below.
   search: {
     position: "relative",
     flexGrow: 1,
     flexBasis: "14rem",
     minInlineSize: 0,
-    maxInlineSize: "24rem",
+    maxInlineSize: { default: "24rem", [breakpoints.lg]: "none" },
   },
   searchInput: {
     inlineSize: "100%",
@@ -321,13 +362,26 @@ const styles = stylex.create({
   },
   // A rank below the section title and read as one: uppercase and tracked out,
   // the same move the rail makes to separate its two levels.
+  //
+  // The rule running out to the edge is the page's only horizontal. Everything
+  // else here is a rounded box on a grid, so a category reads as a break in the
+  // rhythm rather than as one more label the eye has to find.
   categoryTitle: {
     margin: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: space._3,
     fontSize: font.uiCaption,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingWidest,
     textTransform: "uppercase",
     color: color.textSubtle,
+    "::after": {
+      content: "''",
+      flexGrow: 1,
+      blockSize: border.size_1,
+      backgroundColor: color.neutralBorder,
+    },
   },
   // `auto-fill`, not `auto-fit`: the groups run from two tiles to eight, and
   // `auto-fit` collapses the empty tracks so a two-tile group would stretch into

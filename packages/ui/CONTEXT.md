@@ -36,11 +36,25 @@ _Avoid_: semantic (as a grouping word)
 The six-member family that carries meaning rather than structure — accent, info, success, warning, danger, neutral. The prop name on every component that takes one.
 _Avoid_: variant (for this sense), tone (for this sense), semantic colour, status hue, colour treatment
 
-### Wash and blur
+### Wash, texture and blur
+
+**Texture**:
+One mark repeated across a surface — a 1px line or a 1px dot, never both and
+never two sizes of the same mark. Its size and spacing are set per surface,
+because a mark drawn for a full page reads as noise on a card. Faint enough that
+it never resolves into a pattern with a name, and never nested inside another
+Texture.
+_Avoid_: pattern, noise, grain (a Texture is drawn, so none of these name it)
 
 **Wash**:
 A broad gradient that gives a surface some volume — one tone drifting across it. It has no hotspot, because a hotspot is a light source.
 _Avoid_: glow, tint, gradient (as the name of this — the CSS function keeps its name)
+
+**Finish**:
+A surface's Wash, its Texture, or both. One word for the pair because they are
+one CSS property: both are background layers, so a surface carrying both carries
+one list, and the `surface` primitive is where that list is composed.
+_Avoid_: decoration, treatment, skin
 
 **Progressive blur**:
 The page blurred around whatever floats, in place of dimming it — strongest nearest the element, and easing back to sharp further out. The blur belongs to the page rather than to the element, and the element keeps a crisp edge. The radius is set per element, within a cap. Also used at the edge of a scroll region, where it is a Scroll mask.
@@ -49,6 +63,37 @@ _Avoid_: halo, glow, elevation, shadow, disturbance
 **Scroll mask**:
 The progressive blur at the edge of a scroll region, marking content on its way out of view.
 _Avoid_: fade, gradient mask
+
+### Measure and brand
+
+**Measure**:
+The width a paragraph is capped at, so the eye's return to the next line lands
+where it should. Always a length in `rem` — never a fraction of the viewport,
+and never `ch`, which is the width of a Latin zero and so comes out differently
+at every type size and in every script.
+_Avoid_: line length, max width, content width
+
+**Brand dial**:
+One of the settings a brand may configure — hue, typeface, radius, density,
+spring, translucency, border colour, texture and wash. Nothing else moves. A
+dial is exposed as a clamped range rather than a raw Token, because radius,
+density and border colour all stop working as dials at the ends.
+_Avoid_: knob, setting, option, override (that is Customisation)
+
+**Density**:
+The brand dial that scales the space scale. It stops where a gap would fall
+below about 4px, past which the padding no longer reads as larger than the gap.
+
+**Spring**:
+The motion character every component shares — it overshoots, then settles. How
+far it overshoots is a brand dial, picked from a list rather than interpolated,
+because the CSS that carries it takes literal stops.
+_Avoid_: bounce, elastic, easing (a Spring is one, but not every easing is one)
+
+**Translucency**:
+The brand dial for how much of the page shows through a surface that lets it.
+Distinct from Progressive blur, which is the page's own treatment and is not
+something a surface opts into.
 
 ### Component API
 
@@ -143,6 +188,13 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | Primitive        | 原语     | 配方                                                  |
 | pill shape       | 胶囊形   | 药丸, 标签                                            |
 | Wash             | 淡彩     | 渐变 (that is a gradient), 光晕                       |
+| Texture          | 纹理     | 噪点 (that is noise), 图案                            |
+| Finish           | 表面处理 | 装饰, 皮肤                                            |
+| Measure          | 行宽     | 最大宽度, 字符宽度                                    |
+| Brand dial       | 品牌旋钮 | 设置, 选项 (neither says the range is bounded)        |
+| Density          | 密度     |                                                       |
+| Spring           | 弹簧     | 春天 (the season), 回弹                               |
+| Translucency     | 半透明度 | 透明度 (that is opacity)                              |
 | Progressive blur | 渐进虚化 | 光晕, 光环 — both name light, and nothing here is lit |
 | Scroll mask      | 滚动虚化 | 遮罩 (that is a mask in general)                      |
 

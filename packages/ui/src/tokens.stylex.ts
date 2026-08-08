@@ -456,6 +456,21 @@ export const space = stylex.defineVars({
   _16: "35rem",
 });
 
+// The width a paragraph is capped at, so the eye's return to the next line
+// lands where it should. A length rather than a fraction of the viewport, and
+// never `ch` — `ch` is the width of a Latin zero, so one value comes out at a
+// different length at every type size and in every script.
+//
+// `prose` and `proseHan` are the same rule measured in two scripts, and they do
+// not agree: a han character occupies a full em, so 41 of them is 41rem, while
+// 65 Latin characters average out around 33rem. One cap cannot be both, so the
+// script has to pick — see `layout.prose`, which is where that is still open.
+export const measure = stylex.defineVars({
+  narrow: "22rem",
+  prose: "33rem",
+  proseHan: "41rem",
+});
+
 export const controlSize = stylex.defineVars({
   _0: { default: "2.4px", [breakpoints.md]: "2px" },
   _1: { default: "4.8px", [breakpoints.md]: "4px" },

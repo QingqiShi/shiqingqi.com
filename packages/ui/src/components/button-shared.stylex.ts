@@ -18,8 +18,14 @@ export const PRESS_ANIMATION_DURATION = Number.parseInt(duration._150, 10);
 // Press/release transitions built from the motion scale. The compound
 // transform+filter transition can't be a plain `transition.*` preset, but its
 // numbers come from the shared duration/easing tokens so it tracks the scale.
+//
+// Only the release springs. Going down under the finger is a grab and wants to
+// arrive without argument, while coming back up is the state change worth
+// marking — so the press leg stays a short ease-out and the release carries
+// past its resting size and settles. `filter` keeps the ease-out either way: a
+// brightness that overshoots reads as a flash rather than as movement.
 const pressTransition = `background ${duration._200} ${easing.ease}, transform ${duration._150} ${easing.easeOut}, filter ${duration._150} ${easing.easeOut}`;
-const releaseTransition = `background ${duration._200} ${easing.ease}, transform ${duration._300} ${easing.easeOut}, filter ${duration._300} ${easing.easeOut}`;
+const releaseTransition = `background ${duration._200} ${easing.ease}, transform ${duration._400} ${easing.spring}, filter ${duration._300} ${easing.easeOut}`;
 const reducedTransition = `background ${duration._200} ${easing.ease}`;
 
 export const sharedStyles = stylex.create({
