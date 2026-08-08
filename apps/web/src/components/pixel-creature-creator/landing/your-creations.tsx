@@ -211,7 +211,6 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     borderRadius: "999px",
-    cornerShape: "squircle",
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: "pointer",

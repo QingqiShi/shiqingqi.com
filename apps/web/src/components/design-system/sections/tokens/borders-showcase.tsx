@@ -67,8 +67,8 @@ export function BordersShowcase() {
         </div>
         <GuideNote>
           {t({
-            en: "Every radius above renders as a squircle. A browser without corner-shape falls back to a circular arc.",
-            zh: "上方的每个圆角均以超椭圆角渲染。不支持 corner-shape 的浏览器会回退为圆弧。",
+            en: "Each fixed radius above renders as a squircle; radius_round keeps circular caps, so a pill stays a pill. A browser without corner-shape falls back to a circular arc.",
+            zh: "上方每一级固定圆角均以超椭圆角渲染；radius_round 保留圆弧端帽，胶囊形仍是胶囊形。不支持 corner-shape 的浏览器会回退为圆弧。",
           })}
         </GuideNote>
       </Showcase>

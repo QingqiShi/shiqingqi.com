@@ -580,10 +580,10 @@ function CornerSection() {
     },
     {
       token: "corner.radius_round",
-      meta: "cornerShape:squircle",
+      meta: "cornerShape:round",
       description: t({
-        en: "Squircle corner for pills, avatars, and circles.",
-        zh: "用于胶囊形、头像与圆形的超椭圆角。",
+        en: "Circular caps for pills, avatars, and circles — a clamped superellipse reads as neither.",
+        zh: "胶囊形、头像与圆形保留圆弧端帽——超椭圆在钳制后既不像胶囊形也不像圆形。",
       }),
     },
   ];
@@ -592,8 +592,8 @@ function CornerSection() {
     <Showcase label={t({ en: "Corner", zh: "圆角原语" })}>
       <ShowcaseHelper>
         {t({
-          en: 'Pairs a border.radius step with cornerShape: "squircle" in one declaration, so every rounded corner ships as a squircle without a global corner-shape rule. A browser without corner-shape support keeps circular corners.',
-          zh: '在同一条声明中把某一级 border.radius 与 cornerShape: "squircle" 配对，让每个圆角都以超椭圆角出厂，无需全局 corner-shape 规则。不支持 corner-shape 的浏览器会回退为圆弧。',
+          en: "Pairs each border.radius step with its corner shape in one declaration — squircle on the fixed steps, circular caps on radius_round — so corners ship shaped without a global corner-shape rule. A browser without corner-shape support keeps circular corners.",
+          zh: "在同一条声明中为每一级 border.radius 配对角形——固定阶梯用超椭圆角，radius_round 用圆弧端帽——无需全局 corner-shape 规则。不支持 corner-shape 的浏览器会回退为圆弧。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
