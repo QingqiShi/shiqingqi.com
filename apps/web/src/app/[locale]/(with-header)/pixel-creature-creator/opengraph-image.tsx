@@ -4,7 +4,6 @@ import { types } from "#src/components/pixel-creature-creator/sprite/sprites/ind
 import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
-export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 // Next.js's opengraph-image convention only allows a single static `alt`
@@ -20,14 +19,13 @@ export const alt =
  *
  * Tradeoff: rendering the actual pixel sprites inside `ImageResponse`
  * would require either embedding rasterized PNG data URLs (a build-time
- * step we can't run inside an edge route) or hand-drawing every tile via
- * SVG `<rect>` elements (verbose and brittle to keep in sync with the
- * sprite registry). For Phase 6 we ship a simpler card-grid: each
- * featured creature is represented by a coloured tile using its type's
+ * step this route can't do) or hand-drawing every tile via SVG `<rect>`
+ * elements (verbose and brittle to keep in sync with the sprite
+ * registry). For Phase 6 we ship a simpler card-grid: each featured
+ * creature is represented by a coloured tile using its type's
  * `accentColor`, with the creature's name beneath. The site title plus
- * tagline anchor the composition. This stays self-contained, renders
- * fast on the edge, and still gives social cards a brand-coloured
- * preview.
+ * tagline anchor the composition. This stays self-contained and still
+ * gives social cards a brand-coloured preview.
  */
 export default async function OpengraphImage(props: PageProps) {
   const { locale } = await props.params;

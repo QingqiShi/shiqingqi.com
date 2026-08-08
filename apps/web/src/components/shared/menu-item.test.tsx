@@ -14,6 +14,7 @@ const stubRouter = {
   push: vi.fn(),
   replace: vi.fn(),
   prefetch: vi.fn(),
+  bfcacheId: "stub-bfcache-id",
 };
 
 function RouterProvider({ children }: { children: ReactNode }) {
