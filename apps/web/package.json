@@ -79,7 +79,6 @@
     "@testing-library/user-event": "catalog:",
     "@tuja/babel-plugin-specimen-source": "workspace:*",
     "@tuja/babel-plugin-stylex-breakpoints": "workspace:*",
-    "@tuja/babel-plugin-stylex-css-prop": "workspace:*",
     "@tuja/i18n-babel-plugin": "workspace:*",
     "@tuja/i18n-codegen": "workspace:*",
     "@tuja/pwa-icons": "workspace:*",

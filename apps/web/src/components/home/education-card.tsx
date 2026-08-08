@@ -24,12 +24,10 @@ export function EducationCard({
   nameSubText,
   dates,
   dateTime,
-  className,
-  style,
   ...rest
 }: EducationCardProps) {
   return (
-    <Card {...rest} className={className} style={style} css={styles.card}>
+    <Card {...rest} css={styles.card}>
       <div css={styles.row}>
         <div css={[flex.row, styles.logo]}>
           {typeof logo === "object" && logo && "src" in logo ? (
@@ -37,7 +35,7 @@ export function EducationCard({
               src={logo.src}
               alt={logo.alt}
               title={logo.alt}
-              css={styles.img}
+              {...stylex.props(styles.img)}
             />
           ) : (
             <Suspense fallback={<Skeleton fill />}>{logo}</Suspense>

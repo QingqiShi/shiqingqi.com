@@ -396,9 +396,6 @@ importers:
       '@tuja/babel-plugin-stylex-breakpoints':
         specifier: workspace:*
         version: link:../../packages/babel-plugin-stylex-breakpoints
-      '@tuja/babel-plugin-stylex-css-prop':
-        specifier: workspace:*
-        version: link:../../packages/babel-plugin-stylex-css-prop
       '@tuja/i18n-babel-plugin':
         specifier: workspace:*
         version: link:../../packages/i18n-babel-plugin
@@ -528,12 +525,6 @@ importers:
       '@babel/traverse':
         specifier: 'catalog:'
         version: 8.0.4
-
-  packages/babel-plugin-stylex-css-prop:
-    dependencies:
-      '@babel/core':
-        specifier: ^8.0.0
-        version: 8.0.1
 
   packages/eslint-plugin-i18n:
     dependencies:
@@ -673,9 +664,6 @@ importers:
       '@tuja/babel-plugin-stylex-breakpoints':
         specifier: workspace:*
         version: link:../babel-plugin-stylex-breakpoints
-      '@tuja/babel-plugin-stylex-css-prop':
-        specifier: workspace:*
-        version: link:../babel-plugin-stylex-css-prop
       '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig

@@ -104,13 +104,13 @@ export function NotFoundScreen() {
             <Link
               key={destination.href}
               href={destination.href}
-              css={[
+              {...stylex.props(
                 flex.col,
                 cardSurface.base,
                 cardSurface.interactive,
                 transition.colors,
                 styles.destination,
-              ]}
+              )}
             >
               <span css={styles.destinationIcon}>{destination.icon}</span>
               {/* `level={2}` keeps the outline honest under the screen's `h1`. */}

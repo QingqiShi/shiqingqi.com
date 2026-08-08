@@ -19,12 +19,10 @@ interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
 export function AnchorButton({
   bright,
   children,
-  className,
   hideLabelOnMobile,
   icon,
   isActive,
   ref: forwardedRef,
-  style,
   ...restProps
 }: AnchorButtonProps) {
   const anchorRef = useRef<HTMLAnchorElement>(null);
@@ -40,11 +38,12 @@ export function AnchorButton({
     }
   };
 
-  const { isPressed, releasedOutside, pressedStyle, handlers } =
-    usePressHandlers({
+  const { isPressed, releasedOutside, pressedCss, handlers } = usePressHandlers(
+    {
       targetRef: anchorRef,
       ...restProps,
-    });
+    },
+  );
 
   return (
     <Anchor
@@ -52,8 +51,6 @@ export function AnchorButton({
       {...restProps}
       indicateExternal={false}
       ref={setAnchorRef}
-      className={className}
-      style={{ ...style, ...pressedStyle }}
       css={[
         sharedStyles.base,
         styles.anchorButton,
@@ -67,6 +64,7 @@ export function AnchorButton({
         isPressed && sharedStyles.pressed,
         isPressed && bright && sharedStyles.pressedBright,
         releasedOutside && sharedStyles.releasedOutside,
+        pressedCss,
       ]}
       {...handlers}
     >

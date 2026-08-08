@@ -71,24 +71,18 @@ export function HeaderFooterLayout({
   as = "main",
 }: HeaderFooterLayoutProps) {
   const isColumn = readingColumn === true || contentMaxInlineSize != null;
-  const columnWidth = contentMaxInlineSize
-    ? { maxInlineSize: contentMaxInlineSize }
-    : undefined;
+  const contentCss = [
+    styles.content,
+    isColumn && styles.column,
+    contentMaxInlineSize
+      ? dynamicStyles.maxInlineSize(contentMaxInlineSize)
+      : null,
+  ];
   const contentBody =
     as === "main" ? (
-      <main
-        css={[styles.content, isColumn && styles.column]}
-        style={columnWidth}
-      >
-        {children}
-      </main>
+      <main css={contentCss}>{children}</main>
     ) : (
-      <div
-        css={[styles.content, isColumn && styles.column]}
-        style={columnWidth}
-      >
-        {children}
-      </div>
+      <div css={contentCss}>{children}</div>
     );
 
   return (
@@ -189,4 +183,11 @@ const styles = stylex.create({
     paddingInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
   },
+});
+
+// `contentMaxInlineSize` narrows the reading column below the site default —
+// a runtime value, so it composes as a dynamic style rather than an inline
+// `style` attribute.
+const dynamicStyles = stylex.create({
+  maxInlineSize: (maxInlineSize: string) => ({ maxInlineSize }),
 });

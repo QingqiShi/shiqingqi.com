@@ -207,9 +207,11 @@ export function PixelGallery({
               label={`${labelFor(typeLabels, tp.id)} · ${typeWord}`}
             >
               <div
-                style={{ backgroundColor: tp.accentColor }}
-                css={styles.typeAccent}
                 title={tp.accentColor}
+                css={[
+                  styles.typeAccent,
+                  styles.typeAccentColor(tp.accentColor),
+                ]}
               />
             </PartCard>
           ),
@@ -421,6 +423,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "rgba(0, 0, 0, 0.1)",
   },
+  typeAccentColor: (backgroundColor: string) => ({ backgroundColor }),
   canonicalCard: {
     display: "flex",
     flexDirection: "column",

@@ -225,10 +225,13 @@ export function LayoutShowcase() {
             {layers.map((plane, index) => (
               <div
                 key={plane.name}
-                css={[styles.layerCard, plane.z]}
-                style={{
-                  transform: `translateX(${(index * 18).toString()}px)`,
-                }}
+                css={[
+                  styles.layerCard,
+                  plane.z,
+                  styles.layerOffset(
+                    `translateX(${(index * 18).toString()}px)`,
+                  ),
+                ]}
               >
                 <span css={styles.layerName}>layer.{plane.name}</span>
                 <span css={styles.layerValue}>{plane.value}</span>
@@ -512,6 +515,9 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
   },
+  layerOffset: (transform: string) => ({
+    transform,
+  }),
   layerName: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,

@@ -148,11 +148,10 @@ export function ViewportScaleSpecimen() {
                   css={[styles.cell, c === band && styles.cellActive]}
                 >
                   <span
-                    css={styles.glyph}
-                    style={{
-                      fontSize: `${size.toString()}rem`,
-                      fontWeight: row.weight,
-                    }}
+                    css={[
+                      styles.glyph,
+                      styles.glyphSize(`${size.toString()}rem`, row.weight),
+                    ]}
                   >
                     Ag
                   </span>
@@ -266,6 +265,10 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_0,
     color: color.textMain,
   },
+  glyphSize: (fontSize: string, fontWeight: number) => ({
+    fontSize,
+    fontWeight,
+  }),
   marker: {
     margin: 0,
     display: "flex",

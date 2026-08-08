@@ -28,7 +28,6 @@ configuration — the sections below walk through it.
 npm install @tuja/ui @stylexjs/stylex
 npm install --save-dev \
   @stylexjs/babel-plugin \
-  @tuja/babel-plugin-stylex-css-prop \
   @tuja/babel-plugin-stylex-breakpoints
 ```
 
@@ -37,10 +36,11 @@ dependencies.
 
 ## Next.js setup
 
-> **Turbopack is not yet supported.** The `css` prop and responsive tokens rely
-> on custom Babel plugins, so the app must build through the **webpack / Next
-> Babel** pipeline. Adding a `babel.config.js` opts Next out of SWC/Turbopack
-> automatically. Run `next dev` / `next build` without `--turbopack`.
+> **Turbopack is not yet supported.** The `css` prop rewrite (a
+> `@stylexjs/babel-plugin` option) and the responsive tokens (a custom Babel
+> plugin) both need the **webpack / Next Babel** pipeline. Adding a
+> `babel.config.js` opts Next out of SWC/Turbopack automatically. Run
+> `next dev` / `next build` without `--turbopack`.
 
 ### 1. Transpile the package
 
@@ -55,15 +55,16 @@ module.exports = {
 
 ### 2. Babel
 
-Two plugins run **before** `@stylexjs/babel-plugin`, in this order:
+`@tuja/babel-plugin-stylex-breakpoints` runs **before** `@stylexjs/babel-plugin`:
+it inlines the design system's breakpoint constants into media-query keys.
+**It is required** — without it the responsive `font` and `controlSize` tokens
+emit no media queries. Point its `rootDir` at the installed `@tuja/ui` package
+so it can read the shipped `src/breakpoints.stylex.ts`.
 
-- **`@tuja/babel-plugin-stylex-css-prop`** rewrites `css={...}` into
-  `stylex.props(...)`.
-- **`@tuja/babel-plugin-stylex-breakpoints`** inlines the design system's
-  breakpoint constants into media-query keys. **It is required** — without it
-  the responsive `font` and `controlSize` tokens emit no media queries. Point
-  its `rootDir` at the installed `@tuja/ui` package so it can read the shipped
-  `src/breakpoints.stylex.ts`.
+The `css` prop rewrite needs no separate plugin: `@stylexjs/babel-plugin`
+(0.18+) ships a JSX shorthand for it, `sxPropName` — it defaults to `sx`, and
+the config below points it at `css` to match `@tuja/ui`'s own components and
+the `css-prop.d.ts` type augmentation.
 
 ```js
 // babel.config.js
@@ -76,7 +77,6 @@ const uiRoot = path.dirname(require.resolve("@tuja/ui/package.json"));
 module.exports = {
   presets: ["next/babel"],
   plugins: [
-    "@tuja/babel-plugin-stylex-css-prop",
     ["@tuja/babel-plugin-stylex-breakpoints", { rootDir: uiRoot }],
     [
       "@stylexjs/babel-plugin",
@@ -88,6 +88,7 @@ module.exports = {
         treeshakeCompensation: true,
         styleResolution: "property-specificity",
         enableMediaQueryOrder: true,
+        sxPropName: "css",
         unstable_moduleResolution: {
           type: "commonJS",
           // Repo/workspace root — where StyleX resolves module paths from.
@@ -151,9 +152,22 @@ replaces it with the generated CSS:
 
 ### The `css` prop type
 
-The `css` prop is a build-time transform, invisible to the type checker. Add a
-global augmentation so `<div css={styles.x} />` type-checks. Reference the
-declaration `@tuja/ui` ships from a `.d.ts` your `tsconfig.json` includes:
+The `css` prop is a build-time transform, invisible to the type checker, and it
+compiles only on lowercase host elements (`div`, `svg`, …) — `sxPropName`
+rewrites those into `stylex.props(...)` calls. A `@tuja/ui` component such as
+`Button` or `Card` is not rewritten; it receives `css` as an ordinary component
+prop and composes it onto its own root, so it type-checks through its own
+props interface with no augmentation needed.
+
+`css` is the only styling entry a `@tuja/ui` component accepts — none of them
+take `className` or `style`. Passing either is a type error: the component's
+props type omits both, so a component wanting a raw class or an inline style
+composes it into `css` itself (a dynamic style function for a runtime value,
+per the pattern below) rather than accepting it from the consumer.
+
+For the host-element case, add a global augmentation so `<div css={styles.x} />`
+type-checks. Reference the declaration `@tuja/ui` ships from a `.d.ts` your
+`tsconfig.json` includes:
 
 ```ts
 // css-prop.d.ts
@@ -171,14 +185,50 @@ import type {
 } from "@stylexjs/stylex/lib/types/StyleXTypes";
 
 type StyleProp = StyleXArray<
-  null | undefined | boolean | Readonly<[CompiledStyles, InlineStyles]>
+  | null
+  | undefined
+  | boolean
+  | CompiledStyles
+  | Readonly<[CompiledStyles, InlineStyles]>
 >;
 
 declare module "react" {
-  interface Attributes {
+  interface HTMLAttributes<T> {
+    css?: StyleProp;
+  }
+  interface SVGAttributes<T> {
     css?: StyleProp;
   }
 }
+```
+
+### Runtime values in `css`
+
+A runtime-computed value never goes through `className`/`style` — `css` is
+the only channel a `@tuja/ui` component (or a host element) takes. Give
+`stylex.create` a function instead of a plain object and it becomes a dynamic
+style: the shape of what it returns is fixed at compile time, but the value
+comes from wherever the component calls it.
+
+```tsx
+import * as stylex from "@stylexjs/stylex";
+
+const styles = stylex.create({
+  swatch: (background: string) => ({ backgroundColor: background }),
+});
+
+<div css={[styles.base, styles.swatch(hex)]} />;
+```
+
+A custom property works the same way: `(x: string) => ({ "--nudge-x": x })`.
+
+The one case that isn't a StyleX value at all is a literal class a
+third-party stylesheet targets by name — one that has never heard of `css`.
+Compile your own styles and concatenate the class onto the result:
+
+```tsx
+const sx = stylex.props(styles.shell);
+<div {...sx} className={`${sx.className ?? ""} third-party-class`} />;
 ```
 
 ## Theming

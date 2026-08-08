@@ -54,16 +54,14 @@ function PaletteRow({ palette }: { palette: SystemHuePalette }) {
     <li css={styles.row}>
       <span css={styles.name}>{palette.name}</span>
       <div
-        css={styles.ramp}
-        style={{ gridTemplateColumns: RAMP_COLUMNS }}
+        css={[styles.ramp, styles.rampColumns(RAMP_COLUMNS)]}
         role="img"
         aria-label={palette.name}
       >
         {SYSTEM_PALETTE_TONES.map((tone) => (
           <span
             key={tone}
-            css={styles.tone}
-            style={{ backgroundColor: palette.tones[tone].bg }}
+            css={[styles.tone, styles.toneColor(palette.tones[tone].bg)]}
           />
         ))}
       </div>
@@ -113,7 +111,13 @@ const styles = stylex.create({
     borderRadius: border.radius_2,
     overflow: "hidden",
   },
+  rampColumns: (columns: string) => ({
+    gridTemplateColumns: columns,
+  }),
   tone: {
     minInlineSize: 0,
   },
+  toneColor: (backgroundColor: string) => ({
+    backgroundColor,
+  }),
 });

@@ -384,7 +384,7 @@ export function TextShowcase() {
           zh: "选择 variant 与 tone，让字阶与主题掌控字号和颜色。",
         })}
         dont={
-          <Text style={{ fontSize: "11px", opacity: 0.5 }}>
+          <Text css={styles.hardCodedType}>
             {t({ en: "Added 3 hours ago", zh: "3 小时前添加" })}
           </Text>
         }
@@ -398,6 +398,11 @@ export function TextShowcase() {
 }
 
 const styles = stylex.create({
+  // The don't specimen: hard-coded pixels and opacity in place of the scale.
+  hardCodedType: {
+    fontSize: "11px",
+    opacity: 0.5,
+  },
   ladder: {
     display: "flex",
     flexDirection: "column",

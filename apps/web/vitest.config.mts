@@ -40,7 +40,6 @@ export default defineConfig({
             },
           },
         ],
-        "@tuja/babel-plugin-stylex-css-prop",
         [
           "@tuja/babel-plugin-stylex-breakpoints",
           {
@@ -50,6 +49,7 @@ export default defineConfig({
         [
           "@stylexjs/babel-plugin",
           {
+            sxPropName: "css",
             dev: false,
             test: true,
             runtimeInjection: false,

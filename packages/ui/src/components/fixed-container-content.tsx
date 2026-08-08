@@ -1,13 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
-import type { CSSProperties, ReactNode, Ref } from "react";
+import type { ReactNode, Ref } from "react";
+import type { StyleProp } from "../css-prop-types.ts";
 
 interface FixedContainerContentProps {
   /** Content to isolate on its own compositing layer. */
   children: ReactNode;
-  /** Escape-hatch class applied to the layer wrapper. */
-  className?: string;
-  /** Inline style applied to the layer wrapper. */
-  style?: CSSProperties;
+  /** StyleX overrides, composed last so a caller can win over the defaults. */
+  css?: StyleProp;
   /** Ref to the layer wrapper element. */
   ref?: Ref<HTMLDivElement>;
 }
@@ -31,12 +30,11 @@ interface FixedContainerContentProps {
  */
 export function FixedContainerContent({
   children,
-  className,
-  style,
+  css,
   ref,
 }: FixedContainerContentProps) {
   return (
-    <div ref={ref} css={styles.container} className={className} style={style}>
+    <div ref={ref} css={[styles.container, css]}>
       {children}
     </div>
   );

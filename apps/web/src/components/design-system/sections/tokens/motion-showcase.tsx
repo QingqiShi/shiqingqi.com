@@ -94,10 +94,12 @@ export function MotionShowcase() {
             >
               <div css={styles.track}>
                 <span
-                  css={styles.trackFill}
-                  style={{
-                    inlineSize: `${((step.ms / MAX_MS) * 100).toFixed(1)}%`,
-                  }}
+                  css={[
+                    styles.trackFill,
+                    styles.trackFillWidth(
+                      `${((step.ms / MAX_MS) * 100).toFixed(1)}%`,
+                    ),
+                  ]}
                 />
               </div>
             </SpecCard>
@@ -308,6 +310,9 @@ const styles = stylex.create({
     borderRadius: border.radius_round,
     backgroundColor: color.accent,
   },
+  trackFillWidth: (inlineSize: string) => ({
+    inlineSize,
+  }),
   curve: {
     inlineSize: "100%",
     blockSize: "72px",

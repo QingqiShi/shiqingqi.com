@@ -20,7 +20,10 @@ interface TableCellAlignment {
   numeric?: boolean;
 }
 
-interface TableProps extends ComponentProps<"table"> {
+interface TableProps extends Omit<
+  ComponentProps<"table">,
+  "className" | "style"
+> {
   /**
    * Names the table and its scroll region. Required — an unnamed table leaves
    * a screen reader announcing "table" and nothing else.
@@ -56,8 +59,6 @@ export function Table({
   stickyHeader = false,
   containerCss,
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
@@ -81,8 +82,6 @@ export function Table({
       <table
         {...restProps}
         ref={ref}
-        className={className}
-        style={style}
         css={[styles.table, stickyHeader && styles.stickyHead, css]}
       >
         <caption
@@ -100,20 +99,12 @@ export function Table({
 /** The `<thead>` group. Sticks when the root sets `stickyHeader`. */
 export function TableHead({
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
-}: ComponentProps<"thead">) {
+}: Omit<ComponentProps<"thead">, "className" | "style">) {
   return (
-    <thead
-      {...restProps}
-      ref={ref}
-      className={className}
-      style={style}
-      css={[styles.head, css]}
-    >
+    <thead {...restProps} ref={ref} css={[styles.head, css]}>
       {children}
     </thead>
   );
@@ -122,20 +113,12 @@ export function TableHead({
 /** The `<tbody>` group holding the table's rows. */
 export function TableBody({
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
-}: ComponentProps<"tbody">) {
+}: Omit<ComponentProps<"tbody">, "className" | "style">) {
   return (
-    <tbody
-      {...restProps}
-      ref={ref}
-      className={className}
-      style={style}
-      css={css}
-    >
+    <tbody {...restProps} ref={ref} css={css}>
       {children}
     </tbody>
   );
@@ -144,26 +127,21 @@ export function TableBody({
 /** The `<tfoot>` group, for totals and summary rows. */
 export function TableFoot({
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
-}: ComponentProps<"tfoot">) {
+}: Omit<ComponentProps<"tfoot">, "className" | "style">) {
   return (
-    <tfoot
-      {...restProps}
-      ref={ref}
-      className={className}
-      style={style}
-      css={[styles.foot, css]}
-    >
+    <tfoot {...restProps} ref={ref} css={[styles.foot, css]}>
       {children}
     </tfoot>
   );
 }
 
-interface TableRowProps extends ComponentProps<"tr"> {
+interface TableRowProps extends Omit<
+  ComponentProps<"tr">,
+  "className" | "style"
+> {
   /**
    * Marks the row the visitor is on — the plan whose page they are reading,
    * say. Carries `aria-current` alongside the tint and the heavier type, so
@@ -177,8 +155,6 @@ interface TableRowProps extends ComponentProps<"tr"> {
 export function TableRow({
   current = false,
   css,
-  className,
-  style,
   ref,
   children,
   "aria-current": ariaCurrent,
@@ -189,8 +165,6 @@ export function TableRow({
       {...restProps}
       ref={ref}
       aria-current={ariaCurrent ?? (current ? "true" : undefined)}
-      className={className}
-      style={style}
       css={[styles.row, current && styles.currentRow, css]}
     >
       {children}
@@ -202,7 +176,9 @@ export function TableRow({
 // one; the design system reuses the name for its logical alignment, so the
 // native one goes.
 interface TableHeaderCellProps
-  extends Omit<ComponentProps<"th">, "align" | "scope">, TableCellAlignment {
+  extends
+    Omit<ComponentProps<"th">, "align" | "scope" | "className" | "style">,
+    TableCellAlignment {
   /**
    * Which cells this header labels: `"col"` for a column header in the head,
    * `"row"` for the label at the start of a body row. Required — a `<th>`
@@ -217,8 +193,6 @@ export function TableHeaderCell({
   align,
   numeric = false,
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
@@ -231,8 +205,6 @@ export function TableHeaderCell({
       {...restProps}
       ref={ref}
       scope={scope}
-      className={className}
-      style={style}
       css={[
         styles.cell,
         isRowHeader ? styles.rowHeaderCell : styles.columnHeaderCell,
@@ -247,15 +219,15 @@ export function TableHeaderCell({
 }
 
 interface TableCellProps
-  extends Omit<ComponentProps<"td">, "align">, TableCellAlignment {}
+  extends
+    Omit<ComponentProps<"td">, "align" | "className" | "style">,
+    TableCellAlignment {}
 
 /** A `<td>` holding one value. */
 export function TableCell({
   align,
   numeric = false,
   css,
-  className,
-  style,
   ref,
   children,
   ...restProps
@@ -266,8 +238,6 @@ export function TableCell({
     <td
       {...restProps}
       ref={ref}
-      className={className}
-      style={style}
       css={[
         styles.cell,
         numeric && styles.numeric,

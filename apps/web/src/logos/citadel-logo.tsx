@@ -1,21 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/tokens.stylex";
-import type { CSSProperties } from "react";
 import { svgTokens } from "./svg.stylex";
 
-interface CitadelLogoProps {
-  className?: string;
-  style?: CSSProperties;
-}
-
-export default function CitadelLogo({ className, style }: CitadelLogoProps) {
+export default function CitadelLogo() {
   return (
-    <svg
-      viewBox="0 0 842 100"
-      className={className}
-      style={style}
-      css={styles.svg}
-    >
+    <svg viewBox="0 0 842 100" css={styles.svg}>
       <title>Citadel</title>
       <g transform="matrix(4.16667,0,0,4.16667,0,0)">
         <rect x="0" y="16.807" width="45.979" height="6.619" />
