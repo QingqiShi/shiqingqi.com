@@ -68,16 +68,16 @@ import { flex, align, justify, grow } from "#src/primitives/flex.stylex.ts";
 
 **Import**: `#src/primitives/corner.stylex.ts`
 
-Pairs a `border.radius_*` step with `cornerShape: "squircle"` in one declaration. Never write a bare `borderRadius` — use the matching member here instead. Where a radius genuinely can't go through the primitive (a vendor pseudo-element, a CSS-var-driven radius), pair `cornerShape: "squircle"` beside `borderRadius` in the same object literal; `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
+Pairs a `border.radius_*` step with its corner shape in one declaration — squircle on the fixed steps, circular caps on `radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Never write a bare `borderRadius` — use the matching member here instead. Where a radius genuinely can't go through the primitive (a vendor pseudo-element, a CSS-var-driven radius), pair `cornerShape` beside `borderRadius` in the same object literal (`"squircle"`, or `"round"` at the full-round radius); `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
 
-| Export                | Properties                                                  |
-| --------------------- | ----------------------------------------------------------- |
-| `corner.radius_1`     | borderRadius: `border.radius_1` + cornerShape: squircle     |
-| `corner.radius_2`     | borderRadius: `border.radius_2` + cornerShape: squircle     |
-| `corner.radius_3`     | borderRadius: `border.radius_3` + cornerShape: squircle     |
-| `corner.radius_4`     | borderRadius: `border.radius_4` + cornerShape: squircle     |
-| `corner.radius_5`     | borderRadius: `border.radius_5` + cornerShape: squircle     |
-| `corner.radius_round` | borderRadius: `border.radius_round` + cornerShape: squircle |
+| Export                | Properties                                               |
+| --------------------- | -------------------------------------------------------- |
+| `corner.radius_1`     | borderRadius: `border.radius_1` + cornerShape: squircle  |
+| `corner.radius_2`     | borderRadius: `border.radius_2` + cornerShape: squircle  |
+| `corner.radius_3`     | borderRadius: `border.radius_3` + cornerShape: squircle  |
+| `corner.radius_4`     | borderRadius: `border.radius_4` + cornerShape: squircle  |
+| `corner.radius_5`     | borderRadius: `border.radius_5` + cornerShape: squircle  |
+| `corner.radius_round` | borderRadius: `border.radius_round` + cornerShape: round |
 
 ### Example
 

@@ -285,7 +285,7 @@ const styles = stylex.create({
     "::-webkit-slider-runnable-track": {
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
-      cornerShape: "squircle",
+      cornerShape: "round",
       // Matches Progress's track. `surfaceNeutralSubtle` is a surface tint, and
       // against a raised card in dark theme it lands at 1.04:1 — the unfilled
       // remainder disappears, taking the slider's range with it.
@@ -295,7 +295,7 @@ const styles = stylex.create({
     "::-moz-range-track": {
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
-      cornerShape: "squircle",
+      cornerShape: "round",
       // Matches Progress's track. `surfaceNeutralSubtle` is a surface tint, and
       // against a raised card in dark theme it lands at 1.04:1 — the unfilled
       // remainder disappears, taking the slider's range with it.
@@ -308,7 +308,7 @@ const styles = stylex.create({
       blockSize: sliderTokens.thumbSize,
       inlineSize: sliderTokens.thumbSize,
       borderRadius: border.radius_round,
-      cornerShape: "squircle",
+      cornerShape: "round",
       borderStyle: "solid",
       borderWidth: border.size_2,
       borderColor: color.accent,
@@ -327,7 +327,7 @@ const styles = stylex.create({
       blockSize: sliderTokens.thumbSize,
       inlineSize: sliderTokens.thumbSize,
       borderRadius: border.radius_round,
-      cornerShape: "squircle",
+      cornerShape: "round",
       borderStyle: "solid",
       borderWidth: border.size_2,
       borderColor: color.accent,

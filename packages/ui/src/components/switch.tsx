@@ -282,7 +282,7 @@ const styles = stylex.create({
     "::before": {
       backgroundColor: color.bgSurfaceBright,
       borderRadius: border.radius_round,
-      cornerShape: "squircle",
+      cornerShape: "round",
       boxShadow: switchTokens.thumbShadow,
       content: "",
       display: "block",

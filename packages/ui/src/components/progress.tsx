@@ -99,7 +99,7 @@ const styles = stylex.create({
       blockSize: "100%",
       inlineSize: progressTokens.indicatorSize,
       borderRadius: border.radius_round,
-      cornerShape: "squircle",
+      cornerShape: "round",
       backgroundColor: progressTokens.indicatorColor,
       transition: {
         default: `inline-size ${duration._300} ${easing.easeOut}`,

@@ -38,7 +38,7 @@ export const chipSurface = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     borderRadius: border.radius_round,
-    cornerShape: "squircle",
+    cornerShape: "round",
     backgroundColor: color.bgSurface,
     color: color.textMain,
     fontWeight: font.weight_5,

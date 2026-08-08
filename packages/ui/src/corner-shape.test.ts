@@ -1,11 +1,11 @@
-// DESIGN.md: "Every rounded corner is a squircle." The `corner` primitive
-// (primitives/corner.stylex.ts) pairs a radius with `cornerShape: "squircle"`
-// so a consumer composing a radius gets the shape for free — but nothing
-// stops a component from setting a radius property directly instead of
-// composing the primitive, which would silently opt that corner back into a
-// circular arc. Guard the invariant everywhere a radius property survives
-// outside the primitive: a bare radius property must carry `cornerShape` in
-// the same object literal.
+// DESIGN.md: "Every fixed-radius corner is a squircle" — and the full-round
+// radius pins circular caps instead. The `corner` primitive
+// (primitives/corner.stylex.ts) pairs a radius with its `cornerShape` so a
+// consumer composing a radius gets the shape for free — but nothing stops a
+// component from setting a radius property directly instead of composing the
+// primitive, which would silently leave that corner's shape to chance. Guard
+// the invariant everywhere a radius property survives outside the primitive:
+// a bare radius property must carry `cornerShape` in the same object literal.
 //
 // A `stylex.defineVars` argument is a token/value definition, not an applied
 // style — the shape is paired wherever the token is actually consumed as a

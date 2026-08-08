@@ -254,12 +254,13 @@ export const globalStyles = stylex.create({
 Apply `globalStyles.root` to `<html>`/`<body>`. (This mirrors
 `apps/web/src/app/global-styles.ts` in the source repo.)
 
-Every rounded corner in the system renders as a squircle rather than a
-circular arc. Components compose the `corner` primitive
-(`@tuja/ui/primitives/corner.stylex`), which pairs `cornerShape: "squircle"`
-with the radius, so the shape ships inside the styles the component already
-carries. There is no global CSS to add, and none of your own components are
-affected. A browser without `corner-shape` support keeps circular corners.
+Every fixed-radius corner in the system renders as a squircle rather than a
+circular arc; pills and circles keep circular caps, because a clamped
+superellipse reads as neither. Components compose the `corner` primitive
+(`@tuja/ui/primitives/corner.stylex`), which pairs the corner shape with the
+radius, so the shape ships inside the styles the component already carries.
+There is no global CSS to add, and none of your own components are affected.
+A browser without `corner-shape` support keeps circular corners.
 
 ## Usage
 
@@ -309,7 +310,7 @@ components.
 | `@tuja/ui/hooks/use-radio-group`              | Headless roving-tabindex radio group (arrow/Home/End keyboard, `getOptionProps`).                                                                       |
 | `@tuja/ui/hooks/use-scroll-fades`             | Edge-fade state for a scroll container.                                                                                                                 |
 | `@tuja/ui/primitives/a11y.stylex`             | Accessibility primitives: `srOnly`, `focusRing`, `focusRingInset`.                                                                                      |
-| `@tuja/ui/primitives/corner.stylex`           | Squircle corner radii: `radius_1`–`radius_5`, `radius_round`.                                                                                           |
+| `@tuja/ui/primitives/corner.stylex`           | Corner radii paired with shape: squircle on `radius_1`–`radius_5`, circular caps on `radius_round`.                                                     |
 | `@tuja/ui/primitives/flex.stylex`             | Flex row/column layout primitives.                                                                                                                      |
 | `@tuja/ui/primitives/layout.stylex`           | Layout/container primitives.                                                                                                                            |
 | `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                       |

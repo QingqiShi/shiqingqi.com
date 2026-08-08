@@ -159,7 +159,6 @@ const styles = stylex.create({
       ":hover": color.bgInteractiveHover,
     },
     borderRadius: "999px",
-    cornerShape: "squircle",
     borderWidth: "2px",
     borderStyle: "solid",
     borderColor: "transparent",

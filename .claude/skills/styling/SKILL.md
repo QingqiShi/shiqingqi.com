@@ -49,7 +49,7 @@ const styles = stylex.create({
 });
 ```
 
-Rounded corners are the one exception: don't reach for a bare `border.radius_*` here — use the `corner` primitive below instead, so the radius always ships paired with its squircle shape.
+Rounded corners are the one exception: don't reach for a bare `border.radius_*` here — use the `corner` primitive below instead, so the radius always ships paired with its corner shape.
 
 ## Breakpoints
 
@@ -94,7 +94,7 @@ import { flex, align, justify } from "#src/primitives/flex.stylex.ts";
 
 ### Corner (`#src/primitives/corner.stylex.ts`)
 
-Pairs each `border.radius_*` step with `cornerShape: "squircle"` in one declaration — `corner.radius_1` … `corner.radius_5`, `corner.radius_round`. Rounded corners always go through this primitive; never write a bare `borderRadius`.
+Pairs each `border.radius_*` step with its corner shape in one declaration — squircle on `corner.radius_1` … `corner.radius_5`, circular caps on `corner.radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Rounded corners always go through this primitive; never write a bare `borderRadius`.
 
 ```tsx
 import { corner } from "#src/primitives/corner.stylex.ts";
@@ -103,7 +103,7 @@ import { corner } from "#src/primitives/corner.stylex.ts";
 <span css={corner.radius_round}>  {/* pill / avatar */}
 ```
 
-If a radius genuinely can't go through the primitive — a vendor pseudo-element, a CSS-var-driven radius — pair `cornerShape: "squircle"` beside `borderRadius` in the same object literal instead. `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
+If a radius genuinely can't go through the primitive — a vendor pseudo-element, a CSS-var-driven radius — pair `cornerShape` beside `borderRadius` in the same object literal instead (`"squircle"`, or `"round"` at the full-round radius). `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
 
 `apps/web` composes the same primitive via `@tuja/ui/primitives/corner.stylex`. There is no global `corner-shape` rule anywhere — every rounded corner carries its own shape through the primitive or a local `cornerShape` pairing.
 
@@ -117,7 +117,7 @@ If a radius genuinely can't go through the primitive — a vendor pseudo-element
 
 1. **Primitives for multi-property patterns** — flex, fills, truncation, resets, transitions
 2. **Tokens for single properties** — `fontSize: font.uiBody`, `gap: space._3`
-3. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape: "squircle"` locally only where the primitive can't reach
+3. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
 4. **Always use the `css` prop** — never `{...stylex.props()}`
 5. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
 6. **Mobile-first** — use breakpoint overrides for larger screens
