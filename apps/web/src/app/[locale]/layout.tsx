@@ -1,5 +1,4 @@
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -7,6 +6,7 @@ import { globalStyles } from "#src/app/global-styles.ts";
 import { ReactGrab } from "#src/components/react-grab.tsx";
 import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
+import { PostHogInit } from "#src/components/shared/posthog-init.tsx";
 import { BackOverrideProvider } from "#src/contexts/back-override-context.tsx";
 import { I18nProvider } from "#src/i18n/i18n-provider.tsx";
 import { setLocale } from "#src/i18n/server-locale.ts";
@@ -94,7 +94,7 @@ export default async function RootLayout({
             </PortalTargetProvider>
             <ReactGrab />
             <Analytics />
-            <SpeedInsights />
+            <PostHogInit />
           </SerwistProvider>
         </I18nProvider>
       </body>

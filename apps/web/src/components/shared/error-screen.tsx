@@ -6,6 +6,7 @@ import { align, flex, justify } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
+import { captureException } from "#src/utils/posthog.ts";
 
 // Error boundaries render outside the normal provider tree — the i18n
 // ClientTranslationsProvider is not guaranteed to sit above them — so this
@@ -36,6 +37,7 @@ export function ErrorScreen({ error, onRetry }: ErrorScreenProps) {
 
   useEffect(() => {
     console.error("Page error:", error);
+    captureException(error);
   }, [error]);
 
   return (
