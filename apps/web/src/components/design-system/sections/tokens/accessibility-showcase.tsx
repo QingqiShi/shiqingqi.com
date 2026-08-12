@@ -10,6 +10,7 @@ import { Spinner } from "@tuja/ui/components/spinner";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -147,6 +148,7 @@ export function AccessibilityShowcase() {
               buttonReset.base,
               flex.inlineCenter,
               a11y.focusRing,
+              corner.radius_round,
               styles.bareControl,
             ]}
           >
@@ -184,10 +186,15 @@ type Named =
         <div css={[flex.wrap, styles.row]}>
           <Button variant="primary">{t({ en: "First", zh: "第一个" })}</Button>
           <Button variant="outline">{t({ en: "Second", zh: "第二个" })}</Button>
-          <span css={styles.clipFrame}>
+          <span css={[corner.radius_round, styles.clipFrame]}>
             <button
               type="button"
-              css={[buttonReset.base, a11y.focusRingInset, styles.insetChip]}
+              css={[
+                buttonReset.base,
+                a11y.focusRingInset,
+                corner.radius_round,
+                styles.insetChip,
+              ]}
             >
               {t({ en: "Inset ring", zh: "内嵌焦点环" })}
             </button>
@@ -231,7 +238,10 @@ type Named =
         <div css={styles.roleGridFrame}>
           <div css={styles.roleGrid}>
             {TEXT_ROLE_CONTRAST.map((role) => (
-              <div key={role.token} css={[flex.col, styles.roleCard]}>
+              <div
+                key={role.token}
+                css={[flex.col, corner.radius_2, styles.roleCard]}
+              >
                 <span css={styles.token}>
                   <Identifier>{role.token}</Identifier>
                 </span>
@@ -393,7 +403,7 @@ type Named =
           dont={
             // A drawing of the mistake, not the mistake itself: a real unnamed
             // `<input>` here would be the very WCAG failure the caption warns about.
-            <span css={styles.fauxInput} aria-hidden>
+            <span css={[corner.radius_2, styles.fauxInput]} aria-hidden>
               {t({ en: "Search movies", zh: "搜索电影" })}
             </span>
           }
@@ -427,7 +437,7 @@ interface ChecklistProps {
 function Checklist({ title, items, marker }: ChecklistProps) {
   const check = marker === "check";
   return (
-    <div css={[flex.col, styles.checklist]}>
+    <div css={[flex.col, corner.radius_2, styles.checklist]}>
       <h3 css={styles.checklistTitle}>{title}</h3>
       <ul css={styles.checklistItems}>
         {items.map((item) => (
@@ -468,7 +478,6 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._4,
     paddingInline: space._4,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,
@@ -547,7 +556,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_round,
     fontSize: font.uiHeading3,
     color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {
@@ -559,12 +567,10 @@ const styles = stylex.create({
   clipFrame: {
     display: "inline-flex",
     overflow: "hidden",
-    borderRadius: border.radius_round,
   },
   insetChip: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: color.textMain,
@@ -577,7 +583,6 @@ const styles = stylex.create({
     gap: space._1,
     paddingBlock: space._3,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     // The light theme's binding background, so the specimen sits on the pairing
     // the quoted figures were measured against.
     backgroundColor: color.bgCanvas,
@@ -633,7 +638,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     fontFamily: font.family,
     color: color.textSubtle,

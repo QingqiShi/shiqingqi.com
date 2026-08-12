@@ -5,6 +5,7 @@ Multi-property composable styles in `src/primitives/`. Each primitive combines 2
 ## Table of Contents
 
 - [Flex Layouts](#flex-layouts)
+- [Corner](#corner)
 - [Layout Patterns](#layout-patterns)
 - [Resets](#resets)
 - [Motion](#motion)
@@ -60,6 +61,37 @@ import { flex, align, justify, grow } from "#src/primitives/flex.stylex.ts";
 // Fill remaining space
 <div css={[flex.row, grow._1]}>
 ```
+
+---
+
+## Corner
+
+**Import**: `#src/primitives/corner.stylex.ts`
+
+Pairs a `border.radius_*` step with its corner shape in one declaration — squircle on the fixed steps, circular caps on `radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Never write a bare `borderRadius` — use the matching member here instead. Where a radius genuinely can't go through the primitive (a vendor pseudo-element, a CSS-var-driven radius), pair `cornerShape` beside `borderRadius` in the same object literal (`"squircle"`, or `"round"` at the full-round radius); `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
+
+| Export                | Properties                                               |
+| --------------------- | -------------------------------------------------------- |
+| `corner.radius_1`     | borderRadius: `border.radius_1` + cornerShape: squircle  |
+| `corner.radius_2`     | borderRadius: `border.radius_2` + cornerShape: squircle  |
+| `corner.radius_3`     | borderRadius: `border.radius_3` + cornerShape: squircle  |
+| `corner.radius_4`     | borderRadius: `border.radius_4` + cornerShape: squircle  |
+| `corner.radius_5`     | borderRadius: `border.radius_5` + cornerShape: squircle  |
+| `corner.radius_round` | borderRadius: `border.radius_round` + cornerShape: round |
+
+### Example
+
+```tsx
+import { corner } from "#src/primitives/corner.stylex.ts";
+
+// Card corner
+<div css={corner.radius_3}>
+
+// Pill / avatar
+<span css={corner.radius_round}>
+```
+
+`apps/web` composes the same primitive via `@tuja/ui/primitives/corner.stylex`; there is no global `corner-shape` rule.
 
 ---
 

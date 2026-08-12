@@ -4,10 +4,11 @@ import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { isToolError } from "#src/ai-chat/tools/tool-error.ts";
 import { t } from "#src/i18n.ts";
 import { isRecord } from "#src/utils/type-guards.ts";
@@ -180,7 +181,9 @@ export function ToolActivityLine({
   return (
     <div css={[flex.row, styles.line]}>
       <span css={[flex.center, styles.icon]} role="status">
-        {isInProgress && <span css={styles.pulsingDot} />}
+        {isInProgress && (
+          <span css={[corner.radius_round, styles.pulsingDot]} />
+        )}
         {isComplete && (
           <CheckIcon size={ICON_SIZE} weight="bold" aria-hidden="true" />
         )}
@@ -232,7 +235,6 @@ const styles = stylex.create({
   pulsingDot: {
     width: "0.375rem",
     height: "0.375rem",
-    borderRadius: border.radius_round,
     backgroundColor: color.textMuted,
     animationName: {
       default: pulse,

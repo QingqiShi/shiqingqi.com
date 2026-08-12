@@ -100,6 +100,7 @@ export const fieldStyles = stylex.create({
       ":disabled:hover": color.neutralBorder,
     },
     borderRadius: border.radius_2,
+    cornerShape: "squircle",
     paddingInline: fieldVars.paddingInline,
     cursor: { default: "text", ":disabled": "not-allowed" },
     opacity: { default: null, ":disabled": opacity.disabled },

@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { border, color, font, space } from "../tokens.stylex.ts";
@@ -195,7 +196,7 @@ export function Callout({
       {...restProps}
       ref={ref}
       role={resolvedRole}
-      css={[styles.base, surfaceStyles[variant], css]}
+      css={[corner.radius_3, styles.base, surfaceStyles[variant], css]}
     >
       {resolvedIcon != null ? (
         <span css={[styles.icon, accentStyles[variant]]} aria-hidden>
@@ -217,6 +218,7 @@ export function Callout({
             buttonReset.base,
             a11y.focusRing,
             transition.colors,
+            corner.radius_1,
             styles.dismiss,
           ]}
         >
@@ -239,7 +241,6 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_3,
     borderWidth: border.size_1,
     borderStyle: "solid",
     color: color.textMain,
@@ -278,7 +279,6 @@ const styles = stylex.create({
     fontSize: font.uiBody,
     blockSize: controlLineBox,
     inlineSize: controlLineBox,
-    borderRadius: border.radius_1,
     color: { default: color.textMuted, ":hover": color.textMain },
   },
 });

@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import {
   duration,
   easing,
@@ -73,6 +74,7 @@ export function Progress({
       aria-valuemin={0}
       aria-valuemax={safeMax}
       css={[
+        corner.radius_round,
         styles.track,
         sizeStyles[size],
         styles.indicator((safeValue / safeMax) * 100),
@@ -85,7 +87,6 @@ export function Progress({
 const styles = stylex.create({
   track: {
     inlineSize: "100%",
-    borderRadius: border.radius_round,
     // The same fill `Divider` uses for a rule — a track is a thick one, and
     // `surfaceNeutralSubtle` all but vanishes against a dark surface.
     backgroundColor: color.neutralBorder,
@@ -96,6 +97,7 @@ const styles = stylex.create({
       blockSize: "100%",
       inlineSize: progressTokens.indicatorSize,
       borderRadius: border.radius_round,
+      cornerShape: "round",
       backgroundColor: progressTokens.indicatorColor,
       transition: {
         default: `inline-size ${duration._300} ${easing.easeOut}`,

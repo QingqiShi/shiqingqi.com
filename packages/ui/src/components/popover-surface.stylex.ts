@@ -27,6 +27,7 @@ export const popoverSurface = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     borderRadius: border.radius_2,
+    cornerShape: "squircle",
     boxShadow: shadow._5,
   },
   enter: {

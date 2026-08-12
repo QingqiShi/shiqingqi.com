@@ -3,9 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { animate, transition } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState, useSyncExternalStore } from "react";
 import { t } from "#src/i18n.ts";
 import { measure } from "../../measure.stylex.ts";
@@ -56,13 +57,18 @@ export function ReducedMotionSpecimen() {
   });
 
   return (
-    <div css={styles.panel}>
+    <div css={[corner.radius_2, styles.panel]}>
       <div css={[flex.wrap, styles.demos]}>
         <div css={[flex.col, styles.demo]}>
           <span css={styles.preset}>transition.transform</span>
-          <span css={styles.track} aria-hidden>
+          <span css={[corner.radius_2, styles.track]} aria-hidden>
             <span
-              css={[styles.tile, transition.transform, moved && styles.tileEnd]}
+              css={[
+                corner.radius_2,
+                styles.tile,
+                transition.transform,
+                moved && styles.tileEnd,
+              ]}
             />
           </span>
           <span>
@@ -79,8 +85,8 @@ export function ReducedMotionSpecimen() {
         </div>
         <div css={[flex.col, styles.demo]}>
           <span css={styles.preset}>animate.pulse</span>
-          <span css={styles.track} aria-hidden>
-            <span css={[styles.bar, animate.pulse]} />
+          <span css={[corner.radius_2, styles.track]} aria-hidden>
+            <span css={[corner.radius_1, styles.bar, animate.pulse]} />
           </span>
         </div>
       </div>
@@ -108,7 +114,6 @@ const styles = stylex.create({
     alignItems: "start",
     paddingBlock: space._4,
     paddingInline: space._4,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
@@ -135,7 +140,6 @@ const styles = stylex.create({
     maxInlineSize: "100%",
     blockSize: space._8,
     overflow: "hidden",
-    borderRadius: border.radius_2,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
@@ -145,7 +149,6 @@ const styles = stylex.create({
     insetInlineStart: 0,
     inlineSize: space._8,
     blockSize: space._8,
-    borderRadius: border.radius_2,
     backgroundColor: color.accent,
     transform: "translateX(0)",
   },
@@ -156,7 +159,6 @@ const styles = stylex.create({
     position: "absolute",
     insetBlock: space._2,
     insetInline: space._2,
-    borderRadius: border.radius_1,
     backgroundColor: color.accent,
   },
   readout: {

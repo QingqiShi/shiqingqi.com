@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, font, border, controlSize } from "@tuja/ui/tokens.stylex";
+import { color, font, controlSize } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import type { PropsWithChildren } from "react";
 import { useTransition } from "react";
@@ -53,6 +54,7 @@ export function MenuItem({
       role="menuitem"
       css={[
         flex.between,
+        corner.radius_1,
         styles.item,
         a11y.focusRing,
         isActive && styles.itemActive,
@@ -80,7 +82,6 @@ const styles = stylex.create({
     color: { default: color.textMain, ":hover": color.textMuted },
     fontWeight: font.weight_6,
     backgroundColor: { default: null, ":hover": color.bgInteractiveHover },
-    borderRadius: border.radius_1,
     fontSize: controlSize._4,
     gap: controlSize._5,
     height: controlSize._9,

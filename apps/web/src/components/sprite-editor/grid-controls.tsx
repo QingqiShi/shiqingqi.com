@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Divider } from "@tuja/ui/components/divider";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
   easing,
@@ -54,7 +55,7 @@ function NumberField({
         min={min}
         max={max}
         step={step}
-        css={[styles.input, emphasis && styles.inputEmphasis]}
+        css={[corner.radius_2, styles.input, emphasis && styles.inputEmphasis]}
         onChange={(event) => {
           // Skip mid-edit blank state — `Number("")` is 0, which would
           // commit a destructive 0 (or 1, after the callsite's clamp) and
@@ -297,7 +298,6 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
     color: color.textMain,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     fontFamily: font.familyMono,
     fontVariantNumeric: "tabular-nums",

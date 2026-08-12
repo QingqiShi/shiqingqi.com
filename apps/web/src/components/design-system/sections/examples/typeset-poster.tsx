@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import type { StyleProp } from "@tuja/ui/css-prop-types";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 
 interface TypesetPosterProps {
@@ -59,7 +60,14 @@ export function TypesetPoster({
   const hasFooter = Boolean(credit ?? year);
 
   return (
-    <div css={[styles.poster, lead ? styles.lead : styles.thumb, css]}>
+    <div
+      css={[
+        corner.radius_2,
+        styles.poster,
+        lead ? styles.lead : styles.thumb,
+        css,
+      ]}
+    >
       {studio ? (
         <Text as="span" variant="overline" tone="subtle" transform="uppercase">
           {studio}
@@ -77,7 +85,7 @@ export function TypesetPoster({
           with no line under it is a dash floating in an empty plate. */}
       {hasFooter ? (
         <span css={styles.footer}>
-          <span css={styles.rule} />
+          <span css={[corner.radius_round, styles.rule]} />
           {credit ? (
             <Text as="span" variant="caption" tone="muted" weight="medium">
               {credit}
@@ -108,7 +116,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
   },
   lead: {
@@ -187,7 +194,6 @@ const styles = stylex.create({
   rule: {
     blockSize: border.size_2,
     inlineSize: space._5,
-    borderRadius: border.radius_round,
     backgroundColor: color.accentBorder,
     marginBlockEnd: space._00,
   },

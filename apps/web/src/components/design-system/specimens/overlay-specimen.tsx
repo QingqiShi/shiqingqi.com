@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, shadow, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, shadow, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 
@@ -17,7 +18,7 @@ export function OverlaySpecimen() {
         <WireframeBar width="80%" />
       </div>
       <div css={styles.scrim} />
-      <div css={styles.panel}>
+      <div css={[corner.radius_2, styles.panel]}>
         <WireframeBar width="55%" strong />
         <WireframeBar width="85%" />
       </div>
@@ -55,7 +56,6 @@ const styles = stylex.create({
     inlineSize: "62%",
     paddingBlock: space._2,
     paddingInline: space._2,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: shadow._5,
   },

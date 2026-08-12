@@ -36,6 +36,12 @@ _Avoid_: semantic (as a grouping word)
 The six-member family that carries meaning rather than structure — accent, info, success, warning, danger, neutral. The prop name on every component that takes one.
 _Avoid_: variant (for this sense), tone (for this sense), semantic colour, status hue, colour treatment
 
+### Shape
+
+**Squircle**:
+The superellipse curve every fixed-radius corner takes. The `corner` primitive pairs it with the radius, so the shape ships inside the styles that round a corner rather than as a global rule a consumer must add. Radius tokens size the corner; the squircle is its shape. Pills and circles are the exception: clamped to the full-round radius, a superellipse cap reads as neither, so they keep circular caps.
+_Avoid_: rounded rectangle, continuous corner
+
 ### Wash and blur
 
 **Wash**:
@@ -93,7 +99,7 @@ The spacing scale that is responsive by definition — larger on touch, tighter 
 ### Composition
 
 **Primitive**:
-A composable multi-property StyleX style object — `flex`, `layout`, `motion`, `reset`, `a11y` — spread through the `css` prop. Not a component, and not a generated hue file.
+A composable multi-property StyleX style object — `flex`, `layout`, `motion`, `reset`, `a11y`, `corner` — spread through the `css` prop. Not a component, and not a generated hue file.
 _Avoid_: recipe, pattern (for this sense)
 
 **Modifier**:
@@ -145,6 +151,7 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | Wash             | 淡彩     | 渐变 (that is a gradient), 光晕                       |
 | Progressive blur | 渐进虚化 | 光晕, 光环 — both name light, and nothing here is lit |
 | Scroll mask      | 滚动虚化 | 遮罩 (that is a mask in general)                      |
+| Squircle         | 超椭圆角 | 圆角矩形 (that is a rounded rectangle)                |
 
 `语义` is correct only for the HTML/ARIA sense — 语义元素, 语义层级, `<button>` 语义 — matching English "semantic element/rank".
 

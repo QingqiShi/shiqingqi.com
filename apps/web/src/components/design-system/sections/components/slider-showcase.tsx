@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
@@ -90,7 +91,7 @@ function KeyHint({ keys, effect }: KeyHintProps) {
     <div css={styles.keyRow}>
       <dt css={styles.keyCluster}>
         {keys.map((key) => (
-          <kbd key={key} css={styles.key}>
+          <kbd key={key} css={[corner.radius_1, styles.key]}>
             {key}
           </kbd>
         ))}
@@ -112,7 +113,7 @@ interface MeterProps {
 /** One callback's tally: how many times it fired, and what it last reported. */
 function Meter({ name, callsLabel, calls, valueLabel, value }: MeterProps) {
   return (
-    <div css={styles.meter}>
+    <div css={[corner.radius_2, styles.meter]}>
       <span css={styles.meterName}>{name}</span>
       <span css={styles.meterStat}>
         <span css={styles.meterLabel}>{callsLabel}</span>
@@ -700,7 +701,6 @@ const styles = stylex.create({
     gap: space._1,
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     minInlineSize: 0,
@@ -756,7 +756,6 @@ const styles = stylex.create({
     color: color.textMain,
     paddingInline: space._1,
     paddingBlock: space._00,
-    borderRadius: border.radius_1,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,

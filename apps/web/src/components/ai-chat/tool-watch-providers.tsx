@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Badge } from "@tuja/ui/components/badge";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
@@ -211,7 +212,7 @@ function ProviderLogo({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      css={styles.logo}
+      css={[corner.radius_1, styles.logo]}
       src={src}
       srcSet={srcSet}
       sizes={`${String(size)}px`}
@@ -269,7 +270,7 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
   const regionDisplay = displayNames?.of(region) ?? region;
 
   return (
-    <div css={styles.card}>
+    <div css={[corner.radius_2, styles.card]}>
       <div css={[flex.between, styles.header]}>
         <span css={styles.title}>
           {t({ en: "Where to Watch", zh: "在哪里看" })}
@@ -387,7 +388,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
   const groups = groupRegionsByType(regions);
 
   return (
-    <div css={styles.card}>
+    <div css={[corner.radius_2, styles.card]}>
       <div css={[flex.between, styles.header]}>
         <div css={[flex.row, styles.headerTitle]}>
           {providerLogoPath && (
@@ -457,7 +458,6 @@ export function ToolWatchProviders({ data }: { data: WatchProviderOutput }) {
 const styles = stylex.create({
   card: {
     backgroundColor: color.bgSurfaceRaised,
-    borderRadius: border.radius_2,
     padding: space._3,
     marginTop: space._2,
   },
@@ -483,7 +483,6 @@ const styles = stylex.create({
     gap: space._1,
   },
   logo: {
-    borderRadius: border.radius_1,
     objectFit: "cover",
   },
   emptyText: {

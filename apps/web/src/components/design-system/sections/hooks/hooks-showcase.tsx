@@ -12,6 +12,7 @@ import { usePopover } from "@tuja/ui/hooks/use-popover";
 import { usePressHandlers } from "@tuja/ui/hooks/use-press-handlers";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import {
   duration,
@@ -20,14 +21,7 @@ import {
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import {
-  border,
-  color,
-  font,
-  layer,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { color, font, layer, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
@@ -55,11 +49,17 @@ function StepperControl({
     onChange?.(next);
   };
   return (
-    <div css={[flex.row, styles.stepper]}>
+    <div css={[flex.row, corner.radius_round, styles.stepper]}>
       <button
         type="button"
         aria-label={decLabel}
-        css={[buttonReset.base, flex.center, a11y.focusRing, styles.stepBtn]}
+        css={[
+          buttonReset.base,
+          flex.center,
+          a11y.focusRing,
+          corner.radius_round,
+          styles.stepBtn,
+        ]}
         onClick={() => {
           commit(value - 1);
         }}
@@ -70,7 +70,13 @@ function StepperControl({
       <button
         type="button"
         aria-label={incLabel}
-        css={[buttonReset.base, flex.center, a11y.focusRing, styles.stepBtn]}
+        css={[
+          buttonReset.base,
+          flex.center,
+          a11y.focusRing,
+          corner.radius_round,
+          styles.stepBtn,
+        ]}
         onClick={() => {
           commit(value + 1);
         }}
@@ -89,7 +95,8 @@ function ControlledStepperSpecimen() {
     <div css={[flex.col, styles.controlledStack]}>
       <StepperControl value={value} onChange={setValue} />
       <Text variant="caption" tone="muted">
-        {stateLabel}: <span css={styles.readout}>{value}</span>
+        {stateLabel}:{" "}
+        <span css={[corner.radius_1, styles.readout]}>{value}</span>
       </Text>
     </div>
   );
@@ -171,7 +178,7 @@ function DialogSpecimen() {
           role="dialog"
           aria-modal="true"
           aria-label={dialogLabel}
-          css={[flex.col, styles.dialogCard]}
+          css={[flex.col, corner.radius_3, styles.dialogCard]}
         >
           <Heading level={3}>{title}</Heading>
           <Text variant="bodySmall" tone="muted">
@@ -263,16 +270,22 @@ function IntentPickerSpecimen() {
       <button
         {...triggerProps}
         aria-label={`${fieldLabel}: ${labels[selected]}`}
-        css={[buttonReset.base, flex.row, a11y.focusRing, styles.intentTrigger]}
+        css={[
+          buttonReset.base,
+          flex.row,
+          a11y.focusRing,
+          corner.radius_round,
+          styles.intentTrigger,
+        ]}
       >
         <span
           aria-hidden="true"
-          css={[styles.intentDot, intentFill[selected]]}
+          css={[corner.radius_round, styles.intentDot, intentFill[selected]]}
         />
         {labels[selected]}
       </button>
       {open ? (
-        <div {...contentProps} css={styles.pickerPopup}>
+        <div {...contentProps} css={[corner.radius_2, styles.pickerPopup]}>
           {intents.map((intent) => (
             <button
               key={intent}
@@ -344,7 +357,12 @@ function PlacementSpecimen() {
           ) : null}
           <button
             type="button"
-            css={[buttonReset.base, a11y.focusRing, styles.hintToggle]}
+            css={[
+              buttonReset.base,
+              a11y.focusRing,
+              corner.radius_1,
+              styles.hintToggle,
+            ]}
             onClick={() => {
               setExpanded(!expanded);
             }}
@@ -420,6 +438,7 @@ function PressSpecimen() {
         buttonReset.base,
         flex.center,
         a11y.focusRing,
+        corner.radius_2,
         styles.pressTile,
         isPressed && styles.pressTilePressed,
         pressedCss,
@@ -488,7 +507,7 @@ function DensityRadioGroup() {
       <div
         role="radiogroup"
         aria-label={groupLabel}
-        css={[flex.row, styles.segmented]}
+        css={[flex.row, corner.radius_round, styles.segmented]}
       >
         {values.map((option) => {
           const selected = option === value;
@@ -502,6 +521,7 @@ function DensityRadioGroup() {
                 flex.center,
                 transition.colors,
                 a11y.focusRing,
+                corner.radius_round,
                 styles.segment,
                 selected && styles.segmentSelected,
               ]}
@@ -512,7 +532,8 @@ function DensityRadioGroup() {
         })}
       </div>
       <Text variant="caption" tone="muted">
-        {selectedLabel}: <span css={styles.readout}>{labels[value]}</span>
+        {selectedLabel}:{" "}
+        <span css={[corner.radius_1, styles.readout]}>{labels[value]}</span>
       </Text>
     </div>
   );
@@ -578,14 +599,12 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._1,
     paddingInline: space._2,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   stepBtn: {
     inlineSize: "32px",
     blockSize: "32px",
-    borderRadius: border.radius_round,
     fontSize: font.uiHeading3,
     fontWeight: font.weight_5,
     color: {
@@ -615,7 +634,6 @@ const styles = stylex.create({
     color: color.textMain,
     paddingInline: space._1,
     paddingBlock: space._00,
-    borderRadius: border.radius_1,
     backgroundColor: color.bgInteractiveRest,
   },
   // useDialogFocus
@@ -630,7 +648,6 @@ const styles = stylex.create({
     maxInlineSize: "320px",
     paddingBlock: space._4,
     paddingInline: space._4,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: shadow._4,
   },
@@ -648,7 +665,6 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: color.textMain,
@@ -663,7 +679,6 @@ const styles = stylex.create({
   intentDot: {
     inlineSize: "12px",
     blockSize: "12px",
-    borderRadius: border.radius_round,
     flexShrink: 0,
   },
   // `fixed` is the hook's one requirement — it writes `top`/`left` onto the
@@ -676,7 +691,6 @@ const styles = stylex.create({
     // The hairline grid is the border colour showing through the gaps.
     gap: "1px",
     overflow: "hidden",
-    borderRadius: border.radius_2,
     backgroundColor: color.neutralBorder,
     boxShadow: shadow._5,
   },
@@ -718,7 +732,6 @@ const styles = stylex.create({
     paddingBlock: space._00,
     paddingInline: space._1,
     marginInlineStart: `calc(-1 * ${space._1})`,
-    borderRadius: border.radius_1,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.accentText,
@@ -728,7 +741,6 @@ const styles = stylex.create({
   pressTile: {
     paddingBlock: space._3,
     paddingInline: space._5,
-    borderRadius: border.radius_2,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.accentOn,
@@ -760,14 +772,12 @@ const styles = stylex.create({
   segmented: {
     gap: space._00,
     padding: space._00,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   segment: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: {

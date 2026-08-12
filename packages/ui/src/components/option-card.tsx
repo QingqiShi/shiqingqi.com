@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useId, type ComponentProps, type ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { flex, grow, shrink } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
@@ -363,11 +364,13 @@ function SelectionMark({
         flex.inlineCenter,
         shrink._0,
         markStyles.base,
-        markStyles[role],
+        roleCornerStyles[role],
         selected && markStyles.selected,
       ]}
     >
-      {selected && role === "radio" ? <span css={markStyles.dot} /> : null}
+      {selected && role === "radio" ? (
+        <span css={[corner.radius_round, markStyles.dot]} />
+      ) : null}
       {selected && role === "checkbox" ? (
         <svg viewBox="0 0 16 16" focusable="false" css={markStyles.tick}>
           <path
@@ -462,12 +465,6 @@ const markStyles = stylex.create({
     borderColor: color.neutralBorder,
     color: color.accentOn,
   },
-  radio: {
-    borderRadius: border.radius_round,
-  },
-  checkbox: {
-    borderRadius: border.radius_1,
-  },
   selected: {
     borderColor: color.accent,
     backgroundColor: color.accent,
@@ -475,7 +472,6 @@ const markStyles = stylex.create({
   dot: {
     inlineSize: "40%",
     blockSize: "40%",
-    borderRadius: border.radius_round,
     backgroundColor: color.accentOn,
   },
   tick: {
@@ -483,3 +479,11 @@ const markStyles = stylex.create({
     blockSize: "72%",
   },
 });
+
+// `radio`/`checkbox` carried nothing but a radius, so they map straight to
+// the `corner` primitive rather than composing it inside an otherwise-empty
+// `markStyles` entry.
+const roleCornerStyles = {
+  radio: corner.radius_round,
+  checkbox: corner.radius_1,
+};
