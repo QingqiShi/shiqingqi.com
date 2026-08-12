@@ -20,6 +20,8 @@ Scripts live in `package.json`. The non-obvious bits:
 
 - `pnpm build` runs type checking and linting as well as the build.
 - `pnpm test` is Vitest; `pnpm test:e2e` is Playwright and auto-starts the dev server.
+- **`pnpm test` is expensive (~5 min): run it exactly once, as the final check.** While iterating, scope to the affected workspace (`pnpm --filter web test`, `pnpm --filter @tuja/ui test`) and narrow further with a path filter (`pnpm --filter web test src/components/home`).
+- The full `pnpm test` runs every workspace's Vitest in parallel via turbo, and the jsdom environments contend for CPU — `@tuja/ui` tests can time out flakily under that load. If the full run fails only with timeouts, re-run just the failed workspace standalone (`pnpm --filter @tuja/ui test`); a standalone pass means contention, not a regression. `pnpm test --concurrency=1` avoids the contention at the cost of a longer wall clock.
 - `pnpm codegen:tmdb` regenerates only the TMDB server functions — it is not a root script, it lives in the web workspace.
 - **Evals are expensive** (they hit real LLM APIs). Use `pnpm eval <filter>` to run a single file (e.g. `pnpm eval tmdb-search`). Only run bare `pnpm eval` when a full suite run is needed.
 

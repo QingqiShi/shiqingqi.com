@@ -24,10 +24,11 @@ export function EducationCard({
   nameSubText,
   dates,
   dateTime,
+  css,
   ...rest
 }: EducationCardProps) {
   return (
-    <Card {...rest} css={styles.card}>
+    <Card {...rest} css={[styles.card, css]}>
       <div css={styles.row}>
         <div css={[flex.row, styles.logo]}>
           {typeof logo === "object" && logo && "src" in logo ? (

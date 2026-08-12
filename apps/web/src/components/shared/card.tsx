@@ -19,13 +19,13 @@ import { cardTokens } from "./card.stylex";
 
 type CardProps = React.ComponentProps<typeof Anchor>;
 
-export function Card({ children, ...rest }: CardProps) {
+export function Card({ children, css, ...rest }: CardProps) {
   const isExternal = rest.target === "_blank";
   return (
     <Anchor
       {...rest}
       indicateExternal={false}
-      css={[styles.card, a11y.focusRingInset]}
+      css={[styles.card, a11y.focusRingInset, css]}
     >
       {children}
       <div css={styles.detailsBackdrop} />
