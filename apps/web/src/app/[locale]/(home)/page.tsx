@@ -267,22 +267,43 @@ const styles = stylex.create({
       [breakpoints.lg]: "25%",
     },
   },
+  // Each brand fill carries its own muted state: this style and the card's
+  // default `:not(:hover)` rule set the same property, and runtime css
+  // composition replaces the whole declaration rather than merging conditions.
   movieDatabase: {
-    [svgTokens.fill]: color.brandTmdb,
+    [svgTokens.fill]: {
+      default: color.brandTmdb,
+      ":not(:hover)": color.textMuted,
+    },
   },
   designSystem: {
-    [svgTokens.fill]: color.accent,
+    [svgTokens.fill]: {
+      default: color.accent,
+      ":not(:hover)": color.textMuted,
+    },
   },
   calculator: {
-    [svgTokens.fill]: color.brandCalculator,
+    [svgTokens.fill]: {
+      default: color.brandCalculator,
+      ":not(:hover)": color.textMuted,
+    },
   },
   studentLoan: {
-    [svgTokens.fill]: color.brandStudentLoan,
+    [svgTokens.fill]: {
+      default: color.brandStudentLoan,
+      ":not(:hover)": color.textMuted,
+    },
   },
   pixelCreatureCreator: {
-    [svgTokens.fill]: color.brandPixelCreatureCreator,
+    [svgTokens.fill]: {
+      default: color.brandPixelCreatureCreator,
+      ":not(:hover)": color.textMuted,
+    },
   },
   spriteEditor: {
-    [svgTokens.fill]: color.brandPixelCreatureCreator,
+    [svgTokens.fill]: {
+      default: color.brandPixelCreatureCreator,
+      ":not(:hover)": color.textMuted,
+    },
   },
 });
