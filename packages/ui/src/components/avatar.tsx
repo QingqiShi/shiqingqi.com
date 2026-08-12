@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { border, color, font, shadow, space } from "../tokens.stylex.ts";
 
 type AvatarSize = "sm" | "md" | "lg";
@@ -133,7 +134,10 @@ export function Avatar({
       aria-label={isNamed ? label : undefined}
       css={[styles.root, sizeStyles[size], css]}
     >
-      <span css={[styles.medallion, variantStyles[variant]]} aria-hidden>
+      <span
+        css={[corner.radius_round, styles.medallion, variantStyles[variant]]}
+        aria-hidden
+      >
         {/* The monogram is always rendered and the portrait is layered over it,
             so a `src` that 404s falls back to the monogram with no client-side
             error handling: an `alt=""` image that fails to load paints nothing,
@@ -146,7 +150,10 @@ export function Avatar({
         )}
       </span>
       {hasBadge ? (
-        <span css={[styles.badge, badgeSizeStyles[size]]} aria-hidden>
+        <span
+          css={[corner.radius_round, styles.badge, badgeSizeStyles[size]]}
+          aria-hidden
+        >
           {badge}
         </span>
       ) : null}
@@ -172,7 +179,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "100%",
     overflow: "hidden",
-    borderRadius: border.radius_round,
     fontWeight: font.weight_6,
     lineHeight: font.lineHeight_0,
     // A monogram is never selected on purpose; dragging across a row of them
@@ -207,7 +213,6 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     transform: "translate(25%, 25%)",
-    borderRadius: border.radius_round,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,

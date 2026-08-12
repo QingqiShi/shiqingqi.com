@@ -8,6 +8,7 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -73,12 +74,22 @@ export function PreferenceTrigger({
   return (
     <button
       type="button"
-      css={[buttonReset.base, flex.inlineCenter, triggerStyles.button]}
+      css={[
+        buttonReset.base,
+        flex.inlineCenter,
+        corner.radius_round,
+        triggerStyles.button,
+      ]}
       onClick={onOpen}
       aria-label={label}
     >
       <SlidersHorizontalIcon size={16} role="presentation" />
-      {count > 0 && <span css={triggerStyles.dot} aria-hidden="true" />}
+      {count > 0 && (
+        <span
+          css={[corner.radius_round, triggerStyles.dot]}
+          aria-hidden="true"
+        />
+      )}
     </button>
   );
 }
@@ -88,7 +99,6 @@ const triggerStyles = stylex.create({
     position: "relative",
     width: "1.75rem",
     height: "1.75rem",
-    borderRadius: border.radius_round,
     color: color.textMuted,
     backgroundColor: {
       default: "transparent",
@@ -104,7 +114,6 @@ const triggerStyles = stylex.create({
     right: "3px",
     width: "6px",
     height: "6px",
-    borderRadius: border.radius_round,
     backgroundColor: color.accent,
   },
 });
@@ -183,7 +192,12 @@ export function PreferencePanel({
         <button
           ref={closeButtonRef}
           type="button"
-          css={[buttonReset.base, flex.inlineCenter, styles.closeButton]}
+          css={[
+            buttonReset.base,
+            flex.inlineCenter,
+            corner.radius_round,
+            styles.closeButton,
+          ]}
           onClick={onClose}
           aria-label={t({ en: "Close", zh: "关闭" })}
         >
@@ -191,7 +205,7 @@ export function PreferencePanel({
         </button>
       </div>
 
-      <div css={[flex.row, styles.infoBanner]}>
+      <div css={[flex.row, corner.radius_2, styles.infoBanner]}>
         <InfoIcon
           size={16}
           role="presentation"
@@ -239,7 +253,11 @@ export function PreferencePanel({
               </p>
               <button
                 type="button"
-                css={[buttonReset.base, styles.confirmButton]}
+                css={[
+                  buttonReset.base,
+                  corner.radius_round,
+                  styles.confirmButton,
+                ]}
                 onClick={() => void handleClearAll()}
               >
                 {t({ en: "Yes, clear", zh: "确认清除" })}
@@ -247,7 +265,11 @@ export function PreferencePanel({
               <button
                 ref={cancelButtonRef}
                 type="button"
-                css={[buttonReset.base, styles.cancelButton]}
+                css={[
+                  buttonReset.base,
+                  corner.radius_round,
+                  styles.cancelButton,
+                ]}
                 onClick={() => {
                   setConfirmingClear(false);
                 }}
@@ -333,7 +355,13 @@ function PreferenceChip({
 }) {
   const isLike = preference.sentiment === "like";
   return (
-    <span css={[styles.chip, isLike ? styles.chipLike : styles.chipDislike]}>
+    <span
+      css={[
+        corner.radius_round,
+        styles.chip,
+        isLike ? styles.chipLike : styles.chipDislike,
+      ]}
+    >
       <span css={[flex.inlineCenter, styles.sentimentIcon]}>
         {isLike ? (
           <ThumbsUpIcon size={12} weight="fill" role="presentation" />
@@ -344,7 +372,12 @@ function PreferenceChip({
       <span css={styles.chipLabel}>{preference.value}</span>
       <button
         type="button"
-        css={[buttonReset.base, flex.inlineCenter, styles.chipRemove]}
+        css={[
+          buttonReset.base,
+          flex.inlineCenter,
+          corner.radius_round,
+          styles.chipRemove,
+        ]}
         onClick={onRemove}
         aria-label={`${t({ en: "Remove", zh: "移除" })} ${preference.value}`}
       >
@@ -371,7 +404,6 @@ const styles = stylex.create({
   closeButton: {
     width: "2rem",
     height: "2rem",
-    borderRadius: border.radius_round,
     color: color.textMuted,
     backgroundColor: {
       default: "transparent",
@@ -386,7 +418,6 @@ const styles = stylex.create({
     marginBottom: space._3,
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
     alignItems: "flex-start",
   },
@@ -440,7 +471,6 @@ const styles = stylex.create({
     paddingBlock: space._0,
     paddingLeft: space._2,
     paddingRight: space._1,
-    borderRadius: border.radius_round,
     borderWidth: border.size_1,
     borderStyle: "solid",
     fontSize: font.uiBodySmall,
@@ -473,7 +503,6 @@ const styles = stylex.create({
     flexShrink: 0,
     width: "1.1rem",
     height: "1.1rem",
-    borderRadius: border.radius_round,
     color: color.textMuted,
     backgroundColor: {
       default: "transparent",
@@ -514,7 +543,6 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_3,
     paddingBlock: space._0,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     backgroundColor: {
       default: color.accent,
       ":hover": color.accentHover,
@@ -528,7 +556,6 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_3,
     paddingBlock: space._0,
     paddingInline: space._3,
-    borderRadius: border.radius_round,
     backgroundColor: {
       default: "transparent",
       ":hover": color.bgInteractiveHover,

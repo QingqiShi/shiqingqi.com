@@ -5,9 +5,10 @@ import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Chip } from "@tuja/ui/components/chip";
 import { TextField } from "@tuja/ui/components/text-field";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -63,7 +64,7 @@ export function CopyBudgetSpecimen() {
         </div>
       </div>
 
-      <div css={[flex.col, styles.card]}>
+      <div css={[flex.col, corner.radius_2, styles.card]}>
         <div css={[flex.between, styles.cardHead]}>
           <span css={[styles.cardTitle, truncate.base]}>
             {t({ en: "Recently watched", zh: "最近观看" })}
@@ -120,7 +121,6 @@ const styles = stylex.create({
     overflow: "clip",
     paddingBlock: space._3,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },

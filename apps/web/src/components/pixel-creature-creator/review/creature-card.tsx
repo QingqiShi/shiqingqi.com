@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { gray } from "@tuja/ui/palette/gray";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
@@ -97,7 +98,7 @@ export function CreatureCard({
   return (
     <article
       ref={cardRef}
-      css={styles.card}
+      css={[corner.radius_3, styles.card]}
       data-testid="creature-card"
       data-type={def.type}
     >
@@ -106,7 +107,7 @@ export function CreatureCard({
         <span css={styles.typeLabel}>{typeLabel}</span>
       </header>
 
-      <div css={styles.spriteScreen}>
+      <div css={[corner.radius_3, styles.spriteScreen]}>
         <PixelSprite
           def={def}
           emotion={emotion}
@@ -154,7 +155,7 @@ function CardLorePanel({ lore }: CardLorePanelProps) {
     lore === null ? null : locale === "zh" ? lore.loreZh : lore.loreEn;
 
   return (
-    <section css={styles.lorePanel}>
+    <section css={[corner.radius_2, styles.lorePanel]}>
       <h2 css={styles.loreHeading}>{t({ en: "Lore", zh: "传说" })}</h2>
       {activeLore !== null && activeLore.length > 0 ? (
         <p css={styles.loreText}>{activeLore}</p>
@@ -183,7 +184,7 @@ function StatBar({ percent }: StatBarProps) {
   }, [percent]);
 
   return (
-    <span css={styles.statBar} aria-hidden>
+    <span css={[corner.radius_round, styles.statBar]} aria-hidden>
       <span ref={fillRef} css={styles.statBarFill} />
     </span>
   );
@@ -194,7 +195,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     backgroundColor: color.bgSurface,
-    borderRadius: border.radius_3,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
@@ -239,7 +239,6 @@ const styles = stylex.create({
     margin: space._4,
     padding: space._3,
     minHeight: "260px",
-    borderRadius: border.radius_3,
     backgroundColor: `color-mix(in srgb, var(--pcc-accent, ${color.neutral}) 14%, ${color.bgSurface})`,
     boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.12)",
   },
@@ -270,7 +269,6 @@ const styles = stylex.create({
   statBar: {
     position: "relative",
     height: "10px",
-    borderRadius: border.radius_round,
     backgroundColor: color.surfaceNeutralSubtle,
     overflow: "hidden",
   },
@@ -297,7 +295,6 @@ const styles = stylex.create({
     margin: space._4,
     marginTop: space._3,
     padding: space._3,
-    borderRadius: border.radius_2,
     borderWidth: border.size_1,
     borderStyle: "dashed",
     borderColor: color.neutralBorder,

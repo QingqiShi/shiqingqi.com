@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { Footer } from "#src/components/home/footer.tsx";
 import { BackButton } from "#src/components/shared/back-button.tsx";
 import { LocaleSelector } from "#src/components/shared/locale-selector.tsx";
@@ -31,7 +32,7 @@ export function HeaderFooterLayoutShowcase() {
             fixed header anchors to the specimen frame; the inner viewport owns the
             scrolling to show the bar staying pinned. */}
         <Specimen caption={t({ en: "every slot filled", zh: "填满全部插槽" })}>
-          <div css={styles.frame}>
+          <div css={[corner.radius_3, styles.frame]}>
             <div css={styles.viewport}>
               <HeaderFooterLayout
                 as="div"
@@ -195,7 +196,6 @@ const styles = stylex.create({
     position: "relative",
     overflow: "hidden",
     inlineSize: "100%",
-    borderRadius: border.radius_3,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     // Containing block for the shell's fixed header (see comment at the

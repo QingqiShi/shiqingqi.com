@@ -2,9 +2,10 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, ratio, shadow } from "@tuja/ui/tokens.stylex";
+import { ratio, shadow } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "#src/components/shared/anchor.tsx";
 import { t } from "#src/i18n.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
@@ -34,6 +35,7 @@ export function CompactMediaCard({
         href={href}
         indicateExternal={false}
         css={[
+          corner.radius_2,
           styles.compactCard,
           styles.interactive,
           a11y.focusRing,
@@ -52,6 +54,7 @@ export function CompactMediaCard({
         type="button"
         css={[
           buttonReset.base,
+          corner.radius_2,
           styles.compactCard,
           styles.interactive,
           a11y.focusRing,
@@ -65,7 +68,7 @@ export function CompactMediaCard({
   }
 
   return (
-    <div css={styles.compactCard}>
+    <div css={[corner.radius_2, styles.compactCard]}>
       <MediaPoster media={media} compact />
     </div>
   );
@@ -76,7 +79,6 @@ const styles = stylex.create({
     position: "relative",
     aspectRatio: ratio.poster,
     width: "100%",
-    borderRadius: border.radius_2,
     overflow: "hidden",
     display: "block",
     color: "inherit",

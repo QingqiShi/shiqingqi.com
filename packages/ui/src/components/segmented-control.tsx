@@ -5,6 +5,7 @@ import type { ComponentProps, ReactNode } from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
@@ -102,7 +103,12 @@ export function SegmentedControl<TValue extends string>({
       role="radiogroup"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      css={[styles.track, fullWidth && styles.trackFullWidth, css]}
+      css={[
+        corner.radius_2,
+        styles.track,
+        fullWidth && styles.trackFullWidth,
+        css,
+      ]}
     >
       {options.map((option) => (
         <button
@@ -116,6 +122,7 @@ export function SegmentedControl<TValue extends string>({
             buttonReset.base,
             a11y.focusRingInset,
             transition.colors,
+            corner.radius_1,
             styles.option,
             sizeStyles[size],
             fullWidth && styles.optionFullWidth,
@@ -143,7 +150,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
   },
   trackFullWidth: {
@@ -157,7 +163,6 @@ const styles = stylex.create({
     gap: space._0,
     // Inside a rounded, tightly-padded track, so the ring goes inset (mirroring
     // cardSurface.interactive) rather than being cropped by the neighbours.
-    borderRadius: border.radius_1,
     fontWeight: font.weight_5,
     color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {

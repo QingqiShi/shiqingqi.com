@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { border, ratio, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { ratio, space } from "@tuja/ui/tokens.stylex";
 
 const SKELETON_COUNT = 14;
 
@@ -19,7 +20,7 @@ export function RecommendedMediaRowSkeleton({
       <Skeleton width={220} height={16} />
       <div css={rowStyle}>
         {Array.from({ length: SKELETON_COUNT }, (_, i) => (
-          <div key={i} css={cardStyle}>
+          <div key={i} css={[corner.radius_2, cardStyle]}>
             <Skeleton fill delay={i * 100} />
           </div>
         ))}
@@ -64,7 +65,6 @@ const styles = stylex.create({
     flexShrink: 0,
     width: "130px",
     aspectRatio: ratio.poster,
-    borderRadius: border.radius_2,
     overflow: "hidden",
     [breakpoints.sm]: {
       width: "140px",
@@ -80,7 +80,6 @@ const styles = stylex.create({
     flexShrink: 0,
     width: "150px",
     aspectRatio: ratio.poster,
-    borderRadius: border.radius_2,
     overflow: "hidden",
     [breakpoints.sm]: {
       width: "175px",

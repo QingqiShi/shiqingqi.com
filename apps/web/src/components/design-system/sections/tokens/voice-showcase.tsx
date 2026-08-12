@@ -5,6 +5,7 @@ import { Callout } from "@tuja/ui/components/callout";
 import { Chip } from "@tuja/ui/components/chip";
 import { Heading } from "@tuja/ui/components/heading";
 import { TextField } from "@tuja/ui/components/text-field";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -345,7 +346,7 @@ export function VoiceShowcase() {
           zh: "英文字符串当作一句话的开头来写，而不是一个标题：只大写首词，其余保持原样。中文没有大小写，因此落在中文上的是另一半规则——标签、按钮、标题一律不加句末标点，也不用感叹号。标题、按钮、标签、菜单项、徽章、空状态皆然。",
         })}
       >
-        <div css={[flex.col, styles.surface]}>
+        <div css={[flex.col, corner.radius_2, styles.surface]}>
           <Heading level={3} variant="h4">
             {t({ en: "Recently watched", zh: "最近观看" })}
           </Heading>
@@ -542,7 +543,6 @@ const styles = stylex.create({
     gap: space._3,
     paddingBlock: space._4,
     paddingInline: space._4,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },

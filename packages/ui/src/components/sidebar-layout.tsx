@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { scrollbar } from "../primitives/layout.stylex.ts";
 import {
   duration,
@@ -211,7 +212,7 @@ export function SidebarLayout({
         dynamicStyles.columns(sidebarInlineSize ?? DEFAULT_SIDEBAR_INLINE_SIZE),
       ]}
     >
-      <div css={styles.mobileBar}>
+      <div css={[corner.radius_round, styles.mobileBar]}>
         <div css={styles.mobileBarTitle}>{sidebarHeader}</div>
         <IconButton
           icon={<MenuIcon />}
@@ -327,7 +328,6 @@ const styles = stylex.create({
     zIndex: layer.header,
     padding: space._1,
     backgroundColor: color.bgSurface,
-    borderRadius: border.radius_round,
     boxShadow: shadow._2,
     minInlineSize: 0,
   },
@@ -420,6 +420,7 @@ const styles = stylex.create({
     },
     borderStartEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
     borderEndEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
+    cornerShape: "squircle",
     boxShadow: { default: shadow._6, [breakpoints.md]: shadow._2 },
     transform: {
       default: "translateX(110%)",

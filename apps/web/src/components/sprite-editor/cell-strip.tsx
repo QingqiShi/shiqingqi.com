@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
   easing,
@@ -39,7 +40,7 @@ export function CellStrip({ cells, selectedCell, onSelect }: CellStripProps) {
   });
 
   return (
-    <div css={styles.root}>
+    <div css={[corner.radius_3, styles.root]}>
       <h2 css={styles.heading} id={headingId}>
         {t({ en: "Cells", zh: "单元格" })}{" "}
         <span css={styles.count}>({cells.length})</span>
@@ -62,6 +63,7 @@ export function CellStrip({ cells, selectedCell, onSelect }: CellStripProps) {
                 // as unchecked until the user actually picks a cell.
                 aria-checked={isSelected}
                 css={[
+                  corner.radius_2,
                   styles.thumbButton,
                   isSelected && styles.thumbButtonActive,
                 ]}
@@ -155,7 +157,6 @@ const styles = stylex.create({
     gap: space._3,
     padding: space._4,
     border: `${border.size_1} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
     flexShrink: 0,
   },
@@ -191,7 +192,6 @@ const styles = stylex.create({
     padding: 0,
     backgroundColor: color.bgCanvas,
     border: `${border.size_2} solid ${color.neutralBorder}`,
-    borderRadius: border.radius_2,
     cursor: "pointer",
     overflow: "hidden",
     display: "block",
@@ -233,6 +233,7 @@ const styles = stylex.create({
     backgroundColor: "rgba(0, 0, 0, 0.6)",
     paddingInline: "4px",
     borderRadius: "4px",
+    cornerShape: "squircle",
     pointerEvents: "none",
   },
 });

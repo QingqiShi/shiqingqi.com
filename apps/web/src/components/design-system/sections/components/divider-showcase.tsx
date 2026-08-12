@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Divider } from "@tuja/ui/components/divider";
 import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -201,11 +202,11 @@ export function DividerShowcase() {
             zh: "用柔和分隔线分隔相关内容；强烈或装饰样式留给真正的段落转换。",
           })}
           dont={
-            <div css={styles.dontCard}>
+            <div css={[corner.radius_3, styles.dontCard]}>
               <Divider
                 orientation="vertical"
                 variant="decorative"
-                css={styles.dontBar}
+                css={[corner.radius_1, styles.dontBar]}
               />
               <div css={[flex.col, styles.dontCardBody]}>
                 <Text variant="bodySmall" tone="muted">
@@ -249,6 +250,7 @@ const styles = stylex.create({
   decorativeAccent: {
     blockSize: "3px",
     borderRadius: "2px",
+    cornerShape: "squircle",
   },
   doStack: {
     gap: space._2,
@@ -263,7 +265,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
-    borderRadius: border.radius_3,
     backgroundColor: color.bgSurface,
     minBlockSize: space._9,
   },
@@ -273,6 +274,5 @@ const styles = stylex.create({
   },
   dontBar: {
     inlineSize: "4px",
-    borderRadius: border.radius_1,
   },
 });

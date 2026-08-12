@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 
 const ROWS = [
   { key: "stream", logoCount: 3 },
@@ -14,7 +15,7 @@ const STAGGER_DELAY = 80;
 export function ToolWatchProvidersSkeleton() {
   let delayIndex = 0;
   return (
-    <div css={styles.card}>
+    <div css={[corner.radius_2, styles.card]}>
       <div css={styles.headerRow}>
         <Skeleton
           width={100}
@@ -49,7 +50,6 @@ export function ToolWatchProvidersSkeleton() {
 const styles = stylex.create({
   card: {
     backgroundColor: color.bgSurfaceRaised,
-    borderRadius: border.radius_2,
     padding: space._3,
     marginTop: space._2,
   },
