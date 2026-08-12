@@ -16,10 +16,11 @@ export function ProjectCard({
   icon,
   name,
   description,
+  css,
   ...rest
 }: ProjectCardProps) {
   return (
-    <Card {...rest} css={styles.card}>
+    <Card {...rest} css={[styles.card, css]}>
       <div css={styles.row}>
         <div css={[flex.row, styles.logo]}>{icon}</div>
         <div css={styles.name}>{name}</div>

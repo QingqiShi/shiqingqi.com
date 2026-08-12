@@ -23,6 +23,7 @@ export function AnchorButton({
   icon,
   isActive,
   ref: forwardedRef,
+  css,
   ...restProps
 }: AnchorButtonProps) {
   const anchorRef = useRef<HTMLAnchorElement>(null);
@@ -65,6 +66,7 @@ export function AnchorButton({
         isPressed && bright && sharedStyles.pressedBright,
         releasedOutside && sharedStyles.releasedOutside,
         pressedCss,
+        css,
       ]}
       {...handlers}
     >
