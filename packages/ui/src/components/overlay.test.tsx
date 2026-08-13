@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react";
 import { useRef } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { color } from "../tokens.stylex.ts";
 import { Overlay } from "./overlay.tsx";
 
 function OverlayHarness({
@@ -78,6 +79,34 @@ describe("Overlay", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Play" })).toHaveFocus();
     });
+  });
+
+  // The backdrop and the blur carry no role (both are aria-hidden chrome), so
+  // they are reached through their StyleX debug class names.
+  it("calls onClose when the backdrop is clicked", () => {
+    const onClose = vi.fn();
+    render(<OverlayHarness isOpen onClose={onClose} />);
+
+    const backdrop = document.querySelector('[class*="styles.backdrop"]');
+    if (!backdrop) throw new Error("backdrop not rendered");
+    fireEvent.click(backdrop);
+
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("blurs the page behind instead of dimming it", () => {
+    render(<OverlayHarness isOpen onClose={vi.fn()} />);
+
+    // The blur layers carry their backdrop-filter as inline custom properties
+    // (StyleX dynamic styles), so their presence is observable even in jsdom.
+    // The exact layer count is ProgressiveBlur's own claim, covered by its
+    // suite — this only asserts that Overlay blurs rather than dims.
+    expect(
+      document.querySelectorAll('[style*="backdropFilter"]').length,
+    ).toBeGreaterThan(0);
+    expect(
+      document.querySelector(`[style*="${color.bgScrim}"]`),
+    ).not.toBeInTheDocument();
   });
 
   it("renders nothing while closed", () => {

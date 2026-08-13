@@ -13,9 +13,11 @@ import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
+import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { color, layer, space } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
+import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 interface OverlayBaseProps {
   /** Whether the overlay is shown. */
@@ -106,6 +108,10 @@ export function Overlay({
   "aria-labelledby": ariaLabelledBy,
 }: PropsWithChildren<OverlayProps>) {
   const deferredIsOpen = useDeferredValue(isOpen);
+  // The shell below mounts eagerly so the dialog's ViewTransition has a live
+  // parent to enter into, and the server rendered nothing there — deferring
+  // past hydration keeps the server and client render in agreement.
+  const isHydrated = useIsHydrated();
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useDialogFocus({
@@ -124,50 +130,68 @@ export function Overlay({
       : document.body
     : portalTarget;
 
-  if (!deferredIsOpen || !resolvedTarget) {
+  if (!isHydrated || !resolvedTarget) {
     return null;
   }
 
+  // The shell — backdrop plane, blur box, positioning root — stays mounted
+  // while the overlay is closed, and only the ViewTransition around the dialog
+  // mounts and unmounts. React activates an enter or exit only when the
+  // ViewTransition is itself the root of what got inserted or deleted; with a
+  // host element above it in the same insertion the whole subtree commits as
+  // one plain mutation and the slide never runs. Keeping the shell mounted
+  // makes the ViewTransition that root on both edges.
   const overlay = (
     <>
-      <ViewTransition>
+      {/* Gated rather than kept, so a closed overlay never intercepts a click. */}
+      {deferredIsOpen ? (
         <div css={styles.backdrop} onClick={onClose} aria-hidden="true" />
-      </ViewTransition>
-      <ViewTransition enter="slide-in" exit="slide-out">
-        {/* `forwardProps` makes RemoveScroll clone its single child and inject
-            its own ref, which would clobber a `ref` placed directly on the
-            dialog div and leave `dialogRef` null (breaking default focus and
-            the Tab focus-trap, both of which query `dialogRef.current`). Pass
-            the ref through RemoveScroll instead — it forwards onto the child. */}
-        <RemoveScroll
-          ref={dialogRef}
-          enabled={deferredIsOpen}
-          allowPinchZoom
-          forwardProps
-        >
-          <div
-            css={[corner.radius_4, styles.content]}
-            role="dialog"
-            aria-modal="true"
-            aria-label={ariaLabel}
-            aria-labelledby={ariaLabelledBy}
-          >
-            {/* `Button` anchors its own busy spinner with `position: relative`,
-                which a caller's `position: absolute` can't reliably outrank —
-                the button would land at its static position, offset by the
-                insets, and hang off the dialog's inline-start edge. Pin the
-                corner from a wrapper instead, which owns nothing but placement. */}
-            <div css={styles.closeButtonCorner}>
-              <Button
-                icon={closeIcon ?? <CloseIcon />}
-                aria-label={closeLabel}
-                onClick={onClose}
-              />
-            </div>
-            {children}
-          </div>
-        </RemoveScroll>
-      </ViewTransition>
+      ) : null}
+      {/* The blur measures the dialog it wraps and radiates from it, so the
+          strip of page above the sheet ramps to sharp on its own. The blur
+          itself stays out of any named ViewTransition group: a group captures
+          the element apart from the page it filters, so the blur would have no
+          backdrop for the length of the transition. It melts in and out with
+          `isShown` instead, alongside the dialog's slide. */}
+      <ProgressiveBlur css={styles.blur} isShown={deferredIsOpen}>
+        {deferredIsOpen ? (
+          <ViewTransition enter="slide-in" exit="slide-out">
+            {/* `forwardProps` makes RemoveScroll clone its single child and inject
+                its own ref, which would clobber a `ref` placed directly on the
+                dialog div and leave `dialogRef` null (breaking default focus and
+                the Tab focus-trap, both of which query `dialogRef.current`). Pass
+                the ref through RemoveScroll instead — it forwards onto the child. */}
+            <RemoveScroll
+              ref={dialogRef}
+              enabled={deferredIsOpen}
+              allowPinchZoom
+              forwardProps
+            >
+              <div
+                css={[corner.radius_4, styles.content]}
+                role="dialog"
+                aria-modal="true"
+                aria-label={ariaLabel}
+                aria-labelledby={ariaLabelledBy}
+              >
+                {/* `Button` anchors its own busy spinner with `position: relative`,
+                    which a caller's `position: absolute` can't reliably outrank —
+                    the button would land at its static position, offset by the
+                    insets, and hang off the dialog's inline-start edge. Pin the
+                    corner from a wrapper instead, which owns nothing but placement. */}
+                <div css={styles.closeButtonCorner}>
+                  <Button
+                    icon={closeIcon ?? <CloseIcon />}
+                    aria-label={closeLabel}
+                    onClick={onClose}
+                  />
+                </div>
+                {children}
+              </div>
+            </RemoveScroll>
+          </ViewTransition>
+        ) : null}
+      </ProgressiveBlur>
     </>
   );
 
@@ -196,15 +220,27 @@ const styles = stylex.create({
     position: "fixed",
     inset: 0,
     zIndex: layer.overlay,
+    // The root is mounted while the overlay is closed, so it must let every
+    // click through. `pointer-events` inherits: the backdrop and the dialog
+    // switch themselves back on while open.
+    pointerEvents: "none",
   },
-  // The backdrop and the dialog share the overlay plane: they are one surface,
-  // and DOM order already paints the dialog over its own scrim. Sharing keeps
-  // the pair on the overlay plane when an explicit `portalTarget` hosts them
-  // directly, without either of them outranking a tooltip or a toast.
+  // The blur, the backdrop, and the dialog share the overlay plane: they are
+  // one surface, and DOM order already paints the blur — dialog and all — over
+  // the backdrop behind it. Sharing keeps them all on the overlay plane when an
+  // explicit `portalTarget` hosts them directly, without any of them
+  // outranking a tooltip or a toast.
+  blur: {
+    position: "absolute",
+    inset: 0,
+    zIndex: layer.overlay,
+  },
+  // Invisible: it only catches the dismissal click, which falls through the
+  // blur's click-through layers to reach it. The progressive blur in front of
+  // it does the visual work — the page blurs rather than dims.
   backdrop: {
     position: "absolute",
     inset: 0,
-    backgroundColor: color.bgScrim,
     zIndex: layer.overlay,
     pointerEvents: "all",
   },

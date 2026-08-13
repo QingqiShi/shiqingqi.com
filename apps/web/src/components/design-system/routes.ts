@@ -316,6 +316,12 @@ export const DESIGN_SYSTEM_ROUTES = [
   {
     section: "components",
     category: "surfaces",
+    path: "/design-system/components/progressive-blur",
+    keywords: ["backdrop", "blur", "frosted", "scrim", "floating", "dim"],
+  },
+  {
+    section: "components",
+    category: "surfaces",
     path: "/design-system/components/divider",
     keywords: ["separator", "rule", "hr", "line"],
   },

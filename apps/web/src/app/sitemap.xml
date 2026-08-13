@@ -370,6 +370,16 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/overlay" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/overlay" />
   </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/progressive-blur</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/progressive-blur" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/progressive-blur" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/progressive-blur</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/progressive-blur" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/progressive-blur" />
+  </url>
 
   <url>
     <loc>https://qingqi.dev/design-system/foundations/motion</loc>
