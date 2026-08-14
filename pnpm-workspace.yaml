@@ -40,7 +40,7 @@ catalog:
   "@vitejs/plugin-react": ^6.0.5
   babel-plugin-react-compiler: 19.0.0-beta-714736e-20250131
   dotenv: ^17.4.2
-  eslint: ^10.8.0
+  eslint: ^10.8.1
   jsdom: ^30.0.0
   next: 16.3.0
   prettier: ^3.9.6
