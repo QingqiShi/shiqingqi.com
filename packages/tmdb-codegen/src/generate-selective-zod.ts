@@ -62,11 +62,20 @@ interface OperationSchema {
 /**
  * Converts TypeScript Type to Zod schema string
  */
+function isObjectType(type: ts.Type): type is ts.ObjectType {
+  return "objectFlags" in type;
+}
+
+function isTypeReference(type: ts.Type): type is ts.TypeReference {
+  return (
+    isObjectType(type) && (type.objectFlags & ts.ObjectFlags.Reference) !== 0
+  );
+}
+
 function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
   // Handle string literals and primitive types
-  if (type.flags & ts.TypeFlags.StringLiteral) {
-    const value = (type as ts.StringLiteralType).value;
-    return `z.literal("${value}")`;
+  if (type.isStringLiteral()) {
+    return `z.literal("${type.value}")`;
   }
 
   if (type.flags & ts.TypeFlags.String) {
@@ -96,8 +105,8 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
   }
 
   // Handle union types
-  if (type.flags & ts.TypeFlags.Union) {
-    const unionType = type as ts.UnionType;
+  if (type.isUnion()) {
+    const unionType = type;
     // Strip Undefined and Null members; nullability/optionality is applied at
     // the property level via .nullable().optional(), so including them here
     // would produce redundant z.union([z.unknown(), ...]) members under strict
@@ -123,9 +132,12 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
   // Handle arrays - guard against missing symbol (runtime possibility for
   // primitives/void/never despite TS types claiming it's always present).
   if ("symbol" in type && type.symbol.name === "Array") {
-    const typeReference = type as ts.TypeReference;
-    if (typeReference.typeArguments && typeReference.typeArguments.length > 0) {
-      const elementType = typeReference.typeArguments[0];
+    if (
+      isTypeReference(type) &&
+      type.typeArguments &&
+      type.typeArguments.length > 0
+    ) {
+      const elementType = type.typeArguments[0];
       const elementSchema = convertTypeToZod(elementType, typeChecker);
       return `z.array(${elementSchema})`;
     }
@@ -135,9 +147,12 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
   // Handle arrays using TypeChecker method
   if (typeChecker.isArrayType(type)) {
     // For newer TypeScript versions, use getTypeArguments
-    const typeReference = type as ts.TypeReference;
-    if (typeReference.typeArguments && typeReference.typeArguments.length > 0) {
-      const elementType = typeReference.typeArguments[0];
+    if (
+      isTypeReference(type) &&
+      type.typeArguments &&
+      type.typeArguments.length > 0
+    ) {
+      const elementType = type.typeArguments[0];
       const elementSchema = convertTypeToZod(elementType, typeChecker);
       return `z.array(${elementSchema})`;
     }
@@ -145,8 +160,8 @@ function convertTypeToZod(type: ts.Type, typeChecker: ts.TypeChecker): string {
   }
 
   // Handle object types
-  if (type.flags & ts.TypeFlags.Object) {
-    const objectType = type as ts.ObjectType;
+  if (isObjectType(type)) {
+    const objectType = type;
 
     // Check if it's an index signature type like [name: string]: unknown
     const indexInfos = typeChecker.getIndexInfosOfType(objectType);
@@ -489,7 +504,7 @@ function parseOperationFromTsProgram(
   // Navigate to parameters.query
   // Get parameters property
   const parametersProperty = operationType.symbol.members?.get(
-    "parameters" as ts.__String,
+    ts.escapeLeadingUnderscores("parameters"),
   );
   if (!parametersProperty) {
     return null;
@@ -509,7 +524,7 @@ function parseOperationFromTsProgram(
 
   // Get query property from parameters
   const queryProperty = parametersType.symbol.members?.get(
-    "query" as ts.__String,
+    ts.escapeLeadingUnderscores("query"),
   );
   if (!queryProperty) {
     return null;

@@ -24,7 +24,7 @@ export function HeaderFooterLayoutShowcase() {
       <Showcase label={t({ en: "Page shell", zh: "页面骨架" })}>
         <ShowcaseHelper>
           {t({
-            en: "The shell the site's header/footer pages are built on, composed here from this site's real chrome. The fixed bar holds the back button, theme toggle, and language picker; a full-bleed background layer sits beneath the content; the content flows up under the bar (text pages add their own clearance); and the footer pins to the bottom of the same measure. Everything is live — flip the theme from inside it.",
+            en: "The shell the site's header/footer pages are built on, composed from this site's real chrome. The fixed bar holds the back button, theme toggle, and language picker; a full-bleed background layer sits beneath the content; the content flows up under the bar (text pages add their own clearance); and the footer pins to the bottom of the same measure. Everything is live — flip the theme from inside it.",
             zh: "本站页头页脚页面所基于的骨架，此处用本站真实组件组装。固定横条中是返回按钮、主题切换与语言选择；内容下方是一层满幅背景；内容向上延伸至横条之下（文字页自行留出间距）；页脚固定在同一版心的底部。一切均可交互——可直接在其中切换主题。",
           })}
         </ShowcaseHelper>

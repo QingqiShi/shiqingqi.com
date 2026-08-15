@@ -9,8 +9,14 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 export function apiRouteWrapper(
   serverFunction: (
-    // `any` type required here to handle required fields
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // `params` is a `Record<string, string>` at the call below, but server
+    // functions declare specific required fields (e.g. `{ movie_id: string
+    // }`). Contravariance means a `never` param type would accept those
+    // functions here, but then the runtime call below (a real
+    // `Record<string, string>` argument) stops type-checking — there is no
+    // non-`any` type that is both a valid supertype of every server
+    // function's params and a valid argument type for that call.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- params are contravariant across every TMDB server function; no non-any type satisfies both sides
     params: any,
   ) => Promise<unknown>,
 ) {

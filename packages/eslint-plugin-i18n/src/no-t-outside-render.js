@@ -7,9 +7,16 @@
  * which is a React hook and must run during render. Even in server components,
  * t() at module scope can read the wrong locale. This rule enforces that t()
  * only appears where React keeps it reactive.
+ *
+ * Exception: modules marked `import "server-only"` transform t() into a
+ * lookup that reads the locale fresh on every call (via a React `cache()`
+ * store keyed per request), so the lookup can't go stale no matter which
+ * function it's called from. This rule skips such modules entirely.
  */
 
 "use strict";
+
+const { createTImportTracker } = require("./t-import.js");
 
 /** @param {string} name */
 function isComponentName(name) {
@@ -154,8 +161,8 @@ module.exports = {
   },
 
   create(context) {
-    let tImported = false;
-    let tLocalName = "t";
+    const { tracker, handleImportDeclaration } = createTImportTracker();
+    let isServerOnlyModule = false;
 
     // t() calls that need deferred resolution (in non-exported helper functions)
     // Key: helper function name, Value: array of t() call nodes
@@ -220,32 +227,23 @@ module.exports = {
 
     return {
       ImportDeclaration(node) {
-        const source = node.source.value;
         if (
-          source === "#src/i18n" ||
-          source === "#src/i18n.ts" ||
-          (typeof source === "string" && /\/i18n(?:\.ts)?$/.test(source))
+          node.source.value === "server-only" &&
+          node.specifiers.length === 0
         ) {
-          for (const specifier of node.specifiers) {
-            if (
-              specifier.type === "ImportSpecifier" &&
-              specifier.imported.type === "Identifier" &&
-              specifier.imported.name === "t"
-            ) {
-              tImported = true;
-              tLocalName = specifier.local.name;
-            }
-          }
+          isServerOnlyModule = true;
         }
+
+        handleImportDeclaration(node);
       },
 
       CallExpression(node) {
-        if (!tImported) return;
+        if (!tracker.imported) return;
 
         // Check if this is a t() call
         if (
           node.callee.type === "Identifier" &&
-          node.callee.name === tLocalName
+          node.callee.name === tracker.localName
         ) {
           const result = classifyTCall(node);
           if (result === "error") {
@@ -264,7 +262,7 @@ module.exports = {
         // Track call sites of helper functions: helperName()
         if (
           node.callee.type === "Identifier" &&
-          node.callee.name !== tLocalName
+          node.callee.name !== tracker.localName
         ) {
           const calleeName = node.callee.name;
           if (!helperCallSites.has(calleeName)) {
@@ -275,6 +273,10 @@ module.exports = {
       },
 
       "Program:exit"() {
+        // "server-only" modules resolve t() fresh per request regardless of
+        // which function it's called from — see the file-level comment.
+        if (isServerOnlyModule) return;
+
         // Report definite errors
         for (const node of errorCalls) {
           context.report({ node, messageId: "outsideRender" });

@@ -160,7 +160,7 @@ export function SourceImageInput({
       </h2>
       <p css={styles.heroHint}>
         {t({
-          en: "Drag a file anywhere here, or pick one. PNG, JPG and WebP are supported.",
+          en: "Drag and drop a file, or pick one. PNG, JPG and WebP are supported.",
           zh: "将文件拖到此处，或选择一个。支持 PNG、JPG 和 WebP。",
         })}
       </p>

@@ -6,7 +6,7 @@ import { apiRequestWrapper } from "./api-request-wrapper";
 type TestServerFn = (params: {
   page?: number;
   enabled?: boolean;
-  name?: string;
+  name?: string | null;
   tags?: string[];
 }) => Promise<{ ok: boolean }>;
 
@@ -65,7 +65,7 @@ describe("apiRequestWrapper", () => {
 
       await apiRequestWrapper<TestServerFn>("/api/test", {
         page: 1,
-        name: null as unknown as string,
+        name: null,
       });
 
       expect(captured?.get("page")).toBe("1");

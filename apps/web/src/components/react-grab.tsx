@@ -8,19 +8,19 @@ import { useEffect } from "react";
  * React Grab lets you hover any rendered element and press ⌘C / Ctrl+C to copy
  * its source context (file, component stack, surrounding code) for pasting into
  * a coding agent. The package self-initialises on import, so we pull it in
- * client-side via a dynamic import. The `NODE_ENV` guard wraps the whole effect
- * so SWC drops it from production builds — the import is never emitted and the
- * library stays out of the bundle. The conditional hook call is safe because
- * `process.env.NODE_ENV` is a build-time constant, so the branch never varies
- * between renders; the lint rule just can't see that.
+ * client-side via a dynamic import. `process.env.NODE_ENV` is a build-time
+ * constant, so SWC statically resolves the check below and eliminates
+ * `ReactGrabEffect` (and the dynamic import) from production bundles.
  */
 export function ReactGrab() {
-  if (process.env.NODE_ENV === "development") {
-    // eslint-disable-next-line react-hooks/rules-of-hooks, @eslint-react/rules-of-hooks
-    useEffect(() => {
-      void import("react-grab");
-    }, []);
-  }
+  if (process.env.NODE_ENV !== "development") return null;
+  return <ReactGrabEffect />;
+}
+
+function ReactGrabEffect() {
+  useEffect(() => {
+    void import("react-grab");
+  }, []);
 
   return null;
 }

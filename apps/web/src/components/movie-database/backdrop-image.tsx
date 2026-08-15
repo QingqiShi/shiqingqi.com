@@ -32,9 +32,7 @@ export async function BackdropImage({ backdropPath }: BackdropImageProps) {
 
   return (
     <div css={styles.container}>
-      {/* Disabling no-img-element rule as the images here are from a third party provider and is already 
-      optimized */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* Images here are from a third party provider and are already optimized */}
       <img
         css={styles.image}
         alt=""

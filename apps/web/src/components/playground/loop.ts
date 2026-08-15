@@ -119,16 +119,16 @@ function setupGpuTimer(gl: WebGL2RenderingContext): GpuTimer | null {
         return null;
       }
 
-      const available = gl.getQueryParameter(
+      const available: unknown = gl.getQueryParameter(
         query,
         gl.QUERY_RESULT_AVAILABLE,
-      ) as boolean;
-      if (!available) return null;
+      );
+      if (available !== true) return null;
 
-      const timeNs = gl.getQueryParameter(query, gl.QUERY_RESULT) as number;
+      const timeNs: unknown = gl.getQueryParameter(query, gl.QUERY_RESULT);
       gl.deleteQuery(query);
       pendingQuery = null;
-      return timeNs / 1_000_000;
+      return typeof timeNs === "number" ? timeNs / 1_000_000 : null;
     },
   };
 }

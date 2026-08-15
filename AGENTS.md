@@ -6,8 +6,8 @@ ALWAYS follow these rules
 - Run the tests your change touches, scoped to one package — leave the full suite (`pnpm test`) to CI.
 - Domain language is defined in `CONTEXT-MAP.md`, which points at a `CONTEXT.md` per context. Use those terms in code, comments, and copy.
 - Design-system principles are defined in `DESIGN.md` — read it before designing or changing UI, component APIs, or user-facing copy.
-- AVOID type assertions (`as Type`)
 - Prefer letting TypeScript infer types over explicit type annotations
+- Type assertions are lint errors. For a genuinely unavoidable violation, the escape hatch is an inline `eslint-disable-next-line` naming the rule with a `-- reason` description (lint enforces both); never a blanket disable.
 - AVOID mocking in tests. Ask for explicit permission from the user before adding any mocks.
 - TMDB server functions in `src/_generated/tmdb-server-functions.ts` are auto-generated - DO NOT edit manually. Use `pnpm codegen:tmdb` to regenerate.
 - Auto-generated TMDB files are git-ignored and must be regenerated after cloning: `pnpm codegen:tmdb`.

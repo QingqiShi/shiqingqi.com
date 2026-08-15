@@ -50,7 +50,7 @@ export function CellStrip({ cells, selectedCell, onSelect }: CellStripProps) {
           const isSelected = selectedCell === index;
           return (
             <li
-              // eslint-disable-next-line @eslint-react/no-array-index-key -- cells are positional; index IS the identity
+              // cells are positional; index IS the identity
               key={index}
               css={styles.item}
             >

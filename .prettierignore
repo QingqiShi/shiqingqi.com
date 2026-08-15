@@ -14,13 +14,6 @@ public/sw.js.map
 # Vendored third-party code (preserve upstream formatting)
 apps/web/src/vendor/
 
-# Vendored third-party agent skills installed via the `skills` CLI
-# (tracked in skills-lock.json — preserve upstream formatting)
-.claude/skills/next-best-practices/
-.claude/skills/vercel-composition-patterns/
-.claude/skills/vercel-react-best-practices/
-.claude/skills/vercel-react-view-transitions/
-
 # Vendored agent skill installed via the `impeccable` CLI
 # (preserve upstream formatting)
 .claude/skills/impeccable/

@@ -93,7 +93,7 @@ export function BreadcrumbShowcase() {
         </div>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
-            en: 'The trailing crumb is always the current page: it renders as text carrying aria-current="page", and an href on it is ignored — the first trail here has one. An earlier crumb without an href reads as plain muted text, which is what a grouping level with no page of its own should look like.',
+            en: 'The trailing crumb is always the current page: it renders as text carrying aria-current="page", and an href on it is ignored — the first trail above has one. An earlier crumb without an href reads as plain muted text, which is what a grouping level with no page of its own should look like.',
             zh: '最后一项始终是当前页面：它渲染为带 aria-current="page" 的文本，其上的 href 会被忽略——上面第一条路径就带着 href。靠前的层级项若没有 href，则显示为弱化的纯文本，这正适合表示没有独立页面的分组层级。',
           })}
         </Text>
@@ -166,7 +166,7 @@ export function BreadcrumbShowcase() {
         </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
-            en: "Every navigable crumb goes through linkComponent. The default is a plain <a>, which reloads the page; pass the framework's link — next/link here — to keep navigation client-side. The Slot receives the crumb's className and style and has to forward both onto its anchor, or the crumb loses its colour and its focus ring.",
+            en: "Every navigable crumb goes through linkComponent. The default is a plain <a>, which reloads the page; pass the framework's link — this example uses next/link — to keep navigation client-side. The Slot receives the crumb's className and style and has to forward both onto its anchor, or the crumb loses its colour and its focus ring.",
             zh: "每个可导航的层级项都经由 linkComponent 渲染。默认是原生 <a>，会触发整页刷新；传入框架自带的链接组件——这里是 next/link——即可保留客户端导航。该插槽会收到层级项的 className 与 style，必须把两者都转发到锚点上，否则层级项会失去配色与聚焦轮廓。",
           })}
         </Text>
@@ -282,7 +282,7 @@ export function BreadcrumbShowcase() {
             />
           }
           dontCaption={t({
-            en: "Don't retrace how the visitor got here — Chip and Switch are siblings of this page, not ancestors. A breadcrumb reports location, and it is not a Back control: the browser already has one.",
+            en: "Don't retrace how the visitor reached this page — Chip and Switch are siblings of this page, not ancestors. A breadcrumb reports location, and it is not a Back control: the browser already has one.",
             zh: "不要还原访客的浏览过程——标签按钮与开关是本页面的同级页面，而非上级。面包屑导航表示位置，也不是返回控件：浏览器本身已经提供了返回。",
           })}
         />

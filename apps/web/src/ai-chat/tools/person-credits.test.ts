@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
+import { isRecord } from "#src/utils/type-guards.ts";
 import {
   createPersonCreditsTool,
   personCreditsInputSchema,
@@ -15,7 +16,7 @@ const TMDB_BASE = "https://api.themoviedb.org";
 
 const executeContext = {
   toolCallId: "test",
-  messages: [] as never[],
+  messages: [],
   abortSignal: AbortSignal.timeout(5000),
   context: {},
 };
@@ -31,13 +32,24 @@ interface CreditEntry {
   department: string | undefined;
 }
 
+function isCreditEntryArray(value: unknown): value is CreditEntry[] {
+  return (
+    Array.isArray(value) &&
+    value.every((entry) => isRecord(entry) && typeof entry.id === "number")
+  );
+}
+
 async function executeTool(
   input: { person_id: number },
   locale: "en" | "zh" = "en",
 ) {
   const tool = createPersonCreditsTool(locale);
   const result = await tool.execute(input, executeContext);
-  return JSON.parse(JSON.stringify(result)) as CreditEntry[];
+  const parsed: unknown = JSON.parse(JSON.stringify(result));
+  if (!isCreditEntryArray(parsed)) {
+    throw new Error("expected an array of credit entries");
+  }
+  return parsed;
 }
 
 function castEntry(overrides: {

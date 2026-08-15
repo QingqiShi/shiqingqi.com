@@ -63,7 +63,7 @@ export function AvatarShowcase() {
         </SpecimenGrid>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
-            en: "Subtle is the resting state for someone simply present. Reserve solid for the few people a view is actually about, so they stand out of a row of their peers.",
+            en: "Subtle is the resting state for anyone present. Reserve solid for the few people a view is actually about, so they stand out of a row of their peers.",
             zh: "柔和样式用于仅仅在场的人。将实心样式留给该视图真正关注的少数人，使他们从同伴中脱颖而出。",
           })}
         </Text>
@@ -188,7 +188,7 @@ export function AvatarShowcase() {
               name: "badgeLabel",
               type: "string",
               description: t({
-                en: "What the badge means, appended to the accessible name. Required whenever badge is set, and forbidden otherwise.",
+                en: "What the badge means, appended to the accessible name. Required whenever badge is set, and omitted otherwise.",
                 zh: "角标的含义，会追加到无障碍名称之后。设置 badge 时必填，否则不可传。",
               }),
             },

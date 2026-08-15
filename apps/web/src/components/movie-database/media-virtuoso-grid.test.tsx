@@ -14,17 +14,25 @@ function makeItems(count: number): MediaListItem[] {
   }));
 }
 
+/** None of these query-result functions are called by the component in these
+ * tests — they exist only so the fixture satisfies the query result type. */
+function neverCalled(name: string): () => never {
+  return () => {
+    throw new Error(`${name} should not be called in this test`);
+  };
+}
+
 function makeQueryResult(
   items: MediaListItem[],
 ): UseSuspenseInfiniteQueryResult<MediaListItem[]> {
   return {
     data: items,
-    fetchNextPage: () => Promise.resolve({}) as never,
+    fetchNextPage: neverCalled("fetchNextPage"),
     hasNextPage: false,
     isFetching: false,
     isFetchingNextPage: false,
     isFetchingPreviousPage: false,
-    fetchPreviousPage: () => Promise.resolve({}) as never,
+    fetchPreviousPage: neverCalled("fetchPreviousPage"),
     hasPreviousPage: false,
     // remaining required fields from UseSuspenseInfiniteQueryResult
     dataUpdatedAt: Date.now(),
@@ -48,7 +56,7 @@ function makeQueryResult(
     isRefetching: false,
     isStale: false,
     isSuccess: true as const,
-    refetch: () => Promise.resolve({}) as never,
+    refetch: neverCalled("refetch"),
     status: "success" as const,
     fetchStatus: "idle" as const,
   };

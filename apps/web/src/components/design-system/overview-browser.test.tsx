@@ -68,9 +68,9 @@ describe("OverviewBrowser", () => {
 
     const components = screen.getByRole("heading", { name: "Components" });
     const section = components.closest("section");
-    expect(section).not.toBeNull();
+    if (!section) throw new Error("expected a containing section");
     expect(
-      within(section as HTMLElement)
+      within(section)
         .getAllByRole("heading", { level: 3 })
         .map((h) => h.textContent),
     ).toEqual(["Actions", "Data display", "Surfaces"]);

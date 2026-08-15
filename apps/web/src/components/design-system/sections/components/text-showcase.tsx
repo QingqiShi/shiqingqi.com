@@ -334,7 +334,7 @@ export function TextShowcase() {
             name: "id",
             type: "string",
             description: t({
-              en: "Id applied to the rendered element, so another node can point aria-labelledby or aria-describedby here.",
+              en: "Id applied to the rendered element, so another node can point aria-labelledby or aria-describedby at it.",
               zh: "应用到渲染元素上的 id，使其他节点可用 aria-labelledby 或 aria-describedby 指向它。",
             }),
           },

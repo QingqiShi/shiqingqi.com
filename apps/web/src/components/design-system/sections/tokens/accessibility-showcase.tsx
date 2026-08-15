@@ -211,7 +211,7 @@ type Named =
       <GuideSection
         title={t({ en: "Keyboard", zh: "键盘" })}
         lead={t({
-          en: "Grouped controls ship a keyboard model, not just click handlers. Focus the control below and press the arrow keys.",
+          en: "Grouped controls ship a keyboard model, not click handlers alone. Focus the control below and press the arrow keys.",
           zh: "成组控件附带的是一套键盘模型，而不只是点击回调。聚焦下面的控件并按方向键。",
         })}
       >

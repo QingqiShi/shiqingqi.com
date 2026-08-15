@@ -1,14 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeAll, describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { Button } from "./button.tsx";
 import { Spinner } from "./spinner.tsx";
-
-// Mock Pointer Capture API which is not available in jsdom
-beforeAll(() => {
-  HTMLElement.prototype.setPointerCapture = vi.fn();
-  HTMLElement.prototype.releasePointerCapture = vi.fn();
-});
 
 describe("Button StyleX Integration", () => {
   it("renders button with StyleX classes applied", () => {

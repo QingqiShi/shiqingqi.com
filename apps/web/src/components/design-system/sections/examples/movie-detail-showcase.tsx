@@ -113,7 +113,7 @@ export function MovieDetailShowcase() {
           <LayerCard
             title={t({ en: "Custom layer", zh: "自定义层" })}
             description={t({
-              en: "Five things here have no component. They are built from tokens and composable styles, and still inherit the system's surfaces, focus rings, and easing.",
+              en: "Five things on this page have no component. They are built from tokens and composable styles, and still inherit the system's surfaces, focus rings, and easing.",
               zh: "这里有五处没有对应组件。它们由令牌与可组合样式搭建，同时仍继承系统的表面、焦点环与缓动。",
             })}
             entries={[
