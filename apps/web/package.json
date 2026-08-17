@@ -96,7 +96,7 @@
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-plugin-react-compiler": "catalog:",
     "dotenv": "catalog:",
-    "esbuild-wasm": "^0.28.1",
+    "esbuild-wasm": "^0.28.2",
     "jsdom": "catalog:",
     "modern-normalize": "^3.0.1",
     "msw": "^2.15.0",
