@@ -23,7 +23,6 @@ import type {
 // Every export below is called from a server component or from
 // `generateMetadata`, which is render scope the rule cannot follow across a
 // module boundary.
-/* eslint-disable i18n/no-t-outside-render */
 
 /**
  * The name of every registered route, in registry order. Total over

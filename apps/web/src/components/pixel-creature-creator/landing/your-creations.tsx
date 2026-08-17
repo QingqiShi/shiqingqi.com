@@ -44,7 +44,7 @@ export function YourCreations({ locale }: YourCreationsProps) {
 
   const heading = t({ en: "Your creations", zh: "你的创作" });
   const emptyMessage = t({
-    en: "Saved creatures appear here.",
+    en: "Saved creatures appear on this shelf.",
     zh: "保存的生物会显示在这里。",
   });
   const emptyHint = t({

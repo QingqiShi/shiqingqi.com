@@ -1,7 +1,31 @@
+import type { QueryFunction, QueryKey } from "@tanstack/react-query";
+import { QueryClient, skipToken } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
 import { mediaDetail, mediaVideos, personDetail } from "./tmdb-queries";
+
+/**
+ * Calls a `queryOptions()`-produced `queryFn` the way react-query would,
+ * with a real (if otherwise unused) `QueryFunctionContext`. None of the
+ * queryFns under test here read their context, but the type still requires
+ * one.
+ */
+async function callQueryFn<TData, TQueryKey extends QueryKey>(options: {
+  queryKey: TQueryKey;
+  queryFn?: QueryFunction<TData, TQueryKey> | typeof skipToken;
+}): Promise<TData> {
+  const { queryFn, queryKey } = options;
+  if (!queryFn || queryFn === skipToken) {
+    throw new Error("expected a queryFn");
+  }
+  return queryFn({
+    client: new QueryClient(),
+    queryKey,
+    signal: new AbortController().signal,
+    meta: undefined,
+  });
+}
 
 function movieDetailsResponse(
   overrides: Partial<{
@@ -94,8 +118,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "movie", id: "550" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      const result = await options.queryFn({} as never);
+      const result = await callQueryFn(options);
 
       expect(result).toEqual({
         title: "Fight Club",
@@ -122,8 +145,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "movie", id: "550" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      const result = await options.queryFn({} as never);
+      const result = await callQueryFn(options);
 
       expect(result.title).toBe("FC");
     });
@@ -136,8 +158,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "movie", id: "550" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      const result = await options.queryFn({} as never);
+      const result = await callQueryFn(options);
 
       expect(result.runtime).toBe(0);
     });
@@ -157,8 +178,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "movie", id: "550" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      const result = await options.queryFn({} as never);
+      const result = await callQueryFn(options);
 
       expect(result.genres).toEqual(["Drama", "Thriller"]);
     });
@@ -177,8 +197,7 @@ describe("mediaDetail", () => {
         id: "550",
         language: "zh",
       });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      await options.queryFn({} as never);
+      await callQueryFn(options);
 
       const url = new URL(requestUrl);
       expect(url.searchParams.get("movie_id")).toBe("550");
@@ -195,8 +214,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      const result = await options.queryFn({} as never);
+      const result = await callQueryFn(options);
 
       expect(result).toEqual({
         title: "Game of Thrones",
@@ -223,8 +241,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      const result = await options.queryFn({} as never);
+      const result = await callQueryFn(options);
 
       expect(result.title).toBe("GoT");
     });
@@ -237,8 +254,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      const result = await options.queryFn({} as never);
+      const result = await callQueryFn(options);
 
       expect(result.numberOfSeasons).toBe(0);
     });
@@ -258,8 +274,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      const result = await options.queryFn({} as never);
+      const result = await callQueryFn(options);
 
       expect(result.genres).toEqual(["科幻", "剧情"]);
     });
@@ -274,8 +289,7 @@ describe("mediaDetail", () => {
       );
 
       const options = mediaDetail({ type: "tv", id: "1399", language: "en" });
-      if (!options.queryFn) throw new Error("expected queryFn");
-      await options.queryFn({} as never);
+      await callQueryFn(options);
 
       const url = new URL(requestUrl);
       expect(url.searchParams.get("series_id")).toBe("1399");
@@ -301,8 +315,7 @@ describe("mediaVideos", () => {
       id: "550",
       language: "en",
     });
-    if (!options.queryFn) throw new Error("expected queryFn");
-    const result = await options.queryFn({} as never);
+    const result = await callQueryFn(options);
 
     const url = new URL(requestUrl);
     expect(url.searchParams.get("movie_id")).toBe("550");
@@ -320,8 +333,7 @@ describe("mediaVideos", () => {
     );
 
     const options = mediaVideos({ type: "tv", id: "1399", language: "en" });
-    if (!options.queryFn) throw new Error("expected queryFn");
-    const result = await options.queryFn({} as never);
+    const result = await callQueryFn(options);
 
     const url = new URL(requestUrl);
     expect(url.searchParams.get("series_id")).toBe("1399");
@@ -367,8 +379,7 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    if (!options.queryFn) throw new Error("expected queryFn");
-    const result = await options.queryFn({} as never);
+    const result = await callQueryFn(options);
 
     expect(result).toEqual({
       name: "Tom Hanks",
@@ -388,8 +399,7 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    if (!options.queryFn) throw new Error("expected queryFn");
-    const result = await options.queryFn({} as never);
+    const result = await callQueryFn(options);
 
     expect(result.deathday).toBe("2014-08-11");
   });
@@ -402,8 +412,7 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    if (!options.queryFn) throw new Error("expected queryFn");
-    const result = await options.queryFn({} as never);
+    const result = await callQueryFn(options);
 
     expect(result.deathday).toBeNull();
   });
@@ -416,8 +425,7 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    if (!options.queryFn) throw new Error("expected queryFn");
-    const result = await options.queryFn({} as never);
+    const result = await callQueryFn(options);
 
     expect(result.name).toBe("");
   });
@@ -437,8 +445,7 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31" });
-    if (!options.queryFn) throw new Error("expected queryFn");
-    const result = await options.queryFn({} as never);
+    const result = await callQueryFn(options);
 
     expect(result.profilePath).toBeNull();
     expect(result.biography).toBeNull();
@@ -456,8 +463,7 @@ describe("personDetail", () => {
     );
 
     const options = personDetail({ id: "31", language: "zh" });
-    if (!options.queryFn) throw new Error("expected queryFn");
-    await options.queryFn({} as never);
+    await callQueryFn(options);
 
     const url = new URL(requestUrl);
     expect(url.searchParams.get("person_id")).toBe("31");

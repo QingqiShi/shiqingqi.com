@@ -64,7 +64,7 @@ export function ReviewScreen({ paused = false }: ReviewScreenProps) {
     return (
       <div css={styles.root} data-testid="review-invalid">
         <h1 css={styles.heading}>
-          {t({ en: "Invalid creature link", zh: "无效的生物链接" })}
+          {t({ en: "Broken creature link", zh: "无效的生物链接" })}
         </h1>
         <p css={styles.muted}>
           {t({

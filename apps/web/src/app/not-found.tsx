@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { globalStyles } from "#src/app/global-styles.ts";
+import { InlineScript } from "#src/components/shared/inline-script.tsx";
 import { NotFoundScreen } from "#src/components/shared/not-found-screen.tsx";
 import { setLocale } from "#src/i18n/server-locale.ts";
 import { i18nConfig } from "#src/i18n-config.ts";
@@ -61,8 +62,8 @@ export default function RootNotFound() {
   return (
     <html lang={fallbackLocale} suppressHydrationWarning>
       <body css={globalStyles.body}>
-        {/* eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- Theme initialization before hydration */}
-        <script dangerouslySetInnerHTML={{ __html: themeHack }} />
+        {/* Theme initialization before hydration */}
+        <InlineScript html={themeHack} />
         <NotFoundScreen />
       </body>
     </html>

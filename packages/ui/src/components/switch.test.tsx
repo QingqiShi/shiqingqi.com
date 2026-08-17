@@ -2,7 +2,15 @@ import * as stylex from "@stylexjs/stylex";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type MockInstance,
+} from "vitest";
 import { Switch, type SwitchState } from "./switch.tsx";
 
 function ThreeStateTestComponent() {
@@ -52,13 +60,25 @@ function ControlledTestComponent({
 }
 
 describe("Switch Component", () => {
+  let setPointerCaptureSpy: MockInstance;
+  let releasePointerCaptureSpy: MockInstance;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Mock pointer capture methods for JSDOM
-    HTMLElement.prototype.setPointerCapture = vi.fn((_pointerId) => {});
-    HTMLElement.prototype.releasePointerCapture = vi.fn((_pointerId) => {});
+    setPointerCaptureSpy = vi
+      .spyOn(HTMLElement.prototype, "setPointerCapture")
+      .mockImplementation(() => {});
+    releasePointerCaptureSpy = vi
+      .spyOn(HTMLElement.prototype, "releasePointerCapture")
+      .mockImplementation(() => {});
     HTMLElement.prototype.hasPointerCapture = vi.fn();
+  });
+
+  afterEach(() => {
+    setPointerCaptureSpy.mockRestore();
+    releasePointerCaptureSpy.mockRestore();
   });
 
   describe("Basic Rendering and Accessibility", () => {
@@ -448,9 +468,7 @@ describe("Switch Component", () => {
 
       // Pointer capture should be called (even if pointerId is undefined in JSDOM)
 
-      expect(
-        vi.mocked(HTMLElement.prototype.setPointerCapture), // eslint-disable-line @typescript-eslint/unbound-method
-      ).toHaveBeenCalled();
+      expect(setPointerCaptureSpy).toHaveBeenCalled();
     });
 
     it("does not initiate drag when disabled", () => {
@@ -465,9 +483,7 @@ describe("Switch Component", () => {
         pointerType: "mouse",
       });
 
-      expect(
-        vi.mocked(HTMLElement.prototype.setPointerCapture), // eslint-disable-line @typescript-eslint/unbound-method
-      ).not.toHaveBeenCalled();
+      expect(setPointerCaptureSpy).not.toHaveBeenCalled();
     });
 
     it("handles different mouse button states", () => {
@@ -613,9 +629,7 @@ describe("Switch Component", () => {
 
       // Should attempt to release pointer capture
 
-      expect(
-        vi.mocked(HTMLElement.prototype.releasePointerCapture), // eslint-disable-line @typescript-eslint/unbound-method
-      ).toHaveBeenCalled();
+      expect(releasePointerCaptureSpy).toHaveBeenCalled();
     });
   });
 
@@ -776,10 +790,9 @@ describe("Switch Component", () => {
       const setPointerCapture = vi.fn();
       switchElement.setPointerCapture = setPointerCapture;
 
-      // Remove getBoundingClientRect
-      switchElement.getBoundingClientRect = vi.fn(
-        () => null as unknown as DOMRect,
-      );
+      // eslint-disable-next-line no-restricted-syntax -- forcing getBoundingClientRect to return null to test the guard; only an assertion can produce that impossible type
+      const missingBoundingClientRect = () => null as unknown as DOMRect;
+      switchElement.getBoundingClientRect = vi.fn(missingBoundingClientRect);
 
       // Should not throw when trying to drag
       expect(() => {
@@ -833,9 +846,7 @@ describe("Switch Component", () => {
         pointerType: "touch",
       });
 
-      expect(
-        vi.mocked(HTMLElement.prototype.setPointerCapture), // eslint-disable-line @typescript-eslint/unbound-method
-      ).toHaveBeenCalled();
+      expect(setPointerCaptureSpy).toHaveBeenCalled();
     });
 
     it("handles extreme pointer positions gracefully", () => {

@@ -62,7 +62,6 @@ export function TmdbImage({
     <>
       {!loaded && <Skeleton fill={skeletonFill} css={[skeletonCss]} />}
       {/* TMDB images are already optimized by the provider — no need for next/image */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         css={[imgCss]}
         alt={alt}

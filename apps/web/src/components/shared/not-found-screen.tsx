@@ -83,7 +83,7 @@ export function NotFoundScreen() {
           </Heading>
           <Text tone="muted" align="center" wrap="pretty" css={styles.lede}>
             {t({
-              en: "The link may be out of date, or the page may have moved. Everything else is still here.",
+              en: "The link may be out of date, or the page may have moved. Everything else still works.",
               zh: "链接可能已失效，或页面已移动。其余内容都还在。",
             })}
           </Text>

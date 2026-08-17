@@ -294,7 +294,7 @@ export function AnimationMode({
           <ol css={styles.frameList}>
             {frames.map((frame, index) => (
               <li
-                // eslint-disable-next-line @eslint-react/no-array-index-key -- frames are positional; index IS the identity
+                // frames are positional; index IS the identity
                 key={index}
                 css={[
                   corner.radius_2,

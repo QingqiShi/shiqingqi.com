@@ -343,7 +343,7 @@ export function TableShowcase() {
       <Showcase label={t({ en: "Caption", zh: "表格标题" })}>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
-            en: "caption is required. It names both the table and the scroll region around it, so a screen reader announces what the figures are instead of just “table”. It is sr-only by default — set captionVisible when the table needs a heading on the page as well.",
+            en: "caption is required. It names both the table and the scroll region around it, so a screen reader announces what the figures are instead of the word “table”. It is sr-only by default — set captionVisible when the table needs a heading on the page as well.",
             zh: "caption 是必填项。它同时为表格及其外层滚动区域命名，读屏软件因此会宣读这些数字代表什么，而不只是“表格”。它默认仅供读屏使用；当表格在页面上也需要一个标题时，请设置 captionVisible。",
           })}
         </Text>

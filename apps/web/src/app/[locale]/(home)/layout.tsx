@@ -8,6 +8,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { BackgroundLines } from "#src/components/home/background-lines.tsx";
 import { Footer } from "#src/components/home/footer.tsx";
 import { FlowGradient } from "#src/components/shared/flow-gradient/flow-gradient.tsx";
+import { InlineScript } from "#src/components/shared/inline-script.tsx";
 import { SiteHeaderFooterLayout } from "#src/components/shared/site-header-footer-layout.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { i18nConfig } from "#src/i18n-config.ts";
@@ -98,12 +99,8 @@ export default async function Layout({
         </>
       }
     >
-      {/* eslint-disable @eslint-react/dom-no-dangerously-set-innerhtml -- JSON-LD must be emitted inline; the payload is escaped in buildHomeJsonLd */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLd }}
-      />
-      {/* eslint-enable @eslint-react/dom-no-dangerously-set-innerhtml */}
+      {/* JSON-LD must be emitted inline; the payload is escaped in buildHomeJsonLd */}
+      <InlineScript type="application/ld+json" html={jsonLd} />
       <div css={styles.wrapperInner}>
         <BackgroundLines />
         <main>{children}</main>

@@ -227,7 +227,7 @@ export function HeadingShowcase() {
             name: "id",
             type: "string",
             description: t({
-              en: "Id applied to the rendered heading, so a region can name itself with aria-labelledby pointing here.",
+              en: "Id applied to the rendered heading, so a region can name itself with aria-labelledby pointing at it.",
               zh: "应用到渲染标题上的 id，使某个区域可用 aria-labelledby 指向它来命名自身。",
             }),
           },

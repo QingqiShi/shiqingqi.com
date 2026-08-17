@@ -217,7 +217,7 @@ export function PopoverShowcase() {
               </Text>
               <Text variant="caption" tone="muted">
                 {t({
-                  en: "A popover is not a menu. Put prose, a field, or a small form in here — the component owns the surface, the placement, and the dismissal rules, and nothing else.",
+                  en: "A popover is not a menu. Put prose, a field, or a small form in it — the component owns the surface, the placement, and the dismissal rules, and nothing else.",
                   zh: "浮层不是菜单。这里可以放文字、输入框或一个小表单——组件只负责浮层表面、位置和关闭规则，其余都交给你。",
                 })}
               </Text>
@@ -458,7 +458,7 @@ export function PopoverShowcase() {
         />
         <ShowcaseHelper>
           {t({
-            en: "Every prop here is a thin pass-through to usePopover, the headless hook underneath — the Hooks page documents it. Reach for the hook when the popup has to be something other than this surface: a listbox, a tooltip, a panel of your own.",
+            en: "Every prop above is a thin pass-through to usePopover, the headless hook underneath — the Hooks page documents it. Reach for the hook when the popup has to be something other than this surface: a listbox, a tooltip, a panel of your own.",
             zh: "这里的每个属性都只是薄薄地转交给底层的无界面 hook usePopover——Hooks 页面有它的文档。当弹出内容需要是别的东西时（列表框、提示气泡、你自己的面板），直接用这个 hook。",
           })}
         </ShowcaseHelper>
@@ -501,7 +501,7 @@ export function PopoverShowcase() {
             </Popover>
           }
           doCaption={t({
-            en: "Put structured or interactive content in it. The panel takes focus, is announced as a dialog, and Tab reaches everything inside — all of which earn their cost here.",
+            en: "Put structured or interactive content in it. The panel takes focus, is announced as a dialog, and Tab reaches everything inside — all of which earn their cost.",
             zh: "把结构化或可交互的内容放进去。面板会取得焦点、以对话框身份被宣读，Tab 也能走到内部每个元素——在这里这些代价都值得。",
           })}
           dont={

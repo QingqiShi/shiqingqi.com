@@ -221,7 +221,7 @@ export default async function Page(
                   zh: "滚动到底部",
                 })}
                 errorLabel={t({
-                  en: "Something went wrong. Please try again.",
+                  en: "Something went wrong. Try again.",
                   zh: "出了点问题，请重试。",
                 })}
                 placeholder={t({

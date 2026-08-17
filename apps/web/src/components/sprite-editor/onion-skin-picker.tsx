@@ -49,7 +49,7 @@ export function OnionSkinPicker({
           if (cell === null) return null;
           return (
             <option
-              // eslint-disable-next-line @eslint-react/no-array-index-key -- cells are positional; index IS the identity
+              // cells are positional; index IS the identity
               key={index}
               value={index}
             >

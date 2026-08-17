@@ -43,11 +43,7 @@ export interface Movie {
  * A hook, and named as one: those compiled lookups are the hook calls, which is
  * also why it can only be called from render scope.
  */
-// The rule reads the source, where the `t()` calls are still plain calls, and
-// concludes the `use` prefix is unearned. It is the transform that makes them
-// hooks, and dropping the prefix would put real hook calls in a function React
-// is entitled to call anywhere.
-// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix
+// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix -- the i18n transform compiles each t() into a useI18nLookup hook call, so the prefix is earned; the rule only sees the pre-transform source
 export function useMovies(): Movie[] {
   const northbound: Movie = {
     id: "northbound",

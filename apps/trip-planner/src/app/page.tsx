@@ -59,8 +59,7 @@ function TripCard({ trip, now }: { trip: Trip; now: Date }) {
 }
 
 export default function HomePage() {
-  // Per-request server component (force-dynamic): request time is the intended "now".
-  // eslint-disable-next-line @eslint-react/purity
+  // eslint-disable-next-line @eslint-react/purity -- force-dynamic page: request time IS the content, and render is its only per-request phase
   const now = new Date();
 
   return (

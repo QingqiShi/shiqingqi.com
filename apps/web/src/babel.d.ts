@@ -12,12 +12,12 @@ import type { StyleProp } from "@tuja/ui/css-prop-types";
 declare module "react" {
   // The type parameter must keep React's own name for the declarations to
   // merge, so it cannot take the `_`-prefix unused-var convention.
-  /* eslint-disable @typescript-eslint/no-unused-vars */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TS2428: augmentation must repeat the original type parameters verbatim
   interface HTMLAttributes<T> {
     css?: StyleProp;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TS2428: augmentation must repeat the original type parameters verbatim
   interface SVGAttributes<T> {
     css?: StyleProp;
   }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
 }

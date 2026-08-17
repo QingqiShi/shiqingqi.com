@@ -48,11 +48,11 @@ export function ReducedMotionSpecimen() {
   const fullLabel = t({ en: "Full motion", zh: "完整动效" });
   const reducedLabel = t({ en: "Reduced motion", zh: "减弱动效" });
   const fullNote = t({
-    en: "The tile travels, and the bar keeps pulsing. Turn the setting on in your system and both change here, with no reload.",
+    en: "The tile travels, and the bar keeps pulsing. Turn the setting on in your system and both change on this page, with no reload.",
     zh: "方块会一路移过去，条形持续闪动。在系统里打开该设置，这两者都会就地改变，无需刷新。",
   });
   const reducedNote = t({
-    en: "The tile arrives without travelling, and the bar holds still. Turn the setting off and both change here, with no reload.",
+    en: "The tile arrives without travelling, and the bar holds still. Turn the setting off and both change on this page, with no reload.",
     zh: "方块直接到位，不再移动；条形保持静止。在系统里关闭该设置，这两者都会就地改变，无需刷新。",
   });
 

@@ -76,7 +76,7 @@ export function SidebarLayoutShowcase() {
                     </Heading>
                     <Text variant="bodySmall" tone="muted">
                       {t({
-                        en: "Your page renders here, capped to a readable width beside the rail.",
+                        en: "Your page renders in the content column, capped to a readable width beside the rail.",
                         zh: "你的页面渲染在这里，在侧栏旁保持可读宽度。",
                       })}
                     </Text>

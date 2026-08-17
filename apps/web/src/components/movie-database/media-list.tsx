@@ -59,11 +59,11 @@ export function MediaList({ initialPage }: MediaListProps) {
   const notFoundLabel =
     deferredMediaType === "tv"
       ? t({
-          en: "No TV shows found that match the criteria, please update the filters",
+          en: "No TV shows found that match the criteria. Update the filters.",
           zh: "没有找到符合条件的电视剧，请更新筛选条件",
         })
       : t({
-          en: "No movies found that match the criteria, please update the filters",
+          en: "No movies found that match the criteria. Update the filters.",
           zh: "没有找到符合条件的电影，请更新筛选条件",
         });
 

@@ -36,9 +36,7 @@ export async function copyTextToClipboard(text: string): Promise<boolean> {
   try {
     textarea.focus();
     textarea.select();
-    // `execCommand` is deprecated but is the only API that works in
-    // non-secure contexts where `navigator.clipboard` is unavailable.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- deprecated, but the only copy API that works in non-secure contexts
     ok = document.execCommand("copy");
   } catch {
     // ok stays false; the textarea is still removed in the finally block.

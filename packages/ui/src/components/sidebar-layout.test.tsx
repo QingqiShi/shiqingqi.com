@@ -7,8 +7,6 @@ import { SidebarLayout } from "./sidebar-layout.tsx";
 // the drawer's breakpoint watcher. Stub them so the tree can mount without
 // tripping on platform gaps.
 beforeAll(() => {
-  HTMLElement.prototype.setPointerCapture = vi.fn();
-  HTMLElement.prototype.releasePointerCapture = vi.fn();
   HTMLElement.prototype.animate = vi.fn().mockReturnValue({
     cancel: vi.fn(),
     finish: vi.fn(),

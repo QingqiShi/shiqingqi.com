@@ -150,7 +150,7 @@ export function ActionRow({
       zh: "传说召唤失败,你可以在下方手写一段。",
     }),
     rateLimited: t({
-      en: "Slow down — please try again in a minute.",
+      en: "Slow down — try again in a minute.",
       zh: "稍等片刻,请一分钟后再试。",
     }),
     manualLabel: t({ en: "Write your own lore", zh: "手写传说" }),

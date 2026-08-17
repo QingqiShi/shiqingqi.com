@@ -210,7 +210,7 @@ function LayoutSection() {
       token: "absoluteFill.all / x / y",
       meta: "position:absolute · inset:0",
       description: t({
-        en: "Pin an overlay to its positioned parent on both axes or just one.",
+        en: "Pin an overlay to its positioned parent on both axes or one.",
         zh: "将覆盖层固定到定位父元素——两个轴向或单个轴向。",
       }),
     },
@@ -326,11 +326,9 @@ function LayoutSection() {
         >
           <div css={[flex.row, styles.imagePair]}>
             <div css={[corner.radius_2, styles.imageFrame]}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- inline data-URI specimen, not a remote asset */}
               <img src={sampleImage} alt={imageAlt} css={imageCover.base} />
             </div>
             <div css={[corner.radius_2, styles.imageFrame]}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- inline data-URI specimen, not a remote asset */}
               <img src={sampleImage} alt={imageAlt} css={imageContain.base} />
             </div>
           </div>
@@ -649,7 +647,7 @@ function A11ySection() {
     <Showcase label={t({ en: "Accessibility", zh: "无障碍" })}>
       <ShowcaseHelper>
         {t({
-          en: "The accessibility primitives that ship in the base of every component — surfaced here so a custom control built from primitives can inherit the same guarantees rather than reinventing them.",
+          en: "The accessibility primitives that ship in the base of every component — surfaced in this section so a custom control built from primitives can inherit the same guarantees rather than reinventing them.",
           zh: "随每个组件基座一同交付的无障碍原语——在此单独呈现，让由原语搭建的自定义控件能继承同样的保证，而无需重新发明。",
         })}
       </ShowcaseHelper>

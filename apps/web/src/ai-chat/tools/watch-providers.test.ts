@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
+import { isRecord } from "#src/utils/type-guards.ts";
 import { isToolError } from "./tool-error";
 import {
   createWatchProvidersTool,
@@ -34,7 +35,7 @@ function watchProvidersResponse(id: number, results: Record<string, unknown>) {
 
 const executeContext = {
   toolCallId: "test",
-  messages: [] as never[],
+  messages: [],
   abortSignal: AbortSignal.timeout(5000),
   context: {},
 };
@@ -74,16 +75,30 @@ async function executeTool(input: {
 }) {
   const tool = createWatchProvidersTool();
   const result = await tool.execute(input, executeContext);
-  return JSON.parse(JSON.stringify(result)) as
-    RegionResult | ProviderSearchResultType;
+  const parsed: unknown = JSON.parse(JSON.stringify(result));
+  return parsed;
 }
 
-function asRegionResult(result: RegionResult | ProviderSearchResultType) {
-  return result as RegionResult;
+function isRegionResult(value: unknown): value is RegionResult {
+  return isRecord(value) && "region" in value;
 }
 
-function asSearchResult(result: RegionResult | ProviderSearchResultType) {
-  return result as ProviderSearchResultType;
+function isProviderSearchResult(
+  value: unknown,
+): value is ProviderSearchResultType {
+  return isRecord(value) && "providerName" in value;
+}
+
+function asRegionResult(result: unknown): RegionResult {
+  if (!isRegionResult(result)) throw new Error("expected a region result");
+  return result;
+}
+
+function asSearchResult(result: unknown): ProviderSearchResultType {
+  if (!isProviderSearchResult(result)) {
+    throw new Error("expected a provider search result");
+  }
+  return result;
 }
 
 describe("watchProvidersInputSchema", () => {

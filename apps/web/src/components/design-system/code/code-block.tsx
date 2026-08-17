@@ -35,7 +35,6 @@ export function CodeBlock({ source, css }: CodeBlockProps) {
           {source.map(([kind, text], index) => (
             // A run has no identity but its position, and the array is built
             // once by the Babel plugin and never reordered.
-            // eslint-disable-next-line @eslint-react/no-array-index-key
             <span key={index} css={kindStyles[kind]}>
               {text}
             </span>

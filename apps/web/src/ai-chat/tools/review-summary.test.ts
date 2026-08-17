@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
+import { isRecord } from "#src/utils/type-guards.ts";
 import {
   createReviewSummaryTool,
   reviewSummaryInputSchema,
@@ -73,6 +74,10 @@ interface ReviewSummaryResult {
   averageRating: number | null;
 }
 
+function isReviewSummaryResult(value: unknown): value is ReviewSummaryResult {
+  return isRecord(value) && typeof value.id === "number";
+}
+
 async function executeTool(input: {
   id: number;
   media_type: "movie" | "tv";
@@ -82,7 +87,11 @@ async function executeTool(input: {
   const tool = createReviewSummaryTool("en");
   const parsed = reviewSummaryInputSchema.parse(input);
   const result = await tool.execute(parsed, executeContext);
-  return JSON.parse(JSON.stringify(result)) as ReviewSummaryResult;
+  const jsonResult: unknown = JSON.parse(JSON.stringify(result));
+  if (!isReviewSummaryResult(jsonResult)) {
+    throw new Error("expected a review summary result");
+  }
+  return jsonResult;
 }
 
 describe("reviewSummaryInputSchema", () => {

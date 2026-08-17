@@ -234,7 +234,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
             </Disclosure>
           }
           dontCaption={t({
-            en: "Don't put a link or a button into summary — the whole header is already a button, and nesting controls is invalid markup that screen readers announce as one confused control.",
+            en: "Don't put a link or a button into summary — the whole header is already a button, and nesting controls breaks the markup, so screen readers announce it as one confused control.",
             zh: "不要把链接或按钮放进 summary——整个标题行本身就是按钮，嵌套控件是无效标记，读屏软件会将其读作一个混乱的控件。",
           })}
         />

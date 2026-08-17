@@ -168,6 +168,26 @@ ruleTester.run("no-t-outside-render", rule, {
             }
           `,
     },
+    // V14: server-only module — module-scope t() inside an exported
+    // non-component function is allowed, since the lookup resolves fresh
+    // per request regardless of which function calls it.
+    {
+      code: `
+            import "server-only";
+            import { t } from "#src/i18n.ts";
+            export function getLabel() {
+              return t({ en: "Label", zh: "标签" });
+            }
+          `,
+    },
+    // V15: server-only module — t() directly at module scope
+    {
+      code: `
+            import "server-only";
+            import { t } from "#src/i18n.ts";
+            const LABEL = t({ en: "Hello", zh: "你好" });
+          `,
+    },
   ],
 
   invalid: [
@@ -329,6 +349,28 @@ ruleTester.run("no-t-outside-render", rule, {
     // I14: Server component — exported non-component function
     {
       code: `
+            import { t } from "#src/i18n.ts";
+            export function getLabel() {
+              return t({ en: "Label", zh: "标签" });
+            }
+          `,
+      errors: [{ messageId: "outsideRender" }],
+    },
+    // I15: Same shape as V14, but without the "server-only" import — still an error
+    {
+      code: `
+            import { t } from "#src/i18n.ts";
+            export function getRouteLabel() {
+              return t({ en: "Label", zh: "标签" });
+            }
+          `,
+      errors: [{ messageId: "outsideRender" }],
+    },
+    // I16: "server-only" imported with a specifier (not the bare import) —
+    // the exemption doesn't apply, so this is still an error.
+    {
+      code: `
+            import serverOnly from "server-only";
             import { t } from "#src/i18n.ts";
             export function getLabel() {
               return t({ en: "Label", zh: "标签" });

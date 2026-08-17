@@ -71,6 +71,7 @@ async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
     );
   }
 
+  // Allowed by the JSON-parse carve-out in eslint.config.mjs — a trust boundary the type system can't check.
   return (await response.json()) as T;
 }
 

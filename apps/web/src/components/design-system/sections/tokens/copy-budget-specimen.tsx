@@ -19,7 +19,7 @@ import { t } from "#src/i18n.ts";
 export function CopyBudgetSpecimen() {
   const short = t({ en: "Synced", zh: "已同步" });
   const long = t({
-    en: "Successfully synchronised just now",
+    en: "Successfully synchronised moments ago",
     zh: "刚刚已成功完成同步",
   });
   const [label, setLabel] = useState(short);

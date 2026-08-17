@@ -210,7 +210,6 @@ function ProviderLogo({
   const { src, srcSet } = buildSrcSet(baseUrl, logoSizes, logoPath);
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       css={[corner.radius_1, styles.logo]}
       src={src}

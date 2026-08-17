@@ -15,7 +15,7 @@ const TMDB_BASE = "https://api.themoviedb.org";
 
 const executeContext = {
   toolCallId: "test",
-  messages: [] as never[],
+  messages: [],
   abortSignal: AbortSignal.timeout(5000),
   context: {},
 };
@@ -26,7 +26,8 @@ async function executeTool(
 ) {
   const tool = createMediaCreditsTool(locale);
   const result = await tool.execute(input, executeContext);
-  return JSON.parse(JSON.stringify(result)) as unknown;
+  const parsed: unknown = JSON.parse(JSON.stringify(result));
+  return parsed;
 }
 
 describe("mediaCreditsInputSchema", () => {
