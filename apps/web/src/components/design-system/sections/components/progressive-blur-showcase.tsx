@@ -28,14 +28,6 @@ export function ProgressiveBlurShowcase() {
               zh: "一组虚化图层从悬浮元素向四周辐射，紧贴元素处最强，越向外越清晰。悬浮元素作为子元素传入，虚化会测量它的位置，因此调用处无需指定方向。最强的一层带有一抹淡淡的页面底色淡彩，元素背后过于刺眼的内容会被冲淡，而不是保持原有的强对比。这些图层对无障碍隐藏且不响应指针事件，元素之外的关闭点击会直接穿透到后方内容。",
             })}
           </Text>
-          <Specimen
-            caption={t({
-              en: "around a floating element",
-              zh: "悬浮元素周围",
-            })}
-          >
-            <BlurredPageMock />
-          </Specimen>
           <Specimen caption={t({ en: "around a dialog", zh: "对话框周围" })}>
             <BlurredDialogMock />
           </Specimen>
@@ -105,100 +97,35 @@ export function ProgressiveBlurShowcase() {
 }
 
 /**
- * The wrapper both mocks below share: readable content above, a floating
- * element the blur radiates from below. Only the prose and the floating
- * element differ between them.
+ * A bounded mock page with a centred dialog floating over it — the case the
+ * measured ramp exists for. The blur radiates on all four sides and the page is
+ * sharp again well before the mock page's own edges. Shared by both specimens,
+ * so the melt demo toggles the same shape it introduces.
  */
-function MockPage({
-  body,
-  children,
-}: {
-  body: ReactNode;
-  children: ReactNode;
-}) {
+function BlurredDialogMock({ isShown }: { isShown?: boolean }) {
   return (
     <div css={[corner.radius_3, styles.mockPage]}>
-      <div css={[flex.col, styles.mockContent]}>{body}</div>
-      {children}
-    </div>
-  );
-}
-
-/**
- * A bounded mock page: readable content plus a floating action bar pinned to
- * the block-end edge. The bar is the blur's child, so the ramp runs up from it
- * and eases in from its inline sides too. Shared by both specimens so the melt
- * demo toggles the same shape it introduces.
- */
-function BlurredPageMock({ isShown }: { isShown?: boolean }) {
-  return (
-    <MockPage
-      body={
-        <>
-          <Text variant="bodySmall">
-            {t({
-              en: "Notification settings control which alerts reach this device, and how urgently they arrive.",
-              zh: "通知设置决定哪些提醒会推送到此设备，以及推送的紧急程度。",
-            })}
-          </Text>
-          <Text variant="bodySmall">
-            {t({
-              en: "Turning one off here doesn't change what you still receive by email.",
-              zh: "在这里关闭某一项，不会影响你仍会通过邮件收到的提醒。",
-            })}
-          </Text>
-          <Text variant="bodySmall" tone="muted">
-            {t({
-              en: "Quiet hours pause everything except account security alerts.",
-              zh: "免打扰时段会暂停除账户安全提醒之外的所有通知。",
-            })}
-          </Text>
-        </>
-      }
-    >
+      <div css={[flex.col, styles.mockContent]}>
+        <Text variant="bodySmall">
+          {t({
+            en: "This draft has three edits that haven't been saved to the shared copy yet.",
+            zh: "这份草稿有三处修改尚未保存到共享副本。",
+          })}
+        </Text>
+        <Text variant="bodySmall">
+          {t({
+            en: "Anyone opening the shared copy still sees the version from Tuesday.",
+            zh: "打开共享副本的人看到的仍是周二的版本。",
+          })}
+        </Text>
+        <Text variant="bodySmall" tone="muted">
+          {t({
+            en: "Autosave runs every five minutes while the editor stays open.",
+            zh: "编辑器保持打开时，自动保存每五分钟运行一次。",
+          })}
+        </Text>
+      </div>
       <ProgressiveBlur isShown={isShown}>
-        <div css={[popoverSurface.base, styles.mockBar]}>
-          <Button variant="primary" size="sm">
-            {t({ en: "Save changes", zh: "保存更改" })}
-          </Button>
-        </div>
-      </ProgressiveBlur>
-    </MockPage>
-  );
-}
-
-/**
- * The same page with a centred dialog instead of an edge bar — the case the
- * measured ramp exists for. The blur radiates on all four sides and the page
- * is sharp again well before the mock page's own edges.
- */
-function BlurredDialogMock() {
-  return (
-    <MockPage
-      body={
-        <>
-          <Text variant="bodySmall">
-            {t({
-              en: "This draft has three edits that haven't been saved to the shared copy yet.",
-              zh: "这份草稿有三处修改尚未保存到共享副本。",
-            })}
-          </Text>
-          <Text variant="bodySmall">
-            {t({
-              en: "Anyone opening the shared copy still sees the version from Tuesday.",
-              zh: "打开共享副本的人看到的仍是周二的版本。",
-            })}
-          </Text>
-          <Text variant="bodySmall" tone="muted">
-            {t({
-              en: "Autosave runs every five minutes while the editor stays open.",
-              zh: "编辑器保持打开时，自动保存每五分钟运行一次。",
-            })}
-          </Text>
-        </>
-      }
-    >
-      <ProgressiveBlur>
         <div css={[popoverSurface.base, styles.mockDialog]}>
           <Text variant="bodySmall" weight="semibold">
             {t({ en: "Discard three edits?", zh: "放弃三处修改？" })}
@@ -219,7 +146,7 @@ function BlurredDialogMock() {
           </div>
         </div>
       </ProgressiveBlur>
-    </MockPage>
+    </div>
   );
 }
 
@@ -229,9 +156,10 @@ function MeltDemo() {
 
   return (
     <div css={[flex.col, styles.meltStack]}>
-      <BlurredPageMock isShown={isShown} />
+      <BlurredDialogMock isShown={isShown} />
       <Button
         size="sm"
+        css={styles.meltToggle}
         onClick={() => {
           setIsShown((shown) => !shown);
         }}
@@ -305,10 +233,11 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space._2,
-    // Tall enough for the ramp to read as a ramp: the blur runs from the
-    // floating element out to the box's edge, so a short box spends the whole
-    // reach at full strength and the demo looks like one flat blur.
-    minBlockSize: "32rem",
+    // Tall enough for the ramp to read as a ramp — the blur runs from the
+    // dialog out to the box's edge, so a short box spends the whole reach at
+    // full strength and the demo looks like one flat blur — and no taller,
+    // since page the ramp never reaches is page with nothing to show.
+    minBlockSize: "24rem",
     padding: space._4,
     overflow: "hidden",
     borderWidth: border.size_1,
@@ -316,19 +245,14 @@ const styles = stylex.create({
     borderColor: color.neutralBorder,
     backgroundColor: color.bgSurface,
   },
+  // The copy runs the height of the mock rather than sitting in a block at the
+  // top: the ramp is only visible where there is page under it, so a dialog
+  // centred over a single block would show its blur above and nowhere else.
   mockContent: {
+    flexGrow: 1,
+    justifyContent: "space-between",
     gap: space._2,
     maxInlineSize: "17rem",
-  },
-  mockBar: {
-    position: "absolute",
-    insetBlockEnd: space._3,
-    insetInlineStart: space._3,
-    insetInlineEnd: space._3,
-    display: "flex",
-    justifyContent: "flex-end",
-    paddingBlock: space._2,
-    paddingInline: space._3,
   },
   mockDialog: {
     position: "absolute",
@@ -347,8 +271,10 @@ const styles = stylex.create({
     gap: space._2,
   },
   meltStack: {
-    alignItems: "flex-start",
     gap: space._3,
+  },
+  meltToggle: {
+    alignSelf: "flex-start",
   },
   diagramPanel: {
     position: "absolute",

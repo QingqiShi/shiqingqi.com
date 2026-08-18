@@ -380,6 +380,16 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/progressive-blur" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/progressive-blur" />
   </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/scroll-mask</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/scroll-mask" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/scroll-mask" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/scroll-mask</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/scroll-mask" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/scroll-mask" />
+  </url>
 
   <url>
     <loc>https://qingqi.dev/design-system/foundations/motion</loc>

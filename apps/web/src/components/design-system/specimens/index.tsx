@@ -20,6 +20,7 @@ import { OverlaySpecimen } from "./overlay-specimen.tsx";
 import { PopoverSpecimen } from "./popover-specimen.tsx";
 import { ProgressSpecimen } from "./progress-specimen.tsx";
 import { ProgressiveBlurSpecimen } from "./progressive-blur-specimen.tsx";
+import { ScrollMaskSpecimen } from "./scroll-mask-specimen.tsx";
 import { SectionSpecimen } from "./section-specimen.tsx";
 import { SegmentedControlSpecimen } from "./segmented-control-specimen.tsx";
 import { SelectSpecimen } from "./select-specimen.tsx";
@@ -104,6 +105,7 @@ const COMPONENT_SPECIMENS: Partial<
     element: <ProgressiveBlurSpecimen />,
     fillsPlate: true,
   },
+  "/design-system/components/scroll-mask": { element: <ScrollMaskSpecimen /> },
   "/design-system/components/overlay": {
     element: <OverlaySpecimen />,
     fillsPlate: true,

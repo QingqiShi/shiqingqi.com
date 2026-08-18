@@ -144,7 +144,6 @@ export function ProgressiveBlur({
     <div ref={rootRef} css={[styles.root, css]}>
       {layers.map(({ filter, mask }, index) => (
         <div
-          // eslint-disable-next-line @eslint-react/no-array-index-key -- layers are positional; index IS the identity
           key={index}
           aria-hidden="true"
           css={[

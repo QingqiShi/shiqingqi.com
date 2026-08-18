@@ -105,6 +105,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Progressive blur",
       zh: "渐进虚化",
     }),
+    "/design-system/components/scroll-mask": t({
+      en: "Scroll mask",
+      zh: "滚动虚化",
+    }),
     "/design-system/components/divider": t({ en: "Divider", zh: "分隔线" }),
     "/design-system/components/sidebar-layout": t({
       en: "Sidebar layout",

@@ -358,7 +358,7 @@ components.
 | `@tuja/ui/hooks/use-press-animation`          | Press/active animation state.                                                                                                                           |
 | `@tuja/ui/hooks/use-press-handlers`           | Pointer + keyboard press handler bundle.                                                                                                                |
 | `@tuja/ui/hooks/use-radio-group`              | Headless roving-tabindex radio group (arrow/Home/End keyboard, `getOptionProps`).                                                                       |
-| `@tuja/ui/hooks/use-scroll-fades`             | Edge-fade state for a scroll container.                                                                                                                 |
+| `@tuja/ui/hooks/use-scroll-mask`              | Whether each edge of a scroll region has scrolled-away content past it.                                                                                 |
 | `@tuja/ui/primitives/a11y.stylex`             | Accessibility primitives: `srOnly`, `focusRing`, `focusRingInset`.                                                                                      |
 | `@tuja/ui/primitives/corner.stylex`           | Corner radii paired with shape: squircle on `radius_1`–`radius_5`, circular caps on `radius_round`.                                                     |
 | `@tuja/ui/primitives/flex.stylex`             | Flex row/column layout primitives.                                                                                                                      |
@@ -389,7 +389,7 @@ components.
 | `@tuja/ui/components/menu-button`             | Button that opens a menu/overlay.                                                                                                                       |
 | `@tuja/ui/components/menu-label`              | Label row inside a menu.                                                                                                                                |
 | `@tuja/ui/components/overlay`                 | Accessible dialog/popover overlay (requires `aria-label` **xor** `aria-labelledby`).                                                                    |
-| `@tuja/ui/components/scroll-fade`             | Gradient edge fades for a scrolling container.                                                                                                          |
+| `@tuja/ui/components/scroll-mask`             | Scroll region with a progressive blur at each edge it can still scroll to.                                                                              |
 | `@tuja/ui/components/section`                 | Labelled content block (quiet heading, optional icon and trailing actions).                                                                             |
 | `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`.                                                                                                         |
 | `@tuja/ui/components/select`                  | Styled native select (options prop or `<option>` children).                                                                                             |

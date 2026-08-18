@@ -1,29 +1,29 @@
 import { useEffect, useState } from "react";
 
-export type ScrollFadeOrientation = "horizontal" | "vertical";
+export type ScrollMaskOrientation = "horizontal" | "vertical";
 
 /**
- * Tracks a scroll container's position on one axis to decide whether the
- * start/end fade indicators should show. `showStartFade` turns true once the
- * content is scrolled away from the start edge (left for horizontal, top for
- * vertical); `showEndFade` stays true while content remains hidden past the end
- * edge. Listens to scroll events, container resizes, and child additions/
+ * Tracks a scroll region's position on one axis to decide whether each edge
+ * carries a Scroll mask. `showStartMask` turns true once the content is
+ * scrolled away from the start edge (left for horizontal, top for vertical);
+ * `showEndMask` stays true while content remains hidden past the end edge.
+ * Listens to scroll events, container resizes, and child additions/
  * removals/resizes so `scrollWidth`/`scrollHeight` changes that leave the
  * container's own box unchanged still trigger a remeasure.
  *
- * Pass `{ enabled: false }` to leave the observers unattached and both fades
- * `false` — for a consumer (e.g. `ScrollFade` in controlled mode) that is
- * handed the fade state from elsewhere and must not run a second set of
- * observers on the same element.
+ * Pass `{ enabled: false }` to leave the observers unattached and both edges
+ * `false` — for a consumer (e.g. `ScrollMask` in controlled mode) that is
+ * handed the state from elsewhere and must not run a second set of observers
+ * on the same element.
  */
-export function useScrollFades(
+export function useScrollMask(
   scrollRef: React.RefObject<HTMLElement | null>,
-  orientation: ScrollFadeOrientation = "horizontal",
+  orientation: ScrollMaskOrientation = "horizontal",
   options?: { enabled?: boolean },
 ) {
   const enabled = options?.enabled ?? true;
-  const [showStartFade, setShowStartFade] = useState(false);
-  const [showEndFade, setShowEndFade] = useState(false);
+  const [showStartMask, setShowStartMask] = useState(false);
+  const [showEndMask, setShowEndMask] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
@@ -35,8 +35,8 @@ export function useScrollFades(
       const scrollStart = isHorizontal ? el.scrollLeft : el.scrollTop;
       const scrollSize = isHorizontal ? el.scrollWidth : el.scrollHeight;
       const clientSize = isHorizontal ? el.clientWidth : el.clientHeight;
-      setShowStartFade(Math.round(scrollStart) > 0);
-      setShowEndFade(Math.round(scrollStart) + clientSize < scrollSize - 1);
+      setShowStartMask(Math.round(scrollStart) > 0);
+      setShowEndMask(Math.round(scrollStart) + clientSize < scrollSize - 1);
     };
 
     el.addEventListener("scroll", update, { passive: true });
@@ -81,5 +81,5 @@ export function useScrollFades(
     };
   }, [scrollRef, orientation, enabled]);
 
-  return { showStartFade, showEndFade };
+  return { showStartMask, showEndMask };
 }

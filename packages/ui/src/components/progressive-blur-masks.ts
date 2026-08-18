@@ -58,6 +58,27 @@ function ramp(
 }
 
 /**
+ * Each layer's `backdrop-filter` and its place along the ramp, weakest first —
+ * the arithmetic every stack shares, whichever shape its masks take.
+ */
+function blurLayerSteps(radius: number, isShown: boolean) {
+  const cappedRadius = Math.min(Math.max(radius, 0), RADIUS_CAP_PX);
+  return Array.from({ length: LAYER_COUNT }, (_, index) => {
+    const layerRadius = isShown
+      ? cappedRadius / 2 ** (LAYER_COUNT - 1 - index)
+      : 0;
+    return {
+      filter: `blur(${String(layerRadius)}px)`,
+      // `holdBands`: how far along the reach, in bands, this layer is already
+      // fully opaque. `goneBands`: where it has dropped out entirely. Each
+      // layer holds one band further out than the one before it.
+      holdBands: LAYER_COUNT - 1 - index,
+      goneBands: LAYER_COUNT - index,
+    };
+  });
+}
+
+/**
  * The stack of blurred layers, weakest first, as the `backdrop-filter` and
  * `mask-image` each one carries. Every layer holds a mask per axis, composited
  * with `intersect`: multiplying the two ramps rounds the corners, so the blur
@@ -71,7 +92,6 @@ export function buildBlurLayers({
   radius,
   isShown,
 }: BlurLayerOptions) {
-  const cappedRadius = Math.min(Math.max(radius, 0), RADIUS_CAP_PX);
   const axes = geometry && [
     {
       direction: "to right",
@@ -89,20 +109,51 @@ export function buildBlurLayers({
     },
   ];
 
-  return Array.from({ length: LAYER_COUNT }, (_, index) => {
-    const layerRadius = isShown
-      ? cappedRadius / 2 ** (LAYER_COUNT - 1 - index)
-      : 0;
-    // `holdBands`: how far along the reach, in bands, this layer is already
-    // fully opaque. `goneBands`: where it has faded out entirely. Each layer
-    // holds one band further out than the one before it.
-    const holdBands = LAYER_COUNT - 1 - index;
-    const goneBands = LAYER_COUNT - index;
-    return {
-      filter: `blur(${String(layerRadius)}px)`,
+  return blurLayerSteps(radius, isShown).map(
+    ({ filter, holdBands, goneBands }) => ({
+      filter,
       mask: axes
         ? axes.map((axis) => ramp(axis, holdBands, goneBands)).join(", ")
         : "none",
-    };
-  });
+    }),
+  );
+}
+
+interface EdgeBlurLayerOptions {
+  /**
+   * The ramp's direction as a `linear-gradient` direction, pointing from the
+   * region's edge inward — so the strongest layer sits against the edge.
+   */
+  direction: string;
+  radius: number;
+  isShown: boolean;
+}
+
+// Multiplied before dividing, the same way `ramp` does, so a whole number of
+// bands never lands on a floating-point tail.
+function bandStop(bands: number) {
+  return `${String((bands * 100) / LAYER_COUNT)}%`;
+}
+
+/**
+ * The stack of blurred layers for one edge of a scroll region, weakest first.
+ * The ramp runs along a single axis rather than radiating from a measured
+ * rect, so each layer carries one mask instead of two and nothing needs
+ * compositing.
+ *
+ * The stops are percentages because the caller sizes the band to exactly how
+ * far the blur reaches: the ramp is always the full depth of the element it
+ * masks, whatever CSS length that works out to.
+ */
+export function buildEdgeBlurLayers({
+  direction,
+  radius,
+  isShown,
+}: EdgeBlurLayerOptions) {
+  return blurLayerSteps(radius, isShown).map(
+    ({ filter, holdBands, goneBands }) => ({
+      filter,
+      mask: `linear-gradient(${direction}, #000 ${bandStop(holdBands)}, transparent ${bandStop(goneBands)})`,
+    }),
+  );
 }
