@@ -6,22 +6,27 @@ import type { PostHog } from "posthog-js";
 const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
-export const posthogEnabled = Boolean(token && host);
+// Vercel sets this to "production", "preview", or "development". Preview
+// deployments must not report into the production project, so only production
+// builds initialise PostHog. The value is unset in local builds and e2e, where
+// playwright.config.ts supplies "production" to keep the init path exercised.
+const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production";
+
+export const posthogEnabled = Boolean(token && host && isProduction);
 
 let initialised = false;
 let client: PostHog | undefined;
 
 // Must run after hydration: posthog.init injects its remote-config script next
-// to the first <script> in the document, which in this app is the inline
-// service-worker-cleanup script in the root layout's <head>. Injecting before
-// hydration makes React find an unexpected node there and re-hydrate the
-// whole root on every page load.
+// to the first <script> in the document. Injecting before hydration makes React
+// find an unexpected node there and re-hydrate the whole root on every page
+// load.
 //
 // posthog-js is imported dynamically so it stays out of every route's initial
 // bundle (it reaches them all via the layout and the error boundaries) and is
 // never fetched at all in builds without the env vars.
 export async function initPostHog() {
-  if (!token || !host || initialised) return;
+  if (!token || !host || !isProduction || initialised) return;
   initialised = true;
 
   const { default: posthog } = await import("posthog-js");

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { globalStyles } from "#src/app/global-styles.ts";
 import { ReactGrab } from "#src/components/react-grab.tsx";
+import { ServiceWorkerRegistrar } from "#src/components/service-worker-registrar.tsx";
 import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
 import { InlineScript } from "#src/components/shared/inline-script.tsx";
@@ -26,19 +27,6 @@ export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "zh" }];
 }
 
-const serviceWorkerCleanupScript = `
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for (var i = 0; i < registrations.length; i++) {
-        var reg = registrations[i];
-        if (reg.active && reg.active.scriptURL.indexOf('/serwist/') !== -1) {
-          reg.unregister().then(function() { location.reload(); });
-        }
-      }
-    });
-  }
-`;
-
 export default async function RootLayout({
   params,
   children,
@@ -57,8 +45,6 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        {/* Cleanup old service worker at /serwist/sw.js - can be removed after migration */}
-        <InlineScript html={serviceWorkerCleanupScript} />
         {/*
           Both locales render Latin text in Inter (names, dates, brand
           wordmarks, numbers), so both locales benefit from preloading it.
@@ -79,8 +65,10 @@ export default async function RootLayout({
         <I18nProvider locale={locale}>
           <SerwistProvider
             swUrl="/sw.js"
+            register={false}
             disable={process.env.NODE_ENV === "development"}
           >
+            <ServiceWorkerRegistrar />
             <InlineScript html={themeHack} />
             <PortalTargetProvider>
               <BackOverrideProvider>

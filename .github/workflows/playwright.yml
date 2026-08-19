@@ -38,6 +38,9 @@ jobs:
           # The host is deliberately unresolvable so init sends nothing.
           NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder"
           NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid"
+          # posthog.init() runs only in production builds (see
+          # src/utils/posthog.ts), so the build must carry this to exercise it.
+          NEXT_PUBLIC_VERCEL_ENV: "production"
       - name: Upload build output
         uses: actions/upload-artifact@v7
         with:
