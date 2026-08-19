@@ -367,7 +367,6 @@ components.
 | `@tuja/ui/primitives/reset.stylex`            | Element reset styles.                                                                                                                                   |
 | `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                               |
 | `@tuja/ui/components/anchor-button-group`     | Grouped anchor/button cluster.                                                                                                                          |
-| `@tuja/ui/components/animate-to-target`       | FLIP-style animate-to-target wrapper.                                                                                                                   |
 | `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                        |
 | `@tuja/ui/components/badge`                   | Status/label badge (six Intents plus a default, two sizes).                                                                                             |
 | `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger variants, three sizes, loading state).                                                                             |
