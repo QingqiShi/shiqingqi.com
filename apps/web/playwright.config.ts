@@ -105,9 +105,6 @@ export default defineConfig({
       // it, so CI's TMDB/OpenAI vars still reach the spawned server.
       NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder",
       NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid",
-      // posthog.init() now runs only when this is "production" (see
-      // src/utils/posthog.ts). Set it so the init path stays exercised.
-      NEXT_PUBLIC_VERCEL_ENV: "production",
     },
     reuseExistingServer: !process.env.CI,
     timeout: 300 * 1000, // 5 minutes for build + server to start

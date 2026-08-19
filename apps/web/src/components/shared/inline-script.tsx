@@ -1,7 +1,7 @@
 /**
  * Renders a `<script>` whose body is injected verbatim (theme init before
- * hydration, service-worker cleanup, JSON-LD). This is the one sanctioned
- * `dangerouslySetInnerHTML` call site in the app.
+ * hydration, JSON-LD). This is the one sanctioned `dangerouslySetInnerHTML`
+ * call site in the app.
  *
  * Contract: `html` must be a static or pre-escaped string — build-time
  * constants or output already run through an escaper (e.g. JSON-LD with

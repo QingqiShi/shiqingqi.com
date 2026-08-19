@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { globalStyles } from "#src/app/global-styles.ts";
 import { ReactGrab } from "#src/components/react-grab.tsx";
-import { ServiceWorkerRegistrar } from "#src/components/service-worker-registrar.tsx";
 import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
 import { InlineScript } from "#src/components/shared/inline-script.tsx";
@@ -44,7 +43,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
+      <body css={globalStyles.body}>
         {/*
           Both locales render Latin text in Inter (names, dates, brand
           wordmarks, numbers), so both locales benefit from preloading it.
@@ -60,15 +59,8 @@ export default async function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-      </head>
-      <body css={globalStyles.body}>
         <I18nProvider locale={locale}>
-          <SerwistProvider
-            swUrl="/sw.js"
-            register={false}
-            disable={process.env.NODE_ENV === "development"}
-          >
-            <ServiceWorkerRegistrar />
+          <SerwistProvider>
             <InlineScript html={themeHack} />
             <PortalTargetProvider>
               <BackOverrideProvider>
