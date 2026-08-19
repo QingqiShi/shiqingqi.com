@@ -4,7 +4,7 @@ import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwis
 import * as stylex from "@stylexjs/stylex";
 import { Callout } from "@tuja/ui/components/callout";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { animate, transition } from "@tuja/ui/primitives/motion.stylex";
+import { animate, easing, transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -38,36 +38,74 @@ const DURATIONS = [
 ];
 const MAX_MS = 2000;
 
-// Easing ledger — each curve plotted from its cubic-bezier control points
-// (progress on Y against time on X). The named CSS keywords map to their
-// canonical control points; `entrance` is the design system's signature curve.
-const EASINGS = [
-  { token: "easing.linear", curve: "linear", pts: [0, 0, 1, 1] },
-  { token: "easing.ease", curve: "ease", pts: [0.25, 0.1, 0.25, 1] },
-  { token: "easing.easeIn", curve: "ease-in", pts: [0.42, 0, 1, 1] },
-  { token: "easing.easeOut", curve: "ease-out", pts: [0, 0, 0.58, 1] },
-  { token: "easing.easeInOut", curve: "ease-in-out", pts: [0.42, 0, 0.58, 1] },
-  {
-    token: "easing.entrance",
-    curve: "cubic-bezier(0.32, 0.72, 0, 1)",
-    pts: [0.32, 0.72, 0, 1],
-  },
-  {
-    token: "easing.pulse",
-    curve: "cubic-bezier(.4,0,.6,1)",
-    pts: [0.4, 0, 0.6, 1],
-  },
-];
-
 // Maps cubic-bezier control points to an SVG path across a 100×100 box. SVG y
 // grows downward, so progress (0→1) is flipped to keep the curve rising.
-function easingPath([x1, y1, x2, y2]: number[]) {
+function bezierPath([x1, y1, x2, y2]: number[]) {
   const c1x = (x1 * 100).toFixed(1);
   const c1y = (100 - y1 * 100).toFixed(1);
   const c2x = (x2 * 100).toFixed(1);
   const c2y = (100 - y2 * 100).toFixed(1);
   return `M0,100 C${c1x},${c1y} ${c2x},${c2y} 100,0`;
 }
+
+// A `linear()` token needs no control points: its stop list is the curve, so
+// the stops plot onto the same box at even time steps.
+function linearPath(token: string) {
+  const stops = token
+    .slice(token.indexOf("(") + 1, -1)
+    .split(",")
+    .map((stop) => Number(stop));
+  const points = stops.map(
+    (stop, index) =>
+      `${((index / (stops.length - 1)) * 100).toFixed(1)},${(100 - stop * 100).toFixed(1)}`,
+  );
+  return `M${points.join(" L")}`;
+}
+
+// Easing ledger — each curve plotted as progress on Y against time on X. The
+// named CSS keywords map to their canonical control points; `entrance` is the
+// design system's signature curve, and `spring` is the one curve that leaves
+// the box, because it overshoots past its target before it settles.
+const EASINGS = [
+  { token: "easing.linear", curve: "linear", path: bezierPath([0, 0, 1, 1]) },
+  {
+    token: "easing.ease",
+    curve: "ease",
+    path: bezierPath([0.25, 0.1, 0.25, 1]),
+  },
+  {
+    token: "easing.easeIn",
+    curve: "ease-in",
+    path: bezierPath([0.42, 0, 1, 1]),
+  },
+  {
+    token: "easing.easeOut",
+    curve: "ease-out",
+    path: bezierPath([0, 0, 0.58, 1]),
+  },
+  {
+    token: "easing.easeInOut",
+    curve: "ease-in-out",
+    path: bezierPath([0.42, 0, 0.58, 1]),
+  },
+  {
+    token: "easing.entrance",
+    curve: "cubic-bezier(0.32, 0.72, 0, 1)",
+    path: bezierPath([0.32, 0.72, 0, 1]),
+  },
+  {
+    token: "easing.spring",
+    // Elided: the full stop list is 21 numbers, which the plot shows better
+    // than the meta line can.
+    curve: "linear(0, 0.101, … 0.998, 1)",
+    path: linearPath(easing.spring),
+  },
+  {
+    token: "easing.pulse",
+    curve: "cubic-bezier(.4,0,.6,1)",
+    path: bezierPath([0.4, 0, 0.6, 1]),
+  },
+];
 
 export function MotionShowcase() {
   // A monotonic counter; bumping it remounts every keyed animation node so the
@@ -82,8 +120,8 @@ export function MotionShowcase() {
       <Showcase label={t({ en: "Duration", zh: "时长" })}>
         <ShowcaseHelper>
           {t({
-            en: "Eight steps from a 75ms tap acknowledgement up to a 1000ms full-screen transition. Each bar is drawn in proportion to its length.",
-            zh: "从 75 毫秒的轻触反馈到 1000 毫秒的全屏转场，共八级。每条长度与其时长成正比。",
+            en: "Thirteen steps from a 75ms tap acknowledgement up to a 2000ms looping pulse. Each bar is drawn in proportion to its length.",
+            zh: "从 75 毫秒的轻触反馈到 2000 毫秒的循环脉冲，共十三级。每条长度与其时长成正比。",
           })}
         </ShowcaseHelper>
         <div css={styles.grid}>
@@ -112,8 +150,8 @@ export function MotionShowcase() {
       <Showcase label={t({ en: "Easing", zh: "缓动" })}>
         <ShowcaseHelper>
           {t({
-            en: "Six timing curves plotting progress against time. entrance is the signature curve — a fast start that decelerates into place — shared by the slide presets.",
-            zh: "六条时间曲线，纵轴为进度、横轴为时间。entrance 是标志性曲线——起步迅速、减速落位——被各滑入预设共用。",
+            en: "Eight timing curves plotting progress against time. entrance is the signature curve — a fast start that decelerates into place — shared by the slide presets. spring is a sampled linear() that overshoots its target and settles back, which no bezier can do.",
+            zh: "八条时间曲线，纵轴为进度、横轴为时间。entrance 是标志性曲线——起步迅速、减速落位——被各滑入预设共用。spring 由 linear() 采样而成，会越过目标再回落稳定，这是贝塞尔曲线做不到的。",
           })}
         </ShowcaseHelper>
         <div css={styles.grid}>
@@ -126,7 +164,7 @@ export function MotionShowcase() {
                 aria-hidden="true"
               >
                 <line x1="0" y1="100" x2="100" y2="0" css={styles.curveGuide} />
-                <path d={easingPath(step.pts)} css={styles.curvePath} />
+                <path d={step.path} css={styles.curvePath} />
               </svg>
             </SpecCard>
           ))}

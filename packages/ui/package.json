@@ -64,7 +64,6 @@
     "./primitives/reset.stylex": "./src/primitives/reset.stylex.ts",
     "./components/anchor.stylex": "./src/components/anchor.stylex.ts",
     "./components/anchor-button-group": "./src/components/anchor-button-group.tsx",
-    "./components/animate-to-target": "./src/components/animate-to-target.tsx",
     "./components/avatar": "./src/components/avatar.tsx",
     "./components/badge": "./src/components/badge.tsx",
     "./components/breadcrumb": "./src/components/breadcrumb.tsx",

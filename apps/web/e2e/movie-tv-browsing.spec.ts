@@ -1,15 +1,15 @@
 import { test, expect, type Locator } from "@playwright/test";
 
 /**
- * A MenuButton popup's box once its entrance transforms have settled.
+ * A MenuButton popup's box once its entrance has settled.
  *
- * Every popup FLIPs out of its trigger, and one on the filters bar also rides
- * the hero morph that shifts the trigger's wrapper as the hero input scrolls
- * away, so a box read on arrival describes an animation frame rather than what
- * CSS anchored the popup to. All of them run on `fill: "none"`, so waiting for
- * every finite animation to finish leaves exactly the computed geometry. The
- * infinite ones are skeleton shimmers, which never finish and never move a
- * popup.
+ * The popup itself no longer moves — a separate surface morphs out of the
+ * trigger — but one popup on the filters bar still rides the hero morph that
+ * shifts the trigger's wrapper as the hero input scrolls away, so a box read on
+ * arrival can describe an animation frame rather than what CSS anchored the
+ * popup to. Waiting for every finite animation and transition to finish leaves
+ * exactly the computed geometry. The infinite ones are skeleton shimmers, which
+ * never finish and never move a popup.
  */
 async function settledPopupBox(popup: Locator) {
   await expect(popup).toBeVisible();

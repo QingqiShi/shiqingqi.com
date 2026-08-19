@@ -13,6 +13,11 @@ import {
 } from "react";
 import { corner } from "../primitives/corner.stylex.ts";
 import {
+  duration,
+  easing,
+  motionConstants,
+} from "../primitives/motion.stylex.ts";
+import {
   color,
   controlSize,
   font,
@@ -20,9 +25,50 @@ import {
   shadow,
   space,
 } from "../tokens.stylex.ts";
-import { AnimateToTarget } from "./animate-to-target.tsx";
 import { Button } from "./button.tsx";
 import { FixedContainerContent } from "./fixed-container-content.tsx";
+
+// Derived from the StyleX const rather than restated, so the JS-side check
+// cannot drift from the style-side one — `matchMedia` takes the bare condition,
+// while the StyleX const carries the `@media ` prefix.
+const REDUCED_MOTION_QUERY = motionConstants.REDUCED_MOTION.replace(
+  "@media ",
+  "",
+);
+
+// An empty value drops the inline override, so the surface goes back to the
+// stylesheet: the full box of its container. It then keeps that box if the
+// popup changes size while it is open.
+const FULL_BOX = {
+  top: "",
+  left: "",
+  width: "",
+  height: "",
+  borderRadius: "",
+  cornerShape: "",
+};
+
+function morphTransition(time: string, timingFunction: string) {
+  // Physical properties, not logical: the morph writes measured viewport
+  // coordinates into them, which do not flip in RTL.
+  return ["top", "left", "width", "height", "border-radius"]
+    .map((property) => `${property} ${time} ${timingFunction}`)
+    .join(", ");
+}
+
+function setSurfaceBox(surface: HTMLElement, box: typeof FULL_BOX) {
+  Object.assign(surface.style, box);
+}
+
+const OPEN_TRANSITION = morphTransition(duration._500, easing.spring);
+const OPEN_TRANSITION_FALLBACK = morphTransition(
+  duration._500,
+  easing.springFallback,
+);
+// The fade comes at the tail, so the surface stays visible until it is back
+// over the trigger.
+const CLOSE_TRANSITION = `${morphTransition(duration._300, easing.entrance)}, opacity ${duration._100} ${easing.linear} ${duration._200}`;
+const REDUCED_FADE = `opacity ${duration._150} ${easing.easeInOut}`;
 
 interface MenuButtonProps {
   /** Button prop overrides */
@@ -71,8 +117,12 @@ export function MenuButton({
   const containerRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const menuContainerRef = useRef<HTMLDivElement>(null);
+  const surfaceRef = useRef<HTMLDivElement>(null);
 
   const isSheet = position === "sheet";
+
+  const targetId = useId();
+  const popupId = `${targetId}-popup`;
 
   // A sheet hangs from a bar that may not be where it finally settles: a sticky
   // bar sits further down the viewport until it reaches its stuck offset, so the
@@ -101,6 +151,68 @@ export function MenuButton({
     };
   }, [isMenuShown, isSheet]);
 
+  // The popup opens with a surface morph: a childless box grows from the
+  // trigger to the popup, while the content stays at its final size and only
+  // fades. A frame therefore costs the layout and the paint of one box.
+  //
+  // This effect must stay after the sheet cap above, so that it measures the
+  // capped size.
+  const wasMenuShownRef = useRef(isMenuShown);
+  useLayoutEffect(() => {
+    if (wasMenuShownRef.current === isMenuShown) return;
+    wasMenuShownRef.current = isMenuShown;
+
+    const surface = surfaceRef.current;
+    const container = menuContainerRef.current;
+    const trigger = document.getElementById(targetId);
+    if (!surface || !container || !trigger) return;
+
+    // Reduced motion drops the geometry: the surface cross-fades in place.
+    if (window.matchMedia(REDUCED_MOTION_QUERY).matches) {
+      surface.style.transition = "none";
+      setSurfaceBox(surface, FULL_BOX);
+      void surface.offsetHeight;
+      surface.style.transition = REDUCED_FADE;
+      surface.style.opacity = isMenuShown ? "1" : "0";
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const triggerRect = trigger.getBoundingClientRect();
+    const triggerBox = {
+      top: `${String(triggerRect.top - containerRect.top)}px`,
+      left: `${String(triggerRect.left - containerRect.left)}px`,
+      width: `${String(triggerRect.width)}px`,
+      height: `${String(triggerRect.height)}px`,
+      // A pill or a circle carries `corner.radius_round`, the `1e5px` sentinel
+      // of `border.radius_round`. Cap it, or the spring swings that number
+      // through zero and the corners go square in the middle of the morph.
+      borderRadius: `min(${getComputedStyle(trigger).borderTopLeftRadius}, ${String(Math.min(triggerRect.width, triggerRect.height) / 2)}px)`,
+      // The radius alone. The surface keeps the squircle shape that
+      // `corner.radius_2` gives it, even when it starts from a capped pill.
+      cornerShape: "",
+    };
+
+    if (isMenuShown) {
+      surface.style.transition = "none";
+      setSurfaceBox(surface, triggerBox);
+      surface.style.opacity = "1";
+      // Commit the trigger's box, so that the morph below starts from it.
+      void surface.offsetHeight;
+
+      // A browser without `linear()` rejects the second assignment, and the
+      // CSSOM keeps the bezier written by the first.
+      surface.style.transition = OPEN_TRANSITION_FALLBACK;
+      surface.style.transition = OPEN_TRANSITION;
+      setSurfaceBox(surface, FULL_BOX);
+      return;
+    }
+
+    surface.style.transition = CLOSE_TRANSITION;
+    setSurfaceBox(surface, triggerBox);
+    surface.style.opacity = "0";
+  }, [isMenuShown, targetId]);
+
   const outsideClickedRef = useRef(false);
   useEffect(() => {
     if (isMenuShown) {
@@ -120,9 +232,6 @@ export function MenuButton({
       popup.querySelector<HTMLElement>('[role="menuitem"]');
     target?.focus();
   }, [isMenuShown, popupRole]);
-
-  const targetId = useId();
-  const popupId = `${targetId}-popup`;
 
   // Both intentional close paths (Escape, backdrop click) restore focus to
   // the trigger per the WAI-ARIA Menu Button pattern. The onBlur close path
@@ -228,44 +337,43 @@ export function MenuButton({
         <div
           ref={menuContainerRef}
           css={[
-            corner.radius_2,
             styles.menuContainer,
             !isMenuShown && styles.hidden,
             styles[position],
           ]}
           inert={!isMenuShown}
         >
-          <AnimateToTarget
-            css={[corner.radius_2, styles.menu]}
-            animateToTarget={!isMenuShown}
-            targetId={targetId}
+          <div ref={surfaceRef} css={[corner.radius_2, styles.surface]} />
+          <div
+            id={popupId}
+            ref={popupRef}
+            role={popupRole}
+            // Name the popup by the trigger's visible label when there is one,
+            // otherwise fall back to the trigger button itself (an icon-only
+            // trigger renders no label span, so its name comes from
+            // `aria-label`). Keeps existing labelled triggers unchanged.
+            aria-labelledby={children ? `${targetId}-label` : targetId}
+            css={[
+              corner.radius_2,
+              styles.content,
+              isMenuShown && styles.contentShown,
+              isSheet && styles.sheetScroller,
+            ]}
           >
-            <div
-              id={popupId}
-              ref={popupRef}
-              role={popupRole}
-              // Name the popup by the trigger's visible label when there is one,
-              // otherwise fall back to the trigger button itself (an icon-only
-              // trigger renders no label span, so its name comes from
-              // `aria-label`). Keeps existing labelled triggers unchanged.
-              aria-labelledby={children ? `${targetId}-label` : targetId}
-              css={isSheet && styles.sheetScroller}
-            >
-              {/* Visible heading only. The popup is already named by the
-                  trigger's label via `aria-labelledby`, so this duplicate is
-                  `aria-hidden` — which also keeps a bare non-menuitem node out
-                  of the `role="menu"` accessibility tree. */}
-              {children && (
-                <div
-                  css={[styles.menuTitle, isSheet && styles.stickyMenuTitle]}
-                  aria-hidden
-                >
-                  {children}
-                </div>
-              )}
-              {menuContent}
-            </div>
-          </AnimateToTarget>
+            {/* Visible heading only. The popup is already named by the
+                trigger's label via `aria-labelledby`, so this duplicate is
+                `aria-hidden` — which also keeps a bare non-menuitem node out
+                of the `role="menu"` accessibility tree. */}
+            {children && (
+              <div
+                css={[styles.menuTitle, isSheet && styles.stickyMenuTitle]}
+                aria-hidden
+              >
+                {children}
+              </div>
+            )}
+            {menuContent}
+          </div>
         </div>
       </div>
     </>
@@ -287,10 +395,58 @@ const styles = stylex.create({
   hidden: {
     pointerEvents: "none",
   },
-  menu: {
+  // The only element that animates geometry. It has no children, so the
+  // browser lays out and paints one box per frame.
+  surface: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    opacity: 0,
     backgroundColor: color.bgOverlay,
     boxShadow: shadow._5,
-    overflow: "hidden",
+  },
+  // The content sits at its final size from the start and only fades in over
+  // the surface, so the type never scales. It clips its own corners, because
+  // the surface behind it is a separate element.
+  content: {
+    position: "relative",
+    overflowX: "hidden",
+    overflowY: "hidden",
+    opacity: 0,
+    filter: {
+      default: "blur(5px)",
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
+    transitionProperty: {
+      default: "opacity, filter",
+      [motionConstants.REDUCED_MOTION]: "opacity",
+    },
+    transitionTimingFunction: {
+      default: easing.easeOut,
+      [motionConstants.REDUCED_MOTION]: easing.easeInOut,
+    },
+    transitionDuration: {
+      default: duration._100,
+      [motionConstants.REDUCED_MOTION]: duration._150,
+    },
+  },
+  contentShown: {
+    opacity: 1,
+    filter: {
+      default: "blur(0px)",
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
+    transitionDuration: {
+      default: duration._200,
+      [motionConstants.REDUCED_MOTION]: duration._150,
+    },
+    // The delay lets the surface grow first.
+    transitionDelay: {
+      default: duration._100,
+      [motionConstants.REDUCED_MOTION]: "0s",
+    },
   },
   menuTitle: {
     fontSize: font.uiControlCaption,

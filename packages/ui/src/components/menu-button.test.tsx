@@ -4,16 +4,9 @@ import type { ReactNode } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { MenuButton } from "./menu-button.tsx";
 
-// jsdom doesn't implement these APIs used by Button's press animation hook
-// or AnimateToTarget's reduced-motion check + web-animations call. Stub
-// them so the component tree can mount without tripping on platform gaps.
+// jsdom has no `matchMedia`, which the open/close morph reads for a
+// reduced-motion preference. Stub it so the menu can open.
 beforeAll(() => {
-  HTMLElement.prototype.animate = vi.fn().mockReturnValue({
-    cancel: vi.fn(),
-    finish: vi.fn(),
-    onfinish: null,
-    oncancel: null,
-  });
   window.matchMedia = vi.fn().mockReturnValue({
     matches: false,
     media: "",

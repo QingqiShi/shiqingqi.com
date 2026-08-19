@@ -91,8 +91,8 @@ const styles = stylex.create({
     // No width, height cap, or scrolling of its own: the `sheet` popup sizes
     // itself to the filters bar and caps its own block size against wherever
     // that bar currently sits, which is the part this could only guess at. The
-    // compositing hint went with the scrolling — `AnimateToTarget` already
-    // promotes the two elements it actually animates, above this one.
+    // compositing hint went with the scrolling — the popup animates a surface
+    // of its own, and this content only fades.
   },
   content: {
     display: "flex",

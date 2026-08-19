@@ -61,6 +61,13 @@ export const easing = stylex.defineConsts({
   easeOut: "ease-out",
   easeInOut: "ease-in-out",
   entrance: "cubic-bezier(0.32, 0.72, 0, 1)",
+  // A damped spring (zeta 0.6) sampled into `linear()`: it overshoots by 9%,
+  // dips less than 1%, then settles. A cubic-bezier cannot cross 1 twice.
+  spring:
+    "linear(0, 0.101, 0.322, 0.568, 0.783, 0.941, 1.038, 1.085, 1.095, 1.083, 1.061, 1.038, 1.018, 1.004, 0.996, 0.992, 0.991, 0.992, 0.995, 0.998, 1)",
+  // An overshooting bezier that approximates `spring` where `linear()` is
+  // unsupported. It has no counter-dip, because a bezier cannot cross 1 twice.
+  springFallback: "cubic-bezier(0.34, 1.3, 0.35, 1)",
   // Symmetric ease for looping attention states (pulse/shimmer), which need a
   // gentler hold at each end than `easeInOut` gives.
   pulse: "cubic-bezier(.4,0,.6,1)",
