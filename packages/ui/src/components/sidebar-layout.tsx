@@ -252,31 +252,40 @@ export function SidebarLayout({
           }
         }}
       >
-        <div css={styles.railHeader}>
-          <div css={styles.railTitle}>{sidebarHeader}</div>
-          <IconButton
-            css={styles.railClose}
-            icon={<CloseIcon />}
-            aria-label={closeLabel}
-            onClick={() => {
-              setIsOpen(false);
-            }}
-          />
-        </div>
+        {/* Header and footer ride in ScrollMask's chrome slots, so the nav
+            bleeds under them to the rail's block edges and scrolled-away
+            links blur progressively across the chrome rather than stopping
+            where a header box would begin. */}
         <ScrollMask
           orientation="vertical"
           css={styles.railNav}
           contentCss={[
             styles.railNavContent,
+            sidebarFooter == null && styles.railNavContentNoFooter,
             scrollbar.autoHide,
             transition.scrollbarColor,
           ]}
+          startChrome={
+            <div css={styles.railHeader}>
+              <div css={styles.railTitle}>{sidebarHeader}</div>
+              <IconButton
+                css={styles.railClose}
+                icon={<CloseIcon />}
+                aria-label={closeLabel}
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+              />
+            </div>
+          }
+          endChrome={
+            sidebarFooter != null ? (
+              <div css={styles.railFooter}>{sidebarFooter}</div>
+            ) : undefined
+          }
         >
           {sidebar}
         </ScrollMask>
-        {sidebarFooter != null && (
-          <div css={styles.railFooter}>{sidebarFooter}</div>
-        )}
       </div>
       {as === "main" ? (
         <main css={styles.contentArea}>{content}</main>
@@ -372,8 +381,13 @@ const styles = stylex.create({
   rail: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
     minInlineSize: 0,
+    // The nav's scroll region bleeds to the card's block edges, so its bands
+    // and scrolled content would otherwise paint square over the rounded
+    // corners — clip everything to the squircle. Plain overflow clipping, not
+    // clip-path: a clip-path would make the rail a backdrop root and cut the
+    // bands' backdrop-filter off from the content beneath them.
+    overflow: "clip",
     position: { default: "fixed", [breakpoints.md]: "sticky" },
     insetBlockStart: { default: 0, [breakpoints.md]: space._2 },
     insetBlockEnd: { default: 0, [breakpoints.md]: "auto" },
@@ -395,14 +409,9 @@ const styles = stylex.create({
     // pill bar (`layer.header`). md+: the rail is page chrome that only has to
     // clear scrolling content, which leaves an open overlay above it.
     zIndex: { default: layer.overlay, [breakpoints.md]: layer.content },
-    paddingBlockStart: {
-      default: `calc(${space._3} + env(safe-area-inset-top))`,
-      [breakpoints.md]: space._2,
-    },
-    paddingBlockEnd: {
-      default: `calc(${space._3} + env(safe-area-inset-bottom))`,
-      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-bottom))`,
-    },
+    // No block padding: the scroll region reaches the card's block edges (the
+    // screen's, as the drawer), and the chrome slots carry the block insets
+    // the rail used to.
     paddingInlineStart: {
       default: space._3,
       [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-left))`,
@@ -445,13 +454,20 @@ const styles = stylex.create({
     opacity: 1,
     visibility: "visible",
   },
+  // The slots carry the rail's old block padding on their outer edges and the
+  // rail's old gap on their inner ones, so at rest the chrome and the nav sit
+  // exactly where the flex column used to put them.
   railHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     gap: space._2,
-    flexShrink: 0,
     minInlineSize: 0,
+    paddingBlockStart: {
+      default: `calc(${space._3} + env(safe-area-inset-top))`,
+      [breakpoints.md]: space._2,
+    },
+    paddingBlockEnd: space._2,
   },
   railTitle: {
     minInlineSize: 0,
@@ -460,9 +476,10 @@ const styles = stylex.create({
     display: { default: "inline-flex", [breakpoints.md]: "none" },
   },
   railNav: {
-    // Takes the free space between the header and footer so the utilities pin
-    // to the rail's bottom edge. `ScrollMask` owns the overflow, the
-    // shrink-to-scroll min-size, and the Scroll mask at each edge.
+    // Spans the rail's whole block size — the header and footer are chrome
+    // slots inside it. `ScrollMask` owns the overflow, the shrink-to-scroll
+    // min-size, the Scroll mask at each edge, and pinning the footer to the
+    // rail's bottom edge while the nav is short.
     flexGrow: 1,
     // The native scrollbar shows only while the nav actually overflows. Bleed
     // the scroll region's end edge out over the rail's inline padding so the
@@ -480,7 +497,19 @@ const styles = stylex.create({
     paddingInlineEnd: { default: 0, [breakpoints.md]: space._2 },
   },
   railFooter: {
-    flexShrink: 0,
+    paddingBlockStart: space._2,
+    paddingBlockEnd: {
+      default: `calc(${space._3} + env(safe-area-inset-bottom))`,
+      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-bottom))`,
+    },
+  },
+  // Without a footer slot there is no chrome carrying the block-end inset, so
+  // the scroller pads its own end and the plain end band sits at the card edge.
+  railNavContentNoFooter: {
+    paddingBlockEnd: {
+      default: `calc(${space._3} + env(safe-area-inset-bottom))`,
+      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-bottom))`,
+    },
   },
   contentArea: {
     minInlineSize: 0,

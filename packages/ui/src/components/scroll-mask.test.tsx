@@ -245,3 +245,162 @@ describe("ScrollMask", () => {
     }
   });
 });
+
+describe("ScrollMask chrome slots", () => {
+  function renderChromeMask(
+    props?: Omit<ComponentProps<typeof ScrollMask>, "children">,
+  ) {
+    return renderMask({
+      startChrome: <span>header</span>,
+      endChrome: <span>footer</span>,
+      ...props,
+    });
+  }
+
+  // The slot wrapper ScrollMask owns: [band, content wrapper], with the
+  // consumer's chrome inside the content wrapper.
+  function slotOf(text: string) {
+    const contentWrapper = screen.getByText(text).parentElement;
+    const slot = contentWrapper?.parentElement;
+    if (!contentWrapper || !slot) throw new Error("slot structure missing");
+    return { slot, contentWrapper };
+  }
+
+  it("renders the slots inside the scroller with the content between them", () => {
+    const root = renderChromeMask();
+    const scroller = root.firstElementChild;
+    const header = screen.getByText("header");
+    const content = screen.getByText("content");
+    const footer = screen.getByText("footer");
+
+    expect(scroller).toContainElement(header);
+    expect(scroller).toContainElement(footer);
+    expect(
+      header.compareDocumentPosition(content) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      content.compareDocumentPosition(footer) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("lays the scroller out as a flex line and grows the middle", () => {
+    const root = renderChromeMask();
+
+    expect(root.firstElementChild?.className).toContain(
+      "styles.scrollerChromeColumn",
+    );
+    expect(screen.getByText("content").parentElement?.className).toContain(
+      "styles.middle",
+    );
+  });
+
+  it("keeps the slotless scroller free of the slot layout", () => {
+    const root = renderMask();
+
+    expect(root.firstElementChild?.className).not.toContain(
+      "styles.scrollerChrome",
+    );
+  });
+
+  it("pins each slot sticky against its own edge, chrome above the band", () => {
+    renderChromeMask();
+    const start = slotOf("header");
+    const end = slotOf("footer");
+
+    expect(start.slot.className).toContain("styles.chromeBlockStart");
+    expect(end.slot.className).toContain("styles.chromeBlockEnd");
+    expect(start.contentWrapper.className).toContain("styles.chromeContent");
+    expect(end.contentWrapper.className).toContain("styles.chromeContent");
+  });
+
+  it("moves a slotted edge's band inside its chrome", () => {
+    const root = renderChromeMask();
+    const bands = bandElements(root);
+
+    expect(bands).toHaveLength(2);
+    // Both edges slotted: every band lives in a slot, none beside the scroller.
+    expect(root.children).toHaveLength(1);
+    expect(bands[0].parentElement?.className).toContain(
+      "styles.chromeBlockStart",
+    );
+    expect(bands[1].parentElement?.className).toContain(
+      "styles.chromeBlockEnd",
+    );
+  });
+
+  it("keeps the bare edge's band beside the scroller with one slot", () => {
+    const root = renderMask({ startChrome: <span>header</span> });
+    const bands = bandElements(root);
+
+    expect(bands).toHaveLength(2);
+    expect(bands[0].parentElement?.className).toContain(
+      "styles.chromeBlockStart",
+    );
+    expect(bands[1].parentElement).toBe(root);
+  });
+
+  it("ramps a slotted band across the chrome and depth past it", () => {
+    const root = renderChromeMask({
+      depth: "40px",
+      showStartMask: true,
+      showEndMask: true,
+    });
+    const { start, end } = bandsOf(root);
+
+    expect(start.getAttribute("style") ?? "").toContain("calc(-1 * 40px)");
+    expect(end.getAttribute("style") ?? "").toContain("calc(-1 * 40px)");
+    for (const layer of layerStyles(start)) {
+      expect(layer).toContain("to bottom");
+    }
+    for (const layer of layerStyles(end)) {
+      expect(layer).toContain("to top");
+    }
+  });
+
+  it("drives a slotted band from the controlled props", () => {
+    const root = renderChromeMask({
+      showStartMask: true,
+      showEndMask: false,
+    });
+    const { start, end } = bandsOf(root);
+
+    for (const layer of start.children) {
+      expect(layer.className).not.toContain("styles.hidden");
+    }
+    for (const layer of end.children) {
+      expect(layer.className).toContain("styles.hidden");
+    }
+  });
+
+  it("places horizontal slots against the inline edges", () => {
+    const root = renderChromeMask({
+      orientation: "horizontal",
+      showStartMask: true,
+      showEndMask: true,
+    });
+
+    expect(root.firstElementChild?.className).toContain(
+      "styles.scrollerChromeRow",
+    );
+    expect(slotOf("header").slot.className).toContain(
+      "styles.chromeInlineStart",
+    );
+    expect(slotOf("footer").slot.className).toContain("styles.chromeInlineEnd");
+    const { start, end } = bandsOf(root);
+    for (const layer of layerStyles(start)) {
+      expect(layer).toContain("to right");
+    }
+    for (const layer of layerStyles(end)) {
+      expect(layer).toContain("to left");
+    }
+  });
+
+  it("still forwards the ref to the scroller with slots present", () => {
+    const ref = createRef<HTMLDivElement>();
+    const root = renderChromeMask({ ref });
+
+    expect(ref.current).toBe(root.firstElementChild);
+  });
+});

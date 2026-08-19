@@ -128,3 +128,43 @@ describe("SidebarLayout tuning props", () => {
     expect(screen.getByText("Body").getAttribute("style")).toContain("480px");
   });
 });
+
+describe("SidebarLayout rail chrome slots", () => {
+  it("renders the header and footer inside the nav scroller as chrome", () => {
+    renderShell({
+      sidebarHeader: <span>Title</span>,
+      sidebarFooter: <span>Utilities</span>,
+    });
+    const railTitle = screen.getAllByText("Title")[1];
+    const footer = screen.getByText("Utilities");
+    const navLink = screen.getByText("Rail");
+
+    // Both ride in ScrollMask's chrome slots …
+    expect(railTitle.closest('[class*="styles.chromeContent"]')).not.toBeNull();
+    expect(footer.closest('[class*="styles.chromeContent"]')).not.toBeNull();
+    // … inside the same scroller as the nav, so the nav bleeds under them.
+    const scroller = navLink.closest('[class*="styles.scrollerVertical"]');
+    expect(scroller).not.toBeNull();
+    expect(scroller).toContainElement(railTitle);
+    expect(scroller).toContainElement(footer);
+  });
+
+  it("keeps the focus order header, nav, footer", () => {
+    renderShell({
+      sidebarHeader: <span>Title</span>,
+      sidebarFooter: <span>Utilities</span>,
+    });
+    const railTitle = screen.getAllByText("Title")[1];
+    const navLink = screen.getByText("Rail");
+    const footer = screen.getByText("Utilities");
+
+    expect(
+      railTitle.compareDocumentPosition(navLink) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      navLink.compareDocumentPosition(footer) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+});

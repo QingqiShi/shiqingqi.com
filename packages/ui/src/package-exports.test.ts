@@ -35,6 +35,9 @@ const EXPECTED_UNEXPORTED: ReadonlySet<string> = new Set([
   // Mask-string maths behind ProgressiveBlur and ScrollMask, split out so it
   // can be unit tested without a DOM; the geometry is not public API.
   "src/components/progressive-blur-masks.ts",
+  // One Scroll mask band, shared by ScrollMask's bare edges and its chrome
+  // slots so the melt lives in one place; a composition detail of the region.
+  "src/components/mask-band.tsx",
 ]);
 
 // Hue ramps the "./palette/*" wildcard export must always cover.
