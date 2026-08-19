@@ -12,16 +12,18 @@ let initialised = false;
 let client: PostHog | undefined;
 
 // Must run after hydration: posthog.init injects its remote-config script next
-// to the first <script> in the document, which in this app is the inline
-// service-worker-cleanup script in the root layout's <head>. Injecting before
-// hydration makes React find an unexpected node there and re-hydrate the
-// whole root on every page load.
+// to the first `body > script`, which here is the theme InlineScript in the
+// root layout. Injecting before hydration makes React find an unexpected node
+// there and re-hydrate the whole root on every page load. An earlier
+// `body > script`, or a moved or removed theme script, moves the injection
+// point and can bring the bug back.
 //
 // posthog-js is imported dynamically so it stays out of every route's initial
 // bundle (it reaches them all via the layout and the error boundaries) and is
 // never fetched at all in builds without the env vars.
 export async function initPostHog() {
-  if (!token || !host || initialised) return;
+  // The token/host checks only narrow types; posthogEnabled is the rule.
+  if (!posthogEnabled || initialised || !token || !host) return;
   initialised = true;
 
   const { default: posthog } = await import("posthog-js");

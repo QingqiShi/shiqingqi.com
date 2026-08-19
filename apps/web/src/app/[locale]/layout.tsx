@@ -26,19 +26,6 @@ export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "zh" }];
 }
 
-const serviceWorkerCleanupScript = `
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for (var i = 0; i < registrations.length; i++) {
-        var reg = registrations[i];
-        if (reg.active && reg.active.scriptURL.indexOf('/serwist/') !== -1) {
-          reg.unregister().then(function() { location.reload(); });
-        }
-      }
-    });
-  }
-`;
-
 export default async function RootLayout({
   params,
   children,
@@ -56,9 +43,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        {/* Cleanup old service worker at /serwist/sw.js - can be removed after migration */}
-        <InlineScript html={serviceWorkerCleanupScript} />
+      <body css={globalStyles.body}>
         {/*
           Both locales render Latin text in Inter (names, dates, brand
           wordmarks, numbers), so both locales benefit from preloading it.
@@ -74,13 +59,8 @@ export default async function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-      </head>
-      <body css={globalStyles.body}>
         <I18nProvider locale={locale}>
-          <SerwistProvider
-            swUrl="/sw.js"
-            disable={process.env.NODE_ENV === "development"}
-          >
+          <SerwistProvider>
             <InlineScript html={themeHack} />
             <PortalTargetProvider>
               <BackOverrideProvider>
