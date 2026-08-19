@@ -60,6 +60,14 @@ function setSurfaceBox(surface: HTMLElement, box: typeof FULL_BOX) {
   Object.assign(surface.style, box);
 }
 
+// A bare `void element.offsetHeight` in a component does not survive React
+// Compiler: it takes property reads as pure and removes the unused read, so
+// the surface never commits its start box. A call is opaque to it, and this
+// module-level function is outside what it compiles.
+function forceReflow(element: HTMLElement) {
+  void element.offsetHeight;
+}
+
 const OPEN_TRANSITION = morphTransition(duration._500, easing.spring);
 const OPEN_TRANSITION_FALLBACK = morphTransition(
   duration._500,
@@ -171,7 +179,7 @@ export function MenuButton({
     if (window.matchMedia(REDUCED_MOTION_QUERY).matches) {
       surface.style.transition = "none";
       setSurfaceBox(surface, FULL_BOX);
-      void surface.offsetHeight;
+      forceReflow(surface);
       surface.style.transition = REDUCED_FADE;
       surface.style.opacity = isMenuShown ? "1" : "0";
       return;
@@ -198,7 +206,7 @@ export function MenuButton({
       setSurfaceBox(surface, triggerBox);
       surface.style.opacity = "1";
       // Commit the trigger's box, so that the morph below starts from it.
-      void surface.offsetHeight;
+      forceReflow(surface);
 
       // A browser without `linear()` rejects the second assignment, and the
       // CSSOM keeps the bezier written by the first.
