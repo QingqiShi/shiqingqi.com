@@ -483,9 +483,12 @@ const styles = stylex.create({
     flexGrow: 1,
     // The native scrollbar shows only while the nav actually overflows. Bleed
     // the scroll region's end edge out over the rail's inline padding so the
-    // scrollbar sits flush against the rail's border, then pad the content back
-    // in by the same amount so the links keep their inset.
-    marginInlineEnd: { default: 0, [breakpoints.md]: `calc(-1 * ${space._2})` },
+    // scrollbar sits flush against the rail's/drawer's border, then pad the
+    // content back in by the same amount so the links keep their inset.
+    marginInlineEnd: {
+      default: `calc(-1 * (${space._3} + env(safe-area-inset-right)))`,
+      [breakpoints.md]: `calc(-1 * ${space._2})`,
+    },
   },
   railNavContent: {
     overscrollBehavior: "contain",
@@ -493,8 +496,11 @@ const styles = stylex.create({
     // scrollbars) so a nav that overflows never renders its links underneath
     // the scrollbar, and the link width stays constant whether or not the
     // scrollbar is present.
-    scrollbarGutter: { default: "auto", [breakpoints.md]: "stable" },
-    paddingInlineEnd: { default: 0, [breakpoints.md]: space._2 },
+    scrollbarGutter: "stable",
+    paddingInlineEnd: {
+      default: `calc(${space._3} + env(safe-area-inset-right))`,
+      [breakpoints.md]: space._2,
+    },
   },
   railFooter: {
     paddingBlockStart: space._2,
