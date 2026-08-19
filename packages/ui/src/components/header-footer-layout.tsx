@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { layer, layout, space } from "../tokens.stylex.ts";
+import { PageScrollMask } from "./page-scroll-mask.tsx";
 
 interface HeaderFooterLayoutProps {
   /**
@@ -56,6 +57,14 @@ interface HeaderFooterLayoutProps {
  * backdrops bleed to the top edge; text pages add their own clearance), and an
  * optional footer pinned to the bottom of the same measure.
  *
+ * The bar carries the page's Scroll mask: once the page is scrolled away from
+ * the top, content passing beneath the bar blurs progressively across it —
+ * strongest at the viewport edge, sharp again just past the bar — so the page
+ * reads as continuing under the chrome rather than stopping at it. At rest the
+ * mask melts away and a hero bleeds to the top edge untouched. The footer is in
+ * flow at the end of the page, where nothing scrolls under it, so it carries no
+ * mask.
+ *
  * This is the shell behind the site's header/footer pages. For dense, app-like
  * surfaces with their own navigation, reach for `SidebarLayout` instead — a page
  * uses one shell or the other, never both.
@@ -93,6 +102,7 @@ export function HeaderFooterLayout({
         </div>
       )}
       <header css={styles.header}>
+        <PageScrollMask />
         <div css={styles.headerNav}>
           <div css={styles.headerGroup}>{headerStart}</div>
           <div css={styles.headerGroup}>{headerEnd}</div>
@@ -126,7 +136,10 @@ const styles = stylex.create({
   // Fixed bar aligned to the same centered measure as the content. Pointer
   // events stay off so only the slot regions intercept input, and the
   // scrollbar-compensation var (set by scroll-locking overlays) keeps the bar
-  // from shifting when a dialog locks the page.
+  // from shifting when a dialog locks the page. It is also the box the page's
+  // Scroll mask is sized against, so it carries no opacity, filter or mask:
+  // any of them would make the bar a backdrop root and cut the mask's layers
+  // off from the page scrolling beneath them.
   header: {
     position: "fixed",
     insetBlockStart: 0,
@@ -138,7 +151,11 @@ const styles = stylex.create({
     pointerEvents: "none",
     paddingInlineEnd: "var(--removed-body-scroll-bar-size, 0px)",
   },
+  // Positioned, so it paints above the Scroll mask's layers that precede it in
+  // DOM order and the controls stay crisp: `backdrop-filter` only blurs what
+  // painted before it.
   headerNav: {
+    position: "relative",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",

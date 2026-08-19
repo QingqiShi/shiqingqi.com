@@ -178,6 +178,14 @@ export default function DesignSystemOverview() {
       en: "A surface anchored to its trigger that flips away from the viewport edge.",
       zh: "锚定在触发元素上的浮层，会自动避开视口边缘翻转。",
     }),
+    "/design-system/components/progressive-blur": t({
+      en: "Progressively blurs the page behind a floating element, instead of dimming it.",
+      zh: "在悬浮元素背后渐进虚化页面，而非将其压暗。",
+    }),
+    "/design-system/components/scroll-mask": t({
+      en: "A scroll region whose content blurs on its way out of view at each edge it can still scroll to.",
+      zh: "滚动区域在仍可继续滚动的每条边上，将移出视野的内容渐进虚化。",
+    }),
     "/design-system/components/sidebar-layout": t({
       en: "An app-density page shell with a sticky navigation rail and a mobile drawer.",
       zh: "带粘性导航侧栏与移动端抽屉的应用密度页面骨架。",

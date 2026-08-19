@@ -101,6 +101,14 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
     }),
     "/design-system/components/overlay": t({ en: "Overlay", zh: "覆盖层" }),
     "/design-system/components/popover": t({ en: "Popover", zh: "浮层" }),
+    "/design-system/components/progressive-blur": t({
+      en: "Progressive blur",
+      zh: "渐进虚化",
+    }),
+    "/design-system/components/scroll-mask": t({
+      en: "Scroll mask",
+      zh: "滚动虚化",
+    }),
     "/design-system/components/divider": t({ en: "Divider", zh: "分隔线" }),
     "/design-system/components/sidebar-layout": t({
       en: "Sidebar layout",

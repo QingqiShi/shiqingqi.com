@@ -1,14 +1,16 @@
 import * as stylex from "@stylexjs/stylex";
+import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, shadow, space } from "@tuja/ui/tokens.stylex";
+import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 
 /**
  * A miniature page rather than the component: the real `Overlay` portals to a
  * fixed layer, traps focus, and locks scroll, none of which a tile can host.
- * The diagram carries the parts that matter — the scrim dimming the page and
- * the raised panel above it — using the same `bgScrim` and `shadow` tokens.
+ * The diagram carries the parts that matter — the page blurring progressively
+ * behind the raised panel rather than dimming — using the real
+ * `ProgressiveBlur` at a radius scaled to the tile.
  */
 export function OverlaySpecimen() {
   return (
@@ -17,11 +19,12 @@ export function OverlaySpecimen() {
         <WireframeBar width="45%" strong />
         <WireframeBar width="80%" />
       </div>
-      <div css={styles.scrim} />
-      <div css={[corner.radius_2, styles.panel]}>
-        <WireframeBar width="55%" strong />
-        <WireframeBar width="85%" />
-      </div>
+      <ProgressiveBlur radius={6}>
+        <div css={[corner.radius_2, styles.panel]}>
+          <WireframeBar width="55%" strong />
+          <WireframeBar width="85%" />
+        </div>
+      </ProgressiveBlur>
     </div>
   );
 }
@@ -36,15 +39,6 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._2,
   },
-  // The real scrim at full strength turns the miniature into a solid black
-  // slab — the heaviest mark on the page, for the tile with the least to say.
-  // Thinned to roughly 40% alpha (`bgScrim` is already 70%): still unmistakably
-  // a dimmed page behind a panel, without shouting across the grid.
-  scrim: {
-    position: "absolute",
-    inset: 0,
-    backgroundColor: `color-mix(in srgb, ${color.bgScrim} 58%, transparent)`,
-  },
   panel: {
     position: "absolute",
     insetBlockStart: "50%",
@@ -56,7 +50,9 @@ const styles = stylex.create({
     inlineSize: "62%",
     paddingBlock: space._2,
     paddingInline: space._2,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: shadow._5,
   },
 });

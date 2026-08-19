@@ -1,6 +1,6 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
-import { ScrollFade } from "@tuja/ui/components/scroll-fade";
+import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -99,17 +99,24 @@ export function CalculatorDisplay({
 
   return (
     <div css={styles.wrapper}>
-      <ScrollFade
+      <ScrollMask
         ref={containerRef}
         orientation="horizontal"
-        css={[styles.container, isScrollable && styles.scrollable]}
+        // Half the default reach on both counts: the display's digits are
+        // several times taller than ordinary text, so the default mask spreads
+        // a clipped glyph over the whole band and reads as a block rather than
+        // as the digit continuing past the edge.
+        radius={4}
+        depth={space._2}
+        css={styles.container}
+        contentCss={[styles.content, isScrollable && styles.scrollable]}
         role="status"
         aria-live="polite"
       >
         <span ref={textRef} css={styles.text}>
           {displayText}
         </span>
-      </ScrollFade>
+      </ScrollMask>
     </div>
   );
 }
@@ -120,9 +127,12 @@ const styles = stylex.create({
     position: "relative",
   },
   container: {
-    // ScrollFade owns the overflow (auto on the scroll axis); the height and
-    // end-alignment stay here.
+    // ScrollMask owns the overflow (auto on the scroll axis); the region's own
+    // height stays here, and the end-alignment moves inside to the scroller,
+    // which is what the text is laid out in.
     height: "100%",
+  },
+  content: {
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "flex-end",

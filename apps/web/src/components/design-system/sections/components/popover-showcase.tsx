@@ -5,14 +5,16 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Popover } from "@tuja/ui/components/popover";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
+import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
+import { guidelineDiagram } from "../../guideline-diagram.stylex.ts";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase, StateReadout } from "../../showcase.tsx";
@@ -159,7 +161,7 @@ function PortalTargetDemo() {
  */
 function PopoverDiagram() {
   return (
-    <div css={[corner.radius_2, styles.diagram]}>
+    <div css={[corner.radius_2, guidelineDiagram.frame]}>
       <div css={[corner.radius_1, styles.diagramTrigger]} />
       <WireframeBar width="72%" />
       <WireframeBar width="48%" />
@@ -171,18 +173,19 @@ function PopoverDiagram() {
   );
 }
 
-/** The same page under a modal: dimmed, and the panel centred rather than hung. */
+/** The same page under a modal: blurred, and the panel centred rather than hung. */
 function ModalDiagram() {
   return (
-    <div css={[corner.radius_2, styles.diagram]}>
+    <div css={[corner.radius_2, guidelineDiagram.frame]}>
       <div css={[corner.radius_1, styles.diagramTrigger]} />
       <WireframeBar width="72%" />
       <WireframeBar width="48%" />
-      <div css={styles.diagramScrim} />
-      <div css={[popoverSurface.base, styles.diagramModal]}>
-        <WireframeBar width="55%" strong />
-        <WireframeBar width="80%" />
-      </div>
+      <ProgressiveBlur radius={10}>
+        <div css={[popoverSurface.base, styles.diagramModal]}>
+          <WireframeBar width="55%" strong />
+          <WireframeBar width="80%" />
+        </div>
+      </ProgressiveBlur>
     </div>
   );
 }
@@ -473,8 +476,8 @@ export function PopoverShowcase() {
           })}
           dont={<ModalDiagram />}
           dontCaption={t({
-            en: "Don't reach for one when the page has to stop. A decision that blocks everything else needs Overlay's scrim, focus trap, and scroll lock — a Popover deliberately has none of the three.",
-            zh: "当页面必须停下来时不要用它。会阻断其余一切的决定需要覆盖层的遮罩、焦点捕获与滚动锁定——浮层刻意不提供这三者。",
+            en: "Don't reach for one when the page has to stop. A decision that blocks everything else needs Overlay's blurred page, focus trap, and scroll lock — a Popover deliberately has none of the three.",
+            zh: "当页面必须停下来时不要用它。会阻断其余一切的决定需要覆盖层的页面虚化、焦点捕获与滚动锁定——浮层刻意不提供这三者。",
           })}
         />
         <DoDont
@@ -615,34 +618,11 @@ const styles = stylex.create({
     borderStyle: "dashed",
     borderColor: color.neutralBorder,
   },
-  diagram: {
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-    inlineSize: "100%",
-    minBlockSize: space._10,
-    padding: space._2,
-    overflow: "hidden",
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    backgroundColor: color.bgSurface,
-  },
   diagramTrigger: {
     inlineSize: space._9,
     blockSize: space._2,
     backgroundColor: color.bgInteractiveSelected,
   },
-  // Thinned the way the Overlay specimen thins it: at this size the real scrim
-  // is a solid slab, and the panel above it stops reading as raised.
-  diagramScrim: {
-    position: "absolute",
-    inset: 0,
-    backgroundColor: `color-mix(in srgb, ${color.bgScrim} 58%, transparent)`,
-  },
-  // Composed with `popoverSurface.base`, whose `shadow._5` is calibrated for a
-  // panel floating over a whole page and reads as a smudge on a diagram.
   diagramPanel: {
     position: "absolute",
     insetBlockStart: space._6,
@@ -653,7 +633,6 @@ const styles = stylex.create({
     inlineSize: "68%",
     paddingBlock: space._1,
     paddingInline: space._2,
-    boxShadow: shadow._3,
   },
   diagramModal: {
     position: "absolute",
@@ -666,6 +645,5 @@ const styles = stylex.create({
     inlineSize: "72%",
     paddingBlock: space._1,
     paddingInline: space._2,
-    boxShadow: shadow._3,
   },
 });

@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
-import { shadow, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
@@ -41,7 +41,7 @@ const styles = stylex.create({
   panel: {
     position: "absolute",
     insetBlockEnd: 0,
-    // Held off the inline edges so the shadow's falloff isn't sliced by the
+    // Held off the inline edges so the panel's own corners stay clear of the
     // tile's corner clip.
     insetInlineStart: space._1,
     insetInlineEnd: space._1,
@@ -50,8 +50,5 @@ const styles = stylex.create({
     gap: space._1,
     paddingBlock: space._1,
     paddingInline: space._2,
-    // A step below the surface's own `shadow._5`, which is calibrated for a
-    // panel floating over a whole page and reads as a smudge at tile scale.
-    boxShadow: shadow._3,
   },
 });

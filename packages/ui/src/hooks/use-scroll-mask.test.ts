@@ -9,7 +9,7 @@ import {
   afterEach,
   type MockInstance,
 } from "vitest";
-import { useScrollFades } from "./use-scroll-fades.ts";
+import { useScrollMask } from "./use-scroll-mask.ts";
 
 // Sets every scroll dimension on the element so the same stub works for either
 // orientation; the hook only reads the axis it's told to.
@@ -49,7 +49,7 @@ function redefineScroll(el: HTMLElement, props: Record<string, number>) {
   }
 }
 
-describe("useScrollFades", () => {
+describe("useScrollMask", () => {
   let rafSpy: MockInstance;
 
   beforeEach(() => {
@@ -67,42 +67,42 @@ describe("useScrollFades", () => {
     rafSpy.mockRestore();
   });
 
-  it("returns both fades false when ref is null", () => {
+  it("returns both edges false when ref is null", () => {
     const { result } = renderHook(() => {
       const ref = useRef<HTMLElement>(null);
-      return useScrollFades(ref);
+      return useScrollMask(ref);
     });
-    expect(result.current.showStartFade).toBe(false);
-    expect(result.current.showEndFade).toBe(false);
+    expect(result.current.showStartMask).toBe(false);
+    expect(result.current.showEndMask).toBe(false);
   });
 
-  it("shows end fade when content overflows and scroll is at start", () => {
+  it("masks the end edge when content overflows and scroll is at the start", () => {
     const el = makeScrollable({
       scrollLeft: 0,
       scrollWidth: 500,
       clientWidth: 200,
     });
     const ref = { current: el };
-    const { result } = renderHook(() => useScrollFades(ref));
+    const { result } = renderHook(() => useScrollMask(ref));
 
-    expect(result.current.showStartFade).toBe(false);
-    expect(result.current.showEndFade).toBe(true);
+    expect(result.current.showStartMask).toBe(false);
+    expect(result.current.showEndMask).toBe(true);
   });
 
-  it("shows both fades when scrolled to the middle", () => {
+  it("masks both edges when scrolled to the middle", () => {
     const el = makeScrollable({
       scrollLeft: 100,
       scrollWidth: 500,
       clientWidth: 200,
     });
     const ref = { current: el };
-    const { result } = renderHook(() => useScrollFades(ref));
+    const { result } = renderHook(() => useScrollMask(ref));
 
-    expect(result.current.showStartFade).toBe(true);
-    expect(result.current.showEndFade).toBe(true);
+    expect(result.current.showStartMask).toBe(true);
+    expect(result.current.showEndMask).toBe(true);
   });
 
-  it("shows only start fade when scrolled to the end (within 1px tolerance)", () => {
+  it("masks only the start edge when scrolled to the end (within 1px tolerance)", () => {
     // scrollLeft 299 + clientWidth 200 = 499 = scrollWidth 500 - 1
     const el = makeScrollable({
       scrollLeft: 299,
@@ -110,62 +110,62 @@ describe("useScrollFades", () => {
       clientWidth: 200,
     });
     const ref = { current: el };
-    const { result } = renderHook(() => useScrollFades(ref));
+    const { result } = renderHook(() => useScrollMask(ref));
 
-    expect(result.current.showStartFade).toBe(true);
-    expect(result.current.showEndFade).toBe(false);
+    expect(result.current.showStartMask).toBe(true);
+    expect(result.current.showEndMask).toBe(false);
   });
 
-  it("shows no fades when content fits without scrolling", () => {
+  it("masks no edge when content fits without scrolling", () => {
     const el = makeScrollable({
       scrollLeft: 0,
       scrollWidth: 200,
       clientWidth: 200,
     });
     const ref = { current: el };
-    const { result } = renderHook(() => useScrollFades(ref));
+    const { result } = renderHook(() => useScrollMask(ref));
 
-    expect(result.current.showStartFade).toBe(false);
-    expect(result.current.showEndFade).toBe(false);
+    expect(result.current.showStartMask).toBe(false);
+    expect(result.current.showEndMask).toBe(false);
   });
 
   it("reads the vertical axis when orientation is vertical", () => {
-    // At the top: no start (top) fade, but content below → end (bottom) fade.
+    // At the top: no start (top) mask, but content below → end (bottom) mask.
     const atTop = makeScrollable({
       scrollTop: 0,
       scrollHeight: 900,
       clientHeight: 300,
     });
     const { result: top } = renderHook(() =>
-      useScrollFades({ current: atTop }, "vertical"),
+      useScrollMask({ current: atTop }, "vertical"),
     );
-    expect(top.current.showStartFade).toBe(false);
-    expect(top.current.showEndFade).toBe(true);
+    expect(top.current.showStartMask).toBe(false);
+    expect(top.current.showEndMask).toBe(true);
 
-    // Scrolled down the middle: both edges fade.
+    // Scrolled down the middle: both edges mask.
     const middle = makeScrollable({
       scrollTop: 200,
       scrollHeight: 900,
       clientHeight: 300,
     });
     const { result: mid } = renderHook(() =>
-      useScrollFades({ current: middle }, "vertical"),
+      useScrollMask({ current: middle }, "vertical"),
     );
-    expect(mid.current.showStartFade).toBe(true);
-    expect(mid.current.showEndFade).toBe(true);
+    expect(mid.current.showStartMask).toBe(true);
+    expect(mid.current.showEndMask).toBe(true);
   });
 
-  it("updates fades on scroll events", () => {
+  it("updates both edges on scroll events", () => {
     const el = makeScrollable({
       scrollLeft: 0,
       scrollWidth: 500,
       clientWidth: 200,
     });
     const ref = { current: el };
-    const { result } = renderHook(() => useScrollFades(ref));
+    const { result } = renderHook(() => useScrollMask(ref));
 
-    expect(result.current.showStartFade).toBe(false);
-    expect(result.current.showEndFade).toBe(true);
+    expect(result.current.showStartMask).toBe(false);
+    expect(result.current.showEndMask).toBe(true);
 
     // Simulate scrolling to the end
     redefineScroll(el, { scrollLeft: 300 });
@@ -173,8 +173,8 @@ describe("useScrollFades", () => {
       el.dispatchEvent(new Event("scroll"));
     });
 
-    expect(result.current.showStartFade).toBe(true);
-    expect(result.current.showEndFade).toBe(false);
+    expect(result.current.showStartMask).toBe(true);
+    expect(result.current.showEndMask).toBe(false);
   });
 
   it("stays inert and attaches no scroll listener when disabled", () => {
@@ -186,13 +186,13 @@ describe("useScrollFades", () => {
     const addSpy = vi.spyOn(el, "addEventListener");
     const ref = { current: el };
     const { result } = renderHook(() =>
-      useScrollFades(ref, "horizontal", { enabled: false }),
+      useScrollMask(ref, "horizontal", { enabled: false }),
     );
 
-    // Would show both fades if enabled; disabled leaves them false and never
+    // Would mask both edges if enabled; disabled leaves them false and never
     // wires up the scroll observer.
-    expect(result.current.showStartFade).toBe(false);
-    expect(result.current.showEndFade).toBe(false);
+    expect(result.current.showStartMask).toBe(false);
+    expect(result.current.showEndMask).toBe(false);
     expect(addSpy).not.toHaveBeenCalled();
   });
 
@@ -200,7 +200,7 @@ describe("useScrollFades", () => {
     const el = makeScrollable();
     const removeSpy = vi.spyOn(el, "removeEventListener");
     const ref = { current: el };
-    const { unmount } = renderHook(() => useScrollFades(ref));
+    const { unmount } = renderHook(() => useScrollMask(ref));
 
     unmount();
 
@@ -217,17 +217,17 @@ describe("useScrollFades", () => {
     window.ResizeObserver = StubResizeObserver;
 
     try {
-      // Start with content that fits — no fades.
+      // Start with content that fits — no masks.
       const el = makeScrollable({
         scrollLeft: 0,
         scrollWidth: 200,
         clientWidth: 200,
       });
       const ref = { current: el };
-      const { result } = renderHook(() => useScrollFades(ref));
+      const { result } = renderHook(() => useScrollMask(ref));
 
-      expect(result.current.showStartFade).toBe(false);
-      expect(result.current.showEndFade).toBe(false);
+      expect(result.current.showStartMask).toBe(false);
+      expect(result.current.showEndMask).toBe(false);
 
       // Simulate a child being added: scrollWidth grows past clientWidth,
       // but the container's own box size is unchanged.
@@ -239,7 +239,7 @@ describe("useScrollFades", () => {
         await Promise.resolve();
       });
 
-      expect(result.current.showEndFade).toBe(true);
+      expect(result.current.showEndMask).toBe(true);
     } finally {
       window.ResizeObserver = originalRO;
     }

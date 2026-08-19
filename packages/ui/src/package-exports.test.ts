@@ -32,6 +32,17 @@ const EXPECTED_UNEXPORTED: ReadonlySet<string> = new Set([
   // (TextField, Textarea, Checkbox, Select, Slider); an internal composition
   // detail.
   "src/hooks/use-field-aria.ts",
+  // Mask-string maths behind ProgressiveBlur and ScrollMask, split out so it
+  // can be unit tested without a DOM; the geometry is not public API.
+  "src/components/progressive-blur-masks.ts",
+  // One Scroll mask band, shared by ScrollMask's edges and the page-level mask
+  // so the melt lives in one place; a composition detail of both.
+  "src/components/mask-band.tsx",
+  // The page-level Scroll mask and the window-scroll state behind it. Both are
+  // internals of HeaderFooterLayout, whose bar is the only box that satisfies
+  // the band's contract today; promote them when a second shell wants one.
+  "src/components/page-scroll-mask.tsx",
+  "src/hooks/use-page-scroll-mask.ts",
 ]);
 
 // Hue ramps the "./palette/*" wildcard export must always cover.

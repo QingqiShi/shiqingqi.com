@@ -316,6 +316,28 @@ export const DESIGN_SYSTEM_ROUTES = [
   {
     section: "components",
     category: "surfaces",
+    path: "/design-system/components/progressive-blur",
+    keywords: ["backdrop", "blur", "frosted", "scrim", "floating", "dim"],
+  },
+  // Directly under Progressive blur, which it is one case of: the same
+  // treatment, at the edge of a scroll region rather than around a floating
+  // element.
+  {
+    section: "components",
+    category: "surfaces",
+    path: "/design-system/components/scroll-mask",
+    keywords: [
+      "fade",
+      "edge fade",
+      "scroll shadow",
+      "gradient mask",
+      "overflow",
+      "scroller",
+    ],
+  },
+  {
+    section: "components",
+    category: "surfaces",
     path: "/design-system/components/divider",
     keywords: ["separator", "rule", "hr", "line"],
   },

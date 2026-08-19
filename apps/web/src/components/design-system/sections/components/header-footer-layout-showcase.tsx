@@ -24,8 +24,8 @@ export function HeaderFooterLayoutShowcase() {
       <Showcase label={t({ en: "Page shell", zh: "页面骨架" })}>
         <ShowcaseHelper>
           {t({
-            en: "The shell the site's header/footer pages are built on, composed from this site's real chrome. The fixed bar holds the back button, theme toggle, and language picker; a full-bleed background layer sits beneath the content; the content flows up under the bar (text pages add their own clearance); and the footer pins to the bottom of the same measure. Everything is live — flip the theme from inside it.",
-            zh: "本站页头页脚页面所基于的骨架，此处用本站真实组件组装。固定横条中是返回按钮、主题切换与语言选择；内容下方是一层满幅背景；内容向上延伸至横条之下（文字页自行留出间距）；页脚固定在同一版心的底部。一切均可交互——可直接在其中切换主题。",
+            en: "The shell the site's header/footer pages are built on, composed from this site's real chrome. The fixed bar holds the back button, theme toggle, and language picker; a full-bleed background layer sits beneath the content; the content flows up under the bar (text pages add their own clearance); and the footer pins to the bottom of the same measure. The bar carries the page's Scroll mask: once the page is scrolled away from the top, the content passing beneath the bar blurs across its height and comes back sharp a little past it. The footer carries none, because nothing scrolls under it. Everything is live — flip the theme from inside it.",
+            zh: "本站页头页脚页面所基于的骨架，此处用本站真实组件组装。固定横条中是返回按钮、主题切换与语言选择；内容下方是一层满幅背景；内容向上延伸至横条之下（文字页自行留出间距）；页脚固定在同一版心的底部。横条上带有页面的滚动虚化：页面一旦离开顶部，从横条下方经过的内容会在整条高度上逐渐虚化，越过横条后随即恢复清晰。页脚没有虚化，因为其下方没有内容滚动。一切均可交互——可直接在其中切换主题。",
           })}
         </ShowcaseHelper>
         {/* The frame's transform creates a containing block, so the shell's

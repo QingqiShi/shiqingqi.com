@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { ScrollFade } from "@tuja/ui/components/scroll-fade";
+import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import type { StyleProp } from "@tuja/ui/css-prop-types";
-import { useScrollFades } from "@tuja/ui/hooks/use-scroll-fades";
+import { useScrollMask } from "@tuja/ui/hooks/use-scroll-mask";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
@@ -29,24 +29,24 @@ export function HorizontalScrollRow({
   scrollButtonRightCss,
 }: HorizontalScrollRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  // Kept in the consumer (not left to ScrollFade) because the scroll-to-page
-  // buttons need the same fade state; ScrollFade runs in controlled mode so
-  // there is a single set of observers on the element.
-  const { showStartFade: showLeftFade, showEndFade: showRightFade } =
-    useScrollFades(scrollRef, "horizontal");
+  // Kept in the consumer (not left to ScrollMask) because the scroll-to-page
+  // buttons need the same state; ScrollMask runs in controlled mode so there is
+  // a single set of observers on the element.
+  const { showStartMask: showLeftMask, showEndMask: showRightMask } =
+    useScrollMask(scrollRef, "horizontal");
 
   return (
     <div css={[styles.scrollWrapper, wrapperCss]}>
-      <ScrollFade
+      <ScrollMask
         ref={scrollRef}
         orientation="horizontal"
-        fadeSize={space._8}
-        showStartFade={showLeftFade}
-        showEndFade={showRightFade}
+        depth={space._8}
+        showStartMask={showLeftMask}
+        showEndMask={showRightMask}
         role={role}
         aria-label={ariaLabel}
         tabIndex={0}
-        css={[
+        contentCss={[
           scrollX.base,
           scrollX.focusRing,
           styles.scrollContainer,
@@ -54,11 +54,11 @@ export function HorizontalScrollRow({
         ]}
       >
         {children}
-      </ScrollFade>
+      </ScrollMask>
       <HorizontalScrollButtons
         scrollRef={scrollRef}
-        showLeft={showLeftFade}
-        showRight={showRightFade}
+        showLeft={showLeftMask}
+        showRight={showRightMask}
         leftCss={[styles.scrollButtonLeft, scrollButtonLeftCss]}
         rightCss={[styles.scrollButtonRight, scrollButtonRightCss]}
       />
