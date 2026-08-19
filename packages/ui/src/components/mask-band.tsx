@@ -22,8 +22,8 @@ interface MaskBandProps {
  * spans the whole band — an edge of a scroller, or a piece of chrome plus the
  * reach past it.
  *
- * Shared by every band a `ScrollMask` renders, its bare edges and its chrome
- * slots alike, so the melt lives in one place.
+ * Shared by every Scroll mask so the melt lives in one place: `ScrollMask`'s
+ * own edges and slots, and the page-level band over a shell's fixed bar.
  */
 export function MaskBand({ css, direction, radius, isShown }: MaskBandProps) {
   return (
