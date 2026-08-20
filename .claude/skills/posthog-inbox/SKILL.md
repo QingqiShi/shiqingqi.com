@@ -18,13 +18,13 @@ Calls fail with `Missing PostHog API key` when the machine is not authenticated.
 The inbox holds signal reports: clusters of related observations from error tracking, session replay, and other scouts.
 
 ```sh
-posthog-cli api call inbox-reports-list '{"limit": 20}'
+posthog-cli api call inbox-reports-list '{"status": "ready,pending_input"}'
 posthog-cli api call inbox-reports-list '{"status": "ready"}'
 ```
 
-Statuses: `ready` is actionable now, `pending_input` waits on a human, earlier statuses are still in the pipeline, `suppressed` (dismissed) is hidden unless `include_all_statuses` is true.
+`status` takes a comma-separated list; without it the API returns every status except `suppressed`, mixing archived reports (`resolved`, `failed`) and in-pipeline ones (`potential`, `candidate`, `in_progress`) in with the actionable ones. `ready` is actionable now, `pending_input` waits on a human, earlier statuses are still in the pipeline, and `suppressed` (dismissed) is hidden unless `include_all_statuses` is true — that flag only dedupes against the whole inbox and is ignored once `status` is set. Filter to `ready,pending_input` for the live queue, or `ready` alone for only what can be picked up now.
 
-Before acting on a report, read its full work log — evidence, judgments, and log entries:
+Before acting on a report, read its full work log — evidence, judgments, and log entries. Reports can be stale: check `already_addressed` and verify the claimed gap against current code, project settings, and merged PRs before acting.
 
 ```sh
 posthog-cli api call inbox-report-artefacts-list '{"report_id": "<report-uuid>"}'
