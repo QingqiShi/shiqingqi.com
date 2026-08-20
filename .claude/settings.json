@@ -1,4 +1,7 @@
 {
+  "env": {
+    "POSTHOG_CLI_PROJECT_ID": "243843"
+  },
   "permissions": {
     "deny": ["Read(./.env)", "Read(./.env.*)"]
   },

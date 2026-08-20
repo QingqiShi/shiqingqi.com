@@ -55,6 +55,10 @@ playwright/.auth/
 .claude/worktrees/
 .claude/skills/*-workspace/
 .claude/scheduled_tasks.lock
+.claude/settings.local.json
+
+# Agent skills installed on demand (posthog-cli api skill install)
+.agents/
 
 # Impeccable live-mode runtime state (keep the committed config)
 .impeccable/live/*
