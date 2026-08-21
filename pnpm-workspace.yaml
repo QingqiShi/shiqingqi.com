@@ -57,7 +57,7 @@ catalog:
   typescript: "npm:@typescript/typescript6@^6.0.2"
   "@typescript/native": "npm:typescript@^7.0.2"
   vite: ^8.2.1
-  vitest: ^4.1.10
+  vitest: ^4.1.11
   zod: "4"
 minimumReleaseAgeExclude:
   - "@typescript/typescript-aix-ppc64@7.0.2"
