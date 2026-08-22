@@ -5,7 +5,6 @@ import {
   useSerwist,
 } from "@serwist/next/react";
 import { useEffect, type ReactNode } from "react";
-import { captureException } from "#src/utils/posthog.ts";
 
 // A remount of the [locale] tree (e.g. a locale switch) runs the effect again
 // while `window.serwist` stays the same, and Serwist's own re-register guard
@@ -19,9 +18,6 @@ function ServiceWorkerRegistrar() {
     if (!serwist || registered) return;
     registered = true;
     serwist.register().catch((error: unknown) => {
-      captureException(
-        new Error("Service worker registration failed", { cause: error }),
-      );
       console.warn("Service worker registration failed:", error);
     });
   }, [serwist]);
@@ -34,10 +30,10 @@ function ServiceWorkerRegistrar() {
  *
  * Registration is manual (`register={false}` plus the registrar above), so a
  * rejected `/sw.js` fetch is caught here instead of becoming an unhandled
- * rejection that each browser words differently. The catch reports one
- * fixed-message exception, which error tracking groups as a single issue, and
- * logs the cause for local visibility. The two halves live in this one
- * component so they cannot be split.
+ * rejection that each browser words differently. The catch only logs, because
+ * a failed registration is not actionable: that page load misses offline
+ * caching and nothing else breaks. The two halves live in this one component
+ * so they cannot be split.
  */
 export function SerwistProvider({ children }: { children: ReactNode }) {
   return (
