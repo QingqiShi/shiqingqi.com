@@ -13,9 +13,38 @@ import {
   getSessionMessages,
   saveSessionMessages,
 } from "#src/session-store/session-store.ts";
+import { resolveClientIp } from "#src/utils/resolve-client-ip.ts";
 import { buildChatMessageMetadata } from "./build-chat-message-metadata";
+import { limitChatRequest } from "./rate-limiter";
 
 export async function POST(request: NextRequest) {
+  // Rate-limit before parsing the body or starting any Anthropic work — the
+  // whole point is to refuse the request before it can spend the owner's
+  // Anthropic budget. We fail closed on Redis errors (502) rather than
+  // silently allowing unmetered traffic past a broken limiter.
+  const ip = resolveClientIp(request.headers);
+  let limitOutcome;
+  try {
+    limitOutcome = await limitChatRequest(ip);
+  } catch (error) {
+    console.error("AI Chat rate-limit error:", error);
+    return Response.json({ error: "chat_unavailable" }, { status: 502 });
+  }
+
+  if (!limitOutcome.success) {
+    const retryAfter = Math.max(
+      0,
+      Math.ceil((limitOutcome.reset - Date.now()) / 1000),
+    );
+    return Response.json(
+      { error: "rate_limited", retryAfter },
+      {
+        status: 429,
+        headers: { "Retry-After": String(retryAfter) },
+      },
+    );
+  }
+
   try {
     const body: unknown = await request.json();
     const input = sessionChatInputSchema.parse(body);
