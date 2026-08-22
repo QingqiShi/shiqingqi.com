@@ -6,6 +6,7 @@ import { color, font, controlSize } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import type { PropsWithChildren } from "react";
 import { useTransition } from "react";
+import { isModifiedClick } from "#src/utils/is-modified-click.ts";
 
 interface ItemProps {
   ariaLabel?: string;
@@ -62,6 +63,9 @@ export function MenuItem({
       data-menu-autofocus={autoFocus ? "true" : undefined}
       tabIndex={isActive ? -1 : 0}
       onClick={(e) => {
+        // Modifier / non-primary clicks fall through to the browser so the
+        // `href` opens in a new tab/window; plain clicks navigate in place.
+        if (isModifiedClick(e)) return;
         e.preventDefault();
 
         onBeforeNavigation?.();
