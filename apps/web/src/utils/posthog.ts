@@ -1,4 +1,4 @@
-import type { PostHog } from "posthog-js";
+import type { BeforeSendFn, PostHog } from "posthog-js";
 
 // Both values are inlined by Next at build time, so they must be read as whole
 // `process.env.X` expressions. Without them `initPostHog` never runs and every
@@ -7,6 +7,43 @@ const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
 export const posthogEnabled = Boolean(token && host);
+
+// The browser hides an uncaught error thrown by another origin's script behind
+// a synthetic "Script error." with no stack, so it names no code in this app.
+const opaqueCrossOriginMessage = "Script error.";
+
+function isOpaqueCrossOriginError(exception: unknown) {
+  if (typeof exception !== "object" || exception === null) return false;
+  if (
+    !("value" in exception) ||
+    exception.value !== opaqueCrossOriginMessage ||
+    !("mechanism" in exception)
+  ) {
+    return false;
+  }
+  const { mechanism } = exception;
+  return (
+    typeof mechanism === "object" &&
+    mechanism !== null &&
+    "synthetic" in mechanism &&
+    mechanism.synthetic === true
+  );
+}
+
+function isOpaqueCrossOriginExceptionList(exceptions: unknown) {
+  return (
+    Array.isArray(exceptions) &&
+    exceptions.length > 0 &&
+    exceptions.every(isOpaqueCrossOriginError)
+  );
+}
+
+export const dropOpaqueCrossOriginErrors: BeforeSendFn = (event) => {
+  if (!event || event.event !== "$exception") return event;
+  return isOpaqueCrossOriginExceptionList(event.properties.$exception_list)
+    ? null
+    : event;
+};
 
 let initialised = false;
 let client: PostHog | undefined;
@@ -40,6 +77,7 @@ export async function initPostHog() {
     // Needs "Cookieless server hash mode" enabled in the PostHog project.
     cookieless_mode: "always",
     capture_exceptions: true,
+    before_send: dropOpaqueCrossOriginErrors,
     capture_performance: { web_vitals: true },
     debug: process.env.NODE_ENV === "development",
   });
