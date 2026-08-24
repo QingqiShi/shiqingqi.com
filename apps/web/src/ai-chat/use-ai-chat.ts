@@ -5,6 +5,7 @@ import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
+import { captureMessageSend } from "#src/ai-chat/chat-analytics.ts";
 import {
   type ChatMessageMetadata,
   type ChatMood,
@@ -170,6 +171,8 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
   async function sendMessage(
     ...args: Parameters<typeof chatResult.sendMessage>
   ) {
+    // Capture before the await so the events mark the moment the visitor acted.
+    captureMessageSend({ messageCount: chatResult.messages.length, locale });
     await getPreferencesContextReady().catch(() => null);
     return chatResult.sendMessage(...args);
   }

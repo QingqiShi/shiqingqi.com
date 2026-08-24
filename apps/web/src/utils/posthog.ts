@@ -89,3 +89,12 @@ export async function initPostHog() {
 export function captureException(error: unknown) {
   client?.captureException(error);
 }
+
+// Product events for the same pre-init window are dropped as well, and every
+// build without the env vars sends nothing at all.
+export function captureEvent(
+  event: string,
+  properties?: Record<string, boolean | number | string>,
+) {
+  client?.capture(event, properties);
+}
