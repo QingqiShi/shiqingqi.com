@@ -51,8 +51,8 @@ export function FlowGradient() {
   const contextRef = useRef<ReturnType<typeof init>>(undefined);
 
   // Re-pick the hue preset and re-read the bgCanvas value whenever the resolved
-  // theme flips. This passive effect runs after ThemeSwitch's layout effect has
-  // applied the theme class to <html>, so getComputedStyle sees the new theme.
+  // theme flips. The <html> class is already correct here: `themeHack` set it
+  // before hydration, and ThemeSwitch's layout effect sets it on later flips.
   useEffect(() => {
     const hues = isDark ? DARK_COLORS : LIGHT_COLORS;
     const canvas = contextRef.current?.canvas;

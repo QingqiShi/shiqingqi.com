@@ -1,6 +1,9 @@
+import { render as renderWithoutProviders } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { getDocumentClassName } from "#src/app/global-styles.ts";
 import { act, fireEvent, render, screen } from "#src/test-utils.tsx";
+import { themeHack } from "#src/utils/theme-hack.ts";
 import { ThemeSwitch } from "./theme-switch";
 
 const LABELS: [string, string, string] = [
@@ -148,6 +151,53 @@ describe("ThemeSwitch system-button semantics", () => {
     });
     expect(systemButton).toHaveAttribute("aria-pressed", "true");
     expect(systemButton).not.toBeDisabled();
+  });
+});
+
+// Hydration only, so it renders without the shared providers: the server
+// string and the client tree must match exactly. It seeds localStorage but
+// never calls `setTheme`, thus the module-level `themeSingleton` in
+// `use-theme.ts` stays untouched and the ordering below is safe.
+describe("ThemeSwitch hydration", () => {
+  it("never applies the system theme class while hydrating with a stored light theme", async () => {
+    // Run the real inline script: it must put the stored theme on <html>
+    // before React starts, exactly as in the browser.
+    localStorage.setItem("theme", "light");
+    document.documentElement.className = "";
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-call -- `themeHack` is a script string, which only an eval can run
+    new Function(themeHack)();
+    expect(document.documentElement.className).toBe(
+      getDocumentClassName("light"),
+    );
+
+    const element = <ThemeSwitch labels={LABELS} />;
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(element);
+    document.body.appendChild(container);
+
+    // Each record holds the value that the write replaced.
+    const replacedClassNames: (string | null)[] = [];
+    const observer = new MutationObserver((records) => {
+      replacedClassNames.push(...records.map((record) => record.oldValue));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+      attributeOldValue: true,
+    });
+
+    renderWithoutProviders(element, { container, hydrate: true });
+    // MutationObserver callbacks are microtasks; flush them.
+    await act(async () => {});
+    observer.disconnect();
+
+    // `useTheme` returns its server snapshot ("system") during the hydration
+    // pass, so before the fix the layout effect stamped the system class.
+    expect(replacedClassNames).not.toHaveLength(0);
+    expect(replacedClassNames).not.toContain(getDocumentClassName("system"));
+    expect(document.documentElement.className).toBe(
+      getDocumentClassName("light"),
+    );
   });
 });
 
