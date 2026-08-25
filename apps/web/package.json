@@ -19,7 +19,7 @@
     "dev": "run-p watch:i18n dev:next",
     "dev:next": "next dev --turbopack -p $(node ../../scripts/worktree-port.mjs)",
     "build": "next build && serwist build serwist.config.mjs",
-    "build:tsc": "tsc --noEmit",
+    "build:tsc": "next typegen && tsc --noEmit",
     "start": "next start",
     "lint": "eslint .",
     "pretest": "npm-run-all codegen:i18n codegen:palette",

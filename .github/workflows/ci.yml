@@ -35,7 +35,7 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
+      - run: pnpm test:ci
         if: matrix.task == 'test'
       - run: pnpm format:check
         if: matrix.task == 'format'
@@ -46,8 +46,6 @@ jobs:
       - run: pnpm lint
         if: matrix.task == 'lint'
       - run: pnpm codegen
-        if: matrix.task == 'tsc'
-      - run: pnpm --filter web exec next typegen
         if: matrix.task == 'tsc'
       - run: pnpm build:tsc
         if: matrix.task == 'tsc'
