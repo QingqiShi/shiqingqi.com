@@ -1,6 +1,6 @@
 import type { CaptureResult } from "posthog-js";
 import { describe, expect, it } from "vitest";
-import { dropOpaqueCrossOriginErrors } from "./posthog";
+import { captureEvent, dropOpaqueCrossOriginErrors } from "./posthog";
 
 const opaqueCrossOriginError = {
   type: "Error",
@@ -72,5 +72,13 @@ describe("dropOpaqueCrossOriginErrors", () => {
 
   it("passes a null event through", () => {
     expect(dropOpaqueCrossOriginErrors(null)).toBeNull();
+  });
+});
+
+describe("captureEvent", () => {
+  it("stays silent before initPostHog runs", () => {
+    expect(() => {
+      captureEvent("conversation started", { locale: "en" });
+    }).not.toThrow();
   });
 });

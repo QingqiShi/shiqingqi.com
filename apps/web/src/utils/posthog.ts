@@ -1,4 +1,5 @@
 import type { BeforeSendFn, PostHog } from "posthog-js";
+import type { SupportedLocale } from "#src/types.ts";
 
 // Both values are inlined by Next at build time, so they must be read as whole
 // `process.env.X` expressions. Without them `initPostHog` never runs and every
@@ -88,4 +89,32 @@ export async function initPostHog() {
 // window in which posthog-js itself cannot capture anything pre-init.
 export function captureException(error: unknown) {
   client?.captureException(error);
+}
+
+// The one place that declares a custom event. Every name and property shape
+// lives here, so no call site can invent or reshape an event.
+type AnalyticsEvents = {
+  "conversation started": { locale: SupportedLocale };
+  "message sent": {
+    locale: SupportedLocale;
+    started_conversation: boolean;
+    conversation_message_count: number;
+  };
+};
+
+/** One declared event with the properties its name asks for. */
+export type AnalyticsEvent = {
+  [Name in keyof AnalyticsEvents]: {
+    name: Name;
+    properties: AnalyticsEvents[Name];
+  };
+}[keyof AnalyticsEvents];
+
+// Product events for the same pre-init window are dropped as well, and every
+// build without the env vars sends nothing at all.
+export function captureEvent<Name extends keyof AnalyticsEvents>(
+  event: Name,
+  properties: AnalyticsEvents[Name],
+) {
+  client?.capture(event, properties);
 }

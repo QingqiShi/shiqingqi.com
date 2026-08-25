@@ -119,3 +119,4 @@ _Avoid_: sync, load, import
 - Vector record ids `{mediaType}-{tmdbId}`, namespace = locale, and every metadata field name (filters are built as raw strings)
 - `POST /api/ai-chat` body shape, the `session-not-found` error literal, and the `/api/tmdb/*` route paths
 - All TMDB request and response field names: `movie_id`, `series_id`, `person_id`, `vote_*`, `*_path`, `with_genres`, `sort_by`, `time_window`, `known_for_department`
+- PostHog event names `conversation started` and `message sent`, with the properties `locale`, `started_conversation`, `conversation_message_count` — renaming one breaks the dashboards built on it. `apps/web/src/utils/posthog.ts` holds the catalog that declares them all.
