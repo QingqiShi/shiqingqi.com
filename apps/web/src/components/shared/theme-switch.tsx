@@ -5,6 +5,7 @@ import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Switch, type SwitchState } from "@tuja/ui/components/switch";
+import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
 import { gray } from "@tuja/ui/palette/gray";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
@@ -36,7 +37,12 @@ export function ThemeSwitch({ labels, size = "md" }: ThemeSwitchProps) {
   const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
 
   const [theme, setTheme] = useTheme();
+  const isHydrated = useIsHydrated();
   useLayoutEffect(() => {
+    // The hydration pass renders the server snapshot ("system"). The inline
+    // `themeHack` already applied the stored theme, so wait for a client render.
+    if (!isHydrated) return;
+
     document.documentElement.className = getDocumentClassName(theme);
     const existingMetaTag = document.querySelector("meta[name=theme-color]");
     const metaTag = existingMetaTag ?? document.createElement("meta");
@@ -61,7 +67,7 @@ export function ThemeSwitch({ labels, size = "md" }: ThemeSwitchProps) {
           ? gray._0
           : gray._97,
     );
-  }, [theme, preferDark]);
+  }, [isHydrated, theme, preferDark]);
 
   // `hasFocus` tracks keyboard focus only. The mouse-hover reveal is handled
   // by pure CSS `:hover` on the container — don't tie it to JS state, and
