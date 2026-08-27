@@ -11,15 +11,19 @@ import {
 import { color } from "../tokens.stylex.ts";
 import {
   buildBlurLayers,
+  buildReachBlurLayers,
   LAYER_COUNT,
   type BlurGeometry,
 } from "./progressive-blur-masks.ts";
 
 interface ProgressiveBlurProps {
   /**
-   * The floating element the blur radiates from. It is measured, so the ramp
-   * needs no direction; it renders above the layers and stays interactive
-   * while they, and the box around them, let clicks through.
+   * The floating element the blur radiates from. The ramp runs out of its
+   * rect — measured, or `reach` in from the box's edges — so it needs no
+   * direction; it renders above the layers and stays interactive while they,
+   * and the box around them, let clicks through. The slot forces
+   * `pointer-events: auto` on it, so a consumer that keeps a hidden floating
+   * element mounted switches pointer events off again inside it.
    */
   children?: ReactNode;
   /**
@@ -36,6 +40,19 @@ interface ProgressiveBlurProps {
    */
   isShown?: boolean;
   /**
+   * How far the blur reaches past the floating element, in px, on every side.
+   * Set it and the box is the element plus this margin: the root wraps the
+   * element in flow instead of filling its positioned ancestor, and the ramp
+   * is static. The layers sit in a `position: fixed` box placed by measuring
+   * the element, so they add no scrollable overflow — a hidden floating
+   * element near a viewport edge never adds sideways scroll — and no rounded
+   * ancestor clips them. The box is placed against the viewport: an ancestor
+   * that makes a containing block for `fixed` (a transform, a filter,
+   * `contain`, `will-change: transform`) moves and clips it, the rule
+   * `MenuButton`'s backdrop states for itself.
+   */
+  reach?: number;
+  /**
    * StyleX styles merged over the component's own — the escape hatch for
    * placement and plane (position, inset, z-index).
    */
@@ -46,11 +63,13 @@ interface ProgressiveBlurProps {
  * The page blurred around whatever floats, in place of dimming it — strongest
  * against the floating element, easing back to sharp further out on every
  * side. The consumer never states a direction: the floating element is passed
- * as `children`, the component measures where it sits inside its own box, and
- * the ramp radiates out of that rect, running out to the box's own edges
- * before the page is sharp again. By default the box fills its nearest
- * positioned ancestor; the consumer places it over the page region around the
- * element via `css`.
+ * as `children`, and the ramp radiates out of its rect, running out to the
+ * box's own edges before the page is sharp again.
+ *
+ * The box is defined one of two ways, never both: it fills the nearest
+ * positioned ancestor and the element inside it is measured, or `reach` sets
+ * it to the element plus that margin, so the ramp is static and only the
+ * box's place follows the element.
  *
  * The blur belongs to the page rather than to the element: the layers are
  * siblings of the floating element, never ancestors of it, and the element
@@ -63,11 +82,14 @@ interface ProgressiveBlurProps {
  * events, so a dismissal click anywhere outside the floating element passes
  * through to whatever the consumer puts behind.
  *
- * The measurement is taken on mount and again whenever the box or the
- * floating element resizes, or the element is swapped for another. An element
- * that moves without changing size — a transform, a keyframe animation, the
- * layout around it shifting — leaves the ramp centred where it was until one
- * of those happens.
+ * Without `reach`, the measurement is taken on mount and again whenever the
+ * box or the floating element resizes, or the element is swapped for another.
+ * An element that moves without changing size — a transform, a keyframe
+ * animation, the layout around it shifting — leaves the ramp centred where it
+ * was until one of those happens. With `reach`, the box is placed on mount
+ * and whenever the blur is shown, and while shown it follows every scroll,
+ * every resize of the window, and every resize of the element; hidden, it
+ * stays where it was, so the melt-out plays in place.
  *
  * Animates two ways. Toggling `isShown` animates the radius, melting the blur
  * away and back in place — a state change, so reduced motion keeps it,
@@ -82,16 +104,20 @@ export function ProgressiveBlur({
   children,
   radius = 16,
   isShown = true,
+  reach,
   css,
 }: ProgressiveBlurProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const layersRef = useRef<HTMLDivElement>(null);
   const slotRef = useRef<HTMLSpanElement>(null);
   const [geometry, setGeometry] = useState<BlurGeometry | null>(null);
+  const [isPlaced, setIsPlaced] = useState(false);
+  const hasReach = reach !== undefined;
 
   useLayoutEffect(() => {
     const root = rootRef.current;
     const slot = slotRef.current;
-    if (!root || !slot) return;
+    if (hasReach || !root || !slot) return;
 
     const measure = () => {
       const next = measureGeometry(root, slot);
@@ -136,29 +162,108 @@ export function ProgressiveBlur({
       resizeObserver.disconnect();
       mutationObserver?.disconnect();
     };
-  }, []);
+  }, [hasReach]);
 
-  const layers = buildBlurLayers({ geometry, radius, isShown });
+  // The box is written straight to the node rather than kept in state: nothing
+  // else reads it, and a scroll gesture would otherwise re-render the floating
+  // element every frame.
+  useLayoutEffect(() => {
+    const layers = layersRef.current;
+    const slot = slotRef.current;
+    if (reach === undefined || !layers || !slot) return;
+
+    const place = () => {
+      const rect = unionRect(slot.children);
+      // An empty measurement keeps the last box, so a floating element that
+      // unmounts mid-melt leaves the blur to melt away where it was.
+      if (rect === null) return;
+      placeFixedBox(layers, rect, reach);
+      setIsPlaced(true);
+    };
+
+    place();
+    if (!isShown) return;
+
+    // Capture phase, so a scroller inside the page reports too: its scroll
+    // event does not bubble.
+    document.addEventListener("scroll", place, {
+      capture: true,
+      passive: true,
+    });
+    window.addEventListener("resize", place);
+    // Absent in jsdom, hence the guard.
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? undefined
+        : new ResizeObserver(place);
+    for (const child of slot.children) resizeObserver?.observe(child);
+
+    return () => {
+      document.removeEventListener("scroll", place, { capture: true });
+      window.removeEventListener("resize", place);
+      resizeObserver?.disconnect();
+    };
+  }, [reach, isShown]);
+
+  const layers = hasReach
+    ? buildReachBlurLayers({ reach, radius, isShown })
+    : buildBlurLayers({ geometry, radius, isShown });
 
   return (
-    <div ref={rootRef} css={[styles.root, css]}>
-      {layers.map(({ filter, mask }, index) => (
-        <div
-          key={index}
-          aria-hidden="true"
-          css={[
-            styles.layer,
-            dynamicStyles.layer(filter, mask),
-            !isShown && styles.hidden,
-            index === LAYER_COUNT - 1 && isShown && styles.wash,
-          ]}
-        />
-      ))}
+    <div ref={rootRef} css={[styles.root, hasReach && styles.reachRoot, css]}>
+      <div
+        ref={layersRef}
+        css={[
+          styles.layers,
+          hasReach && styles.reachLayers,
+          hasReach && !isPlaced && styles.unplaced,
+        ]}
+      >
+        {layers.map(({ filter, mask }, index) => (
+          <div
+            key={index}
+            aria-hidden="true"
+            css={[
+              styles.layer,
+              dynamicStyles.layer(filter, mask),
+              !isShown && styles.hidden,
+              index === LAYER_COUNT - 1 && isShown && styles.wash,
+            ]}
+          />
+        ))}
+      </div>
       <span ref={slotRef} css={styles.slot}>
         {children}
       </span>
     </div>
   );
+}
+
+interface ViewportRect {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+/**
+ * The union of the elements' viewport rects — `null` when there are none, or
+ * the union is empty.
+ */
+function unionRect(elements: HTMLCollection): ViewportRect | null {
+  let left = Number.POSITIVE_INFINITY;
+  let top = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let bottom = Number.NEGATIVE_INFINITY;
+  for (const element of elements) {
+    const rect = element.getBoundingClientRect();
+    left = Math.min(left, rect.left);
+    top = Math.min(top, rect.top);
+    right = Math.max(right, rect.right);
+    bottom = Math.max(bottom, rect.bottom);
+  }
+  if (right <= left || bottom <= top) return null;
+  return { left, top, right, bottom };
 }
 
 /**
@@ -169,27 +274,17 @@ function measureGeometry(root: HTMLElement, slot: HTMLElement) {
   const rootRect = root.getBoundingClientRect();
   if (rootRect.width <= 0 || rootRect.height <= 0) return null;
 
-  let left = Number.POSITIVE_INFINITY;
-  let top = Number.POSITIVE_INFINITY;
-  let right = Number.NEGATIVE_INFINITY;
-  let bottom = Number.NEGATIVE_INFINITY;
-  for (const child of slot.children) {
-    const rect = child.getBoundingClientRect();
-    left = Math.min(left, rect.left);
-    top = Math.min(top, rect.top);
-    right = Math.max(right, rect.right);
-    bottom = Math.max(bottom, rect.bottom);
-  }
-  if (right <= left || bottom <= top) return null;
+  const rect = unionRect(slot.children);
+  if (rect === null) return null;
 
   // Rounded so a subpixel jitter doesn't rewrite every mask string.
   return {
     width: Math.round(rootRect.width),
     height: Math.round(rootRect.height),
-    left: Math.round(left - rootRect.left),
-    top: Math.round(top - rootRect.top),
-    right: Math.round(right - rootRect.left),
-    bottom: Math.round(bottom - rootRect.top),
+    left: Math.round(rect.left - rootRect.left),
+    top: Math.round(rect.top - rootRect.top),
+    right: Math.round(rect.right - rootRect.left),
+    bottom: Math.round(rect.bottom - rootRect.top),
   };
 }
 
@@ -205,6 +300,22 @@ function isSameGeometry(a: BlurGeometry | null, b: BlurGeometry) {
   );
 }
 
+/**
+ * Writes the fixed box — the element's rect plus `reach` on every side — to
+ * the node. A fixed box resolves against the viewport, or against the nearest
+ * ancestor with a transform, a filter or `contain`; the box is put at that
+ * origin first and read back, so the offsets land right under either.
+ */
+function placeFixedBox(box: HTMLElement, rect: ViewportRect, reach: number) {
+  box.style.top = "0px";
+  box.style.left = "0px";
+  const origin = box.getBoundingClientRect();
+  box.style.top = `${String(rect.top - reach - origin.top)}px`;
+  box.style.left = `${String(rect.left - reach - origin.left)}px`;
+  box.style.width = `${String(rect.right - rect.left + 2 * reach)}px`;
+  box.style.height = `${String(rect.bottom - rect.top + 2 * reach)}px`;
+}
+
 const styles = stylex.create({
   // The box fills its nearest positioned ancestor by default. A consumer's own
   // placement arrives through the `css` prop and merges over this, so the root
@@ -214,6 +325,36 @@ const styles = stylex.create({
     position: "absolute",
     inset: 0,
     pointerEvents: "none",
+  },
+  // With `reach`, the root sits in flow around the floating element instead of
+  // filling a positioned ancestor.
+  reachRoot: {
+    position: "relative",
+    inset: "auto",
+  },
+  // The wrapper around the layers. Its box is the root's box, and the layers
+  // fill it.
+  layers: {
+    position: "absolute",
+    inset: 0,
+  },
+  // With `reach`, the wrapper is a fixed box: the element's viewport rect plus
+  // `reach` on every side, written to the node by measurement. Fixed rather
+  // than absolute, because the box hangs `reach` past the root: an absolute
+  // box would grow every scrollable ancestor's area for that overhang, and
+  // Chromium drops a `backdrop-filter` layer's mask where the layer overflows
+  // an ancestor's rounded `overflow` clip — a fixed box escapes both. The
+  // physical insets are what the measurement writes; a transformed ancestor
+  // becomes the box's containing block, and clips it again.
+  reachLayers: {
+    position: "fixed",
+    inset: "auto",
+  },
+  // No box yet, so nothing to show: the first paint comes before the first
+  // measurement. The layers inherit it. Never on the root, which would hold
+  // the floating element unrendered.
+  unplaced: {
+    visibility: "hidden",
   },
   hidden: {
     visibility: "hidden",
@@ -230,10 +371,11 @@ const styles = stylex.create({
   // transition captures its new state, and an uncaptured element loses its
   // enter animation. Transitioning it rather than flipping keeps the layers
   // visible until the melt ends, and the compositor stops paying afterwards.
+  // No base value of its own, so an unplaced wrapper's `hidden` reaches the
+  // layers by inheritance.
   layer: {
     position: "absolute",
     inset: 0,
-    visibility: "visible",
     // The two per-axis ramps multiply rather than add, so the corners round
     // off and the blur radiates out of the element's rect.
     maskComposite: "intersect",
@@ -262,6 +404,5 @@ const dynamicStyles = stylex.create({
   layer: (filter: string, mask: string) => ({
     backdropFilter: filter,
     maskImage: mask,
-    WebkitMaskImage: mask,
   }),
 });

@@ -174,6 +174,50 @@ describe("MenuButton keyboard navigation", () => {
     expect(trigger).toHaveFocus();
   });
 
+  it("blurs the page around the popup only while the menu is open", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<TestMenu />);
+
+    // The blur layers carry their backdrop-filter as inline custom properties
+    // (StyleX dynamic styles), so their presence is observable even in jsdom.
+    // How many there are and where each one sits on the ramp is
+    // ProgressiveBlur's own claim, covered by its suite — this only asserts
+    // that the menu blurs the page while it is open, and not before.
+    const blurs = () =>
+      [...container.querySelectorAll('[style*="backdropFilter"]')].map(
+        (layer) => layer.getAttribute("style") ?? "",
+      );
+
+    expect(blurs().length).toBeGreaterThan(0);
+    for (const blur of blurs()) {
+      expect(blur).toContain("blur(0px)");
+    }
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+
+    expect(blurs().some((blur) => !blur.includes("blur(0px)"))).toBe(true);
+  });
+
+  it("locks page scroll only while the menu is open", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<TestMenu />);
+
+    // `react-remove-scroll` marks the locked document with this attribute and
+    // hangs its `overflow: hidden` rule off it, so the attribute is the lock
+    // rather than a proxy for it.
+    expect(document.body).not.toHaveAttribute("data-scroll-locked");
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+
+    expect(document.body).toHaveAttribute("data-scroll-locked");
+
+    // Unmounting rather than dismissing: it runs the same release, and the
+    // assertion then holds for every close path rather than for one of them.
+    unmount();
+
+    expect(document.body).not.toHaveAttribute("data-scroll-locked");
+  });
+
   it("marks the popup as inert when the menu is closed", async () => {
     const user = userEvent.setup();
     const { container } = render(<TestMenu />);

@@ -11,22 +11,24 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import { corner } from "../primitives/corner.stylex.ts";
+import { RemoveScroll } from "react-remove-scroll";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
 import {
+  border,
   color,
   controlSize,
   font,
   layer,
-  shadow,
   space,
 } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
 import { FixedContainerContent } from "./fixed-container-content.tsx";
+import { popoverSurface } from "./popover-surface.stylex.ts";
+import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 // Derived from the StyleX const rather than restated, so the JS-side check
 // cannot drift from the style-side one — `matchMedia` takes the bare condition,
@@ -68,6 +70,12 @@ function forceReflow(element: HTMLElement) {
   void element.offsetHeight;
 }
 
+// How far the page blurs past the popup, and how strongly against it. A long
+// reach at a modest radius: the ramp is gradual enough that the blur reads as
+// the page losing focus around the popup, and never as a ring drawn on it.
+const BLUR_REACH_PX = 96;
+const BLUR_RADIUS_PX = 12;
+
 const OPEN_TRANSITION = morphTransition(duration._500, easing.spring);
 const OPEN_TRANSITION_FALLBACK = morphTransition(
   duration._500,
@@ -92,7 +100,8 @@ interface MenuButtonProps {
    * Pick the corner that grows the menu back across the trigger, not out past
    * the nearest viewport edge: a closed menu is hidden rather than unmounted, so
    * a menu wider than the room on that side adds its overhang to the page's
-   * scrollable area whether or not anyone ever opens it.
+   * scrollable area whether or not anyone ever opens it. Only the popup's own
+   * box counts: the blur around it never adds to that area.
    *
    * `"sheet"` is for popups too wide to sit beside a trigger that isn't at the
    * end of its row: it spans the trigger's nearest positioned ancestor instead
@@ -124,7 +133,7 @@ export function MenuButton({
   const [isMenuShown, setIsMenuShown] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
-  const menuContainerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
 
   const isSheet = position === "sheet";
@@ -141,12 +150,12 @@ export function MenuButton({
   // re-render the popup every frame. The cap deliberately survives closing —
   // dropping it would let the panel snap to full height mid-close-animation.
   useLayoutEffect(() => {
-    const sheet = menuContainerRef.current;
+    const frame = frameRef.current;
     const popup = popupRef.current;
-    if (!isSheet || !isMenuShown || !sheet || !popup) return;
+    if (!isSheet || !isMenuShown || !frame || !popup) return;
 
     const measure = () => {
-      const { top } = sheet.getBoundingClientRect();
+      const { top } = frame.getBoundingClientRect();
       popup.style.maxBlockSize = `calc(100dvh - ${String(top)}px - ${space._3} - env(safe-area-inset-bottom))`;
     };
 
@@ -171,9 +180,9 @@ export function MenuButton({
     wasMenuShownRef.current = isMenuShown;
 
     const surface = surfaceRef.current;
-    const container = menuContainerRef.current;
+    const frame = frameRef.current;
     const trigger = document.getElementById(targetId);
-    if (!surface || !container || !trigger) return;
+    if (!surface || !frame || !trigger) return;
 
     // Reduced motion drops the geometry: the surface cross-fades in place.
     if (window.matchMedia(REDUCED_MOTION_QUERY).matches) {
@@ -185,11 +194,11 @@ export function MenuButton({
       return;
     }
 
-    const containerRect = container.getBoundingClientRect();
+    const frameRect = frame.getBoundingClientRect();
     const triggerRect = trigger.getBoundingClientRect();
     const triggerBox = {
-      top: `${String(triggerRect.top - containerRect.top)}px`,
-      left: `${String(triggerRect.left - containerRect.left)}px`,
+      top: `${String(triggerRect.top - frameRect.top)}px`,
+      left: `${String(triggerRect.left - frameRect.left)}px`,
       width: `${String(triggerRect.width)}px`,
       height: `${String(triggerRect.height)}px`,
       // A pill or a circle carries `corner.radius_round`, the `1e5px` sentinel
@@ -197,7 +206,7 @@ export function MenuButton({
       // through zero and the corners go square in the middle of the morph.
       borderRadius: `min(${getComputedStyle(trigger).borderTopLeftRadius}, ${String(Math.min(triggerRect.width, triggerRect.height) / 2)}px)`,
       // The radius alone. The surface keeps the squircle shape that
-      // `corner.radius_2` gives it, even when it starts from a capped pill.
+      // `popoverSurface.base` gives it, even when it starts from a capped pill.
       cornerShape: "",
     };
 
@@ -343,45 +352,76 @@ export function MenuButton({
           </Button>
         </FixedContainerContent>
         <div
-          ref={menuContainerRef}
-          css={[
-            styles.menuContainer,
-            !isMenuShown && styles.hidden,
-            styles[position],
-          ]}
+          css={[styles.menuContainer, styles[position]]}
           inert={!isMenuShown}
         >
-          <div ref={surfaceRef} css={[corner.radius_2, styles.surface]} />
-          <div
-            id={popupId}
-            ref={popupRef}
-            role={popupRole}
-            // Name the popup by the trigger's visible label when there is one,
-            // otherwise fall back to the trigger button itself (an icon-only
-            // trigger renders no label span, so its name comes from
-            // `aria-label`). Keeps existing labelled triggers unchanged.
-            aria-labelledby={children ? `${targetId}-label` : targetId}
-            css={[
-              corner.radius_2,
-              styles.content,
-              isMenuShown && styles.contentShown,
-              isSheet && styles.sheetScroller,
-            ]}
+          {/* The page blurs around the popup while it is open. The blur wraps
+              the frame rather than the container, so the popup's box, not the
+              blur's, is what the corner insets anchor. */}
+          <ProgressiveBlur
+            reach={BLUR_REACH_PX}
+            radius={BLUR_RADIUS_PX}
+            isShown={isMenuShown}
           >
-            {/* Visible heading only. The popup is already named by the
-                trigger's label via `aria-labelledby`, so this duplicate is
-                `aria-hidden` — which also keeps a bare non-menuitem node out
-                of the `role="menu"` accessibility tree. */}
-            {children && (
+            {/* The blur's slot hands pointer events back on, so the frame
+                switches them off again while closed. */}
+            <div
+              ref={frameRef}
+              css={[styles.frame, !isMenuShown && styles.hidden]}
+            >
               <div
-                css={[styles.menuTitle, isSheet && styles.stickyMenuTitle]}
-                aria-hidden
+                ref={surfaceRef}
+                css={[popoverSurface.base, styles.surface]}
+              />
+              {/* The blur's fixed box follows the popup one frame behind the
+                  compositor, so the page must not scroll under an open menu.
+                  `react-remove-scroll`, not the drawer's body clamp: desktop
+                  scrollers reserve no gutter, so a bare clamp jumps the page
+                  sideways; this also sets the var `HeaderFooterLayout` reads.
+                  `forwardProps` keeps the DOM identical open and closed, and
+                  makes the popup the lock, so a sheet still scrolls itself. */}
+              <RemoveScroll
+                ref={popupRef}
+                enabled={isMenuShown}
+                allowPinchZoom
+                forwardProps
               >
-                {children}
-              </div>
-            )}
-            {menuContent}
-          </div>
+                <div
+                  id={popupId}
+                  role={popupRole}
+                  // Name the popup by the trigger's visible label when there is
+                  // one, otherwise fall back to the trigger button itself (an
+                  // icon-only trigger renders no label span, so its name comes
+                  // from `aria-label`). Keeps existing labelled triggers
+                  // unchanged.
+                  aria-labelledby={children ? `${targetId}-label` : targetId}
+                  css={[
+                    popoverSurface.inner,
+                    styles.content,
+                    isMenuShown && styles.contentShown,
+                    isSheet && styles.sheetScroller,
+                  ]}
+                >
+                  {/* Visible heading only. The popup is already named by the
+                      trigger's label via `aria-labelledby`, so this duplicate is
+                      `aria-hidden` — which also keeps a bare non-menuitem node
+                      out of the `role="menu"` accessibility tree. */}
+                  {children && (
+                    <div
+                      css={[
+                        styles.menuTitle,
+                        isSheet && styles.stickyMenuTitle,
+                      ]}
+                      aria-hidden
+                    >
+                      {children}
+                    </div>
+                  )}
+                  {menuContent}
+                </div>
+              </RemoveScroll>
+            </div>
+          </ProgressiveBlur>
         </div>
       </div>
     </>
@@ -403,23 +443,32 @@ const styles = stylex.create({
   hidden: {
     pointerEvents: "none",
   },
+  // The popup's box: the surface's containing block, and what the morph, the
+  // sheet cap and the blur measure.
+  frame: {
+    position: "relative",
+  },
   // The only element that animates geometry. It has no children, so the
-  // browser lays out and paints one box per frame.
+  // browser lays out and paints one box per frame. Its skin is
+  // `popoverSurface.base`: the hairline is the popup's crisp edge, and the
+  // morph clears its inline radius back to that squircle when it settles.
   surface: {
     position: "absolute",
     top: 0,
     left: 0,
     width: "100%",
     height: "100%",
+    boxSizing: "border-box",
     opacity: 0,
-    backgroundColor: color.bgOverlay,
-    boxShadow: shadow._5,
   },
   // The content sits at its final size from the start and only fades in over
   // the surface, so the type never scales. It clips its own corners, because
-  // the surface behind it is a separate element.
+  // the surface behind it is a separate element — and sits inside the
+  // surface's hairline, at the radius that leaves, so a sticky title painting
+  // its own background never covers the edge.
   content: {
     position: "relative",
+    margin: border.size_1,
     overflowX: "hidden",
     overflowY: "hidden",
     opacity: 0,
@@ -518,7 +567,8 @@ const styles = stylex.create({
   // `position: fixed` resolving against the viewport, so no ancestor of a
   // MenuButton may establish a containing block for fixed descendants —
   // `transform`, `will-change: transform`, `filter`, or `contain` on a wrapper
-  // shrinks this to that wrapper's box and silently kills dismissal.
+  // shrinks this to that wrapper's box and silently kills dismissal — and
+  // moves and clips the blur's fixed box the same way.
   backdrop: {
     position: "fixed",
     inset: 0,
