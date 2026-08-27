@@ -7,19 +7,14 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
+import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import {
-  color,
-  controlSize,
-  font,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
@@ -147,6 +142,12 @@ function MenuDemo() {
             zh: '打开菜单会把焦点移入弹层——优先落在标记了 data-menu-autofocus="true" 的项，否则落在第一个 menuitem。激活做什么由该项自己决定：站点里真正的菜单项会跳转，路由切换随之结束弹层。',
           })}
         </ShowcaseHelper>
+        <ShowcaseHelper>
+          {t({
+            en: "While the popup is open, the page blurs around it — a Progressive blur, strongest against the popup's edge and sharp again a short way out. The popup itself keeps a crisp hairline edge.",
+            zh: "弹层打开时，页面在它周围渐进虚化：紧贴弹层边缘处最强，稍远即恢复清晰。弹层本身保持一道清晰的细边。",
+          })}
+        </ShowcaseHelper>
       </div>
     </div>
   );
@@ -206,9 +207,10 @@ function KeyTable() {
   );
 }
 
+/** No Progressive blur: a plate has nothing behind the popup to blur. */
 function SortPopup() {
   return (
-    <div css={[corner.radius_2, styles.popupSample]}>
+    <div css={[popoverSurface.base, styles.popupSample]}>
       <MenuLabel>{t({ en: "Sort by", zh: "排序方式" })}</MenuLabel>
       <Button variant="primary">{t({ en: "Newest", zh: "最新" })}</Button>
       <Button>{t({ en: "Popular", zh: "热门" })}</Button>
@@ -487,8 +489,6 @@ const styles = stylex.create({
     padding: space._2,
     inlineSize: "100%",
     maxInlineSize: space._13,
-    backgroundColor: color.bgOverlay,
-    boxShadow: shadow._3,
   },
   guideExample: {
     gap: space._2,

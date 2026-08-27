@@ -24,8 +24,8 @@ export function ProgressiveBlurShowcase() {
         <div css={[flex.col, styles.stack]}>
           <Text variant="bodySmall" tone="muted">
             {t({
-              en: "A stack of blurred layers radiating from the floating element on every side, strongest against it and easing to sharp further out. The floating element is passed in, so the blur measures where it sits and no callsite states a direction. The strongest layer carries a faint wash of the page colour, so anything glaring behind the element is washed out rather than left at full contrast. The layers are aria-hidden and ignore pointer events, so a dismissal click outside the element passes straight through to whatever sits behind it.",
-              zh: "一组虚化图层从悬浮元素向四周辐射，紧贴元素处最强，越向外越清晰。悬浮元素作为子元素传入，虚化会测量它的位置，因此调用处无需指定方向。最强的一层带有一抹淡淡的页面底色淡彩，元素背后过于刺眼的内容会被冲淡，而不是保持原有的强对比。这些图层对无障碍隐藏且不响应指针事件，元素之外的关闭点击会直接穿透到后方内容。",
+              en: "A stack of blurred layers radiating from the floating element on every side, strongest against it and easing to sharp further out. The floating element is passed in, so the ramp runs out of its rect — measured, or reach in from the box's edges — and no callsite states a direction. The strongest layer carries a faint wash of the page colour, so anything glaring behind the element is washed out rather than left at full contrast. The layers are aria-hidden and ignore pointer events, so a dismissal click outside the element passes straight through to whatever sits behind it.",
+              zh: "一组虚化图层从悬浮元素向四周辐射，紧贴元素处最强，越向外越清晰。悬浮元素作为子元素传入，坡度自它的矩形向外展开——或由测量得出，或由 reach 从虚化框边缘内推——因此调用处无需指定方向。最强的一层带有一抹淡淡的页面底色淡彩，元素背后过于刺眼的内容会被冲淡，而不是保持原有的强对比。这些图层对无障碍隐藏且不响应指针事件，元素之外的关闭点击会直接穿透到后方内容。",
             })}
           </Text>
           <Specimen caption={t({ en: "around a dialog", zh: "对话框周围" })}>
@@ -33,6 +33,9 @@ export function ProgressiveBlurShowcase() {
           </Specimen>
           <Specimen caption={t({ en: "melt in and out", zh: "平滑显隐" })}>
             <MeltDemo />
+          </Specimen>
+          <Specimen caption={t({ en: "around a popup", zh: "弹层周围" })}>
+            <BlurredPopupMock />
           </Specimen>
         </div>
       </Showcase>
@@ -44,8 +47,8 @@ export function ProgressiveBlurShowcase() {
               name: "children",
               type: "ReactNode",
               description: t({
-                en: "The floating element the blur radiates from. It is measured, so the ramp needs no direction; it renders above the layers and stays interactive while they let clicks through.",
-                zh: "虚化向四周辐射所依据的悬浮元素。组件会测量它的位置，因此无需指定方向；它渲染在图层之上并保持可交互，而图层本身让点击穿透。",
+                en: "The floating element the blur radiates from. The ramp runs out of its rect — measured, or reach in from the box's edges — so it needs no direction; it renders above the layers and stays interactive while they let clicks through.",
+                zh: "虚化向四周辐射所依据的悬浮元素。坡度自它的矩形向外展开——或由测量得出，或由 reach 从虚化框边缘内推——因此无需指定方向；它渲染在图层之上并保持可交互，而图层本身让点击穿透。",
               }),
             },
             {
@@ -64,6 +67,14 @@ export function ProgressiveBlurShowcase() {
               description: t({
                 en: "Whether the blur is shown; toggling animates the radius away and back, so keep the element mounted while the exit plays.",
                 zh: "是否显示虚化；切换时半径会平滑地消失或恢复，因此退场动画播放期间应保持元素挂载。",
+              }),
+            },
+            {
+              name: "reach",
+              type: "number",
+              description: t({
+                en: "How far the blur reaches past the floating element, in px, on every side. Set it and the box is the element plus this margin: the root wraps the element in flow, the ramp is static, and the layers sit in a fixed box placed by measuring the element — so they never add to the page's scrollable area and no rounded ancestor clips them. An ancestor with a transform, a filter or contain becomes that box's containing block and moves and clips it. Leave it unset and the box fills the positioned ancestor, placed via css.",
+                zh: "虚化越过悬浮元素向外延伸的距离（像素），四边相同。设置后，虚化框即元素加上这一圈边距：根元素在文档流中包住元素，坡度固定，图层置于一个按元素测量定位的 fixed 框内——因此不会计入页面的可滚动区域，也不会被带圆角的祖先裁切。带有 transform、filter 或 contain 的祖先会成为该框的包含块，使它错位并被裁切。不设置时，虚化框填满最近的定位祖先，由 css 决定位置。",
               }),
             },
             {
@@ -99,8 +110,8 @@ export function ProgressiveBlurShowcase() {
 /**
  * A bounded mock page with a centred dialog floating over it — the case the
  * measured ramp exists for. The blur radiates on all four sides and the page is
- * sharp again well before the mock page's own edges. Shared by both specimens,
- * so the melt demo toggles the same shape it introduces.
+ * sharp again well before the mock page's own edges. Shared with the melt demo
+ * below, so that demo toggles the same shape this one introduces.
  */
 function BlurredDialogMock({ isShown }: { isShown?: boolean }) {
   return (
@@ -168,6 +179,62 @@ function MeltDemo() {
           ? t({ en: "Hide blur", zh: "隐藏虚化" })
           : t({ en: "Show blur", zh: "显示虚化" })}
       </Button>
+    </div>
+  );
+}
+
+/**
+ * A popup hanging off a trigger at the end of a bar — the static box `reach`
+ * exists for. The blur's box is the popup plus 96px on every side: a fixed box
+ * that follows the popup, so the mock page's rounded clip never cuts it and
+ * it stays out of the page's scrollable area.
+ */
+function BlurredPopupMock() {
+  return (
+    <div css={[corner.radius_3, styles.mockPage]}>
+      <div css={[flex.between, styles.mockBar]}>
+        <Text variant="bodySmall" weight="semibold">
+          {t({ en: "Watchlist", zh: "待看清单" })}
+        </Text>
+        <div css={styles.mockAnchor}>
+          <Button size="sm">{t({ en: "Sort", zh: "排序" })}</Button>
+          <div css={styles.mockPopupHang}>
+            <ProgressiveBlur reach={96} radius={12}>
+              <div css={[popoverSurface.base, styles.mockPopup]}>
+                <Button size="sm" variant="primary">
+                  {t({ en: "Newest first", zh: "最新在前" })}
+                </Button>
+                <Button size="sm">
+                  {t({ en: "Highest rated", zh: "评分最高" })}
+                </Button>
+                <Button size="sm">
+                  {t({ en: "Title A to Z", zh: "按标题排序" })}
+                </Button>
+              </div>
+            </ProgressiveBlur>
+          </div>
+        </div>
+      </div>
+      <div css={[flex.col, styles.mockPopupContent]}>
+        <Text variant="bodySmall">
+          {t({
+            en: "Forty-one titles are saved, and the six added this month sit at the top of the list until the sort changes.",
+            zh: "共保存了四十一部作品，本月新增的六部会排在最前，直到排序方式改变为止。",
+          })}
+        </Text>
+        <Text variant="bodySmall">
+          {t({
+            en: "Two of them leave the service you watch them on at the end of next week.",
+            zh: "其中两部将在下周末从你观看它们的服务上下架。",
+          })}
+        </Text>
+        <Text variant="bodySmall" tone="muted">
+          {t({
+            en: "Sorting changes this view only — the shared list keeps its own order.",
+            zh: "排序只影响当前视图——共享清单保留自己的顺序。",
+          })}
+        </Text>
+      </div>
     </div>
   );
 }
@@ -268,6 +335,33 @@ const styles = stylex.create({
   },
   mockDialogActions: {
     justifyContent: "flex-end",
+    gap: space._2,
+  },
+  mockBar: {
+    gap: space._3,
+  },
+  // The popup hangs from this cell, so it anchors to the trigger rather than
+  // to the mock page.
+  mockAnchor: {
+    position: "relative",
+  },
+  // Over the trigger, not below it, which is where a real MenuButton opens.
+  mockPopupHang: {
+    position: "absolute",
+    insetBlockStart: 0,
+    insetInlineEnd: 0,
+  },
+  mockPopup: {
+    display: "flex",
+    flexDirection: "column",
+    minInlineSize: "9rem",
+    padding: space._1,
+  },
+  // Full width, unlike the dialog mock's column: the popup sits at the inline
+  // end, and a blur over bare background has nothing to show.
+  mockPopupContent: {
+    flexGrow: 1,
+    justifyContent: "space-between",
     gap: space._2,
   },
   meltStack: {

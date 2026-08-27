@@ -33,27 +33,26 @@ interface BlurLayerOptions {
   isShown: boolean;
 }
 
+/**
+ * One axis of the ramp: which way it runs, and where its stops sit. `before`
+ * returns the stop that many bands out from the element's near edge, `after`
+ * the one that many bands out from its far edge. Each multiplies before it
+ * divides, so a whole number of bands out of a whole number of pixels never
+ * lands on a floating-point tail.
+ */
 interface RampAxis {
   direction: string;
-  near: number;
-  far: number;
-  nearReach: number;
-  farReach: number;
+  before: (bands: number) => string;
+  after: (bands: number) => string;
 }
 
 // #000 vs. transparent are the mask's opaque/cut keywords — the colour value
 // is irrelevant.
 function ramp(
-  { direction, near, far, nearReach, farReach }: RampAxis,
+  { direction, before, after }: RampAxis,
   holdBands: number,
   goneBands: number,
 ) {
-  // Multiplied before dividing, so a whole number of bands out of a whole
-  // number of pixels never lands on a floating-point tail.
-  const before = (bands: number) =>
-    `${String(near - (nearReach * bands) / LAYER_COUNT)}px`;
-  const after = (bands: number) =>
-    `${String(far + (farReach * bands) / LAYER_COUNT)}px`;
   return `linear-gradient(${direction}, transparent ${before(goneBands)}, #000 ${before(holdBands)}, #000 ${after(holdBands)}, transparent ${after(goneBands)})`;
 }
 
@@ -79,6 +78,25 @@ function blurLayerSteps(radius: number, isShown: boolean) {
 }
 
 /**
+ * One measured axis: the element's near and far edge along it, and the box's
+ * own size, which is how much page each stop has left to run out over.
+ */
+function measuredAxis(
+  direction: string,
+  near: number,
+  far: number,
+  size: number,
+): RampAxis {
+  const nearReach = Math.max(near, 0);
+  const farReach = Math.max(size - far, 0);
+  return {
+    direction,
+    before: (bands) => `${String(near - (nearReach * bands) / LAYER_COUNT)}px`,
+    after: (bands) => `${String(far + (farReach * bands) / LAYER_COUNT)}px`,
+  };
+}
+
+/**
  * The stack of blurred layers, weakest first, as the `backdrop-filter` and
  * `mask-image` each one carries. Every layer holds a mask per axis, composited
  * with `intersect`: multiplying the two ramps rounds the corners, so the blur
@@ -93,20 +111,8 @@ export function buildBlurLayers({
   isShown,
 }: BlurLayerOptions) {
   const axes = geometry && [
-    {
-      direction: "to right",
-      near: geometry.left,
-      far: geometry.right,
-      nearReach: Math.max(geometry.left, 0),
-      farReach: Math.max(geometry.width - geometry.right, 0),
-    },
-    {
-      direction: "to bottom",
-      near: geometry.top,
-      far: geometry.bottom,
-      nearReach: Math.max(geometry.top, 0),
-      farReach: Math.max(geometry.height - geometry.bottom, 0),
-    },
+    measuredAxis("to right", geometry.left, geometry.right, geometry.width),
+    measuredAxis("to bottom", geometry.top, geometry.bottom, geometry.height),
   ];
 
   return blurLayerSteps(radius, isShown).map(
@@ -115,6 +121,48 @@ export function buildBlurLayers({
       mask: axes
         ? axes.map((axis) => ramp(axis, holdBands, goneBands)).join(", ")
         : "none",
+    }),
+  );
+}
+
+interface ReachBlurLayerOptions {
+  /** How far the blur reaches past the element, in px. */
+  reach: number;
+  radius: number;
+  isShown: boolean;
+}
+
+/**
+ * One static axis: the element's edge is `reach` in from the box's own edge by
+ * construction, so the far side counts back from `100%`.
+ */
+function reachAxis(direction: string, reach: number): RampAxis {
+  const before = (bands: number) =>
+    `${String((reach * (LAYER_COUNT - bands)) / LAYER_COUNT)}px`;
+  return {
+    direction,
+    before,
+    after: (bands) => `calc(100% - ${before(bands)})`,
+  };
+}
+
+/**
+ * The stack of blurred layers for a box that is the floating element plus
+ * `reach` on every side, weakest first. The same two-axis ramp as
+ * `buildBlurLayers`, composited with `intersect` so the corners round, but
+ * static: every stop is known without measuring anything.
+ */
+export function buildReachBlurLayers({
+  reach,
+  radius,
+  isShown,
+}: ReachBlurLayerOptions) {
+  const axes = [reachAxis("to right", reach), reachAxis("to bottom", reach)];
+
+  return blurLayerSteps(radius, isShown).map(
+    ({ filter, holdBands, goneBands }) => ({
+      filter,
+      mask: axes.map((axis) => ramp(axis, holdBands, goneBands)).join(", "),
     }),
   );
 }
@@ -129,8 +177,8 @@ interface EdgeBlurLayerOptions {
   isShown: boolean;
 }
 
-// Multiplied before dividing, the same way `ramp` does, so a whole number of
-// bands never lands on a floating-point tail.
+// Multiplied before dividing, the same way a ramp's stops are, so a whole
+// number of bands never lands on a floating-point tail.
 function bandStop(bands: number) {
   return `${String((bands * 100) / LAYER_COUNT)}%`;
 }

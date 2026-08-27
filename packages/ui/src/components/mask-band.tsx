@@ -76,6 +76,5 @@ const dynamicStyles = stylex.create({
   layer: (filter: string, mask: string) => ({
     backdropFilter: filter,
     maskImage: mask,
-    WebkitMaskImage: mask,
   }),
 });

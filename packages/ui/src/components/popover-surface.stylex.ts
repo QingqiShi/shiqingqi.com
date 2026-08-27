@@ -32,6 +32,11 @@ export const popoverSurface = stylex.create({
     borderRadius: border.radius_2,
     cornerShape: "squircle",
   },
+  // Content nested at the surface's corner takes `inner = outer − border`.
+  inner: {
+    borderRadius: `calc(${border.radius_2} - ${border.size_1})`,
+    cornerShape: "squircle",
+  },
   enter: {
     animationName: {
       default: enterKeyframes,
