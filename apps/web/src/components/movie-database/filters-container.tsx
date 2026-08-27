@@ -49,7 +49,6 @@ const styles = stylex.create({
     // Sticky page chrome: above the cards it pins over (including one lifted by
     // hover), below the site header it parks beneath.
     zIndex: layer.raised,
-    paddingRight: "var(--removed-body-scroll-bar-size, 0px)",
     marginBottom: space._3,
   },
   desktopInnerContainer: {
@@ -75,7 +74,7 @@ const styles = stylex.create({
     alignItems: "center",
     gap: space._1,
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right, 0px) + var(--removed-body-scroll-bar-size, 0px))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
     marginBottom: space._3,
   },
 
