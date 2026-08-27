@@ -60,7 +60,7 @@ const styles = stylex.create({
     position: { default: "absolute", [breakpoints.md]: "static" },
     insetBlockStart: 0,
     insetBlockEnd: 0,
-    insetInlineEnd: `calc(${space._3} + env(safe-area-inset-right, 0px) + var(--removed-body-scroll-bar-size, 0px))`,
+    insetInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
     alignItems: "center",
   },
   visible: {
