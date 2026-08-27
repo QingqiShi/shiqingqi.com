@@ -1,9 +1,11 @@
 const path = require("node:path");
 
 module.exports = async () => {
+  const { getLocalDevOrigins } = await import("../../scripts/dev-origins.mjs");
   /** @type {import('next').NextConfig} */
   const nextConfig = {
     reactStrictMode: true,
+    allowedDevOrigins: getLocalDevOrigins(),
     reactCompiler: true,
     // Type-checking runs as a dedicated CI job (build:tsc), so skip the
     // redundant in-build type-check pass to keep `next build` lean. (Linting
