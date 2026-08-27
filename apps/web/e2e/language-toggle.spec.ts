@@ -229,3 +229,90 @@ test.describe("Language Toggle", () => {
     ).toBeVisible();
   });
 });
+
+test.describe("Language Toggle on prefetch-heavy pages", () => {
+  test("keeps English after switching from a zh-prefetched design-system page", async ({
+    browser,
+  }) => {
+    // The design system rail renders ~30 links to the current locale. Next
+    // prefetches them, and every prefetch used to answer with a Set-Cookie for
+    // the locale in the URL — overwriting the locale just picked.
+    const zhContext = await browser.newContext({ locale: "zh-CN" });
+    const page = await zhContext.newPage();
+
+    await page.goto("/design-system");
+    await expect(page).toHaveURL(/\/zh\/design-system$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh");
+
+    // Hover a few rail links so their prefetches are in flight during the switch
+    const railLinks = page
+      .getByRole("navigation", { name: "设计系统" })
+      .getByRole("link");
+    for (let index = 0; index < 4; index++) {
+      await railLinks.nth(index).hover();
+    }
+
+    // Switch to English
+    await page.getByRole("button", { name: "选择语言" }).click();
+    await page.getByRole("menuitem", { name: "Switch to English" }).click();
+
+    // `//host/design-system`, never `//host/zh/design-system`
+    await expect(page).toHaveURL(/\/\/[^/]+\/design-system$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en", {
+      timeout: 15000,
+    });
+    await expect(
+      page.getByRole("button", { name: "Select a language" }),
+    ).toBeVisible();
+
+    // Let the new page's own prefetches, and any stale ones the service worker
+    // still relays, settle before reading the cookie
+    await page.waitForLoadState("networkidle");
+    const localeCookie = (await zhContext.cookies()).find(
+      (cookie) => cookie.name === "NEXT_LOCALE",
+    );
+    expect(localeCookie?.value).toBe("en");
+
+    // A later navigation and a reload must both stay English
+    await page
+      .getByRole("navigation", { name: "Design system" })
+      .getByRole("link", { name: "Colour" })
+      .click();
+    await expect(page).toHaveURL(
+      /\/\/[^/]+\/design-system\/foundations\/color$/,
+    );
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+
+    await zhContext.close();
+  });
+
+  test("the running server writes no locale cookie for a prefetch", async ({
+    request,
+  }) => {
+    // The unit test calls `proxy()` directly; this one goes through the real
+    // Next server, so it proves the adapter does not re-emit the stripped
+    // cookie from `x-middleware-set-cookie`, and that the header assumptions
+    // hold at runtime.
+    const response = await request.get("/zh/design-system", {
+      headers: {
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        Cookie: "NEXT_LOCALE=en",
+      },
+      maxRedirects: 0,
+    });
+
+    expect(response.status()).toBe(200);
+    const localeCookieHeaders = response
+      .headersArray()
+      .filter(
+        (header) =>
+          header.name.toLowerCase() === "set-cookie" &&
+          header.value.includes("NEXT_LOCALE"),
+      );
+    expect(localeCookieHeaders).toEqual([]);
+  });
+});

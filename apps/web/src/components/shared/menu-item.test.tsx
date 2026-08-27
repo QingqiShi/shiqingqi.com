@@ -1,38 +1,13 @@
-import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import type { ReactNode } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, userEvent } from "#src/test-utils.tsx";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "#src/test-utils.tsx";
 import { MenuItem } from "./menu-item";
 
-// MenuItem calls useRouter() at render time, which requires the Next.js App
-// Router context. A no-op router stub is enough: the attribute tests never
-// navigate, and the click tests only assert which router methods were called.
-const stubRouter = {
-  back: vi.fn(),
-  forward: vi.fn(),
-  refresh: vi.fn(),
-  push: vi.fn(),
-  replace: vi.fn(),
-  prefetch: vi.fn(),
-  bfcacheId: "stub-bfcache-id",
-};
-
-function RouterProvider({ children }: { children: ReactNode }) {
-  return <AppRouterContext value={stubRouter}>{children}</AppRouterContext>;
-}
-
 describe("MenuItem", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it("renders as a menuitem with the auto-focus data attribute", () => {
     render(
-      <RouterProvider>
-        <MenuItem href="/x" autoFocus>
-          Focusable item
-        </MenuItem>
-      </RouterProvider>,
+      <MenuItem href="/x" autoFocus>
+        Focusable item
+      </MenuItem>,
     );
 
     const item = screen.getByRole("menuitem", { name: "Focusable item" });
@@ -40,11 +15,7 @@ describe("MenuItem", () => {
   });
 
   it("omits the data attribute when autoFocus is false", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x">Plain item</MenuItem>
-      </RouterProvider>,
-    );
+    render(<MenuItem href="/x">Plain item</MenuItem>);
 
     const item = screen.getByRole("menuitem", { name: "Plain item" });
     expect(item).not.toHaveAttribute("data-menu-autofocus");
@@ -52,11 +23,9 @@ describe("MenuItem", () => {
 
   it("takes the active item out of the tab order", () => {
     render(
-      <RouterProvider>
-        <MenuItem href="/x" isActive>
-          Active item
-        </MenuItem>
-      </RouterProvider>,
+      <MenuItem href="/x" isActive>
+        Active item
+      </MenuItem>,
     );
 
     const item = screen.getByRole("menuitem", { name: "Active item" });
@@ -65,11 +34,9 @@ describe("MenuItem", () => {
 
   it("marks the active item with aria-current='true'", () => {
     render(
-      <RouterProvider>
-        <MenuItem href="/x" isActive>
-          Active item
-        </MenuItem>
-      </RouterProvider>,
+      <MenuItem href="/x" isActive>
+        Active item
+      </MenuItem>,
     );
 
     const item = screen.getByRole("menuitem", { name: "Active item" });
@@ -77,11 +44,7 @@ describe("MenuItem", () => {
   });
 
   it("does not mark an inactive item with aria-current", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x">Inactive item</MenuItem>
-      </RouterProvider>,
-    );
+    render(<MenuItem href="/x">Inactive item</MenuItem>);
 
     const item = screen.getByRole("menuitem", { name: "Inactive item" });
     expect(item).not.toHaveAttribute("aria-current");
@@ -94,11 +57,9 @@ describe("MenuItem", () => {
     // itself) so screen readers switch pronunciation rules. This is the
     // load-bearing fix for the locale-switcher menu — see `LocaleSelector`.
     render(
-      <RouterProvider>
-        <MenuItem href="/zh" lang="zh" ariaLabel="切换至中文">
-          中文
-        </MenuItem>
-      </RouterProvider>,
+      <MenuItem href="/zh" lang="zh" ariaLabel="切换至中文">
+        中文
+      </MenuItem>,
     );
 
     const item = screen.getByRole("menuitem", { name: "切换至中文" });
@@ -106,11 +67,7 @@ describe("MenuItem", () => {
   });
 
   it("omits the lang attribute when none is provided", () => {
-    render(
-      <RouterProvider>
-        <MenuItem href="/x">Default-language item</MenuItem>
-      </RouterProvider>,
-    );
+    render(<MenuItem href="/x">Default-language item</MenuItem>);
 
     const item = screen.getByRole("menuitem", {
       name: "Default-language item",
@@ -118,45 +75,22 @@ describe("MenuItem", () => {
     expect(item).not.toHaveAttribute("lang");
   });
 
-  it("navigates via router.push on click", async () => {
-    const user = userEvent.setup();
+  it("is a link the browser follows, and runs onClick without cancelling it", () => {
+    // jsdom cannot observe the navigation itself, so the href and the
+    // un-prevented default action are the ceiling for this layer.
+    const onClick = vi.fn();
     render(
-      <RouterProvider>
-        <MenuItem href="/zh">Switch to Chinese</MenuItem>
-      </RouterProvider>,
+      <MenuItem href="/zh" onClick={onClick}>
+        Switch to Chinese
+      </MenuItem>,
     );
 
-    await user.click(
-      screen.getByRole("menuitem", { name: "Switch to Chinese" }),
-    );
+    const item = screen.getByRole("menuitem", { name: "Switch to Chinese" });
+    expect(item).toHaveAttribute("href", "/zh");
 
-    expect(stubRouter.push).toHaveBeenCalledWith("/zh");
-  });
+    const notPrevented = fireEvent.click(item);
 
-  it("runs onNavigation once, after the push", async () => {
-    // Covers the locale switcher's router.refresh(): it must run with the
-    // navigation already issued, in the same transition. Recording the push
-    // count at call time asserts the ordering without another spy.
-    const pushCountWhenCalled: number[] = [];
-    const user = userEvent.setup();
-    render(
-      <RouterProvider>
-        <MenuItem
-          href="/zh"
-          onNavigation={() => {
-            pushCountWhenCalled.push(stubRouter.push.mock.calls.length);
-          }}
-        >
-          Switch to Chinese
-        </MenuItem>
-      </RouterProvider>,
-    );
-
-    await user.click(
-      screen.getByRole("menuitem", { name: "Switch to Chinese" }),
-    );
-
-    expect(stubRouter.push).toHaveBeenCalledWith("/zh");
-    expect(pushCountWhenCalled).toEqual([1]);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(notPrevented).toBe(true);
   });
 });

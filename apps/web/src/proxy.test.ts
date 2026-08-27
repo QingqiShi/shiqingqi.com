@@ -10,12 +10,44 @@ function apiRequest(path: string, referer?: string) {
 
 function pageRequest(
   path: string,
-  { cookie, acceptLanguage }: { cookie?: string; acceptLanguage?: string } = {},
+  {
+    cookie,
+    acceptLanguage,
+    headers: extraHeaders,
+  }: {
+    cookie?: string;
+    acceptLanguage?: string;
+    headers?: Record<string, string>;
+  } = {},
 ) {
-  const headers = new Headers();
+  const headers = new Headers(extraHeaders);
   if (cookie) headers.set("Cookie", `NEXT_LOCALE=${cookie}`);
   if (acceptLanguage) headers.set("Accept-Language", acceptLanguage);
   return new NextRequest(`http://localhost:3000${path}`, { headers });
+}
+
+/** What the browser sends for a Link prefetch. */
+function prefetchRequest(path: string, { cookie }: { cookie?: string } = {}) {
+  return pageRequest(path, {
+    cookie,
+    headers: { "Sec-Fetch-Dest": "empty", "Sec-Fetch-Mode": "cors" },
+  });
+}
+
+/** What the browser sends for a document load the visitor asked for. */
+function documentRequest(path: string, { cookie }: { cookie?: string } = {}) {
+  return pageRequest(path, {
+    cookie,
+    headers: { "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate" },
+  });
+}
+
+// Reads the raw header: ResponseCookies caches its parse at construction, so
+// `response.cookies.get` is stale after the proxy deletes the header.
+function localeSetCookies(response: Response) {
+  return response.headers
+    .getSetCookie()
+    .filter((setCookie) => setCookie.startsWith("NEXT_LOCALE="));
 }
 
 describe("proxy referer validation for API routes", () => {
@@ -140,7 +172,7 @@ describe("proxy locale cookie durability", () => {
     expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("zh");
   });
 
-  it("does not overwrite the library's own cookie when it disagrees with the request cookie", () => {
+  it("lets the library's cookie win on a request without Sec-Fetch headers", () => {
     const response = proxy(pageRequest("/zh", { cookie: "en" }));
 
     expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("zh");
@@ -166,5 +198,61 @@ describe("proxy locale cookie durability", () => {
     const response = proxy(pageRequest("/", { cookie: "fr" }));
 
     expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
+  });
+});
+
+describe("proxy locale cookie on requests the visitor did not make", () => {
+  // Next deletes `RSC` and `Next-Router-Prefetch` before the proxy runs, so a
+  // prefetch is recognised by the browser's own `Sec-Fetch-Dest` /
+  // `Sec-Purpose` instead. Before this, prefetches of the old Locale's links
+  // overwrote the Locale a visitor had just picked.
+  it("a prefetch of /zh leaves an en Preference alone", () => {
+    const response = proxy(
+      prefetchRequest("/zh/design-system", { cookie: "en" }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("x-next-i18n-router-locale")).toBe("zh");
+    expect(localeSetCookies(response)).toEqual([]);
+    expect(response.headers.get("x-middleware-set-cookie")).toBeNull();
+  });
+
+  it("a speculation-rules prefetch that asks for a document leaves it alone too", () => {
+    const response = proxy(
+      pageRequest("/zh", {
+        cookie: "en",
+        headers: {
+          "Sec-Fetch-Dest": "document",
+          "Sec-Purpose": "prefetch;prerender",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(localeSetCookies(response)).toEqual([]);
+  });
+
+  it("a prefetch of an unprefixed path leaves the Preference alone", () => {
+    const response = proxy(prefetchRequest("/design-system", { cookie: "en" }));
+
+    expect(response.status).toBe(200);
+    expect(localeSetCookies(response)).toEqual([]);
+  });
+
+  it("a prefetch still follows the Preference's redirect", () => {
+    const response = proxy(prefetchRequest("/design-system", { cookie: "zh" }));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain("/zh/design-system");
+    expect(localeSetCookies(response)).toEqual([]);
+  });
+
+  it("a document navigation to /zh still lets the path win", () => {
+    const response = proxy(
+      documentRequest("/zh/design-system", { cookie: "en" }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("zh");
   });
 });
