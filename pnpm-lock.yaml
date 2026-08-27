@@ -475,8 +475,8 @@ importers:
         specifier: ^5.0.2
         version: 5.0.2(postcss@8.5.15)
       postcss-import:
-        specifier: ^16.2.0
-        version: 16.2.0(postcss@8.5.21)
+        specifier: ^17.0.0
+        version: 17.0.0(postcss@8.5.21)
       postcss-preset-env:
         specifier: ^11.4.0
         version: 11.4.0(postcss@8.5.21)
@@ -5707,10 +5707,6 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  pify@2.3.0:
-    resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
-    engines: {node: '>=0.10.0'}
-
   pkce-challenge@5.0.1:
     resolution: {integrity: sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ==}
     engines: {node: '>=16.20.0'}
@@ -5831,9 +5827,9 @@ packages:
     peerDependencies:
       postcss: ^8.5.10
 
-  postcss-import@16.2.0:
-    resolution: {integrity: sha512-0mQUGlSp87Zl70K58RNwQAN1WS9plFE6KWGui9nyK6ninduMyjW/Khaoy/BpBoFTBh7ndAvAKrSKVbwy6vd/BA==}
-    engines: {node: '>=18.0.0'}
+  postcss-import@17.0.0:
+    resolution: {integrity: sha512-qzVMJhcq39KweT7Fp0HcjE5YxL5yI854Q3CtufxDuZKO9HLQUp2rptB9+U0MIj3pT1ZEVXoqnpeC1mSkfYuz4Q==}
+    engines: {node: '>=22.0.0'}
     peerDependencies:
       postcss: ^8.5.10
 
@@ -6060,8 +6056,8 @@ packages:
     resolution: {integrity: sha512-GXus9O3WYvGEa11ovWy4/YVYyVsLO/QGYV31KHM20OL9yKSAl+3j8HXugSTz0ZV87clEvQ1uVNQAM3Orr3OVYg==}
     engines: {node: '>=0.10.0'}
 
-  read-cache@1.0.0:
-    resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
+  read-cache@1.0.2:
+    resolution: {integrity: sha512-/peqiBB/n07gQGLsWaHho3WfvUyRscw0gYTsEFMhrIe/nWLkYaf5SbKYjGYqtRV3aPwykJgF2VEMo1ac4bnsGA==}
 
   read-package-json-fast@6.0.0:
     resolution: {integrity: sha512-PNaGjoCnw9DBA2Kl8D+8po957z778q/HOPuY2u3Bkw/JO3eC8MDx7jn/PgMtSgpcBbs+6UOjDbwReGpXmRvs0g==}
@@ -12422,8 +12418,6 @@ snapshots:
 
   pidtree@1.0.0: {}
 
-  pify@2.3.0: {}
-
   pkce-challenge@5.0.1: {}
 
   pkg-up@3.1.0:
@@ -12538,11 +12532,11 @@ snapshots:
       postcss: 8.5.21
       postcss-value-parser: 4.2.0
 
-  postcss-import@16.2.0(postcss@8.5.21):
+  postcss-import@17.0.0(postcss@8.5.21):
     dependencies:
       postcss: 8.5.21
       postcss-value-parser: 4.2.0
-      read-cache: 1.0.0
+      read-cache: 1.0.2
       resolve: 1.22.12
 
   postcss-lab-function@8.0.8(postcss@8.5.21):
@@ -12839,9 +12833,7 @@ snapshots:
 
   react@19.3.0-canary-83840902-20260719: {}
 
-  read-cache@1.0.0:
-    dependencies:
-      pify: 2.3.0
+  read-cache@1.0.2: {}
 
   read-package-json-fast@6.0.0:
     dependencies:
