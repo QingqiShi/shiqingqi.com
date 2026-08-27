@@ -3,9 +3,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, controlSize } from "@tuja/ui/tokens.stylex";
-import { useRouter } from "next/navigation";
-import type { PropsWithChildren } from "react";
-import { useTransition } from "react";
+import type { MouseEventHandler, PropsWithChildren } from "react";
 
 interface ItemProps {
   ariaLabel?: string;
@@ -19,18 +17,14 @@ interface ItemProps {
    * Parts) when the item is in a different language from the page.
    */
   lang?: string;
-  onBeforeNavigation?: () => void;
-  onAfterNavigation?: () => void;
-  /**
-   * Runs inside the same transition as the navigation, right after
-   * `router.push`. For follow-up router work that must batch with the
-   * navigation — e.g. a `router.refresh()` that flushes client caches made
-   * stale by what the navigation changes. `onAfterNavigation` runs outside
-   * the transition and cannot do this.
-   */
-  onNavigation?: () => void;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 }
 
+/**
+ * One item in a menu: a link the browser follows itself. Not `router.push` — a
+ * soft navigation keeps client caches that the link's destination may
+ * invalidate; the caller decides what the destination means.
+ */
 export function MenuItem({
   children,
   ariaLabel,
@@ -38,13 +32,8 @@ export function MenuItem({
   isActive,
   autoFocus,
   lang,
-  onBeforeNavigation,
-  onAfterNavigation,
-  onNavigation,
+  onClick,
 }: PropsWithChildren<ItemProps>) {
-  const router = useRouter();
-  const [, startTransition] = useTransition();
-
   return (
     <a
       href={href}
@@ -61,16 +50,7 @@ export function MenuItem({
       ]}
       data-menu-autofocus={autoFocus ? "true" : undefined}
       tabIndex={isActive ? -1 : 0}
-      onClick={(e) => {
-        e.preventDefault();
-
-        onBeforeNavigation?.();
-        startTransition(() => {
-          router.push(href);
-          onNavigation?.();
-        });
-        onAfterNavigation?.();
-      }}
+      onClick={onClick}
     >
       {children}
     </a>

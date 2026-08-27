@@ -6,7 +6,7 @@ import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, type ComponentProps } from "react";
 import {
   LOCALE_COOKIE_MAX_AGE_SECONDS,
@@ -82,16 +82,8 @@ function LocaleSelectorMenu({
 }: LocaleSelectorProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const router = useRouter();
 
   const searchString = searchParams.size ? `?${searchParams.toString()}` : "";
-
-  // Locale changes how every route renders, so drop the client router cache
-  // and prefetch entries created before the switch — replayed as-is, they
-  // would show the old locale.
-  const refreshRoute = () => {
-    router.refresh();
-  };
 
   return (
     <MenuButton
@@ -111,10 +103,9 @@ function LocaleSelectorMenu({
             isActive={locale === "en"}
             autoFocus={locale !== "en"}
             lang="en"
-            onNavigation={refreshRoute}
-            onBeforeNavigation={() => {
-              // next-i18n-router respects the locale cookie, so we must keep
-              // it in sync to avoid reverting locale on reload or root navigation.
+            onClick={() => {
+              // The server reads the Preference from this cookie, so write it
+              // before the browser follows the link.
               setLocaleCookie("en");
             }}
           >
@@ -127,8 +118,7 @@ function LocaleSelectorMenu({
             isActive={locale === "zh"}
             autoFocus={locale === "en"}
             lang="zh"
-            onNavigation={refreshRoute}
-            onBeforeNavigation={() => {
+            onClick={() => {
               setLocaleCookie("zh");
             }}
           >
@@ -143,6 +133,12 @@ function LocaleSelectorMenu({
   );
 }
 
+// Both items are links, so the switch is a document navigation. Every
+// client-router cache — router cache, segment cache, service-worker page caches
+// — is keyed by URL, and an unprefixed URL renders a different Locale depending
+// on this cookie. After it changes, no soft navigation can be trusted: only a
+// document navigation makes the server read the new Preference, and it leaves
+// no pre-switch entry alive.
 function setLocaleCookie(locale: SupportedLocale) {
   // set cookie for next-i18n-router
   const secure = window.location.protocol === "https:" ? ";Secure" : "";
