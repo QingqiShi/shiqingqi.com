@@ -11,6 +11,7 @@ import {
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
+import { noop } from "#src/utils/noop.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";
@@ -34,35 +35,39 @@ export function SimilarMedia({
   const queryClient = getQueryClient();
 
   // Prefetch configuration
-  void queryClient.prefetchQuery({
-    ...tmdbQueries.configuration,
-    queryFn: async () => getConfiguration(),
-  });
+  queryClient
+    .query({
+      ...tmdbQueries.configuration,
+      queryFn: async () => getConfiguration(),
+    })
+    .catch(noop);
 
   // Prefetch similar media data to prevent SSR errors
-  void queryClient.prefetchInfiniteQuery({
-    ...tmdbQueries.similarMedia({
-      type: mediaType,
-      id: mediaId,
-      page: 1,
-      language: locale,
-    }),
-    queryFn: async ({ pageParam }) => {
-      if (mediaType === "tv") {
-        return getTvShowRecommendations({
-          series_id: mediaId,
-          page: pageParam,
-          language: locale,
-        });
-      } else {
-        return getMovieRecommendations({
-          movie_id: mediaId,
-          page: pageParam,
-          language: locale,
-        });
-      }
-    },
-  });
+  queryClient
+    .infiniteQuery({
+      ...tmdbQueries.similarMedia({
+        type: mediaType,
+        id: mediaId,
+        page: 1,
+        language: locale,
+      }),
+      queryFn: async ({ pageParam }) => {
+        if (mediaType === "tv") {
+          return getTvShowRecommendations({
+            series_id: mediaId,
+            page: pageParam,
+            language: locale,
+          });
+        } else {
+          return getMovieRecommendations({
+            movie_id: mediaId,
+            page: pageParam,
+            language: locale,
+          });
+        }
+      },
+    })
+    .catch(noop);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

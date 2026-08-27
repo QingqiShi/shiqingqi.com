@@ -8,6 +8,7 @@ import {
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
+import { noop } from "#src/utils/noop.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { RecommendedMediaRow } from "./recommended-media-row";
 import { RecommendedMediaRowSkeleton } from "./recommended-media-row-skeleton";
@@ -21,10 +22,12 @@ interface RecommendedMediaProps {
 export function RecommendedMedia({ locale }: RecommendedMediaProps) {
   const queryClient = getQueryClient();
 
-  void queryClient.prefetchQuery({
-    ...tmdbQueries.configuration,
-    queryFn: async () => getConfiguration(),
-  });
+  queryClient
+    .query({
+      ...tmdbQueries.configuration,
+      queryFn: async () => getConfiguration(),
+    })
+    .catch(noop);
 
   const dehydratedState = dehydrate(queryClient);
 
