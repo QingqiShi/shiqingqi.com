@@ -33,6 +33,7 @@ import {
   isMediaView,
   isSort,
 } from "#src/utils/media-filter-types.ts";
+import { noop } from "#src/utils/noop.ts";
 import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
@@ -77,17 +78,21 @@ export default async function Page(
 
   // Fetch config, genres, and initial page
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery({
-    ...tmdbQueries.configuration,
-    queryFn: () => getConfiguration(),
-  });
-  void queryClient.prefetchQuery({
-    ...tmdbQueries.genres({ type: mediaType, language: validatedLocale }),
-    queryFn: () =>
-      mediaType === "tv"
-        ? getTvShowGenres({ language: validatedLocale })
-        : getMovieGenres({ language: validatedLocale }),
-  });
+  queryClient
+    .query({
+      ...tmdbQueries.configuration,
+      queryFn: () => getConfiguration(),
+    })
+    .catch(noop);
+  queryClient
+    .query({
+      ...tmdbQueries.genres({ type: mediaType, language: validatedLocale }),
+      queryFn: () =>
+        mediaType === "tv"
+          ? getTvShowGenres({ language: validatedLocale })
+          : getMovieGenres({ language: validatedLocale }),
+    })
+    .catch(noop);
   const queryParams = {
     language: validatedLocale,
     page: 1,
@@ -96,29 +101,33 @@ export default async function Page(
   };
 
   if (mediaType === "tv") {
-    void queryClient.prefetchInfiniteQuery({
-      ...tmdbQueries.mediaList({ type: "tv", ...queryParams }),
-      queryFn: async ({ pageParam }) => {
-        return discoverTvShows({
-          "vote_count.gte": 300,
-          "vote_average.gte": 3,
-          ...queryParams,
-          page: pageParam,
-        });
-      },
-    });
+    queryClient
+      .infiniteQuery({
+        ...tmdbQueries.mediaList({ type: "tv", ...queryParams }),
+        queryFn: async ({ pageParam }) => {
+          return discoverTvShows({
+            "vote_count.gte": 300,
+            "vote_average.gte": 3,
+            ...queryParams,
+            page: pageParam,
+          });
+        },
+      })
+      .catch(noop);
   } else {
-    void queryClient.prefetchInfiniteQuery({
-      ...tmdbQueries.mediaList({ type: "movie", ...queryParams }),
-      queryFn: async ({ pageParam }) => {
-        return discoverMovies({
-          "vote_count.gte": 300,
-          "vote_average.gte": 3,
-          ...queryParams,
-          page: pageParam,
-        });
-      },
-    });
+    queryClient
+      .infiniteQuery({
+        ...tmdbQueries.mediaList({ type: "movie", ...queryParams }),
+        queryFn: async ({ pageParam }) => {
+          return discoverMovies({
+            "vote_count.gte": 300,
+            "vote_average.gte": 3,
+            ...queryParams,
+            page: pageParam,
+          });
+        },
+      })
+      .catch(noop);
   }
 
   const suggestions = [
