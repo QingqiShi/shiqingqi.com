@@ -47,9 +47,10 @@ export function SidebarLayoutShowcase() {
           })}
         </ShowcaseHelper>
         <Specimen caption={t({ en: "rail and content", zh: "侧栏与内容列" })}>
-          {/* The frame's transform creates a containing block, so the shell's
-              fixed mobile chrome (pill bar, drawer, backdrop) anchors to the
-              specimen instead of the real viewport. */}
+          {/* The viewport's transform creates a containing block, so the
+              shell's fixed mobile chrome (pill bar, drawer, backdrop) anchors
+              to the specimen instead of the real viewport, and the viewport's
+              clip is what keeps that chrome inside the frame. */}
           <div css={[corner.radius_3, styles.frame]}>
             <div css={styles.viewport}>
               <SidebarLayout
@@ -211,21 +212,29 @@ export function SidebarLayoutShowcase() {
 }
 
 const styles = stylex.create({
+  // Rounded, and clipping nothing: the rail inside holds a Scroll mask, and a
+  // squircle-cornered clip above its bands would strip their masks. A
+  // background and a border round by border-radius alone, which is the whole
+  // of the frame's look.
   frame: {
     position: "relative",
     inlineSize: "100%",
-    overflow: "hidden",
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
-    // Containing block for the shell's fixed mobile chrome (see comment at
-    // the callsite).
-    transform: "translateZ(0)",
   },
   // Fixed-height box; the shell fills it, so the rail bounds here and its footer
-  // pins to the bottom without the specimen scrolling.
+  // pins to the bottom without the specimen scrolling. It also holds the
+  // containing block and the clip for the shell's fixed mobile chrome, which
+  // the frame can no longer keep in. That clip has to stay radius-free,
+  // because it sits above the rail's Scroll mask bands and a rounded one would
+  // strip their masks. The cost is the open demo drawer below `md`: it reaches
+  // the frame's edges, so it squares off the two corners it covers.
   viewport: {
     blockSize: space._15,
     overflow: "hidden",
+    // Containing block for the shell's fixed mobile chrome (see comment at
+    // the callsite).
+    transform: "translateZ(0)",
   },
   contentInner: {
     display: "flex",

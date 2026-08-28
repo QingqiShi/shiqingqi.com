@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { useScrollMask } from "@tuja/ui/hooks/use-scroll-mask";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
@@ -46,6 +47,9 @@ export function HorizontalScrollRow({
         role={role}
         aria-label={ariaLabel}
         tabIndex={0}
+        // The row's corners belong to the root: the scroller and the bands take
+        // them from it, so this is also what shapes the focus ring below.
+        css={corner.radius_2}
         contentCss={[
           scrollX.base,
           scrollX.focusRing,

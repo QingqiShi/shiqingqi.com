@@ -98,6 +98,14 @@ const styles = stylex.create({
     inset: 0,
     zIndex: 0,
     pointerEvents: "none",
+    // The illustration is cut to the tile's corner here rather than by the
+    // tile, which cannot clip: a squircle-cornered clip above a Scroll mask or
+    // a Progressive blur makes Chrome drop their masks, and the tiles host both.
+    // The layer is the tile's own child, so it inherits that corner rather than
+    // restating the token, and the two can never drift apart.
+    overflow: "hidden",
+    borderRadius: "inherit",
+    cornerShape: "inherit",
     // `, 0.5` fallback centres these before the first pointer event, so the
     // default needs no `@property` registration.
     "--ds-illo-mx": "calc((var(--ds-illo-px, 0.5) - 0.5) * 2)",

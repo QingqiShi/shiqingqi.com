@@ -17,7 +17,7 @@ import { WireframeBar } from "./wireframe-bar.tsx";
  */
 export function MovieDetailSpecimen() {
   return (
-    <div css={[wireframe.page, styles.page]}>
+    <div css={[wireframe.page, wireframe.clip, styles.page]}>
       <div css={styles.hero}>
         <div css={[corner.radius_1, styles.poster]} />
         <div css={styles.identity}>

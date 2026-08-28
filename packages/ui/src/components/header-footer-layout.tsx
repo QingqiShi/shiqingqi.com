@@ -125,13 +125,18 @@ const styles = stylex.create({
     minBlockSize: "100dvh",
   },
   // Full-bleed decoration layer. Positioned elements passed in anchor to the
-  // whole shell; it never intercepts input and is clipped to the page.
+  // whole shell; it never intercepts input and is clipped to the page. Its
+  // corners are the shell root's, so the decoration rounds with a shell
+  // dropped into a rounded box. The clip is safe here: this is a sibling
+  // subtree of the header's Scroll mask band, never above it.
   background: {
     position: "absolute",
     inset: 0,
     zIndex: layer.base,
     pointerEvents: "none",
     overflow: "hidden",
+    borderRadius: "inherit",
+    cornerShape: "inherit",
   },
   // Fixed bar aligned to the same centered measure as the content. Pointer
   // events stay off so only the slot regions intercept input, and the

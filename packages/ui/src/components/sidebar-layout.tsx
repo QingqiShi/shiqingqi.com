@@ -382,12 +382,9 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     minInlineSize: 0,
-    // The nav's scroll region bleeds to the card's block edges, so its bands
-    // and scrolled content would otherwise paint square over the rounded
-    // corners — clip everything to the squircle. Plain overflow clipping, not
-    // clip-path: a clip-path would make the rail a backdrop root and cut the
-    // bands' backdrop-filter off from the content beneath them.
-    overflow: "clip",
+    // No overflow clip, though the nav bleeds to the card's block edges: the
+    // nav's scroller and bands inherit these corners and clip themselves, and
+    // a squircle clip here would strip the bands' masks (see `MaskBand`).
     position: { default: "fixed", [breakpoints.md]: "sticky" },
     insetBlockStart: { default: 0, [breakpoints.md]: space._2 },
     insetBlockEnd: { default: 0, [breakpoints.md]: "auto" },
@@ -409,17 +406,9 @@ const styles = stylex.create({
     // pill bar (`layer.header`). md+: the rail is page chrome that only has to
     // clear scrolling content, which leaves an open overlay above it.
     zIndex: { default: layer.overlay, [breakpoints.md]: layer.content },
-    // No block padding: the scroll region reaches the card's block edges (the
-    // screen's, as the drawer), and the chrome slots carry the block insets
-    // the rail used to.
-    paddingInlineStart: {
-      default: space._3,
-      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-left))`,
-    },
-    paddingInlineEnd: {
-      default: `calc(${space._3} + env(safe-area-inset-right))`,
-      [breakpoints.md]: space._2,
-    },
+    // No padding: the nav spans the card's whole box, so the corners it
+    // inherits line up with these. The chrome slots carry the block insets
+    // the rail used to, and the scroller the inline ones.
     backgroundColor: {
       default: color.bgSurface,
       [breakpoints.md]: color.bgCanvasSubtle,
@@ -476,19 +465,15 @@ const styles = stylex.create({
     display: { default: "inline-flex", [breakpoints.md]: "none" },
   },
   railNav: {
-    // Spans the rail's whole block size — the header and footer are chrome
-    // slots inside it. `ScrollMask` owns the overflow, the shrink-to-scroll
+    // Spans the rail's whole box — the header and footer are chrome slots
+    // inside it. `ScrollMask` owns the overflow, the shrink-to-scroll
     // min-size, the Scroll mask at each edge, and pinning the footer to the
     // rail's bottom edge while the nav is short.
     flexGrow: 1,
-    // The native scrollbar shows only while the nav actually overflows. Bleed
-    // the scroll region's end edge out over the rail's inline padding so the
-    // scrollbar sits flush against the rail's/drawer's border, then pad the
-    // content back in by the same amount so the links keep their inset.
-    marginInlineEnd: {
-      default: `calc(-1 * (${space._3} + env(safe-area-inset-right)))`,
-      [breakpoints.md]: `calc(-1 * ${space._2})`,
-    },
+    // The rail's per-corner, per-breakpoint radii, for the scroller and the
+    // bands to inherit in turn.
+    borderRadius: "inherit",
+    cornerShape: "inherit",
   },
   railNavContent: {
     overscrollBehavior: "contain",
@@ -497,6 +482,14 @@ const styles = stylex.create({
     // the scrollbar, and the link width stays constant whether or not the
     // scrollbar is present.
     scrollbarGutter: "stable",
+    // The rail's inline insets sit on the scroller, which reaches the rail's
+    // edges. Padding lies inside the scrollport, so the native scrollbar keeps
+    // its place flush against the rail's inline-end edge while the links and
+    // the chrome slots move in.
+    paddingInlineStart: {
+      default: space._3,
+      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-left))`,
+    },
     paddingInlineEnd: {
       default: `calc(${space._3} + env(safe-area-inset-right))`,
       [breakpoints.md]: space._2,

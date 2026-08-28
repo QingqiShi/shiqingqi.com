@@ -7,10 +7,14 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { buildEdgeBlurLayers } from "./progressive-blur-masks.ts";
 
+/** The edge of a region a band sits over, in the region's writing mode. */
+type MaskBandEdge = "block-start" | "block-end" | "inline-start" | "inline-end";
+
 interface MaskBandProps {
   /** Placement against one edge of its positioning box, and the reach. */
   css: StyleProp;
-  direction: string;
+  /** The edge the band sits over; the ramp runs from it inward. */
+  edge: MaskBandEdge;
   radius: number;
   isShown: boolean;
 }
@@ -22,18 +26,25 @@ interface MaskBandProps {
  * spans the whole band — an edge of a scroller, or a piece of chrome plus the
  * reach past it.
  *
+ * The band and its layers take the region's two corners on their edge by
+ * inheritance, so a rounded region needs no clip above them. The caller keeps
+ * the region's corners on the band's parent, and lets nothing between the
+ * region and the band set corners of its own.
+ *
  * Shared by every Scroll mask so the melt lives in one place: `ScrollMask`'s
  * own edges and slots, and the page-level band over a shell's fixed bar.
  */
-export function MaskBand({ css, direction, radius, isShown }: MaskBandProps) {
+export function MaskBand({ css, edge, radius, isShown }: MaskBandProps) {
+  const { direction, corners: edgeCorners } = edges[edge];
   return (
-    <div aria-hidden="true" css={[styles.band, css]}>
+    <div aria-hidden="true" css={[styles.band, edgeCorners, css]}>
       {buildEdgeBlurLayers({ direction, radius, isShown }).map(
         ({ filter, mask }, index) => (
           <div
             key={index}
             css={[
               styles.layer,
+              edgeCorners,
               !isShown && styles.hidden,
               dynamicStyles.layer(filter, mask),
             ]}
@@ -69,6 +80,46 @@ const styles = stylex.create({
     },
   },
 });
+
+// The layers inherit the region's two outer corners on their edge, through
+// the band, and clip their own backdrop to them, so no ancestor has to clip
+// them. None may with a squircle: Chromium drops the mask of a backdrop-filter
+// descendant under a squircle overflow clip. The two inner corners stay square.
+const corners = stylex.create({
+  blockStart: {
+    borderStartStartRadius: "inherit",
+    borderStartEndRadius: "inherit",
+    cornerStartStartShape: "inherit",
+    cornerStartEndShape: "inherit",
+  },
+  blockEnd: {
+    borderEndStartRadius: "inherit",
+    borderEndEndRadius: "inherit",
+    cornerEndStartShape: "inherit",
+    cornerEndEndShape: "inherit",
+  },
+  inlineStart: {
+    borderStartStartRadius: "inherit",
+    borderEndStartRadius: "inherit",
+    cornerStartStartShape: "inherit",
+    cornerEndStartShape: "inherit",
+  },
+  inlineEnd: {
+    borderStartEndRadius: "inherit",
+    borderEndEndRadius: "inherit",
+    cornerStartEndShape: "inherit",
+    cornerEndEndShape: "inherit",
+  },
+});
+
+// The ramp's `linear-gradient` direction runs from the edge inward, so the
+// strongest layer sits against the edge.
+const edges: Record<MaskBandEdge, { direction: string; corners: StyleProp }> = {
+  "block-start": { direction: "to bottom", corners: corners.blockStart },
+  "block-end": { direction: "to top", corners: corners.blockEnd },
+  "inline-start": { direction: "to right", corners: corners.inlineStart },
+  "inline-end": { direction: "to left", corners: corners.inlineEnd },
+};
 
 // The ramp is computed per layer, so it composes as a dynamic style rather
 // than an inline `style` attribute.

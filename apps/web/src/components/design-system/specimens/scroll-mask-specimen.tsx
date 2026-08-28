@@ -33,8 +33,8 @@ export function ScrollMaskSpecimen() {
 const styles = stylex.create({
   region: {
     blockSize: space._9,
-    // Keeps the bands' square corners inside the rounded box.
-    overflow: "hidden",
+    // No clip: the bands take the root's corners themselves, and a
+    // squircle-cornered clip above them makes Chrome drop their masks.
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,

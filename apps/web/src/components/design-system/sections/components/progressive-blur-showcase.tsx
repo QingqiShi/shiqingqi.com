@@ -73,8 +73,8 @@ export function ProgressiveBlurShowcase() {
               name: "reach",
               type: "number",
               description: t({
-                en: "How far the blur reaches past the floating element, in px, on every side. Set it and the box is the element plus this margin: the root wraps the element in flow, the ramp is static, and the layers sit in a fixed box placed by measuring the element — so they never add to the page's scrollable area and no rounded ancestor clips them. An ancestor with a transform, a filter or contain becomes that box's containing block and moves and clips it. Leave it unset and the box fills the positioned ancestor, placed via css.",
-                zh: "虚化越过悬浮元素向外延伸的距离（像素），四边相同。设置后，虚化框即元素加上这一圈边距：根元素在文档流中包住元素，坡度固定，图层置于一个按元素测量定位的 fixed 框内——因此不会计入页面的可滚动区域，也不会被带圆角的祖先裁切。带有 transform、filter 或 contain 的祖先会成为该框的包含块，使它错位并被裁切。不设置时，虚化框填满最近的定位祖先，由 css 决定位置。",
+                en: "How far the blur reaches past the floating element, in px, on every side. Set it and the box is the element plus this margin: the root wraps the element in flow, the ramp is static, and the layers sit in a fixed box placed by measuring the element — so they never add to the page's scrollable area and no rounded ancestor clips them. An ancestor with a transform, a filter or contain becomes that box's containing block and moves and clips it. Leave it unset and the box fills the positioned ancestor, placed via css — that ancestor carries the corners, which the box and the layers take from it by inheritance, so nothing above the layers may clip: not that ancestor, and not a rounded ancestor of it.",
+                zh: "虚化越过悬浮元素向外延伸的距离（像素），四边相同。设置后，虚化框即元素加上这一圈边距：根元素在文档流中包住元素，坡度固定，图层置于一个按元素测量定位的 fixed 框内——因此不会计入页面的可滚动区域，也不会被带圆角的祖先裁切。带有 transform、filter 或 contain 的祖先会成为该框的包含块，使它错位并被裁切。不设置时，虚化框填满最近的定位祖先，由 css 决定位置——圆角由该祖先承载，虚化框与图层都从它继承取用，因此图层之上不得有任何 overflow 裁切：该祖先不行，它带圆角的祖先也不行。",
               }),
             },
             {
@@ -186,8 +186,8 @@ function MeltDemo() {
 /**
  * A popup hanging off a trigger at the end of a bar — the static box `reach`
  * exists for. The blur's box is the popup plus 96px on every side: a fixed box
- * that follows the popup, so the mock page's rounded clip never cuts it and
- * it stays out of the page's scrollable area.
+ * that follows the popup, so no rounded ancestor cuts it and it stays out of
+ * the page's scrollable area.
  */
 function BlurredPopupMock() {
   return (
@@ -243,10 +243,26 @@ function BlurredPopupMock() {
  * The page both guideline diagrams stage, wireframed by hand — as
  * `PopoverDiagram` and `ModalDiagram` do on the Popover page. Each caller
  * supplies only its own treatment of the panel below the content.
+ *
+ * `isClipped` is for the scrim, which covers the frame corner to corner and so
+ * has to be cut to its corners. The blur diagram leaves it off — a
+ * squircle-cornered clip above the layers makes Chrome drop their masks.
  */
-function GuidelineDiagramFrame({ children }: { children: ReactNode }) {
+function GuidelineDiagramFrame({
+  children,
+  isClipped,
+}: {
+  children: ReactNode;
+  isClipped?: boolean;
+}) {
   return (
-    <div css={[corner.radius_2, guidelineDiagram.frame]}>
+    <div
+      css={[
+        corner.radius_2,
+        guidelineDiagram.frame,
+        isClipped && guidelineDiagram.clip,
+      ]}
+    >
       <WireframeBar width="72%" />
       <WireframeBar width="48%" />
       <WireframeBar width="60%" />
@@ -282,7 +298,7 @@ function BlurGuidelineDiagram() {
 /** The same page darkened by a scrim instead — the pattern Progressive blur replaces. */
 function ScrimGuidelineDiagram() {
   return (
-    <GuidelineDiagramFrame>
+    <GuidelineDiagramFrame isClipped>
       <div css={guidelineDiagram.scrim} />
       <GuidelineDiagramPanel />
     </GuidelineDiagramFrame>
@@ -306,7 +322,8 @@ const styles = stylex.create({
     // since page the ramp never reaches is page with nothing to show.
     minBlockSize: "24rem",
     padding: space._4,
-    overflow: "hidden",
+    // No clip: the blur fills this box and takes its corners, and a
+    // squircle-cornered clip above the layers makes Chrome drop their masks.
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,

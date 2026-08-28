@@ -36,20 +36,23 @@ interface ScrollMaskProps extends Omit<
   radius?: number;
   /**
    * How far the mask reaches from the edge into the region. Any CSS length.
-   * On an edge with a chrome slot, how far it reaches past the chrome's
-   * inner edge instead.
+   * On an edge with a chrome slot, how far it reaches past the chrome's inner
+   * edge instead: that edge's band is the chrome's measured size plus this.
+   * Keep it at or above the root's corner radius — a band shorter than the
+   * radius scales the corner it inherits tighter than the region's own.
    * @default "1.5rem"
    */
   depth?: string;
   /**
    * Chrome pinned over the region's start edge — a header row the content
    * scrolls beneath. The slot rides inside the scroller, stuck to the
-   * scrollport's start, and takes that edge's band with it: the band grows to
-   * the chrome's own box plus `depth`, so content on its way out blurs
-   * progressively across the whole chrome — strongest at the outer edge, sharp
-   * again just past the inner one. The chrome itself stays crisp and
-   * interactive above the band. Sized purely by its content, with no
-   * measurement, so the server render already matches.
+   * scrollport's start, and is sized by its content. That edge's band, beside
+   * the scroller, is sized from the slot's measured box plus `depth`, so it is
+   * `depth` alone until the measurement lands — and stays there without
+   * `ResizeObserver`. Neither costs a flash, because the bands start hidden.
+   * Once measured, content on its way out blurs progressively across the whole
+   * chrome — strongest at the outer edge, sharp again just past the inner one.
+   * The chrome itself paints above the band and stays crisp and interactive.
    */
   startChrome?: ReactNode;
   /**
@@ -71,9 +74,13 @@ interface ScrollMaskProps extends Omit<
   showEndMask?: boolean;
   /**
    * StyleX styles merged over the ROOT's own — the escape hatch for how the
-   * region sits in the layout around it: flex/grid sizing, block size, margin.
-   * The root is the box the mask bands are positioned against, so it is also
-   * where an outer size belongs.
+   * region sits in the layout around it (flex/grid sizing, block size,
+   * margin) and for the region's own surface: corners via `corner.radius_*`,
+   * border, background. The root is the box the mask bands are positioned
+   * against, and the box the scroller and the bands take their corners from
+   * by inheritance. Never give it an overflow clip: the scroller clips its
+   * own content to the root's corners, and a clip above the bands would
+   * strip their masks (see `MaskBand`).
    */
   css?: StyleProp;
   /**
@@ -81,10 +88,12 @@ interface ScrollMaskProps extends Omit<
    * content inside the region: padding, the layout of the children, scroll
    * manners, scrollbar treatment. The scroller owns the overflow, and it is
    * the element the `ref` and the native `div` attributes land on, so a focus
-   * ring belongs here too. With a chrome slot the scroller lays out as
-   * [start chrome, content, end chrome] along the scroll axis, so scroll-axis
-   * padding belongs inside the slots and the children rather than here — on
-   * the scroller it would unpin the chrome from the edge.
+   * ring belongs here too. Its corners are the root's, applied over these
+   * styles, so a radius set here does not survive — corners go on the root.
+   * With a chrome slot the scroller lays out as [start chrome, content, end
+   * chrome] along the scroll axis, so scroll-axis padding belongs inside the
+   * slots and the children rather than here — on the scroller it would unpin
+   * the chrome from the edge.
    */
   contentCss?: StyleProp;
 }
@@ -98,14 +107,19 @@ interface ScrollMaskProps extends Omit<
  *
  * Renders three parts: a root holding the region's place in the layout, a
  * scroller inside it owning the overflow, and one band per edge, each a stack
- * of layers blurring what scrolls beneath them. A bare edge's band is an
- * absolutely positioned sibling of the scroller, `depth` deep against that
- * edge. An edge with a chrome slot carries its band inside the slot instead:
- * the slot sticks to the scrollport's edge, and the band covers the chrome
- * and reaches `depth` past it, so the ramp spans chrome plus depth and the
- * content blurs out across the furniture rather than stopping beneath it.
- * Either way a band has to sit over the content and stay put while that
- * content moves under it.
+ * of layers blurring what scrolls beneath them. Every band is an absolutely
+ * positioned sibling of the scroller, against the root's edge. A bare edge's
+ * band is `depth` deep. An edge with a chrome slot pins the chrome sticky
+ * inside the scroller and grows the band to the chrome's measured box plus
+ * `depth`, so the ramp spans chrome plus depth and the content blurs out
+ * across the furniture rather than stopping beneath it; the chrome paints
+ * above the band and stays crisp. Either way a band has to sit over the
+ * content and stay put while that content moves under it.
+ *
+ * The root never clips. The consumer puts the region's corners, border,
+ * background and size on the root; the scroller rounds its own overflow clip
+ * to those corners, and each band takes the two outer corners of its edge —
+ * see `MaskBand` for why nothing above the bands may clip.
  *
  * Forwards a `ref` and native `div` attributes (`role`, `aria-*`, `tabIndex`,
  * `onScroll`, …) to the scroller, so a consumer can name the region, measure
@@ -141,17 +155,16 @@ export function ScrollMask({
   const hasStartChrome = startChrome != null;
   const hasEndChrome = endChrome != null;
   const hasChrome = hasStartChrome || hasEndChrome;
-  const bandDepth = isHorizontal
-    ? dynamicStyles.inlineDepth(depth)
-    : dynamicStyles.blockDepth(depth);
 
   const startChromeRef = useRef<HTMLDivElement>(null);
   const endChromeRef = useRef<HTMLDivElement>(null);
-  // Scroll padding mirroring each slot's size, so scrolling an element into
-  // view — a link taking keyboard focus, an anchor jump — clears the chrome
-  // instead of surfacing the element beneath it. Behavioural only (nothing is
-  // painted from it), so measuring after hydration costs no flash, and
-  // without `ResizeObserver` it just stays off.
+  // Each slot's measured size sizes its edge's band (chrome plus `depth`) and
+  // the scroll padding that keeps an element scrolled into view — a link
+  // taking keyboard focus, an anchor jump — clear of the chrome. Measured
+  // after hydration, so until then the chrome counts as 0. That costs no
+  // flash: the bands start hidden until the scroll hook runs after mount, and
+  // the scroll padding paints nothing. Without `ResizeObserver` a slotted band
+  // stays `depth` deep and the padding stays off.
   const [chromeSizes, setChromeSizes] = useState({ start: 0, end: 0 });
   useEffect(() => {
     if (!hasChrome) return;
@@ -172,6 +185,11 @@ export function ScrollMask({
     };
   }, [hasChrome, hasStartChrome, hasEndChrome, isHorizontal]);
 
+  const bandSize = (chromeSize: number | null) =>
+    chromeSize === null ? depth : `calc(${String(chromeSize)}px + ${depth})`;
+  const startSize = bandSize(hasStartChrome ? chromeSizes.start : null);
+  const endSize = bandSize(hasEndChrome ? chromeSizes.end : null);
+
   return (
     <div
       css={[
@@ -190,6 +208,9 @@ export function ScrollMask({
               ? styles.scrollerChromeRow
               : styles.scrollerChromeColumn),
           contentCss,
+          // After `contentCss`: the corners are structural and belong to the
+          // root, whatever radius a consumer style sets for its own outline.
+          styles.scrollerCorners,
           hasChrome &&
             (isHorizontal
               ? dynamicStyles.scrollPaddingInline(
@@ -210,18 +231,7 @@ export function ScrollMask({
               isHorizontal ? styles.chromeInlineStart : styles.chromeBlockStart,
             ]}
           >
-            <MaskBand
-              css={[
-                isHorizontal ? styles.bandInlineStart : styles.bandBlockStart,
-                isHorizontal
-                  ? dynamicStyles.reachInlineEnd(depth)
-                  : dynamicStyles.reachBlockEnd(depth),
-              ]}
-              direction={isHorizontal ? "to right" : "to bottom"}
-              radius={radius}
-              isShown={showStartMask}
-            />
-            <div css={styles.chromeContent}>{startChrome}</div>
+            {startChrome}
           </div>
         )}
         {hasChrome ? <div css={styles.middle}>{children}</div> : children}
@@ -233,43 +243,32 @@ export function ScrollMask({
               isHorizontal ? styles.chromeInlineEnd : styles.chromeBlockEnd,
             ]}
           >
-            <MaskBand
-              css={[
-                isHorizontal ? styles.bandInlineEnd : styles.bandBlockEnd,
-                isHorizontal
-                  ? dynamicStyles.reachInlineStart(depth)
-                  : dynamicStyles.reachBlockStart(depth),
-              ]}
-              direction={isHorizontal ? "to left" : "to top"}
-              radius={radius}
-              isShown={showEndMask}
-            />
-            <div css={styles.chromeContent}>{endChrome}</div>
+            {endChrome}
           </div>
         )}
       </div>
-      {!hasStartChrome && (
-        <MaskBand
-          css={[
-            isHorizontal ? styles.bandInlineStart : styles.bandBlockStart,
-            bandDepth,
-          ]}
-          direction={isHorizontal ? "to right" : "to bottom"}
-          radius={radius}
-          isShown={showStartMask}
-        />
-      )}
-      {!hasEndChrome && (
-        <MaskBand
-          css={[
-            isHorizontal ? styles.bandInlineEnd : styles.bandBlockEnd,
-            bandDepth,
-          ]}
-          direction={isHorizontal ? "to left" : "to top"}
-          radius={radius}
-          isShown={showEndMask}
-        />
-      )}
+      <MaskBand
+        css={[
+          isHorizontal ? styles.bandInlineStart : styles.bandBlockStart,
+          isHorizontal
+            ? dynamicStyles.inlineSize(startSize)
+            : dynamicStyles.blockSize(startSize),
+        ]}
+        edge={isHorizontal ? "inline-start" : "block-start"}
+        radius={radius}
+        isShown={showStartMask}
+      />
+      <MaskBand
+        css={[
+          isHorizontal ? styles.bandInlineEnd : styles.bandBlockEnd,
+          isHorizontal
+            ? dynamicStyles.inlineSize(endSize)
+            : dynamicStyles.blockSize(endSize),
+        ]}
+        edge={isHorizontal ? "inline-end" : "block-end"}
+        radius={radius}
+        isShown={showEndMask}
+      />
     </div>
   );
 }
@@ -277,7 +276,9 @@ export function ScrollMask({
 const styles = stylex.create({
   // `grid` hands the scroller the root's whole box on both axes without either
   // one having to name a size, so a region sized from outside (a flex row, a
-  // 100%-height parent) and one sized by its own content both work.
+  // 100%-height parent) and one sized by its own content both work. The root
+  // carries the consumer's corners, border and background, never an overflow
+  // clip: the scroller and the bands take the corners from it.
   root: {
     position: "relative",
     display: "grid",
@@ -301,6 +302,12 @@ const styles = stylex.create({
     overflowY: "hidden",
     minInlineSize: 0,
   },
+  // The scroller rounds its own overflow clip to the root's corners, so the
+  // content is clipped like the region while the bands beside it are not.
+  scrollerCorners: {
+    borderRadius: "inherit",
+    cornerShape: "inherit",
+  },
   // With a chrome slot the scroller becomes a flex line along the scroll axis:
   // slot, middle, slot — the middle grows, so end chrome pins to the
   // scrollport's end edge even while the content is short of filling it.
@@ -319,9 +326,9 @@ const styles = stylex.create({
     flexShrink: 0,
   },
   // A slot sticks to its scrollport edge and stacks above the middle, whose
-  // own positioned descendants would otherwise paint over it in DOM order.
-  // Sticky plus z-index only: opacity, filter or mask here would make the slot
-  // a backdrop root and cut its band's layers off from the page beneath.
+  // own positioned descendants would otherwise paint over it in DOM order,
+  // and above its edge's band beside the scroller: `backdrop-filter` only
+  // blurs what painted before it, so the chrome stays crisp.
   chrome: {
     position: "sticky",
     zIndex: 1,
@@ -338,11 +345,6 @@ const styles = stylex.create({
   },
   chromeInlineEnd: {
     insetInlineEnd: 0,
-  },
-  // Positioned after the band in DOM order, so it paints above the layers and
-  // the chrome stays crisp: backdrop-filter only blurs what painted before it.
-  chromeContent: {
-    position: "relative",
   },
   bandBlockStart: {
     insetBlockStart: 0,
@@ -366,26 +368,12 @@ const styles = stylex.create({
   },
 });
 
-// The depth is a consumer-supplied length, so it composes as a dynamic style
-// rather than an inline `style` attribute. The `reach*` members stretch a
-// slot's band `depth` past the chrome's inner edge; its other three insets pin
-// it to the slot, so the band's size tracks the chrome's content-driven size
-// with no measurement.
+// A band's size along the scroll axis is a consumer-supplied length — plus a
+// slot's measured size — so it composes as a dynamic style rather than an
+// inline `style` attribute; so does the scroll padding.
 const dynamicStyles = stylex.create({
-  blockDepth: (depth: string) => ({ blockSize: depth }),
-  inlineDepth: (depth: string) => ({ inlineSize: depth }),
-  reachBlockStart: (depth: string) => ({
-    insetBlockStart: `calc(-1 * ${depth})`,
-  }),
-  reachBlockEnd: (depth: string) => ({
-    insetBlockEnd: `calc(-1 * ${depth})`,
-  }),
-  reachInlineStart: (depth: string) => ({
-    insetInlineStart: `calc(-1 * ${depth})`,
-  }),
-  reachInlineEnd: (depth: string) => ({
-    insetInlineEnd: `calc(-1 * ${depth})`,
-  }),
+  blockSize: (size: string) => ({ blockSize: size }),
+  inlineSize: (size: string) => ({ inlineSize: size }),
   scrollPaddingBlock: (start: number, end: number) => ({
     scrollPaddingBlockStart: `${String(start)}px`,
     scrollPaddingBlockEnd: `${String(end)}px`,
