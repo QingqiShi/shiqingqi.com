@@ -29,8 +29,9 @@ export function HeaderFooterLayoutShowcase() {
           })}
         </ShowcaseHelper>
         {/* The frame's transform creates a containing block, so the shell's
-            fixed header anchors to the specimen frame; the inner viewport owns the
-            scrolling to show the bar staying pinned. */}
+            fixed header anchors to the specimen frame — and stays outside the
+            inner viewport's clip, which owns the scrolling that shows the bar
+            staying pinned. */}
         <Specimen caption={t({ en: "every slot filled", zh: "填满全部插槽" })}>
           <div css={[corner.radius_3, styles.frame]}>
             <div css={styles.viewport}>
@@ -192,9 +193,12 @@ export function HeaderFooterLayoutShowcase() {
 }
 
 const styles = stylex.create({
+  // Rounded, and clipping nothing: the bar it anchors carries the page's
+  // Scroll mask band, and a squircle-cornered clip above that band would strip
+  // its mask. A background and a border round by border-radius alone, which is
+  // the whole of the frame's look.
   frame: {
     position: "relative",
-    overflow: "hidden",
     inlineSize: "100%",
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
@@ -202,10 +206,17 @@ const styles = stylex.create({
     // callsite).
     transform: "translateZ(0)",
   },
+  // The scroller, so the bar can be watched staying pinned while the content
+  // moves under it. It rounds its own clip to the frame's corners, which the
+  // shell's full-bleed background layer would otherwise square off. Safe above
+  // the band, which is not clipped here: the bar is fixed to the frame, so this
+  // element is nowhere in its containing-block chain.
   viewport: {
     maxBlockSize: space._15,
     overflowY: "auto",
     overscrollBehavior: "contain",
+    borderRadius: "inherit",
+    cornerShape: "inherit",
   },
   // Stand-in for a page's decoration layer — a soft wash beneath the content.
   specimenBackground: {

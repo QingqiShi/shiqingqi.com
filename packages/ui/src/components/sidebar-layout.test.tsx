@@ -140,13 +140,32 @@ describe("SidebarLayout rail chrome slots", () => {
     const navLink = screen.getByText("Rail");
 
     // Both ride in ScrollMask's chrome slots …
-    expect(railTitle.closest('[class*="styles.chromeContent"]')).not.toBeNull();
-    expect(footer.closest('[class*="styles.chromeContent"]')).not.toBeNull();
+    expect(
+      railTitle.closest('[class*="styles.chromeBlockStart"]'),
+    ).not.toBeNull();
+    expect(footer.closest('[class*="styles.chromeBlockEnd"]')).not.toBeNull();
     // … inside the same scroller as the nav, so the nav bleeds under them.
     const scroller = navLink.closest('[class*="styles.scrollerVertical"]');
     expect(scroller).not.toBeNull();
     expect(scroller).toContainElement(railTitle);
     expect(scroller).toContainElement(footer);
+  });
+
+  // The nav root inherits the rail's corners, and inheritance only reaches
+  // one element up, so the root has to be the rail's own child.
+  it("puts the nav root straight inside the rail, taking the rail's corners", async () => {
+    const user = userEvent.setup();
+    renderShell({ sidebarHeader: <span>Title</span> });
+    await user.click(screen.getByRole("button", { name: "Menu" }));
+    const rail = screen.getByRole("dialog", { name: "Menu" });
+    const scroller = screen
+      .getByText("Rail")
+      .closest('[class*="styles.scrollerVertical"]');
+    const root = scroller?.parentElement;
+
+    expect(root?.parentElement).toBe(rail);
+    expect(root?.className).toContain("styles.railNav");
+    expect(scroller?.className).toContain("styles.scrollerCorners");
   });
 
   it("keeps the focus order header, nav, footer", () => {

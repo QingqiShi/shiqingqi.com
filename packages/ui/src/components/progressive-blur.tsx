@@ -45,8 +45,9 @@ interface ProgressiveBlurProps {
    * element in flow instead of filling its positioned ancestor, and the ramp
    * is static. The layers sit in a `position: fixed` box placed by measuring
    * the element, so they add no scrollable overflow — a hidden floating
-   * element near a viewport edge never adds sideways scroll — and no rounded
-   * ancestor clips them. The box is placed against the viewport: an ancestor
+   * element near a viewport edge never adds sideways scroll — and no squircle
+   * overflow clip on an ancestor strips their masks (see `MaskBand`). The box
+   * is placed against the viewport: an ancestor
    * that makes a containing block for `fixed` (a transform, a filter,
    * `contain`, `will-change: transform`) moves and clips it, the rule
    * `MenuButton`'s backdrop states for itself.
@@ -70,6 +71,13 @@ interface ProgressiveBlurProps {
  * positioned ancestor and the element inside it is measured, or `reach` sets
  * it to the element plus that margin, so the ramp is static and only the
  * box's place follows the element.
+ *
+ * Without `reach`, the box is the root's parent, and the root, the layers'
+ * wrapper and each layer take its corners by inheritance, so the blur ends
+ * where a rounded box ends. The box must not clip: its content sits beside
+ * the blur rather than above it, so it needs no clip for the blur's sake, and
+ * a squircle overflow clip on it or on any ancestor strips the layers' masks
+ * (see `MaskBand`).
  *
  * The blur belongs to the page rather than to the element: the layers are
  * siblings of the floating element, never ancestors of it, and the element
@@ -208,14 +216,21 @@ export function ProgressiveBlur({
   const layers = hasReach
     ? buildReachBlurLayers({ reach, radius, isShown })
     : buildBlurLayers({ geometry, radius, isShown });
+  // The fixed box of `reach` mode is square, so only the box-filling mode
+  // inherits corners.
+  const boxCorners = !hasReach && styles.corners;
 
   return (
-    <div ref={rootRef} css={[styles.root, hasReach && styles.reachRoot, css]}>
+    <div
+      ref={rootRef}
+      css={[styles.root, hasReach && styles.reachRoot, boxCorners, css]}
+    >
       <div
         ref={layersRef}
         css={[
           styles.layers,
           hasReach && styles.reachLayers,
+          boxCorners,
           hasReach && !isPlaced && styles.unplaced,
         ]}
       >
@@ -225,6 +240,7 @@ export function ProgressiveBlur({
             aria-hidden="true"
             css={[
               styles.layer,
+              boxCorners,
               dynamicStyles.layer(filter, mask),
               !isShown && styles.hidden,
               index === LAYER_COUNT - 1 && isShown && styles.wash,
@@ -338,14 +354,21 @@ const styles = stylex.create({
     position: "absolute",
     inset: 0,
   },
+  // Without `reach`, the root fills its parent and takes the parent's corners;
+  // the wrapper and the layers inherit them in turn, so each layer clips its
+  // own backdrop to the box's corners and nothing above them has to.
+  corners: {
+    borderRadius: "inherit",
+    cornerShape: "inherit",
+  },
   // With `reach`, the wrapper is a fixed box: the element's viewport rect plus
   // `reach` on every side, written to the node by measurement. Fixed rather
   // than absolute, because the box hangs `reach` past the root: an absolute
   // box would grow every scrollable ancestor's area for that overhang, and
-  // Chromium drops a `backdrop-filter` layer's mask where the layer overflows
-  // an ancestor's rounded `overflow` clip — a fixed box escapes both. The
-  // physical insets are what the measurement writes; a transformed ancestor
-  // becomes the box's containing block, and clips it again.
+  // would sit under whatever squircle overflow clip the page around the
+  // element carries, which strips the layers' masks — a fixed box escapes
+  // both. The physical insets are what the measurement writes; a transformed
+  // ancestor becomes the box's containing block, and clips it again.
   reachLayers: {
     position: "fixed",
     inset: "auto",

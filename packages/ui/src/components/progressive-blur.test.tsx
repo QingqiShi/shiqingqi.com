@@ -214,6 +214,19 @@ describe("ProgressiveBlur", () => {
       expect(layer.className).not.toContain("styles.hidden");
     }
   });
+
+  // The box is the root's parent, which never clips: the root, the wrapper
+  // and every layer take its corners by inheritance, so each layer clips its
+  // own backdrop to them. jsdom lays nothing out, so the class is the handle.
+  it("takes the box's corners on the root, the wrapper and every layer", () => {
+    const root = renderBlur();
+
+    expect(root.className).toContain("styles.corners");
+    expect(root.firstElementChild?.className).toContain("styles.corners");
+    for (const layer of layerElements(root)) {
+      expect(layer.className).toContain("styles.corners");
+    }
+  });
 });
 
 function rect(left: number, top: number, right: number, bottom: number) {
@@ -281,15 +294,20 @@ describe("ProgressiveBlur with reach", () => {
   // The root has to keep the reach class, which takes it out of its ancestor's
   // fill and into flow, and the wrapper its own, which makes it the fixed box
   // the layers fill. An absolute box would widen the page for a hidden
-  // floating element near a viewport edge, and a rounded ancestor's overflow
-  // clip would strip the layers' masks in Chromium.
+  // floating element near a viewport edge, and would sit under whatever
+  // squircle overflow clip the page around the element carries, which strips
+  // the layers' masks in Chromium. The fixed box is square, so nothing here
+  // inherits a corner.
   it("wraps the element in flow and fills a fixed box with the layers", () => {
     const root = renderBlur({ reach: 40 });
 
     expect(root.className).toContain("styles.reachRoot");
+    expect(root.className).not.toContain("styles.corners");
     expect(boxOf(root).className).toContain("styles.reachLayers");
+    expect(boxOf(root).className).not.toContain("styles.corners");
     for (const layer of layerElements(root)) {
       expect(layer.getAttribute("style")).not.toContain("inset");
+      expect(layer.className).not.toContain("styles.corners");
     }
   });
 

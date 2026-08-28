@@ -94,10 +94,17 @@ export function OverviewTile({
 
 const styles = stylex.create({
   tile: {
-    // Positioning context and clip for both the stretched link's overlay and
-    // the illustration or specimen; `isolation` keeps their z-indexes local.
+    // Positioning context for the stretched link's overlay and for the
+    // illustration or specimen; `isolation` keeps their z-indexes local.
+    //
+    // No clip: some specimens are a Scroll mask or a Progressive blur, and a
+    // squircle-cornered clip anywhere above their layers makes Chrome drop the
+    // masks and render one flat blur. The three things the clip held in cut
+    // themselves instead — the overlay's `::after` names the card's radius
+    // below, the illustration layer inherits it in `IlloLayer`, and the
+    // specimen wrapper cuts an oversized specimen with a radius-free clip of
+    // its own, which the masks are indifferent to.
     position: "relative",
-    overflow: "hidden",
     isolation: "isolate",
     display: "flex",
     flexDirection: "column",
@@ -222,6 +229,13 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     inlineSize: "100%",
+    // Cuts a specimen wider than its plate, which the tile can no longer clip.
+    // Radius-free, so it is not the kind of clip that strips a mask, and
+    // `clip` rather than `hidden` so the wrapper never becomes a scroll
+    // container. The margin is what an Avatar's badge and a focus ring paint
+    // outside their own box: cutting at the box edge would slice those off.
+    overflow: "clip",
+    overflowClipMargin: space._1,
     transform: "scale(0.85)",
     transformOrigin: "center",
     filter: {

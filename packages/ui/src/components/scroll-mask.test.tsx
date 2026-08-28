@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { createRef, type ComponentProps } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { buildEdgeBlurLayers } from "./progressive-blur-masks.ts";
 import { ScrollMask } from "./scroll-mask.tsx";
 
@@ -147,6 +147,14 @@ describe("ScrollMask", () => {
     expect(renderMask().className).toContain("styles.root");
   });
 
+  // The root carries the consumer's corners and never clips; the scroller
+  // rounds its own overflow clip to them, over anything `contentCss` sets.
+  it("rounds the scroller's clip to the root's corners, over the content styles", () => {
+    const scroller = renderMask().firstElementChild;
+
+    expect(scroller?.className).toContain("styles.scrollerCorners");
+  });
+
   it("forwards a ref to the scroller, not the root", () => {
     const ref = createRef<HTMLDivElement>();
     const root = renderMask({ ref });
@@ -163,14 +171,23 @@ describe("ScrollMask", () => {
     expect(scroller).toContainElement(screen.getByText("content"));
   });
 
-  it("renders one band per edge, hidden from assistive technology", () => {
-    const bands = bandElements(renderMask());
+  it("renders one band per edge beside the scroller, hidden from assistive technology", () => {
+    const root = renderMask();
+    const bands = bandElements(root);
 
     expect(bands).toHaveLength(2);
     for (const band of bands) {
+      expect(band.parentElement).toBe(root);
       expect(band.className).toContain("styles.band");
       expect(band.children).toHaveLength(5);
     }
+  });
+
+  it("sizes a bare edge's band to the depth", () => {
+    const { start, end } = bandsOf(renderMask({ depth: "40px" }));
+
+    expect(start.getAttribute("style") ?? "").toContain("40px");
+    expect(end.getAttribute("style") ?? "").toContain("40px");
   });
 
   it("ramps each band away from its own edge", () => {
@@ -185,6 +202,24 @@ describe("ScrollMask", () => {
     }
     for (const layer of layerStyles(end)) {
       expect(layer).toContain("to top");
+    }
+  });
+
+  // Each band and each of its layers inherit the region's two corners on
+  // their edge — the block-start band the start-start and start-end corners,
+  // the block-end band the end-start and end-end ones — so the layers clip
+  // their own backdrop and no ancestor has to. jsdom lays nothing out, so the
+  // class is the handle.
+  it("gives each band and its layers the region's corners on its edge", () => {
+    const { start, end } = bandsOf(renderMask());
+
+    expect(start.className).toContain("corners.blockStart");
+    expect(end.className).toContain("corners.blockEnd");
+    for (const layer of start.children) {
+      expect(layer.className).toContain("corners.blockStart");
+    }
+    for (const layer of end.children) {
+      expect(layer.className).toContain("corners.blockEnd");
     }
   });
 
@@ -204,6 +239,19 @@ describe("ScrollMask", () => {
     }
     for (const layer of layerStyles(end)) {
       expect(layer).toContain("to left");
+    }
+  });
+
+  it("gives the horizontal bands the inline edges' corners", () => {
+    const { start, end } = bandsOf(renderMask({ orientation: "horizontal" }));
+
+    expect(start.className).toContain("corners.inlineStart");
+    expect(end.className).toContain("corners.inlineEnd");
+    for (const layer of start.children) {
+      expect(layer.className).toContain("corners.inlineStart");
+    }
+    for (const layer of end.children) {
+      expect(layer.className).toContain("corners.inlineEnd");
     }
   });
 
@@ -257,13 +305,11 @@ describe("ScrollMask chrome slots", () => {
     });
   }
 
-  // The slot wrapper ScrollMask owns: [band, content wrapper], with the
-  // consumer's chrome inside the content wrapper.
+  // The slot wrapper ScrollMask owns, holding the consumer's chrome directly.
   function slotOf(text: string) {
-    const contentWrapper = screen.getByText(text).parentElement;
-    const slot = contentWrapper?.parentElement;
-    if (!contentWrapper || !slot) throw new Error("slot structure missing");
-    return { slot, contentWrapper };
+    const slot = screen.getByText(text).parentElement;
+    if (!slot) throw new Error("slot structure missing");
+    return slot;
   }
 
   it("renders the slots inside the scroller with the content between them", () => {
@@ -304,41 +350,45 @@ describe("ScrollMask chrome slots", () => {
     );
   });
 
-  it("pins each slot sticky against its own edge, chrome above the band", () => {
+  it("pins each slot sticky against its own edge", () => {
     renderChromeMask();
-    const start = slotOf("header");
-    const end = slotOf("footer");
 
-    expect(start.slot.className).toContain("styles.chromeBlockStart");
-    expect(end.slot.className).toContain("styles.chromeBlockEnd");
-    expect(start.contentWrapper.className).toContain("styles.chromeContent");
-    expect(end.contentWrapper.className).toContain("styles.chromeContent");
+    expect(slotOf("header").className).toContain("styles.chrome");
+    expect(slotOf("header").className).toContain("styles.chromeBlockStart");
+    expect(slotOf("footer").className).toContain("styles.chrome");
+    expect(slotOf("footer").className).toContain("styles.chromeBlockEnd");
   });
 
-  it("moves a slotted edge's band inside its chrome", () => {
+  // A scroller with the region's corners is itself a rounded clip, so no band
+  // may live inside it: every band stays a child of the root beside the
+  // scroller, whichever edges carry chrome.
+  it("keeps every band beside the scroller, never inside a slot", () => {
     const root = renderChromeMask();
     const bands = bandElements(root);
 
     expect(bands).toHaveLength(2);
-    // Both edges slotted: every band lives in a slot, none beside the scroller.
-    expect(root.children).toHaveLength(1);
-    expect(bands[0].parentElement?.className).toContain(
-      "styles.chromeBlockStart",
-    );
-    expect(bands[1].parentElement?.className).toContain(
-      "styles.chromeBlockEnd",
-    );
+    expect(root.children).toHaveLength(3);
+    for (const band of bands) {
+      expect(band.parentElement).toBe(root);
+      expect(root.firstElementChild?.contains(band)).toBe(false);
+    }
   });
 
-  it("keeps the bare edge's band beside the scroller with one slot", () => {
-    const root = renderMask({ startChrome: <span>header</span> });
-    const bands = bandElements(root);
+  // jsdom lays nothing out and has no `ResizeObserver`, so the chrome measures
+  // 0 and a slotted band is `calc(0px + depth)`: the measured size is the one
+  // moving part, and the bare edge's band stays `depth` alone.
+  it("sizes a slotted edge's band to the chrome plus depth, and a bare one to depth", () => {
+    const root = renderMask({
+      startChrome: <span>header</span>,
+      depth: "40px",
+    });
+    const { start, end } = bandsOf(root);
 
-    expect(bands).toHaveLength(2);
-    expect(bands[0].parentElement?.className).toContain(
-      "styles.chromeBlockStart",
-    );
-    expect(bands[1].parentElement).toBe(root);
+    expect(start.parentElement).toBe(root);
+    expect(end.parentElement).toBe(root);
+    expect(start.getAttribute("style") ?? "").toContain("calc(0px + 40px)");
+    expect(end.getAttribute("style") ?? "").not.toContain("calc(");
+    expect(end.getAttribute("style") ?? "").toContain("40px");
   });
 
   it("ramps a slotted band across the chrome and depth past it", () => {
@@ -349,14 +399,21 @@ describe("ScrollMask chrome slots", () => {
     });
     const { start, end } = bandsOf(root);
 
-    expect(start.getAttribute("style") ?? "").toContain("calc(-1 * 40px)");
-    expect(end.getAttribute("style") ?? "").toContain("calc(-1 * 40px)");
+    expect(start.getAttribute("style") ?? "").toContain("calc(0px + 40px)");
+    expect(end.getAttribute("style") ?? "").toContain("calc(0px + 40px)");
     for (const layer of layerStyles(start)) {
       expect(layer).toContain("to bottom");
     }
     for (const layer of layerStyles(end)) {
       expect(layer).toContain("to top");
     }
+  });
+
+  it("gives a slotted band the region's corners on its edge", () => {
+    const { start, end } = bandsOf(renderChromeMask());
+
+    expect(start.className).toContain("corners.blockStart");
+    expect(end.className).toContain("corners.blockEnd");
   });
 
   it("drives a slotted band from the controlled props", () => {
@@ -384,11 +441,11 @@ describe("ScrollMask chrome slots", () => {
     expect(root.firstElementChild?.className).toContain(
       "styles.scrollerChromeRow",
     );
-    expect(slotOf("header").slot.className).toContain(
-      "styles.chromeInlineStart",
-    );
-    expect(slotOf("footer").slot.className).toContain("styles.chromeInlineEnd");
+    expect(slotOf("header").className).toContain("styles.chromeInlineStart");
+    expect(slotOf("footer").className).toContain("styles.chromeInlineEnd");
     const { start, end } = bandsOf(root);
+    expect(start.className).toContain("corners.inlineStart");
+    expect(end.className).toContain("corners.inlineEnd");
     for (const layer of layerStyles(start)) {
       expect(layer).toContain("to right");
     }
@@ -402,5 +459,89 @@ describe("ScrollMask chrome slots", () => {
     const root = renderChromeMask({ ref });
 
     expect(ref.current).toBe(root.firstElementChild);
+  });
+});
+
+// jsdom has neither `ResizeObserver` nor layout, so every test above measures a
+// slot at 0. These stand the measured path up: an observer that delivers once
+// on `observe` (the browser's first delivery, minus the wait), and a slot box
+// with a size on the axis being measured.
+class ImmediateResizeObserver implements ResizeObserver {
+  readonly #callback: ResizeObserverCallback;
+
+  constructor(callback: ResizeObserverCallback) {
+    this.#callback = callback;
+  }
+
+  observe() {
+    this.#callback([], this);
+  }
+
+  unobserve() {
+    // One delivery, nothing observed to stop observing.
+  }
+
+  disconnect() {
+    // One delivery, nothing observed to disconnect.
+  }
+}
+
+describe("ScrollMask measured chrome", () => {
+  const restores: (() => void)[] = [];
+
+  function stubResizeObserver() {
+    const previous = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = ImmediateResizeObserver;
+    restores.push(() => {
+      globalThis.ResizeObserver = previous;
+    });
+  }
+
+  function stubOffsetSize(axis: "offsetHeight" | "offsetWidth", size: number) {
+    const previous = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      axis,
+    );
+    Object.defineProperty(HTMLElement.prototype, axis, {
+      configurable: true,
+      get: () => size,
+    });
+    restores.push(() => {
+      if (previous)
+        Object.defineProperty(HTMLElement.prototype, axis, previous);
+    });
+  }
+
+  afterEach(() => {
+    for (const restore of restores.splice(0).reverse()) restore();
+  });
+
+  it("grows a slotted band to the chrome's measured box plus the depth", () => {
+    stubResizeObserver();
+    stubOffsetSize("offsetHeight", 48);
+
+    const { start, end } = bandsOf(
+      renderMask({ startChrome: <span>header</span>, depth: "40px" }),
+    );
+
+    expect(start.getAttribute("style") ?? "").toContain("calc(48px + 40px)");
+    // The bare edge is untouched by the measurement: still `depth` alone.
+    expect(end.getAttribute("style") ?? "").not.toContain("calc(");
+    expect(end.getAttribute("style") ?? "").toContain("40px");
+  });
+
+  it("measures a horizontal slot across the inline axis", () => {
+    stubResizeObserver();
+    stubOffsetSize("offsetWidth", 64);
+
+    const { start } = bandsOf(
+      renderMask({
+        orientation: "horizontal",
+        startChrome: <span>header</span>,
+        depth: "40px",
+      }),
+    );
+
+    expect(start.getAttribute("style") ?? "").toContain("calc(64px + 40px)");
   });
 });

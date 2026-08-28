@@ -44,7 +44,7 @@ export function PageScrollMask({
   return (
     <MaskBand
       css={[styles.band, dynamicStyles.reach(depth)]}
-      direction="to bottom"
+      edge="block-start"
       radius={radius}
       isShown={showStartMask}
     />

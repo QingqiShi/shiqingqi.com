@@ -96,7 +96,6 @@ export const wireframe = stylex.create({
     // Column by default: two of the three shells stack their parts, and the
     // sidebar — the only one laid out across — says so at its own callsite.
     flexDirection: "column",
-    overflow: "hidden",
     inlineSize: "100%",
     // Fills the plate: these are diagrams of a whole page, and the overview
     // marks them as plate-filling so the wrapper stretches and this percentage
@@ -117,5 +116,13 @@ export const wireframe = stylex.create({
     // Lighter than the sunken plate it sits on, in both themes, so the miniature
     // reads as a page lying on the specimen plate rather than dissolving into it.
     backgroundColor: color.bgSurface,
+  },
+  // For a miniature whose own parts run out to the page's edge — a rail, a
+  // header bar, a footer bar — which would otherwise show square corners over
+  // the page's rounded ones. The Overlay and Progressive blur miniatures leave
+  // it off: their content is inset, and a squircle-cornered clip above a blur's
+  // layers makes Chrome drop their masks and render one flat blur.
+  clip: {
+    overflow: "hidden",
   },
 });

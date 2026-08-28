@@ -11,7 +11,7 @@ import { WireframeBar } from "./wireframe-bar.tsx";
  */
 export function HeaderFooterLayoutSpecimen() {
   return (
-    <div css={wireframe.page}>
+    <div css={[wireframe.page, wireframe.clip]}>
       <div css={[styles.bar, styles.header]}>
         <WireframeBar width="2.5rem" strong />
         <div css={styles.nav}>

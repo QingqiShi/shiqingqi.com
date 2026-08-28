@@ -12,7 +12,7 @@ import { WireframeBar } from "./wireframe-bar.tsx";
  */
 export function SidebarLayoutSpecimen() {
   return (
-    <div css={[wireframe.page, styles.page]}>
+    <div css={[wireframe.page, wireframe.clip, styles.page]}>
       <div css={styles.rail}>
         <WireframeBar width="70%" strong css={styles.railTitle} />
         <WireframeBar width="85%" />

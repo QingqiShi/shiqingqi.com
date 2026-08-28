@@ -5,7 +5,8 @@
 // component from setting a radius property directly instead of composing the
 // primitive, which would silently leave that corner's shape to chance. Guard
 // the invariant everywhere a radius property survives outside the primitive:
-// a bare radius property must carry `cornerShape` in the same object literal.
+// a bare radius property must carry `cornerShape`, or the `corner-*-shape`
+// longhand of that same corner, in the same object literal.
 //
 // A `stylex.defineVars` argument is a token/value definition, not an applied
 // style — the shape is paired wherever the token is actually consumed as a
@@ -32,18 +33,22 @@ const srcRoot = path.join(packageRoot, "src");
 // repeating this pairing.
 const EXEMPT_FILE = "primitives/corner.stylex.ts";
 
-const RADIUS_PROPERTIES = [
-  "borderRadius",
-  "borderTopLeftRadius",
-  "borderTopRightRadius",
-  "borderBottomLeftRadius",
-  "borderBottomRightRadius",
-  "borderStartStartRadius",
-  "borderStartEndRadius",
-  "borderEndStartRadius",
-  "borderEndEndRadius",
-] as const;
-const RADIUS_PROPERTY_SET: ReadonlySet<string> = new Set(RADIUS_PROPERTIES);
+// Each radius property with the shape properties that pair with it: the
+// shorthand, or the longhand for that one corner.
+const RADIUS_PAIRINGS: ReadonlyMap<string, readonly string[]> = new Map([
+  ["borderRadius", ["cornerShape"]],
+  ["borderTopLeftRadius", ["cornerShape", "cornerTopLeftShape"]],
+  ["borderTopRightRadius", ["cornerShape", "cornerTopRightShape"]],
+  ["borderBottomLeftRadius", ["cornerShape", "cornerBottomLeftShape"]],
+  ["borderBottomRightRadius", ["cornerShape", "cornerBottomRightShape"]],
+  ["borderStartStartRadius", ["cornerShape", "cornerStartStartShape"]],
+  ["borderStartEndRadius", ["cornerShape", "cornerStartEndShape"]],
+  ["borderEndStartRadius", ["cornerShape", "cornerEndStartShape"]],
+  ["borderEndEndRadius", ["cornerShape", "cornerEndEndShape"]],
+]);
+const SHAPE_PROPERTY_SET: ReadonlySet<string> = new Set(
+  [...RADIUS_PAIRINGS.values()].flat(),
+);
 
 /** Recursively list `.ts`/`.tsx` files as package-relative posix paths. */
 function listSourceFiles(dirAbs: string): string[] {
@@ -69,7 +74,7 @@ function isIdentifierChar(ch: string | undefined): boolean {
 }
 
 interface Frame {
-  hasCornerShape: boolean;
+  shapeProperties: Set<string>;
   isDefineVarsArg: boolean;
 }
 
@@ -82,7 +87,7 @@ interface RadiusOccurrence {
 /**
  * Walks the source once, tracking brace-literal nesting so each radius
  * property occurrence can be attributed to its nearest enclosing object
- * literal, and whether that same literal also declares `cornerShape`.
+ * literal, and which shape properties that same literal declares.
  *
  * String and template-literal contents are skipped wholesale rather than
  * parsed: a `${…}` interpolation's braces are never object-literal braces
@@ -136,7 +141,7 @@ function scanForRadiusOccurrences(source: string): RadiusOccurrence[] {
 
     if (ch === "{") {
       frameStack.push({
-        hasCornerShape: false,
+        shapeProperties: new Set(),
         isDefineVarsArg: pendingDefineVars,
       });
       pendingDefineVars = false;
@@ -160,11 +165,10 @@ function scanForRadiusOccurrences(source: string): RadiusOccurrence[] {
       const followedByColon = source[k] === ":";
       const precededByDot = start > 0 && source[start - 1] === ".";
 
-      if (word === "cornerShape" && followedByColon) {
-        const frame = frameStack.at(-1);
-        if (frame) frame.hasCornerShape = true;
+      if (SHAPE_PROPERTY_SET.has(word) && followedByColon) {
+        frameStack.at(-1)?.shapeProperties.add(word);
       } else if (
-        RADIUS_PROPERTY_SET.has(word) &&
+        RADIUS_PAIRINGS.has(word) &&
         followedByColon &&
         !precededByDot
       ) {
@@ -198,7 +202,7 @@ describe("corner-shape pairing", () => {
     expect(files.length).toBeGreaterThan(20);
   });
 
-  it("every radius property outside the corner primitive pairs cornerShape in the same object literal", () => {
+  it("every radius property outside the corner primitive pairs its corner shape in the same object literal", () => {
     const violations: string[] = [];
 
     for (const file of files) {
@@ -206,9 +210,14 @@ describe("corner-shape pairing", () => {
       const source = fs.readFileSync(path.join(srcRoot, file), "utf8");
       for (const occurrence of scanForRadiusOccurrences(source)) {
         if (occurrence.frame.isDefineVarsArg) continue;
-        if (occurrence.frame.hasCornerShape) continue;
+        const pairings = RADIUS_PAIRINGS.get(occurrence.property) ?? [];
+        if (
+          pairings.some((shape) => occurrence.frame.shapeProperties.has(shape))
+        ) {
+          continue;
+        }
         violations.push(
-          `${file}:${String(occurrence.line)} — ${occurrence.property} has no cornerShape in its enclosing object literal`,
+          `${file}:${String(occurrence.line)} — ${occurrence.property} has none of ${pairings.join(", ")} in its enclosing object literal`,
         );
       }
     }

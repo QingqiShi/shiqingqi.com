@@ -33,8 +33,8 @@ export function ScrollMaskShowcase() {
           </Text>
           <Text variant="bodySmall" tone="muted">
             {t({
-              en: "startChrome and endChrome pin non-content furniture over an edge — a header row, a pinned action bar. A slotted edge carries its band inside the chrome instead of against the bare edge: the band spans the chrome's box and reaches depth past it, so scrolled-away content blurs progressively across the whole chrome — strongest at the outer edge, back to sharp one depth past the inner one — while the chrome itself stays crisp and interactive. The content between the slots grows to fill the region, so end chrome stays pinned to the edge even while the content is too short to scroll.",
-              zh: "startChrome 与 endChrome 插槽将页眉行、固定操作栏这类非内容界面元素固定在区域边缘上。带插槽的边不再把虚化带贴在裸露的边缘，而是让它随此类元素一起渲染：虚化带覆盖元素自身的盒子并向内多延伸一个深度，因此已滚过的内容会在整个元素的范围内渐进虚化——外缘最强，越过内缘后即恢复清晰——而元素本身保持清晰且可交互。插槽之间的内容会撑满区域，所以即使内容不足以滚动，endChrome 也始终固定在边缘。",
+              en: "startChrome and endChrome pin non-content furniture over an edge — a header row, a pinned action bar. Every band is a sibling of the scroller, against the region's own edge; on a slotted edge it grows to the chrome's measured box plus depth, so scrolled-away content blurs progressively across the whole chrome — strongest at the outer edge, back to sharp one depth past the inner one — while the chrome paints above the band and stays crisp and interactive. The content between the slots grows to fill the region, so end chrome stays pinned to the edge even while the content is too short to scroll.",
+              zh: "startChrome 与 endChrome 插槽将页眉行、固定操作栏这类非内容界面元素固定在区域边缘上。每条虚化带都是滚动元素的同级元素，紧贴区域自身的边缘；带插槽的那条边，虚化带会扩展到该元素实测的盒子加一个深度，因此已滚过的内容会在整个元素的范围内渐进虚化——外缘最强，越过内缘一个深度后恢复清晰——而元素绘制在虚化带之上，保持清晰且可交互。插槽之间的内容会撑满区域，所以即使内容不足以滚动，endChrome 也始终固定在边缘。",
             })}
           </Text>
           <Specimen caption={t({ en: "vertical", zh: "纵向" })}>
@@ -100,8 +100,8 @@ export function ScrollMaskShowcase() {
               name: "startChrome",
               type: "ReactNode",
               description: t({
-                en: "Chrome pinned over the start edge — a header row the content scrolls beneath. The slot rides inside the scroller, stuck to the scrollport's start, and takes that edge's band with it: the band spans the chrome plus depth, so content blurs out across the chrome's whole box while the chrome itself stays sharp and interactive.",
-                zh: "固定在起始边上的界面元素——内容从其下方滚过的页眉行。该插槽位于滚动元素内部、吸附在滚动口的起始边，并把这条边的虚化带一并带走：虚化带覆盖元素加一个深度的范围，因此内容在整个元素的盒子上虚化淡出，而元素本身保持清晰且可交互。",
+                en: "Chrome pinned over the start edge — a header row the content scrolls beneath. The slot rides inside the scroller, stuck to the scrollport's start, while that edge's band stays beside the scroller and grows to the chrome's measured box plus depth: content blurs out across the chrome's whole box, and the chrome paints above the band and stays sharp and interactive.",
+                zh: "固定在起始边上的界面元素——内容从其下方滚过的页眉行。该插槽位于滚动元素内部、吸附在滚动口的起始边；这条边的虚化带仍在滚动元素之侧，并扩展到该元素实测的盒子加一个深度：内容在整个元素的盒子上虚化淡出，而元素绘制在虚化带之上，保持清晰且可交互。",
               }),
             },
             {
@@ -132,16 +132,16 @@ export function ScrollMaskShowcase() {
               name: "css",
               type: "StyleProp",
               description: t({
-                en: "StyleX styles merged over the root's own — the escape hatch for how the region sits in the layout around it: flex or grid sizing, block size, margin. The root is the box the bands are positioned against, so it is also where an outer size belongs.",
-                zh: "与根元素自身样式合并的 StyleX 样式——用于控制区域在周围布局中的位置：flex 或 grid 尺寸、块尺寸、外边距。虚化带以根元素为定位基准，因此外部尺寸也归这里。",
+                en: "StyleX styles merged over the root's own — the escape hatch for how the region sits in the layout around it: flex or grid sizing, block size, margin, and the region's corners. The root is the box the bands are positioned against, so it owns both the outer size and the radius: the scroller rounds its own overflow clip to those corners and the bands take them by inheritance. So nothing above the bands may clip — not the root, and not a rounded ancestor of it.",
+                zh: "与根元素自身样式合并的 StyleX 样式——用于控制区域在周围布局中的位置：flex 或 grid 尺寸、块尺寸、外边距，以及区域的圆角。虚化带以根元素为定位基准，因此外部尺寸归这里，圆角同样归这里：滚动元素据这组圆角裁切自身的溢出，虚化带则继承取用。因此虚化带之上不得有任何 overflow 裁切——根元素不行，它带圆角的祖先也不行。",
               }),
             },
             {
               name: "contentCss",
               type: "StyleProp",
               description: t({
-                en: "StyleX styles merged over the scroller's own — the escape hatch for what is inside: padding, the layout of the children, scroll manners, scrollbar treatment. The scroller is also where the ref and the native attributes land, so a focus ring belongs on it too. With a chrome slot, scroll-axis padding belongs inside the slots and the children rather than on the scroller, where it would unpin the chrome from the edge.",
-                zh: "与滚动元素自身样式合并的 StyleX 样式——用于控制内部：内边距、子元素布局、滚动行为与滚动条样式。ref 与原生属性同样落在滚动元素上，因此聚焦环也归这里。使用插槽时，滚动轴方向的内边距应放在插槽与子元素内部，而不是滚动元素上——否则插槽会脱离边缘。",
+                en: "StyleX styles merged over the scroller's own — the escape hatch for what is inside: padding, the layout of the children, scroll manners, scrollbar treatment. The scroller is also where the ref and the native attributes land, so a focus ring belongs on it too — drawn at the root's corners, which the scroller takes over these styles, so a radius among them does not survive. With a chrome slot, scroll-axis padding belongs inside the slots and the children rather than on the scroller, where it would unpin the chrome from the edge.",
+                zh: "与滚动元素自身样式合并的 StyleX 样式——用于控制内部：内边距、子元素布局、滚动行为与滚动条样式。ref 与原生属性同样落在滚动元素上，因此聚焦环也归这里——但聚焦环沿用根元素的圆角：滚动元素的圆角覆盖在这组样式之上，在这里设置的圆角不会生效。使用插槽时，滚动轴方向的内边距应放在插槽与子元素内部，而不是滚动元素上——否则插槽会脱离边缘。",
               }),
             },
           ]}
@@ -261,58 +261,56 @@ function HorizontalRegion() {
  */
 function PinnedBarRegion() {
   return (
-    <div css={[corner.radius_3, styles.barFrame]}>
-      <ScrollMask
-        css={styles.barRegion}
-        contentCss={[scrollbar.autoHide, transition.scrollbarColor]}
-        endChrome={
-          <div css={styles.pinnedBar}>
-            <Button variant="primary" size="sm">
-              {t({ en: "Save changes", zh: "保存更改" })}
-            </Button>
-          </div>
-        }
-      >
-        <div css={styles.regionContent}>
-          <Text variant="bodySmall">
-            {t({
-              en: "Notification settings control which alerts reach this device, and how urgently they arrive.",
-              zh: "通知设置决定哪些提醒会推送到此设备，以及推送的紧急程度。",
-            })}
-          </Text>
-          <Text variant="bodySmall">
-            {t({
-              en: "Turning one off doesn't change what you still receive by email.",
-              zh: "在这里关闭某一项，不会影响你仍会通过邮件收到的提醒。",
-            })}
-          </Text>
-          <Text variant="bodySmall">
-            {t({
-              en: "Alerts marked urgent still ring during quiet hours, on every device signed in to this account.",
-              zh: "标记为紧急的提醒在免打扰时段仍会响铃，且会在登录此账户的每台设备上响铃。",
-            })}
-          </Text>
-          <Text variant="bodySmall">
-            {t({
-              en: "A change applies from the next alert onwards; anything already sent stays as it was.",
-              zh: "此处的修改从下一条提醒开始生效；已经发出的提醒不受影响。",
-            })}
-          </Text>
-          <Text variant="bodySmall">
-            {t({
-              en: "Quiet hours pause everything except account security alerts.",
-              zh: "免打扰时段会暂停除账户安全提醒之外的所有通知。",
-            })}
-          </Text>
-          <Text variant="bodySmall" tone="muted">
-            {t({
-              en: "Sign out of a device to stop it receiving anything at all.",
-              zh: "退出某台设备的登录，即可让它完全不再收到任何提醒。",
-            })}
-          </Text>
+    <ScrollMask
+      css={[corner.radius_3, styles.barRegion]}
+      contentCss={[scrollbar.autoHide, transition.scrollbarColor]}
+      endChrome={
+        <div css={styles.pinnedBar}>
+          <Button variant="primary" size="sm">
+            {t({ en: "Save changes", zh: "保存更改" })}
+          </Button>
         </div>
-      </ScrollMask>
-    </div>
+      }
+    >
+      <div css={styles.regionContent}>
+        <Text variant="bodySmall">
+          {t({
+            en: "Notification settings control which alerts reach this device, and how urgently they arrive.",
+            zh: "通知设置决定哪些提醒会推送到此设备，以及推送的紧急程度。",
+          })}
+        </Text>
+        <Text variant="bodySmall">
+          {t({
+            en: "Turning one off doesn't change what you still receive by email.",
+            zh: "在这里关闭某一项，不会影响你仍会通过邮件收到的提醒。",
+          })}
+        </Text>
+        <Text variant="bodySmall">
+          {t({
+            en: "Alerts marked urgent still ring during quiet hours, on every device signed in to this account.",
+            zh: "标记为紧急的提醒在免打扰时段仍会响铃，且会在登录此账户的每台设备上响铃。",
+          })}
+        </Text>
+        <Text variant="bodySmall">
+          {t({
+            en: "A change applies from the next alert onwards; anything already sent stays as it was.",
+            zh: "此处的修改从下一条提醒开始生效；已经发出的提醒不受影响。",
+          })}
+        </Text>
+        <Text variant="bodySmall">
+          {t({
+            en: "Quiet hours pause everything except account security alerts.",
+            zh: "免打扰时段会暂停除账户安全提醒之外的所有通知。",
+          })}
+        </Text>
+        <Text variant="bodySmall" tone="muted">
+          {t({
+            en: "Sign out of a device to stop it receiving anything at all.",
+            zh: "退出某台设备的登录，即可让它完全不再收到任何提醒。",
+          })}
+        </Text>
+      </div>
+    </ScrollMask>
   );
 }
 
@@ -372,7 +370,7 @@ function MaskedGuidelineDiagram() {
 /** The same rows clipped by overflow alone — the treatment a Scroll mask replaces. */
 function ClippedGuidelineDiagram() {
   return (
-    <div css={[corner.radius_2, styles.diagramRegion]}>
+    <div css={[corner.radius_2, styles.diagramRegion, styles.diagramClip]}>
       <div css={styles.diagramContent}>
         <GuidelineDiagramRows />
       </div>
@@ -387,14 +385,14 @@ const styles = stylex.create({
     gap: space._3,
   },
   // The bands are positioned against the root, so the root is what carries the
-  // region's chrome — and its `overflow` is what keeps a band's square corners
-  // inside the rounded box.
+  // region's chrome — its corners included, which the bands and the scroller
+  // take from it. The root must never clip: Chrome drops a mask under a
+  // squircle-cornered clip, and every band flattens into one hard-edged blur.
   // One size for both prose specimens, so the only difference a reader sees
   // between them is how much content the box was given.
   region: {
     inlineSize: "100%",
     blockSize: "9rem",
-    overflow: "hidden",
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
@@ -408,7 +406,6 @@ const styles = stylex.create({
   },
   rowRegion: {
     inlineSize: "100%",
-    overflow: "hidden",
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
@@ -432,22 +429,18 @@ const styles = stylex.create({
     borderColor: color.neutralBorder,
     backgroundColor: color.bgSurfaceSunken,
   },
-  barFrame: {
-    display: "flex",
-    flexDirection: "column",
+  // The ScrollMask root is the frame here rather than sitting inside one: a
+  // clipping squircle above the bands is what flattens them. The root lays out
+  // as a grid that has given up its automatic minimum size, so a fixed
+  // `blockSize` bounds it the way it bounds `region`, and the bar rides in the
+  // `endChrome` slot instead of below the region.
+  barRegion: {
     inlineSize: "100%",
     blockSize: "14rem",
-    overflow: "hidden",
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     backgroundColor: color.bgSurface,
-  },
-  // Takes the free space above the bar, and gives up its automatic minimum size
-  // so the region shrinks and scrolls rather than pushing the bar out of frame.
-  barRegion: {
-    flexGrow: 1,
-    minBlockSize: 0,
   },
   // No border and no background: the bar sits directly on the blurred
   // content, and the blur is what separates it from the region.
@@ -457,14 +450,19 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
   },
+  // Shared by both diagrams, and unclipped: the masked one is a real
+  // ScrollMask, whose bands a squircle clip above them would flatten.
   diagramRegion: {
     inlineSize: "100%",
     blockSize: space._10,
-    overflow: "hidden",
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
     backgroundColor: color.bgSurface,
+  },
+  // The "don't" diagram's whole subject: rows cut at a line by overflow alone.
+  diagramClip: {
+    overflow: "hidden",
   },
   // Grid, not a flex column: the masked diagram's scroller has a definite
   // height, and flex would shrink these empty rows — whose min-content height
