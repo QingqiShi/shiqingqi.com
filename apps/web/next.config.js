@@ -1,11 +1,19 @@
 const path = require("node:path");
+const { PHASE_DEVELOPMENT_SERVER } = require("next/constants");
 
-module.exports = async () => {
-  const { getLocalDevOrigins } = await import("../../scripts/dev-origins.mjs");
+module.exports = async (phase) => {
+  const allowedDevOrigins =
+    phase === PHASE_DEVELOPMENT_SERVER
+      ? await (
+          await import("../../scripts/dev-origins.mjs")
+        ).getLocalDevOrigins()
+      : [];
   /** @type {import('next').NextConfig} */
   const nextConfig = {
     reactStrictMode: true,
-    allowedDevOrigins: getLocalDevOrigins(),
+    allowedDevOrigins,
+    // `src/proxy.ts` reads this to trust a same-host Referer in development.
+    env: { ALLOWED_DEV_ORIGINS: allowedDevOrigins.join(",") },
     reactCompiler: true,
     // Type-checking runs as a dedicated CI job (build:tsc), so skip the
     // redundant in-build type-check pass to keep `next build` lean. (Linting

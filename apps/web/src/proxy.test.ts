@@ -1,10 +1,11 @@
 import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { proxy } from "./proxy";
 
-function apiRequest(path: string, referer?: string) {
+function apiRequest(path: string, referer?: string, host?: string) {
   const headers = new Headers();
   if (referer) headers.set("Referer", referer);
+  if (host) headers.set("Host", host);
   return new NextRequest(`http://localhost:3000${path}`, { headers });
 }
 
@@ -135,6 +136,89 @@ describe("proxy referer validation for API routes", () => {
     expect(await response.json()).toEqual({ error: "Unauthorized" });
     delete process.env.VERCEL_URL;
     delete process.env.VERCEL_BRANCH_URL;
+  });
+
+  it("rejects a dev host referer when no dev origins are allowed", async () => {
+    const response = proxy(
+      apiRequest(
+        "/api/ai-chat",
+        "http://192.168.1.72:3089/movies",
+        "192.168.1.72:3089",
+      ),
+    );
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "Unauthorized" });
+  });
+
+  describe("development hosts", () => {
+    beforeEach(() => {
+      process.env.ALLOWED_DEV_ORIGINS =
+        "192.168.1.72,qingqis-macbook-pro.tail8615af.ts.net";
+    });
+
+    afterEach(() => {
+      delete process.env.ALLOWED_DEV_ORIGINS;
+    });
+
+    it("allows a referer from the address the browser used to reach the dev server", () => {
+      const response = proxy(
+        apiRequest(
+          "/api/ai-chat",
+          "http://192.168.1.72:3089/movies",
+          "192.168.1.72:3089",
+        ),
+      );
+
+      expect(response.status).toBe(200);
+    });
+
+    it("allows it when the Host header is cased differently from the referer", () => {
+      const response = proxy(
+        apiRequest(
+          "/api/ai-chat",
+          "http://qingqis-macbook-pro.tail8615af.ts.net:3089/movies",
+          "Qingqis-MacBook-Pro.tail8615af.ts.net:3089",
+        ),
+      );
+
+      expect(response.status).toBe(200);
+    });
+
+    it("rejects a referer on the same hostname but another port", async () => {
+      const response = proxy(
+        apiRequest(
+          "/api/ai-chat",
+          "http://192.168.1.72:4000/movies",
+          "192.168.1.72:3089",
+        ),
+      );
+
+      expect(response.status).toBe(403);
+      expect(await response.json()).toEqual({ error: "Unauthorized" });
+    });
+
+    it("rejects a host that matches its own referer but is not a dev host", async () => {
+      const response = proxy(
+        apiRequest(
+          "/api/ai-chat",
+          "http://evil.com:3089/movies",
+          "evil.com:3089",
+        ),
+      );
+
+      expect(response.status).toBe(403);
+      expect(await response.json()).toEqual({ error: "Unauthorized" });
+    });
+
+    it("rejects a foreign referer even when the Host header is a dev host", async () => {
+      const response = proxy(
+        apiRequest("/api/ai-chat", "https://evil.com/", "192.168.1.72:3089"),
+      );
+
+      expect(response.status).toBe(403);
+      expect(await response.json()).toEqual({ error: "Unauthorized" });
+    });
   });
 });
 
