@@ -8,6 +8,19 @@ import {
 import { isValidLocale } from "#src/utils/validate-locale.ts";
 import { i18nConfig } from "./i18n-config";
 
+function isAllowedDevHost(request: NextRequest, refererUrl: URL): boolean {
+  // Next inlines this from `env` in next.config.js; it is empty outside
+  // development.
+  const allowedDevHosts =
+    process.env.ALLOWED_DEV_ORIGINS?.split(",").filter(Boolean) ?? [];
+  // The page calls the dev server it came from. Compare the Host header, not
+  // `request.nextUrl`: in development Next builds that from its listen port.
+  const host = request.headers.get("Host")?.toLowerCase();
+  return (
+    refererUrl.host === host && allowedDevHosts.includes(refererUrl.hostname)
+  );
+}
+
 function validateReferer(request: NextRequest): NextResponse | null {
   const referer = request.headers.get("Referer") ?? "";
   if (!referer) {
@@ -22,10 +35,11 @@ function validateReferer(request: NextRequest): NextResponse | null {
       .filter((url): url is string => Boolean(url))
       .map((url) => `https://${url}`);
     const allowedOrigins = [...ALLOWED_REFERER, ...vercelUrls];
-    const isAllowedReferer = allowedOrigins.some(
-      (allowed) => refererUrl.origin === allowed,
-    );
-    if (!isLocalhost && !isAllowedReferer) {
+    const isAllowed =
+      isLocalhost ||
+      allowedOrigins.includes(refererUrl.origin) ||
+      isAllowedDevHost(request, refererUrl);
+    if (!isAllowed) {
       throw new Error("Unauthorized");
     }
   } catch {
