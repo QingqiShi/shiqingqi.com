@@ -23,7 +23,7 @@ interface MaskBandProps {
  * One Scroll mask band: the stack of blurred layers that sits over a scroll
  * region's edge and blurs the content passing beneath it. The caller places
  * the band and sizes it to how far the blur reaches, because the ramp always
- * spans the whole band — an edge of a scroller, or a piece of chrome plus the
+ * spans the whole band — an edge of a scroller, or a chrome slot plus the
  * reach past it.
  *
  * The band and its layers take the region's two corners on their edge by
@@ -31,8 +31,8 @@ interface MaskBandProps {
  * the region's corners on the band's parent, and lets nothing between the
  * region and the band set corners of its own.
  *
- * Shared by every Scroll mask so the melt lives in one place: `ScrollMask`'s
- * own edges and slots, and the page-level band over a shell's fixed bar.
+ * Split out of `ScrollMask`, its one consumer, so every edge and slot melts
+ * the same way.
  */
 export function MaskBand({ css, edge, radius, isShown }: MaskBandProps) {
   const { direction, corners: edgeCorners } = edges[edge];

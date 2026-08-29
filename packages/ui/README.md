@@ -382,7 +382,7 @@ components.
 | `@tuja/ui/components/divider`                 | Horizontal/vertical divider.                                                                                                                            |
 | `@tuja/ui/components/field-shared.stylex`     | Shared form-control chrome (label, description, control box, error text).                                                                               |
 | `@tuja/ui/components/fixed-container-content` | Fixed-position container content wrapper.                                                                                                               |
-| `@tuja/ui/components/header-footer-layout`    | Reading-density page shell: fixed header bar, optional background and footer.                                                                           |
+| `@tuja/ui/components/header-footer-layout`    | Reading-density page shell: floating header controls, optional background and footer.                                                                   |
 | `@tuja/ui/components/heading`                 | Semantic heading (visual size decoupled from level, optional `wrap`).                                                                                   |
 | `@tuja/ui/components/icon-button`             | Compact icon-only button (requires `aria-label` **xor** `aria-labelledby`).                                                                             |
 | `@tuja/ui/components/menu-button`             | Button that opens a menu/overlay.                                                                                                                       |

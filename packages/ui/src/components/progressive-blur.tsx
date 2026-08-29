@@ -1,7 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type { StyleProp } from "../css-prop-types.ts";
 import {
   duration,
@@ -9,10 +15,9 @@ import {
   motionConstants,
 } from "../primitives/motion.stylex.ts";
 import { color } from "../tokens.stylex.ts";
+import { observeChildren } from "../utils/observe-children.ts";
 import {
   buildBlurLayers,
-  buildReachBlurLayers,
-  LAYER_COUNT,
   type BlurGeometry,
 } from "./progressive-blur-masks.ts";
 
@@ -35,20 +40,22 @@ interface ProgressiveBlurProps {
   radius?: number;
   /**
    * Whether the blur is shown. Toggling melts the radius and the Wash away
-   * and back; keep the element mounted while the exit plays.
+   * and back; keep the element mounted while the exit plays. A slot measured
+   * without a floating element in it stays melted, whatever this says.
    * @default true
    */
   isShown?: boolean;
   /**
    * How far the blur reaches past the floating element, in px, on every side.
    * Set it and the box is the element plus this margin: the root wraps the
-   * element in flow instead of filling its positioned ancestor, and the ramp
-   * is static. The layers sit in a `position: fixed` box placed by measuring
-   * the element, so they add no scrollable overflow — a hidden floating
-   * element near a viewport edge never adds sideways scroll — and no squircle
-   * overflow clip on an ancestor strips their masks (see `MaskBand`). The box
-   * is placed against the viewport: an ancestor
-   * that makes a containing block for `fixed` (a transform, a filter,
+   * element in flow instead of filling its positioned ancestor, and the
+   * element's rect follows from the box by construction, so measuring the
+   * element places and sizes the box in one go. The layers sit in a
+   * `position: fixed` box placed by that measurement, so they add no
+   * scrollable overflow — a hidden floating element near a viewport edge never
+   * adds sideways scroll — and no squircle overflow clip on an ancestor strips
+   * their masks (see `MaskBand`). The box is placed against the viewport: an
+   * ancestor that makes a containing block for `fixed` (a transform, a filter,
    * `contain`, `will-change: transform`) moves and clips it, the rule
    * `MenuButton`'s backdrop states for itself.
    */
@@ -69,8 +76,9 @@ interface ProgressiveBlurProps {
  *
  * The box is defined one of two ways, never both: it fills the nearest
  * positioned ancestor and the element inside it is measured, or `reach` sets
- * it to the element plus that margin, so the ramp is static and only the
- * box's place follows the element.
+ * it to the element plus that margin, which puts the element's rect `reach` in
+ * from every edge. Either way the masks are drawn at the box's size, so both
+ * wait on a measurement and blur the whole box uniformly until one lands.
  *
  * Without `reach`, the box is the root's parent, and the root, the layers'
  * wrapper and each layer take its corners by inheritance, so the blur ends
@@ -81,23 +89,32 @@ interface ProgressiveBlurProps {
  *
  * The blur belongs to the page rather than to the element: the layers are
  * siblings of the floating element, never ancestors of it, and the element
- * keeps its crisp edge. Blur softens sharpness but not brightness, so the
- * strongest layer also carries a faint Wash of the page background — anything
- * glaring behind the element is washed towards the canvas rather than left at
- * full contrast.
+ * keeps its crisp edge. Blur softens sharpness but not brightness, so every
+ * layer also carries a share of a faint Wash of the page background —
+ * anything glaring behind the element is washed towards the canvas rather
+ * than left at full contrast, and the Wash eases out band by band with the
+ * blur.
  *
  * The layers are hidden from assistive technology and transparent to pointer
  * events, so a dismissal click anywhere outside the floating element passes
  * through to whatever the consumer puts behind.
  *
+ * The floating element is watched either way, shown or not: every resize of
+ * it, and every change to the slot's child list, which no resize reports.
  * Without `reach`, the measurement is taken on mount and again whenever the
- * box or the floating element resizes, or the element is swapped for another.
- * An element that moves without changing size — a transform, a keyframe
+ * box or the element resizes, or the element is swapped for another. An
+ * element that moves without changing size — a transform, a keyframe
  * animation, the layout around it shifting — leaves the ramp centred where it
  * was until one of those happens. With `reach`, the box is placed on mount
- * and whenever the blur is shown, and while shown it follows every scroll,
- * every resize of the window, and every resize of the element; hidden, it
- * stays where it was, so the melt-out plays in place.
+ * and whenever the blur is shown, and while shown it follows every scroll and
+ * every resize of the window; hidden, it stays where it was, so the melt-out
+ * plays in place.
+ *
+ * An element that unmounts, or shrinks to nothing, after the box has been
+ * measured melts the blur out where it was: `isShown` on its own never blurs
+ * the page around nothing. A slot never measured with an element in it keeps
+ * the uniform first-paint blur instead, which is all a server render can show.
+ * One that appears is measured, placed, and shown.
  *
  * Animates two ways. Toggling `isShown` animates the radius, melting the blur
  * away and back in place — a state change, so reduced motion keeps it,
@@ -118,9 +135,16 @@ export function ProgressiveBlur({
   const rootRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<HTMLDivElement>(null);
   const slotRef = useRef<HTMLSpanElement>(null);
+  const offsetRef = useRef<BoxOffset | null>(null);
   const [geometry, setGeometry] = useState<BlurGeometry | null>(null);
-  const [isPlaced, setIsPlaced] = useState(false);
+  const [boxSize, setBoxSize] = useState<BoxSize | null>(null);
+  const [isElementMissing, setIsElementMissing] = useState(false);
   const hasReach = reach !== undefined;
+  // A slot that has never been measured with an element in it keeps the
+  // uniform first-paint blur; one that lost the element it had melts out.
+  const isBlurShown =
+    isShown &&
+    !(isElementMissing && (hasReach ? boxSize !== null : geometry !== null));
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -128,10 +152,13 @@ export function ProgressiveBlur({
     if (hasReach || !root || !slot) return;
 
     const measure = () => {
-      const next = measureGeometry(root, slot);
+      const rect = unionRect(slot.children);
+      setIsElementMissing(rect === null);
       // An empty measurement keeps the last rect rather than clearing it: a
       // floating element unmounting mid-melt would otherwise snap every mask
       // to uniform, and the ramp should melt away where the element was.
+      if (rect === null) return;
+      const next = measureGeometry(root, rect);
       if (next === null) return;
       setGeometry((current) =>
         isSameGeometry(current, next) ? current : next,
@@ -142,80 +169,91 @@ export function ProgressiveBlur({
 
     // Absent in jsdom, hence the guard — there the measurement stays null and
     // every layer masks to `none`.
-    if (typeof ResizeObserver === "undefined") return;
-    const resizeObserver = new ResizeObserver(measure);
-    resizeObserver.observe(root);
-    for (const child of slot.children) resizeObserver.observe(child);
-
-    // The floating element the consumer passes can be swapped for another
-    // one without the box around it changing size, which no resize reports —
-    // so the slot's child list is watched too, and the observed set follows.
-    let mutationObserver: MutationObserver | undefined;
-    if (typeof MutationObserver !== "undefined") {
-      mutationObserver = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-          for (const node of mutation.addedNodes) {
-            if (node instanceof Element) resizeObserver.observe(node);
-          }
-          for (const node of mutation.removedNodes) {
-            if (node instanceof Element) resizeObserver.unobserve(node);
-          }
-        }
-        measure();
-      });
-      mutationObserver.observe(slot, { childList: true });
-    }
+    const rootObserver =
+      typeof ResizeObserver === "undefined"
+        ? undefined
+        : new ResizeObserver(measure);
+    rootObserver?.observe(root);
+    const unobserveSlot = observeChildren(slot, measure);
 
     return () => {
-      resizeObserver.disconnect();
-      mutationObserver?.disconnect();
+      rootObserver?.disconnect();
+      unobserveSlot();
     };
   }, [hasReach]);
 
-  // The box is written straight to the node rather than kept in state: nothing
-  // else reads it, and a scroll gesture would otherwise re-render the floating
-  // element every frame.
-  useLayoutEffect(() => {
+  // The box's place is written straight to the node rather than kept in
+  // state: nothing else reads it, and a scroll gesture would otherwise
+  // re-render the floating element every frame. Its size does reach state,
+  // because the masks are drawn at the box's size — but only when it changes,
+  // which scrolling never does.
+  const place = useCallback(() => {
     const layers = layersRef.current;
     const slot = slotRef.current;
     if (reach === undefined || !layers || !slot) return;
 
-    const place = () => {
-      const rect = unionRect(slot.children);
-      // An empty measurement keeps the last box, so a floating element that
-      // unmounts mid-melt leaves the blur to melt away where it was.
-      if (rect === null) return;
-      placeFixedBox(layers, rect, reach);
-      setIsPlaced(true);
+    const rect = unionRect(slot.children);
+    setIsElementMissing(rect === null);
+    // An empty measurement keeps the last box, so a floating element that
+    // unmounts mid-melt leaves the blur to melt away where it was.
+    if (rect === null) return;
+
+    offsetRef.current = placeFixedBox(layers, rect, reach, offsetRef.current);
+    // Rounded so a subpixel jitter doesn't rewrite five SVG masks.
+    const size = {
+      width: Math.round(rect.right - rect.left + 2 * reach),
+      height: Math.round(rect.bottom - rect.top + 2 * reach),
     };
+    setBoxSize((current) => (isSameSize(current, size) ? current : size));
+  }, [reach]);
+
+  useLayoutEffect(() => {
+    const slot = slotRef.current;
+    if (reach === undefined || !slot) return;
 
     place();
-    if (!isShown) return;
+    // The element is watched shown or not, so one that goes melts the blur out.
+    return observeChildren(slot, place);
+  }, [reach, place]);
+
+  useLayoutEffect(() => {
+    if (reach === undefined || !isShown) return;
+
+    // Placed again on being shown: while hidden, nothing followed the page.
+    place();
+
+    // Momentum scrolling delivers events faster than the compositor paints, so
+    // placing per event would force a document-wide layout each time. Scroll
+    // fires before the frame's rendering step, so this still lands in the same
+    // paint.
+    let frame = 0;
+    const schedule = () => {
+      frame ||= requestAnimationFrame(() => {
+        frame = 0;
+        place();
+      });
+    };
 
     // Capture phase, so a scroller inside the page reports too: its scroll
     // event does not bubble.
-    document.addEventListener("scroll", place, {
+    document.addEventListener("scroll", schedule, {
       capture: true,
       passive: true,
     });
-    window.addEventListener("resize", place);
-    // Absent in jsdom, hence the guard.
-    const resizeObserver =
-      typeof ResizeObserver === "undefined"
-        ? undefined
-        : new ResizeObserver(place);
-    for (const child of slot.children) resizeObserver?.observe(child);
+    window.addEventListener("resize", schedule);
 
     return () => {
-      document.removeEventListener("scroll", place, { capture: true });
-      window.removeEventListener("resize", place);
-      resizeObserver?.disconnect();
+      document.removeEventListener("scroll", schedule, { capture: true });
+      window.removeEventListener("resize", schedule);
+      cancelAnimationFrame(frame);
     };
-  }, [reach, isShown]);
+  }, [reach, isShown, place]);
 
-  const layers = hasReach
-    ? buildReachBlurLayers({ reach, radius, isShown })
-    : buildBlurLayers({ geometry, radius, isShown });
+  const layers = buildBlurLayers({
+    geometry: hasReach ? reachGeometry(reach, boxSize) : geometry,
+    radius,
+    isShown: isBlurShown,
+  });
   // The fixed box of `reach` mode is square, so only the box-filling mode
   // inherits corners.
   const boxCorners = !hasReach && styles.corners;
@@ -231,7 +269,10 @@ export function ProgressiveBlur({
           styles.layers,
           hasReach && styles.reachLayers,
           boxCorners,
-          hasReach && !isPlaced && styles.unplaced,
+          hasReach && boxSize === null && styles.unplaced,
+          hasReach &&
+            boxSize !== null &&
+            dynamicStyles.boxSize(boxSize.width, boxSize.height),
         ]}
       >
         {layers.map(({ filter, mask }, index) => (
@@ -240,10 +281,11 @@ export function ProgressiveBlur({
             aria-hidden="true"
             css={[
               styles.layer,
+              hasReach && styles.reachLayer,
               boxCorners,
               dynamicStyles.layer(filter, mask),
-              !isShown && styles.hidden,
-              index === LAYER_COUNT - 1 && isShown && styles.wash,
+              !isBlurShown && styles.hidden,
+              isBlurShown && styles.wash,
             ]}
           />
         ))}
@@ -260,6 +302,18 @@ interface ViewportRect {
   top: number;
   right: number;
   bottom: number;
+}
+
+/** The blur's own box, in px. */
+interface BoxSize {
+  width: number;
+  height: number;
+}
+
+/** The offsets a `reach` box was last placed at, in px. */
+interface BoxOffset {
+  top: number;
+  left: number;
 }
 
 /**
@@ -283,15 +337,12 @@ function unionRect(elements: HTMLCollection): ViewportRect | null {
 }
 
 /**
- * The root's box and the union of the floating children's boxes within it.
- * `null` when either is missing or empty, which leaves the layers unmasked.
+ * The root's box and the floating element's rect within it. `null` when the
+ * root has no box, which leaves the layers unmasked.
  */
-function measureGeometry(root: HTMLElement, slot: HTMLElement) {
+function measureGeometry(root: HTMLElement, rect: ViewportRect) {
   const rootRect = root.getBoundingClientRect();
   if (rootRect.width <= 0 || rootRect.height <= 0) return null;
-
-  const rect = unionRect(slot.children);
-  if (rect === null) return null;
 
   // Rounded so a subpixel jitter doesn't rewrite every mask string.
   return {
@@ -301,6 +352,26 @@ function measureGeometry(root: HTMLElement, slot: HTMLElement) {
     top: Math.round(rect.top - rootRect.top),
     right: Math.round(rect.right - rootRect.left),
     bottom: Math.round(rect.bottom - rootRect.top),
+  };
+}
+
+/**
+ * The geometry of a `reach` box, whose floating element is `reach` in from
+ * every edge by construction. `null` until the box has been placed — nothing
+ * is measured server-side.
+ */
+function reachGeometry(
+  reach: number,
+  box: BoxSize | null,
+): BlurGeometry | null {
+  if (box === null) return null;
+  return {
+    width: box.width,
+    height: box.height,
+    left: reach,
+    top: reach,
+    right: box.width - reach,
+    bottom: box.height - reach,
   };
 }
 
@@ -316,20 +387,49 @@ function isSameGeometry(a: BlurGeometry | null, b: BlurGeometry) {
   );
 }
 
+function isSameSize(a: BoxSize | null, b: BoxSize) {
+  return a !== null && a.width === b.width && a.height === b.height;
+}
+
 /**
- * Writes the fixed box — the element's rect plus `reach` on every side — to
- * the node. A fixed box resolves against the viewport, or against the nearest
- * ancestor with a transform, a filter or `contain`; the box is put at that
- * origin first and read back, so the offsets land right under either.
+ * Writes the fixed box's corner — the element's rect less `reach` — to the
+ * node, and returns the offsets it wrote. A fixed box resolves against the
+ * viewport, or against the nearest ancestor with a transform, a filter or
+ * `contain`, so the offsets are taken from that origin.
  */
-function placeFixedBox(box: HTMLElement, rect: ViewportRect, reach: number) {
-  box.style.top = "0px";
-  box.style.left = "0px";
-  const origin = box.getBoundingClientRect();
-  box.style.top = `${String(rect.top - reach - origin.top)}px`;
-  box.style.left = `${String(rect.left - reach - origin.left)}px`;
-  box.style.width = `${String(rect.right - rect.left + 2 * reach)}px`;
-  box.style.height = `${String(rect.bottom - rect.top + 2 * reach)}px`;
+function placeFixedBox(
+  box: HTMLElement,
+  rect: ViewportRect,
+  reach: number,
+  applied: BoxOffset | null,
+): BoxOffset {
+  const origin = containingBlockOrigin(box, applied);
+  const offset = {
+    top: rect.top - reach - origin.top,
+    left: rect.left - reach - origin.left,
+  };
+  box.style.top = `${String(offset.top)}px`;
+  box.style.left = `${String(offset.left)}px`;
+  return offset;
+}
+
+/**
+ * Where the box's containing block starts. A box already placed is read where
+ * it stands and the offsets written to it subtracted, so a containing block
+ * that moves with the page stays right and no placement writes then reads.
+ */
+function containingBlockOrigin(box: HTMLElement, applied: BoxOffset | null) {
+  // The first placement has nothing to subtract, so the box goes to the origin
+  // and is read there.
+  if (applied === null) {
+    box.style.top = "0px";
+    box.style.left = "0px";
+  }
+  const placed = box.getBoundingClientRect();
+  return {
+    top: placed.top - (applied?.top ?? 0),
+    left: placed.left - (applied?.left ?? 0),
+  };
 }
 
 const styles = stylex.create({
@@ -361,17 +461,31 @@ const styles = stylex.create({
     borderRadius: "inherit",
     cornerShape: "inherit",
   },
-  // With `reach`, the wrapper is a fixed box: the element's viewport rect plus
-  // `reach` on every side, written to the node by measurement. Fixed rather
-  // than absolute, because the box hangs `reach` past the root: an absolute
-  // box would grow every scrollable ancestor's area for that overhang, and
-  // would sit under whatever squircle overflow clip the page around the
-  // element carries, which strips the layers' masks — a fixed box escapes
-  // both. The physical insets are what the measurement writes; a transformed
-  // ancestor becomes the box's containing block, and clips it again.
+  // With `reach`, the wrapper is a fixed point: the top-left corner of the
+  // element's viewport rect less `reach`, written to the node by measurement,
+  // with the layers hanging off it at the box's size. Fixed rather than
+  // absolute, because the box hangs `reach` past the root: an absolute box
+  // would grow every scrollable ancestor's area for that overhang, and would
+  // sit under whatever squircle overflow clip the page around the element
+  // carries, which strips the layers' masks — a fixed box escapes both. The
+  // physical insets are what the measurement writes; a transformed ancestor
+  // becomes the box's containing block, and clips it again.
+  //
+  // It keeps no size of its own, so Safari on iOS walks past it instead of
+  // flattening the status bar — see "Progressive blur" in `CONTEXT.md`.
   reachLayers: {
     position: "fixed",
     inset: "auto",
+    inlineSize: 0,
+    blockSize: 0,
+  },
+  // A layer in a `reach` box takes the box's size from the wrapper, which
+  // states it as two custom properties and stays a point itself.
+  reachLayer: {
+    inlineSize: "var(--blur-box-inline-size, 0px)",
+    blockSize: "var(--blur-box-block-size, 0px)",
+    insetInlineEnd: "auto",
+    insetBlockEnd: "auto",
   },
   // No box yet, so nothing to show: the first paint comes before the first
   // measurement. The layers inherit it. Never on the root, which would hold
@@ -399,9 +513,10 @@ const styles = stylex.create({
   layer: {
     position: "absolute",
     inset: 0,
-    // The two per-axis ramps multiply rather than add, so the corners round
-    // off and the blur radiates out of the element's rect.
-    maskComposite: "intersect",
+    // Each mask is one SVG image drawn at the box's own size, so it maps onto
+    // the layer 1:1 and covers it exactly once.
+    maskSize: "100% 100%",
+    maskRepeat: "no-repeat",
     transition: {
       default: `backdrop-filter ${duration._300} ${easing.ease}, background-color ${duration._300} ${easing.ease}, visibility ${duration._300}`,
       [motionConstants.REDUCED_MOTION]: `backdrop-filter ${duration._150} ${easing.ease}, background-color ${duration._150} ${easing.ease}, visibility ${duration._150}`,
@@ -415,11 +530,14 @@ const styles = stylex.create({
     pointerEvents: "auto",
   },
   // Blur alone leaves brightness untouched, so something glaring behind the
-  // element would still glare through it. The strongest layer carries a faint
-  // Wash towards the canvas — its own mask ramps the Wash in alongside the
-  // blur, and the background-color transition melts it out with `isShown`.
+  // element would still glare through it. Every layer carries a share of a
+  // faint Wash towards the canvas: the five compound to about a quarter
+  // against the element and drop a share per band on the way out, so the Wash
+  // eases out with the blur instead of ending at a plate's edge. Each layer's
+  // own mask ramps its share in, and the background-color transition melts it
+  // out with `isShown`.
   wash: {
-    backgroundColor: `color-mix(in srgb, ${color.bgCanvasFade} 25%, transparent)`,
+    backgroundColor: `color-mix(in srgb, ${color.bgCanvasFade} 6%, transparent)`,
   },
 });
 
@@ -427,5 +545,11 @@ const dynamicStyles = stylex.create({
   layer: (filter: string, mask: string) => ({
     backdropFilter: filter,
     maskImage: mask,
+  }),
+  // Stated once, on the wrapper the layers read it from: a custom property is
+  // not a size, so the wrapper's own box stays a point.
+  boxSize: (width: number, height: number) => ({
+    "--blur-box-inline-size": `${String(width)}px`,
+    "--blur-box-block-size": `${String(height)}px`,
   }),
 });

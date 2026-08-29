@@ -4,9 +4,9 @@ import { validateLocale } from "#src/utils/validate-locale.ts";
 
 /**
  * Route group for the header-only surfaces — the movie database and the tool
- * pages (calculator, sprite editor, and friends). They share the site's fixed
- * header bar but carry no footer, so they use SiteHeaderFooterLayout without a
- * footer slot. Content-and-footer surfaces (the home page and detail pages) own
+ * pages (calculator, sprite editor, and friends). They share the site's
+ * floating header controls but carry no footer, so they use
+ * SiteHeaderFooterLayout without a footer slot. Content-and-footer surfaces (the home page and detail pages) own
  * their own shell instance outside this group, and the design system uses
  * SidebarLayout — a page gets exactly one shell, never both.
  *

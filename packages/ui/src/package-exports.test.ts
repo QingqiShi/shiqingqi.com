@@ -25,6 +25,9 @@ const packageRoot = path.resolve(
 const EXPECTED_UNEXPORTED: ReadonlySet<string> = new Set([
   // Ref-merging helper shared between components; not public API.
   "src/utils/merge-refs.ts",
+  // Child-list and child-resize watching shared by ProgressiveBlur and
+  // useScrollMask, so a measurement follows what it measures; not public API.
+  "src/utils/observe-children.ts",
   // Focusable-element query shared by the focus-moving hooks (useDialogFocus,
   // usePopover); an internal composition detail.
   "src/utils/focusable.ts",
@@ -35,14 +38,14 @@ const EXPECTED_UNEXPORTED: ReadonlySet<string> = new Set([
   // Mask-string maths behind ProgressiveBlur and ScrollMask, split out so it
   // can be unit tested without a DOM; the geometry is not public API.
   "src/components/progressive-blur-masks.ts",
-  // One Scroll mask band, shared by ScrollMask's edges and the page-level mask
-  // so the melt lives in one place; a composition detail of both.
+  // One Scroll mask band, split out of ScrollMask so its edges and slots melt
+  // the same way; a composition detail of that component.
   "src/components/mask-band.tsx",
-  // The page-level Scroll mask and the window-scroll state behind it. Both are
-  // internals of HeaderFooterLayout, whose bar is the only box that satisfies
-  // the band's contract today; promote them when a second shell wants one.
-  "src/components/page-scroll-mask.tsx",
-  "src/hooks/use-page-scroll-mask.ts",
+  // The header's floating control group and the window-scroll state behind it.
+  // Both are internals of HeaderFooterLayout, the only shell that floats its
+  // chrome today; promote them when a second shell wants them.
+  "src/components/header-controls.tsx",
+  "src/hooks/use-page-scrolled.ts",
 ]);
 
 // Hue ramps the "./palette/*" wildcard export must always cover.

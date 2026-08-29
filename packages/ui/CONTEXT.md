@@ -50,6 +50,7 @@ _Avoid_: glow, tint, gradient (as the name of this — the CSS function keeps it
 
 **Progressive blur**:
 The page blurred around whatever floats, in place of dimming it — strongest nearest the element, and easing back to sharp further out. The blur belongs to the page rather than to the element, and the element keeps a crisp edge. The radius is set per element, within a cap. Also used at the edge of a scroll region, where it is a Scroll mask.
+Every fixed box the blur places stays narrow, because Safari on iOS samples the fixed element under the top-centre of the viewport: one at least nine tenths of the viewport wide makes it paint a flat colour into the status bar in place of its own scroll-edge blur, and a box narrower than that is walked past. So a page's header floats a control group per end of the measure rather than one bar across the top, and a blur's own box carries its size in a custom property the layers read instead of taking it.
 _Avoid_: halo, glow, elevation, shadow, disturbance
 
 **Scroll mask**:

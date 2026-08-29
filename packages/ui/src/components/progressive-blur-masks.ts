@@ -11,7 +11,12 @@ export const RADIUS_CAP_PX = 32;
 // blurs at double the radius of the one before, and its mask turns opaque one
 // band further along the ramp, so the layers compound towards the full radius
 // against the element and drop away band by band towards the sharp edge.
-export const LAYER_COUNT = 5;
+const LAYER_COUNT = 5;
+
+// A Gaussian blur of a hard edge runs from about 95% to about 5% over 1.65
+// standard deviations either side of it, so a band's worth of ramp is a
+// standard deviation of a band over 3.3.
+const RAMP_DEVIATIONS = 3.3;
 
 /**
  * The blur's own box and the floating element's rect within it, in px,
@@ -31,29 +36,6 @@ interface BlurLayerOptions {
   geometry: BlurGeometry | null;
   radius: number;
   isShown: boolean;
-}
-
-/**
- * One axis of the ramp: which way it runs, and where its stops sit. `before`
- * returns the stop that many bands out from the element's near edge, `after`
- * the one that many bands out from its far edge. Each multiplies before it
- * divides, so a whole number of bands out of a whole number of pixels never
- * lands on a floating-point tail.
- */
-interface RampAxis {
-  direction: string;
-  before: (bands: number) => string;
-  after: (bands: number) => string;
-}
-
-// #000 vs. transparent are the mask's opaque/cut keywords — the colour value
-// is irrelevant.
-function ramp(
-  { direction, before, after }: RampAxis,
-  holdBands: number,
-  goneBands: number,
-) {
-  return `linear-gradient(${direction}, transparent ${before(goneBands)}, #000 ${before(holdBands)}, #000 ${after(holdBands)}, transparent ${after(goneBands)})`;
 }
 
 /**
@@ -77,30 +59,76 @@ function blurLayerSteps(radius: number, isShown: boolean) {
   });
 }
 
+/** At most two decimals, so a subpixel jitter never rewrites a mask. */
+function svgNumber(value: number) {
+  return String(Math.round(value * 100) / 100);
+}
+
 /**
- * One measured axis: the element's near and far edge along it, and the box's
- * own size, which is how much page each stop has left to run out over.
+ * The ramp around the element: how much page each side has, divided over the
+ * layers — one band is one layer's step along that side's ramp — and the mean
+ * band on each axis, which the corners and the edge softening share. A side
+ * with nothing beyond the element has no band, so the mask stops flush with
+ * that edge.
  */
-function measuredAxis(
-  direction: string,
-  near: number,
-  far: number,
-  size: number,
-): RampAxis {
-  const nearReach = Math.max(near, 0);
-  const farReach = Math.max(size - far, 0);
-  return {
-    direction,
-    before: (bands) => `${String(near - (nearReach * bands) / LAYER_COUNT)}px`,
-    after: (bands) => `${String(far + (farReach * bands) / LAYER_COUNT)}px`,
+function rampAround(geometry: BlurGeometry) {
+  const bands = {
+    left: Math.max(geometry.left, 0) / LAYER_COUNT,
+    top: Math.max(geometry.top, 0) / LAYER_COUNT,
+    right: Math.max(geometry.width - geometry.right, 0) / LAYER_COUNT,
+    bottom: Math.max(geometry.height - geometry.bottom, 0) / LAYER_COUNT,
   };
+  return {
+    geometry,
+    bands,
+    meanX: (bands.left + bands.right) / 2,
+    meanY: (bands.top + bands.bottom) / 2,
+  };
+}
+
+type BlurRamp = ReturnType<typeof rampAround>;
+
+/**
+ * One layer's mask, as an SVG image the size of the box: the element's rect
+ * grown by `spread` bands on every side, its corners rounded by the same
+ * amount, and the whole shape Gaussian-blurred by a third of a band so its
+ * edge ramps out over the band it ends on. The rect's alpha is the mask.
+ *
+ * An image rather than a gradient because a gradient ramps along one axis
+ * only: two of them multiplied round the fade at the corners but leave the
+ * opaque plateau inside a sharp-cornered rectangle, so the blur field reads
+ * as a box at every level. A blurred rounded rect is round the whole way out.
+ *
+ * The filter region is the box rather than the rect, so the ramp is never
+ * clipped to the shape it came from.
+ */
+function layerMask(
+  { geometry, bands, meanX, meanY }: BlurRamp,
+  spread: number,
+) {
+  const left = geometry.left - spread * bands.left;
+  const top = geometry.top - spread * bands.top;
+  const box = `width='${svgNumber(geometry.width)}' height='${svgNumber(geometry.height)}'`;
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' ${box}>` +
+    `<filter id='ramp' filterUnits='userSpaceOnUse' x='0' y='0' ${box}>` +
+    `<feGaussianBlur stdDeviation='${svgNumber(meanX / RAMP_DEVIATIONS)} ${svgNumber(meanY / RAMP_DEVIATIONS)}'/>` +
+    `</filter>` +
+    `<rect x='${svgNumber(left)}' y='${svgNumber(top)}'` +
+    ` width='${svgNumber(geometry.right + spread * bands.right - left)}'` +
+    ` height='${svgNumber(geometry.bottom + spread * bands.bottom - top)}'` +
+    ` rx='${svgNumber(spread * meanX)}' ry='${svgNumber(spread * meanY)}'` +
+    ` filter='url(#ramp)'/></svg>`;
+
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
 /**
  * The stack of blurred layers, weakest first, as the `backdrop-filter` and
- * `mask-image` each one carries. Every layer holds a mask per axis, composited
- * with `intersect`: multiplying the two ramps rounds the corners, so the blur
- * radiates out of the floating element's rect rather than out of its edges.
+ * `mask-image` each one carries. Every layer's mask is a blurred rounded rect
+ * around the floating element's own rect, half a band past where that layer
+ * holds opaque — so the blur radiates out of the element on every side and
+ * stays round at every level.
  *
  * Unmeasured, every layer masks to `none` — a uniform blur across the whole
  * box, which is what the server renders and what the first paint shows.
@@ -110,61 +138,13 @@ export function buildBlurLayers({
   radius,
   isShown,
 }: BlurLayerOptions) {
-  const axes = geometry && [
-    measuredAxis("to right", geometry.left, geometry.right, geometry.width),
-    measuredAxis("to bottom", geometry.top, geometry.bottom, geometry.height),
-  ];
-
-  return blurLayerSteps(radius, isShown).map(
-    ({ filter, holdBands, goneBands }) => ({
-      filter,
-      mask: axes
-        ? axes.map((axis) => ramp(axis, holdBands, goneBands)).join(", ")
-        : "none",
-    }),
-  );
-}
-
-interface ReachBlurLayerOptions {
-  /** How far the blur reaches past the element, in px. */
-  reach: number;
-  radius: number;
-  isShown: boolean;
-}
-
-/**
- * One static axis: the element's edge is `reach` in from the box's own edge by
- * construction, so the far side counts back from `100%`.
- */
-function reachAxis(direction: string, reach: number): RampAxis {
-  const before = (bands: number) =>
-    `${String((reach * (LAYER_COUNT - bands)) / LAYER_COUNT)}px`;
-  return {
-    direction,
-    before,
-    after: (bands) => `calc(100% - ${before(bands)})`,
-  };
-}
-
-/**
- * The stack of blurred layers for a box that is the floating element plus
- * `reach` on every side, weakest first. The same two-axis ramp as
- * `buildBlurLayers`, composited with `intersect` so the corners round, but
- * static: every stop is known without measuring anything.
- */
-export function buildReachBlurLayers({
-  reach,
-  radius,
-  isShown,
-}: ReachBlurLayerOptions) {
-  const axes = [reachAxis("to right", reach), reachAxis("to bottom", reach)];
-
-  return blurLayerSteps(radius, isShown).map(
-    ({ filter, holdBands, goneBands }) => ({
-      filter,
-      mask: axes.map((axis) => ramp(axis, holdBands, goneBands)).join(", "),
-    }),
-  );
+  const ramp = geometry === null ? null : rampAround(geometry);
+  return blurLayerSteps(radius, isShown).map(({ filter, holdBands }) => ({
+    filter,
+    // Half a band past the hold line puts the ramp's midpoint there, so the
+    // layer is ~95% opaque where it holds and ~5% where it is gone.
+    mask: ramp === null ? "none" : layerMask(ramp, holdBands + 0.5),
+  }));
 }
 
 interface EdgeBlurLayerOptions {
@@ -177,17 +157,16 @@ interface EdgeBlurLayerOptions {
   isShown: boolean;
 }
 
-// Multiplied before dividing, the same way a ramp's stops are, so a whole
-// number of bands never lands on a floating-point tail.
+// Multiplied before dividing, so a whole number of bands never lands on a
+// floating-point tail.
 function bandStop(bands: number) {
   return `${String((bands * 100) / LAYER_COUNT)}%`;
 }
 
 /**
  * The stack of blurred layers for one edge of a scroll region, weakest first.
- * The ramp runs along a single axis rather than radiating from a measured
- * rect, so each layer carries one mask instead of two and nothing needs
- * compositing.
+ * The ramp runs along a single axis rather than radiating from a rect, so a
+ * plain gradient says all of it and no layer needs a shape.
  *
  * The stops are percentages because the caller sizes the band to exactly how
  * far the blur reaches: the ramp is always the full depth of the element it
