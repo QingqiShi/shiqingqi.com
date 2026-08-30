@@ -24,14 +24,14 @@ export function HeaderFooterLayoutShowcase() {
       <Showcase label={t({ en: "Page shell", zh: "页面骨架" })}>
         <ShowcaseHelper>
           {t({
-            en: "The shell the site's header/footer pages are built on, composed from this site's real chrome. The fixed bar holds the back button, theme toggle, and language picker; a full-bleed background layer sits beneath the content; the content flows up under the bar (text pages add their own clearance); and the footer pins to the bottom of the same measure. The bar carries the page's Scroll mask: once the page is scrolled away from the top, the content passing beneath the bar blurs across its height and comes back sharp a little past it. The footer carries none, because nothing scrolls under it. Everything is live — flip the theme from inside it.",
-            zh: "本站页头页脚页面所基于的骨架，此处用本站真实组件组装。固定横条中是返回按钮、主题切换与语言选择；内容下方是一层满幅背景；内容向上延伸至横条之下（文字页自行留出间距）；页脚固定在同一版心的底部。横条上带有页面的滚动虚化：页面一旦离开顶部，从横条下方经过的内容会在整条高度上逐渐虚化，越过横条后随即恢复清晰。页脚没有虚化，因为其下方没有内容滚动。一切均可交互——可直接在其中切换主题。",
+            en: "The shell the site's header/footer pages are built on, composed from this site's real chrome. Two floating groups hold the back button and the theme toggle with the language picker; a full-bleed background layer sits beneath the content; the content flows up past the groups (text pages add their own clearance); and the footer pins to the bottom of the same measure. Once the page is scrolled away from the top, the page blurs around each group — strongest against the controls, sharp again a little way out. At rest the blur melts away. The footer carries none, because nothing floats over it. Everything is live — flip the theme from inside it.",
+            zh: "本站页头页脚页面所基于的骨架，此处用本站真实组件组装。两组悬浮控件分别是返回按钮，以及主题切换与语言选择；内容下方是一层满幅背景；内容向上延伸至控件之下（文字页自行留出间距）；页脚固定在同一版心的底部。页面一旦离开顶部，就会在每组控件周围渐进虚化：紧贴控件处最强，稍往外即恢复清晰。页面静止在顶部时，虚化逐渐消退。页脚没有虚化，因为其上方没有悬浮元素。一切均可交互——可直接在其中切换主题。",
           })}
         </ShowcaseHelper>
         {/* The frame's transform creates a containing block, so the shell's
-            fixed header anchors to the specimen frame — and stays outside the
-            inner viewport's clip, which owns the scrolling that shows the bar
-            staying pinned. */}
+            fixed control groups anchor to the specimen frame — and stay
+            outside the inner viewport's clip, which owns the scrolling that
+            shows them staying pinned. */}
         <Specimen caption={t({ en: "every slot filled", zh: "填满全部插槽" })}>
           <div css={[corner.radius_3, styles.frame]}>
             <div css={styles.viewport}>
@@ -83,8 +83,8 @@ export function HeaderFooterLayoutShowcase() {
                   </Text>
                   <Text tone="muted">
                     {t({
-                      en: "The background layer bleeds edge to edge beneath the content, and the bar stays pointer-transparent outside its two slot regions — text remains selectable right up to the top edge.",
-                      zh: "背景层在内容下方满幅延展，横条在两个插槽区域之外不拦截指针事件——文字直到顶部边缘都可以选中。",
+                      en: "The background layer bleeds edge to edge beneath the content, and each floating group is pointer-transparent outside its own controls — text remains selectable right up to the top edge.",
+                      zh: "背景层在内容下方满幅延展，每组悬浮控件在控件本身之外不拦截指针事件——文字直到顶部边缘都可以选中。",
                     })}
                   </Text>
                   <Text tone="muted">
@@ -106,24 +106,24 @@ export function HeaderFooterLayoutShowcase() {
             name: "headerStart",
             type: "ReactNode",
             description: t({
-              en: "Start (leading) region of the fixed header bar — typically a back or home affordance.",
-              zh: "固定页头横条的起始区域——通常是返回或首页入口。",
+              en: "Start (leading) floating group at the top of the page — typically a back or home affordance.",
+              zh: "页面顶部的起始悬浮控件组——通常是返回或首页入口。",
             }),
           },
           {
             name: "headerEnd",
             type: "ReactNode",
             description: t({
-              en: "End (trailing) region of the fixed header bar — typically utility controls such as a theme toggle or language picker.",
-              zh: "固定页头横条的结尾区域——通常是主题切换、语言选择等实用控件。",
+              en: "End (trailing) floating group at the top of the page — typically utility controls such as a theme toggle or language picker.",
+              zh: "页面顶部的结尾悬浮控件组——通常是主题切换、语言选择等实用控件。",
             }),
           },
           {
             name: "background",
             type: "ReactNode",
             description: t({
-              en: "Full-bleed decoration rendered behind the content and beneath the bar — gradients, glows, texture. Pointer-transparent and clipped to the page.",
-              zh: "渲染在内容下方、横条之下的满幅装饰——渐变、光晕、纹理。不拦截指针事件并裁剪到页面内。",
+              en: "Full-bleed decoration rendered behind the content and beneath the header controls — gradients, glows, texture. Pointer-transparent and clipped to the page.",
+              zh: "渲染在内容下方、页头控件之下的满幅装饰——渐变、光晕、纹理。不拦截指针事件并裁剪到页面内。",
             }),
           },
           {
@@ -139,8 +139,8 @@ export function HeaderFooterLayoutShowcase() {
             type: "ReactNode",
             required: true,
             description: t({
-              en: "Page content. Flows up under the bar by default (heroes and backdrops bleed to the top edge); text-first pages add their own top clearance.",
-              zh: "页面内容。默认向上延伸至横条之下（主视觉与背景铺到顶部边缘）；以文字为主的页面自行留出顶部间距。",
+              en: "Page content. Flows up past the header controls by default (heroes and backdrops bleed to the top edge); text-first pages add their own top clearance.",
+              zh: "页面内容。默认向上延伸至页头控件之下（主视觉与背景铺到顶部边缘）；以文字为主的页面自行留出顶部间距。",
             }),
           },
           {
@@ -175,8 +175,8 @@ export function HeaderFooterLayoutShowcase() {
       <DoDont
         do={<code css={styles.code}>{"background={<FlowGradient />}"}</code>}
         doCaption={t({
-          en: "Put page decoration in the background slot — it bleeds full-bleed beneath the bar and content, exactly where a hero gradient belongs.",
-          zh: "把页面装饰放进 background 插槽——它会在横条与内容下方满幅铺开，正是主视觉渐变该在的位置。",
+          en: "Put page decoration in the background slot — it bleeds full-bleed beneath the header controls and content, exactly where a hero gradient belongs.",
+          zh: "把页面装饰放进 background 插槽——它会在页头控件与内容下方满幅铺开，正是主视觉渐变该在的位置。",
         })}
         dont={
           <code css={styles.code}>
@@ -193,24 +193,24 @@ export function HeaderFooterLayoutShowcase() {
 }
 
 const styles = stylex.create({
-  // Rounded, and clipping nothing: the bar it anchors carries the page's
-  // Scroll mask band, and a squircle-cornered clip above that band would strip
-  // its mask. A background and a border round by border-radius alone, which is
-  // the whole of the frame's look.
+  // Rounded, and clipping nothing: the control groups it anchors carry their
+  // own Progressive blur, and a squircle-cornered clip above those layers would
+  // strip their masks. A background and a border round by border-radius alone,
+  // which is the whole of the frame's look.
   frame: {
     position: "relative",
     inlineSize: "100%",
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
-    // Containing block for the shell's fixed header (see comment at the
-    // callsite).
+    // Containing block for the shell's fixed control groups (see comment at
+    // the callsite).
     transform: "translateZ(0)",
   },
-  // The scroller, so the bar can be watched staying pinned while the content
-  // moves under it. It rounds its own clip to the frame's corners, which the
+  // The scroller, so the groups can be watched staying pinned while the content
+  // moves under them. It rounds its own clip to the frame's corners, which the
   // shell's full-bleed background layer would otherwise square off. Safe above
-  // the band, which is not clipped here: the bar is fixed to the frame, so this
-  // element is nowhere in its containing-block chain.
+  // the blur layers, which are not clipped here: the groups are fixed to the
+  // frame, so this element is nowhere in their containing-block chain.
   viewport: {
     maxBlockSize: space._15,
     overflowY: "auto",
@@ -232,7 +232,8 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._3,
     maxInlineSize: "60ch",
-    // Text-first content clears the bar itself; heroes would bleed under it.
+    // Text-first content clears the header controls itself; heroes bleed under
+    // them.
     paddingBlockStart: `calc(${space._10} + env(safe-area-inset-top))`,
   },
   code: {

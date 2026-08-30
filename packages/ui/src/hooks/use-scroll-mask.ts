@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { observeChildren } from "../utils/observe-children.ts";
 
 export type ScrollMaskOrientation = "horizontal" | "vertical";
 
@@ -43,41 +44,20 @@ export function useScrollMask(
 
     // ResizeObserver fires its callback asynchronously after observe(),
     // which handles initial state without a synchronous setState in the effect.
+    // The container's own box and each direct child are watched, so content
+    // that grows (items streamed in, filmography resolving more credits) is
+    // remeasured even when the container is unchanged.
     // Falls back to a rAF-deferred call in environments without ResizeObserver (e.g. jsdom).
-    let resizeObserver: ResizeObserver | undefined;
-    let mutationObserver: MutationObserver | undefined;
-    if (typeof ResizeObserver !== "undefined") {
-      resizeObserver = new ResizeObserver(update);
-      resizeObserver.observe(el);
-      // Also observe each direct child so changes in content size
-      // (items streamed in, filmography resolving more credits, etc.)
-      // re-trigger the measurement even when the container's own box
-      // is unchanged.
-      for (const child of el.children) {
-        resizeObserver.observe(child);
-      }
-      if (typeof MutationObserver !== "undefined") {
-        mutationObserver = new MutationObserver((mutations) => {
-          for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-              if (node instanceof Element) resizeObserver?.observe(node);
-            }
-            for (const node of mutation.removedNodes) {
-              if (node instanceof Element) resizeObserver?.unobserve(node);
-            }
-          }
-          update();
-        });
-        mutationObserver.observe(el, { childList: true });
-      }
-    } else {
+    let unobserve: (() => void) | undefined;
+    if (typeof ResizeObserver === "undefined") {
       requestAnimationFrame(update);
+    } else {
+      unobserve = observeChildren(el, update, { includeContainer: true });
     }
 
     return () => {
       el.removeEventListener("scroll", update);
-      resizeObserver?.disconnect();
-      mutationObserver?.disconnect();
+      unobserve?.();
     };
   }, [scrollRef, orientation, enabled]);
 

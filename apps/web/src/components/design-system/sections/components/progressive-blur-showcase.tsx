@@ -24,8 +24,8 @@ export function ProgressiveBlurShowcase() {
         <div css={[flex.col, styles.stack]}>
           <Text variant="bodySmall" tone="muted">
             {t({
-              en: "A stack of blurred layers radiating from the floating element on every side, strongest against it and easing to sharp further out. The floating element is passed in, so the ramp runs out of its rect — measured, or reach in from the box's edges — and no callsite states a direction. The strongest layer carries a faint wash of the page colour, so anything glaring behind the element is washed out rather than left at full contrast. The layers are aria-hidden and ignore pointer events, so a dismissal click outside the element passes straight through to whatever sits behind it.",
-              zh: "一组虚化图层从悬浮元素向四周辐射，紧贴元素处最强，越向外越清晰。悬浮元素作为子元素传入，坡度自它的矩形向外展开——或由测量得出，或由 reach 从虚化框边缘内推——因此调用处无需指定方向。最强的一层带有一抹淡淡的页面底色淡彩，元素背后过于刺眼的内容会被冲淡，而不是保持原有的强对比。这些图层对无障碍隐藏且不响应指针事件，元素之外的关闭点击会直接穿透到后方内容。",
+              en: "A stack of blurred layers radiating from the floating element on every side, strongest against it and easing to sharp further out. The floating element is passed in, so the ramp runs out of its rect — measured, or reach in from the box's edges — and no callsite states a direction. Each layer is masked by a rounded rect around that element, so the field stays round the whole way out. Each also carries a share of a faint Wash of the page colour, so anything glaring behind the element is washed out rather than left at full contrast, and the Wash eases away with the blur. The layers are aria-hidden and ignore pointer events, so a dismissal click outside the element passes straight through to whatever sits behind it.",
+              zh: "一组虚化图层从悬浮元素向四周辐射，紧贴元素处最强，越向外越清晰。悬浮元素作为子元素传入，坡度自它的矩形向外展开——或由测量得出，或由 reach 从虚化框边缘内推——因此调用处无需指定方向。每一层都由环绕该元素的圆角矩形遮罩，因此虚化范围由内到外始终是圆的。每一层还各自带有一份淡淡的页面底色淡彩，元素背后过于刺眼的内容会被冲淡，而不是保持原有的强对比，淡彩也随虚化一同向外淡出。这些图层对无障碍隐藏且不响应指针事件，元素之外的关闭点击会直接穿透到后方内容。",
             })}
           </Text>
           <Specimen caption={t({ en: "around a dialog", zh: "对话框周围" })}>
@@ -73,8 +73,8 @@ export function ProgressiveBlurShowcase() {
               name: "reach",
               type: "number",
               description: t({
-                en: "How far the blur reaches past the floating element, in px, on every side. Set it and the box is the element plus this margin: the root wraps the element in flow, the ramp is static, and the layers sit in a fixed box placed by measuring the element — so they never add to the page's scrollable area and no rounded ancestor clips them. An ancestor with a transform, a filter or contain becomes that box's containing block and moves and clips it. Leave it unset and the box fills the positioned ancestor, placed via css — that ancestor carries the corners, which the box and the layers take from it by inheritance, so nothing above the layers may clip: not that ancestor, and not a rounded ancestor of it.",
-                zh: "虚化越过悬浮元素向外延伸的距离（像素），四边相同。设置后，虚化框即元素加上这一圈边距：根元素在文档流中包住元素，坡度固定，图层置于一个按元素测量定位的 fixed 框内——因此不会计入页面的可滚动区域，也不会被带圆角的祖先裁切。带有 transform、filter 或 contain 的祖先会成为该框的包含块，使它错位并被裁切。不设置时，虚化框填满最近的定位祖先，由 css 决定位置——圆角由该祖先承载，虚化框与图层都从它继承取用，因此图层之上不得有任何 overflow 裁切：该祖先不行，它带圆角的祖先也不行。",
+                en: "How far the blur reaches past the floating element, in px, on every side. Set it and the box is the element plus this margin: the root wraps the element in flow, the element's rect follows from the box by construction, and the layers sit in a fixed box placed by measuring the element — so they never add to the page's scrollable area and no rounded ancestor clips them. An ancestor with a transform, a filter or contain becomes that box's containing block and moves and clips it. Leave it unset and the box fills the positioned ancestor, placed via css — that ancestor carries the corners, which the box and the layers take from it by inheritance, so nothing above the layers may clip: not that ancestor, and not a rounded ancestor of it.",
+                zh: "虚化越过悬浮元素向外延伸的距离（像素），四边相同。设置后，虚化框即元素加上这一圈边距：根元素在文档流中包住元素，元素的矩形由虚化框本身推出，图层置于一个按元素测量定位的 fixed 框内——因此不会计入页面的可滚动区域，也不会被带圆角的祖先裁切。带有 transform、filter 或 contain 的祖先会成为该框的包含块，使它错位并被裁切。不设置时，虚化框填满最近的定位祖先，由 css 决定位置——圆角由该祖先承载，虚化框与图层都从它继承取用，因此图层之上不得有任何 overflow 裁切：该祖先不行，它带圆角的祖先也不行。",
               }),
             },
             {

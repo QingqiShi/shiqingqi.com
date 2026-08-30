@@ -191,8 +191,8 @@ export default function DesignSystemOverview() {
       zh: "带粘性导航侧栏与移动端抽屉的应用密度页面骨架。",
     }),
     "/design-system/components/header-footer-layout": t({
-      en: "A reading-density page shell with a fixed header and an optional footer.",
-      zh: "带固定页头与可选页脚的阅读密度页面骨架。",
+      en: "A reading-density page shell with floating header controls and an optional footer.",
+      zh: "带悬浮页头控件与可选页脚的阅读密度页面骨架。",
     }),
     "/design-system/examples/movie-detail": t({
       en: "A whole movie-details screen built from nothing but this system.",

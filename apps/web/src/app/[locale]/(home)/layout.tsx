@@ -77,9 +77,10 @@ export default async function Layout({
 
   const jsonLd = buildHomeJsonLd(validatedLocale);
 
-  // The home page is a header/footer surface: the shell owns the fixed bar and
-  // the footer, the flow gradient and glow ride in the full-bleed background
-  // slot beneath the content, and the hero flows up under the bar.
+  // The home page is a header/footer surface: the shell owns the floating
+  // header controls and the footer, the flow gradient and glow ride in the
+  // full-bleed background slot beneath the content, and the hero flows up past
+  // the controls.
   return (
     <SiteHeaderFooterLayout
       locale={validatedLocale}

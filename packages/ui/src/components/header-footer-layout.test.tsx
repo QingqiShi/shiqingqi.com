@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { HeaderFooterLayout } from "./header-footer-layout.tsx";
 
 // jsdom lays nothing out and never scrolls, so the page's offset is stubbed on
-// the window; the bar's Scroll mask reads it through `usePageScrollMask`.
+// the window; the floating controls read it through `usePageScrolled`.
 function scrollThePage(scrollY: number) {
   Object.defineProperty(window, "scrollY", {
     value: scrollY,
@@ -18,13 +18,21 @@ afterEach(() => {
   Object.defineProperty(window, "scrollY", { value: 0, configurable: true });
 });
 
-// The blur radius and the ramp land in inline CSS custom properties (StyleX
-// dynamic styles), which jsdom preserves, so they are asserted through each
-// layer's `style` attribute.
-function maskLayers(container: HTMLElement) {
-  const band = container.querySelector("[class*='mask-band__styles.band']");
-  if (!band) throw new Error("the bar carries no Scroll mask band");
-  return [...band.children];
+// The header is `display: contents`, so the banner's children are the groups.
+function controlGroups() {
+  return [...screen.getByRole("banner").children];
+}
+
+// The blur radius lands in an inline CSS custom property (a StyleX dynamic
+// style), which jsdom preserves, so it is asserted through each layer's
+// `style` attribute. The layers are the only elements inside a group hidden
+// from assistive technology.
+function blurLayers() {
+  const layers = controlGroups().flatMap((group) => [
+    ...group.querySelectorAll('[aria-hidden="true"]'),
+  ]);
+  if (layers.length === 0) throw new Error("no control group blurs the page");
+  return layers;
 }
 
 describe("HeaderFooterLayout structure", () => {
@@ -68,9 +76,13 @@ describe("HeaderFooterLayout structure", () => {
 
   it("omits the background layer when no background is passed", () => {
     const { container } = render(<HeaderFooterLayout>Body</HeaderFooterLayout>);
-    // Found by its own class: the bar's Scroll mask band is aria-hidden too,
-    // so being hidden from assistive tech no longer names the background.
-    expect(container.querySelector("[class*='styles.background']")).toBeNull();
+    // Found by its own class: a blur's layers are aria-hidden too, so being
+    // hidden from assistive tech no longer names the background.
+    expect(
+      container.querySelector(
+        "[class*='header-footer-layout__styles.background']",
+      ),
+    ).toBeNull();
   });
 });
 
@@ -105,89 +117,73 @@ describe("HeaderFooterLayout tuning props", () => {
   });
 });
 
-describe("HeaderFooterLayout Scroll mask", () => {
-  it("carries one band inside the bar, before the nav that stays crisp", () => {
-    render(<HeaderFooterLayout>Body</HeaderFooterLayout>);
-    const banner = screen.getByRole("banner");
-    const band = banner.firstElementChild;
-
-    expect(band?.className).toContain("mask-band__styles.band");
-    expect(band?.getAttribute("aria-hidden")).toBe("true");
-    // The nav follows the band in DOM order and is positioned, so the controls
-    // paint above the layers instead of blurring beneath them.
-    expect(banner.children[1].className).toContain("styles.headerNav");
-  });
-
-  it("spans the bar and reaches past its inner edge", () => {
-    render(<HeaderFooterLayout>Body</HeaderFooterLayout>);
-    const band = screen.getByRole("banner").firstElementChild;
-
-    expect(band?.getAttribute("style") ?? "").toContain("calc(-1 *");
-  });
-
-  it("melts away while the page rests at the top", () => {
-    const { container } = render(<HeaderFooterLayout>Body</HeaderFooterLayout>);
-
-    for (const layer of maskLayers(container)) {
-      expect(layer.getAttribute("style") ?? "").toContain("blur(0px)");
-      expect(layer.className).toContain("mask-band__styles.hidden");
-    }
-  });
-
-  it("blurs progressively down the bar once the page is scrolled", () => {
-    const { container } = render(<HeaderFooterLayout>Body</HeaderFooterLayout>);
-
-    scrollThePage(240);
-
-    const styles = maskLayers(container).map(
-      (layer) => layer.getAttribute("style") ?? "",
+describe("HeaderFooterLayout floating controls", () => {
+  it("floats each slot in its own box inside the banner, start before end", () => {
+    render(
+      <HeaderFooterLayout
+        headerStart={<span>Back</span>}
+        headerEnd={<span>Utilities</span>}
+      >
+        Body
+      </HeaderFooterLayout>,
     );
-    // Weakest first, compounding to the full radius against the viewport edge,
-    // and every layer ramping down the bar rather than across it.
-    expect(
-      styles.map((style) => /blur\([\d.]+px\)/.exec(style)?.[0]),
-    ).toStrictEqual([
-      "blur(0.5px)",
-      "blur(1px)",
-      "blur(2px)",
-      "blur(4px)",
-      "blur(8px)",
-    ]);
-    for (const style of styles) {
-      expect(style).toContain("linear-gradient(to bottom");
-    }
-    for (const layer of maskLayers(container)) {
-      expect(layer.className).not.toContain("mask-band__styles.hidden");
-    }
+    const groups = controlGroups();
+
+    // A box per group rather than one bar — see "Progressive blur" in
+    // `CONTEXT.md` for what a near-full-width fixed element costs on iOS.
+    expect(groups).toHaveLength(2);
+    expect(groups[0]).toContainElement(screen.getByText("Back"));
+    expect(groups[1]).toContainElement(screen.getByText("Utilities"));
   });
 
-  it("melts back when the page returns to the top", () => {
-    const { container } = render(<HeaderFooterLayout>Body</HeaderFooterLayout>);
+  it("renders no box for a slot that was left out", () => {
+    render(
+      <HeaderFooterLayout headerStart={<span>Back</span>}>
+        Body
+      </HeaderFooterLayout>,
+    );
+    const groups = controlGroups();
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0]).toContainElement(screen.getByText("Back"));
+  });
+
+  it("blurs the page around the controls only while it is scrolled", () => {
+    render(
+      <HeaderFooterLayout headerStart={<span>Back</span>}>
+        Body
+      </HeaderFooterLayout>,
+    );
 
     scrollThePage(240);
-    scrollThePage(0);
+    for (const layer of blurLayers()) {
+      expect(layer.className).not.toContain("progressive-blur__styles.hidden");
+    }
 
-    for (const layer of maskLayers(container)) {
+    scrollThePage(0);
+    for (const layer of blurLayers()) {
+      expect(layer.className).toContain("progressive-blur__styles.hidden");
       expect(layer.getAttribute("style") ?? "").toContain("blur(0px)");
     }
   });
 
-  it("masks the bar only — nothing scrolls under the footer", () => {
-    const { container } = render(
-      <HeaderFooterLayout footer={<footer>Colophon</footer>}>
+  it("blurs around the header controls only — nothing floats over the footer", () => {
+    render(
+      <HeaderFooterLayout
+        headerStart={<span>Back</span>}
+        footer={<footer>Colophon</footer>}
+      >
         Body
       </HeaderFooterLayout>,
     );
 
     scrollThePage(240);
 
-    expect(
-      container.querySelectorAll("[class*='mask-band__styles.band']"),
-    ).toHaveLength(1);
+    expect(controlGroups()).toHaveLength(1);
     expect(
       screen
         .getByRole("contentinfo")
-        .querySelector("[class*='mask-band__styles.band']"),
+        .querySelector("[class*='progressive-blur__styles.root']"),
     ).toBeNull();
   });
 });

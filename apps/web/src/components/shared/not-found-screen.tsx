@@ -129,8 +129,8 @@ const styles = stylex.create({
     gap: space._8,
     // Fills the viewport and centres the block in it, so a screen this short
     // doesn't sit in a column of dead space. The block start padding clears the
-    // Shell's fixed header bar, which content otherwise flows under — same
-    // `space._10 + safe-area` expression the bar's own `blockSize` uses.
+    // Shell's floating header controls, which content otherwise flows past —
+    // same `space._10 + safe-area` expression their own strip uses.
     minBlockSize: "100dvh",
     paddingBlockStart: `calc(${space._10} + env(safe-area-inset-top) + ${space._5})`,
     paddingBlockEnd: space._9,

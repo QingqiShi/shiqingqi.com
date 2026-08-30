@@ -6,15 +6,17 @@ import { WireframeBar } from "./wireframe-bar.tsx";
 /**
  * A miniature page rather than the component — same reason as the sidebar
  * shell: it owns the viewport and the `<main>` landmark. The diagram keeps what
- * separates the two shells, a fixed header and an optional footer bracketing a
- * reading column.
+ * separates the two shells, floating header controls and an optional footer
+ * bracketing a reading column.
  */
 export function HeaderFooterLayoutSpecimen() {
   return (
     <div css={[wireframe.page, wireframe.clip]}>
-      <div css={[styles.bar, styles.header]}>
-        <WireframeBar width="2.5rem" strong />
-        <div css={styles.nav}>
+      <div css={[styles.strip, styles.header]}>
+        <div css={styles.group}>
+          <WireframeBar width="1.25rem" />
+        </div>
+        <div css={styles.group}>
           <WireframeBar width="1.25rem" />
           <WireframeBar width="1.25rem" />
         </div>
@@ -23,7 +25,7 @@ export function HeaderFooterLayoutSpecimen() {
         <WireframeBar width="55%" strong />
         <WireframeBar width="80%" />
       </div>
-      <div css={[styles.bar, styles.footer]}>
+      <div css={[styles.strip, styles.footer]}>
         <WireframeBar width="35%" />
       </div>
     </div>
@@ -31,29 +33,28 @@ export function HeaderFooterLayoutSpecimen() {
 }
 
 const styles = stylex.create({
-  bar: {
+  strip: {
     display: "flex",
     alignItems: "center",
     flexShrink: 0,
     gap: space._1,
     paddingBlock: space._1,
     paddingInline: space._2,
-    backgroundColor: color.bgSurfaceRaised,
   },
+  // Two small control groups floating at the ends of the measure: no fill and
+  // no border, because the header is no longer a bar.
   header: {
     justifyContent: "space-between",
-    borderBlockEndWidth: border.size_1,
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: color.neutralBorder,
   },
   footer: {
     justifyContent: "center",
     marginBlockStart: "auto",
+    backgroundColor: color.bgSurfaceRaised,
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
     borderBlockStartColor: color.neutralBorder,
   },
-  nav: {
+  group: {
     display: "flex",
     gap: space._0,
   },

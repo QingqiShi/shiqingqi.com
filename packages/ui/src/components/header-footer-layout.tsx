@@ -1,25 +1,27 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { layer, layout, space } from "../tokens.stylex.ts";
-import { PageScrollMask } from "./page-scroll-mask.tsx";
+import { HeaderControls } from "./header-controls.tsx";
 
 interface HeaderFooterLayoutProps {
   /**
-   * Start (leading) region of the fixed header bar — typically a back or home
-   * affordance. Only the region accepts pointer events, so the bar itself never
-   * blocks the content scrolling beneath it.
+   * Start (leading) floating group at the top of the page — typically a back or
+   * home affordance. Only the controls accept pointer events, so the group
+   * never blocks the content scrolling beneath it. Left out, no group is
+   * rendered.
    */
   headerStart?: ReactNode;
   /**
-   * End (trailing) region of the fixed header bar — typically utility controls
-   * such as a theme toggle or language picker.
+   * End (trailing) floating group at the top of the page — typically utility
+   * controls such as a theme toggle or language picker. Left out, no group is
+   * rendered.
    */
   headerEnd?: ReactNode;
   /**
    * Full-bleed decoration rendered behind the content and beneath the header
-   * bar — gradients, glows, texture. Pointer-transparent and clipped to the
-   * page. Pass positioned elements (e.g. an element pinned to the top and one
-   * to the bottom); the slot fills the whole shell.
+   * controls — gradients, glows, texture. Pointer-transparent and clipped to
+   * the page. Pass positioned elements (e.g. an element pinned to the top and
+   * one to the bottom); the slot fills the whole shell.
    */
   background?: ReactNode;
   /**
@@ -51,19 +53,18 @@ interface HeaderFooterLayoutProps {
 }
 
 /**
- * Reading-and-content page shell: a fixed, pointer-transparent header bar whose
- * start/end regions align to the site's centered measure, an optional full-bleed
- * background layer beneath it, content that flows *under* the bar (heroes and
+ * Reading-and-content page shell: two floating groups of header controls
+ * aligned to the ends of the site's centered measure, an optional full-bleed
+ * background layer beneath them, content that flows *under* them (heroes and
  * backdrops bleed to the top edge; text pages add their own clearance), and an
  * optional footer pinned to the bottom of the same measure.
  *
- * The bar carries the page's Scroll mask: once the page is scrolled away from
- * the top, content passing beneath the bar blurs progressively across it —
- * strongest at the viewport edge, sharp again just past the bar — so the page
- * reads as continuing under the chrome rather than stopping at it. At rest the
- * mask melts away and a hero bleeds to the top edge untouched. The footer is in
- * flow at the end of the page, where nothing scrolls under it, so it carries no
- * mask.
+ * The controls float over the page rather than sitting on a bar: once the page
+ * is scrolled away from the top, the page blurs around each group — strongest
+ * against the controls, sharp again a little way out — so they read as lifted
+ * off the content passing beneath them rather than as chrome the page stops at.
+ * At rest the blur melts away and a hero bleeds to the top edge untouched. The
+ * footer is in flow at the end of the page, where nothing floats over it.
  *
  * This is the shell behind the site's header/footer pages. For dense, app-like
  * surfaces with their own navigation, reach for `SidebarLayout` instead — a page
@@ -102,11 +103,14 @@ export function HeaderFooterLayout({
         </div>
       )}
       <header css={styles.header}>
-        <PageScrollMask />
-        <div css={styles.headerNav}>
-          <div css={styles.headerGroup}>{headerStart}</div>
-          <div css={styles.headerGroup}>{headerEnd}</div>
-        </div>
+        {headerStart != null && (
+          <HeaderControls css={styles.headerStart}>
+            {headerStart}
+          </HeaderControls>
+        )}
+        {headerEnd != null && (
+          <HeaderControls css={styles.headerEnd}>{headerEnd}</HeaderControls>
+        )}
       </header>
       {contentBody}
       {footer != null && <div css={styles.footer}>{footer}</div>}
@@ -117,7 +121,16 @@ export function HeaderFooterLayout({
 const styles = stylex.create({
   // A stacking context of its own so the background layer stays behind the
   // content and footer without leaking z-index into the rest of the page.
+  //
+  // The custom property is where a floating control group sits from its end of
+  // the viewport: half of whatever the viewport has over the measure puts it on
+  // the measure's edge, and the gutter then holds it off that edge by the same
+  // offset the content below keeps. A scroll-locking overlay removes the
+  // scrollbar and reports its width here, so the groups hold still rather than
+  // shifting with it. Percentages resolve where the property is used, against
+  // each fixed group's containing block.
   root: {
+    "--header-controls-gutter": `calc(max(0px, (100% - var(--removed-body-scroll-bar-size, 0px) - ${layout.maxInlineSize}) / 2) + ${space._3})`,
     position: "relative",
     isolation: "isolate",
     display: "flex",
@@ -128,7 +141,7 @@ const styles = stylex.create({
   // whole shell; it never intercepts input and is clipped to the page. Its
   // corners are the shell root's, so the decoration rounds with a shell
   // dropped into a rounded box. The clip is safe here: this is a sibling
-  // subtree of the header's Scroll mask band, never above it.
+  // subtree of the header controls' blur, never above it.
   background: {
     position: "absolute",
     inset: 0,
@@ -138,48 +151,28 @@ const styles = stylex.create({
     borderRadius: "inherit",
     cornerShape: "inherit",
   },
-  // Fixed bar aligned to the same centered measure as the content. Pointer
-  // events stay off so only the slot regions intercept input, and the
-  // scrollbar-compensation var (set by scroll-locking overlays) keeps the bar
-  // from shifting when a dialog locks the page. It is also the box the page's
-  // Scroll mask is sized against, so it carries no opacity, filter or mask:
-  // any of them would make the bar a backdrop root and cut the mask's layers
-  // off from the page scrolling beneath them.
+  // The `banner` landmark, and no box of its own: each control group places
+  // itself, so the header is never the near-full-width fixed element at the
+  // top edge that costs the browser's own treatment of it — see "Progressive
+  // blur" in `CONTEXT.md`.
   header: {
-    position: "fixed",
-    insetBlockStart: 0,
-    insetInlineStart: 0,
-    insetInlineEnd: 0,
-    blockSize: `calc(${space._10} + env(safe-area-inset-top))`,
-    paddingBlockStart: "env(safe-area-inset-top)",
-    zIndex: layer.header,
-    pointerEvents: "none",
-    paddingInlineEnd: "var(--removed-body-scroll-bar-size, 0px)",
+    display: "contents",
   },
-  // Positioned, so it paints above the Scroll mask's layers that precede it in
-  // DOM order and the controls stay crisp: `backdrop-filter` only blurs what
-  // painted before it.
-  headerNav: {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    blockSize: "100%",
-    maxInlineSize: layout.maxInlineSize,
-    marginInline: "auto",
-    paddingInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
-    pointerEvents: "none",
+  // The shared gutter puts each group on its end of the measure. The end group
+  // also clears the scrollbar a scroll lock has removed, which the gutter took
+  // off the measure rather than off this edge.
+  headerStart: {
+    insetInlineStart:
+      "calc(var(--header-controls-gutter) + env(safe-area-inset-left))",
   },
-  headerGroup: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._1,
-    pointerEvents: "all",
+  headerEnd: {
+    insetInlineEnd:
+      "calc(var(--header-controls-gutter) + env(safe-area-inset-right) + var(--removed-body-scroll-bar-size, 0px))",
   },
   // Content sits above the background layer and grows so a short page still
   // pushes the footer to the bottom of the viewport. No top offset: heroes and
-  // backdrops bleed under the bar; pages that want clearance add their own.
+  // backdrops bleed under the controls; pages that want clearance add their
+  // own.
   content: {
     position: "relative",
     zIndex: layer.content,
