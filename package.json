@@ -45,6 +45,6 @@
     "prettier": "catalog:",
     "turbo": "^2.10.11",
     "typescript": "catalog:",
-    "typescript-eslint": "^8.67.0"
+    "typescript-eslint": "^8.68.0"
   }
 }
