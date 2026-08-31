@@ -23,6 +23,10 @@ vi.mock("#src/ai-chat/chat.ts", () => ({
   chat: vi.fn(),
 }));
 
+vi.mock("./rate-limiter", () => ({
+  limitChatRequest: vi.fn(),
+}));
+
 vi.mock("server-only", () => ({}));
 
 const mockStore = new Map<string, UIMessage[]>();
@@ -108,6 +112,14 @@ describe("POST /api/ai-chat", () => {
       await import("#src/session-store/session-store.ts");
     vi.mocked(getSessionMessages).mockImplementation((sessionId: string) => {
       return Promise.resolve(mockStore.get(sessionId) ?? null);
+    });
+    // Default limiter behaviour: allow the request. Individual tests override
+    // this to exercise the 429 and 502 paths.
+    const { limitChatRequest } = await import("./rate-limiter");
+    vi.mocked(limitChatRequest).mockReset();
+    vi.mocked(limitChatRequest).mockResolvedValue({
+      success: true,
+      reset: Date.now() + 60_000,
     });
   });
 
@@ -429,5 +441,75 @@ describe("POST /api/ai-chat", () => {
 
     const text = await response.text();
     expect(text).toContain("generated-session-id");
+  });
+
+  it("returns 429 with retryAfter and Retry-After header when rate-limited", async () => {
+    const reset = Date.now() + 30_000;
+    const { limitChatRequest } = await import("./rate-limiter");
+    vi.mocked(limitChatRequest).mockResolvedValueOnce({
+      success: false,
+      reset,
+    });
+
+    const { chat } = await import("#src/ai-chat/chat.ts");
+
+    const response = await POST(
+      chatRequest({
+        message: validMessage(),
+        trigger: "submit-message",
+      }),
+    );
+
+    expect(response.status).toBe(429);
+    const body: unknown = await response.json();
+    expect(body).toMatchObject({ error: "rate_limited" });
+    expect(response.headers.get("Retry-After")).not.toBeNull();
+    // The limiter must short-circuit before any Anthropic work — burning
+    // budget on calls we already decided to refuse defeats the purpose.
+    expect(vi.mocked(chat)).not.toHaveBeenCalled();
+  });
+
+  it("returns 502 chat_unavailable when the limiter throws (fail-closed)", async () => {
+    const { limitChatRequest } = await import("./rate-limiter");
+    vi.mocked(limitChatRequest).mockRejectedValueOnce(new Error("redis down"));
+
+    const { chat } = await import("#src/ai-chat/chat.ts");
+
+    const response = await POST(
+      chatRequest({
+        message: validMessage(),
+        trigger: "submit-message",
+      }),
+    );
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ error: "chat_unavailable" });
+    // Fail-closed must not let the request reach Anthropic.
+    expect(vi.mocked(chat)).not.toHaveBeenCalled();
+  });
+
+  it("calls the limiter with the resolved client IP from x-vercel-forwarded-for", async () => {
+    const { chat } = await import("#src/ai-chat/chat.ts");
+    vi.mocked(chat).mockResolvedValueOnce(mockStreamResult());
+    const { limitChatRequest } = await import("./rate-limiter");
+
+    const request = new NextRequest("http://localhost:3000/api/ai-chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // x-vercel-forwarded-for must beat the spoofable x-forwarded-for so
+        // a malicious client can't bypass the limiter by forging headers.
+        "x-vercel-forwarded-for": "203.0.113.42",
+        "x-forwarded-for": "1.2.3.4",
+      },
+      body: JSON.stringify({
+        message: validMessage(),
+        trigger: "submit-message",
+      }),
+    });
+
+    await POST(request);
+
+    expect(vi.mocked(limitChatRequest)).toHaveBeenCalledWith("203.0.113.42");
   });
 });
