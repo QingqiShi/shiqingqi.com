@@ -280,6 +280,7 @@ const styles = stylex.create({
     backgroundColor: color.accent,
     color: color.accentOn,
     borderBottomRightRadius: border.radius_1,
+    cornerBottomRightShape: "squircle",
   },
   assistantBubble: {
     marginRight: "auto",
@@ -294,6 +295,7 @@ const styles = stylex.create({
     },
     color: color.textMain,
     borderBottomLeftRadius: border.radius_1,
+    cornerBottomLeftShape: "squircle",
   },
   partBase: {
     margin: 0,
