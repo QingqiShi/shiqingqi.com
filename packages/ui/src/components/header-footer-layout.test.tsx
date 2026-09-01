@@ -23,14 +23,24 @@ function controlGroups() {
   return [...screen.getByRole("banner").children];
 }
 
+// The page's Blur plane, first inside the content region: every floating
+// control's blur is painted there rather than inside the group it belongs to.
+function blurPlane() {
+  const plane = screen
+    .getByRole("main")
+    .querySelector("[class*='blur-plane__styles.plane']");
+  if (!(plane instanceof HTMLElement)) {
+    throw new Error("the shell rendered no blur plane");
+  }
+  return plane;
+}
+
 // The blur radius lands in an inline CSS custom property (a StyleX dynamic
 // style), which jsdom preserves, so it is asserted through each layer's
-// `style` attribute. The layers are the only elements inside a group hidden
-// from assistive technology.
+// `style` attribute. The layers are the only elements on the plane hidden from
+// assistive technology — the wrapper around them is not.
 function blurLayers() {
-  const layers = controlGroups().flatMap((group) => [
-    ...group.querySelectorAll('[aria-hidden="true"]'),
-  ]);
+  const layers = [...blurPlane().querySelectorAll('[aria-hidden="true"]')];
   if (layers.length === 0) throw new Error("no control group blurs the page");
   return layers;
 }
@@ -165,6 +175,25 @@ describe("HeaderFooterLayout floating controls", () => {
       expect(layer.className).toContain("progressive-blur__styles.hidden");
       expect(layer.getAttribute("style") ?? "").toContain("blur(0px)");
     }
+  });
+
+  // The header floats at `header`, outside the content stacking context, so
+  // layers left inside it would paint over the page's own sticky chrome.
+  it("paints the control group blurs on the page's plane, not in the header", () => {
+    render(
+      <HeaderFooterLayout
+        headerStart={<span>Back</span>}
+        headerEnd={<span>Utilities</span>}
+      >
+        Body
+      </HeaderFooterLayout>,
+    );
+
+    scrollThePage(240);
+
+    expect(
+      screen.getByRole("banner").querySelector('[aria-hidden="true"]'),
+    ).toBeNull();
   });
 
   it("blurs around the header controls only — nothing floats over the footer", () => {

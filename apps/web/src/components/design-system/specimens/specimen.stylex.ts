@@ -77,14 +77,16 @@ export const specimenLayout = stylex.create({
 });
 
 /**
- * Chrome for the five specimens whose subject is a whole page and so cannot be
+ * Chrome for the six specimens whose subject is a whole page and so cannot be
  * rendered live inside a tile — Overlay (portals to a fixed, focus-trapping
  * layer), the two page shells (they own the viewport and the `<main>` landmark),
  * the composed movie-details example (a whole screen is illegible at plate
- * size), and Progressive blur (it paints nothing of its own, only what it does
- * to a page behind it). Each is drawn as a miniature page instead, from the
- * same tokens the real components use, so the diagram tracks the system's
- * surfaces and borders even though it is not the component itself.
+ * size), Progressive blur (it paints nothing of its own, only what it does to a
+ * page behind it), and Sticky controls (it holds at its offset only while a
+ * page scrolls under it, and a tile never scrolls). Each is drawn as a
+ * miniature page instead, from the same tokens the real components use, so the
+ * diagram tracks the system's surfaces and borders even though it is not the
+ * component itself.
  *
  * (Menu button is hand-composed too, but its subject is a control rather than a
  * page, so it stages its own popup instead of using this chrome.)

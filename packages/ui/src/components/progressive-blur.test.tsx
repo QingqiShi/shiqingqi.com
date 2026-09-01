@@ -1,12 +1,45 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { BlurPlane, BlurPlaneProvider } from "./blur-plane.tsx";
 import { buildBlurLayers } from "./build-blur-layers.ts";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
+
+// A shell keeping the page's Blur plane, which is how a floating control meets
+// one: the provider around everything, and the plane itself inside it. Left
+// out, the provider stands for a shell whose plane has not mounted yet.
+function renderUnderShell(children: ReactNode, hasPlane = true) {
+  return render(
+    <BlurPlaneProvider>
+      {hasPlane && <BlurPlane />}
+      {children}
+    </BlurPlaneProvider>,
+  );
+}
+
+function planeOf(container: HTMLElement) {
+  const plane = container.querySelector("[class*='blur-plane__styles.plane']");
+  if (!(plane instanceof HTMLElement)) {
+    throw new Error("the shell rendered no blur plane");
+  }
+  return plane;
+}
+
+function rootOf(container: HTMLElement) {
+  const root = container.querySelector(
+    "[class*='progressive-blur__styles.root']",
+  );
+  if (!(root instanceof HTMLElement)) {
+    throw new Error("ProgressiveBlur rendered nothing");
+  }
+  return root;
+}
+
+const floatingElement = <button type="button">Save changes</button>;
 
 // A 200×100 box with the floating element sitting at 50/40 to 150/80, so the
 // four available distances are all different: 50 inline-start, 50 inline-end,
@@ -38,27 +71,32 @@ function maskSvg(mask: string) {
 
 describe("buildBlurLayers", () => {
   // Bands of 10 inline-start, 10 inline-end, 8 block-start, 4 block-end, so
-  // the mean band is 10 across and 6 down — the rounding and the ramp.
-  it("rounds the strongest layer half a band out from the element", () => {
+  // the mean band is 10 across and 6 down — the rounding — and the ramp is
+  // half of that either way.
+  it("ends the strongest layer on the element's own edge", () => {
     const [, , , , strongest] = layersFor();
 
+    // No spread at all, so the rect is the element's rect and its ramp is
+    // centred on that edge: nothing outside the element holds full blur.
     expect(maskSvg(strongest.mask)).toBe(
       "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='100'>" +
         "<filter id='ramp' filterUnits='userSpaceOnUse' x='0' y='0' width='200' height='100'>" +
-        "<feGaussianBlur stdDeviation='3.03 1.82'/></filter>" +
-        "<rect x='45' y='36' width='110' height='46' rx='5' ry='3' filter='url(#ramp)'/>" +
+        "<feGaussianBlur stdDeviation='5 3'/></filter>" +
+        "<rect x='50' y='40' width='100' height='40' rx='0' ry='0' filter='url(#ramp)'/>" +
         "</svg>",
     );
   });
 
-  it("runs the weakest layer out to the full reach on every side", () => {
+  it("spreads the weakest layer a whole band's worth per layer out", () => {
     const [weakest] = layersFor();
 
+    // Four bands of spread — one per layer below it — so its ramp is centred a
+    // band inside the box's edge and its tail lands just inside the box.
     expect(maskSvg(weakest.mask)).toBe(
       "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='100'>" +
         "<filter id='ramp' filterUnits='userSpaceOnUse' x='0' y='0' width='200' height='100'>" +
-        "<feGaussianBlur stdDeviation='3.03 1.82'/></filter>" +
-        "<rect x='5' y='4' width='190' height='94' rx='45' ry='27' filter='url(#ramp)'/>" +
+        "<feGaussianBlur stdDeviation='5 3'/></filter>" +
+        "<rect x='10' y='8' width='180' height='88' rx='40' ry='24' filter='url(#ramp)'/>" +
         "</svg>",
     );
   });
@@ -117,9 +155,8 @@ function renderBlur(
 function renderSwappableBlur(
   props?: Omit<ComponentProps<typeof ProgressiveBlur>, "children">,
 ) {
-  const element = <button type="button">Save changes</button>;
   const { container, rerender } = render(
-    <ProgressiveBlur {...props}>{element}</ProgressiveBlur>,
+    <ProgressiveBlur {...props}>{floatingElement}</ProgressiveBlur>,
   );
   const root = container.firstElementChild;
   if (!(root instanceof HTMLElement)) {
@@ -130,7 +167,7 @@ function renderSwappableBlur(
     setElement: (isPresent: boolean) => {
       rerender(
         <ProgressiveBlur {...props}>
-          {isPresent ? element : null}
+          {isPresent ? floatingElement : null}
         </ProgressiveBlur>,
       );
     },
@@ -250,6 +287,17 @@ describe("ProgressiveBlur", () => {
     for (const layer of layerElements(root)) {
       expect(layer.className).toContain("styles.corners");
     }
+  });
+
+  // The box-filling mode inherits the box's corners, so its layers have to
+  // stay inside the box the corners come from.
+  it("ignores the page's plane, because the layers inherit the box's corners", () => {
+    const { container } = renderUnderShell(
+      <ProgressiveBlur>{floatingElement}</ProgressiveBlur>,
+    );
+
+    expect(layerElements(rootOf(container))).toHaveLength(5);
+    expect(planeOf(container).children).toHaveLength(0);
   });
 });
 
@@ -375,11 +423,42 @@ describe("ProgressiveBlur with reach", () => {
     }
   });
 
+  // A popup anchored inside the floating element — a sheet spanning the bar the
+  // element sits in — resolves against the nearest positioned ancestor, so the
+  // root is positioned only while the layers under it need a stacking context.
+  it("positions the root only while its layers are beside the element", () => {
+    const beside = renderBlur({ reach: 40 });
+    expect(beside.className).toContain("styles.reachRootBeside");
+
+    const { container } = renderUnderShell(
+      <ProgressiveBlur reach={40}>{floatingElement}</ProgressiveBlur>,
+    );
+    expect(rootOf(container).className).toContain("styles.reachRoot");
+    expect(rootOf(container).className).not.toContain("styles.reachRootBeside");
+  });
+
   it("hides the box until the element has been measured", () => {
     const root = renderBlur({ reach: 40 });
 
     expect(boxOf(root).className).toContain("styles.unplaced");
     expect(boxStyle(boxOf(root))).toStrictEqual(["", ""]);
+  });
+
+  // A control hidden at this breakpoint measures as a zero rect at the
+  // viewport origin, which would drag the box up to the corner of the page.
+  it("leaves a child with no box out of the measurement", () => {
+    layOut(rect(100, 50, 200, 100));
+    const { container } = render(
+      <ProgressiveBlur reach={40}>
+        {floatingElement}
+        <span hidden>Ask</span>
+      </ProgressiveBlur>,
+    );
+
+    const box = boxOf(rootOf(container));
+
+    expect(boxStyle(box)).toStrictEqual(["10px", "60px"]);
+    expect(boxSize(box)).toContain("180px");
   });
 
   it("places the box `reach` around the element, against the box's containing block", () => {
@@ -498,5 +577,67 @@ describe("ProgressiveBlur with reach", () => {
     }
     expect(boxStyle(boxOf(root))).toStrictEqual(["-20px", "60px"]);
     expect(boxSize(boxOf(root))).toContain("240px");
+  });
+
+  // A positioned box at `z-index: auto` paints after the in-flow content
+  // beside it, so a wrapper left there would blur the very element the blur
+  // belongs to. The root takes a stacking context of its own and the wrapper
+  // sits one step under it — a stacking context is not a backdrop root, so the
+  // layers still read the page through it. jsdom lays nothing out, so the
+  // classes are the handle.
+  it("paints the fixed wrapper under the root's own content", () => {
+    const root = renderBlur({ reach: 40 });
+
+    expect(root.className).toContain("styles.reachRoot");
+    expect(boxOf(root).className).toContain("styles.reachLayers");
+  });
+
+  it("keeps the layers beside the element outside a shell that keeps a plane", () => {
+    layOut(rect(100, 50, 200, 100));
+    const root = renderBlur({ reach: 40 });
+
+    expect(layerElements(root)).toHaveLength(5);
+  });
+
+  // A popup covers the chrome around it, so its blur has to cover that chrome
+  // too rather than paint on the plane beneath it.
+  it("keeps the layers beside the element when they are off the plane", () => {
+    layOut(rect(100, 50, 200, 100));
+    const { container } = renderUnderShell(
+      <ProgressiveBlur reach={40} isOnPlane={false}>
+        {floatingElement}
+      </ProgressiveBlur>,
+    );
+
+    expect(layerElements(rootOf(container))).toHaveLength(5);
+    expect(planeOf(container).children).toHaveLength(0);
+  });
+
+  // Every floating control's blur is painted on the one plane, under all of
+  // them, so one control's blur never lands on another control. The wrapper
+  // mounts straight onto the plane, so its own ref is what places it.
+  it("paints the layers on the page's plane, placed where the element is", () => {
+    layOut(rect(100, 50, 200, 100), rect(20, 10, 20, 10));
+    const { container } = renderUnderShell(
+      <ProgressiveBlur reach={40}>{floatingElement}</ProgressiveBlur>,
+    );
+    const plane = planeOf(container);
+
+    expect(layerElements(rootOf(container))).toHaveLength(0);
+    expect(layerElements(plane)).toHaveLength(5);
+    expect(boxStyle(boxOf(plane))).toStrictEqual(["0px", "40px"]);
+  });
+
+  // Nothing is visible before the box is placed and the plane lands in the
+  // same commit, so a shell's blur waits for it rather than flashing beside
+  // the element on the way past.
+  it("renders no layers while the page's plane has not mounted", () => {
+    layOut(rect(100, 50, 200, 100));
+    const { container } = renderUnderShell(
+      <ProgressiveBlur reach={40}>{floatingElement}</ProgressiveBlur>,
+      false,
+    );
+
+    expect(layerElements(rootOf(container))).toHaveLength(0);
   });
 });

@@ -377,10 +377,14 @@ export function MenuButton({
           {/* The page blurs around the popup while it is open. The blur wraps
               the frame rather than the container, so the popup's box, not the
               blur's, is what the corner insets anchor. */}
+          {/* Beside the popup rather than on the page's Blur plane: a popup
+              covers the chrome around it, so its blur has to paint above that
+              chrome, not on the plane underneath it. */}
           <ProgressiveBlur
             reach={BLUR_REACH_PX}
             radius={BLUR_RADIUS_PX}
             isShown={isMenuShown}
+            isOnPlane={false}
           >
             {/* The blur's slot hands pointer events back on, so the frame
                 switches them off again while closed. */}

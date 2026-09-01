@@ -31,9 +31,11 @@ export function blurLayerSteps(radius: number, isShown: boolean) {
       : 0;
     return {
       filter: `blur(${String(layerRadius)}px)`,
-      // `holdBands`: how far along the reach, in bands, this layer is already
-      // fully opaque. `goneBands`: where it has dropped out entirely. Each
-      // layer holds one band further out than the one before it.
+      // `holdBands`: where this layer stops being fully opaque, in bands
+      // along the reach — a gradient mask holds solid to there, and a rect
+      // mask centres its ramp on it, half opaque. `goneBands`: where the
+      // layer has dropped out entirely. Each layer sits one band further out
+      // than the one before it.
       holdBands: LAYER_COUNT - 1 - index,
       goneBands: LAYER_COUNT - index,
     };

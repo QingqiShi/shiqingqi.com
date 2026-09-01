@@ -104,6 +104,7 @@
     "./components/slider": "./src/components/slider.tsx",
     "./components/slider.stylex": "./src/components/slider.stylex.ts",
     "./components/spinner": "./src/components/spinner.tsx",
+    "./components/sticky-controls": "./src/components/sticky-controls.tsx",
     "./components/switch": "./src/components/switch.tsx",
     "./components/switch.stylex": "./src/components/switch.stylex.ts",
     "./components/table": "./src/components/table.tsx",

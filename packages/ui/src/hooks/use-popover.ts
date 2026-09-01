@@ -15,6 +15,7 @@ import {
   type PopoverPlacement,
 } from "../utils/compute-popover-position.ts";
 import { getTabbableElements } from "../utils/get-tabbable-elements.ts";
+import { observeViewport } from "../utils/observe-viewport.ts";
 import { useControlled } from "./use-controlled.ts";
 
 export type { PopoverPlacement };
@@ -141,40 +142,22 @@ export function usePopover({
       content.style.left = `${String(left)}px`;
     };
 
-    // Momentum scrolling delivers events faster than the compositor paints, so
-    // repositioning per event would force a document-wide layout each time.
-    // Scroll fires before the frame's rendering step, so this still lands in
-    // the same paint.
-    let frame = 0;
-    const schedule = () => {
-      frame ||= requestAnimationFrame(() => {
-        frame = 0;
-        position();
-      });
-    };
-
     position();
-    // Capture phase, so a scroll in any nested container repositions it too.
-    window.addEventListener("scroll", schedule, {
-      passive: true,
-      capture: true,
-    });
-    window.addEventListener("resize", schedule);
+    const unobserveViewport = observeViewport(position);
     // A popup measured once at open keeps that placement even if async content
     // or a validation message later grows it past the edge it was flipped to
-    // fit. Absent in jsdom, hence the guard.
+    // fit. A ResizeObserver already reports once per frame, after layout, so it
+    // repositions the popup itself. Absent in jsdom, hence the guard.
     const observer =
       typeof ResizeObserver === "undefined"
         ? null
-        : new ResizeObserver(schedule);
+        : new ResizeObserver(position);
     observer?.observe(trigger);
     observer?.observe(content);
 
     return () => {
-      cancelAnimationFrame(frame);
       observer?.disconnect();
-      window.removeEventListener("scroll", schedule, { capture: true });
-      window.removeEventListener("resize", schedule);
+      unobserveViewport();
     };
   }, [open, placement, offset]);
 

@@ -298,6 +298,13 @@ export function SidebarLayout({
 
 const styles = stylex.create({
   root: {
+    // The strip the mobile pill bar occupies, published so page chrome that
+    // sticks parks under it. Nothing floats over the page at `md`+, where the
+    // rail sits beside the content instead.
+    "--header-controls-clearance": {
+      default: `calc(${space._10} + env(safe-area-inset-top))`,
+      [breakpoints.md]: "0px",
+    },
     display: "grid",
     alignItems: { default: "start", [breakpoints.md]: "stretch" },
     gap: { default: space._4, [breakpoints.md]: 0 },

@@ -54,9 +54,10 @@ const styles = stylex.create({
     // to hold it.
     display: { default: "flex", [breakpoints.lg]: "none" },
     willChange: "transform, opacity",
-    // Out of flow on the mobile bar, which has no room to reserve for it; in
-    // flow from `md`, where it sits in the desktop toolbar's trailing slot and
-    // has to claim width or it would be painted over the filters beside it.
+    // Out of flow on the mobile bar, which has no room to reserve for it,
+    // pinned at the bar's inline-end gutter. In flow from `md`, where it sits
+    // in the desktop toolbar's trailing group and has to claim width or it
+    // would be painted over the filters beside it.
     position: { default: "absolute", [breakpoints.md]: "static" },
     insetBlockStart: 0,
     insetBlockEnd: 0,

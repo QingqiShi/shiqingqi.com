@@ -161,6 +161,7 @@ export function LayoutShowcase() {
     { name: "background", value: "-100", z: styles.lzBackground },
     { name: "base", value: "0", z: styles.lzBase },
     { name: "content", value: "100", z: styles.lzContent },
+    { name: "blur", value: "150", z: styles.lzBlur },
     { name: "raised", value: "200", z: styles.lzRaised },
     { name: "header", value: "300", z: styles.lzHeader },
     { name: "overlay", value: "400", z: styles.lzOverlay },
@@ -231,8 +232,8 @@ export function LayoutShowcase() {
       <Showcase label={t({ en: "Layers", zh: "层级" })}>
         <ShowcaseHelper>
           {t({
-            en: "A named z-index scale, so stacking order is a token, not a magic number. Each plane sits above the one below — a menu or sticky bar raised over scrolling content, headers over that, an open overlay over the app chrome, toasts over everything.",
-            zh: "一套具名的 z-index 阶梯，让层叠顺序成为令牌而非魔法数字。每个平面都压在下一个之上——菜单或吸顶栏抬升于滚动内容之上、页头再压过它们、打开的覆盖层盖过应用框架、提示条盖过一切。",
+            en: "A named z-index scale, so stacking order is a token, not a magic number. Each plane sits above the one below — the page's progressive blurs under every control, a menu or sticky bar raised over scrolling content, headers over that, an open overlay over the app chrome, toasts over everything.",
+            zh: "一套具名的 z-index 阶梯，让层叠顺序成为令牌而非魔法数字。每个平面都压在下一个之上——页面的渐进虚化位于全部控件之下、菜单或吸顶栏抬升于滚动内容之上、页头再压过它们、打开的覆盖层盖过应用框架、提示条盖过一切。",
           })}
         </ShowcaseHelper>
         <div css={[scrollX.base, styles.layerScroll]}>
@@ -544,6 +545,7 @@ const styles = stylex.create({
   lzBackground: { zIndex: layer.background, marginBlockStart: 0 },
   lzBase: { zIndex: layer.base },
   lzContent: { zIndex: layer.content },
+  lzBlur: { zIndex: layer.blur },
   lzRaised: { zIndex: layer.raised },
   lzHeader: { zIndex: layer.header },
   lzOverlay: { zIndex: layer.overlay },

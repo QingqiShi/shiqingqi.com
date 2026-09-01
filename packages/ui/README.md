@@ -396,6 +396,7 @@ components.
 | `@tuja/ui/components/skeleton`                | Loading skeleton.                                                                                                                                       |
 | `@tuja/ui/components/skeleton.stylex`         | Skeleton style tokens.                                                                                                                                  |
 | `@tuja/ui/components/spinner`                 | Indeterminate loading spinner (reduced-motion aware).                                                                                                   |
+| `@tuja/ui/components/sticky-controls`         | Sticky row of page chrome, with the page blurred around each group of its controls while it holds.                                                      |
 | `@tuja/ui/components/switch`                  | Toggle switch.                                                                                                                                          |
 | `@tuja/ui/components/switch.stylex`           | Switch style tokens.                                                                                                                                    |
 | `@tuja/ui/components/text`                    | Text/paragraph component (four type-scale steps, four foreground roles, four weights, `wrap`, `numeric`).                                               |

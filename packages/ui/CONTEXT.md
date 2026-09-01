@@ -49,9 +49,13 @@ A broad gradient that gives a surface some volume — one tone drifting across i
 _Avoid_: glow, tint, gradient (as the name of this — the CSS function keeps its name)
 
 **Progressive blur**:
-The page blurred around whatever floats, in place of dimming it — strongest nearest the element, and easing back to sharp further out. The blur belongs to the page rather than to the element, and the element keeps a crisp edge. The radius is set per element, within a cap. Also used at the edge of a scroll region, where it is a Scroll mask.
+The page blurred around whatever floats, in place of dimming it — the ramp centred on the element's edge, like a shadow with no spread, so only the falloff shows and the page is sharp again a little way out. The blur belongs to the page rather than to the element, and the element keeps a crisp edge. The radius is set per element, within a cap. Also used at the edge of a scroll region, where it is a Scroll mask.
 Every fixed box the blur places stays narrow, because Safari on iOS samples the fixed element under the top-centre of the viewport: one at least nine tenths of the viewport wide makes it paint a flat colour into the status bar in place of its own scroll-edge blur, and a box narrower than that is walked past. So a page's header floats a control group per end of the measure rather than one bar across the top, and a blur's own box carries its size in a custom property the layers read instead of taking it.
 _Avoid_: halo, glow, elevation, shadow, disturbance
+
+**Blur plane**:
+The one plane a page shell paints its floating controls' Progressive blurs on — under all of them and above the page — so no control's blur ever lands on another control. The header's control groups and the page's sticky chrome both blur there. A popup is the exception: it covers the chrome around it, so its blur stays beside it, over that chrome rather than under it.
+_Avoid_: blur layer, backdrop layer
 
 **Scroll mask**:
 The progressive blur at the edge of a scroll region, marking content on its way out of view.
@@ -151,6 +155,7 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | pill shape       | 胶囊形   | 药丸, 标签                                            |
 | Wash             | 淡彩     | 渐变 (that is a gradient), 光晕                       |
 | Progressive blur | 渐进虚化 | 光晕, 光环 — both name light, and nothing here is lit |
+| Blur plane       | 虚化平面 | 模糊图层 (that is a blur layer)                       |
 | Scroll mask      | 滚动虚化 | 遮罩 (that is a mask in general)                      |
 | Squircle         | 超椭圆角 | 圆角矩形 (that is a rounded rectangle)                |
 
