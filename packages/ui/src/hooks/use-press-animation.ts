@@ -9,7 +9,11 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
-import { PRESS_ANIMATION_DURATION } from "../components/button-shared.stylex.ts";
+import { duration } from "../primitives/motion.stylex.ts";
+
+// Parsed off the same token so it cannot drift from the `transform` leg of
+// `pressTransition` in `button-shared.stylex.ts`.
+const PRESS_ANIMATION_DURATION = Number.parseInt(duration._150, 10);
 
 const MAX_NUDGE_OFFSET = 4;
 

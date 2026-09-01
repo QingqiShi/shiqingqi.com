@@ -10,7 +10,7 @@ import type { Ref } from "react";
  * attaching a no-op callback — attaching any ref is illegal when the component
  * renders in a Server Component, and `ref={undefined}` is inert there.
  *
- * Internal helper — not part of the package's public API.
+ * @internal
  */
 export function mergeRefs<T>(
   ...refs: ReadonlyArray<Ref<T> | undefined>

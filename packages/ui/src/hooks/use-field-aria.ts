@@ -25,6 +25,8 @@ interface UseFieldAriaOptions {
  *
  * Empty-string `description`/`error` are treated as absent so a control never
  * points `aria-describedby` at an empty node.
+ *
+ * @internal
  */
 export function useFieldAria({
   id,

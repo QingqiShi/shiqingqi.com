@@ -1,0 +1,17 @@
+{
+  "name": "@tuja/eslint-plugin-design-system",
+  "version": "0.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "eslint": "catalog:"
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
+  }
+}

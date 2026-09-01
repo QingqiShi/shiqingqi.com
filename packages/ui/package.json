@@ -114,7 +114,7 @@
   },
   "scripts": {
     "build:tsc": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . && publint --strict",
     "test": "vitest run"
   },
   "dependencies": {
@@ -137,12 +137,14 @@
     "@testing-library/react": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@tuja/babel-plugin-stylex-breakpoints": "workspace:*",
+    "@tuja/stylex-testing": "workspace:*",
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "jsdom": "catalog:",
+    "publint": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",

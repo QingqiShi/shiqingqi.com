@@ -3,6 +3,8 @@ import { blurLayerSteps, LAYER_COUNT } from "./blur-layer-steps.ts";
 /**
  * The blur's own box and the floating element's rect within it, in px,
  * measured relative to the box's top-left corner.
+ *
+ * @internal
  */
 export interface BlurGeometry {
   width: number;
@@ -98,6 +100,8 @@ function layerMask(
  *
  * Unmeasured, every layer masks to `none` — a uniform blur across the whole
  * box, which is what the server renders and what the first paint shows.
+ *
+ * @internal
  */
 export function buildBlurLayers({
   geometry,

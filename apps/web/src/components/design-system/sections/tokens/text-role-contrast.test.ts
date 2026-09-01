@@ -1,6 +1,9 @@
-import { readFileSync } from "node:fs";
+import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
+import { SYSTEM_PALETTE_TONES, systemPalette } from "@tuja/ui/palette-table";
+import { color } from "@tuja/ui/tokens.stylex";
 import { describe, expect, it } from "vitest";
 import {
   BINDING_BACKGROUND,
@@ -11,33 +14,26 @@ import {
   TEXT_ROLE_TONES,
 } from "./text-role-contrast.ts";
 
-// Read as source: the mapping lives in module-private `light` / `dark` objects
-// that a `.stylex.ts` file may not export.
-const here = path.dirname(fileURLToPath(import.meta.url));
-const tokensSource = readFileSync(
-  path.resolve(here, "../../../../../../../packages/ui/src/tokens.stylex.ts"),
-  "utf8",
-);
+const require = createRequire(import.meta.url);
+const tokensFile = require.resolve("@tuja/ui/tokens.stylex");
+const hueDir = path.join(path.dirname(tokensFile), "_generated/palette/hues");
+const css = compileStylexCss([
+  tokensFile,
+  ...fs
+    .readdirSync(hueDir)
+    .filter((file) => file.endsWith(".stylex.ts"))
+    .map((file) => path.join(hueDir, file)),
+]);
 
-/** The body of `const light = { … }` or its `dark` equivalent. */
-function themeBlock(theme: "light" | "dark"): string {
-  // `dark` carries a type annotation between the name and the brace.
-  const pattern = new RegExp(
-    `^const ${theme}[^=]*= \\{$([\\s\\S]*?)^\\};$`,
-    "m",
+const gray = systemPalette.find((hue) => hue.name === "Gray");
+
+/** The gray tone a compiled colour sits at, e.g. `"_13"`. */
+function grayTone(hex: string): string {
+  const tone = SYSTEM_PALETTE_TONES.find(
+    (step) => gray?.tones[step].bg === hex,
   );
-  const match = pattern.exec(tokensSource);
-  expect(
-    match,
-    `could not find the '${theme}' token block in tokens.stylex.ts — the drift check below cannot run`,
-  ).not.toBeNull();
-  return match?.[1] ?? "";
+  return tone === undefined ? hex : `_${String(tone)}`;
 }
-
-const THEME_BLOCKS = {
-  light: themeBlock("light"),
-  dark: themeBlock("dark"),
-};
 
 /**
  * Assertions on the figures cannot catch a retoned role: they would recompute from
@@ -47,14 +43,15 @@ describe("text role tone mapping matches tokens.stylex.ts", () => {
   it.each([...TEXT_ROLE_TONES])(
     "$role resolves to the tones $light.text / $dark.text",
     (role) => {
+      const value = readCustomProperty(css, color[role.role]);
       for (const theme of ["light", "dark"] as const) {
         expect(
-          THEME_BLOCKS[theme],
+          grayTone(value[theme]),
           `tokens.stylex.ts no longer maps ${theme} '${role.role}' to gray.${role[theme].text}. ` +
             `Update TEXT_ROLE_TONES in text-role-contrast.ts to the new tone, then re-read the ` +
             `Contrast copy in accessibility-showcase.tsx — the prose describes where these ratios ` +
             `sit relative to the WCAG floors, and moving a tone can make it false.`,
-        ).toContain(`${role.role}: gray.${role[theme].text},`);
+        ).toBe(role[theme].text);
       }
     },
   );
@@ -68,11 +65,11 @@ describe("text role tone mapping matches tokens.stylex.ts", () => {
       const [firstRole] = TEXT_ROLE_TONES;
       const tone = firstRole[theme].background;
       expect(
-        THEME_BLOCKS[theme],
+        grayTone(readCustomProperty(css, color[background])[theme]),
         `tokens.stylex.ts no longer maps ${theme} '${background}' to gray.${tone}. ` +
           `The page labels each figure with this background by name, so update both ` +
           `TEXT_ROLE_TONES and the labels in accessibility-showcase.tsx.`,
-      ).toContain(`${background}: gray.${tone},`);
+      ).toBe(tone);
     },
   );
 

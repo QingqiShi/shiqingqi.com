@@ -29,11 +29,8 @@ export const motionTokens = stylex.defineVars({
   playState: "running",
 });
 
-// `defineConsts`, not a plain object: StyleX resolves a member reference across
-// module boundaries only for its own constructs, so a plain object compiles to
-// nothing at a foreign call site — silently, taking the whole declaration with
-// it. `stylex-module-exports.test.ts` guards that. Not `defineVars` either:
-// nothing themes these at runtime, so they inline and emit no CSS variables.
+// `defineConsts`, not a plain object: `design-system/only-stylex-exports` gives
+// the reason. Not `defineVars` either: nothing themes these at runtime.
 //
 // The scale covers every duration the package actually uses — the short end for
 // transitions, `_800` and up for the looping animations in `animate` below and

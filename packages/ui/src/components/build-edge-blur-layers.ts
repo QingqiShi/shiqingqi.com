@@ -24,6 +24,8 @@ function bandStop(bands: number) {
  * The stops are percentages because the caller sizes the band to exactly how
  * far the blur reaches: the ramp is always the full depth of the element it
  * masks, whatever CSS length that works out to.
+ *
+ * @internal
  */
 export function buildEdgeBlurLayers({
   direction,

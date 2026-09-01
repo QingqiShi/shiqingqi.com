@@ -15,7 +15,7 @@ interface ObserveChildrenOptions {
  * Both observers are absent in some environments (jsdom), hence the guards:
  * there nothing is ever measured.
  *
- * Internal helper — not part of the package's public API.
+ * @internal
  */
 export function observeChildren(
   container: Element,

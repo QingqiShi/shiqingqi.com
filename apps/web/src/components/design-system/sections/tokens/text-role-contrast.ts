@@ -28,7 +28,7 @@ export type GrayTone = keyof typeof gray;
 
 /**
  * Per theme, each text tone paired with the lowest-contrast background it is used
- * on. Named rather than dereferenced so the drift test can match the source.
+ * on. Named rather than dereferenced so the drift test can name the tone it wants.
  */
 export const TEXT_ROLE_TONES = [
   {
