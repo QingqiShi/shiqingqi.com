@@ -26,12 +26,26 @@ const packageRoot = path.resolve(
   "..",
 );
 const srcRoot = path.join(packageRoot, "src");
+// The app consumes the same radius tokens, and the tokens carry the
+// no-corner-shape fallback, so an unpaired radius there drifts by browser.
+const webRoot = path.resolve(packageRoot, "../../apps/web/src");
+const scanRoots = [srcRoot, webRoot];
 
-// The one file allowed to declare a radius without a local `cornerShape`
-// pairing on every entry, individually — it pairs every entry itself and is
-// the canonical definition site the rest of the package composes instead of
-// repeating this pairing.
-const EXEMPT_FILE = "primitives/corner.stylex.ts";
+const exemptFiles: ReadonlySet<string> = new Set([
+  // The one file allowed to declare a radius without a local `cornerShape`
+  // pairing on every entry, individually — it pairs every entry itself and is
+  // the canonical definition site the rest of the package composes instead
+  // of repeating this pairing.
+  path.join(srcRoot, "primitives/corner.stylex.ts"),
+  // Satori renders the Open Graph image and has no `corner-shape`.
+  path.join(
+    webRoot,
+    "app/[locale]/(with-header)/pixel-creature-creator/opengraph-image.tsx",
+  ),
+  // Plain React inline styles, and React's `CSSProperties` has no
+  // `cornerShape`; the one radius there is a pill.
+  path.join(webRoot, "app/global-error.tsx"),
+]);
 
 // Each radius property with the shape properties that pair with it: the
 // shorthand, or the longhand for that one corner.
@@ -50,16 +64,16 @@ const SHAPE_PROPERTY_SET: ReadonlySet<string> = new Set(
   [...RADIUS_PAIRINGS.values()].flat(),
 );
 
-/** Recursively list `.ts`/`.tsx` files as package-relative posix paths. */
-function listSourceFiles(dirAbs: string): string[] {
+/** Recursively list `.ts`/`.tsx` files as root-relative posix paths. */
+function listSourceFiles(rootAbs: string, dirAbs = rootAbs): string[] {
   const files: string[] = [];
   for (const entry of fs.readdirSync(dirAbs, { withFileTypes: true })) {
     if (entry.name === "_generated") continue;
     const fullPath = path.join(dirAbs, entry.name);
     if (entry.isDirectory()) {
-      files.push(...listSourceFiles(fullPath));
+      files.push(...listSourceFiles(rootAbs, fullPath));
     } else if (entry.isFile() && /\.(ts|tsx)$/.test(entry.name)) {
-      files.push(path.relative(srcRoot, fullPath).split(path.sep).join("/"));
+      files.push(path.relative(rootAbs, fullPath).split(path.sep).join("/"));
     }
   }
   return files;
@@ -71,6 +85,13 @@ function isTestFile(file: string): boolean {
 
 function isIdentifierChar(ch: string | undefined): boolean {
   return ch !== undefined && /[A-Za-z0-9_$]/.test(ch);
+}
+
+/** A zero radius has no corner to shape, so it needs no pairing. */
+function isZeroValue(source: string, from: number): boolean {
+  let i = from;
+  while (i < source.length && /\s/.test(source[i] ?? "")) i++;
+  return source[i] === "0" && /[,}\s]/.test(source[i + 1] ?? "");
 }
 
 interface Frame {
@@ -170,7 +191,8 @@ function scanForRadiusOccurrences(source: string): RadiusOccurrence[] {
       } else if (
         RADIUS_PAIRINGS.has(word) &&
         followedByColon &&
-        !precededByDot
+        !precededByDot &&
+        !isZeroValue(source, k + 1)
       ) {
         const frame = frameStack.at(-1);
         if (frame) occurrences.push({ line, property: word, frame });
@@ -192,9 +214,13 @@ function scanForRadiusOccurrences(source: string): RadiusOccurrence[] {
 }
 
 describe("corner-shape pairing", () => {
-  const files = listSourceFiles(srcRoot)
-    .filter((file) => !isTestFile(file))
-    .sort();
+  const files = scanRoots
+    .flatMap((root) =>
+      listSourceFiles(root)
+        .filter((file) => !isTestFile(file))
+        .map((file) => ({ root, file })),
+    )
+    .sort((a, b) => a.file.localeCompare(b.file));
 
   it("finds the source files to check", () => {
     // Guards against the walk silently matching nothing and the suite
@@ -205,9 +231,9 @@ describe("corner-shape pairing", () => {
   it("every radius property outside the corner primitive pairs its corner shape in the same object literal", () => {
     const violations: string[] = [];
 
-    for (const file of files) {
-      if (file === EXEMPT_FILE) continue;
-      const source = fs.readFileSync(path.join(srcRoot, file), "utf8");
+    for (const { root, file } of files) {
+      if (exemptFiles.has(path.join(root, file))) continue;
+      const source = fs.readFileSync(path.join(root, file), "utf8");
       for (const occurrence of scanForRadiusOccurrences(source)) {
         if (occurrence.frame.isDefineVarsArg) continue;
         const pairings = RADIUS_PAIRINGS.get(occurrence.property) ?? [];
@@ -217,7 +243,7 @@ describe("corner-shape pairing", () => {
           continue;
         }
         violations.push(
-          `${file}:${String(occurrence.line)} — ${occurrence.property} has none of ${pairings.join(", ")} in its enclosing object literal`,
+          `${path.relative(packageRoot, path.join(root, file))}:${String(occurrence.line)} — ${occurrence.property} has none of ${pairings.join(", ")} in its enclosing object literal`,
         );
       }
     }

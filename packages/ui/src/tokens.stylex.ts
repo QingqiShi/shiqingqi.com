@@ -244,8 +244,11 @@ const dark: { [key in keyof typeof light]: string } = {
 // it — consume `color` below.
 export const themeSource = { light, dark };
 
+const NO_CORNER_SHAPE = "@supports not (corner-shape: squircle)";
+
 export const constants = stylex.defineConsts({
   DARK: "@media (prefers-color-scheme: dark)",
+  NO_CORNER_SHAPE,
 });
 
 export const layout = stylex.defineConsts({
@@ -477,11 +480,13 @@ export const border = stylex.defineVars({
   size_4: "10px",
   size_5: "25px",
 
-  radius_1: ".3rem",
-  radius_2: ".5rem",
-  radius_3: "1rem",
-  radius_4: "2rem",
-  radius_5: "3rem",
+  // A browser without `corner-shape` draws a circular arc, which cuts about
+  // three times the corner area of a squircle. The .6 factor makes them equal.
+  radius_1: { default: ".3rem", [NO_CORNER_SHAPE]: "calc(.3rem * .6)" },
+  radius_2: { default: ".5rem", [NO_CORNER_SHAPE]: "calc(.5rem * .6)" },
+  radius_3: { default: "1rem", [NO_CORNER_SHAPE]: "calc(1rem * .6)" },
+  radius_4: { default: "2rem", [NO_CORNER_SHAPE]: "calc(2rem * .6)" },
+  radius_5: { default: "3rem", [NO_CORNER_SHAPE]: "calc(3rem * .6)" },
 
   radius_round: "1e5px",
 });

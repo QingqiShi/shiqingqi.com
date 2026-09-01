@@ -39,7 +39,7 @@ _Avoid_: variant (for this sense), tone (for this sense), semantic colour, statu
 ### Shape
 
 **Squircle**:
-The superellipse curve every fixed-radius corner takes. The `corner` primitive pairs it with the radius, so the shape ships inside the styles that round a corner rather than as a global rule a consumer must add. Radius tokens size the corner; the squircle is its shape. Pills and circles are the exception: clamped to the full-round radius, a superellipse cap reads as neither, so they keep circular caps.
+The superellipse curve every fixed-radius corner takes. The `corner` primitive pairs it with the radius, so the shape ships inside the styles that round a corner rather than as a global rule a consumer must add. Radius tokens size the corner; the squircle is its shape. A pill or a circle is round by identity, so it keeps circular caps. A browser without `corner-shape` draws a circular arc at 0.6 of the radius, which the tokens carry as their fallback value, so the corner reads the same there.
 _Avoid_: rounded rectangle, continuous corner
 
 ### Wash and blur

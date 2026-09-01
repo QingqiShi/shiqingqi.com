@@ -89,6 +89,7 @@ const styles = stylex.create({
   },
   zeroButton: {
     borderRadius: "50cqh",
+    cornerShape: "round",
     width: "100%",
     height: "100%",
     aspectRatio: null,

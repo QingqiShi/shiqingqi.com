@@ -9,7 +9,8 @@ Terms are defined in `packages/ui/CONTEXT.md`.
 - **A surface separates itself with a border, a background colour, or both.** Use the least that does the job. A card holding content of its own takes both; the selected row in a menu only has to stand out from its siblings, so a background alone does it, and a border there would be noise.
 - **A border stays quiet.** Thin, and close in colour to what it borders — enough to find the edge, never enough to draw the eye. A border you notice before the content is too heavy.
 - **Nothing casts a shadow.** There is no light above the page, so nothing is separated by one.
-- **Every fixed-radius corner is a squircle.** The corner curve is a superellipse rather than a circular arc: it leaves the edge gradually, with no tangent point where flat turns to curved. The full-round radius is the exception: clamped into a pill or a circle, a superellipse cap reads as neither, so pills and circles keep circular caps. The shape is fixed — radius is a brand dial, shape is not. A browser without `corner-shape` falls back to circular corners.
+- **Every fixed-radius corner is a squircle.** The corner curve is a superellipse rather than a circular arc: it leaves the edge gradually, with no tangent point where flat turns to curved. At half a control's height the two corners of a side meet and the control is a rounded rectangle with the largest radius it can take; that is a Button's default. A pill or a circle — a Chip, a Switch, a Slider — is round by identity rather than by a large radius, so it keeps circular caps. The shape is fixed — radius is a brand dial, shape is not.
+- **A browser without `corner-shape` draws the corner as a circular arc at 0.6 of the radius.** At the same radius a circular arc cuts about three times the corner area of a squircle, so it reads as a larger, rounder corner, and at half a control's height it turns a Button into a pill. The radius tokens carry the 0.6 fallback themselves, so every corner reads the same in either browser and a Button falls back to a rounded rectangle rather than a pill. Pills and circles do not change.
 - **A radius inside a radius is reduced by the inset between them:** `inner = outer − inset`. This applies to a surface nested at another surface's corner. A button or a badge keeps its own full radius.
 - **A scroll region uses a progressive blur at its edge.** Content on its way out of view blurs rather than stopping at a line, so the region reads as continuing. That is a Scroll mask, and it never appears where nothing scrolls.
 
@@ -73,7 +74,7 @@ A brand may configure hue, typeface, radius, density, spring, translucency, bord
 
 Give a brand a clamped range rather than a raw Token, because three of these stop working as dials at the ends:
 
-- **Radius** stops at half a control's height. Past that it is a pill, which is a different look rather than more of the same one.
+- **Radius** stops at half a control's height, where the corners of a side meet and a larger value changes nothing.
 - **Density** stops where the gap falls below about 4px. Below that the padding no longer reads as larger than the gap.
 - **Border colour** is clamped at both ends. Too close to what it borders and there is no edge at all; far enough to notice and it reads as a heavy line.
 

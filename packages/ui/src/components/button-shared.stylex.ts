@@ -5,7 +5,7 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { color, controlSize } from "../tokens.stylex.ts";
+import { color, constants, controlSize } from "../tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
@@ -29,7 +29,12 @@ export const sharedStyles = stylex.create({
     gap: controlSize._2,
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
-    borderRadius: buttonTokens.borderRadius,
+    // A squircle at the full-round radius closes at half the height. The
+    // circular fallback takes .6 of that, so the button stays a rounded box.
+    borderRadius: {
+      default: buttonTokens.borderRadius,
+      [constants.NO_CORNER_SHAPE]: `min(${buttonTokens.borderRadius}, calc(${buttonTokens.height} * .3))`,
+    },
     cornerShape: "squircle",
     boxShadow: buttonTokens.boxShadow,
     transition: {

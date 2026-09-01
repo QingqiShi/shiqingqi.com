@@ -130,6 +130,7 @@ const styles = stylex.create({
     },
     color: color.accentOn,
     borderRadius: "999px",
+    cornerShape: "round",
     fontSize: font.uiBody,
     fontWeight: font.weight_7,
     textDecoration: "none",
