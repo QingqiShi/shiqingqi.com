@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
-import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import type { StyleProp } from "@tuja/ui/style-prop";
 import { border, color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 
 interface TypesetPosterProps {

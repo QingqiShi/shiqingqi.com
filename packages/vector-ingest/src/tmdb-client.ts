@@ -1,15 +1,15 @@
 import { createInterface } from "node:readline";
 import { Readable } from "node:stream";
 import { createGunzip } from "node:zlib";
+import { dailyExportEntrySchema } from "./daily-export-entry-schema.ts";
 import type { RateLimiter } from "./rate-limiter.ts";
-import {
-  type DailyExportEntry,
-  type TmdbChangesResponse,
-  type TmdbMovieDetail,
-  type TmdbTrendingResponse,
-  type TmdbTvDetail,
-  dailyExportEntrySchema,
-} from "./tmdb-types.ts";
+import type {
+  DailyExportEntry,
+  TmdbChangesResponse,
+  TmdbMovieDetail,
+  TmdbTrendingResponse,
+  TmdbTvDetail,
+} from "./types.ts";
 
 const TMDB_API_BASE = "https://api.themoviedb.org";
 const TMDB_EXPORT_BASE = "https://files.tmdb.org/p/exports";

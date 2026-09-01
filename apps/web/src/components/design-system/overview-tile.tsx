@@ -12,7 +12,7 @@ import Link from "next/link";
 import { IlloLayer } from "./foundation-illustrations/illo-layer.tsx";
 import { getFoundationIllustration } from "./foundation-illustrations/index.tsx";
 import { tileMarker } from "./overview-tile.stylex.ts";
-import type { DesignSystemPath } from "./routes.ts";
+import type { DesignSystemPath } from "./routes/types.ts";
 import { getComponentSpecimen } from "./specimens/index.tsx";
 
 interface OverviewTileProps {

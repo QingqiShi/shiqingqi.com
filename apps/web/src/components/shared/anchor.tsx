@@ -2,8 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
-import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import type { StyleProp } from "@tuja/ui/style-prop";
 import { border } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useState } from "react";

@@ -15,7 +15,7 @@ import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { StoredPreference } from "#src/preference-store/preference-store.ts";
+import type { StoredPreference } from "#src/preference-store/types.ts";
 import { usePreferences } from "#src/preference-store/use-preferences.ts";
 import { DetailOverlay } from "./detail-overlay";
 

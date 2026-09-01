@@ -3,9 +3,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import type { TranslationEntry } from "./extractor.ts";
-import { extractFromSource, mergeResults } from "./extractor.ts";
-import { traceClientFiles } from "./import-graph.ts";
+import type { TranslationEntry } from "./extract-from-source.ts";
+import { extractFromSource } from "./extract-from-source.ts";
+import { mergeResults } from "./merge-results.ts";
+import { traceClientFiles } from "./trace-client-files.ts";
 
 const { values } = parseArgs({
   options: { root: { type: "string" } },

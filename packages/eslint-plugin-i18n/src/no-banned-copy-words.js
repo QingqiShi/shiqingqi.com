@@ -8,7 +8,7 @@
 
 "use strict";
 
-const { createTImportTracker } = require("./t-import.js");
+const { createTImportTracker } = require("./create-t-import-tracker.js");
 
 const BANNED_WORDS = [
   "simply",
@@ -88,7 +88,7 @@ function getStaticStringValue(valueNode) {
 }
 
 /** @type {import("eslint").Rule.RuleModule} */
-module.exports = {
+const noBannedCopyWords = {
   meta: {
     type: "problem",
     docs: {
@@ -143,3 +143,5 @@ module.exports = {
     };
   },
 };
+
+module.exports = noBannedCopyWords;

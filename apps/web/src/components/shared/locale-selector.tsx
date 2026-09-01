@@ -13,7 +13,7 @@ import {
   LOCALE_COOKIE_NAME,
 } from "#src/constants.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
 import { MenuItem } from "./menu-item";
 
 interface LocaleSelectorProps {

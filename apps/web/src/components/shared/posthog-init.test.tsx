@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render } from "#src/test-utils.tsx";
-import { posthogEnabled } from "#src/utils/posthog.ts";
+import { posthogEnabled } from "#src/utils/posthog/posthog-enabled.ts";
 import { PostHogInit } from "./posthog-init";
 
 describe("PostHogInit", () => {

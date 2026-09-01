@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
-import { getFocusableElements } from "../utils/focusable.ts";
+import { getTabbableElements } from "../utils/get-tabbable-elements.ts";
 
 /**
  * Manages focus lifecycle for modal dialogs:
@@ -15,7 +15,7 @@ import { getFocusableElements } from "../utils/focusable.ts";
  * @param dialogRef - Ref to the dialog container element (used for focus trapping).
  * @param onClose - Called when the user presses Escape.
  * @param initialFocusRef - Optional ref to the element that should receive focus when
- *   the dialog opens. Falls back to the first focusable element inside the dialog.
+ *   the dialog opens. Falls back to the first tabbable element inside the dialog.
  */
 export function useDialogFocus({
   isOpen,
@@ -43,8 +43,8 @@ export function useDialogFocus({
   const resolveInitialFocus = useEffectEvent(() => {
     if (initialFocusRef?.current) return initialFocusRef.current;
     if (dialogRef.current) {
-      const focusable = getFocusableElements(dialogRef.current);
-      if (focusable.length > 0) return focusable[0];
+      const tabbable = getTabbableElements(dialogRef.current);
+      if (tabbable.length > 0) return tabbable[0];
     }
     return null;
   });
@@ -71,11 +71,11 @@ export function useDialogFocus({
 
       // Trap focus within the dialog
       if (event.key === "Tab" && dialogRef.current) {
-        const focusableElements = getFocusableElements(dialogRef.current);
-        if (focusableElements.length === 0) return;
+        const tabbableElements = getTabbableElements(dialogRef.current);
+        if (tabbableElements.length === 0) return;
 
-        const first = focusableElements[0];
-        const last = focusableElements[focusableElements.length - 1];
+        const first = tabbableElements[0];
+        const last = tabbableElements[tabbableElements.length - 1];
 
         if (event.shiftKey && document.activeElement === first) {
           event.preventDefault();

@@ -1,4 +1,4 @@
-import type { CreatureDef } from "../state/creature-schema";
+import type { CreatureDef } from "../state/creature-def-schema";
 
 /**
  * Pure reducer for the 4-step Pixel Creature Creator wizard.

@@ -8,12 +8,12 @@ import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
 import {
   COMPACTION_TRIGGER_TOKENS,
   USAGE_WARNING_RATIO,
-} from "#src/ai-chat/context-management-shared.ts";
+} from "#src/ai-chat/context-management-config.ts";
 import type { ChatMessageMetadata } from "#src/ai-chat/use-ai-chat.ts";
 import { t } from "#src/i18n.ts";
 import { usePreferencePersistence } from "#src/preference-store/use-preference-persistence.ts";
 import { ChatMessage } from "./chat-message";
-import type { ToolOutputMaps } from "./map-tool-output";
+import type { ToolOutputMaps } from "./map-tool-output/accumulate-tool-outputs";
 import { TypingIndicator } from "./typing-indicator";
 
 export const SCROLL_THRESHOLD = 50;

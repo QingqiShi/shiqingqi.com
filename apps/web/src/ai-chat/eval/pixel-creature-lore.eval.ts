@@ -3,8 +3,8 @@ import { generateCreatureLore } from "#src/components/pixel-creature-creator/lor
 import {
   DEFAULT_CREATURE,
   type CreatureDef,
-} from "#src/components/pixel-creature-creator/state/creature-schema.ts";
-import { getAnthropicModel } from "../client";
+} from "#src/components/pixel-creature-creator/state/creature-def-schema.ts";
+import { getAnthropicModel } from "../get-anthropic-model";
 import { judge } from "./judge";
 import { throttle } from "./throttle";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { type UnlockState, unlockTrip } from "./actions";
+import { type UnlockState, unlockTrip } from "./unlock-trip";
 import { Button } from "@/components/ui/button";
 
 const initialState: UnlockState = {};

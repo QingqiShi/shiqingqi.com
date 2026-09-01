@@ -1,7 +1,7 @@
 import { fireEvent } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
+import { PortalTargetProvider } from "#src/components/shared/portal-target-provider.tsx";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { DetailOverlay } from "./detail-overlay";
 
@@ -142,17 +142,27 @@ describe("DetailOverlay", () => {
       expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
     });
 
-    const dialog = screen.getByRole("dialog");
-    const focusableElements = dialog.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    expect(focusableElements.length).toBeGreaterThanOrEqual(2);
-
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-    lastFocusable.focus();
+    // The dialog's tab stops are the close button then the harness's own
+    // "Action" button, so Tab from "Action" wraps back to "Close".
+    screen.getByRole("button", { name: "Action" }).focus();
 
     fireEvent.keyDown(document, { key: "Tab" });
 
-    expect(focusableElements[0]).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+  });
+
+  it("wraps focus backwards from the first tab stop", async () => {
+    const user = userEvent.setup();
+    render(<TestHarness />);
+
+    await user.click(screen.getByRole("button", { name: "Open" }));
+
+    await vi.waitFor(() => {
+      expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+    });
+
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+
+    expect(screen.getByRole("button", { name: "Action" })).toHaveFocus();
   });
 });

@@ -6,7 +6,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import { EMOTIONS, type Emotion } from "../state/creature-schema";
+import { EMOTIONS, type Emotion } from "../state/creature-def-schema";
 
 interface EmotionToggleProps {
   active: Emotion;

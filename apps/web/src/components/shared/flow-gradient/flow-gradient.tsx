@@ -6,7 +6,10 @@ import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
-import { init, start, type ColorOptions } from "./loop";
+import {
+  createFlowGradientRenderer,
+  type ColorOptions,
+} from "./create-flow-gradient-renderer";
 import fs from "./shaders/fs.glsl";
 import vs from "./shaders/vs.glsl";
 
@@ -48,32 +51,33 @@ export function FlowGradient() {
   );
 
   const colorsRef = useRef<ColorOptions>(isDark ? DARK_COLORS : LIGHT_COLORS);
-  const contextRef = useRef<ReturnType<typeof init>>(undefined);
+  const rendererRef =
+    useRef<ReturnType<typeof createFlowGradientRenderer>>(undefined);
 
   // Re-pick the hue preset and re-read the bgCanvas value whenever the resolved
   // theme flips. The <html> class is already correct here: `themeHack` set it
   // before hydration, and ThemeSwitch's layout effect sets it on later flips.
   useEffect(() => {
     const hues = isDark ? DARK_COLORS : LIGHT_COLORS;
-    const canvas = contextRef.current?.canvas;
+    const canvas = rendererRef.current?.canvas;
     const colorBackground = canvas ? readCanvasBackground(canvas) : undefined;
     colorsRef.current = colorBackground ? { ...hues, colorBackground } : hues;
   }, [isDark]);
 
   useEffect(() => {
-    const context = contextRef.current;
-    if (!context) return;
-    return start(context, colorsRef, { reducedMotion: prefersReducedMotion });
+    const renderer = rendererRef.current;
+    if (!renderer) return;
+    return renderer.start(colorsRef, { reducedMotion: prefersReducedMotion });
   }, [prefersReducedMotion]);
 
   return (
     <canvas
       ref={(el) => {
         if (el) {
-          contextRef.current = init(el, vs, fs);
+          rendererRef.current = createFlowGradientRenderer(el, vs, fs);
         }
         return () => {
-          contextRef.current = undefined;
+          rendererRef.current = undefined;
         };
       }}
       css={styles.canvas}

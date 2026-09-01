@@ -1,6 +1,6 @@
 import { MockLanguageModelV3 } from "ai/test";
 import { describe, expect, it } from "vitest";
-import { DEFAULT_CREATURE } from "../state/creature-schema";
+import { DEFAULT_CREATURE } from "../state/creature-def-schema";
 import { generateCreatureLore, SYSTEM_PROMPT } from "./generate-creature-lore";
 
 function jsonModel(payload: unknown) {

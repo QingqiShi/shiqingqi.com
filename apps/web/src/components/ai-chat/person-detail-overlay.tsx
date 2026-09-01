@@ -2,7 +2,7 @@
 
 import { t } from "#src/i18n.ts";
 import { DetailOverlay } from "./detail-overlay";
-import { useMediaDetail, type FocusedPerson } from "./media-detail-context";
+import { useMediaDetail, type FocusedPerson } from "./media-detail-provider";
 import { PersonDetailContent } from "./person-detail-content";
 
 function getDialogLabel(person: FocusedPerson): string {

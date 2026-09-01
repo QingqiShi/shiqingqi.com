@@ -6,7 +6,7 @@ import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { FEATURED_CREATURES } from "../featured-creatures";
 import { PixelSprite } from "../sprite/pixel-sprite";
-import { encodeCreature } from "../state/encode-decode";
+import { encodeCreature } from "../state/encode-creature";
 
 interface FeaturedRowProps {
   locale: SupportedLocale;

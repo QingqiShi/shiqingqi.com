@@ -4,13 +4,12 @@ import * as stylex from "@stylexjs/stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { isToolError } from "#src/ai-chat/tools/tool-error.ts";
 import { t } from "#src/i18n.ts";
-import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
-import {
-  resolveMediaItems,
-  resolvePersonItems,
-  resolveProviderRegions,
-  resolveWatchProviders,
-} from "./map-tool-output";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { PersonListItem } from "#src/utils/person-list-item.ts";
+import { resolveMediaItems } from "./map-tool-output/resolve-media-items";
+import { resolvePersonItems } from "./map-tool-output/resolve-person-items";
+import { resolveProviderRegions } from "./map-tool-output/resolve-provider-regions";
+import { resolveWatchProviders } from "./map-tool-output/resolve-watch-providers";
 import { ToolMediaCards } from "./tool-media-cards";
 import { ToolMediaCardsSkeleton } from "./tool-media-cards-skeleton";
 import { ToolPersonCards } from "./tool-person-cards";

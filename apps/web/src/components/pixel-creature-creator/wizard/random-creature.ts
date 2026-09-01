@@ -1,10 +1,10 @@
 import { SPECIES_IDS } from "../sprite/species";
-import { ACCESSORY_IDS, TYPE_IDS } from "../sprite/sprites";
+import { ACCESSORY_IDS, ELEMENT_IDS } from "../sprite/sprites";
 import {
   type CreatureDef,
   EMOTIONS,
   type Emotion,
-} from "../state/creature-schema";
+} from "../state/creature-def-schema";
 
 /**
  * Generate a random valid `CreatureDef`. Used as the wizard's initial state
@@ -72,14 +72,14 @@ function pickAccessories(rng: () => number): string[] {
 
 export function randomCreature(rng: () => number = Math.random): CreatureDef {
   const species = pickFrom(rng, SPECIES_IDS);
-  const type = pickFrom(rng, TYPE_IDS);
+  const element = pickFrom(rng, ELEMENT_IDS);
   const defaultEmotion: Emotion = pickFrom(rng, EMOTIONS);
   const accessories = pickAccessories(rng);
   return {
     v: 2,
     species,
     accessories,
-    type,
+    type: element,
     defaultEmotion,
     name: "",
   };

@@ -1,6 +1,6 @@
 ---
 name: tmdb-codegen
-description: TMDB API code generation workflow with selective Zod schemas using pnpm codegen:tmdb. Use when working with TMDB endpoints, regenerating types, adding TMDB API functionality, modifying endpoints-config.js, tmdb-server-functions.ts, Zod schemas, or when the user mentions TMDB codegen, endpoints-config, pnpm codegen:tmdb, needsZodSchema, or auto-generated TMDB files.
+description: TMDB API code generation workflow with selective Zod schemas using pnpm codegen:tmdb. Use when working with TMDB endpoints, regenerating types, adding TMDB API functionality, modifying endpoints.js, tmdb-server-functions.ts, Zod schemas, or when the user mentions TMDB codegen, endpoints-config, pnpm codegen:tmdb, needsZodSchema, or auto-generated TMDB files.
 ---
 
 # TMDB Code Generation
@@ -27,7 +27,7 @@ The project uses a **selective** approach to Zod schema generation:
 
 ### When Zod Schemas Are Generated
 
-Zod schemas are only generated for endpoints marked with `needsZodSchema: true` in `endpoints-config.js`.
+Zod schemas are only generated for endpoints marked with `needsZodSchema: true` in `endpoints.js`.
 
 **Why selective?**
 
@@ -39,7 +39,7 @@ Zod schemas are only generated for endpoints marked with `needsZodSchema: true` 
 
 ### Endpoint Configuration File
 
-Location: `tooling/tmdb-codegen/endpoints-config.js`
+Location: `packages/tmdb-codegen/src/endpoints.js`
 
 ```js
 export const endpoints = [
@@ -58,7 +58,7 @@ export const endpoints = [
 
 ### Adding New Endpoints
 
-1. Add endpoint configuration to `endpoints-config.js`
+1. Add endpoint configuration to `endpoints.js`
 2. Set `needsZodSchema: true` only if needed for AI tools
 3. Run `pnpm codegen:tmdb` to regenerate
 
@@ -100,9 +100,9 @@ pnpm codegen:tmdb
 
 ### 1. Custom Generator
 
-Location: `tooling/tmdb-codegen/generate-selective-zod.js`
+Location: `packages/tmdb-codegen/src/generate-schemas-from-source.ts`
 
-- Reads `endpoints-config.js` to find endpoints needing Zod schemas
+- Reads `endpoints.js` to find endpoints needing Zod schemas
 - Generates hand-crafted Zod schemas (not auto-generated from TypeScript)
 - Applies OpenAI compatibility fixes (`.nullable().optional()`)
 - Outputs minimal, optimized schemas
@@ -148,8 +148,8 @@ const completion = await openai.chat.completions.create({
 
 Regenerate TMDB code when:
 
-1. **Adding new endpoints** - Add to `endpoints-config.js`, then run `pnpm codegen:tmdb`
-2. **Changing endpoint configuration** - Modify `endpoints-config.js`, then regenerate
+1. **Adding new endpoints** - Add to `endpoints.js`, then run `pnpm codegen:tmdb`
+2. **Changing endpoint configuration** - Modify `endpoints.js`, then regenerate
 3. **After cloning repository** - Generated files are git-ignored
 4. **Updating TMDB API version** - Update base URL, then regenerate
 
@@ -158,7 +158,7 @@ Regenerate TMDB code when:
 1. **Never edit generated files** - Always use `pnpm codegen:tmdb`
 2. **Minimal Zod schemas** - Only set `needsZodSchema: true` when needed for AI tools
 3. **Check generation** - Verify generated files after running codegen
-4. **Commit config changes** - `endpoints-config.js` is version-controlled
+4. **Commit config changes** - `endpoints.js` is version-controlled
 5. **Don't commit generated files** - They're git-ignored for a reason
 
 ## Performance Impact
@@ -181,7 +181,7 @@ Regenerate TMDB code when:
 
 ```bash
 # 1. Edit configuration
-# Add to tooling/tmdb-codegen/endpoints-config.js
+# Add to packages/tmdb-codegen/src/endpoints.js
 
 # 2. Regenerate
 pnpm codegen:tmdb
@@ -194,7 +194,7 @@ import { newFunction } from "@/utils/tmdb-server-functions";
 
 ```bash
 # 1. Edit configuration
-# Set needsZodSchema: true in endpoints-config.js
+# Set needsZodSchema: true in endpoints.js
 
 # 2. Regenerate Zod schemas only (fast!)
 pnpm codegen:zod
@@ -221,4 +221,4 @@ pnpm codegen:tmdb
 
 ### Zod schema needed but not generated
 
-Check `endpoints-config.js` - ensure `needsZodSchema: true` is set for that endpoint, then regenerate.
+Check `endpoints.js` - ensure `needsZodSchema: true` is set for that endpoint, then regenerate.

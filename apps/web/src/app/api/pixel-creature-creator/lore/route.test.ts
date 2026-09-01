@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import type { LoreOutput } from "#src/components/pixel-creature-creator/lore/lore-schema.ts";
+import type { LoreOutput } from "#src/components/pixel-creature-creator/lore/lore-output-schema.ts";
 import {
   DEFAULT_CREATURE,
   type CreatureDef,
-} from "#src/components/pixel-creature-creator/state/creature-schema.ts";
+} from "#src/components/pixel-creature-creator/state/creature-def-schema.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { limitLoreRequest } from "./rate-limiter";
+import { limitLoreRequest } from "./limit-lore-request";
 import { makeLoreHandler, type LoreHandlerDeps } from "./route";
 
 function loreRequest(body: unknown, headers: Record<string, string> = {}) {

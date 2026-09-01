@@ -3,8 +3,8 @@ import { expect, test } from "@playwright/test";
 import {
   DEFAULT_CREATURE,
   type CreatureDef,
-} from "../src/components/pixel-creature-creator/state/creature-schema";
-import { encodeCreature } from "../src/components/pixel-creature-creator/state/encode-decode";
+} from "../src/components/pixel-creature-creator/state/creature-def-schema";
+import { encodeCreature } from "../src/components/pixel-creature-creator/state/encode-creature";
 
 // PNG file signature: 0x89 "P" "N" "G" CR LF SUB LF.
 const PNG_MAGIC = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];

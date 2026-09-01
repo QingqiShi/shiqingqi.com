@@ -9,7 +9,7 @@ import {
 import { DayParty } from "./day-party";
 import { Badge } from "@/components/ui/badge";
 import type { Day, DayPresence, Trip } from "@/data/types";
-import { peopleOnDay } from "@/lib/trip";
+import { presencesOnDay } from "@/lib/presences-on-day";
 
 function OverviewRow({
   day,
@@ -115,7 +115,7 @@ export function Overview({
           <OverviewRow
             key={day.n}
             day={day}
-            people={peopleOnDay(trip.partySchedule, day.n)}
+            people={presencesOnDay(trip.partySchedule, day.n)}
             isToday={i === todayIndex}
             onOpen={() => {
               onOpenDay(i);

@@ -5,7 +5,7 @@ module.exports = async (phase) => {
   const allowedDevOrigins =
     phase === PHASE_DEVELOPMENT_SERVER
       ? await (
-          await import("../../scripts/dev-origins.mjs")
+          await import("../../scripts/get-local-dev-origins.mjs")
         ).getLocalDevOrigins()
       : [];
   /** @type {import('next').NextConfig} */

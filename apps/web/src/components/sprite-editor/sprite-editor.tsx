@@ -12,6 +12,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useMemo, useState } from "react";
 import { t } from "#src/i18n.ts";
+import { downloadBlob } from "#src/utils/download-blob.ts";
 import type { AnimationFrame } from "./animation-mode";
 import { AnimationMode } from "./animation-mode";
 import { CellStrip } from "./cell-strip";
@@ -24,12 +25,14 @@ import { SourceImageInput } from "./source-image-input";
 import type {
   CellPixels,
   GridConfig,
+  GuideOptions,
   OutputConfig,
   SourceImage,
 } from "./types";
-import type { GuideOptions } from "./utils/guides";
-import { computeGuideFractions, DEFAULT_GUIDES } from "./utils/guides";
-import { downloadBlob, pixelsToPng, sliceCell } from "./utils/slice";
+import { computeGuideFractions } from "./utils/compute-guide-fractions";
+import { DEFAULT_GUIDES } from "./utils/default-guides";
+import { pixelsToPng } from "./utils/pixels-to-png";
+import { sliceCell } from "./utils/slice-cell";
 
 const DEFAULT_GRID: GridConfig = {
   cols: 4,

@@ -2,12 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useId, type ComponentProps, type ReactNode } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { flex, grow, shrink } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
 import { cardSurface } from "./card.stylex.ts";
 import { optionCardSurface } from "./option-card.stylex.ts";

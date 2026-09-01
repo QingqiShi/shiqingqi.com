@@ -20,11 +20,13 @@ import {
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { formatRuntime } from "#src/utils/format-runtime.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
+import { mediaDetailsQuery } from "#src/utils/tmdb-queries/media-details-query.ts";
+import { mediaVideosQuery } from "#src/utils/tmdb-queries/media-videos-query.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
 import { ExternalLinkIndicator } from "../shared/external-link-indicator";
 import { useChatActions } from "./chat-actions-context";
-import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
+import { useMediaDetail, type FocusedMedia } from "./media-detail-provider";
 
 export function MediaDetailContent({
   id,
@@ -37,18 +39,18 @@ export function MediaDetailContent({
 
   const [detailQuery, videosQuery, configQuery] = useQueries({
     queries: [
-      tmdbQueries.mediaDetail({
+      mediaDetailsQuery({
         type: mediaType,
         id: idString,
         language: locale,
       }),
       // Always fetch in English — Chinese trailer results are too sparse
-      tmdbQueries.mediaVideos({
+      mediaVideosQuery({
         type: mediaType,
         id: idString,
         language: "en",
       }),
-      tmdbQueries.configuration,
+      configurationQuery,
     ],
   });
 

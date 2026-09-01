@@ -1,5 +1,5 @@
 import { describe, it } from "vitest";
-import { runMultiTurnEval } from "./run-eval";
+import { runMultiTurnEval } from "./run-multi-turn-eval";
 import type { MultiTurnEvalCase } from "./types";
 
 const cases: MultiTurnEvalCase[] = [

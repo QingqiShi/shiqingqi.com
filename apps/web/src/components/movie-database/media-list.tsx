@@ -8,7 +8,7 @@ import { Suspense, useDeferredValue, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { mediaListQuery } from "#src/utils/tmdb-queries/media-list-query.ts";
 import { MediaVirtuosoGrid } from "./media-virtuoso-grid";
 
 // The grid is the default view, and LyteNyte plus its two stylesheets is a lot
@@ -33,7 +33,7 @@ export function MediaList({ initialPage }: MediaListProps) {
   const deferredSort = useDeferredValue(sort);
   const deferredMediaType = useDeferredValue(mediaType);
 
-  const tmdbQueryOptions = tmdbQueries.mediaList({
+  const tmdbQueryOptions = mediaListQuery({
     type: deferredMediaType,
     page: initialPage,
     language: locale,

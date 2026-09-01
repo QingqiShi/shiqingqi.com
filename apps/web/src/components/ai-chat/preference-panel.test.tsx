@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
-import type { StoredPreference } from "#src/preference-store/preference-store.ts";
+import { PortalTargetProvider } from "#src/components/shared/portal-target-provider.tsx";
+import type { StoredPreference } from "#src/preference-store/types.ts";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { PreferencePanel, PreferenceTrigger } from "./preference-panel";
 

@@ -12,7 +12,7 @@ import { color, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";

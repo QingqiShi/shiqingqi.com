@@ -8,18 +8,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { color } from "../tokens.stylex.ts";
 import { observeChildren } from "../utils/observe-children.ts";
-import {
-  buildBlurLayers,
-  type BlurGeometry,
-} from "./progressive-blur-masks.ts";
+import { buildBlurLayers, type BlurGeometry } from "./build-blur-layers.ts";
 
 interface ProgressiveBlurProps {
   /**

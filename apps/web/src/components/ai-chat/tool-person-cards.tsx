@@ -3,10 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { t } from "#src/i18n.ts";
-import type { PersonListItem } from "#src/utils/types.ts";
+import type { PersonListItem } from "#src/utils/person-list-item.ts";
 import { CompactPersonCard } from "./compact-person-card";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";
-import { useMediaDetail } from "./media-detail-context";
+import { useMediaDetail } from "./media-detail-provider";
 
 interface ToolPersonCardsProps {
   items: ReadonlyArray<PersonListItem>;

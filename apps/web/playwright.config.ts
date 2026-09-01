@@ -11,12 +11,12 @@ import { defineConfig, devices } from "@playwright/test";
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /* Per-worktree dev-server port (3000 in the main checkout). The port is
- * resolved by the shared scripts/worktree-port.mjs helper, run as a
+ * resolved by the shared scripts/get-worktree-port.mjs helper, run as a
  * subprocess rather than imported because Playwright's config loader
  * cannot transpile a native ESM `.mjs` import. The relative path matches
  * the dev:next script in package.json (Playwright runs from apps/web).
  * `BASE_URL` still wins so CI and preview deployments are unaffected. */
-const port = execFileSync("node", ["../../scripts/worktree-port.mjs"], {
+const port = execFileSync("node", ["../../scripts/get-worktree-port.mjs"], {
   encoding: "utf8",
 }).trim();
 const baseURL = process.env.BASE_URL ?? `http://localhost:${port}`;
@@ -95,7 +95,7 @@ export default defineConfig({
     url: baseURL,
     env: {
       PORT: port, // next start binds this; reuses a running dev server if present
-      // Exercises the real posthog.init() path (see src/utils/posthog.ts)
+      // Exercises the real posthog.init() path (see src/utils/posthog/init-post-hog.ts)
       // without sending anything: the host never resolves, so nothing leaves
       // the machine, but a crash in init still fails the suite. NEXT_PUBLIC_*
       // is inlined at build time, so these only take effect via the local

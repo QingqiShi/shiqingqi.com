@@ -3,14 +3,14 @@ import { t } from "#src/i18n.ts";
 import { PixelLayer } from "./sprite/pixel-layer";
 import { PixelSprite } from "./sprite/pixel-sprite";
 import { species } from "./sprite/species";
-import { ACCESSORY_PALETTE, accessories, types } from "./sprite/sprites";
+import { ACCESSORY_PALETTE, accessories, elements } from "./sprite/sprites";
+import { buildQaSamples } from "./state/build-qa-samples";
 import {
   type CreatureDef,
   DEFAULT_CREATURE,
   EMOTIONS,
   type Emotion,
-} from "./state/creature-schema";
-import { buildQaSamples } from "./state/qa-samples";
+} from "./state/creature-def-schema";
 
 interface SectionProps {
   title: string;
@@ -200,7 +200,7 @@ export function PixelGallery({
       </Section>
 
       <Section title={t({ en: "Types", zh: "种类" })}>
-        {Object.values(types).map((tp) =>
+        {Object.values(elements).map((tp) =>
           tp === undefined ? null : (
             <PartCard
               key={tp.id}
@@ -271,7 +271,7 @@ export function PixelGallery({
           <div data-testid="parts-types" css={styles.canonicalRow}>
             <div css={styles.canonicalRowTitle}>types</div>
             <div css={styles.canonicalRowBody}>
-              {Object.values(types).map((tp) =>
+              {Object.values(elements).map((tp) =>
                 tp === undefined ? null : (
                   <div
                     key={`parts-type-${tp.id}`}

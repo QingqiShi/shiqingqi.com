@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { trips } from "@/data/trips";
 import type { Trip } from "@/data/types";
-import { resolveDay } from "@/lib/trip";
+import { resolveDay } from "@/lib/resolve-day";
 
 // "Where is each trip relative to today" depends on the wall clock, so render
 // per-request.

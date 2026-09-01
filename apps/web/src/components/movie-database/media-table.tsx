@@ -35,27 +35,27 @@ import { useRef, useState, useSyncExternalStore } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { copyTextToClipboard } from "#src/utils/copy-text-to-clipboard.ts";
-import type { MediaType } from "#src/utils/media-filter-types.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import type { MediaListItem } from "#src/utils/types.ts";
-import {
-  MediaGenresCell,
-  MediaLanguageCell,
-  MediaOverviewCell,
-  MediaPopularityCell,
-  MediaReleaseDateCell,
-  MediaRowNumberCell,
-  MediaRowNumberHeader,
-  MediaScoreCell,
-  MediaTableHeader,
-  MediaTitleCell,
-  MediaVotesCell,
-} from "./media-table-cells";
+import { downloadBlob } from "#src/utils/download-blob.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaType } from "#src/utils/media-type.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
+import { genresQuery } from "#src/utils/tmdb-queries/genres-query.ts";
+import { MediaGenresCell } from "./media-table-cells/media-genres-cell";
+import { MediaLanguageCell } from "./media-table-cells/media-language-cell";
+import { MediaOverviewCell } from "./media-table-cells/media-overview-cell";
+import { MediaPopularityCell } from "./media-table-cells/media-popularity-cell";
+import { MediaReleaseDateCell } from "./media-table-cells/media-release-date-cell";
+import { MediaRowNumberCell } from "./media-table-cells/media-row-number-cell";
+import { MediaRowNumberHeader } from "./media-table-cells/media-row-number-header";
+import { MediaScoreCell } from "./media-table-cells/media-score-cell";
+import { MediaTableHeader } from "./media-table-cells/media-table-header";
+import { MediaTitleCell } from "./media-table-cells/media-title-cell";
+import { MediaVotesCell } from "./media-table-cells/media-votes-cell";
 import { MediaTableContext } from "./media-table-context";
 import type {
   MediaColumn,
-  MediaGridSpec,
+  MediaTableSpec,
   MediaSortDirection,
 } from "./media-table-spec";
 
@@ -284,20 +284,7 @@ function downloadCsv(rows: unknown[][], filename: string) {
   const blob = new Blob([`\u{FEFF}${csv}`], {
     type: "text/csv;charset=utf-8;",
   });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  anchor.style.display = "none";
-  // Matching `triggerDownload` in the pixel-creature creator: some browsers
-  // ignore a click on a detached anchor, and revoking on the same tick can
-  // free the blob before the download has started.
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  window.setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 1000);
+  downloadBlob(blob, filename);
 }
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
@@ -355,7 +342,7 @@ export function MediaTable({
 }: MediaTableProps) {
   const locale = useLocale();
   const router = useRouter();
-  const apiRef = useRef<Grid.API<MediaGridSpec> | null>(null);
+  const apiRef = useRef<Grid.API<MediaTableSpec> | null>(null);
   const [search, setSearch] = useState("");
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -369,9 +356,9 @@ export function MediaTable({
   // Both queries are prefetched and hydrated by the page, so they resolve from
   // cache on the first render. `useQuery` rather than its suspense sibling: a
   // cache miss should degrade the chrome, not blank the table.
-  const { data: config } = useQuery(tmdbQueries.configuration);
+  const { data: config } = useQuery(configurationQuery);
   const { data: genreData } = useQuery(
-    tmdbQueries.genres({ type: mediaType, language: locale }),
+    genresQuery({ type: mediaType, language: locale }),
   );
 
   const genreNames = new Map<number, string>();
@@ -504,7 +491,7 @@ export function MediaTable({
       locale,
     );
 
-  const rowSource = useClientDataSource<MediaGridSpec>({
+  const rowSource = useClientDataSource<MediaTableSpec>({
     data: visibleItems,
     sort,
     leafIdFn: leafId,
@@ -516,7 +503,7 @@ export function MediaTable({
     }
   };
 
-  const events: Grid.Events<MediaGridSpec> = {
+  const events: Grid.Events<MediaTableSpec> = {
     cell: {
       doubleClick: ({ row, api }) => {
         if (api.rowIsLeaf(row)) router.push(hrefFor(row.data));
@@ -702,7 +689,7 @@ export function MediaTable({
             </p>
           ) : (
             <div {...sx} className={`${sx.className ?? ""} ln-grid`}>
-              <Grid<MediaGridSpec>
+              <Grid<MediaTableSpec>
                 // Remounting on a new result set is what returns the viewport
                 // to the first row and clears stale cell selections.
                 key={resultsKey}

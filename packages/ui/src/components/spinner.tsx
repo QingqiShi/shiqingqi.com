@@ -1,6 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import {
   duration,
@@ -8,6 +7,7 @@ import {
   motionConstants,
   motionTokens,
 } from "../primitives/motion.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { color, space } from "../tokens.stylex.ts";
 
 type SpinnerSize = "inline" | "sm" | "md" | "lg";

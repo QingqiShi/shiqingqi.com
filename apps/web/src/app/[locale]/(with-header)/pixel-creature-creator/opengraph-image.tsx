@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { FEATURED_CREATURES } from "#src/components/pixel-creature-creator/featured-creatures.ts";
-import { types } from "#src/components/pixel-creature-creator/sprite/sprites/index.ts";
+import { elements } from "#src/components/pixel-creature-creator/sprite/sprites/index.ts";
 import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
@@ -101,7 +101,7 @@ export default async function OpengraphImage(props: PageProps) {
         }}
       >
         {FEATURED_CREATURES.map((featured) => {
-          const accent = types[featured.def.type]?.accentColor ?? "#c084fc";
+          const accent = elements[featured.def.type]?.accentColor ?? "#c084fc";
           return (
             <div
               key={featured.labelKey}

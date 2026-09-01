@@ -9,8 +9,8 @@ import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import type { PersonListItem } from "#src/utils/types.ts";
+import type { PersonListItem } from "#src/utils/person-list-item.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
 import { DepartmentLabel } from "./department-label";
 
@@ -32,7 +32,7 @@ function ProfilePhoto({
   alt: string;
   fallbackInitial: string;
 }) {
-  const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
+  const { data: config } = useSuspenseQuery(configurationQuery);
 
   if (!config.images?.base_url || !config.images.profile_sizes) {
     return (

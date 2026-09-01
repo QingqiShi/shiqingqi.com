@@ -11,7 +11,7 @@ import { SimilarMedia } from "#src/components/movie-database/similar-media.tsx";
 import { Trailer } from "#src/components/movie-database/trailer.tsx";
 import { t } from "#src/i18n.ts";
 import { formatRuntime } from "#src/utils/format-runtime.ts";
-import type { PageProps } from "./types";
+import type { PageProps } from "./page-props";
 
 export default async function Page({ params }: PageProps) {
   const { type, id, locale } = await params;

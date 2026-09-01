@@ -3,7 +3,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { SupportedLocale } from "#src/types.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { similarMediaQuery } from "#src/utils/tmdb-queries/similar-media-query.ts";
 import { MediaVirtuosoGrid } from "./media-virtuoso-grid";
 
 interface SimilarMediaListProps {
@@ -21,7 +21,7 @@ export function SimilarMediaList({
   initialPage,
   notFoundLabel,
 }: SimilarMediaListProps) {
-  const queryOptions = tmdbQueries.similarMedia({
+  const queryOptions = similarMediaQuery({
     type: mediaType,
     id: mediaId,
     page: initialPage,

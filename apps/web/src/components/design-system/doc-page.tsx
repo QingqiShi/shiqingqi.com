@@ -3,8 +3,8 @@ import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { DocBreadcrumb } from "./doc-breadcrumb.tsx";
 import { measure } from "./measure.stylex.ts";
-import { getDesignSystemRouteLabel } from "./route-copy.ts";
-import type { DesignSystemPath } from "./routes.ts";
+import { getDesignSystemRouteLabel } from "./route-copy/get-design-system-route-label.ts";
+import type { DesignSystemPath } from "./routes/types.ts";
 
 interface DocPageProps {
   /**

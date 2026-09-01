@@ -42,7 +42,7 @@ interface OverlayBaseProps {
   portalTarget?: Element | DocumentFragment | null;
   /**
    * Element to focus when the overlay opens. Falls back to the first
-   * focusable element inside the dialog (the close button).
+   * tabbable element inside the dialog (the close button).
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
 }

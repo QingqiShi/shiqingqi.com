@@ -35,26 +35,23 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import { t } from "#src/i18n.ts";
-import type { CellPixels } from "./types";
+import { parseHex } from "#src/utils/parse-hex.ts";
+import type { CellPixels, GuideOptions } from "./types";
 import { useHistory } from "./use-history";
-import type { GuideOptions } from "./utils/guides";
-import { computeGuideFractions } from "./utils/guides";
+import { computeGuideFractions } from "./utils/compute-guide-fractions";
 import { isEditableTarget } from "./utils/is-editable-target";
-import type { Rect } from "./utils/pixel-ops";
-import {
-  cloneCell,
-  cropCell,
-  eraseRect,
-  flipCellH,
-  flipCellV,
-  floodFill,
-  getPixel,
-  normalizeRect,
-  parseHex,
-  pasteCellScaled,
-  rgbaToHex,
-  setPixel,
-} from "./utils/pixel-ops";
+import { cloneCell } from "./utils/pixel-ops/clone-cell";
+import { cropCell } from "./utils/pixel-ops/crop-cell";
+import { eraseRect } from "./utils/pixel-ops/erase-rect";
+import { flipCellH } from "./utils/pixel-ops/flip-cell-h";
+import { flipCellV } from "./utils/pixel-ops/flip-cell-v";
+import { floodFill } from "./utils/pixel-ops/flood-fill";
+import { getPixel } from "./utils/pixel-ops/get-pixel";
+import { normalizeRect } from "./utils/pixel-ops/normalize-rect";
+import { pasteCellScaled } from "./utils/pixel-ops/paste-cell-scaled";
+import { rgbaToHex } from "./utils/pixel-ops/rgba-to-hex";
+import { setPixel } from "./utils/pixel-ops/set-pixel";
+import type { Rect } from "./utils/pixel-ops/types";
 
 type Tool =
   "pencil" | "eraser" | "select" | "eyedropper" | "fill" | "bg-remove";

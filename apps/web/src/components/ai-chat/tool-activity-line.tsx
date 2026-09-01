@@ -11,7 +11,7 @@ import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { isToolError } from "#src/ai-chat/tools/tool-error.ts";
 import { t } from "#src/i18n.ts";
-import { isRecord } from "#src/utils/type-guards.ts";
+import { isRecord } from "#src/utils/is-record.ts";
 
 export const TERMINAL_STATES = new Set([
   "output-available",

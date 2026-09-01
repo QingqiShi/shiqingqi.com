@@ -106,7 +106,7 @@ _Avoid_: sync, load, import
 
 ## Deliberate divergences
 
-- **Case is a boundary marker, not drift.** Tool inputs and TMDB-derived outputs are `snake_case`; vector-DB payloads and our normalised types are `camelCase`. `map-tool-output.ts` exists to bridge them.
+- **Case is a boundary marker, not drift.** Tool inputs and TMDB-derived outputs are `snake_case`; vector-DB payloads and our normalised types are `camelCase`. The `map-tool-output/` modules exist to bridge them.
 - The AI is never named or personified in the UI. It is "AI" in copy and "assistant" only as the message-role enum value.
 - **QMDB** is retired. The product is "Movie Database" / 影视数据库 everywhere, including the home-page card.
 
@@ -119,4 +119,4 @@ _Avoid_: sync, load, import
 - Vector record ids `{mediaType}-{tmdbId}`, namespace = locale, and every metadata field name (filters are built as raw strings)
 - `POST /api/ai-chat` body shape, the `session-not-found` error literal, and the `/api/tmdb/*` route paths
 - All TMDB request and response field names: `movie_id`, `series_id`, `person_id`, `vote_*`, `*_path`, `with_genres`, `sort_by`, `time_window`, `known_for_department`
-- PostHog event names `conversation started` and `message sent`, with the properties `locale`, `started_conversation`, `conversation_message_count` — renaming one breaks the dashboards built on it. `apps/web/src/utils/posthog.ts` holds the catalog that declares them all.
+- PostHog event names `conversation started` and `message sent`, with the properties `locale`, `started_conversation`, `conversation_message_count` — renaming one breaks the dashboards built on it. `apps/web/src/utils/posthog/types.ts` holds the catalog that declares them all.

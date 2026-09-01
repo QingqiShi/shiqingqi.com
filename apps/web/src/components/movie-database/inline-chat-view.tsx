@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { border, color, layer, layout, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition, useEffect, useState, type ReactNode } from "react";
-import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
+import { useAIChatContext } from "#src/ai-chat/ai-chat-provider.tsx";
 import {
   ChatActionsContext,
   type AttachedMedia,
@@ -13,8 +13,8 @@ import {
   ChatMessageList,
   SCROLL_THRESHOLD,
 } from "#src/components/ai-chat/chat-message-list.tsx";
-import { MediaDetailProvider } from "#src/components/ai-chat/media-detail-context.tsx";
 import { MediaDetailOverlay } from "#src/components/ai-chat/media-detail-overlay.tsx";
+import { MediaDetailProvider } from "#src/components/ai-chat/media-detail-provider.tsx";
 import { PersonDetailOverlay } from "#src/components/ai-chat/person-detail-overlay.tsx";
 import { PreferenceManager } from "#src/components/ai-chat/preference-panel.tsx";
 import { ScrollToBottomButton } from "#src/components/ai-chat/scroll-to-bottom-button.tsx";

@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { DEFAULT_CREATURE } from "../state/creature-schema";
+import { DEFAULT_CREATURE } from "../state/creature-def-schema";
 import { PixelSprite } from "./pixel-sprite";
 
 describe("PixelSprite", () => {

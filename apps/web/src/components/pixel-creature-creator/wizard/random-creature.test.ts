@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { creatureDefSchema } from "../state/creature-schema";
+import { creatureDefSchema } from "../state/creature-def-schema";
 import { randomCreature } from "./random-creature";
 
 describe("randomCreature", () => {

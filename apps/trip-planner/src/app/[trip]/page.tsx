@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TripView } from "@/components/trip/trip-view";
 import { tripBySlug } from "@/data/trips";
-import { resolveDay } from "@/lib/trip";
-import { getTripWeather } from "@/lib/weather";
+import { getTripWeather } from "@/lib/get-trip-weather";
+import { resolveDay } from "@/lib/resolve-day";
 
 // "Current day" depends on the wall clock, so render per-request.
 export const dynamic = "force-dynamic";

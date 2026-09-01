@@ -3,7 +3,7 @@
 import { t } from "#src/i18n.ts";
 import { DetailOverlay } from "./detail-overlay";
 import { MediaDetailContent } from "./media-detail-content";
-import { useMediaDetail, type FocusedMedia } from "./media-detail-context";
+import { useMediaDetail, type FocusedMedia } from "./media-detail-provider";
 
 function getDialogLabel(media: FocusedMedia): string {
   if (media.title) return media.title;

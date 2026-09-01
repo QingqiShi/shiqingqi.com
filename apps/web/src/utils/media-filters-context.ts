@@ -1,17 +1,8 @@
 import { createContext } from "react";
-import type {
-  GenreFilterType,
-  MediaType,
-  MediaView,
-  Sort,
-} from "./media-filter-types";
-
-export type {
-  GenreFilterType,
-  MediaType,
-  MediaView,
-  Sort,
-} from "./media-filter-types";
+import type { GenreFilterType } from "./genre-filter-type";
+import type { MediaType } from "./media-type";
+import type { MediaView } from "./media-view";
+import type { Sort } from "./sort";
 
 export const MediaFiltersContext = createContext<{
   genres: Set<string>;

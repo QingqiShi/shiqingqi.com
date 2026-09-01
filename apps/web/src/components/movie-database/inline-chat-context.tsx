@@ -9,8 +9,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
-import { useBackOverride } from "#src/contexts/back-override-context.tsx";
+import { useAIChatContext } from "#src/ai-chat/ai-chat-provider.tsx";
+import { useBackOverride } from "#src/contexts/back-override-provider.tsx";
 
 interface InlineChatState {
   isChatActive: boolean;

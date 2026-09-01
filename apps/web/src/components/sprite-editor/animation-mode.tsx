@@ -19,9 +19,9 @@ import {
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
+import { downloadBlob } from "#src/utils/download-blob.ts";
 import type { CellPixels } from "./types";
-import { downloadBlob } from "./utils/slice";
-import { exportSpriteSheet } from "./utils/sprite-sheet";
+import { exportSpriteSheet } from "./utils/export-sprite-sheet";
 
 export interface AnimationFrame {
   cellIndex: number;

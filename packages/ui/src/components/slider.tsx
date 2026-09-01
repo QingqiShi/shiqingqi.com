@@ -2,7 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useRef, type ComponentProps, type ReactNode } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
@@ -13,6 +12,7 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import {
   border,
   color,

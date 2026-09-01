@@ -16,7 +16,7 @@
           },
           {
             "type": "command",
-            "command": "bash -c 'PORT=$(node \"$CLAUDE_PROJECT_DIR/scripts/worktree-port.mjs\"); echo \"Dev server port for this worktree: $PORT. The app runs at http://localhost:$PORT — pnpm dev and pnpm test:e2e use this port automatically. Use this URL for any Playwright or browser navigation.\"'"
+            "command": "bash -c 'PORT=$(node \"$CLAUDE_PROJECT_DIR/scripts/get-worktree-port.mjs\"); echo \"Dev server port for this worktree: $PORT. The app runs at http://localhost:$PORT — pnpm dev and pnpm test:e2e use this port automatically. Use this URL for any Playwright or browser navigation.\"'"
           }
         ]
       }

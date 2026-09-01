@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_CREATURE } from "../state/creature-schema";
+import { DEFAULT_CREATURE } from "../state/creature-def-schema";
 import {
   type WizardState,
   type WizardStep,

@@ -16,7 +16,7 @@ import { AnchorButton } from "#src/components/shared/anchor-button.tsx";
 import { SiteHeaderFooterLayout } from "#src/components/shared/site-header-footer-layout.tsx";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
 
 /**
  * The site's 404: what happened, then somewhere to go. Rendered by both

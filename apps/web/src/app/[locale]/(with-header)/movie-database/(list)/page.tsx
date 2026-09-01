@@ -27,14 +27,14 @@ import { MediaList } from "#src/components/movie-database/media-list.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { t } from "#src/i18n.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
+import { isGenreFilterType } from "#src/utils/genre-filter-type.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import {
-  isGenreFilterType,
-  isMediaView,
-  isSort,
-} from "#src/utils/media-filter-types.ts";
+import { isMediaView } from "#src/utils/media-view.ts";
 import { noop } from "#src/utils/noop.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { isSort } from "#src/utils/sort.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
+import { genresQuery } from "#src/utils/tmdb-queries/genres-query.ts";
+import { mediaListQuery } from "#src/utils/tmdb-queries/media-list-query.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
 const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
@@ -80,13 +80,13 @@ export default async function Page(
   const queryClient = getQueryClient();
   queryClient
     .query({
-      ...tmdbQueries.configuration,
+      ...configurationQuery,
       queryFn: () => getConfiguration(),
     })
     .catch(noop);
   queryClient
     .query({
-      ...tmdbQueries.genres({ type: mediaType, language: validatedLocale }),
+      ...genresQuery({ type: mediaType, language: validatedLocale }),
       queryFn: () =>
         mediaType === "tv"
           ? getTvShowGenres({ language: validatedLocale })
@@ -103,7 +103,7 @@ export default async function Page(
   if (mediaType === "tv") {
     queryClient
       .infiniteQuery({
-        ...tmdbQueries.mediaList({ type: "tv", ...queryParams }),
+        ...mediaListQuery({ type: "tv", ...queryParams }),
         queryFn: async ({ pageParam }) => {
           return discoverTvShows({
             "vote_count.gte": 300,
@@ -117,7 +117,7 @@ export default async function Page(
   } else {
     queryClient
       .infiniteQuery({
-        ...tmdbQueries.mediaList({ type: "movie", ...queryParams }),
+        ...mediaListQuery({ type: "movie", ...queryParams }),
         queryFn: async ({ pageParam }) => {
           return discoverMovies({
             "vote_count.gte": 300,

@@ -2,14 +2,14 @@
 
 const nodePath = require("node:path");
 
-const {
-  createContextWrapper,
-  extractTranslations,
-  hasParseOption,
-  injectSetLocale,
-} = require("./ast-utils");
+const { createContextWrapper } = require("./create-context-wrapper");
+const { extractTranslations } = require("./extract-translations");
 const { generateKey } = require("./generate-key");
-const { defaultProjectRoot, readManifest } = require("./manifest");
+const { hasParseOption } = require("./has-parse-option");
+const { injectSetLocale } = require("./inject-set-locale");
+const { readManifest } = require("./read-manifest");
+
+const defaultProjectRoot = process.cwd();
 
 /**
  * @typedef {import('@babel/core')} Babel

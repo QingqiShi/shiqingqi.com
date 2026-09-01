@@ -16,7 +16,7 @@ import { expect, test } from "@playwright/test";
  *  - CSS assertions for the rendering invariants that don't need pixel diffs
  *    (`image-rendering: pixelated`).
  *  - Integer-pixel motion is unit-tested directly in
- *    `sprite/motion-math.test.ts`; no e2e coverage needed.
+ *    `sprite/motion-math/*.test.ts`; no e2e coverage needed.
  *  - Two integration tests (landing → save, wizard happy path) cover the
  *    user-visible flows.
  */

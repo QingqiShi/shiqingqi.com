@@ -6,7 +6,7 @@ vi.mock("server-only", () => ({}));
 
 const mockStore = new Map<string, UIMessage[]>();
 
-vi.mock("#src/session-store/session-store.ts", () => ({
+vi.mock("#src/session-store/get-session-messages.ts", () => ({
   getSessionMessages: vi.fn((sessionId: string) => {
     return mockStore.get(sessionId) ?? null;
   }),
@@ -26,7 +26,7 @@ describe("POST /api/ai-chat/session", () => {
   beforeEach(async () => {
     mockStore.clear();
     const { getSessionMessages } =
-      await import("#src/session-store/session-store.ts");
+      await import("#src/session-store/get-session-messages.ts");
     vi.mocked(getSessionMessages).mockImplementation((sessionId: string) => {
       return Promise.resolve(mockStore.get(sessionId) ?? null);
     });
@@ -87,7 +87,7 @@ describe("POST /api/ai-chat/session", () => {
 
   it("returns 500 when Redis read fails", async () => {
     const { getSessionMessages } =
-      await import("#src/session-store/session-store.ts");
+      await import("#src/session-store/get-session-messages.ts");
     vi.mocked(getSessionMessages).mockRejectedValueOnce(
       new Error("Redis timeout"),
     );

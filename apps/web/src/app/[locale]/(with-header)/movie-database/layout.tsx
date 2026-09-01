@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
-import { AIChatProvider } from "#src/ai-chat/ai-chat-context.tsx";
+import { AIChatProvider } from "#src/ai-chat/ai-chat-provider.tsx";
 import { InlineChatProvider } from "#src/components/movie-database/inline-chat-context.tsx";
 import { Providers } from "#src/components/shared/providers.tsx";
 import { BASE_URL } from "#src/constants.ts";

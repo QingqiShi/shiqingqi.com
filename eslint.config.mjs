@@ -12,6 +12,7 @@ import { createRequire } from "node:module";
 import tsEslint from "typescript-eslint";
 
 const require = createRequire(import.meta.url);
+const conventionsPlugin = require("@tuja/eslint-plugin-conventions");
 const i18nPlugin = require("@tuja/eslint-plugin-i18n");
 
 export default defineConfig([
@@ -22,6 +23,7 @@ export default defineConfig([
       "apps/*/next.config.js",
       "apps/*/postcss.config.js",
       "apps/*/src/_generated/**/*",
+      "packages/*/src/_generated/**/*",
       "apps/web/src/vendor/**/*",
       "apps/*/.next/**/*",
       "apps/*/next-env.d.ts",
@@ -166,6 +168,45 @@ export default defineConfig([
       "i18n/no-t-outside-render": "off",
     },
   },
+  // A source file is named after the thing it exports, in kebab-case.
+  {
+    files: [
+      "apps/*/src/**/*.{ts,tsx,js,mjs}",
+      "packages/*/src/**/*.{ts,tsx,js,mjs}",
+      "scripts/**/*.mjs",
+    ],
+    ignores: [
+      // Barrels re-export other files and have no name of their own.
+      "**/index.{ts,tsx,js,mjs}",
+      // StyleX needs the suffix; the export is the token set, not the file.
+      "**/*.stylex.ts",
+      // Test and eval infrastructure is named after what it covers.
+      "**/*.{test,spec}.{ts,tsx,mjs}",
+      "**/*.eval.ts",
+      "**/test-*.ts",
+      "**/test-stubs/**",
+      // Declaration and config files are named by the tool that reads them.
+      "**/*.d.ts",
+      "**/*.config.*",
+      // Next.js reserves these file names for its own routing conventions.
+      "apps/*/src/app/**/{page,layout,route,loading,error,global-error,not-found,template,default}.{ts,tsx,js,jsx}",
+      "apps/*/src/app/**/{sitemap,robots,manifest,opengraph-image,twitter-image,icon,apple-icon}.{ts,tsx,js,jsx}",
+      "apps/*/src/{middleware,proxy,instrumentation,instrumentation-client}.ts",
+      "apps/*/src/sw.ts",
+      // shadcn/ui generates these files and keeps its own convention.
+      "apps/trip-planner/src/components/ui/**",
+      // Type-only and constant-only bags are named for their category.
+      "**/types.ts",
+      "**/constants.ts",
+    ],
+    plugins: {
+      conventions: conventionsPlugin,
+    },
+    rules: {
+      "conventions/export-matches-filename": "error",
+      "unicorn/filename-case": ["error", { case: "kebabCase" }],
+    },
+  },
   // Tooling JS files are CJS and not covered by tsconfig, so disable
   // type-checked rules and configure for Node.js/CommonJS.
   {
@@ -191,7 +232,11 @@ export default defineConfig([
   },
   // Tooling ESM files — disable type-checked rules and add Node globals.
   {
-    files: ["packages/**/*.mjs", "packages/tmdb-codegen/src/generator.js"],
+    files: [
+      "packages/**/*.mjs",
+      "scripts/**/*.mjs",
+      "packages/tmdb-codegen/src/generator.js",
+    ],
     ...tsEslint.configs.disableTypeChecked,
     languageOptions: {
       parserOptions: { projectService: false },

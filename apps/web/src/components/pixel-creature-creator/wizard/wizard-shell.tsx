@@ -9,8 +9,12 @@ import { useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { PixelSprite } from "../sprite/pixel-sprite";
-import { type CreatureDef, DEFAULT_CREATURE } from "../state/creature-schema";
-import { decodeCreature, encodeCreature } from "../state/encode-decode";
+import {
+  type CreatureDef,
+  DEFAULT_CREATURE,
+} from "../state/creature-def-schema";
+import { decodeCreature } from "../state/decode-creature";
+import { encodeCreature } from "../state/encode-creature";
 import { useLocationHash } from "../state/use-location-hash";
 import { randomCreature } from "./random-creature";
 import { StepFeatures } from "./step-features";

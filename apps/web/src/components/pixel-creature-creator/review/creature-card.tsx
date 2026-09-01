@@ -8,9 +8,9 @@ import { useEffect, useRef } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { PixelSprite } from "../sprite/pixel-sprite";
-import { types } from "../sprite/sprites";
-import type { CreatureDef, Emotion } from "../state/creature-schema";
-import { STAT_KEYS, type CreatureStats } from "../state/seed-stats";
+import { elements } from "../sprite/sprites";
+import { STAT_KEYS, type CreatureStats } from "../state/compute-seed-stats";
+import type { CreatureDef, Emotion } from "../state/creature-def-schema";
 
 /**
  * Lore payload rendered in the card and persisted across the session. Phase
@@ -58,11 +58,11 @@ export function CreatureCard({
   paused = false,
 }: CreatureCardProps) {
   const cardRef = useRef<HTMLElement>(null);
-  const type = types[def.type];
+  const element = elements[def.type];
   // The schema validates `def.type` against the live registry so this
   // lookup should always succeed in production. Fall back to a neutral
   // accent if a future schema migration leaves a stale type behind.
-  const accentColor = type?.accentColor ?? gray._60;
+  const accentColor = element?.accentColor ?? gray._60;
   // The i18n Babel plugin only accepts string-literal values inside `t()`,
   // so we mirror the wizard's pattern (`step-palette.tsx`) and inline the
   // bilingual map here. Adding a new type means adding one more line — the

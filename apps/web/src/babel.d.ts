@@ -7,7 +7,7 @@
 // it into its root. It reuses the exact `StyleProp` type that `@tuja/ui`
 // components declare for their own `css` prop, so the app's host-element `css`
 // and the component `css` prop share one contract.
-import type { StyleProp } from "@tuja/ui/css-prop-types";
+import type { StyleProp } from "@tuja/ui/style-prop";
 
 declare module "react" {
   // The type parameter must keep React's own name for the declarations to

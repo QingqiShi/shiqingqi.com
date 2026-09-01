@@ -10,7 +10,7 @@ import { useId } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { genresQuery } from "#src/utils/tmdb-queries/genres-query.ts";
 import { AnchorButton } from "../shared/anchor-button";
 
 interface GenreFilterProps {
@@ -31,7 +31,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
   const locale = useLocale();
 
   // Fetch genres based on current media type
-  const genreQuery = tmdbQueries.genres({ type: mediaType, language: locale });
+  const genreQuery = genresQuery({ type: mediaType, language: locale });
 
   const { data: genreData } = useSuspenseQuery(genreQuery);
   const allGenres = genreData.genres;

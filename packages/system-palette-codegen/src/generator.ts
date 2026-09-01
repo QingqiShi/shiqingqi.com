@@ -8,8 +8,10 @@ import {
   hexFromArgb,
 } from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
 import { TonalPalette } from "../../../apps/web/src/vendor/material-color-utilities/tonal_palette.ts";
-import { pickForeground } from "./contrast.ts";
-import { evaluateCurve, SYSTEM_HUES, SYSTEM_PALETTE_TONES } from "./source.ts";
+import { SYSTEM_PALETTE_TONES } from "./constants.ts";
+import { evaluateCurve } from "./evaluate-curve.ts";
+import { pickForeground } from "./pick-foreground.ts";
+import { SYSTEM_HUES } from "./system-hues.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

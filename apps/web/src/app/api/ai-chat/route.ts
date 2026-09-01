@@ -7,12 +7,10 @@ import {
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { chat } from "#src/ai-chat/chat.ts";
-import { sessionChatInputSchema } from "#src/ai-chat/session-schema.ts";
-import {
-  generateSessionId,
-  getSessionMessages,
-  saveSessionMessages,
-} from "#src/session-store/session-store.ts";
+import { sessionChatInputSchema } from "#src/ai-chat/session-chat-input-schema.ts";
+import { generateSessionId } from "#src/session-store/generate-session-id.ts";
+import { getSessionMessages } from "#src/session-store/get-session-messages.ts";
+import { saveSessionMessages } from "#src/session-store/save-session-messages.ts";
 import { buildChatMessageMetadata } from "./build-chat-message-metadata";
 
 export async function POST(request: NextRequest) {

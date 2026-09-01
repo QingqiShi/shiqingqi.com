@@ -2,11 +2,11 @@
 
 # Gotchas
 
-- Tests are Vitest, one package at a time: `pnpm --filter @tuja/i18n-codegen test import-graph`. The pattern matches file paths; drop it to run the whole package.
+- Tests are Vitest, one package at a time: `pnpm --filter @tuja/i18n-codegen test trace-client-files`. The pattern matches file paths; drop it to run the whole package.
 - `pnpm build` neither type-checks nor lints; `pnpm build:tsc` is the type check.
 - `pnpm test:e2e` is Playwright. Locally it runs a full production build first, unless a dev server is already up on the worktree port, which it reuses.
 - Evals hit real LLM APIs. `pnpm eval <filter>` runs one file (e.g. `pnpm eval tmdb-search`); run a bare `pnpm eval` only when the full suite is needed.
-- Run `pnpm dev` from the one app you work on (e.g. `apps/web`), never from the root, which starts every app. The port is per worktree — `node scripts/worktree-port.mjs` prints it; never assume 3000. Other devices reach it at this machine's IP or `<hostname>.local`; `scripts/dev-origins.mjs` allow-lists those hosts for Next.
+- Run `pnpm dev` from the one app you work on (e.g. `apps/web`), never from the root, which starts every app. The port is per worktree — `node scripts/get-worktree-port.mjs` prints it; never assume 3000. Other devices reach it at this machine's IP or `<hostname>.local`; `scripts/get-local-dev-origins.mjs` allow-lists those hosts for Next.
 - `.env*` files are denied to the Read tool. `turbo.json` lists most environment variable names under `globalPassThroughEnv`; confirm a name there or in source before you use it.
 - Tests run against real implementations. `vi.mock` is a last resort at the `server-only`/store boundary — see `apps/web/src/app/api/ai-chat/route.test.ts`.
 

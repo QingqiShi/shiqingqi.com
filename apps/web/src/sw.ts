@@ -1,7 +1,7 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import { Serwist } from "serwist";
-import { withLocaleRobustPageCaching } from "./sw-runtime-caching";
+import { withLocaleRobustPageCaching } from "./sw-runtime-caching/with-locale-robust-page-caching";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {

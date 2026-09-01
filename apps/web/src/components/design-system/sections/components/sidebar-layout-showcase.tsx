@@ -5,14 +5,10 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
-import {
-  getDesignSystemGroupLabels,
-  getDesignSystemRouteLabels,
-} from "#src/components/design-system/route-copy.ts";
-import {
-  DesignSystemSidebarControls,
-  DesignSystemSidebarHeader,
-} from "#src/components/design-system/sidebar-chrome.tsx";
+import { DesignSystemSidebarControls } from "#src/components/design-system/design-system-sidebar-controls.tsx";
+import { DesignSystemSidebarHeader } from "#src/components/design-system/design-system-sidebar-header.tsx";
+import { getDesignSystemGroupLabels } from "#src/components/design-system/route-copy/get-design-system-group-labels.ts";
+import { getDesignSystemRouteLabels } from "#src/components/design-system/route-copy/get-design-system-route-labels.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";

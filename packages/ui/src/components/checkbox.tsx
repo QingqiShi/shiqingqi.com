@@ -2,12 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, type ComponentProps } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import {
   border,
   color,

@@ -31,7 +31,7 @@ import { breakpoints } from "./breakpoints.stylex.ts";
 // `getDocumentClassName` in apps/web. No per-theme stylesheets are generated.
 //
 // To change a token's palette mapping, edit the entry below. To change palette
-// values themselves, edit `packages/system-palette-codegen/src/source.ts` and run
+// values themselves, edit `packages/system-palette-codegen/src/system-hues.ts` and run
 // `pnpm codegen:palette`.
 
 const light = {

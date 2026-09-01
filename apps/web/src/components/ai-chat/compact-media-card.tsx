@@ -8,7 +8,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { ratio, shadow } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "#src/components/shared/anchor.tsx";
 import { t } from "#src/i18n.ts";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
 import { MediaPoster } from "../movie-database/media-poster";
 
 interface CompactMediaCardProps {

@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import type { DesignSystemPath } from "#src/components/design-system/routes.ts";
+import type { DesignSystemPath } from "#src/components/design-system/routes/types.ts";
 import { AvatarSpecimen } from "./avatar-specimen.tsx";
 import { BadgeSpecimen } from "./badge-specimen.tsx";
 import { BreadcrumbSpecimen } from "./breadcrumb-specimen.tsx";

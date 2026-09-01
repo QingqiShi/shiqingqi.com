@@ -1,7 +1,8 @@
-import type { MediaMetadata } from "@tuja/tmdb-types/vector-db";
+import type { MediaMetadata } from "@tuja/tmdb-types/media-metadata";
 import { Index } from "@upstash/vector";
 import { config } from "dotenv";
-import { LOCALES, getRequiredEnv } from "./constants.ts";
+import { LOCALES } from "./constants.ts";
+import { getRequiredEnv } from "./get-required-env.ts";
 
 config({ path: ".env.local" });
 

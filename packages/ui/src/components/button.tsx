@@ -8,9 +8,9 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { usePressHandlers } from "../hooks/use-press-handlers.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { sharedStyles } from "./button-shared.stylex.ts";

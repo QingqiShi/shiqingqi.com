@@ -19,8 +19,8 @@ const packageRoot = path.resolve(
  * implementation details). Every other module under src/ must appear in the
  * exports map. Maintained by hand: when adding an internal-only module, list
  * it here with a reason; when promoting one to the public API, remove it.
- * Entries are package-relative paths. Entries for files that don't exist yet
- * are inert, so the list can lead the code by one wave.
+ * Entries are package-relative paths, and every one must exist on disk, so a
+ * renamed or deleted module forces the list to be pruned.
  */
 const EXPECTED_UNEXPORTED: ReadonlySet<string> = new Set([
   // Ref-merging helper shared between components; not public API.
@@ -28,16 +28,24 @@ const EXPECTED_UNEXPORTED: ReadonlySet<string> = new Set([
   // Child-list and child-resize watching shared by ProgressiveBlur and
   // useScrollMask, so a measurement follows what it measures; not public API.
   "src/utils/observe-children.ts",
-  // Focusable-element query shared by the focus-moving hooks (useDialogFocus,
+  // Tabbable-element query shared by the focus-moving hooks (useDialogFocus,
   // usePopover); an internal composition detail.
-  "src/utils/focusable.ts",
+  "src/utils/get-tabbable-elements.ts",
+  // The "can focus() land here" check behind both that query and MenuButton's
+  // roving focus; a thin platform wrapper, not public API.
+  "src/utils/is-focusable.ts",
+  // Placement maths behind usePopover, split out so the flip and shift rules
+  // can be unit tested without a layout engine; not public API.
+  "src/utils/compute-popover-position.ts",
   // Field label/description/error wiring shared by the form controls
   // (TextField, Textarea, Checkbox, Select, Slider); an internal composition
   // detail.
   "src/hooks/use-field-aria.ts",
   // Mask-string maths behind ProgressiveBlur and ScrollMask, split out so it
   // can be unit tested without a DOM; the geometry is not public API.
-  "src/components/progressive-blur-masks.ts",
+  "src/components/blur-layer-steps.ts",
+  "src/components/build-blur-layers.ts",
+  "src/components/build-edge-blur-layers.ts",
   // One Scroll mask band, split out of ScrollMask so its edges and slots melt
   // the same way; a composition detail of that component.
   "src/components/mask-band.tsx",
@@ -201,5 +209,12 @@ describe("package exports", () => {
     const exported = collectExportedFiles(exportsMap);
     const stale = [...EXPECTED_UNEXPORTED].filter((file) => exported.has(file));
     expect(stale).toEqual([]);
+  });
+
+  it("EXPECTED_UNEXPORTED only lists modules that exist", () => {
+    const missing = [...EXPECTED_UNEXPORTED].filter(
+      (file) => !fs.existsSync(path.join(packageRoot, file)),
+    );
+    expect(missing).toEqual([]);
   });
 });

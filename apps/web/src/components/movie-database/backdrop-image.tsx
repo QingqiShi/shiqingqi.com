@@ -3,7 +3,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { absoluteFill } from "@tuja/ui/primitives/layout.stylex";
 import { color, layer, ratio, space } from "@tuja/ui/tokens.stylex";
 import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
-import { buildSrcSet } from "#src/utils/tmdb-image.ts";
+import { buildTmdbSrcSet } from "#src/utils/build-tmdb-src-set.ts";
 
 interface BackdropImageProps {
   backdropPath: string;
@@ -24,7 +24,7 @@ export async function BackdropImage({ backdropPath }: BackdropImageProps) {
     return null;
   }
 
-  const { src, srcSet } = buildSrcSet(
+  const { src, srcSet } = buildTmdbSrcSet(
     config.images.secure_base_url ?? config.images.base_url,
     config.images.backdrop_sizes,
     backdropPath,

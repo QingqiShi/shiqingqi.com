@@ -26,14 +26,12 @@ import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { AnnotatedRegion } from "./annotated-region.tsx";
-import { useMovies } from "./movie-detail-data.ts";
-import {
-  CastPanel,
-  OverviewPanel,
-  SimilarPanel,
-} from "./movie-detail-panels.tsx";
+import { CastPanel } from "./cast-panel.tsx";
+import { OverviewPanel } from "./overview-panel.tsx";
+import { SimilarPanel } from "./similar-panel.tsx";
 import { TrailerOverlay } from "./trailer-overlay.tsx";
 import { TypesetPoster } from "./typeset-poster.tsx";
+import { useMovies } from "./use-movies.ts";
 
 type DetailView = "overview" | "cast" | "similar";
 
@@ -118,7 +116,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
 
   // Both are built here rather than stored per Movie, so the eyebrow and the
   // fact list cannot disagree with each other or with the poster: each value is
-  // written once in `movie-detail-data.ts` and read from there by all three.
+  // written once in `use-movies.ts` and read from there by all three.
   const meta = [movie.year, movie.runtime, movie.language].join(" · ");
   const facts = [
     { term: t({ en: "Director", zh: "导演" }), value: movie.director },
@@ -342,8 +340,10 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 the whole synopsis on every switch would read the page aloud three
                 times to someone who only wanted to compare the tabs.
 
-                One panel mounted at a time — see `movie-detail-panels.tsx` for
-                why each is its own component.
+                One panel is mounted at a time, and each panel is its own
+                component: the i18n transform compiles every `t()` call to a
+                `useI18nLookup` hook, so a `t()` reached only when one view is
+                active would change the hook call order on every switch.
               */}
               <div
                 id={panelId}

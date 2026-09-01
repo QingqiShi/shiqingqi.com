@@ -6,14 +6,10 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
-import {
-  getDesignSystemGroupLabels,
-  getDesignSystemRouteLabels,
-} from "#src/components/design-system/route-copy.ts";
-import {
-  DesignSystemSidebarControls,
-  DesignSystemSidebarHeader,
-} from "#src/components/design-system/sidebar-chrome.tsx";
+import { DesignSystemSidebarControls } from "#src/components/design-system/design-system-sidebar-controls.tsx";
+import { DesignSystemSidebarHeader } from "#src/components/design-system/design-system-sidebar-header.tsx";
+import { getDesignSystemGroupLabels } from "#src/components/design-system/route-copy/get-design-system-group-labels.ts";
+import { getDesignSystemRouteLabels } from "#src/components/design-system/route-copy/get-design-system-route-labels.ts";
 import {
   DESIGN_SYSTEM_CONTENT_ID,
   SkipToContent,

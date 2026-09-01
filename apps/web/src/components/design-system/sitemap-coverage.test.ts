@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { BASE_URL } from "#src/constants.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
-import { DESIGN_SYSTEM_PATHS } from "./routes.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
+import { DESIGN_SYSTEM_PATHS } from "./routes/design-system-paths.ts";
 
 // Resolve the static sitemap relative to this file so the test is independent
 // of the working directory. src/components/design-system → src/app.

@@ -2,9 +2,9 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { usePageScrolled } from "../hooks/use-page-scrolled.ts";
 import { flex } from "../primitives/flex.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { layer, space } from "../tokens.stylex.ts";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 

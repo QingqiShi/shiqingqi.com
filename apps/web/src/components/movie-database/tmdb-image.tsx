@@ -1,9 +1,9 @@
 "use client";
 
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import type { StyleProp } from "@tuja/ui/css-prop-types";
+import type { StyleProp } from "@tuja/ui/style-prop";
 import { useState, type ReactNode } from "react";
-import { buildSrcSet } from "#src/utils/tmdb-image.ts";
+import { buildTmdbSrcSet } from "#src/utils/build-tmdb-src-set.ts";
 
 interface TmdbImageProps {
   baseUrl: string;
@@ -35,7 +35,7 @@ export function TmdbImage({
   errorFallback = null,
   loading = "lazy",
 }: TmdbImageProps) {
-  const { src, srcSet } = buildSrcSet(baseUrl, sizeConfig, path);
+  const { src, srcSet } = buildTmdbSrcSet(baseUrl, sizeConfig, path);
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
 

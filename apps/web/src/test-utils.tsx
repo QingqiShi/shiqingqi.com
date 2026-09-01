@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 import React, { Suspense } from "react";
 import translations from "#src/_generated/i18n/translations.en.json";
 import { I18nContext } from "#src/i18n/i18n-context.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
 
 const createTestQueryClient = () => {
   const queryClient = new QueryClient({
@@ -21,7 +21,7 @@ const createTestQueryClient = () => {
     },
   });
 
-  queryClient.setQueryData(tmdbQueries.configuration.queryKey, {
+  queryClient.setQueryData(configurationQuery.queryKey, {
     images: {
       base_url: "http://image.tmdb.org/t/p/",
       secure_base_url: "https://image.tmdb.org/t/p/",

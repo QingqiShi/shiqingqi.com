@@ -25,6 +25,7 @@ import {
   layer,
   space,
 } from "../tokens.stylex.ts";
+import { isFocusable } from "../utils/is-focusable.ts";
 import { Button } from "./button.tsx";
 import { FixedContainerContent } from "./fixed-container-content.tsx";
 import { popoverSurface } from "./popover-surface.stylex.ts";
@@ -85,6 +86,25 @@ const OPEN_TRANSITION_FALLBACK = morphTransition(
 // over the trigger.
 const CLOSE_TRANSITION = `${morphTransition(duration._300, easing.entrance)}, opacity ${duration._100} ${easing.linear} ${duration._200}`;
 const REDUCED_FADE = `opacity ${duration._150} ${easing.easeInOut}`;
+
+/**
+ * The popup's roving stops, in tree order. A stop has to be able to take
+ * focus, and `focus()` does nothing on an item that does not render, sits in
+ * an inert subtree, or is natively disabled — the arrow keys would strand on
+ * it.
+ *
+ * An `aria-disabled` item stays in the order: it can still take focus, the APG
+ * keeps disabled controls navigable inside a composite widget so they stay
+ * discoverable, and `Button` builds its busy state on `aria-disabled` for the
+ * same reason.
+ *
+ * @see https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_disabled_controls
+ */
+function getMenuItems(popup: HTMLElement) {
+  return [...popup.querySelectorAll<HTMLElement>('[role="menuitem"]')].filter(
+    (item) => isFocusable(item),
+  );
+}
 
 interface MenuButtonProps {
   /** Button prop overrides */
@@ -244,9 +264,10 @@ export function MenuButton({
     if (!isMenuShown || popupRole !== "menu") return;
     const popup = popupRef.current;
     if (!popup) return;
+    const items = getMenuItems(popup);
     const target =
-      popup.querySelector<HTMLElement>('[data-menu-autofocus="true"]') ??
-      popup.querySelector<HTMLElement>('[role="menuitem"]');
+      items.find((item) => item.dataset.menuAutofocus === "true") ??
+      items.at(0);
     target?.focus();
   }, [isMenuShown, popupRole]);
 
@@ -294,9 +315,7 @@ export function MenuButton({
 
           const popup = popupRef.current;
           if (!popup) return;
-          const items = Array.from(
-            popup.querySelectorAll<HTMLElement>('[role="menuitem"]'),
-          );
+          const items = getMenuItems(popup);
           if (items.length === 0) return;
 
           e.preventDefault();

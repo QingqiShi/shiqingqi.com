@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
-import type { StyleProp } from "../css-prop-types.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { buildEdgeBlurLayers } from "./progressive-blur-masks.ts";
+import type { StyleProp } from "../style-prop.ts";
+import { buildEdgeBlurLayers } from "./build-edge-blur-layers.ts";
 
 /** The edge of a region a band sits over, in the region's writing mode. */
 type MaskBandEdge = "block-start" | "block-end" | "inline-start" | "inline-end";

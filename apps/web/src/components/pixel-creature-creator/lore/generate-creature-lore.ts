@@ -2,8 +2,8 @@ import { generateText, Output, type LanguageModel } from "ai";
 import "server-only";
 import type { SupportedLocale } from "#src/types.ts";
 import { species } from "../sprite/species";
-import type { CreatureDef } from "../state/creature-schema";
-import { loreOutputSchema, type LoreOutput } from "./lore-schema";
+import type { CreatureDef } from "../state/creature-def-schema";
+import { loreOutputSchema, type LoreOutput } from "./lore-output-schema";
 
 interface GenerateCreatureLoreInput {
   def: CreatureDef;

@@ -19,7 +19,7 @@ import SpotifyLogo from "#src/logos/spotify-logo.tsx";
 import { svgTokens } from "#src/logos/svg.stylex.ts";
 import WtcLogo from "#src/logos/wtc-logo.tsx";
 import type { PageProps } from "#src/types.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
 
 export default async function Home(props: PageProps) {
   const { locale } = await props.params;

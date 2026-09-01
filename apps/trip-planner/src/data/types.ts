@@ -143,7 +143,7 @@ export interface Checklist {
 }
 
 /** Which road-sign pictograph to draw — keys into the SVG set in
- *  `components/trip/road-signs.tsx`. */
+ *  `components/trip/sign-sheet-card.tsx`. */
 export type RoadSignGlyph =
   | "roadColors"
   | "noEntry"
