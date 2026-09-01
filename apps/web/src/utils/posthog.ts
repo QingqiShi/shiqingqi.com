@@ -46,6 +46,37 @@ export const dropOpaqueCrossOriginErrors: BeforeSendFn = (event) => {
     : event;
 };
 
+// React's <ViewTransition> drives the browser view transition API. When an
+// update lands mid-transition, the browser skips the old transition and
+// rejects its promise with this AbortError. Nothing awaits that promise, so
+// the unhandled rejection is benign: only the animation is skipped.
+const skippedTransitionMessage = "AbortError: Transition was skipped";
+
+function isSkippedTransitionError(exception: unknown) {
+  if (typeof exception !== "object" || exception === null) return false;
+  return (
+    "type" in exception &&
+    exception.type === "DOMException" &&
+    "value" in exception &&
+    exception.value === skippedTransitionMessage
+  );
+}
+
+function isSkippedTransitionExceptionList(exceptions: unknown) {
+  return (
+    Array.isArray(exceptions) &&
+    exceptions.length > 0 &&
+    exceptions.every(isSkippedTransitionError)
+  );
+}
+
+export const dropSkippedTransitionErrors: BeforeSendFn = (event) => {
+  if (!event || event.event !== "$exception") return event;
+  return isSkippedTransitionExceptionList(event.properties.$exception_list)
+    ? null
+    : event;
+};
+
 let initialised = false;
 let client: PostHog | undefined;
 
@@ -78,7 +109,7 @@ export async function initPostHog() {
     // Needs "Cookieless server hash mode" enabled in the PostHog project.
     cookieless_mode: "always",
     capture_exceptions: true,
-    before_send: dropOpaqueCrossOriginErrors,
+    before_send: [dropOpaqueCrossOriginErrors, dropSkippedTransitionErrors],
     capture_performance: { web_vitals: true },
     debug: process.env.NODE_ENV === "development",
   });
