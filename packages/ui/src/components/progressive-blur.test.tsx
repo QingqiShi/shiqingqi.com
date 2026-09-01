@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { buildBlurLayers } from "./progressive-blur-masks.ts";
+import { buildBlurLayers } from "./build-blur-layers.ts";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 afterEach(() => {

@@ -6,7 +6,7 @@ import { DailyView } from "./daily-view";
 import { Overview } from "./overview";
 import type { Day, Trip, TripPhase } from "@/data/types";
 import { cn } from "@/lib/utils";
-import type { LiveWeather } from "@/lib/wmo";
+import type { LiveWeather } from "@/lib/wmo/types";
 
 type View = "daily" | "overview";
 

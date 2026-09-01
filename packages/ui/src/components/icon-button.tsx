@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { color, controlSize, font, opacity, shadow } from "../tokens.stylex.ts";
 
 type IconButtonSize = "sm" | "md" | "lg";

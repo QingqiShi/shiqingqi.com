@@ -3,13 +3,13 @@
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import type { StyleProp } from "@tuja/ui/style-prop";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";

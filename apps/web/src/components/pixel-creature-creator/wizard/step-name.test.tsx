@@ -1,7 +1,10 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { render } from "#src/test-utils.tsx";
-import { type CreatureDef, DEFAULT_CREATURE } from "../state/creature-schema";
+import {
+  type CreatureDef,
+  DEFAULT_CREATURE,
+} from "../state/creature-def-schema";
 import { StepName } from "./step-name";
 
 function renderStep(name: string) {

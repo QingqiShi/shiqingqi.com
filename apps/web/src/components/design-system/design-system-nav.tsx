@@ -10,15 +10,14 @@ import { usePathname } from "next/navigation";
 import { useId } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { getLocalePath, normalizePath } from "#src/utils/pathname.ts";
-import type { DesignSystemGroupLabels } from "./route-copy.ts";
-import {
-  type DesignSystemPath,
-  getDesignSystemRouteSections,
-} from "./routes.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
+import { normalizePath } from "#src/utils/normalize-path.ts";
+import type { DesignSystemGroupLabels } from "./route-copy/get-design-system-group-labels.ts";
+import { getDesignSystemRouteSections } from "./routes/get-design-system-route-sections.ts";
+import type { DesignSystemPath } from "./routes/types.ts";
 
 interface DesignSystemNavProps {
-  /** Every route's name. Resolved on the server — see `route-copy.ts`. */
+  /** Every route's name. Resolved on the server — see `route-copy/`. */
   routeLabels: Record<DesignSystemPath, string>;
   groupLabels: DesignSystemGroupLabels;
   /**

@@ -1,4 +1,4 @@
-import { isRecord } from "#src/utils/type-guards.ts";
+import { isRecord } from "#src/utils/is-record.ts";
 
 export const TOOL_ERROR_MARKER = "__toolError";
 

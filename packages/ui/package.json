@@ -42,11 +42,12 @@
   "exports": {
     "./package.json": "./package.json",
     "./css-prop": "./src/css-prop.d.ts",
-    "./css-prop-types": "./src/css-prop-types.ts",
+    "./style-prop": "./src/style-prop.ts",
     "./tokens.stylex": "./src/tokens.stylex.ts",
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
     "./palette/*": "./src/_generated/palette/hues/*.stylex.ts",
     "./palette-table": "./src/_generated/palette/palette-table.ts",
+    "./test-support/install-jsdom-shims": "./src/test-support/install-jsdom-shims.ts",
     "./hooks/use-controlled": "./src/hooks/use-controlled.ts",
     "./hooks/use-dialog-focus": "./src/hooks/use-dialog-focus.ts",
     "./hooks/use-disclosure": "./src/hooks/use-disclosure.ts",

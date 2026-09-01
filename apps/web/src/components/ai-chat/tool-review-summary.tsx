@@ -15,7 +15,7 @@ import type { ComponentType } from "react";
 import { useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { isRecord } from "#src/utils/type-guards.ts";
+import { isRecord } from "#src/utils/is-record.ts";
 import { useChatActions } from "./chat-actions-context";
 
 interface ReviewSummaryData {

@@ -2,13 +2,10 @@ import { Map as MapIcon } from "lucide-react";
 import { MapEmbed } from "./map-embed";
 import { Section } from "./section";
 import type { Day } from "@/data/types";
-import {
-  dayRouteMode,
-  dayRoutePoints,
-  googleMapsEmbedDirectionsUrl,
-  mapsEmbedEnabled,
-  MAX_ROUTE_WAYPOINTS,
-} from "@/lib/maps";
+import { mapsEmbedEnabled, MAX_ROUTE_WAYPOINTS } from "@/lib/maps/constants";
+import { dayRouteMode } from "@/lib/maps/day-route-mode";
+import { dayRoutePoints } from "@/lib/maps/day-route-points";
+import { googleMapsEmbedDirectionsUrl } from "@/lib/maps/google-maps-embed-directions-url";
 
 /**
  * An at-a-glance map of the whole day, chaining the nav legs into one route.

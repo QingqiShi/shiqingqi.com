@@ -3,12 +3,12 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
 import { createPortal } from "react-dom";
-import type { StyleProp } from "../css-prop-types.ts";
 import {
   usePopover,
   type PopoverPlacement,
   type PopoverTriggerProps,
 } from "../hooks/use-popover.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { color, layer, space } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { popoverSurface } from "./popover-surface.stylex.ts";

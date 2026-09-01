@@ -16,7 +16,7 @@
 
 "use strict";
 
-const { createTImportTracker } = require("./t-import.js");
+const { createTImportTracker } = require("./create-t-import-tracker.js");
 
 /** @param {string} name */
 function isComponentName(name) {
@@ -146,7 +146,7 @@ function isRenderScopeFunction(fnNode) {
 }
 
 /** @type {import("eslint").Rule.RuleModule} */
-module.exports = {
+const noTOutsideRender = {
   meta: {
     type: "problem",
     docs: {
@@ -330,3 +330,5 @@ module.exports = {
     };
   },
 };
+
+module.exports = noTOutsideRender;

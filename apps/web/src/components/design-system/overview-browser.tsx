@@ -9,12 +9,10 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState, type ReactNode } from "react";
 import { t } from "#src/i18n.ts";
-import type { DesignSystemGroupLabels } from "./route-copy.ts";
-import {
-  getDesignSystemRouteSections,
-  matchesDesignSystemQuery,
-  type DesignSystemPath,
-} from "./routes.ts";
+import type { DesignSystemGroupLabels } from "./route-copy/get-design-system-group-labels.ts";
+import { getDesignSystemRouteSections } from "./routes/get-design-system-route-sections.ts";
+import { matchesDesignSystemQuery } from "./routes/matches-design-system-query.ts";
+import type { DesignSystemPath } from "./routes/types.ts";
 
 export interface OverviewEntry {
   path: DesignSystemPath;
@@ -40,7 +38,7 @@ interface OverviewBrowserProps {
    * is the one sort whose result depends on which ICU is running it.
    */
   alphabeticalOrder: readonly DesignSystemPath[];
-  /** The section and category headings. Resolved on the server — see `route-copy.ts`. */
+  /** The section and category headings. Resolved on the server — see `route-copy/`. */
   groupLabels: DesignSystemGroupLabels;
 }
 

@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import type {
   DesignSystemFoundationPath,
   DesignSystemPath,
-} from "#src/components/design-system/routes.ts";
+} from "#src/components/design-system/routes/types.ts";
 import { AccessibilityIllustration } from "./accessibility-illustration.tsx";
 import { BordersIllustration } from "./borders-illustration.tsx";
 import { ColorIllustration } from "./color-illustration.tsx";

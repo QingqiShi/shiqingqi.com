@@ -9,9 +9,9 @@ import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { buildSrcSet } from "#src/utils/tmdb-image.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import { isRecord } from "#src/utils/type-guards.ts";
+import { buildTmdbSrcSet } from "#src/utils/build-tmdb-src-set.ts";
+import { isRecord } from "#src/utils/is-record.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
 import { ExternalLinkIndicator } from "../shared/external-link-indicator";
 
 interface ProviderEntry {
@@ -199,7 +199,7 @@ function ProviderLogo({
   name: string;
   size?: number;
 }) {
-  const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
+  const { data: config } = useSuspenseQuery(configurationQuery);
 
   const baseUrl =
     config.images?.secure_base_url ?? config.images?.base_url ?? "";
@@ -207,7 +207,7 @@ function ProviderLogo({
 
   if (!baseUrl || !logoPath) return null;
 
-  const { src, srcSet } = buildSrcSet(baseUrl, logoSizes, logoPath);
+  const { src, srcSet } = buildTmdbSrcSet(baseUrl, logoSizes, logoPath);
 
   return (
     <img

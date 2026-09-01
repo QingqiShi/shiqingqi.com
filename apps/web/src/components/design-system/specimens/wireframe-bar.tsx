@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import type { StyleProp } from "@tuja/ui/style-prop";
 import { color, space } from "@tuja/ui/tokens.stylex";
 
 interface WireframeBarProps {

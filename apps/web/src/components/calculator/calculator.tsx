@@ -7,12 +7,9 @@ import { Fragment, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { CalculatorButton } from "./calculator-button.tsx";
 import { CalculatorDisplay } from "./calculator-display.tsx";
-import {
-  evaluateExpression,
-  isBinaryOperator,
-  isUnaryOperator,
-} from "./calculator-logic.ts";
-import type { Token } from "./types.ts";
+import { evaluateExpression } from "./calculator-logic/evaluate-expression.ts";
+import { isBinaryOperator } from "./calculator-logic/is-binary-operator.ts";
+import { isUnaryOperator } from "./calculator-logic/is-unary-operator.ts";
 import {
   BUTTON_CLEAR,
   BUTTON_DECIMAL,
@@ -22,7 +19,8 @@ import {
   BUTTON_ZERO,
   buttons,
   numbersSet,
-} from "./types.ts";
+} from "./constants.ts";
+import type { Token } from "./types.ts";
 
 function createInitialToken(): Token {
   return { type: "number", value: 0, raw: "0" };

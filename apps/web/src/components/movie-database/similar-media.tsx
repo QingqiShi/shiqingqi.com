@@ -12,7 +12,8 @@ import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
 import { noop } from "#src/utils/noop.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
+import { similarMediaQuery } from "#src/utils/tmdb-queries/similar-media-query.ts";
 import { Grid } from "./grid";
 import { SimilarMediaList } from "./similar-media-list";
 
@@ -37,7 +38,7 @@ export function SimilarMedia({
   // Prefetch configuration
   queryClient
     .query({
-      ...tmdbQueries.configuration,
+      ...configurationQuery,
       queryFn: async () => getConfiguration(),
     })
     .catch(noop);
@@ -45,7 +46,7 @@ export function SimilarMedia({
   // Prefetch similar media data to prevent SSR errors
   queryClient
     .infiniteQuery({
-      ...tmdbQueries.similarMedia({
+      ...similarMediaQuery({
         type: mediaType,
         id: mediaId,
         page: 1,

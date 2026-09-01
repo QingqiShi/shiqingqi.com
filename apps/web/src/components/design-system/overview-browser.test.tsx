@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, userEvent, within } from "#src/test-utils.tsx";
 import { OverviewBrowser, type OverviewEntry } from "./overview-browser.tsx";
-import type { DesignSystemGroupLabels } from "./route-copy.ts";
+import type { DesignSystemGroupLabels } from "./route-copy/get-design-system-group-labels.ts";
 
 // A stand-in for the server-rendered tile: the browser never looks inside one,
 // it only places it, so a link is enough to find it by name.

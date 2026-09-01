@@ -10,7 +10,7 @@ import {
   UserRoundPlus,
   Utensils,
 } from "lucide-react";
-import { NavLink } from "./links";
+import { NavLink } from "./nav-link";
 import type { Anchor, AnchorKind } from "@/data/types";
 
 const anchorIcon: Record<AnchorKind, LucideIcon> = {

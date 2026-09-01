@@ -354,18 +354,18 @@ const msg = t({ en: \`Hello \${name}\`, zh: \`你好\${name}\` });
     });
   });
 
-  describe("key parity with hash.js", () => {
-    it("produces identical keys to packages/i18n-codegen/src/hash.js", async () => {
-      // Dynamically import the ESM hash module
-      const hashModulePath = path.resolve(
+  describe("key parity with generate-key.js", () => {
+    it("produces identical keys to packages/i18n-codegen/src/generate-key.js", async () => {
+      // Dynamically import the ESM key module
+      const keyModulePath = path.resolve(
         __dirname,
         "..",
         "..",
         "i18n-codegen",
         "src",
-        "hash.js",
+        "generate-key.js",
       );
-      const { generateKey } = await import(hashModulePath);
+      const { generateKey } = await import(keyModulePath);
 
       const testPairs = [
         ["Hello", "你好"],

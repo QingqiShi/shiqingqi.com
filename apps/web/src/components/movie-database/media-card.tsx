@@ -6,8 +6,8 @@ import { layer, ratio } from "@tuja/ui/tokens.stylex";
 import { Card } from "#src/components/shared/card.tsx";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
-import type { MediaListItem } from "#src/utils/types.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
 import { MediaPoster } from "./media-poster";
 
 interface MediaCardProps {

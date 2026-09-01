@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
 import { species } from "../sprite/species";
-import type { CreatureDef } from "../state/creature-schema";
+import type { CreatureDef } from "../state/creature-def-schema";
 
 interface StepSpeciesProps {
   def: CreatureDef;

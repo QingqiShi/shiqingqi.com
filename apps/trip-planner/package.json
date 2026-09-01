@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p $(node ../../scripts/worktree-port.mjs 100)",
+    "dev": "next dev --turbopack -p $(node ../../scripts/get-worktree-port.mjs 100)",
     "build": "next build && serwist build serwist.config.mjs",
     "build:tsc": "tsc --noEmit",
     "start": "next start",

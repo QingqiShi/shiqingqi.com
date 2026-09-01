@@ -1,5 +1,5 @@
 import { createContext, use } from "react";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
 
 /**
  * Everything a table cell needs that is expensive to build or lives outside

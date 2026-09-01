@@ -6,7 +6,7 @@ import { color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { PixelLayer } from "../sprite/pixel-layer";
 import { ACCESSORY_PALETTE, accessories } from "../sprite/sprites";
-import type { CreatureDef } from "../state/creature-schema";
+import type { CreatureDef } from "../state/creature-def-schema";
 import { OptionGrid } from "./option-grid";
 
 interface StepFeaturesProps {

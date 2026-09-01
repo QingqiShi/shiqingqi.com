@@ -5,7 +5,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { t } from "#src/i18n.ts";
-import { captureException } from "#src/utils/posthog.ts";
+import { captureException } from "#src/utils/posthog/capture-exception.ts";
 
 function ErrorFallback({
   resetErrorBoundary,

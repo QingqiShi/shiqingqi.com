@@ -11,13 +11,15 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { calculateAge } from "#src/utils/calculate-age.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
+import { personCombinedCreditsQuery } from "#src/utils/tmdb-queries/person-combined-credits-query.ts";
+import { personDetailsQuery } from "#src/utils/tmdb-queries/person-details-query.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
 import { CompactMediaCard } from "./compact-media-card";
 import { DepartmentLabel } from "./department-label";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";
-import { useMediaDetail, type FocusedPerson } from "./media-detail-context";
+import { useMediaDetail, type FocusedPerson } from "./media-detail-provider";
 
 const MAX_CREDITS = 20;
 
@@ -31,9 +33,9 @@ export function PersonDetailContent({
 
   const [detailQuery, creditsQuery, configQuery] = useQueries({
     queries: [
-      tmdbQueries.personDetail({ id: idString, language: locale }),
-      tmdbQueries.personCombinedCredits({ id: idString, language: locale }),
-      tmdbQueries.configuration,
+      personDetailsQuery({ id: idString, language: locale }),
+      personCombinedCreditsQuery({ id: idString, language: locale }),
+      configurationQuery,
     ],
   });
 

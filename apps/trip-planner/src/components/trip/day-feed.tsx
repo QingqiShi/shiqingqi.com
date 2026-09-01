@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ChecklistCard } from "./checklist-section";
-import { DiningList } from "./dining-section";
-import { FlightCard } from "./flight-section";
-import { PlacePill } from "./links";
-import { NavLegRow } from "./nav-section";
-import { SignSheetCard } from "./road-signs";
-import { TipRow } from "./tips-section";
+import { ChecklistCard } from "./checklist-card";
+import { DiningList } from "./dining-list";
+import { FlightCard } from "./flight-card";
+import { NavLegRow } from "./nav-leg-row";
+import { PlacePill } from "./place-pill";
+import { SignSheetCard } from "./sign-sheet-card";
+import { TipRow } from "./tip-row";
 import type { Day } from "@/data/types";
-import { type DayMoment, buildDayFeed, momentDomId } from "@/lib/schedule";
+import { type DayMoment, buildDayFeed } from "@/lib/schedule/build-day-feed";
+import { momentDomId } from "@/lib/schedule/moment-dom-id";
 import { cn } from "@/lib/utils";
 
 // Only nudge the scroll on phones; on wider screens the day mostly fits.

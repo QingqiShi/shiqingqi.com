@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode, Ref } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { transition } from "../primitives/motion.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { space } from "../tokens.stylex.ts";
 import { cardSurface } from "./card.stylex.ts";
 import { Heading } from "./heading.tsx";

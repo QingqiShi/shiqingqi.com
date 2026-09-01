@@ -1,49 +1,24 @@
-import {
-  antennaAccessory,
-  bowAccessory,
-  glassesAccessory,
-  hatAccessory,
-  leafAccessory,
-  scarfAccessory,
-} from "./accessories";
-import {
-  dawnType,
-  dustType,
-  emberType,
-  frostType,
-  glowType,
-  leafType,
-  tideType,
-  voidType,
-} from "./types";
+import { antennaAccessory } from "./accessories/antenna-accessory";
+import { bowAccessory } from "./accessories/bow-accessory";
+import { glassesAccessory } from "./accessories/glasses-accessory";
+import { hatAccessory } from "./accessories/hat-accessory";
+import { leafAccessory } from "./accessories/leaf-accessory";
+import { scarfAccessory } from "./accessories/scarf-accessory";
+import { dawnElement } from "./elements/dawn-element";
+import { dustElement } from "./elements/dust-element";
+import { emberElement } from "./elements/ember-element";
+import { frostElement } from "./elements/frost-element";
+import { glowElement } from "./elements/glow-element";
+import { leafElement } from "./elements/leaf-element";
+import { tideElement } from "./elements/tide-element";
+import { voidElement } from "./elements/void-element";
+import type { CreatureElement, ElementBase, PartTile } from "./types";
 
 /**
  * Sprite registry — central place where the sprite component looks up
- * accessory tiles and creature types. Species art lives in `../species`.
+ * Accessories and Elements. Species art lives in `../species`. The shapes
+ * they conform to are declared once in `./types`.
  */
-
-export interface PartLabel {
-  en: string;
-  zh: string;
-}
-
-export interface PartTile {
-  id: string;
-  label: PartLabel;
-  tile: string[];
-}
-
-export interface CreatureType {
-  id: string;
-  label: PartLabel;
-  accentColor: string;
-  /**
-   * Hue-rotate filter applied to the sprite stage for this type. Tuned by
-   * visual inspection so each type tints the hand-authored species art
-   * without obliterating its baked-in colors. `0deg` = no shift.
-   */
-  hueRotateDeg: number;
-}
 
 // Use `Partial<Record<...>>` so that lookups by an arbitrary string ID
 // surface `undefined` in the type system — callers must handle the
@@ -65,29 +40,29 @@ export const accessories: Registry<PartTile> = indexById([
   bowAccessory,
 ]);
 
-const typeWithHue = (
-  base: { id: string; label: PartLabel; accentColor: string },
+const elementWithHue = (
+  base: ElementBase,
   hueRotateDeg: number,
-): CreatureType => ({ ...base, hueRotateDeg });
+): CreatureElement => ({ ...base, hueRotateDeg });
 
-export const types: Registry<CreatureType> = indexById([
-  typeWithHue(leafType, 0),
-  typeWithHue(emberType, -40),
-  typeWithHue(tideType, 60),
-  typeWithHue(dustType, -25),
-  typeWithHue(glowType, -10),
-  typeWithHue(frostType, 80),
-  typeWithHue(dawnType, -20),
-  typeWithHue(voidType, 180),
+export const elements: Registry<CreatureElement> = indexById([
+  elementWithHue(leafElement, 0),
+  elementWithHue(emberElement, -40),
+  elementWithHue(tideElement, 60),
+  elementWithHue(dustElement, -25),
+  elementWithHue(glowElement, -10),
+  elementWithHue(frostElement, 80),
+  elementWithHue(dawnElement, -20),
+  elementWithHue(voidElement, 180),
 ]);
 
 export const ACCESSORY_IDS: string[] = Object.keys(accessories);
-export const TYPE_IDS: string[] = Object.keys(types);
+export const ELEMENT_IDS: string[] = Object.keys(elements);
 
 /**
  * Fixed accessory palette. Accessory tiles use only slots `a` (primary)
  * and `b` (secondary); other slots are intentionally undefined since the
- * accessory grammar doesn't reach them. The type's hue-rotate filter
+ * accessory grammar doesn't reach them. The Element's hue-rotate filter
  * shifts these alongside the species art so trinkets blend with the tint.
  */
 export const ACCESSORY_PALETTE: string[] = (() => {

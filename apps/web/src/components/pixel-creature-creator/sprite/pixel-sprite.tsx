@@ -3,18 +3,16 @@
 import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import type { CreatureDef, Emotion } from "../state/creature-schema";
-import {
-  type EmotionMotion,
-  SPRITE_ART_PX,
-  artPxToCssPx,
-  getEmotionMotion,
-  getReducedMotionEmotion,
-  snapToArtPixel,
-} from "./motion-math";
+import type { CreatureDef, Emotion } from "../state/creature-def-schema";
+import { artPxToCssPx } from "./motion-math/art-px-to-css-px";
+import { SPRITE_ART_PX } from "./motion-math/constants";
+import { getEmotionMotion } from "./motion-math/get-emotion-motion";
+import { getReducedMotionEmotion } from "./motion-math/get-reduced-motion-emotion";
+import { snapToArtPixel } from "./motion-math/snap-to-art-pixel";
+import type { EmotionMotion } from "./motion-math/types";
 import { PixelLayer } from "./pixel-layer";
 import { species } from "./species";
-import { ACCESSORY_PALETTE, accessories, types } from "./sprites";
+import { ACCESSORY_PALETTE, accessories, elements } from "./sprites";
 
 interface PixelSpriteProps {
   def: CreatureDef;
@@ -56,7 +54,7 @@ export function PixelSprite({
   const activeEmotion = emotion ?? def.defaultEmotion;
 
   const speciesEntry = species[def.species];
-  const typeEntry = types[def.type];
+  const elementEntry = elements[def.type];
   // Accessories stack on top of the species. Unknown IDs are skipped
   // silently — the schema validates IDs upstream.
   const accessoryTiles = def.accessories
@@ -127,7 +125,7 @@ export function PixelSprite({
     };
   }, [activeEmotion, paused, scale]);
 
-  if (speciesEntry === undefined || typeEntry === undefined) {
+  if (speciesEntry === undefined || elementEntry === undefined) {
     return null;
   }
 
@@ -141,9 +139,9 @@ export function PixelSprite({
   const accessorySizePx = ACCESSORY_TILE_PX * scale;
 
   const filter =
-    typeEntry.hueRotateDeg === 0
+    elementEntry.hueRotateDeg === 0
       ? undefined
-      : `hue-rotate(${String(typeEntry.hueRotateDeg)}deg)`;
+      : `hue-rotate(${String(elementEntry.hueRotateDeg)}deg)`;
 
   return (
     <div

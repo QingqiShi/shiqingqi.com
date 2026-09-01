@@ -13,7 +13,7 @@ import {
 } from "#src/components/ai-chat/recommended-media-row.tsx";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
 
 const ITEMS_PER_ROW = 14;
 

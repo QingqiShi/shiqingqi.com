@@ -34,6 +34,7 @@
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "16.3.2",
     "@stylexjs/eslint-plugin": "^0.19.0",
+    "@tuja/eslint-plugin-conventions": "workspace:*",
     "@tuja/eslint-plugin-i18n": "workspace:*",
     "@typescript/native": "catalog:",
     "eslint": "catalog:",

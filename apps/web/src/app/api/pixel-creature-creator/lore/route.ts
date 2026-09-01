@@ -1,18 +1,18 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { getAnthropicModel } from "#src/ai-chat/client.ts";
+import { getAnthropicModel } from "#src/ai-chat/get-anthropic-model.ts";
 import { generateCreatureLore } from "#src/components/pixel-creature-creator/lore/generate-creature-lore.ts";
-import type { LoreOutput } from "#src/components/pixel-creature-creator/lore/lore-schema.ts";
+import type { LoreOutput } from "#src/components/pixel-creature-creator/lore/lore-output-schema.ts";
 import {
   creatureDefSchema,
   type CreatureDef,
-} from "#src/components/pixel-creature-creator/state/creature-schema.ts";
+} from "#src/components/pixel-creature-creator/state/creature-def-schema.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import {
   limitLoreRequest,
-  resolveClientIp,
   type LoreRateLimitResult,
-} from "./rate-limiter";
+} from "./limit-lore-request";
+import { resolveClientIp } from "./resolve-client-ip";
 
 const requestSchema = z.object({
   def: creatureDefSchema,

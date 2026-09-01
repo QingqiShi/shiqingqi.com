@@ -2,8 +2,8 @@ import type { UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { ChatMessage } from "./chat-message";
-import { accumulateToolOutputs } from "./map-tool-output";
-import { MediaDetailProvider } from "./media-detail-context";
+import { accumulateToolOutputs } from "./map-tool-output/accumulate-tool-outputs";
+import { MediaDetailProvider } from "./media-detail-provider";
 
 function createMessage(
   overrides: Partial<UIMessage> & Pick<UIMessage, "role" | "parts">,

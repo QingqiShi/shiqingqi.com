@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   COMPACTION_TRIGGER_TOKENS,
   USAGE_WARNING_RATIO,
-} from "#src/ai-chat/context-management-shared.ts";
+} from "#src/ai-chat/context-management-config.ts";
 import type { ChatUIMessage } from "#src/ai-chat/use-ai-chat.ts";
 import { render, screen } from "#src/test-utils.tsx";
 import { ChatMessageList } from "./chat-message-list";
-import { accumulateToolOutputs } from "./map-tool-output";
+import { accumulateToolOutputs } from "./map-tool-output/accumulate-tool-outputs";
 
 function createMessage(
   overrides: Partial<ChatUIMessage> &

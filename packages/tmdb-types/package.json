@@ -5,7 +5,9 @@
   "type": "module",
   "exports": {
     "./openapi": "./src/openapi.d.ts",
-    "./vector-db": "./src/vector-db.ts"
+    "./media-metadata": "./src/media-metadata.ts",
+    "./vector-search-filters-schema": "./src/vector-search-filters-schema.ts",
+    "./vector-search-result": "./src/vector-search-result.ts"
   },
   "scripts": {
     "build:tsc": "tsc --noEmit",

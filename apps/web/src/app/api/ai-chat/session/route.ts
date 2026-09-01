@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { sessionIdSchema } from "#src/ai-chat/session-schema.ts";
-import { getSessionMessages } from "#src/session-store/session-store.ts";
+import { sessionIdSchema } from "#src/ai-chat/session-id-schema.ts";
+import { getSessionMessages } from "#src/session-store/get-session-messages.ts";
 
 const bodySchema = z.object({ sessionId: sessionIdSchema });
 

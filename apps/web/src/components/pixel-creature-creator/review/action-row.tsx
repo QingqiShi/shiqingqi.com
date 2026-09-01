@@ -17,18 +17,18 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { copyTextToClipboard } from "#src/utils/copy-text-to-clipboard.ts";
-import type { CreatureDef, Emotion } from "../state/creature-schema";
-import { encodeCreature } from "../state/encode-decode";
-import { saveCreature } from "../state/local-storage";
-import {
-  isSaved,
-  notifySavedStore,
-  subscribeToSavedStore,
-} from "../state/saved-store";
+import { downloadBlob } from "#src/utils/download-blob.ts";
+import type { CreatureDef, Emotion } from "../state/creature-def-schema";
+import { encodeCreature } from "../state/encode-creature";
+import { isCreatureSaved } from "../state/is-creature-saved";
+import { notifySavedCreaturesChanged } from "../state/notify-saved-creatures-changed";
+import { saveCreature } from "../state/saved-creatures/save-creature";
+import { subscribeSavedCreatures } from "../state/subscribe-saved-creatures";
 import { randomCreature } from "../wizard/random-creature";
 import type { LoreData } from "./creature-card";
-import { exportCardPng, exportSpritePng } from "./png-export";
-import { slugifyName } from "./slug";
+import { exportCardPng } from "./export-card-png";
+import { exportSpritePng } from "./export-sprite-png";
+import { slugifyName } from "./slugify-name";
 
 interface ActionRowProps {
   def: CreatureDef;
@@ -105,10 +105,10 @@ function isLoreApiSuccess(value: unknown): value is LoreApiSuccess {
  *   5. Shuffle — full-nav to /c with a fresh random creature.
  *   6. Edit — full-nav to /create#<encoded> for editing.
  *
- * `saved` is derived directly from `listSavedCreatures()` keyed by the
- * encoded hash plus a save counter, so the displayed state stays in sync
- * with localStorage without ever assigning React state from inside an
- * effect (which would cascade renders).
+ * `saved` comes from `useSyncExternalStore` over the saved-Creatures cache,
+ * keyed by the encoded hash, so the displayed state stays in sync with
+ * localStorage without ever assigning React state from inside an effect
+ * (which would cascade renders).
  */
 export function ActionRow({
   def,
@@ -162,8 +162,8 @@ export function ActionRow({
   };
 
   const saved = useSyncExternalStore(
-    subscribeToSavedStore,
-    () => isSaved(encodedHash),
+    subscribeSavedCreatures,
+    () => isCreatureSaved(encodedHash),
     () => false,
   );
 
@@ -271,22 +271,6 @@ export function ActionRow({
     );
   };
 
-  const triggerDownload = (blob: Blob, filename: string) => {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    // `revokeObjectURL` is best-effort; a tiny delay gives the click handler
-    // time to start the download in browsers that bail out on early revoke.
-    window.setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
-  };
-
   const buildFilename = (kind: "sprite" | "card") => {
     const base = slugifyName(def.name);
     return `creature-${base}-${kind}-${emotion}.png`;
@@ -296,7 +280,7 @@ export function ActionRow({
     setDownloadOpen(false);
     try {
       const blob = await exportSpritePng(def, emotion);
-      triggerDownload(blob, buildFilename("sprite"));
+      downloadBlob(blob, buildFilename("sprite"));
     } catch {
       setEphemeral({ kind: "error", message: labels.exportFailed });
     }
@@ -306,7 +290,7 @@ export function ActionRow({
     setDownloadOpen(false);
     try {
       const blob = await exportCardPng(def, emotion, lore, locale);
-      triggerDownload(blob, buildFilename("card"));
+      downloadBlob(blob, buildFilename("card"));
     } catch {
       setEphemeral({ kind: "error", message: labels.exportFailed });
     }
@@ -315,7 +299,7 @@ export function ActionRow({
   const handleSave = () => {
     if (saved) return;
     saveCreature(def);
-    notifySavedStore();
+    notifySavedCreaturesChanged();
   };
 
   const handleShuffle = () => {

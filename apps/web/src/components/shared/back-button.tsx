@@ -7,9 +7,10 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { usePathname } from "next/navigation";
 import { AnchorButton } from "#src/components/shared/anchor-button.tsx";
-import { useBackOverride } from "#src/contexts/back-override-context.tsx";
+import { useBackOverride } from "#src/contexts/back-override-provider.tsx";
 import type { SupportedLocale } from "#src/types.ts";
-import { getLocalePath, normalizePath } from "#src/utils/pathname.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
+import { normalizePath } from "#src/utils/normalize-path.ts";
 
 // Intermediate route segments that have no page of their own — detail pages
 // live beneath them (e.g. `/experiences/citadel`,

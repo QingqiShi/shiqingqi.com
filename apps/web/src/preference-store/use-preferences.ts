@@ -1,17 +1,14 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import {
-  clearPreferences,
-  deletePreference,
-  getPreferencesSnapshot,
-  loadPreferencesContext,
-  subscribePreferences,
-} from "./preference-store";
+import { clearPreferences } from "./clear-preferences";
+import { deletePreference } from "./delete-preference";
+import { loadPreferencesContext } from "./load-preferences-context";
+import { preferenceCache } from "./preference-cache";
+import { subscribePreferences } from "./subscribe-preferences";
 
-const EMPTY: ReadonlyArray<never> = [];
-function getServerSnapshot() {
-  return EMPTY;
+function getPreferencesSnapshot() {
+  return preferenceCache.preferences;
 }
 
 /**
@@ -27,7 +24,7 @@ export function usePreferences() {
   const preferences = useSyncExternalStore(
     subscribePreferences,
     getPreferencesSnapshot,
-    getServerSnapshot,
+    getPreferencesSnapshot,
   );
 
   async function remove(id: string) {

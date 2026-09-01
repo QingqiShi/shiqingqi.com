@@ -142,6 +142,59 @@ describe("MenuButton keyboard navigation", () => {
     expect(items[0]).toHaveFocus();
   });
 
+  it("skips an item that does not render", async () => {
+    const user = userEvent.setup();
+    render(
+      <MenuButton
+        buttonProps={{ type: "button", "aria-label": "Open menu" }}
+        menuContent={
+          <div>
+            <MenuItemFixture>Item A</MenuItemFixture>
+            <button type="button" role="menuitem" hidden>
+              Item Hidden
+            </button>
+            <MenuItemFixture>Item C</MenuItemFixture>
+          </div>
+        }
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+
+    const items = getMenuItems();
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveFocus();
+
+    await user.keyboard("{ArrowDown}");
+    expect(items[1]).toHaveFocus();
+
+    // Wraps past the hidden item rather than stranding focus on it
+    await user.keyboard("{ArrowDown}");
+    expect(items[0]).toHaveFocus();
+  });
+
+  it("keeps an aria-disabled item in the roving order", async () => {
+    const user = userEvent.setup();
+    render(
+      <MenuButton
+        buttonProps={{ type: "button", "aria-label": "Open menu" }}
+        menuContent={
+          <div>
+            <MenuItemFixture>Item A</MenuItemFixture>
+            <button type="button" role="menuitem" aria-disabled="true">
+              Item Busy
+            </button>
+          </div>
+        }
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+
+    await user.keyboard("{ArrowDown}");
+    expect(screen.getByRole("menuitem", { name: "Item Busy" })).toHaveFocus();
+  });
+
   it("returns focus to the trigger on Escape", async () => {
     const user = userEvent.setup();
     render(<TestMenu />);

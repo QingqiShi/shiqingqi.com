@@ -5,7 +5,10 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
-import { type CreatureDef, NAME_MAX_LENGTH } from "../state/creature-schema";
+import {
+  type CreatureDef,
+  NAME_MAX_LENGTH,
+} from "../state/creature-def-schema";
 
 interface StepNameProps {
   def: CreatureDef;

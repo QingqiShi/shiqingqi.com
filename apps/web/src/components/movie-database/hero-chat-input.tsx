@@ -7,7 +7,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
-import { useAIChatContext } from "#src/ai-chat/ai-chat-context.tsx";
+import { useAIChatContext } from "#src/ai-chat/ai-chat-provider.tsx";
 import { useAIChatSend } from "#src/ai-chat/use-ai-chat-send.ts";
 import { PreferenceManager } from "#src/components/ai-chat/preference-panel.tsx";
 import { t } from "#src/i18n.ts";

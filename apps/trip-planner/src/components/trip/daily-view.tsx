@@ -5,21 +5,19 @@ import { DayFeed } from "./day-feed";
 import { DayGlance } from "./day-glance";
 import { DayHeader } from "./day-header";
 import { DayMap } from "./day-map";
-import { DiningList } from "./dining-section";
-import { PlaceList } from "./places-section";
+import { DiningList } from "./dining-list";
+import { PlaceList } from "./place-list";
 import { Section } from "./section";
 import { StaySection } from "./stay-section";
 import { TipsSection } from "./tips-section";
 import type { Day, Trip } from "@/data/types";
-import {
-  buildDayFeed,
-  dayWideTips,
-  momentDomId,
-  untimedDining,
-  untimedPlaces,
-} from "@/lib/schedule";
-import { peopleOnDay } from "@/lib/trip";
-import type { LiveWeather } from "@/lib/wmo";
+import { presencesOnDay } from "@/lib/presences-on-day";
+import { buildDayFeed } from "@/lib/schedule/build-day-feed";
+import { dayWideTips } from "@/lib/schedule/day-wide-tips";
+import { momentDomId } from "@/lib/schedule/moment-dom-id";
+import { untimedDining } from "@/lib/schedule/untimed-dining";
+import { untimedPlaces } from "@/lib/schedule/untimed-places";
+import type { LiveWeather } from "@/lib/wmo/types";
 
 export function DailyView({
   trip,
@@ -56,7 +54,7 @@ export function DailyView({
     <article className="space-y-6">
       <DayHeader
         day={day}
-        people={peopleOnDay(trip.partySchedule, day.n)}
+        people={presencesOnDay(trip.partySchedule, day.n)}
         isToday={isToday}
         liveWeather={liveWeather}
       />

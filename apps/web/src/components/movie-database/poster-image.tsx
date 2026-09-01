@@ -6,7 +6,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
 import { color, font, layer } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import * as tmdbQueries from "#src/utils/tmdb-queries.ts";
+import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
 import { TmdbImage } from "./tmdb-image.tsx";
 
 interface PosterImageProps {
@@ -29,7 +29,7 @@ export function PosterImage({
   alt,
   fallbackLabel,
 }: PosterImageProps) {
-  const { data: config } = useSuspenseQuery(tmdbQueries.configuration);
+  const { data: config } = useSuspenseQuery(configurationQuery);
   const visibleLabel = fallbackLabel ?? alt;
 
   if (!config.images?.base_url || !config.images.poster_sizes) {

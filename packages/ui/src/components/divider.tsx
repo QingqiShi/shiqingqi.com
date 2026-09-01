@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { Ref } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { border, color } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 

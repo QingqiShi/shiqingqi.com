@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import type { StyleProp } from "@tuja/ui/css-prop-types";
+import type { StyleProp } from "@tuja/ui/style-prop";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { CodeBlock } from "./code/code-block.tsx";

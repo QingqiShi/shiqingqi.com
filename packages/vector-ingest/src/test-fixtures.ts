@@ -1,4 +1,10 @@
-import type { TmdbMovieDetail, TmdbTvDetail } from "./tmdb-types.ts";
+import type {
+  TmdbFetcher,
+  TmdbMovieDetail,
+  TmdbTvDetail,
+  VectorNamespace,
+} from "./types.ts";
+import type { VectorRecord } from "./vector-record.ts";
 
 export function makeMovieDetail(
   overrides: Partial<TmdbMovieDetail> = {},
@@ -182,5 +188,53 @@ export function makeTvDetail(
       },
     },
     ...overrides,
+  };
+}
+
+export function makeFakeTmdb(
+  overrides: Partial<TmdbFetcher> = {},
+): TmdbFetcher {
+  const defaults: TmdbFetcher = {
+    downloadDailyExport: () => Promise.resolve([]),
+    fetchMovieDetail: (_id, _locale) => Promise.resolve(makeMovieDetail()),
+    fetchTvDetail: (_id, _locale) => Promise.resolve(makeTvDetail()),
+    fetchChanges: () => Promise.resolve([]),
+    fetchTrending: () => Promise.resolve([]),
+  };
+  return { ...defaults, ...overrides };
+}
+
+export function makeFakeNamespace(): VectorNamespace & {
+  upserted: VectorRecord[][];
+  deleted: string[][];
+} {
+  const upserted: VectorRecord[][] = [];
+  const deleted: string[][] = [];
+  return {
+    upserted,
+    deleted,
+    upsert: (records) => {
+      upserted.push([...records]);
+      return Promise.resolve();
+    },
+    delete: (ids) => {
+      deleted.push([...ids]);
+      return Promise.resolve();
+    },
+  };
+}
+
+export function makeFakeIndex() {
+  const namespaces = new Map<string, ReturnType<typeof makeFakeNamespace>>();
+  return {
+    namespace(locale: string) {
+      if (!namespaces.has(locale)) {
+        namespaces.set(locale, makeFakeNamespace());
+      }
+      const ns = namespaces.get(locale);
+      if (!ns) throw new Error(`expected namespace for locale ${locale}`);
+      return ns;
+    },
+    namespaces,
   };
 }

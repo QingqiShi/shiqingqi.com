@@ -54,3 +54,10 @@ export interface CellPixels {
    */
   data: Uint8ClampedArray<ArrayBuffer>;
 }
+
+/** Which sub-cell guides the overlay draws inside each Cell. */
+export interface GuideOptions {
+  halves: boolean;
+  thirds: boolean;
+  baseline: boolean;
+}

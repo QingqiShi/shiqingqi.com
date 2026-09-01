@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { PropsWithChildren } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import { corner } from "../primitives/corner.stylex.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { border, color, controlSize, shadow } from "../tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 

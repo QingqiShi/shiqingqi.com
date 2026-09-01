@@ -1,6 +1,6 @@
 import type { UIMessage } from "ai";
 import { z } from "zod";
-import { MOOD_VALUES } from "./tools/classify-mood";
+import { MOOD_VALUES } from "./tools/create-classify-mood-tool";
 
 export type ChatMood = (typeof MOOD_VALUES)[number];
 

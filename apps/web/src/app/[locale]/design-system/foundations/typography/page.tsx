@@ -9,7 +9,7 @@ import { WeightsShowcase } from "#src/components/design-system/sections/tokens/w
 import { t } from "#src/i18n.ts";
 import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
-import { designSystemMetadata } from "../../route-metadata.ts";
+import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { locale } = await props.params;

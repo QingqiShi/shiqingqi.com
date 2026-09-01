@@ -8,11 +8,11 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
-import type { StyleProp } from "../css-prop-types.ts";
 import {
   useScrollMask,
   type ScrollMaskOrientation,
 } from "../hooks/use-scroll-mask.ts";
+import type { StyleProp } from "../style-prop.ts";
 import { space } from "../tokens.stylex.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { MaskBand } from "./mask-band.tsx";

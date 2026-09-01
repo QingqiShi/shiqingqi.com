@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
-import type { MediaListItem } from "#src/utils/types.ts";
-import { MediaDetailProvider } from "./media-detail-context";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import { MediaDetailProvider } from "./media-detail-provider";
 import { RecommendedMediaRow } from "./recommended-media-row";
 
 const mockItems: ReadonlyArray<MediaListItem> = [

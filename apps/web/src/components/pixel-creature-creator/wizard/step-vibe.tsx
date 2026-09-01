@@ -5,12 +5,12 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
-import { types } from "../sprite/sprites";
+import { elements } from "../sprite/sprites";
 import {
   type CreatureDef,
   EMOTIONS,
   type Emotion,
-} from "../state/creature-schema";
+} from "../state/creature-def-schema";
 import { OptionGrid } from "./option-grid";
 
 interface StepVibeProps {
@@ -51,7 +51,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
   });
 
   const typeEntries = useMemo(
-    () => Object.values(types).filter((tp) => tp !== undefined),
+    () => Object.values(elements).filter((tp) => tp !== undefined),
     [],
   );
   const typeIds = useMemo(() => typeEntries.map((tp) => tp.id), [typeEntries]);

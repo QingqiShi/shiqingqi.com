@@ -1,4 +1,4 @@
-import type { CreatureDef } from "./state/creature-schema";
+import type { CreatureDef } from "./state/creature-def-schema";
 
 /**
  * Hand-curated demo creatures for the landing-page "Featured" row and the

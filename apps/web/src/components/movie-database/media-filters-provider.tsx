@@ -2,14 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import { useState, type PropsWithChildren } from "react";
+import type { GenreFilterType } from "#src/utils/genre-filter-type.ts";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
-import type {
-  GenreFilterType,
-  MediaType,
-  MediaView,
-  Sort,
-} from "#src/utils/media-filters-context.ts";
 import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
+import type { MediaType } from "#src/utils/media-type.ts";
+import type { MediaView } from "#src/utils/media-view.ts";
+import type { Sort } from "#src/utils/sort.ts";
 
 const emptyFilters = {
   genreFilterType: "all",

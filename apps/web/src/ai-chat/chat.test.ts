@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getChatSystemInstructions } from "./system-instructions";
+import { getChatSystemInstructions } from "./get-chat-system-instructions";
 
 describe("getChatSystemInstructions", () => {
   it("returns a string containing the current date for en locale", () => {

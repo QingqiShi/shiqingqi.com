@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { captureException } from "#src/utils/posthog.ts";
+import { captureException } from "#src/utils/posthog/capture-exception.ts";
 
 /**
  * Global error boundary for the entire application.

@@ -4,11 +4,16 @@ import * as stylex from "@stylexjs/stylex";
 import { layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
-import type { DebugMode, DebugOptions, FrameStats, LoopControls } from "./loop";
-import { init, start } from "./loop";
+import { createPathtracerLoop } from "./create-pathtracer-loop";
 import displayFs from "./shaders/display-fs.glsl";
 import pathtracerFs from "./shaders/pathtracer-fs.glsl";
 import vs from "./shaders/vs.glsl";
+import type {
+  DebugMode,
+  DebugOptions,
+  FrameStats,
+  LoopControls,
+} from "./types";
 
 function formatStats(stats: FrameStats) {
   const gpu =
@@ -194,14 +199,18 @@ export function PlaygroundCanvas() {
   useEffect(() => {
     const el = canvasRef.current;
     if (!el) return;
-    const context = init(el, vs, pathtracerFs, displayFs);
-    if (!context) return;
-    const controls = start(
-      context,
+    const controls = createPathtracerLoop(
+      el,
+      {
+        vertexShaderSrc: vs,
+        pathtracerFragSrc: pathtracerFs,
+        displayFragSrc: displayFs,
+      },
       { isDark: initialIsDarkRef.current },
       initialDebugRef.current,
       setStats,
     );
+    if (!controls) return;
     controlsRef.current = controls;
     return () => {
       controls.cleanup();

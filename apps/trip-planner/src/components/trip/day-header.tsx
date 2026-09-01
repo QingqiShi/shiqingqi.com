@@ -13,7 +13,8 @@ import {
 import { DayParty } from "./day-party";
 import { Badge } from "@/components/ui/badge";
 import type { Day, DayPresence } from "@/data/types";
-import { type LiveWeather, wmoGroup } from "@/lib/wmo";
+import type { LiveWeather } from "@/lib/wmo/types";
+import { wmoGroup } from "@/lib/wmo/wmo-group";
 
 /** Pick an icon that matches the day's actual condition. */
 function WeatherIcon({ code }: { code: number }) {

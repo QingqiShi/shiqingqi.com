@@ -7,7 +7,7 @@ import {
   MapPin,
   Phone,
 } from "lucide-react";
-import { MapsLink } from "./links";
+import { MapsLink } from "./maps-link";
 import { Section } from "./section";
 import { Badge } from "@/components/ui/badge";
 import type { Lodging, Stay } from "@/data/types";

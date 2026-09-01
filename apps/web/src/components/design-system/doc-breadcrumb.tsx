@@ -5,15 +5,11 @@ import {
 import Link from "next/link";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
-import {
-  getDesignSystemGroupLabels,
-  getDesignSystemRouteLabel,
-} from "./route-copy.ts";
-import {
-  type DesignSystemPath,
-  getDesignSystemRouteSection,
-} from "./routes.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
+import { getDesignSystemGroupLabels } from "./route-copy/get-design-system-group-labels.ts";
+import { getDesignSystemRouteLabel } from "./route-copy/get-design-system-route-label.ts";
+import { getDesignSystemRouteSection } from "./routes/get-design-system-route-section.ts";
+import type { DesignSystemPath } from "./routes/types.ts";
 
 interface DocBreadcrumbProps {
   path: DesignSystemPath;

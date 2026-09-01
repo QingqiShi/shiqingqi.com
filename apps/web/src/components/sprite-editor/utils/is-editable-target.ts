@@ -8,14 +8,5 @@ export function isEditableTarget(target: EventTarget | null): boolean {
   if (target instanceof HTMLInputElement) return true;
   if (target instanceof HTMLTextAreaElement) return true;
   if (target instanceof HTMLSelectElement) return true;
-  if (target instanceof HTMLElement) {
-    // `isContentEditable` is the canonical browser API but jsdom (used in
-    // unit tests) doesn't implement it, so fall back to closest() so that
-    // nested children of a contenteditable host are also covered.
-    if (target.isContentEditable) return true;
-    if (target.closest('[contenteditable=""], [contenteditable="true"]')) {
-      return true;
-    }
-  }
-  return false;
+  return target instanceof HTMLElement && target.isContentEditable;
 }

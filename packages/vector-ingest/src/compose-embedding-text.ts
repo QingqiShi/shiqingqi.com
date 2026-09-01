@@ -4,7 +4,7 @@ import type {
   TmdbMovieDetail,
   TmdbTvDetail,
   TmdbWatchProviderResults,
-} from "./tmdb-types.ts";
+} from "./types.ts";
 
 const STREAMING_COUNTRY = "US";
 const TOP_CAST = 10;

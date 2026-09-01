@@ -1,5 +1,5 @@
 import { describe, it } from "vitest";
-import { runSingleTurnEval } from "./run-eval";
+import { runSingleTurnEval } from "./run-single-turn-eval";
 import type { EvalCase } from "./types";
 
 const cases: EvalCase[] = [

@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { AIChatProvider } from "#src/ai-chat/ai-chat-context.tsx";
+import { AIChatProvider } from "#src/ai-chat/ai-chat-provider.tsx";
 import {
   BackOverrideProvider,
   useBackOverride,
-} from "#src/contexts/back-override-context.tsx";
+} from "#src/contexts/back-override-provider.tsx";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { InlineChatProvider, useInlineChat } from "./inline-chat-context";
 

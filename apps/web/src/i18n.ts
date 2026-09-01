@@ -1,3 +1,5 @@
+/* eslint-disable conventions/export-matches-filename -- the i18n Babel plugin
+   hardcodes this path as a compile target, so the file name is a contract. */
 import type { ReactNode } from "react";
 import type { SupportedLocale } from "#src/types.ts";
 

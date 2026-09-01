@@ -20,7 +20,7 @@ import {
 } from "ai";
 import { useState } from "react";
 import { CompactionNotice } from "./compaction-notice";
-import type { ToolOutputMaps } from "./map-tool-output";
+import type { ToolOutputMaps } from "./map-tool-output/accumulate-tool-outputs";
 import { SmoothedMarkdownContent } from "./smoothed-markdown-content";
 import { ToolActivityGroup } from "./tool-activity-group";
 import { ToolVisualOutput } from "./tool-visual-output";

@@ -4,18 +4,18 @@ import { isStepCount, simulateReadableStream, streamText } from "ai";
 import { MockLanguageModelV3 } from "ai/test";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createClassifyMoodTool } from "#src/ai-chat/tools/classify-mood.ts";
-import { createMediaCreditsTool } from "#src/ai-chat/tools/media-credits.ts";
-import { createPersonCreditsTool } from "#src/ai-chat/tools/person-credits.ts";
-import { createPresentMediaTool } from "#src/ai-chat/tools/present-media.ts";
-import { createPresentPersonTool } from "#src/ai-chat/tools/present-person.ts";
-import { createPresentProviderRegionsTool } from "#src/ai-chat/tools/present-provider-regions.ts";
-import { createPresentWatchProvidersTool } from "#src/ai-chat/tools/present-watch-providers.ts";
-import { createReviewSummaryTool } from "#src/ai-chat/tools/review-summary.ts";
-import { createSavePreferenceTool } from "#src/ai-chat/tools/save-preference.ts";
-import { createSemanticSearchTool } from "#src/ai-chat/tools/semantic-search.ts";
-import { createTmdbSearchTool } from "#src/ai-chat/tools/tmdb-search.ts";
-import { createWatchProvidersTool } from "#src/ai-chat/tools/watch-providers.ts";
+import { createClassifyMoodTool } from "#src/ai-chat/tools/create-classify-mood-tool.ts";
+import { createMediaCreditsTool } from "#src/ai-chat/tools/create-media-credits-tool.ts";
+import { createPersonCreditsTool } from "#src/ai-chat/tools/create-person-credits-tool.ts";
+import { createPresentMediaTool } from "#src/ai-chat/tools/create-present-media-tool.ts";
+import { createPresentPersonTool } from "#src/ai-chat/tools/create-present-person-tool.ts";
+import { createPresentProviderRegionsTool } from "#src/ai-chat/tools/create-present-provider-regions-tool.ts";
+import { createPresentWatchProvidersTool } from "#src/ai-chat/tools/create-present-watch-providers-tool.ts";
+import { createReviewSummaryTool } from "#src/ai-chat/tools/create-review-summary-tool.ts";
+import { createSavePreferenceTool } from "#src/ai-chat/tools/create-save-preference-tool.ts";
+import { createSemanticSearchTool } from "#src/ai-chat/tools/create-semantic-search-tool.ts";
+import { createTmdbSearchTool } from "#src/ai-chat/tools/create-tmdb-search-tool.ts";
+import { createWatchProvidersTool } from "#src/ai-chat/tools/create-watch-providers-tool.ts";
 
 const anthropic = createAnthropic({ apiKey: "test-key" });
 
@@ -27,11 +27,17 @@ vi.mock("server-only", () => ({}));
 
 const mockStore = new Map<string, UIMessage[]>();
 
-vi.mock("#src/session-store/session-store.ts", () => ({
+vi.mock("#src/session-store/generate-session-id.ts", () => ({
   generateSessionId: vi.fn(() => "generated-session-id"),
+}));
+
+vi.mock("#src/session-store/get-session-messages.ts", () => ({
   getSessionMessages: vi.fn((sessionId: string) => {
     return mockStore.get(sessionId) ?? null;
   }),
+}));
+
+vi.mock("#src/session-store/save-session-messages.ts", () => ({
   saveSessionMessages: vi.fn((sessionId: string, messages: UIMessage[]) => {
     mockStore.set(sessionId, messages);
   }),
@@ -97,7 +103,7 @@ describe("POST /api/ai-chat", () => {
     const { chat } = await import("#src/ai-chat/chat.ts");
     vi.mocked(chat).mockReset();
     const { saveSessionMessages } =
-      await import("#src/session-store/session-store.ts");
+      await import("#src/session-store/save-session-messages.ts");
     vi.mocked(saveSessionMessages).mockImplementation(
       (sessionId: string, messages: UIMessage[]) => {
         mockStore.set(sessionId, messages);
@@ -105,7 +111,7 @@ describe("POST /api/ai-chat", () => {
       },
     );
     const { getSessionMessages } =
-      await import("#src/session-store/session-store.ts");
+      await import("#src/session-store/get-session-messages.ts");
     vi.mocked(getSessionMessages).mockImplementation((sessionId: string) => {
       return Promise.resolve(mockStore.get(sessionId) ?? null);
     });
@@ -294,7 +300,7 @@ describe("POST /api/ai-chat", () => {
     const { chat } = await import("#src/ai-chat/chat.ts");
     vi.mocked(chat).mockResolvedValueOnce(mockStreamResult());
     const { saveSessionMessages } =
-      await import("#src/session-store/session-store.ts");
+      await import("#src/session-store/save-session-messages.ts");
 
     await POST(
       chatRequest({
@@ -332,7 +338,7 @@ describe("POST /api/ai-chat", () => {
     const { chat } = await import("#src/ai-chat/chat.ts");
     vi.mocked(chat).mockResolvedValueOnce(mockStreamResult());
     const { saveSessionMessages } =
-      await import("#src/session-store/session-store.ts");
+      await import("#src/session-store/save-session-messages.ts");
 
     let callCount = 0;
     vi.mocked(saveSessionMessages).mockImplementation(() => {
@@ -359,7 +365,7 @@ describe("POST /api/ai-chat", () => {
 
   it("returns 500 when pre-stream save fails", async () => {
     const { saveSessionMessages } =
-      await import("#src/session-store/session-store.ts");
+      await import("#src/session-store/save-session-messages.ts");
     vi.mocked(saveSessionMessages).mockRejectedValueOnce(
       new Error("Redis down"),
     );
@@ -380,7 +386,7 @@ describe("POST /api/ai-chat", () => {
 
   it("returns 500 when Redis read fails", async () => {
     const { getSessionMessages } =
-      await import("#src/session-store/session-store.ts");
+      await import("#src/session-store/get-session-messages.ts");
     vi.mocked(getSessionMessages).mockRejectedValueOnce(
       new Error("Redis timeout"),
     );

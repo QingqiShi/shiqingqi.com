@@ -5,7 +5,7 @@ import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
-import { captureMessageSend } from "#src/ai-chat/chat-analytics.ts";
+import { captureMessageSend } from "#src/ai-chat/capture-message-send.ts";
 import {
   type ChatMessageMetadata,
   type ChatMood,
@@ -13,14 +13,10 @@ import {
   findLatestMoodFromMessages,
 } from "#src/ai-chat/chat-message-metadata.ts";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
-import {
-  accumulateToolOutputs,
-  toolOutputsFingerprint,
-} from "#src/components/ai-chat/map-tool-output.ts";
-import {
-  getCachedPreferencesContext,
-  getPreferencesContextReady,
-} from "#src/preference-store/preference-store.ts";
+import { accumulateToolOutputs } from "#src/components/ai-chat/map-tool-output/accumulate-tool-outputs.ts";
+import { toolOutputsFingerprint } from "#src/components/ai-chat/map-tool-output/tool-outputs-fingerprint.ts";
+import { getPreferencesContextReady } from "#src/preference-store/get-preferences-context-ready.ts";
+import { preferenceCache } from "#src/preference-store/preference-cache.ts";
 import type { SupportedLocale } from "#src/types.ts";
 
 export type { ChatMood, ChatMessageMetadata };
@@ -128,7 +124,7 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
         const lastMessage = messages[messages.length - 1];
 
         if (!sessionId && messages.length > 0) {
-          const prefsCtx = getCachedPreferencesContext();
+          const prefsCtx = preferenceCache.context;
           if (prefsCtx) {
             const enrichedMessage = {
               ...lastMessage,

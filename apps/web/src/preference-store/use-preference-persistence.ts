@@ -2,8 +2,8 @@
 
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
 import { useEffect, useRef } from "react";
-import { savePreferenceInputSchema } from "#src/ai-chat/tools/save-preference.ts";
-import { mergePreferences } from "./preference-store";
+import { savePreferenceInputSchema } from "#src/ai-chat/tools/create-save-preference-tool.ts";
+import { mergePreferences } from "./merge-preferences";
 
 /**
  * Observes chat messages for `save_preference` tool calls and persists

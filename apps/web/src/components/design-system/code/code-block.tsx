@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { scrollbar, scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import type { StyleProp } from "@tuja/ui/style-prop";
 import { font } from "@tuja/ui/tokens.stylex";
 import type { CodeToken } from "./code-token.ts";
 import { syntax } from "./syntax.stylex.ts";

@@ -95,7 +95,7 @@ export function LocaleAwareComponent() {
 ## Generating Localized URLs
 
 ```tsx
-import { getLocalePath } from "#src/utils/pathname.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
 
 getLocalePath("/about", locale); // → "/en/about" or "/zh/about"
 ```

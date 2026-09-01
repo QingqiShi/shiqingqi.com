@@ -5,24 +5,20 @@ import {
   type OverviewEntry,
 } from "#src/components/design-system/overview-browser.tsx";
 import { OverviewTile } from "#src/components/design-system/overview-tile.tsx";
-import {
-  getDesignSystemGroupLabels,
-  getDesignSystemRouteLabels,
-} from "#src/components/design-system/route-copy.ts";
-import {
-  DESIGN_SYSTEM_ROUTES,
-  type DesignSystemPath,
-} from "#src/components/design-system/routes.ts";
+import { getDesignSystemGroupLabels } from "#src/components/design-system/route-copy/get-design-system-group-labels.ts";
+import { getDesignSystemRouteLabels } from "#src/components/design-system/route-copy/get-design-system-route-labels.ts";
+import { DESIGN_SYSTEM_ROUTES } from "#src/components/design-system/routes/design-system-routes.ts";
+import type { DesignSystemPath } from "#src/components/design-system/routes/types.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
-import { getLocalePath } from "#src/utils/pathname.ts";
+import { getLocalePath } from "#src/utils/get-locale-path.ts";
 
 export default function DesignSystemOverview() {
   const locale = getLocale();
   const heading = t({ en: "Design System", zh: "设计系统" });
   const routeLabels = getDesignSystemRouteLabels();
 
-  // Names come from `route-copy.ts` and structure from the route registry. The
+  // Names come from `route-copy/` and structure from the route registry. The
   // blurbs stay here: they are what the index says about a route, and nothing
   // else renders them.
   const tileDescriptions: Record<DesignSystemPath, string> = {

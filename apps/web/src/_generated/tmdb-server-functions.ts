@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { tmdbGet, type QueryParams } from "../utils/tmdb-client";
+import { tmdbGet, type QueryParams } from "../utils/tmdb-get";
 
 /**
  * Server functions for TMDB APIs - can be called from server components directly

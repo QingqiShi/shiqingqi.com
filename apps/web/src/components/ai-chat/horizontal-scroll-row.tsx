@@ -2,10 +2,10 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
-import type { StyleProp } from "@tuja/ui/css-prop-types";
 import { useScrollMask } from "@tuja/ui/hooks/use-scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
+import type { StyleProp } from "@tuja/ui/style-prop";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
 import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";

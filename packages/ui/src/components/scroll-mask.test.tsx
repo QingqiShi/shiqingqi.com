@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { createRef, type ComponentProps } from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildEdgeBlurLayers } from "./progressive-blur-masks.ts";
+import { buildEdgeBlurLayers } from "./build-edge-blur-layers.ts";
 import { ScrollMask } from "./scroll-mask.tsx";
 
 describe("buildEdgeBlurLayers", () => {

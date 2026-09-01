@@ -7,8 +7,8 @@ import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { measure } from "../../measure.stylex.ts";
 import { Showcase } from "../../showcase.tsx";
-import { ContainerScaleSpecimen } from "./cq-scale-specimen.tsx";
-import { ViewportScaleSpecimen } from "./vp-scale-specimen.tsx";
+import { ContainerScaleSpecimen } from "./container-scale-specimen.tsx";
+import { ViewportScaleSpecimen } from "./viewport-scale-specimen.tsx";
 
 export function TypeScaleShowcase() {
   const pangram = t({

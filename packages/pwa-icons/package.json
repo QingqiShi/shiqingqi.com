@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "src/hash-icons.mjs",
+  "main": "src/generate-hashed-icons.mjs",
   "bin": {
-    "pwa-icons": "./src/hash-icons.mjs"
+    "pwa-icons": "./src/generate-hashed-icons.mjs"
   },
   "scripts": {
     "lint": "eslint ."

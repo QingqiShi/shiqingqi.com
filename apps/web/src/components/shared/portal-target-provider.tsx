@@ -1,0 +1,60 @@
+"use client";
+
+import * as stylex from "@stylexjs/stylex";
+import { fixedFill } from "@tuja/ui/primitives/layout.stylex";
+import { layer } from "@tuja/ui/tokens.stylex";
+import { useState, type ReactNode } from "react";
+import { PORTAL_TARGET_ID } from "#src/constants/portal-target-id.ts";
+import { PortalContext } from "#src/contexts/portal-context.tsx";
+
+/**
+ * A provider component that renders a fixed portal target element and makes it
+ * available through context to child components.
+ *
+ * This component creates a separate stacking context for portal elements during
+ * view transitions. The portal target spans the entire viewport and uses
+ * `transform: translate3d(0, 0, 0)` to create a new compositing layer.
+ *
+ * **Safari Bug Fix:**
+ * This specifically addresses a Safari issue where fixed-position elements
+ * cause positioning problems during view transitions. When the overlay opens on a
+ * scrolled page, the animation would get cut off proportionally to the scroll
+ * position. By creating this separate compositing layer, we ensure animations play
+ * correctly regardless of scroll position.
+ *
+ * The portal target has `pointerEvents: "none"` so it doesn't interfere with user
+ * interactions - portal content should handle their own pointer events.
+ *
+ * @example
+ * ```tsx
+ * <PortalTargetProvider>
+ *   <App />
+ * </PortalTargetProvider>
+ * ```
+ */
+export function PortalTargetProvider({ children }: { children: ReactNode }) {
+  const [portalTarget, setPortalTarget] = useState<HTMLDivElement | null>(null);
+
+  return (
+    <PortalContext value={{ portalTarget }}>
+      {children}
+      <div
+        id={PORTAL_TARGET_ID}
+        ref={setPortalTarget}
+        css={[fixedFill.all, styles.container]}
+      />
+    </PortalContext>
+  );
+}
+
+const styles = stylex.create({
+  container: {
+    height: "100dvh",
+    pointerEvents: "none",
+    // Everything hosted here is an overlay, and the overlay plane already
+    // clears the site header and the sidebar rail — so the target sits on that
+    // plane rather than borrowing the tooltip one above it.
+    zIndex: layer.overlay,
+    willChange: "transform",
+  },
+});

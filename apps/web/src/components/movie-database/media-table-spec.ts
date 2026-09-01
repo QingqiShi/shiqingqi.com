@@ -1,5 +1,5 @@
 import type { Grid } from "@1771technologies/lytenyte-pro";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
 
 export type MediaSortDirection = "asc" | "desc";
 
@@ -25,11 +25,11 @@ export interface MediaColumnExtras {
 
 // Note: no `api` key. `Grid.API` intersects `Spec["api"]` into the API object,
 // so declaring it as `undefined` collapses the whole API type to `never`.
-export interface MediaGridSpec {
+export interface MediaTableSpec {
   readonly data: MediaListItem;
   readonly column: MediaColumnExtras;
 }
 
-export type MediaColumn = Grid.Column<MediaGridSpec>;
-export type MediaCellParams = Grid.T.CellRendererParams<MediaGridSpec>;
-export type MediaHeaderParams = Grid.T.HeaderParams<MediaGridSpec>;
+export type MediaColumn = Grid.Column<MediaTableSpec>;
+export type MediaCellParams = Grid.T.CellRendererParams<MediaTableSpec>;
+export type MediaHeaderParams = Grid.T.HeaderParams<MediaTableSpec>;

@@ -7,7 +7,6 @@ import dinosaurianIdle from "./dinosaurian.png";
 import draconicIdle from "./draconic.png";
 import felineIdle from "./feline.png";
 import humanoidIdle from "./humanoid.png";
-import { SPECIES_IDS, SPECIES_META, type SpeciesLabel } from "./ids";
 import insectoidIdle from "./insectoid.png";
 import objectBasedIdle from "./object-based.png";
 import piscineIdle from "./piscine.png";
@@ -15,6 +14,7 @@ import plantLikeIdle from "./plant-like.png";
 import reptilianIdle from "./reptilian.png";
 import roboticIdle from "./robotic.png";
 import serpentineIdle from "./serpentine.png";
+import { SPECIES_IDS, SPECIES_META, type SpeciesLabel } from "./species-ids";
 import wormLikeIdle from "./worm-like.png";
 
 /**
@@ -28,7 +28,7 @@ import wormLikeIdle from "./worm-like.png";
  * follow-up PR; manual cleanup is expected for any individual sprite.
  */
 
-export type { SpeciesLabel } from "./ids";
+export type { SpeciesLabel } from "./species-ids";
 
 export interface Species {
   id: string;

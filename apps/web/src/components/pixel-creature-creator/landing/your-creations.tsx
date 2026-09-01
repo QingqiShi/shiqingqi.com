@@ -7,16 +7,12 @@ import { useSyncExternalStore } from "react";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { PixelSprite } from "../sprite/pixel-sprite";
-import { encodeCreature } from "../state/encode-decode";
-import {
-  type SavedCreature,
-  deleteSavedCreature,
-} from "../state/local-storage";
-import {
-  getSavedSnapshot,
-  notifySavedStore,
-  subscribeToSavedStore,
-} from "../state/saved-store";
+import { encodeCreature } from "../state/encode-creature";
+import { getSavedCreaturesSnapshot } from "../state/get-saved-creatures-snapshot";
+import { notifySavedCreaturesChanged } from "../state/notify-saved-creatures-changed";
+import { deleteSavedCreature } from "../state/saved-creatures/delete-saved-creature";
+import type { SavedCreature } from "../state/saved-creatures/types";
+import { subscribeSavedCreatures } from "../state/subscribe-saved-creatures";
 
 interface YourCreationsProps {
   locale: SupportedLocale;
@@ -37,8 +33,8 @@ const getEmptyList = () => EMPTY_LIST;
 export function YourCreations({ locale }: YourCreationsProps) {
   const localePrefix = locale === "en" ? "/en" : "/zh";
   const saved = useSyncExternalStore(
-    subscribeToSavedStore,
-    getSavedSnapshot,
+    subscribeSavedCreatures,
+    getSavedCreaturesSnapshot,
     getEmptyList,
   );
 
@@ -62,7 +58,7 @@ export function YourCreations({ locale }: YourCreationsProps) {
     if (typeof window === "undefined") return;
     if (!window.confirm(confirmMessage)) return;
     deleteSavedCreature(entry.id);
-    notifySavedStore();
+    notifySavedCreaturesChanged();
   };
 
   return (

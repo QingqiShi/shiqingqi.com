@@ -6,7 +6,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/hooks/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
 import { PosterImage } from "./poster-image";
 
 interface MediaPosterProps {

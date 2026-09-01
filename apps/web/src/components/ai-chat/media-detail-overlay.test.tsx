@@ -1,11 +1,11 @@
 import { fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { PortalTargetProvider } from "#src/components/shared/fixed-element-portal-target.tsx";
+import { PortalTargetProvider } from "#src/components/shared/portal-target-provider.tsx";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
-import type { MediaListItem } from "#src/utils/types.ts";
+import type { MediaListItem } from "#src/utils/media-list-item.ts";
 import { ChatActionsContext } from "./chat-actions-context";
-import { MediaDetailProvider } from "./media-detail-context";
 import { MediaDetailOverlay } from "./media-detail-overlay";
+import { MediaDetailProvider } from "./media-detail-provider";
 import { ToolMediaCards } from "./tool-media-cards";
 
 const mockItems: ReadonlyArray<MediaListItem> = [
@@ -106,24 +106,16 @@ describe("MediaDetailOverlay", () => {
       expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
     });
 
-    // The dialog contains focusable elements (close button, "Add to chat" button, etc.).
-    // Tabbing forward from the last focusable element should wrap to the first.
-    const dialog = screen.getByRole("dialog");
-    const focusableElements = dialog.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    expect(focusableElements.length).toBeGreaterThanOrEqual(2);
-
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-    lastFocusable.focus();
-    expect(lastFocusable).toHaveFocus();
+    // The dialog's tab stops run from the close button to "Add to chat", so
+    // Tab from "Add to chat" wraps back to "Close".
+    const addToChat = screen.getByRole("button", { name: "Add to chat" });
+    addToChat.focus();
+    expect(addToChat).toHaveFocus();
 
     // Dispatch Tab keydown on document (where the handler is registered)
     fireEvent.keyDown(document, { key: "Tab" });
 
-    // Focus should wrap to the first focusable element
-    expect(firstFocusable).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
   });
 
   it("traps focus within the dialog on Shift+Tab", async () => {
@@ -136,24 +128,13 @@ describe("MediaDetailOverlay", () => {
       expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
     });
 
-    // Close button is the first focusable element in the dialog.
-    // Shift+Tab from the first element should wrap to the last.
-    const dialog = screen.getByRole("dialog");
-    const focusableElements = dialog.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    expect(focusableElements.length).toBeGreaterThanOrEqual(2);
-
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-    firstFocusable.focus();
-    expect(firstFocusable).toHaveFocus();
+    // The close button already holds focus as the dialog's first tab stop, so
+    // Shift+Tab wraps to the last one, "Add to chat".
 
     // Dispatch Shift+Tab keydown on document (where the handler is registered)
     fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
 
-    // Focus should wrap to the last focusable element
-    expect(lastFocusable).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Add to chat" })).toHaveFocus();
   });
 
   it("labels dialog with media title when available", async () => {
