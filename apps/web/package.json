@@ -39,7 +39,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "@serwist/next": "catalog:",
     "@stylexjs/stylex": "catalog:",
-    "@tanstack/react-query": "5.102.3",
+    "@tanstack/react-query": "5.102.8",
     "@tuja/tmdb-types": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@upstash/ratelimit": "^2.0.8",
