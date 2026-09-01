@@ -43,7 +43,7 @@
     "@tuja/tmdb-types": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.38.2",
+    "@upstash/redis": "^1.38.3",
     "@upstash/vector": "catalog:",
     "ai": "^7.0.83",
     "next": "catalog:",
