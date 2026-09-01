@@ -1,7 +1,11 @@
 type PopoverSide = "top" | "right" | "bottom" | "left";
 type PopoverAlign = "start" | "end";
 
-/** Side the popover hangs off, optionally aligned to one of the anchor's edges. */
+/**
+ * Side the popover hangs off, optionally aligned to one of the anchor's edges.
+ *
+ * @internal
+ */
 export type PopoverPlacement = PopoverSide | `${PopoverSide}-${PopoverAlign}`;
 
 /** The subset of `DOMRect` the placement maths reads. */
@@ -144,6 +148,8 @@ function overflowsSide(
  * testable without a layout engine.
  *
  * @returns `top`/`left` for a `position: fixed` box, plus the side actually used.
+ *
+ * @internal
  */
 export function computePopoverPosition(options: PopoverPositionOptions) {
   const { align } = PLACEMENTS[options.placement];

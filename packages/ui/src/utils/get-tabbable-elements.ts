@@ -83,6 +83,8 @@ function isTabbableRadio(radio: HTMLInputElement, groups: RadioGroups) {
  *
  * @see https://html.spec.whatwg.org/multipage/interaction.html#focusable-area
  * @see https://html.spec.whatwg.org/multipage/interaction.html#sequential-focus-navigation
+ *
+ * @internal
  */
 export function getTabbableElements(container: HTMLElement): HTMLElement[] {
   const candidates: { element: HTMLElement; tabindex: number }[] = [];

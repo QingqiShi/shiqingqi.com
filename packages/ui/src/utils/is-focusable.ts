@@ -55,6 +55,8 @@ function renderTargetOf(
  * by root. Pass one across a batch so the scan runs once, not once per area.
  * @see https://html.spec.whatwg.org/multipage/interaction.html#focusable-area
  * @see https://drafts.csswg.org/cssom-view/#dom-element-checkvisibility
+ *
+ * @internal
  */
 export function isFocusable(
   element: HTMLElement,

@@ -45,12 +45,6 @@ const dark: { [key in keyof typeof light]: string } = {
   punct: "#C7C6C3", // gray._80
 };
 
-/**
- * The palette mapping above, before StyleX makes CSS vars of it. Only
- * `syntax.contrast.test.ts` reads it; everything else consumes `syntax`.
- */
-export const syntaxSource = { light, dark };
-
 export const syntax = stylex.defineVars({
   plain: `light-dark(${light.plain}, ${dark.plain})`,
   keyword: `light-dark(${light.keyword}, ${dark.keyword})`,

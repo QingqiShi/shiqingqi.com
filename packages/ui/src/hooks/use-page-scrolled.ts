@@ -9,6 +9,10 @@ import { useEffect, useState } from "react";
  *
  * Only the top edge. A page ends at its footer, in flow at the bottom of the
  * document, and nothing floats over it there.
+ *
+ * Promote it when a second shell floats its chrome.
+ *
+ * @internal
  */
 export function usePageScrolled() {
   const [isScrolled, setIsScrolled] = useState(false);

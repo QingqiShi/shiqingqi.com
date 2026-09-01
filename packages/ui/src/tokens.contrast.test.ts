@@ -1,5 +1,9 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
 import { describe, expect, it } from "vitest";
-import { themeSource } from "./tokens.stylex.ts";
+import { color } from "./tokens.stylex.ts";
 
 // Guards the text ladder against the two ways it can rot: a level drifting
 // under the WCAG AA minimum on a surface it lands on, and the levels drifting
@@ -30,6 +34,19 @@ const SURFACES = [
   "surfaceNeutralSubtle",
 ] as const;
 
+type TextRole = (typeof LADDER)[number];
+type Surface = (typeof SURFACES)[number];
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const hueDir = path.join(here, "_generated/palette/hues");
+const css = compileStylexCss([
+  path.join(here, "tokens.stylex.ts"),
+  ...fs
+    .readdirSync(hueDir)
+    .filter((file) => file.endsWith(".stylex.ts"))
+    .map((file) => path.join(hueDir, file)),
+]);
+
 function channelToLinear(value8Bit: number) {
   const v = value8Bit / 255;
   return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
@@ -54,12 +71,13 @@ function lightness(hex: string) {
 }
 
 describe.each(["light", "dark"] as const)("%s text ladder", (scheme) => {
-  const theme = themeSource[scheme];
+  const resolve = (role: TextRole | Surface) =>
+    readCustomProperty(css, color[role])[scheme];
 
   it.each(LADDER)("%s clears AA on every surface it can land on", (role) => {
     const worst = SURFACES.map((surface) => ({
       surface,
-      ratio: contrastRatio(theme[role], theme[surface]),
+      ratio: contrastRatio(resolve(role), resolve(surface)),
     })).sort((a, b) => a.ratio - b.ratio)[0];
 
     expect(
@@ -73,7 +91,7 @@ describe.each(["light", "dark"] as const)("%s text ladder", (scheme) => {
       const next = LADDER[i + 1];
       return {
         step: `${role}→${next}`,
-        delta: Math.abs(lightness(theme[next]) - lightness(theme[role])),
+        delta: Math.abs(lightness(resolve(next)) - lightness(resolve(role))),
       };
     });
 

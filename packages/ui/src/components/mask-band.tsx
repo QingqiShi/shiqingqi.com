@@ -33,6 +33,8 @@ interface MaskBandProps {
  *
  * Split out of `ScrollMask`, its one consumer, so every edge and slot melts
  * the same way.
+ *
+ * @internal
  */
 export function MaskBand({ css, edge, radius, isShown }: MaskBandProps) {
   const { direction, corners: edgeCorners } = edges[edge];

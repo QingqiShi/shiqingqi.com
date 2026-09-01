@@ -239,11 +239,6 @@ const dark: { [key in keyof typeof light]: string } = {
   brandPixelCreatureCreator: purple._70,
 };
 
-// The palette mapping above, before StyleX turns it into CSS vars. Exported so
-// `tokens.contrast.test.ts` can measure the pairings; nothing else should read
-// it — consume `color` below.
-export const themeSource = { light, dark };
-
 const NO_CORNER_SHAPE = "@supports not (corner-shape: squircle)";
 
 export const constants = stylex.defineConsts({

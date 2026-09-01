@@ -5,17 +5,23 @@
  */
 const RADIUS_CAP_PX = 32;
 
-// One masked blur cannot ease: a mask fades the blurred pane's opacity, so
-// mid-ramp the sharp page shows through a half-transparent blur — a double
-// image rather than a lighter blur. Stacked layers ease properly: each layer
-// blurs at double the radius of the one before, and its mask turns opaque one
-// band further along the ramp, so the layers compound towards the full radius
-// against the element and drop away band by band towards the sharp edge.
+/**
+ * One masked blur cannot ease: a mask fades the blurred pane's opacity, so
+ * mid-ramp the sharp page shows through a half-transparent blur — a double
+ * image rather than a lighter blur. Stacked layers ease properly: each layer
+ * blurs at double the radius of the one before, and its mask turns opaque one
+ * band further along the ramp, so the layers compound towards the full radius
+ * against the element and drop away band by band towards the sharp edge.
+ *
+ * @internal
+ */
 export const LAYER_COUNT = 5;
 
 /**
  * Each layer's `backdrop-filter` and its place along the ramp, weakest first —
  * the arithmetic every stack shares, whichever shape its masks take.
+ *
+ * @internal
  */
 export function blurLayerSteps(radius: number, isShown: boolean) {
   const cappedRadius = Math.min(Math.max(radius, 0), RADIUS_CAP_PX);

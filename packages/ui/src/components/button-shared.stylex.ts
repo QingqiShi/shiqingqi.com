@@ -9,12 +9,6 @@ import { color, constants, controlSize } from "../tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
-// How long `usePressAnimation` holds the pressed state in JS. It has to match
-// the `transform` leg of `pressTransition` below or the state clears before the
-// animation lands, so it is parsed off the same token instead of restated as a
-// number.
-export const PRESS_ANIMATION_DURATION = Number.parseInt(duration._150, 10);
-
 // Press/release transitions built from the motion scale. The compound
 // transform+filter transition can't be a plain `transition.*` preset, but its
 // numbers come from the shared duration/easing tokens so it tracks the scale.

@@ -167,4 +167,4 @@ Published var names and generated identifiers. Rename only through codegen and a
 - The `*Fade`, `*On`, and `accentGlow` token suffixes
 - `motionTokens.playState`
 - CSS custom properties `--ds-illo-*`
-- The `.stylex.ts` suffix — StyleX permits only `defineVars` / `defineConsts` exports from these files
+- The `.stylex.ts` suffix — StyleX permits only its own constructs (`defineVars`, `defineConsts`, `create`, …) as exports from these files

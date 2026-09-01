@@ -35,6 +35,10 @@ interface HeaderControlsProps {
  * A group per end of the measure rather than one bar across the top, because a
  * near-full-width fixed element at the top edge costs the browser's own
  * treatment of it — see "Progressive blur" in `CONTEXT.md`.
+ *
+ * Promote it when a second shell floats its chrome.
+ *
+ * @internal
  */
 export function HeaderControls({ children, css }: HeaderControlsProps) {
   const { isScrolled } = usePageScrolled();

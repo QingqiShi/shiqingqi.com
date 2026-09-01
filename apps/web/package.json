@@ -82,6 +82,7 @@
     "@tuja/i18n-babel-plugin": "workspace:*",
     "@tuja/i18n-codegen": "workspace:*",
     "@tuja/pwa-icons": "workspace:*",
+    "@tuja/stylex-testing": "workspace:*",
     "@tuja/tmdb-codegen": "workspace:*",
     "@tuja/tsconfig": "workspace:*",
     "@tuja/vector-ingest": "workspace:*",

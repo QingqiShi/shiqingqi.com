@@ -13,6 +13,7 @@ import tsEslint from "typescript-eslint";
 
 const require = createRequire(import.meta.url);
 const conventionsPlugin = require("@tuja/eslint-plugin-conventions");
+const designSystemPlugin = require("@tuja/eslint-plugin-design-system");
 const i18nPlugin = require("@tuja/eslint-plugin-i18n");
 
 export default defineConfig([
@@ -43,6 +44,7 @@ export default defineConfig([
       "import-x": importPlugin,
       "@stylexjs": stylexjs,
       unicorn: eslintPluginUnicorn,
+      "design-system": designSystemPlugin,
       i18n: i18nPlugin,
       "@eslint-community/eslint-comments": comments,
     },
@@ -144,6 +146,29 @@ export default defineConfig([
           ignoreRestSiblings: true,
         },
       ],
+    },
+  },
+  // Design-system conventions that only the @tuja/ui source has to keep.
+  // The app consumes the same radius tokens, which carry the no-corner-shape
+  // fallback, so an unpaired radius there drifts by browser too.
+  {
+    files: ["packages/ui/src/**/*.{ts,tsx}", "apps/web/src/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
+    rules: {
+      "design-system/require-corner-shape": "error",
+    },
+  },
+  {
+    files: ["packages/ui/src/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
+    rules: {
+      "design-system/require-package-export": "error",
+    },
+  },
+  {
+    files: ["packages/ui/src/**/*.stylex.ts", "apps/web/src/**/*.stylex.ts"],
+    rules: {
+      "design-system/only-stylex-exports": "error",
     },
   },
   // Next.js rules apply only to the Next.js apps.
