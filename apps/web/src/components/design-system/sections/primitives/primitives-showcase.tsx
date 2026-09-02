@@ -215,11 +215,19 @@ function LayoutSection() {
       }),
     },
     {
-      token: "fixedFill.all",
-      meta: "position:fixed · inset:0",
+      token: "viewportAnchor.fixed",
+      meta: "position:fixed · 0 × 0",
       description: t({
-        en: "Full-viewport layer for scrims and modal backdrops.",
-        zh: "铺满视口的层，用于遮罩与模态背景。",
+        en: "Anchor an overlay to the viewport origin. The layers inside it bring their own size, which keeps Safari on iOS from flattening the status bar.",
+        zh: "将覆盖层锚定到视口原点。其中的图层各自携带尺寸，避免 iOS Safari 把状态栏涂成纯色。",
+      }),
+    },
+    {
+      token: "viewportFill.absolute",
+      meta: "position:absolute · 100vw × 100dvh",
+      description: t({
+        en: "One viewport-sized layer inside the anchor — a scrim, a modal backdrop, a blur box.",
+        zh: "锚点内与视口等大的图层——遮罩、模态背景、虚化层。",
       }),
     },
     {

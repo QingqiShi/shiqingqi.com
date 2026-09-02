@@ -1,29 +1,25 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { fixedFill } from "@tuja/ui/primitives/layout.stylex";
+import { viewportAnchor } from "@tuja/ui/primitives/layout.stylex";
 import { layer } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 import { PORTAL_TARGET_ID } from "#src/constants/portal-target-id.ts";
 import { PortalContext } from "#src/contexts/portal-context.tsx";
 
 /**
- * A provider component that renders a fixed portal target element and makes it
+ * A provider component that renders the page's portal target and makes it
  * available through context to child components.
  *
- * This component creates a separate stacking context for portal elements during
- * view transitions. The portal target spans the entire viewport and uses
- * `transform: translate3d(0, 0, 0)` to create a new compositing layer.
+ * The target is a `viewportAnchor.fixed` box, so every overlay it hosts brings
+ * its own viewport size.
  *
- * **Safari Bug Fix:**
- * This specifically addresses a Safari issue where fixed-position elements
- * cause positioning problems during view transitions. When the overlay opens on a
- * scrolled page, the animation would get cut off proportionally to the scroll
- * position. By creating this separate compositing layer, we ensure animations play
- * correctly regardless of scroll position.
+ * The anchor is also a compositing layer of its own, which fixes a Safari bug
+ * with view transitions: without it, an overlay opening on a scrolled page has
+ * its animation cut off in proportion to the scroll position.
  *
- * The portal target has `pointerEvents: "none"` so it doesn't interfere with user
- * interactions - portal content should handle their own pointer events.
+ * It has `pointerEvents: "none"` so it doesn't interfere with user
+ * interactions; portal content handles its own pointer events.
  *
  * @example
  * ```tsx
@@ -41,15 +37,14 @@ export function PortalTargetProvider({ children }: { children: ReactNode }) {
       <div
         id={PORTAL_TARGET_ID}
         ref={setPortalTarget}
-        css={[fixedFill.all, styles.container]}
+        css={[viewportAnchor.fixed, styles.anchor]}
       />
     </PortalContext>
   );
 }
 
 const styles = stylex.create({
-  container: {
-    height: "100dvh",
+  anchor: {
     pointerEvents: "none",
     // Everything hosted here is an overlay, and the overlay plane already
     // clears the site header and the sidebar rail — so the target sits on that

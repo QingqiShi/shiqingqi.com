@@ -99,17 +99,18 @@ import { corner } from "#src/primitives/corner.stylex.ts";
 
 **Import**: `#src/primitives/layout.stylex.ts`
 
-| Export              | Properties                                                     |
-| ------------------- | -------------------------------------------------------------- |
-| `absoluteFill.all`  | position: absolute + top/right/bottom/left: 0                  |
-| `absoluteFill.x`    | position: absolute + left: 0 + right: 0                        |
-| `absoluteFill.y`    | position: absolute + top: 0 + bottom: 0                        |
-| `fixedFill.all`     | position: fixed + top/right/bottom/left: 0                     |
-| `scrollX.base`      | overflowX: auto + scrollbarWidth: none                         |
-| `scrollY.base`      | overflowY: auto                                                |
-| `truncate.base`     | overflow: hidden + textOverflow: ellipsis + whiteSpace: nowrap |
-| `imageCover.base`   | objectFit: cover + width: 100% + height: 100%                  |
-| `imageContain.base` | objectFit: contain + width: 100% + height: 100%                |
+| Export                  | Properties                                                                                                            |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `absoluteFill.all`      | position: absolute + top/right/bottom/left: 0                                                                         |
+| `absoluteFill.x`        | position: absolute + left: 0 + right: 0                                                                               |
+| `absoluteFill.y`        | position: absolute + top: 0 + bottom: 0                                                                               |
+| `viewportAnchor.fixed`  | position: fixed + inset-block/inline-start: 0 + 0 × 0 size (containing block for overlays that bring their own size)  |
+| `viewportFill.absolute` | position: absolute + start insets: 0 + end insets: auto + 100vw × 100dvh (one viewport-sized layer inside the anchor) |
+| `scrollX.base`          | overflowX: auto + scrollbarWidth: none                                                                                |
+| `scrollY.base`          | overflowY: auto                                                                                                       |
+| `truncate.base`         | overflow: hidden + textOverflow: ellipsis + whiteSpace: nowrap                                                        |
+| `imageCover.base`       | objectFit: cover + width: 100% + height: 100%                                                                         |
+| `imageContain.base`     | objectFit: contain + width: 100% + height: 100%                                                                       |
 
 ### Examples
 
