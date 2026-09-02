@@ -51,7 +51,7 @@ catalog:
   react-dom: 19.3.0-canary-83840902-20260719
   react-remove-scroll: ^2.7.2
   serwist: ^9.5.12
-  tsx: ^4.23.12
+  tsx: ^4.23.13
   # Per the TypeScript 7.0 announcement: the bare `typescript` name resolves to
   # the 6.0-compatible API package so every tool that imports `typescript` via a
   # peer dependency (typescript-eslint, openapi-typescript, Next's checker, our
