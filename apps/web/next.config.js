@@ -25,6 +25,11 @@ module.exports = async (phase) => {
       // workspace aliases that package to `@typescript/typescript6`, which
       // ships the compiler API without a `tsc` binary. Use the API instead.
       useTypeScriptCli: false,
+      // Next 16.3 caches Turbopack's dev task graph on disk. Restoring that
+      // cache panics turbo-tasks when a source file is replaced under a
+      // running dev server ("Restore of All for task ... failed"), which
+      // aborts the whole server. Rebuild from memory until upstream fixes it.
+      turbopackFileSystemCacheForDev: false,
     },
     transpilePackages: ["@tuja/ui"],
     serverExternalPackages: ["esbuild-wasm", "@babel/parser", "prettier"],
