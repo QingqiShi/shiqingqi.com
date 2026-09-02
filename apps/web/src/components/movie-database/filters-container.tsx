@@ -1,7 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { layer, layout, space } from "@tuja/ui/tokens.stylex";
+import {
+  StickyControlGroup,
+  StickyControls,
+} from "@tuja/ui/components/sticky-controls";
+import { layout, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface FiltersContainerProps {
@@ -15,70 +18,50 @@ export function FiltersContainer({
   mobileChildren,
   trailingContent,
 }: FiltersContainerProps) {
+  // A group of its own at the inline end, so the page between the filters and
+  // it stays sharp.
+  const trailingGroup = trailingContent && (
+    <StickyControlGroup css={styles.trailingGroup}>
+      {trailingContent}
+    </StickyControlGroup>
+  );
+
   return (
     <>
-      <div css={[styles.desktopContainer, styles.desktopVisible]}>
-        <div css={styles.desktopInnerContainer}>
-          <div css={[flex.row, styles.desktopContent]}>
-            {desktopChildren}
-            {trailingContent && (
-              <div css={styles.trailingContent}>{trailingContent}</div>
-            )}
-          </div>
-        </div>
-      </div>
-      <div css={[styles.mobileContainer, styles.mobileVisible]}>
-        {mobileChildren}
-        {trailingContent}
-      </div>
+      <StickyControls css={[styles.bar, styles.desktop]}>
+        <StickyControlGroup>{desktopChildren}</StickyControlGroup>
+        {trailingGroup}
+      </StickyControls>
+      <StickyControls css={[styles.bar, styles.mobile]}>
+        <StickyControlGroup>{mobileChildren}</StickyControlGroup>
+        {trailingGroup}
+      </StickyControls>
     </>
   );
 }
 
 const styles = stylex.create({
-  desktopVisible: {
-    display: { default: "none", [breakpoints.md]: "flex" },
-  },
-  mobileVisible: {
-    display: { default: "flex", [breakpoints.md]: "none" },
-  },
-
-  desktopContainer: {
-    position: "sticky",
-    top: `calc(${space._10} + env(safe-area-inset-top))`,
-    // Sticky page chrome: above the cards it pins over (including one lifted by
-    // hover), below the site header it parks beneath.
-    zIndex: layer.raised,
+  // Whichever bar is shown, it keeps the reading gutters clear of the safe area
+  // and the same gap to the content under it.
+  bar: {
+    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
     marginBottom: space._3,
   },
-  desktopInnerContainer: {
+
+  // The site measure, so the bar lines up with the content it filters.
+  desktop: {
+    display: { default: "none", [breakpoints.md]: "flex" },
     inlineSize: "100%",
     maxInlineSize: layout.maxInlineSize,
     marginInline: "auto",
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    display: "flex",
-  },
-  desktopContent: {
-    flexGrow: 1,
-    gap: space._1,
-    // Without this the row is sized by its content and pushes past the
-    // container, so nothing inside it ever shrinks.
-    minInlineSize: 0,
   },
 
-  mobileContainer: {
-    position: "sticky",
-    top: `calc(${space._10} + env(safe-area-inset-top))`,
-    zIndex: layer.raised,
-    alignItems: "center",
-    gap: space._1,
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    marginBottom: space._3,
+  mobile: {
+    display: { default: "flex", [breakpoints.md]: "none" },
   },
 
-  trailingContent: {
+  trailingGroup: {
     marginInlineStart: "auto",
     // Shrinkable so a crowded toolbar narrows the trailing content instead of
     // pushing the row wider than the container.

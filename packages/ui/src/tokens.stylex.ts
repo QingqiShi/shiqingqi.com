@@ -488,8 +488,14 @@ export const border = stylex.defineVars({
 
 // Named planes for stacking order, listed bottom to top — the numbers are
 // spaced by 100 so a plane can take local steps without colliding with the next
-// one. The order encodes the invariants, so read it as a ladder:
+// one, and `blur` alone sits halfway between two rungs. The order encodes the
+// invariants, so read it as a ladder:
 //
+// - `blur` is the Blur plane — the page's progressive blurs, above everything
+//   the page scrolls and under every control that floats. Sticky chrome at
+//   `raised` and the header at `header` keep their controls crisp over it, a
+//   card lifted to `content` on hover stays under it, and a popover anchored to
+//   a control sits over it with its own blur beside it.
 // - `raised` lifts an in-page surface above scrolling `content` without leaving
 //   the page: a menu popped from a control, a sticky filter bar, a card that
 //   rises on hover. It stays under the chrome, so it scrolls away beneath it.
@@ -509,6 +515,7 @@ export const layer = stylex.defineVars({
   background: stylex.types.integer(-100),
   base: stylex.types.integer(0),
   content: stylex.types.integer(100),
+  blur: stylex.types.integer(150),
   raised: stylex.types.integer(200),
   header: stylex.types.integer(300),
   overlay: stylex.types.integer(400),

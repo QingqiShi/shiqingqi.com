@@ -390,6 +390,16 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/scroll-mask" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/scroll-mask" />
   </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/sticky-controls</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sticky-controls" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sticky-controls" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/sticky-controls</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sticky-controls" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sticky-controls" />
+  </url>
 
   <url>
     <loc>https://qingqi.dev/design-system/foundations/motion</loc>

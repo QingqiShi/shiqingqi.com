@@ -292,6 +292,22 @@ const ROUTES = [
       "scroller",
     ],
   },
+  // The third of the blur family, and the one that moves: Scroll mask holds at
+  // a scroller's edge, this holds a row of controls over the page it blurs.
+  {
+    section: "components",
+    category: "surfaces",
+    path: "/design-system/components/sticky-controls",
+    keywords: [
+      "sticky",
+      "filter bar",
+      "toolbar",
+      "pinned",
+      "stuck",
+      "chrome",
+      "controls",
+    ],
+  },
   {
     section: "components",
     category: "surfaces",

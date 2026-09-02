@@ -182,6 +182,10 @@ export default function DesignSystemOverview() {
       en: "A scroll region whose content blurs on its way out of view at each edge it can still scroll to.",
       zh: "滚动区域在仍可继续滚动的每条边上，将移出视野的内容渐进虚化。",
     }),
+    "/design-system/components/sticky-controls": t({
+      en: "A row of page chrome parked under the header strip, blurring the page around its controls while it holds.",
+      zh: "停在页头下方的一行页面控件，停住期间在控件周围渐进虚化页面。",
+    }),
     "/design-system/components/sidebar-layout": t({
       en: "An app-density page shell with a sticky navigation rail and a mobile drawer.",
       zh: "带粘性导航侧栏与移动端抽屉的应用密度页面骨架。",

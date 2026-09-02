@@ -2,12 +2,14 @@
 
 import * as stylex from "@stylexjs/stylex";
 import {
+  use,
   useCallback,
   useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   duration,
   easing,
@@ -16,6 +18,8 @@ import {
 import type { StyleProp } from "../style-prop.ts";
 import { color } from "../tokens.stylex.ts";
 import { observeChildren } from "../utils/observe-children.ts";
+import { observeViewport } from "../utils/observe-viewport.ts";
+import { BlurPlaneContext } from "./blur-plane.tsx";
 import { buildBlurLayers, type BlurGeometry } from "./build-blur-layers.ts";
 
 interface ProgressiveBlurProps {
@@ -23,7 +27,8 @@ interface ProgressiveBlurProps {
    * The floating element the blur radiates from. The ramp runs out of its
    * rect — measured, or `reach` in from the box's edges — so it needs no
    * direction; it renders above the layers and stays interactive while they,
-   * and the box around them, let clicks through. The slot forces
+   * and the box around them, let clicks through. Several children are measured
+   * as one, less any with no box at this breakpoint. The slot forces
    * `pointer-events: auto` on it, so a consumer that keeps a hidden floating
    * element mounted switches pointer events off again inside it.
    */
@@ -58,8 +63,18 @@ interface ProgressiveBlurProps {
    */
   reach?: number;
   /**
+   * Whether the blur belongs on the page's Blur plane, where a shell paints
+   * every floating control's blur under all of them. Set it `false` and the
+   * layers stay beside the element — the choice a popup makes, because it
+   * covers the chrome around it and its blur has to cover that chrome too.
+   * Only `reach` reads this: the box-filling mode inherits the box's corners,
+   * so its layers have to stay inside the box.
+   * @default true
+   */
+  isOnPlane?: boolean;
+  /**
    * StyleX styles merged over the component's own — the escape hatch for
-   * placement and plane (position, inset, z-index).
+   * placement and stacking (position, inset, z-index).
    */
   css?: StyleProp;
 }
@@ -96,6 +111,15 @@ interface ProgressiveBlurProps {
  * events, so a dismissal click anywhere outside the floating element passes
  * through to whatever the consumer puts behind.
  *
+ * With `reach`, the layers go onto the page's Blur plane whenever the shell
+ * around them keeps one, so one control's blur never lands on another control.
+ * `isOnPlane={false}` keeps them beside the element instead, which is what a
+ * popup covering the chrome around it needs. Beside the element, the wrapper
+ * paints under the root's own content and above everything outside the root,
+ * and the root is positioned to make that so; on the plane the root stays
+ * static, so a popup anchored inside the element resolves against the chrome
+ * around the blur rather than against the blur's own box.
+ *
  * The floating element is watched either way, shown or not: every resize of
  * it, and every change to the slot's child list, which no resize reports.
  * Without `reach`, the measurement is taken on mount and again whenever the
@@ -127,10 +151,12 @@ export function ProgressiveBlur({
   radius = 16,
   isShown = true,
   reach,
+  isOnPlane = true,
   css,
 }: ProgressiveBlurProps) {
+  const plane = use(BlurPlaneContext);
   const rootRef = useRef<HTMLDivElement>(null);
-  const layersRef = useRef<HTMLDivElement>(null);
+  const layersRef = useRef<HTMLDivElement | null>(null);
   const slotRef = useRef<HTMLSpanElement>(null);
   const offsetRef = useRef<BoxOffset | null>(null);
   const [geometry, setGeometry] = useState<BlurGeometry | null>(null);
@@ -204,6 +230,20 @@ export function ProgressiveBlur({
     setBoxSize((current) => (isSameSize(current, size) ? current : size));
   }, [reach]);
 
+  // The wrapper's own ref, because a fresh one — mounted onto the plane, or
+  // beside the element — carries none of the offsets written to the last.
+  const setLayers = useCallback(
+    (node: HTMLDivElement | null) => {
+      layersRef.current = node;
+      offsetRef.current = null;
+      // On the first mount the slot is not attached yet and this bails, leaving
+      // the effect below to place the box; on a later one it is what puts the
+      // box right before the wrapper is painted.
+      if (node !== null) place();
+    },
+    [place],
+  );
+
   useLayoutEffect(() => {
     const slot = slotRef.current;
     if (reach === undefined || !slot) return;
@@ -219,31 +259,7 @@ export function ProgressiveBlur({
     // Placed again on being shown: while hidden, nothing followed the page.
     place();
 
-    // Momentum scrolling delivers events faster than the compositor paints, so
-    // placing per event would force a document-wide layout each time. Scroll
-    // fires before the frame's rendering step, so this still lands in the same
-    // paint.
-    let frame = 0;
-    const schedule = () => {
-      frame ||= requestAnimationFrame(() => {
-        frame = 0;
-        place();
-      });
-    };
-
-    // Capture phase, so a scroller inside the page reports too: its scroll
-    // event does not bubble.
-    document.addEventListener("scroll", schedule, {
-      capture: true,
-      passive: true,
-    });
-    window.addEventListener("resize", schedule);
-
-    return () => {
-      document.removeEventListener("scroll", schedule, { capture: true });
-      window.removeEventListener("resize", schedule);
-      cancelAnimationFrame(frame);
-    };
+    return observeViewport(place);
   }, [reach, isShown, place]);
 
   const layers = buildBlurLayers({
@@ -255,38 +271,58 @@ export function ProgressiveBlur({
   // inherits corners.
   const boxCorners = !hasReach && styles.corners;
 
+  const layersWrapper = (
+    <div
+      ref={setLayers}
+      css={[
+        styles.layers,
+        hasReach && styles.reachLayers,
+        boxCorners,
+        hasReach && boxSize === null && styles.unplaced,
+        hasReach &&
+          boxSize !== null &&
+          dynamicStyles.boxSize(boxSize.width, boxSize.height),
+      ]}
+    >
+      {layers.map(({ filter, mask }, index) => (
+        <div
+          key={index}
+          aria-hidden="true"
+          css={[
+            styles.layer,
+            hasReach && styles.reachLayer,
+            boxCorners,
+            dynamicStyles.layer(filter, mask),
+            !isBlurShown && styles.hidden,
+            isBlurShown && styles.wash,
+          ]}
+        />
+      ))}
+    </div>
+  );
+
+  // A plane the page keeps but has not mounted yet renders no layers at all:
+  // nothing is visible before the box is placed, and the plane lands in the
+  // same commit.
+  const isLayersBeside = !(hasReach && isOnPlane && plane !== null);
+  const placedLayers = isLayersBeside
+    ? layersWrapper
+    : plane.node === null
+      ? null
+      : createPortal(layersWrapper, plane.node);
+
   return (
     <div
       ref={rootRef}
-      css={[styles.root, hasReach && styles.reachRoot, boxCorners, css]}
+      css={[
+        styles.root,
+        hasReach && styles.reachRoot,
+        hasReach && isLayersBeside && styles.reachRootBeside,
+        boxCorners,
+        css,
+      ]}
     >
-      <div
-        ref={layersRef}
-        css={[
-          styles.layers,
-          hasReach && styles.reachLayers,
-          boxCorners,
-          hasReach && boxSize === null && styles.unplaced,
-          hasReach &&
-            boxSize !== null &&
-            dynamicStyles.boxSize(boxSize.width, boxSize.height),
-        ]}
-      >
-        {layers.map(({ filter, mask }, index) => (
-          <div
-            key={index}
-            aria-hidden="true"
-            css={[
-              styles.layer,
-              hasReach && styles.reachLayer,
-              boxCorners,
-              dynamicStyles.layer(filter, mask),
-              !isBlurShown && styles.hidden,
-              isBlurShown && styles.wash,
-            ]}
-          />
-        ))}
-      </div>
+      {placedLayers}
       <span ref={slotRef} css={styles.slot}>
         {children}
       </span>
@@ -315,7 +351,9 @@ interface BoxOffset {
 
 /**
  * The union of the elements' viewport rects — `null` when there are none, or
- * the union is empty.
+ * the union is empty. An element with no box — hidden at this breakpoint — is
+ * left out: its rect stands at the viewport origin and would drag the union
+ * there.
  */
 function unionRect(elements: HTMLCollection): ViewportRect | null {
   let left = Number.POSITIVE_INFINITY;
@@ -324,6 +362,7 @@ function unionRect(elements: HTMLCollection): ViewportRect | null {
   let bottom = Number.NEGATIVE_INFINITY;
   for (const element of elements) {
     const rect = element.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) continue;
     left = Math.min(left, rect.left);
     top = Math.min(top, rect.top);
     right = Math.max(right, rect.right);
@@ -440,10 +479,24 @@ const styles = stylex.create({
     pointerEvents: "none",
   },
   // With `reach`, the root sits in flow around the floating element instead of
-  // filling a positioned ancestor.
+  // filling a positioned ancestor. Static, so a popup anchored inside the
+  // element — a sheet spanning the bar the element sits in — resolves against
+  // that bar rather than against the blur's own box.
   reachRoot: {
-    position: "relative",
+    position: "static",
     inset: "auto",
+  },
+  // With the layers beside the element, the root is also a stacking context of
+  // its own, so the fixed wrapper below can drop under the root's own content
+  // instead of painting over it — a positioned box at `z-index: auto` paints
+  // after in-flow content, which would blur the very element the blur belongs
+  // to. A consumer's own `z-index` merges over this one and keeps the context.
+  // A stacking context is not a backdrop root — only `opacity`, a filter, a
+  // mask and `isolation` make one — so the layers still read the page through
+  // it. On the plane the layers are outside the root, which needs none of this.
+  reachRootBeside: {
+    position: "relative",
+    zIndex: 0,
   },
   // The wrapper around the layers. Its box is the root's box, and the layers
   // fill it.
@@ -475,6 +528,7 @@ const styles = stylex.create({
     inset: "auto",
     inlineSize: 0,
     blockSize: 0,
+    zIndex: -1,
   },
   // A layer in a `reach` box takes the box's size from the wrapper, which
   // states it as two custom properties and stays a point itself.

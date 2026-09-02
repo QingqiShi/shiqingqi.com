@@ -28,6 +28,7 @@ import { SidebarLayoutSpecimen } from "./sidebar-layout-specimen.tsx";
 import { SkeletonSpecimen } from "./skeleton-specimen.tsx";
 import { SliderSpecimen } from "./slider-specimen.tsx";
 import { SpinnerSpecimen } from "./spinner-specimen.tsx";
+import { StickyControlsSpecimen } from "./sticky-controls-specimen.tsx";
 import { SwitchSpecimen } from "./switch-specimen.tsx";
 import { TableSpecimen } from "./table-specimen.tsx";
 import { TextFieldSpecimen } from "./text-field-specimen.tsx";
@@ -38,7 +39,7 @@ interface ComponentSpecimen {
   element: ReactElement;
   /**
    * Fills the plate edge to edge instead of sitting on it as a scaled
-   * thumbnail. Set by the five miniatures whose subject is a whole page: a
+   * thumbnail. Set by the six miniatures whose subject is a whole page: a
    * page reads as a page when it fills its frame and as a floating card when it
    * doesn't. They also need no scaling-down to say "not a working control" —
    * a wireframe already says that by being a wireframe, whereas a real `Button`
@@ -52,11 +53,11 @@ interface ComponentSpecimen {
  * shown in its overview tile. The counterpart to `foundation-illustrations/`:
  * foundations get abstract illustrations because a token has no rendered form,
  * whereas a component does — so these are the real components, rendered live,
- * and they cannot drift from the thing they advertise. The six that cannot
+ * and they cannot drift from the thing they advertise. The seven that cannot
  * render their real form inside a tile (Overlay, Menu button, the two page
- * shells, the movie-details example, and Progressive blur) fall back to a
- * miniature drawn from the same tokens; each specimen's own doc comment says
- * why.
+ * shells, the movie-details example, Progressive blur and Sticky controls)
+ * fall back to a miniature drawn from the same tokens; each specimen's own doc
+ * comment says why.
  *
  * Values are ready-made elements, matching how the illustrations map works. The
  * overview renders them inside an `inert` plate, so a specimen must never depend
@@ -106,6 +107,10 @@ const COMPONENT_SPECIMENS: Partial<
     fillsPlate: true,
   },
   "/design-system/components/scroll-mask": { element: <ScrollMaskSpecimen /> },
+  "/design-system/components/sticky-controls": {
+    element: <StickyControlsSpecimen />,
+    fillsPlate: true,
+  },
   "/design-system/components/overlay": {
     element: <OverlaySpecimen />,
     fillsPlate: true,

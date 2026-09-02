@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { layer, layout, space } from "../tokens.stylex.ts";
+import { BlurPlane, BlurPlaneProvider } from "./blur-plane.tsx";
 import { HeaderControls } from "./header-controls.tsx";
 
 interface HeaderFooterLayoutProps {
@@ -66,6 +67,10 @@ interface HeaderFooterLayoutProps {
  * At rest the blur melts away and a hero bleeds to the top edge untouched. The
  * footer is in flow at the end of the page, where nothing floats over it.
  *
+ * The blur is painted on the page's Blur plane, first inside the content: under
+ * the header's groups, and under any sticky chrome the page parks at `raised`,
+ * so no group's blur ever lands on another group's controls.
+ *
  * This is the shell behind the site's header/footer pages. For dense, app-like
  * surfaces with their own navigation, reach for `SidebarLayout` instead — a page
  * uses one shell or the other, never both.
@@ -88,33 +93,41 @@ export function HeaderFooterLayout({
       ? dynamicStyles.maxInlineSize(contentMaxInlineSize)
       : null,
   ];
+  const content = (
+    <>
+      <BlurPlane />
+      {children}
+    </>
+  );
   const contentBody =
     as === "main" ? (
-      <main css={contentCss}>{children}</main>
+      <main css={contentCss}>{content}</main>
     ) : (
-      <div css={contentCss}>{children}</div>
+      <div css={contentCss}>{content}</div>
     );
 
   return (
-    <div css={styles.root}>
-      {background != null && (
-        <div css={styles.background} aria-hidden="true">
-          {background}
-        </div>
-      )}
-      <header css={styles.header}>
-        {headerStart != null && (
-          <HeaderControls css={styles.headerStart}>
-            {headerStart}
-          </HeaderControls>
+    <BlurPlaneProvider>
+      <div css={styles.root}>
+        {background != null && (
+          <div css={styles.background} aria-hidden="true">
+            {background}
+          </div>
         )}
-        {headerEnd != null && (
-          <HeaderControls css={styles.headerEnd}>{headerEnd}</HeaderControls>
-        )}
-      </header>
-      {contentBody}
-      {footer != null && <div css={styles.footer}>{footer}</div>}
-    </div>
+        <header css={styles.header}>
+          {headerStart != null && (
+            <HeaderControls css={styles.headerStart}>
+              {headerStart}
+            </HeaderControls>
+          )}
+          {headerEnd != null && (
+            <HeaderControls css={styles.headerEnd}>{headerEnd}</HeaderControls>
+          )}
+        </header>
+        {contentBody}
+        {footer != null && <div css={styles.footer}>{footer}</div>}
+      </div>
+    </BlurPlaneProvider>
   );
 }
 
@@ -131,6 +144,10 @@ const styles = stylex.create({
   // each fixed group's containing block.
   root: {
     "--header-controls-gutter": `calc(max(0px, (100% - var(--removed-body-scroll-bar-size, 0px) - ${layout.maxInlineSize}) / 2) + ${space._3})`,
+    // The strip the header controls occupy, published so page chrome that
+    // sticks — a filter bar — parks under it rather than restating the shell's
+    // own measurements.
+    "--header-controls-clearance": `calc(${space._10} + env(safe-area-inset-top))`,
     position: "relative",
     isolation: "isolate",
     display: "flex",
