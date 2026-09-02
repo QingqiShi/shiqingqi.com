@@ -189,7 +189,7 @@ export function Button({
         hasIcon &&
           !!children &&
           (hideLabelOnMobile
-            ? sharedStyles.hasIconHideLabel
+            ? sharedStyles.hasIconHideLabelBelowMd
             : sharedStyles.hasIcon),
         bright && sharedStyles.bright,
         // `variantStyles` re-points tokens, but `active` and `bright` set a
@@ -222,7 +222,7 @@ export function Button({
         <span
           css={[
             sharedStyles.childrenContainer,
-            hideLabelOnMobile && sharedStyles.hideLabelOnMobile,
+            hideLabelOnMobile && sharedStyles.hideLabelBelowMd,
             overlaysSpinner && styles.labelHidden,
           ]}
           id={labelId}

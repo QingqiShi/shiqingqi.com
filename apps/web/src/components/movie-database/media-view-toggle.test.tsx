@@ -90,7 +90,7 @@ describe("MediaViewToggle", () => {
     await user.click(getTableButton());
     // Switching media type clears every filter, but the layout choice is not
     // one — losing it here would bounce the user back to the poster grid.
-    await user.click(screen.getByRole("link", { name: "TV Shows" }));
+    await user.click(screen.getByRole("link", { name: /TV Shows/ }));
 
     expect(getTableButton().className).toContain("active");
     expect(getTableButton().getAttribute("href")).toBe(

@@ -13,14 +13,10 @@ import {
 import { useInlineChat } from "./inline-chat-context";
 
 interface CollapsedChatButtonProps {
-  label: string;
   ariaLabel: string;
 }
 
-export function CollapsedChatButton({
-  label,
-  ariaLabel,
-}: CollapsedChatButtonProps) {
+export function CollapsedChatButton({ ariaLabel }: CollapsedChatButtonProps) {
   const { isHeroInputVisible } = useHeroVisibility();
   const { openChat } = useInlineChat();
 
@@ -41,9 +37,7 @@ export function CollapsedChatButton({
             <SparkleIcon weight="fill" role="presentation" />
           </span>
         }
-      >
-        {label}
-      </Button>
+      />
     </div>
   );
 }

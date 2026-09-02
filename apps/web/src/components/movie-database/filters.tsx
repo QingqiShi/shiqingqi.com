@@ -25,14 +25,10 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
       trailingContent={
         <>
           <CollapsedChatInput
-            placeholder={t({
-              en: "Ask about movies and TV shows...",
-              zh: "询问关于电影和电视剧的问题...",
-            })}
+            placeholder={t({ en: "Ask AI...", zh: "向 AI 提问..." })}
             sendLabel={t({ en: "Send message", zh: "发送消息" })}
           />
           <CollapsedChatButton
-            label={t({ en: "AI", zh: "AI" })}
             ariaLabel={t({
               en: "Ask AI about movies and TV shows",
               zh: "向AI询问电影和电视剧",
@@ -48,7 +44,7 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
           <GenreFilterButton />
           <FixedContainerContent css={styles.content}>
             <SortFilter hideLabel />
-            <ResetFilter hideLabel />
+            <ResetFilter hideLabel iconOnlyBelow="lg" />
           </FixedContainerContent>
           <FixedContainerContent>
             <MediaViewToggle iconOnly hideLabel />
@@ -64,7 +60,7 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
       }
       mobileChildren={
         <>
-          <MediaTypeToggle shortLabels />
+          <MediaTypeToggle />
           <MobileFiltersButton
             menuContent={
               <div css={[flex.wrap, styles.mobileMenuContent]}>

@@ -35,7 +35,7 @@ function getMoviesButton() {
 }
 
 function getTvButton() {
-  return screen.getByRole("link", { name: "TV Shows" });
+  return screen.getByRole("link", { name: /TV Shows/ });
 }
 
 describe("MediaTypeToggle", () => {

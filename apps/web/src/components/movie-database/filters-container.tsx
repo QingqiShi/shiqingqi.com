@@ -4,6 +4,7 @@ import {
   StickyControlGroup,
   StickyControls,
 } from "@tuja/ui/components/sticky-controls";
+import { shrink } from "@tuja/ui/primitives/flex.stylex";
 import { layout, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
@@ -29,7 +30,11 @@ export function FiltersContainer({
   return (
     <>
       <StickyControls css={[styles.bar, styles.desktop]}>
-        <StickyControlGroup>{desktopChildren}</StickyControlGroup>
+        {/* Never narrower than its controls, or their labels wrap onto a
+            second line. The trailing group gives way instead. */}
+        <StickyControlGroup css={shrink._0}>
+          {desktopChildren}
+        </StickyControlGroup>
         {trailingGroup}
       </StickyControls>
       <StickyControls css={[styles.bar, styles.mobile]}>

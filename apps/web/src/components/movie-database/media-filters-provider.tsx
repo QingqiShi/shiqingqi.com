@@ -1,7 +1,8 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
 import { usePathname } from "next/navigation";
-import { useState, type PropsWithChildren } from "react";
+import { useRef, useState, type PropsWithChildren } from "react";
 import type { GenreFilterType } from "#src/utils/genre-filter-type.ts";
 import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
@@ -88,14 +89,25 @@ export function MediaFiltersProvider({
     return `${pathname}${searchString ? `?${searchString}` : ""}`;
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ behavior: getScrollBehavior(), top: 0 });
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // The list starts over, so a viewer who has scrolled into it comes back to
+  // its top, where the filter bar holds under the header, and not to the top
+  // of the page, which would carry the bar they just used out of view. A
+  // viewer still above the results stays where they are.
+  const scrollToResults = () => {
+    const results = resultsRef.current;
+    if (!results) return;
+    const clearance =
+      Number.parseFloat(getComputedStyle(results).scrollMarginBlockStart) || 0;
+    if (results.getBoundingClientRect().top >= clearance) return;
+    results.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
   };
 
   const commit = (next: MediaFilters) => {
     setMediaFilters(next);
     window.history.replaceState({}, "", buildUrl(next));
-    scrollToTop();
+    scrollToResults();
   };
 
   const toggleGenre = (genreId: string) => {
@@ -183,7 +195,17 @@ export function MediaFiltersProvider({
         resetUrl,
       }}
     >
-      {children}
+      <div ref={resultsRef} css={styles.results}>
+        {children}
+      </div>
     </MediaFiltersContext>
   );
 }
+
+const styles = stylex.create({
+  // Scrolls to the line the filter bar holds at, so the bar lands under the
+  // header rather than behind it.
+  results: {
+    scrollMarginBlockStart: "var(--header-controls-clearance, 0px)",
+  },
+});

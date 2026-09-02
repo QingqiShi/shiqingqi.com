@@ -51,10 +51,16 @@ export const sharedStyles = stylex.create({
   hasIcon: {
     paddingInlineStart: controlSize._2,
   },
-  hasIconHideLabel: {
+  hasIconHideLabelBelowMd: {
     paddingInlineStart: {
       default: controlSize._3,
       [breakpoints.md]: controlSize._2,
+    },
+  },
+  hasIconHideLabelBelowLg: {
+    paddingInlineStart: {
+      default: controlSize._3,
+      [breakpoints.lg]: controlSize._2,
     },
   },
   icon: {
@@ -65,8 +71,11 @@ export const sharedStyles = stylex.create({
     alignItems: "center",
     gap: controlSize._2,
   },
-  hideLabelOnMobile: {
+  hideLabelBelowMd: {
     display: { default: "none", [breakpoints.md]: "inline-flex" },
+  },
+  hideLabelBelowLg: {
+    display: { default: "none", [breakpoints.lg]: "inline-flex" },
   },
   active: {
     [buttonTokens.color]: {

@@ -56,10 +56,10 @@ const styles = stylex.create({
     // in, so the toolbar falls back to `CollapsedChatButton`.
     display: { default: "none", [breakpoints.lg]: "flex" },
     willChange: "transform, opacity",
-    // Wide enough for the whole placeholder. A fixed width (rather than
-    // `min(22rem, 100%)`, whose percentage counts as `auto` when the ancestor
-    // flex item is sized from its content) is what makes the toolbar reserve
-    // the room; `maxInlineSize` hands it back when the filters need it.
+    // Room to type in. A fixed width (rather than `min(22rem, 100%)`, whose
+    // percentage counts as `auto` when the ancestor flex item is sized from
+    // its content) is what makes the toolbar reserve the room; `maxInlineSize`
+    // hands it back when the filters need it.
     inlineSize: "22rem",
     maxInlineSize: "100%",
   },
