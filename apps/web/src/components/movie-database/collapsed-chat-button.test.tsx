@@ -32,10 +32,7 @@ function renderButton({
           heroInputRef: () => {},
         }}
       >
-        <CollapsedChatButton
-          label="AI"
-          ariaLabel="Ask AI about movies and TV shows"
-        />
+        <CollapsedChatButton ariaLabel="Ask AI about movies and TV shows" />
       </HeroVisibilityContext>
     </InlineChatContext>,
   );
@@ -71,11 +68,6 @@ describe("CollapsedChatButton", () => {
     expect(button).not.toHaveAttribute("tabindex");
     expect(button).not.toHaveAttribute("aria-hidden");
     expect(button.parentElement).not.toHaveAttribute("inert");
-  });
-
-  it("shows the label text", () => {
-    renderButton({ isHeroInputVisible: false });
-    expect(screen.getByText("AI")).toBeInTheDocument();
   });
 
   it("opens chat when clicked", async () => {

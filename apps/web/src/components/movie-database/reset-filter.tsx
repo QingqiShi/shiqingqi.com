@@ -9,14 +9,22 @@ import { AnchorButton } from "../shared/anchor-button";
 interface ResetFilterProps {
   bright?: boolean;
   hideLabel?: boolean;
+  /** Below this breakpoint, the button collapses to its icon. */
+  iconOnlyBelow?: "md" | "lg";
 }
 
-export function ResetFilter({ bright, hideLabel }: ResetFilterProps) {
+export function ResetFilter({
+  bright,
+  hideLabel,
+  iconOnlyBelow,
+}: ResetFilterProps) {
   const { canReset, reset, resetUrl } = useMediaFilters();
 
   if (!canReset) {
     return null;
   }
+
+  const label = t({ en: "Reset", zh: "重置" });
 
   return (
     <div>
@@ -33,8 +41,10 @@ export function ResetFilter({ bright, hideLabel }: ResetFilterProps) {
         }}
         icon={<FunnelXIcon aria-hidden="true" />}
         bright={bright}
+        hideLabelBelow={iconOnlyBelow}
+        aria-label={iconOnlyBelow && label}
       >
-        {t({ en: "Reset", zh: "重置" })}
+        {label}
       </AnchorButton>
     </div>
   );

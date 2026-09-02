@@ -11,7 +11,8 @@ import { Anchor } from "./anchor";
 
 interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
   bright?: boolean;
-  hideLabelOnMobile?: boolean;
+  /** Below this breakpoint, collapses to the icon and hides the label. */
+  hideLabelBelow?: "md" | "lg";
   icon?: React.ReactNode;
   isActive?: boolean;
 }
@@ -19,7 +20,7 @@ interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
 export function AnchorButton({
   bright,
   children,
-  hideLabelOnMobile,
+  hideLabelBelow,
   icon,
   isActive,
   ref: forwardedRef,
@@ -55,11 +56,7 @@ export function AnchorButton({
       css={[
         sharedStyles.base,
         styles.anchorButton,
-        !!icon &&
-          !!children &&
-          (hideLabelOnMobile
-            ? sharedStyles.hasIconHideLabel
-            : sharedStyles.hasIcon),
+        !!icon && !!children && hasIconStyles[hideLabelBelow ?? "never"],
         bright && sharedStyles.bright,
         isActive && sharedStyles.active,
         isPressed && sharedStyles.pressed,
@@ -75,7 +72,7 @@ export function AnchorButton({
         <span
           css={[
             sharedStyles.childrenContainer,
-            hideLabelOnMobile && sharedStyles.hideLabelOnMobile,
+            hideLabelBelow && hideLabelStyles[hideLabelBelow],
           ]}
         >
           {children}
@@ -84,6 +81,17 @@ export function AnchorButton({
     </Anchor>
   );
 }
+
+const hasIconStyles = {
+  never: sharedStyles.hasIcon,
+  md: sharedStyles.hasIconHideLabelBelowMd,
+  lg: sharedStyles.hasIconHideLabelBelowLg,
+};
+
+const hideLabelStyles = {
+  md: sharedStyles.hideLabelBelowMd,
+  lg: sharedStyles.hideLabelBelowLg,
+};
 
 const styles = stylex.create({
   anchorButton: {
