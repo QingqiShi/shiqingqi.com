@@ -45,10 +45,8 @@ export function RecommendedMediaRow({
       <h2 css={styles.title}>{title}</h2>
       <HorizontalScrollRow
         ariaLabel={title}
-        wrapperCss={rowStyles.scrollWrapper}
-        containerCss={rowStyles.scrollContainer}
-        scrollButtonLeftCss={rowStyles.scrollButtonLeft}
-        scrollButtonRightCss={rowStyles.scrollButtonRight}
+        css={rowStyles.root}
+        contentCss={rowStyles.scrollContainer}
       >
         {items.map((item) => (
           <div
@@ -108,45 +106,33 @@ const chatInsetRight = `calc(${space._3} + ${space._3} + env(safe-area-inset-rig
 const standaloneInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`;
 const standaloneInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
 
+// Both insets zero the block padding: the room a card needs to grow on hover
+// comes from the row's clip margin, which the layout does not pay for.
 const chatStyles = stylex.create({
-  scrollWrapper: {
+  root: {
     marginLeft: `calc(-1 * ${chatInsetLeft})`,
     marginRight: `calc(-1 * ${chatInsetRight})`,
   },
   scrollContainer: {
-    paddingTop: 0,
-    paddingBottom: space._1,
+    paddingBlock: 0,
     paddingLeft: chatInsetLeft,
     paddingRight: chatInsetRight,
     scrollPaddingLeft: chatInsetLeft,
     scrollPaddingRight: chatInsetRight,
   },
-  scrollButtonLeft: {
-    left: chatInsetLeft,
-  },
-  scrollButtonRight: {
-    right: chatInsetRight,
-  },
 });
 
 const standaloneStyles = stylex.create({
-  scrollWrapper: {
+  root: {
     marginLeft: `calc(-1 * ${standaloneInsetLeft})`,
     marginRight: `calc(-1 * ${standaloneInsetRight})`,
   },
   scrollContainer: {
-    paddingTop: 0,
-    paddingBottom: space._1,
+    paddingBlock: 0,
     paddingLeft: standaloneInsetLeft,
     paddingRight: standaloneInsetRight,
     scrollPaddingLeft: standaloneInsetLeft,
     scrollPaddingRight: standaloneInsetRight,
-  },
-  scrollButtonLeft: {
-    left: standaloneInsetLeft,
-  },
-  scrollButtonRight: {
-    right: standaloneInsetRight,
   },
 });
 

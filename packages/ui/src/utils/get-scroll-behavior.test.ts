@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { getScrollBehavior } from "./get-scroll-behavior";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { getScrollBehavior } from "./get-scroll-behavior.ts";
 
 describe("getScrollBehavior", () => {
   afterEach(() => {

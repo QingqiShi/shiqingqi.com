@@ -63,6 +63,30 @@ function isRendered(element: Element, options: CheckVisibilityOptions) {
   return true;
 }
 
+// jsdom defines no `matchMedia` at all, so a component that reads a media
+// query (reduced motion, a breakpoint) throws without this. Always
+// non-matching, since jsdom has no layout to evaluate a real query against.
+function createMediaQueryList(query: string): MediaQueryList {
+  return {
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {
+      // No listeners to notify: the query never changes.
+    },
+    removeListener: () => {
+      // No listeners to notify: the query never changes.
+    },
+    addEventListener: () => {
+      // No listeners to notify: the query never changes.
+    },
+    removeEventListener: () => {
+      // No listeners to notify: the query never changes.
+    },
+    dispatchEvent: () => false,
+  };
+}
+
 /**
  * Adds the DOM members jsdom leaves out but the components under test read.
  * Call it once from a Vitest setup file.
@@ -71,6 +95,8 @@ function isRendered(element: Element, options: CheckVisibilityOptions) {
  *   because jsdom has no layout.
  * - `HTMLElement.prototype.isContentEditable`, which jsdom does not define at
  *   all, answered from the HTML spec's editing-host rules.
+ * - `window.matchMedia`, defined only when missing so a test can still stub
+ *   its own, returning a minimal, always non-matching `MediaQueryList`.
  */
 export function installJsdomShims() {
   Element.prototype.checkVisibility = function checkVisibility(
@@ -87,4 +113,8 @@ export function installJsdomShims() {
       return isEditingHostOrEditable(this);
     },
   });
+
+  if (typeof window.matchMedia === "undefined") {
+    window.matchMedia = createMediaQueryList;
+  }
 }

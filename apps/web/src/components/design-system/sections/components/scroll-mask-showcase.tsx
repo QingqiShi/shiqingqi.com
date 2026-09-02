@@ -37,6 +37,12 @@ export function ScrollMaskShowcase() {
               zh: "startChrome 与 endChrome 插槽将页眉行、固定操作栏这类非内容界面元素固定在区域边缘上。每条虚化带都是滚动元素的同级元素，紧贴区域自身的边缘；带插槽的那条边，虚化带会扩展到该元素实测的盒子加一个深度，因此已滚过的内容会在整个元素的范围内渐进虚化——外缘最强，越过内缘一个深度后恢复清晰——而元素绘制在虚化带之上，保持清晰且可交互。插槽之间的内容会撑满区域，所以即使内容不足以滚动，endChrome 也始终固定在边缘。",
             })}
           </Text>
+          <Text variant="bodySmall" tone="muted">
+            {t({
+              en: "scrollButtons adds a button per edge that scrolls one page towards it, on a non-touch device and only while that edge masks. clipMargin lets the content grow past the region's own box on the axis that does not scroll, so a card scaling up on hover paints out over its neighbours instead of being cut at the edge, and the region still takes no more room.",
+              zh: "scrollButtons 为每条边各加一个按钮，点击后向该边翻一页；按钮只在非触控设备上、且只在该边带虚化时出现。clipMargin 让内容可以在非滚动轴上越过区域自身的盒子，因此悬停放大的卡片会绘制到邻近元素之上，而不是在边缘被切断，同时区域在布局中仍不多占空间。",
+            })}
+          </Text>
           <Specimen caption={t({ en: "vertical", zh: "纵向" })}>
             <VerticalRegion />
           </Specimen>
@@ -113,19 +119,19 @@ export function ScrollMaskShowcase() {
               }),
             },
             {
-              name: "showStartMask",
-              type: "boolean",
+              name: "scrollButtons",
+              type: "{ startLabel: string; endLabel: string }",
               description: t({
-                en: "Controlled state for the start edge. Pass it together with showEndMask and the region renders the bands from them instead of tracking its own scroll position — for a consumer already running useScrollMask on the same element to drive sibling chrome, such as scroll-to-page buttons.",
-                zh: "起始边的受控状态。与 showEndMask 一同传入时，区域将按这两个值渲染虚化带，不再自行跟踪滚动位置——适用于已在同一元素上运行 useScrollMask 来驱动相邻控件（例如翻页按钮）的调用方。",
+                en: "A button per edge that scrolls the region one page towards that edge, and the accessible name for each — the package ships no i18n, so the names come in as props. They appear on a non-touch device only, because a touch device scrolls with a swipe, and each one appears only while its own edge masks. A horizontal region should normally ask for them: a mouse has no horizontal wheel, so without a button the only way to reach the rest of the row is a drag.",
+                zh: "为每条边各提供一个按钮，点击后向该边翻一页，并附上各自的无障碍名称——本包不含 i18n，名称由调用方传入。按钮只在非触控设备上出现，因为触控设备用滑动来滚动；且每个按钮只在自己那条边带虚化时才出现。横向区域通常都应传入：鼠标没有横向滚轮，没有按钮就只能靠拖动才能看到这一行的其余部分。",
               }),
             },
             {
-              name: "showEndMask",
-              type: "boolean",
+              name: "clipMargin",
+              type: "string",
               description: t({
-                en: "Controlled state for the end edge. Omit both it and showStartMask — the default — and the region tracks the scroll position itself, remeasuring on scroll, on resize, and when its children change.",
-                zh: "结束边的受控状态。与 showStartMask 一同省略（默认情形）时，区域会自行跟踪滚动位置，并在滚动、尺寸变化以及子元素变化时重新测量。",
+                en: "How far the scroller's overflow clip reaches past the region, on the axis that does not scroll. Any CSS length — room for content that grows on hover or on focus, or that casts a shadow, so it paints out over the neighbours instead of being cut at the edge. The region takes no more space in the layout for it: the scroller gets this much padding on that axis and the same size back as a negative margin, so it replaces whatever padding contentCss sets there.",
+                zh: "滚动元素的溢出裁切在非滚动轴上越过区域边界的距离。可用任意 CSS 长度——为悬停或聚焦时放大、或投下阴影的内容留出余地，让它绘制到邻近元素之上，而不是在边缘被切断。区域不会因此在布局中多占空间：滚动元素在该轴上获得同样大小的内边距，再以同样大小的负外边距还回去，因此它会覆盖 contentCss 在该轴上设置的内边距。",
               }),
             },
             {
@@ -215,7 +221,8 @@ function VerticalRegion() {
  * A row wider than its box. It takes the native attributes ScrollMask forwards
  * to the scroller — a name for the region and a tab stop — so the row can be
  * scrolled from the keyboard, and pairs them with the focus ring on the
- * scroller where the tab stop is.
+ * scroller where the tab stop is. It asks for the scroll buttons too, because
+ * a mouse has no horizontal wheel.
  */
 function HorizontalRegion() {
   const films = [
@@ -236,6 +243,10 @@ function HorizontalRegion() {
       role="group"
       aria-label={t({ en: "Films by this director", zh: "该导演的影片" })}
       tabIndex={0}
+      scrollButtons={{
+        startLabel: t({ en: "Scroll left", zh: "向左滚动" }),
+        endLabel: t({ en: "Scroll right", zh: "向右滚动" }),
+      }}
       css={[corner.radius_3, styles.rowRegion]}
       contentCss={[scrollX.focusRing, styles.rowContent]}
     >

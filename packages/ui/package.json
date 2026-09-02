@@ -57,6 +57,7 @@
     "./hooks/use-press-handlers": "./src/hooks/use-press-handlers.ts",
     "./hooks/use-radio-group": "./src/hooks/use-radio-group.ts",
     "./hooks/use-scroll-mask": "./src/hooks/use-scroll-mask.ts",
+    "./utils/get-scroll-behavior": "./src/utils/get-scroll-behavior.ts",
     "./primitives/a11y.stylex": "./src/primitives/a11y.stylex.ts",
     "./primitives/corner.stylex": "./src/primitives/corner.stylex.ts",
     "./primitives/flex.stylex": "./src/primitives/flex.stylex.ts",

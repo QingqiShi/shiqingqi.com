@@ -112,20 +112,28 @@ export const scrollY = stylex.create({
 // clobbering a consumer's own transition (StyleX composition is last-wins per
 // property) and colocates the timing with the motion scale.
 // A precise pointer with NO touch pointer available — the predicate the whole
-// auto-hide is gated behind, named once so the two declarations below cannot
+// auto-hide is gated behind, named once so the declarations that use it cannot
 // drift apart (mirroring `REDUCED_MOTION` in motion.stylex.ts).
-const PRECISE_POINTER_ONLY =
+const NON_TOUCH_DEVICE =
   "@media (hover: hover) and (not (any-pointer: coarse))";
+
+// `defineConsts`, not a plain object: `design-system/only-stylex-exports` gives
+// the reason. Exported because a component that shows a pointer-only
+// affordance needs the same predicate — `ScrollMask`'s scroll buttons, which
+// a touch device replaces with a swipe.
+export const pointerConstants = stylex.defineConsts({
+  NON_TOUCH_DEVICE,
+});
 
 export const scrollbar = stylex.create({
   autoHide: {
     scrollbarWidth: {
       default: "auto",
-      [PRECISE_POINTER_ONLY]: "thin",
+      [NON_TOUCH_DEVICE]: "thin",
     },
     scrollbarColor: {
       default: "auto",
-      [PRECISE_POINTER_ONLY]: {
+      [NON_TOUCH_DEVICE]: {
         default: "transparent transparent",
         ":hover": `${color.scrollbarThumb} transparent`,
         ":focus-within": `${color.scrollbarThumb} transparent`,

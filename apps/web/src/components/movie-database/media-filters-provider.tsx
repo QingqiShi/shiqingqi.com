@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { usePathname } from "next/navigation";
 import { useRef, useState, type PropsWithChildren } from "react";
 import type { GenreFilterType } from "#src/utils/genre-filter-type.ts";
-import { getScrollBehavior } from "#src/utils/get-scroll-behavior.ts";
 import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
 import type { MediaType } from "#src/utils/media-type.ts";
 import type { MediaView } from "#src/utils/media-view.ts";

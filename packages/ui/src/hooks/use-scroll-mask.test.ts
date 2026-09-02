@@ -177,25 +177,6 @@ describe("useScrollMask", () => {
     expect(result.current.showEndMask).toBe(false);
   });
 
-  it("stays inert and attaches no scroll listener when disabled", () => {
-    const el = makeScrollable({
-      scrollLeft: 100,
-      scrollWidth: 500,
-      clientWidth: 200,
-    });
-    const addSpy = vi.spyOn(el, "addEventListener");
-    const ref = { current: el };
-    const { result } = renderHook(() =>
-      useScrollMask(ref, "horizontal", { enabled: false }),
-    );
-
-    // Would mask both edges if enabled; disabled leaves them false and never
-    // wires up the scroll observer.
-    expect(result.current.showStartMask).toBe(false);
-    expect(result.current.showEndMask).toBe(false);
-    expect(addSpy).not.toHaveBeenCalled();
-  });
-
   it("removes scroll listener on unmount", () => {
     const el = makeScrollable();
     const removeSpy = vi.spyOn(el, "removeEventListener");

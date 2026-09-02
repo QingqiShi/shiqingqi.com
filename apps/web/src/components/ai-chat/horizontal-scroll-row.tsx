@@ -2,92 +2,65 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
-import { useScrollMask } from "@tuja/ui/hooks/use-scroll-mask";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import type { StyleProp } from "@tuja/ui/style-prop";
 import { space } from "@tuja/ui/tokens.stylex";
-import { useRef } from "react";
-import { HorizontalScrollButtons } from "./horizontal-scroll-buttons";
+import { t } from "#src/i18n.ts";
 
 interface HorizontalScrollRowProps {
   children: React.ReactNode;
   ariaLabel: string;
   role?: "list" | "region";
-  wrapperCss?: StyleProp;
-  containerCss?: StyleProp;
-  scrollButtonLeftCss?: StyleProp;
-  scrollButtonRightCss?: StyleProp;
+  /** StyleX styles merged over the row's own — the ScrollMask root. */
+  css?: StyleProp;
+  /** StyleX styles merged over the scroller's own — padding, the card layout. */
+  contentCss?: StyleProp;
 }
 
 export function HorizontalScrollRow({
   children,
   ariaLabel,
   role = "list",
-  wrapperCss,
-  containerCss,
-  scrollButtonLeftCss,
-  scrollButtonRightCss,
+  css,
+  contentCss,
 }: HorizontalScrollRowProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  // Kept in the consumer (not left to ScrollMask) because the scroll-to-page
-  // buttons need the same state; ScrollMask runs in controlled mode so there is
-  // a single set of observers on the element.
-  const { showStartMask: showLeftMask, showEndMask: showRightMask } =
-    useScrollMask(scrollRef, "horizontal");
-
   return (
-    <div css={[styles.scrollWrapper, wrapperCss]}>
-      <ScrollMask
-        ref={scrollRef}
-        orientation="horizontal"
-        depth={space._8}
-        showStartMask={showLeftMask}
-        showEndMask={showRightMask}
-        role={role}
-        aria-label={ariaLabel}
-        tabIndex={0}
-        // The row's corners belong to the root: the scroller and the bands take
-        // them from it, so this is also what shapes the focus ring below.
-        css={corner.radius_2}
-        contentCss={[
-          scrollX.base,
-          scrollX.focusRing,
-          styles.scrollContainer,
-          containerCss,
-        ]}
-      >
-        {children}
-      </ScrollMask>
-      <HorizontalScrollButtons
-        scrollRef={scrollRef}
-        showLeft={showLeftMask}
-        showRight={showRightMask}
-        leftCss={[styles.scrollButtonLeft, scrollButtonLeftCss]}
-        rightCss={[styles.scrollButtonRight, scrollButtonRightCss]}
-      />
-    </div>
+    <ScrollMask
+      orientation="horizontal"
+      depth={space._8}
+      role={role}
+      aria-label={ariaLabel}
+      tabIndex={0}
+      scrollButtons={{
+        startLabel: t({ en: "Scroll left", zh: "向左滚动" }),
+        endLabel: t({ en: "Scroll right", zh: "向右滚动" }),
+      }}
+      clipMargin={space._3}
+      css={[styles.root, css]}
+      contentCss={[
+        scrollX.base,
+        scrollX.focusRing,
+        styles.scrollContainer,
+        contentCss,
+      ]}
+    >
+      {children}
+    </ScrollMask>
   );
 }
 
+// No corners: the row has no surface of its own, and a standalone row runs to
+// the screen edge.
 const styles = stylex.create({
-  scrollWrapper: {
-    position: "relative",
-    marginLeft: `calc(-1 * ${space._3})`,
-    marginRight: `calc(-1 * ${space._3})`,
+  root: {
+    marginInline: `calc(-1 * ${space._3})`,
   },
   scrollContainer: {
     display: "flex",
     gap: space._2,
     scrollSnapType: "x mandatory",
-    padding: space._3,
+    paddingInline: space._3,
     scrollPaddingLeft: space._3,
     scrollPaddingRight: space._3,
-  },
-  scrollButtonLeft: {
-    left: space._3,
-  },
-  scrollButtonRight: {
-    right: space._3,
   },
 });
