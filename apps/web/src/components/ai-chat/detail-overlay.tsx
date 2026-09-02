@@ -7,7 +7,7 @@ import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { fixedFill } from "@tuja/ui/primitives/layout.stylex";
+import { viewportFill } from "@tuja/ui/primitives/layout.stylex";
 import { motionConstants, transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { color, layer, space } from "@tuja/ui/tokens.stylex";
@@ -82,12 +82,12 @@ export function DetailOverlay({
   return createPortal(
     <>
       <div
-        css={[fixedFill.all, styles.backdrop]}
+        css={[viewportFill.absolute, styles.backdrop]}
         onClick={onClose}
         aria-hidden="true"
       />
       <RemoveScroll allowPinchZoom forwardProps>
-        <div css={[fixedFill.all, styles.cardContainer]}>
+        <div css={[viewportFill.absolute, styles.cardContainer]}>
           <div
             ref={dialogRef}
             css={[

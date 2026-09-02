@@ -15,6 +15,7 @@ import { breakpoints } from "../breakpoints.stylex.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { corner } from "../primitives/corner.stylex.ts";
+import { viewportAnchor, viewportFill } from "../primitives/layout.stylex.ts";
 import { color, layer, space } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
@@ -145,7 +146,11 @@ export function Overlay({
     <>
       {/* Gated rather than kept, so a closed overlay never intercepts a click. */}
       {deferredIsOpen ? (
-        <div css={styles.backdrop} onClick={onClose} aria-hidden="true" />
+        <div
+          css={[viewportFill.absolute, styles.backdrop]}
+          onClick={onClose}
+          aria-hidden="true"
+        />
       ) : null}
       {/* The blur measures the dialog it wraps and radiates from it, so the
           strip of page above the sheet ramps to sharp on its own. The blur
@@ -153,7 +158,10 @@ export function Overlay({
           the element apart from the page it filters, so the blur would have no
           backdrop for the length of the transition. It melts in and out with
           `isShown` instead, alongside the dialog's slide. */}
-      <ProgressiveBlur css={styles.blur} isShown={deferredIsOpen}>
+      <ProgressiveBlur
+        css={[viewportFill.absolute, styles.blur]}
+        isShown={deferredIsOpen}
+      >
         {deferredIsOpen ? (
           <ViewTransition enter="slide-in" exit="slide-out">
             {/* `forwardProps` makes RemoveScroll clone its single child and inject
@@ -196,14 +204,11 @@ export function Overlay({
   );
 
   return createPortal(
-    // The backdrop and dialog are `position: absolute`, so they need a
-    // positioned containing block. An explicit `portalTarget` is assumed to
-    // supply one (e.g. a fixed full-viewport portal root). When falling back to
-    // `document.body` — which is statically positioned — wrap in a fixed,
-    // viewport-anchored root so they resolve against the viewport instead of
-    // the scrolled document.
+    // The layers below carry their own viewport-sized box, so they only need a
+    // viewport-anchored containing block. An explicit `portalTarget` is assumed
+    // to be one; the statically positioned `document.body` is not, so wrap it.
     usingDefaultTarget ? (
-      <div css={styles.positioningRoot}>{overlay}</div>
+      <div css={[viewportAnchor.fixed, styles.positioningRoot]}>{overlay}</div>
     ) : (
       overlay
     ),
@@ -212,13 +217,12 @@ export function Overlay({
 }
 
 const styles = stylex.create({
-  // `position: fixed` opens a stacking context, so the backdrop's and dialog's
-  // `z-index` can't escape this element — the plane has to sit here or the
-  // whole overlay paints wherever DOM order drops it, which is underneath any
-  // app chrome that claims a plane of its own (a fixed header, a sticky rail).
+  // The anchor's `position: fixed` opens a stacking context, so the backdrop's
+  // and dialog's `z-index` can't escape this element — the plane has to sit
+  // here or the whole overlay paints wherever DOM order drops it, which is
+  // underneath any app chrome that claims a plane of its own (a fixed header, a
+  // sticky rail).
   positioningRoot: {
-    position: "fixed",
-    inset: 0,
     zIndex: layer.overlay,
     // The root is mounted while the overlay is closed, so it must let every
     // click through. `pointer-events` inherits: the backdrop and the dialog
@@ -231,16 +235,12 @@ const styles = stylex.create({
   // explicit `portalTarget` hosts them directly, without any of them
   // outranking a tooltip or a toast.
   blur: {
-    position: "absolute",
-    inset: 0,
     zIndex: layer.overlay,
   },
   // Invisible: it only catches the dismissal click, which falls through the
   // blur's click-through layers to reach it. The progressive blur in front of
   // it does the visual work — the page blurs rather than dims.
   backdrop: {
-    position: "absolute",
-    inset: 0,
     zIndex: layer.overlay,
     pointerEvents: "all",
   },
@@ -256,8 +256,8 @@ const styles = stylex.create({
     position: "absolute",
     insetBlockStart: space._8,
     insetInlineStart: 0,
-    width: "calc(100% - var(--removed-body-scroll-bar-size, 0px))",
-    height: `calc(100% - ${space._8})`,
+    inlineSize: "calc(100vw - var(--removed-body-scroll-bar-size, 0px))",
+    blockSize: `calc(100dvh - ${space._8})`,
     backgroundColor: color.bgSurface,
     zIndex: layer.overlay,
     overflow: "hidden",

@@ -8,23 +8,50 @@ export const absoluteFill = stylex.create({
   y: { position: "absolute", top: 0, bottom: 0 },
 });
 
-export const fixedFill = stylex.create({
-  all: {
+// Viewport-anchored overlay layers. Safari on iOS hit-tests the fixed or
+// sticky box under the top-centre of the viewport. A fixed box that holds
+// anything and is at least nine tenths of the viewport wide or tall makes
+// Safari paint a flat colour into the status bar, and keep it while that box
+// stays in the document. A box under nine tenths in both dimensions is walked
+// past. So an overlay anchors to a 0 x 0 box, and each layer inside it states
+// its own viewport size. See "Progressive blur" in CONTEXT.md.
+export const viewportAnchor = stylex.create({
+  /**
+   * A fixed 0 x 0 box at the viewport origin: a containing block for overlays
+   * that bring their own size.
+   */
+  fixed: {
     position: "fixed",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    insetBlockStart: 0,
+    insetInlineStart: 0,
+    inlineSize: 0,
+    blockSize: 0,
+  },
+});
+
+export const viewportFill = stylex.create({
+  /**
+   * An absolute box the size of the viewport, for use inside the anchor. The
+   * `auto` end insets let it compose over a base style that sets `inset: 0`.
+   */
+  absolute: {
+    position: "absolute",
+    insetBlockStart: 0,
+    insetInlineStart: 0,
+    insetInlineEnd: "auto",
+    insetBlockEnd: "auto",
+    inlineSize: "100vw",
+    blockSize: "100dvh",
   },
 });
 
 // Size fills — a box that takes the width it is given. Distinct from
-// `absoluteFill`/`fixedFill` above, which take their parent out of flow and pin
-// it by inset; this one stays in flow and only sets a size. Inline axis only,
-// because that is the one that keeps being asked for: a block-level element
-// inside a flex or grid parent shrinks to its content, and a specimen, a field
-// or a card usually wants the whole track. Add a block member when a second
-// caller needs one.
+// `absoluteFill`/`viewportFill` above, which take their parent out of flow and
+// pin it by inset; this one stays in flow and only sets a size. Inline axis
+// only, because that is the one that keeps being asked for: a block-level
+// element inside a flex or grid parent shrinks to its content, and a specimen,
+// a field or a card usually wants the whole track. Add a block member when a
+// second caller needs one.
 export const fill = stylex.create({
   inline: { inlineSize: "100%" },
 });
