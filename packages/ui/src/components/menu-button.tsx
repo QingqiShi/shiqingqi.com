@@ -281,7 +281,69 @@ export function MenuButton({
   };
 
   return (
-    <>
+    <div
+      css={[styles.container, isSheet && styles.staticContainer]}
+      ref={containerRef}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && isMenuShown) {
+          e.stopPropagation();
+          closeAndRestoreFocus();
+          return;
+        }
+
+        // Arrow / Home / End navigation only applies to the menu pattern.
+        if (popupRole !== "menu" || !isMenuShown) return;
+        if (
+          e.key !== "ArrowDown" &&
+          e.key !== "ArrowUp" &&
+          e.key !== "Home" &&
+          e.key !== "End"
+        ) {
+          return;
+        }
+
+        const popup = popupRef.current;
+        if (!popup) return;
+        const items = getMenuItems(popup);
+        if (items.length === 0) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const currentIndex = items.findIndex(
+          (item) => item === document.activeElement,
+        );
+
+        if (e.key === "ArrowDown") {
+          const next =
+            currentIndex === -1
+              ? items[0]
+              : items[(currentIndex + 1) % items.length];
+          next.focus();
+        } else if (e.key === "ArrowUp") {
+          const prev =
+            currentIndex === -1
+              ? items[items.length - 1]
+              : items[(currentIndex - 1 + items.length) % items.length];
+          prev.focus();
+        } else if (e.key === "Home") {
+          items[0].focus();
+        } else {
+          items[items.length - 1].focus();
+        }
+      }}
+      onBlur={(e) => {
+        if (
+          isMenuShown &&
+          !containerRef.current?.contains(e.relatedTarget) &&
+          !outsideClickedRef.current
+        ) {
+          setIsMenuShown(false);
+        }
+      }}
+    >
+      {/* Inside the container, not beside it: a blur around the trigger's
+            group measures the container's siblings, and this spans the page. */}
       {isMenuShown && (
         <div
           css={styles.backdrop}
@@ -292,162 +354,91 @@ export function MenuButton({
           }}
         />
       )}
-      <div
-        css={[styles.container, isSheet && styles.staticContainer]}
-        ref={containerRef}
-        onKeyDown={(e) => {
-          if (e.key === "Escape" && isMenuShown) {
-            e.stopPropagation();
-            closeAndRestoreFocus();
-            return;
-          }
-
-          // Arrow / Home / End navigation only applies to the menu pattern.
-          if (popupRole !== "menu" || !isMenuShown) return;
-          if (
-            e.key !== "ArrowDown" &&
-            e.key !== "ArrowUp" &&
-            e.key !== "Home" &&
-            e.key !== "End"
-          ) {
-            return;
-          }
-
-          const popup = popupRef.current;
-          if (!popup) return;
-          const items = getMenuItems(popup);
-          if (items.length === 0) return;
-
-          e.preventDefault();
-          e.stopPropagation();
-
-          const currentIndex = items.findIndex(
-            (item) => item === document.activeElement,
-          );
-
-          if (e.key === "ArrowDown") {
-            const next =
-              currentIndex === -1
-                ? items[0]
-                : items[(currentIndex + 1) % items.length];
-            next.focus();
-          } else if (e.key === "ArrowUp") {
-            const prev =
-              currentIndex === -1
-                ? items[items.length - 1]
-                : items[(currentIndex - 1 + items.length) % items.length];
-            prev.focus();
-          } else if (e.key === "Home") {
-            items[0].focus();
-          } else {
-            items[items.length - 1].focus();
-          }
-        }}
-        onBlur={(e) => {
-          if (
-            isMenuShown &&
-            !containerRef.current?.contains(e.relatedTarget) &&
-            !outsideClickedRef.current
-          ) {
-            setIsMenuShown(false);
-          }
-        }}
-      >
-        <FixedContainerContent>
-          <Button
-            {...buttonProps}
-            aria-expanded={isMenuShown}
-            aria-haspopup={popupRole === "menu" ? "menu" : undefined}
-            aria-controls={popupId}
-            onClick={(event) => {
-              buttonProps.onClick?.(event);
-              setIsMenuShown(true);
-            }}
-            disabled={disabled ?? buttonProps.disabled}
-            id={targetId}
-            labelId={`${targetId}-label`}
-          >
-            {children && <span>{children}</span>}
-          </Button>
-        </FixedContainerContent>
-        <div
-          css={[styles.menuContainer, styles[position]]}
-          inert={!isMenuShown}
+      <FixedContainerContent>
+        <Button
+          {...buttonProps}
+          aria-expanded={isMenuShown}
+          aria-haspopup={popupRole === "menu" ? "menu" : undefined}
+          aria-controls={popupId}
+          onClick={(event) => {
+            buttonProps.onClick?.(event);
+            setIsMenuShown(true);
+          }}
+          disabled={disabled ?? buttonProps.disabled}
+          id={targetId}
+          labelId={`${targetId}-label`}
         >
-          {/* The page blurs around the popup while it is open. The blur wraps
+          {children && <span>{children}</span>}
+        </Button>
+      </FixedContainerContent>
+      <div css={[styles.menuContainer, styles[position]]} inert={!isMenuShown}>
+        {/* The page blurs around the popup while it is open. The blur wraps
               the frame rather than the container, so the popup's box, not the
               blur's, is what the corner insets anchor. */}
-          {/* Beside the popup rather than on the page's Blur plane: a popup
+        {/* Beside the popup rather than on the page's Blur plane: a popup
               covers the chrome around it, so its blur has to paint above that
               chrome, not on the plane underneath it. */}
-          <ProgressiveBlur
-            reach={BLUR_REACH_PX}
-            radius={BLUR_RADIUS_PX}
-            isShown={isMenuShown}
-            isOnPlane={false}
-          >
-            {/* The blur's slot hands pointer events back on, so the frame
+        <ProgressiveBlur
+          reach={BLUR_REACH_PX}
+          radius={BLUR_RADIUS_PX}
+          isShown={isMenuShown}
+          isOnPlane={false}
+        >
+          {/* The blur's slot hands pointer events back on, so the frame
                 switches them off again while closed. */}
-            <div
-              ref={frameRef}
-              css={[styles.frame, !isMenuShown && styles.hidden]}
-            >
-              <div
-                ref={surfaceRef}
-                css={[popoverSurface.base, styles.surface]}
-              />
-              {/* The blur's fixed box follows the popup one frame behind the
+          <div
+            ref={frameRef}
+            css={[styles.frame, !isMenuShown && styles.hidden]}
+          >
+            <div ref={surfaceRef} css={[popoverSurface.base, styles.surface]} />
+            {/* The blur's fixed box follows the popup one frame behind the
                   compositor, so the page must not scroll under an open menu.
                   `react-remove-scroll`, not the drawer's body clamp: desktop
                   scrollers reserve no gutter, so a bare clamp jumps the page
                   sideways; this also sets the var `HeaderFooterLayout` reads.
                   `forwardProps` keeps the DOM identical open and closed, and
                   makes the popup the lock, so a sheet still scrolls itself. */}
-              <RemoveScroll
-                ref={popupRef}
-                enabled={isMenuShown}
-                allowPinchZoom
-                forwardProps
+            <RemoveScroll
+              ref={popupRef}
+              enabled={isMenuShown}
+              allowPinchZoom
+              forwardProps
+            >
+              <div
+                id={popupId}
+                role={popupRole}
+                // Name the popup by the trigger's visible label when there is
+                // one, otherwise fall back to the trigger button itself (an
+                // icon-only trigger renders no label span, so its name comes
+                // from `aria-label`). Keeps existing labelled triggers
+                // unchanged.
+                aria-labelledby={children ? `${targetId}-label` : targetId}
+                css={[
+                  popoverSurface.inner,
+                  styles.content,
+                  isMenuShown && styles.contentShown,
+                  isSheet && styles.sheetScroller,
+                ]}
               >
-                <div
-                  id={popupId}
-                  role={popupRole}
-                  // Name the popup by the trigger's visible label when there is
-                  // one, otherwise fall back to the trigger button itself (an
-                  // icon-only trigger renders no label span, so its name comes
-                  // from `aria-label`). Keeps existing labelled triggers
-                  // unchanged.
-                  aria-labelledby={children ? `${targetId}-label` : targetId}
-                  css={[
-                    popoverSurface.inner,
-                    styles.content,
-                    isMenuShown && styles.contentShown,
-                    isSheet && styles.sheetScroller,
-                  ]}
-                >
-                  {/* Visible heading only. The popup is already named by the
+                {/* Visible heading only. The popup is already named by the
                       trigger's label via `aria-labelledby`, so this duplicate is
                       `aria-hidden` — which also keeps a bare non-menuitem node
                       out of the `role="menu"` accessibility tree. */}
-                  {children && (
-                    <div
-                      css={[
-                        styles.menuTitle,
-                        isSheet && styles.stickyMenuTitle,
-                      ]}
-                      aria-hidden
-                    >
-                      {children}
-                    </div>
-                  )}
-                  {menuContent}
-                </div>
-              </RemoveScroll>
-            </div>
-          </ProgressiveBlur>
-        </div>
+                {children && (
+                  <div
+                    css={[styles.menuTitle, isSheet && styles.stickyMenuTitle]}
+                    aria-hidden
+                  >
+                    {children}
+                  </div>
+                )}
+                {menuContent}
+              </div>
+            </RemoveScroll>
+          </div>
+        </ProgressiveBlur>
       </div>
-    </>
+    </div>
   );
 }
 

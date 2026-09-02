@@ -215,7 +215,7 @@ describe("MenuButton keyboard navigation", () => {
     await user.click(trigger);
     expect(getMenuItems()[0]).toHaveFocus();
 
-    // The backdrop is a non-focusable overlay rendered alongside the
+    // The backdrop is a non-focusable overlay rendered inside the
     // container while the menu is open. Use fireEvent so the click lands
     // exactly on the backdrop without userEvent's focus-shifting heuristics
     // kicking in (jsdom can't model native pointer focus the same way as a
@@ -225,6 +225,28 @@ describe("MenuButton keyboard navigation", () => {
     fireEvent.click(backdrop);
 
     expect(trigger).toHaveFocus();
+  });
+
+  it("keeps the backdrop inside its one root element, so a blur around its group never measures it", async () => {
+    const user = userEvent.setup();
+    render(
+      <div data-testid="group">
+        <TestMenu />
+      </div>,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+
+    const group = screen.getByTestId("group");
+    expect(group.children).toHaveLength(1);
+
+    // Only the backdrop closes the menu on click, so a click on the first
+    // hidden node inside the root proves that node is the backdrop.
+    const backdrop = group.children[0].querySelector('[aria-hidden="true"]');
+    if (!backdrop) throw new Error("expected backdrop");
+    fireEvent.click(backdrop);
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
 
   it("blurs the page around the popup only while the menu is open", async () => {
