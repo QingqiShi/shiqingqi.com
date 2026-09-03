@@ -23,18 +23,16 @@ interface IconButtonBaseProps extends Omit<
    */
   icon: ReactNode;
   /**
-   * Diameter scale, sized via `controlSize`. Defaults to `"md"`. On touch
-   * viewports every size renders larger (the `controlSize` tokens scale up
-   * below the `md` breakpoint); `"md"`/`"lg"` clear the 44px WCAG 2.5.8 target
-   * there, while `"sm"` is best reserved for pointer-dense desktop toolbars.
+   * Diameter scale via `controlSize`. Defaults to `"md"`.
+   *
+   * `"sm"` still falls short of the 44px WCAG 2.5.8 touch target, even though
+   * every size grows on touch viewports.
    */
   size?: IconButtonSize;
   /**
-   * `"plain"` is a transparent affordance that tints its background on hover —
-   * use it inline, over an existing surface. `"surface"` adds an opaque surface
-   * fill and a drop shadow so the button reads as a floating control (e.g. a
-   * scroll-to-bottom or carousel arrow overlaid on scrolling content).
-   * Defaults to `"plain"`.
+   * `"plain"` tints on hover, for an affordance inline over an existing
+   * surface. `"surface"` adds an opaque fill and shadow, for a floating
+   * control (e.g. a carousel arrow) over content. Defaults to `"plain"`.
    */
   variant?: IconButtonVariant;
   /** `"circle"` (fully rounded) or `"square"` (rounded corners). Defaults to `"circle"`. */
@@ -63,11 +61,8 @@ type IconButtonLabelProps =
 type IconButtonProps = IconButtonBaseProps & IconButtonLabelProps;
 
 /**
- * A compact, icon-only button. Renders a single `<button>` and forwards native
- * button attributes (`onClick`, `disabled`, `inert`, `ref`, `type`, `data-*`,
- * …), so positioning and show/hide behaviour stay with the caller. Stateless
- * and server-renderable; the `css` prop is composed last so a caller can
- * override any default (e.g. absolute positioning).
+ * A compact, icon-only button. Forwards native button attributes, so
+ * positioning and show/hide behaviour stay with the caller.
  */
 export function IconButton({
   icon,
@@ -141,9 +136,8 @@ const sizeStyles = stylex.create({
   },
 });
 
-// `circle`/`square` carry no other styling of their own, so they map straight
-// to the `corner` primitive rather than composing it inside a `stylex.create`
-// entry that would otherwise hold nothing else.
+// `circle`/`square` have no styling of their own, so they map straight to the
+// `corner` primitive instead of an empty `stylex.create` entry.
 const shapeCornerStyles = {
   circle: corner.radius_round,
   square: corner.radius_2,

@@ -9,14 +9,12 @@ import {
 } from "../tokens.stylex.ts";
 
 /**
- * Shared form-field chrome. `TextField`, `Textarea`, and future choice controls
- * compose these objects so the label / description / error / control box read
- * identically across the system. Sizing flows through {@link fieldVars} so a
- * single set of size styles drives both the padding and the adornment offsets.
+ * Shared form-field chrome that `TextField`, `Textarea`, and future choice
+ * controls compose so their label / description / error / control box read
+ * identically.
  *
- * This is an internal-but-themable module (mirroring `button-shared.stylex`):
- * it is exported so a consumer can tune the field chrome centrally, but the
- * public entry point is the `TextField` / `Textarea` components.
+ * Exported, like `button-shared.stylex`, so a consumer can tune the chrome
+ * centrally — but `TextField` / `Textarea` stay the public entry point.
  */
 
 /**
@@ -35,7 +33,6 @@ export const fieldVars = stylex.defineVars({
 const AFFIX_SLOT = "1.75em";
 
 export const fieldStyles = stylex.create({
-  // Vertical stack: label, description, control, error.
   root: {
     display: "flex",
     flexDirection: "column",
@@ -50,9 +47,9 @@ export const fieldStyles = stylex.create({
     lineHeight: font.lineHeight_3,
     color: color.textMain,
   },
-  // Decorative "required" asterisk rendered via `::after` so it never lands in
-  // the label's text content or the control's accessible name — the semantics
-  // come from the native `required` attribute on the control.
+  // Decorative asterisk via `::after`, so it never enters the label's text or
+  // the control's accessible name — semantics come from the native
+  // `required` attribute.
   labelRequired: {
     "::after": {
       content: '"*"',
@@ -72,7 +69,6 @@ export const fieldStyles = stylex.create({
     display: "flex",
     minInlineSize: 0,
   },
-  // The control box itself — applied directly to `<input>` / `<textarea>`.
   control: {
     appearance: "none",
     margin: 0,
@@ -89,9 +85,8 @@ export const fieldStyles = stylex.create({
     },
     borderStyle: "solid",
     borderWidth: border.size_1,
-    // Neutral at rest, lifts on hover, accents on any focus (the "active field"
-    // affordance); the keyboard-only ring is layered on via `a11y.focusRing`.
-    // A disabled control keeps the resting border even under hover (`:hover`
+    // The keyboard-only ring layers on separately via `a11y.focusRing`. A
+    // disabled control keeps the resting border even under hover (`:hover`
     // still matches disabled elements), so the compound selector pins it.
     borderColor: {
       default: color.neutralBorder,
@@ -109,7 +104,6 @@ export const fieldStyles = stylex.create({
       opacity: 1,
     },
   },
-  // Multi-line control tweaks for `<textarea>`.
   multiline: {
     resize: "vertical",
     blockSize: "auto",
@@ -119,8 +113,8 @@ export const fieldStyles = stylex.create({
     resize: "none",
     overflow: "hidden",
   },
-  // Invalid treatment. Composed after `a11y.focusRing`, so its danger-coloured
-  // `:focus-visible` outline and border win over the default accent ones.
+  // Composed after `a11y.focusRing`, so its danger-coloured `:focus-visible`
+  // outline and border win over the default accent ones.
   controlInvalid: {
     borderColor: {
       default: color.dangerBorder,
@@ -135,9 +129,7 @@ export const fieldStyles = stylex.create({
   hasTrailingAffix: {
     paddingInlineEnd: `calc(${fieldVars.paddingInline} + ${AFFIX_SLOT})`,
   },
-  // Absolutely-positioned decorative icon slot, vertically centred over the
-  // control's padding gutter. `em` sizing keeps it aligned with the reserved
-  // padding above.
+  // `em` sizing keeps it aligned with the padding reserved above.
   affix: {
     position: "absolute",
     insetBlockStart: 0,

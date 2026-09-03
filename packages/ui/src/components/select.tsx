@@ -6,6 +6,7 @@ import { useFieldAria } from "../hooks/use-field-aria.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import type { StyleProp } from "../style-prop.ts";
+import { ChevronIcon } from "./chevron-icon.tsx";
 import {
   fieldSizeBox,
   fieldSizeInline,
@@ -40,20 +41,17 @@ interface SelectProps extends Omit<
    */
   error?: string;
   /**
-   * Config-layer option list. Rendered as `<option>`s in order. Omit and pass
-   * `<option>` `children` instead for the escape hatch (option groups, custom
-   * attributes).
+   * Config-layer option list; omit it and pass `<option>` `children` instead
+   * for the escape hatch (option groups, custom attributes).
    */
   options?: ReadonlyArray<SelectOption>;
   /**
-   * Placeholder rendered as a disabled, hidden first option. Shown until the
-   * user picks a real value. When uncontrolled and no `defaultValue` is given,
-   * the empty placeholder is selected initially.
+   * Placeholder rendered as a disabled, hidden first option. When uncontrolled
+   * with no `defaultValue`, it is selected initially.
    */
   placeholder?: string;
   /**
-   * Control height and type scale. Shares the field size scale with `TextField`
-   * / `Textarea`. Defaults to `"md"`.
+   * Control height and type scale. Defaults to `"md"`.
    */
   size?: SelectSize;
   /** `<option>` elements — the escape hatch when `options` is not enough. */
@@ -63,35 +61,11 @@ interface SelectProps extends Omit<
 }
 
 /**
- * Inline chevron matching Phosphor "CaretDown" metrics. Rendered inside the
- * shared trailing-affix slot (`aria-hidden`, no pointer events), so clicks fall
- * through to the native control beneath it.
- */
-function ChevronIcon() {
-  return (
-    <svg width="1em" height="1em" viewBox="0 0 256 256" fill="none">
-      <path
-        d="M208 96l-80 80-80-80"
-        stroke="currentColor"
-        strokeWidth={20}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-/**
- * A labelled wrapper around a native `<select>` — chosen over a custom listbox
- * for its built-in keyboard handling, platform picker, and reliability. It
- * composes the same {@link fieldStyles} chrome as `TextField` / `Textarea`
- * (label, control box, hover/focus affordance, sizes, invalid state) so the
- * form-control family reads identically; only the native chevron is swapped for
- * a themed one in the trailing-affix slot. Forwards native select props
- * (`value`, `defaultValue`, `onChange`, `name`, `disabled`, `ref`, …).
+ * A labelled wrapper around a native `<select>`, chosen over a custom listbox
+ * for its built-in keyboard handling, platform picker, and reliability.
  *
- * Provide choices via the `options` prop (config layer) or by passing
- * `<option>` `children` (escape hatch).
+ * Shares the same field chrome as `TextField` / `Textarea`; only the native
+ * chevron is swapped for a themed one in the trailing-affix slot.
  */
 export function Select({
   label,
@@ -128,10 +102,8 @@ export function Select({
     error,
   });
 
-  // A disabled placeholder is not auto-selected by the browser, so when the
-  // select is uncontrolled and has no explicit default we point `defaultValue`
-  // at the empty placeholder. Never emit `defaultValue` alongside a controlled
-  // `value` (React warns), so only compute it when `value` is absent.
+  // Set `defaultValue` only when uncontrolled: React warns if a controlled
+  // `value` also gets a `defaultValue`.
   const isControlled = value !== undefined;
   const resolvedDefaultValue = isControlled
     ? undefined
@@ -188,7 +160,7 @@ export function Select({
             : children}
         </select>
         <span css={[fieldStyles.affix, fieldStyles.affixEnd]} aria-hidden>
-          <ChevronIcon />
+          <ChevronIcon direction="block-end" />
         </span>
       </div>
       {hasError ? (
@@ -201,8 +173,8 @@ export function Select({
 }
 
 const styles = stylex.create({
-  // A select is a picker, not a text input, so it overrides the field control's
-  // text caret with a pointer.
+  // A select is a picker, not a text input, so this overrides the shared
+  // cursor with a pointer.
   select: {
     cursor: { default: "pointer", ":disabled": "not-allowed" },
   },

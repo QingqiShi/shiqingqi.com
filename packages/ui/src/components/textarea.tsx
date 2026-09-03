@@ -42,7 +42,7 @@ interface TextareaProps extends Omit<
    * control's `aria-describedby`.
    */
   error?: string;
-  /** Control scale. Drives padding and min height. Defaults to `"md"`. */
+  /** Control scale. Defaults to `"md"`. */
   size?: FieldSize;
   /**
    * Grow the textarea to fit its content instead of scrolling, disabling the
@@ -56,9 +56,10 @@ interface TextareaProps extends Omit<
 
 /**
  * Multi-line text input sharing `TextField`'s label / description / error
- * chrome. Opt into {@link TextareaProps.autoGrow} to have it grow with its
- * content. Forwards `ref` and native `<textarea>` attributes; renders on the
- * client because auto-grow measures the element after layout.
+ * chrome, with an optional {@link TextareaProps.autoGrow} that grows the box
+ * to fit its content.
+ *
+ * Renders on the client because auto-grow measures the element after layout.
  */
 export function Textarea({
   label,
@@ -99,20 +100,19 @@ export function Textarea({
       return;
     }
     if (!autoGrow) {
-      // Release any inline height left from a prior auto-grow so the control
-      // falls back to its `rows`/`multiline` height when the prop is turned off.
+      // Clears the inline height from a prior auto-grow, so the control
+      // returns to its `rows` height once `autoGrow` turns off.
       element.style.blockSize = "";
       return;
     }
-    // Reset first so shrinking is measured, then grow to the content height.
-    // `+ 2` accounts for the 1px block-start/end borders under border-box
-    // sizing (border total for `border.size_1`), which `scrollHeight` excludes.
+    // Height resets first so shrinking is measured, then grows to fit content.
+    // `+ 2` adds the 1px block-start/end borders that `scrollHeight` excludes.
     element.style.blockSize = "auto";
     element.style.blockSize = `${String(element.scrollHeight + 2)}px`;
   }, [autoGrow]);
 
-  // Re-measure on mount and whenever a controlled value changes; uncontrolled
-  // edits are handled by the `onInput` wrapper below.
+  // Re-measures on mount and when a controlled value changes; the `onInput`
+  // wrapper below handles uncontrolled edits.
   useLayoutEffect(() => {
     resize();
   }, [resize, value]);

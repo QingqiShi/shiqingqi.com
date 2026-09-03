@@ -19,9 +19,9 @@ interface DividerProps {
 }
 
 /**
- * Thin separator rule. Renders a semantic `<hr>` when horizontal and a
- * `role="separator"` `<div>` when vertical (an `<hr>` cannot be turned on its
- * side accessibly). Forwards `ref`.
+ * Thin separator rule: a semantic `<hr>` when horizontal, or a
+ * `role="separator"` `<div>` when vertical, since an `<hr>` cannot be turned
+ * on its side accessibly.
  */
 export function Divider({
   orientation = "horizontal",
@@ -29,15 +29,14 @@ export function Divider({
   css,
   ref,
 }: DividerProps) {
-  // A single callback ref forwards to the caller for either rendered element;
-  // `<hr>` and `<div>` share `HTMLElement` but not a concrete ref type.
-  // `mergeRefs` returns `undefined` when no ref is passed, so nothing is
-  // attached during a Server Component render (attaching any ref there is
-  // illegal).
+  // Merges into one callback ref: `<hr>`/`<div>` share `HTMLElement` but not a
+  // concrete ref type. `mergeRefs` returns `undefined` with no ref, so nothing
+  // attaches during a Server Component render, where attaching any ref is
+  // illegal.
   const setRef = mergeRefs(ref);
 
-  // The `decorative` variant is an ornamental gradient flourish, not a content
-  // boundary, so it opts out of the `separator` role rather than announcing one.
+  // The `decorative` variant is an ornamental flourish, not a content
+  // boundary, so it opts out of the `separator` role.
   const decorative = variant === "decorative";
 
   if (orientation === "vertical") {

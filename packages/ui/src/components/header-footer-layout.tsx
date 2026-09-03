@@ -6,29 +6,26 @@ import { HeaderControls } from "./header-controls.tsx";
 
 interface HeaderFooterLayoutProps {
   /**
-   * Start (leading) floating group at the top of the page — typically a back or
-   * home affordance. Only the controls accept pointer events, so the group
-   * never blocks the content scrolling beneath it. Left out, no group is
-   * rendered.
+   * Start (leading) floating group at the top of the page — typically a back
+   * or home affordance. Only the controls accept pointer events, so the group
+   * never blocks the content scrolling beneath it.
    */
   headerStart?: ReactNode;
   /**
    * End (trailing) floating group at the top of the page — typically utility
-   * controls such as a theme toggle or language picker. Left out, no group is
-   * rendered.
+   * controls such as a theme toggle or language picker.
    */
   headerEnd?: ReactNode;
   /**
-   * Full-bleed decoration rendered behind the content and beneath the header
-   * controls — gradients, glows, texture. Pointer-transparent and clipped to
-   * the page. Pass positioned elements (e.g. an element pinned to the top and
-   * one to the bottom); the slot fills the whole shell.
+   * Full-bleed decoration behind the content and beneath the header controls
+   * — gradients, glows, texture. Pointer-transparent and clipped to the
+   * shell; pass positioned elements, since the slot fills the whole shell.
    */
   background?: ReactNode;
   /**
    * Footer element, rendered at the bottom of the page in the same centered
-   * measure as a reading column. Pass a `<footer>` (e.g. the site footer); the
-   * shell doesn't add its own landmark, so the element you pass owns the
+   * measure as a reading column. Pass a `<footer>` (e.g. the site footer);
+   * the shell doesn't add its own landmark, so the element you pass owns the
    * `contentinfo` role.
    */
   footer?: ReactNode;
@@ -36,7 +33,7 @@ interface HeaderFooterLayoutProps {
   /**
    * Caps the content into the site's default reading column — centered, with
    * reading gutters. Left off, the content is full-bleed and manages its own
-   * width (media heroes, app canvases). The footer is always centered.
+   * width; the footer stays centered either way.
    */
   readingColumn?: boolean;
   /**
@@ -54,26 +51,13 @@ interface HeaderFooterLayoutProps {
 }
 
 /**
- * Reading-and-content page shell: two floating groups of header controls
- * aligned to the ends of the site's centered measure, an optional full-bleed
- * background layer beneath them, content that flows *under* them (heroes and
- * backdrops bleed to the top edge; text pages add their own clearance), and an
- * optional footer pinned to the bottom of the same measure.
+ * Reading-and-content page shell: floating header control groups at the ends
+ * of the site's centered measure, an optional full-bleed background, content
+ * that flows under the header, and an optional footer at the end of the page.
  *
- * The controls float over the page rather than sitting on a bar: once the page
- * is scrolled away from the top, the page blurs around each group — strongest
- * against the controls, sharp again a little way out — so they read as lifted
- * off the content passing beneath them rather than as chrome the page stops at.
- * At rest the blur melts away and a hero bleeds to the top edge untouched. The
- * footer is in flow at the end of the page, where nothing floats over it.
- *
- * The blur is painted on the page's Blur plane, first inside the content: under
- * the header's groups, and under any sticky chrome the page parks at `raised`,
- * so no group's blur ever lands on another group's controls.
- *
- * This is the shell behind the site's header/footer pages. For dense, app-like
- * surfaces with their own navigation, reach for `SidebarLayout` instead — a page
- * uses one shell or the other, never both.
+ * This is the shell behind the site's header/footer pages; reach for
+ * `SidebarLayout` instead for dense, app-like pages with their own
+ * navigation — a page uses one shell or the other, never both.
  */
 export function HeaderFooterLayout({
   headerStart,
@@ -132,21 +116,12 @@ export function HeaderFooterLayout({
 }
 
 const styles = stylex.create({
-  // A stacking context of its own so the background layer stays behind the
-  // content and footer without leaking z-index into the rest of the page.
-  //
-  // The custom property is where a floating control group sits from its end of
-  // the viewport: half of whatever the viewport has over the measure puts it on
-  // the measure's edge, and the gutter then holds it off that edge by the same
-  // offset the content below keeps. A scroll-locking overlay removes the
-  // scrollbar and reports its width here, so the groups hold still rather than
-  // shifting with it. Percentages resolve where the property is used, against
-  // each fixed group's containing block.
+  // The scroll lock reports its removed scrollbar width here, so the floating
+  // groups hold still instead of shifting when the scrollbar disappears.
   root: {
     "--header-controls-gutter": `calc(max(0px, (100% - var(--removed-body-scroll-bar-size, 0px) - ${layout.maxInlineSize}) / 2) + ${space._3})`,
-    // The strip the header controls occupy, published so page chrome that
-    // sticks — a filter bar — parks under it rather than restating the shell's
-    // own measurements.
+    // Published so sticky page chrome (e.g. a filter bar) can sit below the
+    // header without restating its size.
     "--header-controls-clearance": `calc(${space._10} + env(safe-area-inset-top))`,
     position: "relative",
     isolation: "isolate",
@@ -154,11 +129,8 @@ const styles = stylex.create({
     flexDirection: "column",
     minBlockSize: "100dvh",
   },
-  // Full-bleed decoration layer. Positioned elements passed in anchor to the
-  // whole shell; it never intercepts input and is clipped to the page. Its
-  // corners are the shell root's, so the decoration rounds with a shell
-  // dropped into a rounded box. The clip is safe here: this is a sibling
-  // subtree of the header controls' blur, never above it.
+  // This box can clip: it sits beside the header controls' blur, not above
+  // it, so the clip cannot strip the blur's mask.
   background: {
     position: "absolute",
     inset: 0,
@@ -168,16 +140,13 @@ const styles = stylex.create({
     borderRadius: "inherit",
     cornerShape: "inherit",
   },
-  // The `banner` landmark, and no box of its own: each control group places
-  // itself, so the header is never the near-full-width fixed element at the
-  // top edge that costs the browser's own treatment of it — see "Progressive
-  // blur" in `CONTEXT.md`.
+  // No box of its own: a near-full-width fixed header flattens the iOS
+  // Safari status bar. See "Progressive blur" in `CONTEXT.md`.
   header: {
     display: "contents",
   },
-  // The shared gutter puts each group on its end of the measure. The end group
-  // also clears the scrollbar a scroll lock has removed, which the gutter took
-  // off the measure rather than off this edge.
+  // Only headerEnd also clears the removed scrollbar width; the gutter above
+  // already accounts for it on the measure, not this edge.
   headerStart: {
     insetInlineStart:
       "calc(var(--header-controls-gutter) + env(safe-area-inset-left))",
@@ -186,18 +155,14 @@ const styles = stylex.create({
     insetInlineEnd:
       "calc(var(--header-controls-gutter) + env(safe-area-inset-right) + var(--removed-body-scroll-bar-size, 0px))",
   },
-  // Content sits above the background layer and grows so a short page still
-  // pushes the footer to the bottom of the viewport. No top offset: heroes and
-  // backdrops bleed under the controls; pages that want clearance add their
-  // own.
+  // No top offset: heroes and backdrops bleed under the controls; pages that
+  // want clearance add their own.
   content: {
     position: "relative",
     zIndex: layer.content,
     flexGrow: 1,
     minInlineSize: 0,
   },
-  // Reading-column treatment, opt-in via `readingColumn` / `contentMaxInlineSize`.
-  // Defaults to the site measure; an inline `maxInlineSize` narrows it further.
   column: {
     inlineSize: "100%",
     maxInlineSize: layout.maxInlineSize,
@@ -205,7 +170,6 @@ const styles = stylex.create({
     paddingInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
   },
-  // Footer shares the centered measure and reading gutters with the content.
   footer: {
     position: "relative",
     zIndex: layer.content,
@@ -217,9 +181,6 @@ const styles = stylex.create({
   },
 });
 
-// `contentMaxInlineSize` narrows the reading column below the site default —
-// a runtime value, so it composes as a dynamic style rather than an inline
-// `style` attribute.
 const dynamicStyles = stylex.create({
   maxInlineSize: (maxInlineSize: string) => ({ maxInlineSize }),
 });

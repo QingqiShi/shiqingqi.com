@@ -42,13 +42,9 @@ interface ProgressProps extends Omit<
 }
 
 /**
- * Determinate meter: how far through a task of known length something is. Work
- * with no measurable end is `Spinner`'s job, not this one.
- *
- * Renders a `role="progressbar"` `<div>` and forwards native attributes (`id`,
- * `data-*`, `ref`); `css` is composed last. Pass `aria-valuetext` where a bare
- * percentage would mislead ("Step 3 of 5"), and set
- * `progressTokens.indicatorColor` through `css` to retint the fill.
+ * Determinate meter for a task of known length; use `Spinner` when there is
+ * no measurable end. Retint via `progressTokens.indicatorColor`, since `css`
+ * can't reach the pseudo-element that paints the fill.
  */
 export function Progress({
   value,
@@ -87,8 +83,8 @@ export function Progress({
 const styles = stylex.create({
   track: {
     inlineSize: "100%",
-    // The same fill `Divider` uses for a rule — a track is a thick one, and
-    // `surfaceNeutralSubtle` all but vanishes against a dark surface.
+    // Reuses `Divider`'s rule fill: `surfaceNeutralSubtle` would nearly
+    // vanish against a dark surface.
     backgroundColor: color.neutralBorder,
     overflow: "hidden",
     "::before": {

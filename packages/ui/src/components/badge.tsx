@@ -13,9 +13,9 @@ interface BadgeProps extends Omit<
   "className" | "style"
 > {
   /**
-   * Which colour the badge carries. `"default"` is the only bordered one — a
-   * plain surface. The other six are the Intents, each a borderless tint; of
-   * those, `"neutral"` is the muted one for low-emphasis metadata.
+   * Which colour the badge carries. `"default"` is the only bordered one; the
+   * other six are Intents, and `"neutral"` is the muted one for low-emphasis
+   * metadata.
    */
   variant?: BadgeVariant;
   /** Padding and type scale. Defaults to `"medium"`. */
@@ -27,10 +27,9 @@ interface BadgeProps extends Omit<
 }
 
 /**
- * Compact status / label badge. Renders an inline `<span>` and forwards native
- * span attributes (`id`, `onClick`, `data-*`, `ref`) so a caller can attach
- * behaviour or one-off overrides without a wrapper. The `css` prop is composed
- * last, letting a caller win over the variant defaults.
+ * Compact status / label badge. Forwards native span attributes so a caller
+ * can attach behaviour without a wrapper; `css` composes last, so a caller
+ * wins over the variant defaults.
  */
 export function Badge({
   variant = "default",
@@ -101,9 +100,8 @@ const variantStyles = stylex.create({
     color: color.textMuted,
     borderColor: color.neutralBorder,
   },
-  // Borderless low-emphasis badge. Uses the neutral intent tint (like Callout's
-  // neutral) rather than an opaque surface, so it stays visible on cards and
-  // raised surfaces instead of blending into a same-colour parent.
+  // Neutral intent tint, not an opaque surface, so it stays visible on cards
+  // and other raised surfaces instead of blending in.
   neutral: {
     backgroundColor: color.surfaceNeutralSubtle,
     color: color.textMuted,

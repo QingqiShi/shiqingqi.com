@@ -9,21 +9,12 @@ import {
 } from "../tokens.stylex.ts";
 
 /**
- * The pill skin shared by every chip in the system, exposed as composable
- * StyleX so a consumer can drop the exact same chip onto an element the `Chip`
- * component can't be — most often a Next.js `<Link>`. This is the custom-layer
- * escape hatch behind `Chip` (which composes these same styles), mirroring how
- * `cardSurface` backs `Card`.
+ * The pill skin shared by every chip, exposed as composable StyleX for an
+ * element `Chip` can't be — most often a `<Link>` — composed as `base` plus a
+ * `chipSize` step, then `interactive`, then `active` for the selected one.
  *
- * Compose `base` + one `chipSize` step, then `interactive` when the chip is a
- * control, then `active` when it is the selected one. Pair `interactive` with
- * the `transition.colors` motion primitive at the call site so the hover eases
- * rather than snaps.
- *
- * `interactive` re-declares the hover-sensitive properties so the layers compose
- * cleanly (last write wins per property), and carries the shared keyboard focus
- * ring (WCAG 2.4.7) — inlined rather than composed, because a style-object
- * primitive cannot compose another one at definition time.
+ * `interactive` inlines its focus ring instead of composing `a11y.focusRing`,
+ * since a primitive can't compose another at definition time.
  */
 export const chipSurface = stylex.create({
   base: {
@@ -71,9 +62,9 @@ export const chipSurface = stylex.create({
 });
 
 /**
- * Height and type steps for a chip. Split from `chipSurface` so a hand-composed
- * chip picks its size the same way the component's `size` prop does. Heights use
- * `controlSize`, so every step grows on touch viewports.
+ * Height and type steps for a chip, split from `chipSurface` so a
+ * hand-composed chip sizes itself the same way the `size` prop does. Heights
+ * use `controlSize`, so every step grows on touch viewports.
  */
 export const chipSize = stylex.create({
   sm: {

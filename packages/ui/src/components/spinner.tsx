@@ -18,11 +18,8 @@ interface SpinnerBaseProps extends Omit<
   "children" | "role" | "aria-hidden" | "className" | "style"
 > {
   /**
-   * Rendered diameter. The `sm`/`md`/`lg` steps map to `rem` so the indicator
-   * scales with the user's font size (WCAG 1.4.4). `"inline"` instead takes
-   * `1em`, matching the surrounding text — use it where the spinner stands in
-   * for an icon, so swapping it in doesn't change the layout around it.
-   * Defaults to `"md"`.
+   * Rendered diameter: `sm`/`md`/`lg` use `rem` (WCAG 1.4.4); `"inline"` uses
+   * `1em` to match surrounding text. Defaults to `"md"`.
    */
   size?: SpinnerSize;
   /**
@@ -64,8 +61,7 @@ type SpinnerProps = SpinnerBaseProps & SpinnerA11yProps;
 /**
  * Indeterminate loading indicator — a gapped ring that spins smoothly. Under
  * `prefers-reduced-motion` the rotation is replaced by a gentle opacity pulse,
- * never an infinite spin. Renders an `<span>` and forwards native attributes
- * (`id`, `data-*`, `ref`); `css` is composed last.
+ * never an infinite spin.
  */
 export function Spinner({
   size = "md",
@@ -116,8 +112,8 @@ const spin = stylex.keyframes({
   to: { transform: "rotate(360deg)" },
 });
 
-// Reduced-motion fallback: a static gapped ring that gently breathes instead of
-// spinning, so the busy affordance stays visible without vestibular motion.
+// Reduced-motion fallback: a static ring that gently breathes instead of
+// spinning, keeping the busy affordance visible without vestibular motion.
 const pulse = stylex.keyframes({
   "0%": { opacity: 1 },
   "50%": { opacity: 0.3 },
@@ -149,9 +145,9 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: easing.easeInOut,
     },
     animationIterationCount: "infinite",
-    // The spin is on this inner element, so `css` — which composes onto the
-    // root — can't reach it. Reading the inherited token lets any ancestor
-    // hold it still. See `motionTokens` in the motion primitive.
+    // The spin animates on this inner element, so `css` on the root cannot
+    // reach it. The inherited `motionTokens.playState` lets an ancestor hold
+    // it still.
     animationPlayState: motionTokens.playState,
   },
   track: {
@@ -160,10 +156,8 @@ const styles = stylex.create({
 });
 
 const sizeStyles = stylex.create({
-  // `em`, not `rem`: this one takes the size of whatever text it sits in, so a
-  // spinner standing in for an inline icon occupies exactly the box that icon
-  // did and the line doesn't reflow. The `rem` steps below are for a spinner
-  // that owns its space rather than one substituting for a character.
+  // `inline` uses `em`, not `rem`, so it fills the surrounding text or icon
+  // box without reflowing the line.
   inline: { inlineSize: "1em", blockSize: "1em" },
   sm: { inlineSize: space._3, blockSize: space._3 },
   md: { inlineSize: space._5, blockSize: space._5 },

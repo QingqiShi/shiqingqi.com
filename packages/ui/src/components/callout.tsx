@@ -6,44 +6,12 @@ import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import type { StyleProp } from "../style-prop.ts";
 import { border, color, font, space } from "../tokens.stylex.ts";
+import { CloseIcon } from "./close-icon.tsx";
+import { IconSvg } from "./icon-svg.tsx";
 
 type CalloutVariant =
   "info" | "success" | "warning" | "danger" | "accent" | "neutral";
 
-/**
- * Shared SVG frame for the built-in icons. 256 viewBox and `currentColor`
- * strokes match the Phosphor metrics used elsewhere (see Overlay's CloseIcon),
- * so a caller can swap in a Phosphor icon without a size jump. `1em` box scales
- * with the icon slot's font-size. Decorative — the wrapper carries `aria-hidden`.
- */
-function IconSvg({ children }: { children: ReactNode }) {
-  return (
-    <svg viewBox="0 0 256 256" width="1em" height="1em" fill="none">
-      {children}
-    </svg>
-  );
-}
-
-/**
- * Inline X icon for the dismiss affordance — same 256 viewBox / round-capped
- * stroke recipe as Overlay's CloseIcon so the two read identically without the
- * Phosphor dependency. Decorative; the button is named by `dismissLabel`.
- */
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 256 256" width="1em" height="1em" fill="none">
-      <path
-        d="M56 56 200 200M200 56 56 200"
-        stroke="currentColor"
-        strokeWidth={16}
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-// Default leading icon per variant. Built as tiny inline SVGs using
-// `currentColor` so they inherit the variant tint set on the icon slot.
 const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
   info: (
     <IconSvg>
@@ -136,14 +104,14 @@ interface CalloutBaseProps extends Omit<
   children: ReactNode;
   /**
    * Leading icon. Defaults to a built-in variant icon; pass a Phosphor icon
-   * (or any node) to override, or `null` to drop the icon entirely. Always
-   * rendered decoratively (`aria-hidden`) — the message text carries meaning.
+   * (or any node) to override, or `null` to remove it. Always rendered
+   * `aria-hidden` — the message text carries meaning.
    */
   icon?: ReactNode;
   /**
    * ARIA live role for the box. Defaults to `"alert"` for `danger`/`warning`
    * (assertive — interrupts the screen reader) and `"status"` otherwise
-   * (polite). Pass explicitly to override the variant-derived default.
+   * (polite).
    */
   role?: "status" | "alert";
   /** StyleX overrides, composed last so a caller can win over the defaults. */
@@ -166,13 +134,12 @@ type CalloutDismissProps =
 type CalloutProps = CalloutBaseProps & CalloutDismissProps;
 
 /**
- * Inline message / alert box. A token-themed subtle background, matching
- * border, tinted leading icon, and type hierarchy carry the variant's meaning
- * — deliberately no leading accent bar (DESIGN.md ban). The box itself is the
- * live region (`role="status"`/`"alert"`), so its text is announced.
+ * Inline message / alert box: a token-themed subtle background, matching
+ * border, tinted icon, and type hierarchy carry the variant's meaning, with
+ * deliberately no leading accent bar (DESIGN.md ban).
  *
- * Forwards native `<div>` attributes (`id`, `data-*`, `ref`) for escape-hatch
- * composition; `css` is composed last so a caller wins.
+ * The box itself is the live region (`role="status"`/`"alert"`), so its text
+ * is announced.
  */
 export function Callout({
   variant = "info",
@@ -229,9 +196,8 @@ export function Callout({
   );
 }
 
-// Icon and dismiss boxes are sized to the title's line box
-// (`uiBody × lineHeight_4`) so the icon optically centres on the first line
-// while the box top-aligns with the content column.
+// Sized to the title's line box (`uiBody × lineHeight_4`), so the icon
+// centres on the first line and the box top-aligns with the content.
 const controlLineBox = `calc(${font.uiBody} * ${font.lineHeight_4})`;
 
 const styles = stylex.create({
@@ -283,7 +249,6 @@ const styles = stylex.create({
   },
 });
 
-// Subtle tinted background + matching border per variant.
 const surfaceStyles = stylex.create({
   info: {
     backgroundColor: color.surfaceInfoSubtle,
@@ -311,7 +276,6 @@ const surfaceStyles = stylex.create({
   },
 });
 
-// Readable variant colour for the icon tint and the title.
 const accentStyles = stylex.create({
   info: { color: color.infoText },
   success: { color: color.successText },

@@ -11,25 +11,18 @@ type HeadingAlign = "start" | "center" | "end";
 type HeadingWrap = "balance" | "pretty" | "nowrap";
 
 interface HeadingProps {
-  /** Heading rank `<h1>`–`<h6>`. Drives the semantic element. Defaults to `2`. */
+  /** Heading rank `<h1>`–`<h6>`. Defaults to `2`. */
   level?: HeadingLevel;
   /** Type-scale step. Defaults to the step matching `level`. */
   variant?: HeadingVariant;
   /**
-   * Overrides the weight the `variant` sets — e.g. `"regular"` for an elegant
-   * light display heading — so a lighter (or heavier) heading no longer needs a
-   * hand-rolled `fontWeight`. Shares the `Text` weight vocabulary, extended with
-   * `extrabold`/`black` for the display range.
+   * Overrides the weight `variant` sets, extending `Text`'s weight vocabulary
+   * with `extrabold`/`black` for the display range.
    */
   weight?: HeadingWeight;
   /** Text alignment (logical `start` / `center` / `end`). */
   align?: HeadingAlign;
-  /**
-   * How lines break. `"balance"` is the one headings want — it evens the lines
-   * so a two-line title doesn't leave one word stranded, and the browser's
-   * line cap is no constraint at heading length. `"pretty"` and `"nowrap"` are
-   * here for the rare heading that needs body-copy or single-line behaviour.
-   */
+  /** How lines break, via CSS `text-wrap`. */
   wrap?: HeadingWrap;
   /**
    * Id applied to the rendered heading, so a region can name itself with
@@ -57,9 +50,9 @@ function defaultVariantForLevel(level: HeadingLevel): HeadingVariant {
 }
 
 /**
- * Heading typography primitive. `level` sets the semantic rank while `variant`
- * sets the visual step, so an `<h2>` can look like a display heading without
- * breaking the document outline. Forwards `ref`.
+ * Heading typography primitive: `level` sets the semantic rank while
+ * `variant` sets the visual step, so an `<h2>` can look like a display
+ * heading without breaking the document outline. Forwards `ref`.
  */
 export function Heading({
   level = 2,

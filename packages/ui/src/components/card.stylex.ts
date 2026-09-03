@@ -2,22 +2,13 @@ import * as stylex from "@stylexjs/stylex";
 import { border, color } from "../tokens.stylex.ts";
 
 /**
- * The bordered-surface skin shared by every card in the system, exposed as
- * composable StyleX so a consumer can drop the exact same surface onto an
- * element the `Card` component can't be — a Next.js `<Link>`, a plain `<a>`, or
- * an `<li>` inside a list. This is the custom-layer escape hatch behind the
- * `Card` component (which composes these same styles), mirroring how
- * `button-shared.stylex` backs both `Button` and the app's anchor button.
+ * The bordered-surface skin shared by every card, exposed as composable
+ * StyleX so an element `Card` can't be — a `<Link>`, a plain `<a>`, an `<li>`
+ * — can still carry the same surface.
  *
- * `interactive` layers pointer affordances on top of `base`: it re-declares the
- * hover-sensitive properties so the two compose cleanly (last write wins per
- * property). Pair it with the `transition.colors` motion primitive at the call
- * site so the hover eases rather than snaps. It also carries the shared
- * keyboard focus ring (WCAG 2.4.7) — inlined inset (mirroring
- * `a11y.focusRingInset`) because a rounded, overflow-clipping card would crop an
- * outward ring, and because a style-object primitive cannot compose another one
- * at definition time. Every interactive card thus gets one identical indicator
- * without the call site re-declaring it.
+ * Its focus ring is inlined inset, not `a11y.focusRingInset`: an outward ring
+ * would crop against the card's clipped overflow, and a primitive can't
+ * compose another at definition time.
  */
 export const cardSurface = stylex.create({
   base: {

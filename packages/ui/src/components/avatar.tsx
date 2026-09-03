@@ -12,30 +12,28 @@ interface AvatarBaseProps extends Omit<
   "children" | "role" | "aria-label" | "className" | "style"
 > {
   /**
-   * Who the avatar stands for. Names the avatar and, without `src` or
-   * `initials`, is the source of the derived monogram — so keep it to the
-   * person. Anything the `badge` means belongs in `badgeLabel`.
+   * Who the avatar stands for, and the source of the derived monogram when
+   * there is no `src` or `initials`. Keep it to the person — anything the
+   * `badge` means belongs in `badgeLabel`.
    */
   name: string;
   /**
-   * Portrait laid over the monogram. If it fails to load the monogram shows
-   * through, so a URL that may 404 needs no handling at the callsite — the
-   * trade for that is that the portrait should be opaque, since the monogram
-   * would otherwise show through any transparent pixels.
+   * Portrait layered over the monogram; a URL that 404s just falls back to
+   * it, so the caller needs no error handling. The portrait should be
+   * opaque — a transparent pixel lets the monogram show through it too.
    */
   src?: string;
   /**
-   * Overrides the derived monogram. Use it when the derivation picks the wrong
-   * characters, or to show a single character where two would crowd. An empty
-   * string is treated as no override.
+   * Overrides the derived monogram, e.g. when the derivation picks the wrong
+   * characters or two would crowd. An empty string counts as no override.
    */
   initials?: string;
   /** Diameter and type scale. Defaults to `"md"`. */
   size?: AvatarSize;
   /**
    * `"subtle"` (the default) is a quiet tinted medallion for someone simply
-   * present. `"solid"` inverts it, so the people a view is actually about stand
-   * out of a row of their peers.
+   * present. `"solid"` inverts it, so the people a view is actually about
+   * stand out of a row of their peers.
    */
   variant?: AvatarVariant;
   /** StyleX overrides merged over the root — composed last so a caller wins. */
@@ -43,17 +41,15 @@ interface AvatarBaseProps extends Omit<
 }
 
 /**
- * The badge is drawn, so it says nothing to a screen reader on its own.
- * `badgeLabel` is therefore required at the type level whenever `badge` is set
- * (and forbidden otherwise) — an avatar cannot ship a marker whose meaning only
- * exists visually.
+ * The badge is drawn, so it needs no screen-reader text of its own.
+ * `badgeLabel` is therefore required at the type level when `badge` is set,
+ * and forbidden otherwise.
  */
 type AvatarBadgeProps =
   | {
       /**
-       * Corner marker — a status dot, a small icon. Sits on its own surface so
-       * it reads against the medallion and the page alike, and is drawn
-       * `aria-hidden`; `badgeLabel` carries its meaning instead.
+       * Corner marker — a status dot, a small icon. Drawn `aria-hidden`;
+       * `badgeLabel` carries its meaning instead.
        */
       badge: ReactNode;
       /**
@@ -66,12 +62,7 @@ type AvatarBadgeProps =
 
 type AvatarProps = AvatarBaseProps & AvatarBadgeProps;
 
-/**
- * Derive a monogram from a name: the first character of the first and last
- * words. A single-word name (including the unspaced CJK case) yields one
- * character rather than two unrelated ones. `Array.from` so an astral-plane
- * character is taken whole.
- */
+/** Array.from takes an astral-plane character whole, unlike string indexing. */
 function monogramFrom(name: string): string {
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "";
@@ -82,14 +73,8 @@ function monogramFrom(name: string): string {
 }
 
 /**
- * A circular medallion standing for one person: their portrait when there is
- * one, a monogram derived from their name when there isn't, and an optional
- * badge in the corner.
- *
- * The whole thing is one `role="img"` named by `name` — plus `badgeLabel` when
- * there is a badge — so it announces as a single object rather than reading its
- * monogram out letter by letter. Renders a `<span>` and forwards native span
- * attributes (`id`, `data-*`, `ref`); `css` is composed last.
+ * A circular medallion for one person: their portrait, or else a monogram
+ * derived from their name, with an optional badge in the corner.
  */
 export function Avatar({
   name,
@@ -102,28 +87,20 @@ export function Avatar({
   css,
   ...restProps
 }: AvatarProps) {
-  // `||` rather than `??`: a record that carries `initials: ""` has no override
-  // to honour, and falling through to the derived monogram beats a blank
-  // medallion.
+  // `||`, not `??`: an empty `initials` string has no override to honour, so
+  // it falls through to the derived monogram.
   const monogram = initials || monogramFrom(name);
-  // One presence test drives both the badge element and the accessible name.
-  // Truthiness, because `badge={person.isVerified && <CheckIcon />}` is the
-  // idiomatic spelling and yields `false` — which `!= null` would have called
-  // present, painting an empty circle and announcing a badge that isn't there.
+  // Truthiness: `badge={person.isVerified && <CheckIcon />}` yields `false`
+  // when absent, which `!= null` would wrongly call present.
   const hasBadge = Boolean(badge);
   // Space-separated rather than punctuated: the separator would have to be
   // localized, and screen readers already pause between the two runs.
   const label =
     hasBadge && badgeLabel !== undefined ? `${name} ${badgeLabel}` : name;
   const isNamed = label.trim() !== "";
-  // `name` is required, so a blank one is a caller bug — but what to do about it
-  // depends on whether anything is actually drawn. With no portrait and no
-  // monogram there is nothing to announce, and `role="img"` would ship a graphic
-  // with no accessible name (WCAG 1.1.1 — what axe reports as `role-img-alt`);
-  // dropping the role leaves an empty span that assistive tech skips, which is
-  // the honest description. With a portrait the picture is right there on
-  // screen, so the role stays: an unnamed image is a defect an audit can see,
-  // whereas silently removing it from the tree is one nothing can.
+  // `role="img"` tracks whether anything is drawn, not just whether `name` is
+  // set. An empty span drops the role; a drawn one keeps it, since an unnamed
+  // image fails WCAG 1.1.1.
   const isDrawn = src !== undefined || monogram !== "";
   const isImage = isNamed || isDrawn;
 
@@ -138,10 +115,6 @@ export function Avatar({
         css={[corner.radius_round, styles.medallion, variantStyles[variant]]}
         aria-hidden
       >
-        {/* The monogram is always rendered and the portrait is layered over it,
-            so a `src` that 404s falls back to the monogram with no client-side
-            error handling: an `alt=""` image that fails to load paints nothing,
-            leaving what is underneath visible. */}
         {monogram}
         {src === undefined ? null : (
           // Decorative: the root already carries the accessible name, so an
@@ -169,8 +142,6 @@ const styles = stylex.create({
     flexShrink: 0,
     verticalAlign: "middle",
   },
-  // Positioned so the portrait can be laid over the monogram rather than
-  // replacing it — see the fallback note at the render site.
   medallion: {
     position: "relative",
     display: "flex",
@@ -181,20 +152,12 @@ const styles = stylex.create({
     overflow: "hidden",
     fontWeight: font.weight_6,
     lineHeight: font.lineHeight_0,
-    // A monogram is never selected on purpose; dragging across a row of them
-    // just highlights letters.
     userSelect: "none",
   },
-  // Deliberately paints no background of its own. That is the whole mechanism:
-  // an `alt=""` image that fails to load draws nothing at all (no broken-image
-  // placeholder), so the monogram underneath becomes the fallback for free, with
-  // no `onError` and no client boundary on a component meant for lists of
-  // people. Giving this a background would hide the monogram — verified in a
-  // browser — because the failed image's box still paints its background, which
-  // trades the 404 fallback away. The cost of leaving it transparent is that a
-  // portrait with transparent pixels shows the monogram through them, and that
-  // the monogram is visible for the moment before the portrait loads; both are
-  // better than a blank circle whenever the URL is dead.
+  // No background, on purpose: a failed portrait paints nothing, so the
+  // monogram underneath still shows through with no `onError` handler
+  // needed. A background would repaint over the monogram whenever the image
+  // fails or hasn't loaded yet.
   image: {
     position: "absolute",
     insetBlockStart: 0,
@@ -203,8 +166,6 @@ const styles = stylex.create({
     blockSize: "100%",
     objectFit: "cover",
   },
-  // Its own surface plus a hairline, so the badge reads on the medallion, the
-  // page canvas, or a card alike — no matching the parent's background.
   badge: {
     position: "absolute",
     insetBlockEnd: 0,
@@ -222,8 +183,8 @@ const styles = stylex.create({
   },
 });
 
-// `rem`-based like Spinner's diameters, so the medallion scales with the user's
-// font size (WCAG 1.4.4) rather than pinning to a pixel grid.
+// rem-based, like Spinner's diameters, so sizing scales with the user's font
+// size (WCAG 1.4.4) instead of a fixed pixel grid.
 const sizeStyles = stylex.create({
   sm: {
     inlineSize: space._5,
@@ -242,8 +203,8 @@ const sizeStyles = stylex.create({
   },
 });
 
-// The badge shrinks as a proportion of the medallion but never below a legible
-// icon, so `sm` and `md` share a diameter and only `lg` steps up.
+// The badge stays legible below a certain size, so `sm` and `md` share one
+// diameter and only `lg` steps up.
 const badgeSizeStyles = stylex.create({
   sm: {
     inlineSize: space._3,

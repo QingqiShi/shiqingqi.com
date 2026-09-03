@@ -18,6 +18,7 @@ import { corner } from "../primitives/corner.stylex.ts";
 import { viewportAnchor, viewportFill } from "../primitives/layout.stylex.ts";
 import { color, layer, space } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
+import { CloseIcon } from "./close-icon.tsx";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 interface OverlayBaseProps {
@@ -67,33 +68,8 @@ type OverlayLabelProps =
 type OverlayProps = OverlayBaseProps & OverlayLabelProps;
 
 /**
- * Inline X icon matching the Phosphor "X" metrics (256 viewBox,
- * 16-unit round-capped strokes, 1em box) so the default close affordance
- * renders identically without the icon dependency. Decorative — the close
- * button carries the accessible name via `closeLabel`.
- */
-function CloseIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      width="1em"
-      height="1em"
-      viewBox="0 0 256 256"
-      fill="none"
-    >
-      <path
-        d="M56 56 200 200M200 56 56 200"
-        stroke="currentColor"
-        strokeWidth={16}
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-/**
- * Full-screen, ViewTransition-driven overlay for immersive content such as
- * embedded video players. Owns focus trapping, scroll locking, Escape-to-close,
+ * Full-screen, ViewTransition-driven overlay for immersive content (e.g.
+ * embedded video) that owns focus trapping, scroll locking, Escape-to-close,
  * and the backdrop; the consumer supplies the content and the localized close
  * label. For bounded, centred content prefer a dedicated dialog component.
  */
@@ -109,9 +85,9 @@ export function Overlay({
   "aria-labelledby": ariaLabelledBy,
 }: PropsWithChildren<OverlayProps>) {
   const deferredIsOpen = useDeferredValue(isOpen);
-  // The shell below mounts eagerly so the dialog's ViewTransition has a live
-  // parent to enter into, and the server rendered nothing there — deferring
-  // past hydration keeps the server and client render in agreement.
+  // The shell mounts eagerly so the dialog's ViewTransition has a live parent
+  // to enter into. Deferring past hydration keeps server and client render in
+  // agreement, since the server renders nothing here.
   const isHydrated = useIsHydrated();
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -122,8 +98,8 @@ export function Overlay({
     initialFocusRef,
   });
 
-  // `undefined` means "use the default target"; an explicit `null` means the
-  // caller is still resolving one, so hold rendering until it arrives.
+  // `undefined` means "use the default target"; `null` means the caller is
+  // still resolving one, so hold rendering.
   const usingDefaultTarget = portalTarget === undefined;
   const resolvedTarget = usingDefaultTarget
     ? typeof document === "undefined"
@@ -135,13 +111,10 @@ export function Overlay({
     return null;
   }
 
-  // The shell — backdrop plane, blur box, positioning root — stays mounted
-  // while the overlay is closed, and only the ViewTransition around the dialog
-  // mounts and unmounts. React activates an enter or exit only when the
-  // ViewTransition is itself the root of what got inserted or deleted; with a
-  // host element above it in the same insertion the whole subtree commits as
-  // one plain mutation and the slide never runs. Keeping the shell mounted
-  // makes the ViewTransition that root on both edges.
+  // React only animates a ViewTransition that is itself the root of what
+  // mounts or unmounts; a host element inserted alongside it kills the
+  // transition. Keeping this shell always mounted keeps the ViewTransition as
+  // that root.
   const overlay = (
     <>
       {/* Gated rather than kept, so a closed overlay never intercepts a click. */}
@@ -152,23 +125,20 @@ export function Overlay({
           aria-hidden="true"
         />
       ) : null}
-      {/* The blur measures the dialog it wraps and radiates from it, so the
-          strip of page above the sheet ramps to sharp on its own. The blur
-          itself stays out of any named ViewTransition group: a group captures
-          the element apart from the page it filters, so the blur would have no
-          backdrop for the length of the transition. It melts in and out with
-          `isShown` instead, alongside the dialog's slide. */}
+      {/* The blur stays out of any named ViewTransition group: a group
+          captures the element apart from the page it filters, leaving the
+          blur with no backdrop during the transition. It melts in and out
+          via `isShown` instead, alongside the dialog's slide. */}
       <ProgressiveBlur
         css={[viewportFill.absolute, styles.blur]}
         isShown={deferredIsOpen}
       >
         {deferredIsOpen ? (
           <ViewTransition enter="slide-in" exit="slide-out">
-            {/* `forwardProps` makes RemoveScroll clone its single child and inject
-                its own ref, which would clobber a `ref` placed directly on the
-                dialog div and leave `dialogRef` null (breaking default focus and
-                the Tab focus-trap, both of which query `dialogRef.current`). Pass
-                the ref through RemoveScroll instead — it forwards onto the child. */}
+            {/* forwardProps makes RemoveScroll clone its child and inject its
+                own ref, which would clobber a ref placed directly on the
+                dialog div. Passing the ref through RemoveScroll instead keeps
+                `dialogRef` working for focus and the Tab trap. */}
             <RemoveScroll
               ref={dialogRef}
               enabled={deferredIsOpen}
@@ -182,11 +152,10 @@ export function Overlay({
                 aria-label={ariaLabel}
                 aria-labelledby={ariaLabelledBy}
               >
-                {/* `Button` anchors its own busy spinner with `position: relative`,
-                    which a caller's `position: absolute` can't reliably outrank —
-                    the button would land at its static position, offset by the
-                    insets, and hang off the dialog's inline-start edge. Pin the
-                    corner from a wrapper instead, which owns nothing but placement. */}
+                {/* `Button` sets its own `position: relative` for its busy
+                    spinner, which a caller's `position: absolute` can't
+                    reliably outrank. Pin the corner from this wrapper
+                    instead, which owns only placement. */}
                 <div css={styles.closeButtonCorner}>
                   <Button
                     icon={closeIcon ?? <CloseIcon />}
@@ -204,9 +173,9 @@ export function Overlay({
   );
 
   return createPortal(
-    // The layers below carry their own viewport-sized box, so they only need a
-    // viewport-anchored containing block. An explicit `portalTarget` is assumed
-    // to be one; the statically positioned `document.body` is not, so wrap it.
+    // The layers below need only a viewport-anchored containing block. An
+    // explicit `portalTarget` is assumed to already be one; `document.body`
+    // (statically positioned) is not, so it gets wrapped.
     usingDefaultTarget ? (
       <div css={[viewportAnchor.fixed, styles.positioningRoot]}>{overlay}</div>
     ) : (
@@ -217,29 +186,24 @@ export function Overlay({
 }
 
 const styles = stylex.create({
-  // The anchor's `position: fixed` opens a stacking context, so the backdrop's
-  // and dialog's `z-index` can't escape this element — the plane has to sit
-  // here or the whole overlay paints wherever DOM order drops it, which is
-  // underneath any app chrome that claims a plane of its own (a fixed header, a
-  // sticky rail).
+  // `position: fixed` opens a stacking context here, so the backdrop's and
+  // dialog's z-index can't escape it. Removing it risks the overlay painting
+  // under app chrome that claims its own plane (a fixed header, a sticky
+  // rail).
   positioningRoot: {
     zIndex: layer.overlay,
-    // The root is mounted while the overlay is closed, so it must let every
-    // click through. `pointer-events` inherits: the backdrop and the dialog
-    // switch themselves back on while open.
+    // The root stays mounted while the overlay is closed, so it must let
+    // every click through.
     pointerEvents: "none",
   },
-  // The blur, the backdrop, and the dialog share the overlay plane: they are
-  // one surface, and DOM order already paints the blur — dialog and all — over
-  // the backdrop behind it. Sharing keeps them all on the overlay plane when an
-  // explicit `portalTarget` hosts them directly, without any of them
-  // outranking a tooltip or a toast.
+  // The blur, backdrop, and dialog share one z-index: DOM order already
+  // stacks the blur (dialog included) over the backdrop. Sharing keeps all
+  // three on the overlay plane without outranking a tooltip or toast.
   blur: {
     zIndex: layer.overlay,
   },
   // Invisible: it only catches the dismissal click, which falls through the
-  // blur's click-through layers to reach it. The progressive blur in front of
-  // it does the visual work — the page blurs rather than dims.
+  // blur's click-through layers to reach it.
   backdrop: {
     zIndex: layer.overlay,
     pointerEvents: "all",
@@ -248,8 +212,8 @@ const styles = stylex.create({
     position: "absolute",
     insetInlineEnd: { default: space._2, [breakpoints.md]: space._5 },
     insetBlockStart: { default: space._2, [breakpoints.md]: space._5 },
-    // Above the consumer's content, which shares the dialog as its containing
-    // block: the close affordance is the overlay's own chrome.
+    // Above the consumer's content, since the close affordance is the
+    // overlay's own chrome, not the consumer's.
     zIndex: layer.content,
   },
   content: {

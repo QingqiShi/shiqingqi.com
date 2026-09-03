@@ -12,14 +12,12 @@ import {
   useScrollMask,
   type ScrollMaskOrientation,
 } from "../hooks/use-scroll-mask.ts";
-import { absoluteFill, pointerConstants } from "../primitives/layout.stylex.ts";
-import { transition } from "../primitives/motion.stylex.ts";
 import type { StyleProp } from "../style-prop.ts";
 import { space } from "../tokens.stylex.ts";
 import { getScrollBehavior } from "../utils/get-scroll-behavior.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
-import { IconButton } from "./icon-button.tsx";
 import { MaskBand } from "./mask-band.tsx";
+import { ScrollButton } from "./scroll-button.tsx";
 
 interface ScrollMaskProps extends Omit<
   ComponentProps<"div">,
@@ -33,126 +31,70 @@ interface ScrollMaskProps extends Omit<
    */
   orientation?: ScrollMaskOrientation;
   /**
-   * Nominal blur radius in px against the edge, where the mask is strongest —
-   * the stacked layers compound to slightly above it. Clamped to the cap (32).
+   * Nominal blur radius in px against the edge, where the mask is strongest.
+   * Clamped to the cap (32).
    * @default 8
    */
   radius?: number;
   /**
-   * How far the mask reaches from the edge into the region. Any CSS length.
-   * On an edge with a chrome slot, how far it reaches past the chrome's inner
-   * edge instead: that edge's band is the chrome's measured size plus this.
-   * Keep it at or above the root's corner radius — a band shorter than the
-   * radius scales the corner it inherits tighter than the region's own.
+   * How far the mask reaches from the edge into the region, as any CSS length —
+   * past the chrome's inner edge instead, on an edge with a chrome slot. Keep it
+   * at or above the root's corner radius, because a shorter band scales the
+   * corner it inherits tighter than the region's own.
    * @default "1.5rem"
    */
   depth?: string;
   /**
    * Chrome pinned over the region's start edge — a header row the content
-   * scrolls beneath. The slot rides inside the scroller, stuck to the
-   * scrollport's start, and is sized by its content. That edge's band, beside
-   * the scroller, is sized from the slot's measured box plus `depth`, so it is
-   * `depth` alone until the measurement lands — and stays there without
-   * `ResizeObserver`. Neither costs a flash, because the bands start hidden.
-   * Once measured, content on its way out blurs progressively across the whole
-   * chrome — strongest at the outer edge, sharp again just past the inner one.
-   * The chrome itself paints above the band and stays crisp and interactive.
+   * scrolls beneath. That edge's band grows to the slot's measured box plus
+   * `depth`, so content on its way out blurs across the whole chrome while the
+   * chrome itself stays crisp and interactive.
    */
   startChrome?: ReactNode;
   /**
    * Chrome pinned over the region's end edge — a pinned footer or action bar.
    * The mirror of `startChrome`; the content between the slots grows to fill
-   * the scrollport, so end chrome stays pinned to the region's end edge even
-   * while the content is too short to scroll.
+   * the scrollport, so end chrome stays pinned even while the content is too
+   * short to scroll.
    */
   endChrome?: ReactNode;
   /**
    * A button per edge that scrolls the region one page towards that edge, and
-   * the accessible name for each — the package ships no i18n, so the names
-   * come in as props.
-   *
-   * The buttons appear on a non-touch device only, because a touch device
-   * scrolls the region with a swipe; and each one appears only while its own
-   * edge masks, so a region resting at the start carries the end button
-   * alone, and one whose content fits carries neither. They sit inside the
-   * region, one `space._3` in from their edge and centred on the other axis,
-   * and they paint above the bands.
-   *
-   * A horizontal region should normally ask for them: a mouse has no
-   * horizontal wheel, so without a button the only way to reach the rest of
-   * the row is a drag.
+   * the accessible name for each — the package ships no i18n, so the names come
+   * in as props. Each button appears on a non-touch device only, and only while
+   * its own edge masks.
    */
   scrollButtons?: { startLabel: string; endLabel: string };
   /**
-   * How far the scroller's overflow clip reaches past the root, on the axis
-   * that does not scroll. Any CSS length.
-   *
-   * For content that grows on hover or on focus, or that casts a shadow: it
-   * paints out over the neighbours instead of being cut off at the region's
-   * edge. The region takes no more room, because the scroller gets this much
-   * padding on that axis and the same size back as a negative margin — so it
-   * replaces whatever padding `contentCss` sets there. The scroller's own
-   * outline, a focus ring, follows the enlarged box.
-   *
-   * The CSS analogue is `overflow-clip-margin`, which cannot do this job: it
-   * applies to `overflow: clip` alone, and once one axis scrolls, a `clip` on
-   * the other axis computes to `hidden`.
+   * How far the scroller's overflow clip reaches past the root, on the axis that
+   * does not scroll, as any CSS length — for content that grows on hover or on
+   * focus, or that casts a shadow. The region takes no more room; the CSS
+   * analogue `overflow-clip-margin` cannot do this job, because it applies to
+   * `overflow: clip` alone.
    */
   clipMargin?: string;
   /**
    * StyleX styles merged over the ROOT's own — the escape hatch for how the
-   * region sits in the layout around it (flex/grid sizing, block size,
-   * margin) and for the region's own surface: corners via `corner.radius_*`,
-   * border, background. The root is the box the mask bands are positioned
-   * against, and the box the scroller and the bands take their corners from
-   * by inheritance. Never give it an overflow clip: the scroller clips its
-   * own content to the root's corners, and a clip above the bands would
-   * strip their masks (see `MaskBand`).
+   * region sits in the layout around it, and for its own surface: corners,
+   * border, background. Never give it an overflow clip: the scroller clips its
+   * own content, and a clip above the bands strips their masks (see `MaskBand`).
    */
   css?: StyleProp;
   /**
-   * StyleX styles merged over the SCROLLER's own — the escape hatch for the
-   * content inside the region: padding, the layout of the children, scroll
-   * manners, scrollbar treatment. The scroller owns the overflow, and it is
-   * the element the `ref` and the native `div` attributes land on, so a focus
-   * ring belongs here too. Its corners are the root's, applied over these
-   * styles, so a radius set here does not survive — corners go on the root.
-   * With a chrome slot the scroller lays out as [start chrome, content, end
-   * chrome] along the scroll axis, so scroll-axis padding belongs inside the
-   * slots and the children rather than here — on the scroller it would unpin
-   * the chrome from the edge.
+   * StyleX styles merged over the SCROLLER's own — padding, the layout of the
+   * children, scroll manners, the focus ring. Corners go on the root, and with a
+   * chrome slot scroll-axis padding belongs inside the slots and the children,
+   * because on the scroller it would unpin the chrome from the edge.
    */
   contentCss?: StyleProp;
 }
 
 /**
  * A scroll region whose content blurs on its way out of view at each edge it
- * can still scroll to, so the region reads as continuing rather than stopping
- * at a line. Each edge masks only once there is scrolled-away content in that
- * direction, so a region resting at the start carries no start mask, and one
- * whose content fits carries neither.
- *
- * Renders three parts: a root holding the region's place in the layout, a
- * scroller inside it owning the overflow, and one band per edge, each a stack
- * of layers blurring what scrolls beneath them. Every band is an absolutely
- * positioned sibling of the scroller, against the root's edge. A bare edge's
- * band is `depth` deep. An edge with a chrome slot pins the chrome sticky
- * inside the scroller and grows the band to the chrome's measured box plus
- * `depth`, so the ramp spans chrome plus depth and the content blurs out
- * across the furniture rather than stopping beneath it; the chrome paints
- * above the band and stays crisp. Either way a band has to sit over the
- * content and stay put while that content moves under it. `scrollButtons` adds
- * one button per edge on top, inside the root and above the bands.
- *
- * The root never clips. The consumer puts the region's corners, border,
- * background and size on the root; the scroller rounds its own overflow clip
- * to those corners, and each band takes the two outer corners of its edge —
- * see `MaskBand` for why nothing above the bands may clip.
- *
- * Forwards a `ref` and native `div` attributes (`role`, `aria-*`, `tabIndex`,
- * `onScroll`, …) to the scroller, so a consumer can name the region, measure
- * the element, or scroll it imperatively while ScrollMask keeps ownership of
- * the overflow and the bands.
+ * can still scroll to, so the region reads as continuing rather than
+ * stopping at a line. The root never clips — the consumer's corners, border,
+ * and background reach the scroller and bands by inheritance, so nothing
+ * above the bands may clip either (see `MaskBand`).
  */
 export function ScrollMask({
   children,
@@ -178,13 +120,10 @@ export function ScrollMask({
 
   const startChromeRef = useRef<HTMLDivElement>(null);
   const endChromeRef = useRef<HTMLDivElement>(null);
-  // Each slot's measured size sizes its edge's band (chrome plus `depth`) and
-  // the scroll padding that keeps an element scrolled into view — a link
-  // taking keyboard focus, an anchor jump — clear of the chrome. Measured
-  // after hydration, so until then the chrome counts as 0. That costs no
-  // flash: the bands start hidden until the scroll hook runs after mount, and
-  // the scroll padding paints nothing. Without `ResizeObserver` a slotted band
-  // stays `depth` deep and the padding stays off.
+  // Each slot's measured size drives its edge's band and the scroll padding
+  // that keeps a scrolled-to element clear of the chrome. Until it lands,
+  // chrome counts as 0 — no flash, since bands start hidden and the padding
+  // paints nothing.
   const [chromeSizes, setChromeSizes] = useState({ start: 0, end: 0 });
   useEffect(() => {
     if (!hasChrome) return;
@@ -339,86 +278,15 @@ export function ScrollMask({
   );
 }
 
-/** The edge of a region a scroll button scrolls towards. */
-type ScrollButtonEdge =
-  "block-start" | "block-end" | "inline-start" | "inline-end";
-
-// Inline carets matching Phosphor "CaretLeft" and friends, one per edge, so
-// the package needs no icon dependency (the same recipe as `Breadcrumb`).
-const caretPaths: Record<ScrollButtonEdge, string> = {
-  "block-start": "M48 160l80-80 80 80",
-  "block-end": "M208 96l-80 80-80-80",
-  "inline-start": "M160 208l-80-80 80-80",
-  "inline-end": "M96 48l80 80-80 80",
-};
-
-/**
- * The caret on a scroll button, pointing at the edge that button scrolls
- * towards. Decorative — `IconButton` hides it, and the button is named by the
- * label the consumer gives.
- */
-function CaretIcon({ edge }: { edge: ScrollButtonEdge }) {
-  return (
-    <svg width="1em" height="1em" viewBox="0 0 256 256" fill="none">
-      <path
-        d={caretPaths[edge]}
-        stroke="currentColor"
-        strokeWidth={20}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-interface ScrollButtonProps {
-  /** The edge this button scrolls the region towards. */
-  edge: ScrollButtonEdge;
-  /** Accessible name for the button. */
-  label: string;
-  /** Whether this button's own edge currently masks. */
-  isShown: boolean;
-  onClick: () => void;
-}
-
-/**
- * One `ScrollMask` scroll button, pinned to its edge and shown only while
- * that edge masks. Split out of `ScrollMask`, its one consumer, so the start
- * and end buttons stay identical apart from the edge.
- */
-function ScrollButton({ edge, label, isShown, onClick }: ScrollButtonProps) {
-  const { fill, position } = scrollButtonEdges[edge];
-  return (
-    <IconButton
-      icon={<CaretIcon edge={edge} />}
-      aria-label={label}
-      variant="surface"
-      inert={!isShown}
-      onClick={onClick}
-      css={[
-        transition.opacity,
-        fill,
-        styles.scrollButton,
-        position,
-        isShown ? styles.scrollButtonShown : styles.scrollButtonHidden,
-      ]}
-    />
-  );
-}
-
 const styles = stylex.create({
-  // `grid` hands the scroller the root's whole box on both axes without either
-  // one having to name a size, so a region sized from outside (a flex row, a
-  // 100%-height parent) and one sized by its own content both work. The root
-  // carries the consumer's corners, border and background, never an overflow
-  // clip: the scroller and the bands take the corners from it.
+  // `grid` hands the scroller the root's whole box on both axes, so a region
+  // sized from outside or by its own content both work.
   root: {
     position: "relative",
     display: "grid",
   },
-  // Both the root and the scroller give up their automatic minimum size on the
-  // scroll axis, so the region shrinks inside a flex or grid parent and
-  // scrolls rather than pushing that parent open.
+  // Root and scroller both zero their minimum size on the scroll axis, so the
+  // region shrinks in a flex/grid parent instead of pushing it open.
   rootVertical: {
     minBlockSize: 0,
   },
@@ -435,15 +303,15 @@ const styles = stylex.create({
     overflowY: "hidden",
     minInlineSize: 0,
   },
-  // The scroller rounds its own overflow clip to the root's corners, so the
-  // content is clipped like the region while the bands beside it are not.
+  // The scroller clips to the root's corners, so content clips like the
+  // region while the sibling bands do not.
   scrollerCorners: {
     borderRadius: "inherit",
     cornerShape: "inherit",
   },
-  // With a chrome slot the scroller becomes a flex line along the scroll axis:
-  // slot, middle, slot — the middle grows, so end chrome pins to the
-  // scrollport's end edge even while the content is short of filling it.
+  // With chrome, the scroller becomes a flex line — slot, middle, slot —
+  // where the middle grows, so end chrome stays pinned even when content is
+  // short.
   scrollerChromeColumn: {
     display: "flex",
     flexDirection: "column",
@@ -458,10 +326,9 @@ const styles = stylex.create({
     flexGrow: 1,
     flexShrink: 0,
   },
-  // A slot sticks to its scrollport edge and stacks above the middle, whose
-  // own positioned descendants would otherwise paint over it in DOM order,
-  // and above its edge's band beside the scroller: `backdrop-filter` only
-  // blurs what painted before it, so the chrome stays crisp.
+  // z-index:1 clears the middle's own positioned descendants and this edge's
+  // band. `backdrop-filter` only blurs what painted before it, so keeping this
+  // chrome above keeps it crisp.
   chrome: {
     position: "sticky",
     zIndex: 1,
@@ -499,71 +366,8 @@ const styles = stylex.create({
     insetBlockStart: 0,
     insetBlockEnd: 0,
   },
-  // On the same plane as a chrome slot and after the bands in DOM order, so
-  // the button paints above the blur and stays crisp. It shows on a non-touch
-  // device only: a touch device scrolls the region with a swipe, and the
-  // button would only cover the content.
-  scrollButton: {
-    zIndex: 1,
-    display: {
-      default: "none",
-      [pointerConstants.NON_TOUCH_DEVICE]: "flex",
-    },
-  },
-  // Centred on the axis that does not scroll by `auto` margins between the
-  // two insets `absoluteFill` sets on that axis, so the button keeps its
-  // `transform` free.
-  scrollButtonInlineStart: {
-    insetInlineStart: space._3,
-    marginBlock: "auto",
-  },
-  scrollButtonInlineEnd: {
-    insetInlineEnd: space._3,
-    marginBlock: "auto",
-  },
-  scrollButtonBlockStart: {
-    insetBlockStart: space._3,
-    marginInline: "auto",
-  },
-  scrollButtonBlockEnd: {
-    insetBlockEnd: space._3,
-    marginInline: "auto",
-  },
-  scrollButtonShown: {
-    opacity: 1,
-    pointerEvents: "auto",
-  },
-  scrollButtonHidden: {
-    opacity: 0,
-    pointerEvents: "none",
-  },
 });
 
-// The axis a button is pinned along decides which axis `absoluteFill` spans
-// it across: an inline-edge button is fixed along the inline axis, so it
-// fills the block axis, and a block-edge button the reverse.
-const scrollButtonEdges: Record<
-  ScrollButtonEdge,
-  { fill: StyleProp; position: StyleProp }
-> = {
-  "block-start": {
-    fill: absoluteFill.x,
-    position: styles.scrollButtonBlockStart,
-  },
-  "block-end": { fill: absoluteFill.x, position: styles.scrollButtonBlockEnd },
-  "inline-start": {
-    fill: absoluteFill.y,
-    position: styles.scrollButtonInlineStart,
-  },
-  "inline-end": {
-    fill: absoluteFill.y,
-    position: styles.scrollButtonInlineEnd,
-  },
-};
-
-// A band's size along the scroll axis is a consumer-supplied length — plus a
-// slot's measured size — so it composes as a dynamic style rather than an
-// inline `style` attribute; so does the scroll padding.
 const dynamicStyles = stylex.create({
   blockSize: (size: string) => ({ blockSize: size }),
   inlineSize: (size: string) => ({ inlineSize: size }),
@@ -575,9 +379,9 @@ const dynamicStyles = stylex.create({
     scrollPaddingInlineStart: `${String(start)}px`,
     scrollPaddingInlineEnd: `${String(end)}px`,
   }),
-  // The clip margin: the scrollport (the padding box) grows by this much on
-  // the axis that does not scroll, and the negative margin gives the room
-  // straight back, so the content keeps its place and the region its size.
+  // Padding grows the scrollport past the root on this axis. The matching
+  // negative margin gives that room back, so the content's place and the
+  // region's size don't shift.
   clipMarginBlock: (size: string) => ({
     paddingBlockStart: size,
     paddingBlockEnd: size,

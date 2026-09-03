@@ -33,9 +33,8 @@ interface SkeletonProps {
 }
 
 /**
- * Loading placeholder. Renders a pulsing block sized by `fill`, `width`, and
- * `height`; the pulse is disabled under `prefers-reduced-motion`. Stagger a row
- * of skeletons with `delay`.
+ * Loading placeholder rendered as a pulsing block sized by `fill`, `width`,
+ * and `height`. The pulse is disabled under `prefers-reduced-motion`.
  */
 export function Skeleton({
   fill,

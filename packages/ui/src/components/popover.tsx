@@ -15,13 +15,10 @@ import { popoverSurface } from "./popover-surface.stylex.ts";
 
 interface PopoverBaseProps {
   /**
-   * Renders the trigger. Spread the supplied props onto whatever element opens
-   * the popover — a `Button`, a `Chip`, a bare `<button>` — and they carry the
-   * anchor ref, the open state, and the ARIA wiring with them.
-   *
-   * A callback rather than a node, because the parent has to inject a ref and
-   * `aria-*` into an element it doesn't own; cloning an arbitrary node cannot be
-   * typed without `any`.
+   * Renders the trigger: spread the supplied props onto whatever element
+   * opens the popover (a `Button`, a `Chip`, a bare `<button>`) to wire up
+   * the anchor ref, open state, and ARIA. A callback, not a node, since
+   * cloning can't type an injected ref and `aria-*` without `any`.
    */
   trigger: (props: PopoverTriggerProps) => ReactNode;
   /** Popover content. Anything — this is not a menu. */
@@ -34,9 +31,9 @@ interface PopoverBaseProps {
   /** Gap between trigger and popover, in pixels. Defaults to `8`. */
   offset?: number;
   /**
-   * Where to render the portal. Defaults to `document.body` — portalling is
-   * what keeps the popover out of a clipping or transformed ancestor. Pass
-   * `null` to defer rendering until a target is available.
+   * Where to render the portal, which is what keeps the popover out of a
+   * clipping or transformed ancestor. Defaults to `document.body`; pass `null`
+   * to defer rendering until a target is available.
    */
   portalTarget?: Element | DocumentFragment | null;
   /**
@@ -76,15 +73,11 @@ type PopoverStateProps =
 type PopoverProps = PopoverBaseProps & PopoverStateProps;
 
 /**
- * Arbitrary content hung off a trigger, placed against the viewport rather than
- * the trigger's corner: the side flips and the box shifts so it always lands on
- * screen. It closes on Escape, on an outside pointer, and when focus leaves —
- * but it does not trap focus or lock scroll, so the page behind stays usable.
- * For a modal that must take over the page, use `Overlay`; for a menu of
- * commands, `MenuButton`.
- *
- * The popover is portalled and unmounts when closed, so its contents remount on
- * every open — lift any state a consumer needs to keep.
+ * Arbitrary content hung off a trigger, placed against the viewport so it
+ * always lands on screen; it closes on Escape, an outside pointer, or lost
+ * focus, but does not trap focus or lock scroll — for a modal use `Overlay`,
+ * for a menu of commands `MenuButton`. It unmounts when closed and remounts
+ * on every open, so lift any state a consumer needs to keep.
  */
 export function Popover({
   trigger,
@@ -114,8 +107,8 @@ export function Popover({
     ...restContentProps
   } = contentProps;
 
-  // `undefined` means "use the default target"; an explicit `null` means the
-  // caller is still resolving one, so hold rendering until it arrives.
+  // `undefined` means "use the default target"; `null` means the caller is
+  // still resolving one, so hold rendering.
   const resolvedTarget =
     portalTarget === undefined
       ? typeof document === "undefined"
@@ -154,8 +147,8 @@ export function Popover({
 }
 
 const styles = stylex.create({
-  // No `inset` declarations: `usePopover` writes `top`/`left` to the node, and a
-  // logical inset left over from the stylesheet would over-constrain it in RTL.
+  // No `inset` here: `usePopover` writes `top`/`left` directly, and a leftover
+  // logical inset would over-constrain it in RTL.
   content: {
     position: "fixed",
     zIndex: layer.tooltip,

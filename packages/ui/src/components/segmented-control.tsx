@@ -23,7 +23,7 @@ type SegmentedControlSize = "sm" | "md";
 interface SegmentedControlOption<TValue extends string> {
   /** The value this segment selects. Must be unique within the group. */
   value: TValue;
-  /** Visible label. Keep it to a word or two — segments share one track. */
+  /** Visible label. */
   label: ReactNode;
   /** Decorative leading icon, rendered `aria-hidden` beside the label. */
   icon?: ReactNode;
@@ -67,16 +67,10 @@ type SegmentedControlProps<TValue extends string> =
 
 /**
  * Single-select control whose options share one sunken track, the selected
- * segment raised onto a surface. Use it for two to four mutually exclusive
- * views of the same content — a wider or more open-ended set belongs in a
- * `Select`.
- *
- * The config layer over `useRadioGroup`: full WAI-ARIA radiogroup semantics
- * (roving tabindex, arrow/Home/End, focus following selection) come from the
- * hook, so a bespoke option row can reach for the hook directly and keep the
- * same keyboard model.
- *
- * Controlled only — the selected view is page state, so the parent owns it.
+ * segment raised onto a surface — for two to four mutually exclusive views; a
+ * wider set belongs in `Select`. Controlled only, and built on
+ * `useRadioGroup`, so a bespoke option row can reach for the hook directly and
+ * keep the same keyboard model.
  */
 export function SegmentedControl<TValue extends string>({
   options,
@@ -113,9 +107,9 @@ export function SegmentedControl<TValue extends string>({
       {options.map((option) => (
         <button
           key={option.value}
-          // Ahead of the spread so the hook still owns the roving `tabIndex`.
-          // Without it a segment defaults to `type="submit"` and clicking one
-          // inside a form submits the form instead of switching the view.
+          // Set before the spread so the hook still owns the roving `tabIndex`.
+          // Without it, a segment defaults to `type="submit"` and submits an
+          // enclosing form instead of switching the view.
           type="button"
           {...getOptionProps(option.value)}
           css={[
@@ -161,8 +155,8 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     gap: space._0,
-    // Inside a rounded, tightly-padded track, so the ring goes inset (mirroring
-    // cardSurface.interactive) rather than being cropped by the neighbours.
+    // The ring is inset here, matching `cardSurface.interactive`, so it is not
+    // cropped by the neighbouring segments.
     fontWeight: font.weight_5,
     color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {
@@ -170,11 +164,9 @@ const styles = stylex.create({
       ":hover": color.bgInteractiveHover,
     },
   },
-  // A flex item's automatic minimum size is its min-content width, which for a
-  // non-wrapping label is the whole label — so `flexBasis: 0` alone would still
-  // let a long segment claim more than its share and, past the container width,
-  // push the track into overflow. `minInlineSize: 0` is what actually makes the
-  // even split hold; the label truncates rather than the track overflowing.
+  // A non-wrapping label's min-content width blocks an even flex split, even
+  // with `flexBasis: 0`. `minInlineSize: 0` fixes it, so the label truncates
+  // before the track overflows.
   optionFullWidth: {
     flexGrow: 1,
     flexBasis: 0,
@@ -197,8 +189,8 @@ const styles = stylex.create({
     inlineSize: "1em",
     blockSize: "1em",
   },
-  // Pairs with `truncate.base`: the ellipsis only engages once the label can be
-  // squeezed below its min-content width.
+  // Pairs with `truncate.base`: the ellipsis engages only once the label can
+  // shrink below its min-content width.
   label: {
     minInlineSize: 0,
   },

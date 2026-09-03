@@ -12,21 +12,9 @@ interface FixedContainerContentProps {
 }
 
 /**
- * A wrapper component that creates a new render layer to prevent flashing of
- * fixed-position elements during view transitions.
- *
- * This component uses `will-change: transform` to force Chrome to create a
- * separate compositing layer, which works around a Chrome bug that causes
- * fixed elements to flash during view transitions.
- *
- * @example
- * ```tsx
- * <div style={{ position: 'fixed' }}>
- *   <FixedContainerContent>
- *     <Header />
- *   </FixedContainerContent>
- * </div>
- * ```
+ * Isolates content on its own compositing layer via `will-change: transform`,
+ * working around a Chrome bug that flashes fixed-position elements during
+ * view transitions.
  */
 export function FixedContainerContent({
   children,

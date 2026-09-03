@@ -5,9 +5,7 @@ import { color, controlSize, font } from "../tokens.stylex.ts";
 /**
  * Muted caption for a group of controls inside a `MenuButton` popup. Purely
  * presentational — give it an `id` and point the group's `aria-labelledby` at
- * it when the popup contains multiple sections. Forwards native `<div>`
- * attributes (`id`, `aria-*`, `ref`) so that wiring, and one-off overrides via
- * `css`, are possible.
+ * it when the popup contains multiple sections.
  */
 export function MenuLabel({
   children,
