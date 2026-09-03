@@ -1,12 +1,12 @@
 "use client";
 
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import { type ComponentProps, type ReactNode } from "react";
 import { useFieldAria } from "../../hooks/use-field-aria.ts";
 import { a11y } from "../../primitives/a11y.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
 import type { StyleProp } from "../../style-prop.ts";
-import { ChevronIcon } from "../icons/chevron-icon.tsx";
 import {
   fieldSizeBox,
   fieldSizeInline,
@@ -160,7 +160,7 @@ export function Select({
             : children}
         </select>
         <span css={[fieldStyles.affix, fieldStyles.affixEnd]} aria-hidden>
-          <ChevronIcon direction="block-end" />
+          <CaretDownIcon weight="bold" />
         </span>
       </div>
       {hasError ? (

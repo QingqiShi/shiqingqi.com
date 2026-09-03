@@ -1,3 +1,4 @@
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentType, CSSProperties, ReactNode } from "react";
 import { a11y } from "../../primitives/a11y.stylex.ts";
@@ -6,7 +7,6 @@ import { flex } from "../../primitives/flex.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
 import type { StyleProp } from "../../style-prop.ts";
 import { color, font, space } from "../../tokens.stylex.ts";
-import { ChevronIcon } from "../icons/chevron-icon.tsx";
 import { BreadcrumbAnchor } from "./breadcrumb-anchor.tsx";
 
 /** One crumb in the trail. */
@@ -95,7 +95,7 @@ export function Breadcrumb({
               )}
               {isCurrent ? null : (
                 <span css={styles.separator} aria-hidden>
-                  {separator ?? <ChevronIcon direction="inline-end" />}
+                  {separator ?? <CaretRightIcon weight="bold" />}
                 </span>
               )}
             </li>

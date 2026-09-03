@@ -27,6 +27,9 @@ catalogs:
     '@babel/types':
       specifier: 8.0.4
       version: 8.0.4
+    '@phosphor-icons/react':
+      specifier: ^2.1.10
+      version: 2.1.10
     '@rolldown/plugin-babel':
       specifier: ^0.2.3
       version: 0.2.3
@@ -282,7 +285,7 @@ importers:
         specifier: ^4.0.88
         version: 4.0.88(react@19.3.0-canary-83840902-20260719)(zod@4.4.3)
       '@phosphor-icons/react':
-        specifier: ^2.1.10
+        specifier: 'catalog:'
         version: 2.1.10(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)
       '@serwist/next':
         specifier: 'catalog:'
@@ -658,6 +661,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@phosphor-icons/react':
+        specifier: 'catalog:'
+        version: 2.1.10(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)
       react-remove-scroll:
         specifier: 'catalog:'
         version: 2.7.2(@types/react@19.2.18)(react@19.3.0-canary-83840902-20260719)
