@@ -1,5 +1,3 @@
-"use client";
-
 import { useSyncExternalStore } from "react";
 import { clearPreferences } from "./clear-preferences";
 import { deletePreference } from "./delete-preference";

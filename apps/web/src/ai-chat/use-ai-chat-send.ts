@@ -1,5 +1,3 @@
-"use client";
-
 import { useAIChatContext } from "#src/ai-chat/ai-chat-provider.tsx";
 import { useInlineChat } from "#src/components/movie-database/inline-chat-context.tsx";
 

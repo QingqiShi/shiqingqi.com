@@ -9,6 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@tuja/module-exports": "workspace:*",
     "eslint": "catalog:"
   },
   "devDependencies": {

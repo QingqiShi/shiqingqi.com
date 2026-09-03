@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useId } from "react";
 import { useControlled } from "./use-controlled.ts";
 

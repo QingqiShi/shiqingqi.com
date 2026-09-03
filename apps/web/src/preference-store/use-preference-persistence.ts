@@ -1,5 +1,3 @@
-"use client";
-
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
 import { useEffect, useRef } from "react";
 import { savePreferenceInputSchema } from "#src/ai-chat/tools/create-save-preference-tool.ts";
