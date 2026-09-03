@@ -1,4 +1,4 @@
-import { TOKEN_KINDS as PLUGIN_KINDS } from "@tuja/babel-plugin-specimen-source/src/token-kinds.js";
+import { TOKEN_KINDS as PLUGIN_KINDS } from "@tuja/babel-plugins/specimen-source/token-kinds";
 import { describe, expect, it } from "vitest";
 import { TOKEN_KINDS } from "./code-token.ts";
 

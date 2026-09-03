@@ -5,13 +5,13 @@
 ## Contexts
 
 - [**Design System**](./packages/ui/CONTEXT.md) — the `@tuja/ui` StyleX system and the site that documents it.
-  Applies to: `packages/ui/`, `packages/system-palette-codegen/`, `packages/babel-plugin-stylex-*/`, `apps/web/src/app/[locale]/design-system/`, `apps/web/src/components/design-system/`.
+  Applies to: `packages/ui/`, `packages/system-palette-codegen/`, `packages/babel-plugins/src/{specimen-source,stylex-breakpoints}/`, `packages/eslint-plugin/src/design-system/`, `apps/web/src/app/[locale]/design-system/`, `apps/web/src/components/design-system/`.
 
 - [**Movie Database**](./apps/web/src/components/movie-database/CONTEXT.md) — the AI-assisted movie and TV browser, its TMDB pipeline, and its semantic search.
   Applies to: `apps/web/src/components/movie-database/`, `apps/web/src/components/ai-chat/`, `apps/web/src/ai-chat/`, `apps/web/src/vector-db/`, `apps/web/src/app/[locale]/(with-header)/movie-database/`, `apps/web/src/app/api/{tmdb,ai-chat}/`, `apps/web/src/utils/{tmdb-*,build-tmdb-*,media-*,person-list-item.ts,sort.ts,genre-filter-type.ts}`, `packages/tmdb-codegen/`, `packages/tmdb-types/`, `packages/vector-ingest/`.
 
 - [**Site**](./apps/web/CONTEXT.md) — the portfolio, the Projects, the site shell, and the i18n pipeline.
-  Applies to: everything else in `apps/web/`, plus `packages/i18n-codegen/`, `packages/i18n-babel-plugin/`, `packages/eslint-plugin-i18n/`.
+  Applies to: everything else in `apps/web/`, plus `packages/i18n-codegen/`, `packages/babel-plugins/src/i18n/`, `packages/eslint-plugin/src/i18n/`.
 
 - [**Trip Planner**](./apps/trip-planner/CONTEXT.md) — a private, password-gated, Chinese-only reader for pre-written road-trip itineraries.
   Applies to: `apps/trip-planner/` only.

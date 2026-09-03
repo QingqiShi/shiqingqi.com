@@ -129,7 +129,7 @@ _Avoid_: catalog, dictionary, map
 The page-path-to-bundle-name index the Babel plugin reads to decide which files get wrapped. Not a Bundle.
 
 **Render scope**:
-The only place `t()` may be called — a component body, a custom hook, or `generateMetadata`. Enforced by `i18n/no-t-outside-render`, because the client transform yields a hook.
+The only place `t()` may be called — a component body, a custom hook, or `generateMetadata`. Enforced by `@tuja/no-t-outside-render`, because the client transform yields a hook.
 
 **Codegen**:
 The task that extracts Translations and writes Bundles. `generate` names the functions and the output directory; `build` is the npm lifecycle around it.

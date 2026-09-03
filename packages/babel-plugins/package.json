@@ -1,0 +1,46 @@
+{
+  "name": "@tuja/babel-plugins",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Babel plugins behind qingqi.dev: specimen source capture, StyleX breakpoint constants, and the site's i18n transform.",
+  "homepage": "https://github.com/QingqiShi/shiqingqi.com/tree/master/packages/babel-plugins#readme",
+  "bugs": {
+    "url": "https://github.com/QingqiShi/shiqingqi.com/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QingqiShi/shiqingqi.com.git",
+    "directory": "packages/babel-plugins"
+  },
+  "license": "MIT",
+  "author": "Qingqi Shi <hi@qingqi.dev>",
+  "type": "commonjs",
+  "exports": {
+    "./specimen-source": "./src/specimen-source/index.js",
+    "./specimen-source/token-kinds": "./src/specimen-source/token-kinds.js",
+    "./stylex-breakpoints": "./src/stylex-breakpoints/index.js",
+    "./i18n": "./src/i18n/index.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@babel/parser": "catalog:",
+    "@babel/traverse": "catalog:",
+    "@tuja/module-exports": "workspace:*"
+  },
+  "peerDependencies": {
+    "@babel/core": "^8.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@babel/types": "catalog:",
+    "vitest": "catalog:"
+  }
+}

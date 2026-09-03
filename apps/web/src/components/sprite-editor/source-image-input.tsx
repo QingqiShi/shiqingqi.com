@@ -38,7 +38,7 @@ export function SourceImageInput({
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   // Hoist translations to render scope — `t()` cannot be called from async
-  // callbacks per the i18n/no-t-outside-render rule.
+  // callbacks per the @tuja/no-t-outside-render rule.
   const notImageError = t({ en: "Not an image file.", zh: "不是图片文件。" });
   const decodeError = t({
     en: "Could not decode image.",

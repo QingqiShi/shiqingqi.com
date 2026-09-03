@@ -99,7 +99,7 @@ import { Showcase } from "../../showcase.tsx";
 import { Specimen } from "../../specimen.tsx";
 `;
 
-describe("babel-plugin-specimen-source", () => {
+describe("specimen-source", () => {
   describe("what it injects", () => {
     it("gives a Specimen the source of its children", () => {
       const code = `${IMPORTS}

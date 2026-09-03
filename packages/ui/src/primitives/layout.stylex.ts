@@ -117,7 +117,7 @@ export const scrollY = stylex.create({
 const NON_TOUCH_DEVICE =
   "@media (hover: hover) and (not (any-pointer: coarse))";
 
-// `defineConsts`, not a plain object: `design-system/only-stylex-exports` gives
+// `defineConsts`, not a plain object: `@tuja/only-stylex-exports` gives
 // the reason. Exported because a component that shows a pointer-only
 // affordance needs the same predicate — `ScrollMask`'s scroll buttons, which
 // a touch device replaces with a swipe.

@@ -28,7 +28,7 @@ configuration — the sections below walk through it.
 npm install @tuja/ui @stylexjs/stylex
 npm install --save-dev \
   @stylexjs/babel-plugin \
-  @tuja/babel-plugin-stylex-breakpoints
+  @tuja/babel-plugins
 ```
 
 `react` (`>=19.2 <20`), `react-dom`, and `@stylexjs/stylex` (`^0.19`) are peer
@@ -55,7 +55,7 @@ module.exports = {
 
 ### 2. Babel
 
-`@tuja/babel-plugin-stylex-breakpoints` runs **before** `@stylexjs/babel-plugin`:
+`@tuja/babel-plugins/stylex-breakpoints` runs **before** `@stylexjs/babel-plugin`:
 it inlines the design system's breakpoint constants into media-query keys.
 **It is required** — without it the responsive `font` and `controlSize` tokens
 emit no media queries. Point its `rootDir` at the installed `@tuja/ui` package
@@ -77,7 +77,7 @@ const uiRoot = path.dirname(require.resolve("@tuja/ui/package.json"));
 module.exports = {
   presets: ["next/babel"],
   plugins: [
-    ["@tuja/babel-plugin-stylex-breakpoints", { rootDir: uiRoot }],
+    ["@tuja/babel-plugins/stylex-breakpoints", { rootDir: uiRoot }],
     [
       "@stylexjs/babel-plugin",
       {
