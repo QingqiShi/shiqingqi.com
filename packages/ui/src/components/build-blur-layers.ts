@@ -22,12 +22,9 @@ interface BlurLayerOptions {
   isShown: boolean;
 }
 
-// How much every rect mask's edge is softened by, in bands. A Gaussian blur of
-// a hard edge runs from about 95% to about 5% over 1.65 standard deviations
-// either side of it, so half a band of deviation spans about 1.65 bands of
-// ramp: wide enough that each layer's ramp overlaps its neighbours' and no
-// contour shows where one layer ends and the next one holds, and narrow enough
-// that the weakest layer's tail still lands inside the box.
+// How much a mask's edge softens, in bands. The value keeps each layer's ramp
+// overlapping its neighbours', with no visible seam, while keeping the
+// weakest layer's tail inside the box.
 const MASK_DEVIATION_BANDS = 0.5;
 
 /** At most two decimals, so a subpixel jitter never rewrites a mask. */
@@ -37,10 +34,8 @@ function svgNumber(value: number) {
 
 /**
  * The ramp around the element: how much page each side has, divided over the
- * layers — one band is one layer's step along that side's ramp — and the mean
- * band on each axis, which the corners and the edge softening share. A side
- * with nothing beyond the element has no band, so the mask stops flush with
- * that edge.
+ * layers, and the mean band on each axis. A side with nothing beyond the
+ * element has no band, so the mask stops flush with that edge.
  */
 function rampAround(geometry: BlurGeometry) {
   const bands = {
@@ -60,23 +55,11 @@ function rampAround(geometry: BlurGeometry) {
 type BlurRamp = ReturnType<typeof rampAround>;
 
 /**
- * One layer's mask, as an SVG image the size of the box: the element's rect
- * grown by `spread` bands on every side, its corners rounded by the same
- * amount, and the whole shape Gaussian-blurred by half a band, which centres
- * its ramp on the shape's own edge. The rect's alpha is the mask.
+ * One layer's mask: the element's rect grown by `spread` bands, rounded, and
+ * Gaussian-blurred by half a band to centre the ramp on its edge.
  *
- * A whole number of bands of spread, and none at all for the strongest layer,
- * so the shape ends on the element's edge with nothing held past it — a shadow
- * with no spread rather than a plate around the element, leaving only the
- * falloff to show.
- *
- * An image rather than a gradient because a gradient ramps along one axis
- * only: two of them multiplied round the fade at the corners but leave the
- * opaque plateau inside a sharp-cornered rectangle, so the blur field reads
- * as a box at every level. A blurred rounded rect is round the whole way out.
- *
- * The filter region is the box rather than the rect, so the ramp is never
- * clipped to the shape it came from.
+ * An image, not a gradient, because multiplied gradients round the corners
+ * but leave a sharp-cornered plateau, so the field reads as a box throughout.
  */
 function layerMask(
   { geometry, bands, meanX, meanY }: BlurRamp,
@@ -101,13 +84,8 @@ function layerMask(
 
 /**
  * The stack of blurred layers, weakest first, as the `backdrop-filter` and
- * `mask-image` each one carries. Every layer's mask is a blurred rounded rect
- * around the floating element's own rect, its ramp centred where that layer
- * sits along the reach — so the blur radiates out of the element on every
- * side, stays round at every level, and shows only its falloff.
- *
- * Unmeasured, every layer masks to `none` — a uniform blur across the whole
- * box, which is what the server renders and what the first paint shows.
+ * `mask-image` each one carries. Unmeasured, every layer masks to `none` — the
+ * uniform blur across the whole box that the server renders.
  *
  * @internal
  */
@@ -119,8 +97,8 @@ export function buildBlurLayers({
   const ramp = geometry === null ? null : rampAround(geometry);
   return blurLayerSteps(radius, isShown).map(({ filter, holdBands }) => ({
     filter,
-    // Whole bands of spread: the strongest layer takes none, so its ramp is
-    // centred on the element's edge and no full blur is held outside it.
+    // Whole bands of spread: the strongest layer takes none, so its ramp
+    // centres on the element's edge with no full blur held outside it.
     mask: ramp === null ? "none" : layerMask(ramp, holdBands),
   }));
 }

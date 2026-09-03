@@ -12,16 +12,9 @@ const enterKeyframes = stylex.keyframes({
 
 /**
  * The floating-surface skin shared by every popup that hangs off an anchor —
- * `Popover` today, a `Tooltip` and `MenuButton`'s popup next. Overlay
- * background, hairline ring, and radius only: padding and clipping stay with
- * the component, so a menu can run its items edge to edge and a tooltip can
- * let an arrow escape the box.
- *
- * The surface separates itself with its background and its border, and casts
- * no shadow — a floating element is set apart by the page blurring around it.
- *
- * `enter` is an entrance only — a popup that unmounts on close has nothing left
- * to animate out — and collapses to an instant appearance under reduced motion.
+ * background, hairline ring, and radius only, leaving padding and clipping to
+ * the component. It casts no shadow: the page blurring around it is what
+ * sets a floating element apart.
  */
 export const popoverSurface = stylex.create({
   base: {

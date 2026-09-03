@@ -7,10 +7,8 @@ import type { StyleProp } from "../style-prop.ts";
 import { space } from "../tokens.stylex.ts";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
-// How far the page blurs past a group, and how strongly against it. A small
-// radius, because a group is a handful of controls rather than a panel — but a
-// long run-out relative to a control that is 40px tall, so the page reads as
-// losing focus around the controls rather than wearing a ring.
+// Small radius, since a group is a handful of controls, not a panel; a long
+// reach keeps the page reading as losing focus, not wearing a ring.
 const CONTROL_BLUR_REACH_PX = 64;
 const CONTROL_BLUR_RADIUS_PX = 8;
 
@@ -25,13 +23,11 @@ interface ControlGroupBlurProps {
 
 /**
  * The page blurred around one group of floating controls, at the reach and
- * radius every such group shares — so a header group and a sticky filter bar
- * blur the page the same way rather than each picking a number. The controls
- * sit in a row the same 4px apart, whichever group they belong to.
+ * radius every such group shares, so a header group and a sticky filter bar
+ * blur the page the same way.
  *
- * The blur is painted on the page's Blur plane whenever there is one, under
- * every control on the page, so one group's blur never lands on another
- * group's controls.
+ * Painted on the page's Blur plane whenever there is one, under every
+ * control, so one group's blur never lands on another's controls.
  *
  * @internal
  */

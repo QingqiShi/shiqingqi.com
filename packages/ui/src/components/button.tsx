@@ -26,9 +26,8 @@ interface ButtonBaseProps extends Omit<
 > {
   /**
    * Lifts the button onto a bright surface, brightening further on hover.
-   *
-   * It paints its own fill, so it overrides whatever `variant` set — pairing it
-   * with `outline` or `ghost` cancels the very chrome those drop. Pick one.
+   * Overrides `variant`'s fill, so pairing it with `outline` or `ghost`
+   * cancels their chrome.
    */
   bright?: boolean;
   /** Below the `md` breakpoint, collapses to the icon and hides the label. */
@@ -36,15 +35,14 @@ interface ButtonBaseProps extends Omit<
   /** Decorative leading icon. Rendered `aria-hidden`; never the accessible name. */
   icon?: ReactNode;
   /**
-   * Height scale via `controlSize`. Defaults to `"md"` (the app's standard
-   * control height). `"lg"` is for prominent CTAs; `"sm"` best suits
-   * pointer-dense desktop toolbars — like the `controlSize` scale, every size
-   * renders taller below the `md` breakpoint, but `"sm"` still falls short of
-   * the 44px WCAG 2.5.8 touch target.
+   * Height scale via `controlSize`. Defaults to `"md"`.
+   *
+   * `"sm"` still falls short of the 44px WCAG 2.5.8 touch target, even though
+   * every size grows on touch viewports.
    */
   size?: ButtonSize;
   /**
-   * Toggles the active highlight AND emits `aria-pressed` — use for toggle
+   * Toggles the active highlight and emits `aria-pressed` — use for toggle
    * buttons. For a non-toggle CTA that only wants the highlight, use
    * `variant="primary"`.
    */
@@ -52,26 +50,13 @@ interface ButtonBaseProps extends Omit<
   /**
    * Visual variant. Omit for the default raised surface button.
    *
-   * - `"primary"` applies the same active highlight style but does NOT emit
-   *   `aria-pressed` — use it for one-shot CTAs, not toggles.
-   * - `"outline"` drops the fill and shadow for a hairline border, for a
-   *   secondary action sitting beside a primary one.
-   * - `"ghost"` drops the chrome entirely, for dense toolbars and inline
-   *   affordances where a full button would shout.
-   * - `"danger"` fills with the danger intent, for destructive confirmations.
-   *   Reserve it for the action that actually destroys something.
+   * `"primary"` shares `isActive`'s highlight but does not emit
+   * `aria-pressed` — reserve toggles for `isActive` instead.
    */
   variant?: ButtonVariant;
   /**
-   * Marks the button busy: swaps the icon for a spinner, announces `aria-busy`,
-   * and blocks activation so the action can't be fired twice. The block is
-   * `aria-disabled` plus a click guard rather than the native `disabled`
-   * attribute — a natively disabled button drops out of the tab order, which
-   * would throw focus to the document the instant the user activated it and
-   * leave the `aria-busy` change unannounced.
-   *
-   * Keep the label as it is — a button that changes width mid-submit shifts
-   * everything around it.
+   * Shows a spinner, sets `aria-busy`, and blocks activation. Uses `aria-disabled`,
+   * not `disabled`, so the button keeps focus and the busy state is announced.
    */
   loading?: boolean;
   /** Id applied to the label span, e.g. to wire an external `aria-labelledby`. */
@@ -115,31 +100,23 @@ export function Button({
   ...restProps
 }: ButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
-  // Keep the internal ref (used by the press-animation hook) and also forward
-  // to a caller-supplied ref, which `extends ComponentProps<"button">` allows.
   const setButtonRef = mergeRefs(buttonRef, forwardedRef);
 
   const isLoading = loading === true;
-  // Inert either way as far as the press animation goes — neither a disabled
-  // nor a busy button should animate a press. Only `disabled` reaches the DOM
-  // attribute; see the `loading` prop docs for why busy stays focusable.
+  // Only `disabled` reaches the DOM attribute; a busy button stays focusable,
+  // so the press animation treats both as inert.
   const isInert = disabled === true || isLoading;
-  // Truthiness rather than a null check, so the `icon={count && <Icon />}` idiom
-  // still renders nothing when `count` is `0` — `0` is a valid ReactNode and
-  // would otherwise paint a stray icon.
+  // Truthiness, not a null check, so `icon={count && <Icon />}` renders
+  // nothing when `count` is `0` instead of a stray icon.
   const hasIcon = !!icon;
-  // Two ways to show the spinner, both of which leave the button exactly as wide
-  // as it was. With an icon it takes the icon's place. Without one there is no
-  // icon box to borrow, and adding one would widen the button by the box plus
-  // its gap — so the spinner is laid over the label instead, and the label is
-  // hidden with `visibility` so it goes on reserving its width.
+  // With an icon, the spinner takes its place. Without one, it overlays the
+  // label (kept in the layout via `visibility`) so the button's width holds.
   const swapsIconForSpinner = isLoading && hasIcon;
   const overlaysSpinner = isLoading && !hasIcon;
 
-  // `aria-disabled` is advisory: it stops nothing on its own. Pointer events are
-  // off while busy (see `styles.busy`), but a focused button still fires a click
-  // from Enter or Space, so activation has to be blocked here as well — else a
-  // busy submit button would still submit its form.
+  // `aria-disabled` alone stops nothing: pointer events are off while busy,
+  // but Enter/Space still fires a click on a focused button. This blocks
+  // activation here too.
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
     if (isLoading) {
       event.preventDefault();
@@ -149,8 +126,7 @@ export function Button({
     onClick?.(event);
   }
 
-  // Keyboard events reach a busy button too, and `pointerEvents` can't stop
-  // them. A caller's handler must not run while the action is in flight.
+  // Keyboard events reach a busy button too, and `pointerEvents` can't stop them.
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (isLoading) return;
     onKeyDown?.(event);
@@ -173,9 +149,9 @@ export function Button({
       ref={setButtonRef}
       type={type}
       disabled={disabled}
-      // Both fall back to the caller's own value rather than `undefined`: these
-      // are written after `{...restProps}`, so hard-coding `undefined` would
-      // strip an `aria-busy` a caller set themselves.
+      // Falls back to the caller's value, not `undefined`, since these are
+      // set after `{...restProps}` and would otherwise strip a caller-set
+      // `aria-busy`/`aria-disabled`.
       aria-disabled={isLoading ? true : ariaDisabled}
       aria-busy={isLoading ? true : ariaBusy}
       css={[
@@ -192,11 +168,9 @@ export function Button({
             ? sharedStyles.hasIconHideLabelBelowMd
             : sharedStyles.hasIcon),
         bright && sharedStyles.bright,
-        // `variantStyles` re-points tokens, but `active` and `bright` set a
-        // literal `backgroundColor` that wins over them. `danger` is the one
-        // clash that matters — a destructive button repainted brand-accent the
-        // moment it toggles on stops reading as destructive — so it keeps its
-        // own fill and `isActive` shows through `aria-pressed` alone.
+        // `active` and `bright` set a literal `backgroundColor` that wins over
+        // `variantStyles`. `danger` keeps its own fill instead, so a
+        // destructive button doesn't repaint brand-accent when toggled on.
         (isActive === true || variant === "primary") &&
           variant !== "danger" &&
           sharedStyles.active,
@@ -211,10 +185,9 @@ export function Button({
     >
       {hasIcon && (
         <span css={sharedStyles.icon} aria-hidden>
-          {/* Decorative: `aria-busy` on the button already announces the state,
-              so a labelled spinner would say it twice. `size="inline"` is the
-              `1em` step, so the spinner occupies exactly the box the icon it
-              replaces did and the button can't change width mid-submit. */}
+          {/* `aria-busy` on the button already announces the state, so a
+              labelled spinner would say it twice. `size="inline"` matches the
+              icon box it replaces, keeping the button's width fixed. */}
           {swapsIconForSpinner ? <Spinner size="inline" aria-hidden /> : icon}
         </span>
       )}
@@ -241,20 +214,18 @@ export function Button({
 
 const styles = stylex.create({
   button: {
-    // Anchors the busy spinner overlay, which has to sit outside the flow so it
-    // doesn't change the button's width.
+    // Anchors the busy spinner overlay outside the flow, so it doesn't change
+    // the button's width.
     position: "relative",
-    // Button-specific resets
     borderWidth: 0,
     borderStyle: "none",
     appearance: "none",
     fontSize: font.uiControl,
     fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-
-    // Button-specific styles. Height flows through the shared `buttonTokens`
-    // knob, which the `size` variants below set (and a container such as
-    // AnchorButtonGroup can likewise override to shrink grouped buttons).
+    // Height flows through `buttonTokens.height`, which `size` below sets and
+    // a container like AnchorButtonGroup can override to shrink grouped
+    // buttons.
     minHeight: buttonTokens.height,
     color: buttonTokens.color,
     backgroundColor: {
@@ -267,22 +238,15 @@ const styles = stylex.create({
       ":disabled": opacity.disabled,
     },
   },
-  // A busy button stays natively enabled so it can keep focus, which means none
-  // of the `:disabled` rules above fire — the dimming has to be applied
-  // directly, and `pointerEvents` stands in for what `disabled` did to the
-  // pointer: no hover lift on a control that can't be used, and no click,
-  // mousedown, dblclick or pointerdown reaching a caller's handler. Keyboard
-  // events still arrive, so the component guards those in JS. There is no
-  // `cursor: not-allowed` because a `pointer-events: none` element never gets
-  // to set the cursor — the arrow it falls back to is what a natively disabled
-  // button shows anyway.
+  // A busy button stays enabled, so the `:disabled` rules above never fire.
+  // `pointerEvents: none` blocks the pointer instead, and happens to match
+  // its cursor; `handleClick`/`handleKeyDown` guard keyboard activation.
   busy: {
     opacity: opacity.disabled,
     pointerEvents: "none",
   },
-  // Keeps the label's box, and so the button's width, while the spinner sits on
-  // top of it. `visibility` rather than `opacity` so the text is out of the
-  // accessibility tree too — `aria-busy` is what should be announced.
+  // `visibility`, not `opacity`, so the label also leaves the accessibility
+  // tree — `aria-busy` is what should be announced.
   labelHidden: {
     visibility: "hidden",
   },
@@ -298,13 +262,10 @@ const styles = stylex.create({
   },
 });
 
-// Each variant re-points the shared `buttonTokens` knobs rather than declaring
-// its own colours, so the skin travels to anything else reading them (the app's
-// anchor button, a grouped cluster) exactly as the defaults do.
-//
-// `"primary"` is deliberately absent: it reuses `sharedStyles.active`, the same
-// highlight `isActive` paints, so a toggle in its on state and a primary CTA
-// cannot drift apart.
+// Each variant re-points the shared `buttonTokens` knobs instead of declaring
+// its own colours, so the skin travels to anything else reading them.
+// `"primary"` is absent because it reuses `sharedStyles.active`, the same
+// highlight `isActive` paints.
 const variantStyles = stylex.create({
   outline: {
     [buttonTokens.backgroundColor]: "transparent",
@@ -332,10 +293,9 @@ const variantStyles = stylex.create({
   },
 });
 
-// Each size drives the shared `buttonTokens.height` knob (read by
-// `styles.button.minHeight`) and scales the label size and padding to match.
-// `md` reproduces the historic default, so callsites that omit `size` are
-// pixel-identical. Padding/gap here override the `sharedStyles.base` values.
+// Each size drives `buttonTokens.height` and scales label size and padding to
+// match. `md` reproduces the historic default, so callers that omit `size`
+// are unaffected.
 const sizeStyles = stylex.create({
   sm: {
     [buttonTokens.height]: controlSize._8,

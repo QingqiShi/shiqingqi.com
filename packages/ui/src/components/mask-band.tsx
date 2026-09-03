@@ -21,18 +21,10 @@ interface MaskBandProps {
 
 /**
  * One Scroll mask band: the stack of blurred layers that sits over a scroll
- * region's edge and blurs the content passing beneath it. The caller places
- * the band and sizes it to how far the blur reaches, because the ramp always
- * spans the whole band — an edge of a scroller, or a chrome slot plus the
- * reach past it.
- *
- * The band and its layers take the region's two corners on their edge by
- * inheritance, so a rounded region needs no clip above them. The caller keeps
- * the region's corners on the band's parent, and lets nothing between the
- * region and the band set corners of its own.
- *
- * Split out of `ScrollMask`, its one consumer, so every edge and slot melts
- * the same way.
+ * region's edge and blurs the content passing beneath it. The caller sizes the
+ * band to how far the blur reaches, because the ramp always spans the whole
+ * band, and keeps the region's corners on the band's parent, because the band
+ * and its layers take them by inheritance.
  *
  * @internal
  */
@@ -65,13 +57,10 @@ const styles = stylex.create({
   hidden: {
     visibility: "hidden",
   },
-  // An edge shows and hides by melting its radius, never by animating opacity:
-  // opacity below 1 on an ancestor makes that ancestor a backdrop root,
-  // cutting the page off from the filters beneath it, so animating opacity
-  // would drop the blur for the whole duration. The same trap rules out ever
-  // wrapping these layers in anything carrying opacity, a filter, or a mask.
-  // `visibility` transitions rather than flipping, so the layers stay visible
-  // until the melt ends and the compositor stops paying afterwards.
+  // Show/hide melts the radius, not opacity: opacity below 1 makes an
+  // ancestor a backdrop root, blocking the filters beneath it. Visibility
+  // transitions instead of flipping, so layers stay visible until the melt
+  // ends.
   layer: {
     position: "absolute",
     inset: 0,
@@ -83,10 +72,8 @@ const styles = stylex.create({
   },
 });
 
-// The layers inherit the region's two outer corners on their edge, through
-// the band, and clip their own backdrop to them, so no ancestor has to clip
-// them. None may with a squircle: Chromium drops the mask of a backdrop-filter
-// descendant under a squircle overflow clip. The two inner corners stay square.
+// Chromium drops the mask on a backdrop-filter descendant under a squircle
+// overflow clip, so no ancestor here may use one.
 const corners = stylex.create({
   blockStart: {
     borderStartStartRadius: "inherit",
@@ -114,8 +101,6 @@ const corners = stylex.create({
   },
 });
 
-// The ramp's `linear-gradient` direction runs from the edge inward, so the
-// strongest layer sits against the edge.
 const edges: Record<MaskBandEdge, { direction: string; corners: StyleProp }> = {
   "block-start": { direction: "to bottom", corners: corners.blockStart },
   "block-end": { direction: "to top", corners: corners.blockEnd },
@@ -123,8 +108,6 @@ const edges: Record<MaskBandEdge, { direction: string; corners: StyleProp }> = {
   "inline-end": { direction: "to left", corners: corners.inlineEnd },
 };
 
-// The ramp is computed per layer, so it composes as a dynamic style rather
-// than an inline `style` attribute.
 const dynamicStyles = stylex.create({
   layer: (filter: string, mask: string) => ({
     backdropFilter: filter,

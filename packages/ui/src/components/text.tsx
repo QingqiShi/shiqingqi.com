@@ -30,15 +30,14 @@ interface TextProps {
   /** Text alignment (logical `start` / `center` / `end`). */
   align?: TextAlign;
   /**
-   * How lines break. `"pretty"` is the one to reach for on body copy — it
-   * spends a little layout time to avoid a one-word last line. `"balance"`
-   * evens every line instead, which suits short standalone copy but is capped
-   * by the browser at a handful of lines. `"nowrap"` keeps the run on one line.
+   * How lines break: `"pretty"` for body copy, `"balance"` for short
+   * standalone copy (a few lines at most), `"nowrap"` to keep the run on one
+   * line.
    */
   wrap?: TextWrap;
   /**
    * Renders figures at a fixed width so numbers line up in a column and a
-   * ticking value doesn't jitter. For times, counts, prices, and durations.
+   * ticking value doesn't jitter.
    */
   numeric?: boolean;
   /**
@@ -55,8 +54,7 @@ interface TextProps {
 
 /**
  * Body-copy typography primitive. Picks the semantic element via `as` and the
- * type step via `variant`, keeping the two decoupled so a `<span>` can still
- * read at body size. Forwards `ref` for escape-hatch composition.
+ * type step via `variant`, so a `<span>` can still read at body size.
  */
 export function Text({
   as = "p",
@@ -87,11 +85,10 @@ export function Text({
     css,
   ];
 
-  // A single callback ref forwards to the caller regardless of which element is
-  // rendered; the three elements share `HTMLElement` but not a concrete ref type.
-  // `mergeRefs` returns `undefined` when no ref is passed, so nothing is
-  // attached during a Server Component render (attaching any ref there is
-  // illegal).
+  // Merges into one callback ref, since the three elements share `HTMLElement`
+  // but not a concrete ref type. `mergeRefs` returns `undefined` with no ref,
+  // so nothing attaches during a Server Component render, where any ref is
+  // illegal.
   const setRef = mergeRefs(ref);
 
   switch (as) {
@@ -120,8 +117,8 @@ const styles = stylex.create({
   base: {
     margin: 0,
   },
-  // `tabular-nums` alone: lining figures are already Inter's default, so asking
-  // for both would pin a preference the type family doesn't need.
+  // `tabular-nums` alone: Inter already lines figures by default, so pinning
+  // that too would be redundant.
   numeric: {
     fontVariantNumeric: "tabular-nums",
   },

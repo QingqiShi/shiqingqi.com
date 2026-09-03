@@ -21,8 +21,8 @@ interface ChipBaseProps {
   size?: ChipSize;
   /**
    * Paints the chip as the selected one. On the button form this also emits
-   * `aria-pressed`; the anchor form is visual only, since a link is not a
-   * toggle — mark the current one with `aria-current` yourself.
+   * `aria-pressed`; on the anchor form it's visual only — mark the current
+   * link with `aria-current` yourself.
    */
   isActive?: boolean;
   /** StyleX styles merged over the chip's own — composed last so a caller wins. */
@@ -47,18 +47,9 @@ type ChipProps = ChipBaseProps &
   );
 
 /**
- * A compact interactive pill: a rounded, bordered control that hovers, focuses,
- * and can read as selected. Renders an `<a>` when `href` is set and a
- * `<button>` otherwise, so it is always reachable by keyboard and announced
- * with the right role.
- *
- * Distinct from `Badge`, which is an inert `<span>` that labels or reports
- * status. If it can be clicked it is a Chip; if it only says something about
- * its neighbour it is a Badge.
- *
- * For a chip that must be a framework `<Link>`, compose `chipSurface` and
- * `chipSize` from `@tuja/ui/components/chip.stylex` directly — the package
- * intentionally stays framework-agnostic.
+ * A compact interactive pill: an `<a>` when `href` is set, a `<button>`
+ * otherwise. For a framework `<Link>`, compose `chipSurface`/`chipSize` from
+ * `@tuja/ui/components/chip.stylex` directly instead.
  */
 export function Chip(props: ChipProps) {
   const { children, icon, trailing, size = "md", isActive, css } = props;
@@ -90,11 +81,9 @@ export function Chip(props: ChipProps) {
     </>
   );
 
-  // Narrowed before destructuring so each branch's rest object carries only the
-  // attributes its element accepts. `css` is pulled out rather than left to
-  // travel through the rest spread, so it can be recombined with the chip's own
-  // styles below instead of leaking onto the DOM as a raw prop. The unused
-  // names are rest siblings, which the lint config ignores.
+  // Narrowed before destructuring, so each branch keeps only the attributes
+  // its element accepts. The unused names are rest siblings the lint config
+  // ignores.
   if (props.href !== undefined) {
     const {
       children: _children,
@@ -141,16 +130,14 @@ const styles = stylex.create({
     blockSize: "1em",
     color: "currentColor",
   },
-  // De-emphasised with a token rather than an opacity blend: `trailing` is
-  // announced content, and dimming it on the active chip — where `accentOn` on
-  // `accent` is already engineered to only just clear 4.5:1 — would drop it
-  // through the WCAG 1.4.3 floor.
+  // A token, not an opacity blend: dimming `accentOn` further on the active
+  // chip would drop it below the WCAG 1.4.3 contrast floor.
   trailing: {
     flexShrink: 0,
     color: color.textMuted,
   },
-  // On the active fill the muted token has nothing to be muted against, so the
-  // trailing content takes the same `accentOn` as the label.
+  // On the active fill there's nothing to mute against, so trailing takes the
+  // same `accentOn` as the label.
   trailingActive: {
     color: "inherit",
   },

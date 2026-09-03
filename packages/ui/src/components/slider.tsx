@@ -26,8 +26,7 @@ import { sliderTokens } from "./slider.stylex.ts";
 
 type SliderSize = "sm" | "md" | "lg";
 
-// `size` is the design system's scale, not the native character-width attribute.
-// The rest are dropped so the numeric API below replaces their string forms.
+// The design system's `size` scale replaces the native character-width attribute of the same name.
 interface SliderOwnProps extends Omit<
   ComponentProps<"input">,
   | "type"
@@ -48,18 +47,11 @@ interface SliderOwnProps extends Omit<
    * hidden via {@link SliderProps.labelHidden}.
    */
   label: string;
-  /**
-   * Visually hide the label (kept in the accessibility tree via `sr-only`). Use
-   * when an adjacent visual cue already names the control.
-   */
+  /** Visually hide the label (kept in the accessibility tree via `sr-only`). */
   labelHidden?: boolean;
   /** Helper text rendered under the label and wired via `aria-describedby`. */
   description?: string;
-  /**
-   * Error message. When set, the track turns danger-coloured, `aria-invalid` is
-   * set, and the message renders with `role="alert"` and is appended to
-   * `aria-describedby`.
-   */
+  /** Error message. Renders with `role="alert"` and marks the field invalid. */
   error?: string;
   /**
    * Live value display rendered opposite the label. Formatting is the
@@ -74,8 +66,7 @@ interface SliderOwnProps extends Omit<
   step?: number;
   /**
    * Fires once when an interaction that moved the value ends — pointer release,
-   * key release, or losing focus mid-gesture. Drive expensive recomputation
-   * from this rather than from `onChange`.
+   * key release, or losing focus mid-gesture.
    */
   onCommit?: (value: number) => void;
   /** Track and thumb scale. Defaults to `"md"`. */
@@ -85,9 +76,8 @@ interface SliderOwnProps extends Omit<
 }
 
 /**
- * A controlled slider whose parent never hears about the move is a dead
- * control: `useControlled` hands back a no-op setter while `value` is supplied,
- * so without `onChange` the thumb springs back the moment it is released.
+ * A controlled value without `onChange` is a dead control: `useControlled`
+ * returns a no-op setter, so the thumb springs back the moment it is released.
  */
 type SliderValueProps =
   | {
@@ -108,13 +98,9 @@ type SliderValueProps =
 type SliderProps = SliderOwnProps & SliderValueProps;
 
 /**
- * Single-value slider built on a native `<input type="range">` restyled with
- * `appearance: none`, so keyboard stepping (arrows, Home/End, PageUp/PageDown),
- * focus, and value announcement come from the platform. Works controlled or
- * uncontrolled, and carries the same label / description / error contract as
- * the other fields.
- *
- * `onChange` streams every move; `onCommit` fires once per interaction.
+ * Single-value slider built on a native `<input type="range">`, so keyboard
+ * stepping, focus, and value announcement come from the platform. `onChange`
+ * streams every move; `onCommit` fires once per interaction.
  */
 export function Slider({
   label,
@@ -147,8 +133,6 @@ export function Slider({
     defaultValue: defaultValue ?? min,
   });
 
-  // Holds the value of the in-flight interaction, so a commit reports what the
-  // last move produced and fires only when something actually moved.
   const pendingCommitRef = useRef<number | null>(null);
 
   const {
@@ -204,8 +188,8 @@ export function Slider({
         disabled={disabled}
         aria-invalid={resolvedAriaInvalid}
         aria-describedby={describedBy}
-        // The input itself is invisible; `corner.radius_round` only shapes the
-        // focus ring around the pill track.
+        // The input is invisible; `corner.radius_round` only shapes the focus
+        // ring around the track.
         css={[
           a11y.focusRing,
           corner.radius_round,
@@ -247,8 +231,6 @@ export function Slider({
   );
 }
 
-// The filled portion runs to `sliderTokens.fill`; the remainder falls through to
-// the track's own background colour.
 const ACCENT_FILL = `linear-gradient(to right, ${color.accent} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
 const DANGER_FILL = `linear-gradient(to right, ${color.danger} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
 const DISABLED_FILL = `linear-gradient(to right, ${color.neutral} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
@@ -284,9 +266,8 @@ const styles = stylex.create({
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
       cornerShape: "round",
-      // Matches Progress's track. `surfaceNeutralSubtle` is a surface tint, and
-      // against a raised card in dark theme it lands at 1.04:1 — the unfilled
-      // remainder disappears, taking the slider's range with it.
+      // Matches Progress's track. `surfaceNeutralSubtle` hits only 1.04:1
+      // against a raised card in dark theme, hiding the unfilled remainder.
       backgroundColor: color.neutralBorder,
       backgroundImage: ACCENT_FILL,
     },
@@ -294,9 +275,8 @@ const styles = stylex.create({
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
       cornerShape: "round",
-      // Matches Progress's track. `surfaceNeutralSubtle` is a surface tint, and
-      // against a raised card in dark theme it lands at 1.04:1 — the unfilled
-      // remainder disappears, taking the slider's range with it.
+      // Matches Progress's track. `surfaceNeutralSubtle` hits only 1.04:1
+      // against a raised card in dark theme, hiding the unfilled remainder.
       backgroundColor: color.neutralBorder,
       backgroundImage: ACCENT_FILL,
     },

@@ -18,12 +18,8 @@ function bandStop(bands: number) {
 
 /**
  * The stack of blurred layers for one edge of a scroll region, weakest first.
- * The ramp runs along a single axis rather than radiating from a rect, so a
- * plain gradient says all of it and no layer needs a shape.
- *
- * The stops are percentages because the caller sizes the band to exactly how
- * far the blur reaches: the ramp is always the full depth of the element it
- * masks, whatever CSS length that works out to.
+ * The stops are percentages, because the caller sizes the band to exactly how
+ * far the blur reaches.
  *
  * @internal
  */

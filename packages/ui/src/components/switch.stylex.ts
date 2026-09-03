@@ -6,8 +6,8 @@ export const switchTokens = stylex.defineVars({
   thumbPosition: "0",
   thumbShadow: "none",
   thumbTransitionDuration: duration._200,
-  // The track height, and thus the whole switch's scale — width follows via the
-  // 2:1 aspect ratio and the thumb is derived from it. The `size` variants set
-  // this per size; `controlSize._9` is the historic (md) default.
+  // Track height sets the switch's scale; width follows the 2:1 ratio, and the
+  // thumb derives from it. `size` variants set this value — `controlSize._9`
+  // is the historic `md` default.
   trackHeight: controlSize._9,
 });

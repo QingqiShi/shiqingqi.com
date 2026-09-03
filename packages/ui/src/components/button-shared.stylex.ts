@@ -9,9 +9,9 @@ import { color, constants, controlSize } from "../tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
-// Press/release transitions built from the motion scale. The compound
-// transform+filter transition can't be a plain `transition.*` preset, but its
-// numbers come from the shared duration/easing tokens so it tracks the scale.
+// Can't use a `transition.*` preset for a compound transform+filter
+// transition; the durations and easings still come from the shared motion
+// tokens, so it tracks the scale.
 const pressTransition = `background ${duration._200} ${easing.ease}, transform ${duration._150} ${easing.easeOut}, filter ${duration._150} ${easing.easeOut}`;
 const releaseTransition = `background ${duration._200} ${easing.ease}, transform ${duration._300} ${easing.easeOut}, filter ${duration._300} ${easing.easeOut}`;
 const reducedTransition = `background ${duration._200} ${easing.ease}`;
@@ -39,14 +39,11 @@ export const sharedStyles = stylex.create({
       default: buttonTokens.backgroundColor,
       ":hover": buttonTokens.backgroundColorHover,
     },
-    // Base transform for pressed state
     transform: "scale(1) translate(0, 0)",
     filter: "brightness(1)",
-    // Touch action to prevent browser gestures from interfering
     touchAction: "manipulation",
-    // The keyboard focus ring (WCAG 2.4.7) is composed at the component via the
-    // shared `a11y.focusRing` primitive, so Button, IconButton, and the app's
-    // anchor button all paint one identical indicator.
+    // The focus ring (WCAG 2.4.7) is composed at the call site via
+    // `a11y.focusRing`, so every button variant shares one indicator.
   },
   hasIcon: {
     paddingInlineStart: controlSize._2,

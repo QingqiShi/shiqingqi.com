@@ -19,10 +19,8 @@ import {
 import { mergeRefs } from "../utils/merge-refs.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 
-// Centred icons painted as the box background once `:checked` / `:indeterminate`
-// match. Drawn in `white` — which is `accentOn` in both themes — so they read on
-// the accent fill without a theme-specific asset. Spaces/angle-brackets are
-// percent-encoded so the data URI survives CSS parsing.
+// `white` equals `accentOn` in both themes, so one asset works for both.
+// Percent-encode spaces and brackets so the data URI survives CSS parsing.
 const CHECK_ICON =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%208.5l3%203%205-6'%20fill='none'%20stroke='white'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E";
 const DASH_ICON =
@@ -63,12 +61,9 @@ interface CheckboxProps extends Omit<
 }
 
 /**
- * A labelled checkbox built on a native `<input type="checkbox">`, so keyboard
- * activation, focus, and label association come for free. The native box is
- * restyled in place (`appearance: none`) rather than hidden behind a proxy, and
- * forwards native input props (`checked`, `defaultChecked`, `onChange`, `name`,
- * `disabled`, `ref`, …). Supports a tri-state `indeterminate` dash and an
- * inline `error` message.
+ * A labelled checkbox built on a native `<input type="checkbox">`, restyled in
+ * place (`appearance: none`) rather than hidden behind a proxy element.
+ * Forwards native input props, and supports a tri-state `indeterminate` dash.
  */
 export function Checkbox({
   label,
@@ -87,8 +82,7 @@ export function Checkbox({
   const inputRef = useRef<HTMLInputElement>(null);
   const setInputRef = mergeRefs(inputRef, forwardedRef);
 
-  // `indeterminate` is a DOM property with no HTML attribute, so it can only be
-  // set imperatively. Keep it in sync with the prop.
+  // No HTML attribute exists for `indeterminate`, so set it imperatively.
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.indeterminate = indeterminate ?? false;
@@ -197,9 +191,8 @@ const styles = stylex.create({
       ":checked": color.danger,
       ":indeterminate": color.danger,
     },
-    // Recolour the shared focus ring to danger in the error state, matching
-    // TextField/Textarea/Select's invalid treatment (composed after
-    // `a11y.focusRing`, so it wins).
+    // Recolours the shared focus ring to danger, matching
+    // TextField/Textarea/Select; composed after `a11y.focusRing`, so it wins.
     outlineColor: { default: "transparent", ":focus-visible": color.danger },
   },
   labelText: {

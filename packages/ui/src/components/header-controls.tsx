@@ -19,16 +19,11 @@ interface HeaderControlsProps {
 
 /**
  * One floating group of a page shell's header controls: a fixed strip at the
- * top of the viewport, with the page blurred around it — strongest against the
- * controls, sharp again a little way out. It melts away while the page rests
- * at the top, where nothing has scrolled beneath the controls yet, so a hero
- * bleeds to the top edge untouched.
+ * top of the viewport, with the page blurred around it while scrolled.
  *
- * A group per end of the measure rather than one bar across the top, because a
- * near-full-width fixed element at the top edge costs the browser's own
- * treatment of it — see "Progressive blur" in `CONTEXT.md`.
- *
- * Promote it when a second shell floats its chrome.
+ * A group sits per end of the measure rather than one bar across the top,
+ * because a near-full-width fixed element costs the browser's own
+ * treatment — see "Progressive blur" in `CONTEXT.md`.
  *
  * @internal
  */
@@ -43,10 +38,8 @@ export function HeaderControls({ children, css }: HeaderControlsProps) {
 }
 
 const styles = stylex.create({
-  // Fixed against the viewport, in a strip below the safe area as tall as the
-  // clearance a text page pads for. The blur's root is already
-  // pointer-transparent and its slot hands pointer events back to the
-  // controls, so the strip never blocks the page scrolling under it.
+  // The blur's root is already pointer-transparent, handing events back to
+  // the controls, so this strip never blocks page scrolling beneath it.
   floating: {
     position: "fixed",
     insetBlockStart: "env(safe-area-inset-top)",

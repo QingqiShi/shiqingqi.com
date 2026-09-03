@@ -4,21 +4,8 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import type { StyleProp } from "../style-prop.ts";
-import { border, color, font, layer, space } from "../tokens.stylex.ts";
+import { color, font, space } from "../tokens.stylex.ts";
 import { tableTokens } from "./table.stylex.ts";
-
-type TableCellAlign = "start" | "center" | "end";
-type TableHeaderScope = "col" | "row" | "colgroup" | "rowgroup";
-
-interface TableCellAlignment {
-  /** Text alignment. Defaults to `"start"`, or `"end"` when `numeric`. */
-  align?: TableCellAlign;
-  /**
-   * Renders figures at a fixed width and end-aligns the cell, so a column of
-   * numbers lines up digit for digit. Set it on the column's header too.
-   */
-  numeric?: boolean;
-}
 
 interface TableProps extends Omit<
   ComponentProps<"table">,
@@ -44,14 +31,9 @@ interface TableProps extends Omit<
 }
 
 /**
- * A static, semantic data table: a real `<table>` inside its own horizontally
- * scrolling region, so a wide table scrolls in its own box and the page never
- * scrolls sideways. Sorting, virtualisation, column resizing and selection are
- * deliberately absent — that is a data grid, and a different component.
- *
- * The region is keyboard-reachable (WCAG 2.1.1) and named by the caption.
- * `css` lands on the `<table>`, `containerCss` on the scroll container, and
- * native `<table>` attributes plus `ref` forward to the table itself.
+ * A static, semantic data table inside its own horizontally scrolling region;
+ * not a data grid, so sorting, virtualisation, resizing, and selection are
+ * absent. `css` lands on the `<table>`, `containerCss` on the scroll region.
  */
 export function Table({
   caption,
@@ -96,167 +78,20 @@ export function Table({
   );
 }
 
-/** The `<thead>` group. Sticks when the root sets `stickyHeader`. */
-export function TableHead({
-  css,
-  ref,
-  children,
-  ...restProps
-}: Omit<ComponentProps<"thead">, "className" | "style">) {
-  return (
-    <thead {...restProps} ref={ref} css={[styles.head, css]}>
-      {children}
-    </thead>
-  );
-}
-
-/** The `<tbody>` group holding the table's rows. */
-export function TableBody({
-  css,
-  ref,
-  children,
-  ...restProps
-}: Omit<ComponentProps<"tbody">, "className" | "style">) {
-  return (
-    <tbody {...restProps} ref={ref} css={css}>
-      {children}
-    </tbody>
-  );
-}
-
-/** The `<tfoot>` group, for totals and summary rows. */
-export function TableFoot({
-  css,
-  ref,
-  children,
-  ...restProps
-}: Omit<ComponentProps<"tfoot">, "className" | "style">) {
-  return (
-    <tfoot {...restProps} ref={ref} css={[styles.foot, css]}>
-      {children}
-    </tfoot>
-  );
-}
-
-interface TableRowProps extends Omit<
-  ComponentProps<"tr">,
-  "className" | "style"
-> {
-  /**
-   * Marks the row the visitor is on — the plan whose page they are reading,
-   * say. Carries `aria-current` alongside the tint and the heavier type, so
-   * the state never rests on colour alone. Pass `aria-current` yourself to
-   * announce it as something other than `"true"`.
-   */
-  current?: boolean;
-}
-
-/** One `<tr>`, seamed off the row above it. */
-export function TableRow({
-  current = false,
-  css,
-  ref,
-  children,
-  "aria-current": ariaCurrent,
-  ...restProps
-}: TableRowProps) {
-  return (
-    <tr
-      {...restProps}
-      ref={ref}
-      aria-current={ariaCurrent ?? (current ? "true" : undefined)}
-      css={[styles.row, current && styles.currentRow, css]}
-    >
-      {children}
-    </tr>
-  );
-}
-
-// The native `align` attribute on `<td>`/`<th>` is a deprecated presentational
-// one; the design system reuses the name for its logical alignment, so the
-// native one goes.
-interface TableHeaderCellProps
-  extends
-    Omit<ComponentProps<"th">, "align" | "scope" | "className" | "style">,
-    TableCellAlignment {
-  /**
-   * Which cells this header labels: `"col"` for a column header in the head,
-   * `"row"` for the label at the start of a body row. Required — a `<th>`
-   * without it leaves the association to browser guesswork.
-   */
-  scope: TableHeaderScope;
-}
-
-/** A `<th>`. Column headers read quiet, row headers read as the row's label. */
-export function TableHeaderCell({
-  scope,
-  align,
-  numeric = false,
-  css,
-  ref,
-  children,
-  ...restProps
-}: TableHeaderCellProps) {
-  const resolvedAlign = align ?? (numeric ? "end" : undefined);
-  const isRowHeader = scope === "row" || scope === "rowgroup";
-
-  return (
-    <th
-      {...restProps}
-      ref={ref}
-      scope={scope}
-      css={[
-        styles.cell,
-        isRowHeader ? styles.rowHeaderCell : styles.columnHeaderCell,
-        numeric && styles.numeric,
-        resolvedAlign ? alignStyles[resolvedAlign] : null,
-        css,
-      ]}
-    >
-      {children}
-    </th>
-  );
-}
-
-interface TableCellProps
-  extends
-    Omit<ComponentProps<"td">, "align" | "className" | "style">,
-    TableCellAlignment {}
-
-/** A `<td>` holding one value. */
-export function TableCell({
-  align,
-  numeric = false,
-  css,
-  ref,
-  children,
-  ...restProps
-}: TableCellProps) {
-  const resolvedAlign = align ?? (numeric ? "end" : undefined);
-
-  return (
-    <td
-      {...restProps}
-      ref={ref}
-      css={[
-        styles.cell,
-        numeric && styles.numeric,
-        resolvedAlign ? alignStyles[resolvedAlign] : null,
-        css,
-      ]}
-    >
-      {children}
-    </td>
-  );
-}
+export { TableHead } from "./table-head.tsx";
+export { TableBody } from "./table-body.tsx";
+export { TableFoot } from "./table-foot.tsx";
+export { TableRow } from "./table-row.tsx";
+export { TableHeaderCell } from "./table-header-cell.tsx";
+export { TableCell } from "./table-cell.tsx";
 
 const styles = stylex.create({
   container: {
     maxInlineSize: "100%",
     minInlineSize: 0,
   },
-  // Re-stated on every table, not left to the token defaults: a plain table
-  // nested inside a sticky-head one would otherwise inherit its head inset.
+  // Re-stated here, not left to the token default: a nested plain table would
+  // otherwise inherit the outer sticky table's head inset.
   table: {
     [tableTokens.headInset]: "auto",
     [tableTokens.headBackground]: "transparent",
@@ -275,71 +110,4 @@ const styles = stylex.create({
     textAlign: "start",
     color: color.textMuted,
   },
-  head: {
-    position: "sticky",
-    insetBlockStart: tableTokens.headInset,
-    zIndex: layer.content,
-    backgroundColor: tableTokens.headBackground,
-  },
-  foot: {
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
-  },
-  // Leading edge, so the last row of a group carries no trailing rule. `none`
-  // rather than a transparent colour on the first row: in the collapsed model a
-  // row outranks its group, so transparent would erase the group's own divide.
-  row: {
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: { default: "solid", ":first-child": "none" },
-    borderBlockStartColor: color.neutralBorder,
-  },
-  currentRow: {
-    backgroundColor: color.surfaceAccentSubtle,
-    fontWeight: font.weight_6,
-  },
-  cell: {
-    paddingBlock: space._2,
-    paddingInline: space._3,
-    textAlign: "start",
-    verticalAlign: "top",
-  },
-  // A shadow, not a border: in the collapsed model a browser drops a stuck
-  // sticky head's collapsed border wherever it is declared — thead, tr or th —
-  // so the head arrives over the scrolling rows with nothing under it. An inset
-  // shadow is painted normally and survives the stick. `forced-colors` drops
-  // shadows, so the border comes back there, where nothing is sticky-painted
-  // anyway.
-  columnHeaderCell: {
-    fontWeight: font.weight_6,
-    color: color.textMuted,
-    // `calc`, not a bare minus: the token is a `var()`, and `-var(…)` is not a
-    // length — the whole declaration parses as invalid and is dropped.
-    boxShadow: `inset 0 calc(-1 * ${border.size_1}) 0 ${color.neutralBorder}`,
-    borderBlockEndWidth: {
-      default: null,
-      "@media (forced-colors: active)": border.size_1,
-    },
-    borderBlockEndStyle: {
-      default: null,
-      "@media (forced-colors: active)": "solid",
-    },
-    borderBlockEndColor: {
-      default: null,
-      "@media (forced-colors: active)": color.neutralBorder,
-    },
-  },
-  rowHeaderCell: {
-    fontWeight: font.weight_6,
-    color: color.textMain,
-  },
-  numeric: {
-    fontVariantNumeric: "tabular-nums",
-  },
-});
-
-const alignStyles = stylex.create({
-  start: { textAlign: "start" },
-  center: { textAlign: "center" },
-  end: { textAlign: "end" },
 });

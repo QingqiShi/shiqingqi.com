@@ -2,17 +2,10 @@ import * as stylex from "@stylexjs/stylex";
 import { border, color, font } from "../tokens.stylex.ts";
 
 /**
- * The selectable-card skin, exposed as composable StyleX so a consumer can put
- * the same surface on an element `OptionCard` can't be. Compose it over
- * `cardSurface.base` + `cardSurface.interactive` from `card.stylex`, which
- * already carry the border, radius, hover, and focus ring — this only adds the
- * parts that make a card an option: a full-width button box and the selected /
- * disabled states.
- *
- * `selected` paints an inset ring rather than thickening the border, so the
- * card's box stays the same size and nothing shifts as the visitor picks. Both
- * states re-declare the hover-sensitive properties so they win over
- * `interactive`'s hover (last write wins per property).
+ * The selectable-card skin: compose it over `cardSurface.base` +
+ * `cardSurface.interactive` from `card.stylex`, which already carry the
+ * border, radius, hover, and focus ring. This only adds the option-specific
+ * parts — a full-width button box and the selected/disabled states.
  */
 export const optionCardSurface = stylex.create({
   base: {

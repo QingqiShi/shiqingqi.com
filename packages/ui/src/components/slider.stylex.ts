@@ -2,11 +2,10 @@ import * as stylex from "@stylexjs/stylex";
 import { controlSize } from "../tokens.stylex.ts";
 
 export const sliderTokens = stylex.defineVars({
-  // Filled share of the track, as a percentage. Set per render from the current
-  // value so the track gradient and the thumb travel stay in step.
+  // Set per render from the current value, keeping the track gradient and
+  // thumb travel in sync.
   fill: "0%",
-  // The two knobs the `size` variants set; every other dimension derives from
-  // them. `md` is the default control height.
+  // `size` variants set these two; every other dimension derives from them.
   trackHeight: controlSize._2,
   thumbSize: controlSize._5,
 });

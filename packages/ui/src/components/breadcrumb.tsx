@@ -6,14 +6,16 @@ import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import type { StyleProp } from "../style-prop.ts";
 import { color, font, space } from "../tokens.stylex.ts";
+import { BreadcrumbAnchor } from "./breadcrumb-anchor.tsx";
+import { ChevronIcon } from "./chevron-icon.tsx";
 
 /** One crumb in the trail. */
 export interface BreadcrumbItem {
   /** Visible crumb text. */
   label: string;
   /**
-   * Destination. Omit for a crumb that is not navigable. The trailing crumb is
-   * the current page, so any `href` on it is ignored.
+   * Destination; omit for a crumb that is not navigable. The trailing crumb
+   * is the current page, so any `href` on it is ignored.
    */
   href?: string;
 }
@@ -49,46 +51,7 @@ interface BreadcrumbProps {
   css?: StyleProp;
 }
 
-/**
- * Inline chevron matching Phosphor "CaretRight" metrics. Decorative — the
- * wrapping separator span is `aria-hidden`.
- */
-function ChevronIcon() {
-  return (
-    <svg width="1em" height="1em" viewBox="0 0 256 256" fill="none">
-      <path
-        d="M96 48l80 80-80 80"
-        stroke="currentColor"
-        strokeWidth={20}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function BreadcrumbAnchor({
-  href,
-  children,
-  className,
-  style,
-}: BreadcrumbLinkProps) {
-  return (
-    <a href={href} className={className} style={style}>
-      {children}
-    </a>
-  );
-}
-
-/**
- * The trail of ancestor pages above the current one: a named `<nav>` landmark
- * wrapping an ordered list, with decorative separators between the crumbs.
- *
- * The last item is the current page — it renders as plain text carrying
- * `aria-current="page"` rather than a link, so the visitor is never offered a
- * link to where they already are. Earlier items link when they have an `href`
- * and read as plain text when they do not.
- */
+/** The trail of ancestor pages above the current one. */
 export function Breadcrumb({
   items,
   label,
@@ -120,8 +83,6 @@ export function Breadcrumb({
               ) : (
                 <LinkComponent
                   href={item.href}
-                  // Rounds the focus ring to match the rest of the system's
-                  // controls.
                   {...stylex.props(
                     corner.radius_1,
                     styles.link,
@@ -134,7 +95,7 @@ export function Breadcrumb({
               )}
               {isCurrent ? null : (
                 <span css={styles.separator} aria-hidden>
-                  {separator ?? <ChevronIcon />}
+                  {separator ?? <ChevronIcon direction="inline-end" />}
                 </span>
               )}
             </li>

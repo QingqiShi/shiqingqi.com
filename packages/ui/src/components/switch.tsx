@@ -33,8 +33,8 @@ interface SwitchProps extends Omit<
   "checked" | "onChange" | "size" | "className" | "style"
 > {
   /**
-   * Controlled state. When provided, the parent owns the value and must update
-   * it via `onChange`. Omit for an uncontrolled switch.
+   * Controlled state — the parent owns it and must update it via `onChange`.
+   * Omit for an uncontrolled switch.
    */
   value?: SwitchState;
   /** Initial state for an uncontrolled switch. Ignored once `value` is set. */
@@ -43,19 +43,18 @@ interface SwitchProps extends Omit<
   onChange?: (state: SwitchState) => void;
   /**
    * Track-height scale via `controlSize`; the width and thumb scale with it.
-   * Defaults to `"md"` (the app's standard control height). Every size grows
-   * below the `md` breakpoint like the `controlSize` scale.
+   * Every size, `md` included, grows below the `md` breakpoint like the
+   * `controlSize` scale.
    */
   size?: SwitchSize;
 }
 
 /**
  * A three-state toggle (`off` / `on` / `indeterminate`) that supports pointer
- * drag, keyboard, and click activation, and works controlled or uncontrolled.
+ * drag, keyboard, and click activation, controlled or uncontrolled.
  *
- * Accessibility: the switch renders as an `<input role="switch">`, so it needs
- * an accessible name. Provide one with `aria-label`, or associate a `<label>`
- * (via `htmlFor`/`id` or by wrapping) — clicking the label toggles the switch.
+ * Renders as `<input role="switch">`, so it needs an accessible name: pass
+ * `aria-label`, or associate a `<label>` so clicking it toggles the switch.
  */
 export function Switch({
   value: valueProp,
@@ -68,12 +67,11 @@ export function Switch({
 }: SwitchProps) {
   const elRef = useRef<HTMLInputElement>(null);
   const hasSetInitialRenderedRef = useRef(false);
-  // Set when a pointer release or Space keypress has already performed the
-  // toggle, so the trailing `click` each of those dispatches doesn't repeat it.
-  // A `click` seen without it was forwarded from an associated <label>.
+  // Set once a pointer release or Space keypress toggles state, so the
+  // browser's trailing `click` does not repeat it. An unset `click` came from
+  // an associated `<label>` instead.
   const toggleHandledRef = useRef(false);
 
-  // Optionally controlled state
   const [value, setValue] = useControlled({
     controlled: valueProp,
     defaultValue: defaultValue ?? "off",
@@ -84,7 +82,6 @@ export function Switch({
     onChange?.(newValue);
   }
 
-  // Sync value with input due to check box having two different value states (specifically `indeterminate`)
   useLayoutEffect(() => {
     if (!elRef.current) {
       return;
@@ -93,91 +90,24 @@ export function Switch({
     elRef.current.checked = value === "on";
   }, [value]);
 
-  // States and refs for tracking dragging state
-  const initialRectRef = useRef<DOMRect | null>(null);
-  const initialClientXRef = useRef(0);
-  const lastClientXRef = useRef(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState<number | null>(null);
+  const {
+    isDragging,
+    position,
+    handleDragStart,
+    handleDragMove,
+    handleDragEnd,
+  } = useSwitchDrag({
+    elRef,
+    toggleHandledRef,
+    value,
+    disabled: rest.disabled,
+    setControlledValue,
+  });
 
-  function handleDragStart(e: React.PointerEvent<HTMLInputElement>) {
-    if (
-      rest.disabled ||
-      !elRef.current ||
-      (e.pointerType === "mouse" && e.button !== 0)
-    ) {
-      return;
-    }
-    initialRectRef.current = elRef.current.getBoundingClientRect();
-    initialClientXRef.current = e.clientX;
-
-    elRef.current.setPointerCapture(e.pointerId);
-  }
-
-  function handleDragMove(e: React.PointerEvent<HTMLInputElement>) {
-    const rect = initialRectRef.current;
-    const clientX = initialClientXRef.current;
-    if (!rect) {
-      return;
-    }
-
-    // Has to move at least 2px to be considered dragging
-    if (!isDragging && Math.abs(e.clientX - clientX) < 2) {
-      return;
-    }
-    setIsDragging(true);
-
-    // Get thumb position
-    lastClientXRef.current = e.clientX;
-    const x = e.clientX - rect.left - rect.height / 2;
-    const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
-    setPosition(clampedX);
-
-    // Actually modify the value
-    const midPoint = rect.left + rect.width / 2;
-    const newState = lastClientXRef.current > midPoint ? "on" : "off";
-    if (newState !== value) {
-      setControlledValue(newState);
-    }
-  }
-
-  function handleDragEnd(e: React.PointerEvent<HTMLInputElement>) {
-    if (e.pointerType === "mouse" && e.button !== 0) {
-      return;
-    }
-
-    // This pointer interaction owns the toggle; the trailing click must not
-    // repeat it (see onClick).
-    toggleHandledRef.current = true;
-
-    if (isDragging) {
-      const rect = initialRectRef.current;
-      if (elRef.current && rect) {
-        if (elRef.current.indeterminate) {
-          elRef.current.indeterminate = false;
-        }
-
-        const midPoint = rect.left + rect.width / 2;
-        const newState = lastClientXRef.current > midPoint ? "on" : "off";
-        setControlledValue(newState);
-      }
-    } else {
-      setControlledValue(value === "on" ? "off" : "on");
-    }
-
-    elRef.current?.releasePointerCapture(e.pointerId);
-    setIsDragging(false);
-    setPosition(null);
-    initialRectRef.current = null;
-  }
-
-  // Enable animation styles only after the component has fully mounted
-  // This prevents switches from animating when switching routes or changing locales
+  // Enables animation only after mount, so a route or locale change does not
+  // animate the switch.
   const [initialRendered, setInitialRendered] = useState(false);
 
-  // Keep the internal ref, forward to a caller-supplied ref (the input `ref`
-  // survives the props Omit), and enable animations after first mount — all
-  // via a single merged ref callback (the merge runs at commit, not render).
   const setInputRef = mergeRefs(elRef, forwardedRef, (node) => {
     if (node && !hasSetInitialRenderedRef.current) {
       hasSetInitialRenderedRef.current = true;
@@ -207,10 +137,9 @@ export function Switch({
       onKeyDown={(e) => {
         if (e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
-          // A held key auto-repeats keydown; a native switch toggles once per
-          // press, so ignore repeats (but still preventDefault above to keep
-          // Space from scrolling). The initial keydown already flipped state
-          // and armed the click guard below.
+          // A held key auto-repeats keydown, but a native switch toggles once
+          // per press. `preventDefault` runs first so Space still can't
+          // scroll during repeats.
           if (e.repeat) return;
           // Space activation dispatches a trailing click on keyup; guard so it
           // doesn't double-toggle. Enter dispatches no click, so it needs none.
@@ -224,15 +153,13 @@ export function Switch({
         e.preventDefault();
       }}
       onClick={(e) => {
-        // Always suppress the native checkbox toggle — state is managed here.
         e.preventDefault();
-        // A pointer release or Space keypress already handled this toggle.
         if (toggleHandledRef.current) {
           toggleHandledRef.current = false;
           return;
         }
-        // No preceding toggle: this click was forwarded from an associated
-        // <label>. Toggle so label activation works.
+        // With no preceding toggle, this click came from an associated
+        // `<label>`; toggle so label activation still works.
         if (rest.disabled) {
           return;
         }
@@ -242,12 +169,112 @@ export function Switch({
   );
 }
 
+/**
+ * Pointer-drag mechanics for `Switch`: tracks the thumb's live position while
+ * dragging, and commits `on`/`off` from which half of the track it's released
+ * over. Falls back to a plain toggle when the pointer never crosses the
+ * 2px move threshold that distinguishes a drag from a click.
+ */
+function useSwitchDrag({
+  elRef,
+  toggleHandledRef,
+  value,
+  disabled,
+  setControlledValue,
+}: {
+  elRef: React.RefObject<HTMLInputElement | null>;
+  toggleHandledRef: React.RefObject<boolean>;
+  value: SwitchState;
+  disabled: boolean | undefined;
+  setControlledValue: (next: SwitchState) => void;
+}) {
+  const initialRectRef = useRef<DOMRect | null>(null);
+  const initialClientXRef = useRef(0);
+  const lastClientXRef = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState<number | null>(null);
+
+  function handleDragStart(e: React.PointerEvent<HTMLInputElement>) {
+    if (
+      disabled ||
+      !elRef.current ||
+      (e.pointerType === "mouse" && e.button !== 0)
+    ) {
+      return;
+    }
+    initialRectRef.current = elRef.current.getBoundingClientRect();
+    initialClientXRef.current = e.clientX;
+
+    elRef.current.setPointerCapture(e.pointerId);
+  }
+
+  function handleDragMove(e: React.PointerEvent<HTMLInputElement>) {
+    const rect = initialRectRef.current;
+    const clientX = initialClientXRef.current;
+    if (!rect) {
+      return;
+    }
+
+    if (!isDragging && Math.abs(e.clientX - clientX) < 2) {
+      return;
+    }
+    setIsDragging(true);
+
+    lastClientXRef.current = e.clientX;
+    const x = e.clientX - rect.left - rect.height / 2;
+    const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
+    setPosition(clampedX);
+
+    const midPoint = rect.left + rect.width / 2;
+    const newState = lastClientXRef.current > midPoint ? "on" : "off";
+    if (newState !== value) {
+      setControlledValue(newState);
+    }
+  }
+
+  function handleDragEnd(e: React.PointerEvent<HTMLInputElement>) {
+    if (e.pointerType === "mouse" && e.button !== 0) {
+      return;
+    }
+
+    // This pointer interaction owns the toggle, so the trailing `click` (see
+    // `onClick`) must not repeat it.
+    toggleHandledRef.current = true;
+
+    if (isDragging) {
+      const rect = initialRectRef.current;
+      if (elRef.current && rect) {
+        if (elRef.current.indeterminate) {
+          elRef.current.indeterminate = false;
+        }
+
+        const midPoint = rect.left + rect.width / 2;
+        const newState = lastClientXRef.current > midPoint ? "on" : "off";
+        setControlledValue(newState);
+      }
+    } else {
+      setControlledValue(value === "on" ? "off" : "on");
+    }
+
+    elRef.current?.releasePointerCapture(e.pointerId);
+    setIsDragging(false);
+    setPosition(null);
+    initialRectRef.current = null;
+  }
+
+  return {
+    isDragging,
+    position,
+    handleDragStart,
+    handleDragMove,
+    handleDragEnd,
+  };
+}
+
 const styles = stylex.create({
   switch: {
     fontSize: font.uiControl,
     margin: 0,
-
-    // Custom styles
     aspectRatio: ratio.double,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
@@ -276,7 +303,6 @@ const styles = stylex.create({
       ":hover": shadow._3,
     },
 
-    // Pseudo elements
     "::before": {
       backgroundColor: color.bgSurfaceBright,
       borderRadius: border.radius_round,
@@ -308,9 +334,8 @@ const styles = stylex.create({
 });
 
 // Each size sets the `switchTokens.trackHeight` knob; `styles.switch` derives
-// the track height, width (2:1 aspect ratio), thumb size, and travel from it.
-// `md` reproduces the historic default, so callsites that omit `size` are
-// pixel-identical.
+// height, width, thumb size, and travel from it. `md` reproduces the historic
+// default, so omitting `size` stays pixel-identical.
 const sizeStyles = stylex.create({
   sm: { [switchTokens.trackHeight]: controlSize._8 },
   md: { [switchTokens.trackHeight]: controlSize._9 },

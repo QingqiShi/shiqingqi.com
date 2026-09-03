@@ -25,8 +25,7 @@ interface TextFieldProps extends Omit<
   label: string;
   /**
    * Visually hide the label (kept in the accessibility tree via `sr-only`).
-   * Use when an adjacent visual cue already names the field; the `label`
-   * string is still required.
+   * The `label` string is still required.
    */
   labelHidden?: boolean;
   /** Helper text rendered under the label and wired via `aria-describedby`. */
@@ -37,7 +36,7 @@ interface TextFieldProps extends Omit<
    * control's `aria-describedby`.
    */
   error?: string;
-  /** Control scale. Drives padding and min height. Defaults to `"md"`. */
+  /** Control scale. Defaults to `"md"`. */
   size?: FieldSize;
   /** Decorative leading adornment (icon), rendered `aria-hidden`. */
   leading?: ReactNode;
