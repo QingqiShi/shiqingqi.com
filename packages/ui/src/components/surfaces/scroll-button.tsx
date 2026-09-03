@@ -1,3 +1,8 @@
+import type { Icon } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
+import { CaretUpIcon } from "@phosphor-icons/react/dist/ssr/CaretUp";
 import * as stylex from "@stylexjs/stylex";
 import {
   absoluteFill,
@@ -7,7 +12,6 @@ import { transition } from "../../primitives/motion.stylex.ts";
 import type { StyleProp } from "../../style-prop.ts";
 import { space } from "../../tokens.stylex.ts";
 import { IconButton } from "../actions/icon-button.tsx";
-import { ChevronIcon } from "../icons/chevron-icon.tsx";
 
 /**
  * The edge of a region a scroll button scrolls towards.
@@ -39,10 +43,10 @@ export function ScrollButton({
   isShown,
   onClick,
 }: ScrollButtonProps) {
-  const { fill, position } = scrollButtonEdges[edge];
+  const { fill, position, Icon } = scrollButtonEdges[edge];
   return (
     <IconButton
-      icon={<ChevronIcon direction={edge} />}
+      icon={<Icon weight="bold" />}
       aria-label={label}
       variant="surface"
       inert={!isShown}
@@ -99,19 +103,26 @@ const styles = stylex.create({
 
 const scrollButtonEdges: Record<
   ScrollButtonEdge,
-  { fill: StyleProp; position: StyleProp }
+  { fill: StyleProp; position: StyleProp; Icon: Icon }
 > = {
   "block-start": {
     fill: absoluteFill.x,
     position: styles.scrollButtonBlockStart,
+    Icon: CaretUpIcon,
   },
-  "block-end": { fill: absoluteFill.x, position: styles.scrollButtonBlockEnd },
+  "block-end": {
+    fill: absoluteFill.x,
+    position: styles.scrollButtonBlockEnd,
+    Icon: CaretDownIcon,
+  },
   "inline-start": {
     fill: absoluteFill.y,
     position: styles.scrollButtonInlineStart,
+    Icon: CaretLeftIcon,
   },
   "inline-end": {
     fill: absoluteFill.y,
     position: styles.scrollButtonInlineEnd,
+    Icon: CaretRightIcon,
   },
 };

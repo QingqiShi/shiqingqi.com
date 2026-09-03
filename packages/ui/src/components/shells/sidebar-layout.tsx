@@ -1,5 +1,6 @@
 "use client";
 
+import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { breakpoints } from "../../breakpoints.stylex.ts";
@@ -7,7 +8,6 @@ import { useDialogFocus } from "../../hooks/use-dialog-focus.ts";
 import { corner } from "../../primitives/corner.stylex.ts";
 import { color, layer, layout, shadow, space } from "../../tokens.stylex.ts";
 import { IconButton } from "../actions/icon-button.tsx";
-import { MenuIcon } from "../icons/menu-icon.tsx";
 import { Drawer } from "./drawer.tsx";
 
 // Default width of the navigation rail on wider viewports — wide enough for
@@ -148,7 +148,7 @@ export function SidebarLayout({
       <div css={[corner.radius_round, styles.mobileBar]}>
         <div css={styles.mobileBarTitle}>{sidebarHeader}</div>
         <IconButton
-          icon={<MenuIcon />}
+          icon={<ListIcon weight="bold" />}
           aria-label={menuLabel}
           aria-haspopup="dialog"
           aria-expanded={isOpen}

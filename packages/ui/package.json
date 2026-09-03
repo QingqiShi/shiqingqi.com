@@ -134,6 +134,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@phosphor-icons/react": "catalog:",
     "react-remove-scroll": "catalog:"
   },
   "peerDependencies": {

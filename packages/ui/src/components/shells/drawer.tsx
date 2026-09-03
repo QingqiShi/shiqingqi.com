@@ -1,5 +1,6 @@
 "use client";
 
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, RefObject } from "react";
 import { breakpoints } from "../../breakpoints.stylex.ts";
@@ -12,7 +13,6 @@ import {
 } from "../../primitives/motion.stylex.ts";
 import { border, color, layer, shadow, space } from "../../tokens.stylex.ts";
 import { IconButton } from "../actions/icon-button.tsx";
-import { CloseIcon } from "../icons/close-icon.tsx";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 
 interface DrawerProps {
@@ -87,7 +87,7 @@ export function Drawer({
               <div css={styles.railTitle}>{sidebarHeader}</div>
               <IconButton
                 css={styles.railClose}
-                icon={<CloseIcon />}
+                icon={<XIcon weight="bold" />}
                 aria-label={closeLabel}
                 onClick={onClose}
               />

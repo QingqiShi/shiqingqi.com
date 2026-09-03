@@ -36,7 +36,7 @@
     "@1771technologies/lytenyte-pro": "^2.2.1",
     "@ai-sdk/anthropic": "^4.0.46",
     "@ai-sdk/react": "^4.0.88",
-    "@phosphor-icons/react": "^2.1.10",
+    "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "@tanstack/react-query": "5.102.8",

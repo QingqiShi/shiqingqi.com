@@ -1,5 +1,6 @@
 "use client";
 
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import {
   useDeferredValue,
@@ -21,7 +22,6 @@ import {
 } from "../../primitives/layout.stylex.ts";
 import { color, layer, space } from "../../tokens.stylex.ts";
 import { Button } from "../actions/button.tsx";
-import { CloseIcon } from "../icons/close-icon.tsx";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 interface OverlayBaseProps {
@@ -37,7 +37,7 @@ interface OverlayBaseProps {
    * i18n, so the consumer supplies the localized string (config layer).
    */
   closeLabel: string;
-  /** Icon rendered inside the close button. Defaults to the built-in X icon. */
+  /** Icon rendered inside the close button. Defaults to a Phosphor X icon. */
   closeIcon?: ReactNode;
   /**
    * Where to render the portal. Defaults to `document.body`. Pass an explicit
@@ -161,7 +161,7 @@ export function Overlay({
                     instead, which owns only placement. */}
                 <div css={styles.closeButtonCorner}>
                   <Button
-                    icon={closeIcon ?? <CloseIcon />}
+                    icon={closeIcon ?? <XIcon weight="bold" />}
                     aria-label={closeLabel}
                     onClick={onClose}
                   />

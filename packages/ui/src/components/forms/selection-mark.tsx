@@ -1,3 +1,4 @@
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "../../primitives/corner.stylex.ts";
 import { flex, shrink } from "../../primitives/flex.stylex.ts";
@@ -31,16 +32,9 @@ export function SelectionMark({
         <span css={[corner.radius_round, markStyles.dot]} />
       ) : null}
       {selected && role === "checkbox" ? (
-        <svg viewBox="0 0 16 16" focusable="false" css={markStyles.tick}>
-          <path
-            d="M4 8.5l3 3 5-6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <span css={[flex.inlineCenter, markStyles.tick]}>
+          <CheckIcon weight="bold" />
+        </span>
       ) : null}
     </span>
   );
@@ -66,8 +60,7 @@ const markStyles = stylex.create({
     backgroundColor: color.accentOn,
   },
   tick: {
-    inlineSize: "72%",
-    blockSize: "72%",
+    fontSize: controlSize._3,
   },
 });
 

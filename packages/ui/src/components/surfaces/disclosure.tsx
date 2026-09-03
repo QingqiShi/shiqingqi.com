@@ -1,5 +1,6 @@
 "use client";
 
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { useDisclosure } from "../../hooks/use-disclosure.ts";
@@ -9,7 +10,6 @@ import { transition } from "../../primitives/motion.stylex.ts";
 import { buttonReset } from "../../primitives/reset.stylex.ts";
 import type { StyleProp } from "../../style-prop.ts";
 import { border, color, font, space } from "../../tokens.stylex.ts";
-import { DisclosureCaretIcon } from "../icons/disclosure-caret-icon.tsx";
 import { cardSurface } from "./card.stylex.ts";
 
 type DisclosureVariant = "plain" | "card";
@@ -98,7 +98,7 @@ export function Disclosure({
     onOpenChange,
   });
   const resolvedIndicator =
-    indicator === undefined ? <DisclosureCaretIcon /> : indicator;
+    indicator === undefined ? <CaretDownIcon weight="bold" /> : indicator;
 
   return (
     <div

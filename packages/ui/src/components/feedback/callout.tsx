@@ -1,3 +1,10 @@
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { DotOutlineIcon } from "@phosphor-icons/react/dist/ssr/DotOutline";
+import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
+import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { a11y } from "../../primitives/a11y.stylex.ts";
@@ -6,84 +13,17 @@ import { transition } from "../../primitives/motion.stylex.ts";
 import { buttonReset } from "../../primitives/reset.stylex.ts";
 import type { StyleProp } from "../../style-prop.ts";
 import { border, color, font, space } from "../../tokens.stylex.ts";
-import { CloseIcon } from "../icons/close-icon.tsx";
-import { IconSvg } from "../icons/icon-svg.tsx";
 
 type CalloutVariant =
   "info" | "success" | "warning" | "danger" | "accent" | "neutral";
 
 const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
-  info: (
-    <IconSvg>
-      <circle cx="128" cy="128" r="96" stroke="currentColor" strokeWidth={16} />
-      <line
-        x1="128"
-        y1="120"
-        x2="128"
-        y2="176"
-        stroke="currentColor"
-        strokeWidth={16}
-        strokeLinecap="round"
-      />
-      <circle cx="128" cy="84" r="11" fill="currentColor" />
-    </IconSvg>
-  ),
-  success: (
-    <IconSvg>
-      <circle cx="128" cy="128" r="96" stroke="currentColor" strokeWidth={16} />
-      <path
-        d="M84 130 116 162 172 98"
-        stroke="currentColor"
-        strokeWidth={16}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </IconSvg>
-  ),
-  warning: (
-    <IconSvg>
-      <path
-        d="M128 44 226 212 30 212Z"
-        stroke="currentColor"
-        strokeWidth={16}
-        strokeLinejoin="round"
-      />
-      <line
-        x1="128"
-        y1="112"
-        x2="128"
-        y2="160"
-        stroke="currentColor"
-        strokeWidth={16}
-        strokeLinecap="round"
-      />
-      <circle cx="128" cy="186" r="11" fill="currentColor" />
-    </IconSvg>
-  ),
-  danger: (
-    <IconSvg>
-      <circle cx="128" cy="128" r="96" stroke="currentColor" strokeWidth={16} />
-      <path
-        d="M100 100 156 156M156 100 100 156"
-        stroke="currentColor"
-        strokeWidth={16}
-        strokeLinecap="round"
-      />
-    </IconSvg>
-  ),
-  accent: (
-    <IconSvg>
-      <path
-        d="M128 28C134 92 164 122 228 128 164 134 134 164 128 228 122 164 92 134 28 128 92 122 122 92 128 28Z"
-        fill="currentColor"
-      />
-    </IconSvg>
-  ),
-  neutral: (
-    <IconSvg>
-      <circle cx="128" cy="128" r="40" fill="currentColor" />
-    </IconSvg>
-  ),
+  info: <InfoIcon />,
+  success: <CheckCircleIcon />,
+  warning: <WarningIcon />,
+  danger: <XCircleIcon />,
+  accent: <SparkleIcon weight="fill" />,
+  neutral: <DotOutlineIcon weight="fill" />,
 };
 
 interface CalloutBaseProps extends Omit<
@@ -103,9 +43,9 @@ interface CalloutBaseProps extends Omit<
   /** Body content. Keep it short — a callout is a summary, not a paragraph. */
   children: ReactNode;
   /**
-   * Leading icon. Defaults to a built-in variant icon; pass a Phosphor icon
-   * (or any node) to override, or `null` to remove it. Always rendered
-   * `aria-hidden` — the message text carries meaning.
+   * Leading icon. Defaults to a Phosphor icon for the variant; pass a
+   * different Phosphor icon (or any node) to override, or `null` to remove
+   * it. Always rendered `aria-hidden` — the message text carries meaning.
    */
   icon?: ReactNode;
   /**
@@ -189,7 +129,7 @@ export function Callout({
             styles.dismiss,
           ]}
         >
-          <CloseIcon />
+          <XIcon weight="bold" aria-hidden />
         </button>
       ) : null}
     </div>
