@@ -144,6 +144,44 @@ export function ScrollMask({
     };
   }, [hasChrome, hasStartChrome, hasEndChrome, isHorizontal]);
 
+  // The scroll padding that keeps scrolled-to content clear of the chrome
+  // covers the chrome slots themselves, and a sticky slot never moves, so the
+  // reveal that follows any focus inside one always scrolls the region and is
+  // never satisfied. `preventScroll` cannot reach
+  // native focus (Tab, a click), so this undoes the reveal instead: at
+  // `focusin` the reveal has moved the scroll position, but its `scroll`
+  // event has not fired yet, so the last event-reported position is still the
+  // pre-focus one, and restoring it before paint shows no jump. Sticky chrome
+  // is always in view, so the restore never hides the focused control.
+  useEffect(() => {
+    if (!hasChrome) return;
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const readScroll = () =>
+      isHorizontal ? scroller.scrollLeft : scroller.scrollTop;
+    let restingScroll = readScroll();
+    const onScroll = () => {
+      restingScroll = readScroll();
+    };
+    const onChromeFocusIn = () => {
+      if (isHorizontal) scroller.scrollLeft = restingScroll;
+      else scroller.scrollTop = restingScroll;
+    };
+    const chromeSlots = [startChromeRef.current, endChromeRef.current].filter(
+      (slot) => slot !== null,
+    );
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    for (const slot of chromeSlots) {
+      slot.addEventListener("focusin", onChromeFocusIn);
+    }
+    return () => {
+      scroller.removeEventListener("scroll", onScroll);
+      for (const slot of chromeSlots) {
+        slot.removeEventListener("focusin", onChromeFocusIn);
+      }
+    };
+  }, [hasChrome, hasStartChrome, hasEndChrome, isHorizontal]);
+
   const scrollOnePage = (direction: -1 | 1) => {
     const el = scrollRef.current;
     if (!el) return;

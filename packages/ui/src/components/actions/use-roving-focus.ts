@@ -15,6 +15,24 @@ function getMenuItems(popup: HTMLElement) {
 }
 
 /**
+ * `preventScroll`, because the popup is a positioned overlay inside whatever
+ * scroller the trigger sits in — the default reveal drags that scroller (a
+ * sticky sidebar footer nudges its rail on each focus). Only the popup's own
+ * scrollport (sheet mode) may move to show the item, and this function scrolls
+ * it by hand.
+ */
+function focusItem(item: HTMLElement, popup: HTMLElement) {
+  item.focus({ preventScroll: true });
+  const itemRect = item.getBoundingClientRect();
+  const popupRect = popup.getBoundingClientRect();
+  if (itemRect.top < popupRect.top) {
+    popup.scrollTop -= popupRect.top - itemRect.top;
+  } else if (itemRect.bottom > popupRect.bottom) {
+    popup.scrollTop += itemRect.bottom - popupRect.bottom;
+  }
+}
+
+/**
  * The menu keyboard model. On open it moves focus into the popup, preferring
  * the item flagged `data-menu-autofocus="true"` over the first one; it returns
  * the Arrow/Home/End handler for the element that wraps the popup.
@@ -38,7 +56,7 @@ export function useRovingFocus({
     const target =
       items.find((item) => item.dataset.menuAutofocus === "true") ??
       items.at(0);
-    target?.focus();
+    if (target) focusItem(target, popup);
   }, [popupRef, isMenuShown, enabled]);
 
   return (e: KeyboardEvent<HTMLElement>) => {
@@ -69,17 +87,17 @@ export function useRovingFocus({
         currentIndex === -1
           ? items[0]
           : items[(currentIndex + 1) % items.length];
-      next.focus();
+      focusItem(next, popup);
     } else if (e.key === "ArrowUp") {
       const prev =
         currentIndex === -1
           ? items[items.length - 1]
           : items[(currentIndex - 1 + items.length) % items.length];
-      prev.focus();
+      focusItem(prev, popup);
     } else if (e.key === "Home") {
-      items[0].focus();
+      focusItem(items[0], popup);
     } else {
-      items[items.length - 1].focus();
+      focusItem(items[items.length - 1], popup);
     }
   };
 }
