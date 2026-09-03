@@ -22,6 +22,9 @@
 "use strict";
 
 const { isHookModule, valueExportNamesOf } = require("@tuja/module-exports");
+const {
+  removeWithTrailingWhitespace,
+} = require("./remove-with-trailing-whitespace");
 
 /** @type {import("eslint").Rule.RuleModule} */
 const noUseClientInHooks = {
@@ -63,10 +66,11 @@ const noUseClientInHooks = {
           messageId: "notASeam",
           data: { exports: valueExportNamesOf(program).join(", ") },
           fix(fixer) {
-            const text = context.sourceCode.text;
-            let end = directiveNode.range[1];
-            while (end < text.length && /\s/.test(text[end])) end++;
-            return fixer.removeRange([directiveNode.range[0], end]);
+            return removeWithTrailingWhitespace(
+              fixer,
+              context.sourceCode,
+              directiveNode,
+            );
           },
         });
       },

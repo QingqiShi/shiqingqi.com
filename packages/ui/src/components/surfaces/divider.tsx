@@ -4,14 +4,11 @@ import type { StyleProp } from "../../style-prop.ts";
 import { border, color } from "../../tokens.stylex.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 
-type DividerOrientation = "horizontal" | "vertical";
-type DividerVariant = "subtle" | "bold" | "decorative";
-
 interface DividerProps {
   /** Line direction. Defaults to `"horizontal"`. */
-  orientation?: DividerOrientation;
+  orientation?: "horizontal" | "vertical";
   /** Weight / treatment of the rule. Defaults to `"subtle"`. */
-  variant?: DividerVariant;
+  variant?: "subtle" | "bold" | "decorative";
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
   /** Ref to the rendered element (`<hr>` when horizontal, `<div>` when vertical). */

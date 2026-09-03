@@ -38,10 +38,8 @@ interface ActionRowProps {
   encodedHash: string;
 }
 
-type EphemeralKind = "copied" | "error";
-
 interface EphemeralState {
-  kind: EphemeralKind;
+  kind: "copied" | "error";
   message: string;
 }
 

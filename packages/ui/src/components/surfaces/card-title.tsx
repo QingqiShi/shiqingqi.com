@@ -2,14 +2,12 @@ import type { ReactNode, Ref } from "react";
 import type { StyleProp } from "../../style-prop.ts";
 import { Heading } from "../content/heading.tsx";
 
-type CardTitleLevel = 2 | 3 | 4 | 5 | 6;
-
 interface CardTitleProps {
   /**
    * Heading rank. Defaults to `3`; set it to keep the document outline honest
    * when the card sits under a deeper or shallower heading.
    */
-  level?: CardTitleLevel;
+  level?: 2 | 3 | 4 | 5 | 6;
   /** The card's title. */
   children: ReactNode;
   /**

@@ -4,10 +4,6 @@ import { corner } from "../../primitives/corner.stylex.ts";
 import { flex } from "../../primitives/flex.stylex.ts";
 import { border, color, font, space } from "../../tokens.stylex.ts";
 
-type BadgeVariant =
-  "default" | "neutral" | "info" | "success" | "warning" | "danger" | "accent";
-type BadgeSize = "small" | "medium";
-
 interface BadgeProps extends Omit<
   ComponentProps<"span">,
   "className" | "style"
@@ -17,9 +13,16 @@ interface BadgeProps extends Omit<
    * other six are Intents, and `"neutral"` is the muted one for low-emphasis
    * metadata.
    */
-  variant?: BadgeVariant;
+  variant?:
+    | "default"
+    | "neutral"
+    | "info"
+    | "success"
+    | "warning"
+    | "danger"
+    | "accent";
   /** Padding and type scale. Defaults to `"medium"`. */
-  size?: BadgeSize;
+  size?: "small" | "medium";
   /** Optional leading icon, rendered decoratively (`aria-hidden`). */
   icon?: ReactNode;
   /** Badge contents — usually a short label. */

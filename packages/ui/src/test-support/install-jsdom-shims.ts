@@ -1,5 +1,3 @@
-type ContentEditableState = "true" | "plaintext-only" | "false" | "inherit";
-
 /**
  * The `contenteditable` state of the element itself. It is an enumerated
  * attribute, so its keywords are ASCII case-insensitive, an empty value is the
@@ -7,7 +5,9 @@ type ContentEditableState = "true" | "plaintext-only" | "false" | "inherit";
  *
  * @see https://html.spec.whatwg.org/multipage/interaction.html#attr-contenteditable
  */
-function contentEditableStateOf(element: Element): ContentEditableState {
+function contentEditableStateOf(
+  element: Element,
+): "true" | "plaintext-only" | "false" | "inherit" {
   const value = element.getAttribute("contenteditable");
   if (value === null) return "inherit";
   const keyword = value.toLowerCase();

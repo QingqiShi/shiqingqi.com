@@ -9,8 +9,6 @@ import { CompactMediaCard } from "./compact-media-card";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";
 import { useMediaDetail } from "./media-detail-provider";
 
-type RowInset = "chat" | "standalone";
-
 export type RecommendedMediaRowItem = MediaListItem & {
   /**
    * When provided, the card renders as a Next.js link to this href. When
@@ -28,7 +26,7 @@ interface RecommendedMediaRowProps {
    * two-level padding inside `ChatMessageList`; `"standalone"` matches the
    * single-level page padding used by the movie-database landing page.
    */
-  inset?: RowInset;
+  inset?: "chat" | "standalone";
 }
 
 export function RecommendedMediaRow({

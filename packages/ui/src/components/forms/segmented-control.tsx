@@ -18,8 +18,6 @@ import {
   space,
 } from "../../tokens.stylex.ts";
 
-type SegmentedControlSize = "sm" | "md";
-
 interface SegmentedControlOption<TValue extends string> {
   /** The value this segment selects. Must be unique within the group. */
   value: TValue;
@@ -46,7 +44,7 @@ interface SegmentedControlBaseProps<TValue extends string> extends Omit<
   /** Called with the next value on click or keyboard select. */
   onChange: (next: TValue) => void;
   /** Height and type scale. Defaults to `"md"`. */
-  size?: SegmentedControlSize;
+  size?: "sm" | "md";
   /** Stretches the track to fill its container, sharing width equally. */
   fullWidth?: boolean;
   /** StyleX overrides merged over the track — composed last so a caller wins. */

@@ -12,8 +12,6 @@ import { border, color, font, space } from "../../tokens.stylex.ts";
 import { DisclosureCaretIcon } from "../icons/disclosure-caret-icon.tsx";
 import { cardSurface } from "./card.stylex.ts";
 
-type DisclosureVariant = "plain" | "card";
-
 interface DisclosureBaseProps extends Omit<
   ComponentProps<"div">,
   "children" | "className" | "style"
@@ -44,7 +42,7 @@ interface DisclosureBaseProps extends Omit<
    * surface something else already owns. `"card"` wraps both parts in the shared
    * bordered card surface and rules the panel off from the header.
    */
-  variant?: DisclosureVariant;
+  variant?: "plain" | "card";
   /** StyleX overrides merged over the root — composed last so a caller wins. */
   css?: StyleProp;
 }

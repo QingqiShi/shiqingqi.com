@@ -13,8 +13,6 @@ import {
   fieldStyles,
 } from "./field-shared.stylex.ts";
 
-type SelectSize = "sm" | "md" | "lg";
-
 /** A single choice for the {@link Select} `options` config layer. */
 interface SelectOption {
   /** Submitted value; also the option's React key. */
@@ -53,7 +51,7 @@ interface SelectProps extends Omit<
   /**
    * Control height and type scale. Defaults to `"md"`.
    */
-  size?: SelectSize;
+  size?: "sm" | "md" | "lg";
   /** `<option>` elements — the escape hatch when `options` is not enough. */
   children?: ReactNode;
   /** StyleX styles merged over the field root — the config-layer escape hatch. */

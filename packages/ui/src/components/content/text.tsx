@@ -4,37 +4,29 @@ import type { StyleProp } from "../../style-prop.ts";
 import { color, font } from "../../tokens.stylex.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 
-type TextElement = "p" | "span" | "div";
-type TextVariant = "body" | "bodySmall" | "caption" | "overline";
-type TextTone = "default" | "muted" | "subtle" | "accent";
-type TextWeight = "regular" | "medium" | "semibold" | "bold";
-type TextTransform = "uppercase" | "lowercase" | "capitalize";
-type TextAlign = "start" | "center" | "end";
-type TextWrap = "balance" | "pretty" | "nowrap";
-
 interface TextProps {
   /** Semantic element to render. Defaults to `"p"`. */
-  as?: TextElement;
+  as?: "p" | "span" | "div";
   /** Type-scale step. Defaults to `"body"`. */
-  variant?: TextVariant;
+  variant?: "body" | "bodySmall" | "caption" | "overline";
   /** Foreground colour role. Defaults to `"default"`. */
-  tone?: TextTone;
+  tone?: "default" | "muted" | "subtle" | "accent";
   /** Font weight. `"overline"` defaults to semibold when unset. */
-  weight?: TextWeight;
+  weight?: "regular" | "medium" | "semibold" | "bold";
   /**
    * Case transform, decoupled from `variant` — so an uppercase "eyebrow" label
    * can sit at any size (`caption`, `bodySmall`, …) rather than only through the
    * `overline` step.
    */
-  transform?: TextTransform;
+  transform?: "uppercase" | "lowercase" | "capitalize";
   /** Text alignment (logical `start` / `center` / `end`). */
-  align?: TextAlign;
+  align?: "start" | "center" | "end";
   /**
    * How lines break: `"pretty"` for body copy, `"balance"` for short
    * standalone copy (a few lines at most), `"nowrap"` to keep the run on one
    * line.
    */
-  wrap?: TextWrap;
+  wrap?: "balance" | "pretty" | "nowrap";
   /**
    * Renders figures at a fixed width so numbers line up in a column and a
    * ticking value doesn't jitter.

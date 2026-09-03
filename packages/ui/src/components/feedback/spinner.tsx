@@ -10,9 +10,6 @@ import {
 import type { StyleProp } from "../../style-prop.ts";
 import { color, space } from "../../tokens.stylex.ts";
 
-type SpinnerSize = "inline" | "sm" | "md" | "lg";
-type SpinnerTone = "accent" | "current";
-
 interface SpinnerBaseProps extends Omit<
   ComponentProps<"span">,
   "children" | "role" | "aria-hidden" | "className" | "style"
@@ -21,12 +18,12 @@ interface SpinnerBaseProps extends Omit<
    * Rendered diameter: `sm`/`md`/`lg` use `rem` (WCAG 1.4.4); `"inline"` uses
    * `1em` to match surrounding text. Defaults to `"md"`.
    */
-  size?: SpinnerSize;
+  size?: "inline" | "sm" | "md" | "lg";
   /**
    * Colour. `"current"` (default) inherits `currentColor` so the spinner picks
    * up the surrounding text colour; `"accent"` pins the brand accent.
    */
-  tone?: SpinnerTone;
+  tone?: "accent" | "current";
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
 }

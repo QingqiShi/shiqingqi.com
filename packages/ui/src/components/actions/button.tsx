@@ -23,9 +23,6 @@ import { Spinner } from "../feedback/spinner.tsx";
 import { sharedStyles } from "./button-shared.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
-type ButtonSize = "sm" | "md" | "lg";
-type ButtonVariant = "primary" | "outline" | "ghost" | "danger";
-
 interface ButtonBaseProps extends Omit<
   ComponentProps<"button">,
   "children" | "className" | "style"
@@ -46,7 +43,7 @@ interface ButtonBaseProps extends Omit<
    * `"sm"` still falls short of the 44px WCAG 2.5.8 touch target, even though
    * every size grows on touch viewports.
    */
-  size?: ButtonSize;
+  size?: "sm" | "md" | "lg";
   /**
    * Toggles the active highlight and emits `aria-pressed` — use for toggle
    * buttons. For a non-toggle CTA that only wants the highlight, use
@@ -59,7 +56,7 @@ interface ButtonBaseProps extends Omit<
    * `"primary"` shares `isActive`'s highlight but does not emit
    * `aria-pressed` — reserve toggles for `isActive` instead.
    */
-  variant?: ButtonVariant;
+  variant?: "primary" | "outline" | "ghost" | "danger";
   /**
    * Shows a spinner, sets `aria-busy`, and blocks activation. Uses `aria-disabled`,
    * not `disabled`, so the button keeps focus and the busy state is announced.

@@ -26,8 +26,6 @@ import { switchTokens } from "./switch.stylex.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";
 
-type SwitchSize = "sm" | "md" | "lg";
-
 interface SwitchProps extends Omit<
   React.ComponentProps<"input">,
   "checked" | "onChange" | "size" | "className" | "style"
@@ -46,7 +44,7 @@ interface SwitchProps extends Omit<
    * Every size, `md` included, grows below the `md` breakpoint like the
    * `controlSize` scale.
    */
-  size?: SwitchSize;
+  size?: "sm" | "md" | "lg";
 }
 
 /**

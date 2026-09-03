@@ -86,8 +86,6 @@ async function fetchSession(
 // ensures referential stability for useSyncExternalStore.
 const noopSubscribe = () => () => {};
 
-type ContinueSessionStatus = "idle" | "pending" | "error";
-
 export function useAIChat({ locale }: { locale: SupportedLocale }) {
   // Read the stored session ID from localStorage via useSyncExternalStore.
   // This avoids the hydration mismatch (getServerSnapshot returns null for SSR)
@@ -108,8 +106,9 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
     setDismissed(false);
   }
 
-  const [continueSessionStatus, setContinueSessionStatus] =
-    useState<ContinueSessionStatus>("idle");
+  const [continueSessionStatus, setContinueSessionStatus] = useState<
+    "idle" | "pending" | "error"
+  >("idle");
 
   const chatResult = useChat<ChatUIMessage>({
     transport: new DefaultChatTransport<ChatUIMessage>({

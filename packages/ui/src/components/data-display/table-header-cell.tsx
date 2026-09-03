@@ -4,8 +4,6 @@ import { border, color, font } from "../../tokens.stylex.ts";
 import { alignStyles, styles as cellStyles } from "./table-cell.stylex.ts";
 import type { TableCellAlignment } from "./table-cell.tsx";
 
-type TableHeaderScope = "col" | "row" | "colgroup" | "rowgroup";
-
 // The native `align` attribute on `<td>`/`<th>` is deprecated and
 // presentational. The design system reuses the name for logical alignment.
 interface TableHeaderCellProps
@@ -17,7 +15,7 @@ interface TableHeaderCellProps
    * `"row"` for the label at the start of a body row. Required — a `<th>`
    * without it leaves the association to browser guesswork.
    */
-  scope: TableHeaderScope;
+  scope: "col" | "row" | "colgroup" | "rowgroup";
 }
 
 /** A `<th>`. Column headers read quiet, row headers read as the row's label. */

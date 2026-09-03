@@ -9,8 +9,6 @@ import {
   fieldStyles,
 } from "./field-shared.stylex.ts";
 
-type FieldSize = "sm" | "md" | "lg";
-
 // `size` on the intrinsic input is the HTML character-width attribute; the
 // design system reuses the name for its own scale, so drop the native one.
 interface TextFieldProps extends Omit<
@@ -37,7 +35,7 @@ interface TextFieldProps extends Omit<
    */
   error?: string;
   /** Control scale. Defaults to `"md"`. */
-  size?: FieldSize;
+  size?: "sm" | "md" | "lg";
   /** Decorative leading adornment (icon), rendered `aria-hidden`. */
   leading?: ReactNode;
   /** Decorative trailing adornment (icon), rendered `aria-hidden`. */

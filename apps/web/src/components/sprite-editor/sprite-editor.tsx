@@ -51,14 +51,12 @@ function basenameFor(source: SourceImage): string {
   return source.name.replace(/\.[^.]+$/, "") || "sprite";
 }
 
-type Mode = "slice" | "edit" | "animation";
-
 export function SpriteEditor() {
   const [source, setSource] = useState<SourceImage | null>(null);
   const [grid, setGrid] = useState<GridConfig>(DEFAULT_GRID);
   const [output, setOutput] = useState<OutputConfig>(DEFAULT_OUTPUT);
   const [selectedCell, setSelectedCell] = useState<number | null>(null);
-  const [mode, setMode] = useState<Mode>("slice");
+  const [mode, setMode] = useState<"slice" | "edit" | "animation">("slice");
   // User edits — keyed by cell index. Cleared on grid/output change.
   const [edits, setEdits] = useState<Record<number, CellPixels>>({});
   const [guides, setGuides] = useState<GuideOptions>(DEFAULT_GUIDES);

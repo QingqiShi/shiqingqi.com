@@ -10,8 +10,6 @@ import type { StyleProp } from "../../style-prop.ts";
 import { border, color, space } from "../../tokens.stylex.ts";
 import { progressTokens } from "./progress.stylex.ts";
 
-type ProgressSize = "sm" | "md" | "lg";
-
 interface ProgressProps extends Omit<
   ComponentProps<"div">,
   | "role"
@@ -36,7 +34,7 @@ interface ProgressProps extends Omit<
    * Track thickness. The steps map to `rem` so the bar scales with the user's
    * font size (WCAG 1.4.4). Defaults to `"md"`.
    */
-  size?: ProgressSize;
+  size?: "sm" | "md" | "lg";
   /** StyleX overrides, composed last so a caller can win over the defaults. */
   css?: StyleProp;
 }
