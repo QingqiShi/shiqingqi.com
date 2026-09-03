@@ -276,10 +276,8 @@ function FilmographyScroller({
   return (
     <HorizontalScrollRow
       ariaLabel={t({ en: "Filmography", zh: "作品列表" })}
-      wrapperCss={filmStyles.scrollWrapper}
-      containerCss={filmStyles.scrollContainer}
-      scrollButtonLeftCss={filmStyles.scrollButtonLeft}
-      scrollButtonRightCss={filmStyles.scrollButtonRight}
+      css={filmStyles.root}
+      contentCss={filmStyles.scrollContainer}
     >
       {items.map((item) => {
         const { mediaType } = item;
@@ -406,23 +404,18 @@ const styles = stylex.create({
 });
 
 const filmStyles = stylex.create({
-  scrollWrapper: {
+  root: {
     marginLeft: `calc(-1 * ${space._4})`,
     marginRight: `calc(-1 * ${space._4})`,
   },
+  // The block padding is 0 because the room a card needs to grow on hover
+  // comes from the row's clip margin, which the layout does not pay for.
   scrollContainer: {
-    paddingTop: 0,
-    paddingBottom: space._1,
+    paddingBlock: 0,
     paddingLeft: space._4,
     paddingRight: space._4,
     scrollPaddingLeft: space._4,
     scrollPaddingRight: space._4,
-  },
-  scrollButtonLeft: {
-    left: space._4,
-  },
-  scrollButtonRight: {
-    right: space._4,
   },
   cardWrapper: {
     flexShrink: 0,

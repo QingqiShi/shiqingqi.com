@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { createRef, type ComponentProps } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildEdgeBlurLayers } from "./build-edge-blur-layers.ts";
 import { ScrollMask } from "./scroll-mask.tsx";
 
@@ -118,6 +118,48 @@ function layerStyles(band: Element) {
   return [...band.children].map((layer) => layer.getAttribute("style") ?? "");
 }
 
+// One stub for either orientation, because the scroll hook reads only the axis
+// it is told: at 0 the end edge alone masks, in the middle both do, and at the
+// end the start edge alone does.
+function scrollMetrics(scrolled: number, viewport = 200, content = 500) {
+  return {
+    scrollLeft: scrolled,
+    scrollTop: scrolled,
+    clientWidth: viewport,
+    clientHeight: viewport,
+    scrollWidth: content,
+    scrollHeight: content,
+  };
+}
+
+// jsdom lays nothing out, so no region ever overflows and both edges rest
+// unmasked. This gives the scroller a scroll position to read and fires the
+// event the hook listens for, which is how a test reaches a masked state.
+function driveMask(root: HTMLElement, metrics: Record<string, number>) {
+  const scroller = root.firstElementChild;
+  if (!(scroller instanceof HTMLElement)) {
+    throw new Error("ScrollMask rendered no scroller");
+  }
+  for (const [key, value] of Object.entries(metrics)) {
+    Object.defineProperty(scroller, key, {
+      configurable: true,
+      get: () => value,
+    });
+  }
+  act(() => {
+    scroller.dispatchEvent(new Event("scroll"));
+  });
+  return scroller;
+}
+
+// jsdom has no real scrolling, so a button's click is observed through a
+// stubbed `scrollBy` instead.
+function stubScrollBy(scroller: HTMLElement) {
+  const scrollBy = vi.fn();
+  scroller.scrollBy = scrollBy;
+  return scrollBy;
+}
+
 describe("ScrollMask", () => {
   it("renders its children inside the scroller", () => {
     renderMask();
@@ -191,9 +233,7 @@ describe("ScrollMask", () => {
   });
 
   it("ramps each band away from its own edge", () => {
-    const { start, end } = bandsOf(
-      renderMask({ showStartMask: true, showEndMask: true }),
-    );
+    const { start, end } = bandsOf(renderMask());
 
     expect(start.className).toContain("styles.bandBlockStart");
     expect(end.className).toContain("styles.bandBlockEnd");
@@ -224,13 +264,7 @@ describe("ScrollMask", () => {
   });
 
   it("places the bands on the inline edges when horizontal", () => {
-    const { start, end } = bandsOf(
-      renderMask({
-        orientation: "horizontal",
-        showStartMask: true,
-        showEndMask: true,
-      }),
-    );
+    const { start, end } = bandsOf(renderMask({ orientation: "horizontal" }));
 
     expect(start.className).toContain("styles.bandInlineStart");
     expect(end.className).toContain("styles.bandInlineEnd");
@@ -256,9 +290,9 @@ describe("ScrollMask", () => {
   });
 
   it("blurs an edge up to the requested radius when it is shown", () => {
-    const { start } = bandsOf(
-      renderMask({ radius: 16, showStartMask: true, showEndMask: false }),
-    );
+    const root = renderMask({ radius: 16 });
+    driveMask(root, scrollMetrics(100));
+    const { start } = bandsOf(root);
     const layers = layerStyles(start);
 
     expect(layers[0]).toContain("blur(1px)");
@@ -281,9 +315,9 @@ describe("ScrollMask", () => {
   });
 
   it("leaves a shown edge visible while the other stays melted away", () => {
-    const { start, end } = bandsOf(
-      renderMask({ showStartMask: true, showEndMask: false }),
-    );
+    const root = renderMask();
+    driveMask(root, scrollMetrics(300));
+    const { start, end } = bandsOf(root);
 
     for (const layer of start.children) {
       expect(layer.className).not.toContain("styles.hidden");
@@ -392,11 +426,7 @@ describe("ScrollMask chrome slots", () => {
   });
 
   it("ramps a slotted band across the chrome and depth past it", () => {
-    const root = renderChromeMask({
-      depth: "40px",
-      showStartMask: true,
-      showEndMask: true,
-    });
+    const root = renderChromeMask({ depth: "40px" });
     const { start, end } = bandsOf(root);
 
     expect(start.getAttribute("style") ?? "").toContain("calc(0px + 40px)");
@@ -416,11 +446,9 @@ describe("ScrollMask chrome slots", () => {
     expect(end.className).toContain("corners.blockEnd");
   });
 
-  it("drives a slotted band from the controlled props", () => {
-    const root = renderChromeMask({
-      showStartMask: true,
-      showEndMask: false,
-    });
+  it("melts a slotted band with its own edge", () => {
+    const root = renderChromeMask();
+    driveMask(root, scrollMetrics(300));
     const { start, end } = bandsOf(root);
 
     for (const layer of start.children) {
@@ -432,11 +460,7 @@ describe("ScrollMask chrome slots", () => {
   });
 
   it("places horizontal slots against the inline edges", () => {
-    const root = renderChromeMask({
-      orientation: "horizontal",
-      showStartMask: true,
-      showEndMask: true,
-    });
+    const root = renderChromeMask({ orientation: "horizontal" });
 
     expect(root.firstElementChild?.className).toContain(
       "styles.scrollerChromeRow",
@@ -543,5 +567,121 @@ describe("ScrollMask measured chrome", () => {
     );
 
     expect(start.getAttribute("style") ?? "").toContain("calc(64px + 40px)");
+  });
+});
+
+describe("ScrollMask scroll buttons", () => {
+  const labels = { startLabel: "Scroll up", endLabel: "Scroll down" };
+
+  it("renders no button until it is asked for one", () => {
+    renderMask();
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("names one button per edge from the labels it is given", () => {
+    const root = renderMask({ scrollButtons: labels });
+
+    const start = screen.getByRole("button", { name: "Scroll up" });
+    const end = screen.getByRole("button", { name: "Scroll down" });
+    expect(start.parentElement).toBe(root);
+    expect(end.parentElement).toBe(root);
+  });
+
+  // The buttons come after both bands, so each one paints above the blur it
+  // sits over.
+  it("puts both buttons after the bands", () => {
+    const root = renderMask({ scrollButtons: labels });
+
+    // Scroller, band, band, then the two buttons.
+    expect([...root.children].slice(3)).toStrictEqual([
+      screen.getByRole("button", { name: "Scroll up" }),
+      screen.getByRole("button", { name: "Scroll down" }),
+    ]);
+  });
+
+  it("holds a button inert until its own edge masks", () => {
+    const root = renderMask({ scrollButtons: labels });
+    const start = screen.getByRole("button", { name: "Scroll up" });
+    const end = screen.getByRole("button", { name: "Scroll down" });
+
+    expect(start).toHaveAttribute("inert");
+    expect(end).toHaveAttribute("inert");
+
+    driveMask(root, scrollMetrics(100));
+
+    expect(start).not.toHaveAttribute("inert");
+    expect(end).not.toHaveAttribute("inert");
+  });
+
+  it("scrolls one viewport along the scroll axis when a button is clicked", () => {
+    const root = renderMask({
+      orientation: "horizontal",
+      scrollButtons: { startLabel: "Scroll left", endLabel: "Scroll right" },
+    });
+    const scroller = driveMask(root, scrollMetrics(100));
+    const scrollBy = stubScrollBy(scroller);
+
+    fireEvent.click(screen.getByRole("button", { name: "Scroll right" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scroll left" }));
+
+    expect(scrollBy).toHaveBeenNthCalledWith(1, {
+      left: 200,
+      behavior: "smooth",
+    });
+    expect(scrollBy).toHaveBeenNthCalledWith(2, {
+      left: -200,
+      behavior: "smooth",
+    });
+  });
+
+  it("steps the block axis for a vertical region", () => {
+    const root = renderMask({ scrollButtons: labels });
+    const scroller = driveMask(root, scrollMetrics(100));
+    const scrollBy = stubScrollBy(scroller);
+
+    fireEvent.click(screen.getByRole("button", { name: "Scroll down" }));
+
+    expect(scrollBy).toHaveBeenCalledWith({ top: 200, behavior: "smooth" });
+  });
+});
+
+describe("ScrollMask clip margin", () => {
+  it("pads the scroller off the block axis and takes the room back for a horizontal region", () => {
+    const root = renderMask({ orientation: "horizontal", clipMargin: "12px" });
+    const scroller = root.firstElementChild;
+
+    const style = scroller?.getAttribute("style") ?? "";
+    expect(style).toContain("12px");
+    expect(style).toContain("calc(-1 * 12px)");
+  });
+
+  it("reaches each band as far past the region as the scroller", () => {
+    const { start, end } = bandsOf(
+      renderMask({ orientation: "horizontal", clipMargin: "12px" }),
+    );
+
+    expect(start.getAttribute("style") ?? "").toContain("calc(-1 * 12px)");
+    expect(end.getAttribute("style") ?? "").toContain("calc(-1 * 12px)");
+  });
+
+  it("takes the inline axis for a vertical region", () => {
+    const root = renderMask({ clipMargin: "12px" });
+    const scroller = root.firstElementChild;
+
+    expect(scroller?.getAttribute("style") ?? "").toContain("calc(-1 * 12px)");
+    expect(bandsOf(root).start.getAttribute("style") ?? "").toContain(
+      "calc(-1 * 12px)",
+    );
+  });
+
+  it("leaves the scroller and the bands alone without one", () => {
+    const root = renderMask({ orientation: "horizontal" });
+    const scroller = root.firstElementChild;
+
+    expect(scroller?.getAttribute("style") ?? "").not.toContain("calc(-1 *");
+    expect(bandsOf(root).start.getAttribute("style") ?? "").not.toContain(
+      "calc(-1 *",
+    );
   });
 });

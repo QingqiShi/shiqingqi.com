@@ -11,23 +11,15 @@ export type ScrollMaskOrientation = "horizontal" | "vertical";
  * Listens to scroll events, container resizes, and child additions/
  * removals/resizes so `scrollWidth`/`scrollHeight` changes that leave the
  * container's own box unchanged still trigger a remeasure.
- *
- * Pass `{ enabled: false }` to leave the observers unattached and both edges
- * `false` — for a consumer (e.g. `ScrollMask` in controlled mode) that is
- * handed the state from elsewhere and must not run a second set of observers
- * on the same element.
  */
 export function useScrollMask(
   scrollRef: React.RefObject<HTMLElement | null>,
   orientation: ScrollMaskOrientation = "horizontal",
-  options?: { enabled?: boolean },
 ) {
-  const enabled = options?.enabled ?? true;
   const [showStartMask, setShowStartMask] = useState(false);
   const [showEndMask, setShowEndMask] = useState(false);
 
   useEffect(() => {
-    if (!enabled) return;
     const el = scrollRef.current;
     if (!el) return;
 
@@ -59,7 +51,7 @@ export function useScrollMask(
       el.removeEventListener("scroll", update);
       unobserve?.();
     };
-  }, [scrollRef, orientation, enabled]);
+  }, [scrollRef, orientation]);
 
   return { showStartMask, showEndMask };
 }

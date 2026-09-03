@@ -12,9 +12,13 @@ import {
   useScrollMask,
   type ScrollMaskOrientation,
 } from "../hooks/use-scroll-mask.ts";
+import { absoluteFill, pointerConstants } from "../primitives/layout.stylex.ts";
+import { transition } from "../primitives/motion.stylex.ts";
 import type { StyleProp } from "../style-prop.ts";
 import { space } from "../tokens.stylex.ts";
+import { getScrollBehavior } from "../utils/get-scroll-behavior.ts";
 import { mergeRefs } from "../utils/merge-refs.ts";
+import { IconButton } from "./icon-button.tsx";
 import { MaskBand } from "./mask-band.tsx";
 
 interface ScrollMaskProps extends Omit<
@@ -63,15 +67,38 @@ interface ScrollMaskProps extends Omit<
    */
   endChrome?: ReactNode;
   /**
-   * Controlled mask state. Pass BOTH `showStartMask` and `showEndMask` to
-   * render the bands from them and skip the component's own scroll tracking —
-   * for a consumer that already runs `useScrollMask` to drive sibling chrome
-   * (e.g. scroll-to-page buttons) off the same element and wants one source of
-   * truth. Omit both (the default) and ScrollMask tracks the scroll position
-   * itself.
+   * A button per edge that scrolls the region one page towards that edge, and
+   * the accessible name for each — the package ships no i18n, so the names
+   * come in as props.
+   *
+   * The buttons appear on a non-touch device only, because a touch device
+   * scrolls the region with a swipe; and each one appears only while its own
+   * edge masks, so a region resting at the start carries the end button
+   * alone, and one whose content fits carries neither. They sit inside the
+   * region, one `space._3` in from their edge and centred on the other axis,
+   * and they paint above the bands.
+   *
+   * A horizontal region should normally ask for them: a mouse has no
+   * horizontal wheel, so without a button the only way to reach the rest of
+   * the row is a drag.
    */
-  showStartMask?: boolean;
-  showEndMask?: boolean;
+  scrollButtons?: { startLabel: string; endLabel: string };
+  /**
+   * How far the scroller's overflow clip reaches past the root, on the axis
+   * that does not scroll. Any CSS length.
+   *
+   * For content that grows on hover or on focus, or that casts a shadow: it
+   * paints out over the neighbours instead of being cut off at the region's
+   * edge. The region takes no more room, because the scroller gets this much
+   * padding on that axis and the same size back as a negative margin — so it
+   * replaces whatever padding `contentCss` sets there. The scroller's own
+   * outline, a focus ring, follows the enlarged box.
+   *
+   * The CSS analogue is `overflow-clip-margin`, which cannot do this job: it
+   * applies to `overflow: clip` alone, and once one axis scrolls, a `clip` on
+   * the other axis computes to `hidden`.
+   */
+  clipMargin?: string;
   /**
    * StyleX styles merged over the ROOT's own — the escape hatch for how the
    * region sits in the layout around it (flex/grid sizing, block size,
@@ -114,7 +141,8 @@ interface ScrollMaskProps extends Omit<
  * `depth`, so the ramp spans chrome plus depth and the content blurs out
  * across the furniture rather than stopping beneath it; the chrome paints
  * above the band and stays crisp. Either way a band has to sit over the
- * content and stay put while that content moves under it.
+ * content and stay put while that content moves under it. `scrollButtons` adds
+ * one button per edge on top, inside the root and above the bands.
  *
  * The root never clips. The consumer puts the region's corners, border,
  * background and size on the root; the scroller rounds its own overflow clip
@@ -133,23 +161,15 @@ export function ScrollMask({
   depth = space._5,
   startChrome,
   endChrome,
-  showStartMask: startMaskProp,
-  showEndMask: endMaskProp,
+  scrollButtons,
+  clipMargin,
   css,
   contentCss,
   ref: forwardedRef,
   ...rest
 }: ScrollMaskProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  // Controlled when the caller drives both edges — it is already running the
-  // hook itself, so ScrollMask's own copy stays disabled to avoid a second set
-  // of scroll/resize/mutation observers on the same element.
-  const isControlled = startMaskProp !== undefined && endMaskProp !== undefined;
-  const tracked = useScrollMask(scrollRef, orientation, {
-    enabled: !isControlled,
-  });
-  const showStartMask = isControlled ? startMaskProp : tracked.showStartMask;
-  const showEndMask = isControlled ? endMaskProp : tracked.showEndMask;
+  const { showStartMask, showEndMask } = useScrollMask(scrollRef, orientation);
 
   const isHorizontal = orientation === "horizontal";
   const hasStartChrome = startChrome != null;
@@ -185,10 +205,28 @@ export function ScrollMask({
     };
   }, [hasChrome, hasStartChrome, hasEndChrome, isHorizontal]);
 
+  const scrollOnePage = (direction: -1 | 1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const behavior = getScrollBehavior();
+    el.scrollBy(
+      isHorizontal
+        ? { left: direction * el.clientWidth, behavior }
+        : { top: direction * el.clientHeight, behavior },
+    );
+  };
+
   const bandSize = (chromeSize: number | null) =>
     chromeSize === null ? depth : `calc(${String(chromeSize)}px + ${depth})`;
   const startSize = bandSize(hasStartChrome ? chromeSizes.start : null);
   const endSize = bandSize(hasEndChrome ? chromeSizes.end : null);
+  // A band reaches as far as the scroller does, so the clip margin moves both
+  // together.
+  const bandClip =
+    clipMargin !== undefined &&
+    (isHorizontal
+      ? dynamicStyles.bandClipBlock(clipMargin)
+      : dynamicStyles.bandClipInline(clipMargin));
 
   return (
     <div
@@ -221,6 +259,12 @@ export function ScrollMask({
                   chromeSizes.start,
                   chromeSizes.end,
                 )),
+          // After `contentCss`, because the clip margin is what decides the
+          // scroller's box on the axis that does not scroll.
+          clipMargin !== undefined &&
+            (isHorizontal
+              ? dynamicStyles.clipMarginBlock(clipMargin)
+              : dynamicStyles.clipMarginInline(clipMargin)),
         ]}
       >
         {hasStartChrome && (
@@ -253,6 +297,7 @@ export function ScrollMask({
           isHorizontal
             ? dynamicStyles.inlineSize(startSize)
             : dynamicStyles.blockSize(startSize),
+          bandClip,
         ]}
         edge={isHorizontal ? "inline-start" : "block-start"}
         radius={radius}
@@ -264,12 +309,100 @@ export function ScrollMask({
           isHorizontal
             ? dynamicStyles.inlineSize(endSize)
             : dynamicStyles.blockSize(endSize),
+          bandClip,
         ]}
         edge={isHorizontal ? "inline-end" : "block-end"}
         radius={radius}
         isShown={showEndMask}
       />
+      {scrollButtons && (
+        <>
+          <ScrollButton
+            edge={isHorizontal ? "inline-start" : "block-start"}
+            label={scrollButtons.startLabel}
+            isShown={showStartMask}
+            onClick={() => {
+              scrollOnePage(-1);
+            }}
+          />
+          <ScrollButton
+            edge={isHorizontal ? "inline-end" : "block-end"}
+            label={scrollButtons.endLabel}
+            isShown={showEndMask}
+            onClick={() => {
+              scrollOnePage(1);
+            }}
+          />
+        </>
+      )}
     </div>
+  );
+}
+
+/** The edge of a region a scroll button scrolls towards. */
+type ScrollButtonEdge =
+  "block-start" | "block-end" | "inline-start" | "inline-end";
+
+// Inline carets matching Phosphor "CaretLeft" and friends, one per edge, so
+// the package needs no icon dependency (the same recipe as `Breadcrumb`).
+const caretPaths: Record<ScrollButtonEdge, string> = {
+  "block-start": "M48 160l80-80 80 80",
+  "block-end": "M208 96l-80 80-80-80",
+  "inline-start": "M160 208l-80-80 80-80",
+  "inline-end": "M96 48l80 80-80 80",
+};
+
+/**
+ * The caret on a scroll button, pointing at the edge that button scrolls
+ * towards. Decorative — `IconButton` hides it, and the button is named by the
+ * label the consumer gives.
+ */
+function CaretIcon({ edge }: { edge: ScrollButtonEdge }) {
+  return (
+    <svg width="1em" height="1em" viewBox="0 0 256 256" fill="none">
+      <path
+        d={caretPaths[edge]}
+        stroke="currentColor"
+        strokeWidth={20}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+interface ScrollButtonProps {
+  /** The edge this button scrolls the region towards. */
+  edge: ScrollButtonEdge;
+  /** Accessible name for the button. */
+  label: string;
+  /** Whether this button's own edge currently masks. */
+  isShown: boolean;
+  onClick: () => void;
+}
+
+/**
+ * One `ScrollMask` scroll button, pinned to its edge and shown only while
+ * that edge masks. Split out of `ScrollMask`, its one consumer, so the start
+ * and end buttons stay identical apart from the edge.
+ */
+function ScrollButton({ edge, label, isShown, onClick }: ScrollButtonProps) {
+  const { fill, position } = scrollButtonEdges[edge];
+  return (
+    <IconButton
+      icon={<CaretIcon edge={edge} />}
+      aria-label={label}
+      variant="surface"
+      inert={!isShown}
+      onClick={onClick}
+      css={[
+        transition.opacity,
+        fill,
+        styles.scrollButton,
+        position,
+        isShown ? styles.scrollButtonShown : styles.scrollButtonHidden,
+      ]}
+    />
   );
 }
 
@@ -366,7 +499,67 @@ const styles = stylex.create({
     insetBlockStart: 0,
     insetBlockEnd: 0,
   },
+  // On the same plane as a chrome slot and after the bands in DOM order, so
+  // the button paints above the blur and stays crisp. It shows on a non-touch
+  // device only: a touch device scrolls the region with a swipe, and the
+  // button would only cover the content.
+  scrollButton: {
+    zIndex: 1,
+    display: {
+      default: "none",
+      [pointerConstants.NON_TOUCH_DEVICE]: "flex",
+    },
+  },
+  // Centred on the axis that does not scroll by `auto` margins between the
+  // two insets `absoluteFill` sets on that axis, so the button keeps its
+  // `transform` free.
+  scrollButtonInlineStart: {
+    insetInlineStart: space._3,
+    marginBlock: "auto",
+  },
+  scrollButtonInlineEnd: {
+    insetInlineEnd: space._3,
+    marginBlock: "auto",
+  },
+  scrollButtonBlockStart: {
+    insetBlockStart: space._3,
+    marginInline: "auto",
+  },
+  scrollButtonBlockEnd: {
+    insetBlockEnd: space._3,
+    marginInline: "auto",
+  },
+  scrollButtonShown: {
+    opacity: 1,
+    pointerEvents: "auto",
+  },
+  scrollButtonHidden: {
+    opacity: 0,
+    pointerEvents: "none",
+  },
 });
+
+// The axis a button is pinned along decides which axis `absoluteFill` spans
+// it across: an inline-edge button is fixed along the inline axis, so it
+// fills the block axis, and a block-edge button the reverse.
+const scrollButtonEdges: Record<
+  ScrollButtonEdge,
+  { fill: StyleProp; position: StyleProp }
+> = {
+  "block-start": {
+    fill: absoluteFill.x,
+    position: styles.scrollButtonBlockStart,
+  },
+  "block-end": { fill: absoluteFill.x, position: styles.scrollButtonBlockEnd },
+  "inline-start": {
+    fill: absoluteFill.y,
+    position: styles.scrollButtonInlineStart,
+  },
+  "inline-end": {
+    fill: absoluteFill.y,
+    position: styles.scrollButtonInlineEnd,
+  },
+};
 
 // A band's size along the scroll axis is a consumer-supplied length — plus a
 // slot's measured size — so it composes as a dynamic style rather than an
@@ -381,5 +574,28 @@ const dynamicStyles = stylex.create({
   scrollPaddingInline: (start: number, end: number) => ({
     scrollPaddingInlineStart: `${String(start)}px`,
     scrollPaddingInlineEnd: `${String(end)}px`,
+  }),
+  // The clip margin: the scrollport (the padding box) grows by this much on
+  // the axis that does not scroll, and the negative margin gives the room
+  // straight back, so the content keeps its place and the region its size.
+  clipMarginBlock: (size: string) => ({
+    paddingBlockStart: size,
+    paddingBlockEnd: size,
+    marginBlockStart: `calc(-1 * ${size})`,
+    marginBlockEnd: `calc(-1 * ${size})`,
+  }),
+  clipMarginInline: (size: string) => ({
+    paddingInlineStart: size,
+    paddingInlineEnd: size,
+    marginInlineStart: `calc(-1 * ${size})`,
+    marginInlineEnd: `calc(-1 * ${size})`,
+  }),
+  bandClipBlock: (size: string) => ({
+    insetBlockStart: `calc(-1 * ${size})`,
+    insetBlockEnd: `calc(-1 * ${size})`,
+  }),
+  bandClipInline: (size: string) => ({
+    insetInlineStart: `calc(-1 * ${size})`,
+    insetInlineEnd: `calc(-1 * ${size})`,
   }),
 });
