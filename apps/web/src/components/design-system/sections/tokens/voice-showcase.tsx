@@ -1,4 +1,4 @@
-/* eslint-disable i18n/no-banned-copy-words -- documents the banned-words list, so it must quote the words as specimens */
+/* eslint-disable @tuja/no-banned-copy-words -- documents the banned-words list, so it must quote the words as specimens */
 import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";

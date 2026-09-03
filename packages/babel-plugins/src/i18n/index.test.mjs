@@ -50,7 +50,7 @@ function expectedKey(en, zh) {
     .slice(0, 8);
 }
 
-describe("i18n-babel-plugin", () => {
+describe("i18n", () => {
   describe("server component transform (no 'use client')", () => {
     it("transforms t() call to __i18n_lookup with correct key", () => {
       const input = `
@@ -493,6 +493,7 @@ const msg = t({ en: \`Hello \${name}\`, zh: \`你好\${name}\` });
       // Dynamically import the ESM key module
       const keyModulePath = path.resolve(
         __dirname,
+        "..",
         "..",
         "..",
         "i18n-codegen",

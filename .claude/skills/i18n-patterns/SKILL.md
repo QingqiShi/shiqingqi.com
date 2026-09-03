@@ -104,7 +104,7 @@ getLocalePath("/about", locale); // → "/en/about" or "/zh/about"
 
 ### Codegen (`pnpm codegen:i18n`)
 
-The codegen script in `tooling/i18n-codegen/` does:
+The codegen script in `packages/i18n-codegen/` does:
 
 1. **Extracts** all `t()` calls from source files via AST parsing
 2. **Generates** global JSON bundles: `src/_generated/i18n/translations.{en,zh}.json`
@@ -115,7 +115,7 @@ The codegen script in `tooling/i18n-codegen/` does:
 
 Run codegen after adding/changing any `t()` call, or the Babel plugin won't find the translation key at runtime.
 
-### Babel Plugin (`tooling/i18n-babel-plugin/`)
+### Babel Plugin (`packages/babel-plugins/src/i18n/`)
 
 Runs at compile time (both dev and build). Transforms:
 
@@ -180,4 +180,4 @@ The parent page/layout must be in the manifest for client translations to work. 
 - Manually adding `setLocale` to page files — the Babel plugin does this automatically
 - Creating separate `translations.json` files — translations live inline in the component
 - Using `getTranslations()` or `useTranslations()` — these no longer exist; use `t()` everywhere
-- Calling `t()` outside render scope — `t()` must be called directly in a React component body, custom hook, or `generateMetadata()`. It cannot be used in `useEffect`, event handlers, callbacks (`.map()`, `.then()`), `setTimeout`, module scope, or exported non-component functions. The ESLint rule `i18n/no-t-outside-render` enforces this. Non-exported helper functions are allowed only if every call site is in render scope.
+- Calling `t()` outside render scope — `t()` must be called directly in a React component body, custom hook, or `generateMetadata()`. It cannot be used in `useEffect`, event handlers, callbacks (`.map()`, `.then()`), `setTimeout`, module scope, or exported non-component functions. The ESLint rule `@tuja/no-t-outside-render` enforces this. Non-exported helper functions are allowed only if every call site is in render scope.

@@ -29,7 +29,7 @@ export const motionTokens = stylex.defineVars({
   playState: "running",
 });
 
-// `defineConsts`, not a plain object: `design-system/only-stylex-exports` gives
+// `defineConsts`, not a plain object: `@tuja/only-stylex-exports` gives
 // the reason. Not `defineVars` either: nothing themes these at runtime.
 //
 // The scale covers every duration the package actually uses — the short end for

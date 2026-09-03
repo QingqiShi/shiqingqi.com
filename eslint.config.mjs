@@ -12,9 +12,7 @@ import { createRequire } from "node:module";
 import tsEslint from "typescript-eslint";
 
 const require = createRequire(import.meta.url);
-const conventionsPlugin = require("@tuja/eslint-plugin-conventions");
-const designSystemPlugin = require("@tuja/eslint-plugin-design-system");
-const i18nPlugin = require("@tuja/eslint-plugin-i18n");
+const tujaPlugin = require("@tuja/eslint-plugin");
 
 export default defineConfig([
   {
@@ -44,9 +42,7 @@ export default defineConfig([
       "import-x": importPlugin,
       "@stylexjs": stylexjs,
       unicorn: eslintPluginUnicorn,
-      "design-system": designSystemPlugin,
-      i18n: i18nPlugin,
-      conventions: conventionsPlugin,
+      "@tuja": tujaPlugin,
       "@eslint-community/eslint-comments": comments,
     },
     languageOptions: {
@@ -133,8 +129,8 @@ export default defineConfig([
       // index IS the identity — the rule flagged only correct uses.
       "@eslint-react/no-array-index-key": "off",
       "unicorn/no-unused-properties": "error",
-      "i18n/no-t-outside-render": "error",
-      "i18n/no-banned-copy-words": "error",
+      "@tuja/no-t-outside-render": "error",
+      "@tuja/no-banned-copy-words": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -156,20 +152,20 @@ export default defineConfig([
     files: ["packages/ui/src/**/*.{ts,tsx}", "apps/web/src/**/*.{ts,tsx}"],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
-      "design-system/require-corner-shape": "error",
+      "@tuja/require-corner-shape": "error",
     },
   },
   {
     files: ["packages/ui/src/**/*.{ts,tsx}"],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
-      "design-system/require-package-export": "error",
+      "@tuja/require-package-export": "error",
     },
   },
   {
     files: ["packages/ui/src/**/*.stylex.ts", "apps/web/src/**/*.stylex.ts"],
     rules: {
-      "design-system/only-stylex-exports": "error",
+      "@tuja/only-stylex-exports": "error",
     },
   },
   // Next.js rules apply only to the Next.js apps.
@@ -191,7 +187,7 @@ export default defineConfig([
   {
     files: ["**/*.test.{ts,tsx,js,mjs}", "**/*.spec.{ts,tsx,js,mjs}"],
     rules: {
-      "i18n/no-t-outside-render": "off",
+      "@tuja/no-t-outside-render": "off",
     },
   },
   // A hook can only run inside a client component, so a module that exports
@@ -199,7 +195,7 @@ export default defineConfig([
   {
     files: ["apps/*/src/**/*.{ts,tsx}", "packages/*/src/**/*.{ts,tsx}"],
     rules: {
-      "conventions/no-use-client-in-hooks": "error",
+      "@tuja/no-use-client-in-hooks": "error",
     },
   },
   // A source file is named after the thing it exports, in kebab-case.
@@ -234,7 +230,7 @@ export default defineConfig([
       "**/constants.ts",
     ],
     rules: {
-      "conventions/export-matches-filename": "error",
+      "@tuja/export-matches-filename": "error",
       "unicorn/filename-case": ["error", { case: "kebabCase" }],
     },
   },

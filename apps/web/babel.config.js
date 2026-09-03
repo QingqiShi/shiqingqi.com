@@ -23,8 +23,8 @@ module.exports = {
   ],
   plugins: [
     // Reads the original source, so it must run before anything rewrites it.
-    "@tuja/babel-plugin-specimen-source",
-    "@tuja/i18n-babel-plugin",
+    "@tuja/babel-plugins/specimen-source",
+    "@tuja/babel-plugins/i18n",
     [
       "module-resolver",
       {
@@ -34,7 +34,7 @@ module.exports = {
       },
     ],
     [
-      "@tuja/babel-plugin-stylex-breakpoints",
+      "@tuja/babel-plugins/stylex-breakpoints",
       {
         rootDir: uiPackageRoot,
       },

@@ -1,5 +1,5 @@
 {
-  "name": "@tuja/i18n-babel-plugin",
+  "name": "@tuja/eslint-plugin",
   "version": "0.0.0",
   "private": true,
   "type": "commonjs",
@@ -9,10 +9,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@babel/core": "catalog:",
-    "@tuja/module-exports": "workspace:*"
+    "@tuja/module-exports": "workspace:*",
+    "eslint": "catalog:"
   },
   "devDependencies": {
+    "typescript-eslint": "catalog:",
     "vitest": "catalog:"
   }
 }

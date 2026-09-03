@@ -29,7 +29,7 @@ export default defineConfig({
       ],
       plugins: [
         [
-          "@tuja/babel-plugin-stylex-breakpoints",
+          "@tuja/babel-plugins/stylex-breakpoints",
           {
             rootDir: __dirname,
           },
