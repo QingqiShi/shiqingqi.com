@@ -1,5 +1,3 @@
-"use client";
-
 import { t } from "#src/i18n.ts";
 
 export interface Credit {

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
 import { getTabbableElements } from "../utils/get-tabbable-elements.ts";
 

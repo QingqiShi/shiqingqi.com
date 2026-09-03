@@ -46,6 +46,7 @@ export default defineConfig([
       unicorn: eslintPluginUnicorn,
       "design-system": designSystemPlugin,
       i18n: i18nPlugin,
+      conventions: conventionsPlugin,
       "@eslint-community/eslint-comments": comments,
     },
     languageOptions: {
@@ -193,6 +194,14 @@ export default defineConfig([
       "i18n/no-t-outside-render": "off",
     },
   },
+  // A hook can only run inside a client component, so a module that exports
+  // only hooks is never a server/client seam and `"use client"` there is dead.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}", "packages/*/src/**/*.{ts,tsx}"],
+    rules: {
+      "conventions/no-use-client-in-hooks": "error",
+    },
+  },
   // A source file is named after the thing it exports, in kebab-case.
   {
     files: [
@@ -224,9 +233,6 @@ export default defineConfig([
       "**/types.ts",
       "**/constants.ts",
     ],
-    plugins: {
-      conventions: conventionsPlugin,
-    },
     rules: {
       "conventions/export-matches-filename": "error",
       "unicorn/filename-case": ["error", { case: "kebabCase" }],

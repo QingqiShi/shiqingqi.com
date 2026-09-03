@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useRef } from "react";
 
 interface RadioGroupOptions<TValue extends string> {

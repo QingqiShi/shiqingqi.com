@@ -1,7 +1,5 @@
 /* eslint-disable conventions/export-matches-filename -- the i18n Babel plugin
    hardcodes this path as a compile target, so the file name is a contract. */
-"use client";
-
 import type { ReactNode } from "react";
 import { use } from "react";
 import { I18nContext } from "#src/i18n/i18n-context.ts";

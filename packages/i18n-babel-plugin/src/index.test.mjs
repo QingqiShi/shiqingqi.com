@@ -249,6 +249,140 @@ const msg = t({ en: "Hello", zh: "你好" });
     });
   });
 
+  describe("hook-only modules (no directive needed)", () => {
+    it("treats a hook-only module as client, even with no directive", () => {
+      const input = `
+import { t } from "#src/i18n";
+export function useMovies() { return t({ en: "A", zh: "甲" }); }
+`;
+      const output = transform(input);
+      const key = expectedKey("A", "甲");
+
+      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(
+        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+      );
+    });
+
+    it("stays client when type-only exports sit beside the hook", () => {
+      const input = `
+import { t } from "#src/i18n";
+export interface Movie { title: string }
+export type Id = string;
+export function useMovies(): Movie[] { return [{ title: t({ en: "A", zh: "甲" }) }]; }
+`;
+      const output = transform(input);
+      const key = expectedKey("A", "甲");
+
+      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(
+        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+      );
+    });
+
+    it("treats an arrow-function hook export as client", () => {
+      const input = `
+import { t } from "#src/i18n";
+export const useFoo = () => t({ en: "A", zh: "甲" });
+`;
+      const output = transform(input);
+      const key = expectedKey("A", "甲");
+
+      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(
+        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+      );
+    });
+
+    it("treats a default-exported hook as client", () => {
+      const input = `
+import { t } from "#src/i18n";
+export default function useFoo() { return t({ en: "A", zh: "甲" }); }
+`;
+      const output = transform(input);
+      const key = expectedKey("A", "甲");
+
+      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(
+        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+      );
+    });
+
+    it("treats a hook exported via a specifier as client", () => {
+      const input = `
+import { t } from "#src/i18n";
+function useFoo() { return t({ en: "A", zh: "甲" }); }
+export { useFoo };
+`;
+      const output = transform(input);
+      const key = expectedKey("A", "甲");
+
+      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(
+        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+      );
+    });
+
+    it("falls back to server runtime when a non-hook value export sits beside a hook", () => {
+      const input = `
+import { t } from "#src/i18n";
+export function useFoo() { return t({ en: "A", zh: "甲" }); }
+export const helper = 1;
+`;
+      const output = transform(input);
+      const key = expectedKey("A", "甲");
+
+      expect(output).toContain(`__i18n_lookup("${key}")`);
+      expect(output).toContain(
+        `import { __i18n_lookup } from "#src/i18n/server-runtime.ts"`,
+      );
+    });
+
+    it("falls back to server runtime when a barrel re-export sits beside a hook", () => {
+      const input = `
+export * from "./x";
+import { t } from "#src/i18n";
+export function useFoo() { return t({ en: "A", zh: "甲" }); }
+`;
+      const output = transform(input);
+      const key = expectedKey("A", "甲");
+
+      expect(output).toContain(`__i18n_lookup("${key}")`);
+      expect(output).toContain(
+        `import { __i18n_lookup } from "#src/i18n/server-runtime.ts"`,
+      );
+    });
+
+    it("uses the server runtime when there are no exports at all", () => {
+      const input = `
+import { t } from "#src/i18n";
+function run() { return t({ en: "A", zh: "甲" }); }
+run();
+`;
+      const output = transform(input);
+      const key = expectedKey("A", "甲");
+
+      expect(output).toContain(`__i18n_lookup("${key}")`);
+      expect(output).toContain(
+        `import { __i18n_lookup } from "#src/i18n/server-runtime.ts"`,
+      );
+    });
+
+    it("uses useI18nLookupParse inside a hook-only module with { parse: true }", () => {
+      const input = `
+import { t } from "#src/i18n";
+export function useMovies() { return t({ en: "A <b>b</b>", zh: "甲 <b>乙</b>" }, { parse: true }); }
+`;
+      const output = transform(input);
+      const key = expectedKey("A <b>b</b>", "甲 <b>乙</b>");
+
+      expect(output).toContain(`useI18nLookupParse("${key}")`);
+      expect(output).toContain(
+        `import { useI18nLookupParse } from "#src/i18n/client-runtime.ts"`,
+      );
+    });
+  });
+
   describe("resolved relative paths", () => {
     it("transforms t() imported via resolved relative path to i18n.ts", () => {
       const input = `

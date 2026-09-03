@@ -2,6 +2,7 @@
 
 const nodePath = require("node:path");
 
+const { isHookModule } = require("@tuja/module-exports");
 const { createContextWrapper } = require("./create-context-wrapper");
 const { extractTranslations } = require("./extract-translations");
 const { generateKey } = require("./generate-key");
@@ -20,7 +21,7 @@ const defaultProjectRoot = process.cwd();
 /**
  * @typedef {{
  *   tLocalName: string | null,
- *   isClientComponent: boolean,
+ *   isClientModule: boolean,
  *   usedLookup: boolean,
  *   usedLookupParse: boolean,
  *   tImportPath: import('@babel/traverse').NodePath<import('@babel/types').ImportDeclaration> | null,
@@ -32,8 +33,10 @@ const defaultProjectRoot = process.cwd();
 /**
  * A Babel plugin that transforms inline i18n `t()` calls into key-based lookups.
  *
- * - Server components: `t({en:"Hello", zh:"你好"})` → `__i18n_lookup("key")`
- * - Client components: `t({en:"Hello", zh:"你好"})` → `useI18nLookup("key")`
+ * - Server modules: `t({en:"Hello", zh:"你好"})` → `__i18n_lookup("key")`
+ * - Client modules — files with `"use client"`, or files that export only
+ *   hooks, since a hook can only run inside a client component —
+ *   `t({en:"Hello", zh:"你好"})` → `useI18nLookup("key")`
  * - With `{ parse: true }`: uses `__i18n_lookupParse` / `useI18nLookupParse`
  * - Page/layout files in manifest: auto-wraps default export return with
  *   `<I18nContext value={{ translations: getClientTranslations() }}>`
@@ -54,7 +57,7 @@ module.exports = function i18nBabelPlugin({ types: t }, opts) {
       Program: {
         enter(path, state) {
           state.tLocalName = null;
-          state.isClientComponent = false;
+          state.isClientModule = false;
           state.usedLookup = false;
           state.usedLookupParse = false;
           state.tImportPath = null;
@@ -72,10 +75,17 @@ module.exports = function i18nBabelPlugin({ types: t }, opts) {
                 t.isDirectiveLiteral(directive.value) &&
                 directive.value.value === "use client"
               ) {
-                state.isClientComponent = true;
+                state.isClientModule = true;
                 break;
               }
             }
+          }
+
+          // A hook can only run inside a client component, so a module
+          // whose value exports are all hooks is client code even with no
+          // directive.
+          if (!state.isClientModule) {
+            state.isClientModule = isHookModule(path.node);
           }
 
           // Check if this file is a page/layout with client translations.
@@ -149,10 +159,8 @@ function removeTImport(t, state) {
 function injectRuntimeImports(t, path, state) {
   if (!state.usedLookup && !state.usedLookupParse) return;
 
-  const lookupName = state.isClientComponent
-    ? "useI18nLookup"
-    : "__i18n_lookup";
-  const lookupParseName = state.isClientComponent
+  const lookupName = state.isClientModule ? "useI18nLookup" : "__i18n_lookup";
+  const lookupParseName = state.isClientModule
     ? "useI18nLookupParse"
     : "__i18n_lookupParse";
 
@@ -172,7 +180,7 @@ function injectRuntimeImports(t, path, state) {
     );
   }
 
-  const source = state.isClientComponent
+  const source = state.isClientModule
     ? "#src/i18n/client-runtime.ts"
     : "#src/i18n/server-runtime.ts";
 
@@ -211,7 +219,7 @@ function injectSetLocaleForPages(t, path, state, projectRoot) {
 
   if (
     !producesLocaleDependentOutput ||
-    state.isClientComponent ||
+    state.isClientModule ||
     state.hasSetLocaleImport ||
     !state.filename
   ) {
@@ -427,7 +435,7 @@ function transformTCall(t, path, state) {
 
   /** @type {string} */
   let funcName;
-  if (state.isClientComponent) {
+  if (state.isClientModule) {
     funcName = isParse ? "useI18nLookupParse" : "useI18nLookup";
   } else {
     funcName = isParse ? "__i18n_lookupParse" : "__i18n_lookup";
