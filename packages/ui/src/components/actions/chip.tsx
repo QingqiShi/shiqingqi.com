@@ -5,8 +5,6 @@ import type { StyleProp } from "../../style-prop.ts";
 import { color } from "../../tokens.stylex.ts";
 import { chipSize, chipSurface } from "./chip.stylex.ts";
 
-type ChipSize = "sm" | "md";
-
 interface ChipBaseProps {
   /** Chip contents — usually a short label. */
   children: ReactNode;
@@ -18,7 +16,7 @@ interface ChipBaseProps {
    */
   trailing?: ReactNode;
   /** Height and type scale. Defaults to `"md"`. */
-  size?: ChipSize;
+  size?: "sm" | "md";
   /**
    * Paints the chip as the selected one. On the button form this also emits
    * `aria-pressed`; on the anchor form it's visual only — mark the current

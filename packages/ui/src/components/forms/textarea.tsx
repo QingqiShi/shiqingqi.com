@@ -17,8 +17,6 @@ import {
   fieldStyles,
 } from "./field-shared.stylex.ts";
 
-type FieldSize = "sm" | "md" | "lg";
-
 interface TextareaProps extends Omit<
   ComponentProps<"textarea">,
   "className" | "style"
@@ -43,7 +41,7 @@ interface TextareaProps extends Omit<
    */
   error?: string;
   /** Control scale. Defaults to `"md"`. */
-  size?: FieldSize;
+  size?: "sm" | "md" | "lg";
   /**
    * Grow the textarea to fit its content instead of scrolling, disabling the
    * manual resize handle. Defaults to `false` (a fixed `rows`-tall box the user

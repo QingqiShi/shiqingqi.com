@@ -4,10 +4,8 @@ import { font, space } from "@tuja/ui/tokens.stylex";
 import { gridlineGround } from "./gridline-ground.stylex.ts";
 import { Identifier } from "./identifier.tsx";
 
-type RoleCellSize = "large" | "medium" | "thin";
-
 interface RoleCell {
-  size: RoleCellSize;
+  size: "large" | "medium" | "thin";
   bg: StyleXStyles;
   fg: StyleXStyles;
   label: string;

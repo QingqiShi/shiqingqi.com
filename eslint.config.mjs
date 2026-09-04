@@ -131,6 +131,7 @@ export default defineConfig([
       "unicorn/no-unused-properties": "error",
       "@tuja/no-t-outside-render": "error",
       "@tuja/no-banned-copy-words": "error",
+      "@tuja/no-single-use-literal-alias": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -188,6 +189,13 @@ export default defineConfig([
     files: ["**/*.test.{ts,tsx,js,mjs}", "**/*.spec.{ts,tsx,js,mjs}"],
     rules: {
       "@tuja/no-t-outside-render": "off",
+    },
+  },
+  // shadcn/ui generates these files and keeps its own convention.
+  {
+    files: ["apps/trip-planner/src/components/ui/**"],
+    rules: {
+      "@tuja/no-single-use-literal-alias": "off",
     },
   },
   // A hook can only run inside a client component, so a module that exports

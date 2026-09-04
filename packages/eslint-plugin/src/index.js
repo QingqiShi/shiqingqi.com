@@ -1,6 +1,7 @@
 "use strict";
 
 const exportMatchesFilename = require("./conventions/export-matches-filename");
+const noSingleUseLiteralAlias = require("./conventions/no-single-use-literal-alias");
 const noUseClientInHooks = require("./conventions/no-use-client-in-hooks");
 const onlyStylexExports = require("./design-system/only-stylex-exports");
 const requireCornerShape = require("./design-system/require-corner-shape");
@@ -12,6 +13,7 @@ module.exports = {
   meta: { name: "@tuja/eslint-plugin" },
   rules: {
     "export-matches-filename": exportMatchesFilename,
+    "no-single-use-literal-alias": noSingleUseLiteralAlias,
     "no-use-client-in-hooks": noUseClientInHooks,
     "only-stylex-exports": onlyStylexExports,
     "require-corner-shape": requireCornerShape,

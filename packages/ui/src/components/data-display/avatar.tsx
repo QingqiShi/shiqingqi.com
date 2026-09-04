@@ -4,9 +4,6 @@ import { corner } from "../../primitives/corner.stylex.ts";
 import type { StyleProp } from "../../style-prop.ts";
 import { border, color, font, shadow, space } from "../../tokens.stylex.ts";
 
-type AvatarSize = "sm" | "md" | "lg";
-type AvatarVariant = "subtle" | "solid";
-
 interface AvatarBaseProps extends Omit<
   ComponentProps<"span">,
   "children" | "role" | "aria-label" | "className" | "style"
@@ -29,13 +26,13 @@ interface AvatarBaseProps extends Omit<
    */
   initials?: string;
   /** Diameter and type scale. Defaults to `"md"`. */
-  size?: AvatarSize;
+  size?: "sm" | "md" | "lg";
   /**
    * `"subtle"` (the default) is a quiet tinted medallion for someone simply
    * present. `"solid"` inverts it, so the people a view is actually about
    * stand out of a row of their peers.
    */
-  variant?: AvatarVariant;
+  variant?: "subtle" | "solid";
   /** StyleX overrides merged over the root — composed last so a caller wins. */
   css?: StyleProp;
 }

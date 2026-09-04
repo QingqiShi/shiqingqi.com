@@ -26,8 +26,6 @@ const CHECK_ICON =
 const DASH_ICON =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%208h8'%20fill='none'%20stroke='white'%20stroke-width='2'%20stroke-linecap='round'/%3E%3C/svg%3E";
 
-type CheckboxSize = "sm" | "md";
-
 interface CheckboxProps extends Omit<
   ComponentProps<"input">,
   "type" | "size" | "children" | "className" | "style"
@@ -55,7 +53,7 @@ interface CheckboxProps extends Omit<
    */
   indeterminate?: boolean;
   /** Box and type scale. Defaults to `"md"`. */
-  size?: CheckboxSize;
+  size?: "sm" | "md";
   /** StyleX styles merged over the root wrapper — the config-layer escape hatch. */
   css?: StyleProp;
 }

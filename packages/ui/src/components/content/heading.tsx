@@ -5,11 +5,6 @@ import { color, font } from "../../tokens.stylex.ts";
 
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 type HeadingVariant = "display" | "h1" | "h2" | "h3" | "h4";
-type HeadingWeight =
-  "regular" | "medium" | "semibold" | "bold" | "extrabold" | "black";
-type HeadingAlign = "start" | "center" | "end";
-type HeadingWrap = "balance" | "pretty" | "nowrap";
-
 interface HeadingProps {
   /** Heading rank `<h1>`–`<h6>`. Defaults to `2`. */
   level?: HeadingLevel;
@@ -19,11 +14,11 @@ interface HeadingProps {
    * Overrides the weight `variant` sets, extending `Text`'s weight vocabulary
    * with `extrabold`/`black` for the display range.
    */
-  weight?: HeadingWeight;
+  weight?: "regular" | "medium" | "semibold" | "bold" | "extrabold" | "black";
   /** Text alignment (logical `start` / `center` / `end`). */
-  align?: HeadingAlign;
+  align?: "start" | "center" | "end";
   /** How lines break, via CSS `text-wrap`. */
-  wrap?: HeadingWrap;
+  wrap?: "balance" | "pretty" | "nowrap";
   /**
    * Id applied to the rendered heading, so a region can name itself with
    * `aria-labelledby` pointing here.

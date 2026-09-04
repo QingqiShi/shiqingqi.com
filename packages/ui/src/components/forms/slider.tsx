@@ -24,8 +24,6 @@ import {
 import { fieldStyles } from "./field-shared.stylex.ts";
 import { sliderTokens } from "./slider.stylex.ts";
 
-type SliderSize = "sm" | "md" | "lg";
-
 // The design system's `size` scale replaces the native character-width attribute of the same name.
 interface SliderOwnProps extends Omit<
   ComponentProps<"input">,
@@ -70,7 +68,7 @@ interface SliderOwnProps extends Omit<
    */
   onCommit?: (value: number) => void;
   /** Track and thumb scale. Defaults to `"md"`. */
-  size?: SliderSize;
+  size?: "sm" | "md" | "lg";
   /** StyleX styles merged over the root wrapper — the escape hatch. */
   css?: StyleProp;
 }

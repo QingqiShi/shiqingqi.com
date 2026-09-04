@@ -14,10 +14,6 @@ import {
   shadow,
 } from "../../tokens.stylex.ts";
 
-type IconButtonSize = "sm" | "md" | "lg";
-type IconButtonVariant = "plain" | "surface";
-type IconButtonShape = "circle" | "square";
-
 interface IconButtonBaseProps extends Omit<
   ComponentProps<"button">,
   "children" | "className" | "style"
@@ -34,15 +30,15 @@ interface IconButtonBaseProps extends Omit<
    * `"sm"` still falls short of the 44px WCAG 2.5.8 touch target, even though
    * every size grows on touch viewports.
    */
-  size?: IconButtonSize;
+  size?: "sm" | "md" | "lg";
   /**
    * `"plain"` tints on hover, for an affordance inline over an existing
    * surface. `"surface"` adds an opaque fill and shadow, for a floating
    * control (e.g. a carousel arrow) over content. Defaults to `"plain"`.
    */
-  variant?: IconButtonVariant;
+  variant?: "plain" | "surface";
   /** `"circle"` (fully rounded) or `"square"` (rounded corners). Defaults to `"circle"`. */
-  shape?: IconButtonShape;
+  shape?: "circle" | "square";
   /** StyleX styles merged over the button's own — the config-layer escape hatch, composed last. */
   css?: StyleProp;
 }
