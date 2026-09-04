@@ -1,12 +1,16 @@
 "use client";
 
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-import { SlidersHorizontalIcon } from "@phosphor-icons/react/dist/ssr/SlidersHorizontal";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
-import { AnchorButtonGroup } from "@tuja/ui/components/anchor-button-group";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
+import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
-import { AnchorButton } from "#src/components/shared/anchor-button.tsx";
+import { Text } from "@tuja/ui/components/text";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
@@ -15,6 +19,10 @@ import { Showcase } from "../../showcase.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 
 export function ButtonShowcase() {
+  const searchLabel = t({ en: "Search", zh: "搜索" });
+  const deleteLabel = t({ en: "Delete", zh: "删除" });
+  const closeLabel = t({ en: "Close", zh: "关闭" });
+
   return (
     <>
       <Showcase label={t({ en: "Variants", zh: "风格" })}>
@@ -99,13 +107,100 @@ export function ButtonShowcase() {
               {t({ en: "Continue", zh: "继续" })}
             </Button>
           </Specimen>
-          <Specimen caption="icon only">
+        </SpecimenGrid>
+      </Showcase>
+
+      <Showcase label={t({ en: "Icon-only", zh: "纯图标" })}>
+        <ShowcaseHelper>
+          {t({
+            en: "With no children the button renders icon-only: a square of its own height, at the corner radius half that height gives — named by aria-label or aria-labelledby, since the icon itself is decorative.",
+            zh: "没有 children 时，按钮渲染为纯图标：一个与自身高度相等的正方形，圆角为该高度的一半——由 aria-label 或 aria-labelledby 命名，因为图标本身是装饰性的。",
+          })}
+        </ShowcaseHelper>
+        <SpecimenGrid>
+          <Specimen caption="sm">
             <Button
-              icon={<TrashIcon weight="bold" />}
-              aria-label={t({ en: "Delete", zh: "删除" })}
+              size="sm"
+              icon={<MagnifyingGlassIcon weight="bold" />}
+              aria-label={searchLabel}
+            />
+          </Specimen>
+          <Specimen caption="md">
+            <Button
+              size="md"
+              icon={<MagnifyingGlassIcon weight="bold" />}
+              aria-label={searchLabel}
+            />
+          </Specimen>
+          <Specimen caption="lg">
+            <Button
+              size="lg"
+              icon={<MagnifyingGlassIcon weight="bold" />}
+              aria-label={searchLabel}
             />
           </Specimen>
         </SpecimenGrid>
+        <SpecimenGrid>
+          <Specimen caption="default">
+            <Button
+              icon={<TrashIcon weight="bold" />}
+              aria-label={deleteLabel}
+            />
+          </Specimen>
+          <Specimen caption="ghost">
+            <Button
+              variant="ghost"
+              icon={<TrashIcon weight="bold" />}
+              aria-label={deleteLabel}
+            />
+          </Specimen>
+          <Specimen caption="outline">
+            <Button
+              variant="outline"
+              icon={<TrashIcon weight="bold" />}
+              aria-label={deleteLabel}
+            />
+          </Specimen>
+        </SpecimenGrid>
+        <SpecimenGrid>
+          <Specimen caption="enabled">
+            <Button
+              icon={<TrashIcon weight="bold" />}
+              aria-label={deleteLabel}
+            />
+          </Specimen>
+          <Specimen caption="disabled">
+            <Button
+              icon={<TrashIcon weight="bold" />}
+              aria-label={deleteLabel}
+              disabled
+            />
+          </Specimen>
+        </SpecimenGrid>
+        <DoDont
+          do={<Button icon={<XIcon weight="bold" />} aria-label={closeLabel} />}
+          doCaption={t({
+            en: "Name an icon-only button with aria-label — required at the type level, so it cannot ship silent.",
+            zh: "为纯图标按钮提供 aria-label——类型层面强制要求，因此它不可能在无名状态下发布。",
+          })}
+          dont={
+            <div css={styles.dontGroup}>
+              {/* A drawing of the mistake, not the mistake itself: a real
+                  icon-only Button here would refuse to compile without an
+                  aria-label. */}
+              <span css={[corner.radius_2, styles.fauxIconOnly]} aria-hidden>
+                <FloppyDiskIcon weight="bold" />
+              </span>
+              <Text variant="bodySmall" tone="muted">
+                {t({ en: "Save changes", zh: "保存更改" })}
+              </Text>
+            </div>
+          }
+          dontCaption={t({
+            en: "Don't rely on nearby visible text as the only name — a screen reader never associates it with the button the way aria-label or aria-labelledby does.",
+            zh: "不要仅依赖旁边的可见文字充当唯一名称——屏幕阅读器不会像 aria-label 或 aria-labelledby 那样把它与按钮关联起来。",
+          })}
+        />
       </Showcase>
 
       <Showcase label={t({ en: "Disabled", zh: "禁用" })}>
@@ -117,41 +212,6 @@ export function ButtonShowcase() {
             <Button variant="primary" disabled>
               {t({ en: "Primary", zh: "主要" })}
             </Button>
-          </Specimen>
-        </SpecimenGrid>
-      </Showcase>
-
-      <Showcase label={t({ en: "Button group", zh: "按钮组" })}>
-        <SpecimenGrid>
-          <Specimen caption="segmented">
-            <AnchorButtonGroup>
-              <AnchorButton href="#newest" isActive>
-                {t({ en: "Newest", zh: "最新" })}
-              </AnchorButton>
-              <AnchorButton href="#popular">
-                {t({ en: "Popular", zh: "热门" })}
-              </AnchorButton>
-              <AnchorButton href="#top">
-                {t({ en: "Top rated", zh: "高分" })}
-              </AnchorButton>
-            </AnchorButtonGroup>
-          </Specimen>
-          <Specimen caption="with icon">
-            <AnchorButtonGroup>
-              <AnchorButton
-                href="#all"
-                icon={<SlidersHorizontalIcon weight="bold" />}
-                isActive
-              >
-                {t({ en: "All", zh: "全部" })}
-              </AnchorButton>
-              <AnchorButton href="#movies">
-                {t({ en: "Movies", zh: "电影" })}
-              </AnchorButton>
-              <AnchorButton href="#shows">
-                {t({ en: "Shows", zh: "剧集" })}
-              </AnchorButton>
-            </AnchorButtonGroup>
           </Specimen>
         </SpecimenGrid>
       </Showcase>
@@ -188,8 +248,8 @@ export function ButtonShowcase() {
               name: "variant",
               type: '"primary" | "outline" | "ghost" | "danger"',
               description: t({
-                en: 'Visual treatment; omit for the default raised button. "primary" is the one-shot CTA highlight and, unlike isActive, does not emit aria-pressed. "outline" and "ghost" step the chrome down for secondary and inline actions; "danger" is for the action that actually destroys something.',
-                zh: '视觉样式；省略则为默认的凸起按钮。"primary" 是一次性 CTA 高亮，与 isActive 不同，它不会发出 aria-pressed。"outline" 与 "ghost" 依次减弱外框，用于次要与行内操作；"danger" 用于真正具有破坏性的操作。',
+                en: 'Visual treatment; omit for the default raised button. "primary" is the one-shot CTA highlight and, unlike isActive, does not emit aria-pressed. "outline" swaps the fill for a border; "ghost" has no surface at all and holds its colour back until hover, for an affordance inline over existing content. "danger" is for the action that actually destroys something.',
+                zh: '视觉样式；省略则为默认的凸起按钮。"primary" 是一次性 CTA 高亮，与 isActive 不同，它不会发出 aria-pressed。"outline" 以描边取代填充；"ghost" 完全没有表面，颜色在悬停前保持克制，适合置于已有内容之上的行内控件。"danger" 用于真正具有破坏性的操作。',
               }),
             },
             {
@@ -220,16 +280,16 @@ export function ButtonShowcase() {
               name: "icon",
               type: "ReactNode",
               description: t({
-                en: "Decorative leading icon, rendered aria-hidden; never the accessible name.",
-                zh: "装饰性前置图标，以 aria-hidden 渲染；绝不作为可访问名称。",
+                en: "Decorative icon, rendered aria-hidden; never the accessible name. With no children the button renders icon-only: a square of its own height, named by aria-label or aria-labelledby.",
+                zh: "装饰性图标，以 aria-hidden 渲染；绝不作为可访问名称。当没有 children 时，按钮渲染为纯图标：一个与自身高度相等的正方形，由 aria-label 或 aria-labelledby 命名。",
               }),
             },
             {
               name: "hideLabelOnMobile",
               type: "boolean",
               description: t({
-                en: "Below the md breakpoint, collapses to the icon and hides the label.",
-                zh: "在 md 断点以下，收起为图标并隐藏标签。",
+                en: "Below the md breakpoint, collapses to the square icon-only form — pass aria-label too, so the collapsed button keeps its name.",
+                zh: "在 md 断点以下，收起为纯图标的正方形形态——请同时提供 aria-label，使收起后的按钮仍保留名称。",
               }),
             },
             {
@@ -295,3 +355,22 @@ export function ButtonShowcase() {
     </>
   );
 }
+
+const styles = stylex.create({
+  dontGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: space._2,
+  },
+  // Sized and coloured like the real icon-only Button it stands in for.
+  fauxIconOnly: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    inlineSize: controlSize._9,
+    blockSize: controlSize._9,
+    fontSize: font.uiHeading3,
+    color: color.textMuted,
+    backgroundColor: color.bgInteractiveRest,
+  },
+});

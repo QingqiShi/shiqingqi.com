@@ -5,11 +5,9 @@ import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { MediaFiltersProvider } from "./media-filters-provider";
 import { MediaTypeToggle } from "./media-type-toggle";
 
-// jsdom gaps: AnchorButton's press-handlers hook needs pointer-capture,
-// and the provider's scroll-to-top path reads reduced-motion via matchMedia.
+// jsdom gap: the provider's scroll-to-top path reads reduced-motion via
+// matchMedia.
 beforeAll(() => {
-  HTMLElement.prototype.setPointerCapture = vi.fn();
-  HTMLElement.prototype.releasePointerCapture = vi.fn();
   window.matchMedia = vi.fn().mockReturnValue({
     matches: false,
     media: "",
@@ -31,11 +29,11 @@ function Harness({ children }: { children: ReactNode }) {
 }
 
 function getMoviesButton() {
-  return screen.getByRole("link", { name: "Movies" });
+  return screen.getByRole("radio", { name: "Movies" });
 }
 
 function getTvButton() {
-  return screen.getByRole("link", { name: /TV Shows/ });
+  return screen.getByRole("radio", { name: /TV Shows/ });
 }
 
 describe("MediaTypeToggle", () => {
@@ -46,8 +44,8 @@ describe("MediaTypeToggle", () => {
       </Harness>,
     );
 
-    expect(getMoviesButton().className).toContain("active");
-    expect(getTvButton().className).not.toContain("active");
+    expect(getMoviesButton()).toHaveAttribute("aria-checked", "true");
+    expect(getTvButton()).toHaveAttribute("aria-checked", "false");
   });
 
   it("updates the active button when the user switches to TV Shows", async () => {
@@ -64,8 +62,8 @@ describe("MediaTypeToggle", () => {
     // assertion stuck on Movies because the provider commits via
     // `window.history.replaceState`, which Next's SearchParamsContext
     // does not observe. Reading from `useMediaFilters()` resolves the drift.
-    expect(getTvButton().className).toContain("active");
-    expect(getMoviesButton().className).not.toContain("active");
+    expect(getTvButton()).toHaveAttribute("aria-checked", "true");
+    expect(getMoviesButton()).toHaveAttribute("aria-checked", "false");
   });
 
   it("switches back to Movies when toggled again", async () => {
@@ -77,11 +75,11 @@ describe("MediaTypeToggle", () => {
     );
 
     await user.click(getTvButton());
-    expect(getTvButton().className).toContain("active");
+    expect(getTvButton()).toHaveAttribute("aria-checked", "true");
 
     await user.click(getMoviesButton());
-    expect(getMoviesButton().className).toContain("active");
-    expect(getTvButton().className).not.toContain("active");
+    expect(getMoviesButton()).toHaveAttribute("aria-checked", "true");
+    expect(getTvButton()).toHaveAttribute("aria-checked", "false");
   });
 
   it("honors defaultFilters.mediaType on first paint", () => {
@@ -93,7 +91,7 @@ describe("MediaTypeToggle", () => {
       </PathnameContext>,
     );
 
-    expect(getTvButton().className).toContain("active");
-    expect(getMoviesButton().className).not.toContain("active");
+    expect(getTvButton()).toHaveAttribute("aria-checked", "true");
+    expect(getMoviesButton()).toHaveAttribute("aria-checked", "false");
   });
 });

@@ -12,7 +12,6 @@ import { DisclosureSpecimen } from "./disclosure-specimen.tsx";
 import { DividerSpecimen } from "./divider-specimen.tsx";
 import { HeaderFooterLayoutSpecimen } from "./header-footer-layout-specimen.tsx";
 import { HeadingSpecimen } from "./heading-specimen.tsx";
-import { IconButtonSpecimen } from "./icon-button-specimen.tsx";
 import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
 import { MovieDetailSpecimen } from "./movie-detail-specimen.tsx";
 import { OptionCardSpecimen } from "./option-card-specimen.tsx";
@@ -76,7 +75,6 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/text": { element: <TextSpecimen /> },
   "/design-system/components/heading": { element: <HeadingSpecimen /> },
   "/design-system/components/button": { element: <ButtonSpecimen /> },
-  "/design-system/components/icon-button": { element: <IconButtonSpecimen /> },
   "/design-system/components/menu-button": { element: <MenuButtonSpecimen /> },
   "/design-system/components/chip": { element: <ChipSpecimen /> },
   "/design-system/components/breadcrumb": { element: <BreadcrumbSpecimen /> },

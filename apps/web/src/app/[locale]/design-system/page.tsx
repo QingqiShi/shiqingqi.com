@@ -74,10 +74,6 @@ export default function DesignSystemOverview() {
       en: "The primary action control, with variants and a press animation.",
       zh: "主要的操作控件，提供多种风格与按压动画。",
     }),
-    "/design-system/components/icon-button": t({
-      en: "A compact, icon-only button with a required accessible name.",
-      zh: "紧凑的纯图标按钮，须提供无障碍名称。",
-    }),
     "/design-system/components/menu-button": t({
       en: "A button that expands into a popup menu.",
       zh: "点击后展开为弹出菜单的按钮。",

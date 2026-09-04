@@ -57,8 +57,7 @@ test.describe("Specimen source", () => {
       ),
     ).toBe(true);
 
-    // Every snippet opens with the imports that make it runnable — the button
-    // group's specimens import `AnchorButtonGroup`, not `Button`.
+    // Every snippet opens with the imports that make it runnable.
     expect(snippets.every((snippet) => snippet.includes("import "))).toBe(true);
 
     // `t({ en, zh })` is unwrapped, so no i18n plumbing reaches the reader.

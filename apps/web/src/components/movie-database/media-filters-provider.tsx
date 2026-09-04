@@ -134,14 +134,9 @@ export function MediaFiltersProvider({
     commit({ ...mediaFilters, genreFilterType: type });
   };
 
-  const setGenreFilterTypeUrl = (type: GenreFilterType) =>
-    buildUrl({ ...mediaFilters, genreFilterType: type });
-
   const setSort = (sort: Sort) => {
     commit({ ...mediaFilters, sort });
   };
-
-  const setSortUrl = (sort: Sort) => buildUrl({ ...mediaFilters, sort });
 
   const canReset =
     mediaFilters.genres.size > 0 ||
@@ -162,8 +157,6 @@ export function MediaFiltersProvider({
     commit(clearedFilters(type));
   };
 
-  const setMediaTypeUrl = (type: MediaType) => buildUrl(clearedFilters(type));
-
   const reset = () => {
     commit(clearedFilters(mediaFilters.mediaType));
   };
@@ -174,8 +167,6 @@ export function MediaFiltersProvider({
     commit({ ...mediaFilters, view });
   };
 
-  const setViewUrl = (view: MediaView) => buildUrl({ ...mediaFilters, view });
-
   return (
     <MediaFiltersContext
       value={{
@@ -184,13 +175,9 @@ export function MediaFiltersProvider({
         toggleGenre,
         toggleGenreUrl,
         setGenreFilterType,
-        setGenreFilterTypeUrl,
         setSort,
-        setSortUrl,
         setMediaType,
-        setMediaTypeUrl,
         setView,
-        setViewUrl,
         reset,
         resetUrl,
       }}

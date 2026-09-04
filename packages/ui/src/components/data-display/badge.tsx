@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
-import { corner } from "../../primitives/corner.stylex.ts";
 import { flex } from "../../primitives/flex.stylex.ts";
-import { border, color, font, space } from "../../tokens.stylex.ts";
+import { color, font, space } from "../../tokens.stylex.ts";
+import { chipSurface } from "../actions/chip.stylex.ts";
 
 interface BadgeProps extends Omit<
   ComponentProps<"span">,
@@ -21,8 +21,8 @@ interface BadgeProps extends Omit<
     | "warning"
     | "danger"
     | "accent";
-  /** Padding and type scale. Defaults to `"medium"`. */
-  size?: "small" | "medium";
+  /** Padding and type scale. Defaults to `"md"`. */
+  size?: "sm" | "md";
   /** Optional leading icon, rendered decoratively (`aria-hidden`). */
   icon?: ReactNode;
   /** Badge contents — usually a short label. */
@@ -30,13 +30,14 @@ interface BadgeProps extends Omit<
 }
 
 /**
- * Compact status / label badge. Forwards native span attributes so a caller
- * can attach behaviour without a wrapper; `css` composes last, so a caller
- * wins over the variant defaults.
+ * Compact status / label badge. It shares `Chip`'s pill skin, sized on the
+ * `space` scale rather than `controlSize` because nothing here is pressed.
+ * Forwards native span attributes so a caller can attach behaviour without a
+ * wrapper; `css` composes last, so a caller wins over the variant defaults.
  */
 export function Badge({
   variant = "default",
-  size = "medium",
+  size = "md",
   icon,
   css,
   ref,
@@ -48,8 +49,7 @@ export function Badge({
       {...restProps}
       ref={ref}
       css={[
-        flex.inlineCenter,
-        corner.radius_round,
+        chipSurface.base,
         styles.base,
         sizeStyles[size],
         variantStyles[variant],
@@ -68,16 +68,12 @@ export function Badge({
 
 const styles = stylex.create({
   base: {
-    fontWeight: font.weight_6,
-    whiteSpace: "nowrap",
-    lineHeight: font.lineHeight_2,
-    gap: space._0,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
     borderColor: "transparent",
+    fontWeight: font.weight_6,
   },
   // `em` box so the icon tracks the badge's font-size across sizes.
   icon: {
+    flexShrink: 0,
     inlineSize: "1em",
     blockSize: "1em",
     color: "currentColor",
@@ -85,23 +81,24 @@ const styles = stylex.create({
 });
 
 const sizeStyles = stylex.create({
-  small: {
+  sm: {
     paddingBlock: space._00,
     paddingInline: space._1,
     fontSize: font.uiOverline,
   },
-  medium: {
+  md: {
     paddingBlock: space._0,
     paddingInline: space._2,
     fontSize: font.uiCaption,
   },
 });
 
+// `base` drops the pill's hairline so every Intent carries its meaning as a
+// tint; only `default` puts the border back.
 const variantStyles = stylex.create({
   default: {
-    backgroundColor: color.bgSurface,
-    color: color.textMuted,
     borderColor: color.neutralBorder,
+    color: color.textMuted,
   },
   // Neutral intent tint, not an opaque surface, so it stays visible on cards
   // and other raised surfaces instead of blending in.

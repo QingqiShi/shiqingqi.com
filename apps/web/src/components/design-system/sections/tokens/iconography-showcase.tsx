@@ -15,7 +15,6 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
-import { IconButton } from "@tuja/ui/components/icon-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -127,8 +126,8 @@ export function IconographyShowcase() {
       <Showcase label={t({ en: "Pairing", zh: "搭配组件" })}>
         <ShowcaseHelper>
           {t({
-            en: "Drop a Phosphor icon straight into a Button, Badge, or IconButton. Each wraps the icon in an aria-hidden slot, so the visible label — or the button's aria-label — carries the name.",
-            zh: "可将 Phosphor 图标直接放入 Button、Badge 或 IconButton。它们都会把图标包在 aria-hidden 插槽里，因此由可见标签——或按钮的 aria-label——承载名称。",
+            en: "Drop a Phosphor icon straight into a Button — including its icon-only form — or a Badge. Each wraps the icon in an aria-hidden slot, so the visible label — or the button's aria-label — carries the name.",
+            zh: "可将 Phosphor 图标直接放入 Button——包括其纯图标形态——或 Badge。它们都会把图标包在 aria-hidden 插槽里，因此由可见标签——或按钮的 aria-label——承载名称。",
           })}
         </ShowcaseHelper>
         <SpecimenGrid>
@@ -142,9 +141,10 @@ export function IconographyShowcase() {
               {t({ en: "Featured", zh: "精选" })}
             </Badge>
           </Specimen>
-          <Specimen caption="IconButton">
-            <IconButton
-              variant="surface"
+          <Specimen
+            caption={t({ en: "Button · icon-only", zh: "Button · 纯图标" })}
+          >
+            <Button
               icon={<TrashIcon weight="bold" />}
               aria-label={t({ en: "Delete", zh: "删除" })}
             />

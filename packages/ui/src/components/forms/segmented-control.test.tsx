@@ -5,6 +5,19 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { SegmentedControl } from "./segmented-control.tsx";
 
+const ICON_OPTIONS = [
+  {
+    value: "grid",
+    label: "Grid",
+    icon: <span data-testid="icon-grid">▦</span>,
+  },
+  {
+    value: "list",
+    label: "List",
+    icon: <span data-testid="icon-list">☰</span>,
+  },
+] as const;
+
 const OPTIONS = [
   { value: "daily", label: "Daily" },
   { value: "overview", label: "Overview" },
@@ -115,6 +128,30 @@ describe("SegmentedControl", () => {
     expect(screen.getByRole("radio", { name: "Daily" })).toBeInTheDocument();
   });
 
+  it("lets an option's aria-label replace its visible label as the name", () => {
+    render(
+      <SegmentedControl
+        aria-label="Sort"
+        options={[
+          {
+            value: "popularity",
+            label: "Popularity ↓",
+            "aria-label": "Popularity, descending. Activate to sort ascending.",
+          },
+          { value: "rating", label: "Rating" },
+        ]}
+        value="popularity"
+        onChange={() => {}}
+      />,
+    );
+    expect(
+      screen.getByRole("radio", {
+        name: "Popularity, descending. Activate to sort ascending.",
+      }),
+    ).toHaveTextContent("Popularity ↓");
+    expect(screen.getByRole("radio", { name: "Rating" })).toBeInTheDocument();
+  });
+
   it("names the group from aria-labelledby", () => {
     render(
       <>
@@ -209,5 +246,71 @@ describe("SegmentedControl", () => {
     );
 
     expect(screen.getByRole("radiogroup").className).toContain("overrides.box");
+  });
+
+  it("calls onChange with the same value when clicking the already-selected segment", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <SegmentedControl
+        aria-label="View"
+        options={OPTIONS}
+        value="daily"
+        onChange={onChange}
+      />,
+    );
+
+    await user.click(screen.getByRole("radio", { name: "Daily" }));
+
+    expect(onChange).toHaveBeenCalledWith("daily");
+  });
+});
+
+describe("SegmentedControl hideLabels", () => {
+  it("keeps each option's accessible name when the label is visually hidden", () => {
+    render(
+      <SegmentedControl
+        aria-label="View"
+        options={ICON_OPTIONS}
+        value="grid"
+        onChange={vi.fn()}
+        hideLabels
+      />,
+    );
+
+    expect(screen.getByRole("radio", { name: "Grid" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "List" })).toBeInTheDocument();
+  });
+
+  it("visually hides the label with a11y.srOnly instead of truncating it", () => {
+    render(
+      <SegmentedControl
+        aria-label="View"
+        options={ICON_OPTIONS}
+        value="grid"
+        onChange={vi.fn()}
+        hideLabels
+      />,
+    );
+
+    const label = screen.getByText("Grid");
+    expect(label.className).toContain("a11y.srOnly");
+    expect(label.className).not.toContain("truncate.base");
+  });
+
+  it("keeps the icon wrapper aria-hidden when labels are hidden", () => {
+    render(
+      <SegmentedControl
+        aria-label="View"
+        options={ICON_OPTIONS}
+        value="grid"
+        onChange={vi.fn()}
+        hideLabels
+      />,
+    );
+
+    expect(screen.getByTestId("icon-grid").parentElement).toHaveAttribute(
+      "aria-hidden",
+    );
   });
 });

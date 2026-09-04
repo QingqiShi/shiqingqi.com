@@ -21,10 +21,19 @@ import {
 interface SegmentedControlOption<TValue extends string> {
   /** The value this segment selects. Must be unique within the group. */
   value: TValue;
-  /** Visible label. */
+  /**
+   * The segment's label. Visible by default; with `hideLabels` it is
+   * visually hidden and still names the segment.
+   */
   label: ReactNode;
   /** Decorative leading icon, rendered `aria-hidden` beside the label. */
   icon?: ReactNode;
+  /**
+   * Replaces `label` as the segment's accessible name when the visible text
+   * does not say enough — a sort segment whose name says what a second
+   * activation does. Start it with the visible text (WCAG 2.5.3).
+   */
+  "aria-label"?: string;
 }
 
 interface SegmentedControlBaseProps<TValue extends string> extends Omit<
@@ -41,12 +50,22 @@ interface SegmentedControlBaseProps<TValue extends string> extends Omit<
   options: readonly SegmentedControlOption<TValue>[];
   /** The selected value. Must match one of `options`. */
   value: TValue;
-  /** Called with the next value on click or keyboard select. */
+  /**
+   * Called with the next value on click or keyboard select. A click on the
+   * selected segment calls it with the same value, so a consumer can treat
+   * a re-select as a second step — a sort field flipping its direction.
+   */
   onChange: (next: TValue) => void;
   /** Height and type scale. Defaults to `"md"`. */
   size?: "sm" | "md";
   /** Stretches the track to fill its container, sharing width equally. */
   fullWidth?: boolean;
+  /**
+   * Collapses every segment to its icon, for a tight bar. Each `label` stays
+   * in the accessibility tree as the segment's name, so every option needs
+   * an `icon`.
+   */
+  hideLabels?: boolean;
   /** StyleX overrides merged over the track — composed last so a caller wins. */
   css?: StyleProp;
 }
@@ -76,6 +95,7 @@ export function SegmentedControl<TValue extends string>({
   onChange,
   size = "md",
   fullWidth,
+  hideLabels,
   css,
   ref,
   "aria-label": ariaLabel,
@@ -98,6 +118,7 @@ export function SegmentedControl<TValue extends string>({
       css={[
         corner.radius_2,
         styles.track,
+        trackSizeStyles[size],
         fullWidth && styles.trackFullWidth,
         css,
       ]}
@@ -109,6 +130,7 @@ export function SegmentedControl<TValue extends string>({
           // Without it, a segment defaults to `type="submit"` and submits an
           // enclosing form instead of switching the view.
           type="button"
+          aria-label={option["aria-label"]}
           {...getOptionProps(option.value)}
           css={[
             buttonReset.base,
@@ -126,7 +148,9 @@ export function SegmentedControl<TValue extends string>({
               {option.icon}
             </span>
           ) : null}
-          <span css={[truncate.base, styles.label]}>{option.label}</span>
+          <span css={hideLabels ? a11y.srOnly : [truncate.base, styles.label]}>
+            {option.label}
+          </span>
         </button>
       ))}
     </div>
@@ -138,7 +162,6 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "stretch",
     gap: space._00,
-    padding: space._00,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
@@ -191,6 +214,17 @@ const styles = stylex.create({
   // shrink below its min-content width.
   label: {
     minInlineSize: 0,
+  },
+});
+
+// The track's inset lifts the control onto the control-height step above its
+// segments, so it sits level with a Button of the same size.
+const trackSizeStyles = stylex.create({
+  sm: {
+    padding: `calc((${controlSize._8} - ${controlSize._7}) / 2 - ${border.size_1})`,
+  },
+  md: {
+    padding: `calc((${controlSize._9} - ${controlSize._8}) / 2 - ${border.size_1})`,
   },
 });
 

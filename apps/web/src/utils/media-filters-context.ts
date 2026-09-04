@@ -11,19 +11,15 @@ export const MediaFiltersContext = createContext<{
 
   genreFilterType: GenreFilterType;
   setGenreFilterType: (type: GenreFilterType) => void;
-  setGenreFilterTypeUrl: (type: GenreFilterType) => string;
 
   sort: Sort;
   setSort: (sort: Sort) => void;
-  setSortUrl: (sort: Sort) => string;
 
   mediaType: MediaType;
   setMediaType: (type: MediaType) => void;
-  setMediaTypeUrl: (type: MediaType) => string;
 
   view: MediaView;
   setView: (view: MediaView) => void;
-  setViewUrl: (view: MediaView) => string;
 
   canReset: boolean;
   reset: () => void;

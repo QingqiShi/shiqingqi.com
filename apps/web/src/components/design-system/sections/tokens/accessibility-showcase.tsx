@@ -5,7 +5,6 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Checkbox } from "@tuja/ui/components/checkbox";
-import { IconButton } from "@tuja/ui/components/icon-button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -136,8 +135,7 @@ export function AccessibilityShowcase() {
         })}
       >
         <div css={[flex.wrap, styles.row]}>
-          <IconButton
-            variant="surface"
+          <Button
             icon={<TrashIcon weight="bold" />}
             aria-label={t({ en: "Delete", zh: "删除" })}
           />

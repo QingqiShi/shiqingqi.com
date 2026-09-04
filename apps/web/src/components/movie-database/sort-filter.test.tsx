@@ -5,9 +5,9 @@ import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { MediaFiltersProvider } from "./media-filters-provider";
 import { SortFilter } from "./sort-filter";
 
+// jsdom gap: the provider's scroll-to-top path reads reduced-motion via
+// matchMedia.
 beforeAll(() => {
-  HTMLElement.prototype.setPointerCapture = vi.fn();
-  HTMLElement.prototype.releasePointerCapture = vi.fn();
   window.matchMedia = vi.fn().mockReturnValue({
     matches: false,
     media: "",
@@ -29,42 +29,37 @@ function Harness({ children }: { children: ReactNode }) {
 }
 
 function getPopularityButton() {
-  return screen.getByRole("link", {
-    name: /Sort by Popularity/,
-  });
+  return screen.getByRole("radio", { name: /Popularity/ });
 }
 
 function getRatingButton() {
-  return screen.getByRole("link", {
-    name: /Sort by Rating/,
-  });
+  return screen.getByRole("radio", { name: /Rating/ });
 }
 
-describe("SortFilter aria-label direction semantics", () => {
-  it("labels the default active Popularity button as descending with a prompt to flip", () => {
+describe("SortFilter accessible-name direction semantics", () => {
+  it("labels the default active Popularity segment as descending with a prompt to flip", () => {
     render(
       <Harness>
         <SortFilter />
       </Harness>,
     );
 
-    expect(getPopularityButton()).toHaveAttribute(
-      "aria-label",
-      "Sort by Popularity, descending. Activate to sort ascending.",
+    expect(getPopularityButton()).toHaveAccessibleName(
+      "Popularity, descending. Activate to sort ascending.",
     );
   });
 
-  it("labels the inactive Rating button without a direction", () => {
+  it("labels the inactive Rating segment without a direction clause", () => {
     render(
       <Harness>
         <SortFilter />
       </Harness>,
     );
 
-    expect(getRatingButton()).toHaveAttribute("aria-label", "Sort by Rating.");
+    expect(getRatingButton()).toHaveAccessibleName("Rating");
   });
 
-  it("flips to ascending aria-label after clicking the active Popularity button", async () => {
+  it("flips to an ascending clause after clicking the active Popularity segment", async () => {
     const user = userEvent.setup();
     render(
       <Harness>
@@ -74,9 +69,8 @@ describe("SortFilter aria-label direction semantics", () => {
 
     await user.click(getPopularityButton());
 
-    expect(getPopularityButton()).toHaveAttribute(
-      "aria-label",
-      "Sort by Popularity, ascending. Activate to sort descending.",
+    expect(getPopularityButton()).toHaveAccessibleName(
+      "Popularity, ascending. Activate to sort descending.",
     );
   });
 
@@ -90,18 +84,14 @@ describe("SortFilter aria-label direction semantics", () => {
 
     await user.click(getRatingButton());
 
-    expect(getRatingButton()).toHaveAttribute(
-      "aria-label",
-      "Sort by Rating, descending. Activate to sort ascending.",
+    expect(getRatingButton()).toHaveAccessibleName(
+      "Rating, descending. Activate to sort ascending.",
     );
-    // Popularity reverts to inactive copy once Rating takes over.
-    expect(getPopularityButton()).toHaveAttribute(
-      "aria-label",
-      "Sort by Popularity.",
-    );
+    // Popularity reverts to its plain name once Rating takes over.
+    expect(getPopularityButton()).toHaveAccessibleName("Popularity");
   });
 
-  it("hides the visual arrow from assistive technology", () => {
+  it("shows the direction arrow without reading it out", () => {
     render(
       <Harness>
         <SortFilter />
@@ -109,8 +99,9 @@ describe("SortFilter aria-label direction semantics", () => {
     );
 
     const popularity = getPopularityButton();
-    const arrowSpan = popularity.querySelector("span[aria-hidden='true']");
-    expect(arrowSpan).toBeInTheDocument();
-    expect(arrowSpan?.textContent).toContain("↓");
+    expect(popularity).toHaveTextContent("Popularity ↓");
+    expect(popularity).toHaveAccessibleName(
+      "Popularity, descending. Activate to sort ascending.",
+    );
   });
 });

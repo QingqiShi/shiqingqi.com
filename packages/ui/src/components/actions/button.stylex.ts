@@ -9,4 +9,5 @@ export const buttonTokens = stylex.defineVars({
   boxShadow: shadow._2,
   color: color.textMain,
   height: controlSize._9,
+  paddingInline: controlSize._3,
 });

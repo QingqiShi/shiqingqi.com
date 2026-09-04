@@ -47,7 +47,7 @@ export function PropsTable({ rows }: PropsTableProps) {
                   <Identifier>{row.name}</Identifier>
                 </span>
                 {row.required ? (
-                  <Badge variant="accent" size="small">
+                  <Badge variant="accent" size="sm">
                     {requiredLabel}
                   </Badge>
                 ) : null}

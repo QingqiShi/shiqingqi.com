@@ -286,12 +286,12 @@ function SlotsDemo() {
   const includedLabel = t({ en: "Included", zh: "已包含" });
   const addLabel = t({ en: "Add", zh: "添加" });
   const included = (
-    <Badge variant="accent" size="small">
+    <Badge variant="accent" size="sm">
       {includedLabel}
     </Badge>
   );
   const add = (
-    <Badge variant="neutral" size="small">
+    <Badge variant="neutral" size="sm">
       {addLabel}
     </Badge>
   );

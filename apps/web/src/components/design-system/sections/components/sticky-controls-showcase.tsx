@@ -2,7 +2,7 @@
 
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
 import * as stylex from "@stylexjs/stylex";
-import { IconButton } from "@tuja/ui/components/icon-button";
+import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import {
   StickyControlGroup,
@@ -188,8 +188,9 @@ function FilterBar() {
           />
         </StickyControlGroup>
         <StickyControlGroup css={styles.trailing}>
-          <IconButton
+          <Button
             size="sm"
+            variant="ghost"
             aria-label={t({ en: "Reset filters", zh: "重置筛选" })}
             icon={<FunnelXIcon />}
           />

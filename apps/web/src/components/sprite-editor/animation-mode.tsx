@@ -9,7 +9,6 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
-import { IconButton } from "@tuja/ui/components/icon-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration as motionDuration,
@@ -329,9 +328,9 @@ export function AnimationMode({
                   </label>
                 </div>
                 <div css={styles.frameActions}>
-                  <IconButton
+                  <Button
                     size="sm"
-                    shape="square"
+                    variant="ghost"
                     icon={<ArrowUpIcon size={14} weight="bold" />}
                     onClick={() => {
                       moveFrame(index, -1);
@@ -339,9 +338,9 @@ export function AnimationMode({
                     disabled={index === 0}
                     aria-label={moveUpLabel}
                   />
-                  <IconButton
+                  <Button
                     size="sm"
-                    shape="square"
+                    variant="ghost"
                     icon={<ArrowDownIcon size={14} weight="bold" />}
                     onClick={() => {
                       moveFrame(index, 1);
@@ -349,9 +348,9 @@ export function AnimationMode({
                     disabled={index === frames.length - 1}
                     aria-label={moveDownLabel}
                   />
-                  <IconButton
+                  <Button
                     size="sm"
-                    shape="square"
+                    variant="ghost"
                     icon={<TrashIcon size={14} weight="bold" />}
                     onClick={() => {
                       removeFrame(index);

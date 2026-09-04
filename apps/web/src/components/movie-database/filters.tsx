@@ -64,8 +64,8 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
           <MobileFiltersButton
             menuContent={
               <div css={[flex.wrap, styles.mobileMenuContent]}>
-                <MediaViewToggle bright />
-                <SortFilter bright />
+                <MediaViewToggle />
+                <SortFilter />
                 <GenreFilter />
                 <ResetFilter bright />
                 <TmdbCreditInline />

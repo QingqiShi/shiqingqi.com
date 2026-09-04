@@ -1,113 +1,74 @@
 "use client";
 
-import { AnchorButtonGroup } from "@tuja/ui/components/anchor-button-group";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
+import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
-import { AnchorButton } from "../shared/anchor-button";
+import type { Sort } from "#src/utils/sort.ts";
 
 interface SortFilterProps {
-  bright?: boolean;
   hideLabel?: boolean;
 }
 
-type SortDirection = "asc" | "desc" | null;
+type SortField = "popularity" | "vote_average";
+type SortDirection = "asc" | "desc";
 
-export function SortFilter({ bright, hideLabel }: SortFilterProps) {
-  const { sort, setSort, setSortUrl } = useMediaFilters();
+// Keyed lookup rather than a template literal, so building a `Sort` value
+// never needs a type assertion.
+const sortValues: Record<SortField, Record<SortDirection, Sort>> = {
+  popularity: { asc: "popularity.asc", desc: "popularity.desc" },
+  vote_average: { asc: "vote_average.asc", desc: "vote_average.desc" },
+};
 
-  const popularityDirection: SortDirection =
-    sort === "popularity.asc"
-      ? "asc"
-      : sort === "popularity.desc"
-        ? "desc"
-        : null;
-  const ratingDirection: SortDirection =
-    sort === "vote_average.asc"
-      ? "asc"
-      : sort === "vote_average.desc"
-        ? "desc"
-        : null;
+export function SortFilter({ hideLabel }: SortFilterProps) {
+  const { sort, setSort } = useMediaFilters();
 
-  const popularityLabel = t({ en: "Popularity", zh: "热度" });
-  const ratingLabel = t({ en: "Rating", zh: "评分" });
+  const field: SortField = sort.startsWith("popularity")
+    ? "popularity"
+    : "vote_average";
+  const direction: SortDirection = sort.endsWith(".asc") ? "asc" : "desc";
 
-  const sortByPrefix = t({ en: "Sort by ", zh: "按 " });
-  const descendingClause = t({
-    en: ", descending. Activate to sort ascending.",
-    zh: " 排序，降序。点击切换为升序。",
-  });
-  const ascendingClause = t({
-    en: ", ascending. Activate to sort descending.",
-    zh: " 排序，升序。点击切换为降序。",
-  });
-  const inactiveClause = t({ en: ".", zh: " 排序。" });
+  const fieldLabels: Record<SortField, string> = {
+    popularity: t({ en: "Popularity", zh: "热度" }),
+    vote_average: t({ en: "Rating", zh: "评分" }),
+  };
+  const directionClauses: Record<SortDirection, string> = {
+    desc: t({
+      en: ", descending. Activate to sort ascending.",
+      zh: " 排序，降序。点击切换为升序。",
+    }),
+    asc: t({
+      en: ", ascending. Activate to sort descending.",
+      zh: " 排序，升序。点击切换为降序。",
+    }),
+  };
 
-  function buildAriaLabel(fieldLabel: string, direction: SortDirection) {
-    const suffix =
-      direction === "asc"
-        ? ascendingClause
-        : direction === "desc"
-          ? descendingClause
-          : inactiveClause;
-    return `${sortByPrefix}${fieldLabel}${suffix}`;
+  // Re-selecting the current field flips its direction; picking the other
+  // field starts it descending.
+  function handleChange(next: SortField) {
+    const nextDirection =
+      next === field ? (direction === "desc" ? "asc" : "desc") : "desc";
+    setSort(sortValues[next][nextDirection]);
   }
 
   return (
     <div>
       {!hideLabel && <MenuLabel>{t({ en: "Sort", zh: "排序" })}</MenuLabel>}
-      <AnchorButtonGroup bright={bright}>
-        <AnchorButton
-          href={
-            sort === "popularity.desc"
-              ? setSortUrl("popularity.asc")
-              : setSortUrl("popularity.desc")
-          }
-          isActive={popularityDirection !== null}
-          onClick={(e) => {
-            e.preventDefault();
-            setSort(
-              sort === "popularity.desc" ? "popularity.asc" : "popularity.desc",
-            );
-          }}
-          aria-label={buildAriaLabel(popularityLabel, popularityDirection)}
-          bright={bright}
-          rel="nofollow"
-          prefetch={false}
-        >
-          {popularityLabel}
-          {popularityDirection === "asc" && (
-            <span aria-hidden="true">{" ↑"}</span>
-          )}
-          {popularityDirection === "desc" && (
-            <span aria-hidden="true">{" ↓"}</span>
-          )}
-        </AnchorButton>
-        <AnchorButton
-          href={
-            sort === "vote_average.desc"
-              ? setSortUrl("vote_average.asc")
-              : setSortUrl("vote_average.desc")
-          }
-          isActive={ratingDirection !== null}
-          onClick={(e) => {
-            e.preventDefault();
-            setSort(
-              sort === "vote_average.desc"
-                ? "vote_average.asc"
-                : "vote_average.desc",
-            );
-          }}
-          aria-label={buildAriaLabel(ratingLabel, ratingDirection)}
-          bright={bright}
-          rel="nofollow"
-          prefetch={false}
-        >
-          {ratingLabel}
-          {ratingDirection === "asc" && <span aria-hidden="true">{" ↑"}</span>}
-          {ratingDirection === "desc" && <span aria-hidden="true">{" ↓"}</span>}
-        </AnchorButton>
-      </AnchorButtonGroup>
+      <SegmentedControl
+        aria-label={t({ en: "Sort", zh: "排序" })}
+        value={field}
+        onChange={handleChange}
+        options={(["popularity", "vote_average"] as const).map((value) =>
+          value === field
+            ? {
+                value,
+                label: `${fieldLabels[value]} ${direction === "asc" ? "↑" : "↓"}`,
+                // The arrow alone cannot say what a second activation does.
+                "aria-label": `${fieldLabels[value]}${directionClauses[direction]}`,
+              }
+            : { value, label: fieldLabels[value] },
+        )}
+      />
     </div>
   );
 }

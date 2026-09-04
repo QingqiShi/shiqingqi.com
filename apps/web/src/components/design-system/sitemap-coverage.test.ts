@@ -17,21 +17,31 @@ const sitemap = readFileSync(
 
 const locales: SupportedLocale[] = ["en", "zh"];
 
+const registeredUrls = new Set(
+  DESIGN_SYSTEM_PATHS.flatMap((routePath) =>
+    locales.map((locale) =>
+      new URL(getLocalePath(routePath, locale), BASE_URL).toString(),
+    ),
+  ),
+);
+
+const sitemapDesignSystemUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)]
+  .map((match) => match[1])
+  .filter((url) => /\/design-system(\/|$)/.test(new URL(url).pathname));
+
 describe("design-system sitemap coverage", () => {
   it("has routes registered", () => {
     expect(DESIGN_SYSTEM_PATHS.length).toBeGreaterThan(0);
   });
 
-  it.each([...DESIGN_SYSTEM_PATHS])(
-    "lists %s in the sitemap for both locales",
-    (routePath) => {
-      for (const locale of locales) {
-        const url = new URL(
-          getLocalePath(routePath, locale),
-          BASE_URL,
-        ).toString();
-        expect(sitemap).toContain(`<loc>${url}</loc>`);
-      }
+  it.each([...registeredUrls])("lists %s in the sitemap", (url) => {
+    expect(sitemap).toContain(`<loc>${url}</loc>`);
+  });
+
+  it.each(sitemapDesignSystemUrls)(
+    "%s in the sitemap is a registered route",
+    (url) => {
+      expect(registeredUrls).toContain(url);
     },
   );
 });

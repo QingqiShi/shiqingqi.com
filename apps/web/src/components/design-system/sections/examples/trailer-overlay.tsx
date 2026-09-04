@@ -21,7 +21,7 @@ interface TrailerOverlayProps {
  * The trailer dialog behind the hero's primary action.
  *
  * `Overlay` supplies the whole dialog contract — the portal, the scroll lock,
- * the focus trap, Escape, focus restoration, and the close `IconButton` — so
+ * the focus trap, Escape, focus restoration, and the close button — so
  * everything this file adds is content: a heading for `aria-labelledby` and the
  * player region.
  *

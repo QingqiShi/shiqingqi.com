@@ -38,13 +38,13 @@ export function BadgeShowcase() {
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <SpecimenGrid>
-          <Specimen caption="small">
-            <Badge size="small" variant="accent">
+          <Specimen caption="sm">
+            <Badge size="sm" variant="accent">
               {t({ en: "Small", zh: "小" })}
             </Badge>
           </Specimen>
-          <Specimen caption="medium">
-            <Badge size="medium" variant="accent">
+          <Specimen caption="md">
+            <Badge size="md" variant="accent">
               {t({ en: "Medium", zh: "中" })}
             </Badge>
           </Specimen>
@@ -53,18 +53,18 @@ export function BadgeShowcase() {
 
       <Showcase label={t({ en: "With icon", zh: "带图标" })}>
         <SpecimenGrid>
-          <Specimen caption="small">
+          <Specimen caption="sm">
             <Badge
-              size="small"
+              size="sm"
               variant="success"
               icon={<CheckIcon weight="bold" />}
             >
               {t({ en: "Verified", zh: "已验证" })}
             </Badge>
           </Specimen>
-          <Specimen caption="medium">
+          <Specimen caption="md">
             <Badge
-              size="medium"
+              size="md"
               variant="warning"
               icon={<StarIcon weight="fill" />}
             >
@@ -97,8 +97,8 @@ export function BadgeShowcase() {
             },
             {
               name: "size",
-              type: '"small" | "medium"',
-              defaultValue: '"medium"',
+              type: '"sm" | "md"',
+              defaultValue: '"md"',
               description: t({
                 en: "Padding and type scale.",
                 zh: "内边距与字号。",

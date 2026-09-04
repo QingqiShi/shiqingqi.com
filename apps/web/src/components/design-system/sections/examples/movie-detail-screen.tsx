@@ -195,7 +195,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
             */}
             <div css={styles.badgeRow}>
               {movie.genres.map((genre) => (
-                <Badge key={genre} size="small">
+                <Badge key={genre} size="sm">
                   {genre}
                 </Badge>
               ))}
@@ -376,7 +376,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
               summary={reviewSummaryLabel}
               icon={<SparkleIcon weight="bold" />}
               trailing={
-                <Badge variant="neutral" size="small">
+                <Badge variant="neutral" size="sm">
                   {`${t({ en: "Spiciness", zh: "辛辣度" })} ${String(movie.spiciness)}`}
                 </Badge>
               }
@@ -421,7 +421,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 {providers.map((provider) => (
                   <Badge
                     key={provider}
-                    size="small"
+                    size="sm"
                     icon={<MonitorPlayIcon weight="bold" />}
                   >
                     {provider}
