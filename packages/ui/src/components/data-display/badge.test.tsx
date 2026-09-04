@@ -12,6 +12,11 @@ describe("Badge rendering", () => {
     expect(badge.className).toContain("styles.base");
   });
 
+  it("composes the shared chip surface", () => {
+    render(<Badge>Live</Badge>);
+    expect(screen.getByText("Live").className).toContain("chipSurface.base");
+  });
+
   it("applies distinct classes per variant", () => {
     const { container: def } = render(<Badge>Default</Badge>);
     const { container: neutral } = render(<Badge variant="neutral">N</Badge>);
@@ -22,14 +27,12 @@ describe("Badge rendering", () => {
   });
 
   it("applies distinct classes per size", () => {
-    const { container: small } = render(<Badge size="small">S</Badge>);
-    const { container: medium } = render(<Badge size="medium">M</Badge>);
+    const { container: small } = render(<Badge size="sm">S</Badge>);
+    const { container: medium } = render(<Badge size="md">M</Badge>);
     expect(small.querySelector("span")?.className).not.toBe(
       medium.querySelector("span")?.className,
     );
-    expect(small.querySelector("span")?.className).toContain(
-      "sizeStyles.small",
-    );
+    expect(small.querySelector("span")?.className).toContain("sizeStyles.sm");
   });
 
   it("renders a decorative icon marked aria-hidden", () => {

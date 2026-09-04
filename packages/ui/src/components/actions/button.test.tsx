@@ -172,6 +172,50 @@ describe("Button accessible name", () => {
   });
 });
 
+describe("Button icon-only layout", () => {
+  it("composes iconOnly for an icon-only button, not hasIcon", () => {
+    render(<Button icon={<span>★</span>} aria-label="Favorite" />);
+
+    const className = screen.getByRole("button").className;
+    expect(className).toContain("sharedStyles.iconOnly");
+    expect(className).not.toContain("sharedStyles.hasIcon");
+  });
+
+  it("composes hasIcon for icon plus children without hideLabelOnMobile", () => {
+    render(<Button icon={<span>★</span>}>Save</Button>);
+
+    const className = screen.getByRole("button").className;
+    expect(className).toContain("sharedStyles.hasIcon");
+    expect(className).not.toContain("sharedStyles.iconOnly");
+  });
+
+  it("composes iconOnlyBelowMd instead of hasIcon when hideLabelOnMobile pairs with icon and children", () => {
+    render(
+      <Button icon={<span>★</span>} hideLabelOnMobile>
+        Save
+      </Button>,
+    );
+
+    const className = screen.getByRole("button").className;
+    expect(className).toContain("sharedStyles.iconOnlyBelowMd");
+    expect(className).not.toContain("sharedStyles.hasIcon");
+  });
+
+  it("renders no icon wrapper when the icon prop resolves to a falsy value", () => {
+    function Save({ count }: { count: number }) {
+      return (
+        <Button icon={count && <span data-testid="icon">★</span>}>Save</Button>
+      );
+    }
+    render(<Save count={0} />);
+
+    expect(screen.queryByTestId("icon")).not.toBeInTheDocument();
+    const className = screen.getByRole("button").className;
+    expect(className).not.toContain("sharedStyles.iconOnly");
+    expect(className).not.toContain("sharedStyles.hasIcon");
+  });
+});
+
 describe("Button aria-pressed from isActive", () => {
   it("emits aria-pressed='true' when isActive is true", () => {
     render(<Button isActive>Active</Button>);

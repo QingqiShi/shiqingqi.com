@@ -65,8 +65,20 @@ export function SegmentedControlShowcase() {
         </Specimen>
         <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
-            en: "Each icon is decorative and sits beside its label, never instead of it — an icon-only segment leaves the reader guessing at what the view is.",
-            zh: "每个图标都是装饰性的，位于标签旁边而非取代标签——纯图标的分段会让读者猜测该视图究竟是什么。",
+            en: "Each icon is decorative and sits beside its label. Keep the label visible wherever there is room: an icon alone leaves a reader guessing at what the view is.",
+            zh: "每个图标都是装饰性的，位于标签旁边。只要有空间就保留可见标签：只有图标会让读者猜测该视图究竟是什么。",
+          })}
+        </Text>
+      </Showcase>
+
+      <Showcase label={t({ en: "Icon-only", zh: "纯图标" })}>
+        <Specimen caption="hideLabels">
+          <IconOnlyViewControl />
+        </Specimen>
+        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+          {t({
+            en: "hideLabels collapses every segment to its icon for a tight bar — each label still names its segment in the accessibility tree, so every option needs an icon too. This is the movie database's own poster grid / table switch.",
+            zh: "hideLabels 会将每个分段收起为图标，用于紧凑的控件条——每个 label 仍在无障碍树中为其分段命名，因此每个选项也都需要提供 icon。这正是影视数据库自身的海报网格／表格切换控件。",
           })}
         </Text>
       </Showcase>
@@ -137,11 +149,11 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
           rows={[
             {
               name: "options",
-              type: "readonly { value: TValue; label: ReactNode; icon?: ReactNode }[]",
+              type: 'readonly { value: TValue; label: ReactNode; icon?: ReactNode; "aria-label"?: string }[]',
               required: true,
               description: t({
-                en: "Ordered segments. Arrow-key navigation follows this order; each icon is decorative.",
-                zh: "有序的分段列表。方向键导航按此顺序进行；图标均为装饰性内容。",
+                en: "Ordered segments. Arrow-key navigation follows this order; each icon is decorative. An option's aria-label replaces its label as the accessible name when the visible text does not say enough.",
+                zh: "有序的分段列表。方向键导航按此顺序进行；图标均为装饰性内容。当可见文字不足以说明时，选项的 aria-label 会取代 label 作为无障碍名称。",
               }),
             },
             {
@@ -158,8 +170,8 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
               type: "(next: TValue) => void",
               required: true,
               description: t({
-                en: "Called with the next value on click or keyboard select.",
-                zh: "点击或键盘选择时以下一个值调用。",
+                en: "Called with the next value on click or keyboard select — including a click on the already-selected segment, so a consumer can treat a repeat as its own step (a sort field flipping direction).",
+                zh: "点击或键盘选择时以下一个值调用——包括点击已选中的分段时，因此调用方可以把重复点击当作独立的一步来处理（例如排序字段切换方向）。",
               }),
             },
             {
@@ -193,6 +205,14 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
               description: t({
                 en: "Stretches the track to fill its container, sharing width equally between segments. A label too long for its share truncates rather than pushing the track wider.",
                 zh: "将轨道拉伸至填满容器，各分段均分宽度。超出所分宽度的标签会被截断，而不会把轨道撑宽。",
+              }),
+            },
+            {
+              name: "hideLabels",
+              type: "boolean",
+              description: t({
+                en: "Collapses every segment to its icon, for a tight bar. Each label stays in the accessibility tree as the segment's name, so every option needs an icon too.",
+                zh: "将每个分段收起为图标，用于紧凑的控件条。每个 label 仍留在无障碍树中作为该分段的名称，因此每个选项也都需要提供 icon。",
               }),
             },
             {
@@ -253,6 +273,31 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
         />
       </Showcase>
     </>
+  );
+}
+
+/** The movie database's own poster grid / table switch, icons standing alone. */
+function IconOnlyViewControl() {
+  const [view, setView] = useState<"grid" | "table">("grid");
+  return (
+    <SegmentedControl
+      aria-label={t({ en: "View", zh: "视图" })}
+      hideLabels
+      value={view}
+      onChange={setView}
+      options={[
+        {
+          value: "grid",
+          label: t({ en: "Poster grid", zh: "海报网格" }),
+          icon: <GridFourIcon weight="bold" />,
+        },
+        {
+          value: "table",
+          label: t({ en: "Table", zh: "表格" }),
+          icon: <RowsIcon weight="bold" />,
+        },
+      ]}
+    />
   );
 }
 

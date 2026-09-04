@@ -1,7 +1,13 @@
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { ScrollToBottomButton } from "./scroll-to-bottom-button";
+
+// jsdom gap: Button's press-handlers hook needs pointer-capture.
+beforeAll(() => {
+  HTMLElement.prototype.setPointerCapture = vi.fn();
+  HTMLElement.prototype.releasePointerCapture = vi.fn();
+});
 
 describe("ScrollToBottomButton", () => {
   it("renders button with correct aria-label", () => {

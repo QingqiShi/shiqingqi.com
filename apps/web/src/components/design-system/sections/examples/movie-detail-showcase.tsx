@@ -82,7 +82,7 @@ export function MovieDetailShowcase() {
               zh: "默认层级，也是绝大多数内容的归属：一个组件、若干属性，就此完成。",
             })}
             entries={[
-              'Badge variant="accent" | "neutral" size="small"',
+              'Badge variant="accent" | "neutral" size="sm"',
               'Button variant="primary" | "outline" isActive',
               'SegmentedControl size="sm"',
               "Select options labelHidden",
@@ -163,7 +163,7 @@ export function MovieDetailShowcase() {
     </div>
     <div css={styles.heroRest}>
       <div css={styles.badgeRow}>
-        {movie.genres.map((genre) => <Badge key={genre} size="small">{genre}</Badge>)}
+        {movie.genres.map((genre) => <Badge key={genre} size="sm">{genre}</Badge>)}
       </div>
       <div css={styles.controlRow}>
         <Button variant="primary" icon={<PlayIcon weight="fill" />} onClick={openTrailer}>

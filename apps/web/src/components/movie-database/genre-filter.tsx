@@ -2,8 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { AnchorButtonGroup } from "@tuja/ui/components/anchor-button-group";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
+import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
@@ -24,7 +24,6 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
     toggleGenreUrl,
     genreFilterType,
     setGenreFilterType,
-    setGenreFilterTypeUrl,
     mediaType,
   } = useMediaFilters();
 
@@ -36,7 +35,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
   const { data: genreData } = useSuspenseQuery(genreQuery);
   const allGenres = genreData.genres;
 
-  const id = useId();
+  const matchingLabelId = useId();
 
   return (
     <div css={[flex.col, styles.container]}>
@@ -70,35 +69,24 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
 
       {genres.size > 1 && (
         <div>
-          <MenuLabel>{t({ en: "Matching", zh: "选中类型" })}</MenuLabel>
-          <AnchorButtonGroup bright>
-            <AnchorButton
-              href={setGenreFilterTypeUrl("all")}
-              onClick={(e) => {
-                e.preventDefault();
-                setGenreFilterType("all");
-              }}
-              id={`${id}-all`}
-              isActive={genreFilterType === "all"}
-              rel="nofollow"
-              bright
-            >
-              {t({ en: "All selected", zh: "全部匹配" })}
-            </AnchorButton>
-            <AnchorButton
-              href={setGenreFilterTypeUrl("any")}
-              onClick={(e) => {
-                e.preventDefault();
-                setGenreFilterType("any");
-              }}
-              id={`${id}-any`}
-              isActive={genreFilterType === "any"}
-              rel="nofollow"
-              bright
-            >
-              {t({ en: "Any selected", zh: "匹配任一" })}
-            </AnchorButton>
-          </AnchorButtonGroup>
+          <MenuLabel id={matchingLabelId}>
+            {t({ en: "Matching", zh: "选中类型" })}
+          </MenuLabel>
+          <SegmentedControl
+            aria-labelledby={matchingLabelId}
+            value={genreFilterType}
+            onChange={setGenreFilterType}
+            options={[
+              {
+                value: "all",
+                label: t({ en: "All selected", zh: "全部匹配" }),
+              },
+              {
+                value: "any",
+                label: t({ en: "Any selected", zh: "匹配任一" }),
+              },
+            ]}
+          />
         </div>
       )}
     </div>

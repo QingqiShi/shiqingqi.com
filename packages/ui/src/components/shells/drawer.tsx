@@ -12,7 +12,7 @@ import {
   transition,
 } from "../../primitives/motion.stylex.ts";
 import { border, color, layer, shadow, space } from "../../tokens.stylex.ts";
-import { IconButton } from "../actions/icon-button.tsx";
+import { Button } from "../actions/button.tsx";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 
 interface DrawerProps {
@@ -85,7 +85,9 @@ export function Drawer({
           startChrome={
             <div css={styles.railHeader}>
               <div css={styles.railTitle}>{sidebarHeader}</div>
-              <IconButton
+              <Button
+                size="sm"
+                variant="ghost"
                 css={styles.railClose}
                 icon={<XIcon weight="bold" />}
                 aria-label={closeLabel}

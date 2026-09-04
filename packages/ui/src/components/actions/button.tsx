@@ -33,9 +33,17 @@ interface ButtonBaseProps extends Omit<
    * cancels their chrome.
    */
   bright?: boolean;
-  /** Below the `md` breakpoint, collapses to the icon and hides the label. */
+  /**
+   * Below the `md` breakpoint, collapses to a square icon-only button and
+   * hides the label. Pass `aria-label` too, so the collapsed form keeps its
+   * name.
+   */
   hideLabelOnMobile?: boolean;
-  /** Decorative leading icon. Rendered `aria-hidden`; never the accessible name. */
+  /**
+   * Decorative leading icon. Rendered `aria-hidden`; never the accessible
+   * name. With no `children` the button is icon-only: a square of its own
+   * height, named by `aria-label` or `aria-labelledby`.
+   */
   icon?: ReactNode;
   /**
    * Height scale via `controlSize`. Defaults to `"md"`.
@@ -54,7 +62,9 @@ interface ButtonBaseProps extends Omit<
    * Visual variant. Omit for the default raised surface button.
    *
    * `"primary"` shares `isActive`'s highlight but does not emit
-   * `aria-pressed` — reserve toggles for `isActive` instead.
+   * `aria-pressed` — reserve toggles for `isActive` instead. `"ghost"` has no
+   * surface and holds its colour back until hover, for an affordance inline
+   * over existing content.
    */
   variant?: "primary" | "outline" | "ghost" | "danger";
   /**
@@ -168,8 +178,9 @@ export function Button({
         hasIcon &&
           !!children &&
           (hideLabelOnMobile
-            ? sharedStyles.hasIconHideLabelBelowMd
+            ? sharedStyles.iconOnlyBelowMd
             : sharedStyles.hasIcon),
+        hasIcon && !children && sharedStyles.iconOnly,
         bright && sharedStyles.bright,
         // `active` and `bright` set a literal `backgroundColor` that wins over
         // `variantStyles`. `danger` keeps its own fill instead, so a
@@ -226,9 +237,7 @@ const styles = stylex.create({
     fontSize: font.uiControl,
     fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    // Height flows through `buttonTokens.height`, which `size` below sets and
-    // a container like AnchorButtonGroup can override to shrink grouped
-    // buttons.
+    // Height flows through `buttonTokens.height`, which `size` below sets.
     minHeight: buttonTokens.height,
     color: buttonTokens.color,
     backgroundColor: {
@@ -275,18 +284,22 @@ const variantStyles = stylex.create({
     [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
     [buttonTokens.backgroundColorDisabledHover]: "transparent",
     [buttonTokens.boxShadow]: "none",
-    // Border-box so the hairline sits inside the height the size step set,
-    // keeping an outline button the same height as its filled neighbour.
-    boxSizing: "border-box",
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.neutralBorder,
   },
+  // The quietest variant: no surface, and the label drains to muted until the
+  // pointer arrives. `:disabled:hover` keeps it drained, matching the fill.
   ghost: {
     [buttonTokens.backgroundColor]: "transparent",
     [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
     [buttonTokens.backgroundColorDisabledHover]: "transparent",
     [buttonTokens.boxShadow]: "none",
+    [buttonTokens.color]: {
+      default: color.textMuted,
+      ":hover": color.textMain,
+      ":disabled:hover": color.textMuted,
+    },
   },
   danger: {
     [buttonTokens.backgroundColor]: color.danger,
@@ -302,18 +315,18 @@ const variantStyles = stylex.create({
 const sizeStyles = stylex.create({
   sm: {
     [buttonTokens.height]: controlSize._8,
+    [buttonTokens.paddingInline]: controlSize._2,
     fontSize: font.uiBodySmall,
     gap: controlSize._1,
     paddingBlock: controlSize._0,
-    paddingInline: controlSize._2,
   },
   md: {
     [buttonTokens.height]: controlSize._9,
   },
   lg: {
     [buttonTokens.height]: controlSize._10,
+    [buttonTokens.paddingInline]: controlSize._4,
     fontSize: font.uiHeading2,
     paddingBlock: controlSize._2,
-    paddingInline: controlSize._4,
   },
 });

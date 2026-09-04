@@ -104,25 +104,26 @@ export function ThemeSwitch({ labels, size = "md" }: ThemeSwitchProps) {
             setTheme("system");
           }}
           title={labels[2]}
-        >
-          <div
-            css={[
-              styles.systemIcon,
-              isSmall ? sizeStyles.systemIconSm : sizeStyles.systemIconMd,
-            ]}
-          >
-            <MoonIcon
-              weight="fill"
-              aria-hidden="true"
-              {...stylex.props(styles.systemMoon)}
-            />
-            <SunIcon
-              weight="fill"
-              aria-hidden="true"
-              {...stylex.props(styles.systemSun)}
-            />
-          </div>
-        </Button>
+          icon={
+            <div
+              css={[
+                styles.systemIcon,
+                isSmall ? sizeStyles.systemIconSm : sizeStyles.systemIconMd,
+              ]}
+            >
+              <MoonIcon
+                weight="fill"
+                aria-hidden="true"
+                {...stylex.props(styles.systemMoon)}
+              />
+              <SunIcon
+                weight="fill"
+                aria-hidden="true"
+                {...stylex.props(styles.systemSun)}
+              />
+            </div>
+          }
+        />
       </div>
       <Switch
         size={size}

@@ -182,12 +182,6 @@ const { open, triggerProps, panelProps } = useDisclosure();
   {movie.title}
 </Heading>`,
 
-  // components/icon-button-showcase.tsx
-  `import { IconButton } from "@tuja/ui/components/icon-button";
-import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
-
-<IconButton icon={<XIcon />} aria-label="Close" />`,
-
   // components/menu-showcase.tsx
   `import { MenuButton } from "@tuja/ui/components/menu-button";
 

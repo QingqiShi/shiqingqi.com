@@ -366,10 +366,9 @@ components.
 | `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                       |
 | `@tuja/ui/primitives/reset.stylex`            | Element reset styles.                                                                                                                                   |
 | `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                               |
-| `@tuja/ui/components/anchor-button-group`     | Grouped anchor/button cluster.                                                                                                                          |
 | `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                        |
-| `@tuja/ui/components/badge`                   | Status/label badge (six Intents plus a default, two sizes).                                                                                             |
-| `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger variants, three sizes, loading state).                                                                             |
+| `@tuja/ui/components/badge`                   | Status/label badge on the Chip pill skin (six Intents plus a default, `sm`/`md`).                                                                       |
+| `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger variants, three sizes, loading state); icon-only with `icon` and no children.                                      |
 | `@tuja/ui/components/button.stylex`           | Button style tokens.                                                                                                                                    |
 | `@tuja/ui/components/button-shared.stylex`    | Shared button styles (base, icon, active, pressed).                                                                                                     |
 | `@tuja/ui/components/callout`                 | Inline message/alert box (six Intents, built-in icon, optional dismiss).                                                                                |
@@ -384,13 +383,12 @@ components.
 | `@tuja/ui/components/fixed-container-content` | Fixed-position container content wrapper.                                                                                                               |
 | `@tuja/ui/components/header-footer-layout`    | Reading-density page shell: floating header controls, optional background and footer.                                                                   |
 | `@tuja/ui/components/heading`                 | Semantic heading (visual size decoupled from level, optional `wrap`).                                                                                   |
-| `@tuja/ui/components/icon-button`             | Compact icon-only button (requires `aria-label` **xor** `aria-labelledby`).                                                                             |
 | `@tuja/ui/components/menu-button`             | Button that opens a menu/overlay.                                                                                                                       |
 | `@tuja/ui/components/menu-label`              | Label row inside a menu.                                                                                                                                |
 | `@tuja/ui/components/overlay`                 | Accessible dialog/popover overlay (requires `aria-label` **xor** `aria-labelledby`).                                                                    |
 | `@tuja/ui/components/scroll-mask`             | Scroll region with a progressive blur at each edge it can still scroll to.                                                                              |
 | `@tuja/ui/components/section`                 | Labelled content block (quiet heading, optional icon and trailing actions).                                                                             |
-| `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`.                                                                                                         |
+| `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`; `hideLabels` for an icon-only bar.                                                                      |
 | `@tuja/ui/components/select`                  | Styled native select (options prop or `<option>` children).                                                                                             |
 | `@tuja/ui/components/sidebar-layout`          | Sidebar + content layout.                                                                                                                               |
 | `@tuja/ui/components/skeleton`                | Loading skeleton.                                                                                                                                       |

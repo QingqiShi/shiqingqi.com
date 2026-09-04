@@ -34,15 +34,15 @@ test.describe("Movie and TV Show Browsing", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/movie-database");
     // Wait for content to load
-    await expect(page.getByRole("link", { name: /^movies$/i })).toBeVisible();
+    await expect(page.getByRole("radio", { name: /^movies$/i })).toBeVisible();
   });
 
   test("should display movie grid with filter controls by default", async ({
     page,
   }) => {
-    // Verify "Movies" toggle link is visible
-    const moviesLink = page.getByRole("link", { name: /^movies$/i });
-    await expect(moviesLink).toBeVisible();
+    // Verify "Movies" toggle radio is visible
+    const moviesRadio = page.getByRole("radio", { name: /^movies$/i });
+    await expect(moviesRadio).toBeVisible();
 
     // Verify at least one movie card is visible.
     // The grid is virtualized, so the number of mounted cards varies with the
@@ -50,19 +50,19 @@ test.describe("Movie and TV Show Browsing", () => {
     const cards = page.getByRole("link").filter({ has: page.getByRole("img") });
     await expect(cards.first()).toBeVisible();
 
-    // Verify media type toggle links
-    await expect(page.getByRole("link", { name: /^tv shows$/i })).toBeVisible();
+    // Verify media type toggle radios
+    await expect(
+      page.getByRole("radio", { name: /^tv shows$/i }),
+    ).toBeVisible();
 
     // Verify genre filter button
     await expect(page.getByRole("button", { name: /^genre/i })).toBeVisible();
 
-    // Verify sort links (Popularity and Rating)
+    // Verify sort segments (Popularity and Rating)
     await expect(
-      page.getByRole("link", { name: /sort by popularity/i }),
+      page.getByRole("radio", { name: /^popularity/i }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /sort by rating/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("radio", { name: /^rating/i })).toBeVisible();
   });
 
   test("should toggle between movies and TV shows", async ({ page }) => {
@@ -72,14 +72,14 @@ test.describe("Movie and TV Show Browsing", () => {
       .filter({ has: page.getByRole("img") });
     await expect(mediaCards.first()).toBeVisible();
 
-    // Click "TV Shows" link
-    await page.getByRole("link", { name: /^tv shows$/i }).click();
+    // Click "TV Shows" radio
+    await page.getByRole("radio", { name: /^tv shows$/i }).click();
 
     // Wait for TV show cards to appear
     await expect(mediaCards.first()).toBeVisible({ timeout: 15000 });
 
-    // Click "Movies" link to switch back
-    await page.getByRole("link", { name: /^movies$/i }).click();
+    // Click "Movies" radio to switch back
+    await page.getByRole("radio", { name: /^movies$/i }).click();
 
     // Wait for movie cards again
     await expect(mediaCards.first()).toBeVisible();
@@ -103,25 +103,25 @@ test.describe("Movie and TV Show Browsing", () => {
     // With multiple genres selected, the ALL/ANY toggle should be available.
     await page.getByRole("button", { name: /genre.*\(2\)/i }).click();
     await expect(
-      page.getByRole("link", { name: /any selected/i }),
+      page.getByRole("radio", { name: /any selected/i }),
     ).toBeVisible();
   });
 
   test("should toggle between popularity and rating sort", async ({ page }) => {
-    // Click the Rating sort link
-    await page.getByRole("link", { name: /sort by rating/i }).click();
+    // Click the Rating sort segment
+    await page.getByRole("radio", { name: /^rating/i }).click();
 
     // Verify rating link is now active (descending)
     await expect(
-      page.getByRole("link", { name: /sort by rating, descending/i }),
+      page.getByRole("radio", { name: /^rating, descending/i }),
     ).toBeVisible();
 
     // Click popularity to switch back
-    await page.getByRole("link", { name: /sort by popularity/i }).click();
+    await page.getByRole("radio", { name: /^popularity/i }).click();
 
     // Verify popularity is now active (descending)
     await expect(
-      page.getByRole("link", { name: /sort by popularity, descending/i }),
+      page.getByRole("radio", { name: /^popularity, descending/i }),
     ).toBeVisible();
   });
 
@@ -135,11 +135,11 @@ test.describe("Movie and TV Show Browsing", () => {
     ).toBeVisible();
 
     // Change sort to rating
-    await page.getByRole("link", { name: /sort by rating/i }).click();
+    await page.getByRole("radio", { name: /^rating/i }).click();
 
     // Verify rating is active (descending)
     await expect(
-      page.getByRole("link", { name: /sort by rating, descending/i }),
+      page.getByRole("radio", { name: /^rating, descending/i }),
     ).toBeVisible();
 
     // Verify reset button is visible
@@ -151,7 +151,7 @@ test.describe("Movie and TV Show Browsing", () => {
     // Verify filters are cleared (genre button back to no count, popularity active)
     await expect(page.getByRole("button", { name: /^genre$/i })).toBeVisible();
     await expect(
-      page.getByRole("link", { name: /sort by popularity, descending/i }),
+      page.getByRole("radio", { name: /^popularity, descending/i }),
     ).toBeVisible();
   });
 
@@ -217,14 +217,14 @@ test.describe("Movie and TV Show Browsing", () => {
     ).toBeVisible();
 
     // Change sort
-    await page.getByRole("link", { name: /sort by rating/i }).click();
+    await page.getByRole("radio", { name: /^rating/i }).click();
 
     // Verify both filters are visible in UI (persisted)
     await expect(
       page.getByRole("button", { name: /genre.*\(1\)/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: /sort by rating, descending/i }),
+      page.getByRole("radio", { name: /^rating, descending/i }),
     ).toBeVisible();
 
     // Reload page to test persistence
@@ -235,7 +235,7 @@ test.describe("Movie and TV Show Browsing", () => {
       page.getByRole("button", { name: /genre.*\(1\)/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: /sort by rating, descending/i }),
+      page.getByRole("radio", { name: /^rating, descending/i }),
     ).toBeVisible();
   });
 
@@ -254,7 +254,7 @@ test.describe("Movie and TV Show Browsing", () => {
       page.getByRole("button", { name: /genre.*\(1\)/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: /sort by rating, descending/i }),
+      page.getByRole("radio", { name: /^rating, descending/i }),
     ).toBeVisible();
   });
 
@@ -288,10 +288,10 @@ test.describe("Movie and TV Show Browsing", () => {
 
       // Verify English labels
       await expect(
-        page.getByRole("link", { name: "Movies", exact: true }),
+        page.getByRole("radio", { name: "Movies", exact: true }),
       ).toBeVisible();
       await expect(
-        page.getByRole("link", { name: "TV Shows", exact: true }),
+        page.getByRole("radio", { name: "TV Shows", exact: true }),
       ).toBeVisible();
 
       // Open genre menu and verify English genre names
@@ -306,10 +306,10 @@ test.describe("Movie and TV Show Browsing", () => {
 
       // Verify Chinese labels - use first() to avoid strict mode violation
       await expect(
-        page.getByRole("link", { name: "电影" }).first(),
+        page.getByRole("radio", { name: "电影" }).first(),
       ).toBeVisible();
       await expect(
-        page.getByRole("link", { name: "电视剧", exact: true }),
+        page.getByRole("radio", { name: "电视剧", exact: true }),
       ).toBeVisible();
 
       // Open genre menu and verify Chinese genre names

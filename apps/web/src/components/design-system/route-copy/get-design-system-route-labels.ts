@@ -49,10 +49,6 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
     "/design-system/components/text": t({ en: "Text", zh: "文本" }),
     "/design-system/components/heading": t({ en: "Heading", zh: "标题" }),
     "/design-system/components/button": t({ en: "Button", zh: "按钮" }),
-    "/design-system/components/icon-button": t({
-      en: "Icon button",
-      zh: "图标按钮",
-    }),
     "/design-system/components/menu-button": t({
       en: "Menu button",
       zh: "菜单按钮",

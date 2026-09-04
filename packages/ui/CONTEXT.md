@@ -64,7 +64,7 @@ _Avoid_: fade, gradient mask
 ### Component API
 
 **Variant**:
-A component's visual treatment when it is neither an Intent nor a size — `Text`'s type step, `Divider`'s weight, `IconButton`'s fill.
+A component's visual treatment when it is neither an Intent nor a size — `Text`'s type step, `Divider`'s weight, `Button`'s fill.
 
 **Size**:
 The dimension axis. Always `sm` | `md` | `lg`.

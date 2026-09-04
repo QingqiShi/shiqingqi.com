@@ -2,7 +2,7 @@
 
 import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import * as stylex from "@stylexjs/stylex";
-import { IconButton } from "@tuja/ui/components/icon-button";
+import { Button } from "@tuja/ui/components/button";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 
@@ -18,10 +18,10 @@ export function ScrollToBottomButton({
   onClick,
 }: ScrollToBottomButtonProps) {
   return (
-    <IconButton
+    <Button
+      size="sm"
       icon={<ArrowDownIcon weight="bold" />}
       aria-label={label}
-      variant="surface"
       inert={!visible}
       onClick={onClick}
       css={[styles.button, visible ? styles.visible : styles.hidden]}

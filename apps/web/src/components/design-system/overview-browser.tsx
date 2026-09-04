@@ -3,7 +3,7 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { IconButton } from "@tuja/ui/components/icon-button";
+import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
 import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
@@ -185,8 +185,9 @@ export function OverviewBrowser({
               css={styles.searchInput}
             />
             {query !== "" && (
-              <IconButton
+              <Button
                 size="sm"
+                variant="ghost"
                 icon={<XIcon weight="bold" />}
                 aria-label={clearLabel}
                 css={styles.clear}

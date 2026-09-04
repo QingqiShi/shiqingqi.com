@@ -2,11 +2,10 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { AnchorButtonGroup } from "@tuja/ui/components/anchor-button-group";
 import { FixedContainerContent } from "@tuja/ui/components/fixed-container-content";
+import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
-import { AnchorButton } from "../shared/anchor-button";
 
 export function MediaTypeToggle() {
   // Read `mediaType` from the filters context rather than `useSearchParams()`.
@@ -14,42 +13,31 @@ export function MediaTypeToggle() {
   // which Next's `SearchParamsContext` does not observe — so reading from
   // `useSearchParams()` here would leave the active highlight stuck on the
   // previous choice until the next real navigation.
-  const { mediaType, setMediaType, setMediaTypeUrl } = useMediaFilters();
-
-  const isTv = mediaType === "tv";
-  const isMovies = !isTv;
-
-  const handleMovieClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setMediaType("movie");
-  };
-
-  const handleTvClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setMediaType("tv");
-  };
+  const { mediaType, setMediaType } = useMediaFilters();
 
   return (
     <FixedContainerContent>
-      <AnchorButtonGroup>
-        <AnchorButton
-          href={setMediaTypeUrl("movie")}
-          isActive={isMovies}
-          onClick={handleMovieClick}
-        >
-          {t({ en: "Movies", zh: "电影" })}
-        </AnchorButton>
-        <AnchorButton
-          href={setMediaTypeUrl("tv")}
-          isActive={isTv}
-          onClick={handleTvClick}
-        >
-          <span css={styles.shortLabel}>{t({ en: "TV", zh: "电视" })}</span>
-          <span css={styles.fullLabel}>
-            {t({ en: "TV Shows", zh: "电视剧" })}
-          </span>
-        </AnchorButton>
-      </AnchorButtonGroup>
+      <SegmentedControl
+        aria-label={t({ en: "Media type", zh: "媒体类型" })}
+        value={mediaType}
+        onChange={setMediaType}
+        options={[
+          { value: "movie", label: t({ en: "Movies", zh: "电影" }) },
+          {
+            value: "tv",
+            label: (
+              <>
+                <span css={styles.shortLabel}>
+                  {t({ en: "TV", zh: "电视" })}
+                </span>
+                <span css={styles.fullLabel}>
+                  {t({ en: "TV Shows", zh: "电视剧" })}
+                </span>
+              </>
+            ),
+          },
+        ]}
+      />
     </FixedContainerContent>
   );
 }

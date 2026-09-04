@@ -11,7 +11,7 @@ import {
 import { transition } from "../../primitives/motion.stylex.ts";
 import type { StyleProp } from "../../style-prop.ts";
 import { space } from "../../tokens.stylex.ts";
-import { IconButton } from "../actions/icon-button.tsx";
+import { Button } from "../actions/button.tsx";
 
 /**
  * The edge of a region a scroll button scrolls towards.
@@ -45,10 +45,10 @@ export function ScrollButton({
 }: ScrollButtonProps) {
   const { fill, position, Icon } = scrollButtonEdges[edge];
   return (
-    <IconButton
+    <Button
+      size="sm"
       icon={<Icon weight="bold" />}
       aria-label={label}
-      variant="surface"
       inert={!isShown}
       onClick={onClick}
       css={[

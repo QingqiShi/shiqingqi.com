@@ -108,13 +108,15 @@ const ROUTES = [
     section: "components",
     category: "actions",
     path: "/design-system/components/button",
-    keywords: ["cta", "submit", "primary", "action"],
-  },
-  {
-    section: "components",
-    category: "actions",
-    path: "/design-system/components/icon-button",
-    keywords: ["icon", "toolbar", "compact"],
+    keywords: [
+      "cta",
+      "submit",
+      "primary",
+      "action",
+      "icon",
+      "toolbar",
+      "compact",
+    ],
   },
   {
     section: "components",

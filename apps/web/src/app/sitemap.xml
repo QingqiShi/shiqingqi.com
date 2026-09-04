@@ -482,16 +482,6 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/heading" />
   </url>
   <url>
-    <loc>https://qingqi.dev/design-system/components/icon-button</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/icon-button" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/icon-button" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/components/icon-button</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/icon-button" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/icon-button" />
-  </url>
-  <url>
     <loc>https://qingqi.dev/design-system/components/callout</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/callout" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/callout" />

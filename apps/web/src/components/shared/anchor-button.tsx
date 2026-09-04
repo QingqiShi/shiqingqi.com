@@ -57,6 +57,7 @@ export function AnchorButton({
         sharedStyles.base,
         styles.anchorButton,
         !!icon && !!children && hasIconStyles[hideLabelBelow ?? "never"],
+        !!icon && !children && sharedStyles.iconOnly,
         bright && sharedStyles.bright,
         isActive && sharedStyles.active,
         isPressed && sharedStyles.pressed,
@@ -84,8 +85,8 @@ export function AnchorButton({
 
 const hasIconStyles = {
   never: sharedStyles.hasIcon,
-  md: sharedStyles.hasIconHideLabelBelowMd,
-  lg: sharedStyles.hasIconHideLabelBelowLg,
+  md: sharedStyles.iconOnlyBelowMd,
+  lg: sharedStyles.iconOnlyBelowLg,
 };
 
 const hideLabelStyles = {

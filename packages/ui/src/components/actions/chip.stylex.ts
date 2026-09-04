@@ -9,9 +9,10 @@ import {
 } from "../../tokens.stylex.ts";
 
 /**
- * The pill skin shared by every chip, exposed as composable StyleX for an
- * element `Chip` can't be — most often a `<Link>` — composed as `base` plus a
- * `chipSize` step, then `interactive`, then `active` for the selected one.
+ * The pill skin shared by every chip and, at rest, by `Badge` — exposed as
+ * composable StyleX for an element `Chip` can't be, most often a `<Link>`.
+ * Compose `base` plus a `chipSize` step, then `interactive`, then `active`
+ * for the selected one.
  *
  * `interactive` inlines its focus ring instead of composing `a11y.focusRing`,
  * since a primitive can't compose another at definition time.
