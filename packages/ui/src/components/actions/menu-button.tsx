@@ -99,9 +99,13 @@ export function MenuButton({
 
   // Escape and backdrop click restore focus to the trigger. onBlur doesn't:
   // by then focus has already moved to wherever the user tabbed.
+  // `preventScroll`, because the trigger is on screen under its own open menu,
+  // yet a trigger in a scroller's sticky chrome sits inside that scroller's
+  // scroll-padding — the default reveal scrolls the scroller and cannot ever
+  // satisfy it.
   const closeAndRestoreFocus = () => {
     setIsMenuShown(false);
-    document.getElementById(targetId)?.focus();
+    document.getElementById(targetId)?.focus({ preventScroll: true });
   };
 
   return (
