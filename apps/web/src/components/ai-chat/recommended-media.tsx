@@ -1,15 +1,13 @@
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import type { dehydrate } from "@tanstack/react-query";
+import { HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
 import {
-  getConfiguration,
   getTrendingMovies,
   getTrendingTvShows,
 } from "#src/_generated/tmdb-server-functions.ts";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getQueryClient } from "#src/utils/get-query-client.ts";
-import { noop } from "#src/utils/noop.ts";
-import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
+import { getConfigurationDehydratedState } from "#src/utils/get-configuration-dehydrated-state.ts";
 import { RecommendedMediaRow } from "./recommended-media-row";
 import { RecommendedMediaRowSkeleton } from "./recommended-media-row-skeleton";
 
@@ -20,16 +18,7 @@ interface RecommendedMediaProps {
 }
 
 export function RecommendedMedia({ locale }: RecommendedMediaProps) {
-  const queryClient = getQueryClient();
-
-  queryClient
-    .query({
-      ...configurationQuery,
-      queryFn: async () => getConfiguration(),
-    })
-    .catch(noop);
-
-  const dehydratedState = dehydrate(queryClient);
+  const dehydratedState = getConfigurationDehydratedState();
 
   return (
     <>

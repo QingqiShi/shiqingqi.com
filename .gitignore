@@ -47,6 +47,7 @@ blob-report/
 playwright/.cache/
 playwright/.auth/
 .playwright-cli
+apps/web/e2e/.web-server-errors.log
 
 # Evalite
 .evalite/

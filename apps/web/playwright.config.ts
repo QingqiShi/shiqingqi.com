@@ -44,8 +44,20 @@ export default defineConfig({
   retries: 2,
   /* Run tests in parallel on CI for faster execution */
   workers: process.env.CI ? "50%" : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? "blob" : [["html", { open: "never" }]],
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters.
+   * web-server-error-reporter fails the run if web-server-with-error-log.mjs
+   * caught a server error, alongside whichever reporter renders results. */
+  reporter: [
+    process.env.CI ? ["blob"] : ["html", { open: "never" }],
+    // html and blob write only to disk, so without a terminal reporter a
+    // global error (for example a webServer startup failure) shows nowhere
+    // and the run fails silently.
+    ["line"],
+    // The timestamp must come from config evaluation, which happens before
+    // the webServer starts. The reporter's own onBegin fires after the
+    // server is ready, so it would miss errors logged during startup.
+    ["./e2e/web-server-error-reporter.ts", { configLoadedAt: Date.now() }],
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -91,7 +103,9 @@ export default defineConfig({
     // On CI the app is built once in a dedicated job and its output is
     // downloaded into each shard, so we only start it here. Locally we still
     // build on demand (or reuse a running dev server via reuseExistingServer).
-    command: process.env.CI ? "pnpm start" : "pnpm build && pnpm start",
+    // The wrapper starts the real `pnpm start` and also catches server
+    // errors for web-server-error-reporter.ts to fail the run on.
+    command: `${process.env.CI ? "" : "pnpm build && "}node e2e/web-server-with-error-log.mjs`,
     url: baseURL,
     env: {
       PORT: port, // next start binds this; reuses a running dev server if present
