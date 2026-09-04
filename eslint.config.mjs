@@ -262,6 +262,7 @@ export default defineConfig([
     files: [
       "packages/**/*.mjs",
       "scripts/**/*.mjs",
+      "apps/*/e2e/**/*.mjs",
       "packages/tmdb-codegen/src/generator.js",
     ],
     ...tsEslint.configs.disableTypeChecked,

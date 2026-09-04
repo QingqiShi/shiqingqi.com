@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { HydrationBoundary } from "@tanstack/react-query";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
@@ -13,6 +14,7 @@ import {
 } from "#src/components/ai-chat/recommended-media-row.tsx";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
+import { getConfigurationDehydratedState } from "#src/utils/get-configuration-dehydrated-state.ts";
 import { getLocalePath } from "#src/utils/get-locale-path.ts";
 
 const ITEMS_PER_ROW = 14;
@@ -22,18 +24,24 @@ interface CuratedMediaRowsProps {
 }
 
 export function CuratedMediaRows({ locale }: CuratedMediaRowsProps) {
+  // The page's own HydrationBoundary is a later sibling, so it can hydrate
+  // the shared client-side cache after these rows render during SSR. This
+  // subtree must carry its own dehydrated configuration prefetch, or
+  // PosterImage's useSuspenseQuery runs its client queryFn on the server.
   return (
-    <section
-      aria-label={t({ en: "Curated picks", zh: "精选推荐" })}
-      css={styles.container}
-    >
-      <Suspense fallback={<RecommendedMediaRowSkeleton inset="standalone" />}>
-        <TrendingMoviesRow locale={locale} />
-      </Suspense>
-      <Suspense fallback={<RecommendedMediaRowSkeleton inset="standalone" />}>
-        <TrendingTvShowsRow locale={locale} />
-      </Suspense>
-    </section>
+    <HydrationBoundary state={getConfigurationDehydratedState()}>
+      <section
+        aria-label={t({ en: "Curated picks", zh: "精选推荐" })}
+        css={styles.container}
+      >
+        <Suspense fallback={<RecommendedMediaRowSkeleton inset="standalone" />}>
+          <TrendingMoviesRow locale={locale} />
+        </Suspense>
+        <Suspense fallback={<RecommendedMediaRowSkeleton inset="standalone" />}>
+          <TrendingTvShowsRow locale={locale} />
+        </Suspense>
+      </section>
+    </HydrationBoundary>
   );
 }
 
