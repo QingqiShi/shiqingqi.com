@@ -30,6 +30,15 @@ module.exports = async (phase) => {
       // running dev server ("Restore of All for task ... failed"), which
       // aborts the whole server. Rebuild from memory until upstream fixes it.
       turbopackFileSystemCacheForDev: false,
+      // The build cache cannot see the StyleX babel plugin's internal
+      // resolution of cross-package `.stylex` imports. When a `defineVars`
+      // file moves, its var hashes change, but consumer modules that did not
+      // change themselves are restored stale from the cache with the old
+      // hashes, so the shipped JS references classes the freshly generated
+      // stylesheet does not define (#2761 broke all anchor colors in
+      // production this way). Build cold until the cache can track those
+      // hidden inputs.
+      turbopackFileSystemCacheForBuild: false,
     },
     transpilePackages: ["@tuja/ui"],
     serverExternalPackages: ["esbuild-wasm", "@babel/parser", "prettier"],
