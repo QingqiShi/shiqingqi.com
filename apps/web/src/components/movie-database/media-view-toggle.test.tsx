@@ -64,13 +64,13 @@ describe("MediaViewToggle", () => {
     expect(getGridButton()).toHaveAttribute("aria-checked", "false");
   });
 
-  it("honors defaultFilters.view on first paint", () => {
+  it("honors the URL's view param on first paint", () => {
+    window.history.replaceState({}, "", "?view=table");
+
     render(
-      <PathnameContext value="/movie-database">
-        <MediaFiltersProvider defaultFilters={{ view: "table" }}>
-          <MediaViewToggle />
-        </MediaFiltersProvider>
-      </PathnameContext>,
+      <Harness>
+        <MediaViewToggle />
+      </Harness>,
     );
 
     expect(getTableButton()).toHaveAttribute("aria-checked", "true");

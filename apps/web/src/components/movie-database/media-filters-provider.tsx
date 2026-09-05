@@ -8,6 +8,7 @@ import type { GenreFilterType } from "#src/utils/genre-filter-type.ts";
 import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
 import type { MediaType } from "#src/utils/media-type.ts";
 import type { MediaView } from "#src/utils/media-view.ts";
+import { readMediaFiltersSearchParams } from "#src/utils/read-media-filters-search-params.ts";
 import type { Sort } from "#src/utils/sort.ts";
 
 const emptyFilters = {
@@ -71,17 +72,27 @@ export function MediaFiltersProvider({
 }: PropsWithChildren<MediaFiltersProviderProps>) {
   const pathname = usePathname();
 
-  const initialMediaType: MediaType =
-    defaultFilters?.mediaType ?? emptyFilters.mediaType;
+  const [mediaFilters, setMediaFilters] = useState<MediaFilters>(() => {
+    // The client reads the live URL and not `defaultFilters`. `commit()`
+    // moves the URL without the server, so a remount (for example after an
+    // error boundary reset) must not replay the stale server snapshot.
+    // `defaultFilters` is the server's reading of the request URL and serves
+    // only the server render.
+    const seed =
+      typeof window === "undefined"
+        ? defaultFilters
+        : readMediaFiltersSearchParams(
+            new URLSearchParams(window.location.search),
+          );
 
-  const [mediaFilters, setMediaFilters] = useState<MediaFilters>(() => ({
-    genres: new Set<string>(defaultFilters?.genres),
-    genreFilterType:
-      defaultFilters?.genreFilterType ?? emptyFilters.genreFilterType,
-    sort: defaultFilters?.sort ?? emptyFilters.sort,
-    mediaType: initialMediaType,
-    view: defaultFilters?.view ?? emptyFilters.view,
-  }));
+    return {
+      genres: new Set<string>(seed?.genres),
+      genreFilterType: seed?.genreFilterType ?? emptyFilters.genreFilterType,
+      sort: seed?.sort ?? emptyFilters.sort,
+      mediaType: seed?.mediaType ?? emptyFilters.mediaType,
+      view: seed?.view ?? emptyFilters.view,
+    };
+  });
 
   const buildUrl = (nextFilters: MediaFilters) => {
     const params = buildFiltersSearchParams(nextFilters);

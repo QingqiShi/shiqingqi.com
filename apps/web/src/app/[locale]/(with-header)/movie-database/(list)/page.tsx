@@ -27,14 +27,13 @@ import { MediaList } from "#src/components/movie-database/media-list.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { t } from "#src/i18n.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
-import { isGenreFilterType } from "#src/utils/genre-filter-type.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import { isMediaView } from "#src/utils/media-view.ts";
 import { noop } from "#src/utils/noop.ts";
-import { isSort } from "#src/utils/sort.ts";
+import { readMediaFiltersSearchParams } from "#src/utils/read-media-filters-search-params.ts";
 import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
 import { genresQuery } from "#src/utils/tmdb-queries/genres-query.ts";
 import { mediaListQuery } from "#src/utils/tmdb-queries/media-list-query.ts";
+import { toURLSearchParams } from "#src/utils/to-url-search-params.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
 const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
@@ -52,29 +51,8 @@ export default async function Page(
   const validatedLocale: SupportedLocale = validateLocale(params.locale);
   const searchParams = await props.searchParams;
 
-  const rawType = Array.isArray(searchParams.type)
-    ? searchParams.type[0]
-    : searchParams.type;
-  const mediaType = rawType === "tv" ? "tv" : "movie";
-
-  const genres =
-    typeof searchParams.genre === "string"
-      ? [searchParams.genre]
-      : searchParams.genre;
-  const rawGenreFilterType = Array.isArray(searchParams.genreFilterType)
-    ? searchParams.genreFilterType[0]
-    : searchParams.genreFilterType;
-  const genreFilterType = isGenreFilterType(rawGenreFilterType)
-    ? rawGenreFilterType
-    : undefined;
-  const rawSort = Array.isArray(searchParams.sort)
-    ? searchParams.sort[0]
-    : searchParams.sort;
-  const sort = isSort(rawSort) ? rawSort : undefined;
-  const rawView = Array.isArray(searchParams.view)
-    ? searchParams.view[0]
-    : searchParams.view;
-  const view = isMediaView(rawView) ? rawView : undefined;
+  const { genres, genreFilterType, sort, mediaType, view } =
+    readMediaFiltersSearchParams(toURLSearchParams(searchParams));
 
   // Fetch config, genres, and initial page
   const queryClient = getQueryClient();
@@ -96,7 +74,8 @@ export default async function Page(
   const queryParams = {
     language: validatedLocale,
     page: 1,
-    with_genres: genres?.join(genreFilterType === "any" ? "|" : ","),
+    with_genres:
+      genres.join(genreFilterType === "any" ? "|" : ",") || undefined,
     sort_by: sort !== "popularity.desc" ? sort : undefined,
   };
 

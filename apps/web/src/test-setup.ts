@@ -7,4 +7,7 @@ installJsdomShims();
 
 afterEach(() => {
   cleanup();
+  // Components that read `window.location` on mount must not see the URL a
+  // test left behind.
+  window.history.replaceState({}, "", "/");
 });
