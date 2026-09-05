@@ -82,13 +82,13 @@ describe("MediaTypeToggle", () => {
     expect(getTvButton()).toHaveAttribute("aria-checked", "false");
   });
 
-  it("honors defaultFilters.mediaType on first paint", () => {
+  it("honors the URL's type param on first paint", () => {
+    window.history.replaceState({}, "", "?type=tv");
+
     render(
-      <PathnameContext value="/movie-database">
-        <MediaFiltersProvider defaultFilters={{ mediaType: "tv" }}>
-          <MediaTypeToggle />
-        </MediaFiltersProvider>
-      </PathnameContext>,
+      <Harness>
+        <MediaTypeToggle />
+      </Harness>,
     );
 
     expect(getTvButton()).toHaveAttribute("aria-checked", "true");
