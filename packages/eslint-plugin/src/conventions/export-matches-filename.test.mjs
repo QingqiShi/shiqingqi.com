@@ -2,6 +2,10 @@ import { createRequire } from "node:module";
 import { RuleTester } from "eslint";
 
 const require = createRequire(import.meta.url);
+// `@typescript-eslint/parser` is only reachable through the `typescript-eslint`
+// meta package's own node_modules, so go through its `parser` export instead
+// of requiring the subpackage directly.
+const tsParser = require("typescript-eslint").parser;
 const rule = require("./export-matches-filename");
 
 const ruleTester = new RuleTester({
@@ -133,6 +137,30 @@ ruleTester.run("export-matches-filename", rule, {
       code: `doTheWork();`,
       languageOptions: { sourceType: "commonjs" },
     },
+    // V23: a type-only file named after its interface
+    {
+      filename: "src/foo.ts",
+      code: `export interface Foo {}`,
+      languageOptions: { parser: tsParser },
+    },
+    // V24: the value export matches while an unrelated type is also exported
+    {
+      filename: "src/merge-refs.ts",
+      code: `export interface Options {}\nexport function mergeRefs() {}`,
+      languageOptions: { parser: tsParser },
+    },
+    // V25: export { type Foo, bar } — the value specifier is what counts
+    {
+      filename: "src/bar.ts",
+      code: `type Foo = string;\nconst bar = 1;\nexport { type Foo, bar };`,
+      languageOptions: { parser: tsParser },
+    },
+    // V26: a type-only file whose only export is an inline type specifier
+    {
+      filename: "src/foo.ts",
+      code: `type Foo = string;\nexport { type Foo };`,
+      languageOptions: { parser: tsParser },
+    },
   ],
 
   invalid: [
@@ -255,6 +283,55 @@ ruleTester.run("export-matches-filename", rule, {
             basename: "t-import.js",
             stem: "t-import",
             exports: "createTImportTracker, isI18nModuleSource",
+          },
+        },
+      ],
+    },
+    // I9: named after the exported interface, but the real (value) export
+    // is a non-matching function — the type does not count
+    {
+      filename: "src/foo.ts",
+      code: `export interface Foo {}\nexport function doSomethingElse() {}`,
+      languageOptions: { parser: tsParser },
+      errors: [
+        {
+          messageId: "noMatchingExport",
+          data: {
+            basename: "foo.ts",
+            stem: "foo",
+            exports: "doSomethingElse (type-only exports do not count: Foo)",
+          },
+        },
+      ],
+    },
+    // I10: export { type Foo } plus a non-matching value export
+    {
+      filename: "src/foo.ts",
+      code: `type Foo = string;\nexport { type Foo };\nexport function bar() {}`,
+      languageOptions: { parser: tsParser },
+      errors: [
+        {
+          messageId: "noMatchingExport",
+          data: {
+            basename: "foo.ts",
+            stem: "foo",
+            exports: "bar (type-only exports do not count: Foo)",
+          },
+        },
+      ],
+    },
+    // I11: export default interface plus a non-matching value export
+    {
+      filename: "src/foo.ts",
+      code: `export default interface Foo {}\nexport const somethingElse = 1;`,
+      languageOptions: { parser: tsParser },
+      errors: [
+        {
+          messageId: "noMatchingExport",
+          data: {
+            basename: "foo.ts",
+            stem: "foo",
+            exports: "somethingElse (type-only exports do not count: Foo)",
           },
         },
       ],

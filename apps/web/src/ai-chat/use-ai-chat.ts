@@ -4,12 +4,12 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
 import { captureMessageSend } from "#src/ai-chat/capture-message-send.ts";
-import {
-  type ChatMessageMetadata,
-  type ChatMood,
-  chatMessageMetadataSchema,
-  findLatestMoodFromMessages,
+import { chatMessageMetadataSchema } from "#src/ai-chat/chat-message-metadata-schema.ts";
+import type {
+  ChatMessageMetadata,
+  ChatMood,
 } from "#src/ai-chat/chat-message-metadata.ts";
+import { findLatestMoodFromMessages } from "#src/ai-chat/find-latest-mood-from-messages.ts";
 import { isUIMessage } from "#src/ai-chat/is-ui-message.ts";
 import { accumulateToolOutputs } from "#src/components/ai-chat/map-tool-output/accumulate-tool-outputs.ts";
 import { toolOutputsFingerprint } from "#src/components/ai-chat/map-tool-output/tool-outputs-fingerprint.ts";

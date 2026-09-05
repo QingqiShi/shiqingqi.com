@@ -4,7 +4,7 @@ import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
-import type { Sort } from "#src/utils/sort.ts";
+import type { Sort } from "#src/utils/media-filters.ts";
 
 interface SortFilterProps {
   hideLabel?: boolean;
