@@ -2,7 +2,6 @@ import type { LanguageModel } from "ai";
 import { convertToModelMessages, isStepCount, streamText } from "ai";
 import "server-only";
 import { addCacheControlToMessages } from "./add-cache-control-to-messages";
-import type { ChatInput } from "./chat-input";
 import { contextManagementProviderOptions } from "./context-management-provider-options";
 import { getAnthropicModel } from "./get-anthropic-model";
 import { getAnthropicProvider } from "./get-anthropic-provider";
@@ -19,6 +18,7 @@ import { createSavePreferenceTool } from "./tools/create-save-preference-tool";
 import { createSemanticSearchTool } from "./tools/create-semantic-search-tool";
 import { createTmdbSearchTool } from "./tools/create-tmdb-search-tool";
 import { createWatchProvidersTool } from "./tools/create-watch-providers-tool";
+import type { ChatInput } from "./types";
 
 interface ChatOptions extends ChatInput {
   model?: LanguageModel;

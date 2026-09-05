@@ -1,11 +1,26 @@
-import { isGenreFilterType, type GenreFilterType } from "./genre-filter-type";
-import type { MediaType } from "./media-type";
-import { isMediaView, type MediaView } from "./media-view";
-import { isSort, type Sort } from "./sort";
+import type { MatchMode, MediaType, MediaView, Sort } from "./types";
+
+const SORTS: readonly Sort[] = [
+  "popularity.asc",
+  "popularity.desc",
+  "vote_average.asc",
+  "vote_average.desc",
+];
+
+const MATCH_MODES: readonly MatchMode[] = ["all", "any"];
+
+const MEDIA_VIEWS: readonly MediaView[] = ["grid", "table"];
+
+function validValue<T extends string>(
+  value: string | null,
+  allowed: readonly T[],
+): T | undefined {
+  return allowed.find((option) => option === value);
+}
 
 export interface MediaFiltersSearchParams {
   genres: string[];
-  genreFilterType?: GenreFilterType;
+  matchMode?: MatchMode;
   sort?: Sort;
   mediaType: MediaType;
   view?: MediaView;
@@ -14,17 +29,11 @@ export interface MediaFiltersSearchParams {
 export function readMediaFiltersSearchParams(
   params: URLSearchParams,
 ): MediaFiltersSearchParams {
-  const genreFilterType = params.get("genreFilterType");
-  const sort = params.get("sort");
-  const view = params.get("view");
-
   return {
     genres: params.getAll("genre"),
-    genreFilterType: isGenreFilterType(genreFilterType)
-      ? genreFilterType
-      : undefined,
-    sort: isSort(sort) ? sort : undefined,
+    matchMode: validValue(params.get("genreFilterType"), MATCH_MODES),
+    sort: validValue(params.get("sort"), SORTS),
     mediaType: params.get("type") === "tv" ? "tv" : "movie",
-    view: isMediaView(view) ? view : undefined,
+    view: validValue(params.get("view"), MEDIA_VIEWS),
   };
 }

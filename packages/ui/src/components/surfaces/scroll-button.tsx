@@ -9,8 +9,8 @@ import {
   pointerConstants,
 } from "../../primitives/layout.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { Button } from "../actions/button.tsx";
 
 /**

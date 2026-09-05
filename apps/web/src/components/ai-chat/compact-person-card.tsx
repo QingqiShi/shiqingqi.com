@@ -9,8 +9,8 @@ import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
-import type { PersonListItem } from "#src/utils/person-list-item.ts";
 import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
+import type { PersonListItem } from "#src/utils/types.ts";
 import { TmdbImage } from "../movie-database/tmdb-image";
 import { DepartmentLabel } from "./department-label";
 

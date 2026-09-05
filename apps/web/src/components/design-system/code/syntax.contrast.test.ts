@@ -10,8 +10,8 @@ import { purple } from "@tuja/ui/palette/purple";
 import { color } from "@tuja/ui/tokens.stylex";
 import { describe, expect, it } from "vitest";
 import { contrastRatio } from "../sections/tokens/text-role-contrast.ts";
-import { TOKEN_KINDS } from "./code-token.ts";
 import { syntax } from "./syntax.stylex.ts";
+import { TOKEN_KINDS } from "./token-kinds.ts";
 
 // The tones `syntax.stylex.ts` writes out. StyleX cannot inline a hue across a
 // package boundary, so this table is what keeps the two the same.

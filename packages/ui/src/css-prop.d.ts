@@ -8,7 +8,7 @@
 // type-checks standalone. Consumers get the same augmentation by adding an
 // equivalent `css-prop.d.ts` to their own project (see the README) — the
 // augmentation must be part of the consumer's TS program, not just ours.
-import type { StyleProp } from "./style-prop.ts";
+import type { StyleProp } from "./types.ts";
 
 declare module "react" {
   // The type parameter must keep React's own name for the declarations to

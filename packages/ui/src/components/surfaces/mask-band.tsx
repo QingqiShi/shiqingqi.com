@@ -4,7 +4,7 @@ import {
   easing,
   motionConstants,
 } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
+import type { StyleProp } from "../../types.ts";
 import { buildEdgeBlurLayers } from "./build-edge-blur-layers.ts";
 
 /** The edge of a region a band sits over, in the region's writing mode. */

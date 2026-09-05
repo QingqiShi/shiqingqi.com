@@ -7,7 +7,6 @@ import { a11y } from "../../primitives/a11y.stylex.ts";
 import { corner } from "../../primitives/corner.stylex.ts";
 import { flex } from "../../primitives/flex.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import {
   border,
   color,
@@ -16,6 +15,7 @@ import {
   opacity,
   space,
 } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 

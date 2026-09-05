@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import type { StyleProp } from "@tuja/ui/style-prop";
 import { space } from "@tuja/ui/tokens.stylex";
+import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 import { CodeBlock } from "./code/code-block.tsx";
-import type { CodeToken } from "./code/code-token.ts";
+import type { CodeToken } from "./code/types.ts";
 import { SpecimenReveal } from "./specimen-reveal.tsx";
 
 interface SpecimenProps {

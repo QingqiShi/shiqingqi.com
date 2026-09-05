@@ -3,8 +3,8 @@ import { useId, type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../../primitives/a11y.stylex.ts";
 import { scrollbar, scrollX } from "../../primitives/layout.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { color, font, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { tableTokens } from "./table.stylex.ts";
 
 interface TableProps extends Omit<

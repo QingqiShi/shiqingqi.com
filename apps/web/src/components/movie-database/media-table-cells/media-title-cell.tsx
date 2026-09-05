@@ -6,8 +6,8 @@ import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "../../shared/anchor";
 import { useMediaTable } from "../media-table-context";
-import type { MediaCellParams } from "../media-table-spec";
 import { TmdbImage } from "../tmdb-image";
+import type { MediaCellParams } from "../types";
 
 /** Stands in for a poster that is missing or failed to load. */
 function PosterFallback() {

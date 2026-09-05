@@ -37,10 +37,9 @@ import { t } from "#src/i18n.ts";
 import { copyTextToClipboard } from "#src/utils/copy-text-to-clipboard.ts";
 import { downloadBlob } from "#src/utils/download-blob.ts";
 import { getLocalePath } from "#src/utils/get-locale-path.ts";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
-import type { MediaType } from "#src/utils/media-type.ts";
 import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
 import { genresQuery } from "#src/utils/tmdb-queries/genres-query.ts";
+import type { MediaListItem, MediaType } from "#src/utils/types.ts";
 import { MediaGenresCell } from "./media-table-cells/media-genres-cell";
 import { MediaLanguageCell } from "./media-table-cells/media-language-cell";
 import { MediaOverviewCell } from "./media-table-cells/media-overview-cell";
@@ -53,11 +52,7 @@ import { MediaTableHeader } from "./media-table-cells/media-table-header";
 import { MediaTitleCell } from "./media-table-cells/media-title-cell";
 import { MediaVotesCell } from "./media-table-cells/media-votes-cell";
 import { MediaTableContext } from "./media-table-context";
-import type {
-  MediaColumn,
-  MediaTableSpec,
-  MediaSortDirection,
-} from "./media-table-spec";
+import type { MediaColumn, MediaTableSpec, MediaSortDirection } from "./types";
 
 const ROW_HEIGHT = 76;
 const HEADER_HEIGHT = 44;

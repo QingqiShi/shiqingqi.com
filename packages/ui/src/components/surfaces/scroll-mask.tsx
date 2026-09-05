@@ -12,8 +12,8 @@ import {
   useScrollMask,
   type ScrollMaskOrientation,
 } from "../../hooks/use-scroll-mask.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { getScrollBehavior } from "../../utils/get-scroll-behavior.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 import { MaskBand } from "./mask-band.tsx";

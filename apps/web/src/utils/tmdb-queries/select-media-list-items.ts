@@ -1,5 +1,5 @@
-import type { MediaListItem } from "../media-list-item";
 import type { ResponseType } from "../tmdb-get";
+import type { MediaListItem } from "../types";
 
 type MovieResult = NonNullable<
   ResponseType<"/3/discover/movie", "get">["results"]

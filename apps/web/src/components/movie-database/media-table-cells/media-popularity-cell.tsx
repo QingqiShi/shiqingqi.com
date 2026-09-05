@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import { useMediaTable } from "../media-table-context";
-import type { MediaCellParams } from "../media-table-spec";
+import type { MediaCellParams } from "../types";
 import { cellShared } from "./cell-shared.stylex";
 import { MediaMeter } from "./media-meter";
 import { toPercent } from "./to-percent";

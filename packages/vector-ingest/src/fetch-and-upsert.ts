@@ -2,8 +2,12 @@ import { MIN_VOTE_COUNT } from "./constants.ts";
 import { TmdbApiError } from "./tmdb-client.ts";
 import { transformMovie } from "./transform-movie.ts";
 import { transformTv } from "./transform-tv.ts";
-import type { IngestStats, TmdbFetcher, VectorNamespace } from "./types.ts";
-import type { VectorRecord } from "./vector-record.ts";
+import type {
+  IngestStats,
+  TmdbFetcher,
+  VectorNamespace,
+  VectorRecord,
+} from "./types.ts";
 
 const UPSERT_BATCH_SIZE = 100;
 const DELETE_BATCH_SIZE = 100;

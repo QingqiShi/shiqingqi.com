@@ -9,8 +9,8 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import type { StyleProp } from "@tuja/ui/style-prop";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
+import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 

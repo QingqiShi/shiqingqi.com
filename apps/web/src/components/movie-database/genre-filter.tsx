@@ -22,8 +22,8 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
     genres,
     toggleGenre,
     toggleGenreUrl,
-    genreFilterType,
-    setGenreFilterType,
+    matchMode,
+    setMatchMode,
     mediaType,
   } = useMediaFilters();
 
@@ -74,8 +74,8 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
           </MenuLabel>
           <SegmentedControl
             aria-labelledby={matchingLabelId}
-            value={genreFilterType}
-            onChange={setGenreFilterType}
+            value={matchMode}
+            onChange={setMatchMode}
             options={[
               {
                 value: "all",

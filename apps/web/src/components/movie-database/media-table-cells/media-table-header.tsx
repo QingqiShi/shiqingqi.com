@@ -11,7 +11,7 @@ import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { t } from "#src/i18n.ts";
 import { useMediaTable } from "../media-table-context";
-import type { MediaHeaderParams } from "../media-table-spec";
+import type { MediaHeaderParams } from "../types";
 
 /**
  * Mirrors the sort state onto the element that owns `role="columnheader"`.

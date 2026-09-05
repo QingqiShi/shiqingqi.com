@@ -42,7 +42,7 @@
   "exports": {
     "./package.json": "./package.json",
     "./css-prop": "./src/css-prop.d.ts",
-    "./style-prop": "./src/style-prop.ts",
+    "./types": "./src/types.ts",
     "./tokens.stylex": "./src/tokens.stylex.ts",
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
     "./palette/*": "./src/_generated/palette/hues/*.stylex.ts",

@@ -1,5 +1,5 @@
 import { presentPersonInputSchema } from "#src/ai-chat/tools/create-present-person-tool.ts";
-import type { PersonListItem } from "#src/utils/person-list-item.ts";
+import type { PersonListItem } from "#src/utils/types.ts";
 
 export function resolvePersonItems(
   input: unknown,

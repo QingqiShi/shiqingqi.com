@@ -1,5 +1,5 @@
 import { isRecord } from "#src/utils/is-record.ts";
-import type { PersonListItem } from "#src/utils/person-list-item.ts";
+import type { PersonListItem } from "#src/utils/types.ts";
 
 function extractPersonEntries(arr: unknown): PersonListItem[] {
   if (!Array.isArray(arr)) return [];

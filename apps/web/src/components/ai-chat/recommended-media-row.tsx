@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 import { CompactMediaCard } from "./compact-media-card";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";
 import { useMediaDetail } from "./media-detail-provider";

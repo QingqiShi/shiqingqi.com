@@ -10,7 +10,6 @@ import {
 } from "react";
 import { usePressHandlers } from "../../hooks/use-press-handlers.ts";
 import { a11y } from "../../primitives/a11y.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import {
   border,
   color,
@@ -18,6 +17,7 @@ import {
   font,
   opacity,
 } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 import { Spinner } from "../feedback/spinner.tsx";
 import { sharedStyles } from "./button-shared.stylex.ts";

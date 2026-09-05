@@ -7,8 +7,8 @@ import {
   motionConstants,
   motionTokens,
 } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { color, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 
 interface SpinnerBaseProps extends Omit<
   ComponentProps<"span">,

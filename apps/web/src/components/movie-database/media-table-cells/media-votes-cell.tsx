@@ -1,7 +1,7 @@
 "use client";
 
 import { useMediaTable } from "../media-table-context";
-import type { MediaCellParams } from "../media-table-spec";
+import type { MediaCellParams } from "../types";
 import { cellShared } from "./cell-shared.stylex";
 
 export function MediaVotesCell({ api, row }: MediaCellParams) {

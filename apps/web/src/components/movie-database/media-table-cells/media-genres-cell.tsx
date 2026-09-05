@@ -5,7 +5,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useMediaTable } from "../media-table-context";
-import type { MediaCellParams } from "../media-table-spec";
+import type { MediaCellParams } from "../types";
 import { cellShared } from "./cell-shared.stylex";
 
 export function MediaGenresCell({ api, row }: MediaCellParams) {

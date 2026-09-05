@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 import { resolveMediaItems } from "./resolve-media-items";
 
 describe("resolveMediaItems", () => {

@@ -2,7 +2,7 @@ import { fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { PortalTargetProvider } from "#src/components/shared/portal-target-provider.tsx";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 import { ChatActionsContext } from "./chat-actions-context";
 import { MediaDetailOverlay } from "./media-detail-overlay";
 import { MediaDetailProvider } from "./media-detail-provider";

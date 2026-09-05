@@ -1,7 +1,6 @@
 import { buildVectorRecord } from "./build-vector-record.ts";
 import { extractKeywordsFromTv } from "./compose-embedding-text.ts";
-import type { TmdbTvDetail } from "./types.ts";
-import type { VectorRecord } from "./vector-record.ts";
+import type { TmdbTvDetail, VectorRecord } from "./types.ts";
 
 export function transformTv(detail: TmdbTvDetail): VectorRecord {
   return buildVectorRecord({

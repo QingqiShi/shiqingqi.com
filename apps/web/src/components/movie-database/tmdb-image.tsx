@@ -1,7 +1,7 @@
 "use client";
 
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import type { StyleProp } from "@tuja/ui/style-prop";
+import type { StyleProp } from "@tuja/ui/types";
 import { useState, type ReactNode } from "react";
 import { buildTmdbSrcSet } from "#src/utils/build-tmdb-src-set.ts";
 

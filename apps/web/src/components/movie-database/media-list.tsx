@@ -25,11 +25,11 @@ interface MediaListProps {
 
 export function MediaList({ initialPage }: MediaListProps) {
   const locale = useLocale();
-  const { genres, genreFilterType, sort, mediaType, view } = useMediaFilters();
+  const { genres, matchMode, sort, mediaType, view } = useMediaFilters();
 
   // Use deferred value to prevent re-suspending when the genre changes
   const deferredGenre = useDeferredValue(genres);
-  const deferredGenreFilterType = useDeferredValue(genreFilterType);
+  const deferredMatchMode = useDeferredValue(matchMode);
   const deferredSort = useDeferredValue(sort);
   const deferredMediaType = useDeferredValue(mediaType);
 
@@ -38,7 +38,7 @@ export function MediaList({ initialPage }: MediaListProps) {
     page: initialPage,
     language: locale,
     with_genres:
-      [...deferredGenre].join(deferredGenreFilterType === "any" ? "|" : ",") ||
+      [...deferredGenre].join(deferredMatchMode === "any" ? "|" : ",") ||
       undefined,
     sort_by: deferredSort !== "popularity.desc" ? deferredSort : undefined,
   });

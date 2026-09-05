@@ -1,5 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
-import type { StyleProp } from "../../style-prop.ts";
+import type { StyleProp } from "../../types.ts";
 import {
   MultipleSelectGroup,
   type MultipleSelectProps,

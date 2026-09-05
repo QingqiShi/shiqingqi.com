@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { t } from "#src/i18n.ts";
-import type { PersonListItem } from "#src/utils/person-list-item.ts";
+import type { PersonListItem } from "#src/utils/types.ts";
 import { CompactPersonCard } from "./compact-person-card";
 import { HorizontalScrollRow } from "./horizontal-scroll-row";
 import { useMediaDetail } from "./media-detail-provider";

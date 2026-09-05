@@ -5,8 +5,7 @@ import {
   extractStreamingPlatforms,
 } from "./compose-embedding-text.ts";
 import { parseYear } from "./parse-year.ts";
-import type { TmdbMovieDetail, TmdbTvDetail } from "./types.ts";
-import type { VectorRecord } from "./vector-record.ts";
+import type { TmdbMovieDetail, TmdbTvDetail, VectorRecord } from "./types.ts";
 
 interface MediaFacts {
   mediaType: "movie" | "tv";

@@ -1,5 +1,5 @@
 import { parseArgs } from "node:util";
-import type { MediaMetadata } from "@tuja/tmdb-types/media-metadata";
+import type { MediaMetadata } from "@tuja/tmdb-types/types";
 import { Index } from "@upstash/vector";
 import { config } from "dotenv";
 import { getRequiredEnv } from "./get-required-env.ts";

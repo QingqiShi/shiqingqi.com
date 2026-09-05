@@ -51,7 +51,7 @@ export default async function Page(
   const validatedLocale: SupportedLocale = validateLocale(params.locale);
   const searchParams = await props.searchParams;
 
-  const { genres, genreFilterType, sort, mediaType, view } =
+  const { genres, matchMode, sort, mediaType, view } =
     readMediaFiltersSearchParams(toURLSearchParams(searchParams));
 
   // Fetch config, genres, and initial page
@@ -74,8 +74,7 @@ export default async function Page(
   const queryParams = {
     language: validatedLocale,
     page: 1,
-    with_genres:
-      genres.join(genreFilterType === "any" ? "|" : ",") || undefined,
+    with_genres: genres.join(matchMode === "any" ? "|" : ",") || undefined,
     sort_by: sort !== "popularity.desc" ? sort : undefined,
   };
 
@@ -163,7 +162,7 @@ export default async function Page(
                     <MediaFiltersProvider
                       defaultFilters={{
                         genres,
-                        genreFilterType,
+                        matchMode,
                         sort,
                         mediaType,
                         view,

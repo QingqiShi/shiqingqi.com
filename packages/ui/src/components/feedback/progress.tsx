@@ -6,8 +6,8 @@ import {
   easing,
   motionConstants,
 } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { border, color, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { progressTokens } from "./progress.stylex.ts";
 
 interface ProgressProps extends Omit<

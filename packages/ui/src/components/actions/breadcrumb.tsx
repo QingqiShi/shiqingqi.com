@@ -5,8 +5,8 @@ import { a11y } from "../../primitives/a11y.stylex.ts";
 import { corner } from "../../primitives/corner.stylex.ts";
 import { flex } from "../../primitives/flex.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { color, font, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { BreadcrumbAnchor } from "./breadcrumb-anchor.tsx";
 
 /** One crumb in the trail. */

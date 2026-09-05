@@ -1,5 +1,5 @@
-import type { CompactTuple } from "./compact-tuple";
 import type { CreatureDef } from "./creature-def-schema";
+import type { CompactTuple } from "./types";
 
 function toCompact(def: CreatureDef): CompactTuple {
   return [

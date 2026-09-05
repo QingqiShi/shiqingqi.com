@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
-import type { StyleProp } from "../../style-prop.ts";
 import { border, color, font, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { SectionHeading } from "./section-heading.tsx";
 
 export type SectionLevel = 2 | 3 | 4 | 5 | 6;

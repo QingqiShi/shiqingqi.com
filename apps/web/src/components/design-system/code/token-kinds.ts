@@ -14,8 +14,3 @@ export const TOKEN_KINDS = [
   "property", // object key, and the name after a dot
   "punct", // < > / { } = ( ) , ; :
 ] as const;
-
-export type CodeTokenKind = (typeof TOKEN_KINDS)[number];
-
-/** One run of a snippet: its kind, then its exact source text. */
-export type CodeToken = readonly [CodeTokenKind, string];

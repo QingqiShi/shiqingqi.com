@@ -1,4 +1,4 @@
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 import { mapToolOutputToMediaItems } from "./map-tool-output-to-media-items";
 
 export function buildSearchResultsMap(

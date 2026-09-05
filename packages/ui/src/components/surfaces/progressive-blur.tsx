@@ -15,8 +15,8 @@ import {
   easing,
   motionConstants,
 } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { color } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { observeChildren } from "../../utils/observe-children.ts";
 import { observeViewport } from "../../utils/observe-viewport.ts";
 import { BlurPlaneContext } from "./blur-plane.tsx";

@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
-import type { StyleProp } from "../../style-prop.ts";
 import { color, font } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 type HeadingVariant = "display" | "h1" | "h2" | "h3" | "h4";

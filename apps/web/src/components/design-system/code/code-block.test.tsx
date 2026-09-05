@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render } from "#src/test-utils.tsx";
 import { CodeBlock } from "./code-block.tsx";
-import type { CodeToken } from "./code-token.ts";
+import type { CodeToken } from "./types.ts";
 
 const SOURCE: readonly CodeToken[] = [
   ["keyword", "const"],

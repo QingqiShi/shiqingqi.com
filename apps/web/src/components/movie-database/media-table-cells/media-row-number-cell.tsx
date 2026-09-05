@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
-import type { MediaCellParams } from "../media-table-spec";
+import type { MediaCellParams } from "../types";
 
 /** Row number in the current (possibly sorted) view. */
 export function MediaRowNumberCell({ rowIndex }: MediaCellParams) {

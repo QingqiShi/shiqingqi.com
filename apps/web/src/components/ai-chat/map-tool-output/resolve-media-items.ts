@@ -1,5 +1,5 @@
 import { presentMediaInputSchema } from "#src/ai-chat/tools/create-present-media-tool.ts";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 
 export function resolveMediaItems(
   input: unknown,
