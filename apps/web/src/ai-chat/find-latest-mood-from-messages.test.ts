@@ -1,9 +1,7 @@
 import type { UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
-import {
-  type ChatMessageMetadata,
-  findLatestMoodFromMessages,
-} from "./chat-message-metadata";
+import type { ChatMessageMetadata } from "./chat-message-metadata";
+import { findLatestMoodFromMessages } from "./find-latest-mood-from-messages";
 
 type Msg = UIMessage<ChatMessageMetadata>;
 

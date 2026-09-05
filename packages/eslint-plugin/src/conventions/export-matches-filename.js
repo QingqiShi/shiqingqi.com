@@ -10,9 +10,20 @@
  * The file stem is the basename up to the first dot, so `button.stylex.ts`
  * matches `button` and `foo.test.ts` matches `foo`.
  *
+ * Every export is a value export or a type export: `export interface X`,
+ * `export type X = ...`, `export type { X }`, `export default interface X`,
+ * and an inline specifier such as `export { type X }` are type exports;
+ * everything else is a value export. When the file has at least one value
+ * export statement, only the value exports are checked against the stem,
+ * and a type export can never satisfy the rule. An unnamed
+ * `export default <expression>` counts as a value export statement. When
+ * every export in the file is a type export, the type exports are checked
+ * instead.
+ *
  * Both module systems are read: `export`/`export default` and their CommonJS
  * equivalents `module.exports = name`, `module.exports = { a, b }`, and
- * `exports.name = ...`.
+ * `exports.name = ...`. A CommonJS export is always a value export, since
+ * CommonJS has no concept of types.
  *
  * A file with no exports passes (entry scripts), and so does a file with an
  * `export * from` (a barrel cannot be judged). A whole category of files is
@@ -93,41 +104,85 @@ function exportedNameOf(specifier) {
   return null;
 }
 
+// A type alias and an interface are compile-time-only declarations, never a
+// runtime value. `export default interface X {}` never gets exportKind
+// "type" (only a named export does), so a default export is checked against
+// this set as well.
+const NON_VALUE_DECLARATION_TYPES = new Set([
+  "TSTypeAliasDeclaration",
+  "TSInterfaceDeclaration",
+]);
+
 /**
- * The names a single top-level statement exports.
+ * Whether an export node, or one of its specifiers, is type-only.
+ * `exportKind` is set by typescript-eslint for a named type export
+ * (`export type X`, `export interface X`, `export type { X }`) and for an
+ * inline specifier (`export { type X }`). Espree, used for CommonJS
+ * tooling, has no concept of types and never sets `exportKind`, so
+ * undefined counts as a value export.
  * @param {any} node
- * @returns {string[]}
+ * @returns {boolean}
  */
-function exportedNamesOf(node) {
-  const names = [];
-  switch (node.type) {
-    case "ExportNamedDeclaration": {
-      const declaration = node.declaration;
-      if (declaration?.type === "VariableDeclaration") {
-        for (const declarator of declaration.declarations) {
-          collectPatternNames(declarator.id, names);
-        }
-      } else if (declaration?.id?.type === "Identifier") {
-        names.push(declaration.id.name);
-      }
-      for (const specifier of node.specifiers) {
-        const name = exportedNameOf(specifier);
-        if (name !== null) names.push(name);
-      }
-      return names;
+function isTypeOnly(node) {
+  if (node.exportKind === "type") return true;
+  return (
+    node.type === "ExportDefaultDeclaration" &&
+    NON_VALUE_DECLARATION_TYPES.has(node.declaration.type)
+  );
+}
+
+/**
+ * Split the names one `ExportNamedDeclaration` or `ExportDefaultDeclaration`
+ * exports into `valueNames` and `typeNames`.
+ * @param {any} node
+ * @param {string[]} valueNames
+ * @param {string[]} typeNames
+ * @returns {boolean} whether the statement exports a value: an unnamed
+ *   `export default <expression>` does, and `export { type X }` does not
+ */
+function collectExportedNames(node, valueNames, typeNames) {
+  const typeOnly = isTypeOnly(node);
+
+  if (node.type === "ExportDefaultDeclaration") {
+    const declaration = node.declaration;
+    let name = null;
+    if (declaration.type === "Identifier") {
+      name = declaration.name;
+    } else if (declaration.id?.type === "Identifier") {
+      name = declaration.id.name;
     }
-    case "ExportDefaultDeclaration": {
-      const declaration = node.declaration;
-      if (declaration.type === "Identifier") {
-        names.push(declaration.name);
-      } else if (declaration.id?.type === "Identifier") {
-        names.push(declaration.id.name);
-      }
-      return names;
+    if (typeOnly) {
+      if (name !== null) typeNames.push(name);
+      return false;
     }
-    default:
-      return names;
+    if (name !== null) valueNames.push(name);
+    return true;
   }
+
+  const declaration = node.declaration;
+  const declared = [];
+  if (declaration?.type === "VariableDeclaration") {
+    for (const declarator of declaration.declarations) {
+      collectPatternNames(declarator.id, declared);
+    }
+  } else if (declaration?.id?.type === "Identifier") {
+    declared.push(declaration.id.name);
+  }
+  (typeOnly ? typeNames : valueNames).push(...declared);
+  let hasValueName = !typeOnly && declared.length > 0;
+
+  for (const specifier of node.specifiers) {
+    const name = exportedNameOf(specifier);
+    if (name === null) continue;
+    if (typeOnly || isTypeOnly(specifier)) {
+      typeNames.push(name);
+    } else {
+      valueNames.push(name);
+      hasValueName = true;
+    }
+  }
+
+  return hasValueName;
 }
 
 const EXPORT_TYPES = new Set([
@@ -227,21 +282,34 @@ const exportMatchesFilename = {
         const wanted = normalise(stem);
 
         const exportStatements = [];
-        const names = [];
+        const valueNames = [];
+        const typeNames = [];
+        let hasValueExportStatement = false;
         for (const node of program.body) {
           if (node.type === "ExportAllDeclaration") return;
           if (EXPORT_TYPES.has(node.type)) {
             exportStatements.push(node);
-            names.push(...exportedNamesOf(node));
+            if (collectExportedNames(node, valueNames, typeNames)) {
+              hasValueExportStatement = true;
+            }
             continue;
           }
           const commonjsNames = commonjsExportedNamesOf(node);
           if (commonjsNames === null) continue;
           exportStatements.push(node);
-          names.push(...commonjsNames);
+          valueNames.push(...commonjsNames);
+          hasValueExportStatement = true;
         }
         if (exportStatements.length === 0) return;
-        if (names.some((name) => normalise(name) === wanted)) return;
+
+        const judgedNames = hasValueExportStatement ? valueNames : typeNames;
+        if (judgedNames.some((name) => normalise(name) === wanted)) return;
+
+        let exportsText =
+          judgedNames.length > 0 ? judgedNames.join(", ") : "none named";
+        if (hasValueExportStatement && typeNames.length > 0) {
+          exportsText += ` (type-only exports do not count: ${typeNames.join(", ")})`;
+        }
 
         context.report({
           node: exportStatements[0],
@@ -249,7 +317,7 @@ const exportMatchesFilename = {
           data: {
             basename,
             stem,
-            exports: names.length > 0 ? names.join(", ") : "none named",
+            exports: exportsText,
           },
         });
       },
