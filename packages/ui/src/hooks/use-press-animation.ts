@@ -99,7 +99,7 @@ export function usePressAnimation<T extends HTMLElement>({
       el.style.filter = "brightness(1)";
 
       // Force browser to synchronously commit the scale(1) state
-      void el.offsetHeight;
+      el.getBoundingClientRect();
 
       // Re-enable transition and clear inline styles
       // CSS sees value change: scale(1) → scale(1.05) → animates

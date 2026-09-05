@@ -37,11 +37,11 @@ function setSurfaceBox(surface: HTMLElement, box: typeof FULL_BOX) {
   Object.assign(surface.style, box);
 }
 
-// React Compiler treats a bare `void element.offsetHeight` as a pure read and
-// removes it. A function call is opaque to it, so this module-level wrapper
-// survives compilation.
+// Reading layout flushes the pending style writes, so the next transition
+// starts from the box just set. A call survives React Compiler; a bare
+// property read does not.
 function forceReflow(element: HTMLElement) {
-  void element.offsetHeight;
+  element.getBoundingClientRect();
 }
 
 const OPEN_TRANSITION = morphTransition(duration._500, easing.spring);
