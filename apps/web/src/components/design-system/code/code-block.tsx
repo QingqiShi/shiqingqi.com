@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { scrollbar, scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import type { StyleProp } from "@tuja/ui/style-prop";
 import { font } from "@tuja/ui/tokens.stylex";
-import type { CodeToken } from "./code-token.ts";
+import type { StyleProp } from "@tuja/ui/types";
 import { syntax } from "./syntax.stylex.ts";
+import type { CodeToken } from "./types.ts";
 
 interface CodeBlockProps {
   /** The runs to draw, in source order. The Babel plugin makes them. */

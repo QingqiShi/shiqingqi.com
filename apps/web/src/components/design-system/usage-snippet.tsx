@@ -6,7 +6,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { CodeBlock } from "./code/code-block.tsx";
-import type { CodeToken } from "./code/code-token.ts";
+import type { CodeToken } from "./code/types.ts";
 
 interface UsageSnippetProps {
   /**

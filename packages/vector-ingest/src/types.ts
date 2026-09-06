@@ -5,9 +5,9 @@
  */
 
 import type { operations } from "@tuja/tmdb-types/openapi";
+import type { MediaMetadata } from "@tuja/tmdb-types/types";
 import type { z } from "zod";
 import type { dailyExportEntrySchema } from "./daily-export-entry-schema.ts";
-import type { VectorRecord } from "./vector-record.ts";
 
 /** Extract the JSON response type from a TMDB API operation. */
 type OperationResponse<T extends keyof operations> = operations[T] extends {
@@ -89,6 +89,12 @@ export type TmdbFetcher = {
     endDate: string,
   ) => Promise<number[]>;
   fetchTrending: (type: "movie" | "tv", limit: number) => Promise<number[]>;
+};
+
+export type VectorRecord = {
+  id: string;
+  data: string;
+  metadata: MediaMetadata;
 };
 
 export type VectorNamespace = {

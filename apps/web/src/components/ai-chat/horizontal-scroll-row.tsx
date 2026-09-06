@@ -3,8 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
-import type { StyleProp } from "@tuja/ui/style-prop";
 import { space } from "@tuja/ui/tokens.stylex";
+import type { StyleProp } from "@tuja/ui/types";
 import { t } from "#src/i18n.ts";
 
 interface HorizontalScrollRowProps {

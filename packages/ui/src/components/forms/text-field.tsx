@@ -2,7 +2,7 @@ import { type ComponentProps, type ReactNode } from "react";
 import { useFieldAria } from "../../hooks/use-field-aria.ts";
 import { a11y } from "../../primitives/a11y.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
+import type { StyleProp } from "../../types.ts";
 import {
   fieldSizeBox,
   fieldSizeInline,

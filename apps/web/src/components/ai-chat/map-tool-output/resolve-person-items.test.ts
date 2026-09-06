@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { PersonListItem } from "#src/utils/person-list-item.ts";
+import type { PersonListItem } from "#src/utils/types.ts";
 import { resolvePersonItems } from "./resolve-person-items";
 
 describe("resolvePersonItems", () => {

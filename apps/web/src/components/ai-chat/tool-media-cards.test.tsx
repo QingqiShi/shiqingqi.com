@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 import { MediaDetailProvider } from "./media-detail-provider";
 import { ToolMediaCards } from "./tool-media-cards";
 

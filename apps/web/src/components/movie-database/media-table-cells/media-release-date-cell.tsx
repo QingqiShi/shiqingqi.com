@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { useMediaTable } from "../media-table-context";
-import type { MediaCellParams } from "../media-table-spec";
+import type { MediaCellParams } from "../types";
 import { cellShared } from "./cell-shared.stylex";
 
 export function MediaReleaseDateCell({ api, row }: MediaCellParams) {

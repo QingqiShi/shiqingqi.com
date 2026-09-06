@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { transition } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { color } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { chipSize, chipSurface } from "./chip.stylex.ts";
 
 interface ChipBaseProps {

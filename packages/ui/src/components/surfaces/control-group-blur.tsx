@@ -3,8 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { flex } from "../../primitives/flex.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 // Small radius, since a group is a handful of controls, not a panel; a long

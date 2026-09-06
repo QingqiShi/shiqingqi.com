@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { corner } from "../../primitives/corner.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { border, color, font, shadow, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 
 interface AvatarBaseProps extends Omit<
   ComponentProps<"span">,

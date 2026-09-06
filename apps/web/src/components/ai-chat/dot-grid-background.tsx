@@ -9,7 +9,7 @@ import { red } from "@tuja/ui/palette/red";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useAIChatContext } from "#src/ai-chat/ai-chat-provider.tsx";
-import type { ChatMood } from "#src/ai-chat/chat-message-metadata.ts";
+import type { ChatMood } from "#src/ai-chat/types.ts";
 
 // Each mood lights a different palette hue so the background tint matches the
 // conversation's emotional register without ever leaving the system palette.

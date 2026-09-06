@@ -3,8 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { usePageScrolled } from "../../hooks/use-page-scrolled.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { layer, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { ControlGroupBlur } from "../surfaces/control-group-blur.tsx";
 
 interface HeaderControlsProps {

@@ -8,7 +8,6 @@ import { corner } from "../../primitives/corner.stylex.ts";
 import { truncate } from "../../primitives/layout.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
 import { buttonReset } from "../../primitives/reset.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import {
   border,
   color,
@@ -17,6 +16,7 @@ import {
   shadow,
   space,
 } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 
 interface SegmentedControlOption<TValue extends string> {
   /** The value this segment selects. Must be unique within the group. */

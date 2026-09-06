@@ -233,8 +233,7 @@ export default defineConfig([
       "apps/*/src/sw.ts",
       // shadcn/ui generates these files and keeps its own convention.
       "apps/trip-planner/src/components/ui/**",
-      // Type-only and constant-only bags are named for their category.
-      "**/types.ts",
+      // A constant-only bag is named for its category.
       "**/constants.ts",
     ],
     rules: {

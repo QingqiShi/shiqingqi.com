@@ -1,5 +1,5 @@
 import type { Grid } from "@1771technologies/lytenyte-pro";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 
 export type MediaSortDirection = "asc" | "desc";
 

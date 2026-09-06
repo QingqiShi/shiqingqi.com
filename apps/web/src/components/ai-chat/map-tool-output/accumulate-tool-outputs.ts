@@ -1,6 +1,5 @@
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
-import type { PersonListItem } from "#src/utils/person-list-item.ts";
+import type { MediaListItem, PersonListItem } from "#src/utils/types.ts";
 import type { WatchProviderOutput } from "../tool-watch-providers";
 import { buildPersonResultsMap } from "./build-person-results-map";
 import { buildSearchResultsMap } from "./build-search-results-map";

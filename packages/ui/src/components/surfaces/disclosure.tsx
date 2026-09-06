@@ -8,8 +8,8 @@ import { a11y } from "../../primitives/a11y.stylex.ts";
 import { corner } from "../../primitives/corner.stylex.ts";
 import { transition } from "../../primitives/motion.stylex.ts";
 import { buttonReset } from "../../primitives/reset.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { border, color, font, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { cardSurface } from "./card.stylex.ts";
 
 interface DisclosureBaseProps extends Omit<

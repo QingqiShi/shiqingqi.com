@@ -1,5 +1,5 @@
 import type { ReactNode, Ref } from "react";
-import type { StyleProp } from "../../style-prop.ts";
+import type { StyleProp } from "../../types.ts";
 import { Heading } from "../content/heading.tsx";
 
 interface CardTitleProps {

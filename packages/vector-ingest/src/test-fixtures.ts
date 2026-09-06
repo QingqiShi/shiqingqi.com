@@ -3,8 +3,8 @@ import type {
   TmdbMovieDetail,
   TmdbTvDetail,
   VectorNamespace,
+  VectorRecord,
 } from "./types.ts";
-import type { VectorRecord } from "./vector-record.ts";
 
 export function makeMovieDetail(
   overrides: Partial<TmdbMovieDetail> = {},

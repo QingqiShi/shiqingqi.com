@@ -1,4 +1,4 @@
-import type { MediaMetadata } from "@tuja/tmdb-types/media-metadata";
+import type { MediaMetadata } from "@tuja/tmdb-types/types";
 import { vectorSearchFiltersSchema } from "@tuja/tmdb-types/vector-search-filters-schema";
 import type { QueryResult } from "@upstash/vector";
 import { describe, expect, it } from "vitest";

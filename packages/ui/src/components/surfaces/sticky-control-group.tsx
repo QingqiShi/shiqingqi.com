@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, use, type ReactNode } from "react";
-import type { StyleProp } from "../../style-prop.ts";
+import type { StyleProp } from "../../types.ts";
 import { ControlGroupBlur } from "./control-group-blur.tsx";
 
 // Whether the row is holding at its offset; every group reads it so they

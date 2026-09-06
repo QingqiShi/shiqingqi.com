@@ -7,8 +7,8 @@ import {
   motionConstants,
   motionTokens,
 } from "../../primitives/motion.stylex.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { color } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { skeletonTokens } from "./skeleton.stylex.ts";
 
 interface SkeletonProps {

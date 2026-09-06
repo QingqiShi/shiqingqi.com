@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import type { StyleProp } from "@tuja/ui/style-prop";
 import { border, color, font, ratio, space } from "@tuja/ui/tokens.stylex";
+import type { StyleProp } from "@tuja/ui/types";
 
 interface TypesetPosterProps {
   /** The Movie's localized title, set as the poster's own artwork. */

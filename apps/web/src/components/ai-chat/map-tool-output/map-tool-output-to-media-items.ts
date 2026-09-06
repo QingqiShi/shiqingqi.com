@@ -1,5 +1,5 @@
 import { isRecord } from "#src/utils/is-record.ts";
-import type { MediaListItem } from "#src/utils/media-list-item.ts";
+import type { MediaListItem } from "#src/utils/types.ts";
 
 function mapTmdbSearchOutput(output: unknown): ReadonlyArray<MediaListItem> {
   if (!Array.isArray(output)) return [];

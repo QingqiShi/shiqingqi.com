@@ -8,8 +8,8 @@ import {
   type PopoverPlacement,
   type PopoverTriggerProps,
 } from "../../hooks/use-popover.ts";
-import type { StyleProp } from "../../style-prop.ts";
 import { color, layer, space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 import { popoverSurface } from "./popover-surface.stylex.ts";
 
