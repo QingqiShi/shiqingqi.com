@@ -5,7 +5,9 @@
 `<Specimen>` and `<UsageSnippet>` and injects it back as a syntax-highlighted
 token array, `@tuja/babel-plugins/stylex-breakpoints` inlines StyleX
 breakpoint constants into media-query keys, and `@tuja/babel-plugins/i18n`
-compiles the site's `t()` calls.
+compiles the site's `t()` calls. `@tuja/babel-plugins/stylex-options` is not a
+plugin: it is the one option set every StyleX build in the repo hands
+`@stylexjs/babel-plugin`.
 
 ## @tuja/babel-plugins/specimen-source
 
@@ -261,6 +263,35 @@ module.exports = {
 If you define your own `src/breakpoints.stylex.ts`, set `rootDir` to your own
 package root instead. The plugin throws at build time if the file is missing or
 does not contain a `stylex.defineConsts({ ... })` call.
+
+## @tuja/babel-plugins/stylex-options
+
+The options `@stylexjs/babel-plugin` runs with, in one place. A different
+option set yields different class names and a different rule order, so every
+build that has to produce the app's CSS reads them from here: the app's own
+`babel.config.js`, and the component playground's adapter, which recompiles the
+design system to retune a component against the CSS the app ships.
+
+```js
+// babel.config.js
+const path = require("node:path");
+const { stylexPluginOptions } = require("@tuja/babel-plugins/stylex-options");
+
+module.exports = {
+  plugins: [
+    [
+      "@stylexjs/babel-plugin",
+      stylexPluginOptions({
+        rootDir: path.resolve(__dirname, "../.."),
+        nodeEnv: process.env.NODE_ENV,
+      }),
+    ],
+  ],
+};
+```
+
+`rootDir` is the directory `unstable_moduleResolution` resolves a `.stylex.ts`
+import against, and `nodeEnv` decides the plugin's `dev` and `test` modes.
 
 ## @tuja/babel-plugins/i18n
 

@@ -1,0 +1,35 @@
+{
+  "name": "@tuja/component-playground",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Builds a single-file HTML playground for one @tuja/ui component.",
+  "type": "module",
+  "scripts": {
+    "build:tsc": "tsc --noEmit",
+    "lint": "eslint .",
+    "playground": "node scripts/build.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.28.0",
+    "@babel/preset-typescript": "^7.28.0",
+    "@stylexjs/babel-plugin": "catalog:",
+    "@stylexjs/stylex": "catalog:",
+    "@tuja/babel-plugins": "workspace:*",
+    "@tuja/ui": "workspace:*",
+    "@vitejs/plugin-react": "catalog:",
+    "esbuild": "^0.28.2",
+    "modern-normalize": "^3.0.1",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vite": "catalog:"
+  },
+  "devDependencies": {
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

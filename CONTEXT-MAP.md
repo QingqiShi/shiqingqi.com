@@ -1,6 +1,6 @@
 # Context Map
 
-`shiqingqi.com` is a pnpm monorepo behind two deployed sites: **qingqi.dev** (the personal site, `apps/web`) and a private trip reader (`apps/trip-planner`). Four bounded contexts, because the same word means different things in each.
+`shiqingqi.com` is a pnpm monorepo behind two deployed sites: **qingqi.dev** (the personal site, `apps/web`) and a private trip reader (`apps/trip-planner`). Five bounded contexts, because the same word means different things in each.
 
 ## Contexts
 
@@ -16,10 +16,14 @@
 - [**Trip Planner**](./apps/trip-planner/CONTEXT.md) — a private, password-gated, Chinese-only reader for pre-written road-trip itineraries.
   Applies to: `apps/trip-planner/` only.
 
+- [**Component Playground**](./packages/component-playground/CONTEXT.md) — the throwaway HTML playground that lets a user retune one `@tuja/ui` component by eye and export the change back to the agent.
+  Applies to: `packages/component-playground/`, `.claude/skills/component-playground/`.
+
 ## Relationships
 
 - **Design System → Site, Movie Database**: `@tuja/ui` supplies every token, primitive, and component. Its words travel downstream unchanged.
 - **Site → Movie Database**: the i18n pipeline (`t()`, Locale, Bundle) and the site shell wrap the Movie Database. Its words travel downstream unchanged.
+- **Design System → Component Playground**: its words (Token, Primitive, Intent) travel downstream unchanged. The playground's own words never travel back into `@tuja/ui`.
 - **Trip Planner ↔ everything**: shares only `@tuja/tsconfig` and the root ESLint config. No shared types, no shared components, no i18n, its own Vercel project. Deliberately isolated — see `apps/trip-planner/README.md:9`.
 
 ## False friends
@@ -38,6 +42,9 @@ Words that are live in more than one context with unrelated meanings. Never conv
 | **Session**    | Movie Database: the persisted conversation record. Absent elsewhere — do not introduce it into Trip Planner.                                                                                |
 | **Type**       | Movie Database: `movie` or `tv`. Everywhere else: the TypeScript keyword. Banned as a domain noun in Site — see Element.                                                                    |
 | **Tile**       | Design System: a card in the overview grid. Banned in Site — see Pixel map, Cell.                                                                                                           |
+| **Layer**      | Design System: the `layer.*` z-index token group. Component Playground: one element of the stand-in, named after its `stylex.create` key.                                                   |
+| **Cell**       | Site: one region the Sprite Editor's grid overlay slices from a source image. Component Playground: one framed rendering of the stand-in on the canvas.                                     |
+| **Variant**    | Design System: a component's visual treatment when it is neither an Intent nor a size. Component Playground: any prop-value condition, sizes included.                                      |
 
 ## Repo-wide names
 

@@ -1,0 +1,4 @@
+node_modules/
+
+# Built playgrounds are artifacts of the example config.
+examples/*.html

@@ -20,8 +20,6 @@ function bandStop(bands: number) {
  * The stack of blurred layers for one edge of a scroll region, weakest first.
  * The stops are percentages, because the caller sizes the band to exactly how
  * far the blur reaches.
- *
- * @internal
  */
 export function buildEdgeBlurLayers({
   direction,
