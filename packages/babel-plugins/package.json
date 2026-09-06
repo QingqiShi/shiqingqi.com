@@ -2,7 +2,7 @@
   "name": "@tuja/babel-plugins",
   "version": "0.0.0",
   "private": true,
-  "description": "Babel plugins behind qingqi.dev: specimen source capture, StyleX breakpoint constants, and the site's i18n transform.",
+  "description": "Babel plugins behind qingqi.dev: specimen source capture, StyleX breakpoint constants, the shared StyleX plugin options, and the site's i18n transform.",
   "homepage": "https://github.com/QingqiShi/shiqingqi.com/tree/master/packages/babel-plugins#readme",
   "bugs": {
     "url": "https://github.com/QingqiShi/shiqingqi.com/issues"
@@ -19,6 +19,7 @@
     "./specimen-source": "./src/specimen-source/index.js",
     "./specimen-source/token-kinds": "./src/specimen-source/token-kinds.js",
     "./stylex-breakpoints": "./src/stylex-breakpoints/index.js",
+    "./stylex-options": "./src/stylex-options/index.js",
     "./i18n": "./src/i18n/index.js"
   },
   "files": [

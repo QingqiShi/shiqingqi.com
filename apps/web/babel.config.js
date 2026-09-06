@@ -1,4 +1,5 @@
 const path = require("node:path");
+const { stylexPluginOptions } = require("@tuja/babel-plugins/stylex-options");
 
 const workspaceRoot = path.resolve(__dirname, "../..");
 const uiPackageRoot = path.resolve(__dirname, "../../packages/ui");
@@ -41,20 +42,10 @@ module.exports = {
     ],
     [
       "@stylexjs/babel-plugin",
-      {
-        sxPropName: "css",
-        dev: process.env.NODE_ENV === "development",
-        test: process.env.NODE_ENV === "test",
-        runtimeInjection: false,
-        genConditionalClasses: true,
-        treeshakeCompensation: true,
-        styleResolution: "property-specificity",
-        enableMediaQueryOrder: true,
-        unstable_moduleResolution: {
-          type: "commonJS",
-          rootDir: workspaceRoot,
-        },
-      },
+      stylexPluginOptions({
+        rootDir: workspaceRoot,
+        nodeEnv: process.env.NODE_ENV,
+      }),
     ],
   ].filter(Boolean),
 };
