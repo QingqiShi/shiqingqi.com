@@ -120,7 +120,10 @@ async function main() {
     const appJs = readDistFile(distDir, ".js");
     const appCss = readDistFile(distDir, ".css");
 
-    const html = `<title>${escapeHtml(loaded.component)} playground</title>
+    // The Artifact host adds its own charset; the meta keeps the file readable
+    // when it is opened from disk or a plain static server.
+    const html = `<meta charset="utf-8">
+<title>${escapeHtml(loaded.component)} playground</title>
 <style>
 ${adapter.css}
 ${appCss}</style>
@@ -143,7 +146,7 @@ ${appCss}</style>
     );
     if (inertUrls.length > 0) {
       console.log(
-        `URLs in text, fetched by nothing: ${[...new Set(inertUrls)].join(", ")}`,
+        `No external requests. URLs the page carries as text only: ${[...new Set(inertUrls)].join(", ")}`,
       );
     }
   } finally {

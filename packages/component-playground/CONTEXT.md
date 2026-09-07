@@ -21,7 +21,7 @@ One framed rendering of the stand-in on the canvas, with a title, its own theme 
 _Avoid_: example, story, variant (for this sense)
 
 **State**:
-An interaction condition, named after the pseudo-class or modifier key it maps to: `hover`, `focus`, `selected`, `checked`, `disabled`.
+An interaction condition, named after the pseudo-class or modifier key it maps to: `hover`, `focus`, `selected`, `checked`, `disabled`. Active states compose in the order the stand-in lists them.
 
 **Variant**:
 A prop-value condition, named after the value: `sm`, `md`, `fullWidth`.
