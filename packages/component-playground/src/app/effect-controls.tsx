@@ -15,7 +15,7 @@ import {
   layerEffects,
   type ToggleName,
 } from "./model/layer-effects.ts";
-import type { PickerSource } from "./model/picker-source.ts";
+import type { PickerSource } from "./model/picker-sources-for.ts";
 import { Segmented, type SegmentedOption } from "./segmented.tsx";
 import { TokenField } from "./value-chip.tsx";
 

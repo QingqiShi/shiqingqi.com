@@ -10,7 +10,7 @@ import {
   keywordsFor,
   pickerSourcesFor,
   type PickerSource,
-} from "./model/picker-source.ts";
+} from "./model/picker-sources-for.ts";
 import { isCssKeyword, kindOf } from "./model/properties.ts";
 import { Popover } from "./popover.tsx";
 
