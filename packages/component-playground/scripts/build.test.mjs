@@ -57,7 +57,7 @@ describe("scripts/build.mjs", () => {
         // it, so the two runs kept their files apart.
         expect(
           html.startsWith(
-            `<title>${EXAMPLES[index].component} playground</title>`,
+            `<meta charset="utf-8">\n<title>${EXAMPLES[index].component} playground</title>`,
           ),
         ).toBe(true);
         for (const other of EXAMPLES) {

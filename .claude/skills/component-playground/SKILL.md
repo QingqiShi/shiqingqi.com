@@ -59,10 +59,10 @@ export default playground({
 
 `layers` is keyed by the component's `stylex.create` keys. Every style value sits in exactly one condition of its layer: `base`, a key of `variants`, a key of `states`, or a compound key in `states`. `cells` are the framed renderings on the canvas, one set of props each.
 
-Both examples are verified pixel-exact against the app; copy the nearer one as the model. `packages/component-playground/examples/segmented-control.playground.tsx` is a row of options inside a track. `packages/component-playground/examples/switch.playground.tsx` has a per-component token var, a pseudo-element thumb, and a void host.
+Both examples are verified pixel-exact against the app. An example for the component itself is the config: check it against the source declaration by declaration, copy it, and transcribe only what has moved since. For another component, copy the nearer example as the model. `packages/component-playground/examples/segmented-control.playground.tsx` is a row of options inside a track. `packages/component-playground/examples/switch.playground.tsx` has a per-component token var, a pseudo-element thumb, and a void host.
 
 - Markup uses real host tags, so the layer tree is the DOM. `data-layer` names the layer after its `stylex.create` key.
-- `data-state` lists the active states, space separated, each named after the pseudo-class or modifier key it maps to: `hover`, `focus`, `selected`, `checked`, `disabled`.
+- `data-state` lists the active states, space separated, each named after the pseudo-class or modifier key it maps to: `hover`, `focus`, `selected`, `checked`, `disabled`. States compose in that order, so a modifier comes after the pseudo-class it beats: `optionSelected` pins `":hover"` to its `default`, so `selected` is listed after `hover`, with no `"selected hover"` compound key.
 - `data-variant` lists the active variants, space separated, each named after the prop value (`sm`, `md`) or, for a boolean prop, after the prop (`fullWidth`, `hideLabels`). The same names key `variants`.
 - A compound key in `states` names one state and one or more variants, space separated — `"checked sm"` — for a value that changes with both; it applies only where every part is active. Where the source derives a state value from a per-component token var that each size sets, write one compound key per size: `"checked sm": { transform: "translateX({controlSize._8})" }`, then `"checked md"` with `controlSize._9`.
 - A style value is a token reference (`"color.bgSurface"`), a CSS literal (`"inline-flex"`), or an expression with token references in braces (`"calc({controlSize._8} - {border.size_1})"`).
@@ -85,11 +85,11 @@ Both examples are verified pixel-exact against the app; copy the nearer one as t
 pnpm --filter @tuja/component-playground playground <config.playground.tsx>
 ```
 
-Run it from the repo root, with the config path root-relative or absolute. It writes `<dir>/<name>.html`. An unknown token, preset, layer, variant or state fails the build with the nearest valid name — fix the config and run it again.
+Run it from the repo root, with the config path root-relative or absolute. It writes `<dir>/<name>.html` and prints the path. An unknown token, preset, layer, variant or state fails the build, exit code 1, with the nearest valid name — fix the config and run it again.
 
 ## 4. Publish
 
-Publish the HTML with the Artifact tool. The file is already a fragment, so pass the path as it is, with a favicon, the title `<Component> playground`, and a one-sentence description.
+Publish the HTML with the Artifact tool. The file is already a fragment with its own `<title>`, so pass the path as it is, with a favicon and a one-sentence description.
 
 Give the user the link and the workflow in two lines: tap a layer and pick tokens, the canvas updates at once; press Export and paste the copied text back here.
 
@@ -115,9 +115,12 @@ Read `layer[condition].property: before -> after` back into the source:
 - **layer** — the `stylex.create` key of that name in the file `source:` names.
 - **[condition]** — a state is the pseudo-class inside that property's value map (`{ default: …, ":hover": … }`) or the modifier style key the component applies; a variant is the size or variant style object. Two names — `[checked sm]` — is that state's value inside that one variant. No brackets means the base declaration.
 - **before** — the value to find, so you edit the right one of several. `(unset)` means the property is new to that condition.
+- A state the playground holds as one value can be two branches in the source: `optionSelected.backgroundColor` pins `":hover"` to its `default` so the selected segment holds still under the pointer. A line on that state rewrites both branches.
 - **after** — the token to write, or `(unset)` to delete that declaration from that condition's style map. A token is written through the `styling` skill's conventions: `color.bgSurface` is `color.bgSurface` imported from `#src/tokens.stylex.ts`; a `border.radius_*` goes through the `corner` primitive, never a bare radius token.
 - A line on a layer that only reads a var the parent sets — `before[hover].boxShadow` in the switch — edits the parent rule that sets the var: `styles.switch`'s `[switchTokens.thumbShadow]: { ":hover": shadow._3 }`. Follow the var to where the source sets it.
 - A toggle line — `layer.texture`, `.wash`, `.floating`, `.scrollMask` — asks for a system effect, not a property. Build it the way `DESIGN.md` builds that effect.
+
+Apply each line as written, even where it leaves a neighbour stale — a `calc` that still subtracts a border the export removed, or a comment that explains the old value — and tell the user what it left behind; that is the user's next round, not a hand-tune.
 
 Then run the app and look at the component once, in the conditions the export touched; tests cannot judge this. If the app does not match the playground, the transcription in this skill is wrong, not the source: revert the edit, tell the user, and fix the config before another round. Never hand-tune the source to make it match.
 
