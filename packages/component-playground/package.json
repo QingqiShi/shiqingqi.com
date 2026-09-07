@@ -11,8 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.28.0",
-    "@babel/preset-typescript": "^7.28.0",
+    "@babel/plugin-transform-modules-commonjs": "^8.0.1",
+    "@babel/preset-typescript": "^8.0.1",
     "@stylexjs/babel-plugin": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "@tuja/babel-plugins": "workspace:*",
