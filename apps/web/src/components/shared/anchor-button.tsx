@@ -5,6 +5,7 @@ import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
 import { sharedStyles } from "@tuja/ui/components/button-shared.stylex";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { usePressHandlers } from "@tuja/ui/hooks/use-press-handlers";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { useRef } from "react";
 import { Anchor } from "./anchor";
@@ -55,6 +56,7 @@ export function AnchorButton({
       ref={setAnchorRef}
       css={[
         sharedStyles.base,
+        corner.squircle_round,
         styles.anchorButton,
         !!icon && !!children && hasIconStyles[hideLabelBelow ?? "never"],
         !!icon && !children && sharedStyles.iconOnly,

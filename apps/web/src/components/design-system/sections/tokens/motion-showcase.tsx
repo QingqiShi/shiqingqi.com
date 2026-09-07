@@ -97,7 +97,7 @@ const EASINGS = [
     token: "easing.spring",
     // Elided: the full stop list is 21 numbers, which the plot shows better
     // than the meta line can.
-    curve: "linear(0, 0.101, … 0.998, 1)",
+    curve: "linear(0, 0.116, … 0.999, 1)",
     path: linearPath(easing.spring),
   },
   {

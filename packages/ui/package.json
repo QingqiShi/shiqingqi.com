@@ -89,6 +89,7 @@
     "./components/divider": "./src/components/surfaces/divider.tsx",
     "./components/field-shared.stylex": "./src/components/forms/field-shared.stylex.ts",
     "./components/fixed-container-content": "./src/components/surfaces/fixed-container-content.tsx",
+    "./components/glass-surface.stylex": "./src/components/surfaces/glass-surface.stylex.ts",
     "./components/header-footer-layout": "./src/components/shells/header-footer-layout.tsx",
     "./components/heading": "./src/components/content/heading.tsx",
     "./components/menu-button": "./src/components/actions/menu-button.tsx",

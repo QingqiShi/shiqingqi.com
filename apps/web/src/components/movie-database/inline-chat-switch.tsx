@@ -27,9 +27,7 @@ export function InlineChatSwitch({
           {chatContent}
         </ViewTransition>
       ) : (
-        <ViewTransition enter="soft-fade-in" exit="soft-fade-out">
-          {browseContent}
-        </ViewTransition>
+        browseContent
       )}
     </>
   );

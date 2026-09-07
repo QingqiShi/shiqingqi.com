@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
+import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
@@ -43,6 +45,13 @@ export function SortFilter({ hideLabel }: SortFilterProps) {
     }),
   };
 
+  const directionIcon =
+    direction === "asc" ? (
+      <ArrowUpIcon weight="bold" />
+    ) : (
+      <ArrowDownIcon weight="bold" />
+    );
+
   // Re-selecting the current field flips its direction; picking the other
   // field starts it descending.
   function handleChange(next: SortField) {
@@ -62,11 +71,12 @@ export function SortFilter({ hideLabel }: SortFilterProps) {
           value === field
             ? {
                 value,
-                label: `${fieldLabels[value]} ${direction === "asc" ? "↑" : "↓"}`,
+                label: fieldLabels[value],
+                selectedIcon: directionIcon,
                 // The arrow alone cannot say what a second activation does.
                 "aria-label": `${fieldLabels[value]}${directionClauses[direction]}`,
               }
-            : { value, label: fieldLabels[value] },
+            : { value, label: fieldLabels[value], selectedIcon: directionIcon },
         )}
       />
     </div>

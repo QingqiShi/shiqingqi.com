@@ -1,6 +1,7 @@
 import type { ChangeStore, TokenIndex } from "@tuja/component-playground";
 import {
   BLUR_RADII,
+  GLASS_OPACITY_STEPS,
   NONE,
   SCROLL_ORIENTATIONS,
   TEXTURE_MARKS,
@@ -9,6 +10,7 @@ import {
   TOGGLE_NAMES,
   WASH_DIRECTIONS,
   formatFloating,
+  formatGlass,
   formatScrollMask,
   formatTexture,
   formatWash,
@@ -23,6 +25,25 @@ import { TokenField } from "./value-chip.tsx";
 function stringOptions(values: readonly string[]): SegmentedOption<string>[] {
   return values.map((value) => ({ value, label: value }));
 }
+
+const BLUR_RADIUS_OPTIONS = stringOptions(
+  BLUR_RADII.map((radius) => `${String(radius)}px`),
+);
+/** Glass alone can also sit over an opaque fill with nothing to blur. */
+const GLASS_RADIUS_OPTIONS: SegmentedOption<string>[] = [
+  { value: "off", label: "off" },
+  ...BLUR_RADIUS_OPTIONS,
+];
+const GLASS_OPACITY_OPTIONS = stringOptions(
+  GLASS_OPACITY_STEPS.map((step) => `${String(step)}%`),
+);
+
+/** The glass parts that take a colour token and an opacity step each. */
+const GLASS_PARTS = [
+  { part: "fill", opacity: "fillOpacity" },
+  { part: "border", opacity: "borderOpacity" },
+  { part: "highlight", opacity: "highlightOpacity" },
+] as const;
 
 interface EffectControlsProps {
   layer: string;
@@ -66,7 +87,7 @@ export function EffectControls({
 
   const isOn = (name: ToggleName) => store.toggle(layer, name) !== NONE;
 
-  const { texture, wash, floating, scrollMask } = effects;
+  const { texture, wash, floating, scrollMask, glass } = effects;
 
   return (
     <div className="pg-effects">
@@ -169,9 +190,7 @@ export function EffectControls({
                 <span className="pg-field-label">radius</span>
                 <Segmented
                   label="radius"
-                  options={stringOptions(
-                    BLUR_RADII.map((radius) => `${String(radius)}px`),
-                  )}
+                  options={BLUR_RADIUS_OPTIONS}
                   value={`${String(floating.radius)}px`}
                   onPick={(picked) => {
                     setToggle(
@@ -208,9 +227,7 @@ export function EffectControls({
                 <span className="pg-field-label">radius</span>
                 <Segmented
                   label="radius"
-                  options={stringOptions(
-                    BLUR_RADII.map((radius) => `${String(radius)}px`),
-                  )}
+                  options={BLUR_RADIUS_OPTIONS}
                   value={`${String(scrollMask.radius)}px`}
                   onPick={(picked) => {
                     setToggle(
@@ -229,6 +246,66 @@ export function EffectControls({
                   a size in Layout to see the mask.
                 </p>
               )}
+            </div>
+          ) : null}
+
+          {name === "glass" && glass ? (
+            <div className="pg-effect-body">
+              {GLASS_PARTS.map(({ part, opacity }) => (
+                <div className="pg-field" key={part}>
+                  <span className="pg-field-label">{part}</span>
+                  <TokenField
+                    property={`glass ${part}`}
+                    title={`Glass ${part}`}
+                    value={glass[part]}
+                    index={index}
+                    isPhone={isPhone}
+                    sources={colourSource}
+                    onPick={(picked) => {
+                      setToggle(
+                        "glass",
+                        formatGlass({ ...glass, [part]: picked }),
+                      );
+                    }}
+                  />
+                  <Segmented
+                    label={`${part} opacity`}
+                    options={GLASS_OPACITY_OPTIONS}
+                    value={`${String(glass[opacity])}%`}
+                    onPick={(picked) => {
+                      setToggle(
+                        "glass",
+                        formatGlass({
+                          ...glass,
+                          [opacity]: Number.parseInt(picked, 10),
+                        }),
+                      );
+                    }}
+                  />
+                </div>
+              ))}
+              <div className="pg-field">
+                <span className="pg-field-label">radius</span>
+                <Segmented
+                  label="radius"
+                  options={GLASS_RADIUS_OPTIONS}
+                  value={
+                    glass.radius === "off" ? "off" : `${String(glass.radius)}px`
+                  }
+                  onPick={(picked) => {
+                    setToggle(
+                      "glass",
+                      formatGlass({
+                        ...glass,
+                        radius:
+                          picked === "off"
+                            ? "off"
+                            : Number.parseInt(picked, 10),
+                      }),
+                    );
+                  }}
+                />
+              </div>
             </div>
           ) : null}
         </div>

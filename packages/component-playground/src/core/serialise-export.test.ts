@@ -67,6 +67,11 @@ describe("serialiseExport", () => {
       "translateX({controlSize._9})",
     );
     store.setToggle("option", "texture", "dot space._1 color.neutralBorder");
+    store.setToggle(
+      "track",
+      "glass",
+      "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius 8px",
+    );
 
     expect(serialiseExport(config, store)).toBe(
       [
@@ -79,7 +84,29 @@ describe("serialiseExport", () => {
         "option[selected].backgroundColor: color.bgSurface -> color.bgSurfaceRaised",
         "option[selected].boxShadow: shadow._1 -> (unset)",
         "before[checked sm].transform: translateX({controlSize._8}) -> translateX({controlSize._9})",
+        "track.glass: none -> color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius 8px",
         "option.texture: none -> dot space._1 color.neutralBorder",
+        "",
+      ].join("\n"),
+    );
+  });
+
+  it("prints a glass toggle's blur-off radius as written", () => {
+    const config = makeConfig();
+    const store = createChangeStore(config);
+
+    store.setToggle(
+      "track",
+      "glass",
+      "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius off",
+    );
+
+    expect(serialiseExport(config, store)).toBe(
+      [
+        "component-playground v1",
+        "component: SegmentedControl",
+        "source: packages/ui/src/components/forms/segmented-control.tsx",
+        "track.glass: none -> color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius off",
         "",
       ].join("\n"),
     );

@@ -1,11 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "../../breakpoints.stylex.ts";
+import { cornerTokens } from "../../primitives/corner.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../../primitives/motion.stylex.ts";
-import { color, constants, controlSize } from "../../tokens.stylex.ts";
+import { color, controlSize } from "../../tokens.stylex.ts";
 import { anchorTokens } from "./anchor.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
@@ -27,13 +28,7 @@ export const sharedStyles = stylex.create({
     gap: controlSize._2,
     paddingBlock: controlSize._1,
     paddingInline: buttonTokens.paddingInline,
-    // A squircle at the full-round radius closes at half the height. The
-    // circular fallback takes .6 of that, so the button stays a rounded box.
-    borderRadius: {
-      default: buttonTokens.borderRadius,
-      [constants.NO_CORNER_SHAPE]: `min(${buttonTokens.borderRadius}, calc(${buttonTokens.height} * .3))`,
-    },
-    cornerShape: "squircle",
+    [cornerTokens.height]: buttonTokens.height,
     boxShadow: buttonTokens.boxShadow,
     transition: {
       default: pressTransition,
@@ -46,8 +41,10 @@ export const sharedStyles = stylex.create({
     transform: "scale(1) translate(0, 0)",
     filter: "brightness(1)",
     touchAction: "manipulation",
-    // The focus ring (WCAG 2.4.7) is composed at the call site via
-    // `a11y.focusRing`, so every button variant shares one indicator.
+    // The corner (`corner.squircle_round`, closing at half the height set
+    // above) and the focus ring (WCAG 2.4.7, `a11y.focusRing`) are composed at
+    // the call site, so every button variant shares one shape and one
+    // indicator.
   },
   hasIcon: {
     paddingInlineStart: controlSize._2,
