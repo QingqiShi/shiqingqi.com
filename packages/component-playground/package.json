@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@babel/core": "^7.26.8",
     "@babel/plugin-transform-modules-commonjs": "^7.28.0",
     "@babel/preset-typescript": "^7.28.0",
     "@stylexjs/babel-plugin": "catalog:",

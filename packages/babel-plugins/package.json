@@ -37,7 +37,7 @@
     "@tuja/module-exports": "workspace:*"
   },
   "peerDependencies": {
-    "@babel/core": "^8.0.0"
+    "@babel/core": "^7.26.8 || ^8.0.0"
   },
   "devDependencies": {
     "@babel/core": "catalog:",

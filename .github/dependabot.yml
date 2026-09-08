@@ -21,6 +21,15 @@ updates:
       - "QingqiShi"
     open-pull-requests-limit: 10
     versioning-strategy: increase
+    # The component playground runs Babel 7 because `@stylexjs/babel-plugin`
+    # needs it. Remove these entries when StyleX supports Babel 8.
+    ignore:
+      - dependency-name: "@babel/core"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@babel/preset-typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@babel/plugin-transform-modules-commonjs"
+        update-types: ["version-update:semver-major"]
     groups:
       next:
         patterns:
