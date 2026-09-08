@@ -64,8 +64,8 @@ catalogs:
       specifier: 19.2.18
       version: 19.2.18
     '@types/react-dom':
-      specifier: 19.2.5
-      version: 19.2.5
+      specifier: 19.2.7
+      version: 19.2.7
     '@typescript/native':
       specifier: npm:typescript@^7.0.2
       version: 7.0.2
@@ -256,7 +256,7 @@ importers:
         version: 19.2.18
       '@types/react-dom':
         specifier: 'catalog:'
-        version: 19.2.5(@types/react@19.2.18)
+        version: 19.2.7(@types/react@19.2.18)
       babel-plugin-react-compiler:
         specifier: 'catalog:'
         version: 19.0.0-beta-714736e-20250131
@@ -398,7 +398,7 @@ importers:
         version: 7.0.1(@testing-library/dom@10.4.1)(vitest@4.1.11)
       '@testing-library/react':
         specifier: 'catalog:'
-        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)
+        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)
       '@testing-library/user-event':
         specifier: 'catalog:'
         version: 14.6.7(@testing-library/dom@10.4.1)
@@ -437,7 +437,7 @@ importers:
         version: 19.2.18
       '@types/react-dom':
         specifier: 'catalog:'
-        version: 19.2.5(@types/react@19.2.18)
+        version: 19.2.7(@types/react@19.2.18)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.1.1(@rolldown/plugin-babel@0.2.3(@babel/core@8.0.1)(@babel/runtime@8.0.0)(rolldown@1.2.5)(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.13)(yaml@2.9.0)))(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.13)(yaml@2.9.0))
@@ -580,7 +580,7 @@ importers:
         version: 19.2.18
       '@types/react-dom':
         specifier: 'catalog:'
-        version: 19.2.5(@types/react@19.2.18)
+        version: 19.2.7(@types/react@19.2.18)
       typescript:
         specifier: 'catalog:'
         version: '@typescript/typescript6@6.0.2'
@@ -752,7 +752,7 @@ importers:
         version: 7.0.1(@testing-library/dom@10.4.1)(vitest@4.1.11)
       '@testing-library/react':
         specifier: 'catalog:'
-        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)
+        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)
       '@testing-library/user-event':
         specifier: 'catalog:'
         version: 14.6.7(@testing-library/dom@10.4.1)
@@ -773,7 +773,7 @@ importers:
         version: 19.2.18
       '@types/react-dom':
         specifier: 'catalog:'
-        version: 19.2.5(@types/react@19.2.18)
+        version: 19.2.7(@types/react@19.2.18)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.1.1(@rolldown/plugin-babel@0.2.3(@babel/core@8.0.1)(@babel/runtime@8.0.0)(rolldown@1.2.5)(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.13)(yaml@2.9.0)))(babel-plugin-react-compiler@19.0.0-beta-714736e-20250131)(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.13)(yaml@2.9.0))
@@ -3175,8 +3175,8 @@ packages:
   '@types/node@26.4.1':
     resolution: {integrity: sha512-k97ENvZWtvA6yqz5/FS6a7duDgOPEeOQOc2iKS/nY6mX6qJUKtLnWzQS+Xj6tXweyj6ZcTAK2Qecetnvi9nCLA==}
 
-  '@types/react-dom@19.2.5':
-    resolution: {integrity: sha512-fMPwH9v7r/pp43yUd2/Mbiex5KouJwwR3dzHkhLREUC6764VyDsqxhAxv6OFEYR1RhjOyD1naqba8ECDBe7ZQg==}
+  '@types/react-dom@19.2.7':
+    resolution: {integrity: sha512-I8bPpDLcHBv1qiIiXDCy71Rt8eQDKJP0sMSWJphDdAcdqiJ1sGpZamavoEIRZmYzjia9LuEb2HlYdDpmoENpvQ==}
     peerDependencies:
       '@types/react': ^19.2.0
 
@@ -9586,7 +9586,7 @@ snapshots:
     optionalDependencies:
       vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.4.1)(@vitest/coverage-v8@4.1.11)(@vitest/ui@4.1.11)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.4.1)(@typescript/typescript6@6.0.2))(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.13)(yaml@2.9.0))
 
-  '@testing-library/react@16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)':
+  '@testing-library/react@16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@testing-library/dom': 10.4.1
@@ -9594,7 +9594,7 @@ snapshots:
       react-dom: 19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719)
     optionalDependencies:
       '@types/react': 19.2.18
-      '@types/react-dom': 19.2.5(@types/react@19.2.18)
+      '@types/react-dom': 19.2.7(@types/react@19.2.18)
 
   '@testing-library/user-event@14.6.7(@testing-library/dom@10.4.1)':
     dependencies:
@@ -9697,7 +9697,7 @@ snapshots:
     dependencies:
       undici-types: 8.3.0
 
-  '@types/react-dom@19.2.5(@types/react@19.2.18)':
+  '@types/react-dom@19.2.7(@types/react@19.2.18)':
     dependencies:
       '@types/react': 19.2.18
 
