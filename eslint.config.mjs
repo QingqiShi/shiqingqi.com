@@ -14,6 +14,11 @@ import tsEslint from "typescript-eslint";
 const require = createRequire(import.meta.url);
 const tujaPlugin = require("@tuja/eslint-plugin");
 
+const anchorNameLimit = {
+  limit: "string",
+  reason: "An anchor name is a dashed ident, e.g. `--name`.",
+};
+
 export default defineConfig([
   {
     ignores: [
@@ -161,6 +166,33 @@ export default defineConfig([
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
       "@tuja/require-package-export": "error",
+    },
+  },
+  // StyleX 0.19 types these properties but its eslint allowlist does not
+  // carry them yet. `propLimits` puts them back for the one package that uses
+  // them, so a stray one elsewhere still errors.
+  {
+    files: ["packages/ui/src/**/*.{ts,tsx}"],
+    rules: {
+      "@stylexjs/valid-styles": [
+        "error",
+        {
+          propLimits: {
+            anchorName: anchorNameLimit,
+            positionAnchor: anchorNameLimit,
+            WebkitMaskComposite: {
+              limit: "string",
+              reason:
+                "Safari reads only the vendor-prefixed mask-composite, and its keyword set (e.g. `xor`) differs from the standard property's.",
+            },
+            WebkitMaskClip: {
+              limit: "string",
+              reason:
+                "Safari reads only the vendor-prefixed mask longhands, so the clip ships prefixed beside its mask-image.",
+            },
+          },
+        },
+      ],
     },
   },
   {

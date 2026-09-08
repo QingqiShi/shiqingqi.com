@@ -10,6 +10,7 @@ import {
 } from "react";
 import { usePressHandlers } from "../../hooks/use-press-handlers.ts";
 import { a11y } from "../../primitives/a11y.stylex.ts";
+import { corner } from "../../primitives/corner.stylex.ts";
 import {
   border,
   color,
@@ -169,6 +170,7 @@ export function Button({
       aria-busy={isLoading ? true : ariaBusy}
       css={[
         sharedStyles.base,
+        corner.squircle_round,
         a11y.focusRing,
         styles.button,
         sizeStyles[size],

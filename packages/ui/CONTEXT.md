@@ -39,7 +39,7 @@ _Avoid_: variant (for this sense), tone (for this sense), semantic colour, statu
 ### Shape
 
 **Squircle**:
-The superellipse curve every fixed-radius corner takes. The `corner` primitive pairs it with the radius, so the shape ships inside the styles that round a corner rather than as a global rule a consumer must add. Radius tokens size the corner; the squircle is its shape. A pill or a circle is round by identity, so it keeps circular caps. A browser without `corner-shape` draws a circular arc at 0.6 of the radius, which the tokens carry as their fallback value, so the corner reads the same there.
+The superellipse curve every fixed-radius corner takes. The `corner` primitive pairs it with the radius, so the shape ships inside the styles that round a corner rather than as a global rule a consumer must add. Radius tokens size the corner; the squircle is its shape. A pill or a circle is round by identity, so it keeps circular caps. A browser without `corner-shape` draws a circular arc at 0.6 of the radius, which the tokens carry as their fallback value, so the corner reads the same there. `corner.squircle_round` is the squircle at the full-round radius, where it closes at half a control's height — the shape of a Button and of a SegmentedControl, each setting `cornerTokens.height` to its own. That one falls back to 0.3 of the height, so a browser without `corner-shape` draws a rounded box rather than a pill.
 _Avoid_: rounded rectangle, continuous corner
 
 ### Wash and blur
@@ -47,6 +47,10 @@ _Avoid_: rounded rectangle, continuous corner
 **Wash**:
 A broad gradient that gives a surface some volume — one tone drifting across it. It has no hotspot, because a hotspot is a light source.
 _Avoid_: glow, tint, gradient (as the name of this — the CSS function keeps its name)
+
+**Glass**:
+A translucent surface that blurs what lies beneath it and floats above what it sits on, like a lens — lit from straight above: a see-through fill, a flat face, a hairline rim in the border colour all the way round, lit on top and along the bottom with the light gone down the sides (a dark edge against a light page, a clear one against a dark page), a one-pixel band inside the bottom edge where that light bounces back, and the Button's shadow beneath it. The blur is the element's own background, which is what keeps it apart from a Progressive blur: that one belongs to the page. It ships as `glassSurface`; the rim is an absolute pseudo-element, so a consumer positions the element and pairs it with a `corner.*` preset or its own radius, which the rim inherits.
+_Avoid_: frosted, translucent surface, backdrop blur (as the name of this)
 
 **Progressive blur**:
 The page blurred around whatever floats, in place of dimming it — the ramp centred on the element's edge, like a shadow with no spread, so only the falloff shows and the page is sharp again a little way out. The blur belongs to the page rather than to the element, and the element keeps a crisp edge. The radius is set per element, within a cap. Also used at the edge of a scroll region, where it is a Scroll mask.
@@ -154,6 +158,7 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | Primitive        | 原语     | 配方                                                  |
 | pill shape       | 胶囊形   | 药丸, 标签                                            |
 | Wash             | 淡彩     | 渐变 (that is a gradient), 光晕                       |
+| Glass            | 玻璃     | 毛玻璃 (that is frosted glass, the blur alone)        |
 | Progressive blur | 渐进虚化 | 光晕, 光环 — both name light, and nothing here is lit |
 | Blur plane       | 虚化平面 | 模糊图层 (that is a blur layer)                       |
 | Scroll mask      | 滚动虚化 | 遮罩 (that is a mask in general)                      |

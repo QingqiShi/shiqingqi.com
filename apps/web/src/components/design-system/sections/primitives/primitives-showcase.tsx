@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
 import { flex, grow } from "@tuja/ui/primitives/flex.stylex";
 import {
   absoluteFill,
@@ -17,7 +17,7 @@ import {
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
@@ -592,6 +592,14 @@ function CornerSection() {
         zh: "胶囊形、头像与圆形保留圆弧端帽——超椭圆在钳制后既不像胶囊形也不像圆形。",
       }),
     },
+    {
+      token: "corner.squircle_round",
+      meta: "cornerShape:squircle",
+      description: t({
+        en: "The full-round squircle, closing at half a control's height — a Button's shape, falling back to a rounded box rather than a pill.",
+        zh: "全圆角超椭圆，在半个控件高度处闭合——Button 的形状，不支持时回退为圆角矩形而非胶囊形。",
+      }),
+    },
   ];
 
   return (
@@ -611,13 +619,17 @@ function CornerSection() {
             {t({ en: "Popular", zh: "热门" })}
           </span>
         </Specimen>
+        <Specimen caption="corner.squircle_round — button">
+          <div css={[corner.squircle_round, styles.cornerButton]} />
+        </Specimen>
       </SpecimenGrid>
       <ApiGrid entries={api} />
       <UsageSnippet
-        code={`import { corner } from "@tuja/ui/primitives/corner.stylex";
+        code={`import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
 
 <div css={corner.radius_3}>…</div>
-<span css={corner.radius_round}>…</span>`}
+<span css={corner.radius_round}>…</span>
+<button css={[corner.squircle_round, styles.button]}>…</button>`}
       />
     </Showcase>
   );
@@ -953,6 +965,16 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     color: color.accentText,
     backgroundColor: color.surfaceAccentSubtle,
+  },
+  // corner.squircle_round closes at half of cornerTokens.height, so this sets
+  // it to the box's own height — skip it and the NO_CORNER_SHAPE fallback
+  // sizes off the wrong height.
+  cornerButton: {
+    [cornerTokens.height]: controlSize._9,
+    inlineSize: "120px",
+    blockSize: cornerTokens.height,
+    backgroundColor: color.surfaceAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
   // Reset + a11y specimens
   customControl: {

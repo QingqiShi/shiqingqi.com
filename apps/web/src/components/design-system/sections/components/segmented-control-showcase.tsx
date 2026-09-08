@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
+import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import { RowsIcon } from "@phosphor-icons/react/dist/ssr/Rows";
@@ -67,6 +69,18 @@ export function SegmentedControlShowcase() {
           {t({
             en: "Each icon is decorative and sits beside its label. Keep the label visible wherever there is room: an icon alone leaves a reader guessing at what the view is.",
             zh: "每个图标都是装饰性的，位于标签旁边。只要有空间就保留可见标签：只有图标会让读者猜测该视图究竟是什么。",
+          })}
+        </Text>
+      </Showcase>
+
+      <Showcase label={t({ en: "Selected-only icon", zh: "仅选中时的图标" })}>
+        <Specimen caption="selectedIcon">
+          <SortControl />
+        </Specimen>
+        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+          {t({
+            en: "selectedIcon rides on the selected segment alone — in this control the sort direction, which a second activation flips. Its spot grows in and shrinks away, so the segments beside it never jump. The selected segment's aria-label carries the direction too, because an arrow says nothing to a screen reader.",
+            zh: "selectedIcon 只出现在选中的分段上——在这个控件里是排序方向，再次点击即可翻转。它的位置会展开、也会收起，因此旁边的分段不会跳动。选中分段的 aria-label 同样带上方向，因为箭头对屏幕阅读器什么也没说。",
           })}
         </Text>
       </Showcase>
@@ -149,11 +163,11 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
           rows={[
             {
               name: "options",
-              type: 'readonly { value: TValue; label: ReactNode; icon?: ReactNode; "aria-label"?: string }[]',
+              type: 'readonly { value: TValue; label: ReactNode; icon?: ReactNode; selectedIcon?: ReactNode; "aria-label"?: string }[]',
               required: true,
               description: t({
-                en: "Ordered segments. Arrow-key navigation follows this order; each icon is decorative. An option's aria-label replaces its label as the accessible name when the visible text does not say enough.",
-                zh: "有序的分段列表。方向键导航按此顺序进行；图标均为装饰性内容。当可见文字不足以说明时，选项的 aria-label 会取代 label 作为无障碍名称。",
+                en: "Ordered segments. Arrow-key navigation follows this order; each icon is decorative. A selectedIcon shows only while its segment is selected, its spot growing in and shrinking away. An option's aria-label replaces its label as the accessible name when the visible text does not say enough.",
+                zh: "有序的分段列表。方向键导航按此顺序进行；图标均为装饰性内容。selectedIcon 只在该分段被选中时显示，其占位会展开与收起。当可见文字不足以说明时，选项的 aria-label 会取代 label 作为无障碍名称。",
               }),
             },
             {
@@ -273,6 +287,54 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
         />
       </Showcase>
     </>
+  );
+}
+
+/** The movie database's own sort switch: the selected field carries the arrow. */
+function SortControl() {
+  const [field, setField] = useState<"popularity" | "rating">("popularity");
+  const [direction, setDirection] = useState<"asc" | "desc">("desc");
+
+  const labels = {
+    popularity: t({ en: "Popularity", zh: "热度" }),
+    rating: t({ en: "Rating", zh: "评分" }),
+  };
+  const clauses = {
+    desc: t({
+      en: ", descending. Activate to sort ascending.",
+      zh: " 排序，降序。点击切换为升序。",
+    }),
+    asc: t({
+      en: ", ascending. Activate to sort descending.",
+      zh: " 排序，升序。点击切换为降序。",
+    }),
+  };
+  const arrow =
+    direction === "asc" ? (
+      <ArrowUpIcon weight="bold" />
+    ) : (
+      <ArrowDownIcon weight="bold" />
+    );
+
+  return (
+    <SegmentedControl
+      aria-label={t({ en: "Sort", zh: "排序" })}
+      value={field}
+      onChange={(next) => {
+        setField(next);
+        setDirection(next === field && direction === "desc" ? "asc" : "desc");
+      }}
+      options={(["popularity", "rating"] as const).map((value) =>
+        value === field
+          ? {
+              value,
+              label: labels[value],
+              selectedIcon: arrow,
+              "aria-label": `${labels[value]}${clauses[direction]}`,
+            }
+          : { value, label: labels[value], selectedIcon: arrow },
+      )}
+    />
   );
 }
 

@@ -5,6 +5,7 @@ export const TOGGLE_NAMES = [
   "wash",
   "floating",
   "scrollMask",
+  "glass",
 ] as const;
 
 export type ToggleName = (typeof TOGGLE_NAMES)[number];
@@ -14,6 +15,7 @@ export const TOGGLE_LABELS: Record<ToggleName, string> = {
   wash: "Wash",
   floating: "Floating",
   scrollMask: "Scroll mask",
+  glass: "Glass",
 };
 
 export const NONE = "none";
@@ -31,6 +33,9 @@ export const SCROLL_ORIENTATIONS = ["vertical", "horizontal"] as const;
 
 /** The cap `blurLayerSteps` enforces, offered as the steps a user can pick. */
 export const BLUR_RADII = [4, 8, 16, 24, 32];
+
+/** The alpha steps a glass part's colour token can be scaled to. */
+export const GLASS_OPACITY_STEPS = [100, 80, 60, 40, 20];
 
 export interface Texture {
   mark: string;
@@ -52,16 +57,35 @@ export interface ScrollMask {
   radius: number;
 }
 
+/**
+ * A blur radius from `BLUR_RADII`, or `"off"` for a Glass over an opaque
+ * fill that has nothing to sample.
+ */
+export type GlassRadius = number | "off";
+
+export interface Glass {
+  fill: string;
+  fillOpacity: number;
+  border: string;
+  borderOpacity: number;
+  highlight: string;
+  highlightOpacity: number;
+  radius: GlassRadius;
+}
+
 export const TEXTURE_DEFAULT = "dot space._1 color.neutralBorder";
 export const WASH_DEFAULT = "color.surfaceAccentSubtle to-bottom";
 export const FLOATING_DEFAULT = "radius 16px";
 export const SCROLL_MASK_DEFAULT = "vertical radius 8px";
+export const GLASS_DEFAULT =
+  "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius 8px";
 
 export const TOGGLE_DEFAULTS: Record<ToggleName, string> = {
   texture: TEXTURE_DEFAULT,
   wash: WASH_DEFAULT,
   floating: FLOATING_DEFAULT,
   scrollMask: SCROLL_MASK_DEFAULT,
+  glass: GLASS_DEFAULT,
 };
 
 function words(value: string): string[] {
@@ -87,6 +111,10 @@ function radiusIn(value: string): number {
   return match ? Number(match[1]) : 0;
 }
 
+function glassRadiusIn(value: string): GlassRadius {
+  return /radius\s+off\b/.test(value) ? "off" : radiusIn(value);
+}
+
 export function parseFloating(value: string): Floating | undefined {
   if (value === NONE) return undefined;
   return { radius: radiusIn(value) };
@@ -96,6 +124,35 @@ export function parseScrollMask(value: string): ScrollMask | undefined {
   if (value === NONE) return undefined;
   const orientation = words(value).at(0) ?? "vertical";
   return { orientation, radius: radiusIn(value) };
+}
+
+function percentIn(value: string): number {
+  return Number.parseInt(value, 10) || 0;
+}
+
+export function parseGlass(value: string): Glass | undefined {
+  if (value === NONE) return undefined;
+  const [fill, fillPct, border, borderPct, highlight, highlightPct] =
+    words(value);
+  if (
+    !fill ||
+    !fillPct ||
+    !border ||
+    !borderPct ||
+    !highlight ||
+    !highlightPct
+  ) {
+    return undefined;
+  }
+  return {
+    fill,
+    fillOpacity: percentIn(fillPct),
+    border,
+    borderOpacity: percentIn(borderPct),
+    highlight,
+    highlightOpacity: percentIn(highlightPct),
+    radius: glassRadiusIn(value),
+  };
 }
 
 export function formatTexture(texture: Texture): string {
@@ -112,6 +169,19 @@ export function formatFloating(floating: Floating): string {
 
 export function formatScrollMask(mask: ScrollMask): string {
   return `${mask.orientation} radius ${String(mask.radius)}px`;
+}
+
+export function formatGlass(glass: Glass): string {
+  return [
+    glass.fill,
+    `${String(glass.fillOpacity)}%`,
+    glass.border,
+    `${String(glass.borderOpacity)}%`,
+    glass.highlight,
+    `${String(glass.highlightOpacity)}%`,
+    "radius",
+    glass.radius === "off" ? "off" : `${String(glass.radius)}px`,
+  ].join(" ");
 }
 
 function directionCss(direction: string): string {
@@ -183,6 +253,7 @@ export interface LayerEffects {
   wash?: Wash;
   floating?: Floating;
   scrollMask?: ScrollMask;
+  glass?: Glass;
 }
 
 export function layerEffects(store: ChangeStore, layer: string): LayerEffects {
@@ -191,6 +262,7 @@ export function layerEffects(store: ChangeStore, layer: string): LayerEffects {
     wash: parseWash(store.toggle(layer, "wash")),
     floating: parseFloating(store.toggle(layer, "floating")),
     scrollMask: parseScrollMask(store.toggle(layer, "scrollMask")),
+    glass: parseGlass(store.toggle(layer, "glass")),
   };
 }
 
@@ -205,9 +277,21 @@ export function layerEffectsByLayer(
 }
 
 /**
+ * A glass part's colour: the token's own value at 100%, else that value
+ * scaled to the part's opacity, matching `glassSurface.base`.
+ */
+function glassColor(token: string, opacity: number, index: TokenIndex): string {
+  const value = index.ref(token) ?? token;
+  if (opacity === 100) return value;
+  return `color-mix(in srgb, ${value} ${String(opacity)}%, transparent)`;
+}
+
+/**
  * The stylesheet the canvas needs for the toggles that are pure CSS. The
  * floating and scroll-mask blurs are drawn as overlays instead, because a
- * progressive blur takes five stacked elements.
+ * progressive blur takes five stacked elements. Glass emits two rules: the
+ * layer itself, which sets `position: relative` so it is the rim's
+ * containing block, and a `::before` for the rim.
  */
 export function effectsStylesheet(
   effects: Record<string, LayerEffects>,
@@ -230,6 +314,30 @@ export function effectsStylesheet(
     // paint above the blur plane that sits over the rest of the cell.
     if (layerEffect.floating) {
       rules.push(`${selector} { position: relative; z-index: 1; }`);
+    }
+    if (layerEffect.glass) {
+      const glass = layerEffect.glass;
+      const fill = glassColor(glass.fill, glass.fillOpacity, index);
+      const border = glassColor(glass.border, glass.borderOpacity, index);
+      const highlight = glassColor(
+        glass.highlight,
+        glass.highlightOpacity,
+        index,
+      );
+      const lift = index.ref("shadow._2") ?? "shadow._2";
+      const backdropFilter =
+        glass.radius === "off"
+          ? ""
+          : `backdrop-filter: blur(${String(glass.radius)}px); `;
+      rules.push(
+        `${selector} { position: relative; background-color: ${fill}; ${backdropFilter}box-shadow: ${lift}, inset 0 -1px 1px color-mix(in srgb, ${highlight} 64%, transparent); }`,
+      );
+      // The rim, masked to a hairline: the border colour all the way round,
+      // lit on top and along the bottom, the light gone down the sides. Lit
+      // from straight above.
+      rules.push(
+        `${selector}::before { content: ""; position: absolute; inset: 0; border-radius: inherit; corner-shape: inherit; padding: 0.5px; pointer-events: none; background-image: linear-gradient(180deg, ${highlight} 0%, transparent 35%, transparent 65%, color-mix(in srgb, ${highlight} 60%, transparent) 100%), linear-gradient(${border}, ${border}); -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0); -webkit-mask-clip: content-box, border-box; -webkit-mask-composite: xor; mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0); mask-clip: content-box, border-box; mask-composite: exclude; }`,
+      );
     }
   }
   return rules.join("\n");

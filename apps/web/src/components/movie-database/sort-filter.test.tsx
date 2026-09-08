@@ -91,7 +91,8 @@ describe("SortFilter accessible-name direction semantics", () => {
     expect(getPopularityButton()).toHaveAccessibleName("Popularity");
   });
 
-  it("shows the direction arrow without reading it out", () => {
+  it("shows the direction arrow in the selected segment's icon spot only, and swaps it on flip", async () => {
+    const user = userEvent.setup();
     render(
       <Harness>
         <SortFilter />
@@ -99,9 +100,26 @@ describe("SortFilter accessible-name direction semantics", () => {
     );
 
     const popularity = getPopularityButton();
-    expect(popularity).toHaveTextContent("Popularity ↓");
-    expect(popularity).toHaveAccessibleName(
-      "Popularity, descending. Activate to sort ascending.",
+    const rating = getRatingButton();
+
+    const descendingArrow = popularity.querySelector("svg");
+    expect(descendingArrow).toBeInTheDocument();
+    expect(descendingArrow?.closest("[aria-hidden]")?.className).toContain(
+      "selectedIconSpotShown",
+    );
+    // Rating carries the same icon markup, but its spot stays closed while
+    // Popularity is the selected segment.
+    expect(rating.querySelector("svg")).toBeInTheDocument();
+    expect(
+      rating.querySelector("svg")?.closest("[aria-hidden]")?.className,
+    ).not.toContain("selectedIconSpotShown");
+
+    await user.click(popularity);
+
+    const ascendingArrow = popularity.querySelector("svg");
+    expect(ascendingArrow?.outerHTML).not.toBe(descendingArrow?.outerHTML);
+    expect(ascendingArrow?.closest("[aria-hidden]")?.className).toContain(
+      "selectedIconSpotShown",
     );
   });
 });

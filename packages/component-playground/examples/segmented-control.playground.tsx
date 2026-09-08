@@ -64,6 +64,9 @@ function Control({
       role="radiogroup"
       aria-label="View"
     >
+      <span data-layer="indicator" aria-hidden>
+        <span data-layer="before" />
+      </span>
       {options.map((option, index) => (
         <button
           key={option.label}
@@ -102,7 +105,7 @@ export default playground({
   source: "packages/ui/src/components/forms/segmented-control.tsx",
   layers: {
     track: {
-      presets: ["corner.radius_2"],
+      presets: ["corner.squircle_round"],
       base: {
         display: "inline-flex",
         alignItems: "stretch",
@@ -110,7 +113,12 @@ export default playground({
         borderWidth: "border.size_1",
         borderStyle: "solid",
         borderColor: "color.neutralBorder",
-        backgroundColor: "color.bgSurfaceSunken",
+        backgroundColor: "color.bgCanvasSubtle",
+        // Makes the track the indicator's containing block; `isolate` keeps
+        // the indicator's negative z-index inside the track's stacking
+        // context.
+        position: "relative",
+        isolation: "isolate",
       },
       variants: {
         sm: {
@@ -124,12 +132,55 @@ export default playground({
         fullWidth: { display: "flex", inlineSize: "100%" },
       },
     },
+    // Follows the selected option via CSS anchor positioning, so nothing
+    // measures a segment in JS. Paints the Glass surface the option gives up
+    // once it is selected.
+    indicator: {
+      presets: ["corner.squircle_round"],
+      base: {
+        position: "absolute",
+        positionAnchor: "--segmented-control-selected",
+        top: "anchor(top)",
+        right: "anchor(right)",
+        bottom: "anchor(bottom)",
+        left: "anchor(left)",
+        zIndex: -1,
+        pointerEvents: "none",
+        transition:
+          "top {duration._300} {easing.spring}, right {duration._300} {easing.spring}, bottom {duration._300} {easing.spring}, left {duration._300} {easing.spring}",
+        backgroundColor: "color.glassFill",
+        // Cancels the blur `glassSurface.base` carries: the indicator sits
+        // over the track's opaque fill, so the blur has nothing to sample.
+        backdropFilter: "none",
+        boxShadow:
+          "{shadow._2}, inset 0 -1px 1px color-mix(in srgb, {color.glassHighlight} 64%, transparent)",
+      },
+    },
+    // The indicator's rim. Stands in for `glassSurface.base`'s `::before`:
+    // the border colour all the way round, masked to a hairline, lit on top
+    // and along the bottom with the light gone down the sides. It inherits
+    // the indicator's radius and corner shape, so it needs its own.
+    before: {
+      base: {
+        position: "absolute",
+        inset: "0",
+        borderRadius: "inherit",
+        cornerShape: "inherit",
+        padding: "calc({border.size_1} / 2)",
+        pointerEvents: "none",
+        backgroundImage:
+          "linear-gradient(180deg, {color.glassHighlight} 0%, transparent 35%, transparent 65%, color-mix(in srgb, {color.glassHighlight} 60%, transparent) 100%), linear-gradient({color.glassBorder}, {color.glassBorder})",
+        maskImage: "linear-gradient(#000 0 0), linear-gradient(#000 0 0)",
+        maskClip: "content-box, border-box",
+        maskComposite: "exclude",
+      },
+    },
     option: {
       presets: [
         "buttonReset.base",
         "a11y.focusRingInset",
         "transition.colors",
-        "corner.radius_1",
+        "corner.squircle_round",
       ],
       base: {
         display: "inline-flex",
@@ -139,6 +190,11 @@ export default playground({
         fontWeight: "font.weight_5",
         color: "color.textMuted",
         backgroundColor: "transparent",
+        // Every option carries the border, not only the selected one, so the
+        // box keeps its size and no border colour fades in on select.
+        borderWidth: "border.size_1",
+        borderStyle: "solid",
+        borderColor: "transparent",
       },
       variants: {
         sm: {
@@ -158,11 +214,14 @@ export default playground({
           backgroundColor: "color.bgInteractiveHover",
           color: "color.textMain",
         },
+        // The indicator paints the fill, the edge, and the shadow now. The
+        // option only names the anchor for the indicator to follow.
         selected: {
-          backgroundColor: "color.bgSurface",
+          anchorName: "--segmented-control-selected",
+          backgroundColor: "transparent",
           color: "color.textMain",
           fontWeight: "font.weight_6",
-          boxShadow: "shadow._1",
+          borderColor: "transparent",
         },
       },
     },

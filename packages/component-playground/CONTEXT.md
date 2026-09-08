@@ -52,7 +52,7 @@ A layer that shows in the tree and has nothing to edit: an icon or an image.
 _Avoid_: locked layer, static layer
 
 **Effect toggle**:
-A system effect switched on for a layer rather than set as a property: texture, wash, floating, scroll mask.
+A system effect switched on for a layer rather than set as a property: texture, wash, floating, scroll mask, glass.
 _Avoid_: effect property, filter
 
 **Export**:

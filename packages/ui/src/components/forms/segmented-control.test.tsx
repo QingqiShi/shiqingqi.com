@@ -44,6 +44,42 @@ describe("SegmentedControl", () => {
     expect(screen.getAllByRole("radio")).toHaveLength(2);
   });
 
+  it("renders the indicator as one decorative element, not an option", () => {
+    render(<Harness />);
+
+    const track = screen.getByRole("radiogroup");
+    const indicator = track.firstElementChild;
+
+    expect(indicator).toHaveAttribute("aria-hidden", "true");
+    expect(indicator).not.toHaveAttribute("role");
+    expect(indicator).not.toHaveAttribute("tabindex");
+    expect(screen.getAllByRole("radio")).toHaveLength(2);
+  });
+
+  it("renders no indicator when there are no options", () => {
+    render(
+      <SegmentedControl
+        aria-label="View"
+        options={[]}
+        value="daily"
+        onChange={vi.fn()}
+      />,
+    );
+
+    const track = screen.getByRole("radiogroup");
+    expect(track.firstElementChild).toBeNull();
+  });
+
+  it("leaves the roving tabindex to the options", () => {
+    render(<Harness initial="overview" />);
+
+    const track = screen.getByRole("radiogroup");
+    const focusable = track.querySelectorAll('[tabindex="0"]');
+
+    expect(focusable).toHaveLength(1);
+    expect(focusable[0]).toBe(screen.getByRole("radio", { name: "Overview" }));
+  });
+
   it("marks the selected option as checked", () => {
     render(<Harness initial="overview" />);
 
@@ -213,6 +249,12 @@ describe("SegmentedControl", () => {
     // land inside, so the arrow keys have nothing to work from either.
     await user.tab();
     expect(screen.getAllByRole("radio")[0]).toHaveFocus();
+
+    // Nothing carries the anchor, so the indicator would land at the start of
+    // the track at its own size instead of over an option.
+    expect(
+      screen.getByRole("radiogroup").querySelectorAll("[aria-hidden]"),
+    ).toHaveLength(0);
   });
 
   it("forwards native div attributes to the track", () => {
@@ -263,6 +305,105 @@ describe("SegmentedControl", () => {
     await user.click(screen.getByRole("radio", { name: "Daily" }));
 
     expect(onChange).toHaveBeenCalledWith("daily");
+  });
+});
+
+describe("SegmentedControl selectedIcon", () => {
+  const SORT_OPTIONS = [
+    {
+      value: "popularity",
+      label: "Popularity",
+      selectedIcon: <span data-testid="arrow-popularity">↓</span>,
+    },
+    {
+      value: "rating",
+      label: "Rating",
+      selectedIcon: <span data-testid="arrow-rating">↓</span>,
+    },
+  ] as const;
+
+  it("renders the icon inside every option that supplies one", () => {
+    render(
+      <SegmentedControl
+        aria-label="Sort"
+        options={SORT_OPTIONS}
+        value="popularity"
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("radio", { name: "Popularity" })).toContainElement(
+      screen.getByTestId("arrow-popularity"),
+    );
+    expect(screen.getByRole("radio", { name: "Rating" })).toContainElement(
+      screen.getByTestId("arrow-rating"),
+    );
+  });
+
+  it("keeps the icon out of the option's accessible name", () => {
+    render(
+      <SegmentedControl
+        aria-label="Sort"
+        options={SORT_OPTIONS}
+        value="popularity"
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByTestId("arrow-popularity").closest("[aria-hidden]"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("radio", { name: "Popularity" }),
+    ).toBeInTheDocument();
+  });
+
+  it("opens the icon's spot on the selected option only", () => {
+    render(
+      <SegmentedControl
+        aria-label="Sort"
+        options={SORT_OPTIONS}
+        value="popularity"
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByTestId("arrow-popularity").closest("[aria-hidden]")
+        ?.className,
+    ).toContain("selectedIconSpotShown");
+    expect(
+      screen.getByTestId("arrow-rating").closest("[aria-hidden]")?.className,
+    ).not.toContain("selectedIconSpotShown");
+  });
+
+  it("renders no spot for an option that supplies no icon", () => {
+    render(
+      <SegmentedControl
+        aria-label="Sort"
+        options={[
+          {
+            value: "popularity",
+            label: "Popularity",
+            selectedIcon: <span data-testid="arrow-popularity">↓</span>,
+          },
+          { value: "rating", label: "Rating" },
+        ]}
+        value="popularity"
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("radio", { name: "Rating" })
+        .querySelectorAll("[aria-hidden]"),
+    ).toHaveLength(0);
+    expect(
+      screen
+        .getByRole("radio", { name: "Popularity" })
+        .querySelectorAll("[aria-hidden]"),
+    ).toHaveLength(1);
   });
 });
 

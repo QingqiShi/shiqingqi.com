@@ -37,7 +37,8 @@ interface OptionProps {
  * @param onChange Invoked with the next value on click or keyboard select.
  * @returns An object with `getOptionProps(optionValue)`, which returns the
  * `ref`, `role`, `aria-checked`, `tabIndex`, `onClick`, and `onKeyDown` props
- * to spread onto the button rendering that option.
+ * to spread onto the button rendering that option, and `hasSelection`, false
+ * while `value` matches none of `values`.
  */
 export function useRadioGroup<TValue extends string>({
   values,
@@ -131,5 +132,5 @@ export function useRadioGroup<TValue extends string>({
     [fallbackValue, jump, move, onChange, value],
   );
 
-  return { getOptionProps };
+  return { getOptionProps, hasSelection: values.includes(value) };
 }

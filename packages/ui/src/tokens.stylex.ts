@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { cyan, cyan_rgb } from "./_generated/palette/hues/cyan.stylex.ts";
-import { gray } from "./_generated/palette/hues/gray.stylex.ts";
+import { gray, gray_rgb } from "./_generated/palette/hues/gray.stylex.ts";
 import { green, green_rgb } from "./_generated/palette/hues/green.stylex.ts";
 import { indigo } from "./_generated/palette/hues/indigo.stylex.ts";
 import { orange, orange_rgb } from "./_generated/palette/hues/orange.stylex.ts";
@@ -97,6 +97,16 @@ const light = {
   bgOverlay: gray._100,
   bgScrim: "rgba(0, 0, 0, 0.7)",
 
+  // Glass — a translucent fill over a blur, lit from above: the border colour
+  // is the hairline rim all the way round, the highlight the light on that
+  // rim along the top and bottom edges. Against a light page the rim reads as
+  // a dark edge; against a dark one it is clear, and only the light on it
+  // shows. Together they are what make the surface look like glass, not a
+  // tint.
+  glassFill: `rgba(${gray_rgb._100}, 0.8)`,
+  glassBorder: `rgba(${gray_rgb._0}, 0.3)`,
+  glassHighlight: `rgba(${gray_rgb._100}, 0.6)`,
+
   accent: purple._30,
   accentHover: purple._40,
   // Accent at ambient-glow strength (was `accent` + a themed opacity token).
@@ -190,6 +200,10 @@ const dark: { [key in keyof typeof light]: string } = {
   bgInverse: gray._92,
   bgOverlay: gray._7,
   bgScrim: "rgba(0, 0, 0, 0.7)",
+
+  glassFill: `rgba(${gray_rgb._100}, 0.12)`,
+  glassBorder: "transparent",
+  glassHighlight: `rgba(${gray_rgb._100}, 0.25)`,
 
   accent: purple._50,
   accentHover: purple._60,
@@ -287,6 +301,10 @@ export const color = stylex.defineVars({
 
   bgOverlay: `light-dark(${light.bgOverlay}, ${dark.bgOverlay})`,
   bgScrim: `light-dark(${light.bgScrim}, ${dark.bgScrim})`,
+
+  glassFill: `light-dark(${light.glassFill}, ${dark.glassFill})`,
+  glassBorder: `light-dark(${light.glassBorder}, ${dark.glassBorder})`,
+  glassHighlight: `light-dark(${light.glassHighlight}, ${dark.glassHighlight})`,
 
   accent: `light-dark(${light.accent}, ${dark.accent})`,
   accentHover: `light-dark(${light.accentHover}, ${dark.accentHover})`,
