@@ -50,7 +50,7 @@
     "posthog-js": "^1.427.2",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-error-boundary": "^6.1.4",
+    "react-error-boundary": "^6.1.5",
     "react-markdown": "^10.1.0",
     "react-remove-scroll": "catalog:",
     "react-virtuoso": "^4.18.12",
