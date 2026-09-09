@@ -12,11 +12,10 @@ import {
 
 const nodeRequire = createRequire(import.meta.url);
 
-// The shipped CSS comes from the Babel that `@stylexjs/babel-plugin` brings
-// with it, so the adapter runs that one and never a Babel of its own.
-const babel = createRequire(nodeRequire.resolve("@stylexjs/babel-plugin"))(
-  "@babel/core",
-);
+// `@stylexjs/postcss-plugin` makes the shipped CSS with its own Babel 7.
+// The Babel 8 here makes CSS that is identical byte for byte, so the
+// playground shows what the app ships.
+const babel = nodeRequire("@babel/core");
 
 // Babel resolves a preset or plugin name against the working directory, and
 // the build runs from the monorepo root, so every name is resolved here first.
