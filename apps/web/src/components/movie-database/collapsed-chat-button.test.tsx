@@ -1,5 +1,7 @@
+import { render as renderWithoutProviders } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { renderToString } from "react-dom/server";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { CollapsedChatButton } from "./collapsed-chat-button";
 import { HeroVisibilityContext } from "./hero-visibility-context";
@@ -10,14 +12,18 @@ beforeAll(() => {
   HTMLElement.prototype.releasePointerCapture = vi.fn();
 });
 
-function renderButton({
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+function buttonUnderContexts({
   isHeroInputVisible,
   openChat = vi.fn(),
 }: {
   isHeroInputVisible: boolean;
   openChat?: () => void;
 }) {
-  return render(
+  return (
     <InlineChatContext
       value={{
         isChatActive: false,
@@ -34,8 +40,12 @@ function renderButton({
       >
         <CollapsedChatButton ariaLabel="Ask AI about movies and TV shows" />
       </HeroVisibilityContext>
-    </InlineChatContext>,
+    </InlineChatContext>
   );
+}
+
+function renderButton(props: Parameters<typeof buttonUnderContexts>[0]) {
+  return render(buttonUnderContexts(props));
 }
 
 describe("CollapsedChatButton", () => {
@@ -78,5 +88,29 @@ describe("CollapsedChatButton", () => {
       screen.getByRole("button", { name: "Ask AI about movies and TV shows" }),
     );
     expect(openChat).toHaveBeenCalledTimes(1);
+  });
+
+  // The hero visibility provider sits in the shell, so it can see the hero
+  // leave the viewport before the sticky bar's streamed boundary hydrates.
+  // React leaves a mismatched attribute as the server rendered it, so the
+  // button would stay inert until the hero came into view and left again.
+  it("hydrates as the server rendered it, then follows the hero", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(
+      buttonUnderContexts({ isHeroInputVisible: true }),
+    );
+    document.body.appendChild(container);
+    const reportError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    renderWithoutProviders(buttonUnderContexts({ isHeroInputVisible: false }), {
+      container,
+      hydrate: true,
+    });
+
+    expect(reportError).not.toHaveBeenCalled();
+    const button = screen.getByRole("button", {
+      name: "Ask AI about movies and TV shows",
+    });
+    expect(button.parentElement).not.toHaveAttribute("inert");
   });
 });
