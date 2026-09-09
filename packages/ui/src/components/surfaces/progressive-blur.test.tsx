@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import type { ComponentProps, ReactNode } from "react";
+import { Suspense, type ComponentProps, type ReactNode } from "react";
+import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { BlurPlane, BlurPlaneProvider } from "./blur-plane.tsx";
 import { buildBlurLayers } from "./build-blur-layers.ts";
@@ -639,5 +640,35 @@ describe("ProgressiveBlur with reach", () => {
     );
 
     expect(layerElements(rootOf(container))).toHaveLength(0);
+  });
+
+  // A control under a streamed boundary hydrates after the plane has mounted.
+  // React hydrates a portal's children against the server nodes beside the
+  // portal, so a box painted on the plane in that pass claims the slot
+  // instead, and React throws the server's tree away.
+  it("paints the layers on the plane only once hydrated", () => {
+    layOut(rect(100, 50, 200, 100));
+    const shell = (
+      <BlurPlaneProvider>
+        <BlurPlane />
+        <Suspense>
+          <ProgressiveBlur reach={40}>{floatingElement}</ProgressiveBlur>
+        </Suspense>
+      </BlurPlaneProvider>
+    );
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(shell);
+    document.body.appendChild(container);
+    const recoverableErrors: unknown[] = [];
+
+    render(shell, {
+      container,
+      hydrate: true,
+      onRecoverableError: (error) => recoverableErrors.push(error),
+    });
+
+    expect(recoverableErrors).toStrictEqual([]);
+    expect(layerElements(rootOf(container))).toHaveLength(0);
+    expect(layerElements(planeOf(container))).toHaveLength(5);
   });
 });

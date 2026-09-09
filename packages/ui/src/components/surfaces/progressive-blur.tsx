@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { useIsHydrated } from "../../hooks/use-is-hydrated.ts";
 import {
   duration,
   easing,
@@ -89,6 +90,7 @@ export function ProgressiveBlur({
   css,
 }: ProgressiveBlurProps) {
   const plane = use(BlurPlaneContext);
+  const isHydrated = useIsHydrated();
   const rootRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<HTMLDivElement | null>(null);
   const slotRef = useRef<HTMLSpanElement>(null);
@@ -233,11 +235,14 @@ export function ProgressiveBlur({
   );
 
   // A plane the page keeps but hasn't mounted yet renders no layers: nothing
-  // is visible before the box is placed and the plane lands together.
+  // is visible before the box is placed and the plane lands together. The
+  // hydration pass renders none either: React hydrates a portal's children
+  // against the server nodes beside the portal, so the box would claim the
+  // slot and React would throw the server's tree away.
   const isLayersBeside = !(hasReach && isOnPlane && plane !== null);
   const placedLayers = isLayersBeside
     ? layersWrapper
-    : plane.node === null
+    : plane.node === null || !isHydrated
       ? null
       : createPortal(layersWrapper, plane.node);
 
