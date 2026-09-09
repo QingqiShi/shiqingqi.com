@@ -33,8 +33,8 @@ Terms are defined in `packages/ui/CONTEXT.md`.
 - **A cap that tracks its text gives up a shared right edge.** Blocks set at different sizes end in different places. That is what the steady character count costs, and it is the right way round: the measure belongs to the text, not to the column.
 - **A page's width is not derived from the measure.** A page is sized to hold its widest specimen, and a paragraph caps itself. Deriving one from the other lets a decision about text squeeze a diagram.
 - **Type does not scale up to fill a wide screen.** Larger type in a wider column holds the character count and lengthens the jump, so it makes the return worse rather than better.
-- **The space beside a paragraph is either a margin or a column.** Small enough to hold nothing, or actually holding something. In between it reads as a column with content missing, which is what a capped paragraph in a much wider container looks like.
-- **Anything that needs more width scrolls inside its own surface** — a table, a code block, a specimen. Widening the page to fit one of them leaves every paragraph on it stranded.
+- **Every page sets its title, its headings and its paragraphs on a reading column**, centred in the page and a little wider than the measure at body size. A paragraph capped inside it ends near the column's edge rather than in the middle of the page, and what is beside it is a margin on each side.
+- **A specimen that needs more width breaks out of the reading column on both sides**, up to the Shell's content width, and the paragraph above it keeps its measure and its place. A specimen wider than that scrolls inside its own surface — a table, a code block, a ruler. Widening the column to fit one of them would set every paragraph on the page adrift.
 
 ### Texture and Wash
 

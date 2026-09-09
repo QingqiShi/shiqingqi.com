@@ -280,6 +280,7 @@ const styles = stylex.create({
   specimen: {
     gridArea: "spec",
     minInlineSize: 0,
+    maxInlineSize: measure.prose,
     overflowWrap: "break-word",
     color: color.textMain,
     lineHeight: font.lineHeight_1,

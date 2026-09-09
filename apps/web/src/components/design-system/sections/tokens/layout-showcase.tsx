@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import {
   border,
@@ -108,50 +109,55 @@ function MeasureBands() {
     <div css={styles.measureRows}>
       <div css={styles.measureRow}>
         <div css={[corner.radius_2, styles.measurePage]}>
-          <div
-            css={[
-              corner.radius_1,
-              styles.measureProse,
-              styles.measureProseNarrow,
-            ]}
-          >
-            <span css={styles.measureProseLabel}>prose 41em</span>
-          </div>
-          <span css={styles.measureRest}>
-            {t({ en: "margin", zh: "页边" })}
-          </span>
+          <MeasureLine />
         </div>
         <span css={styles.measureCaption}>
           {t({
-            en: "A 48rem page. What is left beside the paragraph is a margin.",
-            zh: "48rem 的页面。段落旁边剩下的是页边。",
+            en: "The reading column, centred in the page. What is beside the paragraph is a margin on each side.",
+            zh: "阅读栏居中于页面。段落两侧剩下的都是页边。",
           })}
         </span>
       </div>
       <div css={styles.measureRow}>
         <div css={[corner.radius_2, styles.measurePage]}>
+          <MeasureLine />
           <div
             css={[
               corner.radius_1,
-              styles.measureProse,
-              styles.measureProseWide,
+              flex.center,
+              styles.measureNote,
+              styles.measureSpecimen,
             ]}
           >
-            <span css={styles.measureProseLabel}>prose 41em</span>
+            {t({ en: "specimen", zh: "示例" })}
           </div>
-          <span
-            css={[styles.measureRest, corner.radius_1, styles.measureRestEmpty]}
-          >
-            {t({ en: "empty column", zh: "空栏" })}
-          </span>
         </div>
         <span css={styles.measureCaption}>
           {t({
-            en: "A 1140px page. The same paragraph, and the gap beside it now reads as a column with something missing.",
-            zh: "1140px 的页面。同样的段落，旁边的空隙此时读起来像一列缺了内容的栏。",
+            en: "A breakout. A specimen that needs more width spans the page on both sides of the column, and the paragraph above it keeps its measure and its place.",
+            zh: "突破阅读栏的示例。需要更多宽度的示例向栏的两侧延伸至整个页面，其上方的段落保持行长与位置不变。",
           })}
         </span>
       </div>
+    </div>
+  );
+}
+
+function MeasureLine() {
+  const margin = t({ en: "margin", zh: "页边" });
+  return (
+    <div css={[flex.row, align.stretch, styles.measureLine]}>
+      <span css={[flex.center, styles.measureNote, styles.measureRest]}>
+        {margin}
+      </span>
+      <div css={[corner.radius_1, flex.center, styles.measureProse]}>
+        <span css={[styles.measureNote, styles.measureProseLabel]}>
+          prose 41em
+        </span>
+      </div>
+      <span css={[flex.center, styles.measureNote, styles.measureRest]}>
+        {margin}
+      </span>
     </div>
   );
 }
@@ -190,7 +196,7 @@ export function LayoutShowcase() {
         <BreakpointBands />
       </Showcase>
 
-      <Showcase label={t({ en: "Content width", zh: "内容宽度" })}>
+      <Showcase label={t({ en: "Content width", zh: "内容宽度" })} breakout>
         <ShowcaseHelper>
           {t({
             en: "layout.maxInlineSize caps the page at 1140px and centres it, so gutters open up on wide screens. It bounds the page; the measure below bounds the text inside it.",
@@ -223,8 +229,8 @@ export function LayoutShowcase() {
         <MeasureBands />
         <ShowcaseHelper>
           {t({
-            en: "The cap exists because the eye has to jump back to the start of the next line, and the longer that jump, the more often it lands on the wrong one. A wide screen is not a reason to set text wider, or bigger. Either put something beside the paragraph, or cap the page so what is left beside it stays a margin. Design-system pages take the second route at 48rem, and a specimen that needs more room scrolls inside its own card.",
-            zh: "设这个上限，是因为读到行尾时眼睛要跳回下一行的开头；这一跳越长，落错行的次数就越多。屏幕宽，不是把文字排得更宽或更大的理由。要么在段落旁边放点别的东西，要么把页面收窄，让段落旁边剩下的只是页边。设计系统页面走的是后一条路，宽度为 48rem；放不下的示例则在自己的卡片内横向滚动。",
+            en: "The cap exists because the eye has to jump back to the start of the next line, and the longer that jump, the more often it lands on the wrong one. A wide screen is not a reason to set text wider, or bigger. Every design-system page sets its title, its headings and its paragraphs on a reading column, 48rem wide and centred in the 1140px page, so a paragraph ends near the column's edge rather than in the middle of the page. A specimen that needs more width breaks out of the column on both sides, and one wider than the page scrolls inside its own card.",
+            zh: "设这个上限，是因为读到行尾时眼睛要跳回下一行的开头；这一跳越长，落错行的次数就越多。屏幕宽，不是把文字排得更宽或更大的理由。设计系统的每个页面都把标题、小标题和段落放在一条阅读栏上——宽 48rem，居中于 1140px 的页面——段落于是收在栏边附近，而不是停在页面中间。需要更多宽度的示例向阅读栏两侧突破出去；比页面还宽的示例则在自己的卡片内横向滚动。",
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -442,49 +448,42 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._1,
   },
-  // Both pages are drawn at the same width, so the prose bands inside them are
-  // to scale against each other: 41/48 against 656/1140.
+  // Both pages are drawn at the 1140px page's scale: the prose band is 656/1140.
   measurePage: {
     display: "flex",
-    alignItems: "stretch",
-    gap: space._00,
+    flexDirection: "column",
+    gap: space._1,
     padding: space._1,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
+  measureLine: {
+    gap: space._00,
+  },
+  measureNote: {
+    fontFamily: font.familyMono,
+    fontSize: font.uiOverline,
+    color: color.textSubtle,
+  },
   measureProse: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    inlineSize: "57.5%",
     flexShrink: 0,
     paddingBlock: space._4,
     backgroundColor: color.surfaceAccentSubtle,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
-  measureProseNarrow: { inlineSize: "85.4%" },
-  measureProseWide: { inlineSize: "57.5%" },
   measureProseLabel: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
     color: color.accentText,
   },
   measureRest: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     flexGrow: 1,
     minInlineSize: 0,
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    color: color.textSubtle,
     textAlign: "center",
   },
-  // The wide page's leftover is drawn as a slot rather than as space: it is big
-  // enough to hold something, which is why it reads as missing content.
-  measureRestEmpty: {
-    borderWidth: border.size_1,
-    borderStyle: "dashed",
-    borderColor: color.neutralBorder,
+  measureSpecimen: {
+    paddingBlock: space._2,
+    backgroundColor: color.bgSurfaceSunken,
+    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   measureCaption: {
     fontSize: font.uiCaption,

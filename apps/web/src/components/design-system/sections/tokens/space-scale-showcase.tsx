@@ -37,7 +37,7 @@ export function SpaceScaleShowcase() {
   ];
 
   return (
-    <Showcase label={t({ en: "Scale", zh: "阶梯" })}>
+    <Showcase label={t({ en: "Scale", zh: "阶梯" })} breakout>
       <ShowcaseHelper>
         {t({
           en: "Eighteen steps on a rem base, each drawn to true size from a common baseline — fine near the low end, widening as the scale climbs.",

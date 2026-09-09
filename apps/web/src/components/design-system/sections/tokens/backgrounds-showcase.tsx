@@ -65,7 +65,7 @@ function Band({ name, description, children, columns }: BandProps) {
 
 export function BackgroundsShowcase() {
   return (
-    <Showcase label={t({ en: "Surfaces", zh: "表面" })} frame="plain">
+    <Showcase label={t({ en: "Surfaces", zh: "表面" })} frame="plain" breakout>
       <ShowcaseHelper>
         {t({
           en: "Surfaces are organised by role, not tone. Pick by what the surface is for — scaffolding, a card, an interactive state, an attention-grabbing inverse, or a floating overlay — and the right tone follows.",

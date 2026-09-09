@@ -6,6 +6,7 @@ import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { measure } from "../../measure.stylex.ts";
+import { onReadingColumn } from "../../reading-column.stylex.ts";
 import { Showcase } from "../../showcase.tsx";
 
 // Tones sampled for the miniature hue ramps — a light-to-dark spread that reads
@@ -31,8 +32,8 @@ const ROLE_DOTS = [
  */
 export function ColorHierarchy() {
   return (
-    <Showcase frame="card">
-      <p css={styles.lead}>
+    <Showcase frame="card" breakout>
+      <p css={[styles.lead, onReadingColumn.base]}>
         {t({
           en: "Colour is layered. A fixed system palette defines every available tone; design tokens reference those tones by purpose; and the tokens are grouped into the surfaces and roles the app actually uses.",
           zh: "颜色是分层的。固定的系统调色板定义了所有可用色调；设计令牌按用途引用这些色调；令牌再归类为应用真正使用的表面与角色。",

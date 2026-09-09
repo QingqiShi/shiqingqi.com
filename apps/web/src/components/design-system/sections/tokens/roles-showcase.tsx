@@ -7,7 +7,7 @@ import { Showcase } from "../../showcase.tsx";
 
 export function RolesShowcase() {
   return (
-    <Showcase label={t({ en: "Roles", zh: "角色" })} frame="plain">
+    <Showcase label={t({ en: "Roles", zh: "角色" })} frame="plain" breakout>
       <div css={styles.grid}>
         <RoleColumn
           name={t({ en: "Neutral", zh: "中性" })}

@@ -4,6 +4,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { onReadingColumn } from "./reading-column.stylex.ts";
 
 interface ShowcaseProps {
   label?: string;
@@ -24,6 +25,14 @@ interface ShowcaseProps {
    * pilots `"plain"`; other pages keep the card default untouched.
    */
   frame?: "card" | "plain";
+  /**
+   * Set when the specimen needs more room than the reading column: the
+   * section spans the Shell's content width instead, overhanging the reading
+   * column by the same amount on each side. The label and the helper stay on
+   * the reading column. Below the width where the two coincide, this changes
+   * nothing.
+   */
+  breakout?: boolean;
   children: ReactNode;
 }
 
@@ -31,6 +40,7 @@ export function Showcase({
   label,
   labelVariant = "words",
   frame = "card",
+  breakout = false,
   children,
 }: ShowcaseProps) {
   const plain = frame === "plain";
@@ -39,6 +49,7 @@ export function Showcase({
       css={[
         styles.showcase,
         plain ? styles.plainFrame : [cardSurface.base, styles.card],
+        breakout && styles.breakout,
       ]}
     >
       {label ? (
@@ -46,6 +57,7 @@ export function Showcase({
           css={[
             plain ? styles.headingPlain : styles.label,
             labelVariant === "code" && styles.labelCode,
+            breakout && onReadingColumn.base,
           ]}
         >
           {label}
@@ -103,6 +115,15 @@ const styles = stylex.create({
   // stays the ground and inner surfaces do the highlighting.
   plainFrame: {
     gap: space._4,
+  },
+  // The article is the container. 50% is half the reading column; 50cqi is
+  // half the article. So the section overhangs the column by the same amount
+  // on each side. `boxSizing` is needed: the app sets no global border-box
+  // rule.
+  breakout: {
+    boxSizing: "border-box",
+    inlineSize: "100cqi",
+    marginInlineStart: "calc(50% - 50cqi)",
   },
   label: {
     margin: 0,
