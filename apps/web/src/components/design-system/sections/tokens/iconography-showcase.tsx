@@ -58,7 +58,7 @@ export function IconographyShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "The set", zh: "图标集" })}>
+      <Showcase label={t({ en: "The set", zh: "图标集" })} breakout>
         <ShowcaseHelper>
           {t({
             en: "The app draws from Phosphor. Each icon imports from its own SSR entry so only the icons you use ship to the client — no barrel import, no full-set bundle.",
@@ -241,7 +241,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 const styles = stylex.create({
   gallery: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
     gap: space._2,
   },
   galleryItem: {

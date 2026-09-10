@@ -34,6 +34,7 @@ export function PaletteShowcase() {
     <Showcase
       label={t({ en: "System palette", zh: "系统调色板" })}
       frame="plain"
+      breakout
     >
       <ShowcaseHelper>
         {t({

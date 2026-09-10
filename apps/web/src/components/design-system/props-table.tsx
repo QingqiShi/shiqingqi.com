@@ -9,6 +9,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { Identifier } from "./identifier.tsx";
+import { measure } from "./measure.stylex.ts";
 
 export interface PropsTableRow {
   /** Prop name, rendered monospace. */
@@ -145,6 +146,7 @@ const styles = stylex.create({
   // is `overflow: visible`, so the whole page ends up scrolling sideways.
   description: {
     minInlineSize: 0,
+    maxInlineSize: measure.prose,
     overflowWrap: "break-word",
   },
 });

@@ -7,7 +7,7 @@ import { SpecCard } from "../../spec-card.tsx";
 
 export function WeightsShowcase() {
   return (
-    <Showcase label={t({ en: "Weights", zh: "字重" })}>
+    <Showcase label={t({ en: "Weights", zh: "字重" })} breakout>
       <div css={styles.grid}>
         <SpecCard token="font.weight_1" meta="100">
           <span css={[styles.specimen, styles.weight1]}>Ag</span>

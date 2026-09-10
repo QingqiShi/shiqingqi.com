@@ -309,7 +309,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
       <Divider />
 
       {/*
-        One column, because the page it sits on caps at `measure.reading` and a
+        One column, because the reading column it sits on is 48rem and a
         rail beside a 400px main column is narrower than the Select in its own
         header. The two reference blocks pair off into a row of their own at
         `md` instead: they are short, they are scanned rather than read, and

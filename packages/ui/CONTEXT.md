@@ -137,6 +137,14 @@ _Avoid_: illo (in prose — the `--ds-illo-*` var prefix is a frozen contract), 
 **Showcase**:
 One labelled section on a documentation page. A page has many; each may hold specimens, illustrations, or neither.
 
+**Reading column**:
+The centred column every doc page sets its title, headings and paragraphs on. Not the Measure: the Measure caps a paragraph, the reading column places it.
+_Avoid_: content column, text column, spine
+
+**Breakout**:
+A Showcase that leaves the reading column to span the Shell's content width, overhanging it equally on both sides, because its specimen needs the room. Its heading and helper stay on the reading column.
+_Avoid_: full-bleed, bleed, wide (as the name of this)
+
 **Identifier**:
 A name the documentation renders for copying rather than reading — a token name, a prop name, a Phosphor component name. Distinct from a Token, which is the value itself: the same component renders all three kinds, and none of them may be truncated or broken mid-word, because the name is the content.
 _Avoid_: label, key (for this sense)
@@ -163,6 +171,7 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | Blur plane       | 虚化平面 | 模糊图层 (that is a blur layer)                       |
 | Scroll mask      | 滚动虚化 | 遮罩 (that is a mask in general)                      |
 | Squircle         | 超椭圆角 | 圆角矩形 (that is a rounded rectangle)                |
+| Reading column   | 阅读栏   | 内容栏, 正文栏                                        |
 
 `语义` is correct only for the HTML/ARIA sense — 语义元素, 语义层级, `<button>` 语义 — matching English "semantic element/rank".
 
