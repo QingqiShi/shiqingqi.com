@@ -1,7 +1,13 @@
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
-import { resolveImport, traceClientFiles } from "./trace-client-files.ts";
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  clearTraceCaches,
+  resolveImport,
+  traceClientFiles,
+} from "./trace-client-files.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -135,5 +141,39 @@ describe("traceClientFiles", () => {
     );
     const clientFiles = traceClientFiles(entryFile, srcDir);
     expect(clientFiles.size).toBeGreaterThan(0);
+  });
+});
+
+describe("clearTraceCaches", () => {
+  let tempSrc: string | undefined;
+
+  afterEach(() => {
+    if (tempSrc) fs.rmSync(tempSrc, { recursive: true, force: true });
+    tempSrc = undefined;
+  });
+
+  it.each([
+    { scenario: "an edited component", writeBefore: true },
+    { scenario: "a component created later", writeBefore: false },
+  ])("traces $scenario after the caches are cleared", ({ writeBefore }) => {
+    tempSrc = fs.mkdtempSync(path.join(os.tmpdir(), "trace-cache-"));
+    const entryFile = path.join(tempSrc, "page.tsx");
+    const componentFile = path.join(tempSrc, "widget.tsx");
+    fs.writeFileSync(entryFile, 'import "./widget";\n');
+    if (writeBefore) {
+      fs.writeFileSync(componentFile, "export const Widget = () => null;\n");
+    }
+
+    expect(traceClientFiles(entryFile, tempSrc)).toEqual(new Set());
+
+    fs.writeFileSync(
+      componentFile,
+      '"use client";\nexport const Widget = () => null;\n',
+    );
+    clearTraceCaches();
+
+    expect(traceClientFiles(entryFile, tempSrc)).toEqual(
+      new Set([componentFile]),
+    );
   });
 });

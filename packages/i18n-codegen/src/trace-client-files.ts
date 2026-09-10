@@ -68,9 +68,17 @@ function resolveImportUncached(
 // Caches persist across multiple traceClientFiles() calls within a
 // single codegen run, avoiding redundant filesystem and parse work
 // when many page entry points share the same imported modules.
+// A long-lived process must call clearTraceCaches() before each run,
+// or a later run reads files as they were when the process started.
 const parseCache = new Map<string, BabelFile | null>();
 const resolveCache = new Map<string, string | null>();
 const isFileCache = new Map<string, boolean>();
+
+export function clearTraceCaches(): void {
+  parseCache.clear();
+  resolveCache.clear();
+  isFileCache.clear();
+}
 
 function isFile(filePath: string): boolean {
   const cached = isFileCache.get(filePath);
