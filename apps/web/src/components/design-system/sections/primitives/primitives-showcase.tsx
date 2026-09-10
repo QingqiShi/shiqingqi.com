@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
@@ -17,6 +18,8 @@ import {
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
+import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
 import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
@@ -635,6 +638,183 @@ function CornerSection() {
   );
 }
 
+function TextureSection() {
+  const api: ApiEntry[] = [
+    {
+      token: "texture.dot",
+      meta: "radial-gradient · 1px dot",
+      description: t({
+        en: "A dot of 1px or less, repeated at the pitch.",
+        zh: "不超过 1px 的点，按间距重复。",
+      }),
+    },
+    {
+      token: "texture.line",
+      meta: "repeating-linear-gradient · 1px line",
+      description: t({
+        en: "A 1px rule, repeated at the pitch.",
+        zh: "1px 的线，按间距重复。",
+      }),
+    },
+    {
+      token: "textureTokens.pitch",
+      meta: "default: space._1",
+      description: t({
+        en: "The gap between marks — the per-surface dial. A smaller surface takes a finer mark.",
+        zh: "标记之间的间隔——按表面设定的旋钮。较小的表面取更细的标记。",
+      }),
+    },
+    {
+      token: "textureTokens.ink",
+      meta: "default: color.neutralBorder",
+      description: t({
+        en: "The mark's colour. Keep it close to the surface, so the texture never resolves into a pattern with a name.",
+        zh: "标记的颜色。让它贴近表面，纹理才不会显出一个叫得出名字的图案。",
+      }),
+    },
+  ];
+
+  return (
+    <Showcase label={t({ en: "Texture", zh: "纹理" })}>
+      <ShowcaseHelper>
+        {t({
+          en: "One drawn mark at one size across a surface — a line or a dot, never both. Set the pitch and the ink per surface by overriding the tokens in a local style block. Never nest one texture inside another.",
+          zh: "表面上只有一种绘制的标记、一种尺寸——线或点，绝不同时使用。在局部样式块中覆盖令牌，为每个表面设定间距与墨色。绝不把一种纹理嵌套在另一种里面。",
+        })}
+      </ShowcaseHelper>
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen token="texture.dot">
+          <div
+            css={[
+              texture.dot,
+              cardSurface.base,
+              corner.radius_2,
+              styles.materialCard,
+            ]}
+          />
+        </Specimen>
+        <Specimen token="texture.line">
+          <div
+            css={[
+              texture.line,
+              cardSurface.base,
+              corner.radius_2,
+              styles.materialCard,
+            ]}
+          />
+        </Specimen>
+        <Specimen
+          caption={t({ en: "wider pitch", zh: "更宽的间距" })}
+          token="space._4"
+        >
+          <div
+            css={[
+              texture.dot,
+              cardSurface.base,
+              corner.radius_2,
+              styles.materialCard,
+              styles.widePitch,
+            ]}
+          />
+        </Specimen>
+      </SpecimenGrid>
+      <ApiGrid entries={api} />
+      <UsageSnippet
+        code={`import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
+
+<div css={[texture.dot, styles.card]}>…</div>
+
+const styles = stylex.create({
+  card: { [textureTokens.pitch]: space._4 },
+});`}
+      />
+    </Showcase>
+  );
+}
+
+function WashSection() {
+  const api: ApiEntry[] = [
+    {
+      token: "wash.toBottom / toTop",
+      meta: "linear-gradient · tone → transparent",
+      description: t({
+        en: "The tone drifts down the surface, or up it.",
+        zh: "色调沿表面向下或向上铺开。",
+      }),
+    },
+    {
+      token: "wash.toRight / toLeft",
+      meta: "linear-gradient · tone → transparent",
+      description: t({
+        en: "The same drift across the inline axis.",
+        zh: "同样的铺开，沿行内轴方向。",
+      }),
+    },
+    {
+      token: "washTokens.tone",
+      meta: "default: color.surfaceNeutralSubtle",
+      description: t({
+        en: "The tone that drifts — the per-surface dial. An accent tone belongs only on a surface that already carries the accent.",
+        zh: "铺开的色调——按表面设定的旋钮。意图色的色调只属于本身已经带有该意图色的表面。",
+      }),
+    },
+  ];
+
+  return (
+    <Showcase label={t({ en: "Wash", zh: "淡彩" })}>
+      <ShowcaseHelper>
+        {t({
+          en: "A broad gradient that gives a surface some volume — one tone drifting across it, with no bright spot anywhere. A bright spot reads as a light source, and only Glass is lit.",
+          zh: "一种色调在整个表面上缓缓铺开，给它一点体量，任何地方都没有亮斑。亮斑读起来是光源，而只有玻璃是被照亮的。",
+        })}
+      </ShowcaseHelper>
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen token="wash.toBottom">
+          <div
+            css={[
+              wash.toBottom,
+              cardSurface.base,
+              corner.radius_2,
+              styles.washCard,
+            ]}
+          />
+        </Specimen>
+        <Specimen token="wash.toRight">
+          <div
+            css={[
+              wash.toRight,
+              cardSurface.base,
+              corner.radius_2,
+              styles.washCard,
+            ]}
+          />
+        </Specimen>
+        <Specimen caption="tone" token="color.surfaceAccentSubtle">
+          <div
+            css={[
+              wash.toBottom,
+              cardSurface.base,
+              corner.radius_2,
+              styles.washCard,
+              styles.accentTone,
+            ]}
+          />
+        </Specimen>
+      </SpecimenGrid>
+      <ApiGrid entries={api} />
+      <UsageSnippet
+        code={`import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
+
+<div css={[wash.toBottom, styles.card]}>…</div>
+
+const styles = stylex.create({
+  card: { [washTokens.tone]: color.surfaceAccentSubtle },
+});`}
+      />
+    </Showcase>
+  );
+}
+
 function A11ySection() {
   const api: ApiEntry[] = [
     {
@@ -758,6 +938,8 @@ export function PrimitivesShowcase() {
       <MotionSection />
       <ResetSection />
       <CornerSection />
+      <TextureSection />
+      <WashSection />
       <A11ySection />
     </>
   );
@@ -975,6 +1157,24 @@ const styles = stylex.create({
     blockSize: cornerTokens.height,
     backgroundColor: color.surfaceAccentSubtle,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+  },
+  // Texture + wash specimens — the primitive owns the background image and
+  // `cardSurface.base` the border, so these only add the height (and, for
+  // Wash, the sunken ground).
+  materialCard: {
+    blockSize: "88px",
+  },
+  widePitch: {
+    [textureTokens.pitch]: space._4,
+  },
+  washCard: {
+    blockSize: "88px",
+    backgroundColor: color.bgSurfaceSunken,
+  },
+  accentTone: {
+    [washTokens.tone]: color.surfaceAccentSubtle,
+    backgroundColor: color.surfaceAccentSubtle,
+    borderColor: color.accentBorder,
   },
   // Reset + a11y specimens
   customControl: {

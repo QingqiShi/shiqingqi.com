@@ -9,6 +9,8 @@ Multi-property composable styles in `src/primitives/`. Each primitive combines 2
 - [Layout Patterns](#layout-patterns)
 - [Resets](#resets)
 - [Motion](#motion)
+- [Accessibility](#accessibility)
+- [Material (Texture, Wash)](#material-texture-wash)
 
 ---
 
@@ -70,25 +72,32 @@ import { flex, align, justify, grow } from "#src/primitives/flex.stylex.ts";
 
 Pairs a `border.radius_*` step with its corner shape in one declaration — squircle on the fixed steps, circular caps on `radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Never write a bare `borderRadius` — use the matching member here instead. Where a radius genuinely can't go through the primitive (a vendor pseudo-element, a CSS-var-driven radius), pair `cornerShape` beside `borderRadius` in the same object literal (`"squircle"`, or `"round"` at the full-round radius); `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
 
-| Export                | Properties                                               |
-| --------------------- | -------------------------------------------------------- |
-| `corner.radius_1`     | borderRadius: `border.radius_1` + cornerShape: squircle  |
-| `corner.radius_2`     | borderRadius: `border.radius_2` + cornerShape: squircle  |
-| `corner.radius_3`     | borderRadius: `border.radius_3` + cornerShape: squircle  |
-| `corner.radius_4`     | borderRadius: `border.radius_4` + cornerShape: squircle  |
-| `corner.radius_5`     | borderRadius: `border.radius_5` + cornerShape: squircle  |
-| `corner.radius_round` | borderRadius: `border.radius_round` + cornerShape: round |
+| Export                  | Properties                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------------- |
+| `corner.radius_1`       | borderRadius: `border.radius_1` + cornerShape: squircle                                            |
+| `corner.radius_2`       | borderRadius: `border.radius_2` + cornerShape: squircle                                            |
+| `corner.radius_3`       | borderRadius: `border.radius_3` + cornerShape: squircle                                            |
+| `corner.radius_4`       | borderRadius: `border.radius_4` + cornerShape: squircle                                            |
+| `corner.radius_5`       | borderRadius: `border.radius_5` + cornerShape: squircle                                            |
+| `corner.radius_round`   | borderRadius: `border.radius_round` + cornerShape: round                                           |
+| `corner.squircle_round` | borderRadius: `border.radius_round`, closing at half `cornerTokens.height` + cornerShape: squircle |
+
+`cornerTokens.height` (default `controlSize._9`) is the dial for `squircle_round` — the control height it closes the radius at. `Button` and `SegmentedControl` each set it to their own height in a local `stylex.create`, the same way `textureTokens.pitch` is overridden.
 
 ### Example
 
 ```tsx
-import { corner } from "#src/primitives/corner.stylex.ts";
+import { corner, cornerTokens } from "#src/primitives/corner.stylex.ts";
 
 // Card corner
 <div css={corner.radius_3}>
 
 // Pill / avatar
 <span css={corner.radius_round}>
+
+// Squircle pill dialed to this control's height
+const styles = stylex.create({ track: { [cornerTokens.height]: controlSize._7 } });
+<div css={[corner.squircle_round, styles.track]}>
 ```
 
 `apps/web` composes the same primitive via `@tuja/ui/primitives/corner.stylex`; there is no global `corner-shape` rule.
@@ -209,3 +218,62 @@ const styles = stylex.create({
   },
 });
 ```
+
+---
+
+## Accessibility
+
+**Import**: `#src/primitives/a11y.stylex.ts`
+
+| Export                | Properties                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| `a11y.srOnly`         | Visually hidden, still announced — the canonical "visually hidden" clip recipe             |
+| `a11y.focusRing`      | Keyboard focus ring, outward, on `:focus-visible`                                          |
+| `a11y.focusRingInset` | Same ring pulled inside the box, for an ancestor (e.g. a rounded card) that clips overflow |
+
+### Example
+
+```tsx
+import { a11y } from "#src/primitives/a11y.stylex.ts";
+
+// Visible to screen readers only
+<span css={a11y.srOnly}>Loading</span>
+
+// Keyboard focus ring
+<button css={[buttonReset.base, a11y.focusRing]}>
+```
+
+---
+
+## Material (Texture, Wash)
+
+**Import**: `#src/primitives/texture.stylex.ts`, `#src/primitives/wash.stylex.ts`
+
+Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. Full vocabulary in `packages/ui/CONTEXT.md`.
+
+| Export                                           | Properties                                                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| `texture.dot`                                    | One drawn dot (≤1px), repeated at `textureTokens.pitch`, coloured `textureTokens.ink`       |
+| `texture.line`                                   | One drawn 1px line, repeated at `textureTokens.pitch`, at half `textureTokens.ink` strength |
+| `wash.toBottom` / `toTop` / `toRight` / `toLeft` | A linear gradient of `washTokens.tone` fading to transparent, in the named direction        |
+
+A Texture is one mark at one size — never nest a textured surface inside another, and never mix two marks or two sizes in one group. A Wash has no bright spot anywhere; a bright spot reads as a light source, and only Glass is lit.
+
+Each dials its default through a token, overridden in a local `stylex.create` the same way `cornerTokens.height` is:
+
+```tsx
+import { texture, textureTokens } from "#src/primitives/texture.stylex.ts";
+import { space } from "#src/tokens.stylex.ts";
+
+const styles = stylex.create({
+  wide: { [textureTokens.pitch]: space._4 },
+});
+
+<div css={[texture.dot, styles.wide]}>
+```
+
+`texture.line` carries a wider default pitch of its own (`space._3`), so it needs no override at the everyday sizes.
+
+`textureTokens.pitch` (default `space._1`) sets the gap between marks, `textureTokens.ink` (default `color.neutralBorder`) the mark's colour. `washTokens.tone` (default `color.surfaceNeutralSubtle`) sets the drifting tone.
+
+Glass is `glassSurface` from `@tuja/ui/components/glass-surface.stylex` — a translucent, lit surface composed onto an element with `position: relative` plus a `corner.*` preset; the rim inherits that radius and shape. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden in a local `stylex.create` the same way `cornerTokens.height` is.

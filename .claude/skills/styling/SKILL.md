@@ -102,24 +102,47 @@ import { flex, align, justify } from "#src/primitives/flex.stylex.ts";
 
 ### Corner (`#src/primitives/corner.stylex.ts`)
 
-Pairs each `border.radius_*` step with its corner shape in one declaration — squircle on `corner.radius_1` … `corner.radius_5`, circular caps on `corner.radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Rounded corners always go through this primitive; never write a bare `borderRadius`.
+Pairs each `border.radius_*` step with its corner shape in one declaration — squircle on `corner.radius_1` … `corner.radius_5`, circular caps on `corner.radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). `corner.squircle_round` keeps the squircle shape at that same full-round radius, closing at half the `cornerTokens.height` dial — the shape `Button` and `SegmentedControl` use, each overriding the dial to their own control height. Rounded corners always go through this primitive; never write a bare `borderRadius`.
 
 ```tsx
 import { corner } from "#src/primitives/corner.stylex.ts";
 
-<div css={corner.radius_3}>       {/* card corner */}
-<span css={corner.radius_round}>  {/* pill / avatar */}
+<div css={corner.radius_3}>           {/* card corner */}
+<span css={corner.radius_round}>      {/* pill / avatar */}
+<button css={corner.squircle_round}>  {/* squircle pill, dialed via cornerTokens.height */}
 ```
 
 If a radius genuinely can't go through the primitive — a vendor pseudo-element, a CSS-var-driven radius — pair `cornerShape` beside `borderRadius` in the same object literal instead (`"squircle"`, or `"round"` at the full-round radius). `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
 
 `apps/web` composes the same primitive via `@tuja/ui/primitives/corner.stylex`. There is no global `corner-shape` rule anywhere — every rounded corner carries its own shape through the primitive or a local `cornerShape` pairing.
 
+### Material (`#src/primitives/texture.stylex.ts`, `#src/primitives/wash.stylex.ts`)
+
+Faint surface treatments — Texture, Wash, and Glass; full vocabulary in `packages/ui/CONTEXT.md`. `texture.dot` and `texture.line` draw one mark at one size, repeated across a surface — never nest a textured surface inside another, and never mix two marks or two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
+
+Each dials its default through a token, overridden in a local `stylex.create` the way `cornerTokens.height` is:
+
+```tsx
+import { texture, textureTokens } from "#src/primitives/texture.stylex.ts";
+import { space } from "#src/tokens.stylex.ts";
+
+const styles = stylex.create({ wide: { [textureTokens.pitch]: space._4 } });
+
+<div css={[texture.dot, styles.wide]}>  {/* wider pitch for a wide surface */}
+```
+
+`texture.line` carries a wider default pitch of its own (`space._3`), so it needs no override at the everyday sizes.
+
+`textureTokens.pitch`/`.ink` default to `space._1`/`color.neutralBorder`; `washTokens.tone` defaults to `color.surfaceNeutralSubtle`.
+
+Glass is the third Material but ships as a component style object, not a primitive: `glassSurface` from `@tuja/ui/components/glass-surface.stylex`, composed onto an element with `position: relative` plus a `corner.*` preset. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden the same way.
+
 ### Other Primitives (see `references/primitives.md`)
 
 - **Layout** — position fills, scroll containers, truncation, image fit
 - **Reset** — `buttonReset.base` strips browser button chrome
 - **Motion** — transition/animation presets with reduced-motion handling
+- **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset` paint the keyboard focus ring
 
 ## Best Practices
 

@@ -53,6 +53,23 @@ const ROUTES = [
   {
     section: "foundations",
     category: "visual",
+    path: "/design-system/foundations/material",
+    keywords: [
+      "material",
+      "texture",
+      "wash",
+      "glass",
+      "surface",
+      "blur",
+      "质感",
+      "纹理",
+      "淡彩",
+      "玻璃",
+    ],
+  },
+  {
+    section: "foundations",
+    category: "visual",
     path: "/design-system/foundations/layout",
     keywords: ["breakpoint", "container", "responsive", "z-index", "ratio"],
   },

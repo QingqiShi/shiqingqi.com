@@ -64,6 +64,8 @@
     "./primitives/layout.stylex": "./src/primitives/layout.stylex.ts",
     "./primitives/motion.stylex": "./src/primitives/motion.stylex.ts",
     "./primitives/reset.stylex": "./src/primitives/reset.stylex.ts",
+    "./primitives/texture.stylex": "./src/primitives/texture.stylex.ts",
+    "./primitives/wash.stylex": "./src/primitives/wash.stylex.ts",
     "./components/anchor.stylex": "./src/components/actions/anchor.stylex.ts",
     "./components/avatar": "./src/components/data-display/avatar.tsx",
     "./components/badge": "./src/components/data-display/badge.tsx",

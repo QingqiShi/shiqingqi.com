@@ -6,15 +6,17 @@ import { CodeBlock } from "./code/code-block.tsx";
 import type { CodeToken } from "./code/types.ts";
 import { SpecimenReveal } from "./specimen-reveal.tsx";
 
-interface SpecimenProps {
-  /** What this instance shows — "primary", "with description". Localised. */
-  caption: string;
+/** What this instance shows, and the token it shows it with — at least one of the two. */
+type SpecimenIdentity =
+  { caption: string; token?: string } | { caption?: string; token: string };
+
+type SpecimenProps = SpecimenIdentity & {
   /** The Babel plugin puts this in. Never write it by hand. */
   source?: readonly CodeToken[];
   /** StyleX overrides merged last, on the specimen cell. */
   css?: StyleProp;
   children: ReactNode;
-}
+};
 
 /**
  * One instance of a component, its caption, and the source that makes it. It
@@ -23,10 +25,17 @@ interface SpecimenProps {
  * renders, so a server page keeps the colouring on the server. Without a
  * `source` the control does not appear.
  */
-export function Specimen({ caption, source, css, children }: SpecimenProps) {
+export function Specimen({
+  caption,
+  token,
+  source,
+  css,
+  children,
+}: SpecimenProps) {
   return (
     <SpecimenReveal
       caption={caption}
+      token={token}
       code={source ? <CodeBlock source={source} /> : null}
       css={css}
     >

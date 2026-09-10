@@ -40,7 +40,8 @@ function primitiveFiles() {
 
 /**
  * Every design-system source the playground compiles, in the order the app's
- * PostCSS include globs walk them.
+ * PostCSS include globs walk them. The Glass surface is a component style
+ * rather than a primitive, so it comes last.
  */
 export function designSystemSources() {
   return [
@@ -48,9 +49,23 @@ export function designSystemSources() {
     path.join(uiRoot, "src/tokens.stylex.ts"),
     ...hueFiles(),
     ...primitiveFiles(),
+    glassSurfaceFile,
   ];
 }
 
 export const tokensFile = path.join(uiRoot, "src/tokens.stylex.ts");
 export const breakpointsFile = path.join(uiRoot, "src/breakpoints.stylex.ts");
+export const glassSurfaceFile = path.join(
+  uiRoot,
+  "src/components/surfaces/glass-surface.stylex.ts",
+);
 export const primitiveSources = primitiveFiles;
+
+/**
+ * The files whose `stylex.create` members a layer can apply as a preset. The
+ * Glass surface is a component style rather than a primitive, but the Glass
+ * toggle applies `glassSurface.base` the same way a layer applies `corner.*`.
+ */
+export function presetSources() {
+  return [...primitiveFiles(), glassSurfaceFile];
+}

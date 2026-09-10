@@ -13,10 +13,13 @@ import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
+import { Identifier } from "./identifier.tsx";
 
 interface SpecimenRevealProps {
-  /** What the specimen shows. Already localised. */
-  caption: string;
+  /** What the specimen shows, in prose. Already localised. */
+  caption?: string;
+  /** The token or primitive name the specimen shows, rendered as an `Identifier`. */
+  token?: string;
   /** The drawn source. Pass `null` to leave the control out. */
   code: ReactNode;
   /** StyleX overrides for the cell, merged last. */
@@ -33,6 +36,7 @@ interface SpecimenRevealProps {
  */
 export function SpecimenReveal({
   caption,
+  token,
   code,
   css,
   children,
@@ -46,6 +50,12 @@ export function SpecimenReveal({
         <div css={styles.row}>
           <Text as="span" variant="caption" tone="subtle" css={styles.caption}>
             {caption}
+            {caption && token ? " " : null}
+            {token ? (
+              <span css={styles.token}>
+                <Identifier>{token}</Identifier>
+              </span>
+            ) : null}
           </Text>
           {code ? (
             <button
@@ -110,6 +120,9 @@ const styles = stylex.create({
   // rather than push the control out of the row.
   caption: {
     minInlineSize: 0,
+  },
+  token: {
+    fontFamily: font.familyMono,
   },
   // Always visible, never hover-only: a touch or keyboard visitor gets no
   // hover to reveal it with.

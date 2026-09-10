@@ -16,7 +16,6 @@ import {
   buildEdgeBlurLayers,
 } from "./model/build-blur-layers.ts";
 import {
-  effectsStylesheet,
   layerEffectsByLayer,
   type LayerEffects,
 } from "./model/layer-effects.ts";
@@ -478,7 +477,6 @@ export function Canvas({
 
   return (
     <div className="pg-canvas-scroll" ref={scrollRef}>
-      <style>{effectsStylesheet(effects, index)}</style>
       <div className="pg-cells" style={{ zoom }}>
         {cells.map((cell) => (
           <Cell

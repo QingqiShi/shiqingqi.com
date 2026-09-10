@@ -3,8 +3,10 @@ import path from "node:path";
 import * as stylex from "@stylexjs/stylex";
 import {
   breakpointsFile,
-  primitiveSources,
+  designSystemSources,
+  presetSources,
   tokensFile,
+  uiRoot,
 } from "./design-system-sources.mjs";
 
 const nodeRequire = createRequire(import.meta.url);
@@ -22,6 +24,33 @@ function isCompiledStyleGroup(value) {
 
 function publicMembers(group) {
   return Object.keys(group).filter((key) => !key.startsWith("__"));
+}
+
+function isVarGroup(value) {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof value.__varGroupHash__ === "string"
+  );
+}
+
+/**
+ * Every `defineVars` member in the design system, by the name a config or a
+ * toggle writes. The token pickers offer some of these; the rest are the
+ * dials — `textureTokens.pitch`, `cornerTokens.height`, `glassTokens.blur` —
+ * which resolve but are offered nowhere.
+ */
+function varMembers(loadCompiled) {
+  const members = {};
+  for (const file of designSystemSources()) {
+    for (const [exportName, group] of Object.entries(loadCompiled(file))) {
+      if (!isVarGroup(group)) continue;
+      for (const member of publicMembers(group)) {
+        members[`${exportName}.${member}`] = group[member];
+      }
+    }
+  }
+  return members;
 }
 
 /** Splits a CSS function's arguments on the commas that are not nested. */
@@ -187,7 +216,8 @@ function presetStates(properties, byRef) {
 
 function collectPresets(loadCompiled, loadAuthored, loadResolved, byRef) {
   const presets = {};
-  for (const file of primitiveSources()) {
+  const srcRoot = path.join(uiRoot, "src");
+  for (const file of presetSources()) {
     const compiled = loadCompiled(file);
     const authored = loadAuthored(file);
     const resolved = loadResolved(file);
@@ -201,7 +231,7 @@ function collectPresets(loadCompiled, loadAuthored, loadResolved, byRef) {
           group: exportName,
           member,
           className: stylex.props(compiledGroup[member]).className ?? "",
-          source: `primitives/${path.basename(file)}`,
+          source: path.relative(srcRoot, file),
           properties,
           states: presetStates(resolved[exportName]?.[member] ?? {}, byRef),
           hint: Object.keys(properties).join(", "),
@@ -213,10 +243,11 @@ function collectPresets(loadCompiled, loadAuthored, loadResolved, byRef) {
 }
 
 /**
- * The token groups the pickers offer, the presets a layer can apply, and the
- * `var()` reference behind every name. `shadow.*` is not a group, because the
- * product has no shadow control; it stays in `unlisted` so a stand-in
- * transcribed from a component that still sets one keeps resolving.
+ * The token groups the pickers offer, the presets a layer and an effect
+ * toggle apply, and the `var()` reference behind every name. `shadow.*` is
+ * not a group, because the product has no shadow control; it stays in
+ * `unlisted` so a stand-in transcribed from a component that still sets one
+ * keeps resolving, and so do the dials, which no picker offers either.
  * @returns {import("../core/types.ts").Catalogue}
  */
 export function buildCatalogue({ loadCompiled, loadAuthored, loadResolved }) {
@@ -310,12 +341,10 @@ export function buildCatalogue({ loadCompiled, loadAuthored, loadResolved }) {
     animate: { kind: "preset", tokens: presetTokens("animate", presets) },
   };
 
-  const unlisted = Object.fromEntries(
-    publicMembers(tokens.shadow).map((member) => [
-      `shadow.${member}`,
-      tokens.shadow[member],
-    ]),
-  );
-
-  return { version: 1, groups, presets, unlisted };
+  return {
+    version: 1,
+    groups,
+    presets,
+    unlisted: varMembers(loadCompiled),
+  };
 }

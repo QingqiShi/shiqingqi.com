@@ -1,4 +1,8 @@
-import type { ChangeStore, TokenIndex } from "@tuja/component-playground";
+import type {
+  ChangeStore,
+  EffectStyle,
+  TokenIndex,
+} from "@tuja/component-playground";
 
 export const TOGGLE_NAMES = [
   "texture",
@@ -20,13 +24,15 @@ export const TOGGLE_LABELS: Record<ToggleName, string> = {
 
 export const NONE = "none";
 
+/** Named after the `texture` member each one switches on. */
 export const TEXTURE_MARKS = ["dot", "line"] as const;
 
+/** Named after the `wash` member each one switches on. */
 export const WASH_DIRECTIONS = [
-  "to-bottom",
-  "to-top",
-  "to-right",
-  "to-left",
+  "toBottom",
+  "toTop",
+  "toRight",
+  "toLeft",
 ] as const;
 
 export const SCROLL_ORIENTATIONS = ["vertical", "horizontal"] as const;
@@ -36,6 +42,9 @@ export const BLUR_RADII = [4, 8, 16, 24, 32];
 
 /** The alpha steps a glass part's colour token can be scaled to. */
 export const GLASS_OPACITY_STEPS = [100, 80, 60, 40, 20];
+
+/** The `stylex.create` member the Glass toggle switches on. */
+const GLASS = "glassSurface.base";
 
 export interface Texture {
   mark: string;
@@ -74,7 +83,7 @@ export interface Glass {
 }
 
 export const TEXTURE_DEFAULT = "dot space._1 color.neutralBorder";
-export const WASH_DEFAULT = "color.surfaceAccentSubtle to-bottom";
+export const WASH_DEFAULT = "color.surfaceAccentSubtle toBottom";
 export const FLOATING_DEFAULT = "radius 16px";
 export const SCROLL_MASK_DEFAULT = "vertical radius 8px";
 export const GLASS_DEFAULT =
@@ -103,7 +112,14 @@ export function parseWash(value: string): Wash | undefined {
   if (value === NONE) return undefined;
   const [color, direction] = words(value);
   if (!color || !direction) return undefined;
-  return { color, direction };
+  // A snapshot saved before the members were renamed holds `to-bottom`, which
+  // names no member now.
+  return {
+    color,
+    direction: direction.replace(/-([a-z])/g, (_dash, letter: string) =>
+      letter.toUpperCase(),
+    ),
+  };
 }
 
 function radiusIn(value: string): number {
@@ -184,68 +200,26 @@ export function formatGlass(glass: Glass): string {
   ].join(" ");
 }
 
-function directionCss(direction: string): string {
-  return direction.replace(/-/g, " ");
+/** The custom property the design system dials through a `var()` reference. */
+function dialProperty(reference: string): string | undefined {
+  return /^var\((--[A-Za-z0-9_-]+)\)$/.exec(reference)?.[1];
 }
 
-/**
- * One drawn mark at one spacing, as a repeating gradient. DESIGN.md keeps the
- * mark to a 1px line or a dot of 1px or less, so the size is fixed and only
- * the spacing and the colour vary.
- */
-function textureImage(texture: Texture, index: TokenIndex): string | undefined {
-  const color = index.ref(texture.color) ?? texture.color;
-  if (texture.mark === "line") {
-    return `repeating-linear-gradient(to bottom, ${color} 0 1px, transparent 1px 100%)`;
-  }
-  return `radial-gradient(circle at 1px 1px, ${color} 1px, transparent 1px)`;
-}
-
-function washImage(wash: Wash, index: TokenIndex): string {
-  const color = index.ref(wash.color) ?? wash.color;
-  return `linear-gradient(${directionCss(wash.direction)}, ${color}, transparent)`;
-}
-
-interface BackgroundLayers {
-  image: string;
-  size: string;
-  repeat: string;
-}
-
-/**
- * The background layers a layer's texture and wash draw, topmost first. They
- * are background images, so whatever `backgroundColor` the layer sets still
- * paints beneath them.
- */
-export function backgroundLayers(
-  texture: Texture | undefined,
-  wash: Wash | undefined,
+/** One dial, turned to the value the user picked, as an inline declaration. */
+function dial(
+  name: string,
+  value: string,
   index: TokenIndex,
-): BackgroundLayers | undefined {
-  const images: string[] = [];
-  const sizes: string[] = [];
-  const repeats: string[] = [];
+): [string, string][] {
+  const reference = index.ref(name);
+  const property =
+    reference === undefined ? undefined : dialProperty(reference);
+  return property === undefined ? [] : [[property, value]];
+}
 
-  if (texture) {
-    const image = textureImage(texture, index);
-    if (image) {
-      const spacing = index.ref(texture.spacing) ?? texture.spacing;
-      images.push(image);
-      sizes.push(`${spacing} ${spacing}`);
-      repeats.push("repeat");
-    }
-  }
-  if (wash) {
-    images.push(washImage(wash, index));
-    sizes.push("100% 100%");
-    repeats.push("no-repeat");
-  }
-  if (images.length === 0) return undefined;
-  return {
-    image: images.join(", "),
-    size: sizes.join(", "),
-    repeat: repeats.join(", "),
-  };
+/** A token reference resolved for a dial, or the text as written. */
+function resolved(value: string, index: TokenIndex): string {
+  return index.ref(value) ?? value;
 }
 
 export interface LayerEffects {
@@ -278,67 +252,122 @@ export function layerEffectsByLayer(
 
 /**
  * A glass part's colour: the token's own value at 100%, else that value
- * scaled to the part's opacity, matching `glassSurface.base`.
+ * scaled to the part's opacity. The step scales the token's own alpha rather
+ * than adding a second one.
  */
 function glassColor(token: string, opacity: number, index: TokenIndex): string {
-  const value = index.ref(token) ?? token;
+  const value = resolved(token, index);
   if (opacity === 100) return value;
   return `color-mix(in srgb, ${value} ${String(opacity)}%, transparent)`;
 }
 
+/** The compiled class of a design-system member a toggle switches on. */
+function memberClass(name: string, index: TokenIndex): string | undefined {
+  return index.catalogue.presets[name]?.className || undefined;
+}
+
 /**
- * The stylesheet the canvas needs for the toggles that are pure CSS. The
- * floating and scroll-mask blurs are drawn as overlays instead, because a
- * progressive blur takes five stacked elements. Glass emits two rules: the
- * layer itself, which sets `position: relative` so it is the rim's
- * containing block, and a `::before` for the rim.
+ * The box the Texture draws on: the layer's own area, behind its content and
+ * over its background, so a Wash on the layer stays visible under the mark.
  */
-export function effectsStylesheet(
-  effects: Record<string, LayerEffects>,
+const TEXTURE_BOX: Record<string, string> = {
+  position: "absolute",
+  inset: "0",
+  zIndex: "-1",
+  borderRadius: "inherit",
+  cornerShape: "inherit",
+  pointerEvents: "none",
+};
+
+/** Makes the layer the Texture box's containing block and stacking context. */
+const HOLDS_TEXTURE: Record<string, string> = {
+  position: "relative",
+  isolation: "isolate",
+};
+
+/**
+ * What one layer's toggles put on it: the design system's own members as
+ * their compiled classes, and the dials turned to the values the user picked.
+ * The declarations stay the ones `@tuja/ui` compiled, so a change to a
+ * treatment there reaches the playground on its own.
+ */
+export function effectStyle(
+  effects: LayerEffects,
   index: TokenIndex,
-): string {
-  const rules: string[] = [];
-  for (const [layer, layerEffect] of Object.entries(effects)) {
-    const selector = `.pg-cell-body [data-layer=${JSON.stringify(layer)}]`;
-    const background = backgroundLayers(
-      layerEffect.texture,
-      layerEffect.wash,
-      index,
-    );
-    if (background) {
-      rules.push(
-        `${selector} { background-image: ${background.image}; background-size: ${background.size}; background-repeat: ${background.repeat}; }`,
-      );
-    }
-    // The blur belongs to the page behind the element, so the element has to
-    // paint above the blur plane that sits over the rest of the cell.
-    if (layerEffect.floating) {
-      rules.push(`${selector} { position: relative; z-index: 1; }`);
-    }
-    if (layerEffect.glass) {
-      const glass = layerEffect.glass;
-      const fill = glassColor(glass.fill, glass.fillOpacity, index);
-      const border = glassColor(glass.border, glass.borderOpacity, index);
-      const highlight = glassColor(
-        glass.highlight,
-        glass.highlightOpacity,
-        index,
-      );
-      const lift = index.ref("shadow._2") ?? "shadow._2";
-      const backdropFilter =
-        glass.radius === "off"
-          ? ""
-          : `backdrop-filter: blur(${String(glass.radius)}px); `;
-      rules.push(
-        `${selector} { position: relative; background-color: ${fill}; ${backdropFilter}box-shadow: ${lift}, inset 0 -1px 1px color-mix(in srgb, ${highlight} 64%, transparent); }`,
-      );
-      // The rim, masked to a hairline: the border colour all the way round,
-      // lit on top and along the bottom, the light gone down the sides. Lit
-      // from straight above.
-      rules.push(
-        `${selector}::before { content: ""; position: absolute; inset: 0; border-radius: inherit; corner-shape: inherit; padding: 0.5px; pointer-events: none; background-image: linear-gradient(180deg, ${highlight} 0%, transparent 35%, transparent 65%, color-mix(in srgb, ${highlight} 60%, transparent) 100%), linear-gradient(${border}, ${border}); -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0); -webkit-mask-clip: content-box, border-box; -webkit-mask-composite: xor; mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0); mask-clip: content-box, border-box; mask-composite: exclude; }`,
-      );
-    }
+): EffectStyle | undefined {
+  const classNames: string[] = [];
+  const style: Record<string, string> = {};
+  let texture: EffectStyle["texture"];
+
+  const mark = effects.texture;
+  const markClass = mark && memberClass(`texture.${mark.mark}`, index);
+  if (mark && markClass) {
+    texture = {
+      className: markClass,
+      style: {
+        ...TEXTURE_BOX,
+        ...Object.fromEntries([
+          ...dial("textureTokens.pitch", resolved(mark.spacing, index), index),
+          ...dial("textureTokens.ink", resolved(mark.color, index), index),
+        ]),
+      },
+    };
+    Object.assign(style, HOLDS_TEXTURE);
   }
-  return rules.join("\n");
+
+  const { wash } = effects;
+  const washClass = wash && memberClass(`wash.${wash.direction}`, index);
+  if (wash && washClass) {
+    classNames.push(washClass);
+    Object.assign(
+      style,
+      Object.fromEntries(
+        dial("washTokens.tone", resolved(wash.color, index), index),
+      ),
+    );
+  }
+
+  // The blur belongs to the page behind the element, so the element has to
+  // paint above the blur plane that sits over the rest of the cell.
+  if (effects.floating)
+    Object.assign(style, { position: "relative", zIndex: "1" });
+
+  const { glass } = effects;
+  const glassClass = glass && memberClass(GLASS, index);
+  if (glass && glassClass) {
+    classNames.push(glassClass);
+    // The rim is an absolute pseudo-element, so the layer is its containing
+    // block.
+    style.position = "relative";
+    Object.assign(
+      style,
+      Object.fromEntries([
+        ...dial(
+          "glassTokens.fill",
+          glassColor(glass.fill, glass.fillOpacity, index),
+          index,
+        ),
+        ...dial(
+          "glassTokens.border",
+          glassColor(glass.border, glass.borderOpacity, index),
+          index,
+        ),
+        ...dial(
+          "glassTokens.highlight",
+          glassColor(glass.highlight, glass.highlightOpacity, index),
+          index,
+        ),
+        ...dial(
+          "glassTokens.blur",
+          glass.radius === "off" ? "0px" : `${String(glass.radius)}px`,
+          index,
+        ),
+      ]),
+    );
+  }
+
+  if (classNames.length === 0 && !texture && Object.keys(style).length === 0) {
+    return undefined;
+  }
+  return { classNames, style, texture };
 }

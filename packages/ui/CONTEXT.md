@@ -44,12 +44,20 @@ _Avoid_: rounded rectangle, continuous corner
 
 ### Wash and blur
 
+**Material**:
+The treatments that give a surface a look beyond its colour and border — Texture, Wash, and Glass — and the foundation page that presents them.
+_Avoid_: effect, effects (the playground's word; it never travels back into the design system), finish
+
+**Texture**:
+One drawn mark at one size, faint, repeated across a surface — a 1px line or a dot of 1px or less. Its pitch and ink are set per surface, and a texture is never nested inside another. Ships as `texture` with `textureTokens` as the dial.
+_Avoid_: pattern, grain, background image, noise
+
 **Wash**:
-A broad gradient that gives a surface some volume — one tone drifting across it. It has no hotspot, because a hotspot is a light source.
+A broad gradient that gives a surface some volume — one tone drifting across it. It has no hotspot, because a hotspot is a light source. Ships as `wash`, with `washTokens.tone` as the dial.
 _Avoid_: glow, tint, gradient (as the name of this — the CSS function keeps its name)
 
 **Glass**:
-A translucent surface that blurs what lies beneath it and floats above what it sits on, like a lens — lit from straight above: a see-through fill, a flat face, a hairline rim in the border colour all the way round, lit on top and along the bottom with the light gone down the sides (a dark edge against a light page, a clear one against a dark page), a one-pixel band inside the bottom edge where that light bounces back, and the Button's shadow beneath it. The blur is the element's own background, which is what keeps it apart from a Progressive blur: that one belongs to the page. It ships as `glassSurface`; the rim is an absolute pseudo-element, so a consumer positions the element and pairs it with a `corner.*` preset or its own radius, which the rim inherits.
+A translucent surface that blurs what lies beneath it and floats above what it sits on, like a lens — lit from straight above: a see-through fill, a flat face, a hairline rim in the border colour all the way round, lit on top and along the bottom with the light gone down the sides (a dark edge against a light page, a clear one against a dark page), a one-pixel band inside the bottom edge where that light bounces back, and the Button's shadow beneath it. The blur is the element's own background, which is what keeps it apart from a Progressive blur: that one belongs to the page. It ships as `glassSurface`, and `glassTokens` is its dial; the rim is an absolute pseudo-element, so a consumer positions the element and pairs it with a `corner.*` preset or its own radius, which the rim inherits.
 _Avoid_: frosted, translucent surface, backdrop blur (as the name of this)
 
 **Progressive blur**:
@@ -108,7 +116,7 @@ The spacing scale that is responsive by definition — larger on touch, tighter 
 ### Composition
 
 **Primitive**:
-A composable multi-property StyleX style object — `flex`, `layout`, `motion`, `reset`, `a11y`, `corner` — spread through the `css` prop. Not a component, and not a generated hue file.
+A composable multi-property StyleX style object — `flex`, `layout`, `motion`, `reset`, `a11y`, `corner`, `texture`, `wash` — spread through the `css` prop. Not a component, and not a generated hue file.
 _Avoid_: recipe, pattern (for this sense)
 
 **Modifier**:
@@ -165,6 +173,8 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | Badge            | 徽章     | 标签 (that is a label)                                |
 | Primitive        | 原语     | 配方                                                  |
 | pill shape       | 胶囊形   | 药丸, 标签                                            |
+| Material         | 质感     | 效果 (that is an effect), 材质                        |
+| Texture          | 纹理     | 质感 (that is Material), 肌理                         |
 | Wash             | 淡彩     | 渐变 (that is a gradient), 光晕                       |
 | Glass            | 玻璃     | 毛玻璃 (that is frosted glass, the blur alone)        |
 | Progressive blur | 渐进虚化 | 光晕, 光环 — both name light, and nothing here is lit |
