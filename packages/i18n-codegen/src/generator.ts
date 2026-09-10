@@ -6,7 +6,7 @@ import { parseArgs } from "node:util";
 import type { TranslationEntry } from "./extract-from-source.ts";
 import { extractFromSource } from "./extract-from-source.ts";
 import { mergeResults } from "./merge-results.ts";
-import { traceClientFiles } from "./trace-client-files.ts";
+import { clearTraceCaches, traceClientFiles } from "./trace-client-files.ts";
 
 const { values } = parseArgs({
   options: { root: { type: "string" } },
@@ -334,6 +334,7 @@ if (process.argv.includes("--watch")) {
     debounceTimer = setTimeout(() => {
       console.log(`\nChange detected: ${filename}`);
       try {
+        clearTraceCaches();
         main();
       } catch (error) {
         console.error(`\nCodegen error: ${String(error)}`);
