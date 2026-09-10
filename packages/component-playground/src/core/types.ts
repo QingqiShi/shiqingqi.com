@@ -76,11 +76,25 @@ export interface PresetEntry {
   hint: string;
 }
 
+/** What an effect toggle puts on a layer. */
+export interface EffectStyle {
+  /** The compiled classes of the design-system members the toggles switch on. */
+  classNames: string[];
+  /** The dials the toggles turn, plus what an effect needs to sit right. */
+  style: Record<string, string>;
+  /**
+   * The Texture draws on a box of its own inside the layer. A Texture and a
+   * Wash are both one `background-image`, so on one element the later class
+   * would replace the earlier and only one of the two would be drawn.
+   */
+  texture?: { className: string; style: Record<string, string> };
+}
+
 export interface Catalogue {
   version: number;
   /** Every map here is looked up by a name a config writes, so a miss is normal. */
   groups: Record<string, TokenGroup | undefined>;
   presets: Record<string, PresetEntry | undefined>;
-  /** Tokens that resolve but are offered by no picker — `shadow.*`. */
+  /** Tokens that resolve but are offered by no picker — `shadow.*`, the dials. */
   unlisted: Record<string, string | undefined>;
 }

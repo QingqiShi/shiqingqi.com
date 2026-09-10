@@ -35,6 +35,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
     }),
     "/design-system/foundations/spacing": t({ en: "Spacing", zh: "间距" }),
     "/design-system/foundations/borders": t({ en: "Borders", zh: "描边" }),
+    "/design-system/foundations/material": t({
+      en: "Material",
+      zh: "质感",
+    }),
     "/design-system/foundations/layout": t({ en: "Layout", zh: "布局" }),
     "/design-system/foundations/iconography": t({
       en: "Iconography",

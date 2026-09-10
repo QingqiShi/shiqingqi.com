@@ -41,6 +41,7 @@ export type {
   CellConfig,
   Condition,
   ConditionKey,
+  EffectStyle,
   LayerConfig,
   PlaygroundConfig,
   PresetEntry,
@@ -53,6 +54,7 @@ export { assertValidConfig, validateConfig } from "./validate-config.ts";
 export {
   renderCell,
   styleReader,
+  type EffectStyleReader,
   type LayerNode,
   type RenderedCell,
 } from "./render-cell.ts";

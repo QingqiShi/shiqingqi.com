@@ -1,31 +1,72 @@
-import type { TokenIndex } from "@tuja/component-playground";
+import {
+  createChangeStore,
+  type Catalogue,
+  type TokenIndex,
+} from "@tuja/component-playground";
 import { describe, expect, it } from "vitest";
 import {
   GLASS_DEFAULT,
-  effectsStylesheet,
+  effectStyle,
   formatGlass,
+  layerEffects,
   parseGlass,
-  type LayerEffects,
+  parseTexture,
+  parseWash,
 } from "./layer-effects.ts";
 
+/** The compiled classes the adapter reads out of `@tuja/ui`. */
+const PRESETS: Catalogue["presets"] = Object.fromEntries(
+  [
+    "texture.dot",
+    "texture.line",
+    "wash.toBottom",
+    "wash.toTop",
+    "glassSurface.base",
+  ].map((name) => [
+    name,
+    {
+      name,
+      group: name.split(".")[0],
+      member: name.split(".")[1],
+      className: `c-${name.replace(".", "-")}`,
+      source: "primitives/test.stylex.ts",
+      properties: {},
+      states: {},
+      hint: "",
+    },
+  ]),
+);
+
+const REFS: Record<string, string> = {
+  "color.glassFill": "var(--glass-fill)",
+  "color.glassBorder": "var(--glass-border)",
+  "color.glassHighlight": "var(--glass-highlight)",
+  "color.neutralBorder": "var(--neutral-border)",
+  "color.surfaceAccentSubtle": "var(--surface-accent-subtle)",
+  "space._1": "var(--space-1)",
+  "space._3": "var(--space-3)",
+  "textureTokens.pitch": "var(--pitch)",
+  "textureTokens.ink": "var(--ink)",
+  "washTokens.tone": "var(--tone)",
+  "glassTokens.fill": "var(--fill)",
+  "glassTokens.border": "var(--border)",
+  "glassTokens.highlight": "var(--highlight)",
+  "glassTokens.blur": "var(--blur)",
+};
+
 /** A token index that resolves only the names it is given. */
-function fakeIndex(refs: Record<string, string>): TokenIndex {
+function fakeIndex(): TokenIndex {
   return {
-    catalogue: { version: 1, groups: {}, presets: {}, unlisted: {} },
-    names: Object.keys(refs),
-    presetNames: [],
+    catalogue: { version: 1, groups: {}, presets: PRESETS, unlisted: {} },
+    names: Object.keys(REFS),
+    presetNames: Object.keys(PRESETS),
     token: () => undefined,
-    ref: (name) => refs[name],
+    ref: (name) => REFS[name],
     isPresetToken: () => false,
   };
 }
 
-const GLASS_REFS = {
-  "color.glassFill": "var(--glass-fill)",
-  "color.glassBorder": "var(--glass-border)",
-  "color.glassHighlight": "var(--glass-highlight)",
-  "shadow._2": "var(--shadow-2)",
-};
+const index = fakeIndex();
 
 describe("parseGlass / formatGlass", () => {
   it("is undefined for the off value", () => {
@@ -75,56 +116,134 @@ describe("parseGlass / formatGlass", () => {
   });
 });
 
-// Both cases keep the border and the highlight at 100%, so the rim rule is
-// the same in each.
-const GLASS_RIM_RULE =
-  '.pg-cell-body [data-layer="track"]::before { content: ""; position: absolute; inset: 0; border-radius: inherit; corner-shape: inherit; padding: 0.5px; pointer-events: none; background-image: linear-gradient(180deg, var(--glass-highlight) 0%, transparent 35%, transparent 65%, color-mix(in srgb, var(--glass-highlight) 60%, transparent) 100%), linear-gradient(var(--glass-border), var(--glass-border)); -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0); -webkit-mask-clip: content-box, border-box; -webkit-mask-composite: xor; mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0); mask-clip: content-box, border-box; mask-composite: exclude; }';
+describe("parseWash", () => {
+  it("reads a member name", () => {
+    expect(parseWash("color.surfaceAccentSubtle toBottom")).toEqual({
+      color: "color.surfaceAccentSubtle",
+      direction: "toBottom",
+    });
+  });
 
-describe("effectsStylesheet for glass", () => {
-  it("emits the token's own value at 100% opacity", () => {
-    const effects: Record<string, LayerEffects> = {
-      track: { glass: parseGlass(GLASS_DEFAULT) },
-    };
-    const css = effectsStylesheet(effects, fakeIndex(GLASS_REFS));
-    expect(css).toBe(
-      [
-        '.pg-cell-body [data-layer="track"] { position: relative; background-color: var(--glass-fill); backdrop-filter: blur(8px); box-shadow: var(--shadow-2), inset 0 -1px 1px color-mix(in srgb, var(--glass-highlight) 64%, transparent); }',
-        GLASS_RIM_RULE,
-      ].join("\n"),
+  it("takes the spelling an older snapshot saved", () => {
+    expect(parseWash("color.surfaceAccentSubtle to-bottom")).toEqual({
+      color: "color.surfaceAccentSubtle",
+      direction: "toBottom",
+    });
+  });
+
+  it("renders a hydrated snapshot that holds the older spelling", () => {
+    const store = createChangeStore({
+      component: "Test",
+      source: "test.tsx",
+      layers: { track: { base: {} } },
+      cells: [],
+    });
+    store.hydrate({
+      toggles: { track: { wash: "color.surfaceAccentSubtle to-bottom" } },
+    });
+    const style = effectStyle(layerEffects(store, "track"), index);
+    expect(style?.classNames).toEqual(["c-wash-toBottom"]);
+    expect(style?.style["--tone"]).toBe("var(--surface-accent-subtle)");
+  });
+});
+
+describe("effectStyle for texture and wash", () => {
+  it("draws the mark on a box of its own with the picked dials", () => {
+    const style = effectStyle(
+      { texture: parseTexture("dot space._3 color.neutralBorder") },
+      index,
     );
+    expect(style?.texture).toEqual({
+      className: "c-texture-dot",
+      style: {
+        position: "absolute",
+        inset: "0",
+        zIndex: "-1",
+        borderRadius: "inherit",
+        cornerShape: "inherit",
+        pointerEvents: "none",
+        "--pitch": "var(--space-3)",
+        "--ink": "var(--neutral-border)",
+      },
+    });
+    expect(style?.classNames).toEqual([]);
+  });
+
+  it("overrides the wider pitch the line mark carries", () => {
+    const style = effectStyle(
+      { texture: parseTexture("line space._1 color.neutralBorder") },
+      index,
+    );
+    expect(style?.texture?.className).toBe("c-texture-line");
+    expect(style?.texture?.style["--pitch"]).toBe("var(--space-1)");
+  });
+
+  it("stacks the texture over the wash: one on the layer, one on its box", () => {
+    const style = effectStyle(
+      {
+        texture: parseTexture("dot space._1 color.neutralBorder"),
+        wash: parseWash("color.surfaceAccentSubtle toBottom"),
+      },
+      index,
+    );
+    expect(style?.classNames).toEqual(["c-wash-toBottom"]);
+    expect(style?.style).toMatchObject({
+      position: "relative",
+      isolation: "isolate",
+      "--tone": "var(--surface-accent-subtle)",
+    });
+    expect(style?.texture?.className).toBe("c-texture-dot");
+  });
+});
+
+describe("effectStyle for glass", () => {
+  it("puts the member's class on the layer and turns every dial", () => {
+    const style = effectStyle({ glass: parseGlass(GLASS_DEFAULT) }, index);
+    expect(style?.classNames).toEqual(["c-glassSurface-base"]);
+    expect(style?.style).toEqual({
+      position: "relative",
+      "--fill": "var(--glass-fill)",
+      "--border": "var(--glass-border)",
+      "--highlight": "var(--glass-highlight)",
+      "--blur": "8px",
+    });
   });
 
   it("scales a part's colour with color-mix at a reduced opacity", () => {
-    const effects: Record<string, LayerEffects> = {
-      track: {
+    const style = effectStyle(
+      {
         glass: parseGlass(
           "color.glassFill 80% color.glassBorder 100% color.glassHighlight 100% radius 8px",
         ),
       },
-    };
-    const css = effectsStylesheet(effects, fakeIndex(GLASS_REFS));
-    expect(css).toBe(
-      [
-        '.pg-cell-body [data-layer="track"] { position: relative; background-color: color-mix(in srgb, var(--glass-fill) 80%, transparent); backdrop-filter: blur(8px); box-shadow: var(--shadow-2), inset 0 -1px 1px color-mix(in srgb, var(--glass-highlight) 64%, transparent); }',
-        GLASS_RIM_RULE,
-      ].join("\n"),
+      index,
+    );
+    expect(style?.style["--fill"]).toBe(
+      "color-mix(in srgb, var(--glass-fill) 80%, transparent)",
     );
   });
 
-  it("emits no backdrop-filter when the blur is off", () => {
-    const effects: Record<string, LayerEffects> = {
-      track: {
+  it("sets the blur to nothing when the radius is off", () => {
+    const style = effectStyle(
+      {
         glass: parseGlass(
           "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius off",
         ),
       },
-    };
-    const css = effectsStylesheet(effects, fakeIndex(GLASS_REFS));
-    expect(css).toBe(
-      [
-        '.pg-cell-body [data-layer="track"] { position: relative; background-color: var(--glass-fill); box-shadow: var(--shadow-2), inset 0 -1px 1px color-mix(in srgb, var(--glass-highlight) 64%, transparent); }',
-        GLASS_RIM_RULE,
-      ].join("\n"),
+      index,
     );
+    expect(style?.style["--blur"]).toBe("0px");
+  });
+
+  it("takes the picked radius over the design system's own blur", () => {
+    const style = effectStyle(
+      {
+        glass: parseGlass(
+          "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius 24px",
+        ),
+      },
+      index,
+    );
+    expect(style?.style["--blur"]).toBe("24px");
   });
 });

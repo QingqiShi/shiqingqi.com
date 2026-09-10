@@ -6,7 +6,7 @@ import { stylexPluginOptions } from "@tuja/babel-plugins/stylex-options";
 import {
   designSystemSources,
   monorepoRoot,
-  primitiveSources,
+  presetSources,
   uiRoot,
 } from "./design-system-sources.mjs";
 
@@ -132,12 +132,12 @@ function transformWithoutStylex(filename) {
  * Compiles every design-system source three times: once through the StyleX
  * plugin, which yields the CSS rules and the compiled var and class names,
  * once with StyleX shimmed out, which yields the values as they are authored,
- * and once with the primitives shimmed but the tokens compiled, which yields
- * each primitive declaration as the `var()` reference behind it.
+ * and once with the preset sources shimmed but the tokens compiled, which
+ * yields each preset declaration as the `var()` reference behind it.
  */
 export function compileDesignSystem() {
   const files = designSystemSources();
-  const primitives = new Set(primitiveSources());
+  const presetFiles = new Set(presetSources());
 
   const compiledModules = new Map();
   const authoredModules = new Map();
@@ -153,7 +153,7 @@ export function compileDesignSystem() {
   const resolvedModules = new Map(
     files.map((file) => [
       file,
-      primitives.has(file)
+      presetFiles.has(file)
         ? authoredModules.get(file)
         : compiledModules.get(file),
     ]),

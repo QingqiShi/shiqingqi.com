@@ -4,7 +4,7 @@ import type { StyleReader } from "./compose-layer-style.ts";
 import { composeLayerStyle } from "./compose-layer-style.ts";
 import type { ChangeStore } from "./create-change-store.ts";
 import type { TokenIndex } from "./create-token-index.ts";
-import type { CellConfig, PlaygroundConfig } from "./types.ts";
+import type { CellConfig, EffectStyle, PlaygroundConfig } from "./types.ts";
 
 /** What a config's element carries: `data-*` attributes and its children. */
 interface HostProps {
@@ -68,11 +68,15 @@ function toChildArray(children: ReactNode): ReactNode[] {
   return [children];
 }
 
+/** What the effect toggles switched on for one layer put on it. */
+export type EffectStyleReader = (layer: string) => EffectStyle | undefined;
+
 interface WalkContext {
   config: PlaygroundConfig;
   index: TokenIndex;
   store: ChangeStore;
   byId: Record<string, LayerNode | undefined>;
+  effectStyle?: EffectStyleReader;
   /** Reports a layer name the config does not declare. */
   onUnknownLayer?: (layer: string) => void;
 }
@@ -160,16 +164,32 @@ function renderNode(
   collect.push(treeNode);
   context.byId[path] = treeNode;
 
+  const effect = context.effectStyle?.(layer);
+  const rendered = renderChildren(children, path, treeNode.children, context);
+
   return createElement(
     type,
     {
       ...props,
       key: node.key ?? path,
       "data-playground-id": path,
-      className: composed?.classNames.join(" ") || undefined,
-      style: composed?.style,
+      className:
+        [...(composed?.classNames ?? []), ...(effect?.classNames ?? [])].join(
+          " ",
+        ) || undefined,
+      style: { ...effect?.style, ...composed?.style },
     },
-    renderChildren(children, path, treeNode.children, context),
+    effect?.texture
+      ? [
+          createElement("span", {
+            key: "texture",
+            "aria-hidden": true,
+            className: effect.texture.className,
+            style: effect.texture.style,
+          }),
+          rendered,
+        ]
+      : rendered,
   );
 }
 
@@ -183,14 +203,17 @@ export function renderCell(args: {
   config: PlaygroundConfig;
   index: TokenIndex;
   store: ChangeStore;
+  effectStyle?: EffectStyleReader;
   onUnknownLayer?: (layer: string) => void;
 }): RenderedCell {
-  const { cell, cellIndex, config, index, store, onUnknownLayer } = args;
+  const { cell, cellIndex, config, index, store, effectStyle, onUnknownLayer } =
+    args;
   const context: WalkContext = {
     config,
     index,
     store,
     byId: {},
+    effectStyle,
     onUnknownLayer,
   };
   const tree: LayerNode[] = [];

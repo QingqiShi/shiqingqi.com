@@ -15,6 +15,7 @@ import { ExportDialog } from "./export-dialog.tsx";
 import { Inspector } from "./inspector.tsx";
 import { LayerTree } from "./layer-tree.tsx";
 import { clearSnapshot } from "./model/clear-snapshot.ts";
+import { effectStyle, layerEffects } from "./model/layer-effects.ts";
 import { loadSnapshot } from "./model/load-snapshot.ts";
 import { saveSnapshot } from "./model/save-snapshot.ts";
 import { Sheet, type SheetTab } from "./sheet.tsx";
@@ -77,7 +78,15 @@ function App() {
   const cells = useMemo(
     () =>
       config.cells.map((cell, cellIndex) =>
-        renderCell({ cell, cellIndex, config, index, store }),
+        renderCell({
+          cell,
+          cellIndex,
+          config,
+          index,
+          store,
+          effectStyle: (layer) =>
+            effectStyle(layerEffects(store, layer), index),
+        }),
       ),
     [version],
   );

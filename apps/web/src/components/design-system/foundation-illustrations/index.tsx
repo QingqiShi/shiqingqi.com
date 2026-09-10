@@ -8,6 +8,7 @@ import { BordersIllustration } from "./borders-illustration.tsx";
 import { ColorIllustration } from "./color-illustration.tsx";
 import { IconographyIllustration } from "./iconography-illustration.tsx";
 import { LayoutIllustration } from "./layout-illustration.tsx";
+import { MaterialIllustration } from "./material-illustration.tsx";
 import { MotionIllustration } from "./motion-illustration.tsx";
 import { SpacingIllustration } from "./spacing-illustration.tsx";
 import { TypographyIllustration } from "./typography-illustration.tsx";
@@ -27,6 +28,7 @@ const FOUNDATION_ILLUSTRATIONS: Record<
   "/design-system/foundations/spacing": <SpacingIllustration />,
   "/design-system/foundations/motion": <MotionIllustration />,
   "/design-system/foundations/borders": <BordersIllustration />,
+  "/design-system/foundations/material": <MaterialIllustration />,
   "/design-system/foundations/layout": <LayoutIllustration />,
   "/design-system/foundations/iconography": <IconographyIllustration />,
   "/design-system/foundations/accessibility": <AccessibilityIllustration />,
