@@ -1,14 +1,8 @@
-"use client";
-
-import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
-import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import { RowsIcon } from "@phosphor-icons/react/dist/ssr/Rows";
 import * as stylex from "@stylexjs/stylex";
-import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Text } from "@tuja/ui/components/text";
-import { useState, type ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { measure } from "../../measure.stylex.ts";
@@ -16,6 +10,11 @@ import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
+import {
+  IconOnlyViewControl,
+  SortControl,
+  ViewControl,
+} from "./segmented-control-specimens.tsx";
 
 export function SegmentedControlShowcase() {
   return (
@@ -65,7 +64,7 @@ export function SegmentedControlShowcase() {
             ]}
           />
         </Specimen>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Each icon is decorative and sits beside its label. Keep the label visible wherever there is room: an icon alone leaves a reader guessing at what the view is.",
             zh: "每个图标都是装饰性的，位于标签旁边。只要有空间就保留可见标签：只有图标会让读者猜测该视图究竟是什么。",
@@ -77,7 +76,7 @@ export function SegmentedControlShowcase() {
         <Specimen caption="selectedIcon">
           <SortControl />
         </Specimen>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "selectedIcon rides on the selected segment alone — in this control the sort direction, which a second activation flips. Its spot grows in and shrinks away, so the segments beside it never jump. The selected segment's aria-label carries the direction too, because an arrow says nothing to a screen reader.",
             zh: "selectedIcon 只出现在选中的分段上——在这个控件里是排序方向，再次点击即可翻转。它的位置会展开、也会收起，因此旁边的分段不会跳动。选中分段的 aria-label 同样带上方向，因为箭头对屏幕阅读器什么也没说。",
@@ -89,7 +88,7 @@ export function SegmentedControlShowcase() {
         <Specimen caption="hideLabels">
           <IconOnlyViewControl />
         </Specimen>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "hideLabels collapses every segment to its icon for a tight bar — each label still names its segment in the accessibility tree, so every option needs an icon too. This is the movie database's own poster grid / table switch.",
             zh: "hideLabels 会将每个分段收起为图标，用于紧凑的控件条——每个 label 仍在无障碍树中为其分段命名，因此每个选项也都需要提供 icon。这正是影视数据库自身的海报网格／表格切换控件。",
@@ -108,7 +107,7 @@ export function SegmentedControlShowcase() {
             ]}
           />
         </Specimen>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Segments share the track evenly rather than in proportion to their labels, so the widths stay stable as the copy is translated.",
             zh: "各分段均分轨道宽度，而非按标签长短分配，因此文案翻译后宽度保持稳定。",
@@ -127,7 +126,7 @@ export function SegmentedControlShowcase() {
             ]}
           />
         </Specimen>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "A full WAI-ARIA radiogroup: Tab reaches the selected segment only, arrow keys move and select, Home and End jump to the ends, and focus follows selection so each choice announces as you land on it.",
             zh: "完整的 WAI-ARIA 单选组：Tab 只会进入已选中的分段，方向键移动并选择，Home 与 End 跳到两端，焦点跟随选择，因此每次落点都会被朗读。",
@@ -158,96 +157,7 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
         />
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
-            {
-              name: "options",
-              type: 'readonly { value: TValue; label: ReactNode; icon?: ReactNode; selectedIcon?: ReactNode; "aria-label"?: string }[]',
-              required: true,
-              description: t({
-                en: "Ordered segments. Arrow-key navigation follows this order; each icon is decorative. A selectedIcon shows only while its segment is selected, its spot growing in and shrinking away. An option's aria-label replaces its label as the accessible name when the visible text does not say enough.",
-                zh: "有序的分段列表。方向键导航按此顺序进行；图标均为装饰性内容。selectedIcon 只在该分段被选中时显示，其占位会展开与收起。当可见文字不足以说明时，选项的 aria-label 会取代 label 作为无障碍名称。",
-              }),
-            },
-            {
-              name: "value",
-              type: "TValue",
-              required: true,
-              description: t({
-                en: "The selected value. Controlled only — the selected view is page state, so the parent owns it.",
-                zh: "选中的值。仅支持受控——所选视图属于页面状态，由父组件持有。",
-              }),
-            },
-            {
-              name: "onChange",
-              type: "(next: TValue) => void",
-              required: true,
-              description: t({
-                en: "Called with the next value on click or keyboard select — including a click on the already-selected segment, so a consumer can treat a repeat as its own step (a sort field flipping direction).",
-                zh: "点击或键盘选择时以下一个值调用——包括点击已选中的分段时，因此调用方可以把重复点击当作独立的一步来处理（例如排序字段切换方向）。",
-              }),
-            },
-            {
-              name: "aria-label",
-              type: "string",
-              description: t({
-                en: "Names the radiogroup. Required unless aria-labelledby is given — the segment labels name the options, never the group.",
-                zh: "为单选组命名。除非提供 aria-labelledby，否则必填——分段标签只命名选项，不命名整个组。",
-              }),
-            },
-            {
-              name: "aria-labelledby",
-              type: "string",
-              description: t({
-                en: "Id of a visible element that names the group. Mutually exclusive with aria-label.",
-                zh: "为该组命名的可见元素 id。与 aria-label 互斥。",
-              }),
-            },
-            {
-              name: "size",
-              type: '"sm" | "md"',
-              defaultValue: '"md"',
-              description: t({
-                en: "Height and type scale.",
-                zh: "高度与字号阶梯。",
-              }),
-            },
-            {
-              name: "fullWidth",
-              type: "boolean",
-              description: t({
-                en: "Stretches the track to fill its container, sharing width equally between segments. A label too long for its share truncates rather than pushing the track wider.",
-                zh: "将轨道拉伸至填满容器，各分段均分宽度。超出所分宽度的标签会被截断，而不会把轨道撑宽。",
-              }),
-            },
-            {
-              name: "hideLabels",
-              type: "boolean",
-              description: t({
-                en: "Collapses every segment to its icon, for a tight bar. Each label stays in the accessibility tree as the segment's name, so every option needs an icon too.",
-                zh: "将每个分段收起为图标，用于紧凑的控件条。每个 label 仍留在无障碍树中作为该分段的名称，因此每个选项也都需要提供 icon。",
-              }),
-            },
-            {
-              name: "id",
-              type: "string",
-              description: t({
-                en: "Id applied to the track, e.g. so a panel can point aria-controls at it.",
-                zh: "应用到轨道上的 id，例如供面板以 aria-controls 指向它。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides merged over the track, composed last so a caller can win.",
-                zh: "合并到轨道上的 StyleX 覆盖样式，最后合成，使调用方可覆盖。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="segmented-control" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
@@ -287,104 +197,6 @@ import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`}
         />
       </Showcase>
     </>
-  );
-}
-
-/** The movie database's own sort switch: the selected field carries the arrow. */
-function SortControl() {
-  const [field, setField] = useState<"popularity" | "rating">("popularity");
-  const [direction, setDirection] = useState<"asc" | "desc">("desc");
-
-  const labels = {
-    popularity: t({ en: "Popularity", zh: "热度" }),
-    rating: t({ en: "Rating", zh: "评分" }),
-  };
-  const clauses = {
-    desc: t({
-      en: ", descending. Activate to sort ascending.",
-      zh: " 排序，降序。点击切换为升序。",
-    }),
-    asc: t({
-      en: ", ascending. Activate to sort descending.",
-      zh: " 排序，升序。点击切换为降序。",
-    }),
-  };
-  const arrow =
-    direction === "asc" ? (
-      <ArrowUpIcon weight="bold" />
-    ) : (
-      <ArrowDownIcon weight="bold" />
-    );
-
-  return (
-    <SegmentedControl
-      aria-label={t({ en: "Sort", zh: "排序" })}
-      value={field}
-      onChange={(next) => {
-        setField(next);
-        setDirection(next === field && direction === "desc" ? "asc" : "desc");
-      }}
-      options={(["popularity", "rating"] as const).map((value) =>
-        value === field
-          ? {
-              value,
-              label: labels[value],
-              selectedIcon: arrow,
-              "aria-label": `${labels[value]}${clauses[direction]}`,
-            }
-          : { value, label: labels[value], selectedIcon: arrow },
-      )}
-    />
-  );
-}
-
-/** The movie database's own poster grid / table switch, icons standing alone. */
-function IconOnlyViewControl() {
-  const [view, setView] = useState<"grid" | "table">("grid");
-  return (
-    <SegmentedControl
-      aria-label={t({ en: "View", zh: "视图" })}
-      hideLabels
-      value={view}
-      onChange={setView}
-      options={[
-        {
-          value: "grid",
-          label: t({ en: "Poster grid", zh: "海报网格" }),
-          icon: <GridFourIcon weight="bold" />,
-        },
-        {
-          value: "table",
-          label: t({ en: "Table", zh: "表格" }),
-          icon: <RowsIcon weight="bold" />,
-        },
-      ]}
-    />
-  );
-}
-
-/** Holds the selected view — `SegmentedControl` is controlled by contract. */
-function ViewControl({
-  options,
-  size,
-  fullWidth,
-}: {
-  /** Ordered segments, exactly as `SegmentedControl` takes them. */
-  options: readonly { value: string; label: ReactNode; icon?: ReactNode }[];
-  size?: "sm" | "md";
-  fullWidth?: boolean;
-}) {
-  const [view, setView] = useState(options[0].value);
-
-  return (
-    <SegmentedControl
-      aria-label={t({ en: "View", zh: "视图" })}
-      options={options}
-      value={view}
-      onChange={setView}
-      size={size}
-      fullWidth={fullWidth}
-    />
   );
 }
 

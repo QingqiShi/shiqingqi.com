@@ -29,7 +29,7 @@ export function TrailerButton({
     <>
       <Button
         icon={<PlayIcon weight="fill" role="presentation" />}
-        variant="primary"
+        look="primary"
         onClick={() => {
           setIsOpen(true);
         }}

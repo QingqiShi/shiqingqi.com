@@ -28,7 +28,7 @@ export function MultipleSelectGroup<TValue extends string>({
   options,
   value,
   onChange,
-  variant = "row",
+  look = "row",
   selection: _selection,
   css,
   ref,
@@ -45,7 +45,7 @@ export function MultipleSelectGroup<TValue extends string>({
       role="group"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
-      css={[groupStyles[variant], css]}
+      css={[groupStyles[look], css]}
     >
       {options.map((option) => (
         <OptionCard
@@ -53,7 +53,7 @@ export function MultipleSelectGroup<TValue extends string>({
           role="checkbox"
           selected={selectedValues.has(option.value)}
           disabled={option.disabled}
-          variant={variant}
+          look={look}
           icon={option.icon}
           label={option.label}
           description={option.description}

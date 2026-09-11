@@ -46,7 +46,7 @@ _Avoid_: rounded rectangle, continuous corner
 
 **Material**:
 The treatments that give a surface a look beyond its colour and border — Texture, Wash, and Glass — and the foundation page that presents them.
-_Avoid_: effect, effects (the playground's word; it never travels back into the design system), finish
+_Avoid_: effect, effects (the Tinker's word; it never travels back into the design system), finish
 
 **Texture**:
 One drawn mark at one size, faint, repeated across a surface — a 1px line or a dot of 1px or less. Its pitch and ink are set per surface, and a texture is never nested inside another. Ships as `texture` with `textureTokens` as the dial.
@@ -75,8 +75,13 @@ _Avoid_: fade, gradient mask
 
 ### Component API
 
-**Variant**:
+**Look**:
 A component's visual treatment when it is neither an Intent nor a size — `Text`'s type step, `Divider`'s weight, `Button`'s fill.
+_Avoid_: variant, style, appearance, treatment (as the prop name)
+
+**Variant**:
+One curated configuration of a component that its Lab offers ready-made — Button's Primary, Outline, Icon only, Busy. Choosing one sets several props at once, and the controls tune from there. Not a Look: a Look is one prop's value, a Variant is a whole configuration.
+_Avoid_: preset, example, story, look (for this sense)
 
 **Size**:
 The dimension axis. Always `sm` | `md` | `lg`.
@@ -130,6 +135,14 @@ A page-level layout frame. Every page gets exactly one of the two.
 
 ### The showcase site
 
+**Lab**:
+A component page's interactive view — a live, operable Specimen on the Canvas, with controls beside it: the Variants, one control per prop, and the snippet that shows the code for what is on the Canvas. The page's other view is its documentation. Not the Tinker: a Lab shows a component's API to a visitor, the Tinker retunes its styles for the author.
+_Avoid_: playground, sandbox, workbench, studio
+
+**Canvas**:
+The Lab's main region — the page body itself, carrying a Texture, with the Specimen centred on it. The same word with the same meaning in the Tinker.
+_Avoid_: stage, plate (for this sense — a Plate is a sunken panel, the Canvas is the page)
+
 **Specimen**:
 A real instance of a component, placed to illustrate it rather than to be used. In an overview tile it is `inert` and out of the tab order — most are scaled down, though the whole-page ones fill their plate instead. Inside a Showcase it may be fully operable, because there the point is to let a visitor work it.
 _Avoid_: preview, demo — except where a mock labels _itself_ for the visitor ("Demo menu", "Demo toggle"); those strings stay.
@@ -159,7 +172,7 @@ _Avoid_: label, key (for this sense)
 
 ## Chinese terms
 
-The showcase site ships bilingual copy, so each term needs one Chinese word too — the same rule applies, and `zh` drifts the same way `en` does. API names (`variant`, `tone`, `as`, `onDismiss`) stay untranslated inside zh copy.
+The showcase site ships bilingual copy, so each term needs one Chinese word too — the same rule applies, and `zh` drifts the same way `en` does. API names (`look`, `intent`, `tone`, `as`, `onDismiss`) stay untranslated inside zh copy.
 
 | Term             | zh       | Not                                                   |
 | ---------------- | -------- | ----------------------------------------------------- |
@@ -167,6 +180,10 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | Tone             | 色调     | 明度阶梯                                              |
 | Ramp             | 色调阶梯 |                                                       |
 | Intent           | 意图色   | 语义色, 语义变体, 语义化的状态色, 色调, 颜色处理      |
+| Look             | 外观     | 风格 (that is a style), 变体 (that is Variant)        |
+| Variant          | 变体     | 外观 (that is Look), 预设 (that is a preset)          |
+| Lab              | 实验室   | 游乐场 (that is a playground), 沙盒                   |
+| Canvas           | 画布     | 舞台 (that is a stage), 底板 (that is Plate)          |
 | Role             | 角色     | 语义 (as a grouping word)                             |
 | Icon             | 图标     | 字形 (that is a typographic glyph)                    |
 | Chip             | 标签按钮 | 筹码 (a gambling chip), 药丸 (a medicine pill)        |

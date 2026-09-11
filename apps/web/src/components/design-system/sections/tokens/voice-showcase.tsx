@@ -348,24 +348,24 @@ export function VoiceShowcase() {
         })}
       >
         <div css={[flex.col, corner.radius_2, styles.surface]}>
-          <Heading level={3} variant="h4">
+          <Heading level={3} look="h4">
             {t({ en: "Recently watched", zh: "最近观看" })}
           </Heading>
           <div css={[flex.wrap, styles.controlRow]}>
-            <Button variant="primary">
+            <Button look="primary">
               {t({ en: "Add to watchlist", zh: "加入待看清单" })}
             </Button>
-            <Button variant="outline">
+            <Button look="outline">
               {t({ en: "Clear history", zh: "清除观看记录" })}
             </Button>
             <Chip>{t({ en: "In progress", zh: "观看中" })}</Chip>
-            <Badge variant="success">{t({ en: "Synced", zh: "已同步" })}</Badge>
+            <Badge intent="success">{t({ en: "Synced", zh: "已同步" })}</Badge>
           </div>
         </div>
         <GuideNote>
           {t({
-            en: 'The exception is typographic rather than editorial. Text variant="overline" and transform="uppercase" set caps as a type treatment for section labels; the words underneath are still written in sentence case. On Chinese the treatment does nothing, so those labels are carried by size and colour instead.',
-            zh: '例外属于排版而非文案。Text 的 variant="overline" 与 transform="uppercase" 是把全大写当作区块标签的字体处理手法；其下的词句仍按一句话的开头来写。这套处理对中文不起作用，因此中文的区块标签改由字号与颜色来承担。',
+            en: 'The exception is typographic rather than editorial. Text look="overline" and transform="uppercase" set caps as a type treatment for section labels; the words underneath are still written in sentence case. On Chinese the treatment does nothing, so those labels are carried by size and colour instead.',
+            zh: '例外属于排版而非文案。Text 的 look="overline" 与 transform="uppercase" 是把全大写当作区块标签的字体处理手法；其下的词句仍按一句话的开头来写。这套处理对中文不起作用，因此中文的区块标签改由字号与颜色来承担。',
           })}
         </GuideNote>
       </GuideSection>
@@ -378,19 +378,19 @@ export function VoiceShowcase() {
         })}
       >
         <div css={[flex.wrap, styles.controlRow]}>
-          <Button variant="primary">
+          <Button look="primary">
             {t({ en: "Send invite", zh: "发送邀请" })}
           </Button>
-          <Button variant="outline">
+          <Button look="outline">
             {t({ en: "Save and close", zh: "保存并关闭" })}
           </Button>
-          <Button variant="danger">
+          <Button look="danger">
             {t({ en: "Delete draft", zh: "删除草稿" })}
           </Button>
         </div>
         <DoDont
           do={
-            <Button variant="primary">
+            <Button look="primary">
               {t({ en: "Add to watchlist", zh: "加入待看清单" })}
             </Button>
           }
@@ -399,7 +399,7 @@ export function VoiceShowcase() {
             zh: "单独读出来时依然说明了问题——屏幕阅读器正是这样读的。",
           })}
           dont={
-            <Button variant="primary">{t({ en: "Submit", zh: "提交" })}</Button>
+            <Button look="primary">{t({ en: "Submit", zh: "提交" })}</Button>
           }
           dontCaption={t({
             en: "Describes the click rather than its result. Three of these on a page are three identical buttons.",
@@ -471,7 +471,7 @@ export function VoiceShowcase() {
         })}
       >
         <Callout
-          variant="danger"
+          intent="danger"
           title={t({ en: "Upload failed", zh: "上传失败" })}
         >
           {t({

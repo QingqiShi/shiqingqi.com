@@ -5,13 +5,30 @@ import type { StyleProp } from "../../types.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 
 interface DividerProps {
-  /** Line direction. Defaults to `"horizontal"`. */
+  /**
+   * Line direction. Renders a semantic `<hr>` when horizontal, or a
+   * `role="separator"` `<div>` when vertical.
+   *
+   * @zh 线条方向。水平时渲染语义化的 `<hr>`，垂直时渲染 `role="separator"` 的 `<div>`。
+   */
   orientation?: "horizontal" | "vertical";
-  /** Weight / treatment of the rule. Defaults to `"subtle"`. */
-  variant?: "subtle" | "bold" | "decorative";
-  /** StyleX overrides, composed last so a caller can win over the defaults. */
+  /**
+   * Weight / treatment of the rule. Defaults to `"subtle"`.
+   *
+   * @zh 分隔线的粗细与样式处理。
+   */
+  look?: "subtle" | "bold" | "decorative";
+  /**
+   * StyleX overrides, composed last so a caller can win over the defaults.
+   *
+   * @zh 最后合成的 StyleX 覆盖样式，使调用方可覆盖默认值。
+   */
   css?: StyleProp;
-  /** Ref to the rendered element (`<hr>` when horizontal, `<div>` when vertical). */
+  /**
+   * Ref to the rendered element (`<hr>` when horizontal, `<div>` when vertical).
+   *
+   * @zh 指向渲染元素的 ref（水平为 `<hr>`，垂直为 `<div>`）。
+   */
   ref?: Ref<HTMLElement>;
 }
 
@@ -22,7 +39,7 @@ interface DividerProps {
  */
 export function Divider({
   orientation = "horizontal",
-  variant = "subtle",
+  look = "subtle",
   css,
   ref,
 }: DividerProps) {
@@ -32,9 +49,9 @@ export function Divider({
   // illegal.
   const setRef = mergeRefs(ref);
 
-  // The `decorative` variant is an ornamental flourish, not a content
+  // The `decorative` look is an ornamental flourish, not a content
   // boundary, so it opts out of the `separator` role.
-  const decorative = variant === "decorative";
+  const decorative = look === "decorative";
 
   if (orientation === "vertical") {
     return (
@@ -42,12 +59,7 @@ export function Divider({
         role={decorative ? "presentation" : "separator"}
         aria-orientation={decorative ? undefined : "vertical"}
         ref={setRef}
-        css={[
-          styles.base,
-          styles.vertical,
-          verticalVariantStyles[variant],
-          css,
-        ]}
+        css={[styles.base, styles.vertical, verticalLookStyles[look], css]}
       />
     );
   }
@@ -56,12 +68,7 @@ export function Divider({
     <hr
       ref={setRef}
       role={decorative ? "presentation" : undefined}
-      css={[
-        styles.base,
-        styles.horizontal,
-        horizontalVariantStyles[variant],
-        css,
-      ]}
+      css={[styles.base, styles.horizontal, horizontalLookStyles[look], css]}
     />
   );
 }
@@ -81,7 +88,7 @@ const styles = stylex.create({
   },
 });
 
-const horizontalVariantStyles = stylex.create({
+const horizontalLookStyles = stylex.create({
   subtle: {
     blockSize: border.size_1,
     backgroundColor: color.neutralBorder,
@@ -96,7 +103,7 @@ const horizontalVariantStyles = stylex.create({
   },
 });
 
-const verticalVariantStyles = stylex.create({
+const verticalLookStyles = stylex.create({
   subtle: {
     inlineSize: border.size_1,
     backgroundColor: color.neutralBorder,

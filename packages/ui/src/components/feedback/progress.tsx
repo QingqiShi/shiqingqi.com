@@ -21,21 +21,41 @@ interface ProgressProps extends Omit<
   | "className"
   | "style"
 > {
-  /** How much is done. Clamped to `0`–`max`. */
+  /**
+   * How much is done. Clamped to `0`–`max`; a non-finite number falls back
+   * to `0`.
+   *
+   * @zh 已完成的量。会被限制在 `0`–`max` 之间；非有限数值则回退为 `0`。
+   */
   value: number;
-  /** The value that means finished. Defaults to `100`. */
+  /**
+   * The value that means finished. A non-finite or non-positive `max` falls
+   * back to `100`.
+   *
+   * @zh 代表完成的数值。非有限或非正数的 `max` 会回退为 `100`。
+   */
   max?: number;
   /**
    * Accessible name (e.g. "Upload progress"). The package ships no i18n, so the
    * consumer supplies the localized string.
+   *
+   * @zh 无障碍名称（例如“Upload progress”）。本包不内置 i18n，请由调用方提供本地化字符串。
    */
   label: string;
   /**
    * Track thickness. The steps map to `rem` so the bar scales with the user's
    * font size (WCAG 1.4.4). Defaults to `"md"`.
+   *
+   * @zh 轨道厚度。各阶梯以 `rem` 表示，因此进度条随用户字号缩放（WCAG 1.4.4）。
    */
   size?: "sm" | "md" | "lg";
-  /** StyleX overrides, composed last so a caller can win over the defaults. */
+  /**
+   * StyleX overrides, composed last so a caller can win over the defaults.
+   * The indicator fill is a `::before` pseudo-element `css` can't reach —
+   * retint it via `progressTokens.indicatorColor` instead.
+   *
+   * @zh StyleX 覆盖样式，最后合成，使调用方可以覆盖默认值。指示条的填充是 `css` 无法触及的 `::before` 伪元素——请改用 `progressTokens.indicatorColor` 来改变其颜色。
+   */
   css?: StyleProp;
 }
 

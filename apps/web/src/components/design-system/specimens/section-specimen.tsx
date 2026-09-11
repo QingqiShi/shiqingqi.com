@@ -16,7 +16,7 @@ export function SectionSpecimen() {
         title={t({ en: "Cast & crew", zh: "演职人员" })}
         icon={<FilmSlateIcon weight="bold" />}
       >
-        <Text variant="bodySmall" tone="muted">
+        <Text look="bodySmall" tone="muted">
           {t({ en: "Twelve credited roles", zh: "十二个署名角色" })}
         </Text>
       </Section>

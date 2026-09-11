@@ -22,11 +22,11 @@ describe("Text element selection", () => {
   });
 });
 
-describe("Text variant and modifier classes", () => {
+describe("Text look and modifier classes", () => {
   it("applies the overline step", () => {
-    render(<Text variant="overline">Label</Text>);
+    render(<Text look="overline">Label</Text>);
     expect(screen.getByText("Label").className).toContain(
-      "variantStyles.overline",
+      "lookStyles.overline",
     );
   });
 
@@ -35,14 +35,14 @@ describe("Text variant and modifier classes", () => {
     expect(screen.getByText("Muted").className).toContain("toneStyles.muted");
   });
 
-  it("applies a case transform decoupled from the variant", () => {
+  it("applies a case transform decoupled from the look", () => {
     render(
-      <Text variant="caption" transform="uppercase">
+      <Text look="caption" transform="uppercase">
         Eyebrow
       </Text>,
     );
     const el = screen.getByText("Eyebrow");
-    expect(el.className).toContain("variantStyles.caption");
+    expect(el.className).toContain("lookStyles.caption");
     expect(el.className).toContain("transformStyles.uppercase");
   });
 
@@ -54,7 +54,7 @@ describe("Text variant and modifier classes", () => {
   });
 
   it("defaults overline to a semibold weight", () => {
-    render(<Text variant="overline">Label</Text>);
+    render(<Text look="overline">Label</Text>);
     expect(screen.getByText("Label").className).toContain(
       "weightStyles.semibold",
     );

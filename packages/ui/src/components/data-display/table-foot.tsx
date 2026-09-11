@@ -1,6 +1,20 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import { border, color } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
+
+interface TableFootProps extends Omit<
+  ComponentProps<"tfoot">,
+  "className" | "style"
+> {
+  /**
+   * StyleX styles merged over the foot group's own — the config-layer escape
+   * hatch.
+   *
+   * @zh 合并在表尾分组自身样式之上的 StyleX 样式——配置层的逃生舱口。
+   */
+  css?: StyleProp;
+}
 
 /** The `<tfoot>` group, for totals and summary rows. */
 export function TableFoot({
@@ -8,7 +22,7 @@ export function TableFoot({
   ref,
   children,
   ...restProps
-}: Omit<ComponentProps<"tfoot">, "className" | "style">) {
+}: TableFootProps) {
   return (
     <tfoot {...restProps} ref={ref} css={[styles.foot, css]}>
       {children}

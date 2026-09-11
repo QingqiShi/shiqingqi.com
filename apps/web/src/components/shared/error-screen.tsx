@@ -47,7 +47,7 @@ export function ErrorScreen({ error, onRetry }: ErrorScreenProps) {
     >
       <h1 css={styles.heading}>{strings.heading}</h1>
       <p css={styles.description}>{strings.description}</p>
-      <Button variant="primary" onClick={onRetry} css={styles.button}>
+      <Button look="primary" onClick={onRetry} css={styles.button}>
         {strings.retry}
       </Button>
     </div>

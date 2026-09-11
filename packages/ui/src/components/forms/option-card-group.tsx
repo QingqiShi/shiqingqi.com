@@ -4,7 +4,7 @@ import {
   MultipleSelectGroup,
   type MultipleSelectProps,
 } from "./multiple-select-group.tsx";
-import type { OptionCardVariant } from "./option-card.tsx";
+import type { OptionCardLook } from "./option-card.tsx";
 import {
   SingleSelectGroup,
   type SingleSelectProps,
@@ -34,11 +34,25 @@ export interface OptionCardGroupBaseProps<TValue extends string> extends Omit<
   | "className"
   | "style"
 > {
-  /** Ordered cards. Arrow-key navigation follows this order. */
+  /**
+   * Ordered cards. Arrow-key navigation follows this order, and a disabled
+   * card is skipped by it.
+   *
+   * @zh 有序的卡片列表。方向键导航按此顺序进行，被禁用的卡片会被跳过。
+   */
   options: readonly OptionCardGroupOption<TValue>[];
-  /** A stack of full-width rows, or a grid of centred tiles. */
-  variant?: OptionCardVariant;
-  /** StyleX overrides merged over the group — composed last so a caller wins. */
+  /**
+   * A stack of full-width rows, or a grid of centred tiles that wraps at
+   * 9rem per card.
+   *
+   * @zh 撑满宽度的行式堆叠，或每张卡片最小 9rem、自动换行的居中方块网格。
+   */
+  look?: OptionCardLook;
+  /**
+   * StyleX overrides merged over the group — composed last so a caller wins.
+   *
+   * @zh 合并到该组上的 StyleX 覆盖样式，最后合成，使调用方可覆盖。
+   */
   css?: StyleProp;
 }
 
@@ -49,8 +63,27 @@ export interface OptionCardGroupBaseProps<TValue extends string> extends Omit<
  * @internal
  */
 export type OptionCardGroupNaming =
-  | { "aria-label": string; "aria-labelledby"?: undefined }
-  | { "aria-labelledby": string; "aria-label"?: undefined };
+  | {
+      /**
+       * Names the group. Required unless `aria-labelledby` is given — one of
+       * the two is enforced at the type level, because the card labels name
+       * the options, never the group.
+       *
+       * @zh 为该组命名。除非提供 `aria-labelledby`，否则必填——类型层面强制二选一，因为卡片标签只命名选项，不命名整个组。
+       */
+      "aria-label": string;
+      "aria-labelledby"?: undefined;
+    }
+  | {
+      /**
+       * Id of a visible element that names the group — usually the question
+       * above it. Mutually exclusive with `aria-label`.
+       *
+       * @zh 为该组命名的可见元素 id——通常是其上方的问题，与 `aria-label` 互斥。
+       */
+      "aria-labelledby": string;
+      "aria-label"?: undefined;
+    };
 
 type OptionCardGroupProps<TValue extends string> =
   SingleSelectProps<TValue> | MultipleSelectProps<TValue>;

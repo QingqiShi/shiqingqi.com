@@ -12,7 +12,8 @@
   "dependencies": {
     "@babel/parser": "catalog:",
     "@babel/traverse": "catalog:",
-    "@babel/types": "catalog:"
+    "@babel/types": "catalog:",
+    "@tuja/codegen-fs": "workspace:*"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",

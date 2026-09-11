@@ -139,7 +139,7 @@ export function AccessibilityShowcase() {
             icon={<TrashIcon weight="bold" />}
             aria-label={t({ en: "Delete", zh: "删除" })}
           />
-          <Button variant="outline">{t({ en: "Delete", zh: "删除" })}</Button>
+          <Button look="outline">{t({ en: "Delete", zh: "删除" })}</Button>
           <button
             type="button"
             css={[
@@ -182,8 +182,8 @@ type Named =
         })}
       >
         <div css={[flex.wrap, styles.row]}>
-          <Button variant="primary">{t({ en: "First", zh: "第一个" })}</Button>
-          <Button variant="outline">{t({ en: "Second", zh: "第二个" })}</Button>
+          <Button look="primary">{t({ en: "First", zh: "第一个" })}</Button>
+          <Button look="outline">{t({ en: "Second", zh: "第二个" })}</Button>
           <span css={[corner.radius_round, styles.clipFrame]}>
             <button
               type="button"
@@ -313,15 +313,15 @@ type Named =
         })}
       >
         <div css={[flex.col, styles.stack]}>
-          <Callout variant="success">
+          <Callout intent="success">
             {t({
-              en: 'Callout is the live region itself — role="status" by default, and role="alert" for the danger and warning variants, which interrupt.',
-              zh: 'Callout 本身就是实时区域——默认为 role="status"，而 danger 与 warning 变体使用会打断播报的 role="alert"。',
+              en: 'Callout is the live region itself — role="status" by default, and role="alert" for the danger and warning intents, which interrupt.',
+              zh: 'Callout 本身就是实时区域——默认为 role="status"，而 danger 与 warning 意图色使用会打断播报的 role="alert"。',
             })}
           </Callout>
           <div css={[flex.wrap, styles.row]}>
             <Spinner label={t({ en: "Loading results", zh: "正在加载结果" })} />
-            <Text variant="bodySmall" tone="muted" css={styles.rowText}>
+            <Text look="bodySmall" tone="muted" css={styles.rowText}>
               {t({
                 en: 'Spinner is role="status" with a required label. Pass aria-hidden to opt out, inside something that already announces itself.',
                 zh: 'Spinner 为 role="status" 并必须提供 label。若置于已自行播报的元素内部，可传入 aria-hidden 退出。',
@@ -329,10 +329,10 @@ type Named =
             </Text>
           </div>
           <div css={[flex.wrap, styles.row]}>
-            <Button variant="primary" loading>
+            <Button look="primary" loading>
               {t({ en: "Save", zh: "保存" })}
             </Button>
-            <Text variant="bodySmall" tone="muted" css={styles.rowText}>
+            <Text look="bodySmall" tone="muted" css={styles.rowText}>
               {t({
                 en: "A busy Button announces aria-busy and blocks the click with aria-disabled. The native attribute would drop focus, so nobody hears that anything changed.",
                 zh: "繁忙状态的 Button 会播报 aria-busy，并用 aria-disabled 拦截点击。原生属性会让按钮失去焦点，于是没人会听到状态已改变。",

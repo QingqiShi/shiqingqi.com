@@ -9,17 +9,23 @@ interface HeaderFooterLayoutProps {
    * Start (leading) floating group at the top of the page — typically a back
    * or home affordance. Only the controls accept pointer events, so the group
    * never blocks the content scrolling beneath it.
+   *
+   * @zh 页面顶部起始（前置）的悬浮控件组——通常是返回或首页入口。只有控件本身接收指针事件，因此该组不会阻挡下方内容的滚动。
    */
   headerStart?: ReactNode;
   /**
    * End (trailing) floating group at the top of the page — typically utility
    * controls such as a theme toggle or language picker.
+   *
+   * @zh 页面顶部的结尾悬浮控件组——通常是主题切换、语言选择等实用控件。
    */
   headerEnd?: ReactNode;
   /**
    * Full-bleed decoration behind the content and beneath the header controls
    * — gradients, glows, texture. Pointer-transparent and clipped to the
    * shell; pass positioned elements, since the slot fills the whole shell.
+   *
+   * @zh 内容与页头控件下方的满幅装饰——渐变、光晕、纹理。不接收指针事件，并裁剪至骨架范围；由于该插槽铺满整个骨架，请传入自带定位的元素。
    */
   background?: ReactNode;
   /**
@@ -27,25 +33,39 @@ interface HeaderFooterLayoutProps {
    * measure as a reading column. Pass a `<footer>` (e.g. the site footer);
    * the shell doesn't add its own landmark, so the element you pass owns the
    * `contentinfo` role.
+   *
+   * @zh 页脚元素，渲染在页面底部，与阅读栏共享同一版心。传入一个 `<footer>`（例如站点页脚）；骨架不添加自己的地标，因此你传入的元素拥有 `contentinfo` 角色。
    */
   footer?: ReactNode;
+  /**
+   * Page content. Flows up past the header controls by default, so a hero or
+   * backdrop bleeds to the top edge; a text-first page adds its own
+   * clearance.
+   *
+   * @zh 页面内容。默认向上延伸至页头控件之下，主视觉或背景可铺到顶部边缘；以文字为主的页面自行留出顶部间距。
+   */
   children: ReactNode;
   /**
-   * Caps the content into the site's default reading column — centered, with
+   * Caps the content into the site's default reading column — centred, with
    * reading gutters. Left off, the content is full-bleed and manages its own
-   * width; the footer stays centered either way.
+   * width (e.g. a media hero or an app canvas).
+   *
+   * @zh 将内容限制在本站默认的阅读栏内——居中并带阅读边距。不启用时内容为满幅并自行管理宽度（例如媒体主视觉或应用画布）。
    */
   readingColumn?: boolean;
   /**
    * Narrows the reading column below the site default (prose-heavy pages).
    * Implies `readingColumn`.
+   *
+   * @zh 将阅读栏收窄至低于站点默认值（适用于文字密集的页面）。隐含启用 `readingColumn`。
    */
   contentMaxInlineSize?: string;
   /**
    * Landmark element for the content region. Use `"main"` (the default) for the
    * page's primary content, or `"div"` when the shell is nested inside a surface
    * that already owns the `<main>` landmark.
-   * @default "main"
+   *
+   * @zh 内容区域的地标元素。使用 `main`（默认）承载页面主内容；当骨架嵌套在已拥有 `<main>` 地标的表面内时，使用 `div`。 @default "main"
    */
   as?: "main" | "div";
 }

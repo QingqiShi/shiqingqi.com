@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
@@ -13,6 +11,8 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
+import { GuideList } from "../../guide/guide-list.tsx";
+import { GuideNote, GuideSection } from "../../guide/guide-section.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
@@ -25,26 +25,22 @@ export function ButtonShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "Variants", zh: "风格" })}>
+      <Showcase label={t({ en: "Looks", zh: "外观" })}>
         <SpecimenGrid>
           <Specimen caption="default">
             <Button>{t({ en: "Default", zh: "默认" })}</Button>
           </Specimen>
           <Specimen caption="primary">
-            <Button variant="primary">
-              {t({ en: "Primary", zh: "主要" })}
-            </Button>
+            <Button look="primary">{t({ en: "Primary", zh: "主要" })}</Button>
           </Specimen>
           <Specimen caption="outline">
-            <Button variant="outline">
-              {t({ en: "Outline", zh: "描边" })}
-            </Button>
+            <Button look="outline">{t({ en: "Outline", zh: "描边" })}</Button>
           </Specimen>
           <Specimen caption="ghost">
-            <Button variant="ghost">{t({ en: "Ghost", zh: "无框" })}</Button>
+            <Button look="ghost">{t({ en: "Ghost", zh: "无框" })}</Button>
           </Specimen>
           <Specimen caption="danger">
-            <Button variant="danger" icon={<TrashIcon weight="bold" />}>
+            <Button look="danger" icon={<TrashIcon weight="bold" />}>
               {t({ en: "Delete", zh: "删除" })}
             </Button>
           </Specimen>
@@ -63,12 +59,12 @@ export function ButtonShowcase() {
             <Button loading>{t({ en: "Save", zh: "保存" })}</Button>
           </Specimen>
           <Specimen caption="primary">
-            <Button variant="primary" loading>
+            <Button look="primary" loading>
               {t({ en: "Continue", zh: "继续" })}
             </Button>
           </Specimen>
           <Specimen caption="outline">
-            <Button variant="outline" loading icon={<PlusIcon weight="bold" />}>
+            <Button look="outline" loading icon={<PlusIcon weight="bold" />}>
               {t({ en: "Add", zh: "添加" })}
             </Button>
           </Specimen>
@@ -103,7 +99,7 @@ export function ButtonShowcase() {
             </Button>
           </Specimen>
           <Specimen caption="primary + icon">
-            <Button variant="primary" icon={<ArrowRightIcon weight="bold" />}>
+            <Button look="primary" icon={<ArrowRightIcon weight="bold" />}>
               {t({ en: "Continue", zh: "继续" })}
             </Button>
           </Specimen>
@@ -149,14 +145,14 @@ export function ButtonShowcase() {
           </Specimen>
           <Specimen caption="ghost">
             <Button
-              variant="ghost"
+              look="ghost"
               icon={<TrashIcon weight="bold" />}
               aria-label={deleteLabel}
             />
           </Specimen>
           <Specimen caption="outline">
             <Button
-              variant="outline"
+              look="outline"
               icon={<TrashIcon weight="bold" />}
               aria-label={deleteLabel}
             />
@@ -191,7 +187,7 @@ export function ButtonShowcase() {
               <span css={[corner.radius_2, styles.fauxIconOnly]} aria-hidden>
                 <FloppyDiskIcon weight="bold" />
               </span>
-              <Text variant="bodySmall" tone="muted">
+              <Text look="bodySmall" tone="muted">
                 {t({ en: "Save changes", zh: "保存更改" })}
               </Text>
             </div>
@@ -209,127 +205,197 @@ export function ButtonShowcase() {
             <Button disabled>{t({ en: "Default", zh: "默认" })}</Button>
           </Specimen>
           <Specimen caption="primary">
-            <Button variant="primary" disabled>
+            <Button look="primary" disabled>
               {t({ en: "Primary", zh: "主要" })}
             </Button>
           </Specimen>
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
+      <PropsTable component="button" />
+
+      <GuideSection
+        title={t({ en: "When to use", zh: "何时使用" })}
+        lead={t({
+          en: "A Button is for an action taken on the page it sits on. One action carries the screen, and everything beside it steps back.",
+          zh: "按钮用于在其所在页面上执行的操作。一个操作承载整个页面，它旁边的其他操作都要退后。",
+        })}
+      >
+        <DoDont
+          do={
+            <>
+              <Button look="primary">
+                {t({ en: "Save changes", zh: "保存更改" })}
+              </Button>
+              <Button>{t({ en: "Cancel", zh: "取消" })}</Button>
+            </>
+          }
+          doCaption={t({
+            en: "One primary action per screen, with everything beside it on the default raised look.",
+            zh: "每个页面只留一个 primary 操作，旁边的其他操作都使用默认的凸起外观。",
+          })}
+          dont={
+            <>
+              <Button look="primary">
+                {t({ en: "Save changes", zh: "保存更改" })}
+              </Button>
+              <Button look="primary">
+                {t({ en: "Save and close", zh: "保存并关闭" })}
+              </Button>
+            </>
+          }
+          dontCaption={t({
+            en: "Don't give two actions the same weight — a screen with two primary buttons has none.",
+            zh: "不要让两个操作同等醒目——一个页面出现两个 primary 按钮，等于一个都没有。",
+          })}
+        />
+        <DoDont
+          do={
+            <Button look="danger" icon={<TrashIcon weight="bold" />}>
+              {t({ en: "Delete account", zh: "删除账户" })}
+            </Button>
+          }
+          doCaption={t({
+            en: "danger is for the action that destroys something.",
+            zh: "danger 用于真正具有破坏性的操作。",
+          })}
+          dont={
+            <Button look="danger" icon={<FloppyDiskIcon weight="bold" />}>
+              {t({ en: "Save changes", zh: "保存更改" })}
+            </Button>
+          }
+          dontCaption={t({
+            en: "Don't spend the colour on an ordinary action — an Intent colour appears only where it changes what the visitor does next.",
+            zh: "不要把这种颜色花在普通操作上——意图色只出现在会改变访客下一步的地方。",
+          })}
+        />
+        <DoDont
+          do={
+            <Button icon={<FloppyDiskIcon weight="bold" />}>
+              {t({ en: "Save draft", zh: "保存草稿" })}
+            </Button>
+          }
+          doCaption={t({
+            en: "The label names what the action does on this page.",
+            zh: "标签写出该操作在当前页面会做什么。",
+          })}
+          dont={<Button>{t({ en: "Back to films", zh: "返回影片" })}</Button>}
+          dontCaption={t({
+            en: "Don't use a Button to go somewhere. It renders a <button>, so a destination loses the link role, the new tab and the context menu.",
+            zh: "不要用按钮跳转到别处。它渲染的是 <button>，目的地会因此失去链接角色、新标签页与右键菜单。",
+          })}
+        />
+      </GuideSection>
+
+      <GuideSection
+        title={t({ en: "Choosing a Look", zh: "如何选择外观" })}
+        lead={t({
+          en: "The Look is the button's weight on the screen, not its meaning. Read down until one line describes the action in hand.",
+          zh: "外观决定按钮在页面上的分量，而不是它的含义。从上往下读，直到某一行正好描述手上的这个操作。",
+        })}
+      >
+        <GuideList
+          items={[
             {
-              name: "children",
-              type: "ReactNode",
-              description: t({
-                en: "Visible label. Required unless aria-label or aria-labelledby names an icon-only button.",
-                zh: "可见标签。除非用 aria-label 或 aria-labelledby 为纯图标按钮命名，否则必填。",
+              term: t({
+                en: "The one action that carries the screen",
+                zh: "承载整个页面的那一个操作",
+              }),
+              value: 'look="primary"',
+              note: t({
+                en: "The highlight that marks the page's main action. It shares isActive's highlight without emitting aria-pressed, so it stays a one-shot action rather than a state.",
+                zh: "用高亮标出页面的主操作。它与 isActive 共用同一种高亮，但不会发出 aria-pressed，因此它始终是一次性操作而不是一种状态。",
               }),
             },
             {
-              name: "aria-label | aria-labelledby",
-              type: "string",
-              description: t({
-                en: "For icon-only buttons (no children), exactly one is required to supply the accessible name.",
-                zh: "对于纯图标按钮（无 children），必须二选一以提供可访问名称。",
+              term: t({
+                en: "A second action beside a primary one",
+                zh: "primary 操作旁边的次要操作",
+              }),
+              value: t({ en: "no look", zh: "不设 look" }),
+              note: t({
+                en: "The default raised surface. Quieter than primary, and still a full control.",
+                zh: "默认的凸起表面。比 primary 克制，但仍是一个完整的控件。",
               }),
             },
             {
-              name: "size",
-              type: '"sm" | "md" | "lg"',
-              defaultValue: '"md"',
-              description: t({
-                en: 'Height scale via controlSize. "lg" is for prominent CTAs; reserve "sm" for pointer-dense desktop toolbars.',
-                zh: '基于 controlSize 的高度阶梯。"lg" 用于醒目的 CTA；"sm" 建议仅用于指针密集的桌面工具栏。',
+              term: t({
+                en: "An action inside a card or a row",
+                zh: "卡片或行内部的操作",
+              }),
+              value: 'look="outline"',
+              note: t({
+                en: "A border in place of the fill, so a control on a surface of its own does not read as a card inside a card.",
+                zh: "以描边取代填充，让位于自有表面上的控件不会读成卡片里的卡片。",
               }),
             },
             {
-              name: "variant",
-              type: '"primary" | "outline" | "ghost" | "danger"',
-              description: t({
-                en: 'Visual treatment; omit for the default raised button. "primary" is the one-shot CTA highlight and, unlike isActive, does not emit aria-pressed. "outline" swaps the fill for a border; "ghost" has no surface at all and holds its colour back until hover, for an affordance inline over existing content. "danger" is for the action that actually destroys something.',
-                zh: '视觉样式；省略则为默认的凸起按钮。"primary" 是一次性 CTA 高亮，与 isActive 不同，它不会发出 aria-pressed。"outline" 以描边取代填充；"ghost" 完全没有表面，颜色在悬停前保持克制，适合置于已有内容之上的行内控件。"danger" 用于真正具有破坏性的操作。',
+              term: t({
+                en: "An affordance over existing content",
+                zh: "叠在已有内容之上的行内控件",
+              }),
+              value: 'look="ghost"',
+              note: t({
+                en: "No surface at all, and the colour is held back until hover or focus.",
+                zh: "完全没有表面，颜色在悬停或获得焦点前保持克制。",
               }),
             },
             {
-              name: "loading",
-              type: "boolean",
-              description: t({
-                en: "Marks the button busy: shows a spinner, announces aria-busy, and blocks activation so the action can't fire twice. The block is aria-disabled plus a click guard rather than the native disabled attribute, so the button keeps focus and the busy state is actually heard. Either way the width holds — with an icon the spinner takes its place, without one it sits over the label. Keep the label text as it is.",
-                zh: "将按钮标记为忙碌：显示加载指示器，输出 aria-busy，并阻止再次触发。阻止方式为 aria-disabled 加点击拦截，而非原生 disabled 属性，因此按钮保留焦点，忙碌状态才能被真正读出。两种情况下宽度都保持不变——有图标时加载指示器取代图标，没有图标时则覆盖在标签之上。请保持标签文案不变。",
+              term: t({
+                en: "An action that destroys something",
+                zh: "具有破坏性的操作",
               }),
-            },
-            {
-              name: "isActive",
-              type: "boolean",
-              description: t({
-                en: "Toggles the active highlight and emits aria-pressed — use for toggle buttons.",
-                zh: "切换激活高亮并发出 aria-pressed——用于切换按钮。",
-              }),
-            },
-            {
-              name: "bright",
-              type: "boolean",
-              description: t({
-                en: "Lifts the button onto a bright surface, brightening further on hover.",
-                zh: "将按钮置于明亮表面，悬停时进一步提亮。",
-              }),
-            },
-            {
-              name: "icon",
-              type: "ReactNode",
-              description: t({
-                en: "Decorative icon, rendered aria-hidden; never the accessible name. With no children the button renders icon-only: a square of its own height, named by aria-label or aria-labelledby.",
-                zh: "装饰性图标，以 aria-hidden 渲染；绝不作为可访问名称。当没有 children 时，按钮渲染为纯图标：一个与自身高度相等的正方形，由 aria-label 或 aria-labelledby 命名。",
-              }),
-            },
-            {
-              name: "hideLabelOnMobile",
-              type: "boolean",
-              description: t({
-                en: "Below the md breakpoint, collapses to the square icon-only form — pass aria-label too, so the collapsed button keeps its name.",
-                zh: "在 md 断点以下，收起为纯图标的正方形形态——请同时提供 aria-label，使收起后的按钮仍保留名称。",
-              }),
-            },
-            {
-              name: "disabled",
-              type: "boolean",
-              description: t({
-                en: "Disables the button and suppresses the press animation.",
-                zh: "禁用按钮并抑制按压动画。",
-              }),
-            },
-            {
-              name: "labelId",
-              type: "string",
-              description: t({
-                en: "Id applied to the label span, e.g. to wire an external aria-labelledby.",
-                zh: "应用于标签 span 的 id，例如用于关联外部的 aria-labelledby。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides merged last — the config-layer escape hatch.",
-                zh: "最后合并的 StyleX 覆盖样式——配置层的逃生舱。",
-              }),
-            },
-            {
-              name: "…button attributes",
-              type: 'ComponentProps<"button">',
-              defaultValue: 'type="button"',
-              description: t({
-                en: "Native button props (onClick, type, name, …) are forwarded to the element.",
-                zh: "原生 button 属性（onClick、type、name 等）会转发到元素。",
+              value: 'look="danger"',
+              note: t({
+                en: "Reserved for what cannot be undone — deleting, discarding, revoking.",
+                zh: "只留给无法撤销的操作——删除、丢弃、撤回。",
               }),
             },
           ]}
         />
-      </Showcase>
+        <GuideNote>
+          {t({
+            en: "bright is not a Look: it lifts the button onto a bright surface and overrides the fill, so pairing it with outline or ghost cancels their chrome.",
+            zh: "bright 不是一种外观：它把按钮置于明亮表面并覆盖填充，因此与 outline 或 ghost 同用会抵消二者的外框处理。",
+          })}
+        </GuideNote>
+      </GuideSection>
 
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
+      <GuideSection
+        title={t({ en: "Accessibility", zh: "无障碍" })}
+        lead={t({
+          en: "Every button needs a name, and a button that is busy still has to be reachable.",
+          zh: "每个按钮都需要名称，而处于忙碌状态的按钮仍然必须可达。",
+        })}
+      >
+        <GuideList
+          items={[
+            {
+              term: t({ en: "Icon-only", zh: "纯图标" }),
+              value: "aria-label",
+              note: t({
+                en: "With no children, aria-label or aria-labelledby is required at the type level, so an unnamed icon-only button does not compile.",
+                zh: "没有 children 时，类型层面强制要求 aria-label 或 aria-labelledby，因此无名的纯图标按钮无法通过编译。",
+              }),
+            },
+            {
+              term: t({ en: "Busy", zh: "忙碌" }),
+              value: "loading",
+              note: t({
+                en: "loading sets aria-busy and blocks activation through aria-disabled rather than the native disabled attribute, so the button keeps focus and the busy state is announced.",
+                zh: "loading 会设置 aria-busy，并以 aria-disabled 而非原生 disabled 属性阻止触发，因此按钮保留焦点，忙碌状态也能被读出。",
+              }),
+            },
+            {
+              term: t({ en: "Toggle", zh: "切换" }),
+              value: "isActive",
+              note: t({
+                en: 'isActive emits aria-pressed. look="primary" carries the same highlight with no state, so a toggle belongs to isActive alone.',
+                zh: 'isActive 会发出 aria-pressed。look="primary" 只有同样的高亮而没有状态，因此切换状态只交给 isActive。',
+              }),
+            },
+          ]}
+        />
         <DoDont
           do={
             <Button
@@ -351,7 +417,7 @@ export function ButtonShowcase() {
             zh: "不要把裸图标直接放进 children——这样按钮会缺少可访问名称。",
           })}
         />
-      </Showcase>
+      </GuideSection>
     </>
   );
 }

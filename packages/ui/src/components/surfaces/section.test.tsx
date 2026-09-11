@@ -112,7 +112,7 @@ describe("Section", () => {
     // Composing `Heading` here would put the label's font-size and colour in a
     // second `stylex.props` call, leaving which declaration wins up to
     // stylesheet order instead of composition order.
-    expect(heading.className).not.toContain("variantStyles.");
+    expect(heading.className).not.toContain("lookStyles.");
   });
 
   it("composes a caller css override last", () => {

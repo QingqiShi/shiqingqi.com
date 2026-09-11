@@ -25,42 +25,63 @@ interface SidebarLayoutProps {
   /**
    * Navigation content, rendered in the sticky rail on wider viewports and in
    * the drawer on mobile. Scrolls independently when it outgrows the viewport.
+   *
+   * @zh 导航内容，宽视口下渲染于粘性侧栏中，移动端渲染于抽屉内；内容超出视口时可独立滚动。
    */
   sidebar: ReactNode;
   /**
    * Title region — rendered at the top of the rail, in the collapsed mobile
    * bar, and at the top of the drawer.
+   *
+   * @zh 标题区域——显示在侧栏顶部、收起的移动端悬浮条中，以及抽屉顶部。
    */
   sidebarHeader?: ReactNode;
   /**
    * Utility region pinned to the bottom edge of the rail and the drawer —
    * theme toggles, language pickers, and similar app-level controls.
+   *
+   * @zh 固定在侧栏与抽屉底部边缘的实用区域——主题切换、语言选择等应用级控件。
    */
   sidebarFooter?: ReactNode;
   /**
    * Accessible name for the mobile menu button and the open drawer dialog.
-   * Required — the package ships no i18n, so the consumer supplies the
-   * localized string.
+   * The package ships no i18n, so the consumer supplies the localised
+   * string.
+   *
+   * @zh 移动端菜单按钮与打开的抽屉对话框的无障碍名称。本包不内置 i18n，请由调用方提供本地化字符串。
    */
   menuLabel: string;
-  /** Accessible label for the drawer's close button. */
+  /**
+   * Accessible label for the drawer's close button.
+   *
+   * @zh 抽屉关闭按钮的无障碍标签。
+   */
   closeLabel: string;
+  /**
+   * Content column, capped to a readable width and centred beside the rail.
+   *
+   * @zh 内容列，限制在可读宽度内并在侧栏旁居中。
+   */
   children: ReactNode;
   /**
    * Caps the centered content column. Defaults to the shared site content
    * width.
+   *
+   * @zh 限制居中内容列的宽度。默认使用站点共享的内容宽度。
    */
   contentMaxInlineSize?: string;
   /**
    * Inline size of the rail column on wider viewports.
-   * @default space._13 (15rem)
+   *
+   * @zh 宽视口下侧栏列的行内尺寸。 @default space._13 (15rem)
    */
   sidebarInlineSize?: string;
   /**
    * Landmark element for the content region. Use `"main"` (the default) for the
    * page's primary content, or `"div"` when the shell is nested inside a surface
    * that already owns the `<main>` landmark.
-   * @default "main"
+   *
+   * @zh 内容区域的地标元素。使用 `main`（默认）承载页面主内容；当骨架嵌套在已拥有 `<main>` 地标的表面内时，使用 `div`。 @default "main"
    */
   as?: "main" | "div";
 }
@@ -149,7 +170,7 @@ export function SidebarLayout({
         <div css={styles.mobileBarTitle}>{sidebarHeader}</div>
         <Button
           size="sm"
-          variant="ghost"
+          look="ghost"
           icon={<ListIcon weight="bold" />}
           aria-label={menuLabel}
           aria-haspopup="dialog"

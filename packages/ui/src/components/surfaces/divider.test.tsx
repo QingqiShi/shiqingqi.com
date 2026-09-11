@@ -20,10 +20,10 @@ describe("Divider orientation", () => {
   });
 });
 
-describe("Divider variants", () => {
-  it("applies distinct classes per variant", () => {
-    const { container: subtle } = render(<Divider variant="subtle" />);
-    const { container: decorative } = render(<Divider variant="decorative" />);
+describe("Divider looks", () => {
+  it("applies distinct classes per look", () => {
+    const { container: subtle } = render(<Divider look="subtle" />);
+    const { container: decorative } = render(<Divider look="decorative" />);
     expect(subtle.querySelector("hr")?.className).not.toBe(
       decorative.querySelector("hr")?.className,
     );

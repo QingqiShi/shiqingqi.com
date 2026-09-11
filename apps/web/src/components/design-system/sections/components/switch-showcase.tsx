@@ -1,57 +1,14 @@
-"use client";
-
 import * as stylex from "@stylexjs/stylex";
-import { Switch, type SwitchState } from "@tuja/ui/components/switch";
+import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import { Showcase, StateReadout } from "../../showcase.tsx";
+import { Showcase } from "../../showcase.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
-
-function SpecimenSwitch({
-  initial = "off",
-  disabled,
-  label,
-}: {
-  initial?: SwitchState;
-  disabled?: boolean;
-  label: string;
-}) {
-  const [state, setState] = useState<SwitchState>(initial);
-  return (
-    <Switch
-      value={state}
-      onChange={setState}
-      disabled={disabled}
-      aria-label={label}
-    />
-  );
-}
-
-function LiveSwitch() {
-  const [state, setState] = useState<SwitchState>("off");
-  const label = {
-    off: t({ en: "Off", zh: "关闭" }),
-    on: t({ en: "On", zh: "开启" }),
-    indeterminate: t({ en: "Indeterminate", zh: "未定" }),
-  }[state];
-  return (
-    <div css={[flex.row, styles.liveRow]}>
-      <Switch
-        value={state}
-        onChange={setState}
-        aria-label={t({ en: "Demo toggle", zh: "演示开关" })}
-      />
-      <StateReadout label={t({ en: "onChange →", zh: "onChange →" })}>
-        {label}
-      </StateReadout>
-    </div>
-  );
-}
+import { LiveSwitch, SpecimenSwitch } from "./switch-specimens.tsx";
 
 export function SwitchShowcase() {
   const switchLabel = t({ en: "Autoplay trailers", zh: "自动播放预告" });
@@ -112,7 +69,7 @@ export function SwitchShowcase() {
 
       <Showcase label={t({ en: "Interactive", zh: "交互" })}>
         <div css={[flex.col, styles.interactiveStack]}>
-          <Text variant="bodySmall" tone="muted">
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "Click, drag the thumb, or focus and press Space or Enter. The switch reports each change through `onChange`.",
               zh: "点击、拖动滑块，或聚焦后按空格或回车。开关会通过 `onChange` 报告每次变化。",
@@ -124,76 +81,13 @@ export function SwitchShowcase() {
         </div>
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
-            {
-              name: "value",
-              type: "SwitchState",
-              description: t({
-                en: 'Controlled state ("off" | "on" | "indeterminate"); pair with onChange.',
-                zh: '受控状态（"off" | "on" | "indeterminate"）；与 onChange 搭配使用。',
-              }),
-            },
-            {
-              name: "defaultValue",
-              type: "SwitchState",
-              defaultValue: '"off"',
-              description: t({
-                en: "Initial state for an uncontrolled switch; ignored once value is set.",
-                zh: "非受控开关的初始状态；一旦设置了 value 便忽略。",
-              }),
-            },
-            {
-              name: "onChange",
-              type: "(state: SwitchState) => void",
-              description: t({
-                en: "Fires with the next state on every user toggle (pointer, keyboard, label).",
-                zh: "每次用户切换（指针、键盘、标签）时以下一状态触发。",
-              }),
-            },
-            {
-              name: "size",
-              type: '"sm" | "md" | "lg"',
-              defaultValue: '"md"',
-              description: t({
-                en: "Track-height scale via controlSize; the width and thumb scale with it.",
-                zh: "基于 controlSize 的轨道高度阶梯；宽度与滑块随之缩放。",
-              }),
-            },
-            {
-              name: "disabled",
-              type: "boolean",
-              description: t({
-                en: "Disables all interaction.",
-                zh: "禁用所有交互。",
-              }),
-            },
-            {
-              name: "aria-label",
-              type: "string",
-              description: t({
-                en: 'Accessible name for the role="switch" input; provide this or associate a <label>.',
-                zh: '为 role="switch" 输入提供可访问名称；提供它或关联一个 <label>。',
-              }),
-            },
-            {
-              name: "…input attributes",
-              type: 'ComponentProps<"input">',
-              description: t({
-                en: "Native input attributes are forwarded; checked and onChange are managed internally.",
-                zh: "原生 input 属性会被转发；checked 与 onChange 由内部管理。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="switch" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
           do={
             <label css={styles.switchField}>
-              <Text as="span" variant="bodySmall">
+              <Text as="span" look="bodySmall">
                 {switchLabel}
               </Text>
               <Switch defaultValue="on" aria-label={switchLabel} />
@@ -217,10 +111,6 @@ export function SwitchShowcase() {
 const styles = stylex.create({
   interactiveStack: {
     gap: space._3,
-  },
-  liveRow: {
-    gap: space._3,
-    alignItems: "center",
   },
   switchField: {
     display: "inline-flex",

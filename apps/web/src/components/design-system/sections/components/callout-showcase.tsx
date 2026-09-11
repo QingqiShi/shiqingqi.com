@@ -1,26 +1,23 @@
-"use client";
-
 import { MegaphoneIcon } from "@phosphor-icons/react/dist/ssr/Megaphone";
 import * as stylex from "@stylexjs/stylex";
-import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
-import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
+import { CalloutDismissSpecimen } from "./callout-specimens.tsx";
 
 export function CalloutShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Variants", zh: "风格" })}>
+      <Showcase label={t({ en: "Intents", zh: "意图色" })}>
         <SpecimenGrid css={styles.calloutGrid}>
           <Specimen caption="info">
-            <Callout variant="info" title={t({ en: "Heads up", zh: "请注意" })}>
+            <Callout intent="info" title={t({ en: "Heads up", zh: "请注意" })}>
               {t({
                 en: "Your export keeps running in the background — we'll email you when it's ready.",
                 zh: "导出将在后台继续运行——完成后我们会通过邮件通知你。",
@@ -29,7 +26,7 @@ export function CalloutShowcase() {
           </Specimen>
           <Specimen caption="success">
             <Callout
-              variant="success"
+              intent="success"
               title={t({ en: "Changes saved", zh: "更改已保存" })}
             >
               {t({
@@ -40,7 +37,7 @@ export function CalloutShowcase() {
           </Specimen>
           <Specimen caption="warning">
             <Callout
-              variant="warning"
+              intent="warning"
               title={t({ en: "Storage almost full", zh: "存储空间即将用满" })}
             >
               {t({
@@ -51,7 +48,7 @@ export function CalloutShowcase() {
           </Specimen>
           <Specimen caption="danger">
             <Callout
-              variant="danger"
+              intent="danger"
               title={t({ en: "Payment failed", zh: "付款失败" })}
             >
               {t({
@@ -62,7 +59,7 @@ export function CalloutShowcase() {
           </Specimen>
           <Specimen caption="accent">
             <Callout
-              variant="accent"
+              intent="accent"
               title={t({ en: "New in 2.0", zh: "2.0 新功能" })}
             >
               {t({
@@ -73,7 +70,7 @@ export function CalloutShowcase() {
           </Specimen>
           <Specimen caption="neutral">
             <Callout
-              variant="neutral"
+              intent="neutral"
               title={t({ en: "Read-only workspace", zh: "只读工作区" })}
             >
               {t({
@@ -87,7 +84,7 @@ export function CalloutShowcase() {
 
       <Showcase label={t({ en: "Body only", zh: "仅正文" })}>
         <Specimen caption={t({ en: "no title", zh: "无标题" })}>
-          <Callout variant="info">
+          <Callout intent="info">
             {t({
               en: "Omit the title for a single, concise line — the icon and tint still carry the Intent.",
               zh: "省略标题即为单行简讯——图标与着色依旧传达意图色。",
@@ -105,15 +102,15 @@ export function CalloutShowcase() {
             })}
           </ShowcaseHelper>
           <Specimen caption={t({ en: "custom icon", zh: "自定义图标" })}>
-            <Callout variant="accent" icon={<MegaphoneIcon weight="fill" />}>
+            <Callout intent="accent" icon={<MegaphoneIcon weight="fill" />}>
               {t({
-                en: "Swap in a Phosphor icon when a variant's default icon isn't specific enough.",
-                zh: "当变体的默认图标不够贴切时，可换用 Phosphor 图标。",
+                en: "Swap in a Phosphor icon when an intent's default icon isn't specific enough.",
+                zh: "当意图色的默认图标不够贴切时，可换用 Phosphor 图标。",
               })}
             </Callout>
           </Specimen>
           <Specimen caption={t({ en: "no icon", zh: "无图标" })}>
-            <Callout variant="neutral" icon={null}>
+            <Callout intent="neutral" icon={null}>
               {t({
                 en: "Drop the icon for a dense, text-first note where an icon would only add noise.",
                 zh: "在以文字为主的紧凑提示中移除图标，避免图标造成干扰。",
@@ -137,89 +134,12 @@ export function CalloutShowcase() {
         </div>
       </Showcase>
 
-      <PropsTable
-        rows={[
-          {
-            name: "variant",
-            type: '"info" | "success" | "warning" | "danger" | "accent" | "neutral"',
-            defaultValue: '"info"',
-            description: t({
-              en: "Intent and default icon — maps to the Intent tint, border, and text token.",
-              zh: "意图色与默认图标——映射到意图色的着色、边框与文本令牌。",
-            }),
-          },
-          {
-            name: "title",
-            type: "ReactNode",
-            description: t({
-              en: "Optional bold heading above the body. Omit for a single-line message.",
-              zh: "正文上方的可选加粗标题。省略即为单行消息。",
-            }),
-          },
-          {
-            name: "children",
-            type: "ReactNode",
-            required: true,
-            description: t({
-              en: "Body content. Keep it short — a callout is a summary, not a paragraph.",
-              zh: "正文内容。保持简短——提示框是摘要，而非段落。",
-            }),
-          },
-          {
-            name: "icon",
-            type: "ReactNode",
-            description: t({
-              en: "Leading icon override. Defaults to the variant icon; pass null to drop it. Always decorative.",
-              zh: "前置图标覆盖。默认使用变体图标；传入 null 可移除。始终为装饰性。",
-            }),
-          },
-          {
-            name: "role",
-            type: '"status" | "alert"',
-            description: t({
-              en: 'ARIA live role. Defaults to "alert" for danger/warning and "status" otherwise; pass to override.',
-              zh: "提示框的 ARIA live 角色。danger/warning 默认为 “alert”，其余为 “status”；可传入以覆盖。",
-            }),
-          },
-          {
-            name: "onDismiss",
-            type: "() => void",
-            description: t({
-              en: "Renders an inline close button; requires dismissLabel when set.",
-              zh: "渲染行内关闭按钮；设置时必须提供 dismissLabel。",
-            }),
-          },
-          {
-            name: "dismissLabel",
-            type: "string",
-            description: t({
-              en: "Accessible name for the close button — required whenever onDismiss is set.",
-              zh: "关闭按钮的无障碍名称——设置 onDismiss 时必填。",
-            }),
-          },
-          {
-            name: "css",
-            type: "StyleXStyles",
-            description: t({
-              en: "StyleX overrides, composed last so a caller can win over the defaults.",
-              zh: "StyleX 覆盖样式，最后合成，使调用方可以覆盖默认值。",
-            }),
-          },
-          {
-            name: "...rest",
-            type: 'ComponentProps<"div">',
-            description: t({
-              en: "Native div attributes (id, data-*, className, style, ref) are forwarded for escape-hatch composition.",
-              zh: "原生 div 属性（id、data-*、className、style、ref）会被转发，用于逃生舱式组合。",
-            }),
-          },
-        ]}
-      />
+      <PropsTable component="callout" />
 
       <DoDont
         do={
           <Callout
-            variant="danger"
+            intent="danger"
             title={t({ en: "Upload failed", zh: "上传失败" })}
           >
             {t({
@@ -249,43 +169,6 @@ export function CalloutShowcase() {
         })}
       />
     </>
-  );
-}
-
-/**
- * A dismissible callout that can be brought back, so the control can be tried
- * more than once. All `t()` strings resolve at the top of render, so the
- * conditional branch never varies the hook call order.
- */
-function CalloutDismissSpecimen() {
-  const [dismissed, setDismissed] = useState(false);
-  const title = t({ en: "Storage almost full", zh: "存储空间即将用满" });
-  const body = t({
-    en: "You're using 92% of your plan's space. Free up room or upgrade before uploads start failing.",
-    zh: "你已使用套餐 92% 的空间。请在上传开始失败前清理空间或升级套餐。",
-  });
-  const dismissLabel = t({ en: "Dismiss", zh: "关闭" });
-  const restoreLabel = t({ en: "Restore callout", zh: "恢复提示框" });
-
-  return dismissed ? (
-    <Button
-      onClick={() => {
-        setDismissed(false);
-      }}
-    >
-      {restoreLabel}
-    </Button>
-  ) : (
-    <Callout
-      variant="warning"
-      title={title}
-      onDismiss={() => {
-        setDismissed(true);
-      }}
-      dismissLabel={dismissLabel}
-    >
-      {body}
-    </Callout>
   );
 }
 

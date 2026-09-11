@@ -15,7 +15,7 @@ describe("Button StyleX Integration", () => {
     expect(button.className).toContain("button__styles.button");
   });
 
-  it("applies different classes for bright variant", () => {
+  it("applies different classes for bright look", () => {
     const { container: normalContainer } = render(<Button>Normal</Button>);
     const { container: brightContainer } = render(
       <Button bright>Bright</Button>,
@@ -24,7 +24,7 @@ describe("Button StyleX Integration", () => {
     const normalButton = normalContainer.querySelector("button");
     const brightButton = brightContainer.querySelector("button");
 
-    // Different variants should have different class names
+    // Different looks should have different class names
     expect(normalButton?.className).not.toBe(brightButton?.className);
     expect(brightButton?.className).toContain("bright");
   });
@@ -242,9 +242,9 @@ describe("Button aria-pressed from isActive", () => {
   });
 });
 
-describe("Button variant='primary' visual-only prop", () => {
-  it("omits aria-pressed when variant is primary (not a toggle)", () => {
-    render(<Button variant="primary">Play trailer</Button>);
+describe("Button look='primary' visual-only prop", () => {
+  it("omits aria-pressed when look is primary (not a toggle)", () => {
+    render(<Button look="primary">Play trailer</Button>);
     expect(screen.getByRole("button")).not.toHaveAttribute("aria-pressed");
   });
 
@@ -253,7 +253,7 @@ describe("Button variant='primary' visual-only prop", () => {
       <Button isActive>Active</Button>,
     );
     const { container: primaryContainer } = render(
-      <Button variant="primary">Primary</Button>,
+      <Button look="primary">Primary</Button>,
     );
 
     const activeButton = activeContainer.querySelector("button");
@@ -287,9 +287,9 @@ describe("Button type attribute", () => {
   });
 });
 
-describe("Button variants", () => {
-  it("paints the shared active highlight for the primary variant", () => {
-    render(<Button variant="primary">Save</Button>);
+describe("Button looks", () => {
+  it("paints the shared active highlight for the primary look", () => {
+    render(<Button look="primary">Save</Button>);
 
     expect(screen.getByRole("button").className).toContain(
       "sharedStyles.active",
@@ -298,11 +298,11 @@ describe("Button variants", () => {
 
   it.each(["outline", "ghost", "danger"] as const)(
     "applies the %s skin",
-    (variant) => {
-      render(<Button variant={variant}>Save</Button>);
+    (look) => {
+      render(<Button look={look}>Save</Button>);
 
       expect(screen.getByRole("button").className).toContain(
-        `variantStyles.${variant}`,
+        `lookStyles.${look}`,
       );
     },
   );
@@ -311,19 +311,19 @@ describe("Button variants", () => {
     render(<Button>Save</Button>);
 
     const className = screen.getByRole("button").className;
-    expect(className).not.toContain("variantStyles.");
+    expect(className).not.toContain("lookStyles.");
     expect(className).not.toContain("sharedStyles.active");
   });
 
-  it("does not emit aria-pressed for a non-toggle variant", () => {
-    render(<Button variant="danger">Delete</Button>);
+  it("does not emit aria-pressed for a non-toggle look", () => {
+    render(<Button look="danger">Delete</Button>);
 
     expect(screen.getByRole("button")).not.toHaveAttribute("aria-pressed");
   });
 
-  it("lets an active toggle keep the highlight over its variant skin", () => {
+  it("lets an active toggle keep the highlight over its look skin", () => {
     render(
-      <Button variant="outline" isActive>
+      <Button look="outline" isActive>
         Filter
       </Button>,
     );
@@ -450,16 +450,16 @@ describe("Button loading state", () => {
 
   it("keeps the danger fill when a danger button is active", () => {
     render(
-      <Button variant="danger" isActive>
+      <Button look="danger" isActive>
         Delete
       </Button>,
     );
 
     // `sharedStyles.active` paints a literal accent background that would win
-    // over the danger variant's token, so the destructive button would stop
+    // over the danger look's token, so the destructive button would stop
     // reading as destructive exactly when it is armed.
     const button = screen.getByRole("button");
-    expect(button.className).toContain("variantStyles.danger");
+    expect(button.className).toContain("lookStyles.danger");
     expect(button.className).not.toContain("sharedStyles.active");
     expect(button).toHaveAttribute("aria-pressed", "true");
   });

@@ -149,21 +149,14 @@ describe("Avatar badge", () => {
 });
 
 describe("Avatar styling", () => {
-  it("applies the requested size and variant", () => {
+  it("applies the requested size and look", () => {
     render(
-      <Avatar
-        name="Qingqi Shi"
-        size="lg"
-        variant="solid"
-        data-testid="avatar"
-      />,
+      <Avatar name="Qingqi Shi" size="lg" look="solid" data-testid="avatar" />,
     );
 
     const avatar = screen.getByTestId("avatar");
     expect(avatar.className).toContain("sizeStyles.lg");
-    expect(avatar.firstElementChild?.className).toContain(
-      "variantStyles.solid",
-    );
+    expect(avatar.firstElementChild?.className).toContain("lookStyles.solid");
   });
 
   it("composes a caller css override last", () => {

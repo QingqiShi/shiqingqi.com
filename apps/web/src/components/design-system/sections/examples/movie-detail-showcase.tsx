@@ -58,7 +58,7 @@ export function MovieDetailShowcase() {
   return (
     <>
       <Callout
-        variant="accent"
+        intent="accent"
         title={t({ en: "Static, invented data", zh: "静态的虚构数据" })}
       >
         {t({
@@ -82,14 +82,14 @@ export function MovieDetailShowcase() {
               zh: "默认层级，也是绝大多数内容的归属：一个组件、若干属性，就此完成。",
             })}
             entries={[
-              'Badge variant="accent" | "neutral" size="sm"',
-              'Button variant="primary" | "outline" isActive',
+              'Badge intent="accent" | "neutral" size="sm"',
+              'Button look="primary" | "outline" isActive',
               'SegmentedControl size="sm"',
               "Select options labelHidden",
-              'Text variant tone weight numeric transform wrap="pretty"',
-              "Heading level variant",
+              'Text look tone weight numeric transform wrap="pretty"',
+              "Heading level look",
               "Section level divider",
-              'Disclosure variant="card"',
+              'Disclosure look="card"',
               "Divider",
               "Avatar name size",
             ]}
@@ -125,7 +125,7 @@ export function MovieDetailShowcase() {
             ]}
           />
         </div>
-        <Text variant="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "Three absences are worth as much as the list. No close button appears anywhere in the source — Callout supplies its own dismiss and Overlay its own close, so both arrive carrying the system's focus ring and hover easing without this file naming either. No Chip appears either: a Chip is a control, and the system's own rule is that a label which can't be clicked is a Badge, so on a screen with nothing to navigate to the Genres and the providers are Badges. And the movie database has no accounts, so the screen has no review form and therefore no TextField, Textarea, or Checkbox. A composed screen shows what a surface needs, not everything the system owns.",
             zh: "有三处「缺席」与上面的清单同样重要。源码中没有出现任何关闭按钮——Callout 自带关闭，Overlay 也自带关闭，两者都自然携带系统的焦点环与悬停缓动，而本文件从未提及它们。也没有出现 Chip：Chip 是控件，而系统自己的规则是「不能点击的标签就该用 Badge」，因此在这个无处可跳转的页面上，类型与观看渠道一律是徽章。此外，影视数据库没有账号体系，因此页面没有评论表单，也就没有 TextField、Textarea 或 Checkbox。一个组合页面呈现的是该界面所需要的东西，而非系统所拥有的全部。",
@@ -153,12 +153,12 @@ export function MovieDetailShowcase() {
     />
     <div css={styles.identity}>
       <div css={styles.controlRow}>
-        <Badge variant="accent">Movie</Badge>
-        <Text as="span" variant="caption" tone="subtle" numeric>
+        <Badge intent="accent">Movie</Badge>
+        <Text as="span" look="caption" tone="subtle" numeric>
           {[movie.year, movie.runtime, movie.language].join(" · ")}
         </Text>
       </div>
-      <Heading level={3} variant="h1" wrap="balance">{movie.title}</Heading>
+      <Heading level={3} look="h1" wrap="balance">{movie.title}</Heading>
       <Text tone="muted" wrap="pretty" css={styles.tagline}>{movie.tagline}</Text>
     </div>
     <div css={styles.heroRest}>
@@ -166,13 +166,13 @@ export function MovieDetailShowcase() {
         {movie.genres.map((genre) => <Badge key={genre} size="sm">{genre}</Badge>)}
       </div>
       <div css={styles.controlRow}>
-        <Button variant="primary" icon={<PlayIcon weight="fill" />} onClick={openTrailer}>
+        <Button look="primary" icon={<PlayIcon weight="fill" />} onClick={openTrailer}>
           Watch trailer
         </Button>
         <MenuButton
-          buttonProps={{ variant: "outline", icon: <ShareNetworkIcon weight="bold" /> }}
+          buttonProps={{ look: "outline", icon: <ShareNetworkIcon weight="bold" /> }}
           menuContent={shareItems.map((item) => (
-            <Button key={item.label} role="menuitem" variant="ghost" icon={item.icon}>
+            <Button key={item.label} role="menuitem" look="ghost" icon={item.icon}>
               {item.label}
             </Button>
           ))}

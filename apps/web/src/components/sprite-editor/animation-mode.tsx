@@ -330,7 +330,7 @@ export function AnimationMode({
                 <div css={styles.frameActions}>
                   <Button
                     size="sm"
-                    variant="ghost"
+                    look="ghost"
                     icon={<ArrowUpIcon size={14} weight="bold" />}
                     onClick={() => {
                       moveFrame(index, -1);
@@ -340,7 +340,7 @@ export function AnimationMode({
                   />
                   <Button
                     size="sm"
-                    variant="ghost"
+                    look="ghost"
                     icon={<ArrowDownIcon size={14} weight="bold" />}
                     onClick={() => {
                       moveFrame(index, 1);
@@ -350,7 +350,7 @@ export function AnimationMode({
                   />
                   <Button
                     size="sm"
-                    variant="ghost"
+                    look="ghost"
                     icon={<TrashIcon size={14} weight="bold" />}
                     onClick={() => {
                       removeFrame(index);

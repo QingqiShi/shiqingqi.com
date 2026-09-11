@@ -23,7 +23,7 @@ export function TextShowcase() {
         </ShowcaseHelper>
         <div css={styles.ladder}>
           <Specimen caption="body · 1rem">
-            <Text variant="body">
+            <Text look="body">
               {t({
                 en: "A weary detective takes one last case that drags his own past back into the light.",
                 zh: "一位疲惫的警探接下最后一桩案子，却让自己的过往重见天日。",
@@ -31,7 +31,7 @@ export function TextShowcase() {
             </Text>
           </Specimen>
           <Specimen caption="bodySmall · .85rem">
-            <Text variant="bodySmall">
+            <Text look="bodySmall">
               {t({
                 en: "2h 08m · Crime, Drama · Directed by Ana Reyes",
                 zh: "2小时08分 · 犯罪、剧情 · 导演 Ana Reyes",
@@ -39,7 +39,7 @@ export function TextShowcase() {
             </Text>
           </Specimen>
           <Specimen caption="caption · .75rem">
-            <Text variant="caption">
+            <Text look="caption">
               {t({
                 en: "Added to your list 3 hours ago",
                 zh: "3 小时前加入你的清单",
@@ -47,7 +47,7 @@ export function TextShowcase() {
             </Text>
           </Specimen>
           <Specimen caption="overline · .7rem">
-            <Text variant="overline">
+            <Text look="overline">
               {t({ en: "Now streaming", zh: "正在热播" })}
             </Text>
           </Specimen>
@@ -127,8 +127,8 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Element", zh: "元素" })}>
         <ShowcaseHelper>
           {t({
-            en: "as picks the semantic element; variant picks the size. They stay decoupled, so a span can still read at body size inline.",
-            zh: "as 决定语义元素，variant 决定字号，二者相互独立——因此 span 仍可在行内保持正文字号。",
+            en: "as picks the semantic element; look picks the size. They stay decoupled, so a span can still read at body size inline.",
+            zh: "as 决定语义元素，look 决定字号，二者相互独立——因此 span 仍可在行内保持正文字号。",
           })}
         </ShowcaseHelper>
         <SpecimenGrid>
@@ -147,23 +147,23 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Case transform", zh: "大小写转换" })}>
         <ShowcaseHelper>
           {t({
-            en: "transform sets the letter case independently of variant — e.g. an uppercase eyebrow at caption size.",
-            zh: "transform 独立于 variant 设定字母大小写——例如以 caption 字号呈现的大写眉标。",
+            en: "transform sets the letter case independently of look — e.g. an uppercase eyebrow at caption size.",
+            zh: "transform 独立于 look 设定字母大小写——例如以 caption 字号呈现的大写眉标。",
           })}
         </ShowcaseHelper>
         <div css={styles.ladder}>
           <Specimen caption='transform="uppercase"'>
-            <Text variant="caption" transform="uppercase">
+            <Text look="caption" transform="uppercase">
               {t({ en: "Now streaming", zh: "正在热播" })}
             </Text>
           </Specimen>
           <Specimen caption='transform="capitalize"'>
-            <Text variant="caption" transform="capitalize">
+            <Text look="caption" transform="capitalize">
               {t({ en: "now streaming", zh: "正在热播" })}
             </Text>
           </Specimen>
           <Specimen caption='transform="lowercase"'>
-            <Text variant="caption" transform="lowercase">
+            <Text look="caption" transform="lowercase">
               {t({ en: "NOW STREAMING", zh: "正在热播" })}
             </Text>
           </Specimen>
@@ -248,140 +248,17 @@ export function TextShowcase() {
         </div>
       </Showcase>
 
-      <PropsTable
-        rows={[
-          {
-            name: "children",
-            type: "ReactNode",
-            required: true,
-            description: t({
-              en: "Text content to render.",
-              zh: "要渲染的文本内容。",
-            }),
-          },
-          {
-            name: "as",
-            type: '"p" | "span" | "div"',
-            defaultValue: '"p"',
-            description: t({
-              en: "Semantic element to render, decoupled from the visual variant.",
-              zh: "要渲染的语义元素，与视觉字号相互独立。",
-            }),
-          },
-          {
-            name: "variant",
-            type: '"body" | "bodySmall" | "caption" | "overline"',
-            defaultValue: '"body"',
-            description: t({
-              en: "Type-scale step that sets font size, line height, and (for overline) tracking.",
-              zh: "字阶档位，决定字号、行高，并为 overline 设置字距。",
-            }),
-          },
-          {
-            name: "tone",
-            type: '"default" | "muted" | "subtle" | "accent"',
-            defaultValue: '"default"',
-            description: t({
-              en: "Foreground colour role, resolved per theme.",
-              zh: "前景色角色，随主题解析。",
-            }),
-          },
-          {
-            name: "weight",
-            type: '"regular" | "medium" | "semibold" | "bold"',
-            defaultValue: t({
-              en: "overline → semibold",
-              zh: "overline → 半粗",
-            }),
-            description: t({
-              en: "Font weight. Unset overline defaults to semibold; other variants inherit the base weight.",
-              zh: "字重。未设置时 overline 默认半粗，其余字号沿用基础字重。",
-            }),
-          },
-          {
-            name: "transform",
-            type: '"uppercase" | "lowercase" | "capitalize"',
-            description: t({
-              en: "Letter case, decoupled from variant — e.g. an uppercase eyebrow at caption size.",
-              zh: "字母大小写，与 variant 解耦——例如以 caption 字号呈现的大写眉标。",
-            }),
-          },
-          {
-            name: "align",
-            type: '"start" | "center" | "end"',
-            description: t({
-              en: "Logical text alignment.",
-              zh: "逻辑文本对齐方式。",
-            }),
-          },
-          {
-            name: "wrap",
-            type: '"balance" | "pretty" | "nowrap"',
-            description: t({
-              en: 'How lines break. "pretty" is the one for body copy — it avoids a one-word last line. "balance" evens every line, which suits short standalone copy but the browser caps it at a few lines.',
-              zh: '控制换行方式。"pretty" 适用于正文——可避免最后一行只剩一个词。"balance" 会让每行长度均衡，适合简短独立文案，但浏览器只对少数几行生效。',
-            }),
-          },
-          {
-            name: "numeric",
-            type: "boolean",
-            description: t({
-              en: "Renders figures at a fixed width so numbers line up in a column and a ticking value doesn't jitter.",
-              zh: "以等宽方式渲染数字，使数字在列中对齐，跳动的数值也不会抖动。",
-            }),
-          },
-          {
-            name: "id",
-            type: "string",
-            description: t({
-              en: "Id applied to the rendered element, so another node can point aria-labelledby or aria-describedby at it.",
-              zh: "应用到渲染元素上的 id，使其他节点可用 aria-labelledby 或 aria-describedby 指向它。",
-            }),
-          },
-          {
-            name: "css",
-            type: "StyleXStyles",
-            description: t({
-              en: "StyleX overrides, composed last so a caller can win over the defaults.",
-              zh: "StyleX 覆盖样式，最后合成，可覆盖默认值。",
-            }),
-          },
-          {
-            name: "className",
-            type: "string",
-            description: t({
-              en: "Escape-hatch class applied to the rendered element.",
-              zh: "应用到渲染元素上的应急 class。",
-            }),
-          },
-          {
-            name: "style",
-            type: "CSSProperties",
-            description: t({
-              en: "Inline style applied to the rendered element.",
-              zh: "应用到渲染元素上的内联样式。",
-            }),
-          },
-          {
-            name: "ref",
-            type: "Ref<HTMLElement>",
-            description: t({
-              en: "Ref to the rendered <p>, <span>, or <div>.",
-              zh: "指向渲染的 <p>、<span> 或 <div> 元素的 ref。",
-            }),
-          },
-        ]}
-      />
+      <PropsTable component="text" />
 
       <DoDont
         do={
-          <Text variant="caption" tone="muted">
+          <Text look="caption" tone="muted">
             {t({ en: "Added 3 hours ago", zh: "3 小时前添加" })}
           </Text>
         }
         doCaption={t({
-          en: "Pick a variant and tone so the type scale and theme own the size and colour.",
-          zh: "选择 variant 与 tone，让字阶与主题掌控字号和颜色。",
+          en: "Pick a look and tone so the type scale and theme own the size and colour.",
+          zh: "选择 look 与 tone，让字阶与主题掌控字号和颜色。",
         })}
         dont={
           <Text css={styles.hardCodedType}>

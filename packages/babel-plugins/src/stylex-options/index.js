@@ -2,9 +2,9 @@
 
 /**
  * The options `@stylexjs/babel-plugin` runs with wherever the site's StyleX is
- * compiled: the app's Babel config, and the component playground's adapter.
+ * compiled: the app's Babel config, and the component tinker's adapter.
  * They belong together, because a different option set yields different class
- * names and a different rule order, and the playground exists to reproduce the
+ * names and a different rule order, and the tinker exists to reproduce the
  * app's CSS exactly.
  *
  * @param {object} options

@@ -266,7 +266,7 @@ export function SpriteEditor() {
             source={source}
             onSourceChange={setSource}
           />
-          <Divider variant="subtle" css={styles.divider} />
+          <Divider look="subtle" css={styles.divider} />
           <GridControls
             source={source}
             grid={grid}
@@ -274,9 +274,9 @@ export function SpriteEditor() {
             output={output}
             onOutputChange={setOutput}
           />
-          <Divider variant="subtle" css={styles.divider} />
+          <Divider look="subtle" css={styles.divider} />
           <GuideControls guides={guides} onGuidesChange={setGuides} />
-          <Divider variant="subtle" css={styles.divider} />
+          <Divider look="subtle" css={styles.divider} />
           <div css={styles.actions}>
             <Button
               icon={

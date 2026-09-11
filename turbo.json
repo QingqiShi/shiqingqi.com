@@ -32,7 +32,12 @@
         "public/pwa-*.png",
         "src/app/manifest.json"
       ],
-      "inputs": ["src/**/*.{ts,tsx,js,mjs,json}", "$TURBO_DEFAULT$"]
+      "inputs": [
+        "src/**/*.{ts,tsx,js,mjs,json}",
+        "../../packages/ui/src/components/**/*.tsx",
+        "../../packages/ui/package.json",
+        "$TURBO_DEFAULT$"
+      ]
     },
     "build": {
       "dependsOn": ["^build"],

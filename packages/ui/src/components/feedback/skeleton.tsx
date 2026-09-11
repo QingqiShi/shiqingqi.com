@@ -12,23 +12,43 @@ import type { StyleProp } from "../../types.ts";
 import { skeletonTokens } from "./skeleton.stylex.ts";
 
 interface SkeletonProps {
-  /** Stretch to fill the parent's inline and block size. */
+  /**
+   * Stretch to fill the parent's inline and block size.
+   *
+   * @zh 拉伸以填满父元素的内联与块级尺寸。
+   */
   fill?: boolean;
   /**
    * Inline size. A number is treated as pixels; a string is passed through
    * verbatim (e.g. `"100%"` or a token reference).
+   *
+   * @zh 内联尺寸。数字按像素处理；字符串按原样传入（例如 `"100%"` 或令牌引用）。
    */
   width?: string | number;
   /**
    * Block size. A number is treated as pixels; a string is passed through
    * verbatim.
+   *
+   * @zh 块级尺寸。数字按像素处理；字符串按原样传入。
    */
   height?: string | number;
-  /** Staggers the pulse start by N milliseconds — useful for lists of rows. */
+  /**
+   * Staggers the pulse start by N milliseconds — useful for lists of rows.
+   *
+   * @zh 将脉动起点错开 N 毫秒——适用于多行列表。
+   */
   delay?: number;
-  /** StyleX overrides, composed last so a caller can win over the defaults. */
+  /**
+   * StyleX overrides, composed last so a caller can win over the defaults.
+   *
+   * @zh StyleX 覆盖样式，最后合成，使调用方可以覆盖默认值。
+   */
   css?: StyleProp;
-  /** Ref to the rendered element. */
+  /**
+   * Ref to the rendered element.
+   *
+   * @zh 指向渲染元素的 ref。
+   */
   ref?: Ref<HTMLDivElement>;
 }
 

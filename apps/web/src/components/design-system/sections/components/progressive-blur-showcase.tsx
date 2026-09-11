@@ -1,5 +1,3 @@
-"use client";
-
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
@@ -8,7 +6,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { guidelineDiagram } from "../../guideline-diagram.stylex.ts";
@@ -16,13 +14,14 @@ import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { Specimen } from "../../specimen.tsx";
 import { WireframeBar } from "../../specimens/wireframe-bar.tsx";
+import { BlurredDialogMock, MeltDemo } from "./progressive-blur-specimens.tsx";
 
 export function ProgressiveBlurShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Progressive blur", zh: "渐进虚化" })}>
         <div css={[flex.col, styles.stack]}>
-          <Text variant="bodySmall" tone="muted">
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "A stack of blurred layers radiating from the floating element on every side, strongest against it and easing to sharp further out. The floating element is passed in, so the ramp runs out of its rect — measured, or reach in from the box's edges — and no callsite states a direction. Each layer is masked by a rounded rect around that element, so the field stays round the whole way out. Each also carries a share of a faint Wash of the page colour, so anything glaring behind the element is washed out rather than left at full contrast, and the Wash eases away with the blur. The layers are aria-hidden and ignore pointer events, so a dismissal click outside the element passes straight through to whatever sits behind it.",
               zh: "一组虚化图层从悬浮元素向四周辐射，紧贴元素处最强，越向外越清晰。悬浮元素作为子元素传入，坡度自它的矩形向外展开——或由测量得出，或由 reach 从虚化框边缘内推——因此调用处无需指定方向。每一层都由环绕该元素的圆角矩形遮罩，因此虚化范围由内到外始终是圆的。每一层还各自带有一份淡淡的页面底色淡彩，元素背后过于刺眼的内容会被冲淡，而不是保持原有的强对比，淡彩也随虚化一同向外淡出。这些图层对无障碍隐藏且不响应指针事件，元素之外的关闭点击会直接穿透到后方内容。",
@@ -40,54 +39,7 @@ export function ProgressiveBlurShowcase() {
         </div>
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
-            {
-              name: "children",
-              type: "ReactNode",
-              description: t({
-                en: "The floating element the blur radiates from. The ramp runs out of its rect — measured, or reach in from the box's edges — so it needs no direction; it renders above the layers and stays interactive while they let clicks through.",
-                zh: "虚化向四周辐射所依据的悬浮元素。坡度自它的矩形向外展开——或由测量得出，或由 reach 从虚化框边缘内推——因此无需指定方向；它渲染在图层之上并保持可交互，而图层本身让点击穿透。",
-              }),
-            },
-            {
-              name: "radius",
-              type: "number",
-              defaultValue: "16",
-              description: t({
-                en: "Nominal blur radius in px at the strongest point, against the floating element; clamped to the cap (32).",
-                zh: "最强处（紧贴悬浮元素处）的名义虚化半径（像素），会被限制在上限（32）以内。",
-              }),
-            },
-            {
-              name: "isShown",
-              type: "boolean",
-              defaultValue: "true",
-              description: t({
-                en: "Whether the blur is shown; toggling animates the radius away and back, so keep the element mounted while the exit plays.",
-                zh: "是否显示虚化；切换时半径会平滑地消失或恢复，因此退场动画播放期间应保持元素挂载。",
-              }),
-            },
-            {
-              name: "reach",
-              type: "number",
-              description: t({
-                en: "How far the blur reaches past the floating element, in px, on every side. Set it and the box is the element plus this margin: the root wraps the element in flow, the element's rect follows from the box by construction, and the layers sit in a fixed box placed by measuring the element — so they never add to the page's scrollable area and no rounded ancestor clips them. An ancestor with a transform, a filter or contain becomes that box's containing block and moves and clips it. Leave it unset and the box fills the positioned ancestor, placed via css — that ancestor carries the corners, which the box and the layers take from it by inheritance, so nothing above the layers may clip: not that ancestor, and not a rounded ancestor of it.",
-                zh: "虚化越过悬浮元素向外延伸的距离（像素），四边相同。设置后，虚化框即元素加上这一圈边距：根元素在文档流中包住元素，元素的矩形由虚化框本身推出，图层置于一个按元素测量定位的 fixed 框内——因此不会计入页面的可滚动区域，也不会被带圆角的祖先裁切。带有 transform、filter 或 contain 的祖先会成为该框的包含块，使它错位并被裁切。不设置时，虚化框填满最近的定位祖先，由 css 决定位置——圆角由该祖先承载，虚化框与图层都从它继承取用，因此图层之上不得有任何 overflow 裁切：该祖先不行，它带圆角的祖先也不行。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleProp",
-              description: t({
-                en: "StyleX styles merged over the component's own — the escape hatch for placement and plane (position, inset, z-index).",
-                zh: "与组件自身样式合并的 StyleX 样式——用于控制位置与层级（position、inset、z-index）的逃生舱。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="progressive-blur" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
@@ -108,82 +60,6 @@ export function ProgressiveBlurShowcase() {
 }
 
 /**
- * A bounded mock page with a centred dialog floating over it — the case the
- * measured ramp exists for. The blur radiates on all four sides and the page is
- * sharp again well before the mock page's own edges. Shared with the melt demo
- * below, so that demo toggles the same shape this one introduces.
- */
-function BlurredDialogMock({ isShown }: { isShown?: boolean }) {
-  return (
-    <div css={[corner.radius_3, styles.mockPage]}>
-      <div css={[flex.col, styles.mockContent]}>
-        <Text variant="bodySmall">
-          {t({
-            en: "This draft has three edits that haven't been saved to the shared copy yet.",
-            zh: "这份草稿有三处修改尚未保存到共享副本。",
-          })}
-        </Text>
-        <Text variant="bodySmall">
-          {t({
-            en: "Anyone opening the shared copy still sees the version from Tuesday.",
-            zh: "打开共享副本的人看到的仍是周二的版本。",
-          })}
-        </Text>
-        <Text variant="bodySmall" tone="muted">
-          {t({
-            en: "Autosave runs every five minutes while the editor stays open.",
-            zh: "编辑器保持打开时，自动保存每五分钟运行一次。",
-          })}
-        </Text>
-      </div>
-      <ProgressiveBlur isShown={isShown}>
-        <div css={[popoverSurface.base, styles.mockDialog]}>
-          <Text variant="bodySmall" weight="semibold">
-            {t({ en: "Discard three edits?", zh: "放弃三处修改？" })}
-          </Text>
-          <Text variant="bodySmall" tone="muted">
-            {t({
-              en: "The shared copy keeps Tuesday's version. This cannot be undone.",
-              zh: "共享副本将保留周二的版本。此操作无法撤销。",
-            })}
-          </Text>
-          <div css={[flex.row, styles.mockDialogActions]}>
-            <Button size="sm">
-              {t({ en: "Keep editing", zh: "继续编辑" })}
-            </Button>
-            <Button variant="primary" size="sm">
-              {t({ en: "Discard edits", zh: "放弃修改" })}
-            </Button>
-          </div>
-        </div>
-      </ProgressiveBlur>
-    </div>
-  );
-}
-
-/** The consumer owns `isShown`, so a specimen has to own it too. */
-function MeltDemo() {
-  const [isShown, setIsShown] = useState(true);
-
-  return (
-    <div css={[flex.col, styles.meltStack]}>
-      <BlurredDialogMock isShown={isShown} />
-      <Button
-        size="sm"
-        css={styles.meltToggle}
-        onClick={() => {
-          setIsShown((shown) => !shown);
-        }}
-      >
-        {isShown
-          ? t({ en: "Hide blur", zh: "隐藏虚化" })
-          : t({ en: "Show blur", zh: "显示虚化" })}
-      </Button>
-    </div>
-  );
-}
-
-/**
  * A popup hanging off a trigger at the end of a bar — the static box `reach`
  * exists for. The blur's box is the popup plus 96px on every side: a fixed box
  * that follows the popup, so no rounded ancestor cuts it and it stays out of
@@ -193,7 +69,7 @@ function BlurredPopupMock() {
   return (
     <div css={[corner.radius_3, styles.mockPage]}>
       <div css={[flex.between, styles.mockBar]}>
-        <Text variant="bodySmall" weight="semibold">
+        <Text look="bodySmall" weight="semibold">
           {t({ en: "Watchlist", zh: "待看清单" })}
         </Text>
         <div css={styles.mockAnchor}>
@@ -201,7 +77,7 @@ function BlurredPopupMock() {
           <div css={styles.mockPopupHang}>
             <ProgressiveBlur reach={96} radius={12}>
               <div css={[popoverSurface.base, styles.mockPopup]}>
-                <Button size="sm" variant="primary">
+                <Button size="sm" look="primary">
                   {t({ en: "Newest first", zh: "最新在前" })}
                 </Button>
                 <Button size="sm">
@@ -216,19 +92,19 @@ function BlurredPopupMock() {
         </div>
       </div>
       <div css={[flex.col, styles.mockPopupContent]}>
-        <Text variant="bodySmall">
+        <Text look="bodySmall">
           {t({
             en: "Forty-one titles are saved, and the six added this month sit at the top of the list until the sort changes.",
             zh: "共保存了四十一部作品，本月新增的六部会排在最前，直到排序方式改变为止。",
           })}
         </Text>
-        <Text variant="bodySmall">
+        <Text look="bodySmall">
           {t({
             en: "Two of them leave the service you watch them on at the end of next week.",
             zh: "其中两部将在下周末从你观看它们的服务上下架。",
           })}
         </Text>
-        <Text variant="bodySmall" tone="muted">
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "Sorting changes this view only — the shared list keeps its own order.",
             zh: "排序只影响当前视图——共享清单保留自己的顺序。",
@@ -329,31 +205,6 @@ const styles = stylex.create({
     borderColor: color.neutralBorder,
     backgroundColor: color.bgSurface,
   },
-  // The copy runs the height of the mock rather than sitting in a block at the
-  // top: the ramp is only visible where there is page under it, so a dialog
-  // centred over a single block would show its blur above and nowhere else.
-  mockContent: {
-    flexGrow: 1,
-    justifyContent: "space-between",
-    gap: space._2,
-    maxInlineSize: "17rem",
-  },
-  mockDialog: {
-    position: "absolute",
-    insetBlockStart: "50%",
-    insetInlineStart: "50%",
-    transform: "translate(-50%, -50%)",
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-    inlineSize: "min(22rem, 70%)",
-    paddingBlock: space._3,
-    paddingInline: space._3,
-  },
-  mockDialogActions: {
-    justifyContent: "flex-end",
-    gap: space._2,
-  },
   mockBar: {
     gap: space._3,
   },
@@ -380,12 +231,6 @@ const styles = stylex.create({
     flexGrow: 1,
     justifyContent: "space-between",
     gap: space._2,
-  },
-  meltStack: {
-    gap: space._3,
-  },
-  meltToggle: {
-    alignSelf: "flex-start",
   },
   diagramPanel: {
     position: "absolute",

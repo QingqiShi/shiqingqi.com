@@ -57,10 +57,10 @@ export function AnnotatedRegion({
       {children}
       {annotated ? (
         <p css={styles.caption}>
-          <Text as="span" variant="overline" tone="accent" weight="bold">
+          <Text as="span" look="overline" tone="accent" weight="bold">
             {label}
           </Text>
-          <Text as="span" variant="caption" tone="subtle" css={styles.composes}>
+          <Text as="span" look="caption" tone="subtle" css={styles.composes}>
             {composes}
           </Text>
         </p>

@@ -105,9 +105,9 @@ describe("specimen-source", () => {
       const code = `${IMPORTS}
 export function ButtonShowcase() {
   return (
-    <Showcase label={t({ en: "Variants", zh: "风格" })}>
+    <Showcase label={t({ en: "Looks", zh: "外观" })}>
       <Specimen caption="primary">
-        <Button variant="primary">{t({ en: "Primary", zh: "主要" })}</Button>
+        <Button look="primary">{t({ en: "Primary", zh: "主要" })}</Button>
       </Specimen>
     </Showcase>
   );
@@ -117,7 +117,7 @@ export function ButtonShowcase() {
       expect(sourceOf(code))
         .toBe(`import { Button } from "@tuja/ui/components/button";
 
-<Button variant="primary">Primary</Button>`);
+<Button look="primary">Primary</Button>`);
     });
 
     it("leaves an element that already has a source prop alone", () => {
@@ -671,7 +671,7 @@ export function ButtonShowcase() {
     <UsageSnippet
       code={\`import { Button } from "@tuja/ui/components/button";
 
-<Button variant="primary">Add</Button>\`}
+<Button look="primary">Add</Button>\`}
       label="tsx"
     />
   );
@@ -681,7 +681,7 @@ export function ButtonShowcase() {
       expect(sourceOf(code, "UsageSnippet"))
         .toBe(`import { Button } from "@tuja/ui/components/button";
 
-<Button variant="primary">Add</Button>`);
+<Button look="primary">Add</Button>`);
     });
 
     it("resolves a module-level constant", () => {
@@ -762,7 +762,7 @@ export function Install() {
 export function ButtonShowcase() {
   return (
     <Specimen caption="primary">
-      <Button variant="primary">Go</Button>
+      <Button look="primary">Go</Button>
     </Specimen>
   );
 }
@@ -770,7 +770,7 @@ export function ButtonShowcase() {
 
       const [{ tokens }] = collect(code);
       expect(tokens).toContainEqual(["component", "Button"]);
-      expect(tokens).toContainEqual(["attr", "variant"]);
+      expect(tokens).toContainEqual(["attr", "look"]);
       expect(tokens).toContainEqual(["keyword", "import"]);
     });
   });

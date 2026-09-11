@@ -370,7 +370,7 @@ export function MotionShowcase() {
       </Showcase>
 
       <Callout
-        variant="info"
+        intent="info"
         title={t({ en: "Reduced motion", zh: "减少动态效果" })}
       >
         {t({

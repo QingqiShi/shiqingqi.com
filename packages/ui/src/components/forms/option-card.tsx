@@ -11,7 +11,7 @@ import { cardSurface } from "../surfaces/card.stylex.ts";
 import { optionCardSurface } from "./option-card.stylex.ts";
 import { SelectionMark } from "./selection-mark.tsx";
 
-export type OptionCardVariant = "row" | "tile";
+export type OptionCardLook = "row" | "tile";
 
 /**
  * Whether the card is one of a mutually exclusive set or an independent
@@ -22,24 +22,58 @@ export type OptionCardVariant = "row" | "tile";
 export type OptionCardRole = "radio" | "checkbox";
 
 interface OptionCardOwnProps {
-  /** The card's primary text, and its accessible name on its own. */
+  /**
+   * The card's primary text, and its accessible name on its own — nothing
+   * else in the card joins the name.
+   *
+   * @zh 卡片的主文本，并单独构成其可访问名称——卡片内的其他内容都不会加入该名称。
+   */
   label: ReactNode;
-  /** Supporting copy beneath the label, wired up as the card's description. */
+  /**
+   * Supporting copy beneath the label, attached as the card's description via
+   * `aria-describedby`.
+   *
+   * @zh 标签下方的辅助说明，通过 `aria-describedby` 关联为卡片的描述。
+   */
   description?: ReactNode;
-  /** Decorative leading graphic, rendered `aria-hidden`. */
+  /**
+   * Decorative leading graphic, rendered `aria-hidden`. Tints to the accent
+   * colour once the card is selected.
+   *
+   * @zh 前置的装饰性图形，以 `aria-hidden` 渲染。卡片被选中后会染上强调色。
+   */
   icon?: ReactNode;
   /**
    * Replaces the selection indicator, which defaults to a radio dot or a
    * checkbox tick following `role`. Pass `null` for a card with no indicator.
+   *
+   * @zh 替换选中指示符，默认依据 `role` 呈现为单选圆点或复选勾号，传入 `null` 则完全不显示指示符。
    */
   indicator?: ReactNode;
-  /** Paints the card as chosen, and supplies `aria-checked` when `role` is set. */
+  /**
+   * Paints the card as chosen, and supplies `aria-checked` when `role` is set.
+   *
+   * @zh 把卡片绘制为已选中状态；设置了 `role` 时同时提供 `aria-checked`。
+   */
   selected?: boolean;
-  /** A full-width row, or a centred tile for a grid of small cards. */
-  variant?: OptionCardVariant;
-  /** Bespoke content under the description — the drop-a-layer escape hatch. */
+  /**
+   * A full-width row, or a centred tile for a grid of small cards.
+   *
+   * @zh 撑满宽度的行，或用于小卡片网格的居中方块。
+   */
+  look?: OptionCardLook;
+  /**
+   * Bespoke content under the description — the escape hatch to the custom
+   * layer. It stays out of the accessible name.
+   *
+   * @zh 说明下方的自定义内容——通往自定义层的逃生舱口，不会进入可访问名称。
+   */
   children?: ReactNode;
-  /** StyleX styles merged over the card — composed last so a caller wins. */
+  /**
+   * StyleX styles merged over the card — composed last so a caller wins.
+   *
+   * @zh 合并到卡片上的 StyleX 样式，最后合成，使调用方可覆盖。
+   */
   css?: StyleProp;
 }
 
@@ -48,7 +82,13 @@ type OptionCardProps = OptionCardOwnProps &
     ComponentProps<"button">,
     "children" | "role" | "className" | "style"
   > & {
-    /** Selection semantics. Omit for a card that merely acts when pressed. */
+    /**
+     * Selection semantics, and the difference a screen reader hears: a radio
+     * announces "one of N", a checkbox "on/off". Omit for a card that merely
+     * acts when pressed.
+     *
+     * @zh 选择语义，也是屏幕阅读器听到的差别：单选项朗读为“N 选一”，复选框朗读为“开/关”。若卡片只是按下即执行动作，则不要设置。
+     */
     role?: OptionCardRole;
   };
 
@@ -64,7 +104,7 @@ export function OptionCard({
   icon,
   indicator,
   selected = false,
-  variant = "row",
+  look = "row",
   children,
   role,
   type = "button",
@@ -115,7 +155,7 @@ export function OptionCard({
         cardSurface.interactive,
         transition.colors,
         optionCardSurface.base,
-        styles[variant],
+        styles[look],
         selected && optionCardSurface.selected,
         disabled === true && optionCardSurface.disabled,
         css,
@@ -147,7 +187,7 @@ export function OptionCard({
       </span>
       {resolvedIndicator ? (
         <span
-          css={[styles.indicator, variant === "tile" && styles.indicatorTile]}
+          css={[styles.indicator, look === "tile" && styles.indicatorTile]}
           aria-hidden
         >
           {resolvedIndicator}

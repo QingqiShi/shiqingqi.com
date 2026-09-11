@@ -13,11 +13,11 @@ export function DisclosureSpecimen() {
   return (
     <div css={specimenLayout.fill}>
       <Disclosure
-        variant="card"
+        look="card"
         defaultOpen
         summary={t({ en: "Production notes", zh: "制作说明" })}
       >
-        <Text variant="bodySmall" tone="muted">
+        <Text look="bodySmall" tone="muted">
           {t({ en: "Shot on location over 40 days.", zh: "实景拍摄四十天。" })}
         </Text>
       </Disclosure>

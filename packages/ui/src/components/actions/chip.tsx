@@ -6,24 +6,44 @@ import type { StyleProp } from "../../types.ts";
 import { chipSize, chipSurface } from "./chip.stylex.ts";
 
 interface ChipBaseProps {
-  /** Chip contents — usually a short label. */
+  /**
+   * Chip contents — usually a short label.
+   *
+   * @zh 标签按钮的内容——通常是简短标签。
+   */
   children: ReactNode;
-  /** Decorative leading icon, rendered `aria-hidden`. */
+  /**
+   * Decorative leading icon, rendered `aria-hidden`.
+   *
+   * @zh 装饰性前置图标，以 `aria-hidden` 渲染。
+   */
   icon?: ReactNode;
   /**
    * Trailing content — a count, a note, a caret. Unlike `icon` it stays in the
    * accessibility tree, so it reads as part of the chip's name.
+   *
+   * @zh 尾部内容——计数、备注或箭头。与 `icon` 不同，它保留在无障碍树中，因此会作为标签按钮名称的一部分被朗读。
    */
   trailing?: ReactNode;
-  /** Height and type scale. Defaults to `"md"`. */
+  /**
+   * Height and type scale.
+   *
+   * @zh 高度与字号阶梯。
+   */
   size?: "sm" | "md";
   /**
    * Paints the chip as the selected one. On the button form this also emits
    * `aria-pressed`; on the anchor form it's visual only — mark the current
    * link with `aria-current` yourself.
+   *
+   * @zh 将标签按钮绘制为选中态。按钮形态下还会输出 `aria-pressed`；锚点形态下仅有视觉效果——请自行用 `aria-current` 标记当前链接。
    */
   isActive?: boolean;
-  /** StyleX styles merged over the chip's own — composed last so a caller wins. */
+  /**
+   * StyleX styles merged over the chip's own — composed last so a caller wins.
+   *
+   * @zh 最后合成的 StyleX 覆盖样式，使调用方可覆盖默认值。
+   */
   css?: StyleProp;
 }
 
@@ -34,10 +54,15 @@ interface ChipBaseProps {
  */
 type ChipProps = ChipBaseProps &
   (
-    | ({ href: string } & Omit<
-        ComponentProps<"a">,
-        "children" | "className" | "style"
-      >)
+    | ({
+        /**
+         * Renders an anchor instead of a button, forwarding the rest of
+         * `<a>`'s native attributes.
+         *
+         * @zh 渲染为锚点而非按钮，并转发 `<a>` 的其余原生属性。
+         */
+        href: string;
+      } & Omit<ComponentProps<"a">, "children" | "className" | "style">)
     | ({ href?: undefined } & Omit<
         ComponentProps<"button">,
         "children" | "className" | "style"

@@ -25,7 +25,7 @@ export function ProjectCard({
         <div css={[flex.row, styles.logo]}>{icon}</div>
         <div css={styles.name}>{name}</div>
       </div>
-      <Text as="div" variant="bodySmall" tone="muted">
+      <Text as="div" look="bodySmall" tone="muted">
         {description}
       </Text>
     </Card>

@@ -71,7 +71,7 @@ export function SidebarLayoutShowcase() {
                     <Heading level={2}>
                       {t({ en: "Content column", zh: "内容列" })}
                     </Heading>
-                    <Text variant="bodySmall" tone="muted">
+                    <Text look="bodySmall" tone="muted">
                       {t({
                         en: "Your page renders in the content column, capped to a readable width beside the rail.",
                         zh: "你的页面渲染在这里，在侧栏旁保持可读宽度。",
@@ -105,89 +105,7 @@ export function SidebarLayoutShowcase() {
 
       <UsageSnippet code={usage} />
 
-      <PropsTable
-        rows={[
-          {
-            name: "sidebar",
-            type: "ReactNode",
-            required: true,
-            description: t({
-              en: "Navigation content. Renders inside the sticky rail on wider viewports and inside the drawer on mobile; scrolls independently when it outgrows the viewport.",
-              zh: "导航内容。宽视口下渲染在粘性侧栏中，移动端渲染在抽屉里；超出视口时可独立滚动。",
-            }),
-          },
-          {
-            name: "sidebarHeader",
-            type: "ReactNode",
-            description: t({
-              en: "Title region — shown at the top of the rail, in the collapsed mobile bar, and at the top of the drawer.",
-              zh: "标题区域——显示在侧栏顶部、收起的移动端悬浮条中以及抽屉顶部。",
-            }),
-          },
-          {
-            name: "sidebarFooter",
-            type: "ReactNode",
-            description: t({
-              en: "Utility region pinned to the bottom of the rail and the drawer — theme toggles, language pickers, and similar controls.",
-              zh: "固定在侧栏与抽屉底部的实用区域——主题切换、语言选择等控件。",
-            }),
-          },
-          {
-            name: "menuLabel",
-            type: "string",
-            required: true,
-            description: t({
-              en: "Accessible name for the mobile menu button and the open drawer dialog. The package ships no i18n, so the consumer supplies the localised string.",
-              zh: "移动端菜单按钮与打开的抽屉对话框的无障碍名称。组件库不内置 i18n，由调用方提供本地化文案。",
-            }),
-          },
-          {
-            name: "closeLabel",
-            type: "string",
-            required: true,
-            description: t({
-              en: "Accessible label for the drawer's close button.",
-              zh: "抽屉关闭按钮的无障碍标签。",
-            }),
-          },
-          {
-            name: "children",
-            type: "ReactNode",
-            required: true,
-            description: t({
-              en: "Content column, capped to a readable width and centred beside the rail.",
-              zh: "内容列，限制在可读宽度内并在侧栏旁居中。",
-            }),
-          },
-          {
-            name: "contentMaxInlineSize",
-            type: "string",
-            defaultValue: "layout.maxInlineSize",
-            description: t({
-              en: "Caps the centred content column; pass a narrower value for prose-heavy pages.",
-              zh: "限制居中内容列的宽度；文字密集的页面可传入更窄的值。",
-            }),
-          },
-          {
-            name: "sidebarInlineSize",
-            type: "string",
-            defaultValue: '"240px"',
-            description: t({
-              en: "Inline size of the rail column on wider viewports.",
-              zh: "宽视口下侧栏列的行内尺寸。",
-            }),
-          },
-          {
-            name: "as",
-            type: '"main" | "div"',
-            defaultValue: '"main"',
-            description: t({
-              en: "Landmark element for the content region. Use div when nested inside a shell that already owns the main landmark.",
-              zh: "内容区域的地标元素。当嵌套在已拥有 main 地标的外壳内时使用 div。",
-            }),
-          },
-        ]}
-      />
+      <PropsTable component="sidebar-layout" />
 
       <DoDont
         do={

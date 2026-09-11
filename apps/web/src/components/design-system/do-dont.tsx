@@ -39,17 +39,12 @@ export function DoDont({
           <span css={[styles.icon, styles.doText]}>
             <CheckIcon />
           </span>
-          <Text
-            as="span"
-            variant="caption"
-            weight="semibold"
-            css={styles.doText}
-          >
+          <Text as="span" look="caption" weight="semibold" css={styles.doText}>
             {doLabel}
           </Text>
         </div>
         <div css={styles.example}>{doExample}</div>
-        <Text variant="caption" tone="muted">
+        <Text look="caption" tone="muted">
           {doCaption}
         </Text>
       </div>
@@ -60,7 +55,7 @@ export function DoDont({
           </span>
           <Text
             as="span"
-            variant="caption"
+            look="caption"
             weight="semibold"
             css={styles.dontText}
           >
@@ -68,7 +63,7 @@ export function DoDont({
           </Text>
         </div>
         <div css={styles.example}>{dont}</div>
-        <Text variant="caption" tone="muted">
+        <Text look="caption" tone="muted">
           {dontCaption}
         </Text>
       </div>

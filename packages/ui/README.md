@@ -334,7 +334,7 @@ const styles = stylex.create({
 export function Example() {
   return (
     <div css={[flex.column, styles.card]}>
-      <Button variant="primary">Save</Button>
+      <Button look="primary">Save</Button>
     </div>
   );
 }
@@ -370,7 +370,7 @@ components.
 | `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                               |
 | `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                        |
 | `@tuja/ui/components/badge`                   | Status/label badge on the Chip pill skin (six Intents plus a default, `sm`/`md`).                                                                       |
-| `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger variants, three sizes, loading state); icon-only with `icon` and no children.                                      |
+| `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger looks, three sizes, loading state); icon-only with `icon` and no children.                                         |
 | `@tuja/ui/components/button.stylex`           | Button style tokens.                                                                                                                                    |
 | `@tuja/ui/components/button-shared.stylex`    | Shared button styles (base, icon, active, pressed).                                                                                                     |
 | `@tuja/ui/components/callout`                 | Inline message/alert box (six Intents, built-in icon, optional dismiss).                                                                                |

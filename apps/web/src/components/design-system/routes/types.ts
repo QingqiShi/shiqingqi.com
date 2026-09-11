@@ -37,7 +37,15 @@ export interface DesignSystemRoute {
    * word the system actually uses.
    */
   keywords?: readonly string[];
+  /**
+   * Set when the route has a Lab at `<path>/lab`. The Lab is not a nav entry
+   * and not an overview tile, so the flag is the only place it is registered.
+   */
+  lab?: true;
 }
+
+/** A route's two views: its documentation, and its Lab. */
+export type DesignSystemView = "docs" | "lab";
 
 /** Union of every registered path — lets consumers type copy maps for exhaustiveness. */
 export type DesignSystemPath = (typeof DESIGN_SYSTEM_ROUTES)[number]["path"];

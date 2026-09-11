@@ -88,7 +88,7 @@ export function TextureShowcase() {
 
       <div css={styles.dialGrid}>
         <SpecCard token="textureTokens.pitch" meta="default: space._1">
-          <Text variant="caption" tone="muted">
+          <Text look="caption" tone="muted">
             {t({
               en: "The gap between marks. Raise it on a wide surface, lower it on a small card. The mark itself keeps one size; the pitch is the only dimension that moves.",
               zh: "标记之间的间隔。宽表面调大，小卡片调小。标记本身只有一种尺寸；间距是唯一会变的尺寸。",
@@ -96,7 +96,7 @@ export function TextureShowcase() {
           </Text>
         </SpecCard>
         <SpecCard token="textureTokens.ink" meta="default: color.neutralBorder">
-          <Text variant="caption" tone="muted">
+          <Text look="caption" tone="muted">
             {t({
               en: "The mark's colour. Keep it close to the surface it sits on.",
               zh: "标记的颜色。让它贴近所处的表面。",

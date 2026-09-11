@@ -52,9 +52,7 @@ test.describe("Specimen source", () => {
 
     // The real variant, from the real specimen.
     expect(
-      snippets.some((snippet) =>
-        snippet.includes('<Button variant="primary">'),
-      ),
+      snippets.some((snippet) => snippet.includes('<Button look="primary">')),
     ).toBe(true);
 
     // Every snippet opens with the imports that make it runnable.

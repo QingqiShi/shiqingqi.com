@@ -25,29 +25,52 @@ import { Button } from "../actions/button.tsx";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 interface OverlayBaseProps {
-  /** Whether the overlay is shown. */
+  /**
+   * The overlay's content. It unmounts on close and remounts on every open,
+   * so lift any state that has to survive the round trip.
+   *
+   * @zh 覆盖层的内容；由使用方掌控。
+   */
+  children?: ReactNode;
+  /**
+   * Whether the overlay is shown; the consumer owns this state.
+   *
+   * @zh 覆盖层是否显示；该状态由使用方掌控。
+   */
   isOpen: boolean;
   /**
    * Called when the user requests dismissal — Escape, a backdrop click, or
    * the close button. The consumer owns the open state.
+   *
+   * @zh 在关闭时调用——Escape、点击背景或关闭按钮。
    */
   onClose: () => void;
   /**
    * Accessible label for the close button. Required — the package ships no
    * i18n, so the consumer supplies the localized string (config layer).
+   *
+   * @zh 关闭按钮的可访问标签；该包不内置 i18n，由使用方提供。
    */
   closeLabel: string;
-  /** Icon rendered inside the close button. Defaults to a Phosphor X icon. */
+  /**
+   * Icon rendered inside the close button. Defaults to a Phosphor X icon.
+   *
+   * @zh 关闭按钮内渲染的图标。默认为内置的 X 图标。
+   */
   closeIcon?: ReactNode;
   /**
    * Where to render the portal. Defaults to `document.body`. Pass an explicit
    * target (e.g. an app-managed portal root) to scope the overlay; pass `null`
    * to defer rendering until a target is available.
+   *
+   * @zh portal 渲染到哪里；传入 null 可延迟到目标可用为止。
    */
   portalTarget?: Element | DocumentFragment | null;
   /**
    * Element to focus when the overlay opens. Falls back to the first
    * tabbable element inside the dialog (the close button).
+   *
+   * @zh 覆盖层打开时聚焦的元素；回退到关闭按钮。
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
 }
@@ -58,13 +81,21 @@ interface OverlayBaseProps {
  */
 type OverlayLabelProps =
   | {
-      /** Accessible name for the dialog. */
+      /**
+       * Accessible name for the dialog.
+       *
+       * @zh 对话框的可访问名称。
+       */
       "aria-label": string;
       "aria-labelledby"?: undefined;
     }
   | {
       "aria-label"?: undefined;
-      /** Id of a visible element that names the dialog. */
+      /**
+       * Id of a visible element that names the dialog.
+       *
+       * @zh 用来命名对话框的可见元素 id。
+       */
       "aria-labelledby": string;
     };
 

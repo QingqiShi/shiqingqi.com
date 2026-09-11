@@ -91,7 +91,7 @@ export function WashShowcase() {
         token="washTokens.tone"
         meta="default: color.surfaceNeutralSubtle"
       >
-        <Text variant="caption" tone="muted">
+        <Text look="caption" tone="muted">
           {t({
             en: "The tone is the one dial, and it sets both the colour and the strength: a Subtle tone lifts the surface a little, a Muted one gives it more weight. An accent tone belongs only on a surface that already carries the accent; anywhere else it turns a wash into decoration.",
             zh: "色调是唯一的旋钮，它同时决定颜色与强度：Subtle 的色调把表面略微抬起，Muted 的色调给它更多分量。意图色的色调只属于本身已经带有该意图色的表面；用在别处，淡彩就变成了装饰。",

@@ -69,7 +69,7 @@ export function CopyBudgetSpecimen() {
           <span css={[styles.cardTitle, truncate.base]}>
             {t({ en: "Recently watched", zh: "最近观看" })}
           </span>
-          <Badge variant="success" css={styles.badge}>
+          <Badge intent="success" css={styles.badge}>
             {shown}
           </Badge>
         </div>
@@ -80,10 +80,10 @@ export function CopyBudgetSpecimen() {
           <Chip size="sm">{t({ en: "Watchlist", zh: "待看清单" })}</Chip>
         </div>
         <div css={[flex.wrap, styles.cardRow]}>
-          <Button variant="primary" size="sm">
+          <Button look="primary" size="sm">
             {shown}
           </Button>
-          <Button variant="outline" size="sm">
+          <Button look="outline" size="sm">
             {t({ en: "Cancel", zh: "取消" })}
           </Button>
         </div>

@@ -220,7 +220,7 @@ function AddToChatButton({ id, mediaType, title }: AddToChatButtonProps) {
   return (
     <Button
       icon={<ChatTextIcon weight="fill" role="presentation" />}
-      variant="primary"
+      look="primary"
       onClick={handleClick}
     >
       {t({ en: "Add to chat", zh: "添加到聊天" })}

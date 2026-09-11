@@ -5,52 +5,96 @@ import type { StyleProp } from "../../types.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 
 interface TextProps {
-  /** Semantic element to render. Defaults to `"p"`. */
+  /**
+   * Semantic element to render, decoupled from the visual look.
+   *
+   * @zh 要渲染的语义元素，与视觉字号相互独立。
+   */
   as?: "p" | "span" | "div";
-  /** Type-scale step. Defaults to `"body"`. */
-  variant?: "body" | "bodySmall" | "caption" | "overline";
-  /** Foreground colour role. Defaults to `"default"`. */
+  /**
+   * Type-scale step that sets font size, line height, and (for `overline`)
+   * tracking.
+   *
+   * @zh 字阶档位，决定字号、行高，并为 `overline` 设置字距。
+   */
+  look?: "body" | "bodySmall" | "caption" | "overline";
+  /**
+   * Foreground colour role, resolved per theme.
+   *
+   * @zh 前景色角色，随主题解析。
+   */
   tone?: "default" | "muted" | "subtle" | "accent";
-  /** Font weight. `"overline"` defaults to semibold when unset. */
+  /**
+   * Font weight. Unset `overline` defaults to semibold; other looks inherit
+   * the base weight.
+   *
+   * @zh 字重。未设置时 `overline` 默认半粗，其余字号沿用基础字重。
+   */
   weight?: "regular" | "medium" | "semibold" | "bold";
   /**
-   * Case transform, decoupled from `variant` — so an uppercase "eyebrow" label
+   * Case transform, decoupled from `look` — so an uppercase "eyebrow" label
    * can sit at any size (`caption`, `bodySmall`, …) rather than only through the
    * `overline` step.
+   *
+   * @zh 大小写转换，与 `look` 解耦——因此大写的小标题标签可以在任意字号（`caption`、`bodySmall` 等）下使用，而不必局限于 `overline` 档位。
    */
   transform?: "uppercase" | "lowercase" | "capitalize";
-  /** Text alignment (logical `start` / `center` / `end`). */
+  /**
+   * Text alignment (logical `start` / `center` / `end`).
+   *
+   * @zh 逻辑文本对齐方式。
+   */
   align?: "start" | "center" | "end";
   /**
-   * How lines break: `"pretty"` for body copy, `"balance"` for short
-   * standalone copy (a few lines at most), `"nowrap"` to keep the run on one
-   * line.
+   * How lines break. `"pretty"` avoids stranding one word on the last
+   * line — the choice for body copy. `"balance"` evens every line, which
+   * suits short standalone copy, though the browser caps how many lines it
+   * balances. `"nowrap"` keeps the run on one line.
+   *
+   * @zh 控制换行方式。`"pretty"` 避免末行只剩一个孤词，是正文的首选；`"balance"` 让每行长度均衡，适合简短独立文案，但浏览器只对有限的行数生效；`"nowrap"` 让文本保持单行。
    */
   wrap?: "balance" | "pretty" | "nowrap";
   /**
    * Renders figures at a fixed width so numbers line up in a column and a
    * ticking value doesn't jitter.
+   *
+   * @zh 以等宽方式渲染数字，使数字在列中对齐，跳动的数值也不会抖动。
    */
   numeric?: boolean;
   /**
    * Id applied to the rendered element, so another node can point
    * `aria-labelledby` / `aria-describedby` here.
+   *
+   * @zh 应用到渲染元素上的 `id`，使其他节点可用 `aria-labelledby` 或 `aria-describedby` 指向它。
    */
   id?: string;
-  /** StyleX overrides, composed last so a caller can win over the defaults. */
+  /**
+   * StyleX overrides, composed last so a caller can win over the defaults.
+   *
+   * @zh StyleX 覆盖样式，最后合成，可覆盖默认值。
+   */
   css?: StyleProp;
-  /** Ref to the rendered element (`<p>`, `<span>`, or `<div>`). */
+  /**
+   * Ref to the rendered element (`<p>`, `<span>`, or `<div>`).
+   *
+   * @zh 指向渲染的 `<p>`、`<span>` 或 `<div>` 元素的 ref。
+   */
   ref?: Ref<HTMLElement>;
+  /**
+   * Text content to render.
+   *
+   * @zh 要渲染的文本内容。
+   */
   children: ReactNode;
 }
 
 /**
  * Body-copy typography primitive. Picks the semantic element via `as` and the
- * type step via `variant`, so a `<span>` can still read at body size.
+ * type step via `look`, so a `<span>` can still read at body size.
  */
 export function Text({
   as = "p",
-  variant = "body",
+  look = "body",
   tone = "default",
   weight,
   transform,
@@ -64,11 +108,9 @@ export function Text({
 }: TextProps) {
   const textCss = [
     styles.base,
-    variantStyles[variant],
+    lookStyles[look],
     toneStyles[tone],
-    variant === "overline" && weight === undefined
-      ? weightStyles.semibold
-      : null,
+    look === "overline" && weight === undefined ? weightStyles.semibold : null,
     weight ? weightStyles[weight] : null,
     transform ? transformStyles[transform] : null,
     align ? alignStyles[align] : null,
@@ -116,7 +158,7 @@ const styles = stylex.create({
   },
 });
 
-const variantStyles = stylex.create({
+const lookStyles = stylex.create({
   body: {
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_4,

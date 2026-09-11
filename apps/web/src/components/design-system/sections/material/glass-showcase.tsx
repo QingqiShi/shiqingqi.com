@@ -66,7 +66,7 @@ function Part({
         <span css={styles.partToken}>
           <Identifier>{token}</Identifier>
         </span>
-        <Text variant="caption" tone="muted">
+        <Text look="caption" tone="muted">
           {children}
         </Text>
       </dd>
@@ -92,10 +92,10 @@ export function GlassShowcase() {
       >
         <BusyGround>
           <div css={[glassSurface.base, corner.radius_4, styles.heroCard]}>
-            <Text variant="bodySmall" weight="semibold">
+            <Text look="bodySmall" weight="semibold">
               {t({ en: "Sorted by rating", zh: "按评分排序" })}
             </Text>
-            <Text variant="caption" tone="muted">
+            <Text look="caption" tone="muted">
               {t({ en: "Highest first", zh: "最高的在前" })}
             </Text>
           </div>
@@ -225,7 +225,7 @@ export function GlassShowcase() {
 
       <div css={styles.dialGrid}>
         <SpecCard token="glassTokens.fill" meta="default: color.glassFill">
-          <Text variant="caption" tone="muted">
+          <Text look="caption" tone="muted">
             {t({
               en: "The see-through body, over the element's own blur. Its alpha is how see-through the glass is; its hue is the colour the glass carries.",
               zh: "透明的主体，覆盖在元素自身的虚化之上。它的透明度决定玻璃有多透，它的色相决定玻璃带着什么颜色。",
@@ -233,7 +233,7 @@ export function GlassShowcase() {
           </Text>
         </SpecCard>
         <SpecCard token="glassTokens.border" meta="default: color.glassBorder">
-          <Text variant="caption" tone="muted">
+          <Text look="caption" tone="muted">
             {t({
               en: "The hairline rim's colour, all the way round.",
               zh: "细边的颜色，环绕一周。",
@@ -244,7 +244,7 @@ export function GlassShowcase() {
           token="glassTokens.highlight"
           meta="default: color.glassHighlight"
         >
-          <Text variant="caption" tone="muted">
+          <Text look="caption" tone="muted">
             {t({
               en: "The light on the rim, and the band where it bounces back near the bottom edge.",
               zh: "细边上的光，以及在底边附近反弹回来的那道亮带。",
@@ -252,7 +252,7 @@ export function GlassShowcase() {
           </Text>
         </SpecCard>
         <SpecCard token="glassTokens.blur" meta="default: 8px">
-          <Text variant="caption" tone="muted">
+          <Text look="caption" tone="muted">
             {t({
               en: "The element's own blur — 0px where the ground beneath it is already opaque.",
               zh: "元素自身的虚化——若下方的底面已经不透明，则为 0px。",

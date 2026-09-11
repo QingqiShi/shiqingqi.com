@@ -15,10 +15,10 @@ export function CastPanel({ cast }: { cast: Credit[] }) {
         <li key={credit.name} css={styles.credit}>
           <Avatar name={credit.name} size="md" />
           <span css={styles.creditText}>
-            <Text as="span" variant="bodySmall" weight="medium">
+            <Text as="span" look="bodySmall" weight="medium">
               {credit.name}
             </Text>
-            <Text as="span" variant="caption" tone="subtle">
+            <Text as="span" look="caption" tone="subtle">
               {credit.character}
             </Text>
           </span>
