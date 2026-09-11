@@ -3,6 +3,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
 import { describe, expect, it } from "vitest";
+import {
+  contrastRatio,
+  relativeLuminance,
+} from "./test-support/contrast-ratio.ts";
 import { color } from "./tokens.stylex.ts";
 
 // Guards the text ladder against the two ways it can rot: a level drifting
@@ -46,23 +50,6 @@ const css = compileStylexCss([
     .filter((file) => file.endsWith(".stylex.ts"))
     .map((file) => path.join(hueDir, file)),
 ]);
-
-function channelToLinear(value8Bit: number) {
-  const v = value8Bit / 255;
-  return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-}
-
-function relativeLuminance(hex: string) {
-  const [r, g, b] = [1, 3, 5].map((i) =>
-    channelToLinear(Number.parseInt(hex.slice(i, i + 2), 16)),
-  );
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-function contrastRatio(a: string, b: string) {
-  const [x, y] = [relativeLuminance(a), relativeLuminance(b)];
-  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
-}
 
 /** CIE L*, so a step reads as perceived lightness rather than a ratio. */
 function lightness(hex: string) {

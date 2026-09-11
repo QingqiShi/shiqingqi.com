@@ -1,52 +1,18 @@
 import fs from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
-import { cyan } from "@tuja/ui/palette/cyan";
-import { gray } from "@tuja/ui/palette/gray";
-import { green } from "@tuja/ui/palette/green";
-import { purple } from "@tuja/ui/palette/purple";
-import { color } from "@tuja/ui/tokens.stylex";
 import { describe, expect, it } from "vitest";
-import { contrastRatio } from "../sections/tokens/text-role-contrast.ts";
+import { contrastRatio } from "../../test-support/contrast-ratio.ts";
+import { color } from "../../tokens.stylex.ts";
 import { syntax } from "./syntax.stylex.ts";
 import { TOKEN_KINDS } from "./token-kinds.ts";
 
-// The tones `syntax.stylex.ts` writes out. StyleX cannot inline a hue across a
-// package boundary, so this table is what keeps the two the same.
-const TONES = {
-  light: {
-    plain: gray._13,
-    keyword: purple._30,
-    string: green._30,
-    comment: gray._40,
-    number: green._30,
-    tag: gray._30,
-    component: purple._30,
-    attr: cyan._30,
-    property: cyan._30,
-    punct: gray._30,
-  },
-  dark: {
-    plain: gray._92,
-    keyword: purple._70,
-    string: green._60,
-    comment: gray._60,
-    number: green._60,
-    tag: gray._80,
-    component: purple._70,
-    attr: cyan._70,
-    property: cyan._70,
-    punct: gray._80,
-  },
-};
-
-const require = createRequire(import.meta.url);
-const tokensFile = require.resolve("@tuja/ui/tokens.stylex");
-const hueDir = path.join(path.dirname(tokensFile), "_generated/palette/hues");
+const here = path.dirname(fileURLToPath(import.meta.url));
+const tokensFile = path.join(here, "../../tokens.stylex.ts");
+const hueDir = path.join(here, "../../_generated/palette/hues");
 const css = compileStylexCss([
-  path.join(path.dirname(fileURLToPath(import.meta.url)), "syntax.stylex.ts"),
+  path.join(here, "syntax.stylex.ts"),
   tokensFile,
   ...fs
     .readdirSync(hueDir)
@@ -101,10 +67,6 @@ describe.each(["light", "dark"] as const)("%s syntax colours", (scheme) => {
 });
 
 describe("the syntax family", () => {
-  it("holds the palette tones it names", () => {
-    expect(KINDS).toEqual(TONES);
-  });
-
   it("gives every kind a colour", () => {
     // StyleX adds `__varGroupHash__` to a var group at run time.
     const members = Object.keys(syntax).filter((key) => !key.startsWith("__"));

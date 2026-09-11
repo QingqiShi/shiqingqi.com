@@ -1,6 +1,6 @@
+import type { CodeToken } from "@tuja/ui/components/code-block";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
-import type { CodeToken } from "./code/types.ts";
 import { UsageSnippet } from "./usage-snippet.tsx";
 
 const CODE = '<Badge intent="info">New</Badge>';

@@ -1,9 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
-import { CodeBlock } from "./code/code-block.tsx";
-import type { CodeToken } from "./code/types.ts";
 import { SpecimenReveal } from "./specimen-reveal.tsx";
 
 /** What this instance shows, and the token it shows it with — at least one of the two. */
