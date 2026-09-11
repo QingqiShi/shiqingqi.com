@@ -18,7 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function AvatarLabPage() {
   return (
-    <LabPage path="/design-system/components/avatar">
+    <LabPage>
       <AvatarLab />
     </LabPage>
   );

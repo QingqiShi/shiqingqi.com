@@ -18,7 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function CalloutLabPage() {
   return (
-    <LabPage path="/design-system/components/callout">
+    <LabPage>
       <CalloutLab />
     </LabPage>
   );

@@ -18,7 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function SwitchLabPage() {
   return (
-    <LabPage path="/design-system/components/switch">
+    <LabPage>
       <SwitchLab />
     </LabPage>
   );
