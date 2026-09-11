@@ -10,29 +10,51 @@ interface SectionProps extends Omit<
   ComponentProps<"section">,
   "title" | "children" | "className" | "style"
 > {
-  /** The block's label. Rendered as a real heading, so keep it to a phrase. */
+  /**
+   * The block's label. Rendered as a real heading, so keep it to a phrase.
+   *
+   * @zh 区块的标签。以真实的标题元素渲染，因此应保持为一个短语。
+   */
   title: ReactNode;
-  /** Section body. */
+  /**
+   * Section body.
+   *
+   * @zh 区块正文。
+   */
   children: ReactNode;
-  /** Decorative icon before the label, rendered `aria-hidden`. */
+  /**
+   * Decorative icon before the label, rendered `aria-hidden`.
+   *
+   * @zh 标签前的装饰性图标，以 `aria-hidden` 渲染。
+   */
   icon?: ReactNode;
   /**
    * Controls parked at the end of the heading row — a "see all" link, a filter.
    * Unlike `icon` these are real content, so they stay in the accessibility
    * tree and may be interactive.
+   *
+   * @zh 置于标题行末尾的控件——例如「查看全部」链接、筛选器。与 `icon` 不同，这些是真实内容，因此会保留在无障碍树中并可交互。
    */
   actions?: ReactNode;
   /**
    * Heading rank for the label. Defaults to `3`; set it to keep the document
    * outline honest when the section nests deeper or shallower than usual.
+   *
+   * @zh 标签的标题层级；当区块的嵌套层级比通常更深或更浅时，设置它以保持文档大纲的正确性。
    */
   level?: SectionLevel;
   /**
    * Rules the section off from what precedes it. Use it when sections follow
    * one another directly and the label alone isn't enough of a break.
+   *
+   * @zh 用分隔线将该区块与前面的内容分开。当多个区块紧密相连、仅凭标签不足以构成断点时使用。
    */
   divider?: boolean;
-  /** StyleX overrides merged over the root — composed last so a caller wins. */
+  /**
+   * StyleX overrides merged over the root — composed last so a caller wins.
+   *
+   * @zh 合并在根元素之上的 StyleX 覆盖样式——最后合成，因此调用方总能获胜。
+   */
   css?: StyleProp;
 }
 

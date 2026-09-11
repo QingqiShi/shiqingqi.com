@@ -355,7 +355,7 @@ export const color = stylex.defineVars({
 export const font = stylex.defineVars({
   family: "Inter,Inter-fallback,sans-serif",
   familyMono:
-    'ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace',
+    '"IBM Plex Mono","IBM Plex Mono-fallback",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace',
 
   // Static typography - UI elements
   uiDisplay: "3rem",

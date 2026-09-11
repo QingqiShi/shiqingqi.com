@@ -38,38 +38,53 @@ interface ProgressiveBlurProps {
    * as one, less any with no box at this breakpoint. The slot forces
    * `pointer-events: auto` on it, so a consumer keeping a hidden floating
    * element mounted switches pointer events off again inside it.
+   *
+   * @zh 虚化向四周辐射所依据的悬浮元素。坡度自它的矩形向外展开——或由测量得出，或由 reach 从虚化框边缘内推——因此无需指定方向；它渲染在图层之上并保持可交互，而图层本身让点击穿透。
    */
   children?: ReactNode;
   /**
    * Nominal blur radius in px at the strongest point, against the floating
    * element. Clamped to the cap (32).
+   *
    * @default 16
+   * @zh 最强处（紧贴悬浮元素处）的名义虚化半径（像素），会被限制在上限（32）以内。
    */
   radius?: number;
   /**
    * Whether the blur is shown. Toggling melts the radius and the Wash away and
    * back, so keep the element mounted while the exit plays.
+   *
    * @default true
+   * @zh 是否显示虚化；切换时半径会平滑地消失或恢复，因此退场动画播放期间应保持元素挂载。
    */
   isShown?: boolean;
   /**
-   * How far the blur reaches past the floating element, in px, on every side —
-   * the box is then the element plus this margin, in flow around it.
-   * Its layers sit in a `position: fixed` box, so an ancestor that makes a
-   * containing block for `fixed` (a transform, a filter, `contain`) moves and
-   * clips them.
+   * How far the blur reaches past the floating element, in px, on every side.
+   * Set it and the box is the element plus this margin, placed in a
+   * `position: fixed` box measured from the element, so it adds nothing to
+   * the page's scrollable area — but an ancestor that makes a containing
+   * block for `fixed` (a transform, a filter, `contain`) moves and clips it.
+   * Leave it unset and the box fills the positioned ancestor instead, taking
+   * that ancestor's corners by inheritance — so nothing above the layers may
+   * clip, not the ancestor and not a rounded ancestor of it.
+   *
+   * @zh 虚化越过悬浮元素向外延伸的距离（像素），四边相同。设置后，虚化框即元素加上这一圈边距：根元素在文档流中包住元素，元素的矩形由虚化框本身推出，图层置于一个按元素测量定位的 fixed 框内——因此不会计入页面的可滚动区域，也不会被带圆角的祖先裁切。带有 transform、filter 或 contain 的祖先会成为该框的包含块，使它错位并被裁切。不设置时，虚化框填满最近的定位祖先，由 css 决定位置——圆角由该祖先承载，虚化框与图层都从它继承取用，因此图层之上不得有任何 overflow 裁切：该祖先不行，它带圆角的祖先也不行。
    */
   reach?: number;
   /**
    * Whether the blur belongs on the page's Blur plane. Only `reach` reads
    * this; `false` is a popup's choice, since it covers its surrounding chrome
    * and must blur above it, not on the shared plane.
+   *
    * @default true
+   * @zh 虚化是否画在页面的虚化平面上。只有在设置了 reach 时才会读取这个值；弹层应传入 false，因为它会遮盖周围的界面元素，其虚化必须画在这些元素之上，而不是共享的虚化平面上。
    */
   isOnPlane?: boolean;
   /**
    * StyleX styles merged over the component's own — the escape hatch for
    * placement and stacking (position, inset, z-index).
+   *
+   * @zh 与组件自身样式合并的 StyleX 样式——用于控制位置与层级（position、inset、z-index）的逃生舱。
    */
   css?: StyleProp;
 }

@@ -3,6 +3,7 @@ import { scrollbar, scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { font } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
+import { codeRun } from "./code-run.stylex.ts";
 import { syntax } from "./syntax.stylex.ts";
 import type { CodeToken } from "./types.ts";
 
@@ -35,7 +36,7 @@ export function CodeBlock({ source, css }: CodeBlockProps) {
           {source.map(([kind, text], index) => (
             // A run has no identity but its position, and the array is built
             // once by the Babel plugin and never reordered.
-            <span key={index} css={kindStyles[kind]}>
+            <span key={index} css={codeRun[kind]}>
               {text}
             </span>
           ))}
@@ -59,17 +60,4 @@ const styles = stylex.create({
     color: syntax.plain,
     whiteSpace: "pre",
   },
-});
-
-const kindStyles = stylex.create({
-  plain: { color: syntax.plain },
-  keyword: { color: syntax.keyword },
-  string: { color: syntax.string },
-  comment: { color: syntax.comment, fontStyle: "italic" },
-  number: { color: syntax.number },
-  tag: { color: syntax.tag },
-  component: { color: syntax.component },
-  attr: { color: syntax.attr },
-  property: { color: syntax.property },
-  punct: { color: syntax.punct },
 });

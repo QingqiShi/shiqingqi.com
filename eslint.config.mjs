@@ -263,6 +263,9 @@ export default defineConfig([
       "apps/*/src/app/**/{sitemap,robots,manifest,opengraph-image,twitter-image,icon,apple-icon}.{ts,tsx,js,jsx}",
       "apps/*/src/{middleware,proxy,instrumentation,instrumentation-client}.ts",
       "apps/*/src/sw.ts",
+      // A showcase's operable specimens sit beside it, named after the
+      // showcase they serve: the file holds several, so none of them names it.
+      "apps/web/src/components/design-system/sections/**/*-specimens.tsx",
       // shadcn/ui generates these files and keeps its own convention.
       "apps/trip-planner/src/components/ui/**",
       // A constant-only bag is named for its category.

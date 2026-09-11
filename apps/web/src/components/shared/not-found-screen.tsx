@@ -75,10 +75,10 @@ export function NotFoundScreen() {
     <SiteHeaderFooterLayout locale={locale} readingColumn>
       <div css={[flex.col, justify.center, styles.screen]}>
         <div css={[flex.col, align.center, styles.intro]}>
-          <Text as="div" variant="overline" tone="muted">
+          <Text as="div" look="overline" tone="muted">
             404
           </Text>
-          <Heading level={1} variant="h1" align="center" wrap="balance">
+          <Heading level={1} look="h1" align="center" wrap="balance">
             {t({ en: "This page doesn't exist", zh: "该页面不存在" })}
           </Heading>
           <Text tone="muted" align="center" wrap="pretty" css={styles.lede}>

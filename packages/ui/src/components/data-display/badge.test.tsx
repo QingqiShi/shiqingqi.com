@@ -17,13 +17,13 @@ describe("Badge rendering", () => {
     expect(screen.getByText("Live").className).toContain("chipSurface.base");
   });
 
-  it("applies distinct classes per variant", () => {
+  it("applies distinct classes per intent", () => {
     const { container: def } = render(<Badge>Default</Badge>);
-    const { container: neutral } = render(<Badge variant="neutral">N</Badge>);
+    const { container: neutral } = render(<Badge intent="neutral">N</Badge>);
     const defSpan = def.querySelector("span");
     const neutralSpan = neutral.querySelector("span");
     expect(defSpan?.className).not.toBe(neutralSpan?.className);
-    expect(neutralSpan?.className).toContain("variantStyles.neutral");
+    expect(neutralSpan?.className).toContain("intentStyles.neutral");
   });
 
   it("applies distinct classes per size", () => {

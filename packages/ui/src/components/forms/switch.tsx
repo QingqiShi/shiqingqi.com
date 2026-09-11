@@ -21,6 +21,7 @@ import {
   ratio,
   shadow,
 } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 import { switchTokens } from "./switch.stylex.ts";
 
@@ -33,18 +34,37 @@ interface SwitchProps extends Omit<
   /**
    * Controlled state — the parent owns it and must update it via `onChange`.
    * Omit for an uncontrolled switch.
+   *
+   * @zh 受控状态（"off" | "on" | "indeterminate"）；与 `onChange` 搭配使用。
    */
   value?: SwitchState;
-  /** Initial state for an uncontrolled switch. Ignored once `value` is set. */
+  /**
+   * Initial state for an uncontrolled switch. Ignored once `value` is set.
+   *
+   * @zh 非受控开关的初始状态；一旦设置了 `value` 便忽略。
+   */
   defaultValue?: SwitchState;
-  /** Fires with the next state on every user toggle (pointer, keyboard, label). */
+  /**
+   * Fires with the next state on every user toggle (pointer, keyboard, label).
+   *
+   * @zh 每次用户切换（指针、键盘、标签）时以下一状态触发。
+   */
   onChange?: (state: SwitchState) => void;
   /**
    * Track-height scale via `controlSize`; the width and thumb scale with it.
    * Every size, `md` included, grows below the `md` breakpoint like the
    * `controlSize` scale.
+   *
+   * @zh 基于 `controlSize` 的轨道高度阶梯；宽度与滑块随之缩放。
    */
   size?: "sm" | "md" | "lg";
+  /**
+   * StyleX styles merged over the switch's own — the config-layer escape
+   * hatch.
+   *
+   * @zh 合并在开关自身样式之上的 StyleX 样式——配置层的逃生舱口。
+   */
+  css?: StyleProp;
 }
 
 /**

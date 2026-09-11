@@ -72,7 +72,7 @@ export function CardShowcase() {
           <Card>
             <CardHeader
               action={
-                <Badge variant="success">
+                <Badge intent="success">
                   {t({ en: "Released", zh: "已上映" })}
                 </Badge>
               }
@@ -81,7 +81,7 @@ export function CardShowcase() {
               <CardDescription>{sampleBody}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Text variant="bodySmall" tone="muted">
+              <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Each block spaces itself off the one before it rather than relying on a gap from the parent, so the slots keep their rhythm inside a plain Card or a bare element composing cardSurface. The spacing is vertical: lay the slots out in a row and you set the gap yourself.",
                   zh: "每个区块都会与前一个区块自行拉开间距，而不依赖父元素的 gap，因此这些插槽在普通卡片或仅组合 cardSurface 的裸元素中都能保持节奏。该间距为纵向：若要横向排列插槽，需自行设置 gap。",
@@ -90,13 +90,13 @@ export function CardShowcase() {
             </CardContent>
             <CardFooter>
               <Button size="sm">{t({ en: "Watch", zh: "观看" })}</Button>
-              <Button size="sm" variant="ghost">
+              <Button size="sm" look="ghost">
                 {t({ en: "Save", zh: "收藏" })}
               </Button>
             </CardFooter>
           </Card>
         </Specimen>
-        <Text variant="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "CardTitle renders a real heading — its visual size is fixed while level moves the rank, so a card stays reachable by heading navigation without distorting the outline.",
             zh: "CardTitle 渲染为真实的标题元素——视觉字号固定，由 level 调整层级，因此卡片既可通过标题导航访问，又不会破坏文档大纲。",
@@ -104,87 +104,12 @@ export function CardShowcase() {
         </Text>
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
-            {
-              name: "children",
-              type: "ReactNode",
-              required: true,
-              description: t({
-                en: "Card contents.",
-                zh: "卡片内容。",
-              }),
-            },
-            {
-              name: "interactive",
-              type: "boolean",
-              defaultValue: "false",
-              description: t({
-                en: "Adds a hover border and background lift plus an eased transition, for a card that is itself clickable.",
-                zh: "添加悬停描边、背景抬升与缓动过渡，适用于本身可点击的卡片。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides composed last — including the padding, so a denser or roomier card is a one-liner.",
-                zh: "最后合成的 StyleX 覆盖样式——包括内边距，因此更紧凑或更宽松的卡片只需一行。",
-              }),
-            },
-            {
-              name: "…div attributes",
-              type: 'ComponentProps<"div">',
-              description: t({
-                en: "Native div attributes (role, id, onClick, data-*, className, style, ref) are forwarded.",
-                zh: "原生 div 属性（role、id、onClick、data-*、className、style、ref）会被转发。",
-              }),
-            },
-            {
-              name: "CardHeader",
-              type: '{ action?: ReactNode } & ComponentProps<"div">',
-              description: t({
-                en: "The title block: a tight stack for the title and its description, plus an optional action top-aligned at the trailing edge.",
-                zh: "标题区块：标题与描述的紧凑堆叠，外加可选的、顶部对齐于尾部的操作元素。",
-              }),
-            },
-            {
-              name: "CardTitle",
-              type: "{ level?: 2 | 3 | 4 | 5 | 6, id?: string }",
-              defaultValue: "level: 3",
-              description: t({
-                en: "The card's title as a real heading. Visual size stays fixed while level moves the rank. Give it an id and the Card can name itself with aria-labelledby.",
-                zh: "以真实标题元素渲染的卡片标题。视觉字号固定，由 level 调整层级。为其设置 id，卡片即可用 aria-labelledby 命名自身。",
-              }),
-            },
-            {
-              name: "CardDescription",
-              type: "{ children: ReactNode, id?: string }",
-              description: t({
-                en: "Supporting copy beneath the title, at the muted small-body step.",
-                zh: "标题下方的补充文案，采用弱化的小号正文样式。",
-              }),
-            },
-            {
-              name: "CardContent",
-              type: 'ComponentProps<"div">',
-              description: t({
-                en: "The main content region.",
-                zh: "主要内容区域。",
-              }),
-            },
-            {
-              name: "CardFooter",
-              type: 'ComponentProps<"div">',
-              description: t({
-                en: "A trailing row for the card's actions.",
-                zh: "位于末尾、承载卡片操作的一行。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="card" />
+      <PropsTable component="card-header" />
+      <PropsTable component="card-title" />
+      <PropsTable component="card-description" />
+      <PropsTable component="card-content" />
+      <PropsTable component="card-footer" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont

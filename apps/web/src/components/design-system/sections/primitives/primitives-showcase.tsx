@@ -40,7 +40,7 @@ function ApiGrid({ entries }: { entries: ApiEntry[] }) {
     <div css={styles.apiGrid}>
       {entries.map((entry) => (
         <SpecCard key={entry.token} token={entry.token} meta={entry.meta}>
-          <Text variant="caption" tone="muted">
+          <Text look="caption" tone="muted">
             {entry.description}
           </Text>
         </SpecCard>
@@ -148,7 +148,7 @@ function FlexSection() {
           })}
         >
           <div css={[flex.between, corner.radius_2, styles.bar]}>
-            <Text as="span" variant="bodySmall" weight="semibold">
+            <Text as="span" look="bodySmall" weight="semibold">
               {t({ en: "Library", zh: "媒体库" })}
             </Text>
             <div css={[flex.row, styles.barActions]}>

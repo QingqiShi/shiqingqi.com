@@ -105,7 +105,7 @@ describe("Card slots", () => {
     );
 
     const heading = screen.getByRole("heading", { name: "Tuscany", level: 2 });
-    expect(heading.className).toContain("variantStyles.h3");
+    expect(heading.className).toContain("lookStyles.h3");
   });
 
   it("lets the card name itself from its title", () => {

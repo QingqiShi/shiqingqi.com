@@ -22,28 +22,28 @@ describe("Heading level selection", () => {
   });
 });
 
-describe("Heading variant decoupling", () => {
+describe("Heading look decoupling", () => {
   it("keeps the semantic level while applying a different visual step", () => {
     render(
-      <Heading level={2} variant="display">
+      <Heading level={2} look="display">
         Big h2
       </Heading>,
     );
     const el = screen.getByRole("heading", { level: 2 });
     expect(el.tagName).toBe("H2");
-    expect(el.className).toContain("variantStyles.display");
+    expect(el.className).toContain("lookStyles.display");
   });
 });
 
 describe("Heading weight override", () => {
-  it("applies the weight override on top of the variant step", () => {
+  it("applies the weight override on top of the look step", () => {
     render(
       <Heading level={1} weight="regular">
         Light title
       </Heading>,
     );
     const el = screen.getByRole("heading", { level: 1 });
-    expect(el.className).toContain("variantStyles.h1");
+    expect(el.className).toContain("lookStyles.h1");
     expect(el.className).toContain("weightStyles.regular");
   });
 

@@ -6,7 +6,7 @@ import { Callout } from "./callout.tsx";
 describe("Callout rendering", () => {
   it("renders the title and body", () => {
     render(
-      <Callout variant="info" title="Heads up">
+      <Callout intent="info" title="Heads up">
         Your session will expire soon.
       </Callout>,
     );
@@ -17,12 +17,12 @@ describe("Callout rendering", () => {
   });
 
   it("renders without a title (body only)", () => {
-    render(<Callout variant="neutral">Just a note.</Callout>);
+    render(<Callout intent="neutral">Just a note.</Callout>);
     expect(screen.getByText("Just a note.")).toBeInTheDocument();
   });
 
   it("renders a built-in decorative icon marked aria-hidden", () => {
-    const { container } = render(<Callout variant="success">Saved.</Callout>);
+    const { container } = render(<Callout intent="success">Saved.</Callout>);
     const svg = container.querySelector("svg");
     expect(svg).not.toBeNull();
     // The icon is wrapped in an aria-hidden span.
@@ -43,24 +43,24 @@ describe("Callout rendering", () => {
 
 describe("Callout role mapping", () => {
   it("defaults info/success/accent/neutral to role status", () => {
-    for (const variant of ["info", "success", "accent", "neutral"] as const) {
-      const { unmount } = render(<Callout variant={variant}>Body</Callout>);
+    for (const intent of ["info", "success", "accent", "neutral"] as const) {
+      const { unmount } = render(<Callout intent={intent}>Body</Callout>);
       expect(screen.getByRole("status")).toBeInTheDocument();
       unmount();
     }
   });
 
   it("defaults danger and warning to role alert", () => {
-    const { unmount } = render(<Callout variant="danger">Boom</Callout>);
+    const { unmount } = render(<Callout intent="danger">Boom</Callout>);
     expect(screen.getByRole("alert")).toBeInTheDocument();
     unmount();
-    render(<Callout variant="warning">Careful</Callout>);
+    render(<Callout intent="warning">Careful</Callout>);
     expect(screen.getByRole("alert")).toBeInTheDocument();
   });
 
-  it("lets an explicit role override the variant default", () => {
+  it("lets an explicit role override the intent default", () => {
     render(
-      <Callout variant="danger" role="status">
+      <Callout intent="danger" role="status">
         Non-urgent error
       </Callout>,
     );
@@ -73,7 +73,7 @@ describe("Callout dismiss", () => {
   it("names the dismiss button with dismissLabel and fires onDismiss", () => {
     const onDismiss = vi.fn();
     render(
-      <Callout variant="warning" onDismiss={onDismiss} dismissLabel="Dismiss">
+      <Callout intent="warning" onDismiss={onDismiss} dismissLabel="Dismiss">
         Careful now.
       </Callout>,
     );
@@ -84,7 +84,7 @@ describe("Callout dismiss", () => {
   });
 
   it("renders no dismiss button by default", () => {
-    render(<Callout variant="info">No close.</Callout>);
+    render(<Callout intent="info">No close.</Callout>);
     expect(screen.queryByRole("button")).toBeNull();
   });
 });

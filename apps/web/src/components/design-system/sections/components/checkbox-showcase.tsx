@@ -1,58 +1,13 @@
-"use client";
-
 import * as stylex from "@stylexjs/stylex";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { Text } from "@tuja/ui/components/text";
 import { space } from "@tuja/ui/tokens.stylex";
-import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
 import { Showcase } from "../../showcase.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
-
-function SelectAllGroup() {
-  const options = [
-    t({ en: "Product updates", zh: "产品更新" }),
-    t({ en: "Weekly digest", zh: "每周摘要" }),
-    t({ en: "Security alerts", zh: "安全提醒" }),
-  ];
-  const [checked, setChecked] = useState([true, false, false]);
-  const selectedCount = checked.filter(Boolean).length;
-  const allChecked = selectedCount === checked.length;
-  const noneChecked = selectedCount === 0;
-  return (
-    <div css={styles.group}>
-      <Checkbox
-        label={t({ en: "All notifications", zh: "全部通知" })}
-        checked={allChecked}
-        indeterminate={!allChecked && !noneChecked}
-        onChange={(event) => {
-          const next = event.target.checked;
-          setChecked(checked.map(() => next));
-        }}
-      />
-      <div css={styles.children}>
-        {options.map((label, index) => (
-          <Checkbox
-            key={label}
-            label={label}
-            checked={checked[index]}
-            onChange={(event) => {
-              const next = event.target.checked;
-              setChecked(
-                checked.map((value, other) => (other === index ? next : value)),
-              );
-            }}
-          />
-        ))}
-      </div>
-      <Text variant="bodySmall" tone="muted">
-        {t({ en: "Selected", zh: "已选择" })} {selectedCount} / {checked.length}
-      </Text>
-    </div>
-  );
-}
+import { SelectAllGroup } from "./checkbox-specimens.tsx";
 
 export function CheckboxShowcase() {
   const exampleLabel = t({ en: "Example option", zh: "示例选项" });
@@ -131,7 +86,7 @@ export function CheckboxShowcase() {
 
       <Showcase label={t({ en: "Controlled select-all", zh: "受控的全选" })}>
         <div css={styles.stack}>
-          <Text variant="bodySmall" tone="muted">
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "A parent checkbox reflects its children: checked when all are on, indeterminate when only some are.",
               zh: "父级复选框反映其子项：全部选中时为已选，部分选中时为中间态。",
@@ -145,77 +100,7 @@ export function CheckboxShowcase() {
         </div>
       </Showcase>
 
-      <PropsTable
-        rows={[
-          {
-            name: "label",
-            type: "string",
-            required: true,
-            description: t({
-              en: "Visible text naming the checkbox; required for an accessible name even when hidden.",
-              zh: "命名复选框的可见文本；即使被隐藏，也是无障碍名称所必需的。",
-            }),
-          },
-          {
-            name: "labelHidden",
-            type: "boolean",
-            defaultValue: "false",
-            description: t({
-              en: "Visually hide the label while keeping it as the accessible name.",
-              zh: "在视觉上隐藏标签，同时保留为无障碍名称。",
-            }),
-          },
-          {
-            name: "description",
-            type: "string",
-            description: t({
-              en: "Supporting copy beneath the label, wired via aria-describedby.",
-              zh: "标签下方的辅助说明，通过 aria-describedby 关联。",
-            }),
-          },
-          {
-            name: "error",
-            type: "string",
-            description: t({
-              en: "Error message beneath the label; flips aria-invalid and joins aria-describedby.",
-              zh: "标签下方的错误消息；切换 aria-invalid 并加入 aria-describedby。",
-            }),
-          },
-          {
-            name: "indeterminate",
-            type: "boolean",
-            description: t({
-              en: "Renders the mixed/partial dash state, reflected onto the DOM node via a ref.",
-              zh: "渲染混合/部分选中的横线状态，通过 ref 反映到 DOM 节点。",
-            }),
-          },
-          {
-            name: "size",
-            type: '"sm" | "md"',
-            defaultValue: '"md"',
-            description: t({
-              en: "Box and type scale.",
-              zh: "方框与字号的尺寸。",
-            }),
-          },
-          {
-            name: "css",
-            type: "StyleXStyles",
-            description: t({
-              en: "StyleX styles merged over the root wrapper — the escape hatch.",
-              zh: "合并到根容器上的 StyleX 样式——逃生舱口。",
-            }),
-          },
-          {
-            name: "...native",
-            type: 'Omit<ComponentProps<"input">, "type" | "size" | "children">',
-            description: t({
-              en: "Forwarded to the native checkbox (checked, defaultChecked, onChange, name, disabled, ref).",
-              zh: "转发给原生复选框（checked、defaultChecked、onChange、name、disabled、ref）。",
-            }),
-          },
-        ]}
-      />
+      <PropsTable component="checkbox" />
 
       <DoDont
         do={
@@ -255,16 +140,5 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space._3,
-  },
-  group: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
-  children: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-    paddingInlineStart: space._5,
   },
 });

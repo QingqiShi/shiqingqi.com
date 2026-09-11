@@ -14,7 +14,7 @@ export function TextStylesShowcase() {
       <Showcase label={t({ en: "Headings", zh: "标题" })}>
         <div css={[flex.col, styles.stack]}>
           <Specimen caption="display">
-            <Heading level={1} variant="display">
+            <Heading level={1} look="display">
               {t({
                 en: "Display headline for hero moments",
                 zh: "用于关键瞬间的展示标题",
@@ -22,22 +22,22 @@ export function TextStylesShowcase() {
             </Heading>
           </Specimen>
           <Specimen caption="h1">
-            <Heading level={1} variant="h1">
+            <Heading level={1} look="h1">
               {t({ en: "Heading level one", zh: "一级标题" })}
             </Heading>
           </Specimen>
           <Specimen caption="h2">
-            <Heading level={2} variant="h2">
+            <Heading level={2} look="h2">
               {t({ en: "Heading level two", zh: "二级标题" })}
             </Heading>
           </Specimen>
           <Specimen caption="h3">
-            <Heading level={3} variant="h3">
+            <Heading level={3} look="h3">
               {t({ en: "Heading level three", zh: "三级标题" })}
             </Heading>
           </Specimen>
           <Specimen caption="h4">
-            <Heading level={4} variant="h4">
+            <Heading level={4} look="h4">
               {t({ en: "Heading level four", zh: "四级标题" })}
             </Heading>
           </Specimen>
@@ -47,7 +47,7 @@ export function TextStylesShowcase() {
       <Showcase label={t({ en: "Body & supporting", zh: "正文与辅助" })}>
         <div css={[flex.col, styles.stack]}>
           <Specimen caption="body">
-            <Text variant="body">
+            <Text look="body">
               {t({
                 en: "The quick brown fox jumps over the lazy dog.",
                 zh: "敏捷的棕色狐狸跃过懒惰的狗。",
@@ -55,7 +55,7 @@ export function TextStylesShowcase() {
             </Text>
           </Specimen>
           <Specimen caption="bodySmall">
-            <Text variant="bodySmall">
+            <Text look="bodySmall">
               {t({
                 en: "The quick brown fox jumps over the lazy dog.",
                 zh: "敏捷的棕色狐狸跃过懒惰的狗。",
@@ -63,7 +63,7 @@ export function TextStylesShowcase() {
             </Text>
           </Specimen>
           <Specimen caption="caption">
-            <Text variant="caption">
+            <Text look="caption">
               {t({
                 en: "Caption text for image descriptions and footnotes.",
                 zh: "用于图片说明与脚注的辅助文字。",
@@ -71,7 +71,7 @@ export function TextStylesShowcase() {
             </Text>
           </Specimen>
           <Specimen caption="overline">
-            <Text variant="overline">
+            <Text look="overline">
               {t({ en: "Overline label", zh: "上线标签" })}
             </Text>
           </Specimen>

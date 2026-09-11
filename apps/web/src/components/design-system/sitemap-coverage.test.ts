@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { BASE_URL } from "#src/constants.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/get-locale-path.ts";
+import { DESIGN_SYSTEM_LAB_PATHS } from "./routes/design-system-lab-paths.ts";
 import { DESIGN_SYSTEM_PATHS } from "./routes/design-system-paths.ts";
 
 // Resolve the static sitemap relative to this file so the test is independent
@@ -17,8 +18,11 @@ const sitemap = readFileSync(
 
 const locales: SupportedLocale[] = ["en", "zh"];
 
+// A Lab is not in `DESIGN_SYSTEM_PATHS`: it is registered by its parent
+// route's `lab` flag, so `<path>/lab` belongs in the sitemap exactly when the
+// parent carries one.
 const registeredUrls = new Set(
-  DESIGN_SYSTEM_PATHS.flatMap((routePath) =>
+  [...DESIGN_SYSTEM_PATHS, ...DESIGN_SYSTEM_LAB_PATHS].flatMap((routePath) =>
     locales.map((locale) =>
       new URL(getLocalePath(routePath, locale), BASE_URL).toString(),
     ),

@@ -187,7 +187,7 @@ export function OverviewBrowser({
             {query !== "" && (
               <Button
                 size="sm"
-                variant="ghost"
+                look="ghost"
                 icon={<XIcon weight="bold" />}
                 aria-label={clearLabel}
                 css={styles.clear}

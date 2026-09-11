@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ReactNode } from "react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { useState, type ReactNode } from "react";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { MenuButton } from "./menu-button.tsx";
 
 // jsdom has no `matchMedia`, which the open/close morph reads for a
@@ -390,6 +390,163 @@ describe("MenuButton keyboard navigation", () => {
 
     // Arrow keys should not move focus anywhere; trigger remains focused.
     await user.keyboard("{ArrowDown}");
+    expect(trigger).toHaveFocus();
+  });
+});
+
+describe("MenuButton sheet direction", () => {
+  // jsdom lays nothing out, so every box measures zero. One stubbed rect for
+  // the whole tree stands in for a bar parked somewhere in the viewport: the
+  // trigger and the popup's frame both sit in that bar.
+  function stubBar(top: number, height: number) {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({
+      top,
+      bottom: top + height,
+      height,
+      left: 0,
+      right: 300,
+      width: 300,
+      x: 0,
+      y: top,
+      toJSON: () => ({}),
+    });
+  }
+
+  // fireEvent, not userEvent: the pointer events userEvent sends carry the
+  // jsdom default of (0, 0), which the stubbed rect puts outside the trigger,
+  // and `Button` then refuses the release as a press that left the control.
+  function openSheet() {
+    render(
+      <MenuButton
+        buttonProps={{ type: "button", "aria-label": "Open controls" }}
+        position="sheet"
+        popupRole="group"
+        menuContent={<button type="button">Inside</button>}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open controls" });
+    fireEvent.click(trigger);
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+
+    const popup = document.getElementById(
+      trigger.getAttribute("aria-controls") ?? "",
+    );
+    if (!popup) throw new Error("expected popup");
+    return popup;
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("opens down from a bar at the top of the viewport", () => {
+    stubBar(0, 40);
+
+    const popup = openSheet();
+
+    expect(popup.closest('[class*="sheetAbove"]')).toBeNull();
+    expect(popup.style.maxBlockSize).toContain("100dvh");
+    expect(popup.style.maxBlockSize).toContain("env(safe-area-inset-bottom)");
+  });
+
+  it("opens up from a bar at the foot of the viewport", () => {
+    stubBar(window.innerHeight - 40, 40);
+
+    const popup = openSheet();
+
+    expect(popup.closest('[class*="sheetAbove"]')).not.toBeNull();
+    expect(popup.style.maxBlockSize).toContain(
+      `${String(window.innerHeight)}px`,
+    );
+    expect(popup.style.maxBlockSize).toContain("env(safe-area-inset-top)");
+    expect(popup.style.maxBlockSize).not.toContain("100dvh");
+  });
+
+  it("keeps opening down from a bar in mid-page", () => {
+    stubBar(window.innerHeight / 2 - 20, 40);
+
+    const popup = openSheet();
+
+    expect(popup.closest('[class*="sheetAbove"]')).toBeNull();
+    expect(popup.style.maxBlockSize).toContain("100dvh");
+  });
+});
+
+describe("MenuButton controlled open state", () => {
+  // A trigger, plus one control inside the popup that closes the menu from the
+  // parent — the shape the Lab's bar uses.
+  function ControlledMenu({
+    onOpenChange,
+  }: {
+    onOpenChange: (open: boolean) => void;
+  }) {
+    const [open, setOpen] = useState(false);
+    return (
+      <MenuButton
+        buttonProps={{ type: "button", "aria-label": "Open menu" }}
+        popupRole="group"
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          onOpenChange(next);
+        }}
+        menuContent={
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+            }}
+          >
+            Pick
+          </button>
+        }
+      />
+    );
+  }
+
+  it("reports every open and close to its parent", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    render(<ControlledMenu onOpenChange={onOpenChange} />);
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("stays shut while the parent holds it shut", async () => {
+    const user = userEvent.setup();
+    render(
+      <MenuButton
+        buttonProps={{ type: "button", "aria-label": "Open menu" }}
+        popupRole="group"
+        open={false}
+        onOpenChange={vi.fn()}
+        menuContent={<button type="button">Pick</button>}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("hands focus back to the trigger when the parent closes it", async () => {
+    const user = userEvent.setup();
+    render(<ControlledMenu onOpenChange={vi.fn()} />);
+
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Pick" }));
+
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
     expect(trigger).toHaveFocus();
   });
 });

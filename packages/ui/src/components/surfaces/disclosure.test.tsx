@@ -152,9 +152,9 @@ describe("Disclosure", () => {
     expect(container.querySelector("svg")).toBeNull();
   });
 
-  it("wraps itself in the shared card surface for the card variant", () => {
+  it("wraps itself in the shared card surface for the card look", () => {
     render(
-      <Disclosure summary="Packing list" variant="card" data-testid="root">
+      <Disclosure summary="Packing list" look="card" data-testid="root">
         Passport
       </Disclosure>,
     );

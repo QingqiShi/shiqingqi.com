@@ -76,8 +76,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "标题基础组件，语义层级与视觉字号相互独立。",
     }),
     "/design-system/components/button": t({
-      en: "The primary action control, with variants and a press animation.",
-      zh: "主要的操作控件，提供多种风格与按压动画。",
+      en: "The primary action control, with looks and a press animation.",
+      zh: "主要的操作控件，提供多种外观与按压动画。",
     }),
     "/design-system/components/menu-button": t({
       en: "A button that expands into a popup menu.",

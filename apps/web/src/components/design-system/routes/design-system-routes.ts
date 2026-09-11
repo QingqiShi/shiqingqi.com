@@ -125,6 +125,7 @@ const ROUTES = [
     section: "components",
     category: "actions",
     path: "/design-system/components/button",
+    lab: true,
     keywords: [
       "cta",
       "submit",
@@ -145,6 +146,7 @@ const ROUTES = [
     section: "components",
     category: "actions",
     path: "/design-system/components/chip",
+    lab: true,
     keywords: ["pill", "tag", "filter", "token"],
   },
   // Breadcrumb sits with the Actions rather than under a Navigation heading of
@@ -184,6 +186,7 @@ const ROUTES = [
     section: "components",
     category: "forms",
     path: "/design-system/components/switch",
+    lab: true,
     keywords: ["toggle", "on off", "form"],
   },
   {
@@ -213,12 +216,14 @@ const ROUTES = [
     section: "components",
     category: "dataDisplay",
     path: "/design-system/components/avatar",
+    lab: true,
     keywords: ["profile", "monogram", "initials", "portrait", "picture"],
   },
   {
     section: "components",
     category: "dataDisplay",
     path: "/design-system/components/badge",
+    lab: true,
     keywords: ["label", "status", "tag", "count", "pill"],
   },
   // Table joins the two markers above rather than opening a category of its
@@ -235,6 +240,7 @@ const ROUTES = [
     section: "components",
     category: "feedback",
     path: "/design-system/components/callout",
+    lab: true,
     keywords: ["alert", "banner", "notice", "message", "warning", "error"],
   },
   {

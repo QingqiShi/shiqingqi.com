@@ -274,7 +274,7 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
         <span css={styles.title}>
           {t({ en: "Where to Watch", zh: "在哪里看" })}
         </span>
-        <Badge variant="neutral">{regionDisplay}</Badge>
+        <Badge intent="neutral">{regionDisplay}</Badge>
       </div>
 
       {providers === null ? (
@@ -399,7 +399,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
           )}
           <span css={styles.title}>{providerName}</span>
         </div>
-        <Badge variant="neutral">
+        <Badge intent="neutral">
           {regions.length === 1
             ? t({ en: "1 region", zh: "1 个地区" })
             : `${String(regions.length)} ${t({ en: "regions", zh: "个地区" })}`}

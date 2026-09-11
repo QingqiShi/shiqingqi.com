@@ -30,20 +30,26 @@ interface ButtonBaseProps extends Omit<
 > {
   /**
    * Lifts the button onto a bright surface, brightening further on hover.
-   * Overrides `variant`'s fill, so pairing it with `outline` or `ghost`
+   * Overrides `look`'s fill, so pairing it with `outline` or `ghost`
    * cancels their chrome.
+   *
+   * @zh 将按钮置于明亮表面，悬停时进一步提亮。它会覆盖 `look` 的填充，因此与 `outline` 或 `ghost` 同用会抵消二者的外框处理。
    */
   bright?: boolean;
   /**
    * Below the `md` breakpoint, collapses to a square icon-only button and
    * hides the label. Pass `aria-label` too, so the collapsed form keeps its
    * name.
+   *
+   * @zh 在 `md` 断点以下收起为纯图标的正方形按钮，并隐藏标签。同时提供 `aria-label`，使收起后的按钮仍保留名称。
    */
   hideLabelOnMobile?: boolean;
   /**
    * Decorative leading icon. Rendered `aria-hidden`; never the accessible
    * name. With no `children` the button is icon-only: a square of its own
    * height, named by `aria-label` or `aria-labelledby`.
+   *
+   * @zh 装饰性的前置图标。以 `aria-hidden` 渲染，绝不充当可访问名称。没有 `children` 时按钮为纯图标：一个与自身高度相等的正方形，由 `aria-label` 或 `aria-labelledby` 命名。
    */
   icon?: ReactNode;
   /**
@@ -51,31 +57,57 @@ interface ButtonBaseProps extends Omit<
    *
    * `"sm"` still falls short of the 44px WCAG 2.5.8 touch target, even though
    * every size grows on touch viewports.
+   *
+   * @zh 通过 `controlSize` 设定的高度阶梯。
+   *
+   * 即使每个尺寸在触摸视口下都会增大，`"sm"` 仍未达到 WCAG 2.5.8 要求的 44px 触摸目标。
    */
   size?: "sm" | "md" | "lg";
   /**
    * Toggles the active highlight and emits `aria-pressed` — use for toggle
    * buttons. For a non-toggle CTA that only wants the highlight, use
-   * `variant="primary"`.
+   * `look="primary"`.
+   *
+   * @zh 切换激活高亮并发出 `aria-pressed`——用于切换按钮。若某个 CTA 只需要高亮而不表示切换状态，改用 `look="primary"`。
    */
   isActive?: boolean;
   /**
-   * Visual variant. Omit for the default raised surface button.
+   * Visual look. Omit for the default raised surface button.
    *
    * `"primary"` shares `isActive`'s highlight but does not emit
-   * `aria-pressed` — reserve toggles for `isActive` instead. `"ghost"` has no
-   * surface and holds its colour back until hover, for an affordance inline
-   * over existing content.
+   * `aria-pressed` — reserve toggles for `isActive` instead. `"outline"` swaps
+   * the fill for a border, `"ghost"` has no surface at all and holds its colour
+   * back until hover, for an affordance inline over existing content, and
+   * `"danger"` is for the action that destroys something.
+   *
+   * @zh 视觉外观。省略则为默认的凸起表面按钮。
+   *
+   * `"primary"` 与 `isActive` 共用同一种高亮，但不会发出 `aria-pressed`——切换状态一律交给 `isActive`。`"outline"` 以描边取代填充；`"ghost"` 完全没有表面，颜色在悬停前保持克制，适合置于已有内容之上的行内控件；`"danger"` 用于真正具有破坏性的操作。
    */
-  variant?: "primary" | "outline" | "ghost" | "danger";
+  look?: "primary" | "outline" | "ghost" | "danger";
   /**
    * Shows a spinner, sets `aria-busy`, and blocks activation. Uses `aria-disabled`,
    * not `disabled`, so the button keeps focus and the busy state is announced.
+   *
+   * The width holds either way: with an icon the spinner takes the icon's
+   * place, without one it sits over the label, which keeps its space.
+   *
+   * @zh 显示加载指示器，设置 `aria-busy`，并阻止再次触发。它用 `aria-disabled` 而非 `disabled`，因此按钮保留焦点，忙碌状态也能被读出。
+   *
+   * 两种情况下宽度都保持不变：有图标时加载指示器取代图标，没有图标时它覆盖在标签之上，而标签仍占据原有空间。
    */
   loading?: boolean;
-  /** Id applied to the label span, e.g. to wire an external `aria-labelledby`. */
+  /**
+   * Id applied to the label span, e.g. to wire an external `aria-labelledby`.
+   *
+   * @zh 应用在标签 span 上的 id，例如用于关联外部的 `aria-labelledby`。
+   */
   labelId?: string;
-  /** StyleX styles merged over the button's own — the config-layer escape hatch. */
+  /**
+   * StyleX styles merged over the button's own — the config-layer escape hatch.
+   *
+   * @zh 合并在按钮自身样式之上的 StyleX 样式——配置层的逃生舱口。
+   */
   css?: StyleProp;
 }
 
@@ -86,10 +118,36 @@ interface ButtonBaseProps extends Omit<
  */
 type ButtonProps = ButtonBaseProps &
   (
-    | { children: ReactNode }
+    | {
+        /**
+         * Visible label. Required unless `aria-label` or `aria-labelledby`
+         * names an icon-only button.
+         *
+         * @zh 可见标签。除非用 `aria-label` 或 `aria-labelledby` 为纯图标按钮命名，否则必填。
+         */
+        children: ReactNode;
+      }
     | ({ children?: undefined } & (
-        | { "aria-label": string; "aria-labelledby"?: undefined }
-        | { "aria-labelledby": string; "aria-label"?: undefined }
+        | {
+            /**
+             * Accessible name for an icon-only button. With no `children`,
+             * either this or `aria-labelledby` is required.
+             *
+             * @zh 纯图标按钮的可访问名称。没有 `children` 时，它与 `aria-labelledby` 必须二选一。
+             */
+            "aria-label": string;
+            "aria-labelledby"?: undefined;
+          }
+        | {
+            /**
+             * Id of the element naming an icon-only button — the alternative
+             * to `aria-label` when there are no `children`.
+             *
+             * @zh 为纯图标按钮命名的元素 id——没有 `children` 时，它是 `aria-label` 的替代。
+             */
+            "aria-labelledby": string;
+            "aria-label"?: undefined;
+          }
       ))
   );
 
@@ -108,7 +166,7 @@ export function Button({
   ref: forwardedRef,
   size = "md",
   type = "button",
-  variant,
+  look,
   "aria-busy": ariaBusy,
   "aria-disabled": ariaDisabled,
   ...restProps
@@ -174,9 +232,7 @@ export function Button({
         a11y.focusRing,
         styles.button,
         sizeStyles[size],
-        variant !== undefined &&
-          variant !== "primary" &&
-          variantStyles[variant],
+        look !== undefined && look !== "primary" && lookStyles[look],
         hasIcon &&
           !!children &&
           (hideLabelOnMobile
@@ -185,10 +241,10 @@ export function Button({
         hasIcon && !children && sharedStyles.iconOnly,
         bright && sharedStyles.bright,
         // `active` and `bright` set a literal `backgroundColor` that wins over
-        // `variantStyles`. `danger` keeps its own fill instead, so a
+        // `lookStyles`. `danger` keeps its own fill instead, so a
         // destructive button doesn't repaint brand-accent when toggled on.
-        (isActive === true || variant === "primary") &&
-          variant !== "danger" &&
+        (isActive === true || look === "primary") &&
+          look !== "danger" &&
           sharedStyles.active,
         isLoading && styles.busy,
         isPressed && !isInert && sharedStyles.pressed,
@@ -276,11 +332,11 @@ const styles = stylex.create({
   },
 });
 
-// Each variant re-points the shared `buttonTokens` knobs instead of declaring
+// Each look re-points the shared `buttonTokens` knobs instead of declaring
 // its own colours, so the skin travels to anything else reading them.
 // `"primary"` is absent because it reuses `sharedStyles.active`, the same
 // highlight `isActive` paints.
-const variantStyles = stylex.create({
+const lookStyles = stylex.create({
   outline: {
     [buttonTokens.backgroundColor]: "transparent",
     [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
@@ -290,7 +346,7 @@ const variantStyles = stylex.create({
     borderStyle: "solid",
     borderColor: color.neutralBorder,
   },
-  // The quietest variant: no surface, and the label drains to muted until the
+  // The quietest look: no surface, and the label drains to muted until the
   // pointer arrives. `:disabled:hover` keeps it drained, matching the fill.
   ghost: {
     [buttonTokens.backgroundColor]: "transparent",

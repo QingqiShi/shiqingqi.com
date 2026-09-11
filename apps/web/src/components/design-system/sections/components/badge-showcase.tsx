@@ -10,28 +10,28 @@ import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 export function BadgeShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Variants", zh: "风格" })}>
+      <Showcase label={t({ en: "Intents", zh: "意图色" })}>
         <SpecimenGrid>
           <Specimen caption="default">
-            <Badge variant="default">{t({ en: "Default", zh: "默认" })}</Badge>
+            <Badge intent="default">{t({ en: "Default", zh: "默认" })}</Badge>
           </Specimen>
           <Specimen caption="neutral">
-            <Badge variant="neutral">{t({ en: "Neutral", zh: "中性" })}</Badge>
+            <Badge intent="neutral">{t({ en: "Neutral", zh: "中性" })}</Badge>
           </Specimen>
           <Specimen caption="info">
-            <Badge variant="info">{t({ en: "Info", zh: "信息" })}</Badge>
+            <Badge intent="info">{t({ en: "Info", zh: "信息" })}</Badge>
           </Specimen>
           <Specimen caption="success">
-            <Badge variant="success">{t({ en: "Success", zh: "成功" })}</Badge>
+            <Badge intent="success">{t({ en: "Success", zh: "成功" })}</Badge>
           </Specimen>
           <Specimen caption="warning">
-            <Badge variant="warning">{t({ en: "Warning", zh: "警告" })}</Badge>
+            <Badge intent="warning">{t({ en: "Warning", zh: "警告" })}</Badge>
           </Specimen>
           <Specimen caption="danger">
-            <Badge variant="danger">{t({ en: "Danger", zh: "危险" })}</Badge>
+            <Badge intent="danger">{t({ en: "Danger", zh: "危险" })}</Badge>
           </Specimen>
           <Specimen caption="accent">
-            <Badge variant="accent">{t({ en: "Accent", zh: "强调" })}</Badge>
+            <Badge intent="accent">{t({ en: "Accent", zh: "强调" })}</Badge>
           </Specimen>
         </SpecimenGrid>
       </Showcase>
@@ -39,12 +39,12 @@ export function BadgeShowcase() {
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <SpecimenGrid>
           <Specimen caption="sm">
-            <Badge size="sm" variant="accent">
+            <Badge size="sm" intent="accent">
               {t({ en: "Small", zh: "小" })}
             </Badge>
           </Specimen>
           <Specimen caption="md">
-            <Badge size="md" variant="accent">
+            <Badge size="md" intent="accent">
               {t({ en: "Medium", zh: "中" })}
             </Badge>
           </Specimen>
@@ -56,90 +56,30 @@ export function BadgeShowcase() {
           <Specimen caption="sm">
             <Badge
               size="sm"
-              variant="success"
+              intent="success"
               icon={<CheckIcon weight="bold" />}
             >
               {t({ en: "Verified", zh: "已验证" })}
             </Badge>
           </Specimen>
           <Specimen caption="md">
-            <Badge
-              size="md"
-              variant="warning"
-              icon={<StarIcon weight="fill" />}
-            >
+            <Badge size="md" intent="warning" icon={<StarIcon weight="fill" />}>
               {t({ en: "Featured", zh: "精选" })}
             </Badge>
           </Specimen>
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
-            {
-              name: "children",
-              type: "ReactNode",
-              required: true,
-              description: t({
-                en: "Badge contents — usually a short label.",
-                zh: "徽章内容——通常是简短的标签。",
-              }),
-            },
-            {
-              name: "variant",
-              type: '"default" | "neutral" | "info" | "success" | "warning" | "danger" | "accent"',
-              defaultValue: '"default"',
-              description: t({
-                en: "Which colour the badge carries: the bordered default, or one of the six Intents.",
-                zh: "徽章承载的颜色：带边框的默认样式，或六种意图色之一。",
-              }),
-            },
-            {
-              name: "size",
-              type: '"sm" | "md"',
-              defaultValue: '"md"',
-              description: t({
-                en: "Padding and type scale.",
-                zh: "内边距与字号。",
-              }),
-            },
-            {
-              name: "icon",
-              type: "ReactNode",
-              description: t({
-                en: "Optional leading icon, rendered decoratively (aria-hidden).",
-                zh: "可选的前置图标，以装饰性方式渲染（aria-hidden）。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides composed last, letting a caller win over the variant defaults.",
-                zh: "最后合成的 StyleX 覆盖样式，使调用方可覆盖变体默认值。",
-              }),
-            },
-            {
-              name: "…span attributes",
-              type: 'ComponentProps<"span">',
-              description: t({
-                en: "Native span attributes (id, onClick, data-*, className, style, ref) are forwarded.",
-                zh: "原生 span 属性（id、onClick、data-*、className、style、ref）会被转发。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="badge" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
           do={
             <>
-              <Badge variant="success">
+              <Badge intent="success">
                 {t({ en: "Active", zh: "进行中" })}
               </Badge>
-              <Badge variant="neutral">{t({ en: "Draft", zh: "草稿" })}</Badge>
+              <Badge intent="neutral">{t({ en: "Draft", zh: "草稿" })}</Badge>
             </>
           }
           doCaption={t({
@@ -148,8 +88,8 @@ export function BadgeShowcase() {
           })}
           dont={
             <>
-              <Badge variant="accent">{t({ en: "All", zh: "全部" })}</Badge>
-              <Badge variant="default">{t({ en: "Movies", zh: "电影" })}</Badge>
+              <Badge intent="accent">{t({ en: "All", zh: "全部" })}</Badge>
+              <Badge intent="default">{t({ en: "Movies", zh: "电影" })}</Badge>
             </>
           }
           dontCaption={t({

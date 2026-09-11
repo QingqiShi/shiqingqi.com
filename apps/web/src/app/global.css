@@ -33,6 +33,49 @@
     U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
 }
 
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/IBMPlexMono-Regular-Latin1.woff2");
+  font-weight: 400;
+  font-display: fallback;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/IBMPlexMono-Medium-Latin1.woff2");
+  font-weight: 500;
+  font-display: fallback;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/IBMPlexMono-SemiBold-Latin1.woff2");
+  font-weight: 600;
+  font-display: fallback;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono-fallback";
+  size-adjust: 99.67%;
+  src: local("Menlo"), local("Consolas"), local("Liberation Mono");
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
 @layer normalize {
   html {
     min-height: 100dvh;
@@ -128,6 +171,26 @@
   animation-fill-mode: both;
 }
 
+/* The Lab's Specimen cross-fades and its snippet card slides to its new place.
+   The card's own content is drawn live through the transition, because the
+   card animates its code on its own DOM: a snapshot would escape the card's
+   clip on a narrow screen. The group animation is the browser's own, so the
+   whole Lab is tuned and gated for reduced motion here rather than at each
+   use. */
+::view-transition-group(.lab-morph),
+::view-transition-group(.lab-live) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+::view-transition-old(.lab-live) {
+  display: none;
+}
+
+::view-transition-new(.lab-live) {
+  animation: none;
+}
+
 /* Shared-element morph tuning for the inline chat input. */
 ::view-transition-group(.inline-chat-input-morph) {
   animation-duration: 340ms;
@@ -149,6 +212,11 @@
 
   ::view-transition-group(.inline-chat-input-morph) {
     animation-duration: 150ms;
+  }
+
+  ::view-transition-group(.lab-morph),
+  ::view-transition-group(.lab-live) {
+    animation-duration: 1ms;
   }
 }
 

@@ -14,10 +14,10 @@ import { buttonReset } from "../../primitives/reset.stylex.ts";
 import { border, color, font, space } from "../../tokens.stylex.ts";
 import type { StyleProp } from "../../types.ts";
 
-type CalloutVariant =
+type CalloutIntent =
   "info" | "success" | "warning" | "danger" | "accent" | "neutral";
 
-const defaultIcons: { [key in CalloutVariant]: ReactNode } = {
+const defaultIcons: { [key in CalloutIntent]: ReactNode } = {
   info: <InfoIcon />,
   success: <CheckCircleIcon />,
   warning: <WarningIcon />,
@@ -33,28 +33,44 @@ interface CalloutBaseProps extends Omit<
   /**
    * Intent and default icon. Maps to the Intent's surface tint,
    * matching border, and readable text token. Defaults to `"info"`.
+   *
+   * @zh 意图色与默认图标。对应该意图色的浅色背景、匹配边框与可读文本令牌。
    */
-  variant?: CalloutVariant;
+  intent?: CalloutIntent;
   /**
    * Optional bold heading rendered above the body. Omit for a single-line
    * message.
+   *
+   * @zh 正文上方的可选加粗标题。省略即为单行消息。
    */
   title?: ReactNode;
-  /** Body content. Keep it short — a callout is a summary, not a paragraph. */
+  /**
+   * Body content. Keep it short — a callout is a summary, not a paragraph.
+   *
+   * @zh 正文内容。保持简短——提示框是摘要，而非段落。
+   */
   children: ReactNode;
   /**
-   * Leading icon. Defaults to a Phosphor icon for the variant; pass a
+   * Leading icon. Defaults to a Phosphor icon for the intent; pass a
    * different Phosphor icon (or any node) to override, or `null` to remove
    * it. Always rendered `aria-hidden` — the message text carries meaning.
+   *
+   * @zh 前置图标。默认使用该意图色对应的 Phosphor 图标；传入其他 Phosphor 图标（或任意节点）即可覆盖，传入 `null` 可移除。始终以 `aria-hidden` 渲染——含义由文字承载。
    */
   icon?: ReactNode;
   /**
    * ARIA live role for the box. Defaults to `"alert"` for `danger`/`warning`
    * (assertive — interrupts the screen reader) and `"status"` otherwise
    * (polite).
+   *
+   * @zh 提示框的 ARIA live 角色。`danger`/`warning` 默认为 `alert`（强制式——打断屏幕阅读器），其余默认为 `status`（礼貌式）。
    */
   role?: "status" | "alert";
-  /** StyleX overrides, composed last so a caller can win over the defaults. */
+  /**
+   * StyleX overrides, composed last so a caller can win over the defaults.
+   *
+   * @zh StyleX 覆盖样式，最后合成，使调用方可以覆盖默认值。
+   */
   css?: StyleProp;
 }
 
@@ -64,9 +80,17 @@ interface CalloutBaseProps extends Omit<
  */
 type CalloutDismissProps =
   | {
-      /** Called when the user activates the close button. */
+      /**
+       * Called when the user activates the close button.
+       *
+       * @zh 当用户激活关闭按钮时调用。
+       */
       onDismiss: () => void;
-      /** Accessible name for the close button — the package ships no i18n. */
+      /**
+       * Accessible name for the close button — the package ships no i18n.
+       *
+       * @zh 关闭按钮的无障碍名称——本包不内置 i18n。
+       */
       dismissLabel: string;
     }
   | { onDismiss?: undefined; dismissLabel?: undefined };
@@ -75,14 +99,14 @@ type CalloutProps = CalloutBaseProps & CalloutDismissProps;
 
 /**
  * Inline message / alert box: a token-themed subtle background, matching
- * border, tinted icon, and type hierarchy carry the variant's meaning, with
+ * border, tinted icon, and type hierarchy carry the intent's meaning, with
  * deliberately no leading accent bar (DESIGN.md ban).
  *
  * The box itself is the live region (`role="status"`/`"alert"`), so its text
  * is announced.
  */
 export function Callout({
-  variant = "info",
+  intent = "info",
   title,
   children,
   icon,
@@ -94,25 +118,24 @@ export function Callout({
   ...restProps
 }: CalloutProps) {
   const resolvedRole =
-    role ??
-    (variant === "danger" || variant === "warning" ? "alert" : "status");
-  const resolvedIcon = icon === undefined ? defaultIcons[variant] : icon;
+    role ?? (intent === "danger" || intent === "warning" ? "alert" : "status");
+  const resolvedIcon = icon === undefined ? defaultIcons[intent] : icon;
 
   return (
     <div
       {...restProps}
       ref={ref}
       role={resolvedRole}
-      css={[corner.radius_3, styles.base, surfaceStyles[variant], css]}
+      css={[corner.radius_3, styles.base, surfaceStyles[intent], css]}
     >
       {resolvedIcon != null ? (
-        <span css={[styles.icon, accentStyles[variant]]} aria-hidden>
+        <span css={[styles.icon, accentStyles[intent]]} aria-hidden>
           {resolvedIcon}
         </span>
       ) : null}
       <div css={styles.content}>
         {title != null ? (
-          <div css={[styles.title, accentStyles[variant]]}>{title}</div>
+          <div css={[styles.title, accentStyles[intent]]}>{title}</div>
         ) : null}
         <div css={styles.body}>{children}</div>
       </div>

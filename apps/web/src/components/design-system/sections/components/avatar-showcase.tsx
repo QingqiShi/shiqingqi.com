@@ -44,24 +44,24 @@ export function AvatarShowcase() {
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={t({ en: "Variants", zh: "样式" })}>
+      <Showcase label={t({ en: "Looks", zh: "外观" })}>
         <SpecimenGrid>
           <Specimen caption="subtle">
             <Avatar
-              variant="subtle"
+              look="subtle"
               size="lg"
               name={t({ en: "Grace Hopper", zh: "格蕾丝·霍珀" })}
             />
           </Specimen>
           <Specimen caption="solid">
             <Avatar
-              variant="solid"
+              look="solid"
               size="lg"
               name={t({ en: "Grace Hopper", zh: "格蕾丝·霍珀" })}
             />
           </Specimen>
         </SpecimenGrid>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Subtle is the resting state for anyone present. Reserve solid for the few people a view is actually about, so they stand out of a row of their peers.",
             zh: "柔和样式用于仅仅在场的人。将实心样式留给该视图真正关注的少数人，使他们从同伴中脱颖而出。",
@@ -84,7 +84,7 @@ export function AvatarShowcase() {
             <Avatar size="lg" name="Ada Lovelace" initials="A" />
           </Specimen>
         </SpecimenGrid>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Without a portrait the monogram comes from the first and last words of the name. A single word — including an unspaced CJK name — yields one character rather than two unrelated ones; initials overrides the derivation entirely.",
             zh: "没有头像时，字母缩写取自姓名的首词与末词。单个词——包括没有空格的中日韩姓名——只取一个字符，而非两个不相关的字符；initials 可完全覆盖该推导。",
@@ -107,7 +107,7 @@ export function AvatarShowcase() {
           <Specimen caption={t({ en: "departing", zh: "出发" })}>
             <Avatar
               size="lg"
-              variant="solid"
+              look="solid"
               name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
               badge={<AirplaneTakeoffIcon weight="bold" />}
               badgeLabel={t({ en: "departing", zh: "出发" })}
@@ -122,7 +122,7 @@ export function AvatarShowcase() {
             />
           </Specimen>
         </SpecimenGrid>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "The badge is drawn, so it says nothing on its own — badgeLabel carries its meaning and is required whenever a badge is set. Keeping it out of name is also what stops the label from corrupting the monogram.",
             zh: "角标只是图形，本身不表达任何信息——badgeLabel 承载其含义，且在设置角标时必填。把它与 name 分开，也避免了标签污染字母缩写。",
@@ -130,94 +130,14 @@ export function AvatarShowcase() {
         </Text>
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
-            {
-              name: "name",
-              type: "string",
-              required: true,
-              description: t({
-                en: "Who the avatar stands for. Names the avatar and, without src or initials, is the source of the monogram — so keep it to the person.",
-                zh: "该头像代表的人。用于命名头像；在没有 src 与 initials 时，也是字母缩写的来源——因此只应写这个人。",
-              }),
-            },
-            {
-              name: "src",
-              type: "string",
-              description: t({
-                en: "Portrait layered over the monogram. Rendered decoratively, since the root already carries the name — and if it fails to load the monogram shows through, so a URL that may 404 needs no handling at the callsite.",
-                zh: "叠加在字母缩写之上的头像图片。以装饰性方式渲染，因为根元素已承载名称——若加载失败，下方的字母缩写会显现，因此可能 404 的地址无需在调用处额外处理。",
-              }),
-            },
-            {
-              name: "initials",
-              type: "string",
-              description: t({
-                en: "Overrides the derived monogram, for when the derivation picks the wrong characters. An empty string counts as no override.",
-                zh: "覆盖推导出的字母缩写，用于推导结果不合适的情况。空字符串视为未覆盖。",
-              }),
-            },
-            {
-              name: "size",
-              type: '"sm" | "md" | "lg"',
-              defaultValue: '"md"',
-              description: t({
-                en: "Diameter and type scale, in rem so the medallion scales with the user's font size.",
-                zh: "直径与字号阶梯，以 rem 为单位，使徽章随用户字号缩放。",
-              }),
-            },
-            {
-              name: "variant",
-              type: '"subtle" | "solid"',
-              defaultValue: '"subtle"',
-              description: t({
-                en: "Subtle is a quiet tinted medallion; solid inverts it for the people a view is about.",
-                zh: "柔和为低调的着色徽章；实心为反色，用于视图重点关注的人。",
-              }),
-            },
-            {
-              name: "badge",
-              type: "ReactNode",
-              description: t({
-                en: "Corner marker on its own surface. Drawn aria-hidden, so badgeLabel is required alongside it.",
-                zh: "位于角落、拥有独立表面的标记。以 aria-hidden 绘制，因此必须同时提供 badgeLabel。",
-              }),
-            },
-            {
-              name: "badgeLabel",
-              type: "string",
-              description: t({
-                en: "What the badge means, appended to the accessible name. Required whenever badge is set, and omitted otherwise.",
-                zh: "角标的含义，会追加到无障碍名称之后。设置 badge 时必填，否则不可传。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides composed last so a caller can win over the defaults.",
-                zh: "最后合成的 StyleX 覆盖样式，使调用方可覆盖默认值。",
-              }),
-            },
-            {
-              name: "…span attributes",
-              type: 'ComponentProps<"span">',
-              description: t({
-                en: "Native span attributes (id, data-*, className, style, ref) are forwarded to the root.",
-                zh: "原生 span 属性（id、data-*、className、style、ref）会转发到根元素。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="avatar" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
           do={
             <Avatar
               size="lg"
-              variant="solid"
+              look="solid"
               name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
               badge={<AirplaneTakeoffIcon weight="bold" />}
               badgeLabel={t({ en: "departing", zh: "出发" })}
@@ -230,7 +150,7 @@ export function AvatarShowcase() {
           dont={
             <Avatar
               size="lg"
-              variant="solid"
+              look="solid"
               name={t({
                 en: "Ada Lovelace departing",
                 zh: "阿达·洛芙莱斯 出发",

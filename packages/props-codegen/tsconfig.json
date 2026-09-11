@@ -1,0 +1,8 @@
+{
+  "extends": "@tuja/tsconfig/library.json",
+  "compilerOptions": {
+    "lib": ["esnext", "dom"],
+    "types": ["node", "react"]
+  },
+  "include": ["**/*.ts", "**/*.mts", "**/*.tsx"]
+}

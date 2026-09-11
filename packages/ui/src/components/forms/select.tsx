@@ -27,34 +27,64 @@ interface SelectProps extends Omit<
   ComponentProps<"select">,
   "size" | "children" | "className" | "style"
 > {
-  /** Visible text that labels the select. Pass `labelHidden` to keep it screen-reader-only. */
+  /**
+   * Visible text that labels the select. Pass `labelHidden` to keep it
+   * screen-reader-only.
+   *
+   * @zh 命名下拉框的可见文本；即使被隐藏，也是无障碍名称所必需的。
+   */
   label: string;
-  /** Visually hide the label while keeping it as the accessible name. */
+  /**
+   * Visually hide the label while keeping it as the accessible name.
+   *
+   * @zh 在视觉上隐藏标签，同时保留为无障碍名称。
+   */
   labelHidden?: boolean;
-  /** Supporting copy shown beneath the control and wired via `aria-describedby`. */
+  /**
+   * Supporting copy shown beneath the control and wired via `aria-describedby`.
+   *
+   * @zh 控件下方的辅助说明，通过 `aria-describedby` 关联。
+   */
   description?: string;
   /**
    * Error message shown beneath the control. Presence flips `aria-invalid` and
    * appends the message to `aria-describedby`.
+   *
+   * @zh 控件下方的错误消息；切换 `aria-invalid` 并加入 `aria-describedby`。
    */
   error?: string;
   /**
    * Config-layer option list; omit it and pass `<option>` `children` instead
    * for the escape hatch (option groups, custom attributes).
+   *
+   * @zh 配置层选项，按顺序渲染为 `<option>`。
    */
   options?: ReadonlyArray<SelectOption>;
   /**
    * Placeholder rendered as a disabled, hidden first option. When uncontrolled
    * with no `defaultValue`, it is selected initially.
+   *
+   * @zh 被禁用且隐藏的首个选项，在选择真实值前显示。
    */
   placeholder?: string;
   /**
-   * Control height and type scale. Defaults to `"md"`.
+   * Control height and padding via `controlSize`. Defaults to `"md"`.
+   *
+   * @zh 基于 `controlSize` 的控件高度与内边距。
    */
   size?: "sm" | "md" | "lg";
-  /** `<option>` elements — the escape hatch when `options` is not enough. */
+  /**
+   * `<option>` or `<optgroup>` elements — the escape hatch when `options` is
+   * not enough.
+   *
+   * @zh `<option>` / `<optgroup>` 元素——当 `options` 不够用时的逃生舱口。
+   */
   children?: ReactNode;
-  /** StyleX styles merged over the field root — the config-layer escape hatch. */
+  /**
+   * StyleX styles merged over the field root — the config-layer escape hatch.
+   *
+   * @zh 合并到根容器上的 StyleX 样式——逃生舱口。
+   */
   css?: StyleProp;
 }
 

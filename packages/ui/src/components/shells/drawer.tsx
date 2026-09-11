@@ -87,7 +87,7 @@ export function Drawer({
               <div css={styles.railTitle}>{sidebarHeader}</div>
               <Button
                 size="sm"
-                variant="ghost"
+                look="ghost"
                 css={styles.railClose}
                 icon={<XIcon weight="bold" />}
                 aria-label={closeLabel}

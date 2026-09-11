@@ -1,0 +1,1103 @@
+/* The tinker's own chrome. It is deliberately not built from the design
+   system, so nothing here can be mistaken for the component under work. */
+
+:root {
+  color-scheme: light dark;
+  --tk-ground: light-dark(#edebe6, #191816);
+  --tk-panel: light-dark(#f6f4f0, #211f1c);
+  --tk-well: light-dark(#e3e0d9, #100f0e);
+  --tk-ink: light-dark(#23211d, #e8e4dc);
+  --tk-ink-muted: light-dark(#6c675e, #a09a8f);
+  --tk-ink-faint: light-dark(#948e85, #766f66);
+  --tk-rule: light-dark(#dad5cc, #332f2a);
+  --tk-rule-strong: light-dark(#c6c0b5, #464139);
+  --tk-accent: light-dark(#14675f, #63c9bb);
+  --tk-accent-soft: light-dark(rgb(20 103 95 / 0.12), rgb(99 201 187 / 0.16));
+  --tk-accent-ink: light-dark(#ffffff, #0d1a18);
+  --tk-warn: light-dark(#855313, #dfa45e);
+  --tk-warn-soft: light-dark(rgb(133 83 19 / 0.1), rgb(223 164 94 / 0.14));
+  --tk-ui:
+    "Inter", "Inter-fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --tk-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --tk-bar-height: 46px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--tk-ground);
+  color: var(--tk-ink);
+  font-family: var(--tk-ui);
+}
+
+#tinker-root {
+  min-block-size: 100dvh;
+}
+
+.tk-app {
+  block-size: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--tk-ground);
+  color: var(--tk-ink);
+  font: 400 13px/1.45 var(--tk-ui);
+  overflow-x: clip;
+}
+
+.tk-app *,
+.tk-scrim * {
+  box-sizing: border-box;
+}
+
+.tk-sr-only {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- controls ---------- */
+
+.tk-button,
+.tk-icon-button,
+.tk-segment,
+.tk-add,
+.tk-reset,
+.tk-remove,
+.tk-filter-chip,
+.tk-group-toggle {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.tk-button {
+  min-block-size: 30px;
+  padding-inline: 10px;
+  border: 1px solid var(--tk-rule-strong);
+  border-radius: 5px;
+  background: var(--tk-panel);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tk-button:hover {
+  border-color: var(--tk-ink-faint);
+}
+
+.tk-button--go {
+  border-color: var(--tk-accent);
+  color: var(--tk-accent);
+  font-weight: 600;
+}
+
+.tk-icon-button {
+  font-size: 12px;
+  color: var(--tk-ink-muted);
+  padding: 4px;
+}
+
+.tk-icon-button:hover {
+  color: var(--tk-ink);
+}
+
+.tk-segmented {
+  display: inline-flex;
+  border: 1px solid var(--tk-rule-strong);
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--tk-panel);
+}
+
+.tk-segment {
+  min-block-size: 30px;
+  padding-inline: 8px;
+  font-size: 12px;
+  color: var(--tk-ink-muted);
+  border-inline-start: 1px solid var(--tk-rule);
+}
+
+.tk-segment:first-child {
+  border-inline-start: 0;
+}
+
+.tk-segment:hover {
+  color: var(--tk-ink);
+}
+
+.tk-segment[aria-pressed="true"],
+.tk-segment[aria-selected="true"] {
+  background: var(--tk-accent-soft);
+  color: var(--tk-accent);
+  font-weight: 600;
+}
+
+:where(.tk-app, .tk-scrim) :focus-visible {
+  outline: 2px solid var(--tk-accent);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
+
+/* ---------- top bar ---------- */
+
+.tk-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-block-size: var(--tk-bar-height);
+  padding-inline: 16px;
+  padding-block-start: env(safe-area-inset-top);
+  border-block-end: 1px solid var(--tk-rule);
+  background: var(--tk-panel);
+}
+
+.tk-bar-name {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-inline-size: 0;
+}
+
+.tk-component {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.tk-source {
+  font: 400 11px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tk-bar-controls {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ---------- body ---------- */
+
+.tk-body {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 300px;
+  min-block-size: 0;
+}
+
+.tk-app--phone .tk-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.tk-panel {
+  min-inline-size: 0;
+  overflow: hidden auto;
+  background: var(--tk-panel);
+}
+
+.tk-panel--tree {
+  border-inline-end: 1px solid var(--tk-rule);
+}
+
+.tk-panel--inspector {
+  border-inline-start: 1px solid var(--tk-rule);
+}
+
+.tk-main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-inline-size: 0;
+}
+
+/* ---------- breadcrumb ---------- */
+
+.tk-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+  padding: 6px 12px;
+  border-block-end: 1px solid var(--tk-rule);
+  background: var(--tk-panel);
+}
+
+.tk-crumb-cell {
+  font: 500 11px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+  margin-inline-end: 6px;
+}
+
+.tk-crumb {
+  font: 400 12px/1.4 var(--tk-mono);
+  color: var(--tk-ink-muted);
+  background: none;
+  border: 0;
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.tk-crumb + .tk-crumb::before {
+  content: "/";
+  color: var(--tk-ink-faint);
+  margin-inline-end: 6px;
+}
+
+.tk-crumb:hover {
+  color: var(--tk-ink);
+}
+
+.tk-crumb--on {
+  color: var(--tk-accent);
+  font-weight: 600;
+}
+
+.tk-crumb-hint {
+  font-size: 12px;
+  color: var(--tk-ink-faint);
+}
+
+/* ---------- canvas ---------- */
+
+.tk-canvas-scroll {
+  overflow: auto;
+  background: var(--tk-well);
+  padding: 20px;
+  touch-action: pan-x pan-y;
+}
+
+.tk-cells {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.tk-cell {
+  margin: 0;
+  display: grid;
+  gap: 7px;
+  justify-items: start;
+}
+
+/* With no container width the cell takes the width of its stand-in, so cells
+   sit side by side and wrap. The floor keeps a narrow stand-in readable. */
+.tk-cell--full {
+  flex: 0 1 auto;
+  min-inline-size: min(260px, 100%);
+  max-inline-size: 100%;
+}
+
+.tk-cell-title {
+  font: 500 11px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+}
+
+.tk-cell-frame {
+  padding: 16px;
+  border: 1px solid var(--tk-rule-strong);
+  border-radius: 6px;
+  max-inline-size: 100%;
+  overflow: hidden;
+}
+
+.tk-cell--full .tk-cell-frame {
+  inline-size: 100%;
+}
+
+/* The stacking context every overlay in the cell is placed against. The
+   sample paragraph sits behind the stand-in at z-index -1, the blur plane
+   above it, and the floating layer above that. */
+.tk-cell-body {
+  position: relative;
+  isolation: isolate;
+  min-block-size: 40px;
+  max-inline-size: 100%;
+}
+
+.tk-cell--full .tk-cell-body {
+  inline-size: 100%;
+}
+
+/* A floating element blurs the page around it, so the cell grows to hold some
+   page and centres the stand-in in it. `align-content` keeps the body a block,
+   because a grid parent would blockify an `inline-flex` stand-in. */
+.tk-cell-body--floating {
+  min-block-size: 190px;
+  align-content: center;
+}
+
+.tk-sample {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.75;
+}
+
+.tk-blur-plane,
+.tk-band {
+  position: absolute;
+  pointer-events: none;
+}
+
+.tk-blur-plane {
+  z-index: 0;
+}
+
+.tk-band {
+  z-index: 2;
+}
+
+.tk-blur-plane > span,
+.tk-band > span {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.tk-outline {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.tk-outline--hover {
+  outline: 1px solid var(--tk-accent);
+  outline-offset: 0;
+  opacity: 0.45;
+}
+
+.tk-outline--on {
+  outline: 2px solid var(--tk-accent);
+  outline-offset: 0;
+}
+
+.tk-outline-tag {
+  position: absolute;
+  inset-block-end: 100%;
+  inset-inline-start: 0;
+  padding: 1px 5px;
+  font: 500 10px/1.5 var(--tk-mono);
+  background: var(--tk-accent);
+  color: var(--tk-accent-ink);
+  border-radius: 3px 3px 0 0;
+  white-space: nowrap;
+}
+
+/* ---------- layer tree ---------- */
+
+.tk-tree {
+  display: grid;
+  gap: 4px;
+  padding-block: 8px;
+}
+
+.tk-cell-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 8px;
+  border-block-end: 1px solid var(--tk-rule);
+}
+
+.tk-cell-select select {
+  font: 400 12px/1.4 var(--tk-ui);
+  color: inherit;
+  background: var(--tk-ground);
+  border: 1px solid var(--tk-rule-strong);
+  border-radius: 4px;
+  min-block-size: 28px;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.tk-tree-rows {
+  display: grid;
+}
+
+.tk-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-block-size: 28px;
+  padding-block: 4px;
+  padding-inline-end: 8px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: start;
+  color: inherit;
+  font: inherit;
+  overflow: hidden;
+}
+
+.tk-tree-row:hover {
+  background: var(--tk-ground);
+}
+
+.tk-tree-row--on {
+  background: var(--tk-accent-soft);
+  box-shadow: inset 2px 0 0 var(--tk-accent);
+}
+
+.tk-layer-name {
+  font: 500 12px/1.4 var(--tk-mono);
+  color: var(--tk-ink);
+}
+
+.tk-tag {
+  font: 400 10px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+}
+
+.tk-lock {
+  font: 400 10px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+  margin-inline-start: auto;
+}
+
+/* State and variant read differently in the config, so they read differently
+   here: a state is filled, a variant is outlined, and a compound key, which is
+   both, is filled and outlined. */
+.tk-chip {
+  font: 500 10px/1.6 var(--tk-mono);
+  padding-inline: 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.tk-chip--state {
+  background: var(--tk-ink);
+  color: var(--tk-panel);
+}
+
+.tk-chip--variant {
+  border: 1px solid var(--tk-rule-strong);
+  color: var(--tk-ink-muted);
+}
+
+.tk-chip--compound {
+  background: var(--tk-panel);
+  border: 1px solid var(--tk-ink);
+  color: var(--tk-ink);
+}
+
+.tk-chip--preset {
+  border: 1px dashed var(--tk-rule-strong);
+  color: var(--tk-ink-muted);
+}
+
+/* ---------- inspector ---------- */
+
+.tk-inspector-scroll {
+  display: grid;
+  align-content: start;
+}
+
+.tk-inspector-empty {
+  padding: 16px;
+  color: var(--tk-ink-muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+.tk-inspector-head {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border-block-end: 1px solid var(--tk-rule);
+}
+
+.tk-inspector-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tk-inspector-title .tk-layer-name {
+  font-size: 13px;
+}
+
+.tk-scope {
+  margin: 0;
+  font-size: 12px;
+  color: var(--tk-ink-muted);
+}
+
+.tk-scope b {
+  font: 600 12px/1.4 var(--tk-mono);
+  color: var(--tk-accent);
+}
+
+.tk-presets {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tk-warnings {
+  margin: 0;
+  padding: 8px 12px 8px 26px;
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--tk-warn);
+  background: var(--tk-warn-soft);
+  border-block-end: 1px solid var(--tk-rule);
+}
+
+.tk-group {
+  border-block-end: 1px solid var(--tk-rule);
+}
+
+.tk-group-head {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tk-group-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-block-size: 32px;
+  padding-inline: 12px;
+  text-align: start;
+}
+
+.tk-caret {
+  font: 400 12px/1 var(--tk-mono);
+  color: var(--tk-ink-faint);
+  inline-size: 8px;
+}
+
+.tk-count {
+  font: 400 10px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+}
+
+.tk-add {
+  min-inline-size: 32px;
+  min-block-size: 32px;
+  color: var(--tk-ink-muted);
+  font-size: 15px;
+}
+
+.tk-add:hover {
+  color: var(--tk-accent);
+}
+
+.tk-rows {
+  display: grid;
+  padding: 0 12px 10px;
+  gap: 2px;
+}
+
+.tk-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 8px;
+  padding-block: 3px;
+}
+
+.tk-property {
+  font: 400 11px/1.4 var(--tk-mono);
+  color: var(--tk-ink-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tk-row--edited .tk-property {
+  color: var(--tk-accent);
+  font-weight: 600;
+}
+
+.tk-value-button,
+.tk-value-static {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  min-block-size: 26px;
+  padding: 2px 6px;
+  border: 1px solid var(--tk-rule);
+  border-radius: 4px;
+  background: var(--tk-ground);
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.tk-value-static {
+  cursor: default;
+  border-style: dashed;
+}
+
+.tk-value-button:hover {
+  border-color: var(--tk-accent);
+}
+
+.tk-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-inline-size: 0;
+}
+
+.tk-token-name {
+  font: 400 12px/1.4 var(--tk-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tk-value--unset {
+  color: var(--tk-ink-faint);
+  font-style: italic;
+}
+
+.tk-hint {
+  font: 400 10px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+
+.tk-off-system,
+.tk-keyword {
+  font: 400 9px/1.5 var(--tk-mono);
+  color: var(--tk-ink-faint);
+  border: 1px solid var(--tk-rule-strong);
+  border-radius: 2px;
+  padding-inline: 3px;
+  flex: none;
+}
+
+/* A CSS keyword is a value the system allows, so it is marked more quietly
+   than a value the system does not name. */
+.tk-keyword {
+  border-style: dashed;
+  border-color: var(--tk-rule);
+}
+
+.tk-swatch {
+  display: inline-flex;
+  inline-size: 16px;
+  block-size: 16px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--tk-rule-strong);
+  flex: none;
+}
+
+.tk-swatch > span {
+  flex: 1;
+}
+
+.tk-row-source {
+  grid-column: 1;
+  font: 400 10px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+}
+
+.tk-row-actions {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tk-reset {
+  font: 400 10px/1.4 var(--tk-ui);
+  color: var(--tk-accent);
+  padding: 2px 4px;
+}
+
+/* Removing a declaration is rarer than resetting one, so it reads quieter. */
+.tk-remove {
+  font: 400 10px/1.4 var(--tk-ui);
+  color: var(--tk-ink-faint);
+  padding: 2px 4px;
+}
+
+.tk-remove:hover {
+  color: var(--tk-ink-muted);
+}
+
+.tk-row-warning {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--tk-warn);
+}
+
+.tk-empty {
+  margin: 0;
+  font-size: 11px;
+  color: var(--tk-ink-faint);
+  padding-block: 4px;
+}
+
+/* ---------- system toggles ---------- */
+
+.tk-effects {
+  display: grid;
+  gap: 8px;
+  padding-block-start: 4px;
+}
+
+.tk-effect {
+  display: grid;
+  gap: 6px;
+}
+
+.tk-switch {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  min-block-size: 24px;
+  cursor: pointer;
+}
+
+.tk-switch input {
+  accent-color: var(--tk-accent);
+  inline-size: 14px;
+  block-size: 14px;
+  margin: 0;
+}
+
+.tk-effect-body {
+  display: grid;
+  gap: 6px;
+  padding-inline-start: 21px;
+  border-inline-start: 1px solid var(--tk-rule);
+  margin-inline-start: 6px;
+}
+
+.tk-field {
+  display: grid;
+  gap: 3px;
+}
+
+.tk-field-label {
+  font: 400 10px/1.4 var(--tk-mono);
+  color: var(--tk-ink-faint);
+}
+
+.tk-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--tk-ink-muted);
+}
+
+/* ---------- popovers, sheets, dialog ---------- */
+
+.tk-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.tk-scrim--centre {
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.28);
+  padding: 16px;
+}
+
+.tk-popover {
+  position: fixed;
+  inline-size: 288px;
+  max-block-size: min(60dvh, 420px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--tk-panel);
+  border: 1px solid var(--tk-rule-strong);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tk-popover--sheet {
+  inset: auto 0 0;
+  inline-size: auto;
+  max-block-size: 76dvh;
+  border-radius: 12px 12px 0 0;
+  padding-block-end: env(safe-area-inset-bottom);
+}
+
+.tk-popover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 8px 8px 12px;
+  border-block-end: 1px solid var(--tk-rule);
+}
+
+.tk-popover-title {
+  font: 500 12px/1.4 var(--tk-mono);
+}
+
+.tk-picker {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  min-block-size: 0;
+}
+
+.tk-picker-literal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--tk-ground);
+  border-block-end: 1px solid var(--tk-rule);
+}
+
+.tk-search {
+  font: 400 12px/1.4 var(--tk-ui);
+  color: inherit;
+  background: var(--tk-ground);
+  border: 0;
+  border-block-end: 1px solid var(--tk-rule);
+  min-block-size: 34px;
+  padding-inline: 12px;
+}
+
+.tk-filter {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-block-end: 1px solid var(--tk-rule);
+}
+
+.tk-filter-chip {
+  font-size: 11px;
+  padding: 3px 7px;
+  border: 1px solid var(--tk-rule-strong);
+  border-radius: 4px;
+  color: var(--tk-ink-muted);
+}
+
+.tk-filter-chip[aria-pressed="true"] {
+  background: var(--tk-accent-soft);
+  border-color: var(--tk-accent);
+  color: var(--tk-accent);
+}
+
+.tk-options {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  overflow: auto;
+  min-block-size: 0;
+}
+
+.tk-option {
+  inline-size: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-block-size: 30px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.tk-option:hover {
+  background: var(--tk-ground);
+}
+
+.tk-option[aria-current="true"] {
+  background: var(--tk-accent-soft);
+  color: var(--tk-accent);
+}
+
+.tk-options .tk-empty {
+  padding: 10px;
+}
+
+.tk-dialog {
+  inline-size: min(560px, 100%);
+  background: var(--tk-panel);
+  border: 1px solid var(--tk-rule-strong);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  padding-block-end: 12px;
+}
+
+.tk-dialog-note {
+  margin: 0;
+  padding-inline: 12px;
+  font-size: 12px;
+  color: var(--tk-ink-muted);
+}
+
+.tk-dialog-text {
+  margin-inline: 12px;
+  block-size: 40dvh;
+  font: 400 12px/1.6 var(--tk-mono);
+  color: inherit;
+  background: var(--tk-ground);
+  border: 1px solid var(--tk-rule);
+  border-radius: 5px;
+  padding: 8px;
+  resize: none;
+}
+
+.tk-sheet {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 85dvh;
+  z-index: 30;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--tk-panel);
+  border-block-start: 1px solid var(--tk-rule-strong);
+  border-radius: 14px 14px 0 0;
+  transition: translate 180ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.tk-sheet--peek {
+  translate: 0 calc(85dvh - 40dvh);
+}
+
+.tk-sheet--expanded {
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-sheet {
+    transition: none;
+  }
+}
+
+.tk-sheet-grip {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 4px 10px 8px;
+  touch-action: none;
+}
+
+.tk-sheet-handle {
+  justify-self: stretch;
+  display: grid;
+  place-items: center;
+  min-block-size: 24px;
+  border: 0;
+  background: none;
+  cursor: grab;
+  padding: 0;
+}
+
+.tk-sheet-bar {
+  inline-size: 36px;
+  block-size: 4px;
+  border-radius: 2px;
+  background: var(--tk-rule-strong);
+}
+
+.tk-sheet-body {
+  overflow: auto;
+  padding-block-end: calc(20px + env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+}
+
+.tk-sheet-actions {
+  padding: 12px;
+}
+
+/* ---------- phone ---------- */
+
+@media (max-width: 767px) {
+  .tk-canvas-scroll {
+    padding: 12px;
+    padding-block-end: 44dvh;
+  }
+
+  .tk-button,
+  .tk-segment {
+    min-block-size: 44px;
+  }
+
+  .tk-bar {
+    gap: 10px;
+    padding-inline: 12px;
+  }
+
+  .tk-bar-controls {
+    gap: 6px;
+  }
+
+  .tk-source {
+    display: none;
+  }
+
+  .tk-tree-row,
+  .tk-option,
+  .tk-value-button,
+  .tk-switch,
+  .tk-group-toggle {
+    min-block-size: 44px;
+  }
+
+  .tk-add {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+
+  .tk-reset,
+  .tk-remove {
+    min-block-size: 32px;
+    min-inline-size: 44px;
+  }
+
+  .tk-search {
+    min-block-size: 44px;
+  }
+
+  /* Safari zooms the page into a focused field under 16px. */
+  .tk-search,
+  .tk-cell-select select,
+  .tk-dialog-text {
+    font-size: 16px;
+  }
+}

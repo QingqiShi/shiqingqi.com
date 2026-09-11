@@ -324,7 +324,7 @@ export function TableShowcase() {
         <Specimen caption={t({ en: "repayment plans", zh: "还款计划" })}>
           <PlanTable caption={planCaption} />
         </Specimen>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Every part at once: a head of column headers, a body whose rows open with a row header, three numeric columns, the row the visitor is on, and a foot summarising the spread of each column above it.",
             zh: "所有部分一次呈现：由列标题组成的表头、每行以行标题开头的主体、三个数字列、访客所在的当前行，以及汇总上方各列取值范围的表尾。",
@@ -332,7 +332,7 @@ export function TableShowcase() {
         </Text>
         {/* Real figures need a real source, and `TableFoot` is for summarising
             the columns above it — so the provenance sits beside the table. */}
-        <Text variant="bodySmall" tone="subtle" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="subtle" wrap="pretty" css={styles.note}>
           {t({
             en: "Figures are the 2025/26 UK repayment thresholds and rates published by the Student Loans Company.",
             zh: "数据为英国学生贷款公司发布的 2025/26 年度还款起征点与利率。",
@@ -341,7 +341,7 @@ export function TableShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Caption", zh: "表格标题" })}>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "caption is required. It names both the table and the scroll region around it, so a screen reader announces what the figures are instead of the word “table”. It is sr-only by default — set captionVisible when the table needs a heading on the page as well.",
             zh: "caption 是必填项。它同时为表格及其外层滚动区域命名，读屏软件因此会宣读这些数字代表什么，而不只是“表格”。它默认仅供读屏使用；当表格在页面上也需要一个标题时，请设置 captionVisible。",
@@ -358,7 +358,7 @@ export function TableShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Numeric columns", zh: "数字列" })}>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "numeric renders figures at a fixed width and aligns the cell to the end, so a four-figure balance and a five-figure one line up digit for digit. Set it on the column's header as well as its cells, or the header drifts away from the numbers it labels.",
             zh: "numeric 让数字以等宽呈现并使单元格靠末端对齐，因此四位数与五位数的余额也能逐位对齐。请同时为该列的标题和单元格设置它，否则标题会与其所标注的数字错位。",
@@ -395,7 +395,7 @@ export function TableShowcase() {
             markCurrent
           />
         </Specimen>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: 'current puts aria-current="true" on the row and joins the tint with heavier type, so the state survives a colour-blind reading and forced-colours mode. Pass aria-current yourself to announce it as something other than "true" — "page", say, when the row is the page being read.',
             zh: 'current 会为该行加上 aria-current="true"，并在着色之外同时加粗字重，因此该状态在色盲阅读和强制颜色模式下依然可辨。若要宣读为 "true" 以外的值，请自行传入 aria-current——例如当该行正是当前阅读的页面时使用 "page"。',
@@ -404,7 +404,7 @@ export function TableShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Sticky header", zh: "固定表头" })}>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "The head sticks to the scroll container, not to the page, so the container needs a height before anything can scroll under it. This one is capped through containerCss — scroll the rows and the column headers hold.",
             zh: "表头固定的对象是滚动容器而非页面，因此必须先给容器设定高度，才会有内容从表头下方滚过。这里的高度通过 containerCss 限制——滚动各行时，列标题会保持不动。",
@@ -416,7 +416,7 @@ export function TableShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Scroll region", zh: "滚动区域" })}>
-        <Text variant="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "The table always sits in its own horizontally scrolling region, so a wide table scrolls inside its box and the page never scrolls sideways. The region is focusable, which is what makes the overflow reachable from the keyboard (WCAG 2.1.1), and it takes its accessible name from the same caption. Tab to it, then scroll with the arrow keys. The region below is capped narrow so it overflows on any screen.",
             zh: "表格始终位于自己的横向滚动区域内，因此宽表格只在自身的盒子里滚动，页面永远不会横向滚动。该区域可获得焦点，这正是溢出内容能通过键盘访问的原因（WCAG 2.1.1），其可访问名称同样来自 caption。用 Tab 聚焦后，即可用方向键滚动。下方的区域被特意收窄，因此在任何屏幕上都会溢出。",
@@ -427,180 +427,19 @@ export function TableShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase label="Table" labelVariant="code">
-        <PropsTable
-          rows={[
-            {
-              name: "caption",
-              type: "string",
-              required: true,
-              description: t({
-                en: "Names the table and its scroll region. Required — an unnamed table leaves a screen reader announcing “table” and nothing else.",
-                zh: "为表格及其滚动区域命名。必填——未命名的表格会让读屏软件只宣读“表格”，别无其他。",
-              }),
-            },
-            {
-              name: "captionVisible",
-              type: "boolean",
-              defaultValue: "false",
-              description: t({
-                en: "Renders the caption above the table. It is sr-only by default.",
-                zh: "将 caption 显示在表格上方。默认仅供读屏使用。",
-              }),
-            },
-            {
-              name: "stickyHeader",
-              type: "boolean",
-              defaultValue: "false",
-              description: t({
-                en: "Holds TableHead at the top of the scroll container while the rows move under it. The container is what it sticks to, so give that a height through containerCss.",
-                zh: "在各行从下方滚过时，将 TableHead 固定在滚动容器顶部。它固定的对象是容器，因此请通过 containerCss 为容器设定高度。",
-              }),
-            },
-            {
-              name: "containerCss",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides for the scroll container, composed last — where a height or a width cap goes.",
-                zh: "最后合成的滚动容器 StyleX 覆盖样式——高度或宽度上限写在这里。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides for the <table> itself, composed last.",
-                zh: "最后合成的 <table> 元素本身的 StyleX 覆盖样式。",
-              }),
-            },
-            {
-              name: "children",
-              type: "ReactNode",
-              required: true,
-              description: t({
-                en: "The table's groups — TableHead, TableBody, TableFoot.",
-                zh: "表格的各个分组——TableHead、TableBody、TableFoot。",
-              }),
-            },
-            {
-              name: "…table attributes",
-              type: 'ComponentProps<"table">',
-              description: t({
-                en: "Native table attributes (id, data-*, className, style, ref) are forwarded to the <table>, not to the container.",
-                zh: "原生 table 属性（id、data-*、className、style、ref）会转发到 <table>，而非容器。",
-              }),
-            },
-            {
-              name: "TableHead",
-              type: 'ComponentProps<"thead">',
-              description: t({
-                en: "The <thead> group. Sticks when the root sets stickyHeader, and rules off from the body below it.",
-                zh: "<thead> 分组。当根组件设置 stickyHeader 时固定，并与下方主体之间画出分隔线。",
-              }),
-            },
-            {
-              name: "TableBody",
-              type: 'ComponentProps<"tbody">',
-              description: t({
-                en: "The <tbody> group holding the table's rows.",
-                zh: "承载表格各行的 <tbody> 分组。",
-              }),
-            },
-            {
-              name: "TableFoot",
-              type: 'ComponentProps<"tfoot">',
-              description: t({
-                en: "The <tfoot> group, for totals and summary rows. Rules off from the body above it.",
-                zh: "<tfoot> 分组，用于合计与汇总行。与上方主体之间画出分隔线。",
-              }),
-            },
-            {
-              name: "TableRow",
-              type: '{ current?: boolean } & ComponentProps<"tr">',
-              defaultValue: "current: false",
-              description: t({
-                en: 'One <tr>. current marks the row the visitor is on: aria-current="true" alongside the tint and the heavier type, so the state never rests on colour alone. Pass aria-current yourself for any other value.',
-                zh: '一个 <tr>。current 标记访客所在的行：在着色与加粗之外同时给出 aria-current="true"，使该状态不会仅靠颜色传达。若需其他取值，请自行传入 aria-current。',
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="table" />
 
-      <Showcase label="TableHeaderCell" labelVariant="code">
-        <PropsTable
-          rows={[
-            {
-              name: "scope",
-              type: '"col" | "row" | "colgroup" | "rowgroup"',
-              required: true,
-              description: t({
-                en: 'Which cells this header labels: "col" for a column header in the head, "row" for the label opening a body row. Required — a <th> without it leaves the association to browser guesswork. Column headers read quiet, row headers read as the row\'s label.',
-                zh: '这个标题为哪些单元格命名："col" 用于表头中的列标题，"row" 用于主体行开头的标签。必填——缺少它的 <th> 只能让浏览器去猜测这层关联。列标题呈弱化样式，行标题则读作该行的标签。',
-              }),
-            },
-            {
-              name: "numeric",
-              type: "boolean",
-              defaultValue: "false",
-              description: t({
-                en: "Renders figures at a fixed width and end-aligns the cell. Set it on the column's header as well as its cells, or the header drifts away from the numbers it labels.",
-                zh: "让数字以等宽呈现并使单元格靠末端对齐。请同时为该列的标题和单元格设置它，否则标题会与其所标注的数字错位。",
-              }),
-            },
-            {
-              name: "align",
-              type: '"start" | "center" | "end"',
-              defaultValue: '"start", or "end" when numeric',
-              description: t({
-                en: "Text alignment. An explicit align beats the alignment numeric would have chosen.",
-                zh: "文本对齐方式。显式设置的 align 优先于 numeric 所选的对齐方式。",
-              }),
-            },
-            {
-              name: "…th attributes",
-              type: 'Omit<ComponentProps<"th">, "align" | "scope">',
-              description: t({
-                en: "Native th attributes (colSpan, rowSpan, id, data-*, className, style, ref) plus css are forwarded to the <th>. The deprecated native align attribute is removed to make room for the logical one above.",
-                zh: "原生 th 属性（colSpan、rowSpan、id、data-*、className、style、ref）连同 css 都会转发到 <th>。为给上面的逻辑对齐属性让路，已弃用的原生 align 属性被移除。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="table-head" />
 
-      <Showcase label="TableCell" labelVariant="code">
-        <PropsTable
-          rows={[
-            {
-              name: "numeric",
-              type: "boolean",
-              defaultValue: "false",
-              description: t({
-                en: "Renders figures at a fixed width and end-aligns the cell, so a column of numbers lines up digit for digit.",
-                zh: "让数字以等宽呈现并使单元格靠末端对齐，使整列数字逐位对齐。",
-              }),
-            },
-            {
-              name: "align",
-              type: '"start" | "center" | "end"',
-              defaultValue: '"start", or "end" when numeric',
-              description: t({
-                en: "Text alignment. An explicit align beats the alignment numeric would have chosen.",
-                zh: "文本对齐方式。显式设置的 align 优先于 numeric 所选的对齐方式。",
-              }),
-            },
-            {
-              name: "…td attributes",
-              type: 'Omit<ComponentProps<"td">, "align">',
-              description: t({
-                en: "Native td attributes (colSpan, rowSpan, id, data-*, className, style, ref) plus css are forwarded to the <td>. The deprecated native align attribute is removed to make room for the logical one above.",
-                zh: "原生 td 属性（colSpan、rowSpan、id、data-*、className、style、ref）连同 css 都会转发到 <td>。为给上面的逻辑对齐属性让路，已弃用的原生 align 属性被移除。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="table-body" />
+
+      <PropsTable component="table-foot" />
+
+      <PropsTable component="table-row" />
+
+      <PropsTable component="table-header-cell" />
+
+      <PropsTable component="table-cell" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont

@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { transition } from "../../primitives/motion.stylex.ts";
 import { space } from "../../tokens.stylex.ts";
+import type { StyleProp } from "../../types.ts";
 import { cardSurface } from "./card.stylex.ts";
 
 interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
@@ -9,10 +10,23 @@ interface CardProps extends Omit<ComponentProps<"div">, "className" | "style"> {
    * Adds hover and focus affordances for a card that acts as a clickable
    * control. To make the whole card a link instead, compose `cardSurface` on
    * your own `<Link>`/`<a>` — `Card` always renders a `<div>`.
+   *
+   * @zh 为作为可点击控件的卡片添加悬停与聚焦态样式。若想让整张卡片本身成为链接，请改在你自己的 `<Link>`/`<a>` 上组合 `cardSurface`——`Card` 始终渲染为 `<div>`。
    */
   interactive?: boolean;
-  /** Card contents. */
+  /**
+   * Card contents.
+   *
+   * @zh 卡片内容。
+   */
   children: ReactNode;
+  /**
+   * StyleX styles merged over the card's own — the config-layer escape
+   * hatch.
+   *
+   * @zh 合并在卡片自身样式之上的 StyleX 样式——配置层的逃生舱口。
+   */
+  css?: StyleProp;
 }
 
 /**

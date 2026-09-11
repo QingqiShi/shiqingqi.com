@@ -15,16 +15,26 @@ interface SpinnerBaseProps extends Omit<
   "children" | "role" | "aria-hidden" | "className" | "style"
 > {
   /**
-   * Rendered diameter: `sm`/`md`/`lg` use `rem` (WCAG 1.4.4); `"inline"` uses
-   * `1em` to match surrounding text. Defaults to `"md"`.
+   * Rendered diameter. `sm`/`md`/`lg` map to `rem`, so the ring scales with
+   * the user's font size (WCAG 1.4.4). `"inline"` takes `1em` instead,
+   * matching the surrounding text — for a spinner standing in for an icon,
+   * so swapping it in doesn't shift the layout around it.
+   *
+   * @zh 渲染直径。`sm`/`md`/`lg` 以 `rem` 表示，环随用户字号缩放（WCAG 1.4.4）；`inline` 则取 `1em`，与周围文字一致——用于替代某个图标的加载指示器，因此替换后不会改变周围布局。
    */
   size?: "inline" | "sm" | "md" | "lg";
   /**
    * Colour. `"current"` (default) inherits `currentColor` so the spinner picks
    * up the surrounding text colour; `"accent"` pins the brand accent.
+   *
+   * @zh 颜色。`current`（默认）继承 `currentColor`，使加载指示器取得周围文本的颜色；`accent` 固定使用品牌强调色。
    */
   tone?: "accent" | "current";
-  /** StyleX overrides, composed last so a caller can win over the defaults. */
+  /**
+   * StyleX overrides, composed last so a caller can win over the defaults.
+   *
+   * @zh StyleX 覆盖样式，最后合成，使调用方可以覆盖默认值。
+   */
   css?: StyleProp;
 }
 
@@ -40,6 +50,8 @@ type SpinnerA11yProps =
        * Accessible name announced via a polite live region (e.g. "Loading").
        * The package ships no i18n, so the consumer supplies the localized
        * string.
+       *
+       * @zh 通过礼貌型 live region 播报的无障碍名称（例如“Loading”）。本包不内置 i18n，请由调用方提供本地化字符串。
        */
       label: string;
       "aria-hidden"?: undefined;
@@ -48,6 +60,8 @@ type SpinnerA11yProps =
       /**
        * Marks the spinner purely decorative — use inside a region that already
        * announces the busy state (e.g. a button with `aria-busy`).
+       *
+       * @zh 将加载指示器标记为纯装饰——用于已通过其他方式宣告繁忙状态的区域内（例如带 `aria-busy` 的按钮）。
        */
       "aria-hidden": true;
       label?: undefined;

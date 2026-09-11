@@ -49,7 +49,7 @@ export function SimilarPanel({ movies, onSelect }: SimilarPanelProps) {
                 what the plate doesn't say. Both are real text inside the button,
                 so it still announces "The Salt Line 2022 · 7.2". */}
             <TypesetPoster title={movie.title} />
-            <Text as="span" variant="caption" tone="subtle" numeric>
+            <Text as="span" look="caption" tone="subtle" numeric>
               {`${movie.year} · ${movie.rating}`}
             </Text>
           </button>

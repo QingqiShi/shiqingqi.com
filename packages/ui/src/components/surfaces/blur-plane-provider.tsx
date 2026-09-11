@@ -15,6 +15,12 @@ interface BlurPlaneValue {
 export const BlurPlaneContext = createContext<BlurPlaneValue | null>(null);
 
 interface BlurPlaneProviderProps {
+  /**
+   * The shell's content, rendered inside the provider so every floating
+   * control under it can paint its blur onto the page's Blur plane.
+   *
+   * @zh 外壳的内容，渲染在该提供者之内，使其下的每个悬浮控件都能将虚化画到页面的虚化平面上。
+   */
   children: ReactNode;
 }
 

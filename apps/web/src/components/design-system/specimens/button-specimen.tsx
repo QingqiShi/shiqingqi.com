@@ -10,7 +10,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
 export function ButtonSpecimen() {
   return (
     <div css={specimenLayout.row}>
-      <Button variant="primary">{t({ en: "Continue", zh: "继续" })}</Button>
+      <Button look="primary">{t({ en: "Continue", zh: "继续" })}</Button>
       <Button>{t({ en: "Cancel", zh: "取消" })}</Button>
     </div>
   );

@@ -14,7 +14,7 @@ export function AvatarSpecimen() {
     <div css={specimenLayout.row}>
       <Avatar
         name={t({ en: "Ada Lovelace", zh: "阿达·洛芙莱斯" })}
-        variant="solid"
+        look="solid"
         badge={<CheckIcon weight="bold" />}
         badgeLabel={t({ en: "verified", zh: "已验证" })}
       />

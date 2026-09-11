@@ -24,7 +24,7 @@ export function MenuButtonSpecimen() {
         {t({ en: "Filters", zh: "筛选" })}
       </Button>
       <div css={[popoverSurface.base, styles.popup]}>
-        <Button size="sm" variant="primary">
+        <Button size="sm" look="primary">
           {t({ en: "Newest", zh: "最新" })}
         </Button>
         <Button size="sm">{t({ en: "Popular", zh: "热门" })}</Button>

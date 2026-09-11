@@ -100,77 +100,7 @@ export function HeaderFooterLayoutShowcase() {
         </Specimen>
       </Showcase>
 
-      <PropsTable
-        rows={[
-          {
-            name: "headerStart",
-            type: "ReactNode",
-            description: t({
-              en: "Start (leading) floating group at the top of the page — typically a back or home affordance.",
-              zh: "页面顶部的起始悬浮控件组——通常是返回或首页入口。",
-            }),
-          },
-          {
-            name: "headerEnd",
-            type: "ReactNode",
-            description: t({
-              en: "End (trailing) floating group at the top of the page — typically utility controls such as a theme toggle or language picker.",
-              zh: "页面顶部的结尾悬浮控件组——通常是主题切换、语言选择等实用控件。",
-            }),
-          },
-          {
-            name: "background",
-            type: "ReactNode",
-            description: t({
-              en: "Full-bleed decoration rendered behind the content and beneath the header controls — gradients, glows, texture. Pointer-transparent and clipped to the page.",
-              zh: "渲染在内容下方、页头控件之下的满幅装饰——渐变、光晕、纹理。不拦截指针事件并裁剪到页面内。",
-            }),
-          },
-          {
-            name: "footer",
-            type: "ReactNode",
-            description: t({
-              en: "Footer element at the bottom of the centred measure. Pass a <footer> (e.g. the site footer); the shell adds no landmark of its own, so the element you pass owns the contentinfo role.",
-              zh: "居中版心底部的页脚元素。传入一个 <footer>（如站点页脚）；骨架不添加自己的地标，你传入的元素拥有 contentinfo 角色。",
-            }),
-          },
-          {
-            name: "children",
-            type: "ReactNode",
-            required: true,
-            description: t({
-              en: "Page content. Flows up past the header controls by default (heroes and backdrops bleed to the top edge); text-first pages add their own top clearance.",
-              zh: "页面内容。默认向上延伸至页头控件之下（主视觉与背景铺到顶部边缘）；以文字为主的页面自行留出顶部间距。",
-            }),
-          },
-          {
-            name: "readingColumn",
-            type: "boolean",
-            description: t({
-              en: "Caps the content into the site's centred reading column with gutters. Left off, the content is full-bleed and manages its own width (media heroes, app canvases).",
-              zh: "将内容限制在本站居中的阅读列内并带边距。不启用时内容为满幅并自行管理宽度（媒体主视觉、应用画布）。",
-            }),
-          },
-          {
-            name: "contentMaxInlineSize",
-            type: "string",
-            defaultValue: "layout.maxInlineSize",
-            description: t({
-              en: "Narrows the reading column below the site default for prose-heavy pages. Implies readingColumn.",
-              zh: "为文字密集的页面将阅读列收窄至低于站点默认值。隐含启用 readingColumn。",
-            }),
-          },
-          {
-            name: "as",
-            type: '"main" | "div"',
-            defaultValue: '"main"',
-            description: t({
-              en: "Landmark element for the content region. Use div when nested inside a shell that already owns the main landmark.",
-              zh: "内容区域的地标元素。当嵌套在已拥有 main 地标的外壳内时使用 div。",
-            }),
-          },
-        ]}
-      />
+      <PropsTable component="header-footer-layout" />
 
       <DoDont
         do={<code css={styles.code}>{"background={<FlowGradient />}"}</code>}

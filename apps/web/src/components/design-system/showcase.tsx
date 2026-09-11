@@ -16,7 +16,7 @@ interface ShowcaseProps {
    * its casing, setting it in the mono face so it still reads as an eyebrow
    * rather than as a heading.
    */
-  labelVariant?: "words" | "code";
+  labelLook?: "words" | "code";
   /**
    * Section framing. `"card"` (default) wraps the section in a raised surface —
    * the treatment shared across the design-system doc pages. `"plain"` drops the
@@ -38,7 +38,7 @@ interface ShowcaseProps {
 
 export function Showcase({
   label,
-  labelVariant = "words",
+  labelLook = "words",
   frame = "card",
   breakout = false,
   children,
@@ -56,7 +56,7 @@ export function Showcase({
         <h2
           css={[
             plain ? styles.headingPlain : styles.label,
-            labelVariant === "code" && styles.labelCode,
+            labelLook === "code" && styles.labelCode,
             breakout && onReadingColumn.base,
           ]}
         >
@@ -88,7 +88,7 @@ export function StateReadout({
   children,
 }: StateReadoutProps) {
   return (
-    <Text variant="bodySmall" tone="muted">
+    <Text look="bodySmall" tone="muted">
       {label}{" "}
       <span
         css={[corner.radius_1, styles.stateValue, tabular && styles.tabular]}

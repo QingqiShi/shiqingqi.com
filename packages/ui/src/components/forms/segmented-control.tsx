@@ -58,27 +58,57 @@ interface SegmentedControlBaseProps<TValue extends string> extends Omit<
   | "className"
   | "style"
 > {
-  /** Ordered segments. Arrow-key navigation follows this order. */
+  /**
+   * Ordered segments. Arrow-key navigation follows this order; each icon is
+   * decorative. `selectedIcon` shows only while its segment is selected, its
+   * spot growing in and shrinking away. An option's `aria-label` replaces
+   * `label` as the accessible name when the visible text does not say enough.
+   *
+   * @zh 有序的分段列表。方向键导航按此顺序进行；图标均为装饰性内容。`selectedIcon` 只在该分段被选中时显示，其占位会展开与收起。当可见文字不足以说明时，选项的 `aria-label` 会取代 `label` 作为无障碍名称。
+   */
   options: readonly SegmentedControlOption<TValue>[];
-  /** The selected value. Must match one of `options`. */
+  /**
+   * The selected value. Must match one of `options`. Controlled only — the
+   * selected view is page state, so the parent owns it.
+   *
+   * @zh 选中的值，须与 `options` 中的某一项匹配。仅支持受控——所选视图属于页面状态，由父组件持有。
+   */
   value: TValue;
   /**
    * Called with the next value on click or keyboard select. A click on the
    * selected segment calls it with the same value, so a consumer can treat
    * a re-select as a second step — a sort field flipping its direction.
+   *
+   * @zh 点击或键盘选择时以下一个值调用。点击已选中的分段时仍以相同的值调用，因此调用方可以把重新选择当作独立的一步——例如排序字段切换方向。
    */
   onChange: (next: TValue) => void;
-  /** Height and type scale. Defaults to `"md"`. */
+  /**
+   * Height and type scale.
+   *
+   * @zh 高度与字号阶梯。
+   */
   size?: "sm" | "md";
-  /** Stretches the track to fill its container, sharing width equally. */
+  /**
+   * Stretches the track to fill its container, sharing width equally
+   * between segments. A label too long for its share truncates rather than
+   * pushing the track wider.
+   *
+   * @zh 将轨道拉伸至填满容器，各分段均分宽度；超出所分宽度的标签会被截断，而不会把轨道撑宽。
+   */
   fullWidth?: boolean;
   /**
    * Collapses every segment to its icon, for a tight bar. Each `label` stays
    * in the accessibility tree as the segment's name, so every option needs
    * an `icon`.
+   *
+   * @zh 将每个分段收起为图标，用于紧凑的控件条。每个 `label` 仍留在无障碍树中作为该分段的名称，因此每个选项也都需要提供 `icon`。
    */
   hideLabels?: boolean;
-  /** StyleX overrides merged over the track — composed last so a caller wins. */
+  /**
+   * StyleX overrides merged over the track — composed last so a caller wins.
+   *
+   * @zh 合并到轨道上的 StyleX 覆盖样式，最后合成，使调用方可覆盖。
+   */
   css?: StyleProp;
 }
 
@@ -90,8 +120,26 @@ interface SegmentedControlBaseProps<TValue extends string> extends Omit<
 type SegmentedControlProps<TValue extends string> =
   SegmentedControlBaseProps<TValue> &
     (
-      | { "aria-label": string; "aria-labelledby"?: undefined }
-      | { "aria-labelledby": string; "aria-label"?: undefined }
+      | {
+          /**
+           * Names the radiogroup. Required unless `aria-labelledby` is
+           * given — the segment labels name the options, never the group.
+           *
+           * @zh 为单选组命名。除非提供 `aria-labelledby`，否则必填——分段标签只命名选项，不命名整个组。
+           */
+          "aria-label": string;
+          "aria-labelledby"?: undefined;
+        }
+      | {
+          /**
+           * Id of a visible element that names the group. Mutually
+           * exclusive with `aria-label`.
+           *
+           * @zh 为该组命名的可见元素 id。与 `aria-label` 互斥。
+           */
+          "aria-labelledby": string;
+          "aria-label"?: undefined;
+        }
     );
 
 /**

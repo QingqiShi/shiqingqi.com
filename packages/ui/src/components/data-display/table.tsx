@@ -14,20 +14,45 @@ interface TableProps extends Omit<
   /**
    * Names the table and its scroll region. Required — an unnamed table leaves
    * a screen reader announcing "table" and nothing else.
+   *
+   * @zh 为表格及其滚动区域命名。必填——未命名的表格会让读屏软件只宣读“表格”，别无其他。
    */
   caption: string;
-  /** Renders the caption above the table. It is `sr-only` by default. */
+  /**
+   * Renders the `caption` above the table. It is `sr-only` by default.
+   *
+   * @zh 将 `caption` 显示在表格上方。默认仅供读屏使用。
+   */
   captionVisible?: boolean;
   /**
    * Holds `TableHead` at the top of the scroll container while the rows move
    * under it. The container is what it sticks to, so give that a height
    * through `containerCss` or nothing will ever scroll past it.
+   *
+   * @zh 在各行从下方滚过时，将 `TableHead` 固定在滚动容器顶部。它固定的对象是容器，因此请通过 `containerCss` 为容器设定高度，否则不会有任何内容从表头下方滚过。
    */
   stickyHeader?: boolean;
-  /** StyleX overrides for the scroll container, composed last. */
+  /**
+   * StyleX overrides for the scroll container, composed last — where a
+   * height or a width cap goes.
+   *
+   * @zh 最后合成的滚动容器 StyleX 覆盖样式——高度或宽度上限写在这里。
+   */
   containerCss?: StyleProp;
-  /** The table's groups — `TableHead`, `TableBody`, `TableFoot`. */
+  /**
+   * The table's groups — `TableHead`, `TableBody`, `TableFoot`.
+   *
+   * @zh 表格的各个分组——`TableHead`、`TableBody`、`TableFoot`。
+   */
   children: ReactNode;
+  /**
+   * StyleX styles merged over the table's own — the config-layer escape
+   * hatch. The scroll region around it takes
+   * `containerCss`.
+   *
+   * @zh 合并在表格自身样式之上的 StyleX 样式——配置层的逃生舱口。外层滚动区域请用 `containerCss`。
+   */
+  css?: StyleProp;
 }
 
 /**

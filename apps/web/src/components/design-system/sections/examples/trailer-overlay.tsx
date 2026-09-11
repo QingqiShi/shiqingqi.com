@@ -48,23 +48,18 @@ export function TrailerOverlay({
       aria-labelledby={titleId}
     >
       <div css={styles.body}>
-        <Heading level={2} variant="h2" id={titleId}>
+        <Heading level={2} look="h2" id={titleId}>
           {t({
             en: "Official trailer",
             zh: "官方预告片",
           })}
         </Heading>
         <div css={[corner.radius_2, styles.player]}>
-          <Text
-            as="span"
-            variant="overline"
-            tone="subtle"
-            transform="uppercase"
-          >
+          <Text as="span" look="overline" tone="subtle" transform="uppercase">
             {studio}
           </Text>
           <span css={styles.cardTitle}>{title}</span>
-          <Text variant="bodySmall" tone="subtle" align="center">
+          <Text look="bodySmall" tone="subtle" align="center">
             {t({
               en: "No video ships with the exemplar. The player holds the title card instead.",
               zh: "本示例不附带视频，播放区域改为呈现标题卡。",

@@ -6,19 +6,19 @@ import { specimenLayout } from "./specimen.stylex.ts";
 /**
  * A heading doing its job: leading a piece of copy.
  *
- * Not the scale — `h4` is the only variant that fits under the tile's own title
- * (1.1rem at weight 700) without outranking it, and no two variants sit a useful
+ * Not the scale — `h4` is the only look that fits under the tile's own title
+ * (1.1rem at weight 700) without outranking it, and no two looks sit a useful
  * ratio apart below that ceiling. The relationship to the body copy beneath is
  * the more honest thing to show anyway: it is what a heading is for, and why
- * `level` and `variant` are separate props.
+ * `level` and `look` are separate props.
  */
 export function HeadingSpecimen() {
   return (
     <div css={specimenLayout.stack}>
-      <Heading level={3} variant="h4">
+      <Heading level={3} look="h4">
         {t({ en: "Section title", zh: "章节标题" })}
       </Heading>
-      <Text variant="bodySmall" tone="muted">
+      <Text look="bodySmall" tone="muted">
         {t({
           en: "And the copy it introduces.",
           zh: "以及它所引导的正文。",

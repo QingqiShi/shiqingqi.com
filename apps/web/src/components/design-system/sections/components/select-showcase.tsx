@@ -1,43 +1,11 @@
-"use client";
-
-import * as stylex from "@stylexjs/stylex";
 import { Select } from "@tuja/ui/components/select";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
-import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { PropsTable } from "../../props-table.tsx";
-import { Showcase, StateReadout } from "../../showcase.tsx";
+import { Showcase } from "../../showcase.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
-
-function LiveSelect() {
-  const genres = [
-    { value: "action", label: t({ en: "Action", zh: "动作" }) },
-    { value: "drama", label: t({ en: "Drama", zh: "剧情" }) },
-    { value: "comedy", label: t({ en: "Comedy", zh: "喜剧" }) },
-  ];
-  const [value, setValue] = useState("");
-  const selected = genres.find((genre) => genre.value === value);
-  return (
-    <div css={styles.liveStack}>
-      <div css={[fill.inline, styles.constrained]}>
-        <Select
-          label={t({ en: "Genre", zh: "类型" })}
-          placeholder={t({ en: "Pick a genre", zh: "选择类型" })}
-          options={genres}
-          value={value}
-          onChange={(event) => {
-            setValue(event.target.value);
-          }}
-        />
-      </div>
-      <StateReadout label={t({ en: "onChange →", zh: "onChange →" })}>
-        {selected ? selected.label : t({ en: "none", zh: "无" })}
-      </StateReadout>
-    </div>
-  );
-}
+import { LiveSelect } from "./select-specimens.tsx";
 
 export function SelectShowcase() {
   const sortOptions = [
@@ -164,93 +132,7 @@ export function SelectShowcase() {
         </Specimen>
       </Showcase>
 
-      <PropsTable
-        rows={[
-          {
-            name: "label",
-            type: "string",
-            required: true,
-            description: t({
-              en: "Visible text naming the select; required for an accessible name even when hidden.",
-              zh: "命名下拉框的可见文本；即使被隐藏，也是无障碍名称所必需的。",
-            }),
-          },
-          {
-            name: "labelHidden",
-            type: "boolean",
-            defaultValue: "false",
-            description: t({
-              en: "Visually hide the label while keeping it as the accessible name.",
-              zh: "在视觉上隐藏标签，同时保留为无障碍名称。",
-            }),
-          },
-          {
-            name: "description",
-            type: "string",
-            description: t({
-              en: "Supporting copy beneath the control, wired via aria-describedby.",
-              zh: "控件下方的辅助说明，通过 aria-describedby 关联。",
-            }),
-          },
-          {
-            name: "error",
-            type: "string",
-            description: t({
-              en: "Error message beneath the control; flips aria-invalid and joins aria-describedby.",
-              zh: "控件下方的错误消息；切换 aria-invalid 并加入 aria-describedby。",
-            }),
-          },
-          {
-            name: "options",
-            type: "ReadonlyArray<{ value; label; disabled? }>",
-            description: t({
-              en: "Config-layer choices rendered as <option>s in order.",
-              zh: "配置层选项，按顺序渲染为 <option>。",
-            }),
-          },
-          {
-            name: "placeholder",
-            type: "string",
-            description: t({
-              en: "Disabled, hidden first option shown until a real value is picked.",
-              zh: "被禁用且隐藏的首个选项，在选择真实值前显示。",
-            }),
-          },
-          {
-            name: "size",
-            type: '"sm" | "md" | "lg"',
-            defaultValue: '"md"',
-            description: t({
-              en: "Control height and type scale.",
-              zh: "控件高度与字号的尺寸。",
-            }),
-          },
-          {
-            name: "children",
-            type: "ReactNode",
-            description: t({
-              en: "<option> / <optgroup> elements — the escape hatch when options is not enough.",
-              zh: "<option> / <optgroup> 元素——当 options 不够用时的逃生舱口。",
-            }),
-          },
-          {
-            name: "css",
-            type: "StyleXStyles",
-            description: t({
-              en: "StyleX styles merged over the root wrapper — the escape hatch.",
-              zh: "合并到根容器上的 StyleX 样式——逃生舱口。",
-            }),
-          },
-          {
-            name: "...native",
-            type: 'Omit<ComponentProps<"select">, "size" | "children">',
-            description: t({
-              en: "Forwarded to the native select (value, defaultValue, onChange, name, disabled, ref).",
-              zh: "转发给原生 select（value、defaultValue、onChange、name、disabled、ref）。",
-            }),
-          },
-        ]}
-      />
+      <PropsTable component="select" />
 
       <DoDont
         do={
@@ -286,15 +168,3 @@ export function SelectShowcase() {
     </>
   );
 }
-
-const styles = stylex.create({
-  liveStack: {
-    display: "flex",
-    flexDirection: "column",
-    inlineSize: "100%",
-    gap: space._3,
-  },
-  constrained: {
-    maxInlineSize: "20rem",
-  },
-});

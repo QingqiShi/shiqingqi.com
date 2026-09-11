@@ -171,12 +171,12 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
           />
           <div css={styles.identity}>
             <div css={styles.controlRow}>
-              <Badge variant="accent">{t({ en: "Movie", zh: "电影" })}</Badge>
-              <Text as="span" variant="caption" tone="subtle" numeric>
+              <Badge intent="accent">{t({ en: "Movie", zh: "电影" })}</Badge>
+              <Text as="span" look="caption" tone="subtle" numeric>
                 {meta}
               </Text>
             </div>
-            <Heading level={3} variant="h1" wrap="balance">
+            <Heading level={3} look="h1" wrap="balance">
               {movie.title}
             </Heading>
             <Text tone="muted" wrap="pretty" css={styles.tagline}>
@@ -213,10 +213,10 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 <span css={styles.dialScale}>/10</span>
               </div>
               <div css={styles.ratingText}>
-                <Text as="span" variant="bodySmall" weight="medium">
+                <Text as="span" look="bodySmall" weight="medium">
                   {t({ en: "Rating", zh: "评分" })}
                 </Text>
-                <Text as="span" variant="caption" tone="subtle" numeric>
+                <Text as="span" look="caption" tone="subtle" numeric>
                   {movie.ratingLabel}
                 </Text>
               </div>
@@ -224,7 +224,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
 
             <div css={styles.controlRow}>
               <Button
-                variant="primary"
+                look="primary"
                 icon={<PlayIcon weight="fill" />}
                 onClick={() => {
                   setTrailerOpen(true);
@@ -233,7 +233,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 {t({ en: "Watch trailer", zh: "观看预告片" })}
               </Button>
               <Button
-                variant="outline"
+                look="outline"
                 isActive={watchlisted}
                 icon={
                   <BookmarkSimpleIcon weight={watchlisted ? "fill" : "bold"} />
@@ -244,7 +244,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
               </Button>
               <MenuButton
                 buttonProps={{
-                  variant: "outline",
+                  look: "outline",
                   icon: <ShareNetworkIcon weight="bold" />,
                 }}
                 // The default anchor, which grows the popup back across the
@@ -270,7 +270,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                       <Button
                         key={item.label}
                         role="menuitem"
-                        variant="ghost"
+                        look="ghost"
                         icon={item.icon}
                         css={styles.menuItem}
                       >
@@ -286,7 +286,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
 
             {noticeOpen ? (
               <Callout
-                variant="success"
+                intent="success"
                 title={t({
                   en: "Added to your watchlist",
                   zh: "已加入待看清单",
@@ -368,7 +368,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
             composes="Disclosure · Badge · Text"
           >
             <Disclosure
-              variant="card"
+              look="card"
               // Open on arrival. The summary is content the screen is making a
               // point of having, not an aside to be dug out, and it is also what
               // brings the main column and the rail to roughly the same depth.
@@ -376,14 +376,14 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
               summary={reviewSummaryLabel}
               icon={<SparkleIcon weight="bold" />}
               trailing={
-                <Badge variant="neutral" size="sm">
+                <Badge intent="neutral" size="sm">
                   {`${t({ en: "Spiciness", zh: "辛辣度" })} ${String(movie.spiciness)}`}
                 </Badge>
               }
             >
               <div css={styles.review}>
                 <Text wrap="pretty">{movie.reviewSummary}</Text>
-                <Text variant="caption" tone="subtle">
+                <Text look="caption" tone="subtle">
                   {t({
                     en: "Generated from viewer reviews. Spiciness sets how opinionated the summary is, from 1 to 5.",
                     zh: "根据观众评论生成。辛辣度（1 至 5）决定摘要的观点鲜明程度。",
@@ -448,12 +448,12 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 {facts.map((fact) => (
                   <div key={fact.term} css={styles.fact}>
                     <dt css={styles.factLine}>
-                      <Text as="span" variant="overline" tone="subtle">
+                      <Text as="span" look="overline" tone="subtle">
                         {fact.term}
                       </Text>
                     </dt>
                     <dd css={styles.factLine}>
-                      <Text as="span" variant="bodySmall">
+                      <Text as="span" look="bodySmall">
                         {fact.value}
                       </Text>
                     </dd>

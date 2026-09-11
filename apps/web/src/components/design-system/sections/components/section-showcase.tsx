@@ -29,7 +29,7 @@ export function SectionShowcase() {
             icon={<UsersIcon weight="bold" />}
             css={fill.inline}
           >
-            <Text variant="bodySmall" tone="muted">
+            <Text look="bodySmall" tone="muted">
               {castBody}
             </Text>
           </Section>
@@ -48,7 +48,7 @@ export function SectionShowcase() {
             }
             css={fill.inline}
           >
-            <Text variant="bodySmall" tone="muted">
+            <Text look="bodySmall" tone="muted">
               {t({
                 en: "Actions stay in the accessibility tree and may be interactive — unlike the icon, which is decorative.",
                 zh: "操作区保留在无障碍树中且可交互——与装饰性的图标不同。",
@@ -64,7 +64,7 @@ export function SectionShowcase() {
         >
           <div css={[flex.col, fill.inline, styles.stack]}>
             <Section title={t({ en: "Overview", zh: "概览" })}>
-              <Text variant="bodySmall" tone="muted">
+              <Text look="bodySmall" tone="muted">
                 {t({
                   en: "The first section needs no rule — nothing precedes it.",
                   zh: "第一个区块无需分隔线——它前面没有内容。",
@@ -72,7 +72,7 @@ export function SectionShowcase() {
               </Text>
             </Section>
             <Section title={t({ en: "Cast & crew", zh: "演职人员" })} divider>
-              <Text variant="bodySmall" tone="muted">
+              <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Add the rule when sections follow one another directly and the label alone isn't enough of a break.",
                   zh: "当区块紧密相连、仅靠标签不足以形成断点时，加上分隔线。",
@@ -83,79 +83,7 @@ export function SectionShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
-            {
-              name: "title",
-              type: "ReactNode",
-              required: true,
-              description: t({
-                en: "The block's label, rendered as a real heading.",
-                zh: "区块的标签，渲染为真实的标题元素。",
-              }),
-            },
-            {
-              name: "children",
-              type: "ReactNode",
-              required: true,
-              description: t({
-                en: "Section body.",
-                zh: "区块正文。",
-              }),
-            },
-            {
-              name: "icon",
-              type: "ReactNode",
-              description: t({
-                en: "Decorative icon before the label, rendered aria-hidden.",
-                zh: "标签前的装饰性图标，以 aria-hidden 渲染。",
-              }),
-            },
-            {
-              name: "actions",
-              type: "ReactNode",
-              description: t({
-                en: "Controls parked at the end of the heading row. Real content, so they stay announced and may be interactive.",
-                zh: "置于标题行末尾的控件。它们是真实内容，会被朗读且可交互。",
-              }),
-            },
-            {
-              name: "level",
-              type: "2 | 3 | 4 | 5 | 6",
-              defaultValue: "3",
-              description: t({
-                en: "Heading rank for the label. Set it to keep the document outline honest when the section nests deeper.",
-                zh: "标签的标题层级。当区块嵌套更深时，设置它以保持文档大纲正确。",
-              }),
-            },
-            {
-              name: "divider",
-              type: "boolean",
-              description: t({
-                en: "Rules the section off from what precedes it.",
-                zh: "用分隔线将该区块与前面的内容分开。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides composed last so a caller can win over the defaults.",
-                zh: "最后合成的 StyleX 覆盖样式，使调用方可覆盖默认值。",
-              }),
-            },
-            {
-              name: "…section attributes",
-              type: 'ComponentProps<"section">',
-              description: t({
-                en: "Native attributes (id, aria-*, data-*, className, style, ref) are forwarded to the <section>.",
-                zh: "原生属性（id、aria-*、data-*、className、style、ref）会转发到 <section> 元素。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="section" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
@@ -165,7 +93,7 @@ export function SectionShowcase() {
               icon={<UsersIcon weight="bold" />}
               css={fill.inline}
             >
-              <Text variant="bodySmall" tone="muted">
+              <Text look="bodySmall" tone="muted">
                 {castBody}
               </Text>
             </Section>
@@ -176,10 +104,10 @@ export function SectionShowcase() {
           })}
           dont={
             <div css={[flex.col, fill.inline, styles.dontStack]}>
-              <Heading level={1} variant="h1">
+              <Heading level={1} look="h1">
                 {t({ en: "Cast & crew", zh: "演职人员" })}
               </Heading>
-              <Text variant="bodySmall" tone="muted">
+              <Text look="bodySmall" tone="muted">
                 {castBody}
               </Text>
             </div>

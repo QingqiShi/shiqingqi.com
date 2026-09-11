@@ -20,9 +20,9 @@ import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DoDont } from "../../do-dont.tsx";
 import { Identifier } from "../../identifier.tsx";
-import { PropsTable } from "../../props-table.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
+import { SpecCard } from "../../spec-card.tsx";
 import { Specimen, SpecimenGrid } from "../../specimen.tsx";
 import { UsageSnippet } from "../../usage-snippet.tsx";
 
@@ -132,12 +132,12 @@ export function IconographyShowcase() {
         </ShowcaseHelper>
         <SpecimenGrid>
           <Specimen caption="Button">
-            <Button variant="primary" icon={<PlusIcon weight="bold" />}>
+            <Button look="primary" icon={<PlusIcon weight="bold" />}>
               {t({ en: "Add to list", zh: "加入列表" })}
             </Button>
           </Specimen>
           <Specimen caption="Badge">
-            <Badge variant="accent" icon={<StarIcon weight="fill" />}>
+            <Badge intent="accent" icon={<StarIcon weight="fill" />}>
               {t({ en: "Featured", zh: "精选" })}
             </Badge>
           </Specimen>
@@ -165,54 +165,59 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 </span>`}
       />
 
-      <PropsTable
-        rows={[
-          {
-            name: "weight",
-            type: '"thin" | "light" | "regular" | "bold" | "fill" | "duotone"',
-            defaultValue: '"regular"',
-            description: t({
-              en: "Stroke weight of the icon. The app uses regular and bold.",
-              zh: "图标的笔画粗细。应用使用常规与加粗两种。",
-            }),
-          },
-          {
-            name: "size",
-            type: "number | string",
-            defaultValue: '"1em"',
-            description: t({
-              en: "Rendered size. Defaults to 1em, so it scales with font-size — prefer sizing via the type token on the slot.",
-              zh: "渲染尺寸。默认 1em，随 font-size 缩放——优先通过插槽上的文字排版令牌来设定尺寸。",
-            }),
-          },
-          {
-            name: "color",
-            type: "string",
-            defaultValue: '"currentColor"',
-            description: t({
-              en: "Fill / stroke colour. Inherits the surrounding text colour by default.",
-              zh: "填充/描边颜色。默认继承周围文字的颜色。",
-            }),
-          },
-          {
-            name: "mirrored",
-            type: "boolean",
-            defaultValue: "false",
-            description: t({
-              en: "Flips the icon horizontally for right-to-left layouts.",
-              zh: "为从右到左的布局水平翻转图标。",
-            }),
-          },
-          {
-            name: "aria-hidden",
-            type: "boolean",
-            description: t({
-              en: "Hide a decorative icon from assistive tech — the recommended default when an icon sits beside text.",
-              zh: "将装饰性图标对辅助技术隐藏——当图标与文字并列时的推荐默认做法。",
-            }),
-          },
-        ]}
-      />
+      <Showcase label={t({ en: "Icon props", zh: "图标属性" })}>
+        <ShowcaseHelper>
+          {t({
+            en: "Phosphor's own props, not the design system's — an icon is a third-party component the system places rather than one it owns.",
+            zh: "这些是 Phosphor 自己的属性，而非本设计系统的——图标是系统所摆放的第三方组件，而不是系统自有的组件。",
+          })}
+        </ShowcaseHelper>
+        <div css={styles.propGrid}>
+          <SpecCard
+            token="weight"
+            meta='"thin" | "light" | "regular" | "bold" | "fill" | "duotone" = "regular"'
+          >
+            <p css={styles.propNote}>
+              {t({
+                en: "Stroke weight of the icon. The app uses regular and bold.",
+                zh: "图标的笔画粗细。应用使用常规与加粗两种。",
+              })}
+            </p>
+          </SpecCard>
+          <SpecCard token="size" meta='number | string = "1em"'>
+            <p css={styles.propNote}>
+              {t({
+                en: "Rendered size. At 1em it scales with font-size — size it through the type token on the slot instead.",
+                zh: "渲染尺寸。为 1em 时随 font-size 缩放——改为通过插槽上的文字排版令牌来设定尺寸。",
+              })}
+            </p>
+          </SpecCard>
+          <SpecCard token="color" meta='string = "currentColor"'>
+            <p css={styles.propNote}>
+              {t({
+                en: "Fill and stroke colour. Inherits the surrounding text colour by default.",
+                zh: "填充与描边颜色。默认继承周围文字的颜色。",
+              })}
+            </p>
+          </SpecCard>
+          <SpecCard token="mirrored" meta="boolean = false">
+            <p css={styles.propNote}>
+              {t({
+                en: "Flips the icon horizontally for right-to-left layouts.",
+                zh: "为从右到左的布局水平翻转图标。",
+              })}
+            </p>
+          </SpecCard>
+          <SpecCard token="aria-hidden" meta="boolean">
+            <p css={styles.propNote}>
+              {t({
+                en: "Hides a decorative icon from assistive tech — the default to reach for when an icon sits beside text.",
+                zh: "将装饰性图标对辅助技术隐藏——图标与文字并列时应优先采用的做法。",
+              })}
+            </p>
+          </SpecCard>
+        </div>
+      </Showcase>
 
       <DoDont
         do={
@@ -239,6 +244,18 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 }
 
 const styles = stylex.create({
+  propGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 16rem), 1fr))",
+    gap: space._2,
+  },
+  propNote: {
+    margin: 0,
+    fontSize: font.uiBodySmall,
+    lineHeight: font.lineHeight_4,
+    color: color.textMuted,
+    textWrap: "pretty",
+  },
   gallery: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",

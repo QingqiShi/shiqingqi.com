@@ -10,10 +10,10 @@ import { specimenLayout } from "./specimen.stylex.ts";
 export function TextSpecimen() {
   return (
     <div css={specimenLayout.stack}>
-      <Text variant="body">
+      <Text look="body">
         {t({ en: "Body copy sets the rhythm.", zh: "正文决定阅读节奏。" })}
       </Text>
-      <Text variant="bodySmall" tone="muted">
+      <Text look="bodySmall" tone="muted">
         {t({ en: "Small copy supports it.", zh: "小号文字作为辅助。" })}
       </Text>
     </div>

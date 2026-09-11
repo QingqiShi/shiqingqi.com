@@ -40,6 +40,9 @@ next-env.d.ts
 # Generated i18n bundles
 **/src/_generated/i18n/
 
+# Generated component props documents
+**/src/_generated/props/
+
 # Playwright
 test-results/
 playwright-report/

@@ -17,10 +17,10 @@ import { specimenLayout } from "./specimen.stylex.ts";
 export function CardSpecimen() {
   return (
     <Card css={[specimenLayout.fill, styles.card]}>
-      <Text variant="bodySmall" weight="semibold">
+      <Text look="bodySmall" weight="semibold">
         {t({ en: "Blade Runner 2049", zh: "银翼杀手 2049" })}
       </Text>
-      <Text variant="caption" tone="muted">
+      <Text look="caption" tone="muted">
         {t({ en: "2017 · Science fiction", zh: "2017 · 科幻" })}
       </Text>
     </Card>

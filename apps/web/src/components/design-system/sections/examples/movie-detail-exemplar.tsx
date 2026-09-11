@@ -46,7 +46,7 @@ export function MovieDetailExemplar() {
         </div>
         <Text
           id={helperId}
-          variant="caption"
+          look="caption"
           tone="subtle"
           css={styles.toggleHelper}
         >

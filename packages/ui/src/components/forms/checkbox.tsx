@@ -33,28 +33,48 @@ interface CheckboxProps extends Omit<
   /**
    * Visible text that labels the checkbox. Always rendered into the DOM so it
    * names the control; pass `labelHidden` to keep it screen-reader-only.
+   *
+   * @zh 命名复选框的可见文本；即使被隐藏，也是无障碍名称所必需的。
    */
   label: string;
   /**
    * Visually hide the label while keeping it as the accessible name. Use for a
    * checkbox whose meaning is already clear from surrounding context.
+   *
+   * @zh 在视觉上隐藏标签，同时保留为无障碍名称。
    */
   labelHidden?: boolean;
-  /** Supporting copy shown beneath the label and wired via `aria-describedby`. */
+  /**
+   * Supporting copy shown beneath the label and wired via `aria-describedby`.
+   *
+   * @zh 标签下方的辅助说明，通过 `aria-describedby` 关联。
+   */
   description?: string;
   /**
    * Error message shown beneath the label. Presence flips `aria-invalid` and
    * appends the message to `aria-describedby`.
+   *
+   * @zh 标签下方的错误消息；切换 `aria-invalid` 并加入 `aria-describedby`。
    */
   error?: string;
   /**
    * Renders the mixed/partial ("dash") state. Reflected onto the DOM node's
    * `.indeterminate` property via a ref effect since it has no HTML attribute.
+   *
+   * @zh 渲染混合/部分选中的横线状态；由于没有对应的 HTML 属性，通过 `ref` 效果反映到 DOM 节点的 `.indeterminate` 属性。
    */
   indeterminate?: boolean;
-  /** Box and type scale. Defaults to `"md"`. */
+  /**
+   * Box and type scale. Defaults to `"md"`.
+   *
+   * @zh 方框与字号的尺寸。
+   */
   size?: "sm" | "md";
-  /** StyleX styles merged over the root wrapper — the config-layer escape hatch. */
+  /**
+   * StyleX styles merged over the root wrapper — the config-layer escape hatch.
+   *
+   * @zh 合并到根容器上的 StyleX 样式——逃生舱口。
+   */
   css?: StyleProp;
 }
 

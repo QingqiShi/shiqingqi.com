@@ -16,7 +16,7 @@ const unitFixtures = [
   "const quotes = [\"a\\\"b\", 'c\\'d', `e`];",
   "const held = `before ${count + 1} after`;",
   "const nested = `${`${inner}`}`;",
-  "<Button variant='primary'>Go</Button>",
+  "<Button look='primary'>Go</Button>",
   "<><Card />\n<span>{value}</span></>",
   "<Icons.Trash weight=\"bold\" aria-label='Delete' />",
   "const [plan, setPlan] = useState<'free' | 'pro'>('free');",
@@ -230,8 +230,8 @@ describe("tokenise", () => {
     });
 
     it("marks attribute names", () => {
-      const tokens = tokenise('<Button variant="primary" aria-label="Go" />');
-      expect(tokens).toContainEqual(["attr", "variant"]);
+      const tokens = tokenise('<Button look="primary" aria-label="Go" />');
+      expect(tokens).toContainEqual(["attr", "look"]);
       expect(tokens).toContainEqual(["attr", "aria-label"]);
       expect(tokens).toContainEqual(["string", '"primary"']);
     });

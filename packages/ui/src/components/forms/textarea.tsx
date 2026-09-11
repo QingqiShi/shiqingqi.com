@@ -25,30 +25,50 @@ interface TextareaProps extends Omit<
    * Visible label text. Always required for an accessible name, even when
    * hidden via {@link TextareaProps.labelHidden} — never rely on a placeholder
    * to name the field.
+   *
+   * @zh 命名字段的可见标签；即使被隐藏，也是无障碍名称所必需的。
    */
   label: string;
   /**
    * Visually hide the label (kept in the accessibility tree via `sr-only`).
    * The `label` string is still required.
+   *
+   * @zh 在视觉上隐藏标签，同时保留在无障碍树中。`label` 字符串仍为必填。
    */
   labelHidden?: boolean;
-  /** Helper text rendered under the label and wired via `aria-describedby`. */
+  /**
+   * Helper text rendered under the label and wired via `aria-describedby`.
+   *
+   * @zh 标签下方的说明文字，通过 `aria-describedby` 关联到文本框。
+   */
   description?: string;
   /**
    * Error message. When set, the control gets invalid styling + `aria-invalid`,
    * the message renders with `role="alert"`, and it is appended to the
    * control's `aria-describedby`.
+   *
+   * @zh 错误消息；设置 `aria-invalid`，以 `role="alert"` 渲染，并加入 `aria-describedby`。
    */
   error?: string;
-  /** Control scale. Defaults to `"md"`. */
+  /**
+   * Control height and padding via `controlSize`. Defaults to `"md"`.
+   *
+   * @zh 基于 `controlSize` 的控件高度与内边距。
+   */
   size?: "sm" | "md" | "lg";
   /**
    * Grow the textarea to fit its content instead of scrolling, disabling the
-   * manual resize handle. Defaults to `false` (a fixed `rows`-tall box the user
-   * can drag to resize).
+   * manual resize handle. Off, the textarea is a fixed `rows`-tall box the
+   * user can drag to resize.
+   *
+   * @zh 随内容自动增高而非滚动，并禁用手动调整手柄。关闭时，文本框固定为 `rows` 行高，可由用户拖动调整大小。
    */
   autoGrow?: boolean;
-  /** StyleX overrides merged over the control's own — the escape hatch. */
+  /**
+   * StyleX overrides merged over the control's own — the escape hatch.
+   *
+   * @zh 合并到文本框上的 StyleX 覆盖样式——逃生舱口。
+   */
   css?: StyleProp;
 }
 

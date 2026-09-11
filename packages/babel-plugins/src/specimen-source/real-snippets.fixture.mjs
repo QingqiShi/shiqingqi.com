@@ -20,7 +20,7 @@ export const realSnippets = [
   // components/badge-showcase.tsx
   `import { Badge } from "@tuja/ui/components/badge";
 
-<Badge variant="success" icon={<CheckIcon weight="bold" />}>
+<Badge intent="success" icon={<CheckIcon weight="bold" />}>
   Verified
 </Badge>`,
 
@@ -55,20 +55,20 @@ function RouterLink({ href, children, className, style }: BreadcrumbLinkProps) {
   // components/button-showcase.tsx
   `import { Button } from "@tuja/ui/components/button";
 
-<Button variant="primary" icon={<PlusIcon weight="bold" />}>
+<Button look="primary" icon={<PlusIcon weight="bold" />}>
   Add to list
 </Button>
 
 // A form submit: the label holds still while the spinner takes the
 // icon's place, and the button disables itself until the action settles.
-<Button type="submit" variant="primary" loading={isPending}>
+<Button type="submit" look="primary" loading={isPending}>
   Save changes
 </Button>`,
 
   // components/callout-showcase.tsx
   `import { Callout } from "@tuja/ui/components/callout";
 
-<Callout variant="success" title="Saved">
+<Callout intent="success" title="Saved">
   Your profile changes are live.
 </Callout>`,
 
@@ -84,7 +84,7 @@ import {
 } from "@tuja/ui/components/card";
 
 <Card>
-  <CardHeader action={<Badge variant="success">Released</Badge>}>
+  <CardHeader action={<Badge intent="success">Released</Badge>}>
     <CardTitle>Typography</CardTitle>
     <CardDescription>Families, the type scale, weights.</CardDescription>
   </CardHeader>
@@ -136,7 +136,7 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
   // components/disclosure-showcase.tsx
   `import { Disclosure } from "@tuja/ui/components/disclosure";
 
-<Disclosure variant="card" summary="Packing list" trailing={<Badge>2/5</Badge>}>
+<Disclosure look="card" summary="Packing list" trailing={<Badge>2/5</Badge>}>
   <ChecklistItems items={items} />
 </Disclosure>
 
@@ -154,7 +154,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
   // components/divider-showcase.tsx
   `import { Divider } from "@tuja/ui/components/divider";
 
-<Divider variant="subtle" />`,
+<Divider look="subtle" />`,
 
   // components/header-footer-layout-showcase.tsx
   `import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
@@ -173,7 +173,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
   `import { Heading } from "@tuja/ui/components/heading";
 
 // Semantic <h2>, display-scale look
-<Heading level={2} variant="display">
+<Heading level={2} look="display">
   Featured this week
 </Heading>
 
@@ -213,7 +213,7 @@ import { MenuLabel } from "@tuja/ui/components/menu-label";
   menuContent={
     <div>
       <MenuLabel>Sort by</MenuLabel>
-      <Button variant="primary">Newest</Button>
+      <Button look="primary">Newest</Button>
       <Button>Popular</Button>
     </div>
   }
@@ -451,7 +451,7 @@ const styles = stylex.create({ region: { blockSize: space._13 } });`,
   // components/text-showcase.tsx
   `import { Text } from "@tuja/ui/components/text";
 
-<Text variant="bodySmall" tone="muted">
+<Text look="bodySmall" tone="muted">
   2h 08m · Crime, Drama
 </Text>
 
@@ -489,12 +489,12 @@ const styles = stylex.create({ region: { blockSize: space._13 } });`,
     />
     <div css={styles.identity}>
       <div css={styles.controlRow}>
-        <Badge variant="accent">Movie</Badge>
-        <Text as="span" variant="caption" tone="subtle" numeric>
+        <Badge intent="accent">Movie</Badge>
+        <Text as="span" look="caption" tone="subtle" numeric>
           {[movie.year, movie.runtime, movie.language].join(" · ")}
         </Text>
       </div>
-      <Heading level={3} variant="h1" wrap="balance">{movie.title}</Heading>
+      <Heading level={3} look="h1" wrap="balance">{movie.title}</Heading>
       <Text tone="muted" wrap="pretty" css={styles.tagline}>{movie.tagline}</Text>
     </div>
     <div css={styles.heroRest}>
@@ -502,13 +502,13 @@ const styles = stylex.create({ region: { blockSize: space._13 } });`,
         {movie.genres.map((genre) => <Badge key={genre} size="small">{genre}</Badge>)}
       </div>
       <div css={styles.controlRow}>
-        <Button variant="primary" icon={<PlayIcon weight="fill" />} onClick={openTrailer}>
+        <Button look="primary" icon={<PlayIcon weight="fill" />} onClick={openTrailer}>
           Watch trailer
         </Button>
         <MenuButton
-          buttonProps={{ variant: "outline", icon: <ShareNetworkIcon weight="bold" /> }}
+          buttonProps={{ look: "outline", icon: <ShareNetworkIcon weight="bold" /> }}
           menuContent={shareItems.map((item) => (
-            <Button key={item.label} role="menuitem" variant="ghost" icon={item.icon}>
+            <Button key={item.label} role="menuitem" look="ghost" icon={item.icon}>
               {item.label}
             </Button>
           ))}

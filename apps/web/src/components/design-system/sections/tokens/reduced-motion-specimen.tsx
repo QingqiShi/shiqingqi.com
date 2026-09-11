@@ -73,7 +73,7 @@ export function ReducedMotionSpecimen() {
           </span>
           <span>
             <Button
-              variant="outline"
+              look="outline"
               size="sm"
               onClick={() => {
                 setMoved((value) => !value);
@@ -94,7 +94,7 @@ export function ReducedMotionSpecimen() {
           their own system setting, and hydration would announce it on load. */}
       <div css={[flex.col, styles.readout]}>
         <span>
-          <Badge variant={reduced ? "accent" : "default"}>
+          <Badge intent={reduced ? "accent" : "default"}>
             {reduced ? reducedLabel : fullLabel}
           </Badge>
         </span>

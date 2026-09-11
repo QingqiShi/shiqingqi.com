@@ -43,33 +43,73 @@ interface SliderOwnProps extends Omit<
    * Visible label text, and the control's accessible name — it lands on the
    * `<input>` itself via `htmlFor`, never on a wrapper. Required even when
    * hidden via {@link SliderProps.labelHidden}.
+   *
+   * @zh 可见的标签文本，也是控件的无障碍名称——通过 `htmlFor` 落在 `<input>` 本身上，而非外层容器。即使通过 `labelHidden` 隐藏，仍必须提供。
    */
   label: string;
-  /** Visually hide the label (kept in the accessibility tree via `sr-only`). */
+  /**
+   * Visually hide the label (kept in the accessibility tree via `sr-only`).
+   *
+   * @zh 在视觉上隐藏标签（通过 `sr-only` 保留在无障碍树中）。
+   */
   labelHidden?: boolean;
-  /** Helper text rendered under the label and wired via `aria-describedby`. */
+  /**
+   * Helper text rendered under the label and wired via `aria-describedby`.
+   *
+   * @zh 标签下方的说明文字，通过 `aria-describedby` 关联到输入框。
+   */
   description?: string;
-  /** Error message. Renders with `role="alert"` and marks the field invalid. */
+  /**
+   * Error message. Turns the track danger-coloured, sets `aria-invalid`,
+   * renders with `role="alert"`, and joins `aria-describedby`.
+   *
+   * @zh 错误消息。把轨道变为危险色，设置 `aria-invalid`，以 `role="alert"` 渲染，并加入 `aria-describedby`。
+   */
   error?: string;
   /**
    * Live value display rendered opposite the label. Formatting is the
    * consumer's — the Slider only places it.
+   *
+   * @zh 渲染在标签对面的实时数值。格式化由调用方决定——滑块只负责摆放。
    */
   readout?: ReactNode;
-  /** Lower bound of the range. Defaults to `0`. */
+  /**
+   * Lower bound of the range, and where an uncontrolled Slider with no
+   * `defaultValue` starts.
+   *
+   * @zh 范围的下界；未设置 `defaultValue` 的非受控滑块也从这里开始。
+   */
   min?: number;
-  /** Upper bound of the range. Defaults to `100`. */
+  /**
+   * Upper bound of the range.
+   *
+   * @zh 范围的上界。
+   */
   max?: number;
-  /** Granularity of each step. Defaults to `1`. */
+  /**
+   * Granularity of each step, for the pointer and for the arrow keys alike.
+   *
+   * @zh 每一步的粒度，指针与方向键同样适用。
+   */
   step?: number;
   /**
    * Fires once when an interaction that moved the value ends — pointer release,
    * key release, or losing focus mid-gesture.
+   *
+   * @zh 当一次改变了数值的交互结束时触发一次——松开指针、松开按键，或在手势中途失去焦点。
    */
   onCommit?: (value: number) => void;
-  /** Track and thumb scale. Defaults to `"md"`. */
+  /**
+   * Track height and thumb diameter, both driven by `controlSize`.
+   *
+   * @zh 轨道高度与滑块直径，二者都由 `controlSize` 驱动。
+   */
   size?: "sm" | "md" | "lg";
-  /** StyleX styles merged over the root wrapper — the escape hatch. */
+  /**
+   * StyleX styles merged over the root wrapper — the escape hatch.
+   *
+   * @zh 合并到根容器上的 StyleX 样式——逃生舱口。
+   */
   css?: StyleProp;
 }
 
@@ -79,17 +119,38 @@ interface SliderOwnProps extends Omit<
  */
 type SliderValueProps =
   | {
-      /** Controlled value. Requires `onChange`. */
+      /**
+       * Controlled value. Requires `onChange` — without it, the thumb
+       * springs back to its current value the moment it is released.
+       *
+       * @zh 受控数值，需同时提供 `onChange`——否则滑块在松开的瞬间就会弹回原值。
+       */
       value: number;
-      /** Fires on every value change, including each move of a drag. */
+      /**
+       * Fires with the next number on every value change, including each
+       * move of a drag.
+       *
+       * @zh 每次数值变化时以新数值触发，拖动过程中的每一次移动也包含在内。
+       */
       onChange: (value: number) => void;
       defaultValue?: undefined;
     }
   | {
       value?: undefined;
-      /** Fires on every value change, including each move of a drag. */
+      /**
+       * Fires with the next number on every value change, including each
+       * move of a drag.
+       *
+       * @zh 每次数值变化时以新数值触发，拖动过程中的每一次移动也包含在内。
+       */
       onChange?: (value: number) => void;
-      /** Starting value when uncontrolled. Defaults to `min`. */
+      /**
+       * Starting value for an uncontrolled Slider. Cannot be combined with
+       * `value`.
+       *
+       * @default min
+       * @zh 非受控滑块的起始数值，不能与 `value` 同时使用。
+       */
       defaultValue?: number;
     };
 

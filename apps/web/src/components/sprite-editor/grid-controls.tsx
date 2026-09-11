@@ -197,7 +197,7 @@ export function GridControls({
         </div>
       </section>
 
-      <Divider variant="subtle" />
+      <Divider look="subtle" />
 
       <section css={styles.group}>
         <h3 css={styles.sectionLabel}>

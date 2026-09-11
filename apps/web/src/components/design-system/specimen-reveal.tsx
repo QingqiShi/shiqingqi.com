@@ -48,7 +48,7 @@ export function SpecimenReveal({
       <div css={[flex.col, styles.cell, css]}>
         <div css={styles.stage}>{children}</div>
         <div css={styles.row}>
-          <Text as="span" variant="caption" tone="subtle" css={styles.caption}>
+          <Text as="span" look="caption" tone="subtle" css={styles.caption}>
             {caption}
             {caption && token ? " " : null}
             {token ? (

@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { cleanStaleFiles, writeFileSyncIfChanged } from "@tuja/codegen-fs";
 import {
   argbFromHex,
   hexFromArgb,
@@ -187,33 +188,6 @@ function hue_tones(hue: ResolvedHue, t: number): ToneOutput {
   const swatch = hue.tones.get(t);
   if (!swatch) throw new Error(`Hue ${hue.name} has no tone ${String(t)}`);
   return swatch;
-}
-
-function writeFileSyncIfChanged(filePath: string, content: string): void {
-  if (
-    fs.existsSync(filePath) &&
-    fs.readFileSync(filePath, "utf8") === content
-  ) {
-    return;
-  }
-  fs.writeFileSync(filePath, content, "utf8");
-}
-
-function cleanStaleFiles(
-  dir: string,
-  keep: ReadonlySet<string>,
-): readonly string[] {
-  if (!fs.existsSync(dir)) return [];
-  const removed: string[] = [];
-  for (const entry of fs.readdirSync(dir)) {
-    const fullPath = path.join(dir, entry);
-    if (!fs.statSync(fullPath).isFile()) continue;
-    if (!entry.endsWith(".ts")) continue;
-    if (keep.has(entry)) continue;
-    fs.unlinkSync(fullPath);
-    removed.push(entry);
-  }
-  return removed;
 }
 
 const hues = resolve();

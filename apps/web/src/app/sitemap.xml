@@ -211,6 +211,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/chip/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/chip/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/chip/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/chip/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/chip/lab" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/avatar</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/avatar" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/avatar" />
@@ -219,6 +229,16 @@
     <loc>https://qingqi.dev/zh/design-system/components/avatar</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/avatar" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/avatar" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/avatar/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/avatar/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/avatar/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/avatar/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/avatar/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/avatar/lab" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/components/section</loc>
@@ -261,6 +281,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/badge" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/badge/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/badge/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/badge/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/badge/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/badge/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/badge/lab" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/skeleton</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/skeleton" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/skeleton" />
@@ -279,6 +309,16 @@
     <loc>https://qingqi.dev/zh/design-system/components/switch</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/switch" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/switch" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/switch/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/switch/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/switch/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/switch/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/switch/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/switch/lab" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/components/breadcrumb</loc>
@@ -349,6 +389,16 @@
     <loc>https://qingqi.dev/zh/design-system/components/button</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/button" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/button" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/button/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/button/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/button/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/button/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/button/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/button/lab" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/components/menu-button</loc>
@@ -500,6 +550,16 @@
     <loc>https://qingqi.dev/zh/design-system/components/callout</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/callout" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/callout" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/callout/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/callout/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/callout/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/callout/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/callout/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/callout/lab" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/components/card</loc>

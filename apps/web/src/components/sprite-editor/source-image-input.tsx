@@ -165,7 +165,7 @@ export function SourceImageInput({
         })}
       </p>
       <Button
-        variant="primary"
+        look="primary"
         icon={<UploadSimpleIcon size={18} weight="bold" aria-hidden="true" />}
         onClick={() => {
           inputRef.current?.click();

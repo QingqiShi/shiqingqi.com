@@ -94,60 +94,7 @@ export function SpinnerShowcase() {
         </ShowcaseHelper>
       </Showcase>
 
-      <PropsTable
-        rows={[
-          {
-            name: "size",
-            type: '"inline" | "sm" | "md" | "lg"',
-            defaultValue: '"md"',
-            description: t({
-              en: "Rendered diameter. sm/md/lg map to rem so the indicator scales with the user's font size (WCAG 1.4.4). inline takes 1em instead, matching the surrounding text — for a spinner standing in for an icon, so swapping it in doesn't shift the layout around it.",
-              zh: "渲染直径。sm/md/lg 以 rem 表示，随用户字号缩放（WCAG 1.4.4）。inline 则取 1em，与周围文字一致——用于替代某个图标的加载指示器，因此替换时不会改变周围布局。",
-            }),
-          },
-          {
-            name: "tone",
-            type: '"current" | "accent"',
-            defaultValue: '"current"',
-            description: t({
-              en: '"current" inherits currentColor; "accent" pins the brand accent.',
-              zh: "“current” 继承 currentColor；“accent” 固定品牌强调色。",
-            }),
-          },
-          {
-            name: "label",
-            type: "string",
-            description: t({
-              en: "Accessible name announced via a polite live region. Provide exactly one of label / aria-hidden.",
-              zh: "通过礼貌型 live region 播报的无障碍名称。label 与 aria-hidden 恰好提供其一。",
-            }),
-          },
-          {
-            name: "aria-hidden",
-            type: "true",
-            description: t({
-              en: "Marks the spinner decorative — use inside a region that already announces the busy state.",
-              zh: "将 spinner 标记为装饰性——用于已宣告繁忙状态的区域内。",
-            }),
-          },
-          {
-            name: "css",
-            type: "StyleXStyles",
-            description: t({
-              en: "StyleX overrides, composed last so a caller can win over the defaults.",
-              zh: "StyleX 覆盖样式，最后合成，使调用方可以覆盖默认值。",
-            }),
-          },
-          {
-            name: "...rest",
-            type: 'ComponentProps<"span">',
-            description: t({
-              en: "Native span attributes (id, data-*, className, style, ref) are forwarded.",
-              zh: "原生 span 属性（id、data-*、className、style、ref）会被转发。",
-            }),
-          },
-        ]}
-      />
+      <PropsTable component="spinner" />
 
       <DoDont
         do={

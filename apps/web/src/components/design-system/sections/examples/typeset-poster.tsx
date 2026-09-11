@@ -69,7 +69,7 @@ export function TypesetPoster({
       ]}
     >
       {studio ? (
-        <Text as="span" variant="overline" tone="subtle" transform="uppercase">
+        <Text as="span" look="overline" tone="subtle" transform="uppercase">
           {studio}
         </Text>
       ) : null}
@@ -87,7 +87,7 @@ export function TypesetPoster({
         <span css={styles.footer}>
           <span css={[corner.radius_round, styles.rule]} />
           {credit ? (
-            <Text as="span" variant="caption" tone="muted" weight="medium">
+            <Text as="span" look="caption" tone="muted" weight="medium">
               {credit}
             </Text>
           ) : null}
@@ -96,7 +96,7 @@ export function TypesetPoster({
               year. Only `title` stays local, because `weight_8` is a step past
               what `Text` exposes. */}
           {year ? (
-            <Text as="span" variant="overline" tone="subtle" numeric>
+            <Text as="span" look="overline" tone="subtle" numeric>
               {year}
             </Text>
           ) : null}

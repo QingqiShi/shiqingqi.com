@@ -29,7 +29,7 @@ export function SkeletonShowcase() {
 
       <Showcase label={t({ en: "Fill", zh: "填充" })}>
         <div css={[flex.col, styles.fillStack]}>
-          <Text variant="bodySmall" tone="muted">
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "With `fill`, the skeleton stretches to its container — hand it the shape of whatever it stands in for.",
               zh: "使用 `fill` 时，骨架会填满其容器——让它呈现所替代内容的形状。",
@@ -45,7 +45,7 @@ export function SkeletonShowcase() {
 
       <Showcase label={t({ en: "Staggered", zh: "错峰" })}>
         <div css={[flex.col, styles.staggerStack]}>
-          <Text variant="bodySmall" tone="muted">
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "A rising `delay` offsets each pulse, so a group shimmers in sequence rather than in unison.",
               zh: "递增的 `delay` 会让每次脉动错开，使一组骨架依次闪烁，而非同步。",
@@ -77,76 +77,7 @@ export function SkeletonShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase>
-        <PropsTable
-          rows={[
-            {
-              name: "width",
-              type: "string | number",
-              description: t({
-                en: 'Inline size; a number is treated as pixels, a string passes through (e.g. "100%").',
-                zh: '内联尺寸；数字按像素处理，字符串原样传入（例如 "100%"）。',
-              }),
-            },
-            {
-              name: "height",
-              type: "string | number",
-              description: t({
-                en: "Block size; a number is treated as pixels, a string passes through.",
-                zh: "块级尺寸；数字按像素处理，字符串原样传入。",
-              }),
-            },
-            {
-              name: "fill",
-              type: "boolean",
-              description: t({
-                en: "Stretch to fill the parent's inline and block size.",
-                zh: "拉伸以填满父元素的内联与块级尺寸。",
-              }),
-            },
-            {
-              name: "delay",
-              type: "number",
-              description: t({
-                en: "Staggers the pulse start by N milliseconds — useful for lists of rows.",
-                zh: "将脉动起点错开 N 毫秒——适用于多行列表。",
-              }),
-            },
-            {
-              name: "css",
-              type: "StyleXStyles",
-              description: t({
-                en: "StyleX overrides composed last so a caller can win over the defaults.",
-                zh: "最后合成的 StyleX 覆盖样式，使调用方可覆盖默认值。",
-              }),
-            },
-            {
-              name: "className",
-              type: "string",
-              description: t({
-                en: "Escape-hatch class applied to the rendered element.",
-                zh: "应用于渲染元素的逃生舱类名。",
-              }),
-            },
-            {
-              name: "style",
-              type: "CSSProperties",
-              description: t({
-                en: "Inline style applied to the rendered element.",
-                zh: "应用于渲染元素的内联样式。",
-              }),
-            },
-            {
-              name: "ref",
-              type: "Ref<HTMLDivElement>",
-              description: t({
-                en: "Ref to the rendered element.",
-                zh: "指向渲染元素的 ref。",
-              }),
-            },
-          ]}
-        />
-      </Showcase>
+      <PropsTable component="skeleton" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont

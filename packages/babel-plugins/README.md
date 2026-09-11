@@ -18,7 +18,7 @@ that back as a `source` prop:
 
 ```jsx
 <Specimen caption="primary">
-  <Button variant="primary">{t({ en: "Primary", zh: "主要" })}</Button>
+  <Button look="primary">{t({ en: "Primary", zh: "主要" })}</Button>
 </Specimen>
 ```
 
@@ -34,7 +34,7 @@ compiles to a specimen carrying its own source:
     // …
   ]}
 >
-  <Button variant="primary">{t({ en: "Primary", zh: "主要" })}</Button>
+  <Button look="primary">{t({ en: "Primary", zh: "主要" })}</Button>
 </Specimen>
 ```
 
@@ -43,7 +43,7 @@ which reads back as:
 ```tsx
 import { Button } from "@tuja/ui/components/button";
 
-<Button variant="primary">Primary</Button>;
+<Button look="primary">Primary</Button>;
 ```
 
 The tokeniser runs at build time, so no highlighting library reaches the
@@ -269,7 +269,7 @@ does not contain a `stylex.defineConsts({ ... })` call.
 The options `@stylexjs/babel-plugin` runs with, in one place. A different
 option set yields different class names and a different rule order, so every
 build that has to produce the app's CSS reads them from here: the app's own
-`babel.config.js`, and the component playground's adapter, which recompiles the
+`babel.config.js`, and the component tinker's adapter, which recompiles the
 design system to retune a component against the CSS the app ships.
 
 ```js

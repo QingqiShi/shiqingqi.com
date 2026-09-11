@@ -98,19 +98,19 @@ These follow from the visual language. They are named because they keep coming b
 
 ### Configuration and promotion
 
-Configuration is the props, Variants and Tokens the component exposes itself. It changes one callsite while keeping the variation in the system rather than in the consumer.
+Configuration is the props, Looks and Tokens the component exposes itself. It changes one callsite while keeping the variation in the system rather than in the consumer.
 
 - **Configure where consistency across surfaces matters more than local freedom**, or where the component is being maintained centrally anyway. Configuration buys consistency and an upgrade that lands at every callsite, and costs slower iteration and a dependency on whoever maintains the component.
 - **Promote when a pattern repeats, not when it is predicted.** A second consumer varying the same internal piece earns a Slot; a third callsite doing the same thing earns Configuration. Before that there is nothing to generalise from, only a guess about what the next callsite will want.
-- **An override that keeps reappearing is a wrong default or a missing Variant.** Promote what the callsites are already doing.
-- **A new prop is the last resort, not the first.** A Slot often says the variation more clearly, and a value that changes from one callsite to the next may belong in a Token rather than in a component's API. A Variant list growing booleans is a component being configured for cases it cannot see, and a Slot puts that decision back at the callsite.
+- **An override that keeps reappearing is a wrong default or a missing Look.** Promote what the callsites are already doing.
+- **A new prop is the last resort, not the first.** A Slot often says the variation more clearly, and a value that changes from one callsite to the next may belong in a Token rather than in a component's API. A Look list growing booleans is a component being configured for cases it cannot see, and a Slot puts that decision back at the callsite.
 
 ### Layers of abstraction
 
 A component is not one entry point but three. A consumer starts at the top and drops only as far as the case needs.
 
 - **Config layer — props only.** The default, and where most callsites end. The consumer passes data; the component decides structure and style. The least code at the callsite.
-- **Slot layer — a subcomponent passed in.** The consumer replaces one internal piece, an Icon or a header or an action, and the parent keeps layout, accessibility, and state. This is the layer for a targeted deviation that does not justify a new Variant or a rebuild.
+- **Slot layer — a subcomponent passed in.** The consumer replaces one internal piece, an Icon or a header or an action, and the parent keeps layout, accessibility, and state. This is the layer for a targeted deviation that does not justify a new Look or a rebuild.
 - **Custom layer — the pieces underneath.** The system hands over Tokens, Primitives, headless behaviour, and accessible base elements; the consumer composes the rest. The most freedom, and the least done for you.
 
 Accessibility, keyboard behaviour, focus management and Tokens ship in the base, and each layer keeps the guarantees of the one above it, so dropping down never means assembling them again. Each layer also has an Escape hatch to the one below, so a consumer who needs what the layer cannot express drops a level instead of forking the component.
