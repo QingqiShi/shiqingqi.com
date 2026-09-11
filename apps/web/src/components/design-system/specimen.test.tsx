@@ -1,6 +1,6 @@
+import type { CodeToken } from "@tuja/ui/components/code-block";
 import { describe, expect, it } from "vitest";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
-import type { CodeToken } from "./code/types.ts";
 import { Specimen, SpecimenGrid } from "./specimen.tsx";
 
 // What the Babel plugin will inject. The tests pass it by hand, because the

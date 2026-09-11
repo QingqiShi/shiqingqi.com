@@ -1,6 +1,8 @@
 /**
  * The kinds of run a snippet can hold. The Babel plugin emits the same list, so
  * change the two together.
+ *
+ * @internal
  */
 export const TOKEN_KINDS = [
   "plain", // whitespace, and text with no other role
@@ -14,3 +16,13 @@ export const TOKEN_KINDS = [
   "property", // object key, and the name after a dot
   "punct", // < > / { } = ( ) , ; :
 ] as const;
+
+/** @internal */
+export type CodeTokenKind = (typeof TOKEN_KINDS)[number];
+
+/**
+ * One run of a snippet: its kind, then its exact source text.
+ *
+ * @internal
+ */
+export type CodeToken = readonly [CodeTokenKind, string];

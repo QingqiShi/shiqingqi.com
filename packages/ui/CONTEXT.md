@@ -147,6 +147,14 @@ _Avoid_: stage, plate (for this sense — a Plate is a sunken panel, the Canvas 
 A real instance of a component, placed to illustrate it rather than to be used. In an overview tile it is `inert` and out of the tab order — most are scaled down, though the whole-page ones fill their plate instead. Inside a Showcase it may be fully operable, because there the point is to let a visitor work it.
 _Avoid_: preview, demo — except where a mock labels _itself_ for the visitor ("Demo menu", "Demo toggle"); those strings stay.
 
+**Code block**:
+Source drawn as coloured runs on a scrolling surface. The same component draws a documentation page's static usage sample and the Lab's live snippet, so a change of Parts plays as a code-walkthrough slide — what stays slides, what arrives rises in, what leaves fades where it stood.
+_Avoid_: snippet (as the name of the component — a snippet is what a Code block shows), code sample.
+
+**Part**:
+One run of a Code block, on one line, drawn as a box of its own, with an id that survives a change, its leading whitespace, and its tokens.
+_Avoid_: box (the DOM element), run (one coloured token).
+
 **Plate**:
 The sunken panel a specimen sits on. Structure that holds still while its contents drain of colour at rest.
 _Avoid_: tray
@@ -199,6 +207,7 @@ The showcase site ships bilingual copy, so each term needs one Chinese word too 
 | Scroll mask      | 滚动虚化 | 遮罩 (that is a mask in general)                      |
 | Squircle         | 超椭圆角 | 圆角矩形 (that is a rounded rectangle)                |
 | Reading column   | 阅读栏   | 内容栏, 正文栏                                        |
+| Code block       | 代码块   | 代码片段 (that is a snippet)                          |
 
 `语义` is correct only for the HTML/ARIA sense — 语义元素, 语义层级, `<button>` 语义 — matching English "semantic element/rank".
 

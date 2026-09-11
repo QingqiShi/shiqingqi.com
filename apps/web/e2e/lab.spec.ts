@@ -88,9 +88,9 @@ test.describe("Button Lab", () => {
       expect(snippet).not.toContainText("size=", { timeout: 2000 }),
     );
 
-    // The card animates its boxes with the Web Animations API, and a run that
-    // leaves is drawn outside React's tree, so the record of each animation
-    // started under the code is the evidence.
+    // CodeBlock animates its boxes with the Web Animations API, and a part
+    // that leaves is drawn outside React's tree as a ghost, so the record of
+    // each animation started under the code is the evidence.
     await snippet.evaluate((code) => {
       const seen: string[] = [];
       // eslint-disable-next-line @typescript-eslint/unbound-method -- called with the element as `this` below
@@ -113,9 +113,12 @@ test.describe("Button Lab", () => {
     const animations = () => page.evaluate(() => window.labAnimations);
 
     await page.getByRole("radio", { name: "lg", exact: true }).click();
-    await expect.poll(animations).toContainEqual("size=:lab-fade:0");
+    await expect.poll(animations).toContainEqual("size=:code-block-fade:0");
     await page.getByRole("radio", { name: "md", exact: true }).click();
-    await expect.poll(animations).toContainEqual('size="lg":lab-fade:1');
+    // The attribute and its value are two parts, so the whole `size="lg"`
+    // leaves as two ghosts, each fading on its own.
+    await expect.poll(animations).toContainEqual("size=:code-block-fade:1");
+    await expect.poll(animations).toContainEqual('"lg":code-block-fade:1');
   });
 
   test("reset returns to the Variant's props", async ({ page }) => {

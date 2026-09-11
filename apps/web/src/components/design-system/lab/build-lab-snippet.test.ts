@@ -59,7 +59,6 @@ function runs(snippet: LabSnippet) {
   return snippet.parts.flatMap((part) => [
     ["plain", part.lead] as const,
     ...part.tokens,
-    ...(part.value ?? []),
   ]);
 }
 
@@ -133,7 +132,9 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
       "import-Button",
       "open",
       "attr-look",
+      'attr-look:"outline"',
       "attr-size",
+      'attr-size:"lg"',
       "close",
       "children",
       "end",
@@ -142,20 +143,32 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
       "",
       "\n\n",
       " ",
+      "",
       " ",
+      "",
       "",
       "",
       "",
     ]);
   });
 
-  it("keeps a value as a box within its attribute", () => {
+  it("gives a value a part of its own, right after its attribute", () => {
     const snippet = build({ children: "Save", look: "outline", size: "lg" });
     const look = snippet.parts.find((part) => part.id === "attr-look");
+    const value = snippet.parts.find(
+      (part) => part.id === 'attr-look:"outline"',
+    );
     expect(look?.tokens).toEqual([
       ["attr", "look"],
       ["punct", "="],
     ]);
-    expect(look?.value).toEqual([["string", '"outline"']]);
+    expect(value?.tokens).toEqual([["string", '"outline"']]);
+  });
+
+  it("emits no value part for a bare boolean attribute", () => {
+    const snippet = build({ children: "Save", loading: true });
+    expect(
+      snippet.parts.some((part) => part.id.startsWith("attr-loading:")),
+    ).toBe(false);
   });
 });

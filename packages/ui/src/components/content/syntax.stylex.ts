@@ -1,4 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { cyan } from "../../_generated/palette/hues/cyan.stylex.ts";
+import { gray } from "../../_generated/palette/hues/gray.stylex.ts";
+import { green } from "../../_generated/palette/hues/green.stylex.ts";
+import { purple } from "../../_generated/palette/hues/purple.stylex.ts";
 
 // Code sits on `bgSurfaceRaised` — gray._100 in light, gray._7 in dark. Every
 // colour below clears WCAG AA (4.5:1) there; `syntax.contrast.test.ts` measures
@@ -13,36 +17,31 @@ import * as stylex from "@stylexjs/stylex";
 // literals. An attribute name and a property name both name a value. A
 // lowercase tag is scaffolding around the component the page documents, so it
 // stays with the punctuation.
-//
-// The tones are written out rather than imported: StyleX inlines a
-// `defineConsts` member only from a relative import, and `@tuja/ui/palette/*`
-// crosses a package boundary. `syntax.contrast.test.ts` compares each value
-// with the hue it names, so a regenerated palette cannot drift away unseen.
 
 const light = {
-  plain: "#212220", // gray._13
-  keyword: "#6B0098", // purple._30
-  string: "#00581E", // green._30
-  comment: "#5E5E5C", // gray._40
-  number: "#00581E", // green._30
-  tag: "#464744", // gray._30
-  component: "#6B0098", // purple._30
-  attr: "#004D6B", // cyan._30
-  property: "#004D6B", // cyan._30
-  punct: "#464744", // gray._30
+  plain: gray._13,
+  keyword: purple._30,
+  string: green._30,
+  comment: gray._40,
+  number: green._30,
+  tag: gray._30,
+  component: purple._30,
+  attr: cyan._30,
+  property: cyan._30,
+  punct: gray._30,
 };
 
 const dark: { [key in keyof typeof light]: string } = {
-  plain: "#E9E8E4", // gray._92
-  keyword: "#DA8EFF", // purple._70
-  string: "#48D766", // green._60
-  comment: "#91918E", // gray._60
-  number: "#48D766", // green._60
-  tag: "#C7C6C3", // gray._80
-  component: "#DA8EFF", // purple._70
-  attr: "#48BCF6", // cyan._70
-  property: "#48BCF6", // cyan._70
-  punct: "#C7C6C3", // gray._80
+  plain: gray._92,
+  keyword: purple._70,
+  string: green._60,
+  comment: gray._60,
+  number: green._60,
+  tag: gray._80,
+  component: purple._70,
+  attr: cyan._70,
+  property: cyan._70,
+  punct: gray._80,
 };
 
 export const syntax = stylex.defineVars({

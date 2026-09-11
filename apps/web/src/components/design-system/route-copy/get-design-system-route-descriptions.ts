@@ -75,6 +75,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "The heading primitive, with semantic level decoupled from visual size.",
       zh: "标题基础组件，语义层级与视觉字号相互独立。",
     }),
+    "/design-system/components/code-block": t({
+      en: "Source drawn as coloured runs, each part a box of its own, so a change slides, rises in, or fades where it stood.",
+      zh: "以彩色片段绘制的源码，每个 part 各占一格，改动时会滑动、升起或原地淡出。",
+    }),
     "/design-system/components/button": t({
       en: "The primary action control, with looks and a press animation.",
       zh: "主要的操作控件，提供多种外观与按压动画。",

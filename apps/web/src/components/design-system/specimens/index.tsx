@@ -8,6 +8,7 @@ import { CalloutSpecimen } from "./callout-specimen.tsx";
 import { CardSpecimen } from "./card-specimen.tsx";
 import { CheckboxSpecimen } from "./checkbox-specimen.tsx";
 import { ChipSpecimen } from "./chip-specimen.tsx";
+import { CodeBlockSpecimen } from "./code-block-specimen.tsx";
 import { DisclosureSpecimen } from "./disclosure-specimen.tsx";
 import { DividerSpecimen } from "./divider-specimen.tsx";
 import { HeaderFooterLayoutSpecimen } from "./header-footer-layout-specimen.tsx";
@@ -74,6 +75,7 @@ const COMPONENT_SPECIMENS: Partial<
 > = {
   "/design-system/components/text": { element: <TextSpecimen /> },
   "/design-system/components/heading": { element: <HeadingSpecimen /> },
+  "/design-system/components/code-block": { element: <CodeBlockSpecimen /> },
   "/design-system/components/button": { element: <ButtonSpecimen /> },
   "/design-system/components/menu-button": { element: <MenuButtonSpecimen /> },
   "/design-system/components/chip": { element: <ChipSpecimen /> },

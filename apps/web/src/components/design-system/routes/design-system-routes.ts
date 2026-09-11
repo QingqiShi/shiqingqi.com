@@ -123,6 +123,12 @@ const ROUTES = [
   },
   {
     section: "components",
+    category: "content",
+    path: "/design-system/components/code-block",
+    keywords: ["code", "snippet", "syntax", "source", "usage", "runs"],
+  },
+  {
+    section: "components",
     category: "actions",
     path: "/design-system/components/button",
     lab: true,

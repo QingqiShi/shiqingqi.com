@@ -1,29 +1,8 @@
-import type { CodeToken } from "../code/types.ts";
+import type { CodePart, CodeToken } from "@tuja/ui/components/code-block";
 import type { LabControlModel, LabPropDoc, LabProps } from "./types.ts";
 
-/**
- * One run of the snippet, on one line, that the card draws as a box of its
- * own: it morphs where it stands, rises in when it arrives, and fades when it
- * leaves.
- */
-export interface LabSnippetPart {
-  /** What the part is, stable across states: its key and transition name. */
-  id: string;
-  /**
-   * The whitespace before it. It stays outside the box, because a box that
-   * holds a line break cannot carry a transition name.
-   */
-  lead: string;
-  tokens: readonly CodeToken[];
-  /**
-   * An attribute's value, a box of its own beside the name, so that a new
-   * value can arrive as the old one leaves. Empty for a bare boolean attribute.
-   */
-  value?: readonly CodeToken[];
-}
-
 export interface LabSnippet {
-  parts: readonly LabSnippetPart[];
+  parts: readonly CodePart[];
   /** The whole snippet as source text — what Copy writes. */
   text: string;
 }
@@ -57,7 +36,7 @@ function sampleTokens(code: string): CodeToken[] {
   ];
 }
 
-function importLine(name: string, from: string): CodeToken[] {
+export function importLine(name: string, from: string): CodeToken[] {
   return [
     ["keyword", "import"],
     ["plain", " "],
@@ -182,14 +161,22 @@ export function buildLabSnippet({
     (children === "" ? " />".length : `>${children}</${element}>`.length);
   const multiline = inlineLength > MAX_COLUMNS;
 
-  const attributes: LabSnippetPart[] = printed.map(({ prop, value }) => ({
-    id: `attr-${prop}`,
-    lead: multiline ? "\n  " : " ",
-    tokens: [["attr", prop], ...(value.length > 0 ? EQUALS : [])],
-    value,
-  }));
+  // A value is a part of its own, right after its attribute's name part, so a
+  // changed value plays as the old part leaving and the new one arriving.
+  const attributes: CodePart[] = printed.flatMap(({ prop, value }) => {
+    const name: CodePart = {
+      id: `attr-${prop}`,
+      lead: multiline ? "\n  " : " ",
+      tokens: [["attr", prop], ...(value.length > 0 ? EQUALS : [])],
+    };
+    if (value.length === 0) return [name];
+    return [
+      name,
+      { id: `${name.id}:${textOf(value)}`, lead: "", tokens: value },
+    ];
+  });
 
-  const close: LabSnippetPart[] =
+  const close: CodePart[] =
     children === ""
       ? [
           {
@@ -226,24 +213,20 @@ export function buildLabSnippet({
       sample.imports.map((binding) => [binding.name, binding.from] as const),
     ),
   ]);
-  const imports: LabSnippetPart[] = [...bindings].map(
-    ([name, from], index) => ({
-      id: `import-${name}`,
-      lead: index === 0 ? "" : "\n",
-      tokens: importLine(name, from),
-    }),
-  );
+  const imports: CodePart[] = [...bindings].map(([name, from], index) => ({
+    id: `import-${name}`,
+    lead: index === 0 ? "" : "\n",
+    tokens: importLine(name, from),
+  }));
 
-  const parts: LabSnippetPart[] = [
+  const parts: CodePart[] = [
     ...imports,
     { id: "open", lead: "\n\n", tokens: open },
     ...attributes,
     ...close,
   ];
 
-  const text = parts
-    .map((part) => part.lead + textOf(part.tokens) + textOf(part.value ?? []))
-    .join("");
+  const text = parts.map((part) => part.lead + textOf(part.tokens)).join("");
 
   return { parts, text };
 }
