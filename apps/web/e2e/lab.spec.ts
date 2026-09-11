@@ -35,11 +35,19 @@ test.describe("Button Lab", () => {
         timeout: 2000,
       }),
     );
+
+    // The switch's indicator slides only if the control survives the switch
+    // as the same element; a remount lands it in place with nothing to
+    // animate from.
+    const control = await page
+      .getByRole("radiogroup", { name: "View" })
+      .elementHandle();
     await clickUntil(page.getByRole("radio", { name: "Lab" }), () =>
       expect(page).toHaveURL(/\/design-system\/components\/button\/lab$/, {
         timeout: 2000,
       }),
     );
+    expect(await control.evaluate((element) => element.isConnected)).toBe(true);
   });
 
   test("a Variant sets the Specimen and the snippet together", async ({

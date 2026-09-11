@@ -18,7 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function BadgeLabPage() {
   return (
-    <LabPage path="/design-system/components/badge">
+    <LabPage>
       <BadgeLab />
     </LabPage>
   );

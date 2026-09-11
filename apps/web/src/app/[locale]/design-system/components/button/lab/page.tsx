@@ -18,7 +18,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function ButtonLabPage() {
   return (
-    <LabPage path="/design-system/components/button">
+    <LabPage>
       <ButtonLab />
     </LabPage>
   );
