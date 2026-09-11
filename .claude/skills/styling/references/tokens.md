@@ -78,16 +78,16 @@ the popover surface (`gray._100` / `gray._7`), `bgScrim` is
 | `color.accent`       | `purple._30`                | `purple._50`                |
 | `color.accentHover`  | `purple._40`                | `purple._60`                |
 | `color.accentGlow`   | `rgba(purple_rgb._30, 0.1)` | `rgba(purple_rgb._50, 0.2)` |
-| `color.neutral`      | `gray._80`                  | `gray._40`                  |
-| `color.neutralHover` | `gray._70`                  | `gray._50`                  |
-| `color.neutralText`  | `gray._40`                  | `gray._80`                  |
+| `color.neutral`      | `gray._70`                  | `gray._30`                  |
+| `color.neutralHover` | `gray._60`                  | `gray._40`                  |
+| `color.neutralText`  | `gray._20`                  | `gray._80`                  |
 | `color.neutralOn`    | `gray._20`                  | `gray._92`                  |
 
 ### Borders & semantic colors
 
 Translucent borders (`accentBorder`, `infoBorder`, `successBorder`,
 `warningBorder`, `dangerBorder`) are `rgba(<hue>_rgb, 0.4)` recipes;
-`neutralBorder` is opaque (`gray._90` / `gray._20`). Semantic sets
+`neutralBorder` is opaque (`gray._80` / `gray._20`). Semantic sets
 (`info|success|warning|danger` + `Hover`/`Text`/`On`) map to the cyan, green,
 orange/yellow, and red ramps — see `tokens.stylex.ts` for exact steps.
 

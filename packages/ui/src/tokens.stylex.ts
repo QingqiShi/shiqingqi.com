@@ -112,10 +112,14 @@ const light = {
   // Accent at ambient-glow strength (was `accent` + a themed opacity token).
   accentGlow: `rgba(${purple_rgb._30}, 0.1)`,
 
-  // Mid-tone neutrals for chrome / dividers / chips
-  neutral: gray._80,
-  neutralHover: gray._70,
-  neutralText: gray._40,
+  // Neutrals for chrome, dividers and chips. Each tone sits the same
+  // distance off its canvas in both themes (light/dark L* off canvas):
+  // border 17/20, neutral 27/30, hover 37/40, text 77/80. `neutralBorder`
+  // is the Apple HIG separator pair (L* 80 on white, L* 21 on black). Each
+  // step out adds 10 L*.
+  neutral: gray._70,
+  neutralHover: gray._60,
+  neutralText: gray._20,
   neutralOn: gray._20,
 
   // Translucent borders — same recipe as surface*: palette hue + fixed alpha.
@@ -124,11 +128,13 @@ const light = {
   successBorder: `rgba(${green_rgb._50}, 0.4)`,
   warningBorder: `rgba(${orange_rgb._50}, 0.4)`,
   dangerBorder: `rgba(${red_rgb._50}, 0.4)`,
-  neutralBorder: gray._90,
+  neutralBorder: gray._80,
 
   // Scrollbar thumb — chrome rather than text, so it is tuned around the 3:1
   // non-text mark (2.9:1 on the canvas, 3.2:1 on a white card) and stays
-  // lighter than `textSubtle`, which has to clear the 4.5:1 text minimum.
+  // lighter than `textSubtle`, which has to clear the 4.5:1 text minimum. The
+  // dark tone matches it: gray._40 is 3.2:1 on the dark canvas and 2.9:1 on a
+  // dark card.
   scrollbarThumb: gray._60,
 
   // Intent colors — bold (foreground), hover (interactive lift), text, on
@@ -209,8 +215,8 @@ const dark: { [key in keyof typeof light]: string } = {
   accentHover: purple._60,
   accentGlow: `rgba(${purple_rgb._50}, 0.2)`,
 
-  neutral: gray._40,
-  neutralHover: gray._50,
+  neutral: gray._30,
+  neutralHover: gray._40,
   neutralText: gray._80,
   neutralOn: gray._92,
 
@@ -221,8 +227,7 @@ const dark: { [key in keyof typeof light]: string } = {
   dangerBorder: `rgba(${red_rgb._60}, 0.4)`,
   neutralBorder: gray._20,
 
-  // Softer than the dark `textSubtle` (gray._60), which read as too bright.
-  scrollbarThumb: gray._50,
+  scrollbarThumb: gray._40,
 
   info: cyan._70,
   infoHover: cyan._80,
