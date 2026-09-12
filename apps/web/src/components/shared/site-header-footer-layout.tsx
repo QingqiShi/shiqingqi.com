@@ -57,12 +57,10 @@ export function SiteHeaderFooterLayout({
               labels={[
                 t({ en: "Switch to light theme", zh: "切换至浅色模式" }),
                 t({ en: "Switch to dark theme", zh: "切换至深色模式" }),
-                t({ en: "Switch to system theme", zh: "切换至系统颜色模式" }),
               ]}
             />
           </FixedContainerContent>
           <LocaleSelector
-            label={t({ en: "Language", zh: "语言" })}
             ariaLabel={t({ en: "Select a language", zh: "选择语言" })}
             locale={locale}
           />

@@ -18,10 +18,10 @@ test.describe("Theme Toggle", () => {
     );
     expect(backgroundColor).toBe("rgb(248, 246, 242)");
 
-    // Verify theme toggle shows light state
+    // The toggle shows the light Theme, so a press targets dark
     await expect(
-      page.getByRole("switch", { name: /switch to dark theme/i }),
-    ).not.toBeChecked();
+      page.getByRole("button", { name: /switch to dark theme/i }),
+    ).toBeVisible();
 
     // Change system preference to dark
     await page.emulateMedia({ colorScheme: "dark" });
@@ -32,16 +32,16 @@ test.describe("Theme Toggle", () => {
       "rgb(0, 0, 0)",
     );
 
-    // Verify theme toggle shows dark state
+    // The toggle shows the dark Theme, so a press targets light
     await expect(
-      page.getByRole("switch", { name: /switch to light theme/i }),
-    ).toBeChecked();
+      page.getByRole("button", { name: /switch to light theme/i }),
+    ).toBeVisible();
   });
 
   test("should handle manual toggle and maintain state consistency", async ({
     page,
   }) => {
-    const themeToggle = page.getByRole("switch", {
+    const themeToggle = page.getByRole("button", {
       name: /switch to (light|dark) theme/i,
     });
 
@@ -50,7 +50,7 @@ test.describe("Theme Toggle", () => {
       "background-color",
       "rgb(248, 246, 242)",
     );
-    await expect(themeToggle).not.toBeChecked();
+    await expect(themeToggle).toHaveAccessibleName(/switch to dark theme/i);
 
     // Toggle to dark
     await themeToggle.click();
@@ -58,7 +58,7 @@ test.describe("Theme Toggle", () => {
       "background-color",
       "rgb(0, 0, 0)",
     );
-    await expect(themeToggle).toBeChecked();
+    await expect(themeToggle).toHaveAccessibleName(/switch to light theme/i);
 
     // Toggle back to light
     await themeToggle.click();
@@ -66,7 +66,7 @@ test.describe("Theme Toggle", () => {
       "background-color",
       "rgb(248, 246, 242)",
     );
-    await expect(themeToggle).not.toBeChecked();
+    await expect(themeToggle).toHaveAccessibleName(/switch to dark theme/i);
 
     // Toggle to dark again for consistency check
     await themeToggle.click();
@@ -74,7 +74,7 @@ test.describe("Theme Toggle", () => {
       "background-color",
       "rgb(0, 0, 0)",
     );
-    await expect(themeToggle).toBeChecked();
+    await expect(themeToggle).toHaveAccessibleName(/switch to light theme/i);
   });
 
   test("should persist manual theme choice across browser sessions", async ({
@@ -82,7 +82,7 @@ test.describe("Theme Toggle", () => {
     context,
   }) => {
     // Set manual theme to dark (system is light)
-    const themeToggle = page.getByRole("switch", {
+    const themeToggle = page.getByRole("button", {
       name: /switch to (light|dark) theme/i,
     });
     await themeToggle.click();
@@ -102,68 +102,85 @@ test.describe("Theme Toggle", () => {
       "rgb(0, 0, 0)",
     );
 
-    // Verify toggle shows dark state
+    // The toggle shows the dark Theme, so a press targets light
     await expect(
-      newPage.getByRole("switch", { name: /switch to light theme/i }),
-    ).toBeChecked();
+      newPage.getByRole("button", { name: /switch to light theme/i }),
+    ).toBeVisible();
 
     await newPage.close();
   });
 
   test("should handle reset to system preference", async ({ page }) => {
-    const themeToggle = page.getByRole("switch", {
+    const themeToggle = page.getByRole("button", {
       name: /switch to (light|dark) theme/i,
     });
 
-    // Manually set theme to dark
+    // First press: system is light, so the target (dark) differs from it —
+    // the store keeps the explicit choice.
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
       "rgb(0, 0, 0)",
     );
+    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
+      "dark",
+    );
 
-    // Hover/focus to show reset button
-    await themeToggle.hover();
-    const resetButton = page.getByRole("button", {
-      name: /switch to system theme/i,
-    });
-    await expect(resetButton).toBeVisible();
-
-    // Reset to system preference
-    await resetButton.click();
-    // System is light, so background should match the light token
+    // Second press: the target (light) is what the system Theme already
+    // shows, so the store clears back to "system" instead of pinning
+    // "light".
+    await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
       "rgb(248, 246, 242)",
     );
+    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
+      "system",
+    );
 
-    // Change system preference while following system
+    // Now following "system", the page tracks the system Theme.
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
       "rgb(0, 0, 0)",
     );
+  });
 
-    // Change back to light
-    await page.emulateMedia({ colorScheme: "light" });
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      "rgb(248, 246, 242)",
-    );
+  test("keeps a dark Preference when the system Theme only coincides with it", async ({
+    page,
+  }) => {
+    const themeToggle = page.getByRole("button", {
+      name: /switch to (light|dark) theme/i,
+    });
 
-    // Manually override again
+    // System is light (beforeEach); choose dark explicitly.
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
       "rgb(0, 0, 0)",
     );
+    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
+      "dark",
+    );
 
-    // System preference changes should NOT affect manual theme
-    await page.emulateMedia({ colorScheme: "light" });
-    // Should remain dark
+    // The system Theme moving to match the stored Preference, and back away
+    // from it again, must never clear the Preference — only a press does.
+    await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
       "rgb(0, 0, 0)",
+    );
+    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
+      "dark",
+    );
+
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(page.locator("html")).toHaveCSS(
+      "background-color",
+      "rgb(0, 0, 0)",
+    );
+    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
+      "dark",
     );
   });
 });
