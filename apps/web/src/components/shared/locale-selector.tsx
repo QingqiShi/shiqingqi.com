@@ -17,11 +17,7 @@ import { getLocalePath } from "#src/utils/get-locale-path.ts";
 import { MenuItem } from "./menu-item";
 
 interface LocaleSelectorProps {
-  /**
-   * Visible trigger label. Omit for an icon-only trigger — the accessible name
-   * still comes from `ariaLabel`.
-   */
-  label?: string;
+  /** Accessible name of the icon-only trigger. */
   ariaLabel: string;
   locale: SupportedLocale;
   /**
@@ -50,22 +46,22 @@ interface LocaleSelectorProps {
  * order: it does nothing, so it should not be offered.
  */
 export function LocaleSelector(props: LocaleSelectorProps) {
-  const { label, size } = props;
+  const { ariaLabel, size } = props;
 
   return (
     <Suspense
       fallback={
         <Button
           type="button"
+          // `aria-hidden` makes the name inert; the Button type demands one
+          // for an icon-only button all the same.
+          aria-label={ariaLabel}
           aria-hidden="true"
           tabIndex={-1}
           disabled
           icon={<TranslateIcon weight="bold" role="presentation" />}
-          hideLabelOnMobile
           size={size}
-        >
-          {label && <span>{label}</span>}
-        </Button>
+        />
       }
     >
       <LocaleSelectorMenu {...props} />
@@ -74,7 +70,6 @@ export function LocaleSelector(props: LocaleSelectorProps) {
 }
 
 function LocaleSelectorMenu({
-  label,
   ariaLabel,
   locale,
   menuPosition,
@@ -92,7 +87,6 @@ function LocaleSelectorMenu({
         type: "button",
         "aria-label": ariaLabel,
         icon: <TranslateIcon weight="bold" role="presentation" />,
-        hideLabelOnMobile: true,
         size,
       }}
       menuContent={
@@ -127,9 +121,7 @@ function LocaleSelectorMenu({
           </MenuItem>
         </div>
       }
-    >
-      {label}
-    </MenuButton>
+    />
   );
 }
 

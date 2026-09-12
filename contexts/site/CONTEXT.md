@@ -19,7 +19,7 @@ The unlinked WebGL shader route, and nothing else. Deliberately kept out of sear
 A choice a visitor makes about how the site behaves — theme, locale. Stored in the browser.
 
 **Theme**:
-Light, dark, or system. ZH: 主题.
+Light, dark, or system. ZH: 主题. A light or dark Theme holds until the visitor switches again; switching to what the system Theme already shows clears it back to system.
 _Avoid_: mode, colour scheme, appearance, dark mode, 模式
 
 **Shell**:

@@ -30,7 +30,6 @@ export function DesignSystemSidebarControls({
         labels={[
           t({ en: "Switch to light theme", zh: "切换至浅色模式" }),
           t({ en: "Switch to dark theme", zh: "切换至深色模式" }),
-          t({ en: "Switch to system theme", zh: "切换至系统颜色模式" }),
         ]}
       />
     </div>
