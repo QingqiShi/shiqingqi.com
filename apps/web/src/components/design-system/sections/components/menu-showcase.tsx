@@ -188,7 +188,7 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     color: color.textMuted,
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
     paddingInline: space._1,
     paddingBlock: space._00,
   },

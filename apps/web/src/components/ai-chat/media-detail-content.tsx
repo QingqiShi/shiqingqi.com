@@ -393,7 +393,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: {
-      default: color.surfaceNeutralSubtle,
+      default: color.neutralSurface,
       ":hover": color.accent,
       ":focus-visible": color.accent,
     },

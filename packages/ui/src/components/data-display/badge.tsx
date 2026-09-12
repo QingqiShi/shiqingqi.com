@@ -125,27 +125,27 @@ const intentStyles = stylex.create({
   // Neutral intent tint, not an opaque surface, so it stays visible on cards
   // and other raised surfaces instead of blending in.
   neutral: {
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
     color: color.textMuted,
   },
   info: {
-    backgroundColor: color.surfaceInfoSubtle,
+    backgroundColor: color.infoSurface,
     color: color.infoText,
   },
   success: {
-    backgroundColor: color.surfaceSuccessSubtle,
+    backgroundColor: color.successSurface,
     color: color.successText,
   },
   warning: {
-    backgroundColor: color.surfaceWarningSubtle,
+    backgroundColor: color.warningSurface,
     color: color.warningText,
   },
   danger: {
-    backgroundColor: color.surfaceDangerSubtle,
+    backgroundColor: color.dangerSurface,
     color: color.dangerText,
   },
   accent: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     color: color.accentText,
   },
 });

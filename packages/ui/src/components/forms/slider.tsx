@@ -325,7 +325,7 @@ const styles = stylex.create({
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
       cornerShape: "round",
-      // Matches Progress's track. `surfaceNeutralSubtle` hits only 1.04:1
+      // Matches Progress's track. `neutralSurface` hits only 1.04:1
       // against a raised card in dark theme, hiding the unfilled remainder.
       backgroundColor: color.neutralBorder,
       backgroundImage: ACCENT_FILL,
@@ -334,7 +334,7 @@ const styles = stylex.create({
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
       cornerShape: "round",
-      // Matches Progress's track. `surfaceNeutralSubtle` hits only 1.04:1
+      // Matches Progress's track. `neutralSurface` hits only 1.04:1
       // against a raised card in dark theme, hiding the unfilled remainder.
       backgroundColor: color.neutralBorder,
       backgroundImage: ACCENT_FILL,

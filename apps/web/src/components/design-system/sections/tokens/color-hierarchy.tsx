@@ -287,7 +287,7 @@ const styles = stylex.create({
     letterSpacing: font.trackingWide,
   },
   chipAccent: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     color: color.accentText,
   },
   chipSurface: {
@@ -296,7 +296,7 @@ const styles = stylex.create({
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
   },
   chipDanger: {
-    backgroundColor: color.surfaceDangerSubtle,
+    backgroundColor: color.dangerSurface,
     color: color.dangerText,
   },
 

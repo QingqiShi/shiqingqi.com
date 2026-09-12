@@ -101,7 +101,7 @@ export function Progress({
 const styles = stylex.create({
   track: {
     inlineSize: "100%",
-    // Reuses `Divider`'s rule fill: `surfaceNeutralSubtle` would nearly
+    // Reuses `Divider`'s rule fill: `neutralSurface` would nearly
     // vanish against a dark surface.
     backgroundColor: color.neutralBorder,
     overflow: "hidden",

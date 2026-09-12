@@ -339,7 +339,7 @@ const styles = stylex.create({
   cardActive: {
     // An alpha tint over the panel — keeps text contrast in both themes,
     // unlike bgSurfaceBright which flips to a light surface in dark mode.
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     boxShadow: `inset 0 0 0 1px ${color.accent}`,
   },
   cardWidth: (inlineSize: string) => ({
@@ -477,7 +477,7 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
     paddingBlock: space._00,
     paddingInline: space._1,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
     fontVariantNumeric: "tabular-nums",

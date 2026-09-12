@@ -42,7 +42,7 @@ const REFS: Record<string, string> = {
   "color.glassBorder": "var(--glass-border)",
   "color.glassHighlight": "var(--glass-highlight)",
   "color.neutralBorder": "var(--neutral-border)",
-  "color.surfaceAccentSubtle": "var(--surface-accent-subtle)",
+  "color.accentSurface": "var(--accent-surface)",
   "space._1": "var(--space-1)",
   "space._3": "var(--space-3)",
   "textureTokens.pitch": "var(--pitch)",
@@ -118,15 +118,15 @@ describe("parseGlass / formatGlass", () => {
 
 describe("parseWash", () => {
   it("reads a member name", () => {
-    expect(parseWash("color.surfaceAccentSubtle toBottom")).toEqual({
-      color: "color.surfaceAccentSubtle",
+    expect(parseWash("color.accentSurface toBottom")).toEqual({
+      color: "color.accentSurface",
       direction: "toBottom",
     });
   });
 
   it("takes the spelling an older snapshot saved", () => {
-    expect(parseWash("color.surfaceAccentSubtle to-bottom")).toEqual({
-      color: "color.surfaceAccentSubtle",
+    expect(parseWash("color.accentSurface to-bottom")).toEqual({
+      color: "color.accentSurface",
       direction: "toBottom",
     });
   });
@@ -139,11 +139,11 @@ describe("parseWash", () => {
       cells: [],
     });
     store.hydrate({
-      toggles: { track: { wash: "color.surfaceAccentSubtle to-bottom" } },
+      toggles: { track: { wash: "color.accentSurface to-bottom" } },
     });
     const style = effectStyle(layerEffects(store, "track"), index);
     expect(style?.classNames).toEqual(["c-wash-toBottom"]);
-    expect(style?.style["--tone"]).toBe("var(--surface-accent-subtle)");
+    expect(style?.style["--tone"]).toBe("var(--accent-surface)");
   });
 });
 
@@ -182,7 +182,7 @@ describe("effectStyle for texture and wash", () => {
     const style = effectStyle(
       {
         texture: parseTexture("dot space._1 color.neutralBorder"),
-        wash: parseWash("color.surfaceAccentSubtle toBottom"),
+        wash: parseWash("color.accentSurface toBottom"),
       },
       index,
     );
@@ -190,7 +190,7 @@ describe("effectStyle for texture and wash", () => {
     expect(style?.style).toMatchObject({
       position: "relative",
       isolation: "isolate",
-      "--tone": "var(--surface-accent-subtle)",
+      "--tone": "var(--accent-surface)",
     });
     expect(style?.texture?.className).toBe("c-texture-dot");
   });

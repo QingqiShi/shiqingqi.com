@@ -238,7 +238,7 @@ const styles = stylex.create({
   },
   accentInk: {
     [textureTokens.ink]: color.accentBorder,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     borderColor: color.accentBorder,
   },
   dialGrid: {

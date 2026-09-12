@@ -269,7 +269,7 @@ const styles = stylex.create({
   statBar: {
     position: "relative",
     height: "10px",
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
     overflow: "hidden",
   },
   statBarFill: {

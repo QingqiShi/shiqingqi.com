@@ -57,7 +57,7 @@ export default tinker({
         padding: "border.size_2",
         position: "relative",
         transition: "background-color {duration._200} {easing.ease}",
-        backgroundColor: "color.surfaceNeutralSubtle",
+        backgroundColor: "color.neutralSurface",
         boxShadow: "shadow._2",
         touchAction: "none",
       },

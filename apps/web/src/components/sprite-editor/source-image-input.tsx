@@ -237,7 +237,7 @@ const styles = stylex.create({
   },
   heroDragging: {
     borderColor: color.accent,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
   },
   heroIcon: {
     display: "grid",
@@ -245,7 +245,7 @@ const styles = stylex.create({
     width: "60px",
     height: "60px",
     color: color.accent,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
   },
   heroTitle: {
     margin: 0,
@@ -304,7 +304,7 @@ const styles = stylex.create({
     },
   },
   compactDragging: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
   },
   compactSwap: {
     display: "inline-flex",

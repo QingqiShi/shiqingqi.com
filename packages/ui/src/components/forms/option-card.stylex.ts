@@ -19,8 +19,8 @@ export const optionCardSurface = stylex.create({
   selected: {
     borderColor: { default: color.accent, ":hover": color.accent },
     backgroundColor: {
-      default: color.surfaceAccentSubtle,
-      ":hover": color.surfaceAccentMuted,
+      default: color.accentSurface,
+      ":hover": color.accentMuted,
     },
     boxShadow: `inset 0 0 0 ${border.size_1} ${color.accent}`,
   },

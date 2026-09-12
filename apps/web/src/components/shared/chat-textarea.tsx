@@ -234,7 +234,7 @@ export const chatTextareaStyles = stylex.create({
     borderRadius: border.radius_round,
     cornerShape: "round",
     cursor: { default: "pointer", ":disabled": "default" },
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
     color: color.textMuted,
     opacity: { default: null, ":disabled": opacity.disabled },
     transition: "background-color 0.15s ease, color 0.15s ease",

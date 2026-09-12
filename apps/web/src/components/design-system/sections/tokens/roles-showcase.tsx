@@ -28,10 +28,10 @@ export function RolesShowcase() {
             },
             {
               size: "medium",
-              bg: styles.fillSurfaceNeutralSubtle,
+              bg: styles.fillNeutralSurface,
               fg: styles.textOnBg,
               label: t({ en: "Neutral Surface", zh: "中性表面" }),
-              token: "color.surfaceNeutralSubtle",
+              token: "color.neutralSurface",
             },
             {
               size: "thin",
@@ -68,10 +68,10 @@ export function RolesShowcase() {
             },
             {
               size: "medium",
-              bg: styles.fillSurfaceAccentSubtle,
+              bg: styles.fillAccentSurface,
               fg: styles.accentText,
               label: t({ en: "Accent Surface", zh: "强调表面" }),
-              token: "color.surfaceAccentSubtle",
+              token: "color.accentSurface",
             },
             {
               size: "thin",
@@ -108,10 +108,10 @@ export function RolesShowcase() {
             },
             {
               size: "medium",
-              bg: styles.fillSurfaceInfoSubtle,
+              bg: styles.fillInfoSurface,
               fg: styles.textInfoText,
               label: t({ en: "Info Surface", zh: "信息表面" }),
-              token: "color.surfaceInfoSubtle",
+              token: "color.infoSurface",
             },
             {
               size: "thin",
@@ -148,10 +148,10 @@ export function RolesShowcase() {
             },
             {
               size: "medium",
-              bg: styles.fillSurfaceSuccessSubtle,
+              bg: styles.fillSuccessSurface,
               fg: styles.textSuccessText,
               label: t({ en: "Success Surface", zh: "成功表面" }),
-              token: "color.surfaceSuccessSubtle",
+              token: "color.successSurface",
             },
             {
               size: "thin",
@@ -188,10 +188,10 @@ export function RolesShowcase() {
             },
             {
               size: "medium",
-              bg: styles.fillSurfaceWarningSubtle,
+              bg: styles.fillWarningSurface,
               fg: styles.textWarningText,
               label: t({ en: "Warning Surface", zh: "警告表面" }),
-              token: "color.surfaceWarningSubtle",
+              token: "color.warningSurface",
             },
             {
               size: "thin",
@@ -228,10 +228,10 @@ export function RolesShowcase() {
             },
             {
               size: "medium",
-              bg: styles.fillSurfaceDangerSubtle,
+              bg: styles.fillDangerSurface,
               fg: styles.textDangerText,
               label: t({ en: "Danger Surface", zh: "危险表面" }),
-              token: "color.surfaceDangerSubtle",
+              token: "color.dangerSurface",
             },
             {
               size: "thin",
@@ -277,12 +277,12 @@ const styles = stylex.create({
   fillNeutralHover: { backgroundColor: color.neutralHover },
   fillNeutralBorder: { backgroundColor: color.neutralBorder },
   fillNeutralText: { backgroundColor: color.neutralText },
-  fillSurfaceNeutralSubtle: { backgroundColor: color.surfaceNeutralSubtle },
-  fillSurfaceAccentSubtle: { backgroundColor: color.surfaceAccentSubtle },
-  fillSurfaceInfoSubtle: { backgroundColor: color.surfaceInfoSubtle },
-  fillSurfaceSuccessSubtle: { backgroundColor: color.surfaceSuccessSubtle },
-  fillSurfaceWarningSubtle: { backgroundColor: color.surfaceWarningSubtle },
-  fillSurfaceDangerSubtle: { backgroundColor: color.surfaceDangerSubtle },
+  fillNeutralSurface: { backgroundColor: color.neutralSurface },
+  fillAccentSurface: { backgroundColor: color.accentSurface },
+  fillInfoSurface: { backgroundColor: color.infoSurface },
+  fillSuccessSurface: { backgroundColor: color.successSurface },
+  fillWarningSurface: { backgroundColor: color.warningSurface },
+  fillDangerSurface: { backgroundColor: color.dangerSurface },
   fillInfo: { backgroundColor: color.info },
   fillInfoHover: { backgroundColor: color.infoHover },
   fillInfoBorder: { backgroundColor: color.infoBorder },

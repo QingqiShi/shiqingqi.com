@@ -354,7 +354,7 @@ const styles = stylex.create({
     boxShadow: `inset 0 -2px 0 0 transparent`,
   },
   bandActive: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     boxShadow: `inset 0 -2px 0 0 ${color.accent}`,
   },
   bandLabel: {
@@ -425,7 +425,7 @@ const styles = stylex.create({
     flexGrow: 1,
     minInlineSize: 0,
     paddingBlock: space._5,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
   contentLabel: {
@@ -469,7 +469,7 @@ const styles = stylex.create({
     inlineSize: "57.5%",
     flexShrink: 0,
     paddingBlock: space._4,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
   measureProseLabel: {
@@ -560,7 +560,7 @@ const styles = stylex.create({
     inlineSize: "100%",
     maxInlineSize: "112px",
     maxBlockSize: "88px",
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
   arSquare: { aspectRatio: "1" },

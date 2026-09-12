@@ -35,7 +35,7 @@ const SURFACES = [
   "bgInteractivePressed",
   "bgInteractiveSelected",
   "bgInteractiveDisabled",
-  "surfaceNeutralSubtle",
+  "neutralSurface",
 ] as const;
 
 type TextRole = (typeof LADDER)[number];

@@ -113,14 +113,14 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_0,
   },
   good: {
-    backgroundColor: color.surfaceSuccessSubtle,
+    backgroundColor: color.successSurface,
     borderColor: color.successBorder,
   },
   goodIcon: {
     color: color.successText,
   },
   bad: {
-    backgroundColor: color.surfaceDangerSubtle,
+    backgroundColor: color.dangerSurface,
     borderColor: color.dangerBorder,
   },
   badIcon: {

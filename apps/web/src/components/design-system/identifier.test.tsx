@@ -16,9 +16,7 @@ describe("Identifier", () => {
   });
 
   it("breaks before each camelCase hump", () => {
-    expect(seams("color.surfaceAccentSubtle")).toBe(
-      "color.|surface|Accent|Subtle",
-    );
+    expect(seams("color.accentSurface")).toBe("color.|accent|Surface");
   });
 
   it("keeps a step suffix attached to the word it indexes", () => {

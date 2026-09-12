@@ -133,7 +133,7 @@ const styles = stylex.create({ wide: { [textureTokens.pitch]: space._4 } });
 
 `texture.line` carries a wider default pitch of its own (`space._3`), so it needs no override at the everyday sizes.
 
-`textureTokens.pitch`/`.ink` default to `space._1`/`color.neutralBorder`; `washTokens.tone` defaults to `color.surfaceNeutralSubtle`.
+`textureTokens.pitch`/`.ink` default to `space._1`/`color.neutralBorder`; `washTokens.tone` defaults to `color.neutralSurface`.
 
 Glass is the third Material but ships as a component style object, not a primitive: `glassSurface` from `@tuja/ui/components/glass-surface.stylex`, composed onto an element with `position: relative` plus a `corner.*` preset. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden the same way.
 

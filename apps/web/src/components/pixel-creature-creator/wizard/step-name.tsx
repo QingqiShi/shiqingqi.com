@@ -128,7 +128,7 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: {
-      default: color.surfaceNeutralSubtle,
+      default: color.neutralSurface,
       ":focus": color.accent,
     },
     backgroundColor: color.bgSurfaceSunken,

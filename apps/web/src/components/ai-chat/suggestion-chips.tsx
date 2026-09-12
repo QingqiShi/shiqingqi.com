@@ -59,9 +59,9 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: {
-      default: color.surfaceNeutralSubtle,
+      default: color.neutralSurface,
       ":hover": color.accent,
-      ":disabled": color.surfaceNeutralSubtle,
+      ":disabled": color.neutralSurface,
     },
     backgroundColor: {
       default: "transparent",
