@@ -128,7 +128,7 @@ const styles = stylex.create({
   label: {
     margin: 0,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     letterSpacing: font.trackingWider,
     textTransform: "uppercase",
     fontWeight: font.weight_6,

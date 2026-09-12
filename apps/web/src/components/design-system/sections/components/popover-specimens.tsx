@@ -255,7 +255,7 @@ const styles = stylex.create({
   code: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   // Dashed, because the box is a destination rather than a surface — nothing
   // ever paints inside it where the reader can see.

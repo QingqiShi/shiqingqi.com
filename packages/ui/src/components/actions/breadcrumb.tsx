@@ -165,6 +165,6 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     flexShrink: 0,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
 });

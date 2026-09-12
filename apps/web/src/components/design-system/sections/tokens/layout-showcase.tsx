@@ -369,7 +369,7 @@ const styles = stylex.create({
   bandThreshold: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontVariantNumeric: "tabular-nums",
   },
   marker: {
@@ -383,7 +383,7 @@ const styles = stylex.create({
     fontSize: font.uiOverline,
     textTransform: "uppercase",
     letterSpacing: font.trackingWidest,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   markerValue: {
     fontFamily: font.familyMono,
@@ -413,7 +413,7 @@ const styles = stylex.create({
     flexShrink: 0,
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
     textAlign: "center",
   },
   contentBand: {
@@ -463,7 +463,7 @@ const styles = stylex.create({
   measureNote: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   measureProse: {
     inlineSize: "57.5%",
@@ -488,7 +488,7 @@ const styles = stylex.create({
   measureCaption: {
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_4,
-    color: color.textSubtle,
+    color: color.textMuted,
     maxInlineSize: measure.prose,
     textWrap: "pretty",
   },
@@ -584,7 +584,7 @@ const styles = stylex.create({
   codeMuted: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   codeLine: {
     fontFamily: font.familyMono,

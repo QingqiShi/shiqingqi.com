@@ -871,7 +871,7 @@ const styles = stylex.create({
     margin: 0,
   },
   countLabel: {
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiOverline,
     letterSpacing: font.trackingWide,
     textTransform: "uppercase",
@@ -885,7 +885,7 @@ const styles = stylex.create({
   hint: {
     display: { default: "none", [breakpoints.lg]: "block" },
     margin: 0,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiOverline,
   },
   footerActions: {
@@ -895,7 +895,7 @@ const styles = stylex.create({
     marginInlineStart: "auto",
   },
   endNote: {
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiOverline,
   },
 });

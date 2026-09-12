@@ -1006,7 +1006,7 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
     whiteSpace: "nowrap",

@@ -237,7 +237,7 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_4,
-    color: color.textSubtle,
+    color: color.textMuted,
     minInlineSize: 0,
   },
   // A popup is out of flow, so each stage reserves the height of its own open

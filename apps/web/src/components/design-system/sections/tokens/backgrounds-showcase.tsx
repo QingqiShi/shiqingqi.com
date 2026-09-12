@@ -242,7 +242,7 @@ const styles = stylex.create({
   },
   bandDescription: {
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     lineHeight: font.lineHeight_4,
   },
   // Ground, frame, and clip come from `gridlineGround`. The Page band's Canvas
@@ -291,13 +291,13 @@ const styles = stylex.create({
   detail: {
     marginBlockStart: "auto",
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     lineHeight: font.lineHeight_2,
   },
   // The token name is read, not glanced at, so it sits at the caption size
-  // rather than the overline size, at the full strength of `textSubtle` — the
-  // token is already the quiet end of the text ladder, and dimming it further
-  // dropped it back under AA on every surface lighter than a white card.
+  // rather than the overline size, at the full strength of `textMuted` — the
+  // token is now the quiet end of the text ladder, and dimming it further
+  // would drop it back under AA on every surface lighter than a white card.
   // Tight tracking buys back the width the larger size costs, so the longest
   // names (`color.bgInteractiveSelected`, `…Disabled`) still set on one line in
   // the five-column Interactive band.
@@ -305,7 +305,7 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     letterSpacing: font.trackingTight,
-    color: color.textSubtle,
+    color: color.textMuted,
     lineHeight: font.lineHeight_2,
   },
 

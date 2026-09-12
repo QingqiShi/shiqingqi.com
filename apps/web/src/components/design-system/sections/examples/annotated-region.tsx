@@ -60,7 +60,7 @@ export function AnnotatedRegion({
           <Text as="span" look="overline" tone="accent" weight="bold">
             {label}
           </Text>
-          <Text as="span" look="caption" tone="subtle" css={styles.composes}>
+          <Text as="span" look="caption" tone="muted" css={styles.composes}>
             {composes}
           </Text>
         </p>

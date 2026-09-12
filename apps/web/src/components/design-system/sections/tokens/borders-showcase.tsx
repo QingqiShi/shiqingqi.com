@@ -210,7 +210,7 @@ const styles = stylex.create({
     borderColor: color.neutralBorder,
     backgroundColor: color.bgSurface,
     fontSize: font.uiBodySmall,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   useCard: {
     display: "flex",
@@ -262,7 +262,7 @@ const styles = stylex.create({
   useToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   // Do panel: a card that carries its status through a badge, not a stripe.
   doCard: {

@@ -100,7 +100,7 @@ export const fieldStyles = stylex.create({
     cursor: { default: "text", ":disabled": "not-allowed" },
     opacity: { default: null, ":disabled": opacity.disabled },
     "::placeholder": {
-      color: color.textSubtle,
+      color: color.textMuted,
       opacity: 1,
     },
   },
@@ -139,7 +139,7 @@ export const fieldStyles = stylex.create({
     justifyContent: "center",
     inlineSize: AFFIX_SLOT,
     fontSize: font.uiControl,
-    color: color.textSubtle,
+    color: color.textMuted,
     pointerEvents: "none",
   },
   affixStart: {

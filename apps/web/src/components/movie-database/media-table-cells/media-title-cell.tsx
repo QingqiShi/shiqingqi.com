@@ -115,7 +115,7 @@ const styles = stylex.create({
     },
   },
   titleMeta: {
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiOverline,
     lineHeight: font.lineHeight_2,
   },

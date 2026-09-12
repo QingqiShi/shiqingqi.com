@@ -102,14 +102,6 @@ export function TextStylesShowcase() {
               })}
             </Text>
           </Specimen>
-          <Specimen caption="subtle">
-            <Text tone="subtle">
-              {t({
-                en: "Subtle tone — incidental notes.",
-                zh: "微弱色调——附带备注。",
-              })}
-            </Text>
-          </Specimen>
           <Specimen caption="accent">
             <Text tone="accent">
               {t({

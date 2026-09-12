@@ -17,14 +17,15 @@ import {
 } from "../../tokens.stylex.ts";
 import type { StyleProp } from "../../types.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
+import { checkboxTokens } from "./checkbox.stylex.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
 
-// `white` equals `accentOn` in both themes, so one asset works for both.
+// Mask images: only their alpha matters, the colour comes from `currentColor`.
 // Percent-encode spaces and brackets so the data URI survives CSS parsing.
-const CHECK_ICON =
-  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%208.5l3%203%205-6'%20fill='none'%20stroke='white'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E";
-const DASH_ICON =
-  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%208h8'%20fill='none'%20stroke='white'%20stroke-width='2'%20stroke-linecap='round'/%3E%3C/svg%3E";
+const CHECK_MASK =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%208.5l3%203%205-6'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E";
+const DASH_MASK =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4%208h8'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'/%3E%3C/svg%3E";
 
 interface CheckboxProps extends Omit<
   ComponentProps<"input">,
@@ -191,16 +192,26 @@ const styles = stylex.create({
       ":indeterminate": color.accent,
       ":disabled": color.bgInteractiveDisabled,
     },
-    backgroundImage: {
-      default: "none",
-      ":checked": `url("${CHECK_ICON}")`,
-      ":indeterminate": `url("${DASH_ICON}")`,
+    color: { default: color.accentOn, ":disabled": color.textMuted },
+    [checkboxTokens.glyph]: {
+      default: null,
+      ":checked": `url("${CHECK_MASK}")`,
+      ":indeterminate": `url("${DASH_MASK}")`,
     },
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    backgroundSize: "74% 74%",
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
+
+    "::before": {
+      content: "",
+      display: "block",
+      width: "100%",
+      height: "100%",
+      backgroundColor: "currentColor",
+      maskImage: checkboxTokens.glyph,
+      maskRepeat: "no-repeat",
+      maskPosition: "center",
+      maskSize: "74% 74%",
+    },
   },
   boxError: {
     borderColor: {

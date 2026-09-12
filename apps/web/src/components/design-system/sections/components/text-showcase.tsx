@@ -57,8 +57,8 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Tones", zh: "色调" })}>
         <ShowcaseHelper>
           {t({
-            en: "Four foreground roles that resolve per theme — never a hand-picked colour.",
-            zh: "四种前景色角色会随主题自动解析——无需手动挑选颜色。",
+            en: "Three foreground roles that resolve per theme — never a hand-picked colour.",
+            zh: "三种前景色角色会随主题自动解析——无需手动挑选颜色。",
           })}
         </ShowcaseHelper>
         <ThemeFramePair>
@@ -73,14 +73,6 @@ export function TextShowcase() {
                 {t({
                   en: "Secondary metadata and captions",
                   zh: "次要信息与说明",
-                })}
-              </Text>
-            </Specimen>
-            <Specimen caption="subtle">
-              <Text tone="subtle">
-                {t({
-                  en: "Incidental footnotes and hints",
-                  zh: "附带的脚注与提示",
                 })}
               </Text>
             </Specimen>
