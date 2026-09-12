@@ -44,7 +44,7 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
           <GenreFilterButton />
           <FixedContainerContent css={styles.content}>
             <SortFilter hideLabel />
-            <ResetFilter hideLabel iconOnlyBelow="lg" />
+            <ResetFilter hideLabel iconOnly />
           </FixedContainerContent>
           <FixedContainerContent>
             <MediaViewToggle iconOnly hideLabel />

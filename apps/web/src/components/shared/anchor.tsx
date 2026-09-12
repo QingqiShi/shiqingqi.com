@@ -6,7 +6,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { border } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import Link from "next/link";
-import { useState } from "react";
+import { usePrefetchOnIntent } from "#src/hooks/use-prefetch-on-intent.ts";
 import { ExternalLinkIndicator } from "./external-link-indicator";
 
 interface AnchorExtraProps {
@@ -33,11 +33,11 @@ export function Anchor({
   ...props
 }: Omit<React.ComponentProps<typeof Link>, "className" | "style"> &
   AnchorExtraProps) {
-  // Defer Next.js's hover/focus prefetching until the user signals intent,
-  // then hand control back to the framework by flipping `prefetch` to `null`.
-  // Wiring both pointer and keyboard signals keeps prefetch parity for
-  // keyboard and assistive-tech users.
-  const [intent, setIntent] = useState(false);
+  const intent = usePrefetchOnIntent<HTMLAnchorElement>({
+    prefetch,
+    onMouseEnter,
+    onFocus,
+  });
 
   // Automatically ensure noopener and noreferrer are present for _blank links
   const resolvedRel =
@@ -51,15 +51,9 @@ export function Anchor({
       target={target}
       rel={resolvedRel}
       ref={ref}
-      prefetch={prefetch === false ? false : intent ? null : false}
-      onMouseEnter={(e) => {
-        setIntent(true);
-        onMouseEnter?.(e);
-      }}
-      onFocus={(e) => {
-        setIntent(true);
-        onFocus?.(e);
-      }}
+      prefetch={intent.prefetch}
+      onMouseEnter={intent.onMouseEnter}
+      onFocus={intent.onFocus}
       {...stylex.props(styles.a, a11y.focusRing, css)}
     >
       {children}

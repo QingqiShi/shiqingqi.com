@@ -11,18 +11,15 @@ import {
 import { usePressHandlers } from "../../hooks/use-press-handlers.ts";
 import { a11y } from "../../primitives/a11y.stylex.ts";
 import { corner } from "../../primitives/corner.stylex.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  opacity,
-} from "../../tokens.stylex.ts";
+import { opacity } from "../../tokens.stylex.ts";
 import type { StyleProp } from "../../types.ts";
 import { mergeRefs } from "../../utils/merge-refs.ts";
 import { Spinner } from "../feedback/spinner.tsx";
-import { sharedStyles } from "./button-shared.stylex.ts";
-import { buttonTokens } from "./button.stylex.ts";
+import {
+  lookStyles,
+  sharedStyles,
+  sizeStyles,
+} from "./button-shared.stylex.ts";
 
 interface ButtonBaseProps extends Omit<
   ComponentProps<"button">,
@@ -286,23 +283,7 @@ export function Button({
 
 const styles = stylex.create({
   button: {
-    // Anchors the busy spinner overlay outside the flow, so it doesn't change
-    // the button's width.
-    position: "relative",
-    borderWidth: 0,
-    borderStyle: "none",
-    appearance: "none",
-    fontSize: font.uiControl,
-    fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
-    // Height flows through `buttonTokens.height`, which `size` below sets.
-    minHeight: buttonTokens.height,
-    color: buttonTokens.color,
-    backgroundColor: {
-      default: buttonTokens.backgroundColor,
-      ":hover": buttonTokens.backgroundColorHover,
-      ":disabled:hover": buttonTokens.backgroundColorDisabledHover,
-    },
     opacity: {
       default: null,
       ":disabled": opacity.disabled,
@@ -329,62 +310,5 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: "100%",
     blockSize: "100%",
-  },
-});
-
-// Each look re-points the shared `buttonTokens` knobs instead of declaring
-// its own colours, so the skin travels to anything else reading them.
-// `"primary"` is absent because it reuses `sharedStyles.active`, the same
-// highlight `isActive` paints.
-const lookStyles = stylex.create({
-  outline: {
-    [buttonTokens.backgroundColor]: "transparent",
-    [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
-    [buttonTokens.backgroundColorDisabledHover]: "transparent",
-    [buttonTokens.boxShadow]: "none",
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.neutralBorder,
-  },
-  // The quietest look: no surface, and the label drains to muted until the
-  // pointer arrives. `:disabled:hover` keeps it drained, matching the fill.
-  ghost: {
-    [buttonTokens.backgroundColor]: "transparent",
-    [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
-    [buttonTokens.backgroundColorDisabledHover]: "transparent",
-    [buttonTokens.boxShadow]: "none",
-    [buttonTokens.color]: {
-      default: color.textMuted,
-      ":hover": color.textMain,
-      ":disabled:hover": color.textMuted,
-    },
-  },
-  danger: {
-    [buttonTokens.backgroundColor]: color.danger,
-    [buttonTokens.backgroundColorHover]: color.dangerHover,
-    [buttonTokens.backgroundColorDisabledHover]: color.danger,
-    [buttonTokens.color]: color.dangerOn,
-  },
-});
-
-// Each size drives `buttonTokens.height` and scales label size and padding to
-// match. `md` reproduces the historic default, so callers that omit `size`
-// are unaffected.
-const sizeStyles = stylex.create({
-  sm: {
-    [buttonTokens.height]: controlSize._8,
-    [buttonTokens.paddingInline]: controlSize._2,
-    fontSize: font.uiBodySmall,
-    gap: controlSize._1,
-    paddingBlock: controlSize._0,
-  },
-  md: {
-    [buttonTokens.height]: controlSize._9,
-  },
-  lg: {
-    [buttonTokens.height]: controlSize._10,
-    [buttonTokens.paddingInline]: controlSize._4,
-    fontSize: font.uiHeading2,
-    paddingBlock: controlSize._2,
   },
 });

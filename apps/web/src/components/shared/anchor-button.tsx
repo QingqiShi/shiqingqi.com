@@ -1,110 +1,61 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
-import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
-import { sharedStyles } from "@tuja/ui/components/button-shared.stylex";
-import { buttonTokens } from "@tuja/ui/components/button.stylex";
-import { usePressHandlers } from "@tuja/ui/hooks/use-press-handlers";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { controlSize } from "@tuja/ui/tokens.stylex";
-import { useRef } from "react";
-import { Anchor } from "./anchor";
+import {
+  AnchorButton as UiAnchorButton,
+  type AnchorButtonLinkProps,
+} from "@tuja/ui/components/anchor-button";
+import Link from "next/link";
+import type { ComponentProps } from "react";
+import { usePrefetchOnIntent } from "#src/hooks/use-prefetch-on-intent.ts";
 
-interface AnchorButtonProps extends React.ComponentProps<typeof Anchor> {
-  bright?: boolean;
-  /** Below this breakpoint, collapses to the icon and hides the label. */
-  hideLabelBelow?: "md" | "lg";
-  icon?: React.ReactNode;
-  isActive?: boolean;
-}
+type NextLinkProps = ComponentProps<typeof Link>;
 
-export function AnchorButton({
-  bright,
+/** The routing props a caller may add on top of the component's own. */
+type RoutingProps = Pick<
+  NextLinkProps,
+  "prefetch" | "replace" | "scroll" | "shallow"
+>;
+
+type AnchorButtonProps = ComponentProps<typeof UiAnchorButton> & RoutingProps;
+
+/**
+ * The link Slot's contract, bound to next/link: `className` and `style` carry
+ * the whole look, so they go onto `Link` as attributes.
+ */
+function RouterLink({
   children,
-  hideLabelBelow,
-  icon,
-  isActive,
-  ref: forwardedRef,
-  css,
-  ...restProps
-}: AnchorButtonProps) {
-  const anchorRef = useRef<HTMLAnchorElement>(null);
-  // Keep the internal ref (used by the press-animation hook) and also forward
-  // to a caller-supplied ref, which `extends ComponentProps<typeof Anchor>`
-  // allows.
-  const setAnchorRef = (node: HTMLAnchorElement | null) => {
-    anchorRef.current = node;
-    if (typeof forwardedRef === "function") {
-      forwardedRef(node);
-    } else if (forwardedRef) {
-      forwardedRef.current = node;
-    }
-  };
-
-  const { isPressed, releasedOutside, pressedCss, handlers } = usePressHandlers(
-    {
-      targetRef: anchorRef,
-      ...restProps,
-    },
-  );
+  className,
+  href,
+  onFocus,
+  onMouseEnter,
+  prefetch,
+  ref,
+  style,
+  ...props
+}: AnchorButtonLinkProps & RoutingProps) {
+  const intent = usePrefetchOnIntent<HTMLAnchorElement>({
+    prefetch,
+    onMouseEnter,
+    onFocus,
+  });
 
   return (
-    <Anchor
-      aria-current={isActive ? "true" : undefined}
-      {...restProps}
-      indicateExternal={false}
-      ref={setAnchorRef}
-      css={[
-        sharedStyles.base,
-        corner.squircle_round,
-        styles.anchorButton,
-        !!icon && !!children && hasIconStyles[hideLabelBelow ?? "never"],
-        !!icon && !children && sharedStyles.iconOnly,
-        bright && sharedStyles.bright,
-        isActive && sharedStyles.active,
-        isPressed && sharedStyles.pressed,
-        isPressed && bright && sharedStyles.pressedBright,
-        releasedOutside && sharedStyles.releasedOutside,
-        pressedCss,
-        css,
-      ]}
-      {...handlers}
+    <Link
+      {...props}
+      href={href}
+      ref={ref}
+      prefetch={intent.prefetch}
+      onMouseEnter={intent.onMouseEnter}
+      onFocus={intent.onFocus}
+      className={className}
+      style={style}
     >
-      {icon && <span css={sharedStyles.icon}>{icon}</span>}
-      {children && (
-        <span
-          css={[
-            sharedStyles.childrenContainer,
-            hideLabelBelow && hideLabelStyles[hideLabelBelow],
-          ]}
-        >
-          {children}
-        </span>
-      )}
-    </Anchor>
+      {children}
+    </Link>
   );
 }
 
-const hasIconStyles = {
-  never: sharedStyles.hasIcon,
-  md: sharedStyles.iconOnlyBelowMd,
-  lg: sharedStyles.iconOnlyBelowLg,
-};
-
-const hideLabelStyles = {
-  md: sharedStyles.hideLabelBelowMd,
-  lg: sharedStyles.hideLabelBelowLg,
-};
-
-const styles = stylex.create({
-  anchorButton: {
-    // Anchor-specific resets
-    fontSize: controlSize._4,
-    textDecoration: "none",
-    cursor: "pointer",
-
-    // Anchor-specific styles
-    height: buttonTokens.height,
-    [anchorTokens.color]: buttonTokens.color,
-  },
-});
+/** `@tuja/ui`'s `AnchorButton`, routed through next/link. */
+export function AnchorButton(props: AnchorButtonProps) {
+  return <UiAnchorButton {...props} linkComponent={RouterLink} />;
+}

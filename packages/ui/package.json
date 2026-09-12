@@ -66,6 +66,7 @@
     "./primitives/reset.stylex": "./src/primitives/reset.stylex.ts",
     "./primitives/texture.stylex": "./src/primitives/texture.stylex.ts",
     "./primitives/wash.stylex": "./src/primitives/wash.stylex.ts",
+    "./components/anchor-button": "./src/components/actions/anchor-button.tsx",
     "./components/anchor.stylex": "./src/components/actions/anchor.stylex.ts",
     "./components/avatar": "./src/components/data-display/avatar.tsx",
     "./components/badge": "./src/components/data-display/badge.tsx",

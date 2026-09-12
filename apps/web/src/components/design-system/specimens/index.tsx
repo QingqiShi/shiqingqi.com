@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import type { DesignSystemPath } from "#src/components/design-system/routes/types.ts";
+import { AnchorButtonSpecimen } from "./anchor-button-specimen.tsx";
 import { AvatarSpecimen } from "./avatar-specimen.tsx";
 import { BadgeSpecimen } from "./badge-specimen.tsx";
 import { BreadcrumbSpecimen } from "./breadcrumb-specimen.tsx";
@@ -77,6 +78,9 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/heading": { element: <HeadingSpecimen /> },
   "/design-system/components/code-block": { element: <CodeBlockSpecimen /> },
   "/design-system/components/button": { element: <ButtonSpecimen /> },
+  "/design-system/components/anchor-button": {
+    element: <AnchorButtonSpecimen />,
+  },
   "/design-system/components/menu-button": { element: <MenuButtonSpecimen /> },
   "/design-system/components/chip": { element: <ChipSpecimen /> },
   "/design-system/components/breadcrumb": { element: <BreadcrumbSpecimen /> },

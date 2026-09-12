@@ -1,52 +1,22 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render, screen } from "#src/test-utils.tsx";
 import { AnchorButton } from "./anchor-button";
 
-beforeAll(() => {
-  HTMLElement.prototype.setPointerCapture = vi.fn();
-  HTMLElement.prototype.releasePointerCapture = vi.fn();
-});
+describe("AnchorButton bound to next/link", () => {
+  it("renders the destination as a link", () => {
+    render(<AnchorButton href="/en/movie-database">Browse</AnchorButton>);
 
-describe("AnchorButton aria-current from isActive", () => {
-  it("emits aria-current='true' when isActive is true", () => {
-    render(
-      <AnchorButton href="/a" isActive>
-        Current
-      </AnchorButton>,
-    );
-    expect(screen.getByRole("link", { name: "Current" })).toHaveAttribute(
-      "aria-current",
-      "true",
+    expect(screen.getByRole("link", { name: "Browse" })).toHaveAttribute(
+      "href",
+      "/en/movie-database",
     );
   });
 
-  it("omits aria-current when isActive is false", () => {
-    render(
-      <AnchorButton href="/a" isActive={false}>
-        Other
-      </AnchorButton>,
-    );
-    expect(screen.getByRole("link", { name: "Other" })).not.toHaveAttribute(
-      "aria-current",
-    );
-  });
+  // The Slot's whole look travels as `className` and `style`, so a binding that
+  // drops either renders an unstyled link.
+  it("forwards the compiled styles onto the router link", () => {
+    render(<AnchorButton href="/en">Home</AnchorButton>);
 
-  it("omits aria-current when isActive is not supplied", () => {
-    render(<AnchorButton href="/a">Plain</AnchorButton>);
-    expect(screen.getByRole("link", { name: "Plain" })).not.toHaveAttribute(
-      "aria-current",
-    );
-  });
-
-  it("lets the caller override aria-current explicitly", () => {
-    render(
-      <AnchorButton href="/a" isActive aria-current="page">
-        Overridden
-      </AnchorButton>,
-    );
-    expect(screen.getByRole("link", { name: "Overridden" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    expect(screen.getByRole("link").className).toContain("sharedStyles.base");
   });
 });
