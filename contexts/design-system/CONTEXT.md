@@ -1,225 +1,44 @@
 # Design System
 
-`@tuja/ui` — a StyleX system of generated colour, role-based tokens, composable style objects, and accessible React components — together with the showcase site that documents it. The package is published, so this vocabulary is a public API.
+`@tuja/ui` — a StyleX system of generated colour, role-based tokens, composable style objects, and accessible React components — together with the bilingual showcase site that documents it. The package is published, so this vocabulary is a public API, and API names (`look`, `intent`, `tone`, `as`, `onDismiss`) stay untranslated inside zh copy.
 
 ## Language
 
-### Colour
-
 **Hue**:
-One colour family in the generated system palette, defined by a source sRGB colour expanded into an HCT tonal series. There are thirteen.
+One colour family in the generated system palette, defined by a source sRGB colour expanded into an HCT tonal series. There are thirteen. ZH: 色相.
+_Avoid_: 色调 (that is Tone)
 
 **Tone**:
-One lightness step within a hue. The series runs `_0` (darkest) to `_100`, denser at the extremes than the Material 3 grid.
-_Avoid_: step, shade
-
-**Swatch**:
-One tone's background/foreground pair — the unit the palette codegen emits.
-
-**Ramp**:
-A hue's full ordered series of tones. Colour only.
-_Avoid_: tonal scale, tonal palette
-
-**Scale**:
-An ordered series of sizes — the type scale, the control-height scale, the spacing scale. Size only.
-_Avoid_: ramp (for sizes: "type-scale ramp", "height ramp", "diameter ramp")
+One lightness step within a hue. The series runs `_0` (darkest) to `_100`, denser at the extremes than the Material 3 grid. ZH: 色调.
+_Avoid_: step, shade, 明度阶梯
 
 **Token**:
 A named design value exposed as a StyleX var. Tokens reference tones; consumers reference tokens and never a tone directly.
 _Avoid_: var (as in `fieldVars`), CSS variable
 
-**Role**:
-The grouping axis for background tokens: Page, Surface, Interactive, Intent, Inverse, Overlay.
-_Avoid_: semantic (as a grouping word)
-
 **Intent**:
-The six-member family that carries meaning rather than structure — accent, info, success, warning, danger, neutral. The prop name on every component that takes one.
-_Avoid_: variant (for this sense), tone (for this sense), semantic colour, status hue, colour treatment
-
-### Shape
-
-**Squircle**:
-The superellipse curve every fixed-radius corner takes. The `corner` primitive pairs it with the radius, so the shape ships inside the styles that round a corner rather than as a global rule a consumer must add. Radius tokens size the corner; the squircle is its shape. A pill or a circle is round by identity, so it keeps circular caps. A browser without `corner-shape` draws a circular arc at 0.6 of the radius, which the tokens carry as their fallback value, so the corner reads the same there. `corner.squircle_round` is the squircle at the full-round radius, where it closes at half a control's height — the shape of a Button and of a SegmentedControl, each setting `cornerTokens.height` to its own. That one falls back to 0.3 of the height, so a browser without `corner-shape` draws a rounded box rather than a pill.
-_Avoid_: rounded rectangle, continuous corner
-
-### Wash and blur
+The six-member family that carries meaning rather than structure — accent, info, success, warning, danger, neutral. The prop name on every component that takes one. ZH: 意图色.
+_Avoid_: variant (for this sense), tone (for this sense), semantic colour, status hue, colour treatment, 语义色, 语义变体, 语义化的状态色, 色调, 颜色处理
 
 **Material**:
-The treatments that give a surface a look beyond its colour and border — Texture, Wash, and Glass — and the foundation page that presents them.
-_Avoid_: effect, effects (the Tinker's word; it never travels back into the design system), finish
-
-**Texture**:
-One drawn mark at one size, faint, repeated across a surface — a 1px line or a dot of 1px or less. Its pitch and ink are set per surface, and a texture is never nested inside another. Ships as `texture` with `textureTokens` as the dial.
-_Avoid_: pattern, grain, background image, noise
-
-**Wash**:
-A broad gradient that gives a surface some volume — one tone drifting across it. It has no hotspot, because a hotspot is a light source. Ships as `wash`, with `washTokens.tone` as the dial.
-_Avoid_: glow, tint, gradient (as the name of this — the CSS function keeps its name)
-
-**Glass**:
-A translucent surface that blurs what lies beneath it and floats above what it sits on, like a lens — lit from straight above: a see-through fill, a flat face, a hairline rim in the border colour all the way round, lit on top and along the bottom with the light gone down the sides (a dark edge against a light page, a clear one against a dark page), a one-pixel band inside the bottom edge where that light bounces back, and the Button's shadow beneath it. The blur is the element's own background, which is what keeps it apart from a Progressive blur: that one belongs to the page. It ships as `glassSurface`, and `glassTokens` is its dial; the rim is an absolute pseudo-element, so a consumer positions the element and pairs it with a `corner.*` preset or its own radius, which the rim inherits.
-_Avoid_: frosted, translucent surface, backdrop blur (as the name of this)
-
-**Progressive blur**:
-The page blurred around whatever floats, in place of dimming it — the ramp centred on the element's edge, like a shadow with no spread, so only the falloff shows and the page is sharp again a little way out. The blur belongs to the page rather than to the element, and the element keeps a crisp edge. The radius is set per element, within a cap. Also used at the edge of a scroll region, where it is a Scroll mask.
-Every fixed box the blur places stays narrow, because Safari on iOS hit-tests the fixed or sticky box under the top-centre of the viewport. One at least nine tenths of the viewport wide that holds anything makes it paint a flat colour into the status bar in place of its own scroll-edge blur, and keep that colour for as long as the box stays in the document. A box under nine tenths of the viewport in both dimensions is walked past. So a page's header floats a control group per end of the measure rather than one bar across the top, a blur's own box carries its size in a custom property the layers read instead of taking it, and the page's portal target is a 0 x 0 anchor, with every overlay it hosts bringing its own size.
-_Avoid_: halo, glow, elevation, shadow, disturbance
-
-**Blur plane**:
-The one plane a page shell paints its floating controls' Progressive blurs on — under all of them and above the page — so no control's blur ever lands on another control. The header's control groups and the page's sticky chrome both blur there. A popup is the exception: it covers the chrome around it, so its blur stays beside it, over that chrome rather than under it.
-_Avoid_: blur layer, backdrop layer
-
-**Scroll mask**:
-The progressive blur at the edge of a scroll region, marking content on its way out of view.
-_Avoid_: fade, gradient mask
-
-### Component API
-
-**Look**:
-A component's visual treatment when it is neither an Intent nor a size — `Text`'s type step, `Divider`'s weight, `Button`'s fill.
-_Avoid_: variant, style, appearance, treatment (as the prop name)
+The treatments that give a surface a look beyond its colour and border — texture, wash, and glass — and the foundation page that presents them. ZH: 质感.
+_Avoid_: effect, effects (the Tinker's word; it never travels back into the design system), finish, 效果, 材质
 
 **Variant**:
-One curated configuration of a component that its Lab offers ready-made — Button's Primary, Outline, Icon only, Busy. Choosing one sets several props at once, and the controls tune from there. Not a Look: a Look is one prop's value, a Variant is a whole configuration.
-_Avoid_: preset, example, story, look (for this sense)
-
-**Size**:
-The dimension axis. Always `sm` | `md` | `lg`.
-_Avoid_: small, medium, large (as prop values)
-
-**Icon**:
-The decorative SVG a component renders beside its content, and the prop that supplies one.
-_Avoid_: glyph
-
-**Slot**:
-A subcomponent passed in as a prop, so the consumer replaces one internal piece while the parent keeps layout, accessibility, and state. See `DESIGN.md`.
-
-**Sheet**:
-A popup that spans the bar its trigger sits in rather than hanging off the trigger's own corner — `MenuButton`'s `position="sheet"`. Not a centred dialog and not an edge-anchored panel; if it does not span a bar it is not a Sheet.
-_Avoid_: drawer, bottom sheet, panel (for this sense)
-
-**Drawer**:
-`SidebarLayout`'s navigation rail in its mobile form below `md` — edge-anchored, focus-trapped, scroll-locked, dismissed by following a link inside it. One element is both the Drawer and the `md`+ rail. Not a Sheet: a Sheet spans a bar, a Drawer hangs off an edge.
-
-**Badge**:
-The inert `<span>` that labels something or reports its status. It never takes a click.
-
-**Chip**:
-The interactive pill — a link or a button — that the visitor can activate or select. If it can be clicked it is a Chip, not a Badge; the two are not size or colour variants of each other.
-_Avoid_: pill, tag, token (as the name of this component)
-
-**Monogram**:
-The one or two characters an `Avatar` derives from a name when there is no portrait.
-_Avoid_: initials (in prose — the `initials` prop name is the override, not the concept)
-
-**Escape hatch**:
-The route from one abstraction layer down to the one below — usually the `css` prop, sometimes a shared style object like `cardSurface`. Every layer has one.
-
-**controlSize**:
-The spacing scale that is responsive by definition — larger on touch, tighter from `md` up. Distinct from `space`; choosing between them is a real decision, not a preference.
-
-### Composition
+One curated configuration of a component that its Lab offers ready-made — Button's Primary, Outline, Icon only, Busy. Choosing one sets several props at once: a look is one prop's value, a Variant is a whole configuration. ZH: 变体.
+_Avoid_: preset, example, story, look (for this sense), 外观 (that is a look), 预设
 
 **Primitive**:
-A composable multi-property StyleX style object — `flex`, `layout`, `motion`, `reset`, `a11y`, `corner`, `texture`, `wash` — spread through the `css` prop. Not a component, and not a generated hue file.
-_Avoid_: recipe, pattern (for this sense)
+A composable multi-property StyleX style object — `flex`, `layout`, `motion`, `reset`, `a11y`, `corner`, `texture`, `wash` — spread through the `css` prop. Not a component, and not a generated hue file. ZH: 原语.
+_Avoid_: recipe, pattern (for this sense), 配方
 
 **Modifier**:
 A single-property override that tunes a primitive — `align`, `justify`, `grow`, `shrink`.
 
-**Chrome**:
-Non-content UI furniture: dividers, field borders, card edges, header bars. Never the browser.
-
-**Shell**:
-A page-level layout frame. Every page gets exactly one of the two.
-
-### The showcase site
-
 **Lab**:
-A component page's interactive view — a live, operable Specimen on the Canvas, with controls beside it: the Variants, one control per prop, and the snippet that shows the code for what is on the Canvas. The page's other view is its documentation. Not the Tinker: a Lab shows a component's API to a visitor, the Tinker retunes its styles for the author.
-_Avoid_: playground, sandbox, workbench, studio
-
-**Canvas**:
-The Lab's main region — the page body itself, carrying a Texture, with the Specimen centred on it. The same word with the same meaning in the Tinker.
-_Avoid_: stage, plate (for this sense — a Plate is a sunken panel, the Canvas is the page)
+A component page's interactive view — a live, operable Specimen on the canvas, with the Variants, one control per prop, and the snippet for what is on the canvas beside it. Not the Tinker: a Lab shows a component's API to a visitor, the Tinker retunes its styles for the author. ZH: 实验室.
+_Avoid_: playground, sandbox, workbench, studio, 游乐场, 沙盒
 
 **Specimen**:
-A real instance of a component, placed to illustrate it rather than to be used. In an overview tile it is `inert` and out of the tab order — most are scaled down, though the whole-page ones fill their plate instead. Inside a Showcase it may be fully operable, because there the point is to let a visitor work it.
+A real instance of a component, placed to illustrate it rather than to be used. In an overview tile it is `inert` and out of the tab order; inside a showcase section it may be fully operable.
 _Avoid_: preview, demo — except where a mock labels _itself_ for the visitor ("Demo menu", "Demo toggle"); those strings stay.
-
-**Code block**:
-Source drawn as coloured runs on a scrolling surface. The same component draws a documentation page's static usage sample and the Lab's live snippet, so a change of Parts plays as a code-walkthrough slide — what stays slides, what arrives rises in, what leaves fades where it stood.
-_Avoid_: snippet (as the name of the component — a snippet is what a Code block shows), code sample.
-
-**Part**:
-One run of a Code block, on one line, drawn as a box of its own, with an id that survives a change, its leading whitespace, and its tokens.
-_Avoid_: box (the DOM element), run (one coloured token).
-
-**Plate**:
-The sunken panel a specimen sits on. Structure that holds still while its contents drain of colour at rest.
-_Avoid_: tray
-
-**Illustration**:
-The abstract graphic a foundation tile carries, in place of a specimen.
-_Avoid_: illo (in prose — the `--ds-illo-*` var prefix is a frozen contract), scene, art
-
-**Showcase**:
-One labelled section on a documentation page. A page has many; each may hold specimens, illustrations, or neither.
-
-**Reading column**:
-The centred column every doc page sets its title, headings and paragraphs on. Not the Measure: the Measure caps a paragraph, the reading column places it.
-_Avoid_: content column, text column, spine
-
-**Breakout**:
-A Showcase that leaves the reading column to span the Shell's content width, overhanging it equally on both sides, because its specimen needs the room. Its heading and helper stay on the reading column.
-_Avoid_: full-bleed, bleed, wide (as the name of this)
-
-**Identifier**:
-A name the documentation renders for copying rather than reading — a token name, a prop name, a Phosphor component name. Distinct from a Token, which is the value itself: the same component renders all three kinds, and none of them may be truncated or broken mid-word, because the name is the content.
-_Avoid_: label, key (for this sense)
-
-## Chinese terms
-
-The showcase site ships bilingual copy, so each term needs one Chinese word too — the same rule applies, and `zh` drifts the same way `en` does. API names (`look`, `intent`, `tone`, `as`, `onDismiss`) stay untranslated inside zh copy.
-
-| Term             | zh       | Not                                                   |
-| ---------------- | -------- | ----------------------------------------------------- |
-| Hue              | 色相     | 色调 (that is Tone)                                   |
-| Tone             | 色调     | 明度阶梯                                              |
-| Ramp             | 色调阶梯 |                                                       |
-| Intent           | 意图色   | 语义色, 语义变体, 语义化的状态色, 色调, 颜色处理      |
-| Look             | 外观     | 风格 (that is a style), 变体 (that is Variant)        |
-| Variant          | 变体     | 外观 (that is Look), 预设 (that is a preset)          |
-| Lab              | 实验室   | 游乐场 (that is a playground), 沙盒                   |
-| Canvas           | 画布     | 舞台 (that is a stage), 底板 (that is Plate)          |
-| Role             | 角色     | 语义 (as a grouping word)                             |
-| Icon             | 图标     | 字形 (that is a typographic glyph)                    |
-| Chip             | 标签按钮 | 筹码 (a gambling chip), 药丸 (a medicine pill)        |
-| Badge            | 徽章     | 标签 (that is a label)                                |
-| Primitive        | 原语     | 配方                                                  |
-| pill shape       | 胶囊形   | 药丸, 标签                                            |
-| Material         | 质感     | 效果 (that is an effect), 材质                        |
-| Texture          | 纹理     | 质感 (that is Material), 肌理                         |
-| Wash             | 淡彩     | 渐变 (that is a gradient), 光晕                       |
-| Glass            | 玻璃     | 毛玻璃 (that is frosted glass, the blur alone)        |
-| Progressive blur | 渐进虚化 | 光晕, 光环 — both name light, and nothing here is lit |
-| Blur plane       | 虚化平面 | 模糊图层 (that is a blur layer)                       |
-| Scroll mask      | 滚动虚化 | 遮罩 (that is a mask in general)                      |
-| Squircle         | 超椭圆角 | 圆角矩形 (that is a rounded rectangle)                |
-| Reading column   | 阅读栏   | 内容栏, 正文栏                                        |
-| Code block       | 代码块   | 代码片段 (that is a snippet)                          |
-
-`语义` is correct only for the HTML/ARIA sense — 语义元素, 语义层级, `<button>` 语义 — matching English "semantic element/rank".
-
-## Frozen contracts
-
-Published var names and generated identifiers. Rename only through codegen and a major version.
-
-- Token group names and members: `color.*`, `space._N`, `controlSize._N`, `border.*`, `shadow._N`, `layer.*`, `font.{ui,vp,cq}*`
-  - `shadow._N` is unused, because nothing casts a shadow, but it is still exported. Removing it is a major version.
-- The `_N` step convention, including `_00` for the sub-minimum step
-- `<hue>` and `<hue>_rgb` consts groups, and the `hues/` file layout the wildcard export covers
-- The `*Fade`, `*On`, and `accentGlow` token suffixes
-- `motionTokens.playState`
-- CSS custom properties `--ds-illo-*`
-- The `.stylex.ts` suffix — StyleX permits only its own constructs (`defineVars`, `defineConsts`, `create`, …) as exports from these files
