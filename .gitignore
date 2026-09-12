@@ -67,3 +67,6 @@ apps/web/e2e/.web-server-errors.log
 # Impeccable live-mode runtime state (keep the committed config)
 .impeccable/live/*
 !.impeccable/live/config.json
+
+# Agent-written component-tinker configs and their built HTML
+.claude/skills/component-tinker-workspace/

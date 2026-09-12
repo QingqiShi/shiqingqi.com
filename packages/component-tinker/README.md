@@ -16,6 +16,4 @@ The `component-tinker` skill
 writes the config, runs the build above, publishes the result, and applies
 what comes back to the component's source.
 
-See `docs/design.md` for the full design, and `contexts/component-tinker/CONTEXT.md` for the words
-this context uses — tinker, stand-in, layer, cell, condition, and the
-rest.
+See `docs/design.md` for the full design.

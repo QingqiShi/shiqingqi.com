@@ -269,8 +269,8 @@ does not contain a `stylex.defineConsts({ ... })` call.
 The options `@stylexjs/babel-plugin` runs with, in one place. A different
 option set yields different class names and a different rule order, so every
 build that has to produce the app's CSS reads them from here: the app's own
-`babel.config.js`, and the component tinker's adapter, which recompiles the
-design system to retune a component against the CSS the app ships.
+`babel.config.js`, and the `@tuja/component-tinker` adapter, which recompiles
+the design system against the CSS the app ships.
 
 ```js
 // babel.config.js

@@ -22,7 +22,7 @@ _Avoid_: variant (for this sense), tone (for this sense), semantic colour, statu
 
 **Material**:
 The treatments that give a surface a look beyond its colour and border — texture, wash, and glass — and the foundation page that presents them. ZH: 质感.
-_Avoid_: effect, effects (the Tinker's word; it never travels back into the design system), finish, 效果, 材质
+_Avoid_: effect, effects, finish, 效果, 材质
 
 **Variant**:
 One curated configuration of a component that its Lab offers ready-made — Button's Primary, Outline, Icon only, Busy. Choosing one sets several props at once: a look is one prop's value, a Variant is a whole configuration. ZH: 变体.
@@ -36,7 +36,7 @@ _Avoid_: recipe, pattern (for this sense), 配方
 A single-property override that tunes a primitive — `align`, `justify`, `grow`, `shrink`.
 
 **Lab**:
-A component page's interactive view — a live, operable Specimen on the canvas, with the Variants, one control per prop, and the snippet for what is on the canvas beside it. Not the Tinker: a Lab shows a component's API to a visitor, the Tinker retunes its styles for the author. ZH: 实验室.
+A component page's interactive view — a live, operable Specimen on the canvas, with the Variants, one control per prop, and the snippet for what is on the canvas beside it. ZH: 实验室.
 _Avoid_: playground, sandbox, workbench, studio, 游乐场, 沙盒
 
 **Specimen**:
