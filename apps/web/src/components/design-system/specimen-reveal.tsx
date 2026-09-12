@@ -48,7 +48,7 @@ export function SpecimenReveal({
       <div css={[flex.col, styles.cell, css]}>
         <div css={styles.stage}>{children}</div>
         <div css={styles.row}>
-          <Text as="span" look="caption" tone="subtle" css={styles.caption}>
+          <Text as="span" look="caption" tone="muted" css={styles.caption}>
             {caption}
             {caption && token ? " " : null}
             {token ? (
@@ -135,7 +135,7 @@ const styles = stylex.create({
     paddingBlock: space._00,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: { default: color.textSubtle, ":hover": color.textMain },
+    color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {
       default: "transparent",
       ":hover": color.bgInteractiveHover,
@@ -143,7 +143,7 @@ const styles = stylex.create({
   },
   caret: {
     display: "inline-flex",
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   caretUp: {
     transform: "rotate(180deg)",

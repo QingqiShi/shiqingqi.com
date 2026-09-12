@@ -202,7 +202,7 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.textSubtle,
+    color: color.textMuted,
     letterSpacing: font.trackingWider,
   },
   stageName: {
@@ -221,7 +221,7 @@ const styles = stylex.create({
   detail: {
     margin: 0,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     lineHeight: font.lineHeight_4,
     textWrap: "pretty",
   },
@@ -240,12 +240,12 @@ const styles = stylex.create({
   connectorArrow: {
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_1,
-    color: color.textSubtle,
+    color: color.textMuted,
     transform: { default: "rotate(90deg)", [breakpoints.lg]: "rotate(0deg)" },
   },
   connectorLabel: {
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     letterSpacing: font.trackingWide,
     whiteSpace: "nowrap",
   },

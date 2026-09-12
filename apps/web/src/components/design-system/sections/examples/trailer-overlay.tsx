@@ -55,11 +55,11 @@ export function TrailerOverlay({
           })}
         </Heading>
         <div css={[corner.radius_2, styles.player]}>
-          <Text as="span" look="overline" tone="subtle" transform="uppercase">
+          <Text as="span" look="overline" tone="muted" transform="uppercase">
             {studio}
           </Text>
           <span css={styles.cardTitle}>{title}</span>
-          <Text look="bodySmall" tone="subtle" align="center">
+          <Text look="bodySmall" tone="muted" align="center">
             {t({
               en: "No video ships with the exemplar. The player holds the title card instead.",
               zh: "本示例不附带视频，播放区域改为呈现标题卡。",

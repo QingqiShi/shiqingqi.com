@@ -36,7 +36,7 @@ export function ThemeFrame({ scheme, label, children }: ThemeFrameProps) {
         scheme === "dark" ? styles.dark : styles.light,
       ]}
     >
-      <Text as="span" look="caption" tone="subtle" css={styles.label}>
+      <Text as="span" look="caption" tone="muted" css={styles.label}>
         {resolvedLabel}
       </Text>
       <div css={styles.canvas}>{children}</div>

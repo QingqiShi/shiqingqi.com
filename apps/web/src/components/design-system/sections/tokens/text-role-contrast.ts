@@ -42,20 +42,13 @@ export const TEXT_ROLE_TONES = [
     token: "color.textMuted",
     role: "textMuted",
     tone: "muted",
-    light: { text: "_30", background: "_97" },
-    dark: { text: "_80", background: "_7" },
-  },
-  {
-    token: "color.textSubtle",
-    role: "textSubtle",
-    tone: "subtle",
     light: { text: "_40", background: "_97" },
-    dark: { text: "_60", background: "_7" },
+    dark: { text: "_80", background: "_7" },
   },
 ] as const satisfies readonly {
   token: string;
   role: string;
-  tone: "default" | "muted" | "subtle";
+  tone: "default" | "muted";
   light: { text: GrayTone; background: GrayTone };
   dark: { text: GrayTone; background: GrayTone };
 }[];
@@ -73,7 +66,7 @@ export const LARGE_TEXT_FLOOR = 3;
 export interface TextRoleContrast {
   token: string;
   /** The matching `Text` `tone`, so the specimen uses the component's own colour. */
-  tone: "default" | "muted" | "subtle";
+  tone: "default" | "muted";
   lightRatio: number;
   darkRatio: number;
   /** Formatted for display, e.g. `"12.13:1"`. */

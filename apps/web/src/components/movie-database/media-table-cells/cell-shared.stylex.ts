@@ -8,7 +8,7 @@ import { color, font } from "@tuja/ui/tokens.stylex";
  */
 export const cellShared = stylex.create({
   empty: {
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   numeric: {
     color: color.textMuted,

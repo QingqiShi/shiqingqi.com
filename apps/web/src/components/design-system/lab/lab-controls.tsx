@@ -56,7 +56,7 @@ export function LabControls({
       />
 
       <section css={styles.section}>
-        <Text as="span" look="caption" tone="subtle" css={labEyebrow.base}>
+        <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
           {t({ en: "Props", zh: "属性" })}
         </Text>
         <div css={styles.rows}>

@@ -311,7 +311,7 @@ const styles = stylex.create({
   },
   meterLabel: {
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   // A tally that climbs on every move must not shift the row it sits in.
   meterFigure: {

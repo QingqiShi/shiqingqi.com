@@ -41,7 +41,7 @@ const styles = stylex.create({
     blockSize: space._0,
   },
   strong: {
-    backgroundColor: color.textSubtle,
+    backgroundColor: color.textMuted,
   },
   width: (inlineSize: string) => ({ inlineSize }),
 });

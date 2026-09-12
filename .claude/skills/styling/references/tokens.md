@@ -18,78 +18,77 @@ All tokens are theme-aware (light/dark) and imported from `#src/tokens.stylex.ts
 ## Color
 
 Theme-aware color tokens. Every token is a single `light-dark(<light>, <dark>)`
-value that resolves against the element's `color-scheme` — no per-theme
-stylesheets exist, and forcing a theme just pins `color-scheme` on the root.
-Values below are palette references (see
-`packages/ui/src/_generated/palette/`); the mapping lives in
-`packages/ui/src/tokens.stylex.ts`.
+value that resolves against the element's `color-scheme`. No per-theme
+stylesheets exist; forcing a theme just pins `color-scheme` on the root.
+Palette values are not listed here because they change with retuning. See
+`packages/ui/src/tokens.stylex.ts` for the current mapping.
 
 ### Text
 
-| Token                 | Light        | Dark         |
-| --------------------- | ------------ | ------------ |
-| `color.textMain`      | `gray._20`   | `gray._92`   |
-| `color.textMuted`     | `gray._40`   | `gray._80`   |
-| `color.textSubtle`    | `gray._50`   | `gray._60`   |
-| `color.accentOn`      | `gray._100`  | `gray._100`  |
-| `color.textOnBright`  | `gray._20`   | `gray._0`    |
-| `color.textOnInverse` | `gray._92`   | `gray._20`   |
-| `color.accentText`    | `purple._30` | `purple._70` |
+| Token                 | Use                                              |
+| --------------------- | ------------------------------------------------ |
+| `color.textMain`      | Body text; holds the APCA Lc 75 floor            |
+| `color.textMuted`     | Secondary text; holds the APCA Lc 60 floor       |
+| `color.accentOn`      | Text or icon on top of an `accent` fill          |
+| `color.textOnBright`  | Text on a bright surface, e.g. `bgSurfaceBright` |
+| `color.textOnInverse` | Text on a `bgInverse` surface                    |
+| `color.accentText`    | Accent-toned text used on its own, not on a fill |
 
 ### Page
 
-| Token                  | Light      | Dark      |
-| ---------------------- | ---------- | --------- |
-| `color.bgCanvas`       | `gray._97` | `gray._0` |
-| `color.bgCanvasSubtle` | `gray._99` | `gray._2` |
-| `color.bgCanvasFade`   | `gray._92` | `gray._0` |
+| Token                  | Use                                     |
+| ---------------------- | --------------------------------------- |
+| `color.bgCanvas`       | App shell background, behind everything |
+| `color.bgCanvasSubtle` | A slightly stronger canvas background   |
+| `color.bgCanvasFade`   | Color translucent gradients fade toward |
 
 ### Surface
 
-| Token                   | Light       | Dark       |
-| ----------------------- | ----------- | ---------- |
-| `color.bgSurface`       | `gray._100` | `gray._5`  |
-| `color.bgSurfaceRaised` | `gray._100` | `gray._7`  |
-| `color.bgSurfaceSunken` | `gray._98`  | `gray._2`  |
-| `color.bgSurfaceBright` | `gray._100` | `gray._80` |
-| `color.bgSurfaceFade`   | `gray._95`  | `gray._5`  |
+| Token                   | Use                                                  |
+| ----------------------- | ---------------------------------------------------- |
+| `color.bgSurface`       | Cards, panels, dialog bodies                         |
+| `color.bgSurfaceRaised` | A surface lifted above the page, e.g. on hover       |
+| `color.bgSurfaceSunken` | A recessed surface, e.g. an inset field              |
+| `color.bgSurfaceBright` | A bright surface, pairs with `textOnBright`          |
+| `color.bgSurfaceFade`   | Color translucent gradients fade toward on a surface |
 
 ### Interactive
 
-| Token                         | Light       | Dark       |
-| ----------------------------- | ----------- | ---------- |
-| `color.bgInteractiveRest`     | `gray._100` | `gray._7`  |
-| `color.bgInteractiveHover`    | `gray._97`  | `gray._13` |
-| `color.bgInteractivePressed`  | `gray._92`  | `gray._11` |
-| `color.bgInteractiveSelected` | `gray._90`  | `gray._9`  |
-| `color.bgInteractiveDisabled` | `gray._95`  | `gray._5`  |
+| Token                         | Use                                                                   |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `color.bgInteractiveRest`     | Default background for buttons, list rows, menu items                 |
+| `color.bgInteractiveHover`    | Background while hovered                                              |
+| `color.bgInteractivePressed`  | Background while pressed                                              |
+| `color.bgInteractiveSelected` | Background while selected                                             |
+| `color.bgInteractiveDisabled` | Background for a disabled control, composited with `opacity.disabled` |
 
 ### Intent surfaces, inverse & overlay
 
-Tonal tints (`surface*Subtle`/`surfaceAccentMuted`) are `rgba(<hue>_rgb, α)`
-recipes; `bgInverse` flips the theme (`gray._20` / `gray._92`), `bgOverlay` is
-the popover surface (`gray._100` / `gray._7`), `bgScrim` is
-`rgba(0, 0, 0, 0.7)` in both themes.
+Tonal tints (`surface*Subtle`, `surfaceAccentMuted`) are `rgba(<hue>_rgb, α)`
+recipes, one per intent. `bgInverse` flips the theme, for tooltips and
+snackbars that need to stand out against the page. `bgOverlay` is the popover
+surface behind menus and modals. `bgScrim` is a fixed `rgba(0, 0, 0, α)` dim
+layer behind modals, the same in both themes.
 
 ### Roles
 
-| Token                | Light                       | Dark                        |
-| -------------------- | --------------------------- | --------------------------- |
-| `color.accent`       | `purple._30`                | `purple._50`                |
-| `color.accentHover`  | `purple._40`                | `purple._60`                |
-| `color.accentGlow`   | `rgba(purple_rgb._30, 0.1)` | `rgba(purple_rgb._50, 0.2)` |
-| `color.neutral`      | `gray._80`                  | `gray._40`                  |
-| `color.neutralHover` | `gray._70`                  | `gray._50`                  |
-| `color.neutralText`  | `gray._40`                  | `gray._80`                  |
-| `color.neutralOn`    | `gray._20`                  | `gray._92`                  |
+| Token                | Use                                               |
+| -------------------- | ------------------------------------------------- |
+| `color.accent`       | Accent fill for primary actions                   |
+| `color.accentHover`  | Accent fill while hovered                         |
+| `color.accentGlow`   | Ambient glow behind an accent element             |
+| `color.neutral`      | Neutral fill for secondary chrome                 |
+| `color.neutralHover` | Neutral fill while hovered                        |
+| `color.neutralText`  | Neutral-toned text used on its own, not on a fill |
+| `color.neutralOn`    | Text or icon on top of a `neutral` fill           |
 
 ### Borders & semantic colors
 
 Translucent borders (`accentBorder`, `infoBorder`, `successBorder`,
-`warningBorder`, `dangerBorder`) are `rgba(<hue>_rgb, 0.4)` recipes;
-`neutralBorder` is opaque (`gray._90` / `gray._20`). Semantic sets
-(`info|success|warning|danger` + `Hover`/`Text`/`On`) map to the cyan, green,
-orange/yellow, and red ramps — see `tokens.stylex.ts` for exact steps.
+`warningBorder`, `dangerBorder`) are `rgba(<hue>_rgb, α)` recipes;
+`neutralBorder` is opaque. Semantic sets (`info`, `success`, `warning`,
+`danger`, each with a `Hover`, `Text`, and `On` variant) map to one hue ramp
+per intent. See `tokens.stylex.ts` for the exact steps.
 
 ### Brand Colors
 

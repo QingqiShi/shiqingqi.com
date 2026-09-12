@@ -20,7 +20,7 @@ export function MediaOverviewCell({ api, row }: MediaCellParams) {
 
 const styles = stylex.create({
   overview: {
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_3,
   },

@@ -8,7 +8,7 @@ import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 
 /**
- * The three text roles, rendered as actual text on both grounds they are tuned
+ * The two text roles, rendered as actual text on both grounds they are tuned
  * for — the canvas the page scaffolds with and the surface a card body uses.
  */
 export function TextRolesShowcase() {
@@ -16,8 +16,8 @@ export function TextRolesShowcase() {
     <Showcase label={t({ en: "Text", zh: "文字" })} frame="plain">
       <ShowcaseHelper>
         {t({
-          en: "Three roles carry every word on a canvas or surface ground — Main for content, Muted for supporting copy, Subtle for captions and labels. Inverse and bright grounds use their own textOn* tokens instead.",
-          zh: "画布与表面之上的所有文字由三个角色承担——主要用于内容，次级用于辅助文案，暗淡用于说明与标签。反相与明亮的底面则改用各自的 textOn* 令牌。",
+          en: "Two roles carry every word on a canvas or surface ground — Main for content, Muted for supporting copy, captions, and labels. Inverse and bright grounds use their own textOn* tokens instead.",
+          zh: "画布与表面之上的所有文字由两个角色承担——主要用于内容，次级用于辅助文案、说明与标签。反相与明亮的底面则改用各自的 textOn* 令牌。",
         })}
       </ShowcaseHelper>
       <div css={[gridlineGround.base, styles.grid]}>
@@ -51,16 +51,8 @@ function GroundCell({ name, fill }: { name: string; fill: StyleXStyles }) {
           token="color.textMuted"
           roleStyle={styles.roleMuted}
           sample={t({
-            en: "Muted — intros and supporting copy.",
-            zh: "次级——引言与辅助文案。",
-          })}
-        />
-        <TextRole
-          token="color.textSubtle"
-          roleStyle={styles.roleSubtle}
-          sample={t({
-            en: "Subtle — captions and labels.",
-            zh: "暗淡——说明与标签。",
+            en: "Muted — intros, supporting copy, captions, and labels.",
+            zh: "次级——引言、辅助文案、说明与标签。",
           })}
         />
       </div>
@@ -75,7 +67,7 @@ interface TextRoleProps {
 }
 
 // Both the sample line and its token name take the role's colour, so the step
-// between the three roles is the only thing the specimen varies.
+// between the two roles is the only thing the specimen varies.
 function TextRole({ token, sample, roleStyle }: TextRoleProps) {
   return (
     <div css={styles.role}>
@@ -135,5 +127,4 @@ const styles = stylex.create({
   },
   roleMain: { color: color.textMain },
   roleMuted: { color: color.textMuted },
-  roleSubtle: { color: color.textSubtle },
 });

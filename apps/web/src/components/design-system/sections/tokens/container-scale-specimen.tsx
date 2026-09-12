@@ -356,7 +356,7 @@ const styles = stylex.create({
   eyebrow: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontVariantNumeric: "tabular-nums",
   },
   specimen: {
@@ -401,7 +401,7 @@ const styles = stylex.create({
     fontSize: font.uiOverline,
     textTransform: "uppercase",
     letterSpacing: font.trackingWidest,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   liveValue: {
     fontFamily: font.familyMono,
@@ -494,7 +494,7 @@ const styles = stylex.create({
   end: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontVariantNumeric: "tabular-nums",
   },
   endRight: {
@@ -525,7 +525,7 @@ const styles = stylex.create({
     flexBasis: 0,
     minInlineSize: "16ch",
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     lineHeight: font.lineHeight_4,
   },
 });

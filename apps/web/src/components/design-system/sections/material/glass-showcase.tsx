@@ -429,6 +429,6 @@ const styles = stylex.create({
   partToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
 });

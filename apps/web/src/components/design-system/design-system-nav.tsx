@@ -153,7 +153,7 @@ const styles = stylex.create({
     paddingInline: space._3,
     fontSize: font.uiOverline,
     fontWeight: font.weight_6,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   link: {
     flexShrink: 0,

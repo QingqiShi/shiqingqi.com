@@ -18,7 +18,7 @@ export function CastPanel({ cast }: { cast: Credit[] }) {
             <Text as="span" look="bodySmall" weight="medium">
               {credit.name}
             </Text>
-            <Text as="span" look="caption" tone="subtle">
+            <Text as="span" look="caption" tone="muted">
               {credit.character}
             </Text>
           </span>

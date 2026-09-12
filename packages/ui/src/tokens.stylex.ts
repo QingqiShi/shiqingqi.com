@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { cyan, cyan_rgb } from "./_generated/palette/hues/cyan.stylex.ts";
+import { blue, blue_rgb } from "./_generated/palette/hues/blue.stylex.ts";
+import { cyan } from "./_generated/palette/hues/cyan.stylex.ts";
 import { gray, gray_rgb } from "./_generated/palette/hues/gray.stylex.ts";
 import { green, green_rgb } from "./_generated/palette/hues/green.stylex.ts";
 import { indigo } from "./_generated/palette/hues/indigo.stylex.ts";
@@ -7,7 +8,6 @@ import { orange, orange_rgb } from "./_generated/palette/hues/orange.stylex.ts";
 import { pink } from "./_generated/palette/hues/pink.stylex.ts";
 import { purple, purple_rgb } from "./_generated/palette/hues/purple.stylex.ts";
 import { red, red_rgb } from "./_generated/palette/hues/red.stylex.ts";
-import { yellow, yellow_rgb } from "./_generated/palette/hues/yellow.stylex.ts";
 import { breakpoints } from "./breakpoints.stylex.ts";
 
 // Background tokens are organised by role rather than tone:
@@ -35,28 +35,20 @@ import { breakpoints } from "./breakpoints.stylex.ts";
 // `pnpm codegen:palette`.
 
 const light = {
-  // Text — three quietening levels, each of which must clear WCAG AA (4.5:1)
-  // for small text against every surface it can land on, the darkest being
-  // `surfaceNeutralSubtle`/`bgInteractiveSelected` (gray._90). Worst case per
-  // level: main 12.4:1, muted 7.2:1, subtle 5.0:1.
+  // Text — two levels, measured with APCA against every surface they can
+  // land on (`tokens.contrast.test.ts`). `textMain` clears the Lc 75 body
+  // floor, `textMuted` the Lc 60 non-body floor. Worst case in light is
+  // `bgInteractiveSelected` (gray._90): main 86, muted 65.
   //
-  // `textSubtle` was gray._50, which measured 4.2:1 on the canvas and 4.5:1 on
-  // a white card — below AA at the caption and eyebrow-label sizes it is used
-  // at. The ramp carries no tone between _40 and _50, so subtle and muted both
-  // moved one tone darker rather than collapsing into each other.
-  //
-  // That alone would have squashed the ladder: the AA floor pins the quiet end,
-  // so the range has to be recovered at the loud end instead, and `textMain`
-  // drops to gray._13. The steps are ΔL* 16.9 then 9.9 (they were 19.7 / 10.1),
-  // so main→muted — the pair carrying most of the site's hierarchy — keeps
-  // nearly all of its separation.
+  // In dark the worst case is `bgInteractiveHover` (gray._13): main 90, muted
+  // 70. The ramp has no tone between _70 and _80, and gray._70 measures only 54
+  // there, so the dark `textMuted` is one tone louder than the light one.
   textMain: gray._13,
-  textMuted: gray._30,
-  textSubtle: gray._40,
+  textMuted: gray._40,
   accentOn: gray._100,
   textOnBright: gray._20,
   textOnInverse: gray._92,
-  accentText: purple._30,
+  accentText: purple._40,
 
   // Page — app shell, scaffolding behind everything. *Fade is the color
   // translucent gradients blend toward (consumed via color-mix()).
@@ -82,10 +74,10 @@ const light = {
   bgInteractiveDisabled: gray._95,
 
   // Intent surface tints — alpha is fixed, color comes from the palette.
-  surfaceNeutralSubtle: gray._90,
+  surfaceNeutralSubtle: gray._95,
   surfaceAccentSubtle: `rgba(${purple_rgb._30}, 0.08)`,
   surfaceAccentMuted: `rgba(${purple_rgb._30}, 0.16)`,
-  surfaceInfoSubtle: `rgba(${cyan_rgb._50}, 0.1)`,
+  surfaceInfoSubtle: `rgba(${blue_rgb._50}, 0.1)`,
   surfaceSuccessSubtle: `rgba(${green_rgb._50}, 0.1)`,
   surfaceWarningSubtle: `rgba(${orange_rgb._50}, 0.12)`,
   surfaceDangerSubtle: `rgba(${red_rgb._50}, 0.1)`,
@@ -107,46 +99,45 @@ const light = {
   glassBorder: `rgba(${gray_rgb._0}, 0.3)`,
   glassHighlight: `rgba(${gray_rgb._100}, 0.6)`,
 
-  accent: purple._30,
-  accentHover: purple._40,
+  accent: purple._50,
+  accentHover: purple._60,
   // Accent at ambient-glow strength (was `accent` + a themed opacity token).
   accentGlow: `rgba(${purple_rgb._30}, 0.1)`,
 
   // Mid-tone neutrals for chrome / dividers / chips
-  neutral: gray._80,
-  neutralHover: gray._70,
-  neutralText: gray._40,
-  neutralOn: gray._20,
+  neutral: gray._90,
+  neutralHover: gray._99,
+  neutralText: gray._20,
+  neutralOn: gray._0,
 
   // Translucent borders — same recipe as surface*: palette hue + fixed alpha.
-  accentBorder: `rgba(${purple_rgb._30}, 0.4)`,
-  infoBorder: `rgba(${cyan_rgb._50}, 0.4)`,
-  successBorder: `rgba(${green_rgb._50}, 0.4)`,
-  warningBorder: `rgba(${orange_rgb._50}, 0.4)`,
-  dangerBorder: `rgba(${red_rgb._50}, 0.4)`,
+  accentBorder: `rgba(${purple_rgb._80}, 0.4)`,
+  infoBorder: `rgba(${blue_rgb._80}, 0.4)`,
+  successBorder: `rgba(${green_rgb._60}, 0.4)`,
+  warningBorder: `rgba(${orange_rgb._60}, 0.4)`,
+  dangerBorder: `rgba(${red_rgb._70}, 0.4)`,
   neutralBorder: gray._90,
 
-  // Scrollbar thumb — chrome rather than text, so it is tuned around the 3:1
-  // non-text mark (2.9:1 on the canvas, 3.2:1 on a white card) and stays
-  // lighter than `textSubtle`, which has to clear the 4.5:1 text minimum.
+  // Scrollbar thumb — chrome rather than text, so it only has to clear the
+  // Lc 45 non-text mark (54 on the canvas) and stays lighter than `textMuted`.
   scrollbarThumb: gray._60,
 
   // Intent colors — bold (foreground), hover (interactive lift), text, on
-  info: cyan._50,
-  infoHover: cyan._60,
-  infoText: cyan._30,
+  info: blue._40,
+  infoHover: blue._50,
+  infoText: blue._30,
   infoOn: gray._100,
-  success: green._50,
-  successHover: green._60,
+  success: green._60,
+  successHover: green._70,
   successText: green._30,
-  successOn: gray._100,
-  warning: orange._50,
-  warningHover: orange._60,
+  successOn: gray._0,
+  warning: orange._60,
+  warningHover: orange._70,
   warningText: orange._30,
-  warningOn: gray._100,
+  warningOn: gray._0,
   danger: red._50,
   dangerHover: red._60,
-  dangerText: red._20,
+  dangerText: red._40,
   dangerOn: gray._100,
 
   // Brand colors — nearest system-palette swatch. External brands (Spotify,
@@ -167,11 +158,10 @@ const light = {
 const dark: { [key in keyof typeof light]: string } = {
   textMain: gray._92,
   textMuted: gray._80,
-  textSubtle: gray._60,
-  accentOn: gray._100,
+  accentOn: gray._0,
   textOnBright: gray._0,
   textOnInverse: gray._20,
-  accentText: purple._70,
+  accentText: purple._80,
 
   bgCanvas: gray._0,
   bgCanvasSubtle: gray._2,
@@ -189,12 +179,12 @@ const dark: { [key in keyof typeof light]: string } = {
   bgInteractiveSelected: gray._9,
   bgInteractiveDisabled: gray._5,
 
-  surfaceNeutralSubtle: gray._7,
+  surfaceNeutralSubtle: gray._13,
   surfaceAccentSubtle: `rgba(${purple_rgb._80}, 0.12)`,
   surfaceAccentMuted: `rgba(${purple_rgb._80}, 0.2)`,
-  surfaceInfoSubtle: `rgba(${cyan_rgb._70}, 0.14)`,
+  surfaceInfoSubtle: `rgba(${blue_rgb._70}, 0.14)`,
   surfaceSuccessSubtle: `rgba(${green_rgb._70}, 0.14)`,
-  surfaceWarningSubtle: `rgba(${yellow_rgb._60}, 0.16)`,
+  surfaceWarningSubtle: `rgba(${orange_rgb._60}, 0.16)`,
   surfaceDangerSubtle: `rgba(${red_rgb._80}, 0.14)`,
 
   bgInverse: gray._92,
@@ -205,41 +195,41 @@ const dark: { [key in keyof typeof light]: string } = {
   glassBorder: "transparent",
   glassHighlight: `rgba(${gray_rgb._100}, 0.25)`,
 
-  accent: purple._50,
-  accentHover: purple._60,
+  accent: purple._80,
+  accentHover: purple._90,
   accentGlow: `rgba(${purple_rgb._50}, 0.2)`,
 
-  neutral: gray._40,
-  neutralHover: gray._50,
-  neutralText: gray._80,
-  neutralOn: gray._92,
+  neutral: gray._30,
+  neutralHover: gray._40,
+  neutralText: gray._92,
+  neutralOn: gray._100,
 
-  accentBorder: `rgba(${purple_rgb._80}, 0.4)`,
-  infoBorder: `rgba(${cyan_rgb._70}, 0.4)`,
-  successBorder: `rgba(${green_rgb._70}, 0.4)`,
-  warningBorder: `rgba(${yellow_rgb._60}, 0.4)`,
-  dangerBorder: `rgba(${red_rgb._60}, 0.4)`,
+  accentBorder: `rgba(${purple_rgb._70}, 0.4)`,
+  infoBorder: `rgba(${blue_rgb._70}, 0.4)`,
+  successBorder: `rgba(${green_rgb._60}, 0.4)`,
+  warningBorder: `rgba(${orange_rgb._70}, 0.4)`,
+  dangerBorder: `rgba(${red_rgb._70}, 0.4)`,
   neutralBorder: gray._20,
 
-  // Softer than the dark `textSubtle` (gray._60), which read as too bright.
+  // Two tones under the dark `textMuted`; gray._60 read as too bright.
   scrollbarThumb: gray._50,
 
-  info: cyan._70,
-  infoHover: cyan._80,
-  infoText: cyan._90,
-  infoOn: cyan._20,
-  success: green._60,
-  successHover: green._70,
-  successText: green._80,
-  successOn: green._13,
-  warning: yellow._60,
-  warningHover: yellow._70,
-  warningText: yellow._70,
-  warningOn: orange._20,
-  danger: red._60,
-  dangerHover: red._70,
+  info: blue._80,
+  infoHover: blue._90,
+  infoText: blue._90,
+  infoOn: gray._0,
+  success: green._40,
+  successHover: green._50,
+  successText: green._70,
+  successOn: gray._100,
+  warning: orange._60,
+  warningHover: orange._70,
+  warningText: orange._70,
+  warningOn: gray._0,
+  danger: red._70,
+  dangerHover: red._80,
   dangerText: red._70,
-  dangerOn: red._7,
+  dangerOn: gray._0,
 
   brandTmdb: cyan._70,
   brandCalculator: orange._50,
@@ -267,7 +257,6 @@ export const layout = stylex.defineConsts({
 export const color = stylex.defineVars({
   textMain: `light-dark(${light.textMain}, ${dark.textMain})`,
   textMuted: `light-dark(${light.textMuted}, ${dark.textMuted})`,
-  textSubtle: `light-dark(${light.textSubtle}, ${dark.textSubtle})`,
   accentOn: `light-dark(${light.accentOn}, ${dark.accentOn})`,
   textOnBright: `light-dark(${light.textOnBright}, ${dark.textOnBright})`,
   textOnInverse: `light-dark(${light.textOnInverse}, ${dark.textOnInverse})`,

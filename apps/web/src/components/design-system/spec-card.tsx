@@ -45,7 +45,7 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_2,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   meta: {
     fontFamily: font.familyMono,

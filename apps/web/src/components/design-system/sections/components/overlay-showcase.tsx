@@ -89,7 +89,7 @@ const styles = stylex.create({
     position: "absolute",
     insetBlockStart: space._2,
     insetInlineEnd: space._2,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_0,
   },

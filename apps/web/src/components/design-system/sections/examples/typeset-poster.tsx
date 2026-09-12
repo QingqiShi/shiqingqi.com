@@ -69,7 +69,7 @@ export function TypesetPoster({
       ]}
     >
       {studio ? (
-        <Text as="span" look="overline" tone="subtle" transform="uppercase">
+        <Text as="span" look="overline" tone="muted" transform="uppercase">
           {studio}
         </Text>
       ) : null}
@@ -96,7 +96,7 @@ export function TypesetPoster({
               year. Only `title` stays local, because `weight_8` is a step past
               what `Text` exposes. */}
           {year ? (
-            <Text as="span" look="overline" tone="subtle" numeric>
+            <Text as="span" look="overline" tone="muted" numeric>
               {year}
             </Text>
           ) : null}

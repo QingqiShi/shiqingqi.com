@@ -61,7 +61,7 @@ describe("text role tone mapping matches tokens.stylex.ts", () => {
     (theme) => {
       const background = BINDING_BACKGROUND[theme];
       // One background tone per theme, asserted below, so the first entry speaks
-      // for all three.
+      // for both.
       const [firstRole] = TEXT_ROLE_TONES;
       const tone = firstRole[theme].background;
       expect(
@@ -99,12 +99,11 @@ describe("text role contrast", () => {
     expect(TEXT_ROLE_CONTRAST.map((role) => role.token)).toEqual([
       "color.textMain",
       "color.textMuted",
-      "color.textSubtle",
     ]);
   });
 
-  // Claim 1: "all three clear the body floor in both themes", which is what
-  // makes the choice between them a question of rank rather than compliance.
+  // Claim 1: "both clear the body floor in both themes", which is what makes
+  // the choice between them a question of rank rather than compliance.
   it.each([...TEXT_ROLE_CONTRAST])(
     "$token clears both floors in both themes",
     (role) => {
@@ -115,8 +114,8 @@ describe("text role contrast", () => {
     },
   );
 
-  // Claim 2: textSubtle is "the quietest thing that is still fully readable",
-  // which only holds while the three roles descend in the order the page lists.
+  // Claim 2: textMuted is "the quietest thing that is still fully readable",
+  // which only holds while the two roles descend in the order the page lists.
   it.each(["light", "dark"] as const)("descends by role in %s", (theme) => {
     const key = theme === "light" ? "lightRatio" : "darkRatio";
     const ratios = TEXT_ROLE_CONTRAST.map((role) => role[key]);
