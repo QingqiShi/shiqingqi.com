@@ -2,6 +2,7 @@
 
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
+import type { MouseEvent } from "react";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { AnchorButton } from "../shared/anchor-button";
@@ -9,15 +10,11 @@ import { AnchorButton } from "../shared/anchor-button";
 interface ResetFilterProps {
   bright?: boolean;
   hideLabel?: boolean;
-  /** Below this breakpoint, the button collapses to its icon. */
-  iconOnlyBelow?: "md" | "lg";
+  /** Renders as a square icon-only link, named by its `aria-label`. */
+  iconOnly?: boolean;
 }
 
-export function ResetFilter({
-  bright,
-  hideLabel,
-  iconOnlyBelow,
-}: ResetFilterProps) {
+export function ResetFilter({ bright, hideLabel, iconOnly }: ResetFilterProps) {
   const { canReset, reset, resetUrl } = useMediaFilters();
 
   if (!canReset) {
@@ -26,6 +23,16 @@ export function ResetFilter({
 
   const label = t({ en: "Reset", zh: "重置" });
 
+  const linkProps = {
+    href: resetUrl(),
+    onClick: (event: MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      reset();
+    },
+    icon: <FunnelXIcon aria-hidden="true" />,
+    bright,
+  };
+
   return (
     <div>
       {!hideLabel && (
@@ -33,19 +40,11 @@ export function ResetFilter({
           {t({ en: "Reset sorting and filters", zh: "重置筛选与排序" })}
         </MenuLabel>
       )}
-      <AnchorButton
-        href={resetUrl()}
-        onClick={(e) => {
-          e.preventDefault();
-          reset();
-        }}
-        icon={<FunnelXIcon aria-hidden="true" />}
-        bright={bright}
-        hideLabelBelow={iconOnlyBelow}
-        aria-label={iconOnlyBelow && label}
-      >
-        {label}
-      </AnchorButton>
+      {iconOnly ? (
+        <AnchorButton {...linkProps} aria-label={label} />
+      ) : (
+        <AnchorButton {...linkProps}>{label}</AnchorButton>
+      )}
     </div>
   );
 }

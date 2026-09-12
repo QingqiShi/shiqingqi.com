@@ -145,6 +145,13 @@ const ROUTES = [
   {
     section: "components",
     category: "actions",
+    path: "/design-system/components/anchor-button",
+    lab: true,
+    keywords: ["link", "anchor", "href", "navigate", "cta", "destination"],
+  },
+  {
+    section: "components",
+    category: "actions",
     path: "/design-system/components/menu-button",
     keywords: ["dropdown", "popup", "menu", "sheet", "context menu"],
   },

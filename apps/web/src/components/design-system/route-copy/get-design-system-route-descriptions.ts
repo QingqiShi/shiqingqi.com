@@ -83,6 +83,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "The primary action control, with looks and a press animation.",
       zh: "主要的操作控件，提供多种外观与按压动画。",
     }),
+    "/design-system/components/anchor-button": t({
+      en: "A destination drawn as a button, on the same looks and sizes.",
+      zh: "外观与尺寸都与按钮一致的目标链接。",
+    }),
     "/design-system/components/menu-button": t({
       en: "A button that expands into a popup menu.",
       zh: "点击后展开为弹出菜单的按钮。",
