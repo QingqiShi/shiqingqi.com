@@ -118,7 +118,7 @@ If a radius genuinely can't go through the primitive — a vendor pseudo-element
 
 ### Material (`#src/primitives/texture.stylex.ts`, `#src/primitives/wash.stylex.ts`)
 
-Faint surface treatments — Texture, Wash, and Glass; full vocabulary in `packages/ui/CONTEXT.md`. `texture.dot` and `texture.line` draw one mark at one size, repeated across a surface — never nest a textured surface inside another, and never mix two marks or two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
+Faint surface treatments — Texture, Wash, and Glass; full vocabulary in `contexts/design-system/CONTEXT.md`. `texture.dot` and `texture.line` draw one mark at one size, repeated across a surface — never nest a textured surface inside another, and never mix two marks or two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
 
 Each dials its default through a token, overridden in a local `stylex.create` the way `cornerTokens.height` is:
 

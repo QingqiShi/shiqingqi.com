@@ -31,7 +31,6 @@ packages/component-tinker/
   examples/segmented-control.tinker.tsx
   examples/switch.tinker.tsx
   docs/design.md           this file
-  CONTEXT.md               domain terms for this context
 .claude/skills/component-tinker/
   SKILL.md                 agent instructions
 .claude/skills/component-tinker-workspace/   gitignored; agent-written configs and built html

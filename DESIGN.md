@@ -1,6 +1,6 @@
 # Design system principles
 
-Terms are defined in `packages/ui/CONTEXT.md`.
+Terms are defined in `contexts/design-system/CONTEXT.md`.
 
 ## Visual language
 

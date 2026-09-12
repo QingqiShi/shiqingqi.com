@@ -14,7 +14,7 @@ export const absoluteFill = stylex.create({
 // Safari paint a flat colour into the status bar, and keep it while that box
 // stays in the document. A box under nine tenths in both dimensions is walked
 // past. So an overlay anchors to a 0 x 0 box, and each layer inside it states
-// its own viewport size. See "Progressive blur" in CONTEXT.md.
+// its own viewport size. See "Progressive blur" in contexts/design-system/CONTEXT.md.
 export const viewportAnchor = stylex.create({
   /**
    * A fixed 0 x 0 box at the viewport origin: a containing block for overlays

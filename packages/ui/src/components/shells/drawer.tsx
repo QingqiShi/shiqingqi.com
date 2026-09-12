@@ -28,7 +28,7 @@ interface DrawerProps {
 
 /**
  * `SidebarLayout`'s Drawer: its navigation rail below `md`, and the sticky
- * rail itself at `md` and up — one element serves both (see CONTEXT.md).
+ * rail itself at `md` and up — one element serves both (see contexts/design-system/CONTEXT.md).
  *
  * @internal
  */

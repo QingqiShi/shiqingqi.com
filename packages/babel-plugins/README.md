@@ -297,7 +297,7 @@ import against, and `nodeEnv` decides the plugin's `dev` and `test` modes.
 
 The site's private `t()` transform. It compiles the inline `t()` calls used
 across `apps/web` into locale bundles at build time. It is documented in
-`apps/web/CONTEXT.md` and `.claude/skills/i18n-patterns/SKILL.md`. It is not
+`contexts/site/CONTEXT.md` and `.claude/skills/i18n-patterns/SKILL.md`. It is not
 meant for use outside `apps/web`.
 
 ## License
