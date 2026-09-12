@@ -83,7 +83,7 @@ export interface Glass {
 }
 
 export const TEXTURE_DEFAULT = "dot space._1 color.neutralBorder";
-export const WASH_DEFAULT = "color.surfaceAccentSubtle toBottom";
+export const WASH_DEFAULT = "color.accentSurface toBottom";
 export const FLOATING_DEFAULT = "radius 16px";
 export const SCROLL_MASK_DEFAULT = "vertical radius 8px";
 export const GLASS_DEFAULT =

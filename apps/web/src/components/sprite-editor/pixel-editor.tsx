@@ -1359,7 +1359,7 @@ const styles = stylex.create({
     touchAction: "none",
     imageRendering: "pixelated",
     backgroundColor: color.bgCanvas,
-    backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
+    backgroundImage: `linear-gradient(45deg, ${color.neutralSurface} 25%, transparent 25%), linear-gradient(-45deg, ${color.neutralSurface} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.neutralSurface} 75%), linear-gradient(-45deg, transparent 75%, ${color.neutralSurface} 75%)`,
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
   },

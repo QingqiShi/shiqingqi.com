@@ -840,7 +840,7 @@ const styles = stylex.create({
     "--ln-text": color.textMuted,
     "--ln-text-dark": color.textMain,
     "--ln-primary-50": color.accent,
-    "--ln-primary-10": color.surfaceAccentSubtle,
+    "--ln-primary-10": color.accentSurface,
     "--ln-red-50": color.danger,
   },
 

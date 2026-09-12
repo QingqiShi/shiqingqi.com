@@ -752,7 +752,7 @@ function WashSection() {
     },
     {
       token: "washTokens.tone",
-      meta: "default: color.surfaceNeutralSubtle",
+      meta: "default: color.neutralSurface",
       description: t({
         en: "The tone that drifts — the per-surface dial. An accent tone belongs only on a surface that already carries the accent.",
         zh: "铺开的色调——按表面设定的旋钮。意图色的色调只属于本身已经带有该意图色的表面。",
@@ -789,7 +789,7 @@ function WashSection() {
             ]}
           />
         </Specimen>
-        <Specimen caption="tone" token="color.surfaceAccentSubtle">
+        <Specimen caption="tone" token="color.accentSurface">
           <div
             css={[
               wash.toBottom,
@@ -808,7 +808,7 @@ function WashSection() {
 <div css={[wash.toBottom, styles.card]}>…</div>
 
 const styles = stylex.create({
-  card: { [washTokens.tone]: color.surfaceAccentSubtle },
+  card: { [washTokens.tone]: color.accentSurface },
 });`}
       />
     </Showcase>
@@ -984,7 +984,7 @@ const styles = stylex.create({
   },
   pillAccent: {
     color: color.accentText,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
   },
   chipRow: {
     gap: space._1,
@@ -1135,7 +1135,7 @@ const styles = stylex.create({
   cornerCard: {
     inlineSize: "100%",
     blockSize: "72px",
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
   cornerPill: {
@@ -1146,7 +1146,7 @@ const styles = stylex.create({
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.accentText,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
   },
   // corner.squircle_round closes at half of cornerTokens.height, so this sets
   // it to the box's own height — skip it and the NO_CORNER_SHAPE fallback
@@ -1155,7 +1155,7 @@ const styles = stylex.create({
     [cornerTokens.height]: controlSize._9,
     inlineSize: "120px",
     blockSize: cornerTokens.height,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
   // Texture + wash specimens — the primitive owns the background image and
@@ -1172,8 +1172,8 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
   },
   accentTone: {
-    [washTokens.tone]: color.surfaceAccentSubtle,
-    backgroundColor: color.surfaceAccentSubtle,
+    [washTokens.tone]: color.accentSurface,
+    backgroundColor: color.accentSurface,
     borderColor: color.accentBorder,
   },
   // Reset + a11y specimens

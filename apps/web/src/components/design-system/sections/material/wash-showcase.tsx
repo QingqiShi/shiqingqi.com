@@ -62,7 +62,7 @@ export function WashShowcase() {
             ]}
           />
         </Specimen>
-        <Specimen caption="tone" token="color.surfaceAccentSubtle">
+        <Specimen caption="tone" token="color.accentSurface">
           <div
             css={[
               wash.toBottom,
@@ -73,7 +73,7 @@ export function WashShowcase() {
             ]}
           />
         </Specimen>
-        <Specimen caption="tone" token="color.surfaceAccentMuted">
+        <Specimen caption="tone" token="color.accentMuted">
           <div
             css={[
               wash.toBottom,
@@ -87,10 +87,7 @@ export function WashShowcase() {
         </Specimen>
       </SpecimenGrid>
 
-      <SpecCard
-        token="washTokens.tone"
-        meta="default: color.surfaceNeutralSubtle"
-      >
+      <SpecCard token="washTokens.tone" meta="default: color.neutralSurface">
         <Text look="caption" tone="muted">
           {t({
             en: "The tone is the one dial, and it sets both the colour and the strength: a Subtle tone lifts the surface a little, a Muted one gives it more weight. An accent tone belongs only on a surface that already carries the accent; anywhere else it turns a wash into decoration.",
@@ -105,7 +102,7 @@ export function WashShowcase() {
 <div css={[wash.toBottom, cardSurface.base, corner.radius_3, styles.card]} />
 
 const styles = stylex.create({
-  card: { [washTokens.tone]: color.surfaceAccentMuted },
+  card: { [washTokens.tone]: color.accentMuted },
 });`}
       />
 
@@ -154,12 +151,12 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
   },
   accentCard: {
-    [washTokens.tone]: color.surfaceAccentSubtle,
-    backgroundColor: color.surfaceAccentSubtle,
+    [washTokens.tone]: color.accentSurface,
+    backgroundColor: color.accentSurface,
     borderColor: color.accentBorder,
   },
   mutedTone: {
-    [washTokens.tone]: color.surfaceAccentMuted,
+    [washTokens.tone]: color.accentMuted,
   },
   doCard: {
     inlineSize: "100%",
@@ -172,6 +169,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "104px",
     backgroundColor: color.bgSurfaceSunken,
-    backgroundImage: `radial-gradient(circle at 50% 50%, ${color.glassHighlight}, transparent 62%), linear-gradient(to bottom, ${color.surfaceNeutralSubtle}, transparent)`,
+    backgroundImage: `radial-gradient(circle at 50% 50%, ${color.glassHighlight}, transparent 62%), linear-gradient(to bottom, ${color.neutralSurface}, transparent)`,
   },
 });

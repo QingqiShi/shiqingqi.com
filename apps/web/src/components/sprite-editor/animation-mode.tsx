@@ -441,7 +441,7 @@ const styles = stylex.create({
   previewCanvas: {
     display: "block",
     backgroundColor: color.bgCanvas,
-    backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
+    backgroundImage: `linear-gradient(45deg, ${color.neutralSurface} 25%, transparent 25%), linear-gradient(-45deg, ${color.neutralSurface} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.neutralSurface} 75%), linear-gradient(-45deg, transparent 75%, ${color.neutralSurface} 75%)`,
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
     border: `${border.size_1} solid ${color.neutralBorder}`,
@@ -530,11 +530,11 @@ const styles = stylex.create({
   },
   frameItemActive: {
     borderColor: color.accent,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
   },
   thumb: {
     backgroundColor: color.bgCanvas,
-    backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
+    backgroundImage: `linear-gradient(45deg, ${color.neutralSurface} 25%, transparent 25%), linear-gradient(-45deg, ${color.neutralSurface} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.neutralSurface} 75%), linear-gradient(-45deg, transparent 75%, ${color.neutralSurface} 75%)`,
     backgroundSize: "8px 8px",
     backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
     imageRendering: "pixelated",

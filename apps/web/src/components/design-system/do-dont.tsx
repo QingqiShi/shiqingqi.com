@@ -131,11 +131,11 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   doPanel: {
-    backgroundColor: color.surfaceSuccessSubtle,
+    backgroundColor: color.successSurface,
     borderColor: color.successBorder,
   },
   dontPanel: {
-    backgroundColor: color.surfaceDangerSubtle,
+    backgroundColor: color.dangerSurface,
     borderColor: color.dangerBorder,
   },
   header: {

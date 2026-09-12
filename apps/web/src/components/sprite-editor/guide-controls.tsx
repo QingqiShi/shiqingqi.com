@@ -115,7 +115,7 @@ const styles = stylex.create({
   },
   toggleChecked: {
     color: color.textMain,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
   },
   checkbox: {
     accentColor: color.accent,

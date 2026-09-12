@@ -274,6 +274,6 @@ const styles = stylex.create({
 
 `texture.line` carries a wider default pitch of its own (`space._3`), so it needs no override at the everyday sizes.
 
-`textureTokens.pitch` (default `space._1`) sets the gap between marks, `textureTokens.ink` (default `color.neutralBorder`) the mark's colour. `washTokens.tone` (default `color.surfaceNeutralSubtle`) sets the drifting tone.
+`textureTokens.pitch` (default `space._1`) sets the gap between marks, `textureTokens.ink` (default `color.neutralBorder`) the mark's colour. `washTokens.tone` (default `color.neutralSurface`) sets the drifting tone.
 
 Glass is `glassSurface` from `@tuja/ui/components/glass-surface.stylex` — a translucent, lit surface composed onto an element with `position: relative` plus a `corner.*` preset; the rim inherits that radius and shape. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden in a local `stylex.create` the same way `cornerTokens.height` is.

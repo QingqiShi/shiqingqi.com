@@ -66,7 +66,7 @@ Values below are palette references (see
 
 ### Intent surfaces, inverse & overlay
 
-Tonal tints (`surface*Subtle`/`surfaceAccentMuted`) are `rgba(<hue>_rgb, α)`
+Tonal tints (`*Surface`/`accentMuted`) are `rgba(<hue>_rgb, α)`
 recipes; `bgInverse` flips the theme (`gray._20` / `gray._92`), `bgOverlay` is
 the popover surface (`gray._100` / `gray._7`), `bgScrim` is
 `rgba(0, 0, 0, 0.7)` in both themes.

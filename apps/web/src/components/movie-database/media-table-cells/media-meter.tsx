@@ -50,7 +50,7 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "3px",
     overflow: "hidden",
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
   },
   trackFill: (percent: string) => ({
     "--media-meter": percent,

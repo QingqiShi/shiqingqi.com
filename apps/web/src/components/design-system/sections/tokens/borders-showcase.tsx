@@ -185,7 +185,7 @@ const styles = stylex.create({
   // Radius specimen: a filled tile whose corner is rounded at the true radius.
   radiusSwatch: {
     blockSize: "80px",
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
   },
   useRow: {
@@ -243,7 +243,7 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._0,
     paddingInline: space._3,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     color: color.accentText,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
@@ -280,7 +280,7 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._00,
     paddingInline: space._1,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     color: color.accentText,
     fontSize: font.uiOverline,
     fontWeight: font.weight_6,

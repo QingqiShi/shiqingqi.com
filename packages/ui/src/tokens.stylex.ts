@@ -15,7 +15,7 @@ import { breakpoints } from "./breakpoints.stylex.ts";
 // • Page (bgCanvas/bgCanvasSubtle)      — app shell and scaffolding
 // • Surface (bgSurface/Raised/Sunken/Bright) — cards and panels
 // • Interactive (bgInteractive*)        — buttons, list rows, menu items
-// • Intent (surfaceAccent/Info/...)     — tints carrying meaning
+// • Role (accentSurface/infoSurface/...) — tints carrying meaning
 // • Inverse (bgInverse)                 — tooltips and snackbars
 // • Overlay (bgOverlay/bgScrim)         — popovers and modal dim layer
 //
@@ -37,7 +37,7 @@ import { breakpoints } from "./breakpoints.stylex.ts";
 const light = {
   // Text — three quietening levels, each of which must clear WCAG AA (4.5:1)
   // for small text against every surface it can land on, the darkest being
-  // `surfaceNeutralSubtle`/`bgInteractiveSelected` (gray._90). Worst case per
+  // `neutralSurface`/`bgInteractiveSelected` (gray._90). Worst case per
   // level: main 12.4:1, muted 7.2:1, subtle 5.0:1.
   //
   // `textSubtle` was gray._50, which measured 4.2:1 on the canvas and 4.5:1 on
@@ -81,14 +81,14 @@ const light = {
   bgInteractiveSelected: gray._90,
   bgInteractiveDisabled: gray._95,
 
-  // Intent surface tints — alpha is fixed, color comes from the palette.
-  surfaceNeutralSubtle: gray._90,
-  surfaceAccentSubtle: `rgba(${purple_rgb._30}, 0.08)`,
-  surfaceAccentMuted: `rgba(${purple_rgb._30}, 0.16)`,
-  surfaceInfoSubtle: `rgba(${cyan_rgb._50}, 0.1)`,
-  surfaceSuccessSubtle: `rgba(${green_rgb._50}, 0.1)`,
-  surfaceWarningSubtle: `rgba(${orange_rgb._50}, 0.12)`,
-  surfaceDangerSubtle: `rgba(${red_rgb._50}, 0.1)`,
+  // Role surface tints — alpha is fixed, colour comes from the palette.
+  neutralSurface: gray._90,
+  accentSurface: `rgba(${purple_rgb._30}, 0.08)`,
+  accentMuted: `rgba(${purple_rgb._30}, 0.16)`,
+  infoSurface: `rgba(${cyan_rgb._50}, 0.1)`,
+  successSurface: `rgba(${green_rgb._50}, 0.1)`,
+  warningSurface: `rgba(${orange_rgb._50}, 0.12)`,
+  dangerSurface: `rgba(${red_rgb._50}, 0.1)`,
 
   // Inverse — flips theme to grab attention (tooltips, snackbars)
   bgInverse: gray._20,
@@ -122,7 +122,7 @@ const light = {
   neutralText: gray._20,
   neutralOn: gray._20,
 
-  // Translucent borders — same recipe as surface*: palette hue + fixed alpha.
+  // Translucent borders — same recipe as *Surface: palette hue + fixed alpha.
   accentBorder: `rgba(${purple_rgb._30}, 0.4)`,
   infoBorder: `rgba(${cyan_rgb._50}, 0.4)`,
   successBorder: `rgba(${green_rgb._50}, 0.4)`,
@@ -195,13 +195,13 @@ const dark: { [key in keyof typeof light]: string } = {
   bgInteractiveSelected: gray._9,
   bgInteractiveDisabled: gray._5,
 
-  surfaceNeutralSubtle: gray._7,
-  surfaceAccentSubtle: `rgba(${purple_rgb._80}, 0.12)`,
-  surfaceAccentMuted: `rgba(${purple_rgb._80}, 0.2)`,
-  surfaceInfoSubtle: `rgba(${cyan_rgb._70}, 0.14)`,
-  surfaceSuccessSubtle: `rgba(${green_rgb._70}, 0.14)`,
-  surfaceWarningSubtle: `rgba(${yellow_rgb._60}, 0.16)`,
-  surfaceDangerSubtle: `rgba(${red_rgb._80}, 0.14)`,
+  neutralSurface: gray._7,
+  accentSurface: `rgba(${purple_rgb._80}, 0.12)`,
+  accentMuted: `rgba(${purple_rgb._80}, 0.2)`,
+  infoSurface: `rgba(${cyan_rgb._70}, 0.14)`,
+  successSurface: `rgba(${green_rgb._70}, 0.14)`,
+  warningSurface: `rgba(${yellow_rgb._60}, 0.16)`,
+  dangerSurface: `rgba(${red_rgb._80}, 0.14)`,
 
   bgInverse: gray._92,
   bgOverlay: gray._7,
@@ -294,13 +294,13 @@ export const color = stylex.defineVars({
   bgInteractiveSelected: `light-dark(${light.bgInteractiveSelected}, ${dark.bgInteractiveSelected})`,
   bgInteractiveDisabled: `light-dark(${light.bgInteractiveDisabled}, ${dark.bgInteractiveDisabled})`,
 
-  surfaceNeutralSubtle: `light-dark(${light.surfaceNeutralSubtle}, ${dark.surfaceNeutralSubtle})`,
-  surfaceAccentSubtle: `light-dark(${light.surfaceAccentSubtle}, ${dark.surfaceAccentSubtle})`,
-  surfaceAccentMuted: `light-dark(${light.surfaceAccentMuted}, ${dark.surfaceAccentMuted})`,
-  surfaceInfoSubtle: `light-dark(${light.surfaceInfoSubtle}, ${dark.surfaceInfoSubtle})`,
-  surfaceSuccessSubtle: `light-dark(${light.surfaceSuccessSubtle}, ${dark.surfaceSuccessSubtle})`,
-  surfaceWarningSubtle: `light-dark(${light.surfaceWarningSubtle}, ${dark.surfaceWarningSubtle})`,
-  surfaceDangerSubtle: `light-dark(${light.surfaceDangerSubtle}, ${dark.surfaceDangerSubtle})`,
+  neutralSurface: `light-dark(${light.neutralSurface}, ${dark.neutralSurface})`,
+  accentSurface: `light-dark(${light.accentSurface}, ${dark.accentSurface})`,
+  accentMuted: `light-dark(${light.accentMuted}, ${dark.accentMuted})`,
+  infoSurface: `light-dark(${light.infoSurface}, ${dark.infoSurface})`,
+  successSurface: `light-dark(${light.successSurface}, ${dark.successSurface})`,
+  warningSurface: `light-dark(${light.warningSurface}, ${dark.warningSurface})`,
+  dangerSurface: `light-dark(${light.dangerSurface}, ${dark.dangerSurface})`,
 
   bgInverse: `light-dark(${light.bgInverse}, ${dark.bgInverse})`,
 

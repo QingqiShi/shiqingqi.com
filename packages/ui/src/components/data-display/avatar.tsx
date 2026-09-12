@@ -247,7 +247,7 @@ const badgeSizeStyles = stylex.create({
 
 const lookStyles = stylex.create({
   subtle: {
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
     color: color.textMuted,
     boxShadow: `inset 0 0 0 ${border.size_1} ${color.neutralBorder}`,
   },

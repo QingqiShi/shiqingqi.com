@@ -162,7 +162,7 @@ const styles = stylex.create({
     height: "1rem",
     backgroundColor: {
       default: "transparent",
-      ":hover": color.surfaceNeutralSubtle,
+      ":hover": color.neutralSurface,
     },
     color: color.textMuted,
     transition: "background-color 0.15s ease",

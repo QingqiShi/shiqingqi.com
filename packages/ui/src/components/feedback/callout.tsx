@@ -214,27 +214,27 @@ const styles = stylex.create({
 
 const surfaceStyles = stylex.create({
   info: {
-    backgroundColor: color.surfaceInfoSubtle,
+    backgroundColor: color.infoSurface,
     borderColor: color.infoBorder,
   },
   success: {
-    backgroundColor: color.surfaceSuccessSubtle,
+    backgroundColor: color.successSurface,
     borderColor: color.successBorder,
   },
   warning: {
-    backgroundColor: color.surfaceWarningSubtle,
+    backgroundColor: color.warningSurface,
     borderColor: color.warningBorder,
   },
   danger: {
-    backgroundColor: color.surfaceDangerSubtle,
+    backgroundColor: color.dangerSurface,
     borderColor: color.dangerBorder,
   },
   accent: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     borderColor: color.accentBorder,
   },
   neutral: {
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
     borderColor: color.neutralBorder,
   },
 });

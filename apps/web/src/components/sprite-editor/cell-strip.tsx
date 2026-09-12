@@ -206,7 +206,7 @@ const styles = stylex.create({
   },
   thumbButtonActive: {
     borderColor: color.accent,
-    boxShadow: `0 0 0 2px ${color.surfaceAccentMuted}`,
+    boxShadow: `0 0 0 2px ${color.accentMuted}`,
   },
   thumbWrapper: {
     position: "absolute",
@@ -214,7 +214,7 @@ const styles = stylex.create({
     display: "grid",
     placeItems: "center",
     backgroundColor: color.bgCanvas,
-    backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
+    backgroundImage: `linear-gradient(45deg, ${color.neutralSurface} 25%, transparent 25%), linear-gradient(-45deg, ${color.neutralSurface} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.neutralSurface} 75%), linear-gradient(-45deg, transparent 75%, ${color.neutralSurface} 75%)`,
     backgroundSize: "8px 8px",
     backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
   },

@@ -96,11 +96,11 @@ const styles = stylex.create({
   dialogBar: {
     blockSize: space._1,
     inlineSize: "100%",
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
   },
   dialogBarShort: {
     blockSize: space._1,
     inlineSize: "60%",
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.neutralSurface,
   },
 });

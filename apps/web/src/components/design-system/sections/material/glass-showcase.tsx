@@ -218,7 +218,7 @@ export function GlassShowcase() {
               styles.accentFill,
             ]}
           >
-            <span css={styles.lensLabel}>color.surfaceAccentMuted</span>
+            <span css={styles.lensLabel}>color.accentMuted</span>
           </div>
         </BusyGround>
       </Specimen>
@@ -272,7 +272,7 @@ export function GlassShowcase() {
 const styles = stylex.create({
   lens: {
     position: "relative",
-    [glassTokens.fill]: color.surfaceAccentMuted,
+    [glassTokens.fill]: color.accentMuted,
     [glassTokens.blur]: "24px",
   },
 });`}
@@ -292,7 +292,7 @@ const styles = stylex.create({
 
 const styles = stylex.create({
   ground: {
-    [washTokens.tone]: color.surfaceAccentMuted,
+    [washTokens.tone]: color.accentMuted,
     position: "relative",
     display: "flex",
     alignItems: "center",
@@ -401,7 +401,7 @@ const styles = stylex.create({
     [glassTokens.fill]: `color-mix(in srgb, ${color.glassFill} 50%, transparent)`,
   },
   accentFill: {
-    [glassTokens.fill]: color.surfaceAccentMuted,
+    [glassTokens.fill]: color.accentMuted,
   },
   parts: {
     display: "flex",

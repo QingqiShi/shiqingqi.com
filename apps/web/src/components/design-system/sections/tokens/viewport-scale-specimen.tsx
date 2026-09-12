@@ -263,7 +263,7 @@ const styles = stylex.create({
     paddingBlock: space._1,
   },
   cellActive: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
   },
   glyph: {
     lineHeight: font.lineHeight_0,

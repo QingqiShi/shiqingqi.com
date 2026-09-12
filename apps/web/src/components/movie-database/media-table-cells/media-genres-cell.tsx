@@ -47,7 +47,7 @@ const styles = stylex.create({
     maxInlineSize: "8rem",
     paddingBlock: space._00,
     paddingInline: space._1,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     color: color.accentText,
     fontSize: font.uiOverline,
     fontWeight: font.weight_5,

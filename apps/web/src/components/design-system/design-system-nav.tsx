@@ -172,8 +172,8 @@ const styles = stylex.create({
   linkActive: {
     color: { default: color.accentText, ":hover": color.accentText },
     backgroundColor: {
-      default: color.surfaceAccentSubtle,
-      ":hover": color.surfaceAccentSubtle,
+      default: color.accentSurface,
+      ":hover": color.accentSurface,
     },
     fontWeight: font.weight_6,
   },

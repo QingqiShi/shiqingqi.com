@@ -56,7 +56,7 @@ const styles = stylex.create({
     borderBlockStartColor: color.neutralBorder,
   },
   currentRow: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.accentSurface,
     fontWeight: font.weight_6,
   },
 });

@@ -155,7 +155,7 @@ const styles = stylex.create({
     insetInlineEnd: 0,
     insetBlockStart: 0,
     blockSize: space._13,
-    backgroundImage: `linear-gradient(${color.surfaceAccentSubtle}, transparent)`,
+    backgroundImage: `linear-gradient(${color.accentSurface}, transparent)`,
   },
   article: {
     display: "flex",

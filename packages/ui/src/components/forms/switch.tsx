@@ -302,7 +302,7 @@ const styles = stylex.create({
     position: "relative",
     transition: `background-color ${duration._200} ${easing.ease}`,
     backgroundColor: {
-      default: color.surfaceNeutralSubtle,
+      default: color.neutralSurface,
       ":checked": color.accent,
     },
     boxShadow: {
