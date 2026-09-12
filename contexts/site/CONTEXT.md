@@ -16,7 +16,7 @@ _Avoid_: playground app, tool page, demo, experiment, showcase (as the umbrella)
 The unlinked WebGL shader route, and nothing else. Deliberately kept out of search engines and social previews, so it is never named in copy that ships.
 
 **Preference**:
-A choice a visitor makes about how the site behaves — theme, locale. Stored in the browser.
+A choice a visitor makes about how the site behaves — theme, locale. Stored in the browser. A light or dark Preference holds until the visitor switches again; switching to what the system Theme already shows clears it back to system.
 
 **Theme**:
 Light, dark, or system. ZH: 主题.

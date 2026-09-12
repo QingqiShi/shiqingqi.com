@@ -6,11 +6,7 @@ import { act, fireEvent, render, screen } from "#src/test-utils.tsx";
 import { themeHack } from "#src/utils/theme-hack.ts";
 import { ThemeSwitch } from "./theme-switch";
 
-const LABELS: [string, string, string] = [
-  "Switch to light",
-  "Switch to dark",
-  "Use system theme",
-];
+const LABELS: [string, string] = ["Switch to light", "Switch to dark"];
 
 // jsdom gaps used by the nested Switch / Button press-handlers hook and by
 // useMediaQuery's `window.matchMedia` call.
@@ -37,122 +33,14 @@ beforeEach(() => {
 
 function renderThemeSwitch() {
   const { container } = render(<ThemeSwitch labels={LABELS} />);
-  // The component's root is the container div that owns the focus/blur/
-  // mouseleave handlers and the showSystemButton class.
+  // The component's root is the container div wrapping the switch and its
+  // icon overlays.
   const root = container.firstElementChild;
   if (!(root instanceof HTMLElement)) {
     throw new Error("Expected ThemeSwitch to render a single root element");
   }
   return root;
 }
-
-describe("ThemeSwitch keyboard reveal", () => {
-  it("does not show the system button by default", () => {
-    // Seed an explicit light theme so we're on the "reveal is gated" path
-    // (the system-theme branch applies `hideSystemButton`, which is the
-    // unrelated code path).
-    localStorage.setItem("theme", "light");
-    const root = renderThemeSwitch();
-
-    expect(root.className).not.toContain("showSystemButton");
-  });
-
-  it("reveals the system button when keyboard focus enters the container", () => {
-    localStorage.setItem("theme", "light");
-    const root = renderThemeSwitch();
-
-    expect(root.className).not.toContain("showSystemButton");
-
-    fireEvent.focus(screen.getByRole("switch"));
-
-    expect(root.className).toContain("showSystemButton");
-  });
-
-  it("keeps the system button visible when the mouse leaves while focus stays inside", () => {
-    localStorage.setItem("theme", "light");
-    const root = renderThemeSwitch();
-
-    fireEvent.focus(screen.getByRole("switch"));
-    expect(root.className).toContain("showSystemButton");
-
-    // This is the regression assertion. Before the fix, `onMouseLeave` on
-    // the container cleared `hasFocus` → removed `showSystemButton` →
-    // keyboard user silently lost the reveal. After the fix the handler is
-    // gone and the class must stay applied because focus is still inside.
-    fireEvent.mouseLeave(root);
-    expect(root.className).toContain("showSystemButton");
-  });
-
-  it("hides the system button again when focus leaves the container entirely", () => {
-    localStorage.setItem("theme", "light");
-    const root = renderThemeSwitch();
-
-    const switchControl = screen.getByRole("switch");
-    fireEvent.focus(switchControl);
-    expect(root.className).toContain("showSystemButton");
-
-    // Simulate focus leaving to an element OUTSIDE the container. React's
-    // synthetic `onBlur` receives `relatedTarget` via the event object,
-    // which fireEvent.blur lets us set explicitly.
-    fireEvent.blur(switchControl, { relatedTarget: document.body });
-    expect(root.className).not.toContain("showSystemButton");
-  });
-
-  it("preserves the reveal when focus moves between children of the container", () => {
-    // This pins the existing `containerRef.current?.contains(relatedTarget)`
-    // guard — tabbing from the Switch into the System button must NOT
-    // collapse the reveal, otherwise the user can never reach the button
-    // they're trying to focus.
-    localStorage.setItem("theme", "light");
-    const root = renderThemeSwitch();
-
-    const switchControl = screen.getByRole("switch");
-    const systemButton = screen.getByRole("button", {
-      name: "Use system theme",
-    });
-
-    fireEvent.focus(switchControl);
-    expect(root.className).toContain("showSystemButton");
-
-    fireEvent.blur(switchControl, { relatedTarget: systemButton });
-    // relatedTarget is still inside the container, so the blur should be a
-    // no-op for `hasFocus`.
-    expect(root.className).toContain("showSystemButton");
-  });
-});
-
-describe("ThemeSwitch system-button semantics", () => {
-  it("exposes the system control as a toggle button with aria-pressed", () => {
-    // Explicit light theme so "system" is the non-active state.
-    localStorage.setItem("theme", "light");
-    renderThemeSwitch();
-
-    const systemButton = screen.getByRole("button", {
-      name: "Use system theme",
-    });
-
-    // It's a plain <button>, not a stranded `role="radio"` with no
-    // radiogroup. `aria-pressed` — supplied by the shared `Button`
-    // primitive when `isActive` is set — is the correct toggle semantic.
-    expect(systemButton).toHaveAttribute("aria-pressed", "false");
-    expect(systemButton).not.toHaveAttribute("role", "radio");
-    expect(systemButton).not.toHaveAttribute("aria-checked");
-    // Active toggles stay interactive; `disabled` would misrepresent
-    // "this is the current choice" as "this choice is unavailable".
-    expect(systemButton).not.toBeDisabled();
-  });
-
-  it("reflects active state via aria-pressed when system is the current theme", () => {
-    // Default theme (no seeded value) resolves to "system".
-    renderThemeSwitch();
-
-    const systemButton = screen.getByRole("button", {
-      name: "Use system theme",
-    });
-    expect(systemButton).toHaveAttribute("aria-pressed", "true");
-    expect(systemButton).not.toBeDisabled();
-  });
-});
 
 // Hydration only, so it renders without the shared providers: the server
 // string and the client tree must match exactly. It seeds localStorage but
@@ -274,10 +162,10 @@ describe("ThemeSwitch cross-tab sync", () => {
   });
 });
 
-// Placed last because it drives the Switch's onChange, which updates
-// the module-level `themeSingleton` in `use-theme.ts`. That singleton
-// has no test-time reset hook, so running this test earlier would
-// leave subsequent tests reading the wrong default theme.
+// Placed after the blocks above because it drives the Switch's onChange,
+// which updates the module-level `themeSingleton` in `use-theme.ts`, and
+// this block has no reset hook of its own. The "press semantics" group below
+// resets the singleton itself, so it can safely run after this one.
 describe("ThemeSwitch localStorage resilience", () => {
   it("still reflects the new theme on <html> when localStorage.setItem throws", () => {
     // Safari private mode / lockdown / quota-exceeded all surface as a
@@ -296,10 +184,8 @@ describe("ThemeSwitch localStorage resilience", () => {
     try {
       renderThemeSwitch();
 
-      // Space on role="switch" triggers the Switch component's onChange
-      // (wired to `setTheme("dark" | "light")`). The system button's click
-      // handler is a no-op when theme is already "system", so it can't
-      // drive this transition — Space is the reliable path.
+      // Space on role="switch" triggers the Switch component's onChange,
+      // wired to the press handler that calls `setTheme`.
       fireEvent.keyDown(screen.getByRole("switch"), {
         code: "Space",
         key: " ",
@@ -312,6 +198,103 @@ describe("ThemeSwitch localStorage resilience", () => {
       expect(setItemSpy).toHaveBeenCalledWith("theme", "dark");
     } finally {
       setItemSpy.mockRestore();
+    }
+  });
+});
+
+// A fresh mock each call, rather than a captured-and-restored reference:
+// `window.matchMedia` here is a plain `vi.fn()`, not a spy on a real
+// browser method, and `vi.spyOn` on that returns the same mock rather than
+// a restorable wrapper.
+function setSystemPrefersDark(prefersDark: boolean) {
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches: prefersDark,
+    media: "",
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  });
+}
+
+describe("ThemeSwitch press semantics", () => {
+  // `useTheme`'s snapshot prefers the in-memory `themeSingleton` in
+  // `use-theme.ts` over localStorage once a prior test has set it, and only
+  // a dispatched "storage" event clears it back. Mount and unmount a throwaway
+  // instance to force that clear, so each test below can seed its starting
+  // Preference with a plain `localStorage.setItem`/`removeItem` and know a
+  // fresh render will actually read it.
+  beforeEach(() => {
+    const { unmount } = render(<ThemeSwitch labels={LABELS} />);
+    act(() => {
+      localStorage.removeItem("theme");
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "theme",
+          newValue: null,
+          oldValue: null,
+          storageArea: localStorage,
+        }),
+      );
+    });
+    unmount();
+  });
+
+  it("stores dark on the first press when nothing is stored and the system Theme is light", () => {
+    renderThemeSwitch();
+
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+    fireEvent.click(screen.getByRole("switch"));
+
+    expect(setItemSpy).toHaveBeenCalledWith("theme", "dark");
+    setItemSpy.mockRestore();
+  });
+
+  it("stores system, not light, when a dark Preference is pressed under a light system Theme", () => {
+    localStorage.setItem("theme", "dark");
+    renderThemeSwitch();
+
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+    fireEvent.click(screen.getByRole("switch"));
+
+    // The press targets light, which is what the system Theme already
+    // shows, so the store clears back to "system" instead of pinning
+    // "light".
+    expect(setItemSpy).toHaveBeenCalledWith("theme", "system");
+    expect(setItemSpy).not.toHaveBeenCalledWith("theme", "light");
+    setItemSpy.mockRestore();
+  });
+
+  it("stores light when a dark Preference is pressed under a dark system Theme", () => {
+    setSystemPrefersDark(true);
+    try {
+      localStorage.setItem("theme", "dark");
+      renderThemeSwitch();
+
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+      fireEvent.click(screen.getByRole("switch"));
+
+      expect(setItemSpy).toHaveBeenCalledWith("theme", "light");
+      setItemSpy.mockRestore();
+    } finally {
+      setSystemPrefersDark(false);
+    }
+  });
+
+  it("writes nothing to localStorage when the stored Preference already equals the system Theme", () => {
+    setSystemPrefersDark(true);
+    try {
+      localStorage.setItem("theme", "dark");
+
+      const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+      renderThemeSwitch();
+
+      expect(setItemSpy).not.toHaveBeenCalled();
+      setItemSpy.mockRestore();
+    } finally {
+      setSystemPrefersDark(false);
     }
   });
 });
