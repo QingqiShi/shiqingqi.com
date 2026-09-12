@@ -1,11 +1,12 @@
 ---
 name: component-tinker
-description: Builds and publishes a throwaway HTML tinker for one @tuja/ui component, where the user retunes it by eye against the real design tokens and exports the changes back for you to apply to the source. Use it only when the user asks for the tinker by name, or asks to tweak a component's look themselves instead of describing it to you. Not for ordinary styling work — a change the user has already described goes straight into the source through the styling skill.
+description: Builds and publishes a throwaway HTML tinker for one @tuja/ui component, where the user retunes it by eye against the real design tokens and exports the changes back for you to apply to the source.
+disable-model-invocation: true
 ---
 
 # Component tinker
 
-One round trip: pick the component, write a config, build, publish, the user tweaks and exports, you apply the export to the source. `contexts/component-tinker/CONTEXT.md` defines the words the package uses — tinker, stand-in, layer, cell, condition, compound key, preset, edit scope — so read it first.
+One round trip: pick the component, write a config, build, publish, the user tweaks and exports, you apply the export to the source.
 
 ## 1. Pick the component
 
