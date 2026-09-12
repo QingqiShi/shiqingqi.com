@@ -5,7 +5,7 @@ description: Builds and publishes a throwaway HTML tinker for one @tuja/ui compo
 
 # Component tinker
 
-One round trip: pick the component, write a config, build, publish, the user tweaks and exports, you apply the export to the source. `packages/component-tinker/CONTEXT.md` defines the words the package uses — tinker, stand-in, layer, cell, condition, compound key, preset, edit scope — so read it first.
+One round trip: pick the component, write a config, build, publish, the user tweaks and exports, you apply the export to the source. `contexts/component-tinker/CONTEXT.md` defines the words the package uses — tinker, stand-in, layer, cell, condition, compound key, preset, edit scope — so read it first.
 
 ## 1. Pick the component
 

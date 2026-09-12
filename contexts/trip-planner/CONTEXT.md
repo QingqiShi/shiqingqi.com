@@ -2,7 +2,7 @@
 
 A private, password-gated, Chinese-only PWA for reading a pre-written road-trip itinerary day by day. Despite the name it is a reader, not an authoring tool — trips are hard-coded TypeScript modules compiled into the bundle.
 
-Deliberately isolated from the rest of the monorepo: shadcn/ui on Tailwind rather than `@tuja/ui`, no i18n pipeline, its own Vercel project. Its words are its own — see `CONTEXT-MAP.md` for the ones that are false friends elsewhere.
+Deliberately isolated from the rest of the monorepo: shadcn/ui on Tailwind rather than `@tuja/ui`, no i18n pipeline, its own Vercel project. Its words are its own.
 
 ## Language
 

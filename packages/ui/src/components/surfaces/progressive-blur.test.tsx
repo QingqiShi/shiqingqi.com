@@ -495,7 +495,7 @@ describe("ProgressiveBlur with reach", () => {
   });
 
   // The wrapper states the box's size and takes none of it, and the layers
-  // read it and overflow the wrapper — see "Progressive blur" in `CONTEXT.md`
+  // read it and overflow the wrapper — see "Progressive blur" in `contexts/design-system/CONTEXT.md`
   // for what a sized fixed box costs on iOS.
   it("states the box's size on the wrapper without taking it", () => {
     layOut(rect(100, 50, 200, 100));

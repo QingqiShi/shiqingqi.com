@@ -13,7 +13,7 @@ export { BlurPlaneContext, BlurPlaneProvider };
  * blur is painted on, so no control's blur ever lands on another control.
  *
  * Keeps no size of its own, so it is never the wide fixed box Safari on iOS
- * flattens — see "Progressive blur" in `CONTEXT.md`.
+ * flattens — see "Progressive blur" in `contexts/design-system/CONTEXT.md`.
  *
  * @internal
  */

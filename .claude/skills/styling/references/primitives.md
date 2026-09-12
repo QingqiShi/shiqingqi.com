@@ -249,7 +249,7 @@ import { a11y } from "#src/primitives/a11y.stylex.ts";
 
 **Import**: `#src/primitives/texture.stylex.ts`, `#src/primitives/wash.stylex.ts`
 
-Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. Full vocabulary in `packages/ui/CONTEXT.md`.
+Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. Full vocabulary in `contexts/design-system/CONTEXT.md`.
 
 | Export                                           | Properties                                                                                  |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------- |

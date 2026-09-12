@@ -67,7 +67,7 @@ it again if the header height or the bar's inset changes.
   top-centre point, because `elementsFromPoint` honours `pointer-events: none`
   and would miss the culprit.
 - The rule in domain language is the "Progressive blur" entry in
-  `packages/ui/CONTEXT.md`.
+  `contexts/design-system/CONTEXT.md`.
 
 ## Verifying
 

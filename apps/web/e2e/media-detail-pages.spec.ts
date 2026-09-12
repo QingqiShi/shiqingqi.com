@@ -154,7 +154,7 @@ test("should prevent body scroll when trailer overlay is open", async ({
  * The fixed or sticky boxes Safari on iOS would sample for the status-bar
  * colour: the ones under the top-centre of the viewport that WebKit does not
  * walk past. Runs in the page, so keep it standalone. See "Progressive blur"
- * in packages/ui/CONTEXT.md.
+ * in contexts/design-system/CONTEXT.md.
  */
 function findStatusBarCandidates() {
   const pointX = window.innerWidth / 2;

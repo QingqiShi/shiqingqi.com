@@ -140,7 +140,7 @@ describe("HeaderFooterLayout floating controls", () => {
     const groups = controlGroups();
 
     // A box per group rather than one bar — see "Progressive blur" in
-    // `CONTEXT.md` for what a near-full-width fixed element costs on iOS.
+    // `contexts/design-system/CONTEXT.md` for what a near-full-width fixed element costs on iOS.
     expect(groups).toHaveLength(2);
     expect(groups[0]).toContainElement(screen.getByText("Back"));
     expect(groups[1]).toContainElement(screen.getByText("Utilities"));
