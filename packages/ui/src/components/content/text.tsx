@@ -23,7 +23,7 @@ interface TextProps {
    *
    * @zh 前景色角色，随主题解析。
    */
-  tone?: "default" | "muted" | "subtle" | "accent";
+  tone?: "default" | "muted" | "accent";
   /**
    * Font weight. Unset `overline` defaults to semibold; other looks inherit
    * the base weight.
@@ -182,7 +182,6 @@ const lookStyles = stylex.create({
 const toneStyles = stylex.create({
   default: { color: color.textMain },
   muted: { color: color.textMuted },
-  subtle: { color: color.textSubtle },
   accent: { color: color.accentText },
 });
 

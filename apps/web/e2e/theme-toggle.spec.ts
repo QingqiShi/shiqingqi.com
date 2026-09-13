@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
 
+// `color.bgCanvas`: gray._97 in light and gray._0 in dark.
+const LIGHT_CANVAS = "rgb(251, 249, 246)";
+const DARK_CANVAS = "rgb(0, 0, 0)";
+
 test.describe("Theme Toggle", () => {
   test.beforeEach(async ({ page }) => {
     // Set system preference to light before loading
@@ -16,7 +20,7 @@ test.describe("Theme Toggle", () => {
     const backgroundColor = await page.evaluate(
       () => getComputedStyle(document.documentElement).backgroundColor,
     );
-    expect(backgroundColor).toBe("rgb(248, 246, 242)");
+    expect(backgroundColor).toBe(LIGHT_CANVAS);
 
     // The toggle shows the light Theme, so a press targets dark
     await expect(
@@ -29,7 +33,7 @@ test.describe("Theme Toggle", () => {
     // Wait for background to change to dark
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
 
     // The toggle shows the dark Theme, so a press targets light
@@ -48,7 +52,7 @@ test.describe("Theme Toggle", () => {
     // Verify initial light theme
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(248, 246, 242)",
+      LIGHT_CANVAS,
     );
     await expect(themeToggle).toHaveAccessibleName(/switch to dark theme/i);
 
@@ -56,7 +60,7 @@ test.describe("Theme Toggle", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
     await expect(themeToggle).toHaveAccessibleName(/switch to light theme/i);
 
@@ -64,7 +68,7 @@ test.describe("Theme Toggle", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(248, 246, 242)",
+      LIGHT_CANVAS,
     );
     await expect(themeToggle).toHaveAccessibleName(/switch to dark theme/i);
 
@@ -72,7 +76,7 @@ test.describe("Theme Toggle", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
     await expect(themeToggle).toHaveAccessibleName(/switch to light theme/i);
   });
@@ -88,7 +92,7 @@ test.describe("Theme Toggle", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
 
     // Open new page to verify persistence
@@ -99,7 +103,7 @@ test.describe("Theme Toggle", () => {
     // Verify dark theme persisted (background is dark)
     await expect(newPage.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
 
     // The toggle shows the dark Theme, so a press targets light
@@ -120,7 +124,7 @@ test.describe("Theme Toggle", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
     expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
       "dark",
@@ -132,7 +136,7 @@ test.describe("Theme Toggle", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(248, 246, 242)",
+      LIGHT_CANVAS,
     );
     expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
       "system",
@@ -142,7 +146,7 @@ test.describe("Theme Toggle", () => {
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
   });
 
@@ -157,7 +161,7 @@ test.describe("Theme Toggle", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
     expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
       "dark",
@@ -168,7 +172,7 @@ test.describe("Theme Toggle", () => {
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
     expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
       "dark",
@@ -177,7 +181,7 @@ test.describe("Theme Toggle", () => {
     await page.emulateMedia({ colorScheme: "light" });
     await expect(page.locator("html")).toHaveCSS(
       "background-color",
-      "rgb(0, 0, 0)",
+      DARK_CANVAS,
     );
     expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
       "dark",

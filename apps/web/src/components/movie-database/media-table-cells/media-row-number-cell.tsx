@@ -11,7 +11,7 @@ export function MediaRowNumberCell({ rowIndex }: MediaCellParams) {
 
 const styles = stylex.create({
   rowNumber: {
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiCaption,
     fontVariantNumeric: "tabular-nums",
   },

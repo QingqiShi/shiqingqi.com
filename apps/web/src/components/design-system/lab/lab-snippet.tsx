@@ -32,7 +32,7 @@ export function LabSnippet({ snippet }: LabSnippetProps) {
     <ViewTransition name="lab-snippet" default="lab-live">
       <div css={[corner.radius_2, styles.card]}>
         <div css={styles.head}>
-          <Text as="span" look="caption" tone="subtle" css={labEyebrow.base}>
+          <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
             {t({ en: "Usage", zh: "用法" })}
           </Text>
           <Button

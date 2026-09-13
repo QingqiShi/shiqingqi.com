@@ -129,7 +129,7 @@ const styles = stylex.create({
   preset: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     overflowWrap: "anywhere",
   },
   // Sized so the tile's 300% travel lands it flush against the far edge.

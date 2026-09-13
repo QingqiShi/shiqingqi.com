@@ -227,12 +227,12 @@ type Named =
       <GuideSection
         title={t({ en: "Contrast", zh: "对比度" })}
         lead={t({
-          en: "Three text roles, each measured against the worst background it lands on — the only pairing that binds.",
-          zh: "三种文本角色，各自对照其所落到的最差背景来测量——那是唯一起约束作用的组合。",
+          en: "Two text roles, each measured against the worst background it lands on — the only pairing that binds.",
+          zh: "两种文本角色，各自对照其所落到的最差背景来测量——那是唯一起约束作用的组合。",
         })}
       >
-        {/* Three cards go one-up or three-up and never two-up, which needs a
-            container to measure against. */}
+        {/* Two cards stack on a narrow measure and sit side by side above it,
+            which needs a container to measure against. */}
         <div css={styles.roleGridFrame}>
           <div css={styles.roleGrid}>
             {TEXT_ROLE_CONTRAST.map((role) => (
@@ -243,7 +243,7 @@ type Named =
                 <span css={styles.token}>
                   <Identifier>{role.token}</Identifier>
                 </span>
-                {/* `Text` already owns the three role colours. */}
+                {/* `Text` already owns the two role colours. */}
                 <Text as="span" tone={role.tone} css={styles.roleSpecimen}>
                   {roleSpecimenText}
                 </Text>
@@ -272,8 +272,8 @@ type Named =
           {/* Quotes no figure: `t()` takes string literals, so a number here
               could not follow the palette the way the cards above do. */}
           {t({
-            en: "WCAG AA asks 4.5:1 of body text and 3:1 of large text and UI. All three roles clear the body floor in both themes, so choosing between them is a question of rank rather than compliance. textSubtle is the quietest step that is still fully readable, which is what makes it right for supporting labels and wrong as the only place a fact appears.",
-            zh: "WCAG AA 对正文要求 4.5:1，对大号文字与界面元素要求 3:1。三种角色在两种主题下都达到正文标准，因此在它们之间取舍关乎层级，而非合规。textSubtle 是仍然完全可读的最轻一档——这既是它适合承载辅助性标签的原因，也是它不能成为某项信息唯一出现之处的原因。",
+            en: "WCAG AA asks 4.5:1 of body text and 3:1 of large text and UI. Both roles clear the body floor in both themes, so choosing between them is a question of rank rather than compliance. textMuted is the quieter of the two, which is what makes it right for supporting labels and wrong as the only place a fact appears.",
+            zh: "WCAG AA 对正文要求 4.5:1，对大号文字与界面元素要求 3:1。两种角色在两种主题下都达到正文标准，因此在它们之间取舍关乎层级，而非合规。textMuted 是两者中较轻的一档——这既是它适合承载辅助性标签的原因，也是它不能成为某项信息唯一出现之处的原因。",
           })}
         </Callout>
       </GuideSection>
@@ -486,7 +486,7 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     letterSpacing: font.trackingWide,
     textTransform: "uppercase",
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   checklistItems: {
     display: "flex",
@@ -538,7 +538,7 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      "@container (min-width: 40rem)": "repeat(3, minmax(0, 1fr))",
+      "@container (min-width: 40rem)": "repeat(2, minmax(0, 1fr))",
     },
     gap: space._3,
   },
@@ -590,7 +590,7 @@ const styles = stylex.create({
   token: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     overflowWrap: "anywhere",
   },
   // Colour comes from `Text`'s `tone`; composed last, so this line-height wins.
@@ -624,11 +624,11 @@ const styles = stylex.create({
   roleMeta: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
     overflowWrap: "break-word",
   },
-  // A field's chrome without a field inside it. `textSubtle` is the tell, and is
-  // legitimate here because the text is `aria-hidden`.
+  // A field's chrome without a field inside it. `textMuted` shows this, and it
+  // is correct here because the text carries `aria-hidden`.
   fauxInput: {
     display: "inline-block",
     paddingBlock: space._1,
@@ -638,7 +638,7 @@ const styles = stylex.create({
     borderColor: color.neutralBorder,
     fontSize: font.uiBodySmall,
     fontFamily: font.family,
-    color: color.textSubtle,
+    color: color.textMuted,
     backgroundColor: color.bgSurface,
     minInlineSize: 0,
   },

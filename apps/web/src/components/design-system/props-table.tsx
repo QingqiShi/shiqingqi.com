@@ -281,7 +281,7 @@ const styles = stylex.create({
     overflowWrap: "break-word",
   },
   noDefault: {
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   paragraph: {
     margin: 0,
@@ -328,12 +328,12 @@ const styles = stylex.create({
   },
   stackLabel: {
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   inherited: {
     margin: 0,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
 });

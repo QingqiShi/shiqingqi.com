@@ -172,7 +172,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
           <div css={styles.identity}>
             <div css={styles.controlRow}>
               <Badge intent="accent">{t({ en: "Movie", zh: "电影" })}</Badge>
-              <Text as="span" look="caption" tone="subtle" numeric>
+              <Text as="span" look="caption" tone="muted" numeric>
                 {meta}
               </Text>
             </div>
@@ -216,7 +216,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 <Text as="span" look="bodySmall" weight="medium">
                   {t({ en: "Rating", zh: "评分" })}
                 </Text>
-                <Text as="span" look="caption" tone="subtle" numeric>
+                <Text as="span" look="caption" tone="muted" numeric>
                   {movie.ratingLabel}
                 </Text>
               </div>
@@ -383,7 +383,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
             >
               <div css={styles.review}>
                 <Text wrap="pretty">{movie.reviewSummary}</Text>
-                <Text look="caption" tone="subtle">
+                <Text look="caption" tone="muted">
                   {t({
                     en: "Generated from viewer reviews. Spiciness sets how opinionated the summary is, from 1 to 5.",
                     zh: "根据观众评论生成。辛辣度（1 至 5）决定摘要的观点鲜明程度。",
@@ -448,7 +448,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 {facts.map((fact) => (
                   <div key={fact.term} css={styles.fact}>
                     <dt css={styles.factLine}>
-                      <Text as="span" look="overline" tone="subtle">
+                      <Text as="span" look="overline" tone="muted">
                         {fact.term}
                       </Text>
                     </dt>
@@ -601,7 +601,7 @@ const styles = stylex.create({
     fontVariantNumeric: "tabular-nums",
   },
   dialScale: {
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiOverline,
     fontWeight: font.weight_6,
     letterSpacing: font.trackingWide,

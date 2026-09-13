@@ -332,7 +332,7 @@ export function TableShowcase() {
         </Text>
         {/* Real figures need a real source, and `TableFoot` is for summarising
             the columns above it — so the provenance sits beside the table. */}
-        <Text look="bodySmall" tone="subtle" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
           {t({
             en: "Figures are the 2025/26 UK repayment thresholds and rates published by the Student Loans Company.",
             zh: "数据为英国学生贷款公司发布的 2025/26 年度还款起征点与利率。",

@@ -218,7 +218,7 @@ const styles = stylex.create({
   },
   iconWrap: {
     display: "flex",
-    color: color.textSubtle,
+    color: color.textMuted,
     marginBlockEnd: space._0,
   },
   iconWrapActive: {
@@ -245,7 +245,7 @@ const styles = stylex.create({
   colThreshold: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontVariantNumeric: "tabular-nums",
   },
   rowToken: {
@@ -284,7 +284,7 @@ const styles = stylex.create({
     fontSize: font.uiOverline,
     textTransform: "uppercase",
     letterSpacing: font.trackingWidest,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   markerValue: {
     fontFamily: font.familyMono,

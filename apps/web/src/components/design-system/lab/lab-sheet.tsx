@@ -66,7 +66,7 @@ export function LabSheet({
       />
 
       <section css={styles.section}>
-        <Text as="span" look="caption" tone="subtle" css={labEyebrow.base}>
+        <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
           {t({ en: "Props", zh: "属性" })}
         </Text>
         <div css={styles.rows}>
@@ -152,6 +152,6 @@ const styles = stylex.create({
   caret: {
     display: "flex",
     flexShrink: 0,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
 });

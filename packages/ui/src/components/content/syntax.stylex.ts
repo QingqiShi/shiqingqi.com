@@ -8,10 +8,11 @@ import { purple } from "../../_generated/palette/hues/purple.stylex.ts";
 // colour below clears WCAG AA (4.5:1) there; `syntax.contrast.test.ts` measures
 // it.
 //
-// Three hues, not nine. The greys repeat the text ladder, so a snippet reads as
-// part of the page: `plain` is textMain, `punct` textMuted, `comment`
-// textSubtle. Each hue holds one tone per theme, so the three differ in hue
-// alone. Green takes _60 in the dark theme because its ramp runs bright at _70.
+// Three hues, not nine. `plain` matches textMain, so a snippet reads as part
+// of the page; `punct` then `comment` step down from it, at gray._30 and _40
+// in light and gray._80 and _60 in dark. Each hue holds one tone per theme, so
+// the three differ in hue alone. Green takes _60 in the dark theme because its
+// ramp runs bright at _70.
 //
 // Kinds share a colour when they share a job. A string and a number are both
 // literals. An attribute name and a property name both name a value. A
@@ -22,13 +23,13 @@ const light = {
   plain: gray._13,
   keyword: purple._30,
   string: green._30,
-  comment: gray._40,
+  comment: gray._30,
   number: green._30,
-  tag: gray._30,
+  tag: gray._20,
   component: purple._30,
   attr: cyan._30,
   property: cyan._30,
-  punct: gray._30,
+  punct: gray._20,
 };
 
 const dark: { [key in keyof typeof light]: string } = {
