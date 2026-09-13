@@ -47,7 +47,7 @@ export function MovieDetailExemplar() {
         <Text
           id={helperId}
           look="caption"
-          tone="subtle"
+          tone="muted"
           css={styles.toggleHelper}
         >
           {t({

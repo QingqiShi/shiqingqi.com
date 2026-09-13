@@ -65,7 +65,7 @@ const styles = stylex.create({
   token: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   value: {
     fontFamily: font.familyMono,

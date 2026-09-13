@@ -326,7 +326,7 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
     letterSpacing: font.trackingWidest,
     textTransform: "uppercase",
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   // `auto-fill`, not `auto-fit`: the groups run from two tiles to eight, and
   // `auto-fit` collapses the empty tracks so a two-tile group would stretch into

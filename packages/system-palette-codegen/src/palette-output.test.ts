@@ -1,30 +1,27 @@
 import { describe, expect, it } from "vitest";
-import {
-  argbFromHex,
-  hexFromArgb,
-} from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
-import { TonalPalette } from "../../../apps/web/src/vendor/material-color-utilities/tonal_palette.ts";
+import { Hct } from "../../../apps/web/src/vendor/material-color-utilities/hct.ts";
+import { argbFromHex } from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
 import { SYSTEM_PALETTE_TONES } from "./constants.ts";
 import { contrastRatio } from "./contrast-ratio.ts";
-import { evaluateCurve } from "./evaluate-curve.ts";
+import { hellwigLightness } from "./hellwig-lightness.ts";
 import { pickForeground } from "./pick-foreground.ts";
-import { SYSTEM_HUES } from "./system-hues.ts";
+import { resolveHue } from "./resolve-hue.ts";
+import { SYSTEM_HUES, type SystemHueDefinition } from "./system-hues.ts";
+import { hueDistance, tintOf } from "./tint-of.ts";
 
 // Re-derive each swatch the same way the generator does. The generated
 // `*.stylex.ts` files can't be imported into this vitest harness (no StyleX
 // babel plugin here — they'd hit a runtime guard on `stylex.defineConsts`),
 // so we compute the same outputs from the source config and validate those.
+const ramps = new Map(SYSTEM_HUES.map((hue) => [hue.name, resolveHue(hue)]));
+
 function computeSwatch(
-  source: string,
-  curve: readonly number[],
+  hue: SystemHueDefinition,
   tone: number,
 ): { bg: string; fg: string } {
-  const palette = TonalPalette.fromInt(argbFromHex(source));
-  const shift = evaluateCurve(tone, curve);
-  const adjusted = Math.max(0, Math.min(100, tone + shift));
-  const bg = hexFromArgb(palette.tone(adjusted)).toUpperCase();
-  const fg = pickForeground(bg);
-  return { bg, fg };
+  const bg = ramps.get(hue.name)?.get(tone);
+  if (!bg) throw new Error(`${hue.name} has no tone ${String(tone)}`);
+  return { bg, fg: pickForeground(bg) };
 }
 
 const EXPECTED_SWATCH_COUNT = SYSTEM_HUES.length * SYSTEM_PALETTE_TONES.length;
@@ -53,18 +50,31 @@ describe("SYSTEM_HUES", () => {
     // Nearest-swatch color matching relies on every hue sharing the same
     // extremes; if a hue stopped sharing them, hue-tie-break logic would break.
     for (const hue of SYSTEM_HUES) {
-      expect(computeSwatch(hue.source, hue.curve, 0).bg).toBe("#000000");
-      expect(computeSwatch(hue.source, hue.curve, 100).bg).toBe("#FFFFFF");
+      expect(computeSwatch(hue, 0).bg).toBe("#000000");
+      expect(computeSwatch(hue, 100).bg).toBe("#FFFFFF");
     }
   });
 });
 
 describe("generated systemPalette", () => {
+  it("reads as equally bright across hues at every tone", () => {
+    for (const tone of SYSTEM_PALETTE_TONES) {
+      const lightness = SYSTEM_HUES.map((hue) =>
+        hellwigLightness(computeSwatch(hue, tone).bg),
+      );
+      const spread = Math.max(...lightness) - Math.min(...lightness);
+      expect(
+        spread,
+        `tone ${String(tone)} spreads ${spread.toFixed(2)}`,
+      ).toBeLessThan(1);
+    }
+  });
+
   it(`emits a swatch for every hue x tone (${String(EXPECTED_SWATCH_COUNT)} total)`, () => {
     let count = 0;
     for (const hue of SYSTEM_HUES) {
       for (const tone of SYSTEM_PALETTE_TONES) {
-        const swatch = computeSwatch(hue.source, hue.curve, tone);
+        const swatch = computeSwatch(hue, tone);
         expect(swatch.bg).toMatch(/^#[0-9A-F]{6}$/);
         expect(swatch.fg).toMatch(/^#[0-9A-F]{6}$/);
         count += 1;
@@ -80,7 +90,7 @@ describe("generated systemPalette", () => {
     // / large text) and document the affected swatches.
     for (const hue of SYSTEM_HUES) {
       for (const tone of SYSTEM_PALETTE_TONES) {
-        const { bg, fg } = computeSwatch(hue.source, hue.curve, tone);
+        const { bg, fg } = computeSwatch(hue, tone);
         const ratio = contrastRatio(bg, fg);
         expect(
           ratio,
@@ -93,11 +103,42 @@ describe("generated systemPalette", () => {
   it("foreground picks whichever of black/white has higher contrast", () => {
     for (const hue of SYSTEM_HUES) {
       for (const tone of SYSTEM_PALETTE_TONES) {
-        const { bg, fg } = computeSwatch(hue.source, hue.curve, tone);
+        const { bg, fg } = computeSwatch(hue, tone);
         const blackRatio = contrastRatio(bg, "#000000");
         const whiteRatio = contrastRatio(bg, "#FFFFFF");
         const expected = blackRatio >= whiteRatio ? "#000000" : "#FFFFFF";
         expect(fg).toBe(expected);
+      }
+    }
+  });
+});
+
+const NEUTRAL_TINT = 1;
+const TINT_HUE_TOLERANCE = 45;
+const TINT_CHROMA_TOLERANCE = 2;
+
+function tintOfHex(hex: string): { hue: number; chroma: number } {
+  const hct = Hct.fromInt(argbFromHex(hex));
+  return tintOf(hct.hue, hct.chroma, Hct.from(0, 0, hct.tone));
+}
+
+describe("swatch tint", () => {
+  it("stays on the hue's own tint or goes neutral, never off-hue or over-tinted", () => {
+    for (const hue of SYSTEM_HUES) {
+      const source = tintOfHex(hue.source);
+      for (const tone of SYSTEM_PALETTE_TONES) {
+        const { bg } = computeSwatch(hue, tone);
+        const swatch = tintOfHex(bg);
+        if (swatch.chroma < NEUTRAL_TINT) continue;
+        const label = `${hue.name} ${String(tone)} (${bg})`;
+        expect(
+          hueDistance(swatch.hue, source.hue),
+          `${label} tints toward ${swatch.hue.toFixed(0)}°, source ${source.hue.toFixed(0)}°`,
+        ).toBeLessThanOrEqual(TINT_HUE_TOLERANCE);
+        expect(
+          swatch.chroma,
+          `${label} carries tint ${swatch.chroma.toFixed(1)}, source ${source.chroma.toFixed(1)}`,
+        ).toBeLessThanOrEqual(source.chroma + TINT_CHROMA_TOLERANCE);
       }
     }
   });

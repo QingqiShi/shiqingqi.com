@@ -211,7 +211,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._4,
     backgroundColor: `var(--pcc-accent, ${color.neutral})`,
-    color: color.accentOn,
+    color: color.textOnScrim,
     // A subtle sheen across the header makes the type colour read more
     // like a printed card and less like a flat block.
     backgroundImage:

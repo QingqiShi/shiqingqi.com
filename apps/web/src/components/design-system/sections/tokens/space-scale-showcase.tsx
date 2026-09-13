@@ -130,8 +130,8 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   rem: { color: color.textMain },
-  dot: { color: color.textSubtle },
-  px: { color: color.textSubtle },
+  dot: { color: color.textMuted },
+  px: { color: color.textMuted },
   // A crisp dark tick sitting on the zero line — reads as a measured length on a
   // ruler, not the loud accent fill (too heavy across 18 rows) nor a pale bar on
   // a track (which reads as a skeleton loader). The other foundations are

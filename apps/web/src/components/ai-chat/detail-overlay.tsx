@@ -208,12 +208,11 @@ const styles = stylex.create({
     height: "2rem",
     // Fixed dark circle so the icon stays legible over arbitrary media in both
     // themes; darkens to the scrim token on hover for feedback (animated via
-    // the composed `transition.colors`). The icon uses `accentOn` (white in
-    // both themes) rather than a raw literal.
+    // the composed `transition.colors`).
     backgroundColor: {
       default: "rgba(0, 0, 0, 0.5)",
       ":hover": color.bgScrim,
     },
-    color: color.accentOn,
+    color: color.textOnScrim,
   },
 });

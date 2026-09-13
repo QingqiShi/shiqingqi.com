@@ -261,7 +261,7 @@ const styles = stylex.create({
     paddingBlockEnd: space._2,
     fontSize: font.uiHeading3,
     fontWeight: font.weight_4,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontVariantNumeric: "tabular-nums",
   },
   subLabel: {
@@ -269,7 +269,7 @@ const styles = stylex.create({
     marginBlockStart: space._1,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   fieldGrid: {
     display: "grid",

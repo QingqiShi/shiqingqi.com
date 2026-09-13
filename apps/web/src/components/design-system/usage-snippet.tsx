@@ -32,7 +32,7 @@ export function UsageSnippet({ code, label, source }: UsageSnippetProps) {
   const runs: readonly CodeToken[] = source ?? [["plain", code]];
   return (
     <div css={[corner.radius_2, styles.card]}>
-      <Text as="span" look="caption" tone="subtle" css={styles.label}>
+      <Text as="span" look="caption" tone="muted" css={styles.label}>
         {resolvedLabel}
       </Text>
       <CodeBlock source={runs} />

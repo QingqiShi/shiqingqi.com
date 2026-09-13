@@ -220,7 +220,7 @@ const styles = stylex.create({
   movementDesc: {
     margin: 0,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     lineHeight: font.lineHeight_4,
     maxInlineSize: measure.prose,
   },
@@ -257,7 +257,7 @@ const styles = stylex.create({
     fontSize: font.uiCaption,
     fontWeight: font.weight_5,
     fontVariantNumeric: "tabular-nums",
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   meta: {
     gridArea: "meta",
@@ -274,7 +274,7 @@ const styles = stylex.create({
   metaSize: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontVariantNumeric: "tabular-nums",
   },
   specimen: {

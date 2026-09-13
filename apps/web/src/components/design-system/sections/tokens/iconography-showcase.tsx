@@ -280,7 +280,7 @@ const styles = stylex.create({
   galleryName: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
     lineHeight: font.lineHeight_2,
     textAlign: "center",
     maxInlineSize: "100%",
@@ -321,7 +321,7 @@ const styles = stylex.create({
   sizeToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   dontIcon: {
     display: "inline-flex",

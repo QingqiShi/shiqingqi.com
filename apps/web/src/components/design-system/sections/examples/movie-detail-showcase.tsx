@@ -154,7 +154,7 @@ export function MovieDetailShowcase() {
     <div css={styles.identity}>
       <div css={styles.controlRow}>
         <Badge intent="accent">Movie</Badge>
-        <Text as="span" look="caption" tone="subtle" numeric>
+        <Text as="span" look="caption" tone="muted" numeric>
           {[movie.year, movie.runtime, movie.language].join(" · ")}
         </Text>
       </div>

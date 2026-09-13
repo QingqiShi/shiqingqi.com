@@ -54,7 +54,7 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   chipMore: {
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiOverline,
     fontWeight: font.weight_5,
   },

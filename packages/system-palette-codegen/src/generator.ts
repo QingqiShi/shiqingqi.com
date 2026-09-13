@@ -4,14 +4,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { cleanStaleFiles, writeFileSyncIfChanged } from "@tuja/codegen-fs";
-import {
-  argbFromHex,
-  hexFromArgb,
-} from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
-import { TonalPalette } from "../../../apps/web/src/vendor/material-color-utilities/tonal_palette.ts";
 import { SYSTEM_PALETTE_TONES } from "./constants.ts";
-import { evaluateCurve } from "./evaluate-curve.ts";
 import { pickForeground } from "./pick-foreground.ts";
+import { resolveHue } from "./resolve-hue.ts";
 import { SYSTEM_HUES } from "./system-hues.ts";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -67,15 +62,9 @@ function hexToRgbChannels(hex: string): string {
 
 function resolve(): readonly ResolvedHue[] {
   return SYSTEM_HUES.map((hue) => {
-    const palette = TonalPalette.fromInt(argbFromHex(hue.source));
     const tones = new Map<number, ToneOutput>();
-    for (const t of SYSTEM_PALETTE_TONES) {
-      const shift = evaluateCurve(t, hue.curve);
-      const adjusted = Math.max(0, Math.min(100, t + shift));
-      const bg = hexFromArgb(palette.tone(adjusted)).toUpperCase();
-      const fg = pickForeground(bg);
-      const rgb = hexToRgbChannels(bg);
-      tones.set(t, { bg, fg, rgb });
+    for (const [t, bg] of resolveHue(hue)) {
+      tones.set(t, { bg, fg: pickForeground(bg), rgb: hexToRgbChannels(bg) });
     }
     return {
       name: hue.name,

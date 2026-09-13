@@ -227,9 +227,7 @@ const styles = stylex.create({
     insetBlockEnd: "2px",
     insetInlineEnd: "4px",
     fontSize: font.uiBodySmall,
-    // Translucent dark badge over arbitrary thumbnail content — needs a
-    // foreground that stays light in both themes, so use a non-flipping token.
-    color: color.accentOn,
+    color: color.textOnScrim,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
     paddingInline: "4px",
     borderRadius: "4px",
