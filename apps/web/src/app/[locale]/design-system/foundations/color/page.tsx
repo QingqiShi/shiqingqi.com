@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { DocPage } from "#src/components/design-system/doc-page.tsx";
 import { BackgroundsShowcase } from "#src/components/design-system/sections/tokens/backgrounds-showcase.tsx";
-import { ColorHierarchy } from "#src/components/design-system/sections/tokens/color-hierarchy.tsx";
+import { BalanceShowcase } from "#src/components/design-system/sections/tokens/balance-showcase.tsx";
+import { ContrastShowcase } from "#src/components/design-system/sections/tokens/contrast-showcase.tsx";
 import { PaletteShowcase } from "#src/components/design-system/sections/tokens/palette-showcase.tsx";
 import { RolesShowcase } from "#src/components/design-system/sections/tokens/roles-showcase.tsx";
 import { TextRolesShowcase } from "#src/components/design-system/sections/tokens/text-roles-showcase.tsx";
@@ -23,15 +24,16 @@ export default function ColorPage() {
     <DocPage
       path="/design-system/foundations/color"
       description={t({
-        en: "Thirteen system hues, expanded into perceptually even ramps, then mapped onto background, surface, and text role tokens.",
-        zh: "十三种系统色相展开为感知均匀的色调阶梯，再映射到背景、表面与文本角色令牌。",
+        en: "Thirteen hues at twenty-one tones make the system palette. Tokens reference those tones by purpose, and nothing references a tone directly. Every token is shown below, grouped into backgrounds, text and roles, followed by the models and standards the palette is built on.",
+        zh: "十三种色相乘以二十一级色调，构成系统调色板。令牌按用途引用这些色调，任何地方都不会直接引用色调。下面展示全部令牌，分为背景、文字与角色三组，最后是调色板所依据的模型与标准。",
       })}
     >
-      <ColorHierarchy />
       <PaletteShowcase />
       <BackgroundsShowcase />
       <TextRolesShowcase />
       <RolesShowcase />
+      <BalanceShowcase />
+      <ContrastShowcase />
     </DocPage>
   );
 }

@@ -38,8 +38,8 @@ export function PaletteShowcase() {
     >
       <ShowcaseHelper>
         {t({
-          en: "Thirteen hues, each expanded into a perceptually even 21-tone ramp. The complete range of available colour — consumed only through the design tokens above.",
-          zh: "十三种色相，各自展开为感知均匀的 21 级色调阶梯。全部可用颜色的范围——仅通过上方的设计令牌使用。",
+          en: "Thirteen hues at twenty-one tones each, equally bright across hues at every tone. The complete range of available colour — consumed only through the design tokens below.",
+          zh: "十三种色相，各有二十一级色调，同一色调在各色相中同样明亮。全部可用颜色的范围——仅通过下方的设计令牌使用。",
         })}
       </ShowcaseHelper>
       <ul css={styles.list}>
