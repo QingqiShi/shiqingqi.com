@@ -28,8 +28,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "设计系统概览与索引。",
     }),
     "/design-system/foundations/color": t({
-      en: "Ramps, background roles, and text roles.",
-      zh: "色调阶梯、背景角色与文本角色。",
+      en: "Hues and tones, background roles, and text roles.",
+      zh: "色相与色调、背景角色与文本角色。",
     }),
     "/design-system/foundations/typography": t({
       en: "Families, the type scale, weights, and heading and body styles.",
