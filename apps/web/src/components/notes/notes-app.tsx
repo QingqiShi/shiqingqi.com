@@ -380,7 +380,7 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: "16px",
     blockSize: "16px",
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   searchInput: {
     flex: 1,
@@ -400,7 +400,7 @@ const styles = stylex.create({
     justifyContent: "center",
     minInlineSize: "32px",
     minBlockSize: "32px",
-    color: { default: color.textSubtle, ":hover": color.textMain },
+    color: { default: color.textMuted, ":hover": color.textMain },
     backgroundColor: {
       default: "transparent",
       ":hover": color.bgInteractiveHover,
@@ -443,7 +443,7 @@ const styles = stylex.create({
   },
   metaText: {
     fontSize: font.uiCaption,
-    color: color.textSubtle,
+    color: color.textMuted,
     fontFamily: font.familyMono,
   },
   metaActions: {
@@ -459,7 +459,7 @@ const styles = stylex.create({
     minBlockSize: "32px",
   },
   metaSeparator: {
-    color: color.textSubtle,
+    color: color.textMuted,
     fontSize: font.uiCaption,
   },
   list: {
@@ -479,7 +479,7 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     letterSpacing: font.trackingWidest,
     textTransform: "uppercase",
-    color: color.textSubtle,
+    color: color.textMuted,
   },
   cardList: {
     display: "flex",
@@ -533,7 +533,7 @@ const styles = stylex.create({
     paddingInline: space._1,
     fontSize: font.uiCaption,
     fontFamily: font.familyMono,
-    color: color.textSubtle,
+    color: color.textMuted,
     backgroundColor: color.bgSurfaceSunken,
   },
   caret: {
@@ -543,7 +543,7 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: "24px",
     blockSize: "24px",
-    color: color.textSubtle,
+    color: color.textMuted,
     transition: "transform 180ms ease",
   },
   caretOpen: {
@@ -573,7 +573,7 @@ const styles = stylex.create({
     color: color.textMain,
   },
   complexityKey: {
-    color: color.textSubtle,
+    color: color.textMuted,
     textTransform: "uppercase",
     letterSpacing: font.trackingWide,
   },

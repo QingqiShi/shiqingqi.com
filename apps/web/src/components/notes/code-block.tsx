@@ -282,7 +282,7 @@ const tokenStyles = stylex.create({
   keyword: { color: color.accentText, fontWeight: font.weight_5 },
   type: { color: color.info },
   string: { color: color.success },
-  comment: { color: color.textSubtle, fontStyle: "italic" },
+  comment: { color: color.textMuted, fontStyle: "italic" },
   number: { color: color.warning },
   plain: { color: color.textMain },
 });
