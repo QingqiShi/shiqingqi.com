@@ -1,15 +1,14 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useMemo, useState } from "react";
 
-type TokenKind = "keyword" | "type" | "string" | "comment" | "number" | "plain";
-
 interface Token {
-  kind: TokenKind;
+  kind: "keyword" | "type" | "string" | "comment" | "number" | "plain";
   value: string;
   key: string;
 }
@@ -252,11 +251,16 @@ export function CodeBlock({ code }: CodeBlockProps) {
   }, [code]);
 
   return (
-    <div css={styles.wrapper}>
+    <div css={[corner.radius_2, styles.wrapper]}>
       <button
         type="button"
         onClick={handleCopy}
-        css={[buttonReset.base, transition.colors, styles.copyButton]}
+        css={[
+          buttonReset.base,
+          transition.colors,
+          corner.radius_1,
+          styles.copyButton,
+        ]}
         aria-label={copied ? "Copied" : "Copy code"}
       >
         {copied ? "Copied" : "Copy"}
@@ -286,9 +290,10 @@ const tokenStyles = stylex.create({
 const styles = stylex.create({
   wrapper: {
     position: "relative",
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
-    border: `1px solid ${color.neutralBorder}`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     overflow: "hidden",
   },
   copyButton: {
@@ -298,7 +303,6 @@ const styles = stylex.create({
     paddingBlock: space._0,
     paddingInline: space._2,
     minBlockSize: "32px",
-    borderRadius: border.radius_1,
     fontSize: font.uiCaption,
     fontFamily: font.familyMono,
     fontWeight: font.weight_5,
@@ -307,7 +311,9 @@ const styles = stylex.create({
       default: color.bgInteractiveRest,
       ":hover": color.bgInteractiveHover,
     },
-    border: `1px solid ${color.neutralBorder}`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     cursor: "pointer",
     zIndex: 1,
   },

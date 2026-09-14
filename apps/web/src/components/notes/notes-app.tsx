@@ -5,6 +5,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGl
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -27,7 +28,7 @@ import {
   useState,
 } from "react";
 import { CodeBlock } from "./code-block.tsx";
-import { noteGroups, type Note } from "./notes-data.ts";
+import { noteGroups, type Note } from "./note-groups.ts";
 
 const ALL_GROUP_ID = "__all";
 
@@ -108,8 +109,11 @@ export function NotesApp() {
         <h1 css={styles.heading}>Notes</h1>
       </header>
 
-      <div css={styles.toolbar}>
-        <label css={styles.searchWrapper} htmlFor={searchId}>
+      <div css={[corner.radius_3, styles.toolbar]}>
+        <label
+          css={[corner.radius_round, styles.searchWrapper]}
+          htmlFor={searchId}
+        >
           <MagnifyingGlassIcon css={styles.searchIcon} weight="bold" />
           <input
             id={searchId}
@@ -132,7 +136,7 @@ export function NotesApp() {
                 setQuery("");
                 searchRef.current?.focus();
               }}
-              css={[buttonReset.base, styles.clearButton]}
+              css={[buttonReset.base, corner.radius_round, styles.clearButton]}
               aria-label="Clear search"
             >
               <XIcon weight="bold" />
@@ -168,7 +172,7 @@ export function NotesApp() {
             <button
               type="button"
               onClick={expandAll}
-              css={[buttonReset.base, styles.metaButton]}
+              css={[buttonReset.base, corner.radius_1, styles.metaButton]}
             >
               Expand all
             </button>
@@ -178,7 +182,7 @@ export function NotesApp() {
             <button
               type="button"
               onClick={collapseAll}
-              css={[buttonReset.base, styles.metaButton]}
+              css={[buttonReset.base, corner.radius_1, styles.metaButton]}
             >
               Collapse
             </button>
@@ -228,6 +232,7 @@ function Chip({ label, active, onClick }: ChipProps) {
       css={[
         buttonReset.base,
         transition.colors,
+        corner.radius_round,
         styles.chip,
         active && styles.chipActive,
       ]}
@@ -247,13 +252,16 @@ interface NoteCardProps {
 function NoteCard({ note, open, onToggle }: NoteCardProps) {
   const panelId = `panel-${note.id}`;
   return (
-    <article id={note.id} css={[styles.card, open && styles.cardOpen]}>
+    <article
+      id={note.id}
+      css={[corner.radius_2, styles.card, open && styles.cardOpen]}
+    >
       <button
         type="button"
         onClick={() => {
           onToggle(note.id);
         }}
-        css={[buttonReset.base, styles.cardHeader]}
+        css={[buttonReset.base, corner.radius_2, styles.cardHeader]}
         aria-expanded={open}
         aria-controls={panelId}
       >
@@ -270,7 +278,7 @@ function NoteCard({ note, open, onToggle }: NoteCardProps) {
           {note.complexity || (note.tags && note.tags.length > 0) ? (
             <div css={[flex.wrap, styles.metaChips]}>
               {note.complexity?.time ? (
-                <span css={styles.complexityItem}>
+                <span css={[corner.radius_1, styles.complexityItem]}>
                   <span css={styles.complexityKey}>time</span>
                   <span css={styles.complexityValue}>
                     {note.complexity.time}
@@ -278,7 +286,7 @@ function NoteCard({ note, open, onToggle }: NoteCardProps) {
                 </span>
               ) : null}
               {note.complexity?.space ? (
-                <span css={styles.complexityItem}>
+                <span css={[corner.radius_1, styles.complexityItem]}>
                   <span css={styles.complexityKey}>space</span>
                   <span css={styles.complexityValue}>
                     {note.complexity.space}
@@ -286,7 +294,7 @@ function NoteCard({ note, open, onToggle }: NoteCardProps) {
                 </span>
               ) : null}
               {note.tags?.map((tag) => (
-                <span key={tag} css={styles.tag}>
+                <span key={tag} css={[corner.radius_1, styles.tag]}>
                   {tag}
                 </span>
               ))}
@@ -294,7 +302,7 @@ function NoteCard({ note, open, onToggle }: NoteCardProps) {
           ) : null}
 
           {note.hints && note.hints.length > 0 ? (
-            <dl css={styles.hintList}>
+            <dl css={[corner.radius_2, styles.hintList]}>
               {note.hints.map((hint) => (
                 <div key={hint.trigger} css={styles.hintRow}>
                   <dt css={styles.hintTrigger}>{hint.trigger}</dt>
@@ -350,8 +358,9 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._2,
     backgroundColor: color.bgSurfaceRaised,
-    border: `1px solid ${color.neutralBorder}`,
-    borderRadius: border.radius_3,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     boxShadow: shadow._2,
   },
   searchWrapper: {
@@ -362,9 +371,10 @@ const styles = stylex.create({
     paddingInlineStart: space._3,
     paddingInlineEnd: space._1,
     blockSize: controlSize._9,
-    borderRadius: border.radius_round,
     backgroundColor: color.bgInteractiveRest,
-    border: `1px solid ${color.neutralBorder}`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
   },
   searchIcon: {
     flexShrink: 0,
@@ -390,7 +400,6 @@ const styles = stylex.create({
     justifyContent: "center",
     minInlineSize: "32px",
     minBlockSize: "32px",
-    borderRadius: border.radius_round,
     color: { default: color.textSubtle, ":hover": color.textMain },
     backgroundColor: {
       default: "transparent",
@@ -408,7 +417,6 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     minBlockSize: "32px",
-    borderRadius: border.radius_round,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: { default: color.textMuted, ":hover": color.textMain },
@@ -416,7 +424,9 @@ const styles = stylex.create({
       default: color.bgInteractiveRest,
       ":hover": color.bgInteractiveHover,
     },
-    border: `1px solid ${color.neutralBorder}`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     whiteSpace: "nowrap",
   },
   chipActive: {
@@ -447,7 +457,6 @@ const styles = stylex.create({
     paddingBlock: space._0,
     paddingInline: space._1,
     minBlockSize: "32px",
-    borderRadius: border.radius_1,
   },
   metaSeparator: {
     color: color.textSubtle,
@@ -480,9 +489,10 @@ const styles = stylex.create({
   card: {
     display: "flex",
     flexDirection: "column",
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceRaised,
-    border: `1px solid ${color.neutralBorder}`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
     scrollMarginBlockStart: `calc(env(safe-area-inset-top) + ${space._10} + ${controlSize._9} + ${space._9})`,
   },
   cardOpen: {
@@ -503,7 +513,6 @@ const styles = stylex.create({
       default: "transparent",
       ":hover": color.bgInteractiveHover,
     },
-    borderRadius: border.radius_2,
   },
   cardTitle: {
     flex: 1,
@@ -522,7 +531,6 @@ const styles = stylex.create({
   tag: {
     paddingBlock: space._0,
     paddingInline: space._1,
-    borderRadius: border.radius_1,
     fontSize: font.uiCaption,
     fontFamily: font.familyMono,
     color: color.textSubtle,
@@ -559,7 +567,6 @@ const styles = stylex.create({
     gap: space._1,
     paddingBlock: space._0,
     paddingInline: space._2,
-    borderRadius: border.radius_1,
     fontSize: font.uiCaption,
     fontFamily: font.familyMono,
     backgroundColor: color.surfaceAccentSubtle,
@@ -581,9 +588,10 @@ const styles = stylex.create({
     rowGap: space._1,
     paddingBlock: space._2,
     paddingInline: space._3,
-    borderRadius: border.radius_2,
     backgroundColor: color.bgSurfaceSunken,
-    border: `1px solid ${color.neutralBorder}`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.neutralBorder,
   },
   hintRow: {
     display: "contents",
