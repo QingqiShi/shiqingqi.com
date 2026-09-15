@@ -180,9 +180,9 @@ const lookStyles = stylex.create({
 });
 
 const toneStyles = stylex.create({
-  default: { color: color.textMain },
-  muted: { color: color.textMuted },
-  accent: { color: color.accentText },
+  default: { color: color.fg },
+  muted: { color: color.fgMuted },
+  accent: { color: color.fgAccent },
 });
 
 const weightStyles = stylex.create({

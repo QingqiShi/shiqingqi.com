@@ -272,8 +272,8 @@ type Named =
           {/* Quotes no figure: `t()` takes string literals, so a number here
               could not follow the palette the way the cards above do. */}
           {t({
-            en: "WCAG AA asks 4.5:1 of body text and 3:1 of large text and UI. Both roles clear the body floor in both themes, so choosing between them is a question of rank rather than compliance. textMuted is the quieter of the two, which is what makes it right for supporting labels and wrong as the only place a fact appears.",
-            zh: "WCAG AA 对正文要求 4.5:1，对大号文字与界面元素要求 3:1。两种角色在两种主题下都达到正文标准，因此在它们之间取舍关乎层级，而非合规。textMuted 是两者中较轻的一档——这既是它适合承载辅助性标签的原因，也是它不能成为某项信息唯一出现之处的原因。",
+            en: "WCAG AA asks 4.5:1 of body text and 3:1 of large text and UI. Both roles clear the body floor in both themes, so choosing between them is a question of rank rather than compliance. fgMuted is the quieter of the two, which is what makes it right for supporting labels and wrong as the only place a fact appears.",
+            zh: "WCAG AA 对正文要求 4.5:1，对大号文字与界面元素要求 3:1。两种角色在两种主题下都达到正文标准，因此在它们之间取舍关乎层级，而非合规。fgMuted 是两者中较轻的一档——这既是它适合承载辅助性标签的原因，也是它不能成为某项信息唯一出现之处的原因。",
           })}
         </Callout>
       </GuideSection>
@@ -477,7 +477,7 @@ const styles = stylex.create({
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   checklistTitle: {
@@ -486,7 +486,7 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     letterSpacing: font.trackingWide,
     textTransform: "uppercase",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   checklistItems: {
     display: "flex",
@@ -503,7 +503,7 @@ const styles = stylex.create({
     gap: space._2,
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_4,
-    color: color.textMain,
+    color: color.fg,
     minInlineSize: 0,
   },
   // Nudged down so the glyph sits on the first line, not at the top of its box.
@@ -514,10 +514,10 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_0,
   },
   doneMark: {
-    color: color.successText,
+    color: color.fgSuccess,
   },
   todoMark: {
-    color: color.accentText,
+    color: color.fgAccent,
   },
   // `<p>` is a block, so without a basis it would push the specimen onto its own
   // line. Sits alongside while there is room for a readable measure.
@@ -553,12 +553,12 @@ const styles = stylex.create({
     blockSize: space._8,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     fontSize: font.uiHeading3,
-    color: { default: color.textMuted, ":hover": color.textMain },
+    color: { default: color.fgMuted, ":hover": color.fg },
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
   },
   // Clips its child, which is the case `focusRingInset` exists for.
@@ -571,10 +571,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: color.textMain,
+    color: color.fg,
     backgroundColor: {
-      default: color.bgInteractiveSelected,
-      ":hover": color.bgInteractiveHover,
+      default: color.bgControlSelected,
+      ":hover": color.bgControlHover,
     },
   },
   roleCard: {
@@ -584,13 +584,13 @@ const styles = stylex.create({
     // The light theme's binding background, so the specimen sits on the pairing
     // the quoted figures were measured against.
     backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   token: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     overflowWrap: "anywhere",
   },
   // Colour comes from `Text`'s `tone`; composed last, so this line-height wins.
@@ -616,7 +616,7 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
     lineHeight: font.lineHeight_1,
   },
   // `break-word` rather than `anywhere`: the token name wraps to its own line
@@ -624,10 +624,10 @@ const styles = stylex.create({
   roleMeta: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
     overflowWrap: "break-word",
   },
-  // A field's chrome without a field inside it. `textMuted` shows this, and it
+  // A field's chrome without a field inside it. `fgMuted` shows this, and it
   // is correct here because the text carries `aria-hidden`.
   fauxInput: {
     display: "inline-block",
@@ -635,10 +635,10 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     fontSize: font.uiBodySmall,
     fontFamily: font.family,
-    color: color.textMuted,
+    color: color.fgMuted,
     backgroundColor: color.bgSurface,
     minInlineSize: 0,
   },

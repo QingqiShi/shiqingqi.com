@@ -1,4 +1,4 @@
-import { gray } from "@tuja/ui/palette/gray";
+import { gray } from "@tuja/ui/palette/gray.stylex";
 import { getDocumentClassName } from "#src/app/global-styles.ts";
 
 const darkClassName = getDocumentClassName("dark");

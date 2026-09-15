@@ -666,7 +666,7 @@ function TextureSection() {
     },
     {
       token: "textureTokens.ink",
-      meta: "default: color.neutralBorder",
+      meta: "default: color.border",
       description: t({
         en: "The mark's colour. Keep it close to the surface, so the texture never resolves into a pattern with a name.",
         zh: "标记的颜色。让它贴近表面，纹理才不会显出一个叫得出名字的图案。",
@@ -752,7 +752,7 @@ function WashSection() {
     },
     {
       token: "washTokens.tone",
-      meta: "default: color.surfaceNeutralSubtle",
+      meta: "default: color.bgNeutralSubtle",
       description: t({
         en: "The tone that drifts — the per-surface dial. An accent tone belongs only on a surface that already carries the accent.",
         zh: "铺开的色调——按表面设定的旋钮。意图色的色调只属于本身已经带有该意图色的表面。",
@@ -789,7 +789,7 @@ function WashSection() {
             ]}
           />
         </Specimen>
-        <Specimen caption="tone" token="color.surfaceAccentSubtle">
+        <Specimen caption="tone" token="color.bgAccentSubtle">
           <div
             css={[
               wash.toBottom,
@@ -808,7 +808,7 @@ function WashSection() {
 <div css={[wash.toBottom, styles.card]}>…</div>
 
 const styles = stylex.create({
-  card: { [washTokens.tone]: color.surfaceAccentSubtle },
+  card: { [washTokens.tone]: color.bgAccentSubtle },
 });`}
       />
     </Showcase>
@@ -968,7 +968,7 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   barActions: {
     gap: space._1,
@@ -978,13 +978,13 @@ const styles = stylex.create({
     paddingInline: space._2,
     fontSize: font.uiCaption,
     fontWeight: font.weight_5,
-    color: color.textMuted,
-    backgroundColor: color.bgInteractiveRest,
+    color: color.fgMuted,
+    backgroundColor: color.bgControl,
     whiteSpace: "nowrap",
   },
   pillAccent: {
-    color: color.accentText,
-    backgroundColor: color.surfaceAccentSubtle,
+    color: color.fgAccent,
+    backgroundColor: color.bgAccentSubtle,
   },
   chipRow: {
     gap: space._1,
@@ -994,8 +994,8 @@ const styles = stylex.create({
     paddingBlock: space._00,
     paddingInline: space._2,
     fontSize: font.uiCaption,
-    color: color.textMuted,
-    backgroundColor: color.bgInteractiveRest,
+    color: color.fgMuted,
+    backgroundColor: color.bgControl,
     whiteSpace: "nowrap",
   },
   growRow: {
@@ -1006,9 +1006,9 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     backgroundColor: color.bgSurfaceSunken,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -1020,16 +1020,16 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   fillTile: {
     position: "relative",
     inlineSize: "100%",
     blockSize: "96px",
     overflow: "hidden",
-    backgroundImage: `linear-gradient(135deg, ${color.accent}, ${color.info})`,
+    backgroundImage: `linear-gradient(135deg, ${color.bgAccent}, ${color.bgInfo})`,
   },
   fillScrim: {
     display: "flex",
@@ -1042,7 +1042,7 @@ const styles = stylex.create({
   fillLabel: {
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.textOnScrim,
+    color: color.fgOnScrim,
   },
   scrollStrip: {
     inlineSize: "100%",
@@ -1061,9 +1061,9 @@ const styles = stylex.create({
     blockSize: "48px",
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   imagePair: {
     gap: space._2,
@@ -1075,7 +1075,7 @@ const styles = stylex.create({
     flexShrink: 0,
     overflow: "hidden",
     backgroundColor: color.bgSurfaceSunken,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   // Motion specimens
   hoverTile: {
@@ -1086,10 +1086,10 @@ const styles = stylex.create({
     paddingBlock: space._3,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: { default: color.textMuted, ":hover": color.accentOn },
+    color: { default: color.fgMuted, ":hover": color.fgOnAccent },
     backgroundColor: {
-      default: color.bgInteractiveRest,
-      ":hover": color.accent,
+      default: color.bgControl,
+      ":hover": color.bgAccent,
     },
   },
   dotRow: {
@@ -1098,7 +1098,7 @@ const styles = stylex.create({
   dot: {
     inlineSize: "12px",
     blockSize: "12px",
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
   },
   dotDelay0: {
     animationDelay: "0ms",
@@ -1116,12 +1116,12 @@ const styles = stylex.create({
   skeletonBar: {
     blockSize: "12px",
     inlineSize: "100%",
-    backgroundColor: color.bgInteractiveHover,
+    backgroundColor: color.bgControlHover,
   },
   skeletonBarShort: {
     blockSize: "12px",
     inlineSize: "60%",
-    backgroundColor: color.bgInteractiveHover,
+    backgroundColor: color.bgControlHover,
   },
   // Pauses infinite animations for viewers who prefer reduced motion.
   reduceMotionPause: {
@@ -1135,8 +1135,8 @@ const styles = stylex.create({
   cornerCard: {
     inlineSize: "100%",
     blockSize: "72px",
-    backgroundColor: color.surfaceAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
   cornerPill: {
     display: "inline-flex",
@@ -1145,8 +1145,8 @@ const styles = stylex.create({
     paddingInline: space._4,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.accentText,
-    backgroundColor: color.surfaceAccentSubtle,
+    color: color.fgAccent,
+    backgroundColor: color.bgAccentSubtle,
   },
   // corner.squircle_round closes at half of cornerTokens.height, so this sets
   // it to the box's own height — skip it and the NO_CORNER_SHAPE fallback
@@ -1155,8 +1155,8 @@ const styles = stylex.create({
     [cornerTokens.height]: controlSize._9,
     inlineSize: "120px",
     blockSize: cornerTokens.height,
-    backgroundColor: color.surfaceAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
   // Texture + wash specimens — the primitive owns the background image and
   // `cardSurface.base` the border, so these only add the height (and, for
@@ -1172,9 +1172,9 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
   },
   accentTone: {
-    [washTokens.tone]: color.surfaceAccentSubtle,
-    backgroundColor: color.surfaceAccentSubtle,
-    borderColor: color.accentBorder,
+    [washTokens.tone]: color.bgAccentSubtle,
+    backgroundColor: color.bgAccentSubtle,
+    borderColor: color.borderAccent,
   },
   // Reset + a11y specimens
   customControl: {
@@ -1183,8 +1183,8 @@ const styles = stylex.create({
     paddingInline: space._3,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.accentOn,
-    backgroundColor: color.accent,
+    color: color.fgOnAccent,
+    backgroundColor: color.bgAccent,
   },
   icon: {
     display: "inline-flex",
@@ -1195,23 +1195,23 @@ const styles = stylex.create({
     inlineSize: "40px",
     blockSize: "40px",
     fontSize: font.uiHeading3,
-    color: color.textMuted,
-    backgroundColor: color.bgInteractiveRest,
+    color: color.fgMuted,
+    backgroundColor: color.bgControl,
   },
   focusTile: {
     paddingBlock: space._2,
     paddingInline: space._4,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: color.textMain,
+    color: color.fg,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   clipFrame: {
     padding: space._1,
     overflow: "hidden",
     backgroundColor: color.bgSurfaceSunken,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   insetTile: {
     inlineSize: "100%",
@@ -1219,7 +1219,7 @@ const styles = stylex.create({
     paddingInline: space._4,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: color.textMain,
+    color: color.fg,
     backgroundColor: color.bgSurface,
   },
 });

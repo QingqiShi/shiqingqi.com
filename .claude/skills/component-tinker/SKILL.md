@@ -45,10 +45,10 @@ export default tinker({
   layers: {
     option: {
       presets: ["buttonReset.base", "corner.radius_1"],
-      base: { color: "color.textMuted" },
+      base: { color: "color.fgMuted" },
       variants: { sm: { paddingInline: "controlSize._2" } },
       states: {
-        selected: { color: "color.textMain" },
+        selected: { color: "color.fg" },
         "selected sm": { gap: "space._0" },
       },
     },
@@ -102,13 +102,13 @@ The text is a header and one line per change:
 component-tinker v1
 component: SegmentedControl
 source: packages/ui/src/components/forms/segmented-control.tsx
-track.borderColor: color.neutralBorder -> color.neutral
+track.borderColor: color.border -> color.bgNeutral
 option[selected].backgroundColor: color.bgSurface -> color.bgSurfaceRaised
 option[sm].paddingInline: controlSize._2 -> controlSize._3
-option[hover].backgroundColor: (unset) -> color.bgInteractiveHover
+option[hover].backgroundColor: (unset) -> color.bgControlHover
 option[selected].boxShadow: shadow._1 -> (unset)
 before[checked sm].transform: translateX({controlSize._8}) -> translateX({controlSize._9})
-option.texture: none -> dot space._1 color.neutralBorder
+option.texture: none -> dot space._1 color.border
 ```
 
 Read `layer[condition].property: before -> after` back into the source:

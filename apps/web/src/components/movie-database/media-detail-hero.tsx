@@ -101,7 +101,7 @@ const styles = stylex.create({
   },
   meta: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   description: {
@@ -113,7 +113,7 @@ const styles = stylex.create({
     height: space._10,
     backgroundColor: color.bgSurface,
     borderWidth: space._0,
-    borderColor: color.textMuted,
+    borderColor: color.border,
     borderStyle: "solid",
     display: "flex",
     flexDirection: "column",
@@ -126,7 +126,7 @@ const styles = stylex.create({
   },
   count: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   trailerButtonSkeleton: {
     [skeletonTokens.height]: controlSize._9,

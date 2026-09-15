@@ -78,7 +78,7 @@ const styles = stylex.create({
   outlined: {
     outlineWidth: border.size_1,
     outlineStyle: "dashed",
-    outlineColor: color.accentBorder,
+    outlineColor: color.borderAccent,
     outlineOffset: space._1,
   },
   caption: {

@@ -97,18 +97,18 @@ export const sharedStyles = stylex.create({
   },
   active: {
     [buttonTokens.color]: {
-      default: color.accentOn,
-      ":hover": color.accentOn,
+      default: color.fgOnAccent,
+      ":hover": color.fgOnAccent,
     },
     backgroundColor: {
-      default: color.accent,
-      ":hover": color.accentHover,
-      ":disabled:hover": color.accent,
+      default: color.bgAccent,
+      ":hover": color.bgAccentHover,
+      ":disabled:hover": color.bgAccent,
     },
   },
   bright: {
-    backgroundColor: color.bgSurfaceBright,
-    [buttonTokens.color]: color.textOnBright,
+    backgroundColor: color.bgControlBright,
+    [buttonTokens.color]: color.fgOnControlBright,
     filter: {
       default: "brightness(1)",
       ":hover": "brightness(1.1)",
@@ -146,31 +146,31 @@ export const sharedStyles = stylex.create({
 export const lookStyles = stylex.create({
   outline: {
     [buttonTokens.backgroundColor]: "transparent",
-    [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
+    [buttonTokens.backgroundColorHover]: color.bgControlHover,
     [buttonTokens.backgroundColorDisabledHover]: "transparent",
     [buttonTokens.boxShadow]: "none",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
   },
   // The quietest look: no surface, and the label drains to muted until the
   // pointer arrives. `:disabled:hover` keeps it drained, matching the fill.
   ghost: {
     [buttonTokens.backgroundColor]: "transparent",
-    [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
+    [buttonTokens.backgroundColorHover]: color.bgControlHover,
     [buttonTokens.backgroundColorDisabledHover]: "transparent",
     [buttonTokens.boxShadow]: "none",
     [buttonTokens.color]: {
-      default: color.textMuted,
-      ":hover": color.textMain,
-      ":disabled:hover": color.textMuted,
+      default: color.fgMuted,
+      ":hover": color.fg,
+      ":disabled:hover": color.fgMuted,
     },
   },
   danger: {
-    [buttonTokens.backgroundColor]: color.danger,
-    [buttonTokens.backgroundColorHover]: color.dangerHover,
-    [buttonTokens.backgroundColorDisabledHover]: color.danger,
-    [buttonTokens.color]: color.dangerOn,
+    [buttonTokens.backgroundColor]: color.bgDanger,
+    [buttonTokens.backgroundColorHover]: color.bgDangerHover,
+    [buttonTokens.backgroundColorDisabledHover]: color.bgDanger,
+    [buttonTokens.color]: color.fgOnDanger,
   },
 });
 

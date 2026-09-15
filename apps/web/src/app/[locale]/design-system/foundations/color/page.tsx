@@ -24,8 +24,8 @@ export default function ColorPage() {
     <DocPage
       path="/design-system/foundations/color"
       description={t({
-        en: "Thirteen hues at twenty-one tones make the system palette. Tokens reference those tones by purpose, and nothing references a tone directly. Every token is shown below, grouped into backgrounds, text and roles, followed by the models and standards the palette is built on.",
-        zh: "十三种色相乘以二十一级色调，构成系统调色板。令牌按用途引用这些色调，任何地方都不会直接引用色调。下面展示全部令牌，分为背景、文字与角色三组，最后是调色板所依据的模型与标准。",
+        en: "Thirteen hues at twenty-one tones make the system palette. Tokens reference those tones by purpose, and nothing references a tone directly. A token is named for the property it paints, so every token is shown below under that property — backgrounds, then foregrounds, then the six Intents, each with a fill, a border and a foreground of its own — followed by the models and standards the palette is built on.",
+        zh: "十三种色相乘以二十一级色调，构成系统调色板。令牌按用途引用这些色调，任何地方都不会直接引用色调。令牌以它所绘制的属性命名，下面便按属性展示全部令牌——先是背景，再是前景色，然后是六种意图色，每一种都有自己的填充、边框与前景色——最后是调色板所依据的模型与标准。",
       })}
     >
       <PaletteShowcase />

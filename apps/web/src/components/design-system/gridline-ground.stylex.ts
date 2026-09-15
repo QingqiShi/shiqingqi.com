@@ -14,7 +14,7 @@ import { border, color, space } from "@tuja/ui/tokens.stylex";
  * differ: a subgrid column gaps rows only, a swatch grid gaps both axes, and
  * the column counts are per-section responsive decisions.
  *
- * The frame is `neutralBorder` so a section still reads as a self-contained unit
+ * The frame is `color.border` so a section still reads as a self-contained unit
  * when it sits on the bare page canvas rather than inside a surface card. It has
  * to be a border rather than padding: `overflow: hidden` shrinks the clip radius
  * by the border's own width, which is what keeps the corner cells concentric
@@ -31,7 +31,7 @@ export const gridlineGround = stylex.create({
     backgroundColor: color.bgCanvas,
     borderWidth: space._00,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     borderRadius: border.radius_2,
     cornerShape: "squircle",
     overflow: "hidden",

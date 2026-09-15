@@ -19,7 +19,10 @@ interface RoleColumnProps {
 
 export function RoleColumn({ name, cells }: RoleColumnProps) {
   return (
-    <div css={[gridlineGround.base, styles.column]} aria-label={name}>
+    <div
+      css={[gridlineGround.base, styles.column, styles.rowSpan(cells.length)]}
+      aria-label={name}
+    >
       {cells.map((cell) => {
         const sizeStyle =
           cell.size === "large"
@@ -47,11 +50,13 @@ const styles = stylex.create({
     // names wrap differently per column.
     display: "grid",
     gridTemplateRows: "subgrid",
-    gridRow: "span 5",
     // Rows only: the ground, frame, and clip come from `gridlineGround`, and a
     // column has no cells beside each other to divide.
     rowGap: space._00,
   },
+  // The column claims one parent row track per cell, so the subgrid has a track
+  // to give each of them.
+  rowSpan: (cells: number) => ({ gridRow: `span ${cells.toString()}` }),
   cell: {
     display: "flex",
     flexDirection: "column",

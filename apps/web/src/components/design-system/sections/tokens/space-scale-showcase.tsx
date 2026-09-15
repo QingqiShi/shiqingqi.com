@@ -112,12 +112,12 @@ const styles = stylex.create({
     paddingInlineEnd: space._4,
     borderInlineEndWidth: "1px",
     borderInlineEndStyle: "solid",
-    borderInlineEndColor: color.neutralBorder,
+    borderInlineEndColor: color.border,
   },
   token: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     whiteSpace: "nowrap",
   },
   value: {
@@ -129,9 +129,9 @@ const styles = stylex.create({
     fontVariantNumeric: "tabular-nums",
     whiteSpace: "nowrap",
   },
-  rem: { color: color.textMain },
-  dot: { color: color.textMuted },
-  px: { color: color.textMuted },
+  rem: { color: color.fg },
+  dot: { color: color.fgMuted },
+  px: { color: color.fgMuted },
   // A crisp dark tick sitting on the zero line — reads as a measured length on a
   // ruler, not the loud accent fill (too heavy across 18 rows) nor a pale bar on
   // a track (which reads as a skeleton loader). The other foundations are
@@ -142,7 +142,7 @@ const styles = stylex.create({
     flexShrink: 0,
     borderRadius: "2px",
     cornerShape: "squircle",
-    backgroundColor: color.neutralText,
+    backgroundColor: color.bgInverse,
   },
   w00: { inlineSize: space._00 },
   w0: { inlineSize: space._0 },

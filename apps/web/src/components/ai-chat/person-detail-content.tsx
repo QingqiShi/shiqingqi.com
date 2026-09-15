@@ -350,7 +350,7 @@ const styles = stylex.create({
   },
   meta: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   biography: {
@@ -366,7 +366,7 @@ const styles = stylex.create({
   },
   readMoreButton: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     cursor: "pointer",
     paddingTop: space._1,
     textDecoration: {
@@ -381,14 +381,14 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: color.bgSurfaceRaised,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontSize: font.uiHeading1,
     fontWeight: font.weight_7,
   },
   errorText: {
     margin: 0,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontStyle: "italic",
   },
   filmographySection: {

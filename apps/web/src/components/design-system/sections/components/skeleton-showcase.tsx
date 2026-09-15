@@ -132,7 +132,7 @@ const styles = stylex.create({
     padding: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
   },
   cardLines: {
     gap: space._1,

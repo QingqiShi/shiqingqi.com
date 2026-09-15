@@ -72,7 +72,7 @@ const styles = stylex.create({
     pointerEvents: "none",
   },
   icon: {
-    color: color.accent,
+    color: color.fgAccent,
     fontSize: "1.125em",
   },
 });

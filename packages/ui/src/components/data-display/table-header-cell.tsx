@@ -66,10 +66,10 @@ const styles = stylex.create({
   // there, where nothing sticky-paints anyway.
   columnHeaderCell: {
     fontWeight: font.weight_6,
-    color: color.textMuted,
+    color: color.fgMuted,
     // `calc`, not a bare minus: the token is a `var()`, and `-var(...)` is not
     // a valid length, so the declaration is dropped.
-    boxShadow: `inset 0 calc(-1 * ${border.size_1}) 0 ${color.neutralBorder}`,
+    boxShadow: `inset 0 calc(-1 * ${border.size_1}) 0 ${color.border}`,
     borderBlockEndWidth: {
       default: null,
       "@media (forced-colors: active)": border.size_1,
@@ -80,11 +80,11 @@ const styles = stylex.create({
     },
     borderBlockEndColor: {
       default: null,
-      "@media (forced-colors: active)": color.neutralBorder,
+      "@media (forced-colors: active)": color.border,
     },
   },
   rowHeaderCell: {
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
   },
 });

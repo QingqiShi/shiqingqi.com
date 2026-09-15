@@ -202,7 +202,7 @@ const styles = stylex.create({
     fontSize: "inherit",
     fontWeight: font.weight_5,
     lineHeight: font.lineHeight_3,
-    color: color.textMain,
+    color: color.fg,
     textAlign: "start",
   },
   // `em` boxes so every icon tracks the header's font-size.
@@ -213,7 +213,7 @@ const styles = stylex.create({
     flexShrink: 0,
     inlineSize: "1em",
     blockSize: "1em",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   summary: {
     flexGrow: 1,
@@ -222,7 +222,7 @@ const styles = stylex.create({
   },
   trailing: {
     flexShrink: 0,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   indicatorOpen: {
     transform: "rotate(180deg)",
@@ -250,6 +250,6 @@ const panelLooks = stylex.create({
     paddingInline: space._3,
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
   },
 });

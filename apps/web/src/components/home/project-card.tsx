@@ -35,9 +35,9 @@ export function ProjectCard({
 const styles = stylex.create({
   card: {
     position: "relative",
-    color: color.textMuted,
+    color: color.fgMuted,
     containerType: "inline-size",
-    [svgTokens.fill]: { ":not(:hover)": color.textMuted },
+    [svgTokens.fill]: { ":not(:hover)": color.fgMuted },
   },
   row: {
     display: "grid",
@@ -56,6 +56,6 @@ const styles = stylex.create({
   name: {
     fontSize: font.cqTitle,
     fontWeight: font.weight_7,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

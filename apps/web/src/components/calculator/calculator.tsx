@@ -5,6 +5,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, ratio, shadow, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
 import { t } from "#src/i18n.ts";
+import { brand } from "#src/logos/brand.stylex.ts";
 import { CalculatorButton } from "./calculator-button.tsx";
 import { CalculatorDisplay } from "./calculator-display.tsx";
 import { evaluateExpression } from "./calculator-logic/evaluate-expression.ts";
@@ -336,7 +337,7 @@ const styles = stylex.create({
     boxShadow: shadow._5,
     containerType: "inline-size",
     outline: {
-      ":focus-visible": `${border.size_2} solid ${color.brandCalculator}`,
+      ":focus-visible": `${border.size_2} solid ${brand.calculator}`,
     },
     outlineOffset: {
       ":focus-visible": "2px",

@@ -141,7 +141,7 @@ const styles = stylex.create({
   title: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.textMuted,
+    color: color.fgMuted,
     textTransform: "uppercase",
     letterSpacing: "0.05em",
     margin: 0,

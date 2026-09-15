@@ -89,10 +89,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
-      ":focus-visible": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
+      ":focus-visible": color.bgControlHover,
     },
-    color: color.textMain,
+    color: color.fg,
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
@@ -103,11 +103,11 @@ const styles = stylex.create({
   },
   buttonActive: {
     backgroundColor: {
-      default: color.accent,
-      ":hover": color.accentHover,
-      ":focus-visible": color.accentHover,
+      default: color.bgAccent,
+      ":hover": color.bgAccentHover,
+      ":focus-visible": color.bgAccentHover,
     },
-    color: color.accentOn,
-    borderColor: color.accent,
+    color: color.fgOnAccent,
+    borderColor: color.borderAccent,
   },
 });

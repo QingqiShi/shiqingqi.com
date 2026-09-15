@@ -112,7 +112,7 @@ const styles = stylex.create({
     minInlineSize: 0,
     color: {
       default: "inherit",
-      ":hover": color.textMain,
+      ":hover": color.fg,
     },
     cursor: "pointer",
   },
@@ -120,7 +120,7 @@ const styles = stylex.create({
     justifyContent: "flex-end",
   },
   headerButtonActive: {
-    color: color.accentText,
+    color: color.fgAccent,
   },
   headerLabel: {
     fontSize: font.uiCaption,

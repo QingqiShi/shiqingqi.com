@@ -87,7 +87,7 @@ export default tinker({
         backgroundColor: "color.bgSurfaceSunken",
         borderWidth: "border.size_1",
         borderStyle: "solid",
-        borderColor: "color.neutralBorder",
+        borderColor: "color.border",
         borderRadius: "border.radius_2",
       },
       variants: {
@@ -105,7 +105,7 @@ export default tinker({
       presets: ["buttonReset.base", "a11y.focusRingInset", "transition.colors"],
       base: {
         backgroundColor: "transparent",
-        color: "color.textMuted",
+        color: "color.fgMuted",
         fontWeight: "font.weight_5",
         borderRadius: "border.radius_1",
       },
@@ -123,12 +123,12 @@ export default tinker({
       },
       states: {
         hover: {
-          backgroundColor: "color.bgInteractiveHover",
-          color: "color.textMain",
+          backgroundColor: "color.bgControlHover",
+          color: "color.fg",
         },
         selected: {
           backgroundColor: "color.bgSurface",
-          color: "color.textMain",
+          color: "color.fg",
           fontWeight: "font.weight_6",
         },
       },
@@ -195,7 +195,7 @@ Pickers offer, per property type:
 | `transitionTimingFunction` / `animationTimingFunction`                                                                                                          | `easing.*`                                                                                                                               |
 | enums (`display`, `flexDirection`, `alignItems`, `justifyContent`, `borderStyle`, `textAlign`, `overflow`, `position`, `whiteSpace`, `textTransform`, `cursor`) | the CSS keywords, not tokens                                                                                                             |
 
-Texture, Wash and Glass are drawn from the design system's own declarations rather than from a copy of them, through the same mechanism a preset uses. `glass-surface.stylex.ts` is a preset source beside `primitives/*.stylex.ts`, so `texture.dot`, `texture.line`, `wash.toBottom` and its three siblings, and `glassSurface.base` are all in `catalogue.presets` with the class the design system compiled, and the compiled CSS is already on the page — the Glass rim's `::before` with it. Switching a toggle on puts that class on the layer and sets only the dials in the layer's inline style: `textureTokens.pitch` and `.ink`, `washTokens.tone`, and `glassTokens.fill`, `.border`, `.highlight` and `.blur`. A part the user leaves on its own token reads `glassTokens.fill: {color.glassFill}`, which is the design system's own default written out rather than a var that refers to itself; a part at a reduced opacity step reads `color-mix(in srgb, {token} N%, transparent)`, and the Glass radius `off` sets the blur to `0px`. A change to a treatment in `@tuja/ui` therefore reaches the tinker on its own.
+Texture, Wash and Glass are drawn from the design system's own declarations rather than from a copy of them, through the same mechanism a preset uses. `glass-surface.stylex.ts` is a preset source beside `primitives/*.stylex.ts`, so `texture.dot`, `texture.line`, `wash.toBottom` and its three siblings, and `glassSurface.base` are all in `catalogue.presets` with the class the design system compiled, and the compiled CSS is already on the page — the Glass rim's `::before` with it. Switching a toggle on puts that class on the layer and sets only the dials in the layer's inline style: `textureTokens.pitch` and `.ink`, `washTokens.tone`, and `glassTokens.fill`, `.border`, `.highlight` and `.blur`. A part the user leaves on its own token reads `glassTokens.fill: {color.bgMaterialGlass}`, which is the design system's own default written out rather than a var that refers to itself; a part at a reduced opacity step reads `color-mix(in srgb, {token} N%, transparent)`, and the Glass radius `off` sets the blur to `0px`. A change to a treatment in `@tuja/ui` therefore reaches the tinker on its own.
 
 A Texture and a Wash are both one `background-image`, so two classes on one element would leave only the later one drawn. The Wash goes on the layer and the Texture draws on a box of its own inside it — absolutely positioned over the layer's area, at `z-index: -1` inside the layer's own stacking context, so it paints over the layer's background and under its content. The dials go on whichever box carries the class, because `texture.line` sets its own wider pitch and an inherited value would not replace it.
 
@@ -232,12 +232,12 @@ component-tinker v1
 component: SegmentedControl
 source: packages/ui/src/components/forms/segmented-control.tsx
 option[selected].backgroundColor: color.bgSurface -> color.bgSurfaceRaised
-track.borderColor: color.neutralBorder -> color.neutral
+track.borderColor: color.border -> color.bgNeutral
 option[sm].paddingInline: controlSize._2 -> controlSize._3
-option[hover].backgroundColor: (unset) -> color.bgInteractiveHover
+option[hover].backgroundColor: (unset) -> color.bgControlHover
 option[selected].boxShadow: shadow._1 -> (unset)
 before[checked sm].transform: translateX({controlSize._8}) -> translateX({controlSize._9})
-option.texture: none -> dot space._1 color.neutralBorder
+option.texture: none -> dot space._1 color.border
 ```
 
 `(unset)` before the arrow is a property new to that condition; after the arrow it is a declaration to delete from that condition. Edits autosave to localStorage keyed by a hash of the config. "Reset all" reverts to the config.

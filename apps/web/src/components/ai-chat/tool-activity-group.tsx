@@ -105,7 +105,7 @@ const styles = stylex.create({
     gap: space._1,
     margin: 0,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: 1.4,
     minHeight: "1.5rem",
   },

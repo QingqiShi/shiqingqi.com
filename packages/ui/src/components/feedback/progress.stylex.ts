@@ -7,5 +7,5 @@ export const progressTokens = stylex.defineVars({
   indicatorSize: "0%",
   // The indicator's colour. Exposed because the pseudo-element painting it is
   // out of reach of the `css` escape hatch — see `Progress` on retinting.
-  indicatorColor: color.accent,
+  indicatorColor: color.bgAccent,
 });

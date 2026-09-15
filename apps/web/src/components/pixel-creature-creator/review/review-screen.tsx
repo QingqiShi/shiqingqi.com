@@ -163,11 +163,11 @@ const styles = stylex.create({
     fontSize: font.uiHeading2,
     fontWeight: font.weight_7,
     margin: 0,
-    color: color.textMain,
+    color: color.fg,
   },
   muted: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   cta: {
@@ -177,10 +177,10 @@ const styles = stylex.create({
     borderRadius: "10px",
     cornerShape: "squircle",
     backgroundColor: {
-      default: color.accent,
-      ":hover": color.accentHover,
+      default: color.bgAccent,
+      ":hover": color.bgAccentHover,
     },
-    color: color.accentOn,
+    color: color.fgOnAccent,
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
     textDecoration: "none",

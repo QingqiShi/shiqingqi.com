@@ -57,7 +57,7 @@ const styles = stylex.create({
     minBlockSize: "56px",
   },
   csSwatch: {
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
   },
   cs0: { inlineSize: controlSize._0, blockSize: controlSize._0 },
   cs1: { inlineSize: controlSize._1, blockSize: controlSize._1 },

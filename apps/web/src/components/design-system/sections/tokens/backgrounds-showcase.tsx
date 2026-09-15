@@ -8,10 +8,10 @@ import { Identifier } from "../../identifier.tsx";
 import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 
-// Role-based background taxonomy. Each band groups tokens that share a
-// purpose — Page scaffolding, Surface cards, Interactive states, Inverse
-// callouts, and Overlay popovers + scrim — so a consumer picks by role
-// rather than by tone.
+// Every `bg` token names the structure it paints. Each band below is one of
+// those structures — the Canvas behind everything, a Surface, a Control, and
+// the three grounds that carry an `fgOn*` token of their own — so a consumer
+// picks by role rather than by tone.
 //
 // Layering follows RoleColumn: the grid owns all the chrome (radius, clip,
 // and the gridline-via-gap hairlines — see `gridlineGround`), and each cell
@@ -41,44 +41,58 @@ interface BandProps {
   name: string;
   description: string;
   children: React.ReactNode;
-  columns: 2 | 4 | 5;
+  /** Cells per row from `md` up, or from `lg` up when `mdColumns` is set. */
+  columns: number;
+  /** Cells per row at `md`, for a band whose cells are too narrow there. */
+  mdColumns?: number;
 }
 
-function Band({ name, description, children, columns }: BandProps) {
-  const gridStyle =
-    columns === 2
-      ? styles.gridTwo
-      : columns === 4
-        ? styles.gridFour
-        : styles.gridFive;
-
+function Band({
+  name,
+  description,
+  children,
+  columns,
+  mdColumns = columns,
+}: BandProps) {
   return (
     <section css={styles.band}>
       <header css={styles.bandHeader}>
         <span css={styles.bandName}>{name}</span>
         <span css={styles.bandDescription}>{description}</span>
       </header>
-      <div css={[gridlineGround.base, styles.grid, gridStyle]}>{children}</div>
+      <div
+        css={[
+          gridlineGround.base,
+          styles.grid,
+          styles.gridColumns(columns, mdColumns),
+        ]}
+      >
+        {children}
+      </div>
     </section>
   );
 }
 
 export function BackgroundsShowcase() {
   return (
-    <Showcase label={t({ en: "Surfaces", zh: "表面" })} frame="plain" breakout>
+    <Showcase
+      label={t({ en: "Backgrounds", zh: "背景" })}
+      frame="plain"
+      breakout
+    >
       <ShowcaseHelper>
         {t({
-          en: "Surfaces are organised by role, not tone. Pick by what the surface is for — scaffolding, a card, an interactive state, an attention-grabbing inverse, or a floating overlay — and the right tone follows.",
-          zh: "表面按角色组织，而非色调。按用途选择——脚手架、卡片、交互状态、反相强调或悬浮覆盖层——对应的色调自然跟随。",
+          en: "A bg token is named for the structure it paints, not for its tone — the canvas behind everything, a surface, a control, and the three grounds that need a foreground token of their own. Pick by what the background is for, and the tone follows.",
+          zh: "bg 令牌以它所绘制的结构命名，而非以色调命名——一切背后的画布、表面、控件，以及需要专属前景色令牌的三种底面。按背景的用途选择，色调自然跟随。",
         })}
       </ShowcaseHelper>
 
       <div css={styles.stack}>
         <Band
-          name={t({ en: "Page", zh: "页面" })}
+          name={t({ en: "Canvas", zh: "画布" })}
           description={t({
-            en: "App shell and scaffolding behind everything else.",
-            zh: "应用外壳与所有内容背后的脚手架。",
+            en: "The app shell, behind everything else.",
+            zh: "应用外壳，位于其余一切之后。",
           })}
           columns={2}
         >
@@ -87,17 +101,17 @@ export function BackgroundsShowcase() {
             token="color.bgCanvas"
             bg={styles.fillCanvas}
             detail={t({
-              en: "Main page background.",
-              zh: "主页面背景。",
+              en: "The page ground.",
+              zh: "页面底色。",
             })}
           />
           <BandCell
-            label={t({ en: "Canvas subtle", zh: "画布暗淡" })}
-            token="color.bgCanvasSubtle"
-            bg={styles.fillCanvasSubtle}
+            label={t({ en: "Fade", zh: "渐隐" })}
+            token="color.bgCanvasFade"
+            bg={styles.fillFade(color.bgCanvasFade, color.bgCanvas)}
             detail={t({
-              en: "Recessed scaffolding region.",
-              zh: "退入的脚手架区域。",
+              en: "What a gradient on the canvas fades toward.",
+              zh: "画布上的渐变所淡向的颜色。",
             })}
           />
         </Band>
@@ -105,16 +119,20 @@ export function BackgroundsShowcase() {
         <Band
           name={t({ en: "Surface", zh: "表面" })}
           description={t({
-            en: "Cards, panels, and dialog bodies. Sunken inputs, default cards, raised hover lift, bright callouts.",
-            zh: "卡片、面板与对话框主体。下沉的输入框、默认卡片、悬浮抬起、明亮强调。",
+            en: "Cards, panels, and dialog bodies. Raised is also the floating surface of a menu or a popover, which sits on layer.raised.",
+            zh: "卡片、面板与对话框主体。Raised 同时也是菜单或弹出框的悬浮表面，位于 layer.raised。",
           })}
           columns={4}
+          mdColumns={2}
         >
           <BandCell
             label={t({ en: "Sunken", zh: "下沉" })}
             token="color.bgSurfaceSunken"
             bg={styles.fillSurfaceSunken}
-            detail={t({ en: "Input wells.", zh: "输入凹位。" })}
+            detail={t({
+              en: "Input wells and recessed regions.",
+              zh: "输入凹位与退入的区域。",
+            })}
           />
           <BandCell
             label={t({ en: "Default", zh: "默认" })}
@@ -126,19 +144,21 @@ export function BackgroundsShowcase() {
             label={t({ en: "Raised", zh: "抬起" })}
             token="color.bgSurfaceRaised"
             bg={styles.fillSurfaceRaised}
-            detail={t({ en: "Hover lift.", zh: "悬浮抬起。" })}
+            detail={t({ en: "Menu · popover.", zh: "菜单 · 弹出框。" })}
           />
           <BandCell
-            label={t({ en: "Bright", zh: "明亮" })}
-            token="color.bgSurfaceBright"
-            bg={styles.fillSurfaceBright}
-            fg={styles.textOnBright}
-            detail={t({ en: "High-contrast pop.", zh: "高对比强调。" })}
+            label={t({ en: "Fade", zh: "渐隐" })}
+            token="color.bgSurfaceFade"
+            bg={styles.fillFade(color.bgSurfaceFade, color.bgSurface)}
+            detail={t({
+              en: "What a gradient on a surface fades toward.",
+              zh: "表面上的渐变所淡向的颜色。",
+            })}
           />
         </Band>
 
         <Band
-          name={t({ en: "Interactive", zh: "交互" })}
+          name={t({ en: "Control", zh: "控件" })}
           description={t({
             en: "Shared by buttons, list rows, and menu items. Rest, hover, pressed, selected, disabled — the last pairs with opacity.disabled, so it never lands at full strength.",
             zh: "按钮、列表行与菜单项共享。静态、悬停、按下、选中、禁用——禁用需搭配 opacity.disabled，因此永远不会以完整强度呈现。",
@@ -147,67 +167,62 @@ export function BackgroundsShowcase() {
         >
           <BandCell
             label={t({ en: "Rest", zh: "静态" })}
-            token="color.bgInteractiveRest"
-            bg={styles.fillInteractiveRest}
+            token="color.bgControl"
+            bg={styles.fillControl}
           />
           <BandCell
             label={t({ en: "Hover", zh: "悬停" })}
-            token="color.bgInteractiveHover"
-            bg={styles.fillInteractiveHover}
+            token="color.bgControlHover"
+            bg={styles.fillControlHover}
           />
           <BandCell
             label={t({ en: "Pressed", zh: "按下" })}
-            token="color.bgInteractivePressed"
-            bg={styles.fillInteractivePressed}
+            token="color.bgControlPressed"
+            bg={styles.fillControlPressed}
           />
           <BandCell
             label={t({ en: "Selected", zh: "选中" })}
-            token="color.bgInteractiveSelected"
-            bg={styles.fillInteractiveSelected}
+            token="color.bgControlSelected"
+            bg={styles.fillControlSelected}
           />
           <BandCell
             label={t({ en: "Disabled", zh: "禁用" })}
-            token="color.bgInteractiveDisabled"
-            bg={styles.fillInteractiveDisabled}
+            token="color.bgControlDisabled"
+            bg={styles.fillControlDisabled}
           />
         </Band>
 
         <Band
-          name={t({ en: "Inverse · Overlay", zh: "反相 · 覆盖" })}
+          name={t({ en: "Bright · Inverse · Scrim", zh: "明亮 · 反相 · 遮罩" })}
           description={t({
-            en: "Inverse flips theme to grab attention (tooltips, snackbars). Overlay floats above content (popovers); scrim dims the page behind a modal.",
-            zh: "反相反转主题以吸引注意（提示、消息条）。覆盖层悬浮于内容之上（弹出框）；遮罩层在弹窗背后变暗页面。",
+            en: "The three grounds that carry a foreground token of their own. Bright stays light in both themes, inverse flips the theme, and the scrim dims the page behind a modal.",
+            zh: "带有专属前景色令牌的三种底面。明亮在两种主题下都保持浅色，反相翻转主题，遮罩让弹窗背后的页面变暗。",
           })}
-          columns={4}
+          columns={3}
         >
+          <BandCell
+            label={t({ en: "Bright", zh: "明亮" })}
+            token="color.bgControlBright"
+            bg={styles.fillBright}
+            fg={styles.fgOnControlBright}
+            detail={t({
+              en: "Switch · slider thumb.",
+              zh: "开关 · 滑块手柄。",
+            })}
+          />
           <BandCell
             label={t({ en: "Inverse", zh: "反相" })}
             token="color.bgInverse"
             bg={styles.fillInverse}
-            fg={styles.textInverseFg}
+            fg={styles.fgOnInverse}
             detail={t({ en: "Tooltip · snackbar.", zh: "提示 · 消息条。" })}
-          />
-          <BandCell
-            label={t({ en: "Overlay", zh: "覆盖" })}
-            token="color.bgOverlay"
-            bg={styles.fillOverlay}
-            detail={t({ en: "Popover surface.", zh: "弹出层。" })}
           />
           <BandCell
             label={t({ en: "Scrim", zh: "遮罩" })}
             token="color.bgScrim"
             bg={styles.fillScrim}
-            fg={styles.textOnScrim}
+            fg={styles.fgOnScrim}
             detail={t({ en: "Modal dim layer.", zh: "弹窗变暗层。" })}
-          />
-          <BandCell
-            label={t({ en: "Fade", zh: "渐隐" })}
-            token="color.bgCanvasFade"
-            bg={styles.fillChannels}
-            detail={t({
-              en: "Blend color for translucent fades.",
-              zh: "用于半透明渐变的混合色。",
-            })}
           />
         </Band>
       </div>
@@ -235,42 +250,31 @@ const styles = stylex.create({
   bandName: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
     letterSpacing: font.trackingWider,
     textTransform: "uppercase",
     whiteSpace: "nowrap",
   },
   bandDescription: {
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_4,
   },
-  // Ground, frame, and clip come from `gridlineGround`. The Page band's Canvas
-  // swatch shares the interior ground, so it reads flush there while the frame
-  // keeps a crisp edge.
+  // Ground, frame, and clip come from `gridlineGround`. The Canvas band's
+  // Canvas swatch shares the interior ground, so it reads flush there while the
+  // frame keeps a crisp edge.
   grid: {
     display: "grid",
     gap: space._00,
   },
-  gridTwo: {
+  // One cell per row on a phone, then the band's own count.
+  gridColumns: (columns: number, mdColumns: number) => ({
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
+      [breakpoints.md]: `repeat(${mdColumns.toString()}, minmax(0, 1fr))`,
+      [breakpoints.lg]: `repeat(${columns.toString()}, minmax(0, 1fr))`,
     },
-  },
-  gridFour: {
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
-      [breakpoints.lg]: "repeat(4, minmax(0, 1fr))",
-    },
-  },
-  gridFive: {
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [breakpoints.md]: "repeat(5, minmax(0, 1fr))",
-    },
-  },
+  }),
   cell: {
     display: "flex",
     flexDirection: "column",
@@ -286,64 +290,65 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
     letterSpacing: font.trackingSnug,
     lineHeight: font.lineHeight_2,
-    color: color.textMain,
+    color: color.fg,
   },
   detail: {
     marginBlockStart: "auto",
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_2,
   },
   // The token name is read, not glanced at, so it sits at the caption size
-  // rather than the overline size, at the full strength of `textMuted` — the
+  // rather than the overline size, at the full strength of `fgMuted` — the
   // token is now the quiet end of the text ladder, and dimming it further
   // would drop it back under AA on every surface lighter than a white card.
   // Tight tracking buys back the width the larger size costs, so the longest
-  // names (`color.bgInteractiveSelected`, `…Disabled`) still set on one line in
-  // the five-column Interactive band.
+  // names (`color.bgControlSelected`, `…Disabled`) still set on one line in
+  // the five-column Control band.
   token: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     letterSpacing: font.trackingTight,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_2,
   },
 
-  // Page band
+  // A fade cell is two layers: the fade token drawn over the ground it fades
+  // from, which keeps the cell face opaque for the gridline-via-gap technique.
+  fillFade: (fade: string, ground: string) => ({
+    backgroundImage: `linear-gradient(180deg, transparent 0%, ${fade} 100%), linear-gradient(${ground}, ${ground})`,
+  }),
+
+  // Canvas band
   fillCanvas: { backgroundColor: color.bgCanvas },
-  fillCanvasSubtle: { backgroundColor: color.bgCanvasSubtle },
 
   // Surface band
   fillSurfaceSunken: { backgroundColor: color.bgSurfaceSunken },
   fillSurface: { backgroundColor: color.bgSurface },
   fillSurfaceRaised: { backgroundColor: color.bgSurfaceRaised },
-  fillSurfaceBright: { backgroundColor: color.bgSurfaceBright },
-  textOnBright: { color: color.textOnBright },
 
-  // Interactive band
-  fillInteractiveRest: { backgroundColor: color.bgInteractiveRest },
-  fillInteractiveHover: { backgroundColor: color.bgInteractiveHover },
-  fillInteractivePressed: { backgroundColor: color.bgInteractivePressed },
-  fillInteractiveSelected: { backgroundColor: color.bgInteractiveSelected },
+  // Control band
+  fillControl: { backgroundColor: color.bgControl },
+  fillControlHover: { backgroundColor: color.bgControlHover },
+  fillControlPressed: { backgroundColor: color.bgControlPressed },
+  fillControlSelected: { backgroundColor: color.bgControlSelected },
   // No `fg` override: `fg` is for fills that need a different foreground to
   // stay legible (bright, inverse, scrim). Dimming this cell's label would
   // instead be documenting a disabled-text token, and there isn't one — a
   // disabled control fades as a whole through opacity. The fill is the specimen.
-  fillInteractiveDisabled: { backgroundColor: color.bgInteractiveDisabled },
+  fillControlDisabled: { backgroundColor: color.bgControlDisabled },
 
-  // Inverse / overlay band
+  // Bright · inverse · scrim band
+  fillBright: { backgroundColor: color.bgControlBright },
+  fgOnControlBright: { color: color.fgOnControlBright },
   fillInverse: { backgroundColor: color.bgInverse },
-  textInverseFg: { color: color.textOnInverse },
-  fillOverlay: { backgroundColor: color.bgOverlay },
+  fgOnInverse: { color: color.fgOnInverse },
   fillScrim: {
     // bgScrim itself is translucent; composite it above a bright surface so
     // the "dim layer over content" metaphor reads in the swatch — and so the
     // cell face stays opaque for the gridline-via-gap technique.
-    backgroundColor: color.bgSurfaceBright,
+    backgroundColor: color.bgControlBright,
     backgroundImage: `linear-gradient(${color.bgScrim}, ${color.bgScrim})`,
   },
-  textOnScrim: { color: color.textOnScrim },
-  fillChannels: {
-    backgroundImage: `linear-gradient(180deg, transparent 0%, ${color.bgCanvasFade} 100%), linear-gradient(${color.bgSurface}, ${color.bgSurface})`,
-  },
+  fgOnScrim: { color: color.fgOnScrim },
 });

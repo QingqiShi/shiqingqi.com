@@ -241,6 +241,6 @@ const styles = stylex.create({
     maxInlineSize: space._13,
     paddingBlock: space._2,
     paddingInline: space._3,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
 });

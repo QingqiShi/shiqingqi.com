@@ -88,7 +88,7 @@ const styles = stylex.create({
   intro: {
     margin: 0,
     fontSize: font.vpHeading3,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_4,
     maxInlineSize: "60ch",
     textWrap: "pretty",

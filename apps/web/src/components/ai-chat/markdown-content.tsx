@@ -32,7 +32,7 @@ const styles = stylex.create({
     marginBlock: 0,
   },
   a: {
-    color: color.accent,
+    color: color.fgAccent,
     textDecoration: "underline",
   },
   ul: {
@@ -53,17 +53,17 @@ const styles = stylex.create({
     borderStyle: "none",
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
     marginBlock: 0,
   },
   blockquote: {
     borderInlineStartWidth: border.size_2,
     borderInlineStartStyle: "solid",
-    borderInlineStartColor: color.accent,
+    borderInlineStartColor: color.borderAccent,
     paddingLeft: space._3,
     marginInline: 0,
     marginBlock: 0,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   pre: {
     backgroundColor: color.bgSurfaceSunken,
@@ -100,7 +100,7 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderBottomWidth: border.size_2,
     borderBottomStyle: "solid",
-    borderBottomColor: color.neutralBorder,
+    borderBottomColor: color.border,
     whiteSpace: "nowrap",
   },
   td: {
@@ -108,7 +108,7 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderBottomWidth: border.size_1,
     borderBottomStyle: "solid",
-    borderBottomColor: color.neutralBorder,
+    borderBottomColor: color.border,
   },
   wrapper: {
     gap: space._2,

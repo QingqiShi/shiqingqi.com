@@ -4,8 +4,10 @@ The [StyleX](https://stylexjs.com) design system that powers
 [qingqi.dev](https://qingqi.dev). It ships:
 
 - **Role-based tokens** — every color is a `light-dark()` pair, so theming is
-  driven entirely by `color-scheme`. Plus `font`, `space`, `controlSize`,
-  `border`, `shadow`, `layer`, and `ratio` scales.
+  driven entirely by `color-scheme`. A color token is named for the property it
+  paints (`fg`, `bg`, `border`) and the subject it paints it for. Plus the
+  `font`, `space`, `controlSize`, `border`, `shadow`, `layer`, `opacity`, and
+  `ratio` scales.
 - **A generated 13-hue HCT palette** — perceptually even ramps (blue, brown,
   cyan, gray, green, indigo, mint, orange, pink, purple, red, teal, yellow),
   each exported as a StyleX var file.
@@ -294,7 +296,7 @@ import { color, font } from "@tuja/ui/tokens.stylex";
 export const globalStyles = stylex.create({
   root: {
     backgroundColor: color.bgCanvas,
-    color: color.textMain,
+    color: color.fg,
     colorScheme: "light dark",
     fontFamily: font.family,
   },
@@ -346,63 +348,63 @@ Every entry point is a StyleX var/const file or a component. Import the exact
 subpath you need — there is no barrel. The set grows as the system gains
 components.
 
-| Subpath                                       | What it is                                                                                                                                              |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@tuja/ui/tokens.stylex`                      | Role-based tokens: `color`, `font`, `space`, `controlSize`, `border`, `shadow`, `layer`, `ratio`, plus layout consts.                                   |
-| `@tuja/ui/breakpoints.stylex`                 | Responsive breakpoint constants (media-query strings) for use as computed keys.                                                                         |
-| `@tuja/ui/palette/*`                          | Per-hue HCT ramp var files (e.g. `@tuja/ui/palette/blue`). Hues: blue, brown, cyan, gray, green, indigo, mint, orange, pink, purple, red, teal, yellow. |
-| `@tuja/ui/palette-table`                      | Flat palette lookup table (all hues and tones) for tooling and color matching.                                                                          |
-| `@tuja/ui/hooks/use-controlled`               | Controlled/uncontrolled state hook.                                                                                                                     |
-| `@tuja/ui/hooks/use-dialog-focus`             | Focus trap + restore for dialogs and overlays.                                                                                                          |
-| `@tuja/ui/hooks/use-disclosure`               | Headless expand/collapse state with the `aria-expanded` / `aria-controls` wiring.                                                                       |
-| `@tuja/ui/hooks/use-press-animation`          | Press/active animation state.                                                                                                                           |
-| `@tuja/ui/hooks/use-press-handlers`           | Pointer + keyboard press handler bundle.                                                                                                                |
-| `@tuja/ui/hooks/use-radio-group`              | Headless roving-tabindex radio group (arrow/Home/End keyboard, `getOptionProps`).                                                                       |
-| `@tuja/ui/hooks/use-scroll-mask`              | Whether each edge of a scroll region has scrolled-away content past it.                                                                                 |
-| `@tuja/ui/primitives/a11y.stylex`             | Accessibility primitives: `srOnly`, `focusRing`, `focusRingInset`.                                                                                      |
-| `@tuja/ui/primitives/corner.stylex`           | Corner radii paired with shape: squircle on `radius_1`–`radius_5`, circular caps on `radius_round`.                                                     |
-| `@tuja/ui/primitives/flex.stylex`             | Flex row/column layout primitives.                                                                                                                      |
-| `@tuja/ui/primitives/layout.stylex`           | Layout/container primitives.                                                                                                                            |
-| `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                       |
-| `@tuja/ui/primitives/reset.stylex`            | Element reset styles.                                                                                                                                   |
-| `@tuja/ui/primitives/texture.stylex`          | Texture: one drawn mark (a dot or a line) repeated at a pitch, in an ink colour.                                                                        |
-| `@tuja/ui/primitives/wash.stylex`             | Wash: a broad directional gradient, one tone drifting toward transparent.                                                                               |
-| `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                               |
-| `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                        |
-| `@tuja/ui/components/badge`                   | Status/label badge on the Chip pill skin (six Intents plus a default, `sm`/`md`).                                                                       |
-| `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger looks, three sizes, loading state); icon-only with `icon` and no children.                                         |
-| `@tuja/ui/components/button.stylex`           | Button style tokens.                                                                                                                                    |
-| `@tuja/ui/components/button-shared.stylex`    | Shared button styles (base, icon, active, pressed).                                                                                                     |
-| `@tuja/ui/components/callout`                 | Inline message/alert box (six Intents, built-in icon, optional dismiss).                                                                                |
-| `@tuja/ui/components/card`                    | Bordered surface container, plus header/title/description/content/footer slots.                                                                         |
-| `@tuja/ui/components/card.stylex`             | Card surface styles (`cardSurface`) for composing onto a link or list item.                                                                             |
-| `@tuja/ui/components/checkbox`                | Checkbox with label, description, error, and indeterminate states.                                                                                      |
-| `@tuja/ui/components/chip`                    | Interactive pill — renders an anchor with `href`, a button without.                                                                                     |
-| `@tuja/ui/components/chip.stylex`             | Chip surface and size styles for composing onto a framework `<Link>`.                                                                                   |
-| `@tuja/ui/components/disclosure`              | Expand/collapse section with a header trigger and a revealed panel.                                                                                     |
-| `@tuja/ui/components/divider`                 | Horizontal/vertical divider.                                                                                                                            |
-| `@tuja/ui/components/field-shared.stylex`     | Shared form-control chrome (label, description, control box, error text).                                                                               |
-| `@tuja/ui/components/fixed-container-content` | Fixed-position container content wrapper.                                                                                                               |
-| `@tuja/ui/components/header-footer-layout`    | Reading-density page shell: floating header controls, optional background and footer.                                                                   |
-| `@tuja/ui/components/heading`                 | Semantic heading (visual size decoupled from level, optional `wrap`).                                                                                   |
-| `@tuja/ui/components/menu-button`             | Button that opens a menu/overlay.                                                                                                                       |
-| `@tuja/ui/components/menu-label`              | Label row inside a menu.                                                                                                                                |
-| `@tuja/ui/components/overlay`                 | Accessible dialog/popover overlay (requires `aria-label` **xor** `aria-labelledby`).                                                                    |
-| `@tuja/ui/components/scroll-mask`             | Scroll region with a progressive blur at each edge it can still scroll to.                                                                              |
-| `@tuja/ui/components/section`                 | Labelled content block (quiet heading, optional icon and trailing actions).                                                                             |
-| `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`; `hideLabels` for an icon-only bar.                                                                      |
-| `@tuja/ui/components/select`                  | Styled native select (options prop or `<option>` children).                                                                                             |
-| `@tuja/ui/components/sidebar-layout`          | Sidebar + content layout.                                                                                                                               |
-| `@tuja/ui/components/skeleton`                | Loading skeleton.                                                                                                                                       |
-| `@tuja/ui/components/skeleton.stylex`         | Skeleton style tokens.                                                                                                                                  |
-| `@tuja/ui/components/spinner`                 | Indeterminate loading spinner (reduced-motion aware).                                                                                                   |
-| `@tuja/ui/components/sticky-controls`         | Sticky row of page chrome, with the page blurred around each group of its controls while it holds.                                                      |
-| `@tuja/ui/components/switch`                  | Toggle switch.                                                                                                                                          |
-| `@tuja/ui/components/switch.stylex`           | Switch style tokens.                                                                                                                                    |
-| `@tuja/ui/components/text`                    | Text/paragraph component (four type-scale steps, four foreground roles, four weights, `wrap`, `numeric`).                                               |
-| `@tuja/ui/components/text-field`              | Single-line text input with label, description, error, and adornments.                                                                                  |
-| `@tuja/ui/components/textarea`                | Multi-line text input with optional auto-grow.                                                                                                          |
-| `@tuja/ui/package.json`                       | Package manifest (for tooling).                                                                                                                         |
+| Subpath                                       | What it is                                                                                                                                                     |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@tuja/ui/tokens.stylex`                      | Role-based tokens: `color`, `font`, `space`, `controlSize`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus layout consts.                               |
+| `@tuja/ui/breakpoints.stylex`                 | Responsive breakpoint constants (media-query strings) for use as computed keys.                                                                                |
+| `@tuja/ui/palette/*.stylex`                   | Per-hue HCT ramp var files (e.g. `@tuja/ui/palette/blue.stylex`). Hues: blue, brown, cyan, gray, green, indigo, mint, orange, pink, purple, red, teal, yellow. |
+| `@tuja/ui/palette-table`                      | Flat palette lookup table (all hues and tones) for tooling and color matching.                                                                                 |
+| `@tuja/ui/hooks/use-controlled`               | Controlled/uncontrolled state hook.                                                                                                                            |
+| `@tuja/ui/hooks/use-dialog-focus`             | Focus trap + restore for dialogs and overlays.                                                                                                                 |
+| `@tuja/ui/hooks/use-disclosure`               | Headless expand/collapse state with the `aria-expanded` / `aria-controls` wiring.                                                                              |
+| `@tuja/ui/hooks/use-press-animation`          | Press/active animation state.                                                                                                                                  |
+| `@tuja/ui/hooks/use-press-handlers`           | Pointer + keyboard press handler bundle.                                                                                                                       |
+| `@tuja/ui/hooks/use-radio-group`              | Headless roving-tabindex radio group (arrow/Home/End keyboard, `getOptionProps`).                                                                              |
+| `@tuja/ui/hooks/use-scroll-mask`              | Whether each edge of a scroll region has scrolled-away content past it.                                                                                        |
+| `@tuja/ui/primitives/a11y.stylex`             | Accessibility primitives: `srOnly`, `focusRing`, `focusRingInset`.                                                                                             |
+| `@tuja/ui/primitives/corner.stylex`           | Corner radii paired with shape: squircle on `radius_1`–`radius_5`, circular caps on `radius_round`.                                                            |
+| `@tuja/ui/primitives/flex.stylex`             | Flex row/column layout primitives.                                                                                                                             |
+| `@tuja/ui/primitives/layout.stylex`           | Layout/container primitives.                                                                                                                                   |
+| `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                              |
+| `@tuja/ui/primitives/reset.stylex`            | Element reset styles.                                                                                                                                          |
+| `@tuja/ui/primitives/texture.stylex`          | Texture: one drawn mark (a dot or a line) repeated at a pitch, in an ink colour.                                                                               |
+| `@tuja/ui/primitives/wash.stylex`             | Wash: a broad directional gradient, one tone drifting toward transparent.                                                                                      |
+| `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                                      |
+| `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                               |
+| `@tuja/ui/components/badge`                   | Status/label badge on the Chip pill skin (six Intents plus a default, `sm`/`md`).                                                                              |
+| `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger looks, three sizes, loading state); icon-only with `icon` and no children.                                                |
+| `@tuja/ui/components/button.stylex`           | Button style tokens.                                                                                                                                           |
+| `@tuja/ui/components/button-shared.stylex`    | Shared button styles (base, icon, active, pressed).                                                                                                            |
+| `@tuja/ui/components/callout`                 | Inline message/alert box (six Intents, built-in icon, optional dismiss).                                                                                       |
+| `@tuja/ui/components/card`                    | Bordered surface container, plus header/title/description/content/footer slots.                                                                                |
+| `@tuja/ui/components/card.stylex`             | Card surface styles (`cardSurface`) for composing onto a link or list item.                                                                                    |
+| `@tuja/ui/components/checkbox`                | Checkbox with label, description, error, and indeterminate states.                                                                                             |
+| `@tuja/ui/components/chip`                    | Interactive pill — renders an anchor with `href`, a button without.                                                                                            |
+| `@tuja/ui/components/chip.stylex`             | Chip surface and size styles for composing onto a framework `<Link>`.                                                                                          |
+| `@tuja/ui/components/disclosure`              | Expand/collapse section with a header trigger and a revealed panel.                                                                                            |
+| `@tuja/ui/components/divider`                 | Horizontal/vertical divider.                                                                                                                                   |
+| `@tuja/ui/components/field-shared.stylex`     | Shared form-control chrome (label, description, control box, error text).                                                                                      |
+| `@tuja/ui/components/fixed-container-content` | Fixed-position container content wrapper.                                                                                                                      |
+| `@tuja/ui/components/header-footer-layout`    | Reading-density page shell: floating header controls, optional background and footer.                                                                          |
+| `@tuja/ui/components/heading`                 | Semantic heading (visual size decoupled from level, optional `wrap`).                                                                                          |
+| `@tuja/ui/components/menu-button`             | Button that opens a menu/overlay.                                                                                                                              |
+| `@tuja/ui/components/menu-label`              | Label row inside a menu.                                                                                                                                       |
+| `@tuja/ui/components/overlay`                 | Accessible dialog/popover overlay (requires `aria-label` **xor** `aria-labelledby`).                                                                           |
+| `@tuja/ui/components/scroll-mask`             | Scroll region with a progressive blur at each edge it can still scroll to.                                                                                     |
+| `@tuja/ui/components/section`                 | Labelled content block (quiet heading, optional icon and trailing actions).                                                                                    |
+| `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`; `hideLabels` for an icon-only bar.                                                                             |
+| `@tuja/ui/components/select`                  | Styled native select (options prop or `<option>` children).                                                                                                    |
+| `@tuja/ui/components/sidebar-layout`          | Sidebar + content layout.                                                                                                                                      |
+| `@tuja/ui/components/skeleton`                | Loading skeleton.                                                                                                                                              |
+| `@tuja/ui/components/skeleton.stylex`         | Skeleton style tokens.                                                                                                                                         |
+| `@tuja/ui/components/spinner`                 | Indeterminate loading spinner (reduced-motion aware).                                                                                                          |
+| `@tuja/ui/components/sticky-controls`         | Sticky row of page chrome, with the page blurred around each group of its controls while it holds.                                                             |
+| `@tuja/ui/components/switch`                  | Toggle switch.                                                                                                                                                 |
+| `@tuja/ui/components/switch.stylex`           | Switch style tokens.                                                                                                                                           |
+| `@tuja/ui/components/text`                    | Text/paragraph component (four type-scale steps, four foreground roles, four weights, `wrap`, `numeric`).                                                      |
+| `@tuja/ui/components/text-field`              | Single-line text input with label, description, error, and adornments.                                                                                         |
+| `@tuja/ui/components/textarea`                | Multi-line text input with optional auto-grow.                                                                                                                 |
+| `@tuja/ui/package.json`                       | Package manifest (for tooling).                                                                                                                                |
 
 ## SSR & RSC
 

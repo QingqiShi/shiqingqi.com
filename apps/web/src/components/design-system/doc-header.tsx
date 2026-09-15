@@ -50,7 +50,7 @@ const styles = stylex.create({
     fontWeight: font.weight_8,
     letterSpacing: font.trackingTight,
     lineHeight: font.lineHeight_1,
-    color: color.textMain,
+    color: color.fg,
     textWrap: "balance",
   },
 });

@@ -168,7 +168,7 @@ const styles = stylex.create({
     // the rail used to, and the scroller the inline ones.
     backgroundColor: {
       default: color.bgSurface,
-      [breakpoints.md]: color.bgCanvasSubtle,
+      [breakpoints.md]: color.bgSurfaceSunken,
     },
     borderStartStartRadius: {
       default: border.radius_3,

@@ -45,7 +45,7 @@ export const fieldStyles = stylex.create({
     fontSize: font.uiControl,
     fontWeight: font.weight_6,
     lineHeight: font.lineHeight_3,
-    color: color.textMain,
+    color: color.fg,
   },
   // Decorative asterisk via `::after`, so it never enters the label's text or
   // the control's accessible name — semantics come from the native
@@ -54,13 +54,13 @@ export const fieldStyles = stylex.create({
     "::after": {
       content: '"*"',
       marginInlineStart: space._00,
-      color: color.dangerText,
+      color: color.fgDanger,
     },
   },
   description: {
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_3,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   // Positioning context for the absolutely-placed affix slots. Also carries the
   // size variable so both the control and the affixes read the same padding.
@@ -78,29 +78,22 @@ export const fieldStyles = stylex.create({
     fontFamily: font.family,
     fontSize: font.uiControl,
     lineHeight: font.lineHeight_4,
-    color: color.textMain,
+    color: color.fg,
     backgroundColor: {
-      default: color.bgInteractiveRest,
-      ":disabled": color.bgInteractiveDisabled,
+      default: color.bgControl,
+      ":disabled": color.bgControlDisabled,
     },
     borderStyle: "solid",
     borderWidth: border.size_1,
-    // The keyboard-only ring layers on separately via `a11y.focusRing`. A
-    // disabled control keeps the resting border even under hover (`:hover`
-    // still matches disabled elements), so the compound selector pins it.
-    borderColor: {
-      default: color.neutralBorder,
-      ":hover": color.neutral,
-      ":focus": color.accent,
-      ":disabled:hover": color.neutralBorder,
-    },
+    // The keyboard-only ring layers on separately via `a11y.focusRing`.
+    borderColor: { default: color.border, ":focus": color.borderAccent },
     borderRadius: border.radius_2,
     cornerShape: "squircle",
     paddingInline: fieldVars.paddingInline,
     cursor: { default: "text", ":disabled": "not-allowed" },
     opacity: { default: null, ":disabled": opacity.disabled },
     "::placeholder": {
-      color: color.textMuted,
+      color: color.fgMuted,
       opacity: 1,
     },
   },
@@ -117,11 +110,14 @@ export const fieldStyles = stylex.create({
   // outline and border win over the default accent ones.
   controlInvalid: {
     borderColor: {
-      default: color.dangerBorder,
-      ":hover": color.danger,
-      ":focus": color.danger,
+      default: color.borderDanger,
+      ":hover": color.borderDanger,
+      ":focus": color.borderDanger,
     },
-    outlineColor: { default: "transparent", ":focus-visible": color.danger },
+    outlineColor: {
+      default: "transparent",
+      ":focus-visible": color.borderDanger,
+    },
   },
   hasLeadingAffix: {
     paddingInlineStart: `calc(${fieldVars.paddingInline} + ${AFFIX_SLOT})`,
@@ -139,7 +135,7 @@ export const fieldStyles = stylex.create({
     justifyContent: "center",
     inlineSize: AFFIX_SLOT,
     fontSize: font.uiControl,
-    color: color.textMuted,
+    color: color.fgMuted,
     pointerEvents: "none",
   },
   affixStart: {
@@ -151,7 +147,7 @@ export const fieldStyles = stylex.create({
   errorText: {
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_3,
-    color: color.dangerText,
+    color: color.fgDanger,
   },
 });
 

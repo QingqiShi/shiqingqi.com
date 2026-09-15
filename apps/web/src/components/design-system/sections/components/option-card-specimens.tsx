@@ -361,6 +361,6 @@ const styles = stylex.create({
   price: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.accentText,
+    color: color.fgAccent,
   },
 });

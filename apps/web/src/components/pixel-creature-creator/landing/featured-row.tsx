@@ -76,12 +76,12 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.vpHeading2,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
   },
   description: {
     margin: 0,
     fontSize: font.uiBody,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   list: {
     listStyle: "none",
@@ -104,12 +104,12 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._3,
     width: "100%",
-    color: color.textMain,
+    color: color.fg,
     textDecoration: "none",
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
-      ":focus-visible": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
+      ":focus-visible": color.bgControlHover,
     },
     transitionProperty: "background-color, transform",
     transitionDuration: "160ms",
@@ -128,6 +128,6 @@ const styles = stylex.create({
   name: {
     fontSize: font.uiBody,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
   },
 });

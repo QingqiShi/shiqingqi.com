@@ -304,7 +304,7 @@ export function ContainerScaleSpecimen() {
   );
 }
 
-const HAIRLINE = `inset 0 0 0 1px ${color.neutralBorder}`;
+const HAIRLINE = `inset 0 0 0 1px ${color.border}`;
 
 const styles = stylex.create({
   wrap: {
@@ -338,9 +338,9 @@ const styles = stylex.create({
   },
   cardActive: {
     // An alpha tint over the panel — keeps text contrast in both themes,
-    // unlike bgSurfaceBright which flips to a light surface in dark mode.
-    backgroundColor: color.surfaceAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.accent}`,
+    // unlike bgControlBright which stays a light surface in dark mode.
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
   cardWidth: (inlineSize: string) => ({
     inlineSize,
@@ -356,7 +356,7 @@ const styles = stylex.create({
   eyebrow: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontVariantNumeric: "tabular-nums",
   },
   specimen: {
@@ -364,7 +364,7 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
     lineHeight: font.lineHeight_2,
     letterSpacing: font.trackingSnug,
-    color: color.textMain,
+    color: color.fg,
     overflowWrap: "break-word",
   },
   specimenFontSize: (fontSize: string) => ({
@@ -374,11 +374,11 @@ const styles = stylex.create({
     marginBlockStart: "auto",
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontVariantNumeric: "tabular-nums",
   },
   readoutActive: {
-    color: color.accentText,
+    color: color.fgAccent,
     fontWeight: font.weight_6,
   },
   controls: {
@@ -401,12 +401,12 @@ const styles = stylex.create({
     fontSize: font.uiOverline,
     textTransform: "uppercase",
     letterSpacing: font.trackingWidest,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   liveValue: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
     fontVariantNumeric: "tabular-nums",
   },
   slider: {
@@ -414,7 +414,7 @@ const styles = stylex.create({
     flexBasis: "12rem",
     minInlineSize: 0,
     margin: 0,
-    accentColor: color.accent,
+    accentColor: color.bgAccent,
     cursor: "pointer",
   },
   ruler: {
@@ -431,7 +431,7 @@ const styles = stylex.create({
     insetInline: 0,
     insetBlockEnd: 0,
     blockSize: border.size_2,
-    backgroundColor: color.neutralBorder,
+    backgroundColor: color.border,
   },
   leftPercent: (left: string) => ({
     left,
@@ -448,7 +448,7 @@ const styles = stylex.create({
     borderStartStartRadius: border.radius_1,
     borderEndStartRadius: border.radius_1,
     cornerShape: "squircle",
-    backgroundImage: `repeating-linear-gradient(135deg, transparent 0, transparent 5px, ${color.neutral} 5px, ${color.neutral} 6px)`,
+    backgroundImage: `repeating-linear-gradient(135deg, transparent 0, transparent 5px, ${color.bgNeutral} 5px, ${color.bgNeutral} 6px)`,
   },
   notch: {
     position: "absolute",
@@ -456,12 +456,12 @@ const styles = stylex.create({
     inlineSize: border.size_2,
     blockSize: space._2,
     marginInlineStart: `calc(-1 * ${border.size_1})`,
-    backgroundColor: color.neutral,
+    backgroundColor: color.bgNeutral,
     transition: "background-color 0.18s ease, block-size 0.18s ease",
   },
   notchActive: {
     blockSize: space._3,
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
   },
   needle: {
     position: "absolute",
@@ -469,7 +469,7 @@ const styles = stylex.create({
     blockSize: "100%",
     inlineSize: border.size_2,
     marginInlineStart: `calc(-1 * ${border.size_1})`,
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
   },
   needleLabel: {
     position: "absolute",
@@ -477,11 +477,11 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
     paddingBlock: space._00,
     paddingInline: space._1,
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.bgAccentSubtle,
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
     fontVariantNumeric: "tabular-nums",
-    color: color.accentText,
+    color: color.fgAccent,
   },
   needleLabelTransform: (transform: string) => ({
     transform,
@@ -494,7 +494,7 @@ const styles = stylex.create({
   end: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontVariantNumeric: "tabular-nums",
   },
   endRight: {
@@ -517,7 +517,7 @@ const styles = stylex.create({
     boxShadow: HAIRLINE,
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     whiteSpace: "nowrap",
   },
   lgCopy: {
@@ -525,7 +525,7 @@ const styles = stylex.create({
     flexBasis: 0,
     minInlineSize: "16ch",
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_4,
   },
 });

@@ -44,7 +44,7 @@ interface IdentifierProps {
 /**
  * An identifier — a token name, a prop name, a Phosphor component name — with
  * `<wbr>` wrap opportunities at its own seams, so a name too long for its card
- * breaks at `color.` / `bg` / `Interactive` / `Selected` rather than mid-word or
+ * breaks at `color.` / `bg` / `Control` / `Selected` rather than mid-word or
  * at an ellipsis. On these pages the name is the content a reader came to copy,
  * so it has to survive the wrap intact.
  */

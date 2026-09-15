@@ -34,6 +34,6 @@ const styles = stylex.create({
   foot: {
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
   },
 });

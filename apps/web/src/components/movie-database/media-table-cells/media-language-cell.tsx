@@ -16,7 +16,7 @@ export function MediaLanguageCell({ api, column, row }: MediaCellParams) {
 
 const styles = stylex.create({
   language: {
-    color: color.textMuted,
+    color: color.fgMuted,
     fontSize: font.uiBodySmall,
   },
 });

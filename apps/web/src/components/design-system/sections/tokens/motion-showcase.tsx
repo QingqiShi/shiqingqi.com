@@ -428,13 +428,13 @@ const styles = stylex.create({
   },
   track: {
     blockSize: space._1,
-    backgroundColor: color.bgInteractivePressed,
+    backgroundColor: color.bgControlPressed,
     overflow: "hidden",
   },
   trackFill: {
     display: "block",
     blockSize: "100%",
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
   },
   trackFillWidth: (inlineSize: string) => ({
     inlineSize,
@@ -445,14 +445,14 @@ const styles = stylex.create({
     overflow: "visible",
   },
   curveGuide: {
-    stroke: color.neutralBorder,
+    stroke: color.border,
     strokeWidth: 1,
     strokeDasharray: "3 4",
     vectorEffect: "non-scaling-stroke",
   },
   curvePath: {
     fill: "none",
-    stroke: color.accent,
+    stroke: color.bgAccent,
     strokeWidth: 2,
     strokeLinecap: "round",
     vectorEffect: "non-scaling-stroke",
@@ -470,22 +470,22 @@ const styles = stylex.create({
     textAlign: "center",
     cursor: "pointer",
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
-    color: color.textMuted,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
+    color: color.fgMuted,
   },
   hoverColors: {
     backgroundColor: {
       default: color.bgSurfaceRaised,
-      ":hover": color.accent,
+      ":hover": color.bgAccent,
     },
-    color: { default: color.textMuted, ":hover": color.accentOn },
+    color: { default: color.fgMuted, ":hover": color.fgOnAccent },
   },
   hoverOpacity: {
     opacity: { default: 1, ":hover": 0.35 },
   },
   hoverShadow: {
     boxShadow: {
-      default: `inset 0 0 0 1px ${color.neutralBorder}`,
+      default: `inset 0 0 0 1px ${color.border}`,
       ":hover": shadow._4,
     },
   },
@@ -495,10 +495,10 @@ const styles = stylex.create({
   hoverAll: {
     backgroundColor: {
       default: color.bgSurfaceRaised,
-      ":hover": color.accentGlow,
+      ":hover": color.bgAccentSubtle,
     },
     transform: { default: "translateY(0)", ":hover": "translateY(-4px)" },
-    color: { default: color.textMuted, ":hover": color.accentText },
+    color: { default: color.fgMuted, ":hover": color.fgAccent },
   },
   replayBar: {
     display: "flex",
@@ -515,9 +515,9 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    backgroundColor: color.bgInteractiveRest,
-    color: color.textMain,
+    borderColor: color.border,
+    backgroundColor: color.bgControl,
+    color: color.fg,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     cursor: "pointer",
@@ -533,12 +533,12 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._2,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   animSubject: {
     inlineSize: space._7,
     blockSize: space._7,
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
   },
   slideViewport: {
     display: "flex",
@@ -562,7 +562,7 @@ const styles = stylex.create({
   dot: {
     inlineSize: space._2,
     blockSize: space._2,
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
   },
   dotDelay1: {
     animationDelay: "0.16s",
@@ -582,10 +582,10 @@ const styles = stylex.create({
     cursor: "pointer",
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.accent,
+      ":hover": color.bgAccent,
     },
-    color: { default: color.textMain, ":hover": color.accentOn },
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    color: { default: color.fg, ":hover": color.fgOnAccent },
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   dontTile: {
     display: "flex",
@@ -596,8 +596,8 @@ const styles = stylex.create({
     paddingInline: space._4,
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
 });

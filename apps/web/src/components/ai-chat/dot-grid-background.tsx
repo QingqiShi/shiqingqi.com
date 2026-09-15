@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { cyan } from "@tuja/ui/palette/cyan";
-import { orange } from "@tuja/ui/palette/orange";
-import { pink } from "@tuja/ui/palette/pink";
-import { purple } from "@tuja/ui/palette/purple";
-import { red } from "@tuja/ui/palette/red";
+import { cyan } from "@tuja/ui/palette/cyan.stylex";
+import { orange } from "@tuja/ui/palette/orange.stylex";
+import { pink } from "@tuja/ui/palette/pink.stylex";
+import { purple } from "@tuja/ui/palette/purple.stylex";
+import { red } from "@tuja/ui/palette/red.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useAIChatContext } from "#src/ai-chat/ai-chat-provider.tsx";
@@ -36,7 +36,7 @@ const styles = stylex.create({
     inset: 0,
     zIndex: layer.background,
     pointerEvents: "none",
-    backgroundImage: `radial-gradient(circle, ${color.textMuted} 1px, transparent 1px), radial-gradient(ellipse at 80% 20%, var(--chat-mood-wash) 0%, transparent 70%)`,
+    backgroundImage: `radial-gradient(circle, ${color.bgNeutral} 1px, transparent 1px), radial-gradient(ellipse at 80% 20%, var(--chat-mood-wash) 0%, transparent 70%)`,
     backgroundSize: "24px 24px, 100% 100%",
     backgroundRepeat: "repeat, no-repeat",
     opacity: 0.12,

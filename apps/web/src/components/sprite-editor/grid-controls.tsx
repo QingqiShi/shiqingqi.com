@@ -249,7 +249,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingSnug,
-    color: color.textMain,
+    color: color.fg,
   },
   primaryRow: {
     display: "grid",
@@ -261,7 +261,7 @@ const styles = stylex.create({
     paddingBlockEnd: space._2,
     fontSize: font.uiHeading3,
     fontWeight: font.weight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontVariantNumeric: "tabular-nums",
   },
   subLabel: {
@@ -269,7 +269,7 @@ const styles = stylex.create({
     marginBlockStart: space._1,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   fieldGrid: {
     display: "grid",
@@ -285,19 +285,19 @@ const styles = stylex.create({
   fieldLabel: {
     fontSize: font.uiCaption,
     fontWeight: font.weight_5,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   fieldLabelEmphasis: {
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
   },
   input: {
     width: "100%",
     paddingBlock: space._1,
     paddingInline: space._2,
     backgroundColor: color.bgSurfaceSunken,
-    color: color.textMain,
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    color: color.fg,
+    border: `${border.size_1} solid ${color.border}`,
     fontSize: font.uiBodySmall,
     fontFamily: font.familyMono,
     fontVariantNumeric: "tabular-nums",
@@ -308,12 +308,12 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     borderColor: {
-      default: color.neutralBorder,
-      ":focus": color.accent,
+      default: color.border,
+      ":focus": color.borderAccent,
     },
     boxShadow: {
       default: "none",
-      ":focus": `0 0 0 1px ${color.accent}`,
+      ":focus": `0 0 0 1px ${color.borderAccent}`,
     },
   },
   inputEmphasis: {

@@ -153,7 +153,7 @@ const styles = stylex.create({
     paddingLeft: space._2,
     paddingRight: space._1,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     maxWidth: "100%",
   },
   attachmentDismiss: {
@@ -162,9 +162,9 @@ const styles = stylex.create({
     height: "1rem",
     backgroundColor: {
       default: "transparent",
-      ":hover": color.surfaceNeutralSubtle,
+      ":hover": color.bgNeutralSubtle,
     },
-    color: color.textMuted,
+    color: color.fgMuted,
     transition: "background-color 0.15s ease",
   },
 });

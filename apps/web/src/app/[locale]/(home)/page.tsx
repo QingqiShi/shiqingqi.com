@@ -12,6 +12,7 @@ import { ExperienceCard } from "#src/components/home/experience-card.tsx";
 import { ProjectCard } from "#src/components/home/project-card.tsx";
 import { t } from "#src/i18n.ts";
 import AGSB from "#src/logos/AGSB.webp";
+import { brand } from "#src/logos/brand.stylex.ts";
 import BristolLogo from "#src/logos/bristol-logo.tsx";
 import CitadelLogo from "#src/logos/citadel-logo.tsx";
 import NottinghamLogo from "#src/logos/nottingham-logo.tsx";
@@ -272,38 +273,38 @@ const styles = stylex.create({
   // composition replaces the whole declaration rather than merging conditions.
   movieDatabase: {
     [svgTokens.fill]: {
-      default: color.brandTmdb,
-      ":not(:hover)": color.textMuted,
+      default: brand.tmdb,
+      ":not(:hover)": color.fgMuted,
     },
   },
   designSystem: {
     [svgTokens.fill]: {
-      default: color.accent,
-      ":not(:hover)": color.textMuted,
+      default: color.bgAccent,
+      ":not(:hover)": color.fgMuted,
     },
   },
   calculator: {
     [svgTokens.fill]: {
-      default: color.brandCalculator,
-      ":not(:hover)": color.textMuted,
+      default: brand.calculator,
+      ":not(:hover)": color.fgMuted,
     },
   },
   studentLoan: {
     [svgTokens.fill]: {
-      default: color.brandStudentLoan,
-      ":not(:hover)": color.textMuted,
+      default: brand.studentLoan,
+      ":not(:hover)": color.fgMuted,
     },
   },
   pixelCreatureCreator: {
     [svgTokens.fill]: {
-      default: color.brandPixelCreatureCreator,
-      ":not(:hover)": color.textMuted,
+      default: brand.pixelCreatureCreator,
+      ":not(:hover)": color.fgMuted,
     },
   },
   spriteEditor: {
     [svgTokens.fill]: {
-      default: color.brandPixelCreatureCreator,
-      ":not(:hover)": color.textMuted,
+      default: brand.pixelCreatureCreator,
+      ":not(:hover)": color.fgMuted,
     },
   },
 });

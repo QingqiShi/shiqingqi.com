@@ -187,8 +187,8 @@ const styles = stylex.create({
   roleTag: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
-    backgroundColor: color.surfaceNeutralSubtle,
+    color: color.fgMuted,
+    backgroundColor: color.bgNeutralSubtle,
     paddingInline: space._1,
     paddingBlock: space._00,
   },

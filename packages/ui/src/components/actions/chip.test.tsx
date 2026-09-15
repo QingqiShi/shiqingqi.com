@@ -125,8 +125,8 @@ describe("Chip slots", () => {
       </Chip>,
     );
 
-    // Active: accentOn on accent only just clears 4.5:1, so muting the trailing
-    // content there would push it under the contrast floor.
+    // Active: `fgOnAccent` on the accent fill only just clears 4.5:1, so
+    // muting the trailing content there would push it under the floor.
     expect(trailingOf()?.className).toContain("styles.trailingActive");
   });
 

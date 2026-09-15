@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { brand } from "./brand.stylex.ts";
 import { svgTokens } from "./svg.stylex";
 
 export default function CitadelLogo() {
@@ -27,7 +27,8 @@ export default function CitadelLogo() {
 
 const styles = stylex.create({
   svg: {
-    color: stylex.firstThatWorks(svgTokens.fill, color.brandCitadel),
+    // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know stylex.firstThatWorks() and rejects the function call as a colour value
+    color: stylex.firstThatWorks(svgTokens.fill, brand.citadel),
     fill: "currentColor",
     clipRule: "evenodd",
     strokeLinejoin: "round",

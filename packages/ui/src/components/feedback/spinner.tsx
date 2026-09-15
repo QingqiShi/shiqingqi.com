@@ -177,5 +177,5 @@ const sizeStyles = stylex.create({
 
 const toneStyles = stylex.create({
   current: { color: "currentColor" },
-  accent: { color: color.accent },
+  accent: { color: color.borderAccent },
 });

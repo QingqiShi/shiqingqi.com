@@ -277,8 +277,8 @@ const styles = stylex.create({
   },
   userBubble: {
     marginLeft: "auto",
-    backgroundColor: color.accent,
-    color: color.accentOn,
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
     borderBottomRightRadius: border.radius_1,
     cornerBottomRightShape: "squircle",
   },
@@ -293,7 +293,7 @@ const styles = stylex.create({
       default: shadow._1,
       [constants.DARK]: "none",
     },
-    color: color.textMain,
+    color: color.fg,
     borderBottomLeftRadius: border.radius_1,
     cornerBottomLeftShape: "squircle",
   },
@@ -309,7 +309,7 @@ const styles = stylex.create({
   reasoning: {
     whiteSpace: "pre-wrap",
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontStyle: "italic",
   },
 });

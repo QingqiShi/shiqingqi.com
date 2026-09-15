@@ -171,11 +171,11 @@ const styles = stylex.create({
   title: {
     fontSize: font.uiHeading3,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
   },
   body: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_4,
   },
 });

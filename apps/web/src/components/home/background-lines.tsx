@@ -39,7 +39,7 @@ const styles = stylex.create({
   line: {
     display: "none",
     width: border.size_1,
-    backgroundImage: `linear-gradient(${color.textMuted} 33%, transparent 0%)`,
+    backgroundImage: `linear-gradient(${color.bgNeutral} 33%, transparent 0%)`,
     backgroundPosition: "right",
     backgroundSize: `${border.size_1} ${border.size_3}`,
     backgroundRepeat: "repeat-y",

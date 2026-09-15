@@ -194,6 +194,6 @@ const styles = stylex.create({
     inlineSize: space._0,
     alignSelf: "stretch",
     minBlockSize: space._5,
-    backgroundColor: color.danger,
+    backgroundColor: color.bgDanger,
   },
 });

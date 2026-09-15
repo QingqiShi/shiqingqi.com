@@ -247,7 +247,7 @@ const styles = stylex.create({
     padding: space._3,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
   },
   railTrack: {
@@ -265,12 +265,12 @@ const styles = stylex.create({
     paddingInlineStart: space._4,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   diagramTrigger: {
     inlineSize: space._9,
     blockSize: space._2,
-    backgroundColor: color.bgInteractiveSelected,
+    backgroundColor: color.bgControlSelected,
   },
   diagramPanel: {
     position: "absolute",

@@ -442,7 +442,7 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._4,
     padding: space._4,
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.border}`,
     backgroundColor: color.bgSurface,
     // Keep natural height inside the scrolling sidebar — without this the
     // panel shrinks as a flex child and `overflow: hidden` (kept for the
@@ -480,6 +480,6 @@ const styles = stylex.create({
   editorTitle: {
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
   },
 });

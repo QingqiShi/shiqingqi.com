@@ -61,7 +61,7 @@ const styles = stylex.create({
   sample: {
     margin: 0,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
   },
   lh00: { lineHeight: font.lineHeight_00 },
   lh0: { lineHeight: font.lineHeight_0 },

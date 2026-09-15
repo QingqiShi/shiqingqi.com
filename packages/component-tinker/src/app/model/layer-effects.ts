@@ -82,12 +82,12 @@ export interface Glass {
   radius: GlassRadius;
 }
 
-export const TEXTURE_DEFAULT = "dot space._1 color.neutralBorder";
-export const WASH_DEFAULT = "color.surfaceAccentSubtle toBottom";
+export const TEXTURE_DEFAULT = "dot space._1 color.border";
+export const WASH_DEFAULT = "color.bgAccentSubtle toBottom";
 export const FLOATING_DEFAULT = "radius 16px";
 export const SCROLL_MASK_DEFAULT = "vertical radius 8px";
 export const GLASS_DEFAULT =
-  "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius 8px";
+  "color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius 8px";
 
 export const TOGGLE_DEFAULTS: Record<ToggleName, string> = {
   texture: TEXTURE_DEFAULT,

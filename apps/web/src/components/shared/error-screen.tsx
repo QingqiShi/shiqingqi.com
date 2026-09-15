@@ -67,7 +67,7 @@ const styles = stylex.create({
   },
   description: {
     fontSize: font.uiBody,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: `${space._2} 0 0`,
   },
   button: {

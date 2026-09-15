@@ -209,7 +209,7 @@ const styles = stylex.create({
     padding: space._3,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
     minBlockSize: space._9,
   },

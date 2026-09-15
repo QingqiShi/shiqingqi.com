@@ -299,7 +299,7 @@ const styles = stylex.create({
     margin: 0,
     minBlockSize: "1lh",
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   section: {
     display: "flex",
@@ -311,7 +311,7 @@ const styles = stylex.create({
     fontSize: font.uiHeading1,
     fontWeight: font.weight_8,
     letterSpacing: font.trackingSnug,
-    color: color.textMain,
+    color: color.fg,
   },
   category: {
     display: "flex",
@@ -326,7 +326,7 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
     letterSpacing: font.trackingWidest,
     textTransform: "uppercase",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   // `auto-fill`, not `auto-fit`: the groups run from two tiles to eight, and
   // `auto-fit` collapses the empty tracks so a two-tile group would stretch into
@@ -342,7 +342,7 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiHeading3,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     maxInlineSize: "52ch",
     textWrap: "pretty",
   },

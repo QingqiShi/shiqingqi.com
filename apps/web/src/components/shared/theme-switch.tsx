@@ -4,7 +4,7 @@ import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
 import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import { Button } from "@tuja/ui/components/button";
 import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
-import { gray } from "@tuja/ui/palette/gray";
+import { gray } from "@tuja/ui/palette/gray.stylex";
 import { useLayoutEffect } from "react";
 import { getDocumentClassName } from "#src/app/global-styles.ts";
 import { useMediaQuery } from "#src/hooks/use-media-query.ts";

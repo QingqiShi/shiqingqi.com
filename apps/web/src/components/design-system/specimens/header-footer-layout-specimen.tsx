@@ -52,7 +52,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceRaised,
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
   },
   group: {
     display: "flex",

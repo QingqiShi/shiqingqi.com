@@ -131,12 +131,12 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   doPanel: {
-    backgroundColor: color.surfaceSuccessSubtle,
-    borderColor: color.successBorder,
+    backgroundColor: color.bgSuccessSubtle,
+    borderColor: color.borderSuccess,
   },
   dontPanel: {
-    backgroundColor: color.surfaceDangerSubtle,
-    borderColor: color.dangerBorder,
+    backgroundColor: color.bgDangerSubtle,
+    borderColor: color.borderDanger,
   },
   header: {
     display: "flex",
@@ -149,10 +149,10 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_0,
   },
   doText: {
-    color: color.successText,
+    color: color.fgSuccess,
   },
   dontText: {
-    color: color.dangerText,
+    color: color.fgDanger,
   },
   // A specimen that cannot shrink — a segmented control with too many segments,
   // say — scrolls inside the panel rather than spilling past its border.

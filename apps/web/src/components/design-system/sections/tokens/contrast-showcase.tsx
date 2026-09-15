@@ -58,8 +58,8 @@ export function ContrastShowcase() {
             }),
             value: t({ en: "Lc 75, 60 and 50", zh: "Lc 75、60 与 50" }),
             note: t({
-              en: "textMain holds Lc 75 and textMuted Lc 60 on the twelve opaque surfaces they can sit on, with more than Lc 12 between them on the canvas so they read as two levels. A label on an Intent fill holds Lc 60 on Base and Lc 50 on Hover, a transient lift of the same label. All of it in both themes.",
-              zh: "textMain 在其可能落在的十二个不透明表面上保持 Lc 75，textMuted 保持 Lc 60，二者在画布上相距 Lc 12 以上，以读作两个层级。意图色填充上的标签在 Base 上保持 Lc 60，在 Hover 上保持 Lc 50，因为那只是同一标签的短暂抬升。以上均在两种主题下成立。",
+              en: "color.fg holds Lc 75 and color.fgMuted Lc 60 on every opaque surface they can sit on, with more than Lc 12 between them on the canvas so they read as two levels. A label on an Intent fill holds Lc 60 on Base and Lc 50 on Hover, a transient lift of the same label. All of it in both themes.",
+              zh: "color.fg 在其可能落在的每一个不透明表面上保持 Lc 75，color.fgMuted 保持 Lc 60，二者在画布上相距 Lc 12 以上，以读作两个层级。意图色填充上的标签在 Base 上保持 Lc 60，在 Hover 上保持 Lc 50，因为那只是同一标签的短暂抬升。以上均在两种主题下成立。",
             }),
           },
           {

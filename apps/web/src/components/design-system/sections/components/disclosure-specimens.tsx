@@ -66,7 +66,7 @@ const styles = stylex.create({
     paddingInline: space._3,
   },
   link: {
-    color: { default: color.textMain, ":hover": color.textMuted },
+    color: { default: color.fg, ":hover": color.fgMuted },
     textUnderlineOffset: "0.25em",
   },
   caret: {
@@ -80,6 +80,6 @@ const styles = stylex.create({
     paddingInline: space._3,
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
   },
 });

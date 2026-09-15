@@ -266,8 +266,8 @@ const styles = stylex.create({
     gap: space._00,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    backgroundColor: color.bgCanvasSubtle,
+    borderColor: color.border,
+    backgroundColor: color.bgSurfaceSunken,
     // `relative` makes the track the indicator's containing block, so only the
     // options in this track can be its anchor and a second control on the page
     // cannot pull it away. `isolate` keeps the indicator's negative z-index
@@ -316,10 +316,10 @@ const styles = stylex.create({
     // The ring is inset here, matching `cardSurface.interactive`, so it is not
     // cropped by the neighbouring segments.
     fontWeight: font.weight_5,
-    color: { default: color.textMuted, ":hover": color.textMain },
+    color: { default: color.fgMuted, ":hover": color.fg },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
   },
   // A non-wrapping label's min-content width blocks an even flex split, even
@@ -341,15 +341,15 @@ const styles = stylex.create({
       default: "transparent",
       ":hover": "transparent",
       [NO_ANCHOR_POSITIONING]: {
-        default: color.bgInteractiveRest,
-        ":hover": color.bgInteractiveRest,
+        default: color.bgControl,
+        ":hover": color.bgControl,
       },
     },
-    color: { default: color.textMain, ":hover": color.textMain },
+    color: { default: color.fg, ":hover": color.fg },
     fontWeight: font.weight_6,
     borderColor: {
       default: "transparent",
-      [NO_ANCHOR_POSITIONING]: color.neutralBorder,
+      [NO_ANCHOR_POSITIONING]: color.border,
     },
     boxShadow: { default: "none", [NO_ANCHOR_POSITIONING]: shadow._1 },
   },

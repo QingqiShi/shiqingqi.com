@@ -6,6 +6,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, ratio } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { brand } from "#src/logos/brand.stylex.ts";
 
 interface CalculatorButtonProps {
   label: string;
@@ -74,11 +75,11 @@ const styles = stylex.create({
     borderWidth: 0,
     appearance: "unset",
     textTransform: "uppercase",
-    [buttonTokens.backgroundColor]: color.bgInteractiveRest,
-    [buttonTokens.backgroundColorHover]: color.bgInteractiveHover,
+    [buttonTokens.backgroundColor]: color.bgControl,
+    [buttonTokens.backgroundColorHover]: color.bgControlHover,
     filter: { ":hover": "brightness(1.1)" },
     outline: {
-      ":focus-visible": `${border.size_2} solid ${color.brandCalculator}`,
+      ":focus-visible": `${border.size_2} solid ${brand.calculator}`,
     },
     outlineOffset: {
       ":focus-visible": "2px",
@@ -95,8 +96,8 @@ const styles = stylex.create({
     aspectRatio: null,
   },
   rowEndButton: {
-    backgroundColor: color.brandCalculator,
-    [buttonTokens.backgroundColor]: color.brandCalculator,
-    [buttonTokens.backgroundColorHover]: color.brandCalculator,
+    backgroundColor: brand.calculator,
+    [buttonTokens.backgroundColor]: brand.calculator,
+    [buttonTokens.backgroundColorHover]: brand.calculator,
   },
 });

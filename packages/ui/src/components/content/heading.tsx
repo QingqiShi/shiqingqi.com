@@ -148,7 +148,7 @@ export function Heading({
 const styles = stylex.create({
   base: {
     margin: 0,
-    color: color.textMain,
+    color: color.fg,
   },
 });
 

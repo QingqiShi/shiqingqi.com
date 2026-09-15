@@ -16,7 +16,7 @@ const styles = stylex.create({
   helper: {
     margin: 0,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_4,
     maxInlineSize: measure.prose,
     textWrap: "pretty",

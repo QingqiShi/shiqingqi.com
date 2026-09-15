@@ -103,7 +103,7 @@ const styles = stylex.create({
     // squircle-cornered clip above the layers makes Chrome drop their masks.
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   // The copy runs the height of the mock rather than sitting in a block at the
