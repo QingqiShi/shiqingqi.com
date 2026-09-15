@@ -71,11 +71,11 @@ const styles = stylex.create({
   text: {
     margin: 0,
     fontSize: font.uiBody,
-    color: color.textMuted,
+    color: color.fgMuted,
     flex: 1,
   },
   errorText: {
-    color: color.textMain,
+    color: color.fg,
   },
   actions: {
     gap: space._2,
@@ -89,9 +89,9 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: "transparent",
     color: {
-      default: color.textMuted,
-      ":hover": color.textMain,
-      ":disabled": color.textMuted,
+      default: color.fgMuted,
+      ":hover": color.fg,
+      ":disabled": color.fgMuted,
     },
     cursor: {
       default: "pointer",
@@ -105,11 +105,11 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: {
-      default: color.accent,
-      ":hover": color.accentHover,
-      ":disabled": color.accent,
+      default: color.bgAccent,
+      ":hover": color.bgAccentHover,
+      ":disabled": color.bgAccent,
     },
-    color: color.accentOn,
+    color: color.fgOnAccent,
     cursor: {
       default: "pointer",
       ":disabled": "not-allowed",

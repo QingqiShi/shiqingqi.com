@@ -16,6 +16,10 @@ _Avoid_: step, shade, 明度阶梯
 A named design value exposed as a StyleX var. Tokens reference tones; consumers reference tokens and never a tone directly.
 _Avoid_: var (as in `fieldVars`), CSS variable
 
+**Token Role**:
+What a colour Token is for, as a general semantic concept: the part of the interface it paints — canvas, surface, control — or the Intent it carries. A Token Role is never a component and never one component's own colour; it names a job any component may need, not a look (that is a Tone) nor an owner (that is a brand). ZH: 令牌角色.
+_Avoid_: role (bare, in code and copy), semantic colour, purpose, category, structure (for this sense), 语义色
+
 **Intent**:
 The six-member family that carries meaning rather than structure — accent, info, success, warning, danger, neutral. The prop name on every component that takes one. ZH: 意图色.
 _Avoid_: variant (for this sense), tone (for this sense), semantic colour, status hue, colour treatment, 语义色, 语义变体, 语义化的状态色, 色调, 颜色处理

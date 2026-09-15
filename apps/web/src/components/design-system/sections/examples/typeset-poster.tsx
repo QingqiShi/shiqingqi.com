@@ -115,7 +115,7 @@ const styles = stylex.create({
     overflow: "hidden",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
   },
   lead: {
@@ -142,7 +142,7 @@ const styles = stylex.create({
     minBlockSize: 0,
   },
   title: {
-    color: color.textMain,
+    color: color.fg,
     fontWeight: font.weight_8,
     letterSpacing: font.trackingTight,
     lineHeight: font.lineHeight_1,
@@ -194,7 +194,7 @@ const styles = stylex.create({
   rule: {
     blockSize: border.size_2,
     inlineSize: space._5,
-    backgroundColor: color.accentBorder,
+    backgroundColor: color.bgAccentSubtle,
     marginBlockEnd: space._00,
   },
 });

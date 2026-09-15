@@ -219,12 +219,12 @@ const styles = stylex.create({
     textAlign: "center",
   },
   icon: {
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   // A quieter second cue that the card is chosen, so color isn't the icon's
   // only signal.
   iconSelected: {
-    color: color.accentText,
+    color: color.fgAccent,
   },
   text: {
     gap: space._0,
@@ -236,7 +236,7 @@ const styles = stylex.create({
   },
   description: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_3,
   },
   indicator: {

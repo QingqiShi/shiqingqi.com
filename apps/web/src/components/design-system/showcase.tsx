@@ -128,7 +128,7 @@ const styles = stylex.create({
   label: {
     margin: 0,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     letterSpacing: font.trackingWider,
     textTransform: "uppercase",
     fontWeight: font.weight_6,
@@ -146,7 +146,7 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiHeading2,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
     letterSpacing: font.trackingTight,
     lineHeight: font.lineHeight_1,
   },
@@ -158,10 +158,10 @@ const styles = stylex.create({
   stateValue: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
     paddingInline: space._1,
     paddingBlock: space._00,
-    backgroundColor: color.bgInteractiveRest,
+    backgroundColor: color.bgControl,
   },
   tabular: {
     fontVariantNumeric: "tabular-nums",

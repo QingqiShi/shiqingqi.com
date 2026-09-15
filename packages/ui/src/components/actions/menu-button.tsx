@@ -402,7 +402,7 @@ const styles = stylex.create({
     paddingBlockStart: controlSize._2,
     paddingBlockEnd: controlSize._1,
     paddingInline: controlSize._3,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   topRight: {
     insetBlockStart: 0,
@@ -450,7 +450,7 @@ const styles = stylex.create({
   stickyMenuTitle: {
     position: "sticky",
     insetBlockStart: 0,
-    backgroundColor: color.bgOverlay,
+    backgroundColor: color.bgSurfaceRaised,
     zIndex: layer.content,
   },
   // Relies on `position: fixed` resolving to the viewport: a `transform`,

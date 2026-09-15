@@ -524,8 +524,8 @@ export function VoiceShowcase() {
         <GuidelinePairs pairs={dialectPairs} />
         <GuideNote>
           {t({
-            en: 'An identifier keeps the spelling of the code it names, wherever it appears — the color.* token group, transition.colors, align="center", the /foundations/color route. So this page\'s neighbour is titled “Colour” while its URL stays /foundations/color and its specimens read color.surfaceAccent. Both are right: one is prose, the other is a contract.',
-            zh: '标识符在任何位置都保持其所指代码的拼写——color.* 令牌组、transition.colors、align="center"，以及 /foundations/color 路由。因此相邻的页面标题写作「Colour」，而其网址仍是 /foundations/color，页面上的示例仍写作 color.surfaceAccent。两者都对：一个是文案，一个是契约。',
+            en: 'An identifier keeps the spelling of the code it names, wherever it appears — the color.* token group, transition.colors, align="center", the /foundations/color route. So this page\'s neighbour is titled “Colour” while its URL stays /foundations/color and its specimens read color.bgAccentSubtle. Both are right: one is prose, the other is a contract.',
+            zh: '标识符在任何位置都保持其所指代码的拼写——color.* 令牌组、transition.colors、align="center"，以及 /foundations/color 路由。因此相邻的页面标题写作「Colour」，而其网址仍是 /foundations/color，页面上的示例仍写作 color.bgAccentSubtle。两者都对：一个是文案，一个是契约。',
           })}
         </GuideNote>
       </GuideSection>
@@ -538,14 +538,14 @@ const styles = stylex.create({
   // The quality, sat in front of its own rule; weight is the whole distinction.
   qualityName: {
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
   },
   surface: {
     gap: space._3,
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   controlRow: {
     gap: space._2,
@@ -553,9 +553,9 @@ const styles = stylex.create({
   // The words stay legible; the rule through them is what carries the verdict.
   struck: {
     textDecorationLine: "line-through",
-    textDecorationColor: color.dangerText,
+    textDecorationColor: color.fgDanger,
     textDecorationThickness: border.size_1,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   fieldGrid: {
     display: "grid",

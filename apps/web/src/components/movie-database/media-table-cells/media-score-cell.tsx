@@ -37,13 +37,13 @@ export function MediaScoreCell({ api, row }: MediaCellParams) {
 
 const styles = stylex.create({
   meterFillGood: {
-    backgroundColor: color.success,
+    backgroundColor: color.bgSuccess,
   },
   meterFillPoor: {
-    backgroundColor: color.danger,
+    backgroundColor: color.bgDanger,
   },
   scoreValue: {
-    color: color.textMain,
+    color: color.fg,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     fontVariantNumeric: "tabular-nums",

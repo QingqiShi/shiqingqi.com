@@ -157,7 +157,7 @@ const styles = stylex.create({
     textDecoration: "none",
   },
   destinationIcon: {
-    color: color.accentText,
+    color: color.fgAccent,
     lineHeight: font.lineHeight_0,
   },
 });

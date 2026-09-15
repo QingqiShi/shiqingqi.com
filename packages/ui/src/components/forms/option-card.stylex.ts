@@ -14,27 +14,18 @@ export const optionCardSurface = stylex.create({
     inlineSize: "100%",
     textAlign: "start",
     fontFamily: font.family,
-    color: color.textMain,
+    color: color.fg,
   },
   selected: {
-    borderColor: { default: color.accent, ":hover": color.accent },
-    backgroundColor: {
-      default: color.surfaceAccentSubtle,
-      ":hover": color.surfaceAccentMuted,
-    },
-    boxShadow: `inset 0 0 0 ${border.size_1} ${color.accent}`,
+    borderColor: color.borderAccent,
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 ${border.size_1} ${color.borderAccent}`,
   },
   disabled: {
     cursor: "not-allowed",
     opacity: 0.6,
-    borderColor: {
-      default: color.neutralBorder,
-      ":hover": color.neutralBorder,
-    },
-    backgroundColor: {
-      default: color.bgInteractiveDisabled,
-      ":hover": color.bgInteractiveDisabled,
-    },
+    borderColor: color.border,
+    backgroundColor: color.bgControlDisabled,
     boxShadow: "none",
   },
 });

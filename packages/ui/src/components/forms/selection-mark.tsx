@@ -47,17 +47,17 @@ const markStyles = stylex.create({
     blockSize: controlSize._5,
     borderWidth: border.size_2,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
-    color: color.accentOn,
+    borderColor: color.border,
+    color: color.fgOnAccent,
   },
   selected: {
-    borderColor: color.accent,
-    backgroundColor: color.accent,
+    borderColor: color.borderAccent,
+    backgroundColor: color.bgAccent,
   },
   dot: {
     inlineSize: "40%",
     blockSize: "40%",
-    backgroundColor: color.accentOn,
+    backgroundColor: color.fgOnAccent,
   },
   tick: {
     fontSize: controlSize._3,

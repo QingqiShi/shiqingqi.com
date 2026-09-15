@@ -50,7 +50,7 @@ const styles = stylex.create({
     order: 0,
     fontSize: font.vpHeading3,
     fontWeight: font.weight_7,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   title: {
@@ -62,6 +62,6 @@ const styles = stylex.create({
     order: 2,
     display: "block",
     fontSize: font.uiBody,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

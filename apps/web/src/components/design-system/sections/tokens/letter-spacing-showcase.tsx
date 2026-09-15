@@ -50,7 +50,7 @@ const styles = stylex.create({
   sample: {
     fontSize: font.uiHeading3,
     fontWeight: font.weight_5,
-    color: color.textMain,
+    color: color.fg,
     paddingBlock: space._1,
   },
   tight: { letterSpacing: font.trackingTight },

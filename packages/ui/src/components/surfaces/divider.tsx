@@ -91,29 +91,29 @@ const styles = stylex.create({
 const horizontalLookStyles = stylex.create({
   subtle: {
     blockSize: border.size_1,
-    backgroundColor: color.neutralBorder,
+    backgroundColor: color.border,
   },
   bold: {
     blockSize: border.size_2,
-    backgroundColor: color.neutralBorder,
+    backgroundColor: color.border,
   },
   decorative: {
     blockSize: border.size_1,
-    backgroundImage: `linear-gradient(135deg, ${color.accent} 0%, ${color.info} 100%)`,
+    backgroundImage: `linear-gradient(135deg, ${color.bgAccent} 0%, ${color.bgInfo} 100%)`,
   },
 });
 
 const verticalLookStyles = stylex.create({
   subtle: {
     inlineSize: border.size_1,
-    backgroundColor: color.neutralBorder,
+    backgroundColor: color.border,
   },
   bold: {
     inlineSize: border.size_2,
-    backgroundColor: color.neutralBorder,
+    backgroundColor: color.border,
   },
   decorative: {
     inlineSize: border.size_1,
-    backgroundImage: `linear-gradient(180deg, ${color.accent} 0%, ${color.info} 100%)`,
+    backgroundImage: `linear-gradient(180deg, ${color.bgAccent} 0%, ${color.bgInfo} 100%)`,
   },
 });

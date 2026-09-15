@@ -600,7 +600,7 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._2,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   stepBtn: {
     inlineSize: "32px",
@@ -608,12 +608,12 @@ const styles = stylex.create({
     fontSize: font.uiHeading3,
     fontWeight: font.weight_5,
     color: {
-      default: color.textMain,
-      ":hover": color.accentOn,
+      default: color.fg,
+      ":hover": color.fgOnAccent,
     },
     backgroundColor: {
-      default: color.bgInteractiveRest,
-      ":hover": color.accent,
+      default: color.bgControl,
+      ":hover": color.bgAccent,
     },
   },
   stepValue: {
@@ -622,7 +622,7 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
   },
   controlledStack: {
     gap: space._2,
@@ -631,10 +631,10 @@ const styles = stylex.create({
   readout: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
     paddingInline: space._1,
     paddingBlock: space._00,
-    backgroundColor: color.bgInteractiveRest,
+    backgroundColor: color.bgControl,
   },
   // useDialogFocus
   dialogHost: {
@@ -667,12 +667,12 @@ const styles = stylex.create({
     paddingInline: space._3,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: color.textMain,
+    color: color.fg,
     backgroundColor: {
-      default: color.bgInteractiveRest,
-      ":hover": color.bgInteractiveHover,
+      default: color.bgControl,
+      ":hover": color.bgControlHover,
     },
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     whiteSpace: "nowrap",
     cursor: "pointer",
   },
@@ -691,7 +691,7 @@ const styles = stylex.create({
     // The hairline grid is the border colour showing through the gaps.
     gap: "1px",
     overflow: "hidden",
-    backgroundColor: color.neutralBorder,
+    backgroundColor: color.border,
     boxShadow: shadow._5,
   },
   pickerCell: {
@@ -702,15 +702,15 @@ const styles = stylex.create({
   // Two rings so the mark survives every hue in both themes: the overlay colour
   // reads on the saturated fills, the text colour on the pale neutral one.
   pickerCellSelected: {
-    boxShadow: `inset 0 0 0 3px ${color.bgOverlay}, inset 0 0 0 4px ${color.textMain}`,
+    boxShadow: `inset 0 0 0 3px ${color.bgSurfaceRaised}, inset 0 0 0 4px ${color.fg}`,
   },
   hintTrigger: {
     paddingBlock: space._1,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: {
-      default: color.textMuted,
-      ":hover": color.textMain,
+      default: color.fgMuted,
+      ":hover": color.fg,
     },
     textDecorationLine: "underline",
     textDecorationStyle: "dotted",
@@ -734,7 +734,7 @@ const styles = stylex.create({
     marginInlineStart: `calc(-1 * ${space._1})`,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.accentText,
+    color: color.fgAccent,
     cursor: "pointer",
   },
   // usePressHandlers
@@ -743,8 +743,8 @@ const styles = stylex.create({
     paddingInline: space._5,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.accentOn,
-    backgroundColor: color.accent,
+    color: color.fgOnAccent,
+    backgroundColor: color.bgAccent,
     touchAction: "manipulation",
     transform: "scale(1) translate(0, 0)",
     filter: "brightness(1)",
@@ -773,7 +773,7 @@ const styles = stylex.create({
     gap: space._00,
     padding: space._00,
     backgroundColor: color.bgSurfaceSunken,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   segment: {
     paddingBlock: space._1,
@@ -781,14 +781,14 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: {
-      default: color.textMuted,
-      ":hover": color.textMain,
+      default: color.fgMuted,
+      ":hover": color.fg,
     },
     backgroundColor: "transparent",
     whiteSpace: "nowrap",
   },
   segmentSelected: {
-    color: color.textMain,
+    color: color.fg,
     backgroundColor: color.bgSurface,
     boxShadow: shadow._1,
     fontWeight: font.weight_6,
@@ -797,10 +797,10 @@ const styles = stylex.create({
 
 /** Keyed by intent so the picker can look a fill up by value. */
 const intentFill = stylex.create({
-  accent: { backgroundColor: color.accent },
-  info: { backgroundColor: color.info },
-  success: { backgroundColor: color.success },
-  warning: { backgroundColor: color.warning },
-  danger: { backgroundColor: color.danger },
-  neutral: { backgroundColor: color.neutral },
+  accent: { backgroundColor: color.bgAccent },
+  info: { backgroundColor: color.bgInfo },
+  success: { backgroundColor: color.bgSuccess },
+  warning: { backgroundColor: color.bgWarning },
+  danger: { backgroundColor: color.bgDanger },
+  neutral: { backgroundColor: color.bgNeutral },
 });

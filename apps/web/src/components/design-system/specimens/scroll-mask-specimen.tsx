@@ -37,7 +37,7 @@ const styles = stylex.create({
     // squircle-cornered clip above them makes Chrome drop their masks.
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     // Lighter than the sunken plate it sits on, in both themes, so the region
     // reads as lying on the plate rather than dissolving into it.
     backgroundColor: color.bgSurface,

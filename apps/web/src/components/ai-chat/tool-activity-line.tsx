@@ -223,7 +223,7 @@ const styles = stylex.create({
   line: {
     gap: space._1,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: 1.4,
     minHeight: "1.5rem",
   },
@@ -235,7 +235,7 @@ const styles = stylex.create({
   pulsingDot: {
     width: "0.375rem",
     height: "0.375rem",
-    backgroundColor: color.textMuted,
+    backgroundColor: color.bgNeutral,
     animationName: {
       default: pulse,
       [motionConstants.REDUCED_MOTION]: pulseReduced,

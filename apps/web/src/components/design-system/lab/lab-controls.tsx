@@ -139,6 +139,6 @@ const styles = stylex.create({
   propName: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

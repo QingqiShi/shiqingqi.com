@@ -1,4 +1,4 @@
-import { gray } from "@tuja/ui/palette/gray";
+import { gray } from "@tuja/ui/palette/gray.stylex";
 
 /**
  * The contrast figures the Accessibility page prints, derived from the palette.
@@ -27,20 +27,21 @@ export function contrastRatio(foreground: string, background: string): number {
 export type GrayTone = keyof typeof gray;
 
 /**
- * Per theme, each text tone paired with the lowest-contrast background it is used
- * on. Named rather than dereferenced so the drift test can name the tone it wants.
+ * Per theme, each text tone paired with the tone of `BINDING_BACKGROUND` below
+ * (`bgCanvas` in light, `bgSurfaceRaised` in dark). Named as tone strings so
+ * this file can look up the exact `gray` step for the ratio.
  */
 export const TEXT_ROLE_TONES = [
   {
-    token: "color.textMain",
-    role: "textMain",
+    token: "color.fg",
+    role: "fg",
     tone: "default",
     light: { text: "_13", background: "_97" },
     dark: { text: "_92", background: "_7" },
   },
   {
-    token: "color.textMuted",
-    role: "textMuted",
+    token: "color.fgMuted",
+    role: "fgMuted",
     tone: "muted",
     light: { text: "_30", background: "_97" },
     dark: { text: "_80", background: "_7" },

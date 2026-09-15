@@ -14,7 +14,7 @@ export const cardSurface = stylex.create({
   base: {
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     borderRadius: border.radius_3,
     cornerShape: "squircle",
     backgroundColor: color.bgSurface,
@@ -22,16 +22,19 @@ export const cardSurface = stylex.create({
   interactive: {
     cursor: "pointer",
     borderColor: {
-      default: color.neutralBorder,
-      ":hover": color.accentBorder,
+      default: color.border,
+      ":hover": color.borderAccent,
     },
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     outlineWidth: border.size_2,
     outlineStyle: "solid",
-    outlineColor: { default: "transparent", ":focus-visible": color.accent },
+    outlineColor: {
+      default: "transparent",
+      ":focus-visible": color.borderAccent,
+    },
     outlineOffset: `calc(-1 * ${border.size_2})`,
   },
 });

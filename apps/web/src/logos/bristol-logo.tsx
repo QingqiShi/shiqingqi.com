@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { brand } from "./brand.stylex.ts";
 import { svgTokens } from "./svg.stylex";
 
 interface BristolLogoProps {
@@ -47,7 +47,8 @@ export default function BristolLogo({ title }: BristolLogoProps) {
 
 const styles = stylex.create({
   svg: {
-    color: stylex.firstThatWorks(svgTokens.fill, color.brandBristol),
+    // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know stylex.firstThatWorks() and rejects the function call as a colour value
+    color: stylex.firstThatWorks(svgTokens.fill, brand.bristol),
     fill: "currentColor",
     objectFit: "contain",
     width: "100%",

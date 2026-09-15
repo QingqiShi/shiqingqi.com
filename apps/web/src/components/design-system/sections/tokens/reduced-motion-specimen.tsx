@@ -115,7 +115,7 @@ const styles = stylex.create({
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   demos: {
     gap: space._5,
@@ -129,7 +129,7 @@ const styles = stylex.create({
   preset: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     overflowWrap: "anywhere",
   },
   // Sized so the tile's 300% travel lands it flush against the far edge.
@@ -141,7 +141,7 @@ const styles = stylex.create({
     blockSize: space._8,
     overflow: "hidden",
     backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   tile: {
     position: "absolute",
@@ -149,7 +149,7 @@ const styles = stylex.create({
     insetInlineStart: 0,
     inlineSize: space._8,
     blockSize: space._8,
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
     transform: "translateX(0)",
   },
   tileEnd: {
@@ -159,7 +159,7 @@ const styles = stylex.create({
     position: "absolute",
     insetBlock: space._2,
     insetInline: space._2,
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
   },
   readout: {
     gap: space._2,
@@ -170,7 +170,7 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     maxInlineSize: measure.prose,
     textWrap: "pretty",
     minInlineSize: 0,

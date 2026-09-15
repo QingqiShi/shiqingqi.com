@@ -62,7 +62,7 @@ export function WashShowcase() {
             ]}
           />
         </Specimen>
-        <Specimen caption="tone" token="color.surfaceAccentSubtle">
+        <Specimen caption="tone" token="color.bgAccentSubtle">
           <div
             css={[
               wash.toBottom,
@@ -70,31 +70,16 @@ export function WashShowcase() {
               corner.radius_3,
               styles.toneCard,
               styles.accentCard,
-            ]}
-          />
-        </Specimen>
-        <Specimen caption="tone" token="color.surfaceAccentMuted">
-          <div
-            css={[
-              wash.toBottom,
-              cardSurface.base,
-              corner.radius_3,
-              styles.toneCard,
-              styles.accentCard,
-              styles.mutedTone,
             ]}
           />
         </Specimen>
       </SpecimenGrid>
 
-      <SpecCard
-        token="washTokens.tone"
-        meta="default: color.surfaceNeutralSubtle"
-      >
+      <SpecCard token="washTokens.tone" meta="default: color.bgNeutralSubtle">
         <Text look="caption" tone="muted">
           {t({
-            en: "The tone is the one dial, and it sets both the colour and the strength: a Subtle tone lifts the surface a little, a Muted one gives it more weight. An accent tone belongs only on a surface that already carries the accent; anywhere else it turns a wash into decoration.",
-            zh: "色调是唯一的旋钮，它同时决定颜色与强度：Subtle 的色调把表面略微抬起，Muted 的色调给它更多分量。意图色的色调只属于本身已经带有该意图色的表面；用在别处，淡彩就变成了装饰。",
+            en: "The tone is the one dial, and it sets both the colour and the strength. An Intent tint belongs only on a surface that already carries that Intent; anywhere else it turns a wash into decoration.",
+            zh: "色调是唯一的旋钮，它同时决定颜色与强度。意图色的淡色只属于本身已经带有该意图色的表面；用在别处，淡彩就变成了装饰。",
           })}
         </Text>
       </SpecCard>
@@ -105,7 +90,7 @@ export function WashShowcase() {
 <div css={[wash.toBottom, cardSurface.base, corner.radius_3, styles.card]} />
 
 const styles = stylex.create({
-  card: { [washTokens.tone]: color.surfaceAccentMuted },
+  card: { [washTokens.tone]: color.bgAccentSubtle },
 });`}
       />
 
@@ -154,12 +139,9 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
   },
   accentCard: {
-    [washTokens.tone]: color.surfaceAccentSubtle,
-    backgroundColor: color.surfaceAccentSubtle,
-    borderColor: color.accentBorder,
-  },
-  mutedTone: {
-    [washTokens.tone]: color.surfaceAccentMuted,
+    [washTokens.tone]: color.bgAccentSubtle,
+    backgroundColor: color.bgAccentSubtle,
+    borderColor: color.borderAccent,
   },
   doCard: {
     inlineSize: "100%",
@@ -172,6 +154,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "104px",
     backgroundColor: color.bgSurfaceSunken,
-    backgroundImage: `radial-gradient(circle at 50% 50%, ${color.glassHighlight}, transparent 62%), linear-gradient(to bottom, ${color.surfaceNeutralSubtle}, transparent)`,
+    backgroundImage: `radial-gradient(circle at 50% 50%, ${color.borderMaterialGlassHighlight}, transparent 62%), linear-gradient(to bottom, ${color.bgNeutralSubtle}, transparent)`,
   },
 });

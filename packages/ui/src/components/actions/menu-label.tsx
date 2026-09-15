@@ -33,6 +33,6 @@ const styles = stylex.create({
   label: {
     fontSize: font.uiControlCaption,
     paddingBlockEnd: controlSize._2,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

@@ -253,7 +253,7 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     textWrap: "pretty",
   },
   gallery: {
@@ -269,18 +269,18 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._2,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   galleryIcon: {
     display: "inline-flex",
     fontSize: font.uiHeading1,
-    color: color.textMain,
+    color: color.fg,
   },
   galleryName: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_2,
     textAlign: "center",
     maxInlineSize: "100%",
@@ -290,7 +290,7 @@ const styles = stylex.create({
     alignItems: "center",
     gap: space._3,
     fontSize: font.uiHeading1,
-    color: color.textMain,
+    color: color.fg,
   },
   sizeRow: {
     display: "flex",
@@ -300,7 +300,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   sizeItem: {
     display: "flex",
@@ -310,7 +310,7 @@ const styles = stylex.create({
   },
   sizeIcon: {
     display: "inline-flex",
-    color: color.accent,
+    color: color.bgAccent,
   },
   szBodySmall: { fontSize: font.uiBodySmall },
   szBody: { fontSize: font.uiBody },
@@ -321,7 +321,7 @@ const styles = stylex.create({
   sizeToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   dontIcon: {
     display: "inline-flex",
@@ -330,8 +330,8 @@ const styles = stylex.create({
     inlineSize: space._8,
     blockSize: space._8,
     fontSize: font.uiHeading2,
-    color: color.textMuted,
+    color: color.fgMuted,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
 });

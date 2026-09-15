@@ -215,7 +215,7 @@ const styles = stylex.create({
   // front of each one would read as prose about the system rather than a list
   // drawn from its API.
   entry: {
-    color: color.textMuted,
+    color: color.fgMuted,
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_3,

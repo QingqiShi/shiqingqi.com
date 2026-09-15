@@ -112,8 +112,8 @@ export default tinker({
         gap: "space._00",
         borderWidth: "border.size_1",
         borderStyle: "solid",
-        borderColor: "color.neutralBorder",
-        backgroundColor: "color.bgCanvasSubtle",
+        borderColor: "color.border",
+        backgroundColor: "color.bgSurfaceSunken",
         // Makes the track the indicator's containing block; `isolate` keeps
         // the indicator's negative z-index inside the track's stacking
         // context.
@@ -148,12 +148,12 @@ export default tinker({
         pointerEvents: "none",
         transition:
           "top {duration._300} {easing.spring}, right {duration._300} {easing.spring}, bottom {duration._300} {easing.spring}, left {duration._300} {easing.spring}",
-        backgroundColor: "color.glassFill",
+        backgroundColor: "glassTokens.fill",
         // Cancels the blur `glassSurface.base` carries: the indicator sits
         // over the track's opaque fill, so the blur has nothing to sample.
         backdropFilter: "none",
         boxShadow:
-          "{shadow._2}, inset 0 -1px 1px color-mix(in srgb, {color.glassHighlight} 64%, transparent)",
+          "{shadow._2}, inset 0 -1px 1px color-mix(in srgb, {glassTokens.highlight} 64%, transparent)",
       },
     },
     // The indicator's rim. Stands in for `glassSurface.base`'s `::before`:
@@ -169,7 +169,7 @@ export default tinker({
         padding: "calc({border.size_1} / 2)",
         pointerEvents: "none",
         backgroundImage:
-          "linear-gradient(180deg, {color.glassHighlight} 0%, transparent 35%, transparent 65%, color-mix(in srgb, {color.glassHighlight} 60%, transparent) 100%), linear-gradient({color.glassBorder}, {color.glassBorder})",
+          "linear-gradient(180deg, {glassTokens.highlight} 0%, transparent 35%, transparent 65%, color-mix(in srgb, {glassTokens.highlight} 60%, transparent) 100%), linear-gradient({glassTokens.border}, {glassTokens.border})",
         maskImage: "linear-gradient(#000 0 0), linear-gradient(#000 0 0)",
         maskClip: "content-box, border-box",
         maskComposite: "exclude",
@@ -188,7 +188,7 @@ export default tinker({
         justifyContent: "center",
         gap: "space._0",
         fontWeight: "font.weight_5",
-        color: "color.textMuted",
+        color: "color.fgMuted",
         backgroundColor: "transparent",
         // Every option carries the border, not only the selected one, so the
         // box keeps its size and no border colour fades in on select.
@@ -211,15 +211,15 @@ export default tinker({
       },
       states: {
         hover: {
-          backgroundColor: "color.bgInteractiveHover",
-          color: "color.textMain",
+          backgroundColor: "color.bgControlHover",
+          color: "color.fg",
         },
         // The indicator paints the fill, the edge, and the shadow now. The
         // option only names the anchor for the indicator to follow.
         selected: {
           anchorName: "--segmented-control-selected",
           backgroundColor: "transparent",
-          color: "color.textMain",
+          color: "color.fg",
           fontWeight: "font.weight_6",
           borderColor: "transparent",
         },

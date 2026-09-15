@@ -38,6 +38,6 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     lineHeight: font.lineHeight_3,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

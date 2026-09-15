@@ -10,7 +10,7 @@ function makeConfig(): TinkerConfig {
     source: "packages/ui/src/components/forms/segmented-control.tsx",
     layers: {
       track: {
-        base: { borderColor: "color.neutralBorder" },
+        base: { borderColor: "color.border" },
       },
       option: {
         base: {},
@@ -46,7 +46,7 @@ describe("serialiseExport", () => {
       "backgroundColor",
       "color.bgSurfaceRaised",
     );
-    store.set("track", BASE, "borderColor", "color.neutral");
+    store.set("track", BASE, "borderColor", "color.bgNeutral");
     store.set(
       "option",
       { kind: "variant", name: "sm" },
@@ -57,7 +57,7 @@ describe("serialiseExport", () => {
       "option",
       { kind: "state", name: "hover" },
       "backgroundColor",
-      "color.bgInteractiveHover",
+      "color.bgControlHover",
     );
     store.remove("option", { kind: "state", name: "selected" }, "boxShadow");
     store.set(
@@ -66,11 +66,11 @@ describe("serialiseExport", () => {
       "transform",
       "translateX({controlSize._9})",
     );
-    store.setToggle("option", "texture", "dot space._1 color.neutralBorder");
+    store.setToggle("option", "texture", "dot space._1 color.border");
     store.setToggle(
       "track",
       "glass",
-      "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius 8px",
+      "color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius 8px",
     );
 
     expect(serialiseExport(config, store)).toBe(
@@ -78,14 +78,14 @@ describe("serialiseExport", () => {
         "component-tinker v1",
         "component: SegmentedControl",
         "source: packages/ui/src/components/forms/segmented-control.tsx",
-        "track.borderColor: color.neutralBorder -> color.neutral",
+        "track.borderColor: color.border -> color.bgNeutral",
         "option[sm].paddingInline: controlSize._2 -> controlSize._3",
-        "option[hover].backgroundColor: (unset) -> color.bgInteractiveHover",
+        "option[hover].backgroundColor: (unset) -> color.bgControlHover",
         "option[selected].backgroundColor: color.bgSurface -> color.bgSurfaceRaised",
         "option[selected].boxShadow: shadow._1 -> (unset)",
         "before[checked sm].transform: translateX({controlSize._8}) -> translateX({controlSize._9})",
-        "track.glass: none -> color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius 8px",
-        "option.texture: none -> dot space._1 color.neutralBorder",
+        "track.glass: none -> color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius 8px",
+        "option.texture: none -> dot space._1 color.border",
         "",
       ].join("\n"),
     );
@@ -98,7 +98,7 @@ describe("serialiseExport", () => {
     store.setToggle(
       "track",
       "glass",
-      "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius off",
+      "color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius off",
     );
 
     expect(serialiseExport(config, store)).toBe(
@@ -106,7 +106,7 @@ describe("serialiseExport", () => {
         "component-tinker v1",
         "component: SegmentedControl",
         "source: packages/ui/src/components/forms/segmented-control.tsx",
-        "track.glass: none -> color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius off",
+        "track.glass: none -> color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius off",
         "",
       ].join("\n"),
     );
@@ -130,7 +130,7 @@ describe("serialiseExport", () => {
     const config = makeConfig();
     const store = createChangeStore(config);
 
-    store.set("track", BASE, "borderColor", "color.neutralBorder");
+    store.set("track", BASE, "borderColor", "color.border");
 
     expect(store.changes()).toEqual([]);
     expect(serialiseExport(config, store)).toBe(
@@ -151,7 +151,7 @@ describe("configHash", () => {
 
   it("differs when a layer's style changes", () => {
     const changed = makeConfig();
-    changed.layers.track.base = { borderColor: "color.neutral" };
+    changed.layers.track.base = { borderColor: "color.bgNeutral" };
     expect(configHash(changed)).not.toBe(configHash(makeConfig()));
   });
 

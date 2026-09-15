@@ -250,12 +250,12 @@ const styles = stylex.create({
     textAlign: "center",
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   code: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   // Dashed, because the box is a destination rather than a surface — nothing
   // ever paints inside it where the reader can see.
@@ -267,6 +267,6 @@ const styles = stylex.create({
     minBlockSize: space._8,
     borderWidth: border.size_1,
     borderStyle: "dashed",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
   },
 });

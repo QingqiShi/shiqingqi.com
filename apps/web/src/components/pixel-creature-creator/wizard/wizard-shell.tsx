@@ -272,19 +272,19 @@ const styles = stylex.create({
     fontSize: font.uiHeading2,
     fontWeight: font.weight_7,
     margin: 0,
-    color: color.textMain,
+    color: color.fg,
   },
   shuffleBtn: {
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
-    color: color.textMain,
+    color: color.fg,
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     cursor: "pointer",
@@ -301,7 +301,7 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._2,
     backgroundColor: color.bgSurface,
-    color: color.textMuted,
+    color: color.fgMuted,
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
@@ -311,9 +311,9 @@ const styles = stylex.create({
     opacity: { default: 1, ":disabled": opacity.disabled },
   },
   pillActive: {
-    backgroundColor: color.accent,
-    color: color.accentOn,
-    borderColor: color.accent,
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
+    borderColor: color.borderAccent,
   },
   pillLocked: {
     // The disabled visuals come from the pseudo on `pill`; this class
@@ -347,7 +347,7 @@ const styles = stylex.create({
   },
   previewLabel: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
   },
@@ -370,7 +370,7 @@ const styles = stylex.create({
     paddingTop: space._2,
     borderTopWidth: "1px",
     borderTopStyle: "solid",
-    borderTopColor: color.neutralBorder,
+    borderTopColor: color.border,
   },
   footerBtn: {
     paddingBlock: space._2,
@@ -387,17 +387,17 @@ const styles = stylex.create({
   footerBtnSecondary: {
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
-    color: color.textMain,
-    borderColor: color.neutralBorder,
+    color: color.fg,
+    borderColor: color.border,
   },
   footerBtnPrimary: {
     backgroundColor: {
-      default: color.accent,
-      ":hover": color.accentHover,
+      default: color.bgAccent,
+      ":hover": color.bgAccentHover,
     },
-    color: color.accentOn,
-    borderColor: color.accent,
+    color: color.fgOnAccent,
+    borderColor: color.borderAccent,
   },
 });

@@ -113,9 +113,9 @@ function valueHint(value) {
 
 function colorRoles(member) {
   const roles = [];
-  if (/^(bg|surface)/.test(member)) roles.push("background");
-  if (/^text/.test(member) || /(Text|On)$/.test(member)) roles.push("text");
-  if (/Border$/.test(member)) roles.push("border");
+  if (/^bg/.test(member)) roles.push("background");
+  if (/^fg/.test(member)) roles.push("text");
+  if (/^border/.test(member)) roles.push("border");
   return roles;
 }
 

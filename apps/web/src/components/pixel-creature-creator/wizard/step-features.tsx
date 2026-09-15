@@ -107,11 +107,11 @@ const styles = stylex.create({
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
     margin: 0,
-    color: color.textMain,
+    color: color.fg,
   },
   hint: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   option: {
@@ -122,7 +122,7 @@ const styles = stylex.create({
     padding: space._2,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     borderRadius: "12px",
     cornerShape: "squircle",
@@ -131,10 +131,10 @@ const styles = stylex.create({
     borderColor: "transparent",
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
-    color: color.textMain,
+    color: color.fg,
   },
   optionSelected: {
-    borderColor: color.accent,
+    borderColor: color.borderAccent,
     backgroundColor: color.bgSurfaceRaised,
   },
   optionDisabled: {
@@ -154,7 +154,7 @@ const styles = stylex.create({
   },
   counter: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
 });

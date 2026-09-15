@@ -17,7 +17,7 @@ import { SelectionIcon } from "@phosphor-icons/react/dist/ssr/Selection";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { purple } from "@tuja/ui/palette/purple";
+import { purple } from "@tuja/ui/palette/purple.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
@@ -1258,7 +1258,7 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._2,
     backgroundColor: color.bgSurface,
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.border}`,
   },
   spacer: {
     flex: "1",
@@ -1269,12 +1269,12 @@ const styles = stylex.create({
     justifyContent: "center",
     width: "34px",
     height: "34px",
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.border}`,
     backgroundColor: {
-      default: color.bgInteractiveRest,
-      ":hover:not(:disabled)": color.bgInteractiveHover,
+      default: color.bgControl,
+      ":hover:not(:disabled)": color.bgControlHover,
     },
-    color: color.textMain,
+    color: color.fg,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
     transition: {
@@ -1283,9 +1283,9 @@ const styles = stylex.create({
     },
   },
   toolButtonActive: {
-    backgroundColor: color.accent,
-    color: color.accentOn,
-    borderColor: color.accent,
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
+    borderColor: color.borderAccent,
   },
   colorRow: {
     display: "flex",
@@ -1294,20 +1294,20 @@ const styles = stylex.create({
     gap: space._2,
     padding: space._2,
     backgroundColor: color.bgSurface,
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.border}`,
   },
   colorLabel: {
     display: "inline-flex",
     alignItems: "center",
     gap: space._1,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   colorInput: {
     width: "32px",
     height: "32px",
     padding: 0,
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.border}`,
     backgroundColor: "transparent",
     cursor: "pointer",
   },
@@ -1318,21 +1318,21 @@ const styles = stylex.create({
   swatch: {
     width: "24px",
     height: "24px",
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.border}`,
     borderRadius: "4px",
     cornerShape: "squircle",
     cursor: "pointer",
     padding: 0,
   },
   swatchActive: {
-    outline: `${border.size_2} solid ${color.accent}`,
+    outline: `${border.size_2} solid ${color.borderAccent}`,
     outlineOffset: border.size_1,
   },
   swatchColor: (backgroundColor: string) => ({
     backgroundColor,
   }),
   range: {
-    accentColor: color.accent,
+    accentColor: color.bgAccent,
     cursor: "pointer",
   },
   toleranceValue: {
@@ -1340,13 +1340,13 @@ const styles = stylex.create({
     textAlign: "right",
     fontSize: font.uiBodySmall,
     fontFamily: font.familyMono,
-    color: color.textMain,
+    color: color.fg,
     fontVariantNumeric: "tabular-nums",
   },
   canvasArea: {
     position: "relative",
     backgroundColor: color.bgSurface,
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.border}`,
     boxShadow: shadow.inset,
     flex: "1",
     minHeight: 0,
@@ -1359,7 +1359,7 @@ const styles = stylex.create({
     touchAction: "none",
     imageRendering: "pixelated",
     backgroundColor: color.bgCanvas,
-    backgroundImage: `linear-gradient(45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.surfaceNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.surfaceNeutralSubtle} 75%)`,
+    backgroundImage: `linear-gradient(45deg, ${color.bgNeutralSubtle} 25%, transparent 25%), linear-gradient(-45deg, ${color.bgNeutralSubtle} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${color.bgNeutralSubtle} 75%), linear-gradient(-45deg, transparent 75%, ${color.bgNeutralSubtle} 75%)`,
     backgroundSize: "16px 16px",
     backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
   },
@@ -1378,8 +1378,8 @@ const styles = stylex.create({
     alignItems: "center",
     gap: "2px",
     padding: "4px",
-    backgroundColor: color.bgOverlay,
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    backgroundColor: color.bgSurfaceRaised,
+    border: `${border.size_1} solid ${color.border}`,
     boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
     flexWrap: "wrap",
     maxInlineSize: "calc(100% - 24px)",
@@ -1393,9 +1393,9 @@ const styles = stylex.create({
     paddingInline: space._1,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
-    color: color.textMain,
+    color: color.fg,
     border: "none",
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
@@ -1404,10 +1404,10 @@ const styles = stylex.create({
   },
   selectionButtonPrimary: {
     backgroundColor: {
-      default: color.accent,
-      ":hover": color.accentHover,
+      default: color.bgAccent,
+      ":hover": color.bgAccentHover,
     },
-    color: color.accentOn,
+    color: color.fgOnAccent,
   },
   selectionIcon: {
     display: "inline-flex",
@@ -1415,7 +1415,7 @@ const styles = stylex.create({
   selectionDivider: {
     width: "1px",
     height: "18px",
-    backgroundColor: color.neutralBorder,
+    backgroundColor: color.border,
     marginInline: "2px",
   },
 });

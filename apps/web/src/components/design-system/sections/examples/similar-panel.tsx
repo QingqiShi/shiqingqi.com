@@ -85,7 +85,7 @@ const styles = stylex.create({
     inlineSize: "100%",
     blockSize: "100%",
     padding: space._2,
-    color: color.textMain,
+    color: color.fg,
     textAlign: "start",
     // A `button` brings the UA's own font family and a centred label with it,
     // and no leaf inside the card sets a family of its own. The rest of the skin

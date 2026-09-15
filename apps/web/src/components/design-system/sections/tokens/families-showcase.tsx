@@ -54,7 +54,7 @@ const styles = stylex.create({
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   header: {
@@ -65,12 +65,12 @@ const styles = stylex.create({
   token: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   value: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     overflowWrap: "anywhere",
   },
   specimen: {
@@ -81,7 +81,7 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     lineHeight: font.lineHeight_0,
     letterSpacing: font.trackingTight,
-    color: color.textMain,
+    color: color.fg,
     marginBlock: space._1,
   },
   charset: {
@@ -89,7 +89,7 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._00,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_3,
     overflowWrap: "anywhere",
   },

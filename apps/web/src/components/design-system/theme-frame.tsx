@@ -85,7 +85,7 @@ const styles = stylex.create({
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   // Pinning color-scheme makes every light-dark() token inside resolve to the

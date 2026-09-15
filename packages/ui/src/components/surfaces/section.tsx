@@ -107,7 +107,7 @@ const styles = stylex.create({
   divided: {
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
     paddingBlockStart: space._5,
   },
   header: {
@@ -125,7 +125,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     inlineSize: "1em",
     blockSize: "1em",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   actions: {
     display: "flex",

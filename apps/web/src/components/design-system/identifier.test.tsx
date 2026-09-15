@@ -12,13 +12,11 @@ function seams(name: string) {
 
 describe("Identifier", () => {
   it("keeps a group prefix with its dot and breaks after it", () => {
-    expect(seams("color.accent")).toBe("color.|accent");
+    expect(seams("color.fg")).toBe("color.|fg");
   });
 
   it("breaks before each camelCase hump", () => {
-    expect(seams("color.surfaceAccentSubtle")).toBe(
-      "color.|surface|Accent|Subtle",
-    );
+    expect(seams("color.bgAccentSubtle")).toBe("color.|bg|Accent|Subtle");
   });
 
   it("keeps a step suffix attached to the word it indexes", () => {
@@ -40,7 +38,7 @@ describe("Identifier", () => {
   });
 
   it("adds no characters to the readable or copyable name", () => {
-    const name = "color.bgInteractiveSelected";
+    const name = "color.bgControlSelected";
     const { container } = render(<Identifier>{name}</Identifier>);
 
     expect(container.textContent).toBe(name);

@@ -4,7 +4,7 @@ import { color, space } from "../tokens.stylex.ts";
 /** The gap between marks. `ink` is the mark's colour. */
 export const textureTokens = stylex.defineVars({
   pitch: space._1,
-  ink: color.neutralBorder,
+  ink: color.border,
 });
 
 /** The share of the ink a line takes, so it stays as faint as a dot. */

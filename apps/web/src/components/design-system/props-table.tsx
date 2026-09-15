@@ -245,7 +245,7 @@ const styles = stylex.create({
     verticalAlign: "top",
   },
   descriptionCell: {
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   nameLine: {
     display: "flex",
@@ -257,12 +257,12 @@ const styles = stylex.create({
   name: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
   },
   code: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     overflowWrap: "break-word",
   },
   typeList: {
@@ -274,14 +274,14 @@ const styles = stylex.create({
   typeToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMain,
-    backgroundColor: color.bgInteractiveRest,
+    color: color.fg,
+    backgroundColor: color.bgControl,
     paddingInline: space._1,
     paddingBlock: space._00,
     overflowWrap: "break-word",
   },
   noDefault: {
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   paragraph: {
     margin: 0,
@@ -304,7 +304,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     borderBlockStartWidth: { default: 0, ":not(:first-child)": border.size_1 },
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
     minInlineSize: 0,
   },
   stackName: {
@@ -317,7 +317,7 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   stackField: {
     display: "flex",
@@ -328,12 +328,12 @@ const styles = stylex.create({
   },
   stackLabel: {
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   inherited: {
     margin: 0,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

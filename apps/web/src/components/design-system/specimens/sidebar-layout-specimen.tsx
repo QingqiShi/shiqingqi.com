@@ -44,7 +44,7 @@ const styles = stylex.create({
     padding: space._1,
     borderInlineEndWidth: border.size_1,
     borderInlineEndStyle: "solid",
-    borderInlineEndColor: color.neutralBorder,
+    borderInlineEndColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
   },
   railTitle: { marginBlockEnd: space._0 },
@@ -64,7 +64,7 @@ const styles = stylex.create({
   tile: {
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
 });

@@ -198,9 +198,9 @@ const styles = stylex.create({
     transform: "translate(25%, 25%)",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
-    color: color.textMain,
+    color: color.fg,
     boxShadow: shadow._1,
   },
 });
@@ -247,12 +247,12 @@ const badgeSizeStyles = stylex.create({
 
 const lookStyles = stylex.create({
   subtle: {
-    backgroundColor: color.surfaceNeutralSubtle,
-    color: color.textMuted,
-    boxShadow: `inset 0 0 0 ${border.size_1} ${color.neutralBorder}`,
+    backgroundColor: color.bgNeutralSubtle,
+    color: color.fgMuted,
+    boxShadow: `inset 0 0 0 ${border.size_1} ${color.border}`,
   },
   solid: {
     backgroundColor: color.bgInverse,
-    color: color.textOnInverse,
+    color: color.fgOnInverse,
   },
 });

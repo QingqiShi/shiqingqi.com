@@ -436,7 +436,7 @@ const styles = stylex.create({
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
     fontSize: font.uiHeading3,
-    color: color.textMuted,
-    backgroundColor: color.bgInteractiveRest,
+    color: color.fgMuted,
+    backgroundColor: color.bgControl,
   },
 });

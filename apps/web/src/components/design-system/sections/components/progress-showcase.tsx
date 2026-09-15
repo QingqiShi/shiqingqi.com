@@ -153,14 +153,14 @@ export function ProgressShowcase() {
 
       <Showcase label={t({ en: "Indicator colour", zh: "指示条颜色" })}>
         <SpecimenGrid>
-          <Specimen caption="color.accent">
+          <Specimen caption="color.bgAccent">
             <Progress
               value={46}
               size="lg"
               label={t({ en: "Storage used", zh: "已用存储" })}
             />
           </Specimen>
-          <Specimen caption="color.warning">
+          <Specimen caption="color.bgWarning">
             <Progress
               value={78}
               size="lg"
@@ -168,7 +168,7 @@ export function ProgressShowcase() {
               label={t({ en: "Storage filling up", zh: "存储即将占满" })}
             />
           </Specimen>
-          <Specimen caption="color.danger">
+          <Specimen caption="color.bgDanger">
             <Progress
               value={96}
               size="lg"
@@ -235,9 +235,9 @@ const styles = stylex.create({
     gap: space._2,
   },
   warningIndicator: {
-    [progressTokens.indicatorColor]: color.warning,
+    [progressTokens.indicatorColor]: color.bgWarning,
   },
   dangerIndicator: {
-    [progressTokens.indicatorColor]: color.danger,
+    [progressTokens.indicatorColor]: color.bgDanger,
   },
 });

@@ -172,7 +172,7 @@ const styles = stylex.create({
     paddingInline: space._3,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    color: color.textMain,
+    color: color.fg,
   },
   icon: {
     display: "inline-flex",
@@ -198,7 +198,7 @@ const styles = stylex.create({
   body: {
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMain,
+    color: color.fg,
   },
   dismiss: {
     display: "inline-flex",
@@ -208,42 +208,42 @@ const styles = stylex.create({
     fontSize: font.uiBody,
     blockSize: controlLineBox,
     inlineSize: controlLineBox,
-    color: { default: color.textMuted, ":hover": color.textMain },
+    color: { default: color.fgMuted, ":hover": color.fg },
   },
 });
 
 const surfaceStyles = stylex.create({
   info: {
-    backgroundColor: color.surfaceInfoSubtle,
-    borderColor: color.infoBorder,
+    backgroundColor: color.bgInfoSubtle,
+    borderColor: color.borderInfo,
   },
   success: {
-    backgroundColor: color.surfaceSuccessSubtle,
-    borderColor: color.successBorder,
+    backgroundColor: color.bgSuccessSubtle,
+    borderColor: color.borderSuccess,
   },
   warning: {
-    backgroundColor: color.surfaceWarningSubtle,
-    borderColor: color.warningBorder,
+    backgroundColor: color.bgWarningSubtle,
+    borderColor: color.borderWarning,
   },
   danger: {
-    backgroundColor: color.surfaceDangerSubtle,
-    borderColor: color.dangerBorder,
+    backgroundColor: color.bgDangerSubtle,
+    borderColor: color.borderDanger,
   },
   accent: {
-    backgroundColor: color.surfaceAccentSubtle,
-    borderColor: color.accentBorder,
+    backgroundColor: color.bgAccentSubtle,
+    borderColor: color.borderAccent,
   },
   neutral: {
-    backgroundColor: color.surfaceNeutralSubtle,
-    borderColor: color.neutralBorder,
+    backgroundColor: color.bgNeutralSubtle,
+    borderColor: color.border,
   },
 });
 
 const accentStyles = stylex.create({
-  info: { color: color.infoText },
-  success: { color: color.successText },
-  warning: { color: color.warningText },
-  danger: { color: color.dangerText },
-  accent: { color: color.accentText },
-  neutral: { color: color.textMain },
+  info: { color: color.fgInfo },
+  success: { color: color.fgSuccess },
+  warning: { color: color.fgWarning },
+  danger: { color: color.fgDanger },
+  accent: { color: color.fgAccent },
+  neutral: { color: color.fg },
 });

@@ -122,7 +122,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   cardHead: {
     gap: space._2,
@@ -130,7 +130,7 @@ const styles = stylex.create({
   cardTitle: {
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
     minInlineSize: 0,
   },
   // The badge never wraps, so it takes its space from the title rather than

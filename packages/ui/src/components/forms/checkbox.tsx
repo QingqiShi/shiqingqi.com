@@ -180,19 +180,19 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderWidth: border.size_2,
     borderColor: {
-      default: color.neutralBorder,
-      ":hover": color.accent,
-      ":checked": color.accent,
-      ":indeterminate": color.accent,
-      ":disabled": color.neutralBorder,
+      default: color.border,
+      ":hover": color.borderAccent,
+      ":checked": color.borderAccent,
+      ":indeterminate": color.borderAccent,
+      ":disabled": color.border,
     },
     backgroundColor: {
       default: color.bgSurface,
-      ":checked": color.accent,
-      ":indeterminate": color.accent,
-      ":disabled": color.bgInteractiveDisabled,
+      ":checked": color.bgAccent,
+      ":indeterminate": color.bgAccent,
+      ":disabled": color.bgControlDisabled,
     },
-    color: { default: color.accentOn, ":disabled": color.textMuted },
+    color: { default: color.fgOnAccent, ":disabled": color.fgMuted },
     [checkboxTokens.glyph]: {
       default: null,
       ":checked": `url("${CHECK_MASK}")`,
@@ -215,17 +215,20 @@ const styles = stylex.create({
   },
   boxError: {
     borderColor: {
-      default: color.danger,
-      ":hover": color.danger,
-      ":checked": color.danger,
-      ":indeterminate": color.danger,
+      default: color.borderDanger,
+      ":hover": color.borderDanger,
+      ":checked": color.borderDanger,
+      ":indeterminate": color.borderDanger,
     },
     // Recolours the shared focus ring to danger, matching
     // TextField/Textarea/Select; composed after `a11y.focusRing`, so it wins.
-    outlineColor: { default: "transparent", ":focus-visible": color.danger },
+    outlineColor: {
+      default: "transparent",
+      ":focus-visible": color.borderDanger,
+    },
   },
   labelText: {
-    color: color.textMain,
+    color: color.fg,
     fontWeight: font.weight_5,
     lineHeight: font.lineHeight_2,
   },

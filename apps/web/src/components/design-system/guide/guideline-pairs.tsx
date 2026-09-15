@@ -79,7 +79,7 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     maxInlineSize: measure.prose,
     textWrap: "pretty",
   },
@@ -102,7 +102,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMain,
+    color: color.fg,
     minInlineSize: 0,
   },
   // Nudged down so the glyph sits on the first line's baseline, not its box top.
@@ -113,17 +113,17 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_0,
   },
   good: {
-    backgroundColor: color.surfaceSuccessSubtle,
-    borderColor: color.successBorder,
+    backgroundColor: color.bgSuccessSubtle,
+    borderColor: color.borderSuccess,
   },
   goodIcon: {
-    color: color.successText,
+    color: color.fgSuccess,
   },
   bad: {
-    backgroundColor: color.surfaceDangerSubtle,
-    borderColor: color.dangerBorder,
+    backgroundColor: color.bgDangerSubtle,
+    borderColor: color.borderDanger,
   },
   badIcon: {
-    color: color.dangerText,
+    color: color.fgDanger,
   },
 });

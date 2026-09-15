@@ -153,14 +153,14 @@ const styles = stylex.create({
     blockSize: "1em",
     color: "currentColor",
   },
-  // A token, not an opacity blend: dimming `accentOn` further on the active
-  // chip would drop it below the WCAG 1.4.3 contrast floor.
+  // A token, not an opacity blend: dimming `fgOnAccent` further on the
+  // active chip would drop it below the WCAG 1.4.3 contrast floor.
   trailing: {
     flexShrink: 0,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   // On the active fill there's nothing to mute against, so trailing takes the
-  // same `accentOn` as the label.
+  // same `fgOnAccent` as the label.
   trailingActive: {
     color: "inherit",
   },

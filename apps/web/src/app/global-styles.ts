@@ -17,7 +17,7 @@ export const globalStyles = stylex.create({
     colorScheme: "dark",
   },
   body: {
-    color: color.textMain,
+    color: color.fg,
     fontFamily: font.family,
     position: "relative",
   },

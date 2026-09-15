@@ -53,10 +53,10 @@ const styles = stylex.create({
   row: {
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: { default: "solid", ":first-child": "none" },
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
   },
   currentRow: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.bgAccentSubtle,
     fontWeight: font.weight_6,
   },
 });

@@ -211,18 +211,18 @@ const styles = stylex.create({
     alignItems: "center",
     gap: space._0,
     paddingBlockEnd: space._1,
-    boxShadow: `inset 0 -1px 0 0 ${color.neutralBorder}`,
+    boxShadow: `inset 0 -1px 0 0 ${color.border}`,
   },
   colHeadActive: {
-    boxShadow: `inset 0 -2px 0 0 ${color.accent}`,
+    boxShadow: `inset 0 -2px 0 0 ${color.bgAccent}`,
   },
   iconWrap: {
     display: "flex",
-    color: color.textMuted,
+    color: color.fgMuted,
     marginBlockEnd: space._0,
   },
   iconWrapActive: {
-    color: color.accent,
+    color: color.bgAccent,
   },
   icon: {
     inlineSize: "1.5rem",
@@ -237,15 +237,15 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   colBandActive: {
-    color: color.accentText,
+    color: color.fgAccent,
   },
   colThreshold: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontVariantNumeric: "tabular-nums",
   },
   rowToken: {
@@ -253,7 +253,7 @@ const styles = stylex.create({
     paddingInlineEnd: space._2,
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     whiteSpace: "nowrap",
   },
   cell: {
@@ -263,11 +263,11 @@ const styles = stylex.create({
     paddingBlock: space._1,
   },
   cellActive: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.bgAccentSubtle,
   },
   glyph: {
     lineHeight: font.lineHeight_0,
-    color: color.textMain,
+    color: color.fg,
   },
   glyphSize: (fontSize: string, fontWeight: number) => ({
     fontSize,
@@ -284,16 +284,16 @@ const styles = stylex.create({
     fontSize: font.uiOverline,
     textTransform: "uppercase",
     letterSpacing: font.trackingWidest,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   markerValue: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
     fontVariantNumeric: "tabular-nums",
   },
   markerBand: {
-    color: color.accentText,
+    color: color.fgAccent,
     fontWeight: font.weight_6,
   },
 });

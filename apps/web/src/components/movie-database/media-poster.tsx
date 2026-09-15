@@ -84,16 +84,16 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   noPosterCompact: {
     fontSize: font.uiBodySmall,
   },
   noPosterLabel: {
     fontSize: "0.7rem",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   rating: {
     position: "absolute",
@@ -103,7 +103,7 @@ const styles = stylex.create({
     height: space._7,
     backgroundColor: color.bgSurface,
     borderWidth: ".2em",
-    borderColor: color.textMain,
+    borderColor: color.border,
     borderStyle: "solid",
     fontSize: font.uiBodySmall,
   },

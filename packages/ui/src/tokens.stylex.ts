@@ -1,25 +1,33 @@
 import * as stylex from "@stylexjs/stylex";
 import { blue, blue_rgb } from "./_generated/palette/hues/blue.stylex.ts";
-import { cyan } from "./_generated/palette/hues/cyan.stylex.ts";
 import { gray, gray_rgb } from "./_generated/palette/hues/gray.stylex.ts";
 import { green, green_rgb } from "./_generated/palette/hues/green.stylex.ts";
-import { indigo } from "./_generated/palette/hues/indigo.stylex.ts";
 import { orange, orange_rgb } from "./_generated/palette/hues/orange.stylex.ts";
-import { pink } from "./_generated/palette/hues/pink.stylex.ts";
 import { purple, purple_rgb } from "./_generated/palette/hues/purple.stylex.ts";
 import { red, red_rgb } from "./_generated/palette/hues/red.stylex.ts";
 import { breakpoints } from "./breakpoints.stylex.ts";
 
-// Background tokens are organised by role rather than tone:
+// Colour tokens are named `<property><subject>[<qualifier>][<state>]`:
 //
-// • Page (bgCanvas/bgCanvasSubtle)      — app shell and scaffolding
-// • Surface (bgSurface/Raised/Sunken/Bright) — cards and panels
-// • Interactive (bgInteractive*)        — buttons, list rows, menu items
-// • Intent (surfaceAccent/Info/...)     — tints carrying meaning
-// • Inverse (bgInverse)                 — tooltips and snackbars
-// • Overlay (bgOverlay/bgScrim)         — popovers and modal dim layer
+// • property — `fg`, `bg` or `border`. `fg` is anything drawn on a surface:
+//   text, icons, logos.
+// • subject — a Token Role (`canvas`, `surface`, `control`, or an Intent:
+//   `accent`, `info`, `success`, `warning`, `danger`, `neutral`) or a Material
+//   (`MaterialGlass`). `inverse` and `scrim` are treatments a surface takes,
+//   not Token Roles. `fgOn<X>` is the foreground for `bg<X>`.
+// • qualifier — `subtle` is an Intent's tint; `sunken`, `raised` and `fade`
+//   are a surface's elevation.
+// • state — `hover`, `pressed`, `selected`, `disabled`. Bare is rest.
 //
-// Translucent surfaces compose `rgba()` strings using the `<hue>_rgb` group
+// The bare form is the default: `fg` is body text, `border` the quiet edge,
+// `bgControl` a control at rest, `bgAccent` the solid fill. The foreground on
+// a solid Intent fill is `fgOn<Intent>`; on its tint it is `fg<Intent>`.
+// Neutral is the default Intent, so its foreground and border are `fg` and
+// `border`.
+//
+// The group holds every colour token of the design system.
+//
+// Translucent tokens compose `rgba()` strings from the `<hue>_rgb` group
 // (comma-separated channels per tone). CSS does lexical substitution, so
 // `rgba(var(--gray_rgb_92), 0.4)` evaluates to `rgba(233,232,228, 0.4)` at
 // paint time.
@@ -34,210 +42,196 @@ import { breakpoints } from "./breakpoints.stylex.ts";
 // values themselves, edit `packages/system-palette-codegen/src/system-hues.ts` and run
 // `pnpm codegen:palette`.
 
+// Each Intent's fill and its border share one tone per theme, so a retune
+// cannot split them.
+const lightIntentTone = {
+  accent: purple._40,
+  info: blue._40,
+  success: green._40,
+  warning: orange._40,
+  danger: red._40,
+};
+
+const darkIntentTone = {
+  accent: purple._70,
+  info: blue._70,
+  success: green._70,
+  warning: orange._70,
+  danger: red._70,
+};
+
 const light = {
-  // Text — two levels, measured with APCA against every surface they can
-  // land on (`tokens.contrast.test.ts`). `textMain` clears the Lc 75 body
-  // floor, `textMuted` the Lc 60 non-body floor. Worst case in light is
-  // `bgInteractiveSelected` (gray._90): main 86, muted 65.
+  // Foreground — two levels, measured with APCA against every surface they
+  // can land on (`tokens.contrast.test.ts`). `fg` clears the Lc 75 body floor,
+  // `fgMuted` the Lc 60 non-body floor. Worst case in light is
+  // `bgControlSelected` (gray._90): fg 86, muted 65.
   //
-  // In dark the worst case is `bgInteractiveHover` (gray._13): main 90, muted
-  // 70. The ramp has no tone between _70 and _80, and gray._70 measures only 54
-  // there, so the dark `textMuted` is one tone louder than the light one.
-  textMain: gray._13,
-  textMuted: gray._30,
-  accentOn: gray._100,
-  textOnBright: gray._20,
-  textOnInverse: gray._92,
-  // The scrim is the same black in both themes, so its text is the same white.
-  textOnScrim: gray._100,
-  accentText: purple._20,
-  // Page — app shell, scaffolding behind everything. *Fade is the color
-  // translucent gradients blend toward (consumed via color-mix()).
+  // In dark the worst case is `bgControlHover` (gray._13): fg 90, muted 70.
+  // The ramp has no tone between _70 and _80, and gray._70 measures only 54
+  // there, so the dark `fgMuted` is one tone louder than the light one.
+  fg: gray._13,
+  fgMuted: gray._30,
+  fgOnControlBright: gray._20,
+  fgOnInverse: gray._92,
+  // The scrim is the same black in both themes, so its foreground is the same
+  // white.
+  fgOnScrim: gray._100,
+
+  // Canvas — the app shell behind everything. `Fade` is the colour translucent
+  // gradients blend toward (consumed via color-mix()).
   bgCanvas: gray._97,
-  bgCanvasSubtle: gray._99,
   bgCanvasFade: gray._92,
 
-  // Surface — cards, panels, dialog bodies
+  // Surface — cards, panels, dialog bodies. Raised is also the floating
+  // surface of a menu or a popover, which sits on `layer.raised`.
   bgSurface: gray._100,
-  bgSurfaceRaised: gray._100,
   bgSurfaceSunken: gray._98,
-  bgSurfaceBright: gray._100,
+  bgSurfaceRaised: gray._100,
   bgSurfaceFade: gray._95,
 
-  // Interactive — shared by buttons, list rows, menu items. `…Disabled` is the
-  // one tone that never lands at full strength: it is painted on the same
-  // element as `opacity.disabled`, so what you see is always this tone
-  // composited with whatever sits behind the control.
-  bgInteractiveRest: gray._100,
-  bgInteractiveHover: gray._97,
-  bgInteractivePressed: gray._92,
-  bgInteractiveSelected: gray._90,
-  bgInteractiveDisabled: gray._95,
-
-  // Intent surface tints — alpha is fixed, color comes from the palette.
-  surfaceNeutralSubtle: `rgba(${gray_rgb._30}, 0.12)`,
-  surfaceAccentSubtle: `rgba(${purple_rgb._30}, 0.08)`,
-  surfaceAccentMuted: `rgba(${purple_rgb._30}, 0.16)`,
-  surfaceInfoSubtle: `rgba(${blue_rgb._50}, 0.1)`,
-  surfaceSuccessSubtle: `rgba(${green_rgb._50}, 0.1)`,
-  surfaceWarningSubtle: `rgba(${orange_rgb._50}, 0.12)`,
-  surfaceDangerSubtle: `rgba(${red_rgb._50}, 0.1)`,
-
-  // Inverse — flips theme to grab attention (tooltips, snackbars)
+  // A bright control stays light in both themes (a switch or slider thumb).
+  // Inverse flips the theme (tooltips, snackbars). Scrim dims the page behind
+  // a modal.
+  bgControlBright: gray._100,
   bgInverse: gray._20,
-
-  // Overlay — popover surface + scrim behind modals
-  bgOverlay: gray._100,
   bgScrim: "rgba(0, 0, 0, 0.7)",
 
-  // Glass — a translucent fill over a blur, lit from above: the border colour
-  // is the hairline rim all the way round, the highlight the light on that
-  // rim along the top and bottom edges. Against a light page the rim reads as
-  // a dark edge; against a dark one it is clear, and only the light on it
-  // shows. Together they are what make the surface look like glass, not a
-  // tint.
-  glassFill: `rgba(${gray_rgb._100}, 0.8)`,
-  glassBorder: `rgba(${gray_rgb._0}, 0.3)`,
-  glassHighlight: `rgba(${gray_rgb._100}, 0.6)`,
+  // Control — buttons, list rows, menu items. `Disabled` is the one tone that
+  // never lands at full strength: it is painted on the same element as
+  // `opacity.disabled`, so what you see is always this tone composited with
+  // whatever sits behind the control.
+  bgControl: gray._100,
+  bgControlHover: gray._97,
+  bgControlPressed: gray._92,
+  bgControlSelected: gray._90,
+  bgControlDisabled: gray._95,
 
-  accent: purple._40,
-  accentHover: purple._50,
-  // Accent at ambient-glow strength (was `accent` + a themed opacity token).
-  accentGlow: `rgba(${purple_rgb._30}, 0.1)`,
+  // The quiet default edge, and the neutral Intent's border.
+  border: gray._90,
 
-  // Mid-tone neutrals for chrome / dividers / chips
-  neutral: gray._80,
-  neutralHover: gray._90,
-  neutralText: gray._13,
-  neutralOn: gray._0,
+  // Intents — a solid fill and its hover, a tint (alpha is fixed, colour comes
+  // from the palette), a solid border for rings and selected edges, a
+  // foreground on its own, and a foreground on the solid fill.
+  bgAccent: lightIntentTone.accent,
+  bgAccentHover: purple._50,
+  bgAccentSubtle: `rgba(${purple_rgb._30}, 0.08)`,
+  borderAccent: lightIntentTone.accent,
+  fgAccent: purple._20,
+  fgOnAccent: gray._100,
 
-  // Translucent borders — same recipe as surface*: palette hue + fixed alpha.
-  accentBorder: `rgba(${purple_rgb._80}, 0.4)`,
-  infoBorder: `rgba(${blue_rgb._80}, 0.4)`,
-  successBorder: `rgba(${green_rgb._60}, 0.4)`,
-  warningBorder: `rgba(${orange_rgb._60}, 0.4)`,
-  dangerBorder: `rgba(${red_rgb._70}, 0.4)`,
-  neutralBorder: gray._90,
+  bgInfo: lightIntentTone.info,
+  bgInfoHover: blue._50,
+  bgInfoSubtle: `rgba(${blue_rgb._50}, 0.1)`,
+  borderInfo: lightIntentTone.info,
+  fgInfo: blue._20,
+  fgOnInfo: gray._100,
 
-  // Scrollbar thumb — chrome rather than text, so it only has to clear the
-  // Lc 45 non-text mark (54 on the canvas) and stays lighter than `textMuted`.
-  scrollbarThumb: gray._60,
+  bgSuccess: lightIntentTone.success,
+  bgSuccessHover: green._50,
+  bgSuccessSubtle: `rgba(${green_rgb._50}, 0.1)`,
+  borderSuccess: lightIntentTone.success,
+  fgSuccess: green._20,
+  fgOnSuccess: gray._100,
 
-  // Intent colors — bold (foreground), hover (interactive lift), text, on
-  info: blue._40,
-  infoHover: blue._50,
-  infoText: blue._20,
-  infoOn: gray._100,
-  success: green._40,
-  successHover: green._50,
-  successText: green._20,
-  successOn: gray._100,
-  warning: orange._40,
-  warningHover: orange._50,
-  warningText: orange._20,
-  warningOn: gray._100,
-  danger: red._40,
-  dangerHover: red._50,
-  dangerText: red._30,
-  dangerOn: gray._100,
-  // Brand colors — nearest system-palette swatch. External brands (Spotify,
-  // TMDB, etc.) get the closest match; minor drift from each brand's exact
-  // identity color is accepted in exchange for palette consistency.
-  brandTmdb: cyan._60,
-  brandCalculator: orange._50,
-  brandCitadel: indigo._30,
-  brandWtcPlus: pink._60,
-  brandWtcLetter: indigo._40,
-  brandBristol: pink._30,
-  brandNottingham: cyan._30,
-  brandSpotify: green._60,
-  brandStudentLoan: green._50,
-  brandPixelCreatureCreator: purple._50,
+  bgWarning: lightIntentTone.warning,
+  bgWarningHover: orange._50,
+  bgWarningSubtle: `rgba(${orange_rgb._50}, 0.12)`,
+  borderWarning: lightIntentTone.warning,
+  fgWarning: orange._20,
+  fgOnWarning: gray._100,
+
+  bgDanger: lightIntentTone.danger,
+  bgDangerHover: red._50,
+  bgDangerSubtle: `rgba(${red_rgb._50}, 0.1)`,
+  borderDanger: lightIntentTone.danger,
+  fgDanger: red._30,
+  fgOnDanger: gray._100,
+
+  // Mid-tone neutrals for chrome, tracks and chips. Neutral's foreground and
+  // border are `fg` and `border`.
+  bgNeutral: gray._80,
+  bgNeutralHover: gray._90,
+  bgNeutralSubtle: `rgba(${gray_rgb._30}, 0.12)`,
+  fgOnNeutral: gray._0,
+
+  // Glass — the translucent fill over the blur, the hairline rim all the way
+  // round, and the light on that rim. Against a light page the rim reads as a
+  // dark edge; against a dark one it is clear, and only the light on it shows.
+  bgMaterialGlass: `rgba(${gray_rgb._100}, 0.8)`,
+  borderMaterialGlass: `rgba(${gray_rgb._0}, 0.3)`,
+  borderMaterialGlassHighlight: `rgba(${gray_rgb._100}, 0.6)`,
 };
 
 const dark: { [key in keyof typeof light]: string } = {
-  textMain: gray._92,
-  textMuted: gray._80,
-  accentOn: gray._0,
-  textOnBright: gray._0,
-  textOnInverse: gray._20,
-  textOnScrim: gray._100,
-  accentText: purple._95,
+  fg: gray._92,
+  fgMuted: gray._80,
+  fgOnControlBright: gray._0,
+  fgOnInverse: gray._20,
+  fgOnScrim: gray._100,
+
   bgCanvas: gray._0,
-  bgCanvasSubtle: gray._2,
   bgCanvasFade: gray._0,
 
   bgSurface: gray._5,
-  bgSurfaceRaised: gray._7,
   bgSurfaceSunken: gray._2,
-  bgSurfaceBright: gray._80,
+  bgSurfaceRaised: gray._7,
   bgSurfaceFade: gray._5,
 
-  bgInteractiveRest: gray._7,
-  bgInteractiveHover: gray._13,
-  bgInteractivePressed: gray._11,
-  bgInteractiveSelected: gray._9,
-  bgInteractiveDisabled: gray._5,
-
-  surfaceNeutralSubtle: `rgba(${gray_rgb._70}, 0.14)`,
-  surfaceAccentSubtle: `rgba(${purple_rgb._100}, 0.12)`,
-  surfaceAccentMuted: `rgba(${purple_rgb._80}, 0.2)`,
-  surfaceInfoSubtle: `rgba(${blue_rgb._100}, 0.14)`,
-  surfaceSuccessSubtle: `rgba(${green_rgb._100}, 0.14)`,
-  surfaceWarningSubtle: `rgba(${orange_rgb._100}, 0.16)`,
-  surfaceDangerSubtle: `rgba(${red_rgb._100}, 0.14)`,
+  bgControlBright: gray._80,
   bgInverse: gray._92,
-  bgOverlay: gray._7,
   bgScrim: "rgba(0, 0, 0, 0.7)",
 
-  glassFill: `rgba(${gray_rgb._100}, 0.12)`,
-  glassBorder: "transparent",
-  glassHighlight: `rgba(${gray_rgb._100}, 0.25)`,
+  bgControl: gray._7,
+  bgControlHover: gray._13,
+  bgControlPressed: gray._11,
+  bgControlSelected: gray._9,
+  bgControlDisabled: gray._5,
 
-  accent: purple._70,
-  accentHover: purple._80,
-  accentGlow: `rgba(${purple_rgb._50}, 0.2)`,
+  border: gray._13,
 
-  neutral: gray._20,
-  neutralHover: gray._30,
-  neutralText: gray._92,
-  neutralOn: gray._100,
+  bgAccent: darkIntentTone.accent,
+  bgAccentHover: purple._80,
+  bgAccentSubtle: `rgba(${purple_rgb._100}, 0.12)`,
+  borderAccent: darkIntentTone.accent,
+  fgAccent: purple._95,
+  fgOnAccent: gray._0,
 
-  accentBorder: `rgba(${purple_rgb._50}, 0.4)`,
-  infoBorder: `rgba(${blue_rgb._50}, 0.4)`,
-  successBorder: `rgba(${green_rgb._70}, 0.4)`,
-  warningBorder: `rgba(${orange_rgb._70}, 0.4)`,
-  dangerBorder: `rgba(${red_rgb._60}, 0.4)`,
-  neutralBorder: gray._13,
-  // Two tones under the dark `textMuted`; gray._60 read as too bright.
-  scrollbarThumb: gray._50,
+  bgInfo: darkIntentTone.info,
+  bgInfoHover: blue._80,
+  bgInfoSubtle: `rgba(${blue_rgb._100}, 0.14)`,
+  borderInfo: darkIntentTone.info,
+  fgInfo: blue._95,
+  fgOnInfo: gray._0,
 
-  info: blue._70,
-  infoHover: blue._80,
-  infoText: blue._95,
-  infoOn: gray._0,
-  success: green._70,
-  successHover: green._80,
-  successText: green._90,
-  successOn: gray._0,
-  warning: orange._70,
-  warningHover: orange._80,
-  warningText: orange._90,
-  warningOn: gray._0,
-  danger: red._70,
-  dangerHover: red._80,
-  dangerText: red._80,
-  dangerOn: gray._0,
-  brandTmdb: cyan._70,
-  brandCalculator: orange._50,
-  brandCitadel: indigo._70,
-  brandWtcPlus: pink._60,
-  brandWtcLetter: indigo._70,
-  brandBristol: pink._50,
-  brandNottingham: cyan._60,
-  brandSpotify: green._60,
-  brandStudentLoan: green._60,
-  brandPixelCreatureCreator: purple._70,
+  bgSuccess: darkIntentTone.success,
+  bgSuccessHover: green._80,
+  bgSuccessSubtle: `rgba(${green_rgb._100}, 0.14)`,
+  borderSuccess: darkIntentTone.success,
+  fgSuccess: green._90,
+  fgOnSuccess: gray._0,
+
+  bgWarning: darkIntentTone.warning,
+  bgWarningHover: orange._80,
+  bgWarningSubtle: `rgba(${orange_rgb._100}, 0.16)`,
+  borderWarning: darkIntentTone.warning,
+  fgWarning: orange._90,
+  fgOnWarning: gray._0,
+
+  bgDanger: darkIntentTone.danger,
+  bgDangerHover: red._80,
+  bgDangerSubtle: `rgba(${red_rgb._100}, 0.14)`,
+  borderDanger: darkIntentTone.danger,
+  fgDanger: red._80,
+  fgOnDanger: gray._0,
+
+  bgNeutral: gray._20,
+  bgNeutralHover: gray._30,
+  bgNeutralSubtle: `rgba(${gray_rgb._70}, 0.14)`,
+  fgOnNeutral: gray._100,
+
+  bgMaterialGlass: `rgba(${gray_rgb._100}, 0.12)`,
+  borderMaterialGlass: "transparent",
+  borderMaterialGlassHighlight: `rgba(${gray_rgb._100}, 0.25)`,
 };
 
 const NO_CORNER_SHAPE = "@supports not (corner-shape: squircle)";
@@ -252,91 +246,75 @@ export const layout = stylex.defineConsts({
 });
 
 export const color = stylex.defineVars({
-  textMain: `light-dark(${light.textMain}, ${dark.textMain})`,
-  textMuted: `light-dark(${light.textMuted}, ${dark.textMuted})`,
-  accentOn: `light-dark(${light.accentOn}, ${dark.accentOn})`,
-  textOnBright: `light-dark(${light.textOnBright}, ${dark.textOnBright})`,
-  textOnInverse: `light-dark(${light.textOnInverse}, ${dark.textOnInverse})`,
-  textOnScrim: `light-dark(${light.textOnScrim}, ${dark.textOnScrim})`,
-  accentText: `light-dark(${light.accentText}, ${dark.accentText})`,
+  fg: `light-dark(${light.fg}, ${dark.fg})`,
+  fgMuted: `light-dark(${light.fgMuted}, ${dark.fgMuted})`,
+  fgOnControlBright: `light-dark(${light.fgOnControlBright}, ${dark.fgOnControlBright})`,
+  fgOnInverse: `light-dark(${light.fgOnInverse}, ${dark.fgOnInverse})`,
+  fgOnScrim: `light-dark(${light.fgOnScrim}, ${dark.fgOnScrim})`,
 
   bgCanvas: `light-dark(${light.bgCanvas}, ${dark.bgCanvas})`,
-  bgCanvasSubtle: `light-dark(${light.bgCanvasSubtle}, ${dark.bgCanvasSubtle})`,
   bgCanvasFade: `light-dark(${light.bgCanvasFade}, ${dark.bgCanvasFade})`,
 
   bgSurface: `light-dark(${light.bgSurface}, ${dark.bgSurface})`,
-  bgSurfaceRaised: `light-dark(${light.bgSurfaceRaised}, ${dark.bgSurfaceRaised})`,
   bgSurfaceSunken: `light-dark(${light.bgSurfaceSunken}, ${dark.bgSurfaceSunken})`,
-  bgSurfaceBright: `light-dark(${light.bgSurfaceBright}, ${dark.bgSurfaceBright})`,
+  bgSurfaceRaised: `light-dark(${light.bgSurfaceRaised}, ${dark.bgSurfaceRaised})`,
   bgSurfaceFade: `light-dark(${light.bgSurfaceFade}, ${dark.bgSurfaceFade})`,
 
-  bgInteractiveRest: `light-dark(${light.bgInteractiveRest}, ${dark.bgInteractiveRest})`,
-  bgInteractiveHover: `light-dark(${light.bgInteractiveHover}, ${dark.bgInteractiveHover})`,
-  bgInteractivePressed: `light-dark(${light.bgInteractivePressed}, ${dark.bgInteractivePressed})`,
-  bgInteractiveSelected: `light-dark(${light.bgInteractiveSelected}, ${dark.bgInteractiveSelected})`,
-  bgInteractiveDisabled: `light-dark(${light.bgInteractiveDisabled}, ${dark.bgInteractiveDisabled})`,
-
-  surfaceNeutralSubtle: `light-dark(${light.surfaceNeutralSubtle}, ${dark.surfaceNeutralSubtle})`,
-  surfaceAccentSubtle: `light-dark(${light.surfaceAccentSubtle}, ${dark.surfaceAccentSubtle})`,
-  surfaceAccentMuted: `light-dark(${light.surfaceAccentMuted}, ${dark.surfaceAccentMuted})`,
-  surfaceInfoSubtle: `light-dark(${light.surfaceInfoSubtle}, ${dark.surfaceInfoSubtle})`,
-  surfaceSuccessSubtle: `light-dark(${light.surfaceSuccessSubtle}, ${dark.surfaceSuccessSubtle})`,
-  surfaceWarningSubtle: `light-dark(${light.surfaceWarningSubtle}, ${dark.surfaceWarningSubtle})`,
-  surfaceDangerSubtle: `light-dark(${light.surfaceDangerSubtle}, ${dark.surfaceDangerSubtle})`,
-
+  bgControlBright: `light-dark(${light.bgControlBright}, ${dark.bgControlBright})`,
   bgInverse: `light-dark(${light.bgInverse}, ${dark.bgInverse})`,
-
-  bgOverlay: `light-dark(${light.bgOverlay}, ${dark.bgOverlay})`,
   bgScrim: `light-dark(${light.bgScrim}, ${dark.bgScrim})`,
 
-  glassFill: `light-dark(${light.glassFill}, ${dark.glassFill})`,
-  glassBorder: `light-dark(${light.glassBorder}, ${dark.glassBorder})`,
-  glassHighlight: `light-dark(${light.glassHighlight}, ${dark.glassHighlight})`,
+  bgControl: `light-dark(${light.bgControl}, ${dark.bgControl})`,
+  bgControlHover: `light-dark(${light.bgControlHover}, ${dark.bgControlHover})`,
+  bgControlPressed: `light-dark(${light.bgControlPressed}, ${dark.bgControlPressed})`,
+  bgControlSelected: `light-dark(${light.bgControlSelected}, ${dark.bgControlSelected})`,
+  bgControlDisabled: `light-dark(${light.bgControlDisabled}, ${dark.bgControlDisabled})`,
 
-  accent: `light-dark(${light.accent}, ${dark.accent})`,
-  accentHover: `light-dark(${light.accentHover}, ${dark.accentHover})`,
-  accentGlow: `light-dark(${light.accentGlow}, ${dark.accentGlow})`,
+  border: `light-dark(${light.border}, ${dark.border})`,
 
-  neutral: `light-dark(${light.neutral}, ${dark.neutral})`,
-  neutralHover: `light-dark(${light.neutralHover}, ${dark.neutralHover})`,
-  neutralText: `light-dark(${light.neutralText}, ${dark.neutralText})`,
-  neutralOn: `light-dark(${light.neutralOn}, ${dark.neutralOn})`,
+  bgAccent: `light-dark(${light.bgAccent}, ${dark.bgAccent})`,
+  bgAccentHover: `light-dark(${light.bgAccentHover}, ${dark.bgAccentHover})`,
+  bgAccentSubtle: `light-dark(${light.bgAccentSubtle}, ${dark.bgAccentSubtle})`,
+  borderAccent: `light-dark(${light.borderAccent}, ${dark.borderAccent})`,
+  fgAccent: `light-dark(${light.fgAccent}, ${dark.fgAccent})`,
+  fgOnAccent: `light-dark(${light.fgOnAccent}, ${dark.fgOnAccent})`,
 
-  accentBorder: `light-dark(${light.accentBorder}, ${dark.accentBorder})`,
-  infoBorder: `light-dark(${light.infoBorder}, ${dark.infoBorder})`,
-  successBorder: `light-dark(${light.successBorder}, ${dark.successBorder})`,
-  warningBorder: `light-dark(${light.warningBorder}, ${dark.warningBorder})`,
-  dangerBorder: `light-dark(${light.dangerBorder}, ${dark.dangerBorder})`,
-  neutralBorder: `light-dark(${light.neutralBorder}, ${dark.neutralBorder})`,
-  scrollbarThumb: `light-dark(${light.scrollbarThumb}, ${dark.scrollbarThumb})`,
+  bgInfo: `light-dark(${light.bgInfo}, ${dark.bgInfo})`,
+  bgInfoHover: `light-dark(${light.bgInfoHover}, ${dark.bgInfoHover})`,
+  bgInfoSubtle: `light-dark(${light.bgInfoSubtle}, ${dark.bgInfoSubtle})`,
+  borderInfo: `light-dark(${light.borderInfo}, ${dark.borderInfo})`,
+  fgInfo: `light-dark(${light.fgInfo}, ${dark.fgInfo})`,
+  fgOnInfo: `light-dark(${light.fgOnInfo}, ${dark.fgOnInfo})`,
 
-  info: `light-dark(${light.info}, ${dark.info})`,
-  infoHover: `light-dark(${light.infoHover}, ${dark.infoHover})`,
-  infoText: `light-dark(${light.infoText}, ${dark.infoText})`,
-  infoOn: `light-dark(${light.infoOn}, ${dark.infoOn})`,
-  success: `light-dark(${light.success}, ${dark.success})`,
-  successHover: `light-dark(${light.successHover}, ${dark.successHover})`,
-  successText: `light-dark(${light.successText}, ${dark.successText})`,
-  successOn: `light-dark(${light.successOn}, ${dark.successOn})`,
-  warning: `light-dark(${light.warning}, ${dark.warning})`,
-  warningHover: `light-dark(${light.warningHover}, ${dark.warningHover})`,
-  warningText: `light-dark(${light.warningText}, ${dark.warningText})`,
-  warningOn: `light-dark(${light.warningOn}, ${dark.warningOn})`,
-  danger: `light-dark(${light.danger}, ${dark.danger})`,
-  dangerHover: `light-dark(${light.dangerHover}, ${dark.dangerHover})`,
-  dangerText: `light-dark(${light.dangerText}, ${dark.dangerText})`,
-  dangerOn: `light-dark(${light.dangerOn}, ${dark.dangerOn})`,
+  bgSuccess: `light-dark(${light.bgSuccess}, ${dark.bgSuccess})`,
+  bgSuccessHover: `light-dark(${light.bgSuccessHover}, ${dark.bgSuccessHover})`,
+  bgSuccessSubtle: `light-dark(${light.bgSuccessSubtle}, ${dark.bgSuccessSubtle})`,
+  borderSuccess: `light-dark(${light.borderSuccess}, ${dark.borderSuccess})`,
+  fgSuccess: `light-dark(${light.fgSuccess}, ${dark.fgSuccess})`,
+  fgOnSuccess: `light-dark(${light.fgOnSuccess}, ${dark.fgOnSuccess})`,
 
-  brandTmdb: `light-dark(${light.brandTmdb}, ${dark.brandTmdb})`,
-  brandCalculator: `light-dark(${light.brandCalculator}, ${dark.brandCalculator})`,
-  brandCitadel: `light-dark(${light.brandCitadel}, ${dark.brandCitadel})`,
-  brandWtcPlus: `light-dark(${light.brandWtcPlus}, ${dark.brandWtcPlus})`,
-  brandWtcLetter: `light-dark(${light.brandWtcLetter}, ${dark.brandWtcLetter})`,
-  brandBristol: `light-dark(${light.brandBristol}, ${dark.brandBristol})`,
-  brandNottingham: `light-dark(${light.brandNottingham}, ${dark.brandNottingham})`,
-  brandSpotify: `light-dark(${light.brandSpotify}, ${dark.brandSpotify})`,
-  brandStudentLoan: `light-dark(${light.brandStudentLoan}, ${dark.brandStudentLoan})`,
-  brandPixelCreatureCreator: `light-dark(${light.brandPixelCreatureCreator}, ${dark.brandPixelCreatureCreator})`,
+  bgWarning: `light-dark(${light.bgWarning}, ${dark.bgWarning})`,
+  bgWarningHover: `light-dark(${light.bgWarningHover}, ${dark.bgWarningHover})`,
+  bgWarningSubtle: `light-dark(${light.bgWarningSubtle}, ${dark.bgWarningSubtle})`,
+  borderWarning: `light-dark(${light.borderWarning}, ${dark.borderWarning})`,
+  fgWarning: `light-dark(${light.fgWarning}, ${dark.fgWarning})`,
+  fgOnWarning: `light-dark(${light.fgOnWarning}, ${dark.fgOnWarning})`,
+
+  bgDanger: `light-dark(${light.bgDanger}, ${dark.bgDanger})`,
+  bgDangerHover: `light-dark(${light.bgDangerHover}, ${dark.bgDangerHover})`,
+  bgDangerSubtle: `light-dark(${light.bgDangerSubtle}, ${dark.bgDangerSubtle})`,
+  borderDanger: `light-dark(${light.borderDanger}, ${dark.borderDanger})`,
+  fgDanger: `light-dark(${light.fgDanger}, ${dark.fgDanger})`,
+  fgOnDanger: `light-dark(${light.fgOnDanger}, ${dark.fgOnDanger})`,
+
+  bgNeutral: `light-dark(${light.bgNeutral}, ${dark.bgNeutral})`,
+  bgNeutralHover: `light-dark(${light.bgNeutralHover}, ${dark.bgNeutralHover})`,
+  bgNeutralSubtle: `light-dark(${light.bgNeutralSubtle}, ${dark.bgNeutralSubtle})`,
+  fgOnNeutral: `light-dark(${light.fgOnNeutral}, ${dark.fgOnNeutral})`,
+
+  bgMaterialGlass: `light-dark(${light.bgMaterialGlass}, ${dark.bgMaterialGlass})`,
+  borderMaterialGlass: `light-dark(${light.borderMaterialGlass}, ${dark.borderMaterialGlass})`,
+  borderMaterialGlassHighlight: `light-dark(${light.borderMaterialGlassHighlight}, ${dark.borderMaterialGlassHighlight})`,
 });
 
 export const font = stylex.defineVars({

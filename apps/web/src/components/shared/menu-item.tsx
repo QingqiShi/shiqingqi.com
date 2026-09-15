@@ -59,9 +59,9 @@ export function MenuItem({
 
 const styles = stylex.create({
   item: {
-    color: { default: color.textMain, ":hover": color.textMuted },
+    color: { default: color.fg, ":hover": color.fgMuted },
     fontWeight: font.weight_6,
-    backgroundColor: { default: null, ":hover": color.bgInteractiveHover },
+    backgroundColor: { default: null, ":hover": color.bgControlHover },
     fontSize: controlSize._4,
     gap: controlSize._5,
     height: controlSize._9,
@@ -70,8 +70,8 @@ const styles = stylex.create({
     transition: "background-color 0.2s",
   },
   itemActive: {
-    color: color.accentOn,
-    backgroundColor: color.accent,
+    color: color.fgOnAccent,
+    backgroundColor: color.bgAccent,
     pointerEvents: "none",
   },
 });

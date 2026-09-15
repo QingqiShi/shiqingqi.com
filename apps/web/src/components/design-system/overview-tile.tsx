@@ -133,7 +133,7 @@ const styles = stylex.create({
     zIndex: 3,
     fontSize: font.uiHeading3,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
     textDecoration: "none",
     // The element's own outline is declared solid-and-transparent purely to
     // suppress the UA focus ring, the same way `cardSurface.interactive` and
@@ -157,13 +157,13 @@ const styles = stylex.create({
     },
     outlineColor: {
       default: "transparent",
-      ":focus-visible": { "::after": color.accent },
+      ":focus-visible": { "::after": color.bgAccent },
     },
   },
   description: {
     zIndex: 1,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_4,
   },
   // A sunken plate, inset within the card's padding: a fill and a radius, no
@@ -247,7 +247,7 @@ const styles = stylex.create({
       },
     },
     // 0.9, not the deeper fade this started at: the specimens render real text,
-    // and compositing `textMuted` at 0.62 over the sunken plate lands at 2.71:1
+    // and compositing `fgMuted` at 0.62 over the sunken plate lands at 2.71:1
     // in the light theme, well under the 4.5:1 floor. At 0.9 it clears (4.89:1)
     // and greyscale carries the recession, which it was doing most of anyway.
     // Anything lower here has to be checked against light-theme muted text on

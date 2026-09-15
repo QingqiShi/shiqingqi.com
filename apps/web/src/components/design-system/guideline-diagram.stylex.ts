@@ -25,7 +25,7 @@ export const guidelineDiagram = stylex.create({
     padding: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   clip: {

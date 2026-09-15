@@ -213,6 +213,6 @@ const styles = stylex.create({
       default: "rgba(0, 0, 0, 0.5)",
       ":hover": color.bgScrim,
     },
-    color: color.textOnScrim,
+    color: color.fgOnScrim,
   },
 });

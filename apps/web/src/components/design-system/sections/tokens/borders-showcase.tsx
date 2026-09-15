@@ -169,12 +169,12 @@ const styles = stylex.create({
     gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
     gap: space._3,
   },
-  // Border-width specimen: a real border at the token thickness, on a surface
-  // fill so the rule reads against its ground.
+  // Border-width specimen: a real border at the token thickness, in the default
+  // border colour, on a surface fill so the rule reads against its ground.
   widthSwatch: {
     blockSize: "56px",
     borderStyle: "solid",
-    borderColor: color.textMuted,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   w1: { borderWidth: border.size_1 },
@@ -185,8 +185,8 @@ const styles = stylex.create({
   // Radius specimen: a filled tile whose corner is rounded at the true radius.
   radiusSwatch: {
     blockSize: "80px",
-    backgroundColor: color.surfaceAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
   useRow: {
     display: "grid",
@@ -207,10 +207,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   useCard: {
     display: "flex",
@@ -220,17 +220,17 @@ const styles = stylex.create({
     paddingInline: space._3,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   useCardTitle: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
   },
   useCardBody: {
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   usePillRow: {
     display: "flex",
@@ -243,8 +243,8 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._0,
     paddingInline: space._3,
-    backgroundColor: color.surfaceAccentSubtle,
-    color: color.accentText,
+    backgroundColor: color.bgAccentSubtle,
+    color: color.fgAccent,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
   },
@@ -254,15 +254,15 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: space._7,
     blockSize: space._7,
-    backgroundColor: color.accent,
-    color: color.accentOn,
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
     fontSize: font.uiCaption,
     fontWeight: font.weight_7,
   },
   useToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   // Do panel: a card that carries its status through a badge, not a stripe.
   doCard: {
@@ -273,22 +273,22 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   doBadge: {
     display: "inline-flex",
     alignItems: "center",
     paddingBlock: space._00,
     paddingInline: space._1,
-    backgroundColor: color.surfaceAccentSubtle,
-    color: color.accentText,
+    backgroundColor: color.bgAccentSubtle,
+    color: color.fgAccent,
     fontSize: font.uiOverline,
     fontWeight: font.weight_6,
     flexShrink: 0,
   },
   doCardText: {
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
   },
   // Don't panel: the banned pattern, shown so the guidance is concrete.
   dontCard: {
@@ -299,19 +299,19 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     overflow: "hidden",
   },
   dontBar: {
     inlineSize: space._0,
     alignSelf: "stretch",
     minBlockSize: space._5,
-    backgroundColor: color.accent,
+    backgroundColor: color.bgAccent,
     flexShrink: 0,
   },
   dontCardText: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });
 

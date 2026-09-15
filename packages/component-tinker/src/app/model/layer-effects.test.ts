@@ -38,11 +38,11 @@ const PRESETS: Catalogue["presets"] = Object.fromEntries(
 );
 
 const REFS: Record<string, string> = {
-  "color.glassFill": "var(--glass-fill)",
-  "color.glassBorder": "var(--glass-border)",
-  "color.glassHighlight": "var(--glass-highlight)",
-  "color.neutralBorder": "var(--neutral-border)",
-  "color.surfaceAccentSubtle": "var(--surface-accent-subtle)",
+  "color.bgMaterialGlass": "var(--glass-fill)",
+  "color.borderMaterialGlass": "var(--glass-border)",
+  "color.borderMaterialGlassHighlight": "var(--glass-highlight)",
+  "color.border": "var(--neutral-border)",
+  "color.bgAccentSubtle": "var(--surface-accent-subtle)",
   "space._1": "var(--space-1)",
   "space._3": "var(--space-3)",
   "textureTokens.pitch": "var(--pitch)",
@@ -78,11 +78,11 @@ describe("parseGlass / formatGlass", () => {
     if (glass === undefined)
       throw new Error("Expected GLASS_DEFAULT to parse.");
     expect(glass).toEqual({
-      fill: "color.glassFill",
+      fill: "color.bgMaterialGlass",
       fillOpacity: 100,
-      border: "color.glassBorder",
+      border: "color.borderMaterialGlass",
       borderOpacity: 100,
-      highlight: "color.glassHighlight",
+      highlight: "color.borderMaterialGlassHighlight",
       highlightOpacity: 100,
       radius: 8,
     });
@@ -91,15 +91,15 @@ describe("parseGlass / formatGlass", () => {
 
   it("round-trips a value with reduced opacities and a different radius", () => {
     const value =
-      "color.glassFill 80% color.glassBorder 60% color.glassHighlight 40% radius 16px";
+      "color.bgMaterialGlass 80% color.borderMaterialGlass 60% color.borderMaterialGlassHighlight 40% radius 16px";
     const glass = parseGlass(value);
     if (glass === undefined) throw new Error("Expected the value to parse.");
     expect(glass).toEqual({
-      fill: "color.glassFill",
+      fill: "color.bgMaterialGlass",
       fillOpacity: 80,
-      border: "color.glassBorder",
+      border: "color.borderMaterialGlass",
       borderOpacity: 60,
-      highlight: "color.glassHighlight",
+      highlight: "color.borderMaterialGlassHighlight",
       highlightOpacity: 40,
       radius: 16,
     });
@@ -108,7 +108,7 @@ describe("parseGlass / formatGlass", () => {
 
   it("round-trips a value with the blur off", () => {
     const value =
-      "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius off";
+      "color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius off";
     const glass = parseGlass(value);
     if (glass === undefined) throw new Error("Expected the value to parse.");
     expect(glass.radius).toBe("off");
@@ -118,15 +118,15 @@ describe("parseGlass / formatGlass", () => {
 
 describe("parseWash", () => {
   it("reads a member name", () => {
-    expect(parseWash("color.surfaceAccentSubtle toBottom")).toEqual({
-      color: "color.surfaceAccentSubtle",
+    expect(parseWash("color.bgAccentSubtle toBottom")).toEqual({
+      color: "color.bgAccentSubtle",
       direction: "toBottom",
     });
   });
 
   it("takes the spelling an older snapshot saved", () => {
-    expect(parseWash("color.surfaceAccentSubtle to-bottom")).toEqual({
-      color: "color.surfaceAccentSubtle",
+    expect(parseWash("color.bgAccentSubtle to-bottom")).toEqual({
+      color: "color.bgAccentSubtle",
       direction: "toBottom",
     });
   });
@@ -139,7 +139,7 @@ describe("parseWash", () => {
       cells: [],
     });
     store.hydrate({
-      toggles: { track: { wash: "color.surfaceAccentSubtle to-bottom" } },
+      toggles: { track: { wash: "color.bgAccentSubtle to-bottom" } },
     });
     const style = effectStyle(layerEffects(store, "track"), index);
     expect(style?.classNames).toEqual(["c-wash-toBottom"]);
@@ -150,7 +150,7 @@ describe("parseWash", () => {
 describe("effectStyle for texture and wash", () => {
   it("draws the mark on a box of its own with the picked dials", () => {
     const style = effectStyle(
-      { texture: parseTexture("dot space._3 color.neutralBorder") },
+      { texture: parseTexture("dot space._3 color.border") },
       index,
     );
     expect(style?.texture).toEqual({
@@ -171,7 +171,7 @@ describe("effectStyle for texture and wash", () => {
 
   it("overrides the wider pitch the line mark carries", () => {
     const style = effectStyle(
-      { texture: parseTexture("line space._1 color.neutralBorder") },
+      { texture: parseTexture("line space._1 color.border") },
       index,
     );
     expect(style?.texture?.className).toBe("c-texture-line");
@@ -181,8 +181,8 @@ describe("effectStyle for texture and wash", () => {
   it("stacks the texture over the wash: one on the layer, one on its box", () => {
     const style = effectStyle(
       {
-        texture: parseTexture("dot space._1 color.neutralBorder"),
-        wash: parseWash("color.surfaceAccentSubtle toBottom"),
+        texture: parseTexture("dot space._1 color.border"),
+        wash: parseWash("color.bgAccentSubtle toBottom"),
       },
       index,
     );
@@ -213,7 +213,7 @@ describe("effectStyle for glass", () => {
     const style = effectStyle(
       {
         glass: parseGlass(
-          "color.glassFill 80% color.glassBorder 100% color.glassHighlight 100% radius 8px",
+          "color.bgMaterialGlass 80% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius 8px",
         ),
       },
       index,
@@ -227,7 +227,7 @@ describe("effectStyle for glass", () => {
     const style = effectStyle(
       {
         glass: parseGlass(
-          "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius off",
+          "color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius off",
         ),
       },
       index,
@@ -239,7 +239,7 @@ describe("effectStyle for glass", () => {
     const style = effectStyle(
       {
         glass: parseGlass(
-          "color.glassFill 100% color.glassBorder 100% color.glassHighlight 100% radius 24px",
+          "color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius 24px",
         ),
       },
       index,

@@ -67,7 +67,7 @@ export const scrollX = stylex.create({
   focusRing: {
     outline: {
       default: "none",
-      ":focus-visible": `${border.size_2} solid ${color.accent}`,
+      ":focus-visible": `${border.size_2} solid ${color.borderAccent}`,
     },
     outlineOffset: { default: null, ":focus-visible": border.size_2 },
     borderRadius: border.radius_2,
@@ -95,7 +95,8 @@ export const scrollY = stylex.create({
 // and a transparent thumb would hide even the platform's while-scrolling
 // indicator. On a pure-pointer device the thumb is transparent at rest and
 // reveals on pointer hover or keyboard `:focus-within`, using the low-contrast
-// `scrollbarThumb` token (softer than `textMuted`, ~3:1 either theme).
+// `color.bgNeutral` (softer than `color.fgMuted`; against `bgCanvas` that's
+// about 1.3:1 in light and 2.1:1 in dark).
 //
 // `:focus-within`, not `:has(:focus-visible)`: `:has()` only shipped in Firefox
 // 121, below this package's Firefox 120 floor (see README). The cost is that
@@ -135,8 +136,8 @@ export const scrollbar = stylex.create({
       default: "auto",
       [NON_TOUCH_DEVICE]: {
         default: "transparent transparent",
-        ":hover": `${color.scrollbarThumb} transparent`,
-        ":focus-within": `${color.scrollbarThumb} transparent`,
+        ":hover": `${color.bgNeutral} transparent`,
+        ":focus-within": `${color.bgNeutral} transparent`,
       },
     },
   },

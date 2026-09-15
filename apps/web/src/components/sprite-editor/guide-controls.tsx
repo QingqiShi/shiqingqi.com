@@ -94,7 +94,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingSnug,
-    color: color.textMain,
+    color: color.fg,
   },
   toggles: {
     display: "flex",
@@ -109,16 +109,16 @@ const styles = stylex.create({
     paddingInline: space._2,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: color.textMuted,
+    color: color.fgMuted,
     backgroundColor: color.bgSurfaceSunken,
     cursor: "pointer",
   },
   toggleChecked: {
-    color: color.textMain,
-    backgroundColor: color.surfaceAccentSubtle,
+    color: color.fg,
+    backgroundColor: color.bgAccentSubtle,
   },
   checkbox: {
-    accentColor: color.accent,
+    accentColor: color.bgAccent,
     cursor: "pointer",
   },
 });

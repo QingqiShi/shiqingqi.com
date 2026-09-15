@@ -221,12 +221,12 @@ const styles = stylex.create({
   ratingBadge: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   countBadge: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: color.textMuted,
+    color: color.fgMuted,
     backgroundColor: color.bgSurface,
     paddingInline: space._1,
     paddingBlock: space._00,
@@ -242,7 +242,7 @@ const styles = stylex.create({
     paddingTop: space._2,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
-    borderTopColor: color.neutralBorder,
+    borderTopColor: color.border,
   },
   levelButtons: {
     gap: space._1,
@@ -259,26 +259,26 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: "transparent",
-    color: color.textMuted,
+    color: color.fgMuted,
     fontSize: font.uiBodySmall,
     transition:
       "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
   },
   levelButtonCurrent: {
-    backgroundColor: color.accent,
-    color: color.accentOn,
-    borderColor: color.accent,
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
+    borderColor: color.borderAccent,
   },
   levelButtonSelected: {
-    borderColor: color.accent,
-    color: color.accent,
-    backgroundColor: color.bgInteractiveSelected,
+    borderColor: color.borderAccent,
+    color: color.fgAccent,
+    backgroundColor: color.bgControlSelected,
   },
   selectedLabel: {
     margin: 0,
     marginTop: space._1,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     textAlign: "center",
   },
 });
